@@ -12,126 +12,206 @@ using MagnumOpus.Content.LaCampanella.Debuffs;
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator.Projectiles
 {
     /// <summary>
-    /// Grand Crescendo Wave  Emassive AoE explosion triggered every 3rd volley completion.
-    /// Expanding ring of divine fire that damages all enemies in massive radius.
+    /// Grand Crescendo Wave — slow-moving bell-shaped shockwave that expands as it travels.
+    /// Pierces enemies but slows on each pierce. Empowered by Grand Crescendo buff stacks.
+    /// ai[0] = 0 for normal wave, 1 for Symphonic Overture (ignores pierce slowdown, triple width).
+    /// ai[1] = Grand Crescendo stack count (for size scaling).
     /// </summary>
     public class GrandCrescendoWaveProj : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow";
 
-        private const int Duration = 40;
-        private const float MaxRadius = 400f;
+        private bool IsSymphonicOverture => Projectile.ai[0] >= 1f;
+        private int CrescendoStacks => (int)Projectile.ai[1];
+
+        private float _baseWidth = 60f;
+        private float _currentWidth;
+        private int _pierceCount;
+        private bool _initialized;
 
         public override void SetDefaults()
         {
-            Projectile.width = (int)(MaxRadius * 2);
-            Projectile.height = (int)(MaxRadius * 2);
+            Projectile.width = 60;
+            Projectile.height = 60;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Ranged;
             Projectile.penetrate = -1;
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
-            Projectile.timeLeft = Duration;
+            Projectile.timeLeft = 180; // 3 seconds travel
             Projectile.usesLocalNPCImmunity = true;
-            Projectile.localNPCHitCooldown = -1;
+            Projectile.localNPCHitCooldown = 15;
         }
 
         public override void AI()
         {
-            float progress = 1f - (float)Projectile.timeLeft / Duration;
-
-            // Spawn VFX
-            if (Projectile.timeLeft == Duration)
+            if (!_initialized)
             {
-                // Massive crescendo ring
-                SymphonicBellfireParticleHandler.SpawnParticle(new CrescendoWaveParticle(
-                    Projectile.Center, MaxRadius, Duration - 5));
+                _initialized = true;
+                _pierceCount = 0;
 
-                // Inner flash
-                SymphonicBellfireParticleHandler.SpawnParticle(new ExplosionFireballParticle(
-                    Projectile.Center, 4f, Duration / 2));
+                // Calculate base width from crescendo stacks
+                float sizeBonus = 1f + CrescendoStacks * 0.10f;
+                _baseWidth = IsSymphonicOverture ? 180f : 60f * sizeBonus;
+                _currentWidth = _baseWidth;
 
-                // Musical note orchestra burst
-                for (int i = 0; i < 16; i++)
+                SoundEngine.PlaySound(SoundID.Item45 with
                 {
-                    float angle = MathHelper.TwoPi / 16f * i;
-                    Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(3f, 7f);
-                    SymphonicBellfireParticleHandler.SpawnParticle(new SymphonicNoteParticle(
-                        Projectile.Center + vel * 5f, vel, Main.rand.Next(50, 90)));
-                }
+                    Pitch = IsSymphonicOverture ? -0.4f : 0f,
+                    Volume = IsSymphonicOverture ? 1.2f : 0.8f
+                }, Projectile.Center);
 
-                // Radial ember shower
-                for (int i = 0; i < 30; i++)
+                if (IsSymphonicOverture)
                 {
-                    SymphonicBellfireParticleHandler.SpawnParticle(new RocketExhaustParticle(
-                        Projectile.Center,
-                        Main.rand.NextVector2Circular(8f, 8f),
-                        Main.rand.NextFloat(3f, 6f),
-                        Main.rand.Next(20, 40)));
+                    // Massive overture flash
+                    SymphonicBellfireParticleHandler.SpawnParticle(new CrescendoWaveParticle(
+                        Projectile.Center, 200f, 30));
+                    SymphonicBellfireParticleHandler.SpawnParticle(new ExplosionFireballParticle(
+                        Projectile.Center, 5f, 20));
                 }
-
-                SoundEngine.PlaySound(SoundID.Item14 with { Pitch = -0.3f, Volume = 1.2f }, Projectile.Center);
             }
 
-            // Continuous ember ring at edge
-            if (Projectile.timeLeft > Duration / 2 && Projectile.timeLeft % 2 == 0)
+            // Expand as it travels (slow growth)
+            float travelProgress = 1f - (float)Projectile.timeLeft / 180f;
+            _currentWidth = _baseWidth * (1f + travelProgress * 0.8f);
+
+            // Update hitbox to match width
+            Projectile.width = (int)_currentWidth;
+            Projectile.height = (int)(_currentWidth * 0.6f);
+
+            // Rotation towards velocity
+            if (Projectile.velocity.Length() > 0.5f)
+                Projectile.rotation = Projectile.velocity.ToRotation();
+
+            // Wave particles along edges
+            if (Main.rand.NextBool(2))
             {
-                float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                float radius = progress * MaxRadius;
-                Vector2 pos = Projectile.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
+                float perpAngle = Projectile.rotation + MathHelper.PiOver2;
+                float side = Main.rand.NextBool() ? 1f : -1f;
+                Vector2 edgePos = Projectile.Center + perpAngle.ToRotationVector2() * (_currentWidth * 0.4f * side);
+                Vector2 edgeVel = perpAngle.ToRotationVector2() * side * Main.rand.NextFloat(1f, 3f);
+
                 SymphonicBellfireParticleHandler.SpawnParticle(new RocketExhaustParticle(
-                    pos, Main.rand.NextVector2Circular(2f, 2f), 2f, Main.rand.Next(10, 25)));
+                    edgePos, edgeVel, Main.rand.NextFloat(1.5f, 3f), Main.rand.Next(10, 18)));
+            }
+
+            // Musical notes shedding from wave
+            if (Main.rand.NextBool(6))
+            {
+                Vector2 noteVel = Main.rand.NextVector2Circular(2f, 2f) - Projectile.velocity * 0.05f;
+                SymphonicBellfireParticleHandler.SpawnParticle(new SymphonicNoteParticle(
+                    Projectile.Center + Main.rand.NextVector2Circular(_currentWidth * 0.3f, _currentWidth * 0.2f),
+                    noteVel, Main.rand.Next(30, 50)));
             }
 
             // Lighting
-            float intensity = (1f - progress) * 2f;
-            Lighting.AddLight(Projectile.Center, SymphonicBellfireUtils.CrescendoPalette[1].ToVector3() * intensity);
-        }
+            float lightMul = IsSymphonicOverture ? 1.5f : 0.8f;
+            Lighting.AddLight(Projectile.Center, SymphonicBellfireUtils.CrescendoPalette[1].ToVector3() * lightMul);
 
-        public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
-        {
-            float progress = 1f - (float)Projectile.timeLeft / Duration;
-            float currentRadius = MaxRadius * (float)Math.Sqrt(progress);
-            float dist = Vector2.Distance(Projectile.Center, targetHitbox.Center.ToVector2());
-            return dist <= currentRadius;
+            // Slow velocity slightly over time (natural drag)
+            if (!IsSymphonicOverture)
+                Projectile.velocity *= 0.995f;
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 5);
+            target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, IsSymphonicOverture ? 5 : 2);
+
+            _pierceCount++;
+
+            // Slow on pierce (unless Symphonic Overture)
+            if (!IsSymphonicOverture)
+            {
+                Projectile.velocity *= 0.8f; // 20% slow per pierce
+
+                // Kill if too slow
+                if (Projectile.velocity.Length() < 1.5f)
+                    Projectile.Kill();
+            }
+
+            // Pierce impact VFX
+            SymphonicBellfireParticleHandler.SpawnParticle(new CrescendoWaveParticle(
+                target.Center, 60f + _pierceCount * 10f, 15));
+
+            for (int i = 0; i < 6; i++)
+            {
+                Vector2 sparkVel = Main.rand.NextVector2CircularEdge(4f, 4f);
+                SymphonicBellfireParticleHandler.SpawnParticle(new RocketExhaustParticle(
+                    target.Center, sparkVel, Main.rand.NextFloat(2f, 4f), Main.rand.Next(10, 20)));
+            }
+
+            // Register wave kill for buff stacking (on kill)
+            if (target.life <= 0)
+            {
+                Player owner = Main.player[Projectile.owner];
+                var modPlayer = owner.GetModPlayer<SymphonicBellfirePlayer>();
+                modPlayer.RegisterWaveKill();
+            }
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            float progress = 1f - (float)Projectile.timeLeft / Duration;
-            float fade = 1f - progress;
+            float travelProgress = 1f - (float)Projectile.timeLeft / 180f;
+            float fade = Math.Min(1f, (float)Projectile.timeLeft / 30f); // Fade in last 0.5s
 
             SymphonicBellfireParticleHandler.DrawAllParticles(sb);
 
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
-            float ringRadius = MaxRadius * (float)Math.Sqrt(progress);
-            float ringScale = ringRadius / (tex.Width * 0.5f);
-
-            // Outer wave
-            Color outerColor = SymphonicBellfireUtils.CrescendoPalette[0] * fade * 0.3f;
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
-                outerColor, 0f, tex.Size() / 2f, ringScale, SpriteEffects.None, 0f);
-
-            // Inner blaze
-            Color innerColor = SymphonicBellfireUtils.CrescendoPalette[1] * fade * 0.4f;
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
-                innerColor, 0f, tex.Size() / 2f, ringScale * 0.6f, SpriteEffects.None, 0f);
-
-            // Center divine flash
-            if (progress < 0.25f)
+            Texture2D tex = null;
+            try
             {
-                Color flash = SymphonicBellfireUtils.CrescendoPalette[2] * (1f - progress / 0.25f) * 0.7f;
-                sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
-                    flash, 0f, tex.Size() / 2f, 0.6f, SpriteEffects.None, 0f);
+                tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow",
+                    ReLogic.Content.AssetRequestMode.ImmediateLoad)?.Value;
             }
+            catch { }
+            if (tex == null) return false;
+
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            Vector2 origin = new Vector2(tex.Width / 2f, tex.Height / 2f);
+
+            float scaleX = _currentWidth / tex.Width * 2.5f;
+            float scaleY = _currentWidth * 0.5f / tex.Height * 2.5f;
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            float pulse = 0.85f + 0.15f * (float)Math.Sin(Main.GameUpdateCount * 0.15f);
+
+            // Outer wave glow
+            Color outerColor = SymphonicBellfireUtils.CrescendoPalette[0] * fade * 0.3f * pulse;
+            sb.Draw(tex, drawPos, null, outerColor, Projectile.rotation,
+                origin, new Vector2(scaleX * 1.3f, scaleY * 1.5f), SpriteEffects.None, 0f);
+
+            // Mid body
+            Color midColor = (IsSymphonicOverture ? SymphonicBellfireUtils.CrescendoPalette[2] : SymphonicBellfireUtils.CrescendoPalette[1]) * fade * 0.5f * pulse;
+            sb.Draw(tex, drawPos, null, midColor, Projectile.rotation,
+                origin, new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
+
+            // Hot core
+            Color coreColor = SymphonicBellfireUtils.CrescendoPalette[2] * fade * 0.7f;
+            sb.Draw(tex, drawPos, null, coreColor, Projectile.rotation,
+                origin, new Vector2(scaleX * 0.4f, scaleY * 0.4f), SpriteEffects.None, 0f);
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             return false;
+        }
+
+        public override void OnKill(int timeLeft)
+        {
+            // Final dissipation burst
+            SymphonicBellfireParticleHandler.SpawnParticle(new CrescendoWaveParticle(
+                Projectile.Center, _currentWidth * 0.5f, 20));
+
+            for (int i = 0; i < 8; i++)
+            {
+                Vector2 burstVel = Main.rand.NextVector2CircularEdge(3f, 3f);
+                SymphonicBellfireParticleHandler.SpawnParticle(new RocketExhaustParticle(
+                    Projectile.Center, burstVel, Main.rand.NextFloat(2f, 4f), Main.rand.Next(12, 22)));
+            }
         }
     }
 }

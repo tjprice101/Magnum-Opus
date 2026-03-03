@@ -12,6 +12,7 @@ using MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Primitive
 using MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Buffs;
 using MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Dusts;
 using MagnumOpus.Content.LaCampanella.Debuffs;
+using MagnumOpus.Content.MoonlightSonata;
 
 namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Projectiles
 {
@@ -235,36 +236,54 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
         {
             if (Main.dedServ) return;
 
-            // Multi-layer crater bloom cascade (5 layers, staggered)
+            // Get lunar phase for VFX scaling
+            float lunarMult = 1f;
+            Color lunarTint = CometUtils.SupernovaColor;
+            if (Projectile.owner >= 0 && Projectile.owner < Main.maxPlayers && Main.player[Projectile.owner].active)
+            {
+                var cp = Main.player[Projectile.owner].Resurrection();
+                lunarMult = CometPlayer.LunarPhaseAoEMultiplier[cp.LunarCyclePhase];
+                lunarTint = Color.Lerp(CometUtils.SupernovaColor, cp.CurrentLunarColor, 0.4f);
+            }
+
+            // === LUNAR CYCLE INDICATOR RINGS ===
+            CometParticleHandler.Spawn(new LunarCycleRingParticle(
+                Projectile.Center, lunarTint, 2.5f * lunarMult, 30));
+            CometParticleHandler.Spawn(new LunarCycleRingParticle(
+                Projectile.Center, lunarTint * 0.6f, 4f * lunarMult, 40));
+
+            // Multi-layer crater bloom cascade (5 layers, staggered, scaled by lunar phase)
             for (int layer = 0; layer < 5; layer++)
             {
                 float layerPhase = layer / 4f;
-                Color layerColor = CometUtils.GetCometGradient(layerPhase);
-                float layerScale = 2f + layer * 0.8f;
+                Color layerColor = Color.Lerp(CometUtils.GetCometGradient(layerPhase), lunarTint, 0.25f);
+                float layerScale = (2f + layer * 0.8f) * lunarMult;
                 int layerLife = 25 + layer * 5;
                 CometParticleHandler.Spawn(new CraterBloomParticle(
                     Projectile.Center, layerColor, layerScale, layerLife));
             }
 
-            // Core flash
+            // Core flash (— brilliant white on Full Moon)
+            float coreScale = lunarMult > 1.2f ? 4.5f : 3f;
             CometParticleHandler.Spawn(new CraterBloomParticle(
-                Projectile.Center, CometUtils.FrigidImpact, 3f, 15));
+                Projectile.Center, CometUtils.FrigidImpact, coreScale, 15));
 
-            // Shockwave rings (3 expanding rings)
+            // Shockwave rings (3 expanding rings, scaled by lunar phase)
             for (int ring = 0; ring < 3; ring++)
             {
-                float ringScale = 3f + ring * 2f;
-                Color ringCol = Color.Lerp(CometUtils.CometCoreWhite, CometUtils.SupernovaColor, ring / 2f);
+                float ringScale = (3f + ring * 2f) * lunarMult;
+                Color ringCol = Color.Lerp(CometUtils.CometCoreWhite, lunarTint, ring / 2f);
                 CometParticleHandler.Spawn(new ShockwaveRingParticle(
                     Projectile.Center, ringCol, ringScale, 30 + ring * 8));
             }
 
-            // Massive radial ember burst
-            for (int i = 0; i < 40; i++)
+            // Massive radial ember burst (count scaled by lunar phase)
+            int emberCount = (int)(40 * lunarMult);
+            for (int i = 0; i < emberCount; i++)
             {
-                float angle = MathHelper.TwoPi * i / 40f + Main.rand.NextFloat(-0.1f, 0.1f);
+                float angle = MathHelper.TwoPi * i / emberCount + Main.rand.NextFloat(-0.1f, 0.1f);
                 float speed = 4f + Main.rand.NextFloat(8f);
-                Vector2 vel = angle.ToRotationVector2() * speed;
+                Vector2 vel = angle.ToRotationVector2() * speed * lunarMult;
                 CometParticleHandler.Spawn(new EmberTrailParticle(
                     Projectile.Center, vel,
                     0.5f + Main.rand.NextFloat(0.4f),
@@ -272,13 +291,26 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
             }
 
             // Lunar shards flung outward
-            for (int i = 0; i < 15; i++)
+            int shardCount = (int)(15 * lunarMult);
+            for (int i = 0; i < shardCount; i++)
             {
-                Vector2 vel = Main.rand.NextVector2CircularEdge(6f, 6f) + Main.rand.NextVector2Circular(2f, 2f);
+                Vector2 vel = Main.rand.NextVector2CircularEdge(6f, 6f) * lunarMult
+                    + Main.rand.NextVector2Circular(2f, 2f);
                 CometParticleHandler.Spawn(new LunarShardParticle(
                     Projectile.Center, vel,
                     CometUtils.GetCometGradient(Main.rand.NextFloat()),
                     0.5f + Main.rand.NextFloat(0.4f), 30 + Main.rand.Next(15)));
+            }
+
+            // === NEW: Supernova debris — tumbling lunar rock fragments ===
+            int debrisCount = 8 + (int)(6 * lunarMult);
+            for (int i = 0; i < debrisCount; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2CircularEdge(5f, 5f) + new Vector2(0, -Main.rand.NextFloat(2f, 5f));
+                Color debrisColor = Color.Lerp(CometUtils.ImpactCrater, lunarTint, Main.rand.NextFloat(0.4f));
+                CometParticleHandler.Spawn(new SupernovaDebrisParticle(
+                    Projectile.Center + Main.rand.NextVector2Circular(20f, 20f), vel,
+                    debrisColor, 0.4f + Main.rand.NextFloat(0.3f), 35 + Main.rand.Next(20)));
             }
 
             // Comet mist cloud
@@ -290,6 +322,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
                     vel, CometUtils.GetCometGradient(Main.rand.NextFloat()) * 0.4f,
                     1.5f + Main.rand.NextFloat(1f), 40 + Main.rand.Next(20)));
             }
+
+            // Music notes cascading upward from destruction — the supernova sings
+            int noteCount = 6 + (int)(4 * lunarMult);
+            MoonlightVFXLibrary.SpawnMusicNotes(Projectile.Center, count: noteCount,
+                spread: 35f * lunarMult, minScale: 0.5f, maxScale: 1.1f,
+                lifetime: 50 + (int)(lunarMult * 15));
 
             // Heavy dust explosion
             for (int i = 0; i < 30; i++)
@@ -387,9 +425,17 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
             Vector2 origin = bloom.Size() * 0.5f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
-            // Pulsing violet glow
+            // Lunar-phase-tinted glow
+            Color lunarTint = CometUtils.SupernovaColor;
+            if (Projectile.owner >= 0 && Projectile.owner < Main.maxPlayers && Main.player[Projectile.owner].active)
+                lunarTint = Color.Lerp(CometUtils.SupernovaColor, Main.player[Projectile.owner].Resurrection().CurrentLunarColor, 0.3f);
+
+            // Pulsing glow with lunar influence
             float pulse = 0.8f + MathF.Sin(AliveTime * 0.15f) * 0.2f;
-            sb.Draw(bloom, drawPos, null, CometUtils.SupernovaColor * 0.5f * pulse, 0f, origin, 0.7f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, lunarTint * 0.5f * pulse, 0f, origin, 0.7f, SpriteEffects.None, 0f);
+
+            // Mid glow layer
+            sb.Draw(bloom, drawPos, null, CometUtils.SupernovaColor * 0.25f, 0f, origin, 0.5f, SpriteEffects.None, 0f);
 
             // Core glow
             sb.Draw(bloom, drawPos, null, CometUtils.CometCoreWhite * 0.5f, 0f, origin, 0.35f, SpriteEffects.None, 0f);

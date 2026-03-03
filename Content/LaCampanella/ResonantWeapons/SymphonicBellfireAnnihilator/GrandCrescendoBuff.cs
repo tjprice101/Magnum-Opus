@@ -1,11 +1,12 @@
 using Terraria;
 using Terraria.ModLoader;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator.Utilities;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator
 {
     /// <summary>
-    /// GrandCrescendoBuff — +20% damage and +15% attack speed for 15 seconds.
-    /// Granted on completing the Grand Crescendo (every 3rd full volley).
+    /// GrandCrescendoBuff — Stacking buff from crescendo wave kills (max 5).
+    /// Each stack: +8% ranged damage. Visual indicator of wave empowerment.
     /// </summary>
     public class GrandCrescendoBuff : ModBuff
     {
@@ -18,8 +19,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
 
         public override void Update(Player player, ref int buffIndex)
         {
-            player.GetDamage(DamageClass.Generic) += 0.20f;
-            player.GetAttackSpeed(DamageClass.Generic) += 0.15f;
+            var modPlayer = player.GetModPlayer<SymphonicBellfirePlayer>();
+            float bonus = modPlayer.GrandCrescendoStacks * 0.08f;
+            player.GetDamage(DamageClass.Ranged) += bonus;
         }
     }
 }

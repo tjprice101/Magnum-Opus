@@ -268,4 +268,238 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Particles
                 color * opacity, Rotation, tex.Size() / 2f, Scale * 0.3f, SpriteEffects.None, 0f);
         }
     }
+
+    // =================================================================
+    // NEW PARTICLES — TIDAL PHASE OVERHAUL
+    // =================================================================
+
+    /// <summary>
+    /// Tidal droplet — small water-like droplets that fall with gravity and slight horizontal drift.
+    /// Spawned during higher tidal phases for a "crashing wave" feel.
+    /// </summary>
+    public class TidalDropletParticle : LunarParticle
+    {
+        private static Asset<Texture2D> _texture;
+        private readonly float _drift;
+
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        public TidalDropletParticle(Vector2 position, Vector2 velocity, float scale, Color color, int lifetime)
+        {
+            Position = position;
+            Velocity = velocity;
+            Scale = scale;
+            DrawColor = color;
+            Lifetime = lifetime;
+            _drift = Main.rand.NextFloat(-0.3f, 0.3f);
+        }
+
+        public override void Update()
+        {
+            Velocity.Y += 0.15f; // Gravity
+            Velocity.X += _drift * 0.1f;
+            Velocity *= 0.99f;
+            Scale *= 0.995f;
+        }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            _texture ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow");
+            Texture2D tex = _texture.Value;
+
+            float opacity = 1f - (float)Math.Pow(LifetimeCompletion, 1.5f);
+            Color color = Color.Lerp(DrawColor, EternalMoonUtils.MoonWhite, LifetimeCompletion * 0.3f);
+            color.A = 0;
+
+            spriteBatch.Draw(tex, Position - Main.screenPosition, null,
+                color * opacity, 0f, tex.Size() / 2f, Scale * 0.08f, SpriteEffects.None, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Wave spray particle — burst radially from impact with high velocity and quick fade.
+    /// Creates the foam/spray effect of a tidal crash.
+    /// </summary>
+    public class WaveSprayParticle : LunarParticle
+    {
+        private static Asset<Texture2D> _texture;
+
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        public WaveSprayParticle(Vector2 position, Vector2 velocity, float scale, Color color, int lifetime)
+        {
+            Position = position;
+            Velocity = velocity;
+            Scale = scale;
+            DrawColor = color;
+            Lifetime = lifetime;
+            Rotation = velocity.ToRotation();
+        }
+
+        public override void Update()
+        {
+            Velocity *= 0.92f;
+            Velocity.Y += 0.08f; // Slight arc trajectory
+            Rotation = Velocity.ToRotation();
+            Scale *= 0.97f;
+        }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            _texture ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom");
+            Texture2D tex = _texture.Value;
+
+            float opacity = 1f - (float)Math.Pow(LifetimeCompletion, 0.8f);
+            Color color = Color.Lerp(EternalMoonUtils.MoonWhite, DrawColor, LifetimeCompletion * 0.5f);
+            color.A = 0;
+
+            Vector2 stretchScale = new Vector2(1f + Velocity.Length() * 0.15f, 1f) * Scale * 0.12f;
+            spriteBatch.Draw(tex, Position - Main.screenPosition, null,
+                color * opacity, Rotation, tex.Size() / 2f, stretchScale, SpriteEffects.None, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Moon glint — stationary sparkle at blade tip with slow rotation and gentle pulse.
+    /// 4-pointed silver star that accents the blade's cutting edge.
+    /// </summary>
+    public class MoonGlintParticle : LunarParticle
+    {
+        private static Asset<Texture2D> _texture;
+        private readonly float _pulseSpeed;
+
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        public MoonGlintParticle(Vector2 position, float scale, Color color, int lifetime)
+        {
+            Position = position;
+            Velocity = Vector2.Zero;
+            Scale = scale;
+            DrawColor = color;
+            Lifetime = lifetime;
+            Rotation = Main.rand.NextFloat(MathHelper.TwoPi);
+            _pulseSpeed = 0.15f + Main.rand.NextFloat(0.1f);
+        }
+
+        public override void Update()
+        {
+            Rotation += 0.03f;
+        }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            _texture ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft");
+            Texture2D tex = _texture.Value;
+
+            float pulse = 0.7f + 0.3f * (float)Math.Sin(Time * _pulseSpeed);
+            float opacity = (1f - (float)Math.Pow(LifetimeCompletion, 2f)) * pulse;
+            Color color = DrawColor;
+            color.A = 0;
+
+            spriteBatch.Draw(tex, Position - Main.screenPosition, null,
+                color * opacity, Rotation, tex.Size() / 2f, Scale * 0.3f * pulse, SpriteEffects.None, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Gravity well mote — spirals inward toward a gravitational center, consumed on arrival.
+    /// Used for gravitational pull VFX on hit.
+    /// </summary>
+    public class GravityWellMoteParticle : LunarParticle
+    {
+        private static Asset<Texture2D> _texture;
+        private readonly Vector2 _center;
+        private float _orbitAngle;
+        private float _orbitRadius;
+        private readonly float _orbitSpeed;
+
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        public GravityWellMoteParticle(Vector2 position, Vector2 center, float scale, Color color, int lifetime)
+        {
+            Position = position;
+            _center = center;
+            Velocity = Vector2.Zero;
+            Scale = scale;
+            DrawColor = color;
+            Lifetime = lifetime;
+            _orbitRadius = Vector2.Distance(position, center);
+            _orbitAngle = (position - center).ToRotation();
+            _orbitSpeed = 0.08f + Main.rand.NextFloat(0.04f);
+        }
+
+        public override void Update()
+        {
+            // Logarithmic spiral inward
+            _orbitAngle += _orbitSpeed;
+            _orbitRadius *= 0.96f;
+            Position = _center + _orbitAngle.ToRotationVector2() * _orbitRadius;
+            Scale *= 0.99f;
+        }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            _texture ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow");
+            Texture2D tex = _texture.Value;
+
+            float opacity = (1f - (float)Math.Pow(LifetimeCompletion, 1.5f)) * 0.8f;
+            Color color = Color.Lerp(DrawColor, EternalMoonUtils.MoonWhite, LifetimeCompletion * 0.4f);
+            color.A = 0;
+
+            spriteBatch.Draw(tex, Position - Main.screenPosition, null,
+                color * opacity, 0f, tex.Size() / 2f, Scale * 0.1f, SpriteEffects.None, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Tidal phase indicator — a gentle glow ring that represents the current tidal phase level.
+    /// Renders as concentric expanding rings around the player during active combo.
+    /// </summary>
+    public class TidalPhaseRingParticle : LunarParticle
+    {
+        private static Asset<Texture2D> _texture;
+        private readonly float _maxScale;
+
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        public TidalPhaseRingParticle(Vector2 position, float maxScale, Color color, int lifetime)
+        {
+            Position = position;
+            Velocity = Vector2.Zero;
+            Scale = 0f;
+            DrawColor = color;
+            Lifetime = lifetime;
+            _maxScale = maxScale;
+        }
+
+        public override void Update()
+        {
+            float t = LifetimeCompletion;
+            // Fast expansion with smooth settling
+            Scale = _maxScale * (float)(1.0 - Math.Pow(1.0 - t, 3));
+        }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            _texture ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle");
+            Texture2D tex = _texture.Value;
+
+            float opacity = (1f - LifetimeCompletion) * 0.35f;
+            Color color = DrawColor;
+            color.A = 0;
+
+            spriteBatch.Draw(tex, Position - Main.screenPosition, null,
+                color * opacity, 0f, tex.Size() / 2f, Scale * 0.4f, SpriteEffects.None, 0f);
+        }
+    }
 }

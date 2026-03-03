@@ -10,16 +10,19 @@ using MagnumOpus.Content.LaCampanella.Debuffs;
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Projectiles
 {
     /// <summary>
-    /// Kill echo projectile  Espawns at enemy death location, fires burst of homing echo shards.
-    /// Spectral afterimage that replays the killing blow.
+    /// Kill Echo — spawns at enemy death location, seeks nearest enemy within range,
+    /// deals 60% of killing blow damage, then chains again (up to 3 total chains).
+    /// ai[0] = chain range, ai[1] = current chain depth.
     /// </summary>
     public class KillEchoProj : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow";
 
-        private const int Duration = 25;
-        private const float EchoRadius = 180f;
-        private bool hasDetonated;
+        private const int SeekDuration = 15; // Frames to find and strike target
+        private int targetNPC = -1;
+        private bool hasStruck;
+        private float ChainRange => Projectile.ai[0];
+        private int ChainDepth => (int)Projectile.ai[1];
 
         public override void SetDefaults()
         {
@@ -27,8 +30,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
             Projectile.height = 10;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Ranged;
-            Projectile.penetrate = -1;
-            Projectile.timeLeft = Duration;
+            Projectile.penetrate = 1;
+            Projectile.timeLeft = 30;
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
             Projectile.usesLocalNPCImmunity = true;
@@ -37,62 +40,108 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
 
         public override void AI()
         {
-            int age = Duration - Projectile.timeLeft;
+            int age = 30 - Projectile.timeLeft;
 
-            // Frame 5: radial burst damage
-            if (age == 5 && !hasDetonated)
+            // Find target on first frame
+            if (age == 0)
             {
-                hasDetonated = true;
-                for (int i = 0; i < Main.maxNPCs; i++)
+                targetNPC = FindNearestEnemy();
+                if (targetNPC < 0)
                 {
-                    NPC npc = Main.npc[i];
-                    if (!npc.CanBeChasedBy()) continue;
-                    if (Vector2.Distance(Projectile.Center, npc.Center) <= EchoRadius)
-                    {
-                        int dir = Projectile.Center.X < npc.Center.X ? 1 : -1;
-                        npc.SimpleStrikeNPC(Projectile.damage, dir, false, Projectile.knockBack);
-                        npc.GetGlobalNPC<ResonantTollNPC>().AddStacks(npc, 1);
-                    }
-                }
-
-                // Echo burst VFX
-                for (int i = 0; i < 6; i++)
-                {
-                    float angle = MathHelper.TwoPi / 6f * i;
-                    Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 4f;
-                    GrandioseChimeParticleHandler.SpawnParticle(new BurningNoteParticle(
-                        Projectile.Center, vel, Main.rand.Next(25, 40)));
+                    Projectile.Kill();
+                    return;
                 }
             }
 
-            // Fading echo glow
-            float intensity = (1f - (float)age / Duration) * 0.6f;
-            Lighting.AddLight(Projectile.Center, GrandioseChimeUtils.EchoPalette[0].ToVector3() * intensity);
+            // Home toward target rapidly
+            if (targetNPC >= 0 && targetNPC < Main.maxNPCs && Main.npc[targetNPC].active)
+            {
+                NPC target = Main.npc[targetNPC];
+                Vector2 toTarget = target.Center - Projectile.Center;
+                float dist = toTarget.Length();
+
+                if (dist > 4f)
+                {
+                    Projectile.velocity = Vector2.Normalize(toTarget) * Math.Min(dist, 20f);
+                }
+            }
+
+            // Echo trail particles
+            if (Main.rand.NextBool(2))
+            {
+                GrandioseChimeParticleHandler.SpawnParticle(new BurningNoteParticle(
+                    Projectile.Center + Main.rand.NextVector2Circular(4, 4),
+                    -Projectile.velocity * 0.05f,
+                    Main.rand.Next(10, 18)));
+            }
+
+            Lighting.AddLight(Projectile.Center, GrandioseChimeUtils.EchoPalette[0].ToVector3() * 0.5f);
         }
 
-        public override bool? CanDamage() => false; // Damage handled manually
+        private int FindNearestEnemy()
+        {
+            int closest = -1;
+            float closestDist = ChainRange;
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (!npc.CanBeChasedBy()) continue;
+                float dist = Vector2.Distance(Projectile.Center, npc.Center);
+                if (dist < closestDist)
+                {
+                    closestDist = dist;
+                    closest = i;
+                }
+            }
+            return closest;
+        }
+
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 1);
+            hasStruck = true;
+
+            // VFX at strike point
+            GrandioseChimeParticleHandler.SpawnParticle(new KillEchoParticle(target.Center, 1.5f, 12));
+
+            // If this kill echo killed the target, chain further
+            if (target.life <= 0 && ChainDepth < 2)
+            {
+                // Chain again from this position
+                int nextDmg = (int)(Projectile.damage * 0.6f);
+                if (nextDmg > 0)
+                {
+                    Projectile.NewProjectile(Projectile.GetSource_FromAI(), target.Center, Vector2.Zero,
+                        ModContent.ProjectileType<KillEchoProj>(), nextDmg, 4f, Projectile.owner,
+                        ai0: ChainRange, ai1: ChainDepth + 1);
+                }
+
+                // If this was chain depth 2 (the final chain completing a full 3-chain),
+                // register a full chain kill for Grandiose Crescendo
+                if (ChainDepth + 1 >= 2)
+                {
+                    Player owner = Main.player[Projectile.owner];
+                    var modPlayer = owner.GetModPlayer<GrandioseChimePlayer>();
+                    modPlayer.RegisterFullChainKill();
+                }
+            }
+        }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
             var tex = ModContent.Request<Texture2D>(Texture).Value;
-            int age = Duration - Projectile.timeLeft;
-            float progress = (float)age / Duration;
-            float fade = 1f - progress;
+            float fade = (float)Projectile.timeLeft / 30f;
 
-            // Expanding echo ring
-            float ringScale = EchoRadius * (float)Math.Sqrt(progress) / (tex.Width * 0.5f);
-            Color ringColor = GrandioseChimeUtils.EchoPalette[0] * fade * 0.25f;
+            // Echo orb
+            Color echoColor = GrandioseChimeUtils.EchoPalette[1] * fade * 0.5f;
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
-                ringColor, 0f, tex.Size() / 2f, ringScale, SpriteEffects.None, 0f);
+                echoColor, 0f, tex.Size() / 2f, 0.2f, SpriteEffects.None, 0f);
 
-            // Core flash
-            if (progress < 0.3f)
-            {
-                Color flash = GrandioseChimeUtils.EchoPalette[1] * (1f - progress / 0.3f) * 0.5f;
-                sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
-                    flash, 0f, tex.Size() / 2f, 0.3f, SpriteEffects.None, 0f);
-            }
+            // Outer glow
+            Color glow = GrandioseChimeUtils.EchoPalette[0] * fade * 0.3f;
+            sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
+                glow, 0f, tex.Size() / 2f, 0.4f, SpriteEffects.None, 0f);
 
             return false;
         }

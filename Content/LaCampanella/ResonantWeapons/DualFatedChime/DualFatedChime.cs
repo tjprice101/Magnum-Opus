@@ -14,15 +14,17 @@ using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Utilities;
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime
 {
     /// <summary>
-    /// Dual Fated Chime — Melee Zenith-style Greatsword.
-    /// Exoblade-inspired channel-held swing with 3-phase combo.
+    /// Dual Fated Chime — Twin bell-blades that ring with every clash.
     /// 
-    /// COMBAT SYSTEM:
-    /// • Left-click: 3-phase infernal combo (BellStrike → TollSweep → GrandToll)
-    /// • Each phase escalates in power, blade length, and VFX intensity
-    /// • Hits charge the Inferno Waltz gauge (8 charge per hit, 100 max)
-    /// • Right-click at full charge: Inferno Waltz — devastating spinning flame dance
-    /// • Grand Toll (phase 3) fires 3 homing Bell Flame Waves from blade tip
+    /// COMBAT SYSTEM (Inferno Waltz Combo):
+    /// • 5-phase alternating left/right combo:
+    ///   Toll 1 "Opening Peal": Right chime horizontal slash + bell shockwave ring
+    ///   Toll 2 "Answer": Left chime diagonal slash (faster)
+    ///   Toll 3 "Escalation": Right chime upward arc + flame wave projectile
+    ///   Toll 4 "Resonance": Left chime downward slam + double shockwave + ground fire
+    ///   Toll 5 "Grand Toll": Both chimes cross-slash + 12 directional Bell Flame Waves
+    /// • Bell Resonance Stacking: Hits add Resonance Rings (max 5). At 5, Bell Shatter detonates.
+    /// • Flame Waltz Dodge: During Toll 2 or 4, player sways with 0.2s iframes.
     /// • Applies Resonant Toll debuff on all hits
     /// 
     /// PRESERVED STATS: Damage 380, UseTime 16, Knockback 6.5, MeleeNoSpeed, Sell 50g
@@ -38,14 +40,12 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime
 
         public override void SetDefaults()
         {
-            // Exoblade pattern: channel-held with invisible item sprite
             Item.useStyle = ItemUseStyleID.Swing;
             Item.noMelee = true;
             Item.noUseGraphic = true;
             Item.channel = true;
             Item.autoReuse = true;
 
-            // Preserved stats
             Item.damage = 380;
             Item.DamageType = DamageClass.MeleeNoSpeed;
             Item.useTime = 16;
@@ -63,7 +63,6 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime
 
         public override bool CanShoot(Player player)
         {
-            // Prevent overlapping swing projectiles
             int swingType = ModContent.ProjectileType<DualFatedChimeSwingProj>();
             for (int i = 0; i < Main.maxProjectiles; i++)
             {
@@ -77,24 +76,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime
         public override bool? CanHitNPC(Player player, NPC target) => false;
         public override bool CanHitPvp(Player player, Player target) => false;
 
-        public override bool AltFunctionUse(Player player)
-        {
-            return player.DualFatedChime().IsWaltzReady;
-        }
+        // No alt-fire — the 5-phase combo IS the full system
+        public override bool AltFunctionUse(Player player) => false;
 
         public override bool CanUseItem(Player player)
         {
-            if (player.altFunctionUse == 2)
-            {
-                // Inferno Waltz mode — slower wind-up
-                Item.useTime = 60;
-                Item.useAnimation = 60;
-            }
-            else
-            {
-                Item.useTime = 16;
-                Item.useAnimation = 16;
-            }
+            Item.useTime = 16;
+            Item.useAnimation = 16;
             return true;
         }
 
@@ -103,14 +91,6 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime
         {
             position = player.MountedCenter;
             velocity = player.MountedCenter.SafeDirectionTo(Main.MouseWorld);
-
-            if (player.altFunctionUse == 2)
-            {
-                // Spawn Inferno Waltz instead of swing
-                type = ModContent.ProjectileType<InfernoWaltzProj>();
-                damage = (int)(damage * 2f);
-                knockback = 10f;
-            }
         }
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
@@ -118,20 +98,24 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime
         {
             var dfc = player.DualFatedChime();
 
-            if (player.altFunctionUse == 2)
-            {
-                // Inferno Waltz — consume charge, spawn waltz projectile
-                dfc.ConsumeCharge();
-                Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
-                return false;
-            }
-
-            // Normal swing — pass combo step
+            // 5-phase combo: pass combo step to swing projectile
             int comboStep = dfc.ComboStep;
             Projectile.NewProjectile(source, position, velocity, type, damage, knockback,
                 player.whoAmI, ai0: comboStep);
 
             dfc.AdvanceCombo();
+
+            // Flame Waltz Dodge: during Toll 2 (step 1) and Toll 4 (step 3), grant brief iframes + dash
+            if (comboStep == 1 || comboStep == 3)
+            {
+                player.immune = true;
+                player.immuneTime = 12; // 0.2s at 60fps
+                player.immuneNoBlink = true;
+                // Sway in swing direction
+                float swayDir = (comboStep == 1) ? -1f : 1f;
+                player.velocity += velocity.SafeNormalize(Vector2.UnitX).RotatedBy(MathHelper.PiOver2 * swayDir) * 4f;
+            }
+
             return false;
         }
 
@@ -139,51 +123,36 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime
         {
             var dfc = player.DualFatedChime();
 
-            // Charge-level visual feedback
-            float chargeRatio = dfc.ChargeBar / DualFatedChimePlayer.MaxCharge;
+            // Infernal ambient based on combo progression
+            float comboIntensity = dfc.ComboStep / 4f; // 0 to 1 across 5 phases
 
-            if (dfc.IsWaltzReady)
+            if (comboIntensity > 0.1f)
             {
-                // Full charge — intense pulsing flames
-                float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.2f);
+                float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.15f + comboIntensity * 3f);
 
-                if (Main.rand.NextBool(3))
+                if (Main.rand.NextBool((int)MathHelper.Lerp(8, 2, comboIntensity)))
                 {
-                    Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
+                    Vector2 offset = Main.rand.NextVector2Circular(15f + comboIntensity * 15f, 15f + comboIntensity * 15f);
                     int dustType = Main.rand.NextBool() ? DustID.Torch : DustID.Smoke;
                     Color col = DualFatedChimeUtils.GetFireFlicker(Main.rand.NextFloat());
                     Dust d = Dust.NewDustPerfect(player.Center + offset, dustType,
-                        new Vector2(0, -2f) + Main.rand.NextVector2Circular(1f, 1f), 0, col, 1.4f);
+                        new Vector2(0, -1.5f) + Main.rand.NextVector2Circular(1f, 1f), 0, col, 0.8f + comboIntensity * 0.8f);
                     d.noGravity = true;
-                    d.fadeIn = 1.2f;
+                    d.fadeIn = 1f;
                 }
 
-                Vector3 fireLight = new Vector3(0.8f, 0.4f, 0.1f) * (0.7f + pulse * 0.3f);
+                Vector3 fireLight = new Vector3(0.5f + comboIntensity * 0.4f, 0.25f + comboIntensity * 0.2f, 0.05f) * (0.6f + pulse * 0.2f);
                 Lighting.AddLight(player.Center, fireLight);
-            }
-            else if (chargeRatio > 0.1f)
-            {
-                // Partial charge — subtle ember glow
-                if (Main.rand.NextBool(8))
-                {
-                    Vector2 offset = Main.rand.NextVector2Circular(15f, 15f);
-                    Dust d = Dust.NewDustPerfect(player.Center + offset, DustID.Torch,
-                        new Vector2(0, -1f) + Main.rand.NextVector2Circular(0.5f, 0.5f), 0,
-                        new Color(255, 140, 40), 0.7f * chargeRatio);
-                    d.noGravity = true;
-                }
-
-                Lighting.AddLight(player.Center, new Vector3(0.4f, 0.2f, 0.05f) * chargeRatio);
             }
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Swings cast spectral blades wreathed in bell-music flames"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Attacks fill a charge bar — right-click to unleash Inferno Waltz"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Inferno Waltz creates a devastating spinning flame dance"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Applies Resonant Toll on hit"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Two fates intertwined in the dance of the eternal chime'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "5-phase alternating inferno waltz combo with escalating power"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Hits apply Bell Resonance stacks — at 5 stacks, triggers devastating Bell Shatter"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Toll 2 and Toll 4 grant a brief dodge with invincibility frames"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Grand Toll unleashes 12 directional bell flame waves"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Two bells toll as one — their song turns steel to cinder'")
             {
                 OverrideColor = DualFatedChimeUtils.LoreColor
             });

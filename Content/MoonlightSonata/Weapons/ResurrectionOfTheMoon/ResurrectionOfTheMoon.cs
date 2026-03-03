@@ -139,6 +139,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon
             // Apply chamber damage multiplier
             damage = (int)(damage * ChamberDamageMultiplier[chamber]);
 
+            // Apply lunar cycle damage multiplier
+            damage = (int)(damage * CometPlayer.LunarPhaseDamageMultiplier[cp.LunarCyclePhase]);
+
             // Apply chamber velocity
             velocity = velocity.SafeNormalize(Vector2.UnitX) * ChamberShootSpeed[chamber];
 
@@ -183,7 +186,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon
             // Start reload
             cp.StartReload();
 
-            // Muzzle flash VFX
+            // Advance lunar cycle
+            cp.AdvanceLunarCycle();
+
+            // Muzzle flash VFX with lunar phase indicator
             SpawnMuzzleFlash(player, position, velocity);
 
             // Recoil
@@ -204,19 +210,42 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon
 
             var cp = player.Resurrection();
             Color flashColor = GetChamberColor(cp.ActiveChamber);
+            Color lunarColor = cp.CurrentLunarColor;
 
-            // Muzzle bloom
+            // Muzzle bloom — blended with lunar phase color
+            Color blendedFlash = Color.Lerp(flashColor, lunarColor, 0.35f);
             Particles.CometParticleHandler.Spawn(new Particles.CraterBloomParticle(
-                position, flashColor, 0.8f, 10));
+                position, blendedFlash, 0.8f, 10));
 
-            // Muzzle sparks
-            for (int i = 0; i < 6; i++)
+            // Lunar phase indicator ring — shows which phase the shot was in
+            Particles.CometParticleHandler.Spawn(new Particles.LunarCycleRingParticle(
+                position, lunarColor, 1.2f, 18));
+
+            // Second ring for Full Moon — extra dramatic
+            if (cp.IsFullMoon)
+            {
+                Particles.CometParticleHandler.Spawn(new Particles.LunarCycleRingParticle(
+                    position, CometUtils.FrigidImpact, 1.8f, 25));
+                Particles.CometParticleHandler.Spawn(new Particles.CraterBloomParticle(
+                    position, CometUtils.FrigidImpact, 1.5f, 15));
+            }
+
+            // Muzzle sparks — count and intensity vary by lunar phase
+            int sparkCount = 6 + cp.LunarCyclePhase * 2;
+            for (int i = 0; i < sparkCount; i++)
             {
                 Vector2 sparkVel = CometUtils.RandomConeDirection(velocity.SafeNormalize(Vector2.UnitX) * 5f,
                     MathHelper.ToRadians(25f));
+                Color sparkColor = Color.Lerp(flashColor, lunarColor, Main.rand.NextFloat(0.4f));
                 Particles.CometParticleHandler.Spawn(new Particles.EmberTrailParticle(
                     position, sparkVel, 0.3f + Main.rand.NextFloat(0.2f), 10 + Main.rand.Next(8)));
             }
+
+            // Music notes on muzzle flash — the gun sings with each shot
+            int noteCount = 1 + (cp.IsFullMoon ? 3 : cp.LunarCyclePhase);
+            MoonlightVFXLibrary.SpawnMusicNotes(position, count: noteCount,
+                spread: 15f + cp.LunarCyclePhase * 5f, minScale: 0.4f, maxScale: 0.7f,
+                lifetime: 25 + cp.LunarCyclePhase * 5);
 
             // Dust burst from barrel
             for (int i = 0; i < 4; i++)
@@ -256,6 +285,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon
                 $"Active Chamber: {chamberName}")
             { OverrideColor = chamberColor });
 
+            // Lunar cycle phase info
+            string phaseName = CometPlayer.LunarPhaseNames[cp.LunarCyclePhase];
+            Color phaseColor = CometPlayer.LunarPhaseColors[cp.LunarCyclePhase];
+            tooltips.Add(new TooltipLine(Mod, "LunarPhase",
+                $"Lunar Phase: {phaseName}")
+            { OverrideColor = phaseColor });
+
             // Effect descriptions
             tooltips.Add(new TooltipLine(Mod, "Effect1",
                 "Fires a devastating moonlight round with shattering lunar force"));
@@ -270,6 +306,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon
             tooltips.Add(new TooltipLine(Mod, "Effect5",
                 "  Supernova — Arcing artillery that detonates in massive AoE")
             { OverrideColor = CometUtils.SupernovaColor });
+            tooltips.Add(new TooltipLine(Mod, "Effect6",
+                "Each shot advances the Lunar Cycle — New Moon, Waxing, Full Moon, Waning")
+            { OverrideColor = new Color(160, 140, 220) });
+            tooltips.Add(new TooltipLine(Mod, "Effect7",
+                "Full Moon shots deal 30% more damage with 50% increased AoE")
+            { OverrideColor = new Color(220, 230, 255) });
 
             // Reload status
             if (cp.IsReloading)

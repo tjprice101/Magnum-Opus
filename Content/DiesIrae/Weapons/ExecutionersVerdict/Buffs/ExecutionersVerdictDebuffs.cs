@@ -1,12 +1,11 @@
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Utilities;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Buffs
 {
     /// <summary>
-    /// Execution Brand — marks enemies for death. Branded enemies take 30% more damage
+    /// Execution Brand  Emarks enemies for death. Branded enemies take 30% more damage
     /// and display an intensifying death mark when below 30% HP.
     /// </summary>
     public class ExecutionBrand : ModBuff
@@ -23,7 +22,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Buffs
     }
 
     /// <summary>
-    /// Pyre Immolation — heavy fire DoT unique to Executioner's Verdict.
+    /// Pyre Immolation  Eheavy fire DoT unique to Executioner's Verdict.
     /// 60 DPS (endgame-appropriate for the heaviest hitter).
     /// </summary>
     public class PyreImmolation : ModBuff

@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ID;
@@ -7,10 +7,6 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using MagnumOpus.Content.Eroica.Weapons.FuneralPrayer;
-using MagnumOpus.Content.Eroica.Weapons.FuneralPrayer.Utilities;
-using MagnumOpus.Content.Eroica.Weapons.FuneralPrayer.Particles;
-using MagnumOpus.Content.Eroica.Weapons.FuneralPrayer.Primitives;
-using MagnumOpus.Content.Eroica.Weapons.FuneralPrayer.Dusts;
 using System;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
@@ -32,7 +28,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         private int shotId = -1;
         private int beamIndex = -1;
 
-        // ── Trail tracking ──
+        // 笏笏 Trail tracking 笏笏
         private const int TrailLength = 18;
         private Vector2[] trailPositions = new Vector2[TrailLength];
         private float[] trailRotations = new float[TrailLength];
@@ -72,7 +68,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 beamIndex = Projectile.whoAmI;
             }
 
-            // ── Trail position tracking ──
+            // 笏笏 Trail position tracking 笏笏
             if (!trailInitialized)
             {
                 for (int i = 0; i < TrailLength; i++)
@@ -104,7 +100,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // ── Particle Spawning ──
+            // 笏笏 Particle Spawning 笏笏
             SpawnFlightParticles();
         }
 
@@ -298,16 +294,16 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = tex.Size() / 2f;
 
-            // ── Layer 1: GPU Funeral Flame Trail ──
+            // 笏笏 Layer 1: GPU Funeral Flame Trail 笏笏
             DrawFlameTrail(sb);
 
-            // ── Layer 2: Afterimage chain ──
+            // 笏笏 Layer 2: Afterimage chain 笏笏
             DrawAfterimages(sb, tex, origin);
 
-            // ── Layer 3: Core beam sprite with crimson glow ──
+            // 笏笏 Layer 3: Core beam sprite with crimson glow 笏笏
             DrawBeamCore(sb, tex, origin);
 
-            // ── Layer 4: Additive bloom ──
+            // 笏笏 Layer 4: Additive bloom 笏笏
             DrawBloomOverlay(sb, origin);
 
             return false;

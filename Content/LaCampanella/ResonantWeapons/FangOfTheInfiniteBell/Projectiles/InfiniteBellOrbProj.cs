@@ -2,41 +2,40 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.Graphics.Shaders;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.Particles;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.Primitives;
-using MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.Shaders;
 using MagnumOpus.Content.LaCampanella.Debuffs;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.Projectiles
 {
     /// <summary>
-    /// InfiniteBellOrbProj  EHoming arcane bell-fire orb.
-    /// Tracks enemies with moderate homing. On hit triggers empowerment cycle.
-    /// When empowered (ai[0]=1), spawns EmpoweredLightningProj on hit.
-    /// Arcane violet-fire trail with golden empowered variant.
+    /// InfiniteBellOrbProj — Bouncing bell-shaped energy orb.
+    /// ai[0] = max bounces remaining, ai[1] = 1 if Infinite Crescendo variant.
+    /// 
+    /// Normal: bounces between enemies 2 times, spawns echo orb each bounce (half dmg, 1 bounce).
+    /// Crescendo: bounces 10 times, full damage, spawns 4 echo orbs per bounce.
+    /// Each bounce registers a stack on the owning player's FangOfTheInfiniteBellPlayer.
+    /// At 10+ stacks: spawns EmpoweredLightningProj arcs toward nearby airborne orbs.
+    /// At 20 stacks (normal orbs only): explodes on final bounce.
     /// </summary>
     public class InfiniteBellOrbProj : ModProjectile
     {
-        private const float HomingRange = 500f;
-        private const float HomingStrength = 0.05f;
-        private const float MaxSpeed = 16f;
-
-        private Player Owner => Main.player[Projectile.owner];
-        private bool IsEmpowered => Projectile.ai[0] > 0f;
-        private bool _initialized;
+        private const int MaxTrailPositions = 20;
+        private Vector2[] _trailPositions = new Vector2[MaxTrailPositions];
+        private int _trailIndex;
         private FangOfTheInfiniteBellPrimitiveRenderer _trailRenderer;
 
-        public override string Texture => "MagnumOpus/Content/LaCampanella/ResonantWeapons/FangOfTheInfiniteBell/FangOfTheInfiniteBell";
+        private int BouncesRemaining { get => (int)Projectile.ai[0]; set => Projectile.ai[0] = value; }
+        private bool IsCrescendo => Projectile.ai[1] == 1f;
+        private bool _hasHitAnEnemy;
+        private int _seekTimer;
+        private int _lightningCooldown;
 
-        public override void SetStaticDefaults()
-        {
-            ProjectileID.Sets.TrailCacheLength[Type] = 18;
-            ProjectileID.Sets.TrailingMode[Type] = 2;
-        }
+        public override string Texture => "MagnumOpus/Content/LaCampanella/ResonantWeapons/FangOfTheInfiniteBell/FangOfTheInfiniteBell";
 
         public override void SetDefaults()
         {
@@ -44,122 +43,258 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
             Projectile.height = 24;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Magic;
-            Projectile.penetrate = 2;
-            Projectile.timeLeft = 120;
+            Projectile.penetrate = -1; // Bouncing handles "hits"
+            Projectile.timeLeft = 300;
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = 30;
             Projectile.extraUpdates = 1;
         }
 
         public override void AI()
         {
-            if (!_initialized)
+            _trailRenderer ??= new FangOfTheInfiniteBellPrimitiveRenderer();
+
+            // Record trail
+            if (Main.GameUpdateCount % 2 == 0)
             {
-                _initialized = true;
-                _trailRenderer = new FangOfTheInfiniteBellPrimitiveRenderer();
-                Projectile.rotation = Projectile.velocity.ToRotation();
+                _trailPositions[_trailIndex % MaxTrailPositions] = Projectile.Center;
+                _trailIndex++;
             }
 
-            // Homing
-            NPC target = FangOfTheInfiniteBellUtils.ClosestNPCAt(Projectile.Center, HomingRange);
-            if (target != null)
+            // Scale for Crescendo orbs
+            if (IsCrescendo)
             {
-                Vector2 desired = Projectile.Center.SafeDirectionTo(target.Center);
-                float strength = IsEmpowered ? HomingStrength * 1.5f : HomingStrength;
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desired * Projectile.velocity.Length(), strength);
+                Projectile.width = 40;
+                Projectile.height = 40;
+                Projectile.scale = 1.6f;
             }
 
-            if (Projectile.velocity.Length() > MaxSpeed)
-                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
-
-            Projectile.rotation = Projectile.velocity.ToRotation();
-
-            // Trail particles
-            if (Main.rand.NextBool(2))
+            // Seek nearest enemy after initial travel
+            _seekTimer++;
+            if (_seekTimer > 10)
             {
-                Color dustColor = IsEmpowered
-                    ? FangOfTheInfiniteBellUtils.GetEmpoweredFlicker(Main.rand.NextFloat())
-                    : FangOfTheInfiniteBellUtils.GetArcaneFlicker(Main.rand.NextFloat());
-                Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(5f, 5f),
-                    DustID.Torch, -Projectile.velocity * 0.15f, 0, dustColor, 0.9f);
-                d.noGravity = true;
+                NPC target = FangOfTheInfiniteBellUtils.ClosestNPCAt(Projectile.Center, 480f);
+                if (target != null)
+                {
+                    Vector2 toTarget = target.Center - Projectile.Center;
+                    float dist = toTarget.Length();
+                    if (dist > 1f)
+                    {
+                        toTarget /= dist;
+                        float turnSpeed = IsCrescendo ? 0.06f : 0.08f;
+                        Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * Projectile.velocity.Length(), turnSpeed);
+                    }
+                }
             }
 
-            // Empowered: extra electric sparks
-            if (IsEmpowered && Main.rand.NextBool(3))
+            // Lightning arcs at 10+ stacks
+            Player owner = Main.player[Projectile.owner];
+            if (owner.active)
             {
-                Vector2 sparkVel = Main.rand.NextVector2Circular(1f, 1f);
+                var fbPlayer = owner.FangOfTheInfiniteBell();
+                if (fbPlayer.HasLightningArcs && _lightningCooldown <= 0)
+                {
+                    TrySpawnLightningArc(owner);
+                    _lightningCooldown = 30; // 0.5s cooldown
+                }
+            }
+            if (_lightningCooldown > 0) _lightningCooldown--;
+
+            // Particle trail
+            if (Main.rand.NextBool(3))
+            {
+                Vector2 dustVel = Main.rand.NextVector2Circular(1f, 1f);
                 FangOfTheInfiniteBellParticleHandler.SpawnParticle(
-                    new EmpoweredSparkParticle(Projectile.Center, sparkVel, 12, 0.25f));
+                    new EmpoweredSparkParticle(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
+                        dustVel, 10, IsCrescendo ? 0.4f : 0.25f));
             }
 
-            float intensity = IsEmpowered ? 0.6f : 0.35f;
-            float pulse = 1f + 0.2f * (float)Math.Sin(Projectile.timeLeft * 0.2f);
-            Vector3 lightColor = IsEmpowered
-                ? new Vector3(0.6f, 0.5f, 0.1f)
-                : new Vector3(0.5f, 0.2f, 0.1f);
-            Lighting.AddLight(Projectile.Center, lightColor * intensity * pulse);
+            // Gentle light
+            float lightIntensity = IsCrescendo ? 0.8f : 0.5f;
+            Lighting.AddLight(Projectile.Center, new Vector3(0.6f, 0.4f, 0.1f) * lightIntensity);
+
+            // Rotation
+            Projectile.rotation += 0.08f;
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            // Apply Resonant Toll debuff
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 1);
 
-            // Register empowerment hit
-            var tracker = Owner.FangOfTheInfiniteBell();
-            tracker.ResetHitDecay();
-            bool empowered = tracker.RegisterHit();
+            _hasHitAnEnemy = true;
 
-            // Impact VFX
-            Vector2 hitPos = target.Center;
-            for (int i = 0; i < 5; i++)
+            if (BouncesRemaining > 0)
             {
-                Vector2 vel = Main.rand.NextVector2CircularEdge(3f, 3f);
-                FangOfTheInfiniteBellParticleHandler.SpawnParticle(
-                    new ArcaneOrbParticle(hitPos, vel, Main.rand.NextFloat(0.4f, 0.9f), 18, 0.35f));
-            }
+                BouncesRemaining--;
 
-            FangOfTheInfiniteBellParticleHandler.SpawnParticle(
-                new ArcaneFlashParticle(hitPos, 10, 1f, IsEmpowered));
+                // Register bounce stack on player
+                Player owner = Main.player[Projectile.owner];
+                if (owner.active)
+                    owner.FangOfTheInfiniteBell().RegisterBounce();
 
-            // Music note on hit
-            if (Main.rand.NextBool(2))
-            {
-                Vector2 noteVel = Vector2.UnitY * -Main.rand.NextFloat(0.5f, 1.5f) + Main.rand.NextVector2Circular(0.5f, 0.5f);
-                FangOfTheInfiniteBellParticleHandler.SpawnParticle(
-                    new MusicalBellNoteParticle(hitPos, noteVel, 30, 0.4f, IsEmpowered));
-            }
+                // Spawn echo orbs
+                SpawnEchoOrbs(target);
 
-            // When empowered, spawn lightning
-            if (IsEmpowered && Projectile.owner == Main.myPlayer)
-            {
-                Vector2 lightningStart = target.Center + new Vector2(Main.rand.NextFloat(-80f, 80f), -300f);
-                Projectile.NewProjectile(
-                    Projectile.GetSource_FromThis(), lightningStart, Vector2.Zero,
-                    ModContent.ProjectileType<EmpoweredLightningProj>(),
-                    Projectile.damage / 2, 0f, Projectile.owner,
-                    target.Center.X, target.Center.Y);
-            }
+                // Spawn bounce impact particles
+                SpawnBounceImpactParticles(target.Center);
 
-            // Empowerment trigger flash
-            if (empowered)
-            {
-                FangOfTheInfiniteBellParticleHandler.SpawnParticle(
-                    new ArcaneFlashParticle(Owner.Center, 15, 2.5f, true));
-                for (int i = 0; i < 8; i++)
+                // Find next bounce target
+                NPC nextTarget = FindNextBounceTarget(target);
+                if (nextTarget != null)
                 {
-                    Vector2 sparkVel = Main.rand.NextVector2CircularEdge(4f, 4f);
-                    FangOfTheInfiniteBellParticleHandler.SpawnParticle(
-                        new EmpoweredSparkParticle(Owner.Center, sparkVel, 25, 0.4f));
+                    // Redirect toward next target
+                    Vector2 toNext = (nextTarget.Center - Projectile.Center);
+                    float len = toNext.Length();
+                    if (len > 1f)
+                        Projectile.velocity = (toNext / len) * Projectile.velocity.Length();
+
+                    // Reset local immunity so we can hit the next target
+                    for (int i = 0; i < Projectile.localNPCImmunity.Length; i++)
+                        Projectile.localNPCImmunity[i] = 0;
+                    // But keep this target immune
+                    if (target.whoAmI >= 0 && target.whoAmI < Projectile.localNPCImmunity.Length)
+                        Projectile.localNPCImmunity[target.whoAmI] = 60;
+
+                    SoundEngine.PlaySound(SoundID.Item28, Projectile.Center);
+                }
+                else
+                {
+                    // No more targets — die
+                    HandleFinalBounce(owner);
                 }
             }
+            else
+            {
+                // No bounces left
+                Player owner = Main.player[Projectile.owner];
+                HandleFinalBounce(owner);
+            }
+        }
+
+        private void HandleFinalBounce(Player owner)
+        {
+            // At 20 stacks (non-Crescendo): explode on final bounce
+            if (owner.active)
+            {
+                var fbPlayer = owner.FangOfTheInfiniteBell();
+                if (fbPlayer.HasFinalBounceExplosion || IsCrescendo)
+                {
+                    // Explosion VFX
+                    SpawnExplosion();
+                }
+            }
+            Projectile.Kill();
+        }
+
+        private void SpawnEchoOrbs(NPC hitTarget)
+        {
+            int echoCount = IsCrescendo ? 4 : 1;
+            int echoDamage = IsCrescendo ? Projectile.damage : Projectile.damage / 2;
+
+            for (int i = 0; i < echoCount; i++)
+            {
+                float angle = MathHelper.TwoPi / echoCount * i + Main.rand.NextFloat(-0.3f, 0.3f);
+                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 6f;
+
+                // Echo orb: ai[0] = 1 bounce, ai[1] = 0 (not Crescendo)
+                Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, vel,
+                    Type, echoDamage, Projectile.knockBack * 0.5f, Projectile.owner, 1f, 0f);
+            }
+        }
+
+        private NPC FindNextBounceTarget(NPC exclude)
+        {
+            NPC best = null;
+            float bestDist = 480f; // 30 tiles
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (!npc.active || npc.friendly || npc.dontTakeDamage || npc.whoAmI == exclude.whoAmI)
+                    continue;
+                float dist = Vector2.Distance(Projectile.Center, npc.Center);
+                if (dist < bestDist) { bestDist = dist; best = npc; }
+            }
+            return best;
+        }
+
+        private void TrySpawnLightningArc(Player owner)
+        {
+            // Find another airborne InfiniteBellOrbProj nearby
+            int myType = Projectile.type;
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile other = Main.projectile[i];
+                if (!other.active || other.whoAmI == Projectile.whoAmI || other.type != myType || other.owner != Projectile.owner)
+                    continue;
+                float dist = Vector2.Distance(Projectile.Center, other.Center);
+                if (dist < 320f && dist > 32f) // Within 20 tiles but not too close
+                {
+                    // Spawn EmpoweredLightningProj between us
+                    int lightDmg = (int)(Projectile.damage * 0.3f);
+                    Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero,
+                        ModContent.ProjectileType<EmpoweredLightningProj>(),
+                        lightDmg, 0f, Projectile.owner, other.Center.X, other.Center.Y);
+                    break; // One arc per cooldown
+                }
+            }
+        }
+
+        private void SpawnBounceImpactParticles(Vector2 position)
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2CircularEdge(4f, 4f) * Main.rand.NextFloat(0.5f, 1f);
+                FangOfTheInfiniteBellParticleHandler.SpawnParticle(
+                    new EmpoweredSparkParticle(position, vel, 15, 0.3f));
+            }
+            FangOfTheInfiniteBellParticleHandler.SpawnParticle(
+                new ArcaneFlashParticle(position, 10, 1.2f, false));
+        }
+
+        private void SpawnExplosion()
+        {
+            // Large explosion VFX at death position
+            float radius = IsCrescendo ? 1.8f : 1.2f;
+            FangOfTheInfiniteBellParticleHandler.SpawnParticle(
+                new ArcaneFlashParticle(Projectile.Center, 15, radius, true));
+
+            for (int i = 0; i < 16; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2CircularEdge(6f, 6f) * Main.rand.NextFloat(0.6f, 1.2f);
+                FangOfTheInfiniteBellParticleHandler.SpawnParticle(
+                    new EmpoweredSparkParticle(Projectile.Center, vel, 20, 0.4f));
+            }
+
+            // Splash damage in radius
+            float aoeRadius = IsCrescendo ? 120f : 80f;
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (!npc.active || npc.friendly || npc.dontTakeDamage) continue;
+                if (Vector2.Distance(Projectile.Center, npc.Center) <= aoeRadius)
+                {
+                    Player owner = Main.player[Projectile.owner];
+                    int splashDmg = (int)(Projectile.damage * 0.5f);
+                    owner.ApplyDamageToNPC(npc, splashDmg, 0f, 0, false);
+                }
+            }
+
+            SoundEngine.PlaySound(SoundID.Item14, Projectile.Center);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+
+            // Draw trail
             DrawOrbTrail(sb);
-            DrawOrbCore(sb);
+
+            // Draw orb body with bloom
+            DrawOrbBody(sb, lightColor);
+
             return false;
         }
 
@@ -167,80 +302,93 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
         {
             if (_trailRenderer == null) return;
 
-            Vector2[] trailPos = new Vector2[Projectile.oldPos.Length];
-            for (int i = 0; i < trailPos.Length; i++)
-                trailPos[i] = Projectile.oldPos[i] == Vector2.Zero ? Projectile.Center : Projectile.oldPos[i] + Projectile.Size / 2f;
-
-            Color trailColor = IsEmpowered
-                ? FangOfTheInfiniteBellUtils.GetEmpoweredGradient(0.5f)
-                : FangOfTheInfiniteBellUtils.GetArcaneGradient(0.5f);
-
-            MiscShaderData shader = FangOfTheInfiniteBellShaderLoader.GetOrbShader();
-            if (shader != null)
+            // Build ordered trail from ring buffer
+            Vector2[] trail = new Vector2[Math.Min(_trailIndex, MaxTrailPositions)];
+            for (int i = 0; i < trail.Length; i++)
             {
-                shader.UseColor(trailColor);
-                shader.UseSecondaryColor(Color.Lerp(trailColor, Color.White, 0.3f));
-                try { shader.Shader.Parameters["uTime"]?.SetValue(Main.GameUpdateCount * 0.03f); } catch { }
+                int idx = (_trailIndex - trail.Length + i) % MaxTrailPositions;
+                if (idx < 0) idx += MaxTrailPositions;
+                trail[i] = _trailPositions[idx];
             }
+            if (trail.Length < 2) return;
 
+            float baseWidth = IsCrescendo ? 16f : 10f;
             var settings = new FangOfTheInfiniteBellPrimitiveRenderer.FangTrailSettings(
-                width: t => MathHelper.Lerp(IsEmpowered ? 16f : 12f, 2f, t),
-                color: t => Color.Lerp(trailColor, Color.Transparent, t * t),
-                shader: shader);
+                width: t => MathHelper.Lerp(baseWidth, 2f, t),
+                color: t =>
+                {
+                    Color c = FangOfTheInfiniteBellUtils.GetArcaneGradient(t * 0.6f + 0.2f);
+                    return FangOfTheInfiniteBellUtils.Additive(c, (1f - t) * 0.6f);
+                },
+                shader: null,
+                smoothen: true);
 
             sb.End();
-            _trailRenderer.RenderTrail(trailPos, settings, 30);
-
-            var glowSettings = new FangOfTheInfiniteBellPrimitiveRenderer.FangTrailSettings(
-                width: t => MathHelper.Lerp(IsEmpowered ? 22f : 18f, 3f, t),
-                color: t => FangOfTheInfiniteBellUtils.Additive(trailColor, (1f - t) * 0.25f),
-                shader: shader);
-
-            _trailRenderer.RenderTrail(trailPos, glowSettings, 30);
-
+            _trailRenderer.RenderTrail(trail, settings, trail.Length);
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
-        private void DrawOrbCore(SpriteBatch sb)
+        private void DrawOrbBody(SpriteBatch sb, Color lightColor)
         {
+            // Bloom glow
             Texture2D bloomTex = null;
-            try { bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", ReLogic.Content.AssetRequestMode.ImmediateLoad)?.Value; } catch { }
-            if (bloomTex == null) return;
-
-            Vector2 screenPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = new(bloomTex.Width / 2f, bloomTex.Height / 2f);
-            float pulse = 0.8f + 0.2f * (float)Math.Sin(Projectile.timeLeft * 0.15f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            if (IsEmpowered)
+            try
             {
-                sb.Draw(bloomTex, screenPos, null, FangOfTheInfiniteBellUtils.Additive(new Color(200, 150, 0), 0.4f * pulse), 0f, origin, 0.7f, SpriteEffects.None, 0f);
-                sb.Draw(bloomTex, screenPos, null, FangOfTheInfiniteBellUtils.Additive(new Color(255, 255, 150), 0.7f * pulse), 0f, origin, 0.3f, SpriteEffects.None, 0f);
+                bloomTex = ModContent.Request<Texture2D>(
+                    "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow",
+                    ReLogic.Content.AssetRequestMode.ImmediateLoad)?.Value;
             }
-            else
+            catch { }
+
+            if (bloomTex != null)
             {
-                sb.Draw(bloomTex, screenPos, null, FangOfTheInfiniteBellUtils.Additive(new Color(180, 50, 20), 0.35f * pulse), 0f, origin, 0.55f, SpriteEffects.None, 0f);
-                sb.Draw(bloomTex, screenPos, null, FangOfTheInfiniteBellUtils.Additive(new Color(255, 210, 100), 0.6f * pulse), 0f, origin, 0.22f, SpriteEffects.None, 0f);
+                Vector2 screenPos = Projectile.Center - Main.screenPosition;
+                Vector2 bloomOrigin = new(bloomTex.Width / 2f, bloomTex.Height / 2f);
+                float pulse = 0.85f + 0.15f * (float)Math.Sin(Main.GameUpdateCount * 0.1f);
+
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                // Outer glow
+                float outerScale = (IsCrescendo ? 0.6f : 0.35f) * pulse;
+                Color outerColor = FangOfTheInfiniteBellUtils.Additive(
+                    FangOfTheInfiniteBellUtils.GetArcaneGradient(0.4f), 0.3f);
+                sb.Draw(bloomTex, screenPos, null, outerColor, 0f, bloomOrigin, outerScale, SpriteEffects.None, 0f);
+
+                // Core glow
+                float coreScale = (IsCrescendo ? 0.3f : 0.18f) * pulse;
+                Color coreColor = FangOfTheInfiniteBellUtils.Additive(
+                    FangOfTheInfiniteBellUtils.GetArcaneGradient(0.85f), 0.6f);
+                sb.Draw(bloomTex, screenPos, null, coreColor, 0f, bloomOrigin, coreScale, SpriteEffects.None, 0f);
+
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            // Draw actual sprite
+            Texture2D tex = ModContent.Request<Texture2D>(Texture, ReLogic.Content.AssetRequestMode.ImmediateLoad)?.Value;
+            if (tex != null)
+            {
+                Vector2 origin = new(tex.Width / 2f, tex.Height / 2f);
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                sb.Draw(tex, drawPos, null, lightColor * Projectile.Opacity, Projectile.rotation, origin, Projectile.scale * 0.6f, SpriteEffects.None, 0f);
+            }
         }
 
         public override void OnKill(int timeLeft)
         {
-            for (int i = 0; i < 4; i++)
-            {
-                Vector2 vel = Main.rand.NextVector2CircularEdge(2f, 2f);
-                FangOfTheInfiniteBellParticleHandler.SpawnParticle(
-                    new ArcaneOrbParticle(Projectile.Center, vel, 0.5f, 15, 0.25f));
-            }
             _trailRenderer?.Dispose();
+
+            // Death particles
+            for (int i = 0; i < 6; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(3f, 3f);
+                FangOfTheInfiniteBellParticleHandler.SpawnParticle(
+                    new EmpoweredSparkParticle(Projectile.Center, vel, 12, 0.2f));
+            }
         }
     }
 }

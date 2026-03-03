@@ -1,16 +1,12 @@
+﻿using MagnumOpus.Common;
+using MagnumOpus.Content.Eroica;
+using MagnumOpus.Content.Eroica.Projectiles;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
-using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.Audio;
-using MagnumOpus.Content.Eroica;
-using MagnumOpus.Content.Eroica.Projectiles;
-using MagnumOpus.Common;
-using MagnumOpus.Common.Systems;
+using Terraria;
 
 namespace MagnumOpus.Content.Eroica.Weapons.PiercingLightOfTheSakura
 {
@@ -18,13 +14,9 @@ namespace MagnumOpus.Content.Eroica.Weapons.PiercingLightOfTheSakura
     {
         private int shotCounter = 0;
 
-        public override void SetStaticDefaults()
-        {
-            Item.ResearchUnlockCount = 1;
-        }
-
         public override void SetDefaults()
         {
+            Item.ResearchUnlockCount = 1;
             Item.damage = 155;
             Item.DamageType = DamageClass.Ranged;
             Item.width = 64;
@@ -37,7 +29,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.PiercingLightOfTheSakura
             Item.rare = ModContent.RarityType<EroicaRainbowRarity>();
             Item.UseSound = SoundID.Item11;
             Item.autoReuse = true;
-            Item.shoot = ProjectileID.Bullet;
+            Item.shoot = ModContent.ProjectileType<PiercingLightOfTheSakuraProjectile>();
             Item.shootSpeed = 18f;
             Item.useAmmo = AmmoID.Bullet;
             Item.noMelee = true;
@@ -47,60 +39,31 @@ namespace MagnumOpus.Content.Eroica.Weapons.PiercingLightOfTheSakura
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             shotCounter++;
+            bool isCulmination = shotCounter % 8 == 0;
+            bool heroFinalLight = player.statLife < player.statLifeMax2 * 0.2f;
+            if (heroFinalLight)
+                isCulmination = shotCounter % 4 == 0;
 
-            // Every 10th shot fires the special sakura lightning projectile
-            if (shotCounter >= 10)
-            {
-                // Pass charge progress (1.0 = full crescendo) to projectile via ai[0]
-                float chargeProgress = 1.0f;
-                shotCounter = 0;
-
-                Projectile.NewProjectile(source, position, velocity * 1.2f,
-                    ModContent.ProjectileType<PiercingLightOfTheSakuraProjectile>(),
-                    (int)(damage * 2.5f), knockback * 2f, player.whoAmI,
-                    ai0: chargeProgress);
-
-                // Spawn seeking crystals
-                SeekingCrystalHelper.SpawnEroicaCrystals(
-                    source,
-                    position + velocity.SafeNormalize(Vector2.UnitX) * 25f,
-                    velocity * 0.6f,
-                    (int)(damage * 0.4f),
-                    knockback,
-                    player.whoAmI,
-                    5
-                );
-
-                SoundEngine.PlaySound(SoundID.Item125 with { Pitch = 0.3f, Volume = 0.8f }, position);
-
-                return false;
-            }
-
-            // Normal bullet with dark tracer
-            int proj = Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
-            if (proj >= 0 && proj < Main.maxProjectiles)
-            {
-                Main.projectile[proj].alpha = 200;
-            }
-
+            // ai[0] = 1 for Culmination shots
+            Projectile.NewProjectile(source, position, velocity,
+                ModContent.ProjectileType<PiercingLightOfTheSakuraProjectile>(),
+                isCulmination ? (int)(damage * 1.5f) : damage,
+                knockback, player.whoAmI, ai0: isCulmination ? 1f : 0f);
             return false;
-        }
-
-        public override Vector2? HoldoutOffset()
-        {
-            return new Vector2(-8f, 0f);
-        }
-
-        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
-        {
-            return true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Every 10th shot builds to a piercing crescendo burst"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Crescendo shots detonate into sakura lightning and seeking crystals"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Nine notes of sorrow, one chord of blazing triumph'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1",
+            "Fast piercing sakura projectiles that burst through enemies")
+            { OverrideColor = EroicaPalette.Sakura });
+            tooltips.Add(new TooltipLine(Mod, "Effect2",
+            "Every 8th shot is a Culmination — pierces infinitely with detonating sakura lightning"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3",
+            "Hero's Final Light: below 20% HP, Culmination fires every 4th shot")
+            { OverrideColor = EroicaPalette.Gold });
+            tooltips.Add(new TooltipLine(Mod, "Lore",
+            "'The light that pierces is the one that never faltered.'")
             {
                 OverrideColor = new Color(200, 50, 50)
             });

@@ -88,23 +88,83 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 
         private void SpawnInitialBurst()
         {
-            // Large bloom cascade
-            LunarParticleHandler.SpawnParticle(new LunarBloomParticle(Projectile.Center, 2f, EternalMoonUtils.MoonWhite, 25, 0.1f));
-            LunarParticleHandler.SpawnParticle(new LunarBloomParticle(Projectile.Center, 2.5f, EternalMoonUtils.CrescentGlow, 30, 0.08f));
-            LunarParticleHandler.SpawnParticle(new LunarBloomParticle(Projectile.Center, 3f, EternalMoonUtils.IceBlue, 35, 0.06f));
-            LunarParticleHandler.SpawnParticle(new LunarBloomParticle(Projectile.Center, 3.5f, EternalMoonUtils.Violet, 40, 0.05f));
-            LunarParticleHandler.SpawnParticle(new LunarBloomParticle(Projectile.Center, 4f, EternalMoonUtils.DarkPurple, 50, 0.04f));
+            Player owner = Main.player[Projectile.owner];
+            var emPlayer = owner.EternalMoon();
+            float tidalMult = emPlayer.TidalPhaseMultiplier;
 
-            // Radial crescent spark explosion (20 sparks)
-            for (int i = 0; i < 20; i++)
+            // === GRAVITATIONAL PULL at detonation center ===
+            emPlayer.StartGravitationalPull(Projectile.Center);
+
+            // Tidal Phase Ring — shows what phase the detonation occurred at
+            if (emPlayer.TidalPhase >= 1)
             {
-                float angle = MathHelper.TwoPi * i / 20f + Main.rand.NextFloat(-0.1f, 0.1f);
-                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(8f, 16f);
+                Color phaseColor = EternalMoonPlayer.TidalPhaseColors[emPlayer.TidalPhase];
+                LunarParticleHandler.SpawnParticle(new TidalPhaseRingParticle(
+                    Projectile.Center, 1.5f * tidalMult, phaseColor, 35));
+                LunarParticleHandler.SpawnParticle(new TidalPhaseRingParticle(
+                    Projectile.Center, 2f * tidalMult, phaseColor * 0.5f, 45));
+            }
+
+            // Large bloom cascade — scaled by tidal phase
+            LunarParticleHandler.SpawnParticle(new LunarBloomParticle(Projectile.Center, 2f * tidalMult, EternalMoonUtils.MoonWhite, 25, 0.1f));
+            LunarParticleHandler.SpawnParticle(new LunarBloomParticle(Projectile.Center, 2.5f * tidalMult, EternalMoonUtils.CrescentGlow, 30, 0.08f));
+            LunarParticleHandler.SpawnParticle(new LunarBloomParticle(Projectile.Center, 3f * tidalMult, EternalMoonUtils.IceBlue, 35, 0.06f));
+            LunarParticleHandler.SpawnParticle(new LunarBloomParticle(Projectile.Center, 3.5f * tidalMult, EternalMoonUtils.Violet, 40, 0.05f));
+            LunarParticleHandler.SpawnParticle(new LunarBloomParticle(Projectile.Center, 4f * tidalMult, EternalMoonUtils.DarkPurple, 50, 0.04f));
+
+            // Radial crescent spark explosion (count scales with tidal phase)
+            int sparkCount = 20 + emPlayer.TidalPhase * 5;
+            for (int i = 0; i < sparkCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / sparkCount + Main.rand.NextFloat(-0.1f, 0.1f);
+                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(8f, 16f) * tidalMult;
                 Color sparkColor = EternalMoonUtils.MulticolorLerp(Main.rand.NextFloat(),
                     EternalMoonUtils.IceBlue, EternalMoonUtils.CrescentGlow, EternalMoonUtils.MoonWhite);
                 LunarParticleHandler.SpawnParticle(new CrescentSparkParticle(
                     Projectile.Center, sparkVel, Main.rand.NextFloat(0.6f, 1.2f),
                     sparkColor, Main.rand.Next(20, 35)));
+            }
+
+            // Wave spray ring — water-like spray radiating outward
+            int sprayCount = 12 + emPlayer.TidalPhase * 4;
+            for (int i = 0; i < sprayCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / sprayCount + Main.rand.NextFloat(-0.15f, 0.15f);
+                Vector2 sprayVel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 12f);
+                Color sprayColor = Color.Lerp(EternalMoonUtils.MoonWhite, EternalMoonUtils.IceBlue, Main.rand.NextFloat());
+                LunarParticleHandler.SpawnParticle(new WaveSprayParticle(
+                    Projectile.Center + angle.ToRotationVector2() * 15f, sprayVel,
+                    Main.rand.NextFloat(0.3f, 0.7f), sprayColor, Main.rand.Next(15, 25)));
+            }
+
+            // Tidal droplets falling from blast — gravity-affected water drops
+            for (int i = 0; i < 10 + emPlayer.TidalPhase * 3; i++)
+            {
+                Vector2 dropVel = Main.rand.NextVector2Unit() * Main.rand.NextFloat(3f, 8f);
+                dropVel.Y -= Main.rand.NextFloat(2f, 5f); // Bias upward first
+                Color dropColor = Color.Lerp(EternalMoonUtils.IceBlue, EternalMoonUtils.MoonWhite, Main.rand.NextFloat(0.3f));
+                LunarParticleHandler.SpawnParticle(new TidalDropletParticle(
+                    Projectile.Center + Main.rand.NextVector2Circular(30f, 30f), dropVel,
+                    Main.rand.NextFloat(0.3f, 0.6f), dropColor, Main.rand.Next(25, 45)));
+            }
+
+            // Moon glint sparkles scattered across the blast
+            for (int i = 0; i < 8; i++)
+            {
+                Vector2 glintPos = Projectile.Center + Main.rand.NextVector2Circular(MaxExplosionRadius * 0.5f, MaxExplosionRadius * 0.5f);
+                LunarParticleHandler.SpawnParticle(new MoonGlintParticle(
+                    glintPos, Main.rand.NextFloat(0.3f, 0.6f), EternalMoonUtils.MoonWhite, Main.rand.Next(15, 30)));
+            }
+
+            // Gravity well motes spiraling inward at detonation point
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 motePos = Projectile.Center + angle.ToRotationVector2() * Main.rand.NextFloat(80f, 140f);
+                LunarParticleHandler.SpawnParticle(new GravityWellMoteParticle(
+                    motePos, Projectile.Center, Main.rand.NextFloat(0.3f, 0.5f),
+                    Color.Lerp(EternalMoonUtils.Violet, EternalMoonUtils.IceBlue, Main.rand.NextFloat()),
+                    Main.rand.Next(25, 40)));
             }
 
             // Tidal mote ring
@@ -118,8 +178,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                     Main.rand.Next(35, 55)));
             }
 
-            // Music note cascade — rising from the destruction
-            for (int i = 0; i < 8; i++)
+            // Music note cascade — rising from the destruction (more at higher tidal phase)
+            int noteCount = 8 + emPlayer.TidalPhase * 2;
+            for (int i = 0; i < noteCount; i++)
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-3.5f, -1f));
                 LunarParticleHandler.SpawnParticle(new LunarNoteParticle(

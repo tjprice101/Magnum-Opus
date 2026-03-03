@@ -235,6 +235,105 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Particles
     }
 
     // =========================================================================
+    // 6. HARMONIC NODE — stationary pulsing star at standing wave positions
+    // =========================================================================
+    public class HarmonicNodeParticle : SerenadeParticle
+    {
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        private readonly Color _baseColor;
+        private readonly Color _peakColor;
+
+        public HarmonicNodeParticle(Vector2 pos, Color baseColor, Color peakColor, float scale, int lifetime)
+        {
+            Position = pos;
+            Velocity = Vector2.Zero;
+            _baseColor = baseColor;
+            _peakColor = peakColor;
+            Scale = scale;
+            Lifetime = lifetime;
+            Rotation = Main.rand.NextFloat(MathHelper.TwoPi);
+        }
+
+        public override void Update()
+        {
+            // Stationary — just pulse rotation
+            Rotation += 0.04f;
+        }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            float t = LifetimeCompletion;
+            // Pulse between base and peak with standing wave rhythm
+            float pulse = (1f + MathF.Sin(Time * 0.25f)) * 0.5f;
+            float alpha = SerenadeUtils.SineBump(t) * (0.5f + pulse * 0.5f);
+            Color color = Color.Lerp(_baseColor, _peakColor, pulse) * alpha;
+
+            var tex = SerenadeTextures.StarSoft;
+            if (tex == null) return;
+            var origin = tex.Size() * 0.5f;
+            float scaleAnim = Scale * (0.8f + pulse * 0.4f);
+
+            spriteBatch.Draw(tex, Position - Main.screenPosition, null, color,
+                Rotation, origin, scaleAnim, SpriteEffects.None, 0f);
+
+            // Inner bright core
+            Color coreColor = SerenadeUtils.MoonWhite * (alpha * pulse * 0.6f);
+            spriteBatch.Draw(tex, Position - Main.screenPosition, null, coreColor,
+                Rotation + 0.5f, origin, scaleAnim * 0.4f, SpriteEffects.None, 0f);
+        }
+    }
+
+    // =========================================================================
+    // 7. RESONANCE PULSE — expanding ring on resonance level transition
+    // =========================================================================
+    public class ResonancePulseParticle : SerenadeParticle
+    {
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        private readonly float _maxScale;
+
+        public ResonancePulseParticle(Vector2 pos, Color color, float maxScale, int lifetime)
+        {
+            Position = pos;
+            Velocity = Vector2.Zero;
+            DrawColor = color;
+            Scale = 0.2f;
+            _maxScale = maxScale;
+            Lifetime = lifetime;
+        }
+
+        public override void Update()
+        {
+            float t = LifetimeCompletion;
+            Scale = _maxScale * SerenadeUtils.ExpoOut(t);
+        }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            float t = LifetimeCompletion;
+            float alpha = (1f - t * t) * 0.5f;
+            Color color = DrawColor * alpha;
+
+            var tex = SerenadeTextures.SoftCircle;
+            if (tex == null) return;
+            var origin = tex.Size() * 0.5f;
+
+            // Outer ring
+            spriteBatch.Draw(tex, Position - Main.screenPosition, null, color,
+                0f, origin, Scale, SpriteEffects.None, 0f);
+
+            // Inner ring (slightly smaller, brighter)
+            spriteBatch.Draw(tex, Position - Main.screenPosition, null, color * 0.6f,
+                0f, origin, Scale * 0.7f, SpriteEffects.None, 0f);
+        }
+    }
+
+    // =========================================================================
     // TEXTURE HELPER — lazy-loaded texture references for particles
     // =========================================================================
     internal static class SerenadeTextures
@@ -242,11 +341,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Particles
         private static Texture2D _pointBloom;
         private static Texture2D _softRadialBloom;
         private static Texture2D _starSoft;
+        private static Texture2D _softCircle;
         private static Texture2D[] _noteTextures;
 
         public static Texture2D PointBloom => _pointBloom ??= LoadTex("Assets/VFX Asset Library/GlowAndBloom/PointBloom");
         public static Texture2D SoftRadialBloom => _softRadialBloom ??= LoadTex("Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom");
         public static Texture2D StarSoft => _starSoft ??= LoadTex("Assets/Particles Asset Library/Stars/4PointedStarSoft");
+        public static Texture2D SoftCircle => _softCircle ??= LoadTex("Assets/VFX Asset Library/MasksAndShapes/SoftCircle");
 
         private static readonly string[] NoteNames = new[]
         {

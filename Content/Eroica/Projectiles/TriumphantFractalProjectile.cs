@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -9,15 +9,11 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.VFX;
-using MagnumOpus.Content.Eroica.Weapons.TriumphantFractal.Utilities;
-using MagnumOpus.Content.Eroica.Weapons.TriumphantFractal.Particles;
-using MagnumOpus.Content.Eroica.Weapons.TriumphantFractal.Primitives;
-using MagnumOpus.Content.Eroica.Weapons.TriumphantFractal.Dusts;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
     /// <summary>
-    /// Triumphant Fractal projectile  Ehoming fractal geometry with lightning flourishes.
+    /// Triumphant Fractal projectile 窶・homing fractal geometry with lightning flourishes.
     /// Self-contained VFX: GPU trail, lightning arcs, fractal afterimages, impact geometry.
     /// </summary>
     public class TriumphantFractalProjectile : ModProjectile
@@ -26,7 +22,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         private List<(Vector2 start, Vector2 end, float time)> activeLightning = new();
 
-        // ── Trail tracking ──
+        // 笏笏 Trail tracking 笏笏
         private const int TrailLength = 22;
         private Vector2[] trailPositions = new Vector2[TrailLength];
         private float[] trailRotations = new float[TrailLength];
@@ -59,7 +55,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Projectile.rotation = Projectile.velocity.ToRotation();
             AgeTimer++;
 
-            // ── Trail position tracking ──
+            // 笏笏 Trail position tracking 笏笏
             if (!trailInitialized)
             {
                 for (int i = 0; i < TrailLength; i++)
@@ -80,7 +76,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 trailRotations[0] = Projectile.rotation;
             }
 
-            // ─── Homing ───
+            // 笏笏笏 Homing 笏笏笏
             float homingRange = 400f;
             float homingStrength = 0.045f;
             NPC closestNPC = null;
@@ -106,7 +102,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * Projectile.velocity.Length(), homingStrength);
             }
 
-            // ─── Lightning bolt management ───
+            // 笏笏笏 Lightning bolt management 笏笏笏
             if ((int)AgeTimer % 8 == 0)
             {
                 float angle = Main.rand.NextFloat(MathHelper.TwoPi);
@@ -134,7 +130,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             float pulse = 1f + MathF.Sin(AgeTimer * 0.3f) * 0.08f;
             Projectile.scale = pulse;
 
-            // ── Particle Spawning ──
+            // 笏笏 Particle Spawning 笏笏
             SpawnFlightParticles();
         }
 
@@ -285,19 +281,19 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = tex.Size() / 2f;
 
-            // ── Layer 1: GPU Fractal Energy Trail ──
+            // 笏笏 Layer 1: GPU Fractal Energy Trail 笏笏
             DrawFractalTrail(sb);
 
-            // ── Layer 2: Lightning arcs ──
+            // 笏笏 Layer 2: Lightning arcs 笏笏
             DrawLightningArcs(sb);
 
-            // ── Layer 3: Afterimage chain ──
+            // 笏笏 Layer 3: Afterimage chain 笏笏
             DrawAfterimages(sb, tex, origin);
 
-            // ── Layer 4: Core fractal sprite ──
+            // 笏笏 Layer 4: Core fractal sprite 笏笏
             DrawCore(sb, tex, origin, lightColor);
 
-            // ── Layer 5: Additive bloom ──
+            // 笏笏 Layer 5: Additive bloom 笏笏
             DrawBloomOverlay(sb, origin);
 
             return false;

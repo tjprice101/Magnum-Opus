@@ -449,6 +449,37 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                 }
             }
 
+            // === ECHOING TIDES (every 4th swing) ===
+            // Every 4th swing echoes the previous 3 swings as ghostly afterimage replays
+            if (Owner.EternalMoon().ShouldEchoTides && Progression > 0.25f && Progression < 0.3f && Main.myPlayer == Projectile.owner)
+            {
+                // Spawn 3 offset ghost echoes with staggered timing
+                for (int echo = 0; echo < 3; echo++)
+                {
+                    float angleOffset = MathHelper.ToRadians(15 * (echo - 1));
+                    Vector2 echoVel = Projectile.velocity.RotatedBy(angleOffset);
+                    int echoDamage = (int)(Projectile.damage * 0.25f);
+                    int proj = Projectile.NewProjectile(Projectile.GetSource_FromAI(), Projectile.Center, echoVel,
+                        ModContent.ProjectileType<EternalMoonGhost>(), echoDamage, Projectile.knockBack * 0.2f,
+                        Projectile.owner, _lunarPhase, echo == 1 ? -1 : 1);
+                    if (Main.projectile.IndexInRange(proj))
+                        Main.projectile[proj].timeLeft -= echo * 6; // Staggered timing
+                }
+
+                // Echoing tides VFX — pulse rings
+                if (!Main.dedServ)
+                {
+                    for (int i = 0; i < 3; i++)
+                    {
+                        LunarParticleHandler.SpawnParticle(new TidalPhaseRingParticle(
+                            Owner.MountedCenter, 0.8f + i * 0.3f,
+                            Color.Lerp(IceBlue, Violet, i / 2f) * 0.6f, 20 + i * 5));
+                    }
+                    MoonlightVFXLibrary.SpawnMusicNotes(Owner.MountedCenter, count: 3, spread: 25f,
+                        minScale: 0.5f, maxScale: 0.8f, lifetime: 40);
+                }
+            }
+
             // Advance phase on first swing frame
             if (Timer == 1)
                 Owner.EternalMoon().AdvancePhase();
@@ -460,15 +491,17 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 
             float tipX = BladeLength * Projectile.scale;
             Vector2 tipPos = Owner.MountedCenter + SwordDirection * tipX;
+            var emPlayer = Owner.EternalMoon();
+            float tidalMult = emPlayer.TidalPhaseMultiplier;
 
-            // Tidal motes alongside the blade — density scales with phase
-            if (Main.rand.NextFloat() < 0.3f * _phaseIntensity && Progression > 0.2f && Progression < 0.85f)
+            // Tidal motes alongside the blade — density scales with phase AND tidal meter
+            if (Main.rand.NextFloat() < 0.3f * _phaseIntensity * tidalMult && Progression > 0.2f && Progression < 0.85f)
             {
-                Vector2 moteVel = SwordDirection.RotatedByRandom(0.5f) * Main.rand.NextFloat(1f, 3f);
+                Vector2 moteVel = SwordDirection.RotatedByRandom(0.5f) * Main.rand.NextFloat(1f, 3f) * tidalMult;
                 Color moteColor = Color.Lerp(IceBlue, CrescentGlow, Main.rand.NextFloat());
                 LunarParticleHandler.SpawnParticle(new TidalMoteParticle(
                     tipPos + Main.rand.NextVector2Circular(15f, 15f), moteVel,
-                    Main.rand.NextFloat(0.3f, 0.7f) * _phaseIntensity, moteColor,
+                    Main.rand.NextFloat(0.3f, 0.7f) * _phaseIntensity * tidalMult, moteColor,
                     Main.rand.Next(25, 50)));
             }
 
@@ -479,6 +512,51 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                 LunarParticleHandler.SpawnParticle(new CrescentSparkParticle(
                     tipPos, sparkVel, Main.rand.NextFloat(0.4f, 0.8f),
                     CrescentGlow, Main.rand.Next(15, 25)));
+            }
+
+            // Moon glint sparkles at blade tip (Phase 1+)
+            if (_lunarPhase >= 1 && Progression > 0.35f && Progression < 0.75f && Main.rand.NextBool(8))
+            {
+                LunarParticleHandler.SpawnParticle(new MoonGlintParticle(
+                    tipPos + Main.rand.NextVector2Circular(8f, 8f),
+                    Main.rand.NextFloat(0.3f, 0.5f) * _phaseIntensity,
+                    EternalMoonUtils.MoonWhite, Main.rand.Next(15, 25)));
+            }
+
+            // Tidal droplets — water-like particles falling from swing arc (Phase 2+, Flood+)
+            if (emPlayer.TidalPhase >= 1 && Progression > 0.3f && Progression < 0.8f && Main.rand.NextBool(5))
+            {
+                float bladePos = Main.rand.NextFloat(0.4f, 1f);
+                Vector2 dropPos = Owner.MountedCenter + SwordDirection * BladeLength * bladePos * Projectile.scale;
+                Vector2 dropVel = new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-1f, 0.5f));
+                Color dropColor = Color.Lerp(IceBlue, MoonWhite, Main.rand.NextFloat(0.3f));
+                LunarParticleHandler.SpawnParticle(new TidalDropletParticle(
+                    dropPos, dropVel, Main.rand.NextFloat(0.3f, 0.6f),
+                    dropColor, Main.rand.Next(20, 35)));
+            }
+
+            // Wave spray burst on swing peak (High Tide+)
+            if (emPlayer.TidalPhase >= 2 && Math.Abs(Progression - 0.55f) < 0.03f)
+            {
+                int sprayCount = 6 + emPlayer.TidalPhase * 3;
+                for (int i = 0; i < sprayCount; i++)
+                {
+                    Vector2 sprayVel = SwordDirection.RotatedByRandom(0.6f) * Main.rand.NextFloat(3f, 8f);
+                    Color sprayColor = Color.Lerp(MoonWhite, IceBlue, Main.rand.NextFloat());
+                    LunarParticleHandler.SpawnParticle(new WaveSprayParticle(
+                        tipPos + Main.rand.NextVector2Circular(10f, 10f),
+                        sprayVel, Main.rand.NextFloat(0.3f, 0.6f),
+                        sprayColor, Main.rand.Next(10, 20)));
+                }
+            }
+
+            // Tidal phase ring pulse — shows the tidal meter building
+            if (emPlayer.TidalPhase >= 1 && Progression > 0.5f && Progression < 0.55f)
+            {
+                Color phaseColor = EternalMoonPlayer.TidalPhaseColors[emPlayer.TidalPhase];
+                float ringScale = 0.5f + emPlayer.TidalPhase * 0.3f;
+                LunarParticleHandler.SpawnParticle(new TidalPhaseRingParticle(
+                    Owner.MountedCenter, ringScale, phaseColor, 25));
             }
 
             // Music notes scatter (Phase 3+)
@@ -506,6 +584,17 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             if (_lunarPhase >= 3 && Progression > 0.4f && Progression < 0.7f && (int)(Timer * 10) % 7 == 0)
             {
                 MoonlightVFXLibrary.SpawnMusicNotes(tipPos, count: 1, spread: 15f, minScale: 0.6f, maxScale: 0.85f, lifetime: 35);
+            }
+
+            // Tsunami phase: dense tidal smoke + additional wave spray continuously
+            if (emPlayer.IsTsunami && Progression > 0.3f && Progression < 0.8f && Main.rand.NextBool(3))
+            {
+                Vector2 smokePos = tipPos + Main.rand.NextVector2Circular(25f, 25f);
+                Vector2 smokeVel = SwordDirection.RotatedByRandom(1f) * Main.rand.NextFloat(1f, 2.5f);
+                LunarParticleHandler.SpawnParticle(new TidalSmokeParticle(
+                    smokePos, smokeVel, Main.rand.NextFloat(0.2f, 0.4f),
+                    Color.Lerp(DarkPurple, IceBlue, Main.rand.NextFloat()),
+                    Main.rand.Next(30, 50)));
             }
         }
 
@@ -587,8 +676,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 
         #region Trail Width/Color Functions
 
-        public float SlashWidthFunction(float completionRatio, Vector2 vertexPos) =>
-            SquishAtProgress(RealProgressionAtTrailCompletion(completionRatio)) * Projectile.scale * 55f * _phaseIntensity;
+        public float SlashWidthFunction(float completionRatio, Vector2 vertexPos)
+        {
+            float tidalMult = Owner.EternalMoon().TidalPhaseMultiplier;
+            return SquishAtProgress(RealProgressionAtTrailCompletion(completionRatio)) * Projectile.scale * 55f * _phaseIntensity * tidalMult;
+        }
 
         public Color SlashColorFunction(float completionRatio, Vector2 vertexPos)
         {
@@ -599,7 +691,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
         }
 
         public float GlowWidthFunction(float completionRatio, Vector2 vertexPos) =>
-            SlashWidthFunction(completionRatio, vertexPos) * 1.5f;
+            SlashWidthFunction(completionRatio, vertexPos) * (1.5f + Owner.EternalMoon().TidalPhase * 0.15f);
 
         public Color GlowColorFunction(float completionRatio, Vector2 vertexPos)
         {
@@ -905,6 +997,23 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 
             // Apply tidal drowning debuff
             target.AddBuff(ModContent.BuffType<TidalDrowning>(), 180);
+
+            // === GRAVITATIONAL PULL ON HIT ===
+            // Hits apply a weak vortex — enemies near the target are slowly pulled toward impact for 1 second
+            Owner.EternalMoon().StartGravitationalPull(target.Center);
+
+            // Gravity well VFX
+            if (!Main.dedServ)
+            {
+                for (int i = 0; i < 6; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 6f;
+                    Vector2 spawnPos = target.Center + angle.ToRotationVector2() * Main.rand.NextFloat(60f, 120f);
+                    LunarParticleHandler.SpawnParticle(new GravityWellMoteParticle(
+                        spawnPos, target.Center, Main.rand.NextFloat(0.3f, 0.5f),
+                        Color.Lerp(Violet, IceBlue, Main.rand.NextFloat()), Main.rand.Next(30, 50)));
+                }
+            }
 
             // === LUNAR SURGE HIT ===
             if (State == SwingState.LunarSurge)

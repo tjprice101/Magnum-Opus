@@ -2,6 +2,8 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.Audio;
+using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.Particles;
@@ -10,90 +12,170 @@ using MagnumOpus.Content.LaCampanella.Debuffs;
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.Projectiles
 {
     /// <summary>
-    /// AoE shockwave explosion triggered every 5th minion hit.
-    /// Expanding ring of fire + concussive blast that damages all enemies in radius.
+    /// Bell shockwave — expanding ring of fire + concussive blast.
+    /// ai[0]: 0 = normal, 2 = Infernal Crescendo (larger, stronger), 
+    /// ai[1]: 0 = normal, 1 = Bell Sacrifice (massive AoE)
+    /// 
+    /// Harmonic Convergence: If another active MinionShockwaveProj overlaps this one,
+    /// enemies hit in the intersection zone take 2x damage.
     /// </summary>
     public class MinionShockwaveProj : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow";
 
-        private const int Duration = 30;
-        private const float MaxRadius = 250f;
+        private const int NormalDuration = 25;
+        private const float NormalMaxRadius = 180f;
+
+        private const int CrescendoDuration = 35;
+        private const float CrescendoMaxRadius = 280f;
+
+        private const int SacrificeDuration = 40;
+        private const float SacrificeMaxRadius = 350f;
+
+        private bool IsCrescendo => Projectile.ai[0] == 2f;
+        private bool IsSacrifice => Projectile.ai[1] == 1f;
+
+        private int Duration => IsSacrifice ? SacrificeDuration : (IsCrescendo ? CrescendoDuration : NormalDuration);
+        private float MaxRadius => IsSacrifice ? SacrificeMaxRadius : (IsCrescendo ? CrescendoMaxRadius : NormalMaxRadius);
+
+        private bool _damageDealt;
 
         public override void SetDefaults()
         {
-            Projectile.width = (int)(MaxRadius * 2);
-            Projectile.height = (int)(MaxRadius * 2);
+            Projectile.width = 10;
+            Projectile.height = 10;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Summon;
             Projectile.penetrate = -1;
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
-            Projectile.timeLeft = Duration;
+            Projectile.timeLeft = 40; // Will be overwritten in AI init
             Projectile.usesLocalNPCImmunity = true;
-            Projectile.localNPCHitCooldown = -1; // Hit once
+            Projectile.localNPCHitCooldown = -1; // Hit each NPC once
         }
 
         public override void AI()
         {
-            float progress = 1f - (float)Projectile.timeLeft / Duration;
-
-            // Spawn frame VFX burst
-            if (Projectile.timeLeft == Duration)
+            // Set timeLeft on first frame
+            if (Projectile.localAI[0] == 0f)
             {
-                // Big shockwave pulse ring
-                InfernalChimesParticleHandler.SpawnParticle(new ShockwavePulseParticle(
-                    Projectile.Center, MaxRadius / 40f, Duration));
+                Projectile.localAI[0] = 1f;
+                Projectile.timeLeft = Duration;
 
-                // Bell ring pulse
-                InfernalChimesParticleHandler.SpawnParticle(new BellRingPulseParticle(
-                    Projectile.Center, MaxRadius, Duration - 5));
-
-                // Musical notes burst outward
-                for (int i = 0; i < 12; i++)
-                {
-                    float angle = MathHelper.TwoPi / 12f * i;
-                    Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(2f, 5f);
-                    vel.Y -= 1f;
-                    InfernalChimesParticleHandler.SpawnParticle(new MusicalChoirNoteParticle(
-                        Projectile.Center + vel * 5f, vel, Main.rand.Next(50, 80)));
-                }
-
-                // Ember ring
-                for (int i = 0; i < 20; i++)
-                {
-                    float angle = MathHelper.TwoPi / 20f * i + Main.rand.NextFloat(-0.1f, 0.1f);
-                    InfernalChimesParticleHandler.SpawnParticle(new ChoirEmberParticle(
-                        Projectile.Center, angle, 10f, 0.12f, Main.rand.Next(25, 45)));
-                }
+                // Spawn VFX burst
+                SpawnInitialVFX();
             }
 
-            // Continuous ember spray during expansion
-            if (Projectile.timeLeft > Duration / 2 && Projectile.timeLeft % 2 == 0)
+            float progress = 1f - (float)Projectile.timeLeft / Duration;
+
+            // Damage pulse at ~30% expansion
+            if (!_damageDealt && progress >= 0.3f)
+            {
+                _damageDealt = true;
+                DealWaveDamage(progress);
+            }
+
+            // Continuous ember particles along ring edge
+            if (Projectile.timeLeft > Duration / 2 && Main.GameUpdateCount % 2 == 0)
             {
                 float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                float radius = progress * MaxRadius * Main.rand.NextFloat(0.7f, 1.0f);
+                float radius = (float)Math.Sqrt(progress) * MaxRadius;
                 Vector2 pos = Projectile.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
                 InfernalChimesParticleHandler.SpawnParticle(new ChoirEmberParticle(
                     pos, angle, 3f, 0.05f, Main.rand.Next(15, 30)));
             }
 
-            // Lighting
-            float lightIntensity = (1f - progress) * 1.5f;
+            // Light
+            float lightIntensity = (1f - progress) * (IsSacrifice ? 2f : IsCrescendo ? 1.5f : 1f);
             Lighting.AddLight(Projectile.Center, InfernalChimesCallingUtils.ChoirPalette[2].ToVector3() * lightIntensity);
+        }
+
+        private void SpawnInitialVFX()
+        {
+            // Bell ring pulse
+            InfernalChimesParticleHandler.SpawnParticle(new BellRingPulseParticle(
+                Projectile.Center, MaxRadius, Duration - 5));
+
+            // Musical notes burst outward
+            int noteCount = IsSacrifice ? 16 : (IsCrescendo ? 12 : 8);
+            for (int i = 0; i < noteCount; i++)
+            {
+                float angle = MathHelper.TwoPi / noteCount * i;
+                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(2f, 5f);
+                vel.Y -= 1f;
+                InfernalChimesParticleHandler.SpawnParticle(new MusicalChoirNoteParticle(
+                    Projectile.Center + vel * 5f, vel, Main.rand.Next(50, 80)));
+            }
+
+            // Ember ring
+            int emberCount = IsSacrifice ? 30 : (IsCrescendo ? 20 : 12);
+            for (int i = 0; i < emberCount; i++)
+            {
+                float angle = MathHelper.TwoPi / emberCount * i + Main.rand.NextFloat(-0.1f, 0.1f);
+                InfernalChimesParticleHandler.SpawnParticle(new ChoirEmberParticle(
+                    Projectile.Center, angle, 10f, 0.12f, Main.rand.Next(25, 45)));
+            }
+
+            if (IsSacrifice)
+                SoundEngine.PlaySound(SoundID.Item14, Projectile.Center);
+            else
+                SoundEngine.PlaySound(SoundID.Item28, Projectile.Center);
+        }
+
+        private void DealWaveDamage(float progress)
+        {
+            float currentRadius = MaxRadius * (float)Math.Sqrt(progress);
+
+            // Check for Harmonic Convergence: are there other active shockwaves overlapping?
+            bool hasConvergence = false;
+            int myType = Projectile.type;
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile other = Main.projectile[i];
+                if (!other.active || other.whoAmI == Projectile.whoAmI || other.type != myType || other.owner != Projectile.owner)
+                    continue;
+
+                float dist = Vector2.Distance(Projectile.Center, other.Center);
+                float otherProgress = 1f - (float)other.timeLeft / Duration;
+                float otherRadius = MaxRadius * (float)Math.Sqrt(Math.Max(otherProgress, 0f));
+
+                // Waves overlap if distance < sum of radii
+                if (dist < currentRadius + otherRadius)
+                {
+                    hasConvergence = true;
+                    break;
+                }
+            }
+
+            float convergenceMultiplier = hasConvergence ? 2f : 1f;
+
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (!npc.CanBeChasedBy()) continue;
+                float dist = Vector2.Distance(Projectile.Center, npc.Center);
+                if (dist <= currentRadius)
+                {
+                    int dmg = (int)(Projectile.damage * convergenceMultiplier);
+                    Player owner = Main.player[Projectile.owner];
+                    owner.ApplyDamageToNPC(npc, dmg, Projectile.knockBack,
+                        Projectile.Center.X < npc.Center.X ? 1 : -1, false);
+                    npc.GetGlobalNPC<ResonantTollNPC>().AddStacks(npc, IsSacrifice ? 3 : (IsCrescendo ? 2 : 1));
+
+                    // Harmonic Convergence VFX on affected enemies
+                    if (hasConvergence)
+                    {
+                        InfernalChimesParticleHandler.SpawnParticle(new ChoirEmberParticle(
+                            npc.Center, Main.rand.NextFloat(MathHelper.TwoPi), 8f, 0.1f, 15));
+                    }
+                }
+            }
         }
 
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
         {
-            float progress = 1f - (float)Projectile.timeLeft / Duration;
-            float currentRadius = MaxRadius * (float)Math.Sqrt(progress);
-            float dist = Vector2.Distance(Projectile.Center, targetHitbox.Center.ToVector2());
-            return dist <= currentRadius;
-        }
-
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 3);
+            // Collision handled manually in DealWaveDamage
+            return false;
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -102,30 +184,47 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
             float progress = 1f - (float)Projectile.timeLeft / Duration;
             float fade = 1f - progress;
 
-            InfernalChimesParticleHandler.DrawAllParticles(sb);
-
-            // Draw expanding shockwave ring using bloom texture
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
+            var tex = ModContent.Request<Texture2D>(Texture, ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
             float ringRadius = MaxRadius * (float)Math.Sqrt(progress);
             float ringScale = ringRadius / (tex.Width * 0.5f);
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            Vector2 origin = tex.Size() / 2f;
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Core blast
-            Color coreColor = InfernalChimesCallingUtils.ShockwavePalette[0] * fade * 0.4f;
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
-                coreColor, 0f, tex.Size() / 2f, ringScale * 0.8f, SpriteEffects.None, 0f);
+            Color coreColor = InfernalChimesCallingUtils.Additive(
+                InfernalChimesCallingUtils.ShockwavePalette[1], fade * 0.35f);
+            sb.Draw(tex, drawPos, null, coreColor, 0f, origin, ringScale * 0.8f, SpriteEffects.None, 0f);
 
             // Outer ring
-            Color ringColor = InfernalChimesCallingUtils.ShockwavePalette[1] * fade * 0.3f;
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
-                ringColor, 0f, tex.Size() / 2f, ringScale, SpriteEffects.None, 0f);
+            Color ringColor = InfernalChimesCallingUtils.Additive(
+                InfernalChimesCallingUtils.ShockwavePalette[2], fade * 0.25f);
+            sb.Draw(tex, drawPos, null, ringColor, 0f, origin, ringScale, SpriteEffects.None, 0f);
 
             // Hot center flash (early frames only)
             if (progress < 0.3f)
             {
-                Color flashColor = InfernalChimesCallingUtils.ShockwavePalette[2] * (1f - progress / 0.3f) * 0.6f;
-                sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
-                    flashColor, 0f, tex.Size() / 2f, 0.5f, SpriteEffects.None, 0f);
+                float flashFade = 1f - progress / 0.3f;
+                Color flashColor = InfernalChimesCallingUtils.Additive(
+                    InfernalChimesCallingUtils.ShockwavePalette[4], flashFade * 0.5f);
+                sb.Draw(tex, drawPos, null, flashColor, 0f, origin, 0.5f, SpriteEffects.None, 0f);
             }
+
+            // Sacrifice has extra intense core
+            if (IsSacrifice && progress < 0.5f)
+            {
+                float sacFlash = 1f - progress / 0.5f;
+                Color sacColor = InfernalChimesCallingUtils.Additive(
+                    InfernalChimesCallingUtils.ShockwavePalette[5], sacFlash * 0.6f);
+                sb.Draw(tex, drawPos, null, sacColor, 0f, origin, ringScale * 0.6f, SpriteEffects.None, 0f);
+            }
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             return false;
         }

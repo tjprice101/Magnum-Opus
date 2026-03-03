@@ -378,4 +378,120 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
                 0f, origin, Scale, SpriteEffects.None, 0f);
         }
     }
+
+    // =================================================================
+    // LUNAR PHASE RING — expanding ring showing current lunar phase
+    // =================================================================
+
+    /// <summary>
+    /// Expanding phase ring that pulses around the Goliath
+    /// to indicate the current lunar phase. Color shifts with phase.
+    /// </summary>
+    public class LunarPhaseRingParticle : GoliathParticle
+    {
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        private readonly float _maxScale;
+
+        public LunarPhaseRingParticle(Vector2 position, Color color, float maxScale, int lifetime)
+        {
+            Position = position;
+            Velocity = Vector2.Zero;
+            DrawColor = color;
+            _maxScale = maxScale;
+            Lifetime = lifetime;
+            Scale = 0.1f;
+        }
+
+        public override void Update()
+        {
+            float t = LifetimeCompletion;
+            Scale = _maxScale * GoliathUtils.ExpoOut(t);
+        }
+
+        public override void CustomDraw(SpriteBatch sb)
+        {
+            float t = LifetimeCompletion;
+            float alpha = (1f - t * t) * 0.4f;
+            Color color = DrawColor * alpha;
+
+            Texture2D tex = GoliathTextures.CircularMask;
+            Vector2 origin = tex.Size() * 0.5f;
+            Vector2 drawPos = Position - Main.screenPosition;
+
+            // Outer ring
+            sb.Draw(tex, drawPos, null, color,
+                0f, origin, Scale, SpriteEffects.None, 0f);
+            // Inner ring (brighter, smaller)
+            sb.Draw(tex, drawPos, null, color * 0.7f,
+                0f, origin, Scale * 0.65f, SpriteEffects.None, 0f);
+        }
+    }
+
+    // =================================================================
+    // LUNAR HEALING PARTICLE — soft orb arcing from Goliath to player
+    // =================================================================
+
+    /// <summary>
+    /// Soft healing orb that arcs from the Goliath toward the player during Waning phase.
+    /// Fades from lavender to white as it approaches.
+    /// </summary>
+    public class LunarHealingParticle : GoliathParticle
+    {
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        private readonly Vector2 _target;
+        private readonly Vector2 _controlPoint;
+
+        public LunarHealingParticle(Vector2 start, Vector2 target, float scale, int lifetime)
+        {
+            Position = start;
+            _target = target;
+            // Arc control point — offset perpendicular to the line connecting start and target
+            Vector2 mid = (start + target) * 0.5f;
+            Vector2 perpendicular = new(-(target.Y - start.Y), target.X - start.X);
+            perpendicular.Normalize();
+            _controlPoint = mid + perpendicular * (50f + Main.rand.NextFloat(30f)) * (Main.rand.NextBool() ? 1 : -1);
+            Velocity = Vector2.Zero;
+            Scale = scale;
+            Lifetime = lifetime;
+            DrawColor = new Color(160, 130, 220); // Waning lavender
+        }
+
+        public override void Update()
+        {
+            float t = LifetimeCompletion;
+            // Quadratic Bezier interpolation
+            float inv = 1f - t;
+            Vector2 startPos = Position;
+            // Recalculate from original start... actually we need stored start
+            // Use simpler approach: lerp toward target with arc
+            Vector2 straight = Vector2.Lerp(Position, _target, 0.08f);
+            Vector2 toControl = _controlPoint - Position;
+            float controlInfluence = GoliathUtils.SineBump(t) * 0.05f;
+            Position = straight + toControl * controlInfluence;
+        }
+
+        public override void CustomDraw(SpriteBatch sb)
+        {
+            float t = LifetimeCompletion;
+            float alpha = GoliathUtils.SineBump(t) * 0.6f;
+            Color color = Color.Lerp(DrawColor, GoliathUtils.SupermoonWhite, t) * alpha;
+
+            Texture2D tex = GoliathTextures.PointBloom;
+            Vector2 origin = tex.Size() * 0.5f;
+            Vector2 drawPos = Position - Main.screenPosition;
+
+            // Soft bloom
+            sb.Draw(tex, drawPos, null, color * 0.5f,
+                0f, origin, Scale * 0.6f, SpriteEffects.None, 0f);
+            // Core
+            sb.Draw(tex, drawPos, null, color,
+                0f, origin, Scale * 0.25f, SpriteEffects.None, 0f);
+        }
+    }
 }

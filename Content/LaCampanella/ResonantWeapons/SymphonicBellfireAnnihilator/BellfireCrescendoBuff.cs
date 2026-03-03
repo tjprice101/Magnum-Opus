@@ -1,11 +1,12 @@
 using Terraria;
 using Terraria.ModLoader;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator.Utilities;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator
 {
     /// <summary>
-    /// BellfireCrescendoBuff — +10% damage and +10% attack speed for 30 seconds.
-    /// Granted on completing a 10-shot volley.
+    /// BellfireCrescendoBuff — Stacking buff from bellfire rocket kills (max 3).
+    /// Each stack adds one rocket to the burst count. Visual indicator of rocket empowerment.
     /// </summary>
     public class BellfireCrescendoBuff : ModBuff
     {
@@ -18,8 +19,10 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
 
         public override void Update(Player player, ref int buffIndex)
         {
-            player.GetDamage(DamageClass.Generic) += 0.10f;
-            player.GetAttackSpeed(DamageClass.Generic) += 0.10f;
+            var modPlayer = player.GetModPlayer<SymphonicBellfirePlayer>();
+            // Rocket burst count is handled in player tracker; buff serves as visual indicator
+            float bonus = modPlayer.BellfireCrescendoStacks * 0.05f;
+            player.GetAttackSpeed(DamageClass.Ranged) += bonus;
         }
     }
 }

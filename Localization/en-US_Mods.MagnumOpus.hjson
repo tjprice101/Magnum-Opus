@@ -7251,6 +7251,261 @@ Items: {
 		DisplayName: The Final Fermata Item
 		Tooltip: ""
 	}
+
+	LaserFoundation: {
+		DisplayName: Laser Foundation
+		Tooltip: ""
+	}
+
+	SparkleProjectileFoundation: {
+		DisplayName: Sparkle Projectile Foundation
+		Tooltip: ""
+	}
+
+	ThinLaserFoundation: {
+		DisplayName: Thin Laser Foundation
+		Tooltip: ""
+	}
+
+	MaskFoundation: {
+		DisplayName: Mask Foundation
+		Tooltip: ""
+	}
+
+	ImpactFoundation: {
+		DisplayName: Impact Foundation
+		Tooltip: ""
+	}
+
+	ThinSlashFoundation: {
+		DisplayName: Thin Slash Foundation
+		Tooltip: ""
+	}
+
+	MagicOrbFoundation: {
+		DisplayName: Magic Orb Foundation
+		Tooltip: ""
+	}
+
+	AttackAnimationFoundation: {
+		DisplayName: Attack Animation Foundation
+		Tooltip: ""
+	}
+
+	AttackFoundation: {
+		DisplayName: Attack Foundation
+		Tooltip: ""
+	}
+
+	ExplosionParticlesFoundation: {
+		DisplayName: Explosion Particles Foundation
+		Tooltip: ""
+	}
+
+	InfernalBeamFoundation: {
+		DisplayName: Infernal Beam Foundation
+		Tooltip: ""
+	}
+
+	SmokeFoundation: {
+		DisplayName: Smoke Foundation
+		Tooltip: ""
+	}
+
+	SwordSmearFoundation: {
+		DisplayName: Sword Smear Foundation
+		Tooltip: ""
+	}
+
+	XSlashFoundation: {
+		DisplayName: X Slash Foundation
+		Tooltip: ""
+	}
+
+	RibbonFoundation: {
+		DisplayName: Ribbon Foundation
+		Tooltip: ""
+	}
+
+	EroicasBanner: {
+		Tooltip: ""
+		DisplayName: Eroicas Banner
+	}
+
+	BlossomsFury: {
+		Tooltip: ""
+		DisplayName: Blossoms Fury
+	}
+
+	RiddlesRepeater: {
+		Tooltip: ""
+		DisplayName: Riddles Repeater
+	}
+
+	ElgarsPendulum: {
+		Tooltip: ""
+		DisplayName: Elgars Pendulum
+	}
+
+	CiphersEdge: {
+		Tooltip: ""
+		DisplayName: Ciphers Edge
+	}
+
+	ArcanumCodex: {
+		Tooltip: ""
+		DisplayName: Arcanum Codex
+	}
+
+	WrathsExecutioner: {
+		Tooltip: ""
+		DisplayName: Wraths Executioner
+	}
+
+	RequiemCannon: {
+		Tooltip: ""
+		DisplayName: Requiem Cannon
+	}
+
+	InfernalRequiem: {
+		Tooltip: ""
+		DisplayName: Infernal Requiem
+	}
+
+	HeraldOfRuin: {
+		Tooltip: ""
+		DisplayName: Herald Of Ruin
+	}
+
+	FuneralHymn: {
+		DisplayName: Funeral Hymn
+		Tooltip: ""
+	}
+
+	HeroicAnthem: {
+		DisplayName: Heroic Anthem
+		Tooltip: ""
+	}
+
+	DestinysCleaver: {
+		DisplayName: Destinys Cleaver
+		Tooltip: ""
+	}
+
+	FatumLongbow: {
+		DisplayName: Fatum Longbow
+		Tooltip: ""
+	}
+
+	MoiraiGrimoire: {
+		DisplayName: Moirai Grimoire
+		Tooltip: ""
+	}
+
+	SpindleOfTheFates: {
+		DisplayName: Spindle Of The Fates
+		Tooltip: ""
+	}
+
+	BellStriker: {
+		DisplayName: Bell Striker
+		Tooltip: ""
+	}
+
+	CampanellasFlame: {
+		DisplayName: Campanellas Flame
+		Tooltip: ""
+	}
+
+	ChimeCannon: {
+		DisplayName: Chime Cannon
+		Tooltip: ""
+	}
+
+	InfernalEtude: {
+		DisplayName: Infernal Etude
+		Tooltip: ""
+	}
+
+	ConductorsLunarBaton: {
+		DisplayName: Conductors Lunar Baton
+		Tooltip: ""
+	}
+
+	LunarElegy: {
+		DisplayName: Lunar Elegy
+		Tooltip: ""
+	}
+
+	MoonlightRequiem: {
+		DisplayName: Moonlight Requiem
+		Tooltip: ""
+	}
+
+	SonataOfTheTides: {
+		DisplayName: Sonata Of The Tides
+		Tooltip: ""
+	}
+
+	ConstellationArbalest: {
+		DisplayName: Constellation Arbalest
+		Tooltip: ""
+	}
+
+	NightConductorsBaton: {
+		DisplayName: Night Conductors Baton
+		Tooltip: ""
+	}
+
+	NocturnalConcerto: {
+		DisplayName: Nocturnal Concerto
+		Tooltip: ""
+	}
+
+	SerenadeBlade: {
+		DisplayName: Serenade Blade
+		Tooltip: ""
+	}
+
+	ConductorOfCelebration: {
+		DisplayName: Conductor Of Celebration
+		Tooltip: ""
+	}
+
+	HymnBallista: {
+		DisplayName: Hymn Ballista
+		Tooltip: ""
+	}
+
+	JubilantChorus: {
+		DisplayName: Jubilant Chorus
+		Tooltip: ""
+	}
+
+	OdeEternal: {
+		DisplayName: Ode Eternal
+		Tooltip: ""
+	}
+
+	CygnusBow: {
+		DisplayName: Cygnus Bow
+		Tooltip: ""
+	}
+
+	OdettesAria: {
+		DisplayName: Odettes Aria
+		Tooltip: ""
+	}
+
+	SiegfriedsOath: {
+		DisplayName: Siegfrieds Oath
+		Tooltip: ""
+	}
+
+	SwansLament: {
+		DisplayName: Swans Lament
+		Tooltip: ""
+	}
 }
 
 NPCs: {
@@ -7284,6 +7539,8 @@ NPCs: {
 Prefixes.ResonantScarPrefix.DisplayName: Resonance Scarred
 
 Projectiles: {
+	SparkleCrystalProjectile.DisplayName: Sparkle Crystal
+	RibbonProjectile.DisplayName: Ribbon Projectile
 	AcceleratingBoltProjectile.DisplayName: Accelerating Bolt Projectile
 	BoomerangProjectile.DisplayName: Boomerang Projectile
 	DelayedDetonationProjectile.DisplayName: Delayed Detonation Projectile
@@ -7880,4 +8137,195 @@ Projectiles: {
 	WingspanBoltProj.DisplayName: Wingspan Bolt Proj
 	DestructionHaloProj.DisplayName: Destruction Halo Proj
 	LamentBulletProj.DisplayName: Lament Bullet Proj
+	LaserFoundationBeam.DisplayName: Laser Foundation Beam
+	ThinLaserBeam.DisplayName: Thin Laser Beam
+	MaskOrbProjectile.DisplayName: Mask Orb Projectile
+	ImpactProjectile.DisplayName: Impact Projectile
+	RippleEffectProjectile.DisplayName: Ripple Effect
+	DamageZoneProjectile.DisplayName: Damage Zone
+	SlashMarkProjectile.DisplayName: Slash Mark
+	ThinSlashProjectile.DisplayName: Thin Slash Projectile
+	ThinSlashEffect.DisplayName: Thin Slash Effect
+	MagicOrb.DisplayName: Magic Orb
+	OrbBolt.DisplayName: Orb Bolt
+	AttackAnimationProjectile.DisplayName: Attack Animation Projectile
+	SlashVFXProjectile.DisplayName: Slash V F X Projectile
+	ThrowSlamProjectile.DisplayName: Throw Slam Projectile
+	ComboSwingProjectile.DisplayName: Combo Swing Projectile
+	AstralgraphProjectile.DisplayName: Astralgraph Projectile
+	FlamingRingProjectile.DisplayName: Flaming Ring Projectile
+	RangerShotProjectile.DisplayName: Ranger Shot Projectile
+	SparkCarrierProjectile.DisplayName: Spark Carrier Projectile
+	SparkExplosionProjectile.DisplayName: Spark Explosion Projectile
+	InfernalBeam.DisplayName: Infernal Beam
+	SmokeSwingProjectile.DisplayName: Smoke Swing Projectile
+	SmearSwingProjectile.DisplayName: Smear Swing Projectile
+	XSlashEffect.DisplayName: X Slash Effect
+	XSlashProjectile.DisplayName: X Slash Projectile
+	DIEmberShard.DisplayName: D I Ember Shard
+	HRCrimsonReaper.DisplayName: H R Crimson Reaper
+	HRDoomObelisk.DisplayName: H R Doom Obelisk
+	HRHellhound.DisplayName: H R Hellhound
+	HRPyreSentry.DisplayName: H R Pyre Sentry
+	IRBloodDrop.DisplayName: I R Blood Drop
+	IRDamnationBeam.DisplayName: I R Damnation Beam
+	IRHellfireBolt.DisplayName: I R Hellfire Bolt
+	IRJudgmentRing.DisplayName: I R Judgment Ring
+	RCApocalypseMortar.DisplayName: R C Apocalypse Mortar
+	RCBrimstoneEmber.DisplayName: R C Brimstone Ember
+	RCJudgmentArrow.DisplayName: R C Judgment Arrow
+	RCWrathShot.DisplayName: R C Wrath Shot
+	WEApocalypseSpin.DisplayName: W E Apocalypse Spin
+	WEDamnationSlam.DisplayName: W E Damnation Slam
+	WEJudgmentWave.DisplayName: W E Judgment Wave
+	WEPyreThrust.DisplayName: W E Pyre Thrust
+	ACDoomSigil.DisplayName: A C Doom Sigil
+	ACEldritchEye.DisplayName: A C Eldritch Eye
+	ACEyeBeam.DisplayName: A C Eye Beam
+	ACShadowOrb.DisplayName: A C Shadow Orb
+	ACVoidBolt.DisplayName: A C Void Bolt
+	CEDreadImpale.DisplayName: C E Dread Impale
+	CEEnigmaSpiral.DisplayName: C E Enigma Spiral
+	CESpectralStrike.DisplayName: C E Spectral Strike
+	CEVoidTear.DisplayName: C E Void Tear
+	EPArcaneAnchor.DisplayName: E P Arcane Anchor
+	EPPhantomTwin.DisplayName: E P Phantom Twin
+	EPShadowStalker.DisplayName: E P Shadow Stalker
+	EPVoidEyeSentry.DisplayName: E P Void Eye Sentry
+	RREerieTracer.DisplayName: R R Eerie Tracer
+	RRPhantomBolt.DisplayName: R R Phantom Bolt
+	RRShadowPellet.DisplayName: R R Shadow Pellet
+	RRVoidMortar.DisplayName: R R Void Mortar
+	RRVoidPool.DisplayName: R R Void Pool
+	BFFlameShot.DisplayName: B F Flame Shot
+	BFHeroArrow.DisplayName: B F Hero Arrow
+	BFPetalArrow.DisplayName: B F Petal Arrow
+	BFSakuraMortar.DisplayName: B F Sakura Mortar
+	EBFlameSentinel.DisplayName: E B Flame Sentinel
+	EBGoldenHerald.DisplayName: E B Golden Herald
+	EBHeraldBolt.DisplayName: E B Herald Bolt
+	EBPhoenixFamiliar.DisplayName: E B Phoenix Familiar
+	EBSakuraGuardian.DisplayName: E B Sakura Guardian
+	FHGoldenAria.DisplayName: F H Golden Aria
+	FHPetalTornado.DisplayName: F H Petal Tornado
+	FHPhoenixFlame.DisplayName: F H Phoenix Flame
+	FHScarletHelix.DisplayName: F H Scarlet Helix
+	HACrescendoLance.DisplayName: H A Crescendo Lance
+	HAPhoenixDive.DisplayName: H A Phoenix Dive
+	HASakuraPetal.DisplayName: H A Sakura Petal
+	HAValorWall.DisplayName: H A Valor Wall
+	DCCosmicRift.DisplayName: D C Cosmic Rift
+	DCGravityWell.DisplayName: D C Gravity Well
+	DCInevitableStrike.DisplayName: D C Inevitable Strike
+	DCStarShard.DisplayName: D C Star Shard
+	FLCelestialShard.DisplayName: F L Celestial Shard
+	FLCrimsonComet.DisplayName: F L Crimson Comet
+	FLDestinyArc.DisplayName: F L Destiny Arc
+	FLMiniSingularity.DisplayName: F L Mini Singularity
+	FLVoidArrow.DisplayName: F L Void Arrow
+	MGCosmicVortex.DisplayName: M G Cosmic Vortex
+	MGOblivionPulse.DisplayName: M G Oblivion Pulse
+	MGStarFall.DisplayName: M G Star Fall
+	MGThreadBeam.DisplayName: M G Thread Beam
+	SFAtroposBlade.DisplayName: S F Atropos Blade
+	SFClothoStar.DisplayName: S F Clotho Star
+	SFCosmicFamiliar.DisplayName: S F Cosmic Familiar
+	SFLachesisSentry.DisplayName: S F Lachesis Sentry
+	SFMeasureBolt.DisplayName: S F Measure Bolt
+	SFThreadBolt.DisplayName: S F Thread Bolt
+	BSBellShockwave.DisplayName: B S Bell Shockwave
+	BSEmberSlash.DisplayName: B S Ember Slash
+	BSInfernalWhip.DisplayName: B S Infernal Whip
+	BSResonanceRing.DisplayName: B S Resonance Ring
+	CCBellShot.DisplayName: C C Bell Shot
+	CCFireMortar.DisplayName: C C Fire Mortar
+	CCFlameSpray.DisplayName: C C Flame Spray
+	CCResonanceBolt.DisplayName: C C Resonance Bolt
+	CFBellSentry.DisplayName: C F Bell Sentry
+	CFConductorBolt.DisplayName: C F Conductor Bolt
+	CFEmberFamiliar.DisplayName: C F Ember Familiar
+	CFInfernalConductor.DisplayName: C F Infernal Conductor
+	CFSmokeWraith.DisplayName: C F Smoke Wraith
+	IEBellOrb.DisplayName: I E Bell Orb
+	IEFlameTrill.DisplayName: I E Flame Trill
+	IEInfernalFireball.DisplayName: I E Infernal Fireball
+	IESmokeVeil.DisplayName: I E Smoke Veil
+	CLBCrescentSentry.DisplayName: C L B Crescent Sentry
+	CLBLunarConstellation.DisplayName: C L B Lunar Constellation
+	CLBMoonlightEcho.DisplayName: C L B Moonlight Echo
+	CLBSentryBolt.DisplayName: C L B Sentry Bolt
+	CLBTidalFamiliar.DisplayName: C L B Tidal Familiar
+	LunarElegyCrescentWave.DisplayName: Lunar Elegy Crescent Wave
+	LunarElegyEclipseBoomerang.DisplayName: Lunar Elegy Eclipse Boomerang
+	LunarElegyMoonfallPillar.DisplayName: Lunar Elegy Moonfall Pillar
+	LunarElegyTidalThrust.DisplayName: Lunar Elegy Tidal Thrust
+	MRLunarBolt.DisplayName: M R Lunar Bolt
+	MRMoonbeamSnipe.DisplayName: M R Moonbeam Snipe
+	MRSilverNeedle.DisplayName: M R Silver Needle
+	MRSilverRainMarker.DisplayName: M R Silver Rain Marker
+	MRTidalBullet.DisplayName: M R Tidal Bullet
+	SOTCrescentShard.DisplayName: S O T Crescent Shard
+	SOTLunarCascadeOrb.DisplayName: S O T Lunar Cascade Orb
+	SOTMoonlightBeam.DisplayName: S O T Moonlight Beam
+	SOTMoonriseNote.DisplayName: S O T Moonrise Note
+	SOTTidalVortex.DisplayName: S O T Tidal Vortex
+	CACosmicRay.DisplayName: C A Cosmic Ray
+	CANebulaFrag.DisplayName: C A Nebula Frag
+	CAStarBolt.DisplayName: C A Star Bolt
+	CASupernovaShell.DisplayName: C A Supernova Shell
+	NCBConstellationSentry.DisplayName: N C B Constellation Sentry
+	NCBNebulaWraith.DisplayName: N C B Nebula Wraith
+	NCBNightGuardian.DisplayName: N C B Night Guardian
+	NCBStarBolt.DisplayName: N C B Star Bolt
+	NCBStarSprite.DisplayName: N C B Star Sprite
+	NCConstellationNode.DisplayName: N C Constellation Node
+	NCCosmicBeam.DisplayName: N C Cosmic Beam
+	NCNebulaCloud.DisplayName: N C Nebula Cloud
+	NCStarstream.DisplayName: N C Starstream
+	NMStarShard.DisplayName: N M Star Shard
+	SBMeteor.DisplayName: S B Meteor
+	SBNebulaRing.DisplayName: S B Nebula Ring
+	SBNocturneThrust.DisplayName: S B Nocturne Thrust
+	SBStarlightArc.DisplayName: S B Starlight Arc
+	COCChorusSpirit.DisplayName: C O C Chorus Spirit
+	COCGoldenHerald.DisplayName: C O C Golden Herald
+	COCJubilantSentry.DisplayName: C O C Jubilant Sentry
+	COCTriumphGuard.DisplayName: C O C Triumph Guard
+	HBAnthemBolt.DisplayName: H B Anthem Bolt
+	HBGoldenArrow.DisplayName: H B Golden Arrow
+	HBGrandFinale.DisplayName: H B Grand Finale
+	HBRadiantBurst.DisplayName: H B Radiant Burst
+	JCAnthemThrust.DisplayName: J C Anthem Thrust
+	JCCelebrationSpin.DisplayName: J C Celebration Spin
+	JCCrescendoSlam.DisplayName: J C Crescendo Slam
+	JCTriumphantArc.DisplayName: J C Triumphant Arc
+	OEHarmonyBeam.DisplayName: O E Harmony Beam
+	OEJoyCascade.DisplayName: O E Joy Cascade
+	OERadiantBolt.DisplayName: O E Radiant Bolt
+	OEUniversalChorus.DisplayName: O E Universal Chorus
+	OJNoteFragment.DisplayName: O J Note Fragment
+	OJShockwaveRing.DisplayName: O J Shockwave Ring
+	OJSparkleBolt.DisplayName: O J Sparkle Bolt
+	SmokeCarrierProjectile.DisplayName: Smoke Carrier Projectile
+	SmokeRingProjectile.DisplayName: Smoke Ring Projectile
+	CBBlackFeather.DisplayName: C B Black Feather
+	CBPrismaticArrow.DisplayName: C B Prismatic Arrow
+	CBPrismaticShard.DisplayName: C B Prismatic Shard
+	CBSwanSongOrb.DisplayName: C B Swan Song Orb
+	CBWhiteFeather.DisplayName: C B White Feather
+	OABlackSwanOrb.DisplayName: O A Black Swan Orb
+	OAFeatherRain.DisplayName: O A Feather Rain
+	OAMirrorLake.DisplayName: O A Mirror Lake
+	OAShadowFeather.DisplayName: O A Shadow Feather
+	OAWhiteRay.DisplayName: O A White Ray
+	SLDyingSwan.DisplayName: S L Dying Swan
+	SLFeatherShard.DisplayName: S L Feather Shard
+	SLGracefulCrescent.DisplayName: S L Graceful Crescent
+	SLPasDeDeux.DisplayName: S L Pas De Deux
+	SLPlumeDive.DisplayName: S L Plume Dive
+	SOCursedCygnet.DisplayName: S O Cursed Cygnet
+	SOFeatherGuard.DisplayName: S O Feather Guard
+	SOMirrorBolt.DisplayName: S O Mirror Bolt
+	SOMirrorSentry.DisplayName: S O Mirror Sentry
+	SOWhiteSwanSpirit.DisplayName: S O White Swan Spirit
 }

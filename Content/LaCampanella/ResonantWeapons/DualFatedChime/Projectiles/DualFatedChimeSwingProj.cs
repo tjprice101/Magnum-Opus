@@ -16,34 +16,32 @@ using MagnumOpus.Content.LaCampanella.Debuffs;
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Projectiles
 {
     /// <summary>
-    /// Dual Fated Chime  EMain held swing projectile.
-    /// Exoblade-style state machine handling 3-phase infernal combo.
+    /// Dual Fated Chime — 5-phase alternating inferno waltz combo.
     /// 
-    /// Phase 0 "Bell Strike":  Quick ringing slash  Efast, sharp, 155px blade
-    /// Phase 1 "Toll Sweep":   Broad reversed sweep  Eheavy, dramatic, 160px blade  
-    /// Phase 2 "Grand Toll":   Devastating overhead slam  Emassive, fires flame waves, 175px blade
+    /// Phase 0 "Opening Peal":  Right chime horizontal slash + bell shockwave ring
+    /// Phase 1 "Answer":        Left chime diagonal slash — faster, reversed
+    /// Phase 2 "Escalation":    Right chime upward arc + flame wave projectile
+    /// Phase 3 "Resonance":     Left chime downward slam + double shockwave + ground fire
+    /// Phase 4 "Grand Toll":    Both chimes cross-slash + 12 directional Bell Flame Waves
     /// 
-    /// All rendering (blade sprite, shader trails, particles, bloom) is self-contained.
+    /// Bell Resonance Stacking: Each hit adds a Resonance Ring to hit enemy (max 5).
+    /// At 5 rings, next hit triggers Bell Shatter — massive AoE damage burst.
     /// </summary>
     public class DualFatedChimeSwingProj : ModProjectile
     {
         #region Constants
 
-        private const int BladeLength_BellStrike = 155;
-        private const int BladeLength_TollSweep = 160;
-        private const int BladeLength_GrandToll = 175;
-
-        private const int Duration_BellStrike = 18;
-        private const int Duration_TollSweep = 22;
-        private const int Duration_GrandToll = 26;
-
-        private const float DamageMult_BellStrike = 0.9f;
-        private const float DamageMult_TollSweep = 1.1f;
-        private const float DamageMult_GrandToll = 1.35f;
-
-        private const float MaxSwingAngle_BellStrike = MathHelper.PiOver2 * 1.4f;
-        private const float MaxSwingAngle_TollSweep = MathHelper.PiOver2 * 1.6f;
-        private const float MaxSwingAngle_GrandToll = MathHelper.PiOver2 * 2.0f;
+        private static readonly int[] BladeLengths = { 155, 155, 160, 165, 180 };
+        private static readonly int[] Durations = { 16, 14, 20, 22, 28 };
+        private static readonly float[] DamageMults = { 0.85f, 0.90f, 1.0f, 1.15f, 1.50f };
+        private static readonly float[] MaxAngles =
+        {
+            MathHelper.PiOver2 * 1.3f,
+            MathHelper.PiOver2 * 1.4f,
+            MathHelper.PiOver2 * 1.6f,
+            MathHelper.PiOver2 * 1.8f,
+            MathHelper.PiOver2 * 2.2f
+        };
 
         private const int TrailPointCount = 40;
         private const int RenderPointCount = 80;
@@ -52,77 +50,68 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
 
         #region Curve Definitions
 
-        // Phase 0: Quick bell strike  Esharp musical accent
-        private static readonly DualFatedChimeUtils.CurveSegment[] BellStrikeAnimation = new[]
+        // Phase 0: Opening Peal — quick horizontal bell ring
+        private static readonly DualFatedChimeUtils.CurveSegment[] OpeningPealAnim = new[]
         {
             new DualFatedChimeUtils.CurveSegment(DualFatedChimeUtils.SineOutEasing, 0f, -0.85f, 0.2f, 2),
             new DualFatedChimeUtils.CurveSegment(DualFatedChimeUtils.PolyInEasing, 0.12f, -0.65f, 1.60f, 3),
             new DualFatedChimeUtils.CurveSegment(DualFatedChimeUtils.SineOutEasing, 0.78f, 0.95f, 0.05f, 2),
         };
 
-        // Phase 1: Reversed toll sweep  Ebroad dramatic arc
-        private static readonly DualFatedChimeUtils.CurveSegment[] TollSweepAnimation = new[]
+        // Phase 1: Answer — faster reversed diagonal
+        private static readonly DualFatedChimeUtils.CurveSegment[] AnswerAnim = new[]
+        {
+            new DualFatedChimeUtils.CurveSegment(DualFatedChimeUtils.SineOutEasing, 0f, -0.90f, 0.15f, 2),
+            new DualFatedChimeUtils.CurveSegment(DualFatedChimeUtils.PolyInEasing, 0.10f, -0.75f, 1.70f, 4),
+            new DualFatedChimeUtils.CurveSegment(DualFatedChimeUtils.SineOutEasing, 0.75f, 0.95f, 0.05f, 2),
+        };
+
+        // Phase 2: Escalation — upward arc with extra lift
+        private static readonly DualFatedChimeUtils.CurveSegment[] EscalationAnim = new[]
         {
             new DualFatedChimeUtils.CurveSegment(DualFatedChimeUtils.PolyOutEasing, 0f, -1.0f, 0.30f, 2),
-            new DualFatedChimeUtils.CurveSegment(DualFatedChimeUtils.PolyInEasing, 0.20f, -0.70f, 1.65f, 4),
+            new DualFatedChimeUtils.CurveSegment(DualFatedChimeUtils.PolyInEasing, 0.18f, -0.70f, 1.65f, 3),
             new DualFatedChimeUtils.CurveSegment(DualFatedChimeUtils.PolyOutEasing, 0.80f, 0.95f, 0.05f, 2),
         };
 
-        // Phase 2: Grand Toll  Edramatic wind-back + explosive forward slam
-        private static readonly DualFatedChimeUtils.CurveSegment[] GrandTollAnimation = new[]
+        // Phase 3: Resonance — dramatic wind-back + slam down
+        private static readonly DualFatedChimeUtils.CurveSegment[] ResonanceAnim = new[]
         {
-            new DualFatedChimeUtils.CurveSegment(DualFatedChimeUtils.SineBumpEasing, 0f, -1.0f, -0.18f, 2),
-            new DualFatedChimeUtils.CurveSegment(DualFatedChimeUtils.PolyOutEasing, 0.10f, -1.18f, 0.48f, 2),
-            new DualFatedChimeUtils.CurveSegment(DualFatedChimeUtils.PolyInEasing, 0.32f, -0.70f, 1.75f, 5),
+            new DualFatedChimeUtils.CurveSegment(DualFatedChimeUtils.SineBumpEasing, 0f, -1.0f, -0.15f, 2),
+            new DualFatedChimeUtils.CurveSegment(DualFatedChimeUtils.PolyOutEasing, 0.12f, -1.15f, 0.45f, 2),
+            new DualFatedChimeUtils.CurveSegment(DualFatedChimeUtils.PolyInEasing, 0.30f, -0.70f, 1.75f, 5),
             new DualFatedChimeUtils.CurveSegment(DualFatedChimeUtils.PolyOutEasing, 0.82f, 1.05f, -0.05f, 2),
+        };
+
+        // Phase 4: Grand Toll — massive wind-back + explosive cross-slash
+        private static readonly DualFatedChimeUtils.CurveSegment[] GrandTollAnim = new[]
+        {
+            new DualFatedChimeUtils.CurveSegment(DualFatedChimeUtils.SineBumpEasing, 0f, -1.1f, -0.20f, 2),
+            new DualFatedChimeUtils.CurveSegment(DualFatedChimeUtils.PolyOutEasing, 0.08f, -1.30f, 0.50f, 2),
+            new DualFatedChimeUtils.CurveSegment(DualFatedChimeUtils.PolyInEasing, 0.28f, -0.80f, 1.90f, 5),
+            new DualFatedChimeUtils.CurveSegment(DualFatedChimeUtils.PolyOutEasing, 0.80f, 1.10f, -0.10f, 2),
+        };
+
+        private static readonly DualFatedChimeUtils.CurveSegment[][] AllAnimations =
+        {
+            OpeningPealAnim, AnswerAnim, EscalationAnim, ResonanceAnim, GrandTollAnim
         };
 
         #endregion
 
         #region State Properties
 
-        public int ComboPhase => (int)Projectile.ai[0];
-
+        public int ComboPhase => Math.Clamp((int)Projectile.ai[0], 0, 4);
         public float Progression => Math.Clamp((float)Timer / SwingDuration, 0f, 1f);
-
         public int Timer => SwingDuration - Projectile.timeLeft;
+        public int SwingDuration => Durations[ComboPhase];
+        public float BladeLength => BladeLengths[ComboPhase];
+        public float MaxAngle => MaxAngles[ComboPhase];
+        public DualFatedChimeUtils.CurveSegment[] CurrentAnimation => AllAnimations[ComboPhase];
+        public float DamageMultiplier => DamageMults[ComboPhase];
 
-        public int SwingDuration => ComboPhase switch
-        {
-            0 => Duration_BellStrike,
-            1 => Duration_TollSweep,
-            _ => Duration_GrandToll
-        };
-
-        public float BladeLength => ComboPhase switch
-        {
-            0 => BladeLength_BellStrike,
-            1 => BladeLength_TollSweep,
-            _ => BladeLength_GrandToll
-        };
-
-        public float MaxAngle => ComboPhase switch
-        {
-            0 => MaxSwingAngle_BellStrike,
-            1 => MaxSwingAngle_TollSweep,
-            _ => MaxSwingAngle_GrandToll
-        };
-
-        public DualFatedChimeUtils.CurveSegment[] CurrentAnimation => ComboPhase switch
-        {
-            0 => BellStrikeAnimation,
-            1 => TollSweepAnimation,
-            _ => GrandTollAnimation
-        };
-
-        public float DamageMultiplier => ComboPhase switch
-        {
-            0 => DamageMult_BellStrike,
-            1 => DamageMult_TollSweep,
-            _ => DamageMult_GrandToll
-        };
-
-        public bool IsFlipped => ComboPhase == 1;
+        // Phases 1 and 3 are left-chime (flipped)
+        public bool IsFlipped => ComboPhase == 1 || ComboPhase == 3;
 
         public int Direction { get; private set; }
         public float BaseRotation { get; private set; }
@@ -131,6 +120,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
         private bool _initialized;
         private float _squishFactor;
         private bool _flamesSpawned;
+        private bool _groundFireSpawned;
         private bool _soundPlayed;
 
         private Vector2[] _trailPositions;
@@ -176,44 +166,59 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             float currentRotation = BaseRotation + swingAngle;
 
             Projectile.rotation = currentRotation;
-
             Owner.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, currentRotation - MathHelper.PiOver2);
 
             DoSwingVFX(currentRotation);
 
-            // Phase 2: Fire flame waves at 70% progress
+            // Phase 2 (Escalation): Fire flame wave projectile at 70%
             if (ComboPhase == 2 && Progression >= 0.70f && !_flamesSpawned)
             {
-                SpawnBellFlameWaves(currentRotation);
+                SpawnFlameWaveProjectile(currentRotation);
                 _flamesSpawned = true;
             }
 
-            // Play sound at 20% progress
+            // Phase 3 (Resonance): Double shockwave + ground fire at 65%
+            if (ComboPhase == 3 && Progression >= 0.65f && !_groundFireSpawned)
+            {
+                SpawnResonanceGroundFire(currentRotation);
+                _groundFireSpawned = true;
+            }
+
+            // Phase 4 (Grand Toll): 12 directional flame waves at 65%
+            if (ComboPhase == 4 && Progression >= 0.65f && !_flamesSpawned)
+            {
+                SpawnGrandTollFlameCircle(currentRotation);
+                _flamesSpawned = true;
+            }
+
+            // Play sound at 20% progress — pitch rises with combo phase
             if (Progression >= 0.20f && !_soundPlayed)
             {
-                SoundEngine.PlaySound(SoundID.Item71 with { Pitch = -0.1f + ComboPhase * 0.08f, Volume = 0.7f }, Projectile.Center);
+                float pitch = -0.15f + ComboPhase * 0.08f;
+                float volume = 0.6f + ComboPhase * 0.05f;
+                SoundEngine.PlaySound(SoundID.Item71 with { Pitch = pitch, Volume = volume }, Projectile.Center);
                 _soundPlayed = true;
             }
 
             // Shrink toward end
-            float targetScale = 1f;
             if (Progression > 0.75f)
             {
                 float shrinkProgress = (Progression - 0.75f) / 0.25f;
-                Projectile.scale = MathHelper.Lerp(targetScale, 0.3f, shrinkProgress);
+                Projectile.scale = MathHelper.Lerp(1f, 0.3f, shrinkProgress);
             }
             else
             {
-                Projectile.scale = MathHelper.Lerp(Projectile.scale, targetScale, 0.15f);
+                Projectile.scale = MathHelper.Lerp(Projectile.scale, 1f, 0.15f);
             }
 
             // Infernal lighting along blade
             Vector2 swordDir = currentRotation.ToRotationVector2();
+            float phaseIntensity = 0.4f + ComboPhase * 0.1f;
             for (int i = 0; i < 5; i++)
             {
                 float bladeT = (float)i / 4f;
                 Vector2 lightPos = Projectile.Center + swordDir * BladeLength * bladeT * Projectile.scale;
-                float intensity = 0.5f * (1f - bladeT * 0.3f);
+                float intensity = phaseIntensity * (1f - bladeT * 0.3f);
                 Vector3 fireLight = new Vector3(0.8f, 0.35f + bladeT * 0.3f, 0.05f);
                 Lighting.AddLight(lightPos, fireLight * intensity);
             }
@@ -227,7 +232,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             _initialized = true;
             Direction = Math.Sign(Projectile.velocity.X) != 0 ? Math.Sign(Projectile.velocity.X) : 1;
             BaseRotation = Projectile.velocity.ToRotation();
-            _squishFactor = ComboPhase switch { 0 => 0.88f, 1 => 0.85f, _ => 0.82f };
+            _squishFactor = MathHelper.Lerp(0.90f, 0.80f, ComboPhase / 4f);
             Projectile.timeLeft = SwingDuration;
             _trailPositions = new Vector2[TrailPointCount];
             _trailRenderer = new DualFatedChimePrimitiveRenderer();
@@ -243,23 +248,21 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             Vector2 swordDir = currentRotation.ToRotationVector2();
             Vector2 tipPos = Projectile.Center + swordDir * BladeLength * Projectile.scale;
 
-            // Infernal embers flying off blade during active swing
+            // Infernal embers flying off blade during active swing — intensity scales with phase
             if (Progression > 0.15f && Progression < 0.90f)
             {
-                float dustChance = MathHelper.Lerp(0.4f, 1f, Progression);
+                float dustChance = MathHelper.Lerp(0.3f, 1f, Progression) * (1f + ComboPhase * 0.15f);
                 if (Main.rand.NextFloat() < dustChance)
                 {
                     float bladeT = Main.rand.NextFloat(0.3f, 1f);
                     Vector2 dustPos = Projectile.Center + swordDir * BladeLength * bladeT * Projectile.scale;
                     Vector2 perpVel = new Vector2(-swordDir.Y, swordDir.X) * Main.rand.NextFloat(1.5f, 4f) * Direction;
 
-                    // Fire dust
                     Dust d = Dust.NewDustPerfect(dustPos, DustID.Torch, perpVel, 0,
-                        DualFatedChimeUtils.GetFireFlicker(bladeT), 1.3f);
+                        DualFatedChimeUtils.GetFireFlicker(bladeT), 1.1f + ComboPhase * 0.1f);
                     d.noGravity = true;
                     d.fadeIn = 0.9f;
 
-                    // Black smoke trail
                     if (Main.rand.NextBool(3))
                     {
                         Dust s = Dust.NewDustPerfect(dustPos, DustID.Smoke, perpVel * 0.4f, 80,
@@ -269,36 +272,42 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
                 }
             }
 
-            // Phase 1 midpoint: ember spark burst
-            if (ComboPhase == 1 && Math.Abs(Progression - 0.55f) < 0.03f)
+            // Phase-specific midpoint VFX bursts
+            float midpoint = 0.55f;
+            if (Math.Abs(Progression - midpoint) < 0.03f)
             {
-                for (int i = 0; i < 6; i++)
+                int burstCount = 3 + ComboPhase * 2;
+                for (int i = 0; i < burstCount; i++)
                 {
-                    Vector2 vel = Main.rand.NextVector2CircularEdge(3f, 3f) + swordDir * 2f;
+                    Vector2 vel = Main.rand.NextVector2CircularEdge(3f + ComboPhase * 0.5f, 3f + ComboPhase * 0.5f) + swordDir * 2f;
                     float heat = Main.rand.NextFloat(0.3f, 0.9f);
                     DualFatedChimeParticleHandler.SpawnParticle(
                         new InfernalEmberParticle(tipPos + Main.rand.NextVector2Circular(8f, 8f),
-                            vel, heat, 20, 0.5f));
-                }
-            }
-
-            // Phase 2 at 65%: smoke burst + music note sparks
-            if (ComboPhase == 2 && Math.Abs(Progression - 0.65f) < 0.03f)
-            {
-                for (int i = 0; i < 4; i++)
-                {
-                    Vector2 smokeVel = Main.rand.NextVector2Circular(3f, 3f) + new Vector2(0, -1f);
-                    DualFatedChimeParticleHandler.SpawnParticle(
-                        new BellSmokeParticle(tipPos + Main.rand.NextVector2Circular(15f, 15f),
-                            smokeVel, 45, 1.3f, 0.7f));
+                            vel, heat, 18 + ComboPhase * 2, 0.4f + ComboPhase * 0.05f));
                 }
 
-                for (int i = 0; i < 3; i++)
+                // Smoke for phases 2+
+                if (ComboPhase >= 2)
                 {
-                    Vector2 noteVel = Main.rand.NextVector2Circular(2f, 2f) + new Vector2(0, -2f);
-                    DualFatedChimeParticleHandler.SpawnParticle(
-                        new MusicalFlameParticle(tipPos + Main.rand.NextVector2Circular(10f, 10f),
-                            noteVel, 35, 0.6f));
+                    for (int i = 0; i < ComboPhase; i++)
+                    {
+                        Vector2 smokeVel = Main.rand.NextVector2Circular(3f, 3f) + new Vector2(0, -1f);
+                        DualFatedChimeParticleHandler.SpawnParticle(
+                            new BellSmokeParticle(tipPos + Main.rand.NextVector2Circular(15f, 15f),
+                                smokeVel, 40, 1.0f + ComboPhase * 0.15f, 0.6f));
+                    }
+                }
+
+                // Music note sparks at phases 3+
+                if (ComboPhase >= 3)
+                {
+                    for (int i = 0; i < ComboPhase - 1; i++)
+                    {
+                        Vector2 noteVel = Main.rand.NextVector2Circular(2f, 2f) + new Vector2(0, -2f);
+                        DualFatedChimeParticleHandler.SpawnParticle(
+                            new MusicalFlameParticle(tipPos + Main.rand.NextVector2Circular(10f, 10f),
+                                noteVel, 35, 0.5f + ComboPhase * 0.05f));
+                    }
                 }
             }
 
@@ -323,47 +332,119 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
 
         #endregion
 
-        #region Bell Flame Wave Spawning
+        #region Phase-Specific Projectile Spawning
 
-        private void SpawnBellFlameWaves(float rotation)
+        /// <summary>Phase 2: Single flame wave projectile from blade tip.</summary>
+        private void SpawnFlameWaveProjectile(float rotation)
         {
             Vector2 swordDir = rotation.ToRotationVector2();
             Vector2 tipPos = Projectile.Center + swordDir * BladeLength * Projectile.scale;
-            int count = 3;
-            float spreadAngle = MathHelper.ToRadians(45f);
+            Vector2 flameVel = swordDir * 10f + Main.rand.NextVector2Circular(0.5f, 0.5f);
 
-            for (int i = 0; i < count; i++)
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), tipPos, flameVel,
+                ModContent.ProjectileType<BellFlameWaveProj>(),
+                Projectile.damage / 3, Projectile.knockBack * 0.3f, Projectile.owner);
+
+            DualFatedChimeParticleHandler.SpawnParticle(
+                new InfernalEmberParticle(tipPos, flameVel * 0.3f, 0.7f, 18, 0.5f));
+            DualFatedChimeParticleHandler.SpawnParticle(
+                new BellChimeFlashParticle(tipPos, 15, 1.5f));
+
+            SoundEngine.PlaySound(SoundID.Item45 with { Pitch = 0.1f, Volume = 0.5f }, tipPos);
+        }
+
+        /// <summary>Phase 3: Double shockwave ring + ground fire dust.</summary>
+        private void SpawnResonanceGroundFire(float rotation)
+        {
+            Vector2 swordDir = rotation.ToRotationVector2();
+            Vector2 tipPos = Projectile.Center + swordDir * BladeLength * Projectile.scale;
+
+            // Double shockwave effect via expanding dust rings
+            for (int ring = 0; ring < 2; ring++)
             {
-                float angleOffset = MathHelper.Lerp(-spreadAngle / 2f, spreadAngle / 2f,
-                    count > 1 ? (float)i / (count - 1) : 0.5f);
-                Vector2 flameDir = (rotation + angleOffset).ToRotationVector2();
-                Vector2 flameVel = flameDir * 10f + Main.rand.NextVector2Circular(1f, 1f);
+                float ringDelay = ring * 0.15f;
+                int dustCount = 16 + ring * 8;
+                float radius = 30f + ring * 25f;
+
+                for (int i = 0; i < dustCount; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / dustCount;
+                    Vector2 dustVel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * (3f + ring * 2f);
+                    Dust d = Dust.NewDustPerfect(tipPos + dustVel * 2f, DustID.Torch, dustVel, 0,
+                        DualFatedChimeUtils.GetInfernalGradient(0.5f + ring * 0.2f), 1.5f - ring * 0.3f);
+                    d.noGravity = true;
+                    d.fadeIn = 1.0f;
+                }
+            }
+
+            // Ground fire lingering dust
+            for (int i = 0; i < 10; i++)
+            {
+                Vector2 groundPos = tipPos + new Vector2(Main.rand.NextFloat(-60f, 60f), Main.rand.NextFloat(0f, 20f));
+                Vector2 upVel = new Vector2(0, -Main.rand.NextFloat(0.5f, 2f));
+                Dust d = Dust.NewDustPerfect(groundPos, DustID.Torch, upVel, 0,
+                    DualFatedChimeUtils.GetFireFlicker(Main.rand.NextFloat()), 1.2f);
+                d.noGravity = true;
+            }
+
+            // Flash + smoke burst
+            DualFatedChimeParticleHandler.SpawnParticle(new BellChimeFlashParticle(tipPos, 20, 2.2f));
+            for (int i = 0; i < 6; i++)
+            {
+                Vector2 smokeVel = Main.rand.NextVector2Circular(4f, 4f) + new Vector2(0, -0.5f);
+                DualFatedChimeParticleHandler.SpawnParticle(
+                    new BellSmokeParticle(tipPos + Main.rand.NextVector2Circular(20f, 20f),
+                        smokeVel, 50, 1.5f, 0.7f));
+            }
+
+            SoundEngine.PlaySound(SoundID.Item14 with { Pitch = -0.3f, Volume = 0.7f }, tipPos);
+        }
+
+        /// <summary>Phase 4: 12 directional Bell Flame Waves in a full circle.</summary>
+        private void SpawnGrandTollFlameCircle(float rotation)
+        {
+            Vector2 swordDir = rotation.ToRotationVector2();
+            Vector2 tipPos = Projectile.Center + swordDir * BladeLength * Projectile.scale;
+            int waveCount = 12;
+
+            for (int i = 0; i < waveCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / waveCount;
+                Vector2 flameDir = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
+                Vector2 flameVel = flameDir * 9f;
 
                 Projectile.NewProjectile(
-                    Projectile.GetSource_FromThis(),
-                    tipPos, flameVel,
+                    Projectile.GetSource_FromThis(), tipPos, flameVel,
                     ModContent.ProjectileType<BellFlameWaveProj>(),
-                    Projectile.damage / 3, Projectile.knockBack * 0.3f,
-                    Projectile.owner);
+                    (int)(Projectile.damage * 0.4f), Projectile.knockBack * 0.2f, Projectile.owner);
 
-                // Ember burst at spawn
+                // Ember trail at each wave spawn point
                 DualFatedChimeParticleHandler.SpawnParticle(
-                    new InfernalEmberParticle(tipPos, flameVel * 0.3f, 0.7f, 18, 0.5f));
+                    new InfernalEmberParticle(tipPos, flameVel * 0.2f, 0.8f, 15, 0.4f));
             }
 
-            // Bell chime flash at tip
-            DualFatedChimeParticleHandler.SpawnParticle(
-                new BellChimeFlashParticle(tipPos, 18, 1.8f));
+            // Massive bell chime flash
+            DualFatedChimeParticleHandler.SpawnParticle(new BellChimeFlashParticle(tipPos, 25, 3.0f));
 
-            // Smoke burst
-            for (int i = 0; i < 4; i++)
+            // Heavy smoke ring
+            for (int i = 0; i < 12; i++)
             {
-                Vector2 smokeVel = Main.rand.NextVector2Circular(4f, 4f);
+                Vector2 smokeVel = Main.rand.NextVector2CircularEdge(5f, 5f);
                 DualFatedChimeParticleHandler.SpawnParticle(
-                    new BellSmokeParticle(tipPos, smokeVel, 40, 1.5f, 0.6f));
+                    new BellSmokeParticle(tipPos, smokeVel, 55, 2.0f, 0.8f));
             }
 
-            SoundEngine.PlaySound(SoundID.Item45 with { Pitch = 0.2f, Volume = 0.6f }, tipPos);
+            // Music note burst
+            for (int i = 0; i < 6; i++)
+            {
+                Vector2 noteVel = Main.rand.NextVector2CircularEdge(3f, 3f) + new Vector2(0, -2f);
+                DualFatedChimeParticleHandler.SpawnParticle(
+                    new MusicalFlameParticle(tipPos, noteVel, 45, 0.7f));
+            }
+
+            SoundEngine.PlaySound(SoundID.Item45 with { Pitch = 0.3f, Volume = 0.9f }, tipPos);
+            SoundEngine.PlaySound(SoundID.Item14 with { Pitch = 0.1f, Volume = 0.6f }, tipPos);
         }
 
         #endregion
@@ -389,28 +470,30 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
 
         #endregion
 
-        #region On Hit
+        #region On Hit — Bell Resonance Stacking
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // Apply Resonant Toll
+            // Apply Resonant Toll (existing debuff system)
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 1);
 
-            // Charge Inferno Waltz gauge
-            Owner.DualFatedChime().AddCharge(DualFatedChimePlayer.ChargePerHit);
+            // Bell Resonance Stacking: track per-NPC resonance rings
+            var resonance = target.GetGlobalNPC<BellResonanceNPC>();
+            resonance.AddResonanceRing(target, Projectile.owner);
 
-            // Impact VFX  Einfernal ember burst
+            // Impact VFX — scales with combo phase
             Vector2 hitPos = target.Center;
-            for (int i = 0; i < 8; i++)
+            int emberCount = 5 + ComboPhase * 2;
+            for (int i = 0; i < emberCount; i++)
             {
-                Vector2 sparkVel = Main.rand.NextVector2CircularEdge(5f, 5f);
+                Vector2 sparkVel = Main.rand.NextVector2CircularEdge(4f + ComboPhase, 4f + ComboPhase);
                 float heat = Main.rand.NextFloat(0.4f, 0.9f);
                 DualFatedChimeParticleHandler.SpawnParticle(
-                    new InfernalEmberParticle(hitPos, sparkVel, heat, 22, 0.5f));
+                    new InfernalEmberParticle(hitPos, sparkVel, heat, 20 + ComboPhase * 2, 0.4f + ComboPhase * 0.05f));
             }
 
-            // Smoke puff on hit
-            for (int i = 0; i < 3; i++)
+            // Smoke puff
+            for (int i = 0; i < 2 + ComboPhase; i++)
             {
                 Vector2 smokeVel = Main.rand.NextVector2Circular(2f, 2f);
                 DualFatedChimeParticleHandler.SpawnParticle(
@@ -418,13 +501,12 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
                         smokeVel, 35, 1f, 0.5f));
             }
 
-            // Bell chime flash on crit
-            if (hit.Crit)
+            // Bell chime flash on crit or higher phases
+            if (hit.Crit || ComboPhase >= 3)
             {
                 DualFatedChimeParticleHandler.SpawnParticle(
-                    new BellChimeFlashParticle(hitPos, 20, 2f));
+                    new BellChimeFlashParticle(hitPos, 18, 1.5f + ComboPhase * 0.2f));
 
-                // Music note sparks on crit
                 for (int i = 0; i < 2; i++)
                 {
                     Vector2 noteVel = Main.rand.NextVector2Circular(2f, 2f) + new Vector2(0, -2f);
@@ -463,10 +545,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             if (_trailPositions == null || _trailRenderer == null)
                 return;
 
-            // Infernal color scheme based on phase
-            Color primaryColor = DualFatedChimeUtils.GetInfernalGradient(0.4f + ComboPhase * 0.1f);
-            Color secondaryColor = DualFatedChimeUtils.GetInfernalGradient(0.6f + ComboPhase * 0.1f);
-            Color edgeColor = DualFatedChimeUtils.GetInfernalGradient(0.8f); // Gold edge
+            Color primaryColor = DualFatedChimeUtils.GetInfernalGradient(0.3f + ComboPhase * 0.12f);
+            Color secondaryColor = DualFatedChimeUtils.GetInfernalGradient(0.5f + ComboPhase * 0.10f);
+            Color edgeColor = DualFatedChimeUtils.GetInfernalGradient(0.75f + ComboPhase * 0.05f);
 
             float trailOpacity = MathHelper.Clamp((Progression - 0.18f) / 0.15f, 0f, 1f);
             if (Progression > 0.85f)
@@ -500,7 +581,6 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
                 catch { }
             }
 
-            // Main trail pass
             var mainSettings = new DualFatedChimeTrailSettings(
                 width: (float t) =>
                 {
@@ -519,7 +599,6 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             sb.End();
             _trailRenderer.RenderTrail(_trailPositions, mainSettings, RenderPointCount);
 
-            // Glow overlay pass (additive)
             if (shader != null)
             {
                 try
@@ -546,7 +625,6 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
 
             _trailRenderer.RenderTrail(_trailPositions, glowSettings, RenderPointCount);
 
-            // Restore SpriteBatch
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
@@ -560,11 +638,10 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             Texture2D bloomTex = null;
             try
             {
-                bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow",
+                bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow",
                     ReLogic.Content.AssetRequestMode.ImmediateLoad)?.Value;
             }
             catch { }
-
             if (bloomTex == null) return;
 
             Vector2 bloomOrigin = new Vector2(bloomTex.Width / 2f, bloomTex.Height / 2f);
@@ -574,24 +651,25 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             float bloomPulse = 0.8f + 0.2f * (float)Math.Sin(Main.GameUpdateCount * 0.15f);
+            float phaseScale = 1f + ComboPhase * 0.1f;
 
-            // Large outer flame glow  Eorange
+            // Outer flame glow — orange
             Color outerBloom = DualFatedChimeUtils.Additive(new Color(255, 100, 0), 0.2f * bloomPulse);
-            sb.Draw(bloomTex, tipPos, null, outerBloom, 0f, bloomOrigin, 1.4f * Projectile.scale, SpriteEffects.None, 0f);
+            sb.Draw(bloomTex, tipPos, null, outerBloom, 0f, bloomOrigin, 1.4f * Projectile.scale * phaseScale, SpriteEffects.None, 0f);
 
-            // Mid bloom  Egold
+            // Mid bloom — gold
             Color midBloom = DualFatedChimeUtils.Additive(new Color(255, 200, 50), 0.3f * bloomPulse);
-            sb.Draw(bloomTex, tipPos, null, midBloom, 0f, bloomOrigin, 0.7f * Projectile.scale, SpriteEffects.None, 0f);
+            sb.Draw(bloomTex, tipPos, null, midBloom, 0f, bloomOrigin, 0.7f * Projectile.scale * phaseScale, SpriteEffects.None, 0f);
 
             // White-hot core
             Color coreBloom = DualFatedChimeUtils.Additive(new Color(255, 240, 200), 0.5f * bloomPulse);
-            sb.Draw(bloomTex, tipPos, null, coreBloom, 0f, bloomOrigin, 0.3f * Projectile.scale, SpriteEffects.None, 0f);
+            sb.Draw(bloomTex, tipPos, null, coreBloom, 0f, bloomOrigin, 0.3f * Projectile.scale * phaseScale, SpriteEffects.None, 0f);
 
-            // Phase 2: Extra intense bloom
-            if (ComboPhase == 2)
+            // Extra bloom for phases 3 and 4
+            if (ComboPhase >= 3)
             {
-                Color phaseBloom = DualFatedChimeUtils.Additive(new Color(255, 60, 0), 0.15f * bloomPulse);
-                sb.Draw(bloomTex, tipPos, null, phaseBloom, 0f, bloomOrigin, 2.0f * Projectile.scale, SpriteEffects.None, 0f);
+                Color phaseBloom = DualFatedChimeUtils.Additive(new Color(255, 60, 0), 0.12f * bloomPulse * (ComboPhase - 2));
+                sb.Draw(bloomTex, tipPos, null, phaseBloom, 0f, bloomOrigin, 2.0f * Projectile.scale * phaseScale, SpriteEffects.None, 0f);
             }
 
             sb.End();
@@ -611,7 +689,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             float squish = MathHelper.Lerp(_squishFactor, 1f, Progression);
             Vector2 squishScale = new Vector2(1f + (1f - squish) * 0.5f, squish) * Projectile.scale;
 
-            // Shadow copy
+            // Shadow
             sb.Draw(bladeTex, drawPos + new Vector2(-1, 1), null,
                 new Color(0, 0, 0, 100) * 0.3f, rot, origin, squishScale * 1.02f, effects, 0f);
 
@@ -619,7 +697,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             sb.Draw(bladeTex, drawPos, null, lightColor, rot, origin, squishScale, effects, 0f);
 
             // Infernal fire glow overlay
-            Color fireGlow = DualFatedChimeUtils.Additive(DualFatedChimeUtils.GetFireFlicker(), 0.2f);
+            Color fireGlow = DualFatedChimeUtils.Additive(DualFatedChimeUtils.GetFireFlicker(), 0.15f + ComboPhase * 0.03f);
             sb.Draw(bladeTex, drawPos, null, fireGlow, rot, origin, squishScale * 1.01f, effects, 0f);
         }
 

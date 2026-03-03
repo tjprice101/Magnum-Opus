@@ -1,19 +1,15 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
-using MagnumOpus.Content.Eroica.Weapons.FuneralPrayer.Utilities;
-using MagnumOpus.Content.Eroica.Weapons.FuneralPrayer.Particles;
-using MagnumOpus.Content.Eroica.Weapons.FuneralPrayer.Primitives;
-using MagnumOpus.Content.Eroica.Weapons.FuneralPrayer.Dusts;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
     /// <summary>
-    /// Funeral Prayer projectile — large flaming bolt with red/gold flames using 6×6 sprite sheet.
+    /// Funeral Prayer projectile 窶・large flaming bolt with red/gold flames using 6ﾃ・ sprite sheet.
     /// Self-contained VFX: GPU trail, spritesheet rendering, afterimages, flame particles.
     /// </summary>
     public class FuneralPrayerProjectile : ModProjectile
@@ -28,7 +24,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         private ref float AgeTimer => ref Projectile.ai[1];
 
-        // ── Trail tracking ──
+        // 笏笏 Trail tracking 笏笏
         private const int TrailLength = 20;
         private Vector2[] trailPositions = new Vector2[TrailLength];
         private float[] trailRotations = new float[TrailLength];
@@ -61,11 +57,11 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         {
             AgeTimer++;
 
-            // Pulsating scale — the funeral flame breathes
+            // Pulsating scale 窶・the funeral flame breathes
             float scalePulse = (float)Math.Sin(AgeTimer * 0.07f) * 0.05f;
             Projectile.scale = 1.0f + scalePulse;
 
-            // Animate through 6×6 sprite sheet
+            // Animate through 6ﾃ・ sprite sheet
             frameCounter++;
             if (frameCounter >= AnimationSpeed)
             {
@@ -75,7 +71,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // ── Trail position tracking ──
+            // 笏笏 Trail position tracking 笏笏
             if (!trailInitialized)
             {
                 for (int i = 0; i < TrailLength; i++)
@@ -96,7 +92,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 trailRotations[0] = Projectile.rotation;
             }
 
-            // ── Particle Spawning ──
+            // 笏笏 Particle Spawning 笏笏
             SpawnFlightParticles();
         }
 
@@ -195,7 +191,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
 
-            // 6×6 spritesheet frame calculation
+            // 6ﾃ・ spritesheet frame calculation
             int frameWidth = tex.Width / FramesPerRow;
             int frameHeight = tex.Height / FrameRows;
             int col = currentFrame % FramesPerRow;
@@ -203,16 +199,16 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Rectangle sourceRect = new Rectangle(col * frameWidth, row * frameHeight, frameWidth, frameHeight);
             Vector2 origin = new Vector2(frameWidth / 2f, frameHeight / 2f);
 
-            // ── Layer 1: GPU Flame Trail ──
+            // 笏笏 Layer 1: GPU Flame Trail 笏笏
             DrawFlameTrail(sb);
 
-            // ── Layer 2: Afterimage chain ──
+            // 笏笏 Layer 2: Afterimage chain 笏笏
             DrawAfterimages(sb, tex, sourceRect, origin);
 
-            // ── Layer 3: Core spritesheet frame ──
+            // 笏笏 Layer 3: Core spritesheet frame 笏笏
             DrawCore(sb, tex, sourceRect, origin, lightColor);
 
-            // ── Layer 4: Additive bloom ──
+            // 笏笏 Layer 4: Additive bloom 笏笏
             DrawBloomOverlay(sb, origin, frameWidth, frameHeight);
 
             return false;

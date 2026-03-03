@@ -11,6 +11,7 @@ using MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Particles
 using MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Primitives;
 using MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Buffs;
 using MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Dusts;
+using MagnumOpus.Content.MoonlightSonata;
 
 namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Projectiles
 {
@@ -147,6 +148,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
                 CometParticleHandler.Spawn(new CraterBloomParticle(
                     target.Center, CometUtils.CometCoreColor, 1.2f, 18));
 
+                // Lunar cycle ring at impact
+                Color lunarTint = CometUtils.CometCoreColor;
+                if (Projectile.owner >= 0 && Projectile.owner < Main.maxPlayers && Main.player[Projectile.owner].active)
+                    lunarTint = Main.player[Projectile.owner].Resurrection().CurrentLunarColor;
+                CometParticleHandler.Spawn(new LunarCycleRingParticle(
+                    target.Center, lunarTint, 1f, 15));
+
                 // Searing spark burst
                 for (int i = 0; i < 10; i++)
                 {
@@ -166,6 +174,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
                         CometUtils.GetCometGradient(Main.rand.NextFloat(0.5f, 1f)),
                         0.4f + Main.rand.NextFloat(0.3f), 20 + Main.rand.Next(10)));
                 }
+
+                // Music notes on pierce — escalating with pierce count
+                int noteCount = 1 + (int)PierceCount;
+                MoonlightVFXLibrary.SpawnMusicNotes(target.Center, count: Math.Min(noteCount, 5),
+                    spread: 15f + PierceCount * 3f, minScale: 0.4f, maxScale: 0.7f,
+                    lifetime: 25 + (int)(PierceCount * 5));
             }
 
             SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode with { Volume = 0.5f, Pitch = 0.2f },
@@ -257,8 +271,16 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
             Vector2 origin = bloom.Size() * 0.5f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
-            // Outer burning glow
-            sb.Draw(bloom, drawPos, null, CometUtils.CometCoreColor * 0.5f, 0f, origin, 0.8f, SpriteEffects.None, 0f);
+            // Lunar phase influence on head glow
+            Color lunarTint = CometUtils.CometCoreColor;
+            if (Projectile.owner >= 0 && Projectile.owner < Main.maxPlayers && Main.player[Projectile.owner].active)
+                lunarTint = Color.Lerp(CometUtils.CometCoreColor, Main.player[Projectile.owner].Resurrection().CurrentLunarColor, 0.25f);
+
+            // Outer burning glow with lunar tinting
+            sb.Draw(bloom, drawPos, null, lunarTint * 0.5f, 0f, origin, 0.8f, SpriteEffects.None, 0f);
+
+            // Mid glow layer
+            sb.Draw(bloom, drawPos, null, CometUtils.CometCoreColor * 0.3f, 0f, origin, 0.55f, SpriteEffects.None, 0f);
 
             // White-hot core
             sb.Draw(bloom, drawPos, null, CometUtils.FrigidImpact * 0.7f, 0f, origin, 0.4f, SpriteEffects.None, 0f);

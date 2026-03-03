@@ -1,21 +1,16 @@
-using System;
-using System.Collections.Generic;
+﻿using MagnumOpus.Common;
 using Microsoft.Xna.Framework;
-using Terraria;
+using System.Collections.Generic;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement.Particles;
-using MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement.Utilities;
+using Terraria;
+using MagnumOpus.Content.DiesIrae.HarmonicCores;
+using MagnumOpus.Content.DiesIrae.ResonanceEnergies;
+using MagnumOpus.Content.Fate.CraftingStations;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement
 {
-    /// <summary>
-    /// Harmony of Judgement — Summons a floating judgment sigil that fires piercing rays of judgment.
-    ///
-    /// Stats: 1300 damage, 20 mana, 30 useTime, 3.5 KB, Summon, 1 slot.
-    /// Theme: Dies Irae — divine harmony turned to righteous fury.
-    /// </summary>
     public class HarmonyOfJudgement : ModItem
     {
         public override void SetDefaults()
@@ -41,20 +36,20 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            player.AddBuff(Item.buffType, 18000);
-            player.SpawnMinionOnCursor(source, player.whoAmI, type, damage, knockback);
-
-            // Summoning VFX
-            HarmonyParticleHandler.Spawn(new SigilGlowParticle(Main.MouseWorld, HarmonyUtils.SigilGold, 1f, 15));
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
-                HarmonyParticleHandler.Spawn(new HarmonyEmberParticle(Main.MouseWorld, vel,
-                    HarmonyUtils.GetHarmonyColor(Main.rand.NextFloat()), 0.1f, 15));
-            }
-
+            player.AddBuff(Item.buffType, 2);
+            Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
             return false;
+        }
+
+        public override void AddRecipes()
+        {
+            CreateRecipe()
+            .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.ResonantCoreOfDiesIrae>(), 10)
+            .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.DiesIraeResonantEnergy>(), 28)
+            .AddIngredient(ModContent.ItemType<Content.DiesIrae.HarmonicCores.HarmonicCoreOfDiesIrae>(), 2)
+            .AddIngredient(ItemID.LunarBar, 18)
+            .AddTile(ModContent.TileType<Content.Fate.CraftingStations.FatesCosmicAnvilTile>())
+            .Register();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -65,17 +60,6 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement
             {
                 OverrideColor = new Color(200, 50, 30)
             });
-        }
-
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.ResonantCoreOfDiesIrae>(), 10)
-                .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.DiesIraeResonantEnergy>(), 28)
-                .AddIngredient(ModContent.ItemType<Content.DiesIrae.HarmonicCores.HarmonicCoreOfDiesIrae>(), 2)
-                .AddIngredient(ItemID.LunarBar, 18)
-                .AddTile(ModContent.TileType<Content.Fate.CraftingStations.FatesCosmicAnvilTile>())
-                .Register();
         }
     }
 }

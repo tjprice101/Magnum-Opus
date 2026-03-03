@@ -7,6 +7,7 @@ using MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Dusts;
 using MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Particles;
 using MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Primitives;
 using MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Utilities;
+using MagnumOpus.Content.MoonlightSonata;
 using Terraria;
 using Terraria.Audio;
 using Terraria.Graphics.Shaders;
@@ -28,6 +29,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
     /// - Duration: 3 seconds max channel time, then 3 second cooldown
     /// - Beam rotates to follow the mouse with smooth interpolation
     /// 
+    /// RESONANCE SYSTEM:
+    /// - Beam builds through 5 resonance stages as channeling continues
+    ///   Pianissimo (0) → Piano (1) → Mezzo-Forte (2) → Forte (3) → Fortissimo (4)
+    /// - Each stage increases beam width, particle density, shader intensity
+    /// - At Mezzo-Forte (2+): Harmonic nodes appear along beam as standing wave
+    ///   positions — enemies at nodes take 1.5x damage
+    /// - At Forte (3+): Music note floods + enhanced bloom
+    /// - At Fortissimo (4+): Maximum power with resonance pulse ring
+    /// 
     /// ai[0] = alive timer
     /// ai[1] = beam direction angle
     /// </summary>
@@ -46,6 +56,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
         private Player Owner => Main.player[Projectile.owner];
         private float AliveTime { get => Projectile.ai[0]; set => Projectile.ai[0] = value; }
         private float BeamAngle { get => Projectile.ai[1]; set => Projectile.ai[1] = value; }
+
+        /// <summary>Cached previous resonance level for detecting transitions.</summary>
+        private int _prevResonanceLevel = 0;
 
         public override void SetDefaults()
         {
@@ -95,6 +108,18 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
 
             // Position at owner center
             Projectile.Center = Owner.MountedCenter;
+
+            // --- Resonance building ---
+            var serenade = Owner.Serenade();
+            serenade.TickChannel();
+            int currentResonance = serenade.ResonanceLevel;
+
+            // Detect resonance level transitions and spawn burst
+            if (currentResonance > _prevResonanceLevel && _prevResonanceLevel >= 0 && !Main.dedServ)
+            {
+                SpawnResonanceTransitionVFX(currentResonance);
+            }
+            _prevResonanceLevel = currentResonance;
 
             // --- Smooth aim toward mouse ---
             float targetAngle = (Main.MouseWorld - Owner.MountedCenter).ToRotation();
@@ -153,12 +178,18 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
         {
             Vector2 beamDir = BeamAngle.ToRotationVector2();
             Vector2 beamStart = Owner.MountedCenter;
+            var serenade = Owner.Serenade();
 
             float step = 32f;
             for (float dist = 0; dist < MaxBeamLength; dist += step)
             {
                 Vector2 checkPos = beamStart + beamDir * dist;
                 Rectangle checkRect = new((int)checkPos.X - 20, (int)checkPos.Y - 20, 40, 40);
+                float beamProgress = dist / MaxBeamLength;
+
+                // Check if this position is at a harmonic node
+                bool atNode = serenade.IsAtHarmonicNode(beamProgress);
+                float nodeMult = atNode ? SerenadePlayer.HarmonicNodeDamageMultiplier : 1f;
 
                 foreach (NPC npc in Main.ActiveNPCs)
                 {
@@ -169,25 +200,35 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
                     if (Projectile.localNPCImmunity[npc.whoAmI] > 0) continue;
                     Projectile.localNPCImmunity[npc.whoAmI] = Projectile.localNPCHitCooldown;
 
-                    // Hit!
-                    var hitInfo = npc.CalculateHitInfo((int)(Projectile.damage * 1.8f), Owner.direction,
+                    // Hit! Harmonic nodes deal 1.5x damage
+                    var hitInfo = npc.CalculateHitInfo((int)(Projectile.damage * 1.8f * nodeMult), Owner.direction,
                         false, Projectile.knockBack, Projectile.DamageType, true);
 
                     npc.StrikeNPC(hitInfo);
                     npc.AddBuff(ModContent.BuffType<MusicalDissonance>(), 300);
 
-                    // Per-hit VFX
+                    // Per-hit VFX — enhanced at harmonic nodes
                     if (!Main.dedServ)
                     {
+                        float bloomScale = atNode ? 1.8f : 1f;
+                        int sparkCount = atNode ? 6 : 3;
+
                         SerenadeParticleHandler.Spawn(new RefractionBloomParticle(
-                            npc.Center, GetSpectralColor(Main.rand.Next(7)), 1f, 15
+                            npc.Center, GetSpectralColor(Main.rand.Next(7)), bloomScale, 15
                         ));
-                        for (int i = 0; i < 3; i++)
+                        for (int i = 0; i < sparkCount; i++)
                         {
                             Vector2 vel = Main.rand.NextVector2CircularEdge(3f, 3f);
                             SerenadeParticleHandler.Spawn(new PrismaticSparkParticle(
                                 npc.Center, vel, GetSpectralColor(Main.rand.Next(7)), MoonWhite, 0.4f, 18
                             ));
+                        }
+
+                        // Extra music note burst at harmonic nodes
+                        if (atNode)
+                        {
+                            MoonlightVFXLibrary.SpawnMusicNotes(npc.Center, count: 3,
+                                spread: 12f, minScale: 0.4f, maxScale: 0.7f, lifetime: 30);
                         }
                     }
 
@@ -203,9 +244,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
 
             float channelProgress = AliveTime / (float)MaxChannelTime;
             Vector2 beamDir = BeamAngle.ToRotationVector2();
+            var serenade = Owner.Serenade();
+            int resonance = serenade.ResonanceLevel;
+            float resMult = SerenadePlayer.ResonanceIntensity[resonance];
 
-            // Prismatic sparks along the beam
-            if (AliveTime % 2 == 0)
+            // Prismatic sparks along the beam — density scales with resonance
+            int sparkInterval = Math.Max(1, 3 - resonance);
+            if (AliveTime % sparkInterval == 0)
             {
                 float dist = Main.rand.NextFloat(MaxBeamLength * 0.8f);
                 Vector2 sparkPos = Owner.MountedCenter + beamDir * dist;
@@ -214,12 +259,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
                 Color col = GetSpectralColor(Main.rand.Next(7));
                 SerenadeParticleHandler.Spawn(new PrismaticSparkParticle(
                     sparkPos + Main.rand.NextVector2Circular(BeamWidth * 0.3f, BeamWidth * 0.3f),
-                    perpVel, col, MoonWhite, 0.35f, 20
+                    perpVel, col, MoonWhite, (0.35f + resonance * 0.08f), 20
                 ));
             }
 
-            // Spectral notes floating off beam
-            if (AliveTime % 8 == 0)
+            // Spectral notes floating off beam — more frequent at higher resonance
+            int noteInterval = Math.Max(3, 10 - resonance * 2);
+            if (AliveTime % noteInterval == 0)
             {
                 float dist = Main.rand.NextFloat(MaxBeamLength * 0.6f);
                 Vector2 notePos = Owner.MountedCenter + beamDir * dist;
@@ -227,32 +273,60 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
                 Vector2 noteVel = perpDir * Main.rand.NextFloat(-1.5f, 1.5f) + new Vector2(0, -0.5f);
 
                 SerenadeParticleHandler.Spawn(new SpectralNoteParticle(
-                    notePos, noteVel, 0.5f + channelProgress * 0.2f, 60 + Main.rand.Next(30)
+                    notePos, noteVel, 0.5f + channelProgress * 0.2f + resonance * 0.05f, 60 + Main.rand.Next(30)
                 ));
             }
 
-            // Refraction bloom pulses at regular intervals along beam
-            if (AliveTime % 15 == 0)
+            // Refraction bloom pulses at regular intervals along beam — count scales
+            int bloomInterval = Math.Max(8, 15 - resonance * 2);
+            if (AliveTime % bloomInterval == 0)
             {
-                int rippleCount = 3;
+                int rippleCount = 3 + resonance;
                 for (int i = 0; i < rippleCount; i++)
                 {
                     float d = MaxBeamLength * (i + 1) / (rippleCount + 1);
                     Vector2 ripplePos = Owner.MountedCenter + beamDir * d;
                     Color rippleCol = GetBeamGradient(d / MaxBeamLength);
                     SerenadeParticleHandler.Spawn(new RefractionBloomParticle(
-                        ripplePos, rippleCol, 1.2f, 20
+                        ripplePos, rippleCol, 1.2f + resonance * 0.2f, 20
                     ));
                 }
             }
 
-            // Mist around source
-            if (AliveTime % 6 == 0)
+            // Harmonic node particles — only at resonance 2+ (Mezzo-Forte)
+            if (resonance >= 2 && AliveTime % 6 == 0)
+            {
+                int nodeCount = serenade.HarmonicNodeCount;
+                for (int i = 1; i <= nodeCount; i++)
+                {
+                    float nodeProgress = i / (float)(nodeCount + 1);
+                    Vector2 nodePos = Owner.MountedCenter + beamDir * (MaxBeamLength * nodeProgress * channelProgress);
+                    Color nodeBase = SerenadePlayer.ResonanceColors[resonance];
+                    Color nodePeak = MoonWhite;
+
+                    SerenadeParticleHandler.Spawn(new HarmonicNodeParticle(
+                        nodePos, nodeBase, nodePeak,
+                        0.5f + resonance * 0.15f, 12
+                    ));
+                }
+            }
+
+            // Forte (3+): Music note flood from beam — cascading harmonic notes
+            if (resonance >= 3 && AliveTime % 5 == 0)
+            {
+                MoonlightVFXLibrary.SpawnMusicNotes(
+                    Owner.MountedCenter + beamDir * Main.rand.NextFloat(MaxBeamLength * 0.5f),
+                    count: 2, spread: 10f, minScale: 0.3f, maxScale: 0.6f, lifetime: 40);
+            }
+
+            // Mist around source — resonance enhances density
+            int mistInterval = Math.Max(3, 6 - resonance);
+            if (AliveTime % mistInterval == 0)
             {
                 Vector2 mistPos = Owner.MountedCenter + Main.rand.NextVector2Circular(30, 30);
-                Color mistCol = GetBeamGradient(Main.rand.NextFloat()) * 0.4f;
+                Color mistCol = GetBeamGradient(Main.rand.NextFloat()) * (0.4f + resonance * 0.08f);
                 SerenadeParticleHandler.Spawn(new SerenadeMistParticle(
-                    mistPos, beamDir * 0.5f, mistCol, 0.4f + Main.rand.NextFloat(0.3f), 40
+                    mistPos, beamDir * 0.5f, mistCol, 0.4f + Main.rand.NextFloat(0.3f) + resonance * 0.05f, 40
                 ));
             }
 
@@ -269,29 +343,81 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
 
         private void SpawnEndBurst()
         {
-            // Grand finale burst when channel ends
-            for (int i = 0; i < 20; i++)
+            var serenade = Owner.Serenade();
+            int resonance = serenade.ResonanceLevel;
+            float resMult = SerenadePlayer.ResonanceIntensity[resonance];
+
+            // Grand finale burst — spark count scales with resonance
+            int sparkCount = 20 + resonance * 6;
+            for (int i = 0; i < sparkCount; i++)
             {
-                float angle = MathHelper.TwoPi * i / 20f;
-                Vector2 vel = angle.ToRotationVector2() * (4f + Main.rand.NextFloat(3f));
+                float angle = MathHelper.TwoPi * i / sparkCount;
+                Vector2 vel = angle.ToRotationVector2() * (4f + Main.rand.NextFloat(3f) + resonance * 0.5f);
                 Color col = GetSpectralColor(i % 7);
                 SerenadeParticleHandler.Spawn(new PrismaticSparkParticle(
-                    Owner.MountedCenter, vel, col, MoonWhite, 0.5f, 25
+                    Owner.MountedCenter, vel, col, MoonWhite, 0.5f + resonance * 0.1f, 25
                 ));
             }
 
+            // Central bloom — larger at higher resonance
             SerenadeParticleHandler.Spawn(new RefractionBloomParticle(
-                Owner.MountedCenter, PrismViolet, 2f, 30
+                Owner.MountedCenter, PrismViolet, 2f + resonance * 0.5f, 30
             ));
 
-            for (int i = 0; i < 5; i++)
+            // Resonance pulse ring on end
+            if (resonance >= 2)
+            {
+                SerenadeParticleHandler.Spawn(new ResonancePulseParticle(
+                    Owner.MountedCenter, SerenadePlayer.ResonanceColors[resonance],
+                    3f + resonance * 0.8f, 30
+                ));
+            }
+
+            // Floating spectral notes — count scales
+            int noteCount = 5 + resonance * 2;
+            for (int i = 0; i < noteCount; i++)
             {
                 SerenadeParticleHandler.Spawn(new SpectralNoteParticle(
                     Owner.MountedCenter + Main.rand.NextVector2Circular(20, 20),
                     Main.rand.NextVector2Circular(2, 2) + new Vector2(0, -1.5f),
-                    0.6f, 80 + Main.rand.Next(30)
+                    0.6f + resonance * 0.08f, 80 + Main.rand.Next(30)
                 ));
             }
+
+            // Music note burst via library — resonance scales count
+            MoonlightVFXLibrary.SpawnMusicNotes(Owner.MountedCenter,
+                count: 3 + resonance * 2, spread: 20f + resonance * 5f,
+                minScale: 0.4f, maxScale: 0.8f, lifetime: 45);
+        }
+
+        /// <summary>Spawn VFX burst when resonance level increases (stage transition).</summary>
+        private void SpawnResonanceTransitionVFX(int newLevel)
+        {
+            // Expanding resonance ring
+            Color resColor = SerenadePlayer.ResonanceColors[newLevel];
+            SerenadeParticleHandler.Spawn(new ResonancePulseParticle(
+                Owner.MountedCenter, resColor, 2f + newLevel * 0.5f, 25
+            ));
+
+            // Bright bloom flash at source
+            SerenadeParticleHandler.Spawn(new RefractionBloomParticle(
+                Owner.MountedCenter, resColor, 1.5f + newLevel * 0.3f, 18
+            ));
+
+            // Music notes cascading outward — more at higher levels
+            int noteCount = 2 + newLevel;
+            for (int i = 0; i < noteCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / noteCount;
+                Vector2 noteVel = angle.ToRotationVector2() * (1.5f + newLevel * 0.3f);
+                SerenadeParticleHandler.Spawn(new SpectralNoteParticle(
+                    Owner.MountedCenter, noteVel, 0.5f + newLevel * 0.1f, 50 + Main.rand.Next(20)
+                ));
+            }
+
+            // Sound cue for resonance transition
+            SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.2f + newLevel * 0.15f, Volume = 0.5f + newLevel * 0.1f },
+                Owner.MountedCenter);
         }
 
         private void EmitBeamLight()
@@ -322,6 +448,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
             Vector2 beamDir = BeamAngle.ToRotationVector2();
             float channelProgress = Math.Min(AliveTime / 15f, 1f); // Ramp-up over 15 ticks
             float currentLength = MaxBeamLength * channelProgress;
+            var serenade = Owner.Serenade();
+            int resonance = serenade.ResonanceLevel;
+            float widthMult = SerenadePlayer.ResonanceWidthMultiplier[resonance];
+            float resMult = SerenadePlayer.ResonanceIntensity[resonance];
 
             // Build beam spine points
             List<Vector2> beamPoints = new();
@@ -330,8 +460,17 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
                 float t = i / (float)(BeamPoints - 1);
                 Vector2 pos = Owner.MountedCenter + beamDir * t * currentLength;
 
-                // Slight sinusoidal wobble for organic feel
-                float wobble = MathF.Sin(t * 12f + AliveTime * 0.15f) * 3f * t;
+                // Sinusoidal wobble — less at higher resonance (beam becomes more focused)
+                float wobbleAmp = (4f - resonance * 0.5f) * t;
+                float wobble = MathF.Sin(t * 12f + AliveTime * 0.15f) * wobbleAmp;
+
+                // Standing wave overlay at Mezzo-Forte+ — harmonic node breathing
+                if (resonance >= 2 && serenade.HarmonicNodeCount > 0)
+                {
+                    float nodeWave = MathF.Sin(t * MathHelper.Pi * (serenade.HarmonicNodeCount + 1));
+                    wobble += nodeWave * 2f * MathF.Sin(AliveTime * 0.1f);
+                }
+
                 Vector2 perp = new(-beamDir.Y, beamDir.X);
                 pos += perp * wobble;
 
@@ -340,20 +479,21 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
 
             if (beamPoints.Count < 3) return;
 
-            float intensity = Math.Min(AliveTime / 10f, 1f);
+            float intensity = Math.Min(AliveTime / 10f, 1f) * resMult;
 
-            // Pass 1: Wide glow underlayer
+            // Pass 1: Wide glow underlayer — wider at higher resonance
             MiscShaderData glowShader = GameShaders.Misc.TryGetValue("MagnumOpus:SerenadePrismaticGlow", out var gs) ? gs : null;
             if (glowShader != null)
             {
-                glowShader.Shader?.Parameters["uColor"]?.SetValue(PrismViolet.ToVector3());
+                Color resColor = SerenadePlayer.ResonanceColors[resonance];
+                glowShader.Shader?.Parameters["uColor"]?.SetValue(Color.Lerp(PrismViolet, resColor, 0.3f).ToVector3());
                 glowShader.Shader?.Parameters["uSecondaryColor"]?.SetValue(RefractedBlue.ToVector3());
                 glowShader.Shader?.Parameters["uOpacity"]?.SetValue(0.5f * intensity);
                 glowShader.Shader?.Parameters["uTime"]?.SetValue(AliveTime * 0.02f);
-                glowShader.Shader?.Parameters["uIntensity"]?.SetValue(1.5f);
-                glowShader.Shader?.Parameters["uPhase"]?.SetValue(1f); // Full spectral spread for mega-beam
-                glowShader.Shader?.Parameters["uScrollSpeed"]?.SetValue(2f);
-                glowShader.Shader?.Parameters["uOverbrightMult"]?.SetValue(1.3f);
+                glowShader.Shader?.Parameters["uIntensity"]?.SetValue(1.5f + resonance * 0.3f);
+                glowShader.Shader?.Parameters["uPhase"]?.SetValue(1f);
+                glowShader.Shader?.Parameters["uScrollSpeed"]?.SetValue(2f + resonance * 0.5f);
+                glowShader.Shader?.Parameters["uOverbrightMult"]?.SetValue(1.3f + resonance * 0.15f);
             }
 
             var glowSettings = new SerenadeTrailSettings(
@@ -361,7 +501,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
                 {
                     float tip = SineOut(Math.Min(t * 5f, 1f));
                     float end = 1f - t * 0.2f;
-                    return BeamWidth * 2.5f * tip * end * intensity;
+                    return BeamWidth * 2.5f * widthMult * tip * end * intensity;
                 },
                 colorFunction: (t, _) => GetBeamGradient(t * 0.7f) * (0.4f * (1f - t * 0.3f)),
                 smoothen: false,
@@ -369,19 +509,20 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
             );
             SerenadeTrailRenderer.RenderTrail(beamPoints, glowSettings);
 
-            // Pass 2: Main prismatic beam body
+            // Pass 2: Main prismatic beam body — resonance scales intensity
             MiscShaderData beamShader = GameShaders.Misc.TryGetValue("MagnumOpus:SerenadePrismaticBeam", out var bs) ? bs : null;
             if (beamShader != null)
             {
-                beamShader.Shader?.Parameters["uColor"]?.SetValue(PrismViolet.ToVector3());
+                Color resColor = SerenadePlayer.ResonanceColors[resonance];
+                beamShader.Shader?.Parameters["uColor"]?.SetValue(Color.Lerp(PrismViolet, resColor, 0.4f).ToVector3());
                 beamShader.Shader?.Parameters["uSecondaryColor"]?.SetValue(RefractedBlue.ToVector3());
-                beamShader.Shader?.Parameters["uOpacity"]?.SetValue(0.9f * intensity);
+                beamShader.Shader?.Parameters["uOpacity"]?.SetValue((0.9f + resonance * 0.05f) * intensity);
                 beamShader.Shader?.Parameters["uTime"]?.SetValue(AliveTime * 0.02f);
-                beamShader.Shader?.Parameters["uIntensity"]?.SetValue(1.5f);
+                beamShader.Shader?.Parameters["uIntensity"]?.SetValue(1.5f + resonance * 0.3f);
                 beamShader.Shader?.Parameters["uPhase"]?.SetValue(1f);
-                beamShader.Shader?.Parameters["uScrollSpeed"]?.SetValue(4f);
-                beamShader.Shader?.Parameters["uDistortionAmt"]?.SetValue(0.08f);
-                beamShader.Shader?.Parameters["uOverbrightMult"]?.SetValue(1.8f);
+                beamShader.Shader?.Parameters["uScrollSpeed"]?.SetValue(4f + resonance * 0.5f);
+                beamShader.Shader?.Parameters["uDistortionAmt"]?.SetValue(0.08f + resonance * 0.02f);
+                beamShader.Shader?.Parameters["uOverbrightMult"]?.SetValue(1.8f + resonance * 0.2f);
                 beamShader.Shader?.Parameters["uHasSecondaryTex"]?.SetValue(0f);
                 beamShader.Shader?.Parameters["uSecondaryTexScale"]?.SetValue(1f);
                 beamShader.Shader?.Parameters["uSecondaryTexScroll"]?.SetValue(1f);
@@ -392,7 +533,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
                 {
                     float tip = SineOut(Math.Min(t * 5f, 1f));
                     float end = 1f - t * 0.15f;
-                    return BeamWidth * 1.5f * tip * end * intensity;
+                    return BeamWidth * 1.5f * widthMult * tip * end * intensity;
                 },
                 colorFunction: (t, _) => GetBeamGradient(t) * (1f - t * 0.2f),
                 smoothen: false,
@@ -400,12 +541,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
             );
             SerenadeTrailRenderer.RenderTrail(beamPoints, beamSettings);
 
-            // Pass 3: White hot core
+            // Pass 3: White hot core — resonance makes it broader
             var coreSettings = new SerenadeTrailSettings(
                 widthFunction: (t, _) =>
                 {
                     float tip = SineOut(Math.Min(t * 5f, 1f));
-                    return BeamWidth * 0.4f * tip * (1f - t * 0.5f) * intensity;
+                    return BeamWidth * (0.4f + resonance * 0.06f) * tip * (1f - t * 0.5f) * intensity;
                 },
                 colorFunction: (t, _) => MoonWhite * (0.7f * (1f - t * 0.5f) * intensity),
                 smoothen: false,
@@ -419,18 +560,23 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
             var tex = SerenadeTextures.SoftRadialBloom;
             if (tex == null) return;
 
-            float intensity = Math.Min(AliveTime / 10f, 1f);
+            var serenade = Owner.Serenade();
+            int resonance = serenade.ResonanceLevel;
+            float resMult = SerenadePlayer.ResonanceIntensity[resonance];
+
+            float intensity = Math.Min(AliveTime / 10f, 1f) * resMult;
             float pulse = 1f + MathF.Sin(AliveTime * 0.2f) * 0.15f;
             Vector2 drawPos = Owner.MountedCenter - Main.screenPosition;
             var origin = tex.Size() * 0.5f;
+            Color resColor = SerenadePlayer.ResonanceColors[resonance];
 
-            // Outer glow
-            Color outerCol = PrismViolet * (0.5f * intensity * pulse);
-            Main.spriteBatch.Draw(tex, drawPos, null, outerCol, 0f, origin, 1.5f * intensity, SpriteEffects.None, 0f);
+            // Outer glow — shifts color with resonance
+            Color outerCol = Color.Lerp(PrismViolet, resColor, 0.4f) * (0.5f * intensity * pulse);
+            Main.spriteBatch.Draw(tex, drawPos, null, outerCol, 0f, origin, (1.5f + resonance * 0.2f) * intensity, SpriteEffects.None, 0f);
 
             // Mid glow
-            Color midCol = RefractedBlue * (0.4f * intensity * pulse);
-            Main.spriteBatch.Draw(tex, drawPos, null, midCol, 0f, origin, 0.8f * intensity, SpriteEffects.None, 0f);
+            Color midCol = Color.Lerp(RefractedBlue, resColor, 0.3f) * (0.4f * intensity * pulse);
+            Main.spriteBatch.Draw(tex, drawPos, null, midCol, 0f, origin, (0.8f + resonance * 0.1f) * intensity, SpriteEffects.None, 0f);
 
             // Core
             Color coreCol = MoonWhite * (0.7f * intensity * pulse);

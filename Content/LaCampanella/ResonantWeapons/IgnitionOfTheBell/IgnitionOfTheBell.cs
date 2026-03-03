@@ -15,9 +15,11 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell
 {
     /// <summary>
     /// IgnitionOfTheBell — Melee thrust weapon (infernal lance).
-    /// 3-phase thrust combo: Jab → Cross → Infernal Lunge.
-    /// Every 3rd hit on same enemy triggers Chime Cyclone explosion.
-    /// Alt-fire: Channel charge → release Infernal Geyser.
+    /// 3-phase thrust combo:
+    ///   Phase 1 — Ignition Strike: Forward thrust + ground geyser pillar at impact point.
+    ///   Phase 2 — Tolling Frenzy: Rapid triple thrust (left-center-right), each spawns smaller geyser.
+    ///   Phase 3 — Chime Cyclone: Spin attack creating fire cyclone vortex (2s pull + detonation).
+    /// Every 3rd Chime Cyclone detonation triggers Chimequake.
     /// </summary>
     public class IgnitionOfTheBell : ModItem
     {
@@ -43,8 +45,6 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell
             Item.autoReuse = true;
         }
 
-        public override bool AltFunctionUse(Player player) => true;
-
         public override bool CanUseItem(Player player)
         {
             // Prevent overlapping thrusts
@@ -52,8 +52,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell
             {
                 Projectile p = Main.projectile[i];
                 if (p.active && p.owner == player.whoAmI &&
-                    (p.type == ModContent.ProjectileType<IgnitionThrustProj>() ||
-                     p.type == ModContent.ProjectileType<InfernalGeyserProj>()))
+                    p.type == ModContent.ProjectileType<IgnitionThrustProj>())
                     return false;
             }
             return true;
@@ -61,16 +60,6 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            if (player.altFunctionUse == 2)
-            {
-                // Alt-fire: Geyser charge-release
-                Projectile.NewProjectile(source, position, velocity,
-                    ModContent.ProjectileType<InfernalGeyserProj>(),
-                    (int)(damage * 2f), knockback, player.whoAmI);
-                return false;
-            }
-
-            // Normal thrust combo
             var tracker = player.IgnitionOfTheBell();
             int comboStep = tracker.ThrustCombo;
             tracker.AdvanceCombo();
@@ -99,7 +88,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell
             Texture2D bloomTex = null;
             try
             {
-                bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow",
+                bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow",
                     ReLogic.Content.AssetRequestMode.ImmediateLoad)?.Value;
             }
             catch { }
@@ -117,11 +106,11 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Rapid piercing thrusts that ignite enemies"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Every third hit on the same enemy triggers a Chime Cyclone"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Right click to charge and unleash an Infernal Geyser"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "3-phase thrust combo with infernal geysers"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Chime Cyclone pulls enemies in before detonating"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Every 3rd Cyclone detonation triggers a Chimequake"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
-                "'The bell's tongue is a lance — each toll strikes deeper than the last'")
+                "'The first spark was all it took. The bell has been burning ever since.'")
             {
                 OverrideColor = IgnitionOfTheBellUtils.LoreColor
             });

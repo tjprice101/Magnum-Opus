@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
@@ -6,16 +6,12 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using Terraria.GameContent;
-using MagnumOpus.Content.Eroica.Weapons.PiercingLightOfTheSakura.Utilities;
-using MagnumOpus.Content.Eroica.Weapons.PiercingLightOfTheSakura.Particles;
-using MagnumOpus.Content.Eroica.Weapons.PiercingLightOfTheSakura.Primitives;
-using MagnumOpus.Content.Eroica.Weapons.PiercingLightOfTheSakura.Dusts;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
     /// <summary>
     /// Special crescendo projectile fired every 10th shot from Piercing Light of the Sakura.
-    /// Self-contained VFX: multi-layer rendering with 6×6 spritesheet, GPU trail,
+    /// Self-contained VFX: multi-layer rendering with 6ﾃ・ spritesheet, GPU trail,
     /// afterimage chain, lightning spark particles, and impact lightning explosions.
     /// 
     /// ai[0] = chargeProgress (0-1, always 1.0 for crescendo shots)
@@ -23,7 +19,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
     /// </summary>
     public class PiercingLightOfTheSakuraProjectile : ModProjectile
     {
-        // ── Animation ── 6×6 sprite sheet
+        // 笏笏 Animation 笏笏 6ﾃ・ sprite sheet
         private const int FrameColumns = 6;
         private const int FrameRows = 6;
         private const int TotalFrames = 36;
@@ -32,11 +28,11 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         private int frameCounter = 0;
         private int currentFrame = 0;
 
-        // ── AI state accessors ──
+        // 笏笏 AI state accessors 笏笏
         private ref float ChargeProgress => ref Projectile.ai[0];
         private ref float AgeTimer => ref Projectile.ai[1];
 
-        // ── Trail tracking ──
+        // 笏笏 Trail tracking 笏笏
         private const int TrailLength = 24;
         private Vector2[] trailPositions = new Vector2[TrailLength];
         private float[] trailRotations = new float[TrailLength];
@@ -69,7 +65,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Projectile.rotation = Projectile.velocity.ToRotation();
             AgeTimer++;
 
-            // ── Trail position tracking ──
+            // 笏笏 Trail position tracking 笏笏
             if (!trailInitialized)
             {
                 for (int i = 0; i < TrailLength; i++)
@@ -90,7 +86,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 trailRotations[0] = Projectile.rotation;
             }
 
-            // Pulsating scale — intense crescendo projectile
+            // Pulsating scale 窶・intense crescendo projectile
             float scalePulse = (float)Math.Sin(AgeTimer * 0.08f) * 0.06f;
             Projectile.scale = 1.0f + ChargeProgress * 0.15f + scalePulse;
 
@@ -104,10 +100,10 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     currentFrame = 0;
             }
 
-            // ── Particle Spawning ──
+            // 笏笏 Particle Spawning 笏笏
             SpawnParticles();
 
-            // ── Crescendo flash on first frame ──
+            // 笏笏 Crescendo flash on first frame 笏笏
             if (AgeTimer == 1)
                 SpawnCrescendoFlash();
         }
@@ -283,7 +279,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
 
-            // ── 6×6 Spritesheet frame calculation ──
+            // 笏笏 6ﾃ・ Spritesheet frame calculation 笏笏
             int frameWidth = tex.Width / FrameColumns;
             int frameHeight = tex.Height / FrameRows;
             int col = currentFrame % FrameColumns;
@@ -291,16 +287,16 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Rectangle sourceRect = new Rectangle(col * frameWidth, row * frameHeight, frameWidth, frameHeight);
             Vector2 origin = new Vector2(frameWidth / 2f, frameHeight / 2f);
 
-            // ── Layer 1: GPU Energy Trail ──
+            // 笏笏 Layer 1: GPU Energy Trail 笏笏
             DrawEnergyTrail(sb);
 
-            // ── Layer 2: Afterimage chain ──
+            // 笏笏 Layer 2: Afterimage chain 笏笏
             DrawAfterimages(sb, tex, sourceRect, origin);
 
-            // ── Layer 3: Core spritesheet frame with glow ──
+            // 笏笏 Layer 3: Core spritesheet frame with glow 笏笏
             DrawProjectileCore(sb, tex, sourceRect, origin, lightColor);
 
-            // ── Layer 4: Additive bloom overlay ──
+            // 笏笏 Layer 4: Additive bloom overlay 笏笏
             DrawBloomOverlay(sb, origin, frameWidth, frameHeight);
 
             return false;

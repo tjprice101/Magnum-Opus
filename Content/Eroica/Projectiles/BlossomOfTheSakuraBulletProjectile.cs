@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -8,16 +8,11 @@ using Terraria.ModLoader;
 using Terraria.Audio;
 using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
-using MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura.Utilities;
-using MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura.Particles;
-using MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura.Primitives;
-using MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura.Shaders;
-using MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura.Dusts;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
     /// <summary>
-    /// Bullet projectile for Blossom of the Sakura — heat-reactive homing tracer round.
+    /// Bullet projectile for Blossom of the Sakura 窶・heat-reactive homing tracer round.
     /// 
     /// Self-contained VFX: Multi-layer rendering with GPU trail, afterimage chain,
     /// heat-reactive glow core, and particle spawning.
@@ -32,7 +27,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         private int targetNPC = -1;
 
-        // ── Trail tracking ──
+        // 笏笏 Trail tracking 笏笏
         private const int TrailLength = 20;
         private Vector2[] trailPositions = new Vector2[TrailLength];
         private float[] trailRotations = new float[TrailLength];
@@ -65,7 +60,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             AgeTimer++;
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // ── Trail position tracking ──
+            // 笏笏 Trail position tracking 笏笏
             if (!trailInitialized)
             {
                 for (int i = 0; i < TrailLength; i++)
@@ -86,18 +81,18 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 trailRotations[0] = Projectile.rotation;
             }
 
-            // Pulsating visual scale — subtle heat shimmer
+            // Pulsating visual scale 窶・subtle heat shimmer
             float pulse = (float)Math.Sin(AgeTimer * 0.15f) * 0.06f;
             Projectile.scale = 1f + pulse + HeatProgress * 0.1f;
 
-            // ── Particle Spawning ──
+            // 笏笏 Particle Spawning 笏笏
             SpawnTracerParticles();
 
-            // ── Muzzle flash on first frame ──
+            // 笏笏 Muzzle flash on first frame 笏笏
             if (AgeTimer == 1)
                 SpawnMuzzleFlash();
 
-            // ── HOMING AI — boss-priority with gentle tracking ──
+            // 笏笏 HOMING AI 窶・boss-priority with gentle tracking 笏笏
             if (targetNPC < 0 || !Main.npc[targetNPC].active)
             {
                 targetNPC = -1;
@@ -138,7 +133,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 }
             }
 
-            // Gentle homing — tighter when hot, looser when cool
+            // Gentle homing 窶・tighter when hot, looser when cool
             if (targetNPC >= 0 && Main.npc[targetNPC].active)
             {
                 Vector2 direction = (Main.npc[targetNPC].Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
@@ -171,7 +166,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 ));
             }
 
-            // Heat shimmer particles — more frequent at high heat
+            // Heat shimmer particles 窶・more frequent at high heat
             if (HeatProgress > 0.3f && Main.rand.NextBool(Math.Max(1, (int)(6 - HeatProgress * 4))))
             {
                 Vector2 shimmerOffset = Main.rand.NextVector2Circular(6f, 6f);
@@ -184,7 +179,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 ));
             }
 
-            // Sakura petal drift — more frequent at low heat (cool blossoms)
+            // Sakura petal drift 窶・more frequent at low heat (cool blossoms)
             if (HeatProgress < 0.5f && Main.rand.NextBool(6))
             {
                 Vector2 petalVel = -Projectile.velocity.SafeNormalize(Vector2.Zero) * Main.rand.NextFloat(0.5f, 1.5f)
@@ -285,7 +280,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         {
             SpawnImpactParticles();
 
-            // Seeking crystals — 25% chance
+            // Seeking crystals 窶・25% chance
             if (Main.rand.NextBool(4) && Main.myPlayer == Projectile.owner)
             {
                 SeekingCrystalHelper.SpawnEroicaCrystals(
@@ -324,16 +319,16 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = tex.Size() / 2f;
 
-            // ── Layer 1: GPU Tracer Trail ──
+            // 笏笏 Layer 1: GPU Tracer Trail 笏笏
             DrawTracerTrail(sb);
 
-            // ── Layer 2: Afterimage chain ──
+            // 笏笏 Layer 2: Afterimage chain 笏笏
             DrawAfterimages(sb, tex, origin);
 
-            // ── Layer 3: Core bullet sprite with heat glow ──
+            // 笏笏 Layer 3: Core bullet sprite with heat glow 笏笏
             DrawBulletCore(sb, tex, origin, lightColor);
 
-            // ── Layer 4: Additive bloom overlay ──
+            // 笏笏 Layer 4: Additive bloom overlay 笏笏
             DrawBloomOverlay(sb, origin);
 
             return false;

@@ -1,12 +1,14 @@
+using System;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ModLoader;
+using MagnumOpus.Content.MoonlightSonata.Minions;
 
 namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Utilities
 {
     /// <summary>
     /// Per-player state tracker for Staff of the Lunar Phases — "The Conductor's Baton".
-    /// Tracks Conductor Mode state, beam targeting, and summon circle animation phase.
+    /// Tracks Conductor Mode state, beam targeting, summon circle animation, and Lunar Phase cycling.
     /// </summary>
     public sealed class GoliathPlayer : ModPlayer
     {
@@ -47,6 +49,57 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Utili
         public bool NextBeamIsDevastating => ConductorMode && (BeamCounter % 3 == 2);
 
         // =================================================================
+        // LUNAR PHASE SYSTEM
+        // =================================================================
+
+        /// <summary>
+        /// Current lunar phase mode (0-3).
+        /// 0 = New Moon (stealth/crit), 1 = Waxing (damage building),
+        /// 2 = Full Moon (AoE/power), 3 = Waning (healing/regen).
+        /// </summary>
+        public int LunarPhaseMode;
+
+        /// <summary>Timer for phase cycling — advances phase when full.</summary>
+        public int PhaseCycleTimer;
+
+        /// <summary>Ticks per lunar phase — 10 seconds per phase.</summary>
+        public const int PhaseTickDuration = 600;
+
+        /// <summary>Phase names for tooltip display.</summary>
+        public static readonly string[] LunarPhaseNames =
+            { "New Moon", "Waxing Crescent", "Full Moon", "Waning Gibbous" };
+
+        /// <summary>Phase colors for visual feedback.</summary>
+        public static readonly Color[] LunarPhaseColors =
+        {
+            new Color(20, 8, 40),      // New Moon — void black
+            new Color(120, 80, 200),    // Waxing — growing purple
+            new Color(200, 210, 255),   // Full Moon — brilliant white-blue
+            new Color(160, 130, 220)    // Waning — fading lavender
+        };
+
+        /// <summary>Beam damage multiplier per phase.</summary>
+        public static readonly float[] PhaseDamageMultiplier = { 1.0f, 1.15f, 1.4f, 0.8f };
+
+        /// <summary>Beam speed multiplier per phase.</summary>
+        public static readonly float[] PhaseBeamSpeedMultiplier = { 1.1f, 1.0f, 0.9f, 1.0f };
+
+        /// <summary>Healing per beam hit per phase (Waning = high heal).</summary>
+        public static readonly int[] PhaseHealAmount = { 5, 8, 10, 18 };
+
+        /// <summary>Helper: Is it Full Moon phase?</summary>
+        public bool IsFullMoon => LunarPhaseMode == 2;
+
+        /// <summary>Helper: Is it Waning phase?</summary>
+        public bool IsWaning => LunarPhaseMode == 3;
+
+        /// <summary>Helper: Current phase color.</summary>
+        public Color CurrentPhaseColor => LunarPhaseColors[LunarPhaseMode];
+
+        /// <summary>Helper: Current phase name.</summary>
+        public string CurrentPhaseName => LunarPhaseNames[LunarPhaseMode];
+
+        // =================================================================
         // LIFECYCLE
         // =================================================================
 
@@ -81,6 +134,43 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Utili
             {
                 RitualPhase = 0f;
             }
+
+            // Advance lunar phase cycle
+            UpdateLunarPhase();
+        }
+
+        private void UpdateLunarPhase()
+        {
+            // Only cycle if the Goliath is active (player has buff)
+            bool hasGoliath = false;
+            foreach (var proj in Main.ActiveProjectiles)
+            {
+                if (proj.owner == Player.whoAmI && proj.active && proj.minion &&
+                    proj.type == ModContent.ProjectileType<Minions.GoliathOfMoonlight>())
+                {
+                    hasGoliath = true;
+                    break;
+                }
+            }
+
+            if (!hasGoliath)
+            {
+                PhaseCycleTimer = 0;
+                return;
+            }
+
+            PhaseCycleTimer++;
+            if (PhaseCycleTimer >= PhaseTickDuration)
+            {
+                PhaseCycleTimer = 0;
+                AdvanceLunarPhase();
+            }
+        }
+
+        /// <summary>Advance to the next lunar phase.</summary>
+        public void AdvanceLunarPhase()
+        {
+            LunarPhaseMode = (LunarPhaseMode + 1) % 4;
         }
 
         /// <summary>Toggle Conductor Mode on/off.</summary>
@@ -98,10 +188,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Utili
             RitualPhase = 1f;
         }
 
-        /// <summary>Increment beam counter (called when Goliath fires a beam).</summary>
+        /// <summary>Increment beam counter and advance phase on every 4th beam.</summary>
         public void OnBeamFired()
         {
             BeamCounter++;
+
+            // Advance lunar phase every 4th beam for more dynamic cycling
+            if (BeamCounter % 4 == 0)
+                AdvanceLunarPhase();
         }
     }
 

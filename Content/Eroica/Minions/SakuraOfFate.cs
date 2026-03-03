@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
@@ -6,20 +6,16 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using Terraria.GameContent;
-using MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura.Utilities;
-using MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura.Particles;
-using MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura.Primitives;
-using MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura.Dusts;
 
 namespace MagnumOpus.Content.Eroica.Minions
 {
     /// <summary>
-    /// Sakura of Fate — spectral dark-flame guardian minion.
-    /// Self-contained VFX: 6×6 spritesheet rendering, dark flame aura, ambient particles.
+    /// Sakura of Fate 窶・spectral dark-flame guardian minion.
+    /// Self-contained VFX: 6ﾃ・ spritesheet rendering, dark flame aura, ambient particles.
     /// </summary>
     public class SakuraOfFate : ModProjectile
     {
-        // ── Spritesheet configuration — 6×6 grid ──
+        // 笏笏 Spritesheet configuration 窶・6ﾃ・ grid 笏笏
         public const int FrameColumns = 6;
         public const int FrameRows = 6;
         public const int TotalFrames = 36;
@@ -48,7 +44,7 @@ namespace MagnumOpus.Content.Eroica.Minions
         private int attackCooldown = 0;
         private float hoverOffset = 0f;
 
-        // ── Trail tracking for aura effect ──
+        // 笏笏 Trail tracking for aura effect 笏笏
         private const int TrailLength = 14;
         private Vector2[] trailPositions = new Vector2[TrailLength];
         private bool trailInitialized = false;
@@ -111,7 +107,7 @@ namespace MagnumOpus.Content.Eroica.Minions
             else if (Math.Abs(Projectile.velocity.X) > 0.5f)
                 Projectile.spriteDirection = Projectile.velocity.X > 0 ? 1 : -1;
 
-            // ── Ambient VFX ──
+            // 笏笏 Ambient VFX 笏笏
             SpawnAmbientParticles();
         }
 
@@ -349,7 +345,7 @@ namespace MagnumOpus.Content.Eroica.Minions
             SpriteBatch sb = Main.spriteBatch;
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
 
-            // Calculate 6×6 frame rect
+            // Calculate 6ﾃ・ frame rect
             int frameW = tex.Width / FrameColumns;
             int frameH = tex.Height / FrameRows;
             int col = currentFrame % FrameColumns;
@@ -358,16 +354,16 @@ namespace MagnumOpus.Content.Eroica.Minions
             Vector2 origin = new Vector2(frameW / 2f, frameH / 2f);
             SpriteEffects flipEffect = Projectile.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 
-            // ── Layer 1: Dark flame aura trail ──
+            // 笏笏 Layer 1: Dark flame aura trail 笏笏
             DrawAuraTrail(sb);
 
-            // ── Layer 2: Afterimages ──
+            // 笏笏 Layer 2: Afterimages 笏笏
             DrawAfterimages(sb, tex, frameRect, origin, flipEffect);
 
-            // ── Layer 3: Core sprite ──
+            // 笏笏 Layer 3: Core sprite 笏笏
             DrawCore(sb, tex, frameRect, origin, flipEffect, lightColor);
 
-            // ── Layer 4: Additive bloom overlay ──
+            // 笏笏 Layer 4: Additive bloom overlay 笏笏
             DrawBloomOverlay(sb, tex, frameRect, origin, flipEffect);
 
             return false;

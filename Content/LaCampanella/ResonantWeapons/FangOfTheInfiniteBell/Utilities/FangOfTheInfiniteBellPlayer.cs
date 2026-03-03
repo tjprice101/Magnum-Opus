@@ -5,100 +5,87 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
 {
     /// <summary>
     /// Per-player tracking for FangOfTheInfiniteBell.
-    /// Empowerment cycle: 3 consecutive hits → empowered state (InfiniteBellDamageBuff + InfiniteBellEmpoweredBuff).
-    /// 20-second cooldown after empowerment ends.
+    /// Bounce stacking: +3% magic damage per bounce, max 20 stacks = +60%.
+    /// Stacks decay 1 per second after 3 seconds of no bouncing.
+    /// At 10+: airborne orbs chain lightning. At 20: orbs explode on final bounce.
     /// </summary>
     public class FangOfTheInfiniteBellPlayer : ModPlayer
     {
-        #region Empowerment Tracking
+        public int BounceStacks;
+        public const int MaxStacks = 20;
+        public const float DamagePerStack = 0.03f; // +3% per stack
 
-        public int ConsecutiveHits;
-        public const int EmpowermentThreshold = 3;
+        private int _bounceTimer;
+        private int _decayTimer;
+        private const int DecayGracePeriod = 180; // 3 seconds before decay starts
+        private const int DecayInterval = 60;     // Lose 1 stack per second
 
-        public bool IsEmpowered;
-        public int EmpoweredTimer;
-        public const int EmpoweredDuration = 600; // 10 seconds
+        public bool HasLightningArcs => BounceStacks >= 10;
+        public bool HasFinalBounceExplosion => BounceStacks >= MaxStacks;
+        public bool CanInfiniteCrescendo => BounceStacks >= MaxStacks;
 
-        public int CooldownTimer;
-        public const int CooldownDuration = 1200; // 20 seconds
-
-        public bool CanEmpowerment => !IsEmpowered && CooldownTimer <= 0;
-
-        /// <summary>Register a hit. Returns true when empowerment triggers.</summary>
-        public bool RegisterHit()
+        /// <summary>Register a bounce. Adds a stack (up to max).</summary>
+        public void RegisterBounce()
         {
-            if (!CanEmpowerment) return false;
-            ConsecutiveHits++;
-            if (ConsecutiveHits >= EmpowermentThreshold)
-            {
-                ConsecutiveHits = 0;
-                ActivateEmpowerment();
-                return true;
-            }
-            return false;
+            if (BounceStacks < MaxStacks)
+                BounceStacks++;
+
+            _bounceTimer = DecayGracePeriod;
+            _decayTimer = 0;
+
+            // Apply/refresh the damage buff
+            Player.AddBuff(ModContent.BuffType<InfiniteBellDamageBuff>(), 600);
+
+            // At 10+, add empowered indicator buff
+            if (HasLightningArcs)
+                Player.AddBuff(ModContent.BuffType<InfiniteBellEmpoweredBuff>(), 600);
         }
 
-        private void ActivateEmpowerment()
+        /// <summary>Consume all stacks for Infinite Crescendo. Returns the stacks consumed.</summary>
+        public int ConsumeAllStacks()
         {
-            IsEmpowered = true;
-            EmpoweredTimer = EmpoweredDuration;
-
-            // Buffs will be applied from the projectile's OnHitNPC
-            Player.AddBuff(ModContent.BuffType<InfiniteBellDamageBuff>(), EmpoweredDuration);
-            Player.AddBuff(ModContent.BuffType<InfiniteBellEmpoweredBuff>(), EmpoweredDuration);
+            int consumed = BounceStacks;
+            BounceStacks = 0;
+            _bounceTimer = 0;
+            _decayTimer = 0;
+            Player.ClearBuff(ModContent.BuffType<InfiniteBellDamageBuff>());
+            Player.ClearBuff(ModContent.BuffType<InfiniteBellEmpoweredBuff>());
+            return consumed;
         }
-
-        #endregion
-
-        #region Hit Decay
-
-        private int _hitDecayTimer;
-        private const int HitDecayDelay = 120; // 2 seconds to continue combo
-
-        #endregion
 
         public override void PostUpdate()
         {
-            // Empowerment timer
-            if (IsEmpowered)
+            if (BounceStacks > 0)
             {
-                EmpoweredTimer--;
-                if (EmpoweredTimer <= 0)
+                if (_bounceTimer > 0)
                 {
-                    IsEmpowered = false;
-                    CooldownTimer = CooldownDuration;
+                    _bounceTimer--;
+                }
+                else
+                {
+                    // Decay: lose 1 stack per second
+                    _decayTimer++;
+                    if (_decayTimer >= DecayInterval)
+                    {
+                        _decayTimer = 0;
+                        BounceStacks--;
+                        if (BounceStacks <= 0)
+                        {
+                            BounceStacks = 0;
+                            Player.ClearBuff(ModContent.BuffType<InfiniteBellDamageBuff>());
+                            Player.ClearBuff(ModContent.BuffType<InfiniteBellEmpoweredBuff>());
+                        }
+                    }
                 }
             }
-
-            // Cooldown timer
-            if (CooldownTimer > 0)
-                CooldownTimer--;
-
-            // Hit combo decay
-            if (ConsecutiveHits > 0)
-            {
-                _hitDecayTimer++;
-                if (_hitDecayTimer >= HitDecayDelay)
-                {
-                    ConsecutiveHits = 0;
-                    _hitDecayTimer = 0;
-                }
-            }
-
-            // Infinite mana during empowerment
-            if (IsEmpowered)
-                Player.statMana = Player.statManaMax2;
         }
 
         public override void OnRespawn()
         {
-            ConsecutiveHits = 0;
-            IsEmpowered = false;
-            EmpoweredTimer = 0;
-            CooldownTimer = 0;
+            BounceStacks = 0;
+            _bounceTimer = 0;
+            _decayTimer = 0;
         }
-
-        public void ResetHitDecay() { _hitDecayTimer = 0; }
     }
 
     public static class FangOfTheInfiniteBellPlayerExtensions

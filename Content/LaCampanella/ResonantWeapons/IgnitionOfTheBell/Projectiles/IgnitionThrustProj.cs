@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Graphics.Shaders;
@@ -15,17 +16,17 @@ using static MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.U
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Projectiles
 {
     /// <summary>
-    /// IgnitionThrustProj  E3-phase thrust combo projectile.
-    /// Phase 0 = Quick Jab (14 ticks, 100px, 0.85x dmg)
-    /// Phase 1 = Cross Thrust (16 ticks, 120px, 1.0x dmg, reversed grip)
-    /// Phase 2 = Infernal Lunge (22 ticks, 160px, 1.3x dmg, with fire jet)
+    /// IgnitionThrustProj - 3-phase thrust combo projectile.
+    /// Phase 0 = Ignition Strike (16 ticks, 120px, 1.0x dmg, spawns ground geyser on hit)
+    /// Phase 1 = Tolling Frenzy (30 ticks, 100px, 0.85x dmg per sub-thrust, rapid triple thrust, smaller geysers)
+    /// Phase 2 = Chime Cyclone (24 ticks spin, 140px reach, 1.3x dmg, spawns ChimeCycloneProj at end)
     /// Uses CurveSegment for thrust extension curves. Renders lance with flame trail.
     /// </summary>
     public class IgnitionThrustProj : ModProjectile
     {
         #region Properties
 
-        private enum ThrustPhase { Jab = 0, Cross = 1, InfernalLunge = 2 }
+        private enum ThrustPhase { IgnitionStrike = 0, TollingFrenzy = 1, ChimeCyclone = 2 }
 
         private struct ThrustConfig
         {
@@ -35,23 +36,12 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             public CurveSegment[] ExtensionCurve;
         }
 
+        // Phase 0: Ignition Strike - strong forward thrust
+        // Phase 1: Tolling Frenzy - triple rapid thrust (3 sub-thrusts within duration)
+        // Phase 2: Chime Cyclone - wide spin that spawns cyclone vortex
         private static readonly ThrustConfig[] Phases = new ThrustConfig[]
         {
-            // Jab: fast snap, short reach
-            new ThrustConfig
-            {
-                Duration = 14,
-                Reach = 100f,
-                DamageMult = 0.85f,
-                ExtensionCurve = new CurveSegment[]
-                {
-                    new CurveSegment(0f, 0.1f, 0f, 0.2f, SineInEasing),
-                    new CurveSegment(0.1f, 0.4f, 0.2f, 1f, ExpOutEasing),
-                    new CurveSegment(0.4f, 0.7f, 1f, 1f, LinearEasing),
-                    new CurveSegment(0.7f, 1f, 1f, 0f, PolyInEasing),
-                }
-            },
-            // Cross: medium lunge, slight delay
+            // Ignition Strike: powerful single thrust
             new ThrustConfig
             {
                 Duration = 16,
@@ -59,24 +49,44 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
                 DamageMult = 1f,
                 ExtensionCurve = new CurveSegment[]
                 {
-                    new CurveSegment(0f, 0.15f, 0f, 0.1f, SineInEasing),
-                    new CurveSegment(0.15f, 0.45f, 0.1f, 1f, PolyOutEasing),
-                    new CurveSegment(0.45f, 0.75f, 1f, 0.95f, SineInOutEasing),
-                    new CurveSegment(0.75f, 1f, 0.95f, 0f, PolyInEasing),
+                    new CurveSegment(0f, 0.12f, 0f, 0.15f, SineInEasing),
+                    new CurveSegment(0.12f, 0.4f, 0.15f, 1f, ExpOutEasing),
+                    new CurveSegment(0.4f, 0.7f, 1f, 1f, LinearEasing),
+                    new CurveSegment(0.7f, 1f, 1f, 0f, PolyInEasing),
                 }
             },
-            // Infernal Lunge: long windup, massive extension, fire jet
+            // Tolling Frenzy: triple-burst thrust (3 peaks in the curve)
             new ThrustConfig
             {
-                Duration = 22,
-                Reach = 160f,
+                Duration = 30,
+                Reach = 100f,
+                DamageMult = 0.85f,
+                ExtensionCurve = new CurveSegment[]
+                {
+                    // Sub-thrust 1 (left)
+                    new CurveSegment(0f, 0.08f, 0f, 0.9f, ExpOutEasing),
+                    new CurveSegment(0.08f, 0.2f, 0.9f, 0.1f, PolyInEasing),
+                    // Sub-thrust 2 (center)
+                    new CurveSegment(0.2f, 0.35f, 0.1f, 1f, ExpOutEasing),
+                    new CurveSegment(0.35f, 0.5f, 1f, 0.1f, PolyInEasing),
+                    // Sub-thrust 3 (right)
+                    new CurveSegment(0.5f, 0.65f, 0.1f, 1.05f, ExpOutEasing),
+                    new CurveSegment(0.65f, 0.85f, 1.05f, 0.2f, SineInOutEasing),
+                    new CurveSegment(0.85f, 1f, 0.2f, 0f, PolyInEasing),
+                }
+            },
+            // Chime Cyclone: spin wind-up into cyclone spawn
+            new ThrustConfig
+            {
+                Duration = 24,
+                Reach = 140f,
                 DamageMult = 1.3f,
                 ExtensionCurve = new CurveSegment[]
                 {
-                    new CurveSegment(0f, 0.2f, -0.15f, 0f, SineInOutEasing),
-                    new CurveSegment(0.2f, 0.5f, 0f, 1.1f, ExpOutEasing),
-                    new CurveSegment(0.5f, 0.8f, 1.1f, 1f, SineBumpEasing),
-                    new CurveSegment(0.8f, 1f, 1f, 0f, PolyInEasing),
+                    new CurveSegment(0f, 0.15f, 0.3f, 0.6f, SineInEasing),
+                    new CurveSegment(0.15f, 0.5f, 0.6f, 1f, SineInOutEasing),
+                    new CurveSegment(0.5f, 0.85f, 1f, 0.8f, SineInOutEasing),
+                    new CurveSegment(0.85f, 1f, 0.8f, 0f, PolyInEasing),
                 }
             }
         };
@@ -89,6 +99,14 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
         private float _aimAngle;
         private bool _initialized;
         private IgnitionOfTheBellPrimitiveRenderer _trailRenderer;
+
+        // Phase 1 (Tolling Frenzy): track sub-thrust angles (left/center/right)
+        private float[] _frenzyAngles = new float[3];
+        private int _lastSubThrust = -1;
+
+        // Phase 2 (Chime Cyclone): spin angle
+        private float _spinAngle;
+        private bool _cycloneSpawned;
 
         #endregion
 
@@ -123,6 +141,22 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
                 _aimAngle = (Main.MouseWorld - Owner.Center).ToRotation();
                 Projectile.timeLeft = Config.Duration;
                 Timer = 0;
+
+                // Phase 1: pre-calculate 3 sub-thrust angles (left/center/right spread)
+                if (Phase == ThrustPhase.TollingFrenzy)
+                {
+                    float spread = MathHelper.ToRadians(18f);
+                    _frenzyAngles[0] = _aimAngle - spread;
+                    _frenzyAngles[1] = _aimAngle;
+                    _frenzyAngles[2] = _aimAngle + spread;
+                }
+
+                // Phase 2: initial spin angle
+                if (Phase == ThrustPhase.ChimeCyclone)
+                {
+                    _spinAngle = _aimAngle;
+                    _cycloneSpawned = false;
+                }
             }
 
             Timer++;
@@ -130,6 +164,22 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
 
             if (progress >= 1f)
             {
+                // Phase 2: Spawn Chime Cyclone at end
+                if (Phase == ThrustPhase.ChimeCyclone && !_cycloneSpawned && Projectile.owner == Main.myPlayer)
+                {
+                    _cycloneSpawned = true;
+                    Vector2 cyclonePos = Owner.Center + _aimAngle.ToRotationVector2() * Config.Reach * 0.7f;
+                    Projectile.NewProjectile(
+                        Projectile.GetSource_FromThis(),
+                        cyclonePos,
+                        Vector2.Zero,
+                        ModContent.ProjectileType<ChimeCycloneProj>(),
+                        (int)(Projectile.damage * 0.8f),
+                        0f,
+                        Projectile.owner
+                    );
+                }
+
                 Projectile.Kill();
                 return;
             }
@@ -138,13 +188,42 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             float extension = PiecewiseAnimation(progress, Config.ExtensionCurve);
             float reach = Config.Reach * extension;
 
+            // Phase-specific behavior
+            float currentAngle;
+            if (Phase == ThrustPhase.TollingFrenzy)
+            {
+                // Determine which sub-thrust we're on based on progress
+                int subThrust = progress < 0.2f ? 0 : progress < 0.5f ? 1 : 2;
+                currentAngle = _frenzyAngles[subThrust];
+
+                // Track sub-thrust transitions for geyser spawning
+                if (subThrust != _lastSubThrust)
+                {
+                    _lastSubThrust = subThrust;
+                    // Reset local NPC immunity for each sub-thrust
+                    for (int i = 0; i < Main.maxNPCs; i++)
+                        Projectile.localNPCImmunity[i] = 0;
+                }
+            }
+            else if (Phase == ThrustPhase.ChimeCyclone)
+            {
+                // Spin: accelerating rotation
+                float spinSpeed = 0.15f + progress * 0.4f;
+                _spinAngle += spinSpeed;
+                currentAngle = _spinAngle;
+            }
+            else
+            {
+                currentAngle = _aimAngle;
+            }
+
             // Position at lance tip
-            Vector2 direction = _aimAngle.ToRotationVector2();
+            Vector2 direction = currentAngle.ToRotationVector2();
             Projectile.Center = Owner.Center + direction * Math.Max(reach, 0);
-            Projectile.rotation = _aimAngle;
+            Projectile.rotation = currentAngle;
 
             // Player facing
-            Owner.direction = Math.Cos(_aimAngle) >= 0 ? 1 : -1;
+            Owner.direction = Math.Cos(currentAngle) >= 0 ? 1 : -1;
             Owner.heldProj = Projectile.whoAmI;
             Owner.itemTime = 2;
             Owner.itemAnimation = 2;
@@ -152,7 +231,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             // Scale damage by phase
             Projectile.damage = (int)(Owner.GetWeaponDamage(Owner.HeldItem) * Config.DamageMult);
 
-            // Flame jet particles (concentrated along thrust direction)
+            // Flame particles
             SpawnThrustParticles(progress, direction, reach);
 
             // Lighting
@@ -163,12 +242,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
         private void SpawnThrustParticles(float progress, Vector2 direction, float reach)
         {
             // Flame jet stream behind the lance tip
-            if (progress > 0.15f && progress < 0.8f)
+            if (progress > 0.1f && progress < 0.85f)
             {
-                for (int i = 0; i < 2; i++)
+                int jetCount = Phase == ThrustPhase.ChimeCyclone ? 3 : 2;
+                for (int i = 0; i < jetCount; i++)
                 {
                     Vector2 jetPos = Owner.Center + direction * Math.Max(reach * Main.rand.NextFloat(0.3f, 1f), 0);
-                    float perpAngle = _aimAngle + MathHelper.PiOver2;
+                    float perpAngle = Projectile.rotation + MathHelper.PiOver2;
                     Vector2 offset = perpAngle.ToRotationVector2() * Main.rand.NextFloat(-8f, 8f);
                     Vector2 jetVel = -direction * Main.rand.NextFloat(1f, 3f) + offset * 0.3f;
 
@@ -177,21 +257,17 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
                 }
             }
 
-            // Infernal Lunge: extra fire ring at peak extension
-            if (Phase == ThrustPhase.InfernalLunge && progress > 0.35f && progress < 0.55f)
+            // Chime Cyclone: spinning fire ring
+            if (Phase == ThrustPhase.ChimeCyclone && progress > 0.2f)
             {
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < 4; i++)
                 {
-                    float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
-                    Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f);
+                    float angle = _spinAngle + i * MathHelper.PiOver2 + Main.rand.NextFloat(-0.2f, 0.2f);
+                    float radius = reach * Main.rand.NextFloat(0.5f, 1f);
+                    Vector2 sparkPos = Owner.Center + angle.ToRotationVector2() * radius;
+                    Vector2 sparkVel = (angle + MathHelper.PiOver2).ToRotationVector2() * Main.rand.NextFloat(2f, 5f);
                     IgnitionOfTheBellParticleHandler.SpawnParticle(
-                        new ThrustEmberParticle(Projectile.Center, sparkVel, Main.rand.NextFloat(0.5f, 1f), 20, 0.35f));
-                }
-
-                if (Main.rand.NextBool(3))
-                {
-                    IgnitionOfTheBellParticleHandler.SpawnParticle(
-                        new BellIgnitionFlashParticle(Projectile.Center, 8, 0.8f));
+                        new ThrustEmberParticle(sparkPos, sparkVel, Main.rand.NextFloat(0.5f, 1f), 15, 0.35f));
                 }
             }
 
@@ -211,21 +287,35 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             // Apply Resonant Toll
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 1);
 
-            // Register cyclone hit
-            var tracker = Owner.IgnitionOfTheBell();
-            bool cycloneTriggered = tracker.RegisterHit(target.whoAmI);
-
-            if (cycloneTriggered && Projectile.owner == Main.myPlayer)
+            // Phase 0 (Ignition Strike): Spawn ground geyser at target
+            if (Phase == ThrustPhase.IgnitionStrike && Projectile.owner == Main.myPlayer)
             {
-                // Spawn Chime Cyclone on target
+                Vector2 geyserPos = new Vector2(target.Center.X, target.Bottom.Y);
                 Projectile.NewProjectile(
                     Projectile.GetSource_FromThis(),
-                    target.Center,
+                    geyserPos,
                     Vector2.Zero,
-                    ModContent.ProjectileType<ChimeCycloneProj>(),
-                    (int)(Projectile.damage * 0.7f),
-                    0f,
-                    Projectile.owner
+                    ModContent.ProjectileType<InfernalGeyserProj>(),
+                    (int)(Projectile.damage * 0.6f),
+                    2f,
+                    Projectile.owner,
+                    ai0: 0f // Full-size geyser
+                );
+            }
+
+            // Phase 1 (Tolling Frenzy): Spawn smaller geyser on each sub-thrust hit
+            if (Phase == ThrustPhase.TollingFrenzy && Projectile.owner == Main.myPlayer)
+            {
+                Vector2 geyserPos = new Vector2(target.Center.X, target.Bottom.Y);
+                Projectile.NewProjectile(
+                    Projectile.GetSource_FromThis(),
+                    geyserPos,
+                    Vector2.Zero,
+                    ModContent.ProjectileType<InfernalGeyserProj>(),
+                    (int)(Projectile.damage * 0.35f),
+                    1f,
+                    Projectile.owner,
+                    ai0: 1f // Small geyser variant
                 );
             }
 
@@ -261,13 +351,23 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
         {
             if (_trailRenderer == null) return;
 
-            // Build trail from thrust line (player center to tip)
             float progress = Timer / Config.Duration;
             float extension = PiecewiseAnimation(progress, Config.ExtensionCurve);
             float reach = Config.Reach * extension;
-            Vector2 direction = _aimAngle.ToRotationVector2();
 
-            // Create trail positions along the thrust line
+            float currentAngle;
+            if (Phase == ThrustPhase.ChimeCyclone)
+                currentAngle = _spinAngle;
+            else if (Phase == ThrustPhase.TollingFrenzy)
+            {
+                int subThrust = progress < 0.2f ? 0 : progress < 0.5f ? 1 : 2;
+                currentAngle = _frenzyAngles[subThrust];
+            }
+            else
+                currentAngle = _aimAngle;
+
+            Vector2 direction = currentAngle.ToRotationVector2();
+
             int trailCount = 12;
             Vector2[] trailPositions = new Vector2[trailCount];
             for (int i = 0; i < trailCount; i++)
@@ -287,13 +387,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
                 try { shader.Shader.Parameters["uTime"]?.SetValue(Main.GameUpdateCount * 0.04f); } catch { }
             }
 
-            // Main flame trail
             var mainSettings = new IgnitionOfTheBellPrimitiveRenderer.IgnitionOfTheBellTrailSettings(
                 width: (float t) =>
                 {
                     float tipTaper = 1f - (float)Math.Pow(t, 2);
                     float baseTaper = (float)Math.Pow(t, 0.3f);
-                    return 16f * tipTaper * baseTaper * Math.Max(extension, 0);
+                    float phaseWidth = Phase == ThrustPhase.ChimeCyclone ? 22f : 16f;
+                    return phaseWidth * tipTaper * baseTaper * Math.Max(extension, 0);
                 },
                 trailColor: (float t) =>
                 {
@@ -307,7 +407,6 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             sb.End();
             _trailRenderer.RenderTrail(trailPositions, mainSettings, trailCount);
 
-            // Glow trail
             var glowSettings = new IgnitionOfTheBellPrimitiveRenderer.IgnitionOfTheBellTrailSettings(
                 width: (float t) => 24f * (float)Math.Sin(t * Math.PI) * Math.Max(extension, 0),
                 trailColor: (float t) => Additive(glowColor, 0.2f * (float)Math.Sin(t * Math.PI)),
@@ -326,7 +425,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             Texture2D bloomTex = null;
             try
             {
-                bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow",
+                bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow",
                     ReLogic.Content.AssetRequestMode.ImmediateLoad)?.Value;
             }
             catch { }
@@ -375,7 +474,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
 
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = new Vector2(tex.Width / 2f, tex.Height / 2f);
-            float rot = _aimAngle + MathHelper.PiOver4;
+            float rot = Projectile.rotation + MathHelper.PiOver4;
 
             SpriteEffects fx = Owner.direction < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             float drawScale = 1f;
@@ -418,12 +517,28 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
 
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
         {
-            // Line collision from player to lance tip
             float progress = Timer / Config.Duration;
             float extension = Math.Max(PiecewiseAnimation(progress, Config.ExtensionCurve), 0);
             float reach = Config.Reach * extension;
-            Vector2 direction = _aimAngle.ToRotationVector2();
 
+            if (Phase == ThrustPhase.ChimeCyclone)
+            {
+                // Circular collision for spin
+                float dist = Vector2.Distance(Owner.Center, targetHitbox.Center.ToVector2());
+                return dist < reach + 30f;
+            }
+
+            // Line collision from player to lance tip
+            float currentAngle;
+            if (Phase == ThrustPhase.TollingFrenzy)
+            {
+                int subThrust = progress < 0.2f ? 0 : progress < 0.5f ? 1 : 2;
+                currentAngle = _frenzyAngles[subThrust];
+            }
+            else
+                currentAngle = _aimAngle;
+
+            Vector2 direction = currentAngle.ToRotationVector2();
             Vector2 start = Owner.Center;
             Vector2 end = Owner.Center + direction * reach;
 

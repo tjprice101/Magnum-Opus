@@ -1,15 +1,11 @@
+﻿using MagnumOpus.Common;
+using MagnumOpus.Content.Eroica.Minions;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System;
-using Terraria;
+using System.Collections.Generic;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.DataStructures;
-using Terraria.Audio;
-using Terraria.GameContent;
-using MagnumOpus.Content.Eroica.Minions;
-using MagnumOpus.Common;
-using System.Collections.Generic;
+using Terraria;
 
 namespace MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura
 {
@@ -35,32 +31,23 @@ namespace MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura
             Item.maxStack = 1;
         }
 
-        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
-        {
-            return true;
-        }
-
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            player.AddBuff(Item.buffType, 18000);
-            position = Main.MouseWorld;
-
-            // Summoning sounds
-            SoundEngine.PlaySound(SoundID.Item119 with { Volume = 0.8f, Pitch = -0.4f }, position);
-            SoundEngine.PlaySound(SoundID.Item73 with { Volume = 0.6f, Pitch = -0.3f }, position);
-
-            // Spawn the Sakura of Fate
-            Projectile.NewProjectile(source, position, Vector2.Zero, type, damage, knockback, player.whoAmI);
-
+            player.AddBuff(Item.buffType, 2);
+            Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
             return false;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Summons a Sakura of Fate — a spectral guardian of black flame"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "The Sakura fires rapid streams of dark scarlet fire at nearby enemies"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Flames occasionally spawn seeking crystals that chain to nearby foes"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The last petal falls — and with it, the world remembers what it meant to bloom'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1",
+            "Summons a spectral sakura spirit — the ghost of a fallen hero"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2",
+            "Spirit fires petal blade volleys and periodically creates a sakura shield"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3",
+            "Every 15 seconds the spirit unleashes a Final Bloom petal supernova"));
+            tooltips.Add(new TooltipLine(Mod, "Lore",
+            "'The sakura does not mourn its own falling; it becomes the wind.'")
             {
                 OverrideColor = new Color(200, 50, 50)
             });

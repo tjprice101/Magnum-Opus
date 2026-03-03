@@ -84,15 +84,24 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // Tidal dust trail
-            if (Main.rand.NextBool(2))
+            // Tidal mote trail particles (replaces vanilla dust for richer look)
+            if (!Main.dedServ && Main.rand.NextBool(2))
             {
-                Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(10f, 10f),
-                    DustID.PurpleTorch, Projectile.velocity * -1.5f, 0,
-                    Color.Lerp(EternalMoonUtils.Violet, EternalMoonUtils.IceBlue, Main.rand.NextFloat()));
-                d.scale = 0.3f;
-                d.noGravity = true;
-                d.fadeIn = Main.rand.NextFloat() * 0.8f;
+                Vector2 moteVel = -Projectile.velocity * 0.3f + Main.rand.NextVector2Circular(1f, 1f);
+                Color moteColor = Color.Lerp(EternalMoonUtils.Violet, EternalMoonUtils.IceBlue, Main.rand.NextFloat());
+                LunarParticleHandler.SpawnParticle(new TidalMoteParticle(
+                    Projectile.Center + Main.rand.NextVector2Circular(8f, 8f), moteVel,
+                    Main.rand.NextFloat(0.2f, 0.4f), moteColor, Main.rand.Next(15, 30)));
+            }
+
+            // Tidal droplets falling from the wave projectile
+            if (!Main.dedServ && Main.rand.NextBool(5))
+            {
+                Vector2 dropVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(0.2f, 0.8f));
+                LunarParticleHandler.SpawnParticle(new TidalDropletParticle(
+                    Projectile.Center + Main.rand.NextVector2Circular(6f, 6f), dropVel,
+                    Main.rand.NextFloat(0.15f, 0.3f),
+                    EternalMoonUtils.IceBlue * 0.5f, Main.rand.Next(15, 25)));
             }
 
             Projectile.scale = Utils.GetLerpValue(0f, 0.15f, Projectile.timeLeft / 300f, true);
@@ -106,16 +115,31 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             SoundEngine.PlaySound(SoundID.Item29 with { Volume = 0.4f, PitchVariance = 0.3f }, target.Center);
             target.AddBuff(ModContent.BuffType<TidalDrowning>(), 120);
 
-            // Crescent spark burst on hit
+            // Crescent spark burst + wave spray on hit
             if (!Main.dedServ)
             {
-                for (int i = 0; i < 4; i++)
+                for (int i = 0; i < 6; i++)
                 {
                     Vector2 sparkVel = Main.rand.NextVector2Unit() * Main.rand.NextFloat(3f, 7f);
+                    Color sparkColor = Color.Lerp(EternalMoonUtils.IceBlue, EternalMoonUtils.CrescentGlow, Main.rand.NextFloat());
                     LunarParticleHandler.SpawnParticle(new CrescentSparkParticle(
                         target.Center, sparkVel, Main.rand.NextFloat(0.3f, 0.6f),
-                        EternalMoonUtils.IceBlue, 15));
+                        sparkColor, 15));
                 }
+
+                // Wave spray burst on impact
+                for (int i = 0; i < 4; i++)
+                {
+                    Vector2 sprayVel = Main.rand.NextVector2Unit() * Main.rand.NextFloat(2f, 5f);
+                    LunarParticleHandler.SpawnParticle(new WaveSprayParticle(
+                        target.Center, sprayVel, Main.rand.NextFloat(0.2f, 0.4f),
+                        EternalMoonUtils.MoonWhite, Main.rand.Next(10, 18)));
+                }
+
+                // Moon glint at impact
+                LunarParticleHandler.SpawnParticle(new MoonGlintParticle(
+                    target.Center, Main.rand.NextFloat(0.2f, 0.4f),
+                    EternalMoonUtils.MoonWhite, 12));
 
                 LunarParticleHandler.SpawnParticle(new LunarBloomParticle(
                     target.Center, 0.5f, EternalMoonUtils.CrescentGlow, 15, 0.04f));
@@ -176,7 +200,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 
         private float TrailWidth(float completion, Vector2 pos)
         {
-            float w = MaxWidth * (1f - completion) * Projectile.scale;
+            // Scale trail width with tidal phase for more dramatic waves
+            float tidalMult = 1f;
+            if (Projectile.owner >= 0 && Projectile.owner < Main.maxPlayers && Main.player[Projectile.owner].active)
+                tidalMult = Main.player[Projectile.owner].EternalMoon().TidalPhaseMultiplier;
+            float w = MaxWidth * tidalMult * (1f - completion) * Projectile.scale;
             return w * (0.3f + 0.7f * Utils.GetLerpValue(0f, 0.15f, completion, true));
         }
 

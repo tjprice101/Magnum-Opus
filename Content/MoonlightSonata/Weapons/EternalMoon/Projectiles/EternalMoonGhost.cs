@@ -64,15 +64,41 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             // Anchor to owner
             Projectile.Center = Owner.MountedCenter;
 
-            // Ethereal dust from ghost blade tip
-            if (Main.rand.NextBool(3))
+            // Ethereal lunar particles from ghost blade tip
+            if (!Main.dedServ)
             {
                 float angle = Projectile.velocity.ToRotation() + GetSwingAngle(_swingProgress) * GhostSide;
                 Vector2 tipPos = Owner.MountedCenter + angle.ToRotationVector2() * BladeLength;
-                Dust d = Dust.NewDustPerfect(tipPos, DustID.PurpleTorch, Main.rand.NextVector2Circular(1f, 1f));
-                d.noGravity = true;
-                d.scale = 0.4f;
-                d.alpha = 150;
+
+                // Tidal mote trail along ghost blade
+                if (Main.rand.NextBool(3))
+                {
+                    Vector2 moteVel = angle.ToRotationVector2().RotatedByRandom(0.4f) * Main.rand.NextFloat(1f, 2.5f);
+                    Color moteColor = Color.Lerp(EternalMoonUtils.Violet, EternalMoonUtils.IceBlue, Main.rand.NextFloat()) * 0.6f;
+                    LunarParticleHandler.SpawnParticle(new TidalMoteParticle(
+                        tipPos + Main.rand.NextVector2Circular(8f, 8f), moteVel,
+                        Main.rand.NextFloat(0.2f, 0.4f), moteColor, Main.rand.Next(15, 30)));
+                }
+
+                // Moon glint sparkles at tip
+                if (Main.rand.NextBool(7))
+                {
+                    LunarParticleHandler.SpawnParticle(new MoonGlintParticle(
+                        tipPos + Main.rand.NextVector2Circular(5f, 5f),
+                        Main.rand.NextFloat(0.15f, 0.3f),
+                        EternalMoonUtils.MoonWhite * 0.5f, Main.rand.Next(10, 18)));
+                }
+
+                // Subtle tidal droplets falling from ghost blade
+                if (Main.rand.NextBool(8))
+                {
+                    float bladePos = Main.rand.NextFloat(0.3f, 1f);
+                    Vector2 dropPos = Owner.MountedCenter + angle.ToRotationVector2() * BladeLength * bladePos;
+                    Vector2 dropVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-0.3f, 0.3f));
+                    LunarParticleHandler.SpawnParticle(new TidalDropletParticle(
+                        dropPos, dropVel, Main.rand.NextFloat(0.15f, 0.3f),
+                        EternalMoonUtils.IceBlue * 0.4f, Main.rand.Next(15, 25)));
+                }
             }
 
             // Fade in then out
@@ -90,22 +116,34 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             int drawDirection = Math.Sign(Projectile.velocity.X) <= 0 ? -1 : 1;
             SpriteEffects effects = drawDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 
-            // Ghostly tint: translucent lunar colors
+            // Ghostly tint: translucent lunar colors — phase-dependent intensity
+            float phaseGlow = MathHelper.Lerp(0.3f, 0.5f, LunarPhase / 4f);
             Color ghostColor = Color.Lerp(EternalMoonUtils.Violet, EternalMoonUtils.IceBlue, _swingProgress);
             ghostColor *= Projectile.Opacity;
 
             float rotation = angle + MathHelper.PiOver4 + (drawDirection == -1 ? MathHelper.Pi : 0f);
 
-            // Draw the ghost blade with reduced opacity
+            // Layer 1: Wide outer glow (additive bloom under the ghost blade)
+            Color outerGlow = EternalMoonUtils.DarkPurple;
+            outerGlow.A = 0;
+            Main.EntitySpriteDraw(texture, Owner.MountedCenter - Main.screenPosition, null,
+                outerGlow * Projectile.Opacity * 0.1f, rotation, texture.Size() / 2f,
+                2.8f * Projectile.scale, effects, 0);
+
+            // Layer 2: Ghost blade body
             Main.EntitySpriteDraw(texture, Owner.MountedCenter - Main.screenPosition, null,
                 ghostColor, rotation, texture.Size() / 2f, 2.2f * Projectile.scale, effects, 0);
 
-            // Additive glow overlay
+            // Layer 3: Core glow overlay (additive)
             Color glowColor = EternalMoonUtils.IceBlue;
             glowColor.A = 0;
             Main.EntitySpriteDraw(texture, Owner.MountedCenter - Main.screenPosition, null,
-                glowColor * Projectile.Opacity * 0.2f, rotation, texture.Size() / 2f,
+                glowColor * Projectile.Opacity * phaseGlow, rotation, texture.Size() / 2f,
                 2.4f * Projectile.scale, effects, 0);
+
+            // Add moonlight
+            Vector2 tipPos = Owner.MountedCenter + direction * BladeLength * 0.5f;
+            Lighting.AddLight(tipPos, EternalMoonUtils.IceBlue.ToVector3() * Projectile.Opacity * 0.3f);
 
             return false;
         }
@@ -114,14 +152,24 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
         {
             if (!Main.dedServ)
             {
-                // Subtle ghost impact: few sparks
-                for (int i = 0; i < 3; i++)
+                // Ghost impact: crescent sparks + moon glint + subtle bloom
+                for (int i = 0; i < 5; i++)
                 {
-                    Vector2 sparkVel = Main.rand.NextVector2Unit() * Main.rand.NextFloat(2f, 5f);
+                    Vector2 sparkVel = Main.rand.NextVector2Unit() * Main.rand.NextFloat(2f, 6f);
+                    Color sparkColor = Color.Lerp(EternalMoonUtils.Violet, EternalMoonUtils.IceBlue, Main.rand.NextFloat());
                     LunarParticleHandler.SpawnParticle(new CrescentSparkParticle(
                         target.Center, sparkVel, Main.rand.NextFloat(0.2f, 0.5f),
-                        EternalMoonUtils.Violet, 12));
+                        sparkColor, Main.rand.Next(10, 18)));
                 }
+
+                // Moon glint at impact point
+                LunarParticleHandler.SpawnParticle(new MoonGlintParticle(
+                    target.Center, Main.rand.NextFloat(0.2f, 0.4f),
+                    EternalMoonUtils.MoonWhite * 0.7f, 12));
+
+                // Subtle ghost impact bloom
+                LunarParticleHandler.SpawnParticle(new LunarBloomParticle(
+                    target.Center, 0.3f, EternalMoonUtils.Violet * 0.5f, 12, 0.03f));
             }
         }
     }

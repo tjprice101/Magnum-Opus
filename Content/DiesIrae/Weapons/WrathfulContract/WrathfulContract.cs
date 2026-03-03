@@ -1,22 +1,16 @@
-using System;
-using System.Collections.Generic;
+﻿using MagnumOpus.Common;
 using Microsoft.Xna.Framework;
-using Terraria;
+using System.Collections.Generic;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract.Particles;
-using MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract.Utilities;
+using Terraria;
+using MagnumOpus.Content.DiesIrae.HarmonicCores;
+using MagnumOpus.Content.DiesIrae.ResonanceEnergies;
+using MagnumOpus.Content.Fate.CraftingStations;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract
 {
-    /// <summary>
-    /// Wrathful Contract — Summons a wrathful demon entity that orbits the player
-    /// and dashes at enemies. Every 3rd dash triggers a burst of 6 wrath fireballs.
-    ///
-    /// Stats: 1650 damage, 40 mana, 35 useTime, 6 KB, Summon, 2 slots.
-    /// Theme: Dies Irae — a contract signed in hellfire and fury.
-    /// </summary>
     public class WrathfulContract : ModItem
     {
         public override void SetDefaults()
@@ -42,26 +36,20 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            player.AddBuff(Item.buffType, 18000);
-            player.SpawnMinionOnCursor(source, player.whoAmI, type, damage, knockback);
-
-            // Summoning VFX — demonic contract flash
-            ContractParticleHandler.Spawn(new DemonAuraParticle(Main.MouseWorld, ContractUtils.WrathFlame, 1.2f, 15));
-            for (int i = 0; i < 10; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 10f;
-                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f);
-                ContractParticleHandler.Spawn(new DashTrailParticle(Main.MouseWorld, vel,
-                    ContractUtils.GetContractColor(Main.rand.NextFloat()), 0.15f, 15));
-            }
-            for (int i = 0; i < 3; i++)
-            {
-                Vector2 vel = Main.rand.NextVector2Circular(2f, 2f);
-                ContractParticleHandler.Spawn(new ContractNoteParticle(Main.MouseWorld, vel,
-                    ContractUtils.DemonCrimson, 0.45f, 35));
-            }
-
+            player.AddBuff(Item.buffType, 2);
+            Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
             return false;
+        }
+
+        public override void AddRecipes()
+        {
+            CreateRecipe()
+            .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.ResonantCoreOfDiesIrae>(), 15)
+            .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.DiesIraeResonantEnergy>(), 35)
+            .AddIngredient(ModContent.ItemType<Content.DiesIrae.HarmonicCores.HarmonicCoreOfDiesIrae>(), 3)
+            .AddIngredient(ItemID.LunarBar, 25)
+            .AddTile(ModContent.TileType<Content.Fate.CraftingStations.FatesCosmicAnvilTile>())
+            .Register();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -73,17 +61,6 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract
             {
                 OverrideColor = new Color(200, 50, 30)
             });
-        }
-
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.ResonantCoreOfDiesIrae>(), 15)
-                .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.DiesIraeResonantEnergy>(), 35)
-                .AddIngredient(ModContent.ItemType<Content.DiesIrae.HarmonicCores.HarmonicCoreOfDiesIrae>(), 3)
-                .AddIngredient(ItemID.LunarBar, 25)
-                .AddTile(ModContent.TileType<Content.Fate.CraftingStations.FatesCosmicAnvilTile>())
-                .Register();
         }
     }
 }

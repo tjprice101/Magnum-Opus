@@ -283,16 +283,27 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
         {
             target.AddBuff(ModContent.BuffType<MusicalDissonance>(), 300);
 
-            // On-hit prismatic spark burst
+            // On-hit prismatic spark burst — resonance enhances count
             if (!Main.dedServ)
             {
-                for (int i = 0; i < 5; i++)
+                var serenade = Owner.Serenade();
+                int resonance = serenade.ResonanceLevel;
+                int sparkCount = 5 + resonance;
+
+                for (int i = 0; i < sparkCount; i++)
                 {
                     Vector2 vel = Main.rand.NextVector2CircularEdge(3f, 3f);
                     Color col = GetSpectralColor(Main.rand.Next(7));
                     SerenadeParticleHandler.Spawn(new PrismaticSparkParticle(
-                        target.Center, vel, col, MoonWhite, 0.4f, 20
+                        target.Center, vel, col, MoonWhite, 0.4f + resonance * 0.05f, 20
                     ));
+                }
+
+                // Music notes on hit at resonance 1+
+                if (resonance >= 1)
+                {
+                    MoonlightVFXLibrary.SpawnMusicNotes(target.Center,
+                        count: 1 + resonance, spread: 8f, minScale: 0.3f, maxScale: 0.6f, lifetime: 25);
                 }
             }
         }

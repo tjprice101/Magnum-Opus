@@ -1,24 +1,16 @@
-using System;
-using System.Collections.Generic;
+﻿using MagnumOpus.Common;
 using Microsoft.Xna.Framework;
-using Terraria;
-using Terraria.Audio;
+using System.Collections.Generic;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Particles;
-using MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Utilities;
+using Terraria;
+using MagnumOpus.Content.DiesIrae.HarmonicCores;
+using MagnumOpus.Content.DiesIrae.ResonanceEnergies;
+using MagnumOpus.Content.Fate.CraftingStations;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment
 {
-    /// <summary>
-    /// Chain of Judgment — A blazing spectral chain whip that bounces between enemies.
-    /// Melee weapon, noMelee/noUseGraphic. Throws a chain that ricochets 4 times, 
-    /// exploding at each bounce point, then returns.
-    ///
-    /// Stats: 2400 damage, 22 useTime, 6 KB, crit 15.
-    /// Theme: Dies Irae — chains that bind the damned.
-    /// </summary>
     public class ChainOfJudgment : ModItem
     {
         public override void SetDefaults()
@@ -44,33 +36,15 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment
             Item.noUseGraphic = true;
         }
 
-        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        public override void AddRecipes()
         {
-            Vector2 mouseDir = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX);
-            Projectile.NewProjectile(source, player.Center, mouseDir * Item.shootSpeed,
-                ModContent.ProjectileType<Projectiles.JudgmentChainProjectile>(), damage, knockback, player.whoAmI);
-
-            // Launch VFX
-            Vector2 launchPos = player.Center + mouseDir * 30f;
-            ChainParticleHandler.Spawn(new ChainBloomParticle(launchPos, ChainUtils.MoltenLink, 1f, 12));
-
-            for (int i = 0; i < 6; i++)
-            {
-                Vector2 vel = mouseDir.RotatedBy(Main.rand.NextFloat(-0.6f, 0.6f)) * Main.rand.NextFloat(2f, 5f);
-                ChainParticleHandler.Spawn(new ChainSparkParticle(launchPos, vel,
-                    ChainUtils.MulticolorLerp(Main.rand.NextFloat(), ChainUtils.MoltenLink, ChainUtils.HellfireChain),
-                    0.2f, 15));
-            }
-
-            for (int i = 0; i < 3; i++)
-            {
-                Vector2 vel = mouseDir.RotatedBy(Main.rand.NextFloat(-0.5f, 0.5f)) * 3f;
-                ChainParticleHandler.Spawn(new ChainNoteParticle(launchPos, vel, ChainUtils.HellfireChain, 0.4f, 35));
-            }
-
-            SoundEngine.PlaySound(SoundID.Item153 with { Volume = 0.8f }, player.Center);
-
-            return false;
+            CreateRecipe()
+            .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.ResonantCoreOfDiesIrae>(), 20)
+            .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.DiesIraeResonantEnergy>(), 15)
+            .AddIngredient(ModContent.ItemType<Content.DiesIrae.HarmonicCores.HarmonicCoreOfDiesIrae>(), 2)
+            .AddIngredient(ItemID.LunarBar, 15)
+            .AddTile(ModContent.TileType<Content.Fate.CraftingStations.FatesCosmicAnvilTile>())
+            .Register();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -82,17 +56,6 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment
             {
                 OverrideColor = new Color(200, 50, 30)
             });
-        }
-
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.ResonantCoreOfDiesIrae>(), 20)
-                .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.DiesIraeResonantEnergy>(), 15)
-                .AddIngredient(ModContent.ItemType<Content.DiesIrae.HarmonicCores.HarmonicCoreOfDiesIrae>(), 2)
-                .AddIngredient(ItemID.LunarBar, 15)
-                .AddTile(ModContent.TileType<Content.Fate.CraftingStations.FatesCosmicAnvilTile>())
-                .Register();
         }
     }
 }

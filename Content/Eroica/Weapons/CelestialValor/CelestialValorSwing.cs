@@ -1,922 +1,238 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Bloom;
+using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Eroica.Weapons.CelestialValor.Buffs;
-using MagnumOpus.Content.Eroica.Weapons.CelestialValor.Dusts;
-using MagnumOpus.Content.Eroica.Weapons.CelestialValor.Particles;
-using MagnumOpus.Content.Eroica.Weapons.CelestialValor.Primitives;
-using MagnumOpus.Content.Eroica.Weapons.CelestialValor.Shaders;
-using MagnumOpus.Content.Eroica.Weapons.CelestialValor.Utilities;
 using MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
-using MagnumOpus.Common.Systems;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ReLogic.Content;
-using Terraria;
+using Microsoft.Xna.Framework;
+using System;
 using Terraria.Audio;
-using Terraria.Graphics.Shaders;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
-using static MagnumOpus.Content.Eroica.Weapons.CelestialValor.Utilities.ValorUtils;
+using Terraria;
 
 namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 {
     /// <summary>
-    /// CelestialValorSwing — "The Hero's Burning Oath"
-    /// 
-    /// The central rendering and combat file for the Celestial Valor melee weapon.
-    /// Handles all swing animation, collision, trail rendering, blade drawing, particle spawning,
-    /// combo phase tracking, special mechanics, and sub-projectile creation.
-    /// 
-    /// --- COMBO SYSTEM: HEROIC CRESCENDO ---
-    /// 3-phase combo that escalates from whisper to war cry:
-    ///   Phase 0: Valor's Whisper    — Swift controlled slash, 1 energy projectile
-    ///   Phase 1: Crimson Declaration — Powerful reverse backhand, 2 spread projectiles
-    ///   Phase 2: Heroic Finale      — Massive overhead slam, 3 fan projectiles + finisher VFX
-    /// 
-    /// --- SPECIAL ATTACKS ---
-    ///   Alt-click: Valor Dash — Charge forward in blazing glory trailing heroic fire.
-    ///                          On hit: applies Stagger, spawns cross-slash VFX
-    ///                          If dash connects, next swing is empowered Heroic Finale
-    ///   
-    ///   Empowered Finale — 1.4x scale, spawns ValorBoom explosion on hit + lifesteal
-    ///   
-    ///   Phase 2 Seeking Crystals — On crit during Heroic Finale, spawns homing valor crystals
-    ///
-    /// --- VISUAL LAYERS (render order) ---
-    ///   1. Heroic Glow Pass    — Wide, soft scarlet-gold bloom underlayer via ValorFlare shader
-    ///   2. Heroic Trail Pass   — Core arc trail using HeroicTrail shader with flame gradient
-    ///   3. Dash Trail          — During dash: trailing positions with ValorFlare shader
-    ///   4. Blade Sprite        — UV-rotated blade + lens flare crosses at tip
-    ///   5. Ember Bloom         — Soft bloom overlay at blade tip (Phase 1+)
+    /// Celestial Valor swing projectile — Heroic Crescendo 4-phase combo.
+    /// Phase 0: Resolute Strike — single overhead slash.
+    /// Phase 1: Ascending Valor — upward diagonal, fires ValorBeam arcs.
+    /// Phase 2: Crimson Legion — triple rapid strikes, spawns valor beam projectiles.
+    /// Phase 3: Finale Fortissimo — 270° heroic slam with ValorBoom AoE.
+    /// Valor Gauge builds on successive hits; at max the next Finale becomes Gloria.
+    /// Hero's Resolve: below 30% HP, extra embers and +25% damage.
     /// </summary>
-    public sealed class CelestialValorSwing : ModProjectile
+    public class CelestialValorSwing : ModProjectile
     {
-        #region Constants and Properties
+        // ── AI state ──
+        private ref float ComboPhase => ref Projectile.ai[0];
+        private ref float PhaseTimer => ref Projectile.ai[1];
 
-        public Player Owner => Main.player[Projectile.owner];
+        private float swingRotation = 0f;
+        private int swingDirection = 1;
+        private bool initialized = false;
+        private float valorGauge = 0f;
+        private bool phaseProjectileSpawned = false;
 
-        private const float BladeLength = 162f;
-        private const int BaseSwingTime = 72;
-        private const float MaxSwingAngle = MathHelper.PiOver2 * 1.8f;
-        private const float DashSpeed = 45f;
-        private const float DashPercentage = 0.55f;
-        private const float EmpoweredUpscale = 1.4f;
-        private const float ReboundSpeed = 5f;
-        private const int DashCooldown = 60 * 3;
-        private const int EmpoweredOpportunity = 37 * 3;
-        private const float SubProjectileDamagePenalty = 0.3f;
-        private const float FinisherDamageFactor = 1.8f;
+        // ── Afterimage tracking ──
+        private const int MaxAfterimages = 10;
+        private float[] afterimageRotations = new float[MaxAfterimages];
+        private int afterimageHead = 0;
 
-        public int GetSwingTime
-        {
-            get
-            {
-                if (State == SwingState.ValorDash)
-                    return CelestialValor.ValorDashTime * Projectile.extraUpdates;
-                return BaseSwingTime;
-            }
-        }
-
-        public float Timer => SwingTime - Projectile.timeLeft;
-        public float Progression => Timer / (float)SwingTime;
-
-        public float DashProgression => Progression < (1 - DashPercentage)
-            ? 0 : (Progression - (1 - DashPercentage)) / DashPercentage;
-
-        #endregion
-
-        #region State Machine
-
-        public enum SwingState
-        {
-            Swinging,
-            ValorDash
-        }
-
-        public SwingState State
-        {
-            get => Projectile.ai[0] == 1 ? SwingState.ValorDash : SwingState.Swinging;
-            set => Projectile.ai[0] = (int)value;
-        }
-
-        public bool PerformingEmpoweredFinale => Projectile.ai[0] > 1;
-
-        public bool InPostDashStasis
-        {
-            get => Projectile.ai[1] > 0;
-            set => Projectile.ai[1] = value ? 1 : 0;
-        }
-
-        public ref float SwingTime => ref Projectile.localAI[0];
-        public ref float SquishFactor => ref Projectile.localAI[1];
-
-        /// <summary>Current combo step for this swing (0-2, cached from player on init).</summary>
-        private int _comboStep;
-
-        /// <summary>Phase intensity 0.4-1.0 driving shader uniforms and VFX density.</summary>
-        private float _phaseIntensity;
-
-        public float IdealSize => PerformingEmpoweredFinale ? EmpoweredUpscale : 1f;
-
-        #endregion
-
-        #region Swing Animation Curves
-
-        public int Direction => Math.Sign(Projectile.velocity.X) <= 0 ? -1 : 1;
-        public float BaseRotation => Projectile.velocity.ToRotation();
-        public Vector2 SquishVector => new Vector2(1f + (1 - SquishFactor) * 0.5f, SquishFactor);
-
-        // Phase 0: Valor's Whisper — quick windup, sharp swing, soft follow-through
-        public CurveSegment Phase0_Windup = new(PolyOutEasing, 0f, -0.85f, 0.18f, 2);
-        public CurveSegment Phase0_Swing = new(PolyInEasing, 0.18f, -0.67f, 1.52f, 3);
-        public CurveSegment Phase0_Settle = new(PolyOutEasing, 0.80f, 0.85f, 0.12f, 2);
-
-        // Phase 1: Crimson Declaration — dramatic pullback, explosive swing, weighted decel
-        public CurveSegment Phase1_Windup = new(PolyOutEasing, 0f, -1.05f, 0.25f, 2);
-        public CurveSegment Phase1_Swing = new(PolyInEasing, 0.25f, -0.80f, 1.85f, 3);
-        public CurveSegment Phase1_Settle = new(PolyOutEasing, 0.84f, 1.05f, 0.08f, 2);
-
-        // Phase 2: Heroic Finale — dramatic raise, violent slam, abrupt stop
-        public CurveSegment Phase2_Windup = new(SineOutEasing, 0f, -1.15f, 0.16f, 2);
-        public CurveSegment Phase2_Swing = new(PolyInEasing, 0.16f, -0.99f, 2.24f, 4);
-        public CurveSegment Phase2_Settle = new(PolyOutEasing, 0.78f, 1.25f, 0.03f, 2);
-
-        public float SwingAngleShiftAtProgress(float progress)
-        {
-            if (State == SwingState.ValorDash) return 0;
-
-            float p;
-            switch (_comboStep)
-            {
-                case 1:
-                    p = PiecewiseAnimation(progress, Phase1_Windup, Phase1_Swing, Phase1_Settle);
-                    return MaxSwingAngle * 1.05f * p;
-                case 2:
-                    p = PiecewiseAnimation(progress, Phase2_Windup, Phase2_Swing, Phase2_Settle);
-                    return MaxSwingAngle * 1.27f * p;
-                default:
-                    p = PiecewiseAnimation(progress, Phase0_Windup, Phase0_Swing, Phase0_Settle);
-                    return MaxSwingAngle * 0.83f * p;
-            }
-        }
-
-        public float SwordRotationAtProgress(float progress) =>
-            State == SwingState.ValorDash ? BaseRotation :
-            BaseRotation + SwingAngleShiftAtProgress(progress) * Direction * (_comboStep == 1 ? -1 : 1);
-
-        public float SquishAtProgress(float progress) =>
-            State == SwingState.ValorDash ? 1 :
-            MathHelper.Lerp(SquishVector.X, SquishVector.Y,
-                (float)Math.Abs(Math.Sin(SwingAngleShiftAtProgress(progress))));
-
-        public Vector2 DirectionAtProgress(float progress) =>
-            State == SwingState.ValorDash ? Projectile.velocity :
-            SwordRotationAtProgress(progress).ToRotationVector2() * SquishAtProgress(progress);
-
-        public float SwingAngleShift => SwingAngleShiftAtProgress(Progression);
-        public float SwordRotation => SwordRotationAtProgress(Progression);
-        public float CurrentSquish => SquishAtProgress(Progression);
-        public Vector2 SwordDirection => DirectionAtProgress(Progression);
-
-        #endregion
-
-        #region Trail Data
-
-        public float TrailEndProgression
-        {
-            get
-            {
-                float endProg;
-                if (Progression < 0.7f)
-                    endProg = Progression - 0.45f + 0.1f * (Progression / 0.7f);
-                else
-                    endProg = Progression - 0.35f * (1 - (Progression - 0.7f) / 0.7f);
-                return Math.Clamp(endProg, 0, 1);
-            }
-        }
-
-        public float RealProgressionAtTrailCompletion(float completion) =>
-            MathHelper.Lerp(Progression, TrailEndProgression, completion);
-
-        public Vector2 DirectionAtProgressSmoothed(float progress)
-        {
-            float angleShift = SwingAngleShiftAtProgress(progress);
-            Vector2 anglePoint = angleShift.ToRotationVector2();
-            anglePoint.X *= SquishVector.X;
-            anglePoint.Y *= SquishVector.Y;
-            angleShift = anglePoint.ToRotation();
-            return (BaseRotation + angleShift * Direction * (_comboStep == 1 ? -1 : 1)).ToRotationVector2()
-                * SquishAtProgress(progress);
-        }
-
-        // Dash displacement curves
-        public CurveSegment DashWindback = new(SineBumpEasing, 0f, -6f, -10f);
-        public CurveSegment DashThrust => new(PolyOutEasing, 1 - DashPercentage, -6, 8f, 4);
-        public float DashDisplace => PiecewiseAnimation(Progression, DashWindback, DashThrust);
-
-        #endregion
-
-        #region Particle and Dust Density
-
-        /// <summary>Risk factor controlling dust emission density during swing.</summary>
-        public float DustRisk
-        {
-            get
-            {
-                if (Progression > 0.85f) return 0;
-                if (Progression < 0.35f) return (float)Math.Pow(Progression / 0.35f, 2) * 0.15f;
-                if (Progression < 0.5f) return 0.15f + 0.75f * (Progression - 0.35f) / 0.15f;
-                return 0.9f * _phaseIntensity;
-            }
-        }
-
-        #endregion
-
-        #region Texture References
-
-        public override string Texture => "MagnumOpus/Content/Eroica/Weapons/CelestialValor/CelestialValor";
-        private static Asset<Texture2D> _lensFlare;
-        private static Asset<Texture2D> _bloomCircle;
-        private static Asset<Texture2D> _noiseTexture;
-
-        #endregion
-
-        #region Setup
-
-        public override void SetStaticDefaults()
-        {
-            ProjectileID.Sets.TrailingMode[Type] = 2;
-            ProjectileID.Sets.TrailCacheLength[Type] = 80;
-        }
+        // ── Combo phase definitions (durations in AI ticks) ──
+        private static readonly int[] PhaseDuration = { 20, 24, 30, 26 };
+        private static readonly float[] ArcStart = { -2.0f, 0.8f, -1.6f, -2.8f };
+        private static readonly float[] ArcEnd = { 0.8f, -1.6f, 1.6f, 2.0f };
 
         public override void SetDefaults()
         {
-            Projectile.width = Projectile.height = 90;
+            Projectile.width = 120;
+            Projectile.height = 120;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.MeleeNoSpeed;
             Projectile.tileCollide = false;
             Projectile.penetrate = -1;
             Projectile.timeLeft = 9999;
             Projectile.usesLocalNPCImmunity = true;
-            Projectile.MaxUpdates = 3;
-            Projectile.localNPCHitCooldown = Projectile.MaxUpdates * 8;
+            Projectile.localNPCHitCooldown = 10;
             Projectile.noEnchantmentVisuals = true;
+            Projectile.ownerHitCheck = true;
         }
-
-        public override void SendExtraAI(BinaryWriter writer)
-        {
-            writer.Write(SwingTime);
-            writer.Write(SquishFactor);
-            writer.Write(_comboStep);
-        }
-
-        public override void ReceiveExtraAI(BinaryReader reader)
-        {
-            SwingTime = reader.ReadSingle();
-            SquishFactor = reader.ReadSingle();
-            _comboStep = reader.ReadInt32();
-        }
-
-        #endregion
-
-        #region Collision
-
-        public override bool ShouldUpdatePosition() => State == SwingState.ValorDash && !InPostDashStasis;
-
-        public override bool? CanDamage()
-        {
-            if (State != SwingState.ValorDash) return null;
-            if (InPostDashStasis) return false;
-            if (Projectile.timeLeft > SwingTime * DashPercentage) return false;
-            return null;
-        }
-
-        public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
-        {
-            float _ = 0f;
-            Vector2 start = Projectile.Center;
-            Vector2 end = start + SwordDirection * (BladeLength + 40) * Projectile.scale;
-            float width = State == SwingState.ValorDash ? Projectile.scale * 42f : Projectile.scale * 28f;
-            return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), start, end, width, ref _);
-        }
-
-        #endregion
-
-        #region Initialization
-
-        public void InitializationEffects(bool startInit)
-        {
-            Projectile.velocity = Owner.MountedCenter.DirectionTo(Main.MouseWorld);
-            SquishFactor = Main.rand.NextFloat(0.7f, 1f);
-
-            // Cache combo step from player
-            _comboStep = Owner.CelestialValor().ComboStep;
-            _phaseIntensity = 0.4f + _comboStep * 0.3f; // 0.4, 0.7, 1.0
-
-            if (startInit && State != SwingState.ValorDash)
-                Projectile.scale = 0.02f;
-            else
-            {
-                Projectile.scale = 1f;
-                if (PerformingEmpoweredFinale)
-                {
-                    State = SwingState.Swinging;
-                    _comboStep = 2;
-                    _phaseIntensity = 1f;
-                }
-            }
-
-            if (PerformingEmpoweredFinale)
-                SquishFactor = 0.72f;
-
-            SwingTime = GetSwingTime;
-            Projectile.timeLeft = (int)SwingTime;
-            Projectile.netUpdate = true;
-        }
-
-        #endregion
-
-        #region AI
 
         public override void AI()
         {
-            if (InPostDashStasis || Projectile.timeLeft == 0)
+            Player player = Main.player[Projectile.owner];
+
+            if (!player.channel || player.dead || !player.active)
+            {
+                Projectile.Kill();
                 return;
-
-            if (Projectile.timeLeft >= 9999 || (Projectile.timeLeft == 1 && Owner.channel && State != SwingState.ValorDash))
-                InitializationEffects(Projectile.timeLeft >= 9999);
-
-            switch (State)
-            {
-                case SwingState.Swinging:
-                    DoBehavior_Swinging();
-                    break;
-                case SwingState.ValorDash:
-                    DoBehavior_ValorDash();
-                    break;
             }
 
-            // Anchor to owner
-            Projectile.Center = Owner.RotatedRelativePoint(Owner.MountedCenter, true);
-            Owner.heldProj = Projectile.whoAmI;
-            Owner.SetDummyItemTime(2);
-            Owner.ChangeDir(Direction);
+            Projectile.timeLeft = 2;
 
-            // Arm rotation
-            float armRotation = SwordRotation - MathHelper.PiOver2;
-            Owner.SetCompositeArmFront(Math.Abs(armRotation) > 0.01f, Player.CompositeArmStretchAmount.Full, armRotation);
-
-            // Dash cooldown freeze
-            if (Projectile.timeLeft == 1 && State == SwingState.ValorDash && !InPostDashStasis)
+            // ── Initialize on first tick ──
+            if (!initialized)
             {
-                Projectile.timeLeft = DashCooldown;
-                InPostDashStasis = true;
-                Owner.fullRotation = 0f;
-                Owner.CelestialValor().IsLunging = false;
+                initialized = true;
+                swingDirection = player.direction;
+                Projectile.direction = swingDirection;
+                swingRotation = ArcStart[0] * swingDirection;
+                for (int i = 0; i < MaxAfterimages; i++)
+                    afterimageRotations[i] = swingRotation;
             }
+
+            Projectile.Center = player.Center;
+
+            // ── Swing interpolation ──
+            int phaseIdx = (int)MathHelper.Clamp(ComboPhase, 0, 3);
+            float duration = PhaseDuration[phaseIdx];
+            float progress = MathHelper.Clamp(PhaseTimer / duration, 0f, 1f);
+            float eased = EaseInOut(progress);
+
+            float startAngle = ArcStart[phaseIdx] * swingDirection;
+            float endAngle = ArcEnd[phaseIdx] * swingDirection;
+            swingRotation = MathHelper.Lerp(startAngle, endAngle, eased);
+            Projectile.rotation = swingRotation;
+
+            // ── Afterimage record ──
+            afterimageRotations[afterimageHead] = swingRotation;
+            afterimageHead = (afterimageHead + 1) % MaxAfterimages;
+
+            // ── Blade tip VFX ──
+            float bladeLen = 95f;
+            Vector2 tipDir = swingRotation.ToRotationVector2();
+            Vector2 tipPos = player.Center + tipDir * bladeLen;
+
+            bool heroResolve = player.statLife < player.statLifeMax2 * 0.3f;
+            SpawnPerFrameVFX(tipPos, phaseIdx, heroResolve, player);
+
+            // ── Phase-specific sub-projectile spawning at midpoint ──
+            if (!phaseProjectileSpawned && progress > 0.5f)
+            {
+                phaseProjectileSpawned = true;
+                SpawnPhaseProjectiles(player, tipPos, phaseIdx);
+            }
+
+            // ── Advance timer ──
+            PhaseTimer++;
+
+            if (PhaseTimer >= duration)
+            {
+                OnPhaseEnd(player, tipPos, phaseIdx);
+                ComboPhase = (ComboPhase + 1) % 4;
+                PhaseTimer = 0;
+                swingDirection = -swingDirection;
+                Projectile.direction = swingDirection;
+                phaseProjectileSpawned = false;
+
+                for (int i = 0; i < MaxAfterimages; i++)
+                    afterimageRotations[i] = ArcStart[(int)ComboPhase] * swingDirection;
+            }
+
+            // ── Valor gauge decay ──
+            valorGauge = Math.Max(0, valorGauge - 0.08f);
+
+            // ── Player lock ──
+            player.direction = Main.MouseWorld.X >= player.Center.X ? 1 : -1;
+            player.heldProj = Projectile.whoAmI;
+            player.itemAnimation = 2;
+            player.itemTime = 2;
         }
 
-        #endregion
-
-        #region Swing Behavior
-
-        public void DoBehavior_Swinging()
+        private static float EaseInOut(float t)
         {
-            // Play swing sound at 20% through with escalating pitch
-            if (Projectile.timeLeft == (int)(SwingTime / 5))
-            {
-                SoundEngine.PlaySound(SoundID.Item71 with
-                {
-                    Volume = 0.85f + _comboStep * 0.08f,
-                    Pitch = -0.25f + _comboStep * 0.22f,
-                    PitchVariance = 0.25f
-                }, Projectile.Center);
-                if (PerformingEmpoweredFinale)
-                    SoundEngine.PlaySound(SoundID.Item70 with { Volume = 0.5f, Pitch = -0.4f }, Projectile.Center);
-            }
-
-            // Dynamic heroic lighting along the blade
-            Vector3 lightColor = Color.Lerp(ScarletEmber, GoldenFlare, (float)Math.Pow(Progression, 2)).ToVector3();
-            lightColor *= 1.2f * _phaseIntensity * (float)Math.Sin(Progression * MathHelper.Pi);
-            Lighting.AddLight(Owner.MountedCenter + SwordDirection * 90, lightColor);
-
-            // Scale up to ideal size
-            if (Projectile.scale < IdealSize)
-                Projectile.scale = MathHelper.Lerp(Projectile.scale, IdealSize, 0.08f);
-
-            // Shrink near end of slash
-            if (!Owner.channel && Progression > 0.7f)
-                Projectile.scale = (0.5f + 0.5f * (float)Math.Pow(1 - (Progression - 0.7f) / 0.3f, 0.5)) * IdealSize;
-
-            // === DUST SPAWNING ===
-            // Heroic ember dust from blade edge
-            if (Main.rand.NextFloat() * 3f < DustRisk)
-            {
-                Vector2 dustPos = Owner.MountedCenter + SwordDirection * BladeLength * Projectile.scale *
-                    (float)Math.Pow(Main.rand.NextFloat(0.5f, 1f), 0.5f);
-                Dust d = Dust.NewDustPerfect(dustPos, ModContent.DustType<HeroicEmberDust>(),
-                    SwordDirection.RotatedBy(-MathHelper.PiOver2 * Direction) * 2f);
-                d.noGravity = true;
-                d.alpha = 10;
-                d.scale = 0.5f * _phaseIntensity;
-            }
-
-            // Scarlet/gold ambient dust
-            if (Main.rand.NextFloat() < DustRisk * 0.7f)
-            {
-                Color dustColor = Color.Lerp(ScarletEmber, GoldenFlare, Main.rand.NextFloat());
-                Vector2 dustPos = Owner.MountedCenter + SwordDirection * BladeLength * Projectile.scale *
-                    (float)Math.Pow(Main.rand.NextFloat(0.2f, 1f), 0.5f);
-                Dust d = Dust.NewDustPerfect(dustPos, DustID.GoldFlame,
-                    SwordDirection.RotatedBy(MathHelper.PiOver2 * Direction) * 2.2f, 0, dustColor);
-                d.scale = 0.4f;
-                d.fadeIn = Main.rand.NextFloat() * 1.0f;
-                d.noGravity = true;
-            }
-
-            // === PARTICLE SPAWNING ===
-            SpawnSwingParticles();
-
-            // === ENERGY PROJECTILES ===
-            SpawnComboProjectiles();
-
-            // Advance combo on first swing frame
-            if (Timer == 1)
-                Owner.CelestialValor().AdvanceCombo();
+            return t < 0.5f ? 2f * t * t : 1f - MathF.Pow(-2f * t + 2f, 2f) / 2f;
         }
 
-        private void SpawnSwingParticles()
+        #region VFX Spawning
+
+        private void SpawnPerFrameVFX(Vector2 tipPos, int phase, bool heroResolve, Player player)
         {
-            if (Main.dedServ) return;
+            // Blade tip dust every frame
+            EroicaVFXLibrary.SpawnSwingDust(tipPos, -Projectile.rotation.ToRotationVector2());
+            EroicaVFXLibrary.SpawnContrastSparkle(tipPos, -Projectile.rotation.ToRotationVector2());
 
-            float tipX = BladeLength * Projectile.scale;
-            Vector2 tipPos = Owner.MountedCenter + SwordDirection * tipX;
+            // Music notes periodically
+            if ((int)PhaseTimer % 6 == 0)
+                EroicaVFXLibrary.SpawnMusicNotes(tipPos, 1 + phase / 2, 12f, 0.7f, 1.0f, 28);
 
-            // Heroic embers along blade — density scales with combo step
-            if (Main.rand.NextFloat() < 0.3f * _phaseIntensity && Progression > 0.2f && Progression < 0.85f)
-            {
-                Vector2 moteVel = SwordDirection.RotatedByRandom(0.5f) * Main.rand.NextFloat(1f, 3f);
-                Color moteColor = Color.Lerp(ScarletEmber, GoldenFlare, Main.rand.NextFloat());
-                ValorParticleHandler.SpawnParticle(new HeroicEmberParticle(
-                    tipPos + Main.rand.NextVector2Circular(15f, 15f), moteVel,
-                    moteColor, Main.rand.NextFloat(0.3f, 0.7f) * _phaseIntensity,
-                    Main.rand.Next(25, 50)));
-            }
+            // Valor sparkles on higher phases
+            if (phase >= 1 && (int)PhaseTimer % 4 == 0)
+                EroicaVFXLibrary.SpawnValorSparkles(tipPos, 2 + phase, 18f);
 
-            // Valor sparks on fast part of swing (Phase 1+)
-            if (_comboStep >= 1 && Progression > 0.4f && Progression < 0.8f && Main.rand.NextBool(4))
-            {
-                Vector2 sparkVel = SwordDirection.RotatedByRandom(0.3f) * Main.rand.NextFloat(4f, 8f);
-                ValorParticleHandler.SpawnParticle(new ValorSparkParticle(
-                    tipPos, sparkVel, Color.Lerp(Color.White, GoldenFlare, 0.3f),
-                    Main.rand.NextFloat(0.4f, 0.8f), Main.rand.Next(15, 25)));
-            }
+            // Dense sparks on phase 2+
+            if (phase >= 2)
+                EroicaVFXLibrary.SpawnDirectionalSparks(tipPos, Projectile.rotation.ToRotationVector2(), 2, 4f);
 
-            // Music notes scatter (Phase 2 / Heroic Finale)
-            if (_comboStep >= 2 && Progression > 0.35f && Progression < 0.75f && Main.rand.NextBool(6))
-            {
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-2f, -0.5f));
-                Color noteColor = GetHeroicGradient(Main.rand.NextFloat());
-                ValorParticleHandler.SpawnParticle(new SakuraNoteParticle(
-                    tipPos + Main.rand.NextVector2Circular(20f, 20f), noteVel,
-                    noteColor, Main.rand.NextFloat(0.3f, 0.6f), Main.rand.Next(40, 70)));
-            }
+            // Hero's Resolve: extra rising embers
+            if (heroResolve && Main.rand.NextBool(2))
+                EroicaVFXLibrary.SpawnHeroicAura(player.Center, 35f);
 
-            // Heroic bloom pulse at swing peak
-            if (_comboStep == 2 && Math.Abs(Progression - 0.55f) < 0.02f)
-            {
-                ValorParticleHandler.SpawnParticle(new HeroicBloomParticle(
-                    tipPos, Vector2.Zero, GoldenFlare, 0.8f, 30));
-                ValorParticleHandler.SpawnParticle(new HeroicBloomParticle(
-                    Owner.MountedCenter, Vector2.Zero, ScarletEmber, 1.2f, 40));
-            }
+            // Dynamic lighting
+            EroicaVFXLibrary.AddPaletteLighting(tipPos, 0.3f + phase * 0.15f, 0.7f + phase * 0.1f);
         }
 
-        private void SpawnComboProjectiles()
+        private void SpawnPhaseProjectiles(Player player, Vector2 tipPos, int phase)
         {
             if (Main.myPlayer != Projectile.owner) return;
 
-            // Phase 0: 1 projectile at 55%
-            if (_comboStep == 0 && Math.Abs(Timer - SwingTime * 0.55f) < 1f)
+            Vector2 aimDir = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX);
+
+            switch (phase)
             {
-                Vector2 tipPos = Owner.MountedCenter + SwordDirection * BladeLength * Projectile.scale;
-                Projectile.NewProjectile(Projectile.GetSource_FromAI(), tipPos,
-                    SwordDirection.SafeNormalize(Vector2.UnitX) * 14f,
-                    ModContent.ProjectileType<CelestialValorProjectile>(),
-                    (int)(Projectile.damage * 0.88f), 3f, Projectile.owner);
-            }
+                case 1: // Ascending Valor: 1 ValorBeam
+                    Projectile.NewProjectile(Projectile.GetSource_FromThis(), player.Center, aimDir * 14f,
+                        ModContent.ProjectileType<ValorBeam>(), (int)(Projectile.damage * 0.5f),
+                        Projectile.knockBack * 0.5f, Projectile.owner);
+                    SoundEngine.PlaySound(SoundID.Item60 with { Pitch = 0.1f, Volume = 0.6f }, player.Center);
+                    break;
 
-            // Phase 1: 2 projectiles with spread at 50%
-            if (_comboStep == 1 && Math.Abs(Timer - SwingTime * 0.50f) < 1f)
-            {
-                Vector2 tipPos = Owner.MountedCenter + SwordDirection * BladeLength * Projectile.scale;
-                Vector2 dir = SwordDirection.SafeNormalize(Vector2.UnitX);
-                float spread = MathHelper.ToRadians(9f);
-                for (int i = -1; i <= 1; i += 2)
-                {
-                    Projectile.NewProjectile(Projectile.GetSource_FromAI(), tipPos,
-                        dir.RotatedBy(spread * i) * 14.5f,
-                        ModContent.ProjectileType<CelestialValorProjectile>(),
-                        (int)(Projectile.damage * 0.88f), 3f, Projectile.owner);
-                }
-            }
-
-            // Phase 2: 3 projectiles in fan at 58%
-            if (_comboStep == 2 && Math.Abs(Timer - SwingTime * 0.58f) < 1f)
-            {
-                Vector2 tipPos = Owner.MountedCenter + SwordDirection * BladeLength * Projectile.scale;
-                Vector2 dir = SwordDirection.SafeNormalize(Vector2.UnitX);
-                float spread = MathHelper.ToRadians(13f);
-                for (int i = -1; i <= 1; i++)
-                {
-                    Projectile.NewProjectile(Projectile.GetSource_FromAI(), tipPos,
-                        dir.RotatedBy(spread * i) * 15.5f,
-                        ModContent.ProjectileType<CelestialValorProjectile>(),
-                        (int)(Projectile.damage * 0.95f), 4.5f, Projectile.owner);
-                }
-                SoundEngine.PlaySound(SoundID.Item70 with { Pitch = -0.4f, Volume = 0.5f }, tipPos);
-            }
-        }
-
-        #endregion
-
-        #region Valor Dash (Special Attack) Behavior
-
-        public void DoBehavior_ValorDash()
-        {
-            Owner.mount?.Dismount(Owner);
-            Owner.RemoveAllGrapplingHooks();
-
-            if (DashProgression == 0)
-            {
-                // Sound cue before dash
-                if (Projectile.timeLeft == 1 + (int)(SwingTime * DashPercentage))
-                    SoundEngine.PlaySound(SoundID.Item66 with { Volume = 0.7f, Pitch = 0.2f }, Projectile.Center);
-
-                Projectile.velocity = Owner.MountedCenter.DirectionTo(Main.MouseWorld);
-                Projectile.oldPos = new Vector2[Projectile.oldPos.Length];
-                for (int i = 0; i < Projectile.oldPos.Length; ++i)
-                    Projectile.oldPos[i] = Projectile.position;
-            }
-            else
-            {
-                // Gentle course correction during dash
-                float correctionStrength = MathHelper.PiOver4 * 0.04f * (float)Math.Pow(DashProgression, 3);
-                float currentRotation = Projectile.velocity.ToRotation();
-                float idealRotation = Owner.MountedCenter.DirectionTo(Main.MouseWorld).ToRotation();
-                Projectile.velocity = currentRotation.AngleTowards(idealRotation, correctionStrength).ToRotationVector2();
-
-                Owner.fallStart = (int)(Owner.position.Y / 16f);
-
-                float velocityPower = (float)Math.Sin(MathHelper.Pi * DashProgression);
-                velocityPower = (float)Math.Pow(Math.Abs(velocityPower), 0.6f);
-                Vector2 newVelocity = Projectile.velocity * DashSpeed * (0.2f + 0.8f * velocityPower);
-                Owner.velocity = newVelocity;
-                Owner.CelestialValor().IsLunging = true;
-
-                // Heroic ember dust during dash
-                if (Main.rand.NextBool())
-                {
-                    Dust d = Dust.NewDustPerfect(Owner.MountedCenter + Main.rand.NextVector2Circular(20f, 20f),
-                        ModContent.DustType<HeroicEmberDust>(), SwordDirection * -2.6f);
-                    d.scale = 0.5f;
-                    d.noGravity = true;
-                }
-
-                // Heroic ember particles during dash
-                if (Main.rand.NextBool(4) && DashProgression < 0.85f && !Main.dedServ)
-                {
-                    Vector2 particleSpeed = SwordDirection * -1 * Main.rand.NextFloat(5f, 9f);
-                    ValorParticleHandler.SpawnParticle(new HeroicEmberParticle(
-                        Owner.MountedCenter + Main.rand.NextVector2Circular(20f, 20f) + Owner.velocity * 4,
-                        particleSpeed, Color.Lerp(ScarletEmber, GoldenFlare, Main.rand.NextFloat()),
-                        Main.rand.NextFloat(0.3f, 0.6f), 30));
-                }
-
-                // Valor sparks trailing the dash
-                if (Main.rand.NextBool(5) && !Main.dedServ)
-                {
-                    Vector2 sparkSpeed = SwordDirection * -1 * Main.rand.NextFloat(6f, 10f);
-                    ValorParticleHandler.SpawnParticle(new ValorSparkParticle(
-                        Owner.MountedCenter + Main.rand.NextVector2Circular(30f, 30f),
-                        sparkSpeed, Color.Lerp(Color.White, GoldenFlare, 0.5f),
-                        Main.rand.NextFloat(0.4f, 0.7f), 20));
-                }
-
-                // Heroic light along dash path
-                Lighting.AddLight(Owner.MountedCenter, GoldenFlare.ToVector3() * 0.8f);
-            }
-
-            // Stop the dash on last frame
-            if (Projectile.timeLeft == 1)
-                Owner.velocity *= 0.15f;
-
-            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver4 * Direction;
-        }
-
-        #endregion
-
-        #region Trail Width/Color Functions
-
-        public float SlashWidthFunction(float completionRatio)
-        {
-            float squish = SquishAtProgress(RealProgressionAtTrailCompletion(completionRatio));
-            return squish * Projectile.scale * 55f * _phaseIntensity;
-        }
-
-        public Color SlashColorFunction(float completionRatio)
-        {
-            float fade = Utils.GetLerpValue(0.9f, 0.35f, completionRatio, true);
-            Color baseColor = Color.Lerp(ScarletEmber, GoldenFlare, completionRatio * 0.6f + _phaseIntensity * 0.2f);
-            baseColor.A = 0; // Additive-ready
-            return baseColor * fade * Projectile.Opacity;
-        }
-
-        public float GlowWidthFunction(float completionRatio) =>
-            SlashWidthFunction(completionRatio) * 1.5f;
-
-        public Color GlowColorFunction(float completionRatio)
-        {
-            float fade = Utils.GetLerpValue(0.95f, 0.3f, completionRatio, true);
-            Color glowColor = Color.Lerp(BlackSmoke, ScarletEmber, completionRatio * 0.5f);
-            glowColor.A = 0;
-            return glowColor * fade * 0.5f * Projectile.Opacity;
-        }
-
-        public float DashWidthFunction(float completionRatio)
-        {
-            float width = Utils.GetLerpValue(0f, 0.2f, completionRatio, true) * Projectile.scale * 45f;
-            width *= (1 - (float)Math.Pow(DashProgression, 5));
-            return width;
-        }
-
-        public Color DashColorFunction(float completionRatio)
-        {
-            Color c = Color.Lerp(GoldenFlare, ScarletEmber, completionRatio * 0.5f);
-            c.A = 0;
-            return c * Projectile.Opacity;
-        }
-
-        #endregion
-
-        #region Slash Point Generation
-
-        public List<Vector2> GenerateSlashPoints()
-        {
-            List<Vector2> result = new();
-            for (int i = 0; i < 40; i++)
-            {
-                float progress = MathHelper.Lerp(Progression, TrailEndProgression, i / 40f);
-                result.Add(DirectionAtProgressSmoothed(progress) * (BladeLength - 6f) * Projectile.scale);
-            }
-            return result;
-        }
-
-        #endregion
-
-        #region Rendering
-
-        public override bool PreDraw(ref Color lightColor)
-        {
-            if (Projectile.Opacity <= 0f || InPostDashStasis)
-                return false;
-
-            DrawHeroicGlow();
-            DrawHeroicTrail();
-            DrawDashTrail();
-            DrawBlade();
-            DrawEmberBloom();
-            return false;
-        }
-
-        /// <summary>Layer 1: Wide, soft scarlet-gold bloom underlayer via ValorFlare shader.</summary>
-        public void DrawHeroicGlow()
-        {
-            if (State != SwingState.Swinging || Progression < 0.4f)
-                return;
-
-            Main.spriteBatch.EnterShaderRegion(BlendState.Additive);
-
-            var shader = GameShaders.Misc[ValorShaderLoader.ValorFlareKey];
-            _noiseTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/NoiseSmoke");
-
-            shader.UseImage1(_noiseTexture);
-            shader.UseColor(ScarletEmber);
-            shader.UseSecondaryColor(GoldenFlare);
-            shader.Shader.Parameters["uTime"]?.SetValue(Main.GlobalTimeWrappedHourly * 1.5f);
-            shader.Shader.Parameters["uIntensity"]?.SetValue(_phaseIntensity);
-            shader.Shader.Parameters["uOpacity"]?.SetValue(0.6f * _phaseIntensity);
-            shader.Shader.Parameters["uOverbrightMult"]?.SetValue(2.0f + _phaseIntensity);
-            shader.Apply();
-
-            // Generate trail positions offset to world space for the renderer
-            var localPoints = GenerateSlashPoints();
-            Vector2[] worldPositions = new Vector2[localPoints.Count];
-            for (int i = 0; i < localPoints.Count; i++)
-                worldPositions[i] = Projectile.Center + localPoints[i];
-
-            ValorTrailRenderer.RenderTrail(worldPositions, new ValorTrailSettings(
-                GlowWidthFunction, GlowColorFunction, smoothen: true, shader: shader), 40);
-
-            Main.spriteBatch.ExitShaderRegion();
-        }
-
-        /// <summary>Layer 2: Core heroic trail with scarlet-gold flame gradient.</summary>
-        public void DrawHeroicTrail()
-        {
-            if (State != SwingState.Swinging || Progression < 0.42f)
-                return;
-
-            Main.spriteBatch.EnterShaderRegion();
-
-            var shader = GameShaders.Misc[ValorShaderLoader.HeroicTrailKey];
-            _noiseTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/NoiseSmoke");
-
-            shader.UseImage1(_noiseTexture);
-            shader.UseColor(ScarletEmber);
-            shader.UseSecondaryColor(GoldenFlare);
-            shader.Shader.Parameters["uTime"]?.SetValue(Main.GlobalTimeWrappedHourly * 2f);
-            shader.Shader.Parameters["uIntensity"]?.SetValue(_phaseIntensity);
-            shader.Shader.Parameters["uOpacity"]?.SetValue(1.0f);
-            shader.Shader.Parameters["uOverbrightMult"]?.SetValue(2.5f + _phaseIntensity * 0.5f);
-            shader.Apply();
-
-            var localPoints = GenerateSlashPoints();
-            Vector2[] worldPositions = new Vector2[localPoints.Count];
-            for (int i = 0; i < localPoints.Count; i++)
-                worldPositions[i] = Projectile.Center + localPoints[i];
-
-            ValorTrailRenderer.RenderTrail(worldPositions, new ValorTrailSettings(
-                SlashWidthFunction, SlashColorFunction, smoothen: true, shader: shader), 40);
-
-            Main.spriteBatch.ExitShaderRegion();
-        }
-
-        /// <summary>Layer 3: Dash trail using trailing positions.</summary>
-        public void DrawDashTrail()
-        {
-            if (State != SwingState.ValorDash)
-                return;
-
-            Main.spriteBatch.EnterShaderRegion(BlendState.Additive);
-
-            var shader = GameShaders.Misc[ValorShaderLoader.ValorFlareKey];
-            _noiseTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/NoiseSmoke");
-
-            Color mainColor = Color.Lerp(GoldenFlare, ScarletEmber,
-                (float)Math.Sin(Main.GlobalTimeWrappedHourly * 3f) * 0.5f + 0.5f);
-            Color secondaryColor = Color.Lerp(ScarletEmber, WhiteFlash,
-                (float)Math.Cos(Main.GlobalTimeWrappedHourly * 3f) * 0.5f + 0.5f);
-
-            shader.UseImage1(_noiseTexture);
-            shader.UseColor(mainColor);
-            shader.UseSecondaryColor(secondaryColor);
-            shader.Shader.Parameters["uTime"]?.SetValue(Main.GlobalTimeWrappedHourly * 2f);
-            shader.Shader.Parameters["uIntensity"]?.SetValue(0.8f);
-            shader.Shader.Parameters["uOpacity"]?.SetValue(0.9f);
-            shader.Shader.Parameters["uOverbrightMult"]?.SetValue(2.5f);
-            shader.Apply();
-
-            var positionsToUse = Projectile.oldPos.Take(50).ToArray();
-
-            ValorTrailRenderer.RenderTrail(positionsToUse, new ValorTrailSettings(
-                DashWidthFunction, DashColorFunction, smoothen: true, shader: shader), 25);
-
-            Main.spriteBatch.ExitShaderRegion();
-        }
-
-        /// <summary>Layer 4: Blade sprite with rotation + lens flare crosses at tip.</summary>
-        public void DrawBlade()
-        {
-            var texture = Terraria.GameContent.TextureAssets.Projectile[Type].Value;
-            SpriteEffects direction = Direction == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-
-            if (State == SwingState.Swinging)
-            {
-                // Draw blade sprite directly with rotation
-                float rotation = SwordRotation + MathHelper.PiOver4;
-                Vector2 origin = new Vector2(0, texture.Height);
-
-                if (Direction == -1)
-                {
-                    rotation += MathHelper.PiOver2;
-                    origin.X = texture.Width;
-                }
-
-                Vector2 drawPosition = Owner.MountedCenter - Main.screenPosition;
-
-                Main.EntitySpriteDraw(texture, drawPosition, null,
-                    Color.White, rotation, origin, SquishVector * 2.8f * Projectile.scale, direction, 0);
-
-                // Additive energy glow copies in heroic scarlet-gold
-                float energyPower = Utils.GetLerpValue(0.2f, 0.4f, Progression, true) *
-                    Utils.GetLerpValue(0.9f, 0.75f, Progression, true) * _phaseIntensity;
-                if (energyPower > 0)
-                {
-                    Main.spriteBatch.End();
-                    Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
-                        Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null,
-                        Main.GameViewMatrix.TransformationMatrix);
-
-                    for (int i = 0; i < 4; i++)
+                case 2: // Crimson Legion: 3 ValorBeams in spread
+                    for (int i = -1; i <= 1; i++)
                     {
-                        Vector2 drawOffset = (MathHelper.TwoPi * i / 4f + SwordRotation).ToRotationVector2() *
-                            energyPower * Projectile.scale * 6f;
-                        Color glowColor = Color.Lerp(ScarletEmber, GoldenFlare, i / 3f);
-                        glowColor.A = 0;
-                        Main.EntitySpriteDraw(texture, drawPosition + drawOffset, null,
-                            glowColor * 0.14f, rotation, origin, SquishVector * 2.8f * Projectile.scale, direction, 0);
+                        Vector2 dir = aimDir.RotatedBy(i * 0.18f) * 15f;
+                        Projectile.NewProjectile(Projectile.GetSource_FromThis(), player.Center, dir,
+                            ModContent.ProjectileType<ValorBeam>(), (int)(Projectile.damage * 0.35f),
+                            Projectile.knockBack * 0.3f, Projectile.owner);
                     }
+                    SoundEngine.PlaySound(SoundID.Item71 with { Pitch = 0.2f, Volume = 0.5f }, player.Center);
+                    break;
 
-                    Main.spriteBatch.End();
-                    Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                        Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null,
-                        Main.GameViewMatrix.TransformationMatrix);
-                }
-
-                // === LENS FLARE AT BLADE TIP ===
-                _lensFlare ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/ThinTall4PointedStar");
-                Texture2D shineTex = _lensFlare.Value;
-                Vector2 shineScale = new Vector2(1f, 2.5f);
-
-                float flareOpacity = (Progression < 0.25f ? 0f :
-                    0.15f + 0.85f * (float)Math.Sin(MathHelper.Pi * (Progression - 0.25f) / 0.75f))
-                    * 0.5f * _phaseIntensity;
-                Color flareColor = Color.Lerp(ScarletEmber, GoldenFlare, (float)Math.Pow(Progression, 2));
-                flareColor.A = 0;
-
-                Vector2 tipDrawPos = Owner.MountedCenter + DirectionAtProgressSmoothed(Progression) *
-                    Projectile.scale * BladeLength - Main.screenPosition;
-
-                Main.EntitySpriteDraw(shineTex, tipDrawPos, null,
-                    flareColor * flareOpacity, MathHelper.PiOver2,
-                    shineTex.Size() / 2f, shineScale * Projectile.scale, 0, 0);
-
-                // Cross-star
-                Main.EntitySpriteDraw(shineTex, tipDrawPos, null,
-                    flareColor * flareOpacity * 0.6f, 0f,
-                    shineTex.Size() / 2f, shineScale * Projectile.scale * 0.7f, 0, 0);
-            }
-            else
-            {
-                // During Valor Dash: standard sprite draw with energy glow copies
-                float rotation = BaseRotation + MathHelper.PiOver4;
-                Vector2 origin = new Vector2(0, texture.Height);
-                Vector2 drawPosition = Projectile.Center + Projectile.velocity * Projectile.scale * DashDisplace - Main.screenPosition;
-
-                if (Direction == -1)
-                {
-                    rotation += MathHelper.PiOver2;
-                    origin.X = texture.Width;
-                }
-
-                Projectile.scale = MathHelper.Lerp(1f, 0.25f, MathF.Pow(DashProgression, 6));
-
-                Main.EntitySpriteDraw(texture, drawPosition, null, Color.White, rotation, origin, Projectile.scale, direction, 0);
-
-                // Additive energy glow (golden heroic fire)
-                float energyPower = Utils.GetLerpValue(0f, 0.3f, Progression, true) *
-                    Utils.GetLerpValue(1f, 0.85f, Progression, true);
-                for (int i = 0; i < 4; i++)
-                {
-                    Vector2 drawOffset = (MathHelper.TwoPi * i / 4f + BaseRotation).ToRotationVector2() * energyPower * Projectile.scale * 6f;
-                    Color glowColor = Color.Lerp(GoldenFlare, ScarletEmber, Progression);
-                    glowColor.A = 0;
-                    Main.spriteBatch.Draw(texture, drawPosition + drawOffset, null,
-                        glowColor * 0.14f, rotation, origin, Projectile.scale, direction, 0);
-                }
+                case 3: // Finale Fortissimo: ValorBoom AoE
+                    float boomScale = valorGauge >= 95f ? 2f : 1f;
+                    Projectile.NewProjectile(Projectile.GetSource_FromThis(), tipPos, Vector2.Zero,
+                        ModContent.ProjectileType<ValorBoom>(), (int)(Projectile.damage * 0.7f * boomScale),
+                        Projectile.knockBack, Projectile.owner);
+                    SoundEngine.PlaySound(SoundID.Item62 with { Pitch = -0.3f }, player.Center);
+                    break;
             }
         }
 
-        /// <summary>Layer 5: Soft ember bloom overlay at blade tip (Phase 1+).</summary>
-        public void DrawEmberBloom()
+        private void OnPhaseEnd(Player player, Vector2 tipPos, int phase)
         {
-            if (State != SwingState.Swinging || _comboStep < 1 || Progression < 0.3f || Progression > 0.85f)
-                return;
+            EroicaVFXLibrary.MeleeImpact(tipPos, phase);
 
-            _bloomCircle ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
-            Texture2D bloom = _bloomCircle.Value;
+            if (phase == 3)
+            {
+                float slamIntensity = valorGauge >= 95f ? 1.5f : 1f;
+                EroicaVFXLibrary.FinisherSlam(tipPos, slamIntensity);
 
-            Vector2 tipPos = Owner.MountedCenter + DirectionAtProgressSmoothed(Progression) *
-                Projectile.scale * BladeLength - Main.screenPosition;
-
-            float bloomScale = 0.4f + 0.3f * _phaseIntensity;
-            float bloomOpacity = (float)Math.Sin(MathHelper.Pi * (Progression - 0.3f) / 0.55f) * 0.5f * _phaseIntensity;
-
-            // Inner: bright golden flare
-            Color innerColor = GoldenFlare;
-            innerColor.A = 0;
-            Main.spriteBatch.Draw(bloom, tipPos, null, innerColor * bloomOpacity,
-                SwordRotation, bloom.Size() / 2f, bloomScale * 0.5f * Projectile.scale, SpriteEffects.None, 0f);
-
-            // Outer: soft scarlet
-            Color outerColor = ScarletEmber;
-            outerColor.A = 0;
-            Main.spriteBatch.Draw(bloom, tipPos, null, outerColor * bloomOpacity * 0.4f,
-                SwordRotation, bloom.Size() / 2f, bloomScale * Projectile.scale, SpriteEffects.None, 0f);
+                if (valorGauge >= 95f) // Gloria!
+                {
+                    EroicaVFXLibrary.DeathHeroicFlash(tipPos, 1.2f);
+                    EroicaVFXLibrary.SpawnSakuraPetals(tipPos, 18, 90f);
+                    EroicaVFXLibrary.MusicNoteBurst(tipPos, EroicaPalette.Gold, 12, 6f);
+                    valorGauge = 0f;
+                }
+            }
+            else if (phase == 1)
+            {
+                EroicaVFXLibrary.Shockwave(tipPos, 0.5f);
+            }
         }
 
         #endregion
@@ -925,144 +241,132 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            ItemLoader.OnHitNPC(Owner.HeldItem, Owner, target, hit, damageDone);
-            NPCLoader.OnHitByItem(target, Owner, Owner.HeldItem, hit, damageDone);
-            PlayerLoader.OnHitNPC(Owner, target, hit, damageDone);
-
-            // Apply MusicsDissonance + HeroicBurn debuffs
             target.AddBuff(ModContent.BuffType<MusicsDissonance>(), 240);
             target.AddBuff(ModContent.BuffType<HeroicBurn>(), 180);
+            target.AddBuff(ModContent.BuffType<ValorStagger>(), 90);
 
-            // === VALOR DASH HIT ===
-            if (State == SwingState.ValorDash)
+            valorGauge = Math.Min(100f, valorGauge + 14f);
+
+            int phase = (int)MathHelper.Clamp(ComboPhase, 0, 3);
+            EroicaVFXLibrary.MeleeImpact(target.Center, phase);
+
+            // Hero's Resolve bonus sparks
+            Player player = Main.player[Projectile.owner];
+            if (player.statLife < player.statLifeMax2 * 0.3f)
             {
-                Owner.itemAnimation = 0;
-                Owner.velocity = Owner.SafeDirectionTo(target.Center) * -ReboundSpeed;
-                Projectile.timeLeft = EmpoweredOpportunity + DashCooldown;
-                InPostDashStasis = true;
-                Projectile.netUpdate = true;
-
-                SoundEngine.PlaySound(SoundID.Item125 with { Volume = 0.8f }, target.Center);
-
-                // Apply stagger
-                target.AddBuff(ModContent.BuffType<ValorStagger>(), 90);
-
-                // Spawn cross-slash VFX at target
-                if (Main.myPlayer == Projectile.owner)
-                {
-                    int slashDamage = (int)(Projectile.damage * 0.6f);
-                    for (int i = 0; i < 3; i++)
-                    {
-                        int proj = Projectile.NewProjectile(Projectile.GetSource_FromAI(),
-                            target.Center, Projectile.velocity * 0.05f,
-                            ModContent.ProjectileType<ValorSlashCreator>(),
-                            slashDamage, 0f, Projectile.owner, target.whoAmI);
-                        if (Main.projectile.IndexInRange(proj))
-                            Main.projectile[proj].timeLeft -= i * 5;
-                    }
-                }
-
-                // Impact particles
-                if (!Main.dedServ)
-                {
-                    for (int i = 0; i < 8; i++)
-                    {
-                        Vector2 sparkVel = Main.rand.NextVector2Unit() * Main.rand.NextFloat(5f, 12f);
-                        ValorParticleHandler.SpawnParticle(new ValorSparkParticle(
-                            target.Center, sparkVel,
-                            Color.Lerp(Color.White, GoldenFlare, Main.rand.NextFloat()),
-                            Main.rand.NextFloat(0.5f, 1f), 20));
-                    }
-
-                    ValorParticleHandler.SpawnParticle(new HeroicBloomParticle(
-                        target.Center, Vector2.Zero, GoldenFlare, 1f, 25));
-                }
+                EroicaVFXLibrary.SpawnDirectionalSparks(target.Center,
+                    (target.Center - player.Center).SafeNormalize(Vector2.UnitX), 5, 7f);
             }
+        }
 
-            // === EMPOWERED HEROIC FINALE HIT ===
-            if (State == SwingState.Swinging && PerformingEmpoweredFinale &&
-                Owner.ownedProjectileCounts[ModContent.ProjectileType<ValorBoom>()] < 1)
-            {
-                SoundEngine.PlaySound(SoundID.Item70 with { Pitch = -0.2f }, Projectile.Center);
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+        {
+            // Hero's Resolve: +25% damage below 30% HP
+            Player player = Main.player[Projectile.owner];
+            if (player.statLife < player.statLifeMax2 * 0.3f)
+                modifiers.FinalDamage *= 1.25f;
 
-                if (Main.myPlayer == Projectile.owner)
-                {
-                    int boomDamage = (int)(Projectile.damage * FinisherDamageFactor);
-                    Projectile.NewProjectile(Projectile.GetSource_FromAI(),
-                        target.Center, Vector2.Zero,
-                        ModContent.ProjectileType<ValorBoom>(),
-                        boomDamage, 0f, Projectile.owner);
-                }
-
-                // Lifesteal on empowered hit
-                Owner.DoLifestealDirect(target, (int)Math.Round(hit.Damage * 0.05));
-
-                // Massive impact VFX
-                if (!Main.dedServ)
-                {
-                    // Triple bloom burst (gold to scarlet to black)
-                    ValorParticleHandler.SpawnParticle(new HeroicBloomParticle(
-                        target.Center, Vector2.Zero, WhiteFlash, 1.5f, 35));
-                    ValorParticleHandler.SpawnParticle(new HeroicBloomParticle(
-                        target.Center, Vector2.Zero, GoldenFlare, 2f, 40));
-                    ValorParticleHandler.SpawnParticle(new HeroicBloomParticle(
-                        target.Center, Vector2.Zero, ScarletEmber, 2.5f, 50));
-
-                    // Valor spark explosion
-                    for (int i = 0; i < 16; i++)
-                    {
-                        Vector2 sparkVel = Main.rand.NextVector2Unit() * Main.rand.NextFloat(6f, 14f);
-                        ValorParticleHandler.SpawnParticle(new ValorSparkParticle(
-                            target.Center, sparkVel,
-                            Color.Lerp(Color.White, GoldenFlare, Main.rand.NextFloat()),
-                            Main.rand.NextFloat(0.6f, 1.2f),
-                            Main.rand.Next(18, 30)));
-                    }
-
-                    // Music note cascade
-                    for (int i = 0; i < 6; i++)
-                    {
-                        Vector2 noteVel = new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-3f, -1f));
-                        ValorParticleHandler.SpawnParticle(new SakuraNoteParticle(
-                            target.Center + Main.rand.NextVector2Circular(30f, 30f),
-                            noteVel, GetHeroicGradient(Main.rand.NextFloat()),
-                            Main.rand.NextFloat(0.4f, 0.8f), Main.rand.Next(50, 80)));
-                    }
-
-                    // Heavy heroic smoke
-                    for (int i = 0; i < 8; i++)
-                    {
-                        Vector2 smokeVel = Main.rand.NextVector2Unit() * Main.rand.NextFloat(1f, 3f);
-                        ValorParticleHandler.SpawnParticle(new HeroicSmokeParticle(
-                            target.Center + Main.rand.NextVector2Circular(40f, 40f),
-                            smokeVel, Color.Lerp(ScarletEmber, BlackSmoke, Main.rand.NextFloat()),
-                            Main.rand.NextFloat(0.3f, 0.6f), Main.rand.Next(60, 100)));
-                    }
-                }
-            }
-
-            // === SEEKING CRYSTALS ON CRIT (all phases) ===
-            if (hit.Crit && Main.myPlayer == Projectile.owner)
-            {
-                SeekingCrystalHelper.SpawnEroicaCrystals(
-                    Projectile.GetSource_FromAI(),
-                    target.Center,
-                    (Main.MouseWorld - target.Center).SafeNormalize(Vector2.UnitX) * 8f,
-                    (int)(Projectile.damage * 0.25f),
-                    Projectile.knockBack * 0.5f,
-                    Projectile.owner,
-                    3 + _comboStep * 2); // 3/5/7 crystals by phase
-            }
+            // Scale damage with combo phase
+            int phase = (int)MathHelper.Clamp(ComboPhase, 0, 3);
+            modifiers.FinalDamage *= 1f + phase * 0.08f;
         }
 
         #endregion
 
-        #region On Kill
+        #region Rendering
 
-        public override void OnKill(int timeLeft)
+        public override bool PreDraw(ref Color lightColor)
         {
-            Owner.fullRotation = 0f;
-            Owner.CelestialValor().IsLunging = false;
+            SpriteBatch sb = Main.spriteBatch;
+            Player player = Main.player[Projectile.owner];
+
+            Texture2D bladeTex = TextureAssets.Item[ModContent.ItemType<CelestialValor>()].Value;
+            Vector2 bladeOrigin = new Vector2(0, bladeTex.Height);
+            float bladeScale = 1.15f;
+            SpriteEffects flip = swingDirection > 0 ? SpriteEffects.None : SpriteEffects.FlipVertically;
+
+            int phase = (int)MathHelper.Clamp(ComboPhase, 0, 3);
+            float intensity = 0.6f + phase * 0.15f;
+            bool heroResolve = player.statLife < player.statLifeMax2 * 0.3f;
+            if (heroResolve) intensity += 0.2f;
+
+            Vector2 playerDraw = player.Center - Main.screenPosition;
+            float drawBaseRot = swingRotation + (swingDirection > 0 ? -MathHelper.PiOver4 : MathHelper.PiOver4 + MathHelper.Pi);
+
+            // ── Layer 1: Afterimage trail ──
+            DrawAfterimages(sb, bladeTex, bladeOrigin, bladeScale, flip, playerDraw, phase, drawBaseRot);
+
+            // ── Layer 2: Main blade sprite ──
+            Color bladeTint = Color.Lerp(lightColor, EroicaVFXLibrary.GetPaletteColor(0.35f + phase * 0.12f), 0.3f);
+            sb.Draw(bladeTex, playerDraw, null, bladeTint, drawBaseRot, bladeOrigin, bladeScale, flip, 0f);
+
+            // Inner glow layer on blade
+            Color bladeGlow = EroicaVFXLibrary.GetPaletteColor(0.5f + phase * 0.1f) with { A = 0 };
+            sb.Draw(bladeTex, playerDraw, null, bladeGlow * 0.3f, drawBaseRot, bladeOrigin, bladeScale * 1.03f, flip, 0f);
+
+            // ── Layer 3: Bloom at blade tip ──
+            DrawBladeTipBloom(sb, player, phase, intensity);
+
+            // ── Layer 4: Valor gauge aura ──
+            if (valorGauge > 40f)
+                DrawValorAura(sb, player);
+
+            return false;
+        }
+
+        private void DrawAfterimages(SpriteBatch sb, Texture2D tex, Vector2 origin, float scale,
+            SpriteEffects flip, Vector2 playerDraw, int phase, float currentDrawRot)
+        {
+            int count = 4 + phase;
+
+            for (int i = 0; i < count && i < MaxAfterimages; i++)
+            {
+                int idx = (afterimageHead - 2 - i + MaxAfterimages) % MaxAfterimages;
+                float rot = afterimageRotations[idx];
+                float drawRot = rot + (swingDirection > 0 ? -MathHelper.PiOver4 : MathHelper.PiOver4 + MathHelper.Pi);
+
+                float fade = 1f - (float)(i + 1) / (count + 1);
+                fade *= fade;
+
+                float paletteT = 0.25f + phase * 0.12f + i * 0.06f;
+                Color col = EroicaVFXLibrary.GetPaletteColor(paletteT) * (fade * 0.35f);
+                col.A = 0;
+
+                float afterScale = scale * (1f - i * 0.025f);
+                sb.Draw(tex, playerDraw, null, col, drawRot, origin, afterScale, flip, 0f);
+            }
+        }
+
+        private void DrawBladeTipBloom(SpriteBatch sb, Player player, int phase, float intensity)
+        {
+            float bladeLen = 95f;
+            Vector2 tipPos = player.Center + swingRotation.ToRotationVector2() * bladeLen;
+
+            EroicaVFXLibrary.DrawEroicaBloomStack(sb, tipPos,
+                EroicaPalette.DeepScarlet, EroicaPalette.Gold,
+                0.28f + phase * 0.07f, intensity);
+
+            // Counter-rotating flares on phase 2+
+            if (phase >= 2)
+            {
+                EroicaVFXLibrary.DrawCounterRotatingFlares(sb, tipPos,
+                    0.22f + phase * 0.04f, (float)Main.GameUpdateCount * 0.05f, intensity * 0.6f);
+            }
+        }
+
+        private void DrawValorAura(SpriteBatch sb, Player player)
+        {
+            float ratio = valorGauge / 100f;
+            Texture2D bloom = MagnumTextureRegistry.GetBloom();
+            if (bloom == null) return;
+
+            Vector2 drawPos = player.Center - Main.screenPosition;
+            Vector2 bloomOrigin = bloom.Size() * 0.5f;
+            float pulse = 0.85f + MathF.Sin((float)Main.GameUpdateCount * 0.08f) * 0.15f;
+
+            Color glowCol = Color.Lerp(EroicaPalette.Scarlet, EroicaPalette.Gold, ratio) with { A = 0 };
+            sb.Draw(bloom, drawPos, null, glowCol * (0.12f * ratio * pulse), 0f, bloomOrigin,
+                1.2f * ratio, SpriteEffects.None, 0f);
         }
 
         #endregion

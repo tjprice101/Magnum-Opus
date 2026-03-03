@@ -13,9 +13,11 @@ using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Par
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
 {
     /// <summary>
-    /// PiercingBellsResonance — Ranged Gun, 165dmg, useTime 4 (rapid fire).
-    /// Scorching Staccato: sustained fire accelerates up to 60% faster.
-    /// Every 20th shot fires a Resonant Blast that spawns homing note and seeking crystal sub-projectiles.
+    /// Piercing Bell's Resonance - Precision ranged weapon.
+    /// Primary: Staccato Bullets that embed Resonant Markers on hit.
+    /// Every 4th shot also fires a Seeking Crystal homing to nearest marker'd enemy.
+    /// Alt-fire: Resonant Detonation - detonates all markers on enemies with 3+ markers.
+    /// Perfect Pitch: exactly 5 markers = 2x damage + Resonant Silence.
     /// </summary>
     public class PiercingBellsResonanceItem : ModItem
     {
@@ -28,8 +30,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
             Item.DamageType = DamageClass.Ranged;
             Item.width = 60;
             Item.height = 26;
-            Item.useTime = 4;
-            Item.useAnimation = 4;
+            Item.useTime = 12;
+            Item.useAnimation = 12;
             Item.useStyle = ItemUseStyleID.Shoot;
             Item.knockBack = 2.5f;
             Item.value = Item.sellPrice(gold: 50);
@@ -42,79 +44,131 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
             Item.autoReuse = true;
         }
 
-        public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback)
+        public override bool AltFunctionUse(Player player) => true;
+
+        public override bool CanUseItem(Player player)
         {
-            // Apply Scorching Staccato acceleration to useTime/useAnimation via shoot speed
-            var modPlayer = player.GetModPlayer<PiercingBellsResonancePlayer>();
-
-            // Slight inaccuracy spread that decreases with staccato buildup (tighter at high speed)
-            float spreadReduction = modPlayer.StaccatoSpeed * 0.5f; // 0 → 0.3 reduction
-            float maxSpread = MathHelper.ToRadians(3f * (1f - spreadReduction));
-            velocity = velocity.RotatedByRandom(maxSpread);
-
-            // Speed bonus from staccato
-            velocity *= 1f + modPlayer.StaccatoSpeed * 0.3f;
+            if (player.altFunctionUse == 2)
+            {
+                // Alt-fire: Resonant Detonation — check if any enemy has 3+ markers
+                for (int i = 0; i < Main.maxNPCs; i++)
+                {
+                    NPC npc = Main.npc[i];
+                    if (!npc.CanBeChasedBy()) continue;
+                    if (Vector2.Distance(player.Center, npc.Center) > 1200f) continue;
+                    var markers = npc.GetGlobalNPC<ResonantMarkerNPC>();
+                    if (markers.CanDetonate) return true;
+                }
+                return false; // No detonatable targets
+            }
+            return base.CanUseItem(player);
         }
 
-        public override float UseSpeedMultiplier(Player player)
+        public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback)
         {
-            var modPlayer = player.GetModPlayer<PiercingBellsResonancePlayer>();
-            return modPlayer.GetFireRateMultiplier();
+            if (player.altFunctionUse == 2)
+            {
+                // Alt-fire uses faster animation
+                Item.useTime = 25;
+                Item.useAnimation = 25;
+            }
+            else
+            {
+                Item.useTime = 12;
+                Item.useAnimation = 12;
+
+                // Small precision spread
+                velocity = velocity.RotatedByRandom(MathHelper.ToRadians(1.5f));
+            }
         }
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            var modPlayer = player.GetModPlayer<PiercingBellsResonancePlayer>();
-            bool isResonantBlast = modPlayer.RegisterShot();
-
-            // Muzzle position
             Vector2 muzzlePos = position + Vector2.Normalize(velocity) * 40f;
 
-            // Muzzle flash particles
-            float angle = velocity.ToRotation();
-            PiercingBellsParticleHandler.SpawnParticle(new MuzzleFlashParticle(
-                muzzlePos, angle, Main.rand.NextFloat(30f, 50f), Main.rand.Next(5, 10)));
-            PiercingBellsParticleHandler.SpawnParticle(new BulletTracerParticle(
-                muzzlePos + Main.rand.NextVector2Circular(4, 4),
-                velocity * 0.1f + Main.rand.NextVector2Circular(1f, 1f),
-                Main.rand.Next(10, 20)));
-
-            if (isResonantBlast)
+            if (player.altFunctionUse == 2)
             {
-                // 20th shot: Fire a resonant blast projectile instead of normal bullet
-                Projectile.NewProjectile(source, muzzlePos, velocity * 1.5f,
-                    ModContent.ProjectileType<ResonantBlastProj>(), damage * 3, knockback * 2f, player.whoAmI);
-
-                // Big muzzle flash
-                PiercingBellsParticleHandler.SpawnParticle(new ResonantBlastFlashParticle(
-                    muzzlePos, 2f, 15));
-
-                // Musical note burst from muzzle
-                for (int i = 0; i < 6; i++)
-                {
-                    Vector2 noteVel = velocity.SafeNormalize(Vector2.UnitX).RotatedByRandom(0.8f) * Main.rand.NextFloat(2f, 5f);
-                    PiercingBellsParticleHandler.SpawnParticle(new ResonantNoteParticle(
-                        muzzlePos, noteVel, Main.rand.Next(40, 70)));
-                }
-
-                // Still fire the normal bullet too
-                Projectile.NewProjectile(source, muzzlePos, velocity, type, damage, knockback, player.whoAmI);
+                // Alt-fire: Resonant Detonation — detonate markers on all enemies with 3+
+                TriggerResonantDetonation(source, player, damage, knockback);
                 return false;
             }
 
-            // Normal shot: Fire standard bullet with staccato trail projectile wrapper
+            var modPlayer = player.GetModPlayer<PiercingBellsResonancePlayer>();
+            bool isSeekingCrystalShot = modPlayer.RegisterShot();
+
+            // Muzzle flash
+            float angle = velocity.ToRotation();
+            PiercingBellsParticleHandler.SpawnParticle(new MuzzleFlashParticle(
+                muzzlePos, angle, Main.rand.NextFloat(30f, 50f), Main.rand.Next(5, 10)));
+
+            // Fire the staccato bullet (embeds marker on hit)
             Projectile.NewProjectile(source, muzzlePos, velocity,
-                ModContent.ProjectileType<StaccatoBulletProj>(), damage, knockback, player.whoAmI,
-                ai0: type); // Store original bullet type in ai[0]
+                ModContent.ProjectileType<StaccatoBulletProj>(), damage, knockback, player.whoAmI);
+
+            // Every 4th shot: also fire a Seeking Crystal
+            if (isSeekingCrystalShot)
+            {
+                Vector2 crystalVel = velocity.RotatedByRandom(0.1f) * 0.8f;
+                Projectile.NewProjectile(source, muzzlePos, crystalVel,
+                    ModContent.ProjectileType<SeekingCrystalProj>(), (int)(damage * 1.2f), knockback * 1.5f, player.whoAmI);
+
+                // Crystal launch VFX
+                for (int i = 0; i < 4; i++)
+                {
+                    Vector2 sparkVel = velocity.SafeNormalize(Vector2.UnitX).RotatedByRandom(0.5f) * Main.rand.NextFloat(2f, 4f);
+                    PiercingBellsParticleHandler.SpawnParticle(new BulletTracerParticle(
+                        muzzlePos, sparkVel, Main.rand.Next(10, 18)));
+                }
+            }
 
             return false;
         }
 
+        private void TriggerResonantDetonation(EntitySource_ItemUse_WithAmmo source, Player player, int damage, float knockback)
+        {
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (!npc.CanBeChasedBy()) continue;
+                if (Vector2.Distance(player.Center, npc.Center) > 1200f) continue;
+
+                var markers = npc.GetGlobalNPC<ResonantMarkerNPC>();
+                if (!markers.CanDetonate) continue;
+
+                int markerCount = markers.ConsumeMarkers();
+                bool perfectPitch = markerCount == 5;
+
+                // Scale damage with marker count; Perfect Pitch = 2x
+                float dmgMult = 1f + (markerCount - 3) * 0.25f; // 3=1x, 4=1.25x, 5=1.5x, 6=1.75x, etc.
+                if (perfectPitch) dmgMult = 2f;
+
+                int detonationDmg = (int)(damage * dmgMult * markerCount * 0.5f);
+
+                // Spawn Resonant Blast at enemy position
+                int proj = Projectile.NewProjectile(source, npc.Center, Vector2.Zero,
+                    ModContent.ProjectileType<ResonantBlastProj>(), detonationDmg, knockback * 2f, player.whoAmI,
+                    ai0: markerCount, ai1: perfectPitch ? 1f : 0f);
+
+                // Spawn Resonant Note landmines around detonation
+                int noteCount = Math.Min(markerCount, 6);
+                for (int n = 0; n < noteCount; n++)
+                {
+                    float noteAngle = MathHelper.TwoPi / noteCount * n + Main.rand.NextFloat(-0.2f, 0.2f);
+                    Vector2 noteVel = new Vector2((float)Math.Cos(noteAngle), (float)Math.Sin(noteAngle)) * Main.rand.NextFloat(2f, 4f);
+                    Projectile.NewProjectile(source, npc.Center, noteVel,
+                        ModContent.ProjectileType<ResonantNoteProj>(), (int)(damage * 0.4f), 1f, player.whoAmI);
+                }
+            }
+        }
+
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Sustained fire triggers Scorching Staccato, accelerating fire rate up to 60%"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Every 20th shot unleashes a resonant blast with homing notes and seeking crystals"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Each piercing note builds upon the last, until the bell's fury can no longer be contained'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Precision staccato bullets embed Resonant Markers on enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Every 4th shot fires a Seeking Crystal that homes toward marked enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Right click to trigger Resonant Detonation on enemies with 3+ markers"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Detonations spawn lingering Resonant Note landmines"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Perfect Pitch: exactly 5 markers deals double detonation damage"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A single note, perfectly placed, can shatter a fortress.'")
             {
                 OverrideColor = new Color(255, 140, 40)
             });

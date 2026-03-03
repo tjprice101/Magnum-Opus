@@ -1,173 +1,132 @@
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
-using Terraria.ID;
 using Terraria.Audio;
+using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Particles;
-using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Primitives;
 using MagnumOpus.Content.LaCampanella.Debuffs;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Projectiles
 {
     /// <summary>
-    /// Resonant Blast  Ethe powerful 20th-shot projectile.
-    /// Larger, faster, penetrating shot that on impact/expiry spawns:
-    /// - 4 homing ResonantNoteProj (music notes that seek enemies)
-    /// - 3 seeking SeekingCrystalProj (crystal shards with aura)
+    /// Resonant Blast — detonation AoE spawned at enemy position when alt-fire triggers.
+    /// ai[0] = marker count consumed, ai[1] = 1 if Perfect Pitch.
+    /// Expanding bell-shaped shockwave that damages all enemies in radius.
+    /// Perfect Pitch (exactly 5 markers): 2x damage + applies Resonant Silence (enemies can't attack for 1s).
     /// </summary>
     public class ResonantBlastProj : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow";
 
-        private List<Vector2> trailPositions = new List<Vector2>();
-        private const int MaxTrailPoints = 18;
-        private PiercingBellsPrimitiveRenderer trailRenderer;
-        private bool hasExploded;
+        private const int Duration = 30;
+        private const float BaseRadius = 120f;
+
+        private int MarkerCount => (int)Projectile.ai[0];
+        private bool IsPerfectPitch => Projectile.ai[1] > 0f;
+        private float DetonationRadius => BaseRadius + MarkerCount * 20f;
+        private bool hasDetonated;
 
         public override void SetDefaults()
         {
-            Projectile.width = 20;
-            Projectile.height = 20;
+            Projectile.width = 10;
+            Projectile.height = 10;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Ranged;
-            Projectile.penetrate = 3;
-            Projectile.timeLeft = 90;
-            Projectile.tileCollide = true;
+            Projectile.penetrate = -1;
+            Projectile.timeLeft = Duration;
+            Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
             Projectile.usesLocalNPCImmunity = true;
-            Projectile.localNPCHitCooldown = 10;
+            Projectile.localNPCHitCooldown = -1;
         }
 
         public override void AI()
         {
-            trailPositions.Insert(0, Projectile.Center);
-            if (trailPositions.Count > MaxTrailPoints)
-                trailPositions.RemoveAt(trailPositions.Count - 1);
+            int age = Duration - Projectile.timeLeft;
 
-            // Intense fire trail
-            if (Main.rand.NextBool(2))
+            // Detonate on frame 5
+            if (age == 5 && !hasDetonated)
             {
-                PiercingBellsParticleHandler.SpawnParticle(new BulletTracerParticle(
-                    Projectile.Center + Main.rand.NextVector2Circular(8, 8),
-                    -Projectile.velocity * 0.08f + Main.rand.NextVector2Circular(2f, 2f),
-                    Main.rand.Next(15, 25)));
+                hasDetonated = true;
+                float radius = DetonationRadius;
+
+                for (int i = 0; i < Main.maxNPCs; i++)
+                {
+                    NPC npc = Main.npc[i];
+                    if (!npc.CanBeChasedBy()) continue;
+                    if (Vector2.Distance(Projectile.Center, npc.Center) > radius) continue;
+
+                    int dir = Projectile.Center.X < npc.Center.X ? 1 : -1;
+                    npc.SimpleStrikeNPC(Projectile.damage, dir, false, Projectile.knockBack);
+                    npc.GetGlobalNPC<ResonantTollNPC>().AddStacks(npc, MarkerCount);
+
+                    // Perfect Pitch: Resonant Silence — stun 1s (confuse debuff as proxy)
+                    if (IsPerfectPitch)
+                    {
+                        npc.AddBuff(BuffID.Confused, 60);
+                    }
+                }
+
+                // VFX burst
+                int burstCount = IsPerfectPitch ? 18 : 10;
+                for (int i = 0; i < burstCount; i++)
+                {
+                    float angle = MathHelper.TwoPi / burstCount * i;
+                    Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(2f, 5f);
+                    PiercingBellsParticleHandler.SpawnParticle(new ResonantNoteParticle(
+                        Projectile.Center + vel * 5f, vel, Main.rand.Next(40, 70)));
+                }
+
+                PiercingBellsParticleHandler.SpawnParticle(new ResonantBlastFlashParticle(
+                    Projectile.Center, IsPerfectPitch ? 4f : 2.5f, IsPerfectPitch ? 20 : 15));
+
+                SoundEngine.PlaySound(SoundID.Item14 with { Pitch = IsPerfectPitch ? 0.5f : 0.2f, Volume = IsPerfectPitch ? 1.2f : 0.9f }, Projectile.Center);
             }
 
-            // Musical note trail
-            if (Main.rand.NextBool(6))
-            {
-                PiercingBellsParticleHandler.SpawnParticle(new ResonantNoteParticle(
-                    Projectile.Center, -Projectile.velocity * 0.03f + Main.rand.NextVector2Circular(1f, 1f),
-                    Main.rand.Next(30, 50)));
-            }
-
-            Projectile.rotation = Projectile.velocity.ToRotation();
-            Lighting.AddLight(Projectile.Center, PiercingBellsResonanceUtils.ResonancePalette[2].ToVector3() * 0.8f);
+            // Light
+            float fade = (float)Projectile.timeLeft / Duration;
+            float lightIntensity = fade * (IsPerfectPitch ? 1.2f : 0.7f);
+            Lighting.AddLight(Projectile.Center, PiercingBellsResonanceUtils.ResonancePalette[2].ToVector3() * lightIntensity);
         }
 
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 2);
-
-            // Spawn sub-projectiles on first hit
-            if (!hasExploded)
-            {
-                SpawnSubProjectiles(target.Center);
-                hasExploded = true;
-            }
-        }
-
-        public override void OnKill(int timeLeft)
-        {
-            trailRenderer?.Dispose();
-            trailRenderer = null;
-
-            if (!hasExploded)
-                SpawnSubProjectiles(Projectile.Center);
-
-            // Explosion VFX
-            PiercingBellsParticleHandler.SpawnParticle(new ResonantBlastFlashParticle(
-                Projectile.Center, 3f, 20));
-
-            for (int i = 0; i < 10; i++)
-            {
-                PiercingBellsParticleHandler.SpawnParticle(new BulletTracerParticle(
-                    Projectile.Center, Main.rand.NextVector2Circular(5f, 5f),
-                    Main.rand.Next(15, 30)));
-            }
-
-            for (int i = 0; i < 8; i++)
-            {
-                Vector2 noteVel = Main.rand.NextVector2CircularEdge(3f, 3f);
-                PiercingBellsParticleHandler.SpawnParticle(new ResonantNoteParticle(
-                    Projectile.Center, noteVel, Main.rand.Next(40, 70)));
-            }
-
-            SoundEngine.PlaySound(SoundID.Item14, Projectile.Center);
-        }
-
-        private void SpawnSubProjectiles(Vector2 center)
-        {
-            int baseDmg = Projectile.damage / 3;
-
-            // 4 homing music note projectiles
-            for (int i = 0; i < 4; i++)
-            {
-                float angle = MathHelper.TwoPi / 4f * i + Main.rand.NextFloat(-0.3f, 0.3f);
-                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 8f;
-                Projectile.NewProjectile(Projectile.GetSource_FromAI(), center, vel,
-                    ModContent.ProjectileType<ResonantNoteProj>(), baseDmg, 2f, Projectile.owner);
-            }
-
-            // 3 seeking crystal projectiles
-            for (int i = 0; i < 3; i++)
-            {
-                float angle = MathHelper.TwoPi / 3f * i + MathHelper.Pi / 6f;
-                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 6f;
-                Projectile.NewProjectile(Projectile.GetSource_FromAI(), center, vel,
-                    ModContent.ProjectileType<SeekingCrystalProj>(), (int)(baseDmg * 0.8f), 3f, Projectile.owner);
-            }
-        }
+        public override bool? CanDamage() => false; // Damage handled manually
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            var tex = ModContent.Request<Texture2D>(Texture).Value;
+            int age = Duration - Projectile.timeLeft;
+            float progress = (float)age / Duration;
+            float fade = 1f - progress;
 
-            PiercingBellsParticleHandler.DrawAllParticles(sb);
+            Vector2 screenPos = Projectile.Center - Main.screenPosition;
+            Vector2 origin = tex.Size() / 2f;
 
-            // Trail
-            if (trailPositions.Count >= 2)
+            // Expanding detonation ring
+            float ringRadius = DetonationRadius * (float)Math.Sqrt(progress);
+            float ringScale = ringRadius / (tex.Width * 0.5f);
+
+            Color ringColor = IsPerfectPitch
+                ? Color.Lerp(new Color(255, 255, 200), new Color(255, 200, 60), progress) * fade * 0.4f
+                : PiercingBellsResonanceUtils.ResonancePalette[2] * fade * 0.3f;
+            sb.Draw(tex, screenPos, null, ringColor, 0f, origin, ringScale, SpriteEffects.None, 0f);
+
+            // Inner blast core
+            if (progress < 0.4f)
             {
-                try
-                {
-                    trailRenderer ??= new PiercingBellsPrimitiveRenderer();
-                    var settings = new BulletTrailSettings
-                    {
-                        ColorStart = PiercingBellsResonanceUtils.ResonancePalette[2],
-                        ColorEnd = PiercingBellsResonanceUtils.ResonancePalette[0] * 0.3f,
-                        Width = 14f,
-                        BloomIntensity = 0.5f
-                    };
-                    trailRenderer.DrawTrail(sb, trailPositions, settings, Main.screenPosition);
-                }
-                catch { }
+                float coreFade = 1f - progress / 0.4f;
+                Color coreColor = IsPerfectPitch
+                    ? new Color(255, 255, 220) * coreFade * 0.6f
+                    : PiercingBellsResonanceUtils.ResonancePalette[3] * coreFade * 0.5f;
+                sb.Draw(tex, screenPos, null, coreColor, 0f, origin, 0.4f * coreFade, SpriteEffects.None, 0f);
             }
 
-            // Draw glowing orb core
-            var tex = ModContent.Request<Texture2D>(Texture).Value;
-            float pulse = 0.8f + (float)Math.Sin(Main.GameUpdateCount * 0.2f) * 0.2f;
-            Color coreColor = PiercingBellsResonanceUtils.ResonancePalette[3] * pulse;
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
-                coreColor, 0f, tex.Size() / 2f, 0.3f * pulse, SpriteEffects.None, 0f);
-
             // Outer glow
-            Color outerColor = PiercingBellsResonanceUtils.ResonancePalette[1] * 0.4f;
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
-                outerColor, 0f, tex.Size() / 2f, 0.5f, SpriteEffects.None, 0f);
+            Color outerColor = PiercingBellsResonanceUtils.ResonancePalette[1] * fade * 0.2f;
+            sb.Draw(tex, screenPos, null, outerColor, 0f, origin, ringScale * 1.2f, SpriteEffects.None, 0f);
 
             return false;
         }

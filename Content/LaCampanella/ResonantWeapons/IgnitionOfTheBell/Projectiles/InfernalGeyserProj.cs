@@ -2,67 +2,52 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.Graphics.Shaders;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Particles;
-using MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Primitives;
-using MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Shaders;
 using MagnumOpus.Content.LaCampanella.Debuffs;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Projectiles
 {
     /// <summary>
-    /// InfernalGeyserProj  EAlt-fire charge-release projectile.
-    /// Player channels in place, building charge visible as growing flame aura.
-    /// On release (or at max charge), fires a massive concentrated column of bell fire forward.
-    /// Deals up to 2.5x base damage at max charge. Pierces and applies heavy Resonant Toll.
+    /// InfernalGeyserProj - Ground fire pillar that erupts vertically from a point.
+    /// Spawned on-hit by Ignition Strike (full-size) and Tolling Frenzy (smaller).
+    /// ai[0] = 0 for full geyser, 1 for small variant.
+    /// Deals AoE damage in vertical column + leaves lingering fire damage.
     /// </summary>
     public class InfernalGeyserProj : ModProjectile
     {
-        #region Properties
+        private const int FullDuration = 35;
+        private const int SmallDuration = 22;
+        private const float FullHeight = 180f;
+        private const float SmallHeight = 100f;
+        private const float FullWidth = 50f;
+        private const float SmallWidth = 30f;
 
-        private const int MaxChargeTicks = 60;
-        private const int ReleaseBeamDuration = 30;
-        private const float MinDamageMult = 0.8f;
-        private const float MaxDamageMult = 2.5f;
-        private const float BeamLength = 400f;
-        private const float BeamWidth = 50f;
+        private bool IsSmall => Projectile.ai[0] >= 1f;
+        private int Duration => IsSmall ? SmallDuration : FullDuration;
+        private float GeyserHeight => IsSmall ? SmallHeight : FullHeight;
+        private float GeyserWidth => IsSmall ? SmallWidth : FullWidth;
 
-        private Player Owner => Main.player[Projectile.owner];
-
-        private enum GeyserState { Charging, Released }
-        private GeyserState _state;
-        private float _chargeTime;
-        private float _releaseTimer;
-        private float _aimAngle;
         private bool _initialized;
-        private IgnitionOfTheBellPrimitiveRenderer _trailRenderer;
-        private int _baseDamage;
-
-        #endregion
+        private int _timer;
+        private Vector2 _groundPos; // Bottom of geyser
 
         public override string Texture => "MagnumOpus/Content/LaCampanella/ResonantWeapons/IgnitionOfTheBell/IgnitionOfTheBell";
-
-        public override void SetStaticDefaults()
-        {
-            ProjectileID.Sets.TrailCacheLength[Type] = 12;
-            ProjectileID.Sets.TrailingMode[Type] = 2;
-        }
 
         public override void SetDefaults()
         {
             Projectile.width = 50;
-            Projectile.height = 50;
+            Projectile.height = 180;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Melee;
             Projectile.penetrate = -1;
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
             Projectile.usesLocalNPCImmunity = true;
-            Projectile.localNPCHitCooldown = 10;
-            Projectile.timeLeft = MaxChargeTicks + ReleaseBeamDuration + 10;
+            Projectile.localNPCHitCooldown = 15;
         }
 
         public override void AI()
@@ -70,349 +55,195 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             if (!_initialized)
             {
                 _initialized = true;
-                _trailRenderer = new IgnitionOfTheBellPrimitiveRenderer();
-                _state = GeyserState.Charging;
-                _chargeTime = 0;
-                _releaseTimer = 0;
-                _baseDamage = Projectile.damage;
-                _aimAngle = (Main.MouseWorld - Owner.Center).ToRotation();
+                _groundPos = Projectile.Center;
+                Projectile.timeLeft = Duration;
+
+                // Eruption sound
+                SoundEngine.PlaySound(SoundID.Item45 with
+                {
+                    Pitch = IsSmall ? 0.3f : -0.1f,
+                    Volume = IsSmall ? 0.5f : 0.8f
+                }, _groundPos);
+
+                // Initial eruption burst
+                int burstCount = IsSmall ? 6 : 12;
+                for (int i = 0; i < burstCount; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / burstCount;
+                    Vector2 burstVel = new Vector2((float)Math.Cos(angle) * 2f, -Main.rand.NextFloat(3f, 6f));
+                    IgnitionOfTheBellParticleHandler.SpawnParticle(
+                        new FlameJetParticle(_groundPos, burstVel, Main.rand.NextFloat(0.5f, 1f), 18, 0.6f));
+                }
+
+                IgnitionOfTheBellParticleHandler.SpawnParticle(
+                    new BellIgnitionFlashParticle(_groundPos, IsSmall ? 8 : 14, IsSmall ? 1.2f : 2f));
             }
 
-            Owner.heldProj = Projectile.whoAmI;
-            Owner.itemTime = 2;
-            Owner.itemAnimation = 2;
+            _timer++;
+            float progress = (float)_timer / Duration;
 
-            if (_state == GeyserState.Charging)
-                RunCharging();
+            // Pillar rises then fades
+            float heightMult;
+            if (progress < 0.3f)
+                heightMult = progress / 0.3f; // Rising
+            else if (progress < 0.7f)
+                heightMult = 1f; // Full height
             else
-                RunRelease();
-        }
+                heightMult = 1f - (progress - 0.7f) / 0.3f; // Fading
 
-        private void RunCharging()
-        {
-            _chargeTime++;
-            _aimAngle = (Main.MouseWorld - Owner.Center).ToRotation();
-            Owner.direction = Math.Cos(_aimAngle) >= 0 ? 1 : -1;
+            float currentHeight = GeyserHeight * heightMult;
 
-            // Mark player as charging
-            var tracker = Owner.IgnitionOfTheBell();
-            tracker.IsCharging = true;
-            tracker.ChargeLevel = Math.Min(_chargeTime, MaxChargeTicks);
+            // Position hitbox as vertical column
+            Projectile.width = (int)GeyserWidth;
+            Projectile.height = (int)Math.Max(currentHeight, 10);
+            Projectile.Center = _groundPos - new Vector2(0, currentHeight * 0.5f);
 
-            // Position near player
-            Projectile.Center = Owner.Center + _aimAngle.ToRotationVector2() * 30f;
-            Projectile.rotation = _aimAngle;
-
-            // Growing flame aura
-            float chargePercent = Math.Min(_chargeTime / MaxChargeTicks, 1f);
-            SpawnChargeParticles(chargePercent);
-
-            // Release conditions: channel released or max charge
-            bool released = !Owner.channel || _chargeTime >= MaxChargeTicks;
-            if (released && _chargeTime >= 10) // Min charge time
+            // Rising flame particles
+            if (heightMult > 0.2f)
             {
-                _state = GeyserState.Released;
-                _releaseTimer = 0;
+                int particleCount = IsSmall ? 2 : 4;
+                for (int i = 0; i < particleCount; i++)
+                {
+                    float xOffset = Main.rand.NextFloat(-GeyserWidth * 0.4f, GeyserWidth * 0.4f);
+                    float yOffset = Main.rand.NextFloat(0, -currentHeight);
+                    Vector2 pos = _groundPos + new Vector2(xOffset, yOffset);
+                    Vector2 vel = new Vector2(
+                        Main.rand.NextFloat(-0.5f, 0.5f),
+                        -Main.rand.NextFloat(2f, 5f) * heightMult);
 
-                float damageMult = MathHelper.Lerp(MinDamageMult, MaxDamageMult, chargePercent);
-                Projectile.damage = (int)(_baseDamage * damageMult);
+                    IgnitionOfTheBellParticleHandler.SpawnParticle(
+                        new FlameJetParticle(pos, vel, Main.rand.NextFloat(0.4f, 0.9f),
+                            Main.rand.Next(10, 18), 0.5f * heightMult));
+                }
+            }
 
-                // Release flash
+            // Embers scattering from top
+            if (heightMult > 0.5f && Main.rand.NextBool(2))
+            {
+                Vector2 topPos = _groundPos - new Vector2(0, currentHeight);
+                Vector2 emberVel = new Vector2(Main.rand.NextFloat(-2f, 2f), -Main.rand.NextFloat(1f, 3f));
                 IgnitionOfTheBellParticleHandler.SpawnParticle(
-                    new BellIgnitionFlashParticle(Projectile.Center, 12, 2f + chargePercent));
-            }
-            else if (released)
-            {
-                Projectile.Kill();
+                    new ThrustEmberParticle(topPos + Main.rand.NextVector2Circular(10f, 5f),
+                        emberVel, Main.rand.NextFloat(0.4f, 0.8f), 20, 0.3f));
             }
 
-            Lighting.AddLight(Projectile.Center, new Vector3(0.4f, 0.15f, 0.02f) * chargePercent);
-        }
-
-        private void RunRelease()
-        {
-            _releaseTimer++;
-            if (_releaseTimer >= ReleaseBeamDuration)
+            // Base sparks
+            if (Main.rand.NextBool(3))
             {
-                Projectile.Kill();
-                return;
-            }
-
-            float releaseProgress = _releaseTimer / ReleaseBeamDuration;
-
-            // Lock aim
-            Vector2 direction = _aimAngle.ToRotationVector2();
-            Projectile.Center = Owner.Center + direction * (BeamLength * 0.5f);
-            Projectile.rotation = _aimAngle;
-            Owner.direction = Math.Cos(_aimAngle) >= 0 ? 1 : -1;
-
-            // Scale hitbox to cover beam
-            Projectile.width = (int)(BeamLength * (1f - releaseProgress * 0.3f));
-            Projectile.height = (int)(BeamWidth * (1f - releaseProgress * 0.5f));
-
-            // Geyser fire particles along beam
-            SpawnGeyserParticles(releaseProgress, direction);
-
-            float intensity = 0.8f * (1f - releaseProgress);
-            Lighting.AddLight(Projectile.Center, new Vector3(0.7f, 0.3f, 0.05f) * intensity);
-        }
-
-        private void SpawnChargeParticles(float chargePercent)
-        {
-            int count = (int)(1 + chargePercent * 4);
-            for (int i = 0; i < count; i++)
-            {
-                float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
-                float radius = Main.rand.NextFloat(20f, 50f + chargePercent * 40f);
-                Vector2 pos = Projectile.Center + angle.ToRotationVector2() * radius;
-                Vector2 vel = (Projectile.Center - pos).SafeDirectionTo(Projectile.Center) * Main.rand.NextFloat(1f, 3f);
-
-                IgnitionOfTheBellParticleHandler.SpawnParticle(
-                    new FlameJetParticle(pos, vel, Main.rand.NextFloat(0.3f + chargePercent * 0.5f, 0.8f),
-                        Main.rand.Next(10, 20), 0.3f + chargePercent * 0.3f));
-            }
-
-            if (chargePercent > 0.5f && Main.rand.NextBool(3))
-            {
-                IgnitionOfTheBellParticleHandler.SpawnParticle(
-                    new BellIgnitionFlashParticle(Projectile.Center, 6, 0.5f + chargePercent * 0.5f));
-            }
-        }
-
-        private void SpawnGeyserParticles(float progress, Vector2 direction)
-        {
-            float fade = 1f - progress;
-            int count = (int)(6 * fade);
-
-            for (int i = 0; i < count; i++)
-            {
-                float along = Main.rand.NextFloat() * BeamLength;
-                Vector2 beamPos = Owner.Center + direction * along;
-                float perpAngle = _aimAngle + MathHelper.PiOver2;
-                Vector2 offset = perpAngle.ToRotationVector2() * Main.rand.NextFloat(-BeamWidth * 0.4f, BeamWidth * 0.4f);
-
-                Vector2 vel = direction * Main.rand.NextFloat(2f, 6f) + Main.rand.NextVector2Circular(1f, 1f);
-
-                IgnitionOfTheBellParticleHandler.SpawnParticle(
-                    new FlameJetParticle(beamPos + offset, vel, Main.rand.NextFloat(0.5f, 1f),
-                        Main.rand.Next(10, 20), 0.6f * fade));
-            }
-
-            // Edge embers
-            for (int i = 0; i < 2; i++)
-            {
-                float along = Main.rand.NextFloat() * BeamLength;
-                Vector2 edgePos = Owner.Center + direction * along;
-                float perpAngle = _aimAngle + MathHelper.PiOver2;
-                float side = Main.rand.NextBool() ? 1f : -1f;
-                edgePos += perpAngle.ToRotationVector2() * BeamWidth * 0.5f * side;
-
-                Vector2 vel = perpAngle.ToRotationVector2() * side * Main.rand.NextFloat(1f, 3f);
-                IgnitionOfTheBellParticleHandler.SpawnParticle(
-                    new ThrustEmberParticle(edgePos, vel, Main.rand.NextFloat(0.4f, 0.8f), 15, 0.3f));
-            }
-
-            // Vanilla fire dust
-            for (int i = 0; i < 3; i++)
-            {
-                float along = Main.rand.NextFloat() * BeamLength;
-                Vector2 dustPos = Owner.Center + direction * along;
-                Dust d = Dust.NewDustPerfect(dustPos + Main.rand.NextVector2Circular(15f, 15f),
-                    DustID.Torch, direction * Main.rand.NextFloat(1f, 3f),
-                    0, IgnitionOfTheBellUtils.GetMagmaFlicker(Main.rand.NextFloat()), 1.2f);
+                float angle = Main.rand.NextFloat() * MathHelper.Pi; // Upward half-circle
+                Vector2 sparkVel = new Vector2((float)Math.Cos(angle) * 3f, -(float)Math.Sin(angle) * 2f);
+                Dust d = Dust.NewDustPerfect(_groundPos + Main.rand.NextVector2Circular(GeyserWidth * 0.3f, 5f),
+                    DustID.Torch, sparkVel, 0,
+                    IgnitionOfTheBellUtils.GetMagmaFlicker(Main.rand.NextFloat()), 1.2f);
                 d.noGravity = true;
             }
+
+            // Lighting
+            float lightIntensity = 0.6f * heightMult;
+            Lighting.AddLight(_groundPos - new Vector2(0, currentHeight * 0.5f),
+                new Vector3(0.6f, 0.25f, 0.03f) * lightIntensity);
+            Lighting.AddLight(_groundPos - new Vector2(0, currentHeight),
+                new Vector3(0.5f, 0.2f, 0.02f) * lightIntensity * 0.7f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 3);
+            target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, IsSmall ? 1 : 2);
 
-            for (int i = 0; i < 8; i++)
+            // Fire impact sparks
+            for (int i = 0; i < 4; i++)
             {
-                Vector2 sparkVel = Main.rand.NextVector2CircularEdge(5f, 5f);
+                Vector2 sparkVel = new Vector2(Main.rand.NextFloat(-3f, 3f), -Main.rand.NextFloat(2f, 5f));
                 IgnitionOfTheBellParticleHandler.SpawnParticle(
-                    new ThrustEmberParticle(target.Center, sparkVel, Main.rand.NextFloat(0.6f, 1f), 20, 0.4f));
+                    new ThrustEmberParticle(target.Center, sparkVel,
+                        Main.rand.NextFloat(0.5f, 1f), 15, 0.3f));
             }
-
-            IgnitionOfTheBellParticleHandler.SpawnParticle(
-                new BellIgnitionFlashParticle(target.Center, 10, 1.5f));
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-
-            if (_state == GeyserState.Charging)
-                DrawChargeAura(sb);
-            else
-                DrawGeyserBeam(sb);
-
-            DrawGeyserParticles(sb);
+            DrawGeyserPillar(sb);
             return false;
         }
 
-        private void DrawChargeAura(SpriteBatch sb)
+        private void DrawGeyserPillar(SpriteBatch sb)
         {
             Texture2D bloomTex = null;
             try
             {
-                bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow",
+                bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow",
                     ReLogic.Content.AssetRequestMode.ImmediateLoad)?.Value;
             }
             catch { }
             if (bloomTex == null) return;
 
-            float chargePercent = Math.Min(_chargeTime / MaxChargeTicks, 1f);
-            Vector2 screenPos = Projectile.Center - Main.screenPosition;
+            float progress = (float)_timer / Duration;
+            float heightMult;
+            if (progress < 0.3f)
+                heightMult = progress / 0.3f;
+            else if (progress < 0.7f)
+                heightMult = 1f;
+            else
+                heightMult = 1f - (progress - 0.7f) / 0.3f;
+
+            float currentHeight = GeyserHeight * heightMult;
             Vector2 origin = new Vector2(bloomTex.Width / 2f, bloomTex.Height / 2f);
-            float pulse = 0.7f + 0.3f * (float)Math.Sin(_chargeTime * 0.15f);
+            float pulse = 0.8f + 0.2f * (float)Math.Sin(_timer * 0.4f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            float scale = 0.5f + chargePercent * 1.5f;
-            sb.Draw(bloomTex, screenPos, null,
-                IgnitionOfTheBellUtils.Additive(new Color(200, 40, 0), 0.3f * chargePercent * pulse),
-                0f, origin, scale * 1.5f, SpriteEffects.None, 0f);
+            // Draw stacked bloom orbs along pillar height
+            int layerCount = IsSmall ? 4 : 7;
+            for (int i = 0; i < layerCount; i++)
+            {
+                float t = i / (float)(layerCount - 1);
+                Vector2 layerPos = _groundPos - new Vector2(0, currentHeight * t) - Main.screenPosition;
 
-            sb.Draw(bloomTex, screenPos, null,
-                IgnitionOfTheBellUtils.Additive(new Color(255, 140, 30), 0.4f * chargePercent * pulse),
-                0f, origin, scale, SpriteEffects.None, 0f);
+                // Wider at base, narrower at top
+                float widthScale = (1f - t * 0.5f) * (IsSmall ? 0.5f : 0.8f);
+                float alphaFade = (1f - t * 0.3f) * heightMult;
 
-            sb.Draw(bloomTex, screenPos, null,
-                IgnitionOfTheBellUtils.Additive(new Color(255, 240, 210), 0.6f * chargePercent),
-                0f, origin, scale * 0.3f, SpriteEffects.None, 0f);
+                // Deep ember outer
+                sb.Draw(bloomTex, layerPos, null,
+                    IgnitionOfTheBellUtils.Additive(new Color(200, 50, 0), 0.2f * alphaFade * pulse),
+                    0f, origin, widthScale * 1.5f, SpriteEffects.None, 0f);
+
+                // Bright orange mid
+                sb.Draw(bloomTex, layerPos, null,
+                    IgnitionOfTheBellUtils.Additive(new Color(255, 140, 30), 0.35f * alphaFade * pulse),
+                    0f, origin, widthScale, SpriteEffects.None, 0f);
+
+                // White-hot core
+                sb.Draw(bloomTex, layerPos, null,
+                    IgnitionOfTheBellUtils.Additive(new Color(255, 240, 210), 0.5f * alphaFade),
+                    0f, origin, widthScale * 0.3f, SpriteEffects.None, 0f);
+            }
+
+            // Base eruption bloom
+            Vector2 basePos = _groundPos - Main.screenPosition;
+            sb.Draw(bloomTex, basePos, null,
+                IgnitionOfTheBellUtils.Additive(new Color(255, 100, 0), 0.4f * heightMult * pulse),
+                0f, origin, IsSmall ? 0.8f : 1.5f, SpriteEffects.None, 0f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-        }
-
-        private void DrawGeyserBeam(SpriteBatch sb)
-        {
-            if (_trailRenderer == null) return;
-
-            float releaseProgress = _releaseTimer / ReleaseBeamDuration;
-            float fade = 1f - releaseProgress;
-            Vector2 direction = _aimAngle.ToRotationVector2();
-
-            int trailCount = 20;
-            Vector2[] beamPositions = new Vector2[trailCount];
-            for (int i = 0; i < trailCount; i++)
-            {
-                float t = i / (float)(trailCount - 1);
-                beamPositions[i] = Owner.Center + direction * BeamLength * t;
-            }
-
-            MiscShaderData shader = IgnitionOfTheBellShaderLoader.GetGeyserShader();
-            Color beamColor = IgnitionOfTheBellUtils.GetThrustGradient(0.65f);
-
-            if (shader != null)
-            {
-                shader.UseColor(beamColor);
-                shader.UseSecondaryColor(IgnitionOfTheBellUtils.GetThrustGradient(0.9f));
-                try { shader.Shader.Parameters["uTime"]?.SetValue(Main.GameUpdateCount * 0.05f); } catch { }
-            }
-
-            var mainSettings = new IgnitionOfTheBellPrimitiveRenderer.IgnitionOfTheBellTrailSettings(
-                width: (float t) =>
-                {
-                    float taper = (float)Math.Sin(t * Math.PI);
-                    return BeamWidth * taper * fade;
-                },
-                trailColor: (float t) =>
-                {
-                    float alpha = (float)Math.Sin(t * Math.PI) * fade;
-                    return Color.Lerp(beamColor, Color.Transparent, 1f - alpha);
-                },
-                shader: shader,
-                smoothen: false
-            );
-
-            sb.End();
-            _trailRenderer.RenderTrail(beamPositions, mainSettings, trailCount);
-
-            // Glow pass
-            var glowSettings = new IgnitionOfTheBellPrimitiveRenderer.IgnitionOfTheBellTrailSettings(
-                width: (float t) => BeamWidth * 1.4f * (float)Math.Sin(t * Math.PI) * fade,
-                trailColor: (float t) => IgnitionOfTheBellUtils.Additive(
-                    IgnitionOfTheBellUtils.GetThrustGradient(0.85f),
-                    0.2f * (float)Math.Sin(t * Math.PI) * fade),
-                shader: shader,
-                smoothen: false
-            );
-
-            _trailRenderer.RenderTrail(beamPositions, glowSettings, trailCount);
-
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Bloom at beam origin
-            DrawBeamOriginBloom(sb, fade);
-        }
-
-        private void DrawBeamOriginBloom(SpriteBatch sb, float fade)
-        {
-            Texture2D bloomTex = null;
-            try
-            {
-                bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow",
-                    ReLogic.Content.AssetRequestMode.ImmediateLoad)?.Value;
-            }
-            catch { }
-            if (bloomTex == null) return;
-
-            Vector2 screenPos = Owner.Center - Main.screenPosition;
-            Vector2 origin = new Vector2(bloomTex.Width / 2f, bloomTex.Height / 2f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            sb.Draw(bloomTex, screenPos, null,
-                IgnitionOfTheBellUtils.Additive(new Color(255, 100, 0), 0.4f * fade),
-                0f, origin, 1.5f, SpriteEffects.None, 0f);
-
-            sb.Draw(bloomTex, screenPos, null,
-                IgnitionOfTheBellUtils.Additive(new Color(255, 240, 210), 0.6f * fade),
-                0f, origin, 0.5f, SpriteEffects.None, 0f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-        }
-
-        private void DrawGeyserParticles(SpriteBatch sb)
-        {
-            IgnitionOfTheBellParticleHandler handler = ModContent.GetInstance<IgnitionOfTheBellParticleHandler>();
-            handler?.DrawAllParticles(sb);
-        }
-
-        public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
-        {
-            if (_state == GeyserState.Charging) return false;
-
-            Vector2 direction = _aimAngle.ToRotationVector2();
-            Vector2 start = Owner.Center;
-            Vector2 end = Owner.Center + direction * BeamLength;
-
-            float collisionPoint = 0f;
-            return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(),
-                start, end, BeamWidth * 0.5f, ref collisionPoint);
         }
 
         public override void OnKill(int timeLeft)
         {
-            _trailRenderer?.Dispose();
-
-            // Farewell burst
-            for (int i = 0; i < 8; i++)
+            // Final burst at base
+            int burstCount = IsSmall ? 4 : 8;
+            for (int i = 0; i < burstCount; i++)
             {
-                Vector2 burstVel = Main.rand.NextVector2CircularEdge(4f, 4f);
+                Vector2 burstVel = Main.rand.NextVector2CircularEdge(3f, 3f);
+                burstVel.Y = -Math.Abs(burstVel.Y); // Force upward
                 IgnitionOfTheBellParticleHandler.SpawnParticle(
-                    new ThrustEmberParticle(Owner.Center, burstVel, Main.rand.NextFloat(0.5f, 1f), 20, 0.35f));
+                    new ThrustEmberParticle(_groundPos, burstVel,
+                        Main.rand.NextFloat(0.5f, 1f), 20, 0.35f));
             }
         }
     }

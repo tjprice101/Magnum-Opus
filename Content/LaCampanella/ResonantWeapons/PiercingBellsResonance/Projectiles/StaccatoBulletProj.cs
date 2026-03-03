@@ -9,6 +9,7 @@ using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Uti
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Particles;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Primitives;
 using MagnumOpus.Content.LaCampanella.Debuffs;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Utilities;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Projectiles
 {
@@ -58,6 +59,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 1);
+
+            // Embed a Resonant Marker
+            target.GetGlobalNPC<ResonantMarkerNPC>().AddMarker(target);
         }
 
         public override bool PreDraw(ref Color lightColor)

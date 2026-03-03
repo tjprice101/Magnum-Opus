@@ -130,7 +130,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
             // Proximity detection ring (when armed)
             if (armed)
             {
-                var bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
+                var bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow").Value;
                 float ringAlpha = 0.1f + (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.05f;
                 float ringScale = DetonationRadius / (bloomTex.Width * 0.5f);
                 sb.Draw(bloomTex, Projectile.Center - Main.screenPosition, null,

@@ -1,29 +1,18 @@
-using System;
-using System.Collections.Generic;
+﻿using MagnumOpus.Common;
+using MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Buffs;
+using MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Terraria;
-using Terraria.Audio;
+using System.Collections.Generic;
 using Terraria.DataStructures;
-using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Content.OdeToJoy.ResonanceEnergies;
-using MagnumOpus.Content.OdeToJoy.HarmonicCores;
+using Terraria;
 using MagnumOpus.Content.Fate.CraftingStations;
-using MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles;
-using MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Buffs;
-using MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Particles;
-using MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Utilities;
+using MagnumOpus.Content.OdeToJoy.HarmonicCores;
+using MagnumOpus.Content.OdeToJoy.ResonanceEnergies;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation
 {
-    /// <summary>
-    /// The Standing Ovation — Ode to Joy summoner staff.
-    /// Summons spirit minions that fire joy waves.
-    /// +20% damage per additional spirit minion.
-    /// Self-contained weapon following the SandboxLastPrism pattern.
-    /// </summary>
     public class TheStandingOvation : ModItem
     {
         public override void SetDefaults()
@@ -48,55 +37,22 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation
             Item.buffType = ModContent.BuffType<StandingOvationBuff>();
         }
 
-        public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback)
-        {
-            position = Main.MouseWorld;
-        }
-
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             player.AddBuff(Item.buffType, 2);
-
-            Vector2 spawnPos = position; // already set to cursor by ModifyShootStats
-
-            // Entrance VFX — golden celebration burst
-            for (int i = 0; i < 10; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 10f;
-                Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
-                Color burstColor = Color.Lerp(OvationUtils.SpotlightGold, OvationUtils.RoseApplause, Main.rand.NextFloat());
-                OvationParticleHandler.SpawnParticle(new ApplauseSparkParticle(
-                    spawnPos, burstVel, burstColor, Main.rand.NextFloat(0.25f, 0.4f), 22, false));
-            }
-
-            // Music notes rising from summon point
-            for (int i = 0; i < 5; i++)
-            {
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), -2f) * Main.rand.NextFloat(0.8f, 1.5f);
-                OvationParticleHandler.SpawnParticle(new OvationNoteParticle(
-                    spawnPos + Main.rand.NextVector2Circular(12f, 12f),
-                    noteVel, Main.rand.NextFloat(0.3f, 0.5f), 40));
-            }
-
-            SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f, Volume = 0.8f }, spawnPos);
-
-            Projectile.NewProjectile(source, spawnPos, Vector2.Zero, type, damage, knockback, player.whoAmI);
-
+            Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
             return false;
         }
 
-        public override void HoldItem(Player player)
+        public override void AddRecipes()
         {
-            // Soft ambient glow particles while holding
-            if (Main.rand.NextBool(20))
-            {
-                Vector2 particlePos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                OvationParticleHandler.SpawnParticle(new OvationGlowParticle(
-                    particlePos, Main.rand.NextVector2Circular(0.3f, 0.3f),
-                    OvationUtils.SpotlightGold, Main.rand.NextFloat(0.1f, 0.2f), 25));
-            }
-
-            Lighting.AddLight(player.Center, OvationUtils.SpotlightGold.ToVector3() * 0.2f);
+            CreateRecipe()
+            .AddIngredient(ModContent.ItemType<ResonantCoreOfOdeToJoy>(), 25)
+            .AddIngredient(ModContent.ItemType<OdeToJoyResonantEnergy>(), 20)
+            .AddIngredient(ModContent.ItemType<HarmonicCoreOfOdeToJoy>(), 3)
+            .AddIngredient(ItemID.LunarBar, 20)
+            .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
+            .Register();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -108,54 +64,6 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation
             {
                 OverrideColor = new Color(255, 200, 50)
             });
-        }
-
-        public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
-        {
-            Texture2D texture = TextureAssets.Item[Item.type].Value;
-            Vector2 drawPos = Item.Center - Main.screenPosition;
-            Vector2 origin = texture.Size() / 2f;
-
-            // Stage spotlight: dramatic sweeping glow with theatrical fade in/out
-            float time = Main.GameUpdateCount * 0.06f;
-            float spotlightAngle = time * 0.6f; // Slow sweeping rotation
-            float spotlightRadius = 4f + (float)Math.Sin(time * 0.4f) * 2f;
-            Vector2 spotOffset = new Vector2((float)Math.Cos(spotlightAngle), (float)Math.Sin(spotlightAngle)) * spotlightRadius;
-
-            // Theatrical fade: slow crescendo/decrescendo like stage lights
-            float theatricalFade = (float)Math.Sin(time * 0.3f) * 0.5f + 0.5f;
-            float dramaticPulse = 1f + (float)Math.Pow(theatricalFade, 2f) * 0.15f;
-
-            spriteBatch.End();
-            OvationUtils.BeginAdditive(spriteBatch);
-
-            // Sweeping spotlight — orbiting warm glow
-            Color spotColor = OvationUtils.Additive(OvationUtils.SpotlightGold, 0.35f * theatricalFade);
-            spriteBatch.Draw(texture, drawPos + spotOffset, null, spotColor, rotation, origin, scale * dramaticPulse * 1.2f, SpriteEffects.None, 0f);
-
-            // Stage gold base — steady theatrical presence
-            Color stageColor = OvationUtils.Additive(OvationUtils.StageGold, 0.2f);
-            spriteBatch.Draw(texture, drawPos, null, stageColor, rotation, origin, scale * 1.1f, SpriteEffects.None, 0f);
-
-            // Rose applause accent — appears during bright moments
-            Color roseColor = OvationUtils.Additive(OvationUtils.RoseApplause, 0.15f * theatricalFade);
-            spriteBatch.Draw(texture, drawPos - spotOffset * 0.3f, null, roseColor, rotation, origin, scale * 1.05f, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            OvationUtils.BeginDefault(spriteBatch);
-
-            Lighting.AddLight(Item.Center, 0.5f * theatricalFade, 0.4f * theatricalFade, 0.1f);
-        }
-
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient(ModContent.ItemType<ResonantCoreOfOdeToJoy>(), 25)
-                .AddIngredient(ModContent.ItemType<OdeToJoyResonantEnergy>(), 20)
-                .AddIngredient(ModContent.ItemType<HarmonicCoreOfOdeToJoy>(), 3)
-                .AddIngredient(ItemID.LunarBar, 20)
-                .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
-                .Register();
         }
     }
 }

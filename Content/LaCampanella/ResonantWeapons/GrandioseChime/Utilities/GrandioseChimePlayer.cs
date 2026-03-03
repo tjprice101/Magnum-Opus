@@ -5,41 +5,54 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Utiliti
 {
     /// <summary>
     /// Per-player tracking for GrandioseChime:
-    /// - ShotCounter: tracks consecutive shots for barrage (every 3rd) and mines (every 4th)
-    /// - KillEchoTracker: enables kill echoes (re-fire burst on kill)
+    /// - Kill Echo Chain: kills propagate to nearest enemy within 15 tiles at 60% damage, up to 3 chains
+    /// - Grandiose Crescendo: after 5 complete 3-chain kill echoes, next beam is triple width + auto mines
     /// </summary>
     public class GrandioseChimePlayer : ModPlayer
     {
-        public int ShotCounter;
-        public int KillEchoTimer; // When > 0, dying enemies spawn echo projectiles
-        private const int KillEchoDuration = 300; // 5 seconds
+        public int FullChainKillCount; // Kills that triggered a full 3-chain echo
+        public const int GrandioseCrescendoThreshold = 5;
+        public bool GrandioseCrescendoReady;
+        public int GrandioseCrescendoDecayTimer;
+        private const int CrescendoDecayDelay = 600; // 10 seconds to use it
 
-        /// <summary>
-        /// Call when GrandioseChime fires a shot. Returns:
-        /// 0 = normal shot, 1 = bellfire barrage (3rd), 2 = note mines (4th), 3 = both (12th)
-        /// </summary>
-        public int RegisterShot()
+        /// <summary>Register a kill echo chain completion. Returns true when Grandiose Crescendo activates.</summary>
+        public bool RegisterFullChainKill()
         {
-            ShotCounter++;
-            KillEchoTimer = KillEchoDuration;
+            FullChainKillCount++;
+            if (FullChainKillCount >= GrandioseCrescendoThreshold)
+            {
+                FullChainKillCount = 0;
+                GrandioseCrescendoReady = true;
+                GrandioseCrescendoDecayTimer = CrescendoDecayDelay;
+                return true;
+            }
+            return false;
+        }
 
-            bool isBarrage = ShotCounter % 3 == 0;
-            bool isMines = ShotCounter % 4 == 0;
-
-            if (ShotCounter >= 12) ShotCounter = 0; // LCM reset
-
-            if (isBarrage && isMines) return 3;
-            if (isBarrage) return 1;
-            if (isMines) return 2;
-            return 0;
+        /// <summary>Consume Grandiose Crescendo for next beam.</summary>
+        public void ConsumeGrandioseCrescendo()
+        {
+            GrandioseCrescendoReady = false;
+            GrandioseCrescendoDecayTimer = 0;
         }
 
         public override void PostUpdate()
         {
-            if (KillEchoTimer > 0)
-                KillEchoTimer--;
+            if (GrandioseCrescendoReady)
+            {
+                GrandioseCrescendoDecayTimer--;
+                if (GrandioseCrescendoDecayTimer <= 0)
+                {
+                    GrandioseCrescendoReady = false;
+                }
+            }
         }
 
-        public bool HasKillEcho => KillEchoTimer > 0;
+        public override void OnRespawn()
+        {
+            FullChainKillCount = 0;
+            GrandioseCrescendoReady = false;
+        }
     }
 }

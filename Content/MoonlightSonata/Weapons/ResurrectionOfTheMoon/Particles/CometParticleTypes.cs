@@ -271,4 +271,158 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
                 Rotation, origin, Scale, SpriteEffects.None, 0f);
         }
     }
+
+    // =================================================================
+    // MOONRISE CHARGE PARTICLE — spirals inward during charge hold
+    // =================================================================
+
+    /// <summary>
+    /// Moonrise charge particle that spirals inward toward the gun barrel
+    /// during a charge hold. Logarithmic spiral path, consumed at center.
+    /// Uses existing SoftGlow texture.
+    /// </summary>
+    public class MoonriseChargeParticle : CometParticle
+    {
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        private readonly Vector2 _target;
+        private readonly float _initialRadius;
+        private readonly float _spiralAngle;
+        private readonly float _initialScale;
+
+        public MoonriseChargeParticle(Vector2 startPos, Vector2 target, float scale, Color color, int lifetime)
+        {
+            Position = startPos;
+            _target = target;
+            _initialRadius = Vector2.Distance(startPos, target);
+            _spiralAngle = (startPos - target).ToRotation();
+            _initialScale = scale;
+            Scale = scale;
+            Velocity = Vector2.Zero;
+            DrawColor = color;
+            Lifetime = lifetime;
+            Rotation = Main.rand.NextFloat(MathHelper.TwoPi);
+        }
+
+        public override void Update()
+        {
+            float t = LifetimeCompletion;
+
+            // Logarithmic spiral inward
+            float currentRadius = _initialRadius * (1f - CometUtils.PolyIn(t, 1.5f));
+            float currentAngle = _spiralAngle + t * MathHelper.TwoPi * 2.5f;
+            Position = _target + currentAngle.ToRotationVector2() * currentRadius;
+
+            // Shrink as it approaches target
+            Scale = _initialScale * (1f - t * 0.8f);
+            Rotation += 0.15f;
+
+            // Color shift: starts cool, heats up
+            DrawColor = Color.Lerp(CometUtils.DeepSpaceViolet, CometUtils.CometCoreWhite, t);
+        }
+
+        public override void CustomDraw(SpriteBatch sb)
+        {
+            Texture2D tex = CometTextures.PointBloom;
+            Vector2 origin = tex.Size() * 0.5f;
+            Vector2 drawPos = Position - Main.screenPosition;
+
+            float fade = 1f - CometUtils.PolyIn(LifetimeCompletion) * 0.5f;
+            sb.Draw(tex, drawPos, null, DrawColor * fade,
+                Rotation, origin, Scale * 0.4f, SpriteEffects.None, 0f);
+        }
+    }
+
+    // =================================================================
+    // LUNAR CYCLE INDICATOR PARTICLE — visual phase indicator ring
+    // =================================================================
+
+    /// <summary>
+    /// Expanding ring that indicates the current lunar cycle phase on shot.
+    /// Uses the SoftCircle mask texture. Phase color differentiates the visuals.
+    /// </summary>
+    public class LunarCycleRingParticle : CometParticle
+    {
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        private readonly float _maxScale;
+
+        public LunarCycleRingParticle(Vector2 position, Color color, float maxScale, int lifetime)
+        {
+            Position = position;
+            Velocity = Vector2.Zero;
+            DrawColor = color;
+            _maxScale = maxScale;
+            Lifetime = lifetime;
+            Scale = 0f;
+        }
+
+        public override void Update()
+        {
+            float t = LifetimeCompletion;
+            Scale = _maxScale * CometUtils.ExpoOut(t);
+        }
+
+        public override void CustomDraw(SpriteBatch sb)
+        {
+            Texture2D tex = CometTextures.CircularMask;
+            Vector2 origin = tex.Size() * 0.5f;
+            Vector2 drawPos = Position - Main.screenPosition;
+
+            float fade = 1f - LifetimeCompletion * LifetimeCompletion;
+            sb.Draw(tex, drawPos, null, DrawColor * fade * 0.5f,
+                0f, origin, Scale, SpriteEffects.None, 0f);
+        }
+    }
+
+    // =================================================================
+    // SUPERNOVA DEBRIS PARTICLE — lunar rock tumbling from explosions
+    // =================================================================
+
+    /// <summary>
+    /// Gravity-affected lunar debris particle flung from supernova detonations.
+    /// Tumbles with rotation, fades as it falls.
+    /// </summary>
+    public class SupernovaDebrisParticle : CometParticle
+    {
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => false;
+        public override bool UseCustomDraw => true;
+
+        private readonly float _spinRate;
+
+        public SupernovaDebrisParticle(Vector2 position, Vector2 velocity, Color color, float scale, int lifetime)
+        {
+            Position = position;
+            Velocity = velocity;
+            DrawColor = color;
+            Scale = scale;
+            Lifetime = lifetime;
+            Rotation = Main.rand.NextFloat(MathHelper.TwoPi);
+            _spinRate = Main.rand.NextFloat(-0.2f, 0.2f);
+        }
+
+        public override void Update()
+        {
+            Velocity *= 0.97f;
+            Velocity.Y += 0.1f; // Gravity
+            Rotation += _spinRate;
+            Scale *= 0.995f;
+        }
+
+        public override void CustomDraw(SpriteBatch sb)
+        {
+            Texture2D tex = CometTextures.StarSoft;
+            Vector2 origin = tex.Size() * 0.5f;
+            Vector2 drawPos = Position - Main.screenPosition;
+
+            float fade = 1f - CometUtils.PolyIn(LifetimeCompletion);
+            sb.Draw(tex, drawPos, null, DrawColor * fade,
+                Rotation, origin, Scale * 0.3f, SpriteEffects.None, 0f);
+        }
+    }
 }

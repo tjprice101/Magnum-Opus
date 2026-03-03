@@ -6,9 +6,20 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.Projectiles;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.Utilities;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling
 {
+    /// <summary>
+    /// Infernal Chimes' Calling — La Campanella summon staff.
+    /// "The choir sings not hymns of peace, but anthems of annihilation."
+    /// 
+    /// Summons spectral bell minions (1 per use, max 5). Bells hover in arc formation.
+    /// Bells attack sequentially with 0.3s stagger, each firing a shockwave.
+    /// Harmonic Convergence: overlapping shockwaves deal 2x damage.
+    /// Every 12s: Infernal Crescendo — synchronized massive barrage.
+    /// Right-click: Bell Sacrifice — one bell detonates in AoE, respawns 15s.
+    /// </summary>
     public class InfernalChimesCallingItem : ModItem
     {
         public override string Texture => "MagnumOpus/Content/LaCampanella/ResonantWeapons/InfernalChimesCalling/InfernalChimesCalling";
@@ -39,8 +50,59 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling
             Item.noMelee = true;
         }
 
+        public override bool AltFunctionUse(Player player) => true;
+
+        public override bool CanUseItem(Player player)
+        {
+            if (player.altFunctionUse == 2)
+            {
+                // Bell Sacrifice: need at least 3 bells and no active sacrifice cooldown
+                var icPlayer = player.InfernalChimesCalling();
+                int bellCount = player.ownedProjectileCounts[ModContent.ProjectileType<CampanellaChoirMinion>()];
+                return bellCount >= 3 && icPlayer.SacrificeCooldown <= 0;
+            }
+            return base.CanUseItem(player);
+        }
+
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            if (player.altFunctionUse == 2)
+            {
+                // Bell Sacrifice: find the last bell and trigger its sacrifice
+                var icPlayer = player.InfernalChimesCalling();
+                icPlayer.SacrificeCooldown = InfernalChimesCallingPlayer.SacrificeRespawnTime;
+
+                // Find the highest-index bell to sacrifice
+                int sacrificeIndex = -1;
+                for (int i = Main.maxProjectiles - 1; i >= 0; i--)
+                {
+                    Projectile proj = Main.projectile[i];
+                    if (proj.active && proj.owner == player.whoAmI && proj.type == ModContent.ProjectileType<CampanellaChoirMinion>())
+                    {
+                        sacrificeIndex = i;
+                        break;
+                    }
+                }
+
+                if (sacrificeIndex >= 0)
+                {
+                    Projectile bell = Main.projectile[sacrificeIndex];
+                    // Spawn sacrifice explosion at bell position
+                    int sacrificeDmg = (int)(damage * 3f); // 3x damage for sacrifice
+                    Projectile.NewProjectile(source, bell.Center, Vector2.Zero,
+                        ModContent.ProjectileType<MinionShockwaveProj>(),
+                        sacrificeDmg, 10f, player.whoAmI, 0f, 1f); // ai[1]=1 for sacrifice variant
+
+                    bell.Kill(); // Destroy the sacrificed bell
+                }
+                return false;
+            }
+
+            // Normal summon: spawn one bell at cursor position, max 5
+            int maxBells = 5;
+            int bellCount = player.ownedProjectileCounts[ModContent.ProjectileType<CampanellaChoirMinion>()];
+            if (bellCount >= maxBells) return false;
+
             player.AddBuff(Item.buffType, 18000);
             position = Main.MouseWorld;
             Projectile.NewProjectile(source, position, Vector2.Zero, type, damage, knockback, player.whoAmI);
@@ -49,12 +111,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Summons an infernal bell choir entity to fight for you"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "The choir attacks with fiery slams, flame breath, and resonant bell rings"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Every 5th hit triggers a devastating musical shockwave"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The bells ring in unholy chorus, each toll a hymn of annihilation'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Summons spectral bell minions that hover in formation (max 5)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Bells attack sequentially with staggered shockwaves"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Overlapping waves achieve Harmonic Convergence for double damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Right click to sacrifice one bell in a devastating explosion"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The choir sings not hymns of peace, but anthems of annihilation.'")
             {
-                OverrideColor = new Color(255, 140, 40)
+                OverrideColor = InfernalChimesCallingUtils.LoreColor
             });
         }
     }

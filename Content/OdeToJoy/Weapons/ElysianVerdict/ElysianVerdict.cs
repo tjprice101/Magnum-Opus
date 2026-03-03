@@ -1,30 +1,17 @@
-using System;
-using System.Collections.Generic;
+﻿using MagnumOpus.Common;
+using MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Projectiles;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Terraria;
-using Terraria.Audio;
+using System.Collections.Generic;
 using Terraria.DataStructures;
-using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Common;
-using MagnumOpus.Content.OdeToJoy.ResonanceEnergies;
-using MagnumOpus.Content.OdeToJoy.HarmonicCores;
+using Terraria;
 using MagnumOpus.Content.Fate.CraftingStations;
-using MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Projectiles;
-using MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Particles;
-using MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Utilities;
+using MagnumOpus.Content.OdeToJoy.HarmonicCores;
+using MagnumOpus.Content.OdeToJoy.ResonanceEnergies;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict
 {
-    /// <summary>
-    /// Elysian Verdict — Ode to Joy magic staff.
-    /// Deploys a cursor-tracking golden-green orb that fires homing vine missiles,
-    /// then detonates in a massive jubilant explosion of music notes and leaves.
-    /// Using the item while an orb exists detonates the old orb and fires a new one.
-    /// Post-endgame Ode to Joy tier magic weapon.
-    /// </summary>
     public class ElysianVerdict : ModItem
     {
         public override void SetDefaults()
@@ -48,102 +35,16 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict
             Item.shootSpeed = 12f;
         }
 
-        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        public override void AddRecipes()
         {
-            // Kill any existing ElysianOrb owned by this player (triggers detonation via OnKill)
-            int orbType = ModContent.ProjectileType<ElysianOrbProjectile>();
-            for (int i = 0; i < Main.maxProjectiles; i++)
-            {
-                Projectile proj = Main.projectile[i];
-                if (proj.active && proj.owner == player.whoAmI && proj.type == orbType)
-                {
-                    // Signal the orb to detonate
-                    proj.ai[1] = 1f;
-                    proj.netUpdate = true;
-                }
-            }
-
-            // Fire a new orb toward the cursor
-            Vector2 dir = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX);
-            Projectile.NewProjectile(source, player.Center + dir * 20f, dir * Item.shootSpeed,
-                orbType, damage, knockback, player.whoAmI);
-
-            return false; // We manually spawned the projectile
+            CreateRecipe()
+            .AddIngredient(ModContent.ItemType<ResonantCoreOfOdeToJoy>(), 20)
+            .AddIngredient(ModContent.ItemType<OdeToJoyResonantEnergy>(), 15)
+            .AddIngredient(ModContent.ItemType<HarmonicCoreOfOdeToJoy>(), 2)
+            .AddIngredient(ItemID.LunarBar, 15)
+            .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
+            .Register();
         }
-
-        // ── WORLD DROP RENDERING ──
-
-        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
-        {
-            Texture2D texture = TextureAssets.Item[Item.type].Value;
-            Vector2 position = Item.Center - Main.screenPosition;
-            Vector2 origin = texture.Size() / 2f;
-
-            // Orbiting dual glow: two glow layers orbit around the item creating living energy
-            float time = Main.GameUpdateCount * 0.06f;
-            float orbitAngle1 = time * 1.4f; // Primary orbit speed
-            float orbitAngle2 = time * -0.9f + MathHelper.Pi; // Counter-rotating secondary
-            float orbitRadius = 5f + (float)Math.Sin(time * 0.7f) * 2f; // Breathing orbit distance
-            float basePulse = 1f + (float)Math.Sin(time * 1.5f) * 0.06f;
-
-            Vector2 orbit1 = new Vector2((float)Math.Cos(orbitAngle1), (float)Math.Sin(orbitAngle1)) * orbitRadius;
-            Vector2 orbit2 = new Vector2((float)Math.Cos(orbitAngle2), (float)Math.Sin(orbitAngle2)) * orbitRadius;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Primary verdant orbit glow
-            spriteBatch.Draw(texture, position + orbit1, null, ElysianUtils.Additive(ElysianUtils.VineGreen, 0.35f),
-                rotation, origin, scale * basePulse * 1.2f, SpriteEffects.None, 0f);
-
-            // Secondary golden orbit glow
-            spriteBatch.Draw(texture, position + orbit2, null, ElysianUtils.Additive(ElysianUtils.GoldenVerdict, 0.3f),
-                rotation, origin, scale * basePulse * 1.15f, SpriteEffects.None, 0f);
-
-            // Central steady core
-            spriteBatch.Draw(texture, position, null, ElysianUtils.Additive(ElysianUtils.ElysianGold, 0.2f),
-                rotation, origin, scale * basePulse * 1.05f, SpriteEffects.None, 0f);
-
-            // Radiance flash when orbits cross paths (proximity-based)
-            float orbitDist = Vector2.Distance(orbit1, orbit2);
-            float crossFlash = Math.Max(0f, 1f - orbitDist / (orbitRadius * 1.5f));
-            spriteBatch.Draw(texture, position, null, ElysianUtils.Additive(ElysianUtils.PureRadiance, 0.3f * crossFlash),
-                rotation, origin, scale * (1f + crossFlash * 0.15f), SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            Lighting.AddLight(Item.Center, 0.45f + crossFlash * 0.2f, 0.5f, 0.15f);
-            return true;
-        }
-
-        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
-        {
-            Texture2D texture = TextureAssets.Item[Item.type].Value;
-            float time = Main.GameUpdateCount * 0.05f;
-            float pulse = 1f + (float)Math.Sin(time * 2.2f) * 0.08f;
-            float flicker = Main.rand.NextFloat(0.9f, 1f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
-
-            Color glowColor = Color.Lerp(ElysianUtils.VineGreen, ElysianUtils.GoldenVerdict,
-                (float)Math.Sin(time * 0.8f) * 0.5f + 0.5f);
-            spriteBatch.Draw(texture, position, frame, ElysianUtils.Additive(glowColor, 0.3f * flicker),
-                0f, origin, scale * pulse * 1.12f, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
-
-            spriteBatch.Draw(texture, position, frame, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
-            return false;
-        }
-
-        // ── TOOLTIPS ──
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
@@ -155,19 +56,6 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict
             {
                 OverrideColor = new Color(255, 200, 50)
             });
-        }
-
-        // ── RECIPE ──
-
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient(ModContent.ItemType<ResonantCoreOfOdeToJoy>(), 20)
-                .AddIngredient(ModContent.ItemType<OdeToJoyResonantEnergy>(), 15)
-                .AddIngredient(ModContent.ItemType<HarmonicCoreOfOdeToJoy>(), 2)
-                .AddIngredient(ItemID.LunarBar, 15)
-                .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
-                .Register();
         }
     }
 }

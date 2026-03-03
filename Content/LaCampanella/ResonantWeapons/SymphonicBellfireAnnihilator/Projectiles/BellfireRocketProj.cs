@@ -14,9 +14,9 @@ using MagnumOpus.Content.LaCampanella.Debuffs;
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator.Projectiles
 {
     /// <summary>
-    /// Bellfire rocket  Ethe primary rocket projectile for SymphonicBellfireAnnihilator.
-    /// ai[0]: 0 = normal, 1 = enhanced (shots 6-10), 2 = Grand Crescendo shot.
-    /// Explodes on impact/enemy with AoE damage and fire trail.
+    /// Bellfire Rocket — alt-fire rapid arcing rockets that leave fire patches on impact.
+    /// Simplified from tier system. Arcs slightly downward due to gravity.
+    /// On kill, registers rocket kill for Bellfire Crescendo buff stacking.
     /// </summary>
     public class BellfireRocketProj : ModProjectile
     {
@@ -26,7 +26,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
         private const int MaxTrailPoints = 16;
         private SymphonicBellfirePrimitiveRenderer trailRenderer;
 
-        private int RocketTier => (int)Projectile.ai[0]; // 0=normal, 1=enhanced, 2=crescendo
+        private const float FirePatchDuration = 90; // 1.5 seconds
+        private const float ExplosionRadius = 80f;
 
         public override void SetDefaults()
         {
@@ -42,40 +43,40 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
 
         public override void AI()
         {
+            // Record trail
             trailPositions.Insert(0, Projectile.Center);
             if (trailPositions.Count > MaxTrailPoints)
                 trailPositions.RemoveAt(trailPositions.Count - 1);
 
+            // Slight arc (gravity)
+            Projectile.velocity.Y += 0.12f;
+
             Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
 
-            // Scale VFX intensity by tier
-            int trailFreq = RocketTier switch { 2 => 1, 1 => 2, _ => 3 };
-            float exhaustStretch = RocketTier switch { 2 => 5f, 1 => 3.5f, _ => 2.5f };
-
-            if (Main.rand.NextBool(trailFreq))
+            // Exhaust trail particles
+            if (Main.rand.NextBool(2))
             {
                 SymphonicBellfireParticleHandler.SpawnParticle(new RocketExhaustParticle(
                     Projectile.Center + Main.rand.NextVector2Circular(4, 4),
                     -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(1.5f, 1.5f),
-                    exhaustStretch, Main.rand.Next(12, 22)));
+                    2.5f, Main.rand.Next(12, 22)));
             }
 
-            // Musical notes for enhanced/crescendo
-            if (RocketTier >= 1 && Main.rand.NextBool(8))
-            {
-                SymphonicBellfireParticleHandler.SpawnParticle(new SymphonicNoteParticle(
-                    Projectile.Center, -Projectile.velocity * 0.04f + Main.rand.NextVector2Circular(1f, 1f),
-                    Main.rand.Next(30, 50)));
-            }
-
-            float lightMul = RocketTier switch { 2 => 1.0f, 1 => 0.7f, _ => 0.4f };
-            Lighting.AddLight(Projectile.Center, SymphonicBellfireUtils.RocketPalette[2].ToVector3() * lightMul);
+            // Lighting
+            Lighting.AddLight(Projectile.Center, SymphonicBellfireUtils.RocketPalette[2].ToVector3() * 0.5f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            int stacks = RocketTier switch { 2 => 4, 1 => 2, _ => 1 };
-            target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, stacks);
+            target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 1);
+
+            // Register rocket kill for buff stacking
+            if (target.life <= 0)
+            {
+                Player owner = Main.player[Projectile.owner];
+                var modPlayer = owner.GetModPlayer<SymphonicBellfirePlayer>();
+                modPlayer.RegisterRocketKill();
+            }
         }
 
         public override void OnKill(int timeLeft)
@@ -83,58 +84,64 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
             trailRenderer?.Dispose();
             trailRenderer = null;
 
-            // Explosion
-            float explosionSize = RocketTier switch { 2 => 3.5f, 1 => 2.5f, _ => 1.8f };
-            int explosionDuration = RocketTier switch { 2 => 25, 1 => 18, _ => 12 };
-            float explosionRadius = 80f + RocketTier * 40f;
-
+            // Explosion VFX
             SymphonicBellfireParticleHandler.SpawnParticle(new ExplosionFireballParticle(
-                Projectile.Center, explosionSize, explosionDuration));
-
-            if (RocketTier >= 1)
-            {
-                SymphonicBellfireParticleHandler.SpawnParticle(new CrescendoWaveParticle(
-                    Projectile.Center, explosionRadius, explosionDuration + 5));
-            }
+                Projectile.Center, 2f, 15));
 
             // Shrapnel embers
-            int shrapnelCount = 6 + RocketTier * 4;
-            for (int i = 0; i < shrapnelCount; i++)
+            for (int i = 0; i < 8; i++)
             {
                 SymphonicBellfireParticleHandler.SpawnParticle(new RocketExhaustParticle(
                     Projectile.Center,
-                    Main.rand.NextVector2Circular(6f, 6f),
-                    Main.rand.NextFloat(2f, 4f),
-                    Main.rand.Next(15, 30)));
+                    Main.rand.NextVector2Circular(5f, 5f),
+                    Main.rand.NextFloat(2f, 3.5f),
+                    Main.rand.Next(12, 25)));
             }
 
-            // Musical notes on enhanced/crescendo
-            if (RocketTier >= 1)
-            {
-                int noteCount = 4 + RocketTier * 3;
-                for (int i = 0; i < noteCount; i++)
-                {
-                    Vector2 noteVel = Main.rand.NextVector2CircularEdge(3f, 3f) + new Vector2(0, -1f);
-                    SymphonicBellfireParticleHandler.SpawnParticle(new SymphonicNoteParticle(
-                        Projectile.Center, noteVel, Main.rand.Next(40, 65)));
-                }
-            }
-
-            // AoE damage on explosion
+            // AoE splash damage
             for (int i = 0; i < Main.maxNPCs; i++)
             {
                 NPC npc = Main.npc[i];
                 if (!npc.CanBeChasedBy()) continue;
-                if (Vector2.Distance(Projectile.Center, npc.Center) <= explosionRadius)
+                if (Vector2.Distance(Projectile.Center, npc.Center) <= ExplosionRadius)
                 {
                     int dir = Projectile.Center.X < npc.Center.X ? 1 : -1;
-                    int splashDmg = (int)(Projectile.damage * 0.5f);
-                    npc.SimpleStrikeNPC(splashDmg, dir, false, Projectile.knockBack * 0.5f);
+                    int splashDmg = (int)(Projectile.damage * 0.4f);
+                    npc.SimpleStrikeNPC(splashDmg, dir, false, Projectile.knockBack * 0.4f);
                     npc.GetGlobalNPC<ResonantTollNPC>().AddStacks(npc, 1);
                 }
             }
 
-            SoundEngine.PlaySound(SoundID.Item14, Projectile.Center);
+            // Fire patch — lingering damage zone (vanilla fire dust)
+            SpawnFirePatch();
+
+            SoundEngine.PlaySound(SoundID.Item14 with { Pitch = 0.2f, Volume = 0.7f }, Projectile.Center);
+        }
+
+        private void SpawnFirePatch()
+        {
+            // Create lingering fire visual (vanilla dust-based, 1.5s)
+            Vector2 patchCenter = Projectile.Center;
+            int patchDustCount = 12;
+            for (int i = 0; i < patchDustCount; i++)
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(30f, 10f);
+                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -Main.rand.NextFloat(0.5f, 1.5f));
+                Dust d = Dust.NewDustPerfect(patchCenter + offset, DustID.Torch, vel, 0,
+                    SymphonicBellfireUtils.GetRocketFlicker(Main.rand.NextFloat()),
+                    Main.rand.NextFloat(1f, 1.8f));
+                d.noGravity = true;
+                d.fadeIn = 1.5f;
+            }
+
+            // Smoke puffs
+            for (int i = 0; i < 4; i++)
+            {
+                Vector2 smokeVel = new Vector2(Main.rand.NextFloat(-1f, 1f), -Main.rand.NextFloat(1f, 3f));
+                Dust d = Dust.NewDustPerfect(patchCenter + Main.rand.NextVector2Circular(20f, 5f),
+                    DustID.Smoke, smokeVel, 100, new Color(30, 20, 15), 2f);
+                d.noGravity = true;
+            }
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -149,20 +156,12 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
                 try
                 {
                     trailRenderer ??= new SymphonicBellfirePrimitiveRenderer();
-                    Color trailStart = RocketTier switch
-                    {
-                        2 => SymphonicBellfireUtils.CrescendoPalette[1],
-                        1 => SymphonicBellfireUtils.RocketPalette[2],
-                        _ => SymphonicBellfireUtils.RocketPalette[1]
-                    };
-                    float trailWidth = 10f + RocketTier * 5f;
-
                     var settings = new RocketTrailSettings
                     {
-                        ColorStart = trailStart,
+                        ColorStart = SymphonicBellfireUtils.RocketPalette[2],
                         ColorEnd = SymphonicBellfireUtils.RocketPalette[0] * 0.3f,
-                        Width = trailWidth,
-                        BloomIntensity = 0.3f + RocketTier * 0.15f
+                        Width = 10f,
+                        BloomIntensity = 0.3f
                     };
                     trailRenderer.DrawTrail(sb, trailPositions, settings, Main.screenPosition);
                 }
@@ -170,17 +169,30 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
             }
 
             // Rocket sprite
-            var tex = ModContent.Request<Texture2D>(Texture).Value;
-            float glow = RocketTier switch { 2 => 0.6f, 1 => 0.35f, _ => 0.15f };
-            Color drawColor = Color.Lerp(lightColor, Color.White, glow);
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null, drawColor,
-                Projectile.rotation, tex.Size() / 2f, Projectile.scale, SpriteEffects.None, 0f);
+            Texture2D tex = null;
+            try { tex = ModContent.Request<Texture2D>(Texture, ReLogic.Content.AssetRequestMode.ImmediateLoad)?.Value; }
+            catch { }
+            if (tex != null)
+            {
+                Color drawColor = Color.Lerp(lightColor, Color.White, 0.2f);
+                sb.Draw(tex, Projectile.Center - Main.screenPosition, null, drawColor,
+                    Projectile.rotation, tex.Size() / 2f, Projectile.scale, SpriteEffects.None, 0f);
+            }
 
-            // Glow overlay
-            var bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
-            Color bloomCol = (RocketTier >= 2 ? SymphonicBellfireUtils.CrescendoPalette[1] : SymphonicBellfireUtils.RocketPalette[2]) * (glow * 0.4f);
-            sb.Draw(bloomTex, Projectile.Center - Main.screenPosition, null,
-                bloomCol, 0f, bloomTex.Size() / 2f, 0.2f + RocketTier * 0.08f, SpriteEffects.None, 0f);
+            // Bloom orb
+            Texture2D bloomTex = null;
+            try
+            {
+                bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow",
+                    ReLogic.Content.AssetRequestMode.ImmediateLoad)?.Value;
+            }
+            catch { }
+            if (bloomTex != null)
+            {
+                Color bloomCol = SymphonicBellfireUtils.RocketPalette[2] * 0.15f;
+                sb.Draw(bloomTex, Projectile.Center - Main.screenPosition, null,
+                    bloomCol, 0f, bloomTex.Size() / 2f, 0.2f, SpriteEffects.None, 0f);
+            }
 
             return false;
         }

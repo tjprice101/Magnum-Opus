@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
@@ -6,15 +6,11 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
-using MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura.Utilities;
-using MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura.Particles;
-using MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura.Primitives;
-using MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura.Dusts;
 
 namespace MagnumOpus.Content.Eroica.Minions
 {
     /// <summary>
-    /// Sakura Flame — dark flamethrower projectile from Sakura of Fate minion.
+    /// Sakura Flame 窶・dark flamethrower projectile from Sakura of Fate minion.
     /// Self-contained VFX: flame trail, dark fire afterimages, impact sparks.
     /// </summary>
     public class SakuraFlameProjectile : ModProjectile
@@ -24,7 +20,7 @@ namespace MagnumOpus.Content.Eroica.Minions
         private float fadeProgress = 0f;
         private float ageTimer = 0f;
 
-        // ── Trail tracking ──
+        // 笏笏 Trail tracking 笏笏
         private const int TrailLength = 12;
         private Vector2[] trailPositions = new Vector2[TrailLength];
         private float[] trailRotations = new float[TrailLength];
@@ -65,7 +61,7 @@ namespace MagnumOpus.Content.Eroica.Minions
             Projectile.velocity *= 0.98f;
             Projectile.velocity += Main.rand.NextVector2Circular(0.15f, 0.15f);
 
-            // ── Trail tracking ──
+            // 笏笏 Trail tracking 笏笏
             if (!trailInitialized)
             {
                 for (int i = 0; i < TrailLength; i++)
@@ -86,7 +82,7 @@ namespace MagnumOpus.Content.Eroica.Minions
                 trailRotations[0] = Projectile.rotation;
             }
 
-            // ── Flight particles ──
+            // 笏笏 Flight particles 笏笏
             SpawnFlightParticles();
         }
 
@@ -186,16 +182,16 @@ namespace MagnumOpus.Content.Eroica.Minions
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = tex.Size() / 2f;
 
-            // ── Layer 1: GPU Flame Trail ──
+            // 笏笏 Layer 1: GPU Flame Trail 笏笏
             DrawFlameTrail(sb);
 
-            // ── Layer 2: Afterimages ──
+            // 笏笏 Layer 2: Afterimages 笏笏
             DrawAfterimages(sb, tex, origin);
 
-            // ── Layer 3: Core flame sprite ──
+            // 笏笏 Layer 3: Core flame sprite 笏笏
             DrawCore(sb, tex, origin, lightColor);
 
-            // ── Layer 4: Additive bloom ──
+            // 笏笏 Layer 4: Additive bloom 笏笏
             DrawBloom(sb, tex, origin);
 
             return false;

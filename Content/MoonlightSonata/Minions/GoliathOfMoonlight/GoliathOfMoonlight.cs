@@ -346,24 +346,38 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
             int targetIdx = GetBeamTarget(owner);
             if (targetIdx == -1) return;
 
+            GoliathPlayer gp = owner.Goliath();
             Vector2 toTarget = Main.npc[targetIdx].Center - Projectile.Center;
             toTarget.Normalize();
-            Vector2 beamVel = toTarget * GoliathMoonlightBeam.BeamSpeed;
+            float speedMult = GoliathPlayer.PhaseBeamSpeedMultiplier[gp.LunarPhaseMode];
+            Vector2 beamVel = toTarget * GoliathMoonlightBeam.BeamSpeed * speedMult;
 
             int proj = Projectile.NewProjectile(
                 Projectile.GetSource_FromThis(), Projectile.Center, beamVel,
                 ModContent.ProjectileType<GoliathMoonlightBeam>(),
-                Projectile.damage, Projectile.knockBack, Projectile.owner,
+                (int)(Projectile.damage * GoliathPlayer.PhaseDamageMultiplier[gp.LunarPhaseMode]),
+                Projectile.knockBack, Projectile.owner,
                 GoliathMoonlightBeam.MaxBounces, -1);
 
             // Fire sound
             SoundEngine.PlaySound(SoundID.Item12 with { Volume = 0.5f, Pitch = 0.2f }, Projectile.Center);
 
-            // Fire VFX
+            // Fire VFX — colored by lunar phase
             if (!Main.dedServ)
             {
+                Color phaseColor = gp.CurrentPhaseColor;
                 GoliathParticleHandler.Spawn(new ImpactBloomParticle(
-                    Projectile.Center, GoliathUtils.IceBlueBrilliance, 0.6f, 12));
+                    Projectile.Center, Color.Lerp(GoliathUtils.IceBlueBrilliance, phaseColor, 0.3f), 0.6f, 12));
+
+                // Lunar phase ring on fire
+                GoliathParticleHandler.Spawn(new LunarPhaseRingParticle(
+                    Projectile.Center, phaseColor, 0.8f, 15));
+
+                // Music note on beam fire
+                GoliathParticleHandler.Spawn(new MusicNoteParticle(
+                    Projectile.Center, toTarget * 1.5f + new Vector2(0, -1f),
+                    Color.Lerp(phaseColor, GoliathUtils.EnergyTendril, 0.4f),
+                    0.35f, 35));
             }
         }
 
@@ -374,6 +388,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
             int targetIdx = GetBeamTarget(owner);
             if (targetIdx == -1) return;
 
+            GoliathPlayer gp = owner.Goliath();
             Vector2 toTarget = Main.npc[targetIdx].Center - Projectile.Center;
             toTarget.Normalize();
             Vector2 beamVel = toTarget * GoliathDevastatingBeam.BeamSpeed;
@@ -381,18 +396,36 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
             int proj = Projectile.NewProjectile(
                 Projectile.GetSource_FromThis(), Projectile.Center, beamVel,
                 ModContent.ProjectileType<GoliathDevastatingBeam>(),
-                Projectile.damage, Projectile.knockBack, Projectile.owner);
+                (int)(Projectile.damage * GoliathPlayer.PhaseDamageMultiplier[gp.LunarPhaseMode]),
+                Projectile.knockBack, Projectile.owner);
 
             // Heavier fire sound
             SoundEngine.PlaySound(SoundID.Item29 with { Volume = 0.6f, Pitch = -0.2f }, Projectile.Center);
 
-            // Dramatic fire VFX
+            // Dramatic fire VFX — phase tinted
             if (!Main.dedServ)
             {
+                Color phaseColor = gp.CurrentPhaseColor;
+
                 GoliathParticleHandler.Spawn(new ImpactBloomParticle(
                     Projectile.Center, GoliathUtils.SupermoonWhite, 1.0f, 18));
                 GoliathParticleHandler.Spawn(new SummonGlowParticle(
-                    Projectile.Center, GoliathUtils.NebulaPurple * 0.5f, 1.5f, 22));
+                    Projectile.Center, Color.Lerp(GoliathUtils.NebulaPurple, phaseColor, 0.4f) * 0.5f, 1.5f, 22));
+
+                // Lunar phase ring burst on devastating fire
+                GoliathParticleHandler.Spawn(new LunarPhaseRingParticle(
+                    Projectile.Center, phaseColor, 1.5f, 20));
+
+                // Music note burst — 3 notes for devastating beam
+                for (int i = 0; i < 3; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 3f + Main.rand.NextFloat(-0.3f, 0.3f);
+                    Vector2 noteVel = angle.ToRotationVector2() * (1.5f + Main.rand.NextFloat(1f));
+                    GoliathParticleHandler.Spawn(new MusicNoteParticle(
+                        Projectile.Center, noteVel,
+                        Color.Lerp(phaseColor, GoliathUtils.StarCore, 0.3f),
+                        0.4f + Main.rand.NextFloat(0.2f), 40));
+                }
             }
 
             // Screen shake
@@ -524,7 +557,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
         {
             if (Main.dedServ) return;
 
-            // Orbiting rift motes — every 15 ticks
+            Player owner = Main.player[Projectile.owner];
+            GoliathPlayer gp = owner.Goliath();
+            int lunarPhase = gp.LunarPhaseMode;
+            Color phaseColor = GoliathPlayer.LunarPhaseColors[lunarPhase];
+
+            // Orbiting rift motes — every 15 ticks, color tinted by lunar phase
             if (AliveTime % 15 == 0)
             {
                 float startAngle = Main.rand.NextFloat(MathHelper.TwoPi);
@@ -553,9 +591,74 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
                 Main.dust[d].scale = 0.6f + Main.rand.NextFloat(0.3f);
             }
 
+            // Lunar phase ring — expanding ring every 40 ticks showing current phase
+            if (AliveTime % 40 == 0)
+            {
+                GoliathParticleHandler.Spawn(new LunarPhaseRingParticle(
+                    Projectile.Center, phaseColor, 1.5f, 30));
+            }
+
+            // Phase-specific ambient particles
+            switch (lunarPhase)
+            {
+                case 0: // New Moon — subtle void wisps
+                    if (AliveTime % 25 == 0)
+                    {
+                        GoliathParticleHandler.Spawn(new GravityWellParticle(
+                            Projectile.Center + Main.rand.NextVector2Circular(60f, 60f),
+                            Projectile.Center, 0.15f, 40));
+                    }
+                    break;
+
+                case 1: // Waxing — growing energy sparks
+                    if (AliveTime % 18 == 0)
+                    {
+                        GoliathParticleHandler.Spawn(new BeamSparkParticle(
+                            Projectile.Center + Main.rand.NextVector2Circular(35f, 35f),
+                            Main.rand.NextVector2Circular(0.5f, 0.5f),
+                            0.25f + Main.rand.NextFloat(0.15f), 30));
+                    }
+                    break;
+
+                case 2: // Full Moon — radiant music notes + bright motes
+                    if (AliveTime % 12 == 0)
+                    {
+                        GoliathParticleHandler.Spawn(new MusicNoteParticle(
+                            Projectile.Center + Main.rand.NextVector2Circular(30f, 30f),
+                            Main.rand.NextVector2Circular(1f, 1f) + new Vector2(0, -0.8f),
+                            GoliathUtils.IceBlueBrilliance * 0.8f,
+                            0.3f + Main.rand.NextFloat(0.2f), 50));
+                    }
+                    if (AliveTime % 20 == 0)
+                    {
+                        GoliathParticleHandler.Spawn(new BeamSparkParticle(
+                            Projectile.Center + Main.rand.NextVector2Circular(40f, 40f),
+                            Main.rand.NextVector2CircularEdge(1.5f, 1.5f),
+                            0.3f, 25));
+                    }
+                    break;
+
+                case 3: // Waning — healing orbs drifting toward player
+                    if (AliveTime % 30 == 0)
+                    {
+                        GoliathParticleHandler.Spawn(new LunarHealingParticle(
+                            Projectile.Center, owner.Center,
+                            0.3f + Main.rand.NextFloat(0.15f), 40));
+                    }
+                    break;
+            }
+
+            // Orbital music notes — every 30 ticks (musical identity)
+            if (AliveTime % 30 == 0)
+            {
+                GoliathParticleHandler.Spawn(new MusicNoteParticle(
+                    Projectile.Center + Main.rand.NextVector2Circular(25f, 25f),
+                    Main.rand.NextVector2Circular(0.8f, 0.8f) + new Vector2(0, -0.5f),
+                    Color.Lerp(phaseColor, GoliathUtils.EnergyTendril, 0.3f) * 0.6f,
+                    0.25f + Main.rand.NextFloat(0.15f), 55 + Main.rand.Next(20)));
+            }
+
             // Conductor Mode: additional glyph particles
-            Player owner = Main.player[Projectile.owner];
-            GoliathPlayer gp = owner.Goliath();
             if (gp.ConductorMode && AliveTime % 12 == 0)
             {
                 GoliathParticleHandler.Spawn(new ConductorGlyphParticle(
@@ -593,7 +696,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
             Vector2 origin = bloom.Size() * 0.5f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
-            // Ambient rift glow — gentle pulse
+            Player owner = Main.player[Projectile.owner];
+            GoliathPlayer gp = owner.Goliath();
+            Color phaseColor = gp.CurrentPhaseColor;
+
+            // Ambient rift glow — gentle pulse, tinted by lunar phase
             float pulse = 0.4f + 0.15f * MathF.Sin(AliveTime * 0.05f);
 
             // Charge state intensifies glow
@@ -603,11 +710,19 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
                 pulse += chargeProgress * 0.4f;
             }
 
-            Color riftColor = GoliathUtils.GravityWell * pulse;
+            // Full Moon phase = brighter glow
+            if (gp.IsFullMoon)
+                pulse *= 1.3f;
+
+            Color riftColor = Color.Lerp(GoliathUtils.GravityWell, phaseColor, 0.3f) * pulse;
             sb.Draw(bloom, drawPos, null, riftColor, 0f, origin, 1.2f, SpriteEffects.None, 0f);
 
-            Color innerRift = GoliathUtils.NebulaPurple * (pulse * 0.6f);
+            Color innerRift = Color.Lerp(GoliathUtils.NebulaPurple, phaseColor, 0.2f) * (pulse * 0.6f);
             sb.Draw(bloom, drawPos, null, innerRift, 0f, origin, 0.7f, SpriteEffects.None, 0f);
+
+            // Phase-specific accent glow
+            Color accentColor = phaseColor * (pulse * 0.25f);
+            sb.Draw(bloom, drawPos, null, accentColor, 0f, origin, 1.6f, SpriteEffects.None, 0f);
         }
 
         private void DrawGoliathSprite(SpriteBatch sb, Color lightColor)
@@ -634,24 +749,35 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
             Vector2 origin = bloom.Size() * 0.5f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
-            // Eye / core glow — always present
+            Player owner = Main.player[Projectile.owner];
+            GoliathPlayer gp = owner.Goliath();
+            Color phaseColor = gp.CurrentPhaseColor;
+
+            // Eye / core glow — tinted by lunar phase
             float eyePulse = 0.3f + 0.1f * MathF.Sin(AliveTime * 0.08f);
-            Color eyeColor = GoliathUtils.IceBlueBrilliance * eyePulse;
+            Color eyeColor = Color.Lerp(GoliathUtils.IceBlueBrilliance, phaseColor, 0.25f) * eyePulse;
             sb.Draw(bloom, drawPos, null, eyeColor, 0f, origin, 0.3f, SpriteEffects.None, 0f);
 
-            // During beam charge: intensified glow
+            // During beam charge: intensified glow with phase tint
             if (CurrentState == GoliathState.BeamAttack || CurrentState == GoliathState.DevastatingBeam)
             {
                 float chargeProgress = ChargeTimer / (float)ChargeUpDuration;
-                Color chargeColor = GoliathUtils.StarCore * (chargeProgress * 0.5f);
+                Color chargeColor = Color.Lerp(GoliathUtils.StarCore, phaseColor, 0.3f) * (chargeProgress * 0.5f);
                 sb.Draw(bloom, drawPos, null, chargeColor, 0f, origin, 0.4f + chargeProgress * 0.3f, SpriteEffects.None, 0f);
             }
 
-            // Conductor Mode: additional outer ring glow
-            Player owner = Main.player[Projectile.owner];
-            if (owner.Goliath().ConductorMode)
+            // Full Moon phase: extra radiance
+            if (gp.IsFullMoon)
             {
-                float conductorPulse = owner.Goliath().ConductorPulse;
+                float fullPulse = 0.15f + 0.05f * MathF.Sin(AliveTime * 0.06f);
+                Color fullColor = GoliathUtils.SupermoonWhite * fullPulse;
+                sb.Draw(bloom, drawPos, null, fullColor, 0f, origin, 0.5f, SpriteEffects.None, 0f);
+            }
+
+            // Conductor Mode: additional outer ring glow
+            if (gp.ConductorMode)
+            {
+                float conductorPulse = gp.ConductorPulse;
                 Color conductorColor = GoliathUtils.ConductorHighlight * (0.15f + 0.1f * MathF.Sin(conductorPulse * MathHelper.TwoPi));
                 sb.Draw(bloom, drawPos, null, conductorColor, 0f, origin, 1.0f, SpriteEffects.None, 0f);
             }

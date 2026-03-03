@@ -5,8 +5,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell
 {
     /// <summary>
     /// Empowered state buff from Fang of the Infinite Bell.
-    /// Grants infinite mana and enables empowered lightning strikes on hit.
-    /// Visual indicator: golden glow around player.
+    /// Active at 10+ bounce stacks — indicates lightning arcs are active.
+    /// Grants +10% attack speed as visual/mechanical feedback.
     /// </summary>
     public class InfiniteBellEmpoweredBuff : ModBuff
     {
@@ -22,8 +22,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell
 
         public override void Update(Player player, ref int buffIndex)
         {
-            // Infinite mana handled via FangOfTheInfiniteBellPlayer.PostUpdate
-            // Lightning effect triggered in projectile OnHitNPC when empowered
+            // Lightning arcs are handled by InfiniteBellOrbProj at 10+ stacks
             player.GetAttackSpeed(DamageClass.Magic) += 0.10f;
         }
     }

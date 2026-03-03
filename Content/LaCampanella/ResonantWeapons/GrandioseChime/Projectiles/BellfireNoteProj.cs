@@ -78,7 +78,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
                 noteColor, Projectile.rotation, tex.Size() / 2f, 0.55f, SpriteEffects.None, 0f);
 
             // Fire glow behind
-            var bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
+            var bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow").Value;
             sb.Draw(bloomTex, Projectile.Center - Main.screenPosition, null,
                 GrandioseChimeUtils.BarragePalette[1] * 0.2f, 0f, bloomTex.Size() / 2f, 0.2f, SpriteEffects.None, 0f);
 

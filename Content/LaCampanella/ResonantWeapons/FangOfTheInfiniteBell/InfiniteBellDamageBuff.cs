@@ -4,8 +4,8 @@ using Terraria.ModLoader;
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell
 {
     /// <summary>
-    /// Damage boost buff from Fang of the Infinite Bell empowerment.
-    /// +15% magic damage for the duration.
+    /// Stacking damage buff from Fang of the Infinite Bell bounces.
+    /// +3% magic damage per bounce stack (max 20 stacks = +60%).
     /// </summary>
     public class InfiniteBellDamageBuff : ModBuff
     {
@@ -21,7 +21,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell
 
         public override void Update(Player player, ref int buffIndex)
         {
-            player.GetDamage(DamageClass.Magic) += 0.15f;
+            var fbPlayer = player.GetModPlayer<Utilities.FangOfTheInfiniteBellPlayer>();
+            float bonus = fbPlayer.BounceStacks * Utilities.FangOfTheInfiniteBellPlayer.DamagePerStack;
+            player.GetDamage(DamageClass.Magic) += bonus;
         }
     }
 }

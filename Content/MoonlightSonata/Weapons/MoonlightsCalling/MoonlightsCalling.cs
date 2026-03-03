@@ -146,7 +146,18 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling
             tooltips.Add(new TooltipLine(Mod, "Effect4",
                 $"Right-click: Serenade Mode — channeled prismatic mega-beam ({SerenadeManaCost} mana, 3s cooldown)"));
             tooltips.Add(new TooltipLine(Mod, "Effect5",
+                "Serenade builds resonance through 5 stages — harmonic nodes deal 1.5x damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6",
                 "Inflicts Musical Dissonance on enemies"));
+
+            if (serenade.SerenadeActive && serenade.ResonanceLevel > 0)
+            {
+                string resName = SerenadePlayer.ResonanceLevelNames[serenade.ResonanceLevel];
+                Color resColor = SerenadePlayer.ResonanceColors[serenade.ResonanceLevel];
+                tooltips.Add(new TooltipLine(Mod, "Resonance",
+                    $"Resonance: {resName}")
+                { OverrideColor = resColor });
+            }
 
             if (serenade.SerenadeCooldown > 0)
             {

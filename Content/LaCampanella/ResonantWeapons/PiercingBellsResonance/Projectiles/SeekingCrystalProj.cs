@@ -6,12 +6,13 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Particles;
 using MagnumOpus.Content.LaCampanella.Debuffs;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Utilities;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Projectiles
 {
     /// <summary>
-    /// Seeking crystal sub-projectile spawned by ResonantBlastProj.
-    /// Crystalline fire shard that aggressively homes toward enemies with a glowing aura.
+    /// Seeking crystal sub-projectile fired every 4th shot.
+    /// Homes toward enemies that have Resonant Markers. Applies markers on hit.
     /// </summary>
     public class SeekingCrystalProj : ModProjectile
     {
@@ -69,25 +70,38 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
 
         private int FindClosestEnemy()
         {
-            int closest = -1;
-            float closestDist = HomingRange;
+            // Prioritize enemies with Resonant Markers
+            int closestMarked = -1;
+            float closestMarkedDist = HomingRange;
+            int closestAny = -1;
+            float closestAnyDist = HomingRange;
+
             for (int i = 0; i < Main.maxNPCs; i++)
             {
                 NPC npc = Main.npc[i];
                 if (!npc.CanBeChasedBy()) continue;
                 float dist = Vector2.Distance(Projectile.Center, npc.Center);
-                if (dist < closestDist)
+                if (dist >= HomingRange) continue;
+
+                var markers = npc.GetGlobalNPC<ResonantMarkerNPC>();
+                if (markers.MarkerCount > 0 && dist < closestMarkedDist)
                 {
-                    closestDist = dist;
-                    closest = i;
+                    closestMarkedDist = dist;
+                    closestMarked = i;
+                }
+                if (dist < closestAnyDist)
+                {
+                    closestAnyDist = dist;
+                    closestAny = i;
                 }
             }
-            return closest;
+            return closestMarked >= 0 ? closestMarked : closestAny;
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 1);
+            target.GetGlobalNPC<ResonantMarkerNPC>().AddMarker(target);
         }
 
         public override void OnKill(int timeLeft)
@@ -116,7 +130,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
                 crystalColor * pulse, crystalRotation, tex.Size() / 2f, 0.5f * pulse, SpriteEffects.None, 0f);
 
             // Crystal aura glow
-            var bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
+            var bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow").Value;
             Color auraColor = PiercingBellsResonanceUtils.CrystalPalette[2] * 0.2f;
             sb.Draw(bloomTex, Projectile.Center - Main.screenPosition, null,
                 auraColor, 0f, bloomTex.Size() / 2f, 0.25f, SpriteEffects.None, 0f);

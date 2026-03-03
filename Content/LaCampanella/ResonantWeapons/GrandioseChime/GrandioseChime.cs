@@ -13,10 +13,10 @@ using MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Projectiles
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime
 {
     /// <summary>
-    /// GrandioseChime — Ranged Beam weapon, 240dmg, useTime 6, knockBack 5, uses Bullet ammo.
-    /// Every 3rd shot = bellfire barrage (7 burning note projectiles in fan spread).
-    /// Every 4th shot = music note mines (3 slow-drifting mines that detonate on enemy proximity).
-    /// Kill echoes: recently killed enemies spawn echo burst projectiles.
+    /// GrandioseChime — Ranged beam + mine weapon.
+    /// Primary: wide golden beam that kills trigger Kill Echo Chains (3 chains max).
+    /// Alt-fire: deploy floating bell-note mines (max 5).
+    /// Grandiose Crescendo: after 5 full chain kills, next beam is triple width + deploys 3 auto mines.
     /// </summary>
     public class GrandioseChimeItem : ModItem
     {
@@ -29,8 +29,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime
             Item.DamageType = DamageClass.Ranged;
             Item.width = 58;
             Item.height = 28;
-            Item.useTime = 6;
-            Item.useAnimation = 6;
+            Item.useTime = 18;
+            Item.useAnimation = 18;
             Item.useStyle = ItemUseStyleID.Shoot;
             Item.knockBack = 5f;
             Item.value = Item.sellPrice(gold: 50);
@@ -43,83 +43,87 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime
             Item.autoReuse = true;
         }
 
+        public override bool AltFunctionUse(Player player) => true;
+
+        public override bool CanUseItem(Player player)
+        {
+            if (player.altFunctionUse == 2)
+            {
+                // Alt-fire: deploy note mine. Max 5 deployed at once.
+                int mineCount = player.ownedProjectileCounts[ModContent.ProjectileType<NoteMineProj>()];
+                return mineCount < 5;
+            }
+            return base.CanUseItem(player);
+        }
+
         public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback)
         {
-            // Small spread
-            velocity = velocity.RotatedByRandom(MathHelper.ToRadians(2f));
+            if (player.altFunctionUse == 2)
+            {
+                Item.useTime = 30;
+                Item.useAnimation = 30;
+            }
+            else
+            {
+                Item.useTime = 18;
+                Item.useAnimation = 18;
+                velocity = velocity.RotatedByRandom(MathHelper.ToRadians(1.5f));
+            }
         }
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            var modPlayer = player.GetModPlayer<GrandioseChimePlayer>();
-            int shotType = modPlayer.RegisterShot();
-
             Vector2 muzzlePos = position + Vector2.Normalize(velocity) * 50f;
-            float angle = velocity.ToRotation();
+
+            if (player.altFunctionUse == 2)
+            {
+                // Alt-fire: deploy a note mine at cursor
+                Vector2 mineVel = velocity * 0.2f;
+                Projectile.NewProjectile(source, muzzlePos, mineVel,
+                    ModContent.ProjectileType<NoteMineProj>(), (int)(damage * 0.8f), knockback, player.whoAmI);
+                return false;
+            }
+
+            // Primary fire: golden beam
+            var modPlayer = player.GetModPlayer<GrandioseChimePlayer>();
+
+            // Check Grandiose Crescendo
+            bool isCrescendo = modPlayer.GrandioseCrescendoReady;
+            if (isCrescendo)
+                modPlayer.ConsumeGrandioseCrescendo();
 
             // Muzzle flash
+            float angle = velocity.ToRotation();
             GrandioseChimeParticleHandler.SpawnParticle(new GrandioseBeamFlashParticle(
                 muzzlePos, angle, Main.rand.NextFloat(40f, 60f), Main.rand.Next(5, 10)));
 
-            // Always fire the base beam projectile
+            // Fire beam — ai[0]=1 if Grandiose Crescendo
             Projectile.NewProjectile(source, muzzlePos, velocity,
-                ModContent.ProjectileType<GrandioseBeamProj>(), damage, knockback, player.whoAmI);
+                ModContent.ProjectileType<GrandioseBeamProj>(), isCrescendo ? (int)(damage * 1.5f) : damage,
+                knockback, player.whoAmI, ai0: isCrescendo ? 1f : 0f);
 
-            // Barrage (3rd shot or 12th = both)
-            if (shotType == 1 || shotType == 3)
+            // Grandiose Crescendo: auto-deploy 3 mines along beam path
+            if (isCrescendo)
             {
-                SpawnBellfireBarrage(source, muzzlePos, velocity, damage, knockback, player);
-            }
-
-            // Mines (4th shot or 12th = both)
-            if (shotType == 2 || shotType == 3)
-            {
-                SpawnNoteMines(source, muzzlePos, velocity, damage, knockback, player);
+                Vector2 beamDir = Vector2.Normalize(velocity);
+                for (int i = 1; i <= 3; i++)
+                {
+                    Vector2 minePos = muzzlePos + beamDir * (100f * i) + Main.rand.NextVector2Circular(20f, 20f);
+                    Projectile.NewProjectile(source, minePos, Vector2.Zero,
+                        ModContent.ProjectileType<NoteMineProj>(), (int)(damage * 0.8f), knockback, player.whoAmI);
+                }
             }
 
             return false;
         }
 
-        private void SpawnBellfireBarrage(EntitySource_ItemUse_WithAmmo source, Vector2 pos, Vector2 vel, int damage, float kb, Player player)
-        {
-            // 7 burning note projectiles in a fan spread
-            float totalSpread = MathHelper.ToRadians(50f);
-            float startAngle = vel.ToRotation() - totalSpread / 2f;
-
-            for (int i = 0; i < 7; i++)
-            {
-                float noteAngle = startAngle + totalSpread / 6f * i;
-                Vector2 noteVel = new Vector2((float)Math.Cos(noteAngle), (float)Math.Sin(noteAngle)) * vel.Length() * 0.8f;
-
-                Projectile.NewProjectile(source, pos, noteVel,
-                    ModContent.ProjectileType<BellfireNoteProj>(), (int)(damage * 0.6f), kb * 0.5f, player.whoAmI);
-
-                // Barrage burst particles
-                GrandioseChimeParticleHandler.SpawnParticle(new BurningNoteParticle(
-                    pos, noteVel * 0.15f, Main.rand.Next(20, 35)));
-            }
-        }
-
-        private void SpawnNoteMines(EntitySource_ItemUse_WithAmmo source, Vector2 pos, Vector2 vel, int damage, float kb, Player player)
-        {
-            // 3 slow-drifting mines in a triangle spread
-            for (int i = 0; i < 3; i++)
-            {
-                float offset = MathHelper.ToRadians(30f) * (i - 1);
-                Vector2 mineVel = vel.RotatedBy(offset) * 0.3f; // Slow drift
-
-                Projectile.NewProjectile(source, pos, mineVel,
-                    ModContent.ProjectileType<NoteMineProj>(), (int)(damage * 0.8f), kb, player.whoAmI);
-            }
-        }
-
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires powerful beam shots at a moderate pace"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Every 3rd shot unleashes a bellfire barrage of 7 burning notes"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Every 4th shot deploys proximity-detonating music note mines"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Enemies slain recently spawn kill echo bursts"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Its grandeur shakes the heavens, each chime a thunderclap of divine fire'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires wide golden beam shots that trigger Kill Echo Chains on kill"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Kill Echo chains to the nearest enemy within 15 tiles at 60% damage, up to 3 chains"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Right click to deploy floating bell-note mines (max 5)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "After 5 complete kill chains, the next beam becomes Grandiose: triple width + 3 auto mines"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'When the grand chime sounds, the world holds its breath.'")
             {
                 OverrideColor = new Color(255, 140, 40)
             });

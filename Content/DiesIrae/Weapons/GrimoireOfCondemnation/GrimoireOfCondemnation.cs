@@ -1,22 +1,16 @@
-using System;
-using System.Collections.Generic;
+﻿using MagnumOpus.Common;
 using Microsoft.Xna.Framework;
-using Terraria;
+using System.Collections.Generic;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Content.DiesIrae.Weapons.GrimoireOfCondemnation.Particles;
-using MagnumOpus.Content.DiesIrae.Weapons.GrimoireOfCondemnation.Utilities;
+using Terraria;
+using MagnumOpus.Content.DiesIrae.HarmonicCores;
+using MagnumOpus.Content.DiesIrae.ResonanceEnergies;
+using MagnumOpus.Content.Fate.CraftingStations;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.GrimoireOfCondemnation
 {
-    /// <summary>
-    /// Grimoire of Condemnation — Fires 3 spiraling blazing shards that chain lightning
-    /// between each other when within range. Shards stick to enemies briefly then detonate.
-    ///
-    /// Stats: 1500 damage, 12 mana, 15 useTime, 4 KB, crit 15, Magic.
-    /// Theme: Dies Irae — the words of condemnation made manifest.
-    /// </summary>
     public class GrimoireOfCondemnation : ModItem
     {
         public override void SetDefaults()
@@ -35,33 +29,20 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.GrimoireOfCondemnation
             Item.UseSound = SoundID.Item103;
             Item.autoReuse = true;
             Item.noMelee = true;
-            Item.staff[Item.type] = true;
             Item.shoot = ModContent.ProjectileType<Projectiles.BlazingShardProjectile>();
             Item.shootSpeed = 12f;
             Item.crit = 15;
         }
 
-        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        public override void AddRecipes()
         {
-            // Fire 3 spiraling shards with slight spread
-            for (int i = 0; i < 3; i++)
-            {
-                float spread = MathHelper.ToRadians(-10 + 10 * i);
-                Vector2 vel = velocity.RotatedBy(spread) * Main.rand.NextFloat(0.95f, 1.05f);
-                Projectile.NewProjectile(source, position, vel, type, damage, knockback, player.whoAmI, ai0: i);
-            }
-
-            // Grimoire casting VFX
-            Vector2 castPos = position + velocity.SafeNormalize(Vector2.UnitX) * 40f;
-            GrimoireParticleHandler.Spawn(new GrimoireImpactBloom(castPos, GrimoireUtils.CondemnOrange, 0.6f, 8));
-            for (int i = 0; i < 4; i++)
-            {
-                Vector2 sparkVel = velocity.SafeNormalize(Vector2.UnitX).RotatedBy(Main.rand.NextFloat(-0.5f, 0.5f)) * Main.rand.NextFloat(2f, 4f);
-                GrimoireParticleHandler.Spawn(new CursedShardTrailParticle(castPos, sparkVel,
-                    GrimoireUtils.GetGrimoireColor(Main.rand.NextFloat()), 0.15f, 10));
-            }
-
-            return false;
+            CreateRecipe()
+            .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.ResonantCoreOfDiesIrae>(), 20)
+            .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.DiesIraeResonantEnergy>(), 15)
+            .AddIngredient(ModContent.ItemType<Content.DiesIrae.HarmonicCores.HarmonicCoreOfDiesIrae>(), 2)
+            .AddIngredient(ItemID.LunarBar, 15)
+            .AddTile(ModContent.TileType<Content.Fate.CraftingStations.FatesCosmicAnvilTile>())
+            .Register();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -72,17 +53,6 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.GrimoireOfCondemnation
             {
                 OverrideColor = new Color(200, 50, 30)
             });
-        }
-
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.ResonantCoreOfDiesIrae>(), 20)
-                .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.DiesIraeResonantEnergy>(), 15)
-                .AddIngredient(ModContent.ItemType<Content.DiesIrae.HarmonicCores.HarmonicCoreOfDiesIrae>(), 2)
-                .AddIngredient(ItemID.LunarBar, 15)
-                .AddTile(ModContent.TileType<Content.Fate.CraftingStations.FatesCosmicAnvilTile>())
-                .Register();
         }
     }
 }

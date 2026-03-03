@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ID;
@@ -7,10 +7,6 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using MagnumOpus.Content.Eroica.Weapons.FuneralPrayer;
-using MagnumOpus.Content.Eroica.Weapons.FuneralPrayer.Utilities;
-using MagnumOpus.Content.Eroica.Weapons.FuneralPrayer.Particles;
-using MagnumOpus.Content.Eroica.Weapons.FuneralPrayer.Primitives;
-using MagnumOpus.Content.Eroica.Weapons.FuneralPrayer.Dusts;
 using System;
 using System.Collections.Generic;
 
@@ -31,7 +27,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         private const float MaxRicochetRange = 500f;
         private Vector2 lastHitPosition;
 
-        // ── Trail tracking ──
+        // 笏笏 Trail tracking 笏笏
         private const int TrailLength = 24;
         private Vector2[] trailPositions = new Vector2[TrailLength];
         private float[] trailRotations = new float[TrailLength];
@@ -64,7 +60,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         {
             ageTimer++;
 
-            // ── Trail position tracking ──
+            // 笏笏 Trail position tracking 笏笏
             if (!trailInitialized)
             {
                 for (int i = 0; i < TrailLength; i++)
@@ -117,7 +113,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // ── Particle Spawning ──
+            // 笏笏 Particle Spawning 笏笏
             SpawnFlightParticles();
         }
 
@@ -125,7 +121,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         private void SpawnFlightParticles()
         {
-            // Intense funeral flames — this is a powerful ricochet beam
+            // Intense funeral flames 窶・this is a powerful ricochet beam
             if (Main.rand.NextBool(2))
             {
                 Vector2 perpendicular = Projectile.velocity.SafeNormalize(Vector2.UnitX).RotatedBy(MathHelper.PiOver2);
@@ -295,16 +291,16 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = tex.Size() / 2f;
 
-            // ── Layer 1: GPU Requiem Trail ──
+            // 笏笏 Layer 1: GPU Requiem Trail 笏笏
             DrawRequiemTrail(sb);
 
-            // ── Layer 2: Afterimage chain ──
+            // 笏笏 Layer 2: Afterimage chain 笏笏
             DrawAfterimages(sb, tex, origin);
 
-            // ── Layer 3: Core beam with soul-fire glow ──
+            // 笏笏 Layer 3: Core beam with soul-fire glow 笏笏
             DrawBeamCore(sb, tex, origin);
 
-            // ── Layer 4: Additive bloom ──
+            // 笏笏 Layer 4: Additive bloom 笏笏
             DrawBloomOverlay(sb, origin);
 
             return false;

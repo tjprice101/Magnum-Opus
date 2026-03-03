@@ -1,44 +1,24 @@
-using System;
-using MagnumOpus.Content.Eroica.Weapons.CelestialValor.Particles;
-using MagnumOpus.Content.Eroica.Weapons.CelestialValor.Utilities;
-using MagnumOpus.Content.SandboxExoblade.Primitives;
+﻿using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ReLogic.Content;
+using System;
 using Terraria;
-using Terraria.Audio;
-using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
 {
     /// <summary>
-    /// Homing valor beam — a blazing scarlet-gold energy bolt that seeks enemies.
-    /// Spawned during swings (2/3/4 per phase). Each has a GPU primitive trail
-    /// rendered via the ExobladePierce shader with heroic fire colors.
-    /// On hit: spawns timed cross-slash bursts + applies MusicsDissonance.
+    /// Heroic beam projectile — golden-crimson energy bolt with flame trail and bloom.
+    /// Spawned by CelestialValorSwing during Ascending Valor and Crimson Legion phases.
     /// </summary>
     public class ValorBeam : ModProjectile
     {
-        public override string Texture => "Terraria/Images/Projectile_1";
-
-        private int TargetIndex = -1;
-        private const int NoHomeTime = 20;
-        private const float MaxTrailWidth = 26f;
-
-        private ref float Time => ref Projectile.ai[0];
-
-        private static Asset<Texture2D> BloomTex;
-        private static Asset<Texture2D> TrailTex;
-
-        public override void SetStaticDefaults()
-        {
-            ProjectileID.Sets.CultistIsResistantTo[Type] = true;
-            ProjectileID.Sets.TrailCacheLength[Type] = 30;
-            ProjectileID.Sets.TrailingMode[Type] = 2;
-        }
+        private const int TrailLength = 16;
+        private Vector2[] trailPositions = new Vector2[TrailLength];
+        private bool trailInitialized = false;
 
         public override void SetDefaults()
         {
@@ -50,146 +30,78 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
             Projectile.tileCollide = false;
             Projectile.penetrate = 1;
             Projectile.extraUpdates = 1;
-            Projectile.alpha = 255;
+            Projectile.alpha = 0;
             Projectile.timeLeft = 300;
             Projectile.usesLocalNPCImmunity = true;
-            Projectile.localNPCHitCooldown = Projectile.MaxUpdates * 12;
+            Projectile.localNPCHitCooldown = 15;
         }
 
         public override void AI()
         {
-            // Homing after initial delay
-            if (Time >= NoHomeTime)
-            {
-                if (TargetIndex >= 0)
-                {
-                    if (!Main.npc[TargetIndex].active || !Main.npc[TargetIndex].CanBeChasedBy())
-                        TargetIndex = -1;
-                    else
-                    {
-                        Vector2 ideal = Projectile.SafeDirectionTo(Main.npc[TargetIndex].Center) * (Projectile.velocity.Length() + 5.5f);
-                        Projectile.velocity = Vector2.Lerp(Projectile.velocity, ideal, 0.09f);
-                    }
-                }
-
-                if (TargetIndex == -1)
-                {
-                    NPC target = Projectile.Center.ClosestNPCAt(1400f);
-                    if (target != null) TargetIndex = target.whoAmI;
-                    else Projectile.velocity *= 0.99f;
-                }
-            }
-
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // Heroic ember dust trail
-            if (Main.rand.NextBool())
+            // Trail tracking
+            if (!trailInitialized)
             {
-                Color dustColor = ValorUtils.GetFireGradient(Main.rand.NextFloat());
-                Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(12f, 12f),
-                    DustID.GoldFlame, Projectile.velocity * -1.8f, 0, dustColor);
-                d.scale = 0.35f;
-                d.fadeIn = Main.rand.NextFloat() * 1f;
-                d.noGravity = true;
+                trailInitialized = true;
+                for (int i = 0; i < TrailLength; i++)
+                    trailPositions[i] = Projectile.Center;
             }
+            for (int i = TrailLength - 1; i > 0; i--)
+                trailPositions[i] = trailPositions[i - 1];
+            trailPositions[0] = Projectile.Center;
 
-            Projectile.scale = Utils.GetLerpValue(0f, 0.12f, Projectile.timeLeft / 400f, true);
+            // Flame dust
+            EroicaVFXLibrary.SpawnFlameTrailDust(Projectile.Center, Projectile.velocity);
 
-            if (Projectile.numUpdates == 0) Time++;
+            // Lighting
+            EroicaVFXLibrary.AddPaletteLighting(Projectile.Center, 0.4f, 0.6f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            SoundEngine.PlaySound(SoundID.Item60 with { Volume = 0.5f, Pitch = 0.3f }, target.Center);
-
-            // Spawn cross-slash burst
-            if (Main.myPlayer == Projectile.owner)
-            {
-                Projectile.NewProjectile(Projectile.GetSource_FromAI(), target.Center,
-                    Projectile.velocity * 0.1f, ModContent.ProjectileType<ValorSlashCreator>(),
-                    Projectile.damage, 0f, Projectile.owner, target.whoAmI,
-                    Projectile.velocity.ToRotation());
-            }
-
             target.AddBuff(ModContent.BuffType<MusicsDissonance>(), 180);
-
-            // Impact spark particles
-            for (int i = 0; i < 5; i++)
-            {
-                ValorSparkParticle spark = new(target.Center, Main.rand.NextVector2Circular(6f, 6f),
-                    Main.rand.NextBool() ? ValorUtils.Gold : ValorUtils.Scarlet,
-                    Main.rand.NextFloat(0.04f, 0.08f), 14);
-                ValorParticleHandler.SpawnParticle(spark);
-            }
+            EroicaVFXLibrary.MeleeImpact(target.Center, 1);
         }
 
-        public override Color? GetAlpha(Color lightColor) => Color.White with { A = 0 } * Projectile.Opacity;
-
-        #region ── GPU Primitive Trail ──
-
-        private float TrailWidth(float ratio, Vector2 _)
+        public override void OnKill(int timeLeft)
         {
-            float w = Utils.GetLerpValue(1f, 0.4f, ratio, true) *
-                      (float)Math.Sin(Math.Acos(1 - Utils.GetLerpValue(0f, 0.15f, ratio, true)));
-            w *= Utils.GetLerpValue(0f, 0.12f, Projectile.timeLeft / 400f, true);
-            return w * MaxTrailWidth;
+            EroicaVFXLibrary.SpawnRadialDustBurst(Projectile.Center, 8, 4f);
+            EroicaVFXLibrary.SpawnValorSparkles(Projectile.Center, 5, 20f);
         }
-
-        private Color TrailColor(float ratio, Vector2 _)
-            => Color.Lerp(ValorUtils.Scarlet, ValorUtils.DeepScarlet, ratio);
-
-        private float InnerTrailWidth(float ratio, Vector2 v) => TrailWidth(ratio, v) * 0.75f;
-        private Color InnerTrailColor(float ratio, Vector2 _) => Color.White;
-
-        #endregion
 
         public override bool PreDraw(ref Color lightColor)
         {
-            if (Projectile.timeLeft > 295) return false;
+            SpriteBatch sb = Main.spriteBatch;
 
-            // Core bloom
-            BloomTex ??= ModContent.Request<Texture2D>("MagnumOpus/Content/SandboxExoblade/Textures/BloomCircle");
-            Texture2D bloom = BloomTex.Value;
-            Vector2 corePos = Projectile.oldPos[2] + Projectile.Size / 2f - Main.screenPosition;
+            // ── Trail afterimages ──
+            for (int i = TrailLength - 1; i > 0; i--)
+            {
+                float fade = 1f - (float)i / TrailLength;
+                fade *= fade;
+                Vector2 drawPos = trailPositions[i] - Main.screenPosition;
 
-            Color mainColor = ValorUtils.MulticolorLerp(
-                (Main.GlobalTimeWrappedHourly * 1.5f + Projectile.whoAmI * 0.15f) % 1,
-                ValorUtils.Scarlet, ValorUtils.Flame, ValorUtils.Gold, ValorUtils.HeroicBlaze);
+                Texture2D bloom = MagnumTextureRegistry.GetBloom();
+                if (bloom == null) continue;
+                Vector2 origin = bloom.Size() * 0.5f;
 
-            Main.EntitySpriteDraw(bloom, corePos, null, (mainColor * 0.12f) with { A = 0 }, 0,
-                bloom.Size() / 2f, 1.1f * Projectile.scale, 0, 0);
-            Main.EntitySpriteDraw(bloom, corePos, null, (mainColor * 0.5f) with { A = 0 }, 0,
-                bloom.Size() / 2f, 0.3f * Projectile.scale, 0, 0);
+                Color trailColor = Color.Lerp(EroicaPalette.Scarlet, EroicaPalette.Gold, (float)i / TrailLength) with { A = 0 };
+                sb.Draw(bloom, drawPos, null, trailColor * (fade * 0.4f), 0f, origin, 0.2f * fade, SpriteEffects.None, 0f);
+            }
 
-            // GPU trail
-            Main.spriteBatch.EnterShaderRegion();
+            // ── Core bloom ──
+            EroicaVFXLibrary.DrawEroicaBloomStack(sb, Projectile.Center,
+                EroicaPalette.DeepScarlet, EroicaPalette.Gold, 0.25f, 0.9f);
 
-            TrailTex ??= ModContent.Request<Texture2D>("MagnumOpus/Content/SandboxExoblade/Textures/BasicTrail");
-            Color secColor = ValorUtils.MulticolorLerp(
-                (Main.GlobalTimeWrappedHourly * 1.5f + Projectile.whoAmI * 0.15f + 0.2f) % 1,
-                ValorUtils.Scarlet, ValorUtils.Flame, ValorUtils.Gold, ValorUtils.HeroicBlaze);
-
-            GameShaders.Misc["MagnumOpus:ExobladePierce"].UseImage1(TrailTex);
-            GameShaders.Misc["MagnumOpus:ExobladePierce"].UseImage2("Images/Extra_189");
-            GameShaders.Misc["MagnumOpus:ExobladePierce"].UseColor(mainColor);
-            GameShaders.Misc["MagnumOpus:ExobladePierce"].UseSecondaryColor(secColor);
-            GameShaders.Misc["MagnumOpus:ExobladePierce"].Apply();
-
-            Vector2 offset = Projectile.Size * 0.5f;
-            PrimitiveRenderer.RenderTrail(Projectile.oldPos, new(TrailWidth, TrailColor,
-                (_, _) => offset, shader: GameShaders.Misc["MagnumOpus:ExobladePierce"]), 30);
-
-            // Inner white-hot core trail
-            GameShaders.Misc["MagnumOpus:ExobladePierce"].UseColor(Color.White);
-            GameShaders.Misc["MagnumOpus:ExobladePierce"].UseSecondaryColor(Color.White);
-            PrimitiveRenderer.RenderTrail(Projectile.oldPos, new(InnerTrailWidth, InnerTrailColor,
-                (_, _) => offset, shader: GameShaders.Misc["MagnumOpus:ExobladePierce"]), 30);
-
-            Main.spriteBatch.ExitShaderRegion();
-
-            // White bloom highlight
-            Main.EntitySpriteDraw(bloom, corePos, null, (Color.White * 0.2f) with { A = 0 }, 0,
-                bloom.Size() / 2f, 0.6f * Projectile.scale, 0, 0);
+            // ── Directional streak ──
+            Texture2D streak = MagnumTextureRegistry.GetBeamStreak();
+            if (streak != null)
+            {
+                Vector2 streakDraw = Projectile.Center - Main.screenPosition;
+                Vector2 streakOrigin = new Vector2(streak.Width * 0.5f, streak.Height * 0.5f);
+                Color streakColor = EroicaPalette.Gold with { A = 0 };
+                sb.Draw(streak, streakDraw, null, streakColor * 0.7f, Projectile.rotation, streakOrigin, new Vector2(0.6f, 0.2f), SpriteEffects.None, 0f);
+            }
 
             return false;
         }
