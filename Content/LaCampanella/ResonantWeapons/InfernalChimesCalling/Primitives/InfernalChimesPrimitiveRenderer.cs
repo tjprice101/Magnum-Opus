@@ -87,16 +87,42 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
                 indices[idx++] = tl; indices[idx++] = tr; indices[idx++] = bl;
                 indices[idx++] = bl; indices[idx++] = tr; indices[idx++] = br;
             }
+            BlendState oldBlend = _device.BlendState;
+            DepthStencilState oldDepth = _device.DepthStencilState;
+            RasterizerState oldRaster = _device.RasterizerState;
             try
             {
                 _vb.SetData(verts, 0, vc, SetDataOptions.Discard);
                 _ib.SetData(indices, 0, (pos.Length - 1) * 6, SetDataOptions.Discard);
                 _device.SetVertexBuffer(_vb); _device.Indices = _ib;
+                _device.BlendState = BlendState.Additive;
+                _device.DepthStencilState = DepthStencilState.None;
                 _device.RasterizerState = RasterizerState.CullNone;
-                if (s.Shader != null) try { s.Shader.Apply(); } catch { }
+                if (s.Shader != null)
+                {
+                    try { s.Shader.Apply(); } catch { }
+                }
+                else
+                {
+                    var basicEffect = new BasicEffect(_device)
+                    {
+                        VertexColorEnabled = true,
+                        TextureEnabled = false,
+                        World = Matrix.Identity,
+                        View = Matrix.Identity,
+                        Projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1)
+                    };
+                    foreach (var pass in basicEffect.CurrentTechnique.Passes) pass.Apply();
+                }
                 _device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vc, 0, (pos.Length - 1) * 2);
             }
             catch { }
+            finally
+            {
+                _device.BlendState = oldBlend;
+                _device.DepthStencilState = oldDepth;
+                _device.RasterizerState = oldRaster;
+            }
         }
 
         private void EnsureBuffers()

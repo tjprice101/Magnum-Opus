@@ -4,29 +4,25 @@ using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.Graphics.Shaders;
 using MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Utilities;
-using MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Particles;
-using MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Primitives;
-using MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Shaders;
 using MagnumOpus.Content.SwanLake.Debuffs;
-using ReLogic.Content;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Projectiles
 {
     /// <summary>
-    /// Black Swan Flare — Homing sub-projectile fired during Phase 2 (Grand Jeté).
+    /// Black Swan Flare — Homing sub-projectile fired during swing phases.
     /// Dual-polarity: randomly black or white on spawn. Tracks enemies.
-    /// On hit: registers flare hit for empowerment system + visual impact.
-    /// 
-    /// ai[0] = 1 means empowered version (2× damage, rainbow aura).
+    /// ai[0] = 0: normal, 1: empowered (rainbow aura), 2: grand jeté shockwave seed.
     /// ai[1] = polarity (0 = white, 1 = black).
+    /// Foundation-pattern rendering: safe SpriteBatch, MagnumTextureRegistry textures.
     /// </summary>
     public class BlackSwanFlareProj : ModProjectile
     {
         #region Properties
 
         public bool IsEmpowered => Projectile.ai[0] >= 1f;
+        public bool IsGrandJete => Projectile.ai[0] >= 2f;
         public bool IsBlack => Projectile.ai[1] >= 1f;
 
         private const float HomingRange = 350f;
@@ -35,7 +31,6 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
 
         private Player Owner => Main.player[Projectile.owner];
         private bool _initialized;
-        private BlackSwanPrimitiveRenderer _trailRenderer;
 
         #endregion
 
@@ -65,9 +60,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
             if (!_initialized)
             {
                 _initialized = true;
-                // Random polarity
                 Projectile.ai[1] = Main.rand.NextBool() ? 1f : 0f;
-                _trailRenderer = new BlackSwanPrimitiveRenderer();
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
@@ -79,13 +72,12 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                 Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
             }
 
-            // Cap speed
             if (Projectile.velocity.Length() > MaxSpeed)
                 Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // Trail dust
+            // Trail dust — dual polarity
             if (Main.rand.NextBool(3))
             {
                 int dustType = IsBlack ? DustID.Shadowflame : DustID.WhiteTorch;
@@ -100,8 +92,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
             // Empowered rainbow sparkle
             if (IsEmpowered && Main.rand.NextBool(4))
             {
-                Color rainbow = BlackSwanUtils.GetRainbow(Main.rand.NextFloat());
-                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowMk2,
+                float hue = Main.rand.NextFloat();
+                Color rainbow = Main.hslToRgb(hue, 0.85f, 0.8f);
+                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowTorch,
                     Main.rand.NextVector2Circular(1f, 1f), 0, rainbow, 0.5f);
                 d.noGravity = true;
             }
@@ -117,204 +110,182 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // Register flare hit for empowerment
-            Owner.BlackSwan().RegisterFlareHit();
+            try { Owner.GetModPlayer<BlackSwanPlayer>().RegisterHit(); } catch { }
+            try { Owner.GetModPlayer<BlackSwanPlayer>().RegisterFlareHit(); } catch { }
 
-            // Apply debuff
-            target.AddBuff(ModContent.BuffType<FlameOfTheSwan>(), 240); // 4 seconds
+            target.AddBuff(ModContent.BuffType<SwansMark>(), 300);
 
-            // Impact VFX
             Vector2 hitPos = target.Center;
+
+            // Impact sparks — dual polarity
             for (int i = 0; i < 6; i++)
             {
                 Vector2 sparkVel = Main.rand.NextVector2CircularEdge(4f, 4f);
-                BlackSwanParticleHandler.SpawnParticle(
-                    new DualitySparkParticle(hitPos, sparkVel, i % 2 == 0, 18, 0.5f));
+                bool isBlack = i % 2 == 0;
+                Color col = isBlack ? new Color(30, 30, 45) : new Color(240, 240, 255);
+                Dust d = Dust.NewDustPerfect(hitPos, DustID.RainbowTorch, sparkVel, 0, col, 0.5f);
+                d.noGravity = true;
             }
 
-            // Feather burst on impact
+            // Feather on impact
             for (int i = 0; i < 2; i++)
             {
                 Vector2 featherVel = Main.rand.NextVector2Circular(2f, 2f) + new Vector2(0, -1f);
-                BlackSwanParticleHandler.SpawnParticle(
-                    new FeatherDriftParticle(hitPos + Main.rand.NextVector2Circular(8f, 8f),
-                        featherVel, IsBlack, 40, 0.5f));
+                bool isBlack = Main.rand.NextBool();
+                Dust d = Dust.NewDustPerfect(hitPos + Main.rand.NextVector2Circular(8f, 8f),
+                    isBlack ? DustID.Shadowflame : DustID.WhiteTorch, featherVel, 0,
+                    isBlack ? new Color(30, 30, 40) : new Color(248, 245, 255), 0.5f);
+                d.noGravity = true;
             }
 
-            // Music notes on flare impact
-            SwanLakeVFXLibrary.SpawnMusicNotes(hitPos, 2, 15f, 0.5f, 0.8f, 22);
+            try { SwanLakeVFXLibrary.SpawnMusicNotes(hitPos, 2, 15f, 0.5f, 0.8f, 22); } catch { }
 
-            // Empowered hit: extra sparkle burst
+            // Empowered rainbow burst
             if (IsEmpowered)
             {
                 for (int i = 0; i < 8; i++)
                 {
+                    float hue = (float)i / 8f;
+                    Color rainbow = Main.hslToRgb(hue, 0.85f, 0.8f);
                     Vector2 burstVel = Main.rand.NextVector2CircularEdge(6f, 6f);
-                    Color rainbow = BlackSwanUtils.GetRainbow((float)i / 8f);
-                    Dust d = Dust.NewDustPerfect(hitPos, DustID.RainbowMk2, burstVel, 0, rainbow, 0.7f);
+                    Dust d = Dust.NewDustPerfect(hitPos, DustID.RainbowTorch, burstVel, 0, rainbow, 0.7f);
                     d.noGravity = true;
                 }
             }
         }
 
+        #region Rendering (Foundation Pattern)
+
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
 
-            // Draw shader-driven trail
-            DrawFlareTrail(sb);
-
-            // Draw the flare core
-            DrawFlareCore(sb);
-
-            return false;
-        }
-
-        private void DrawFlareTrail(SpriteBatch sb)
-        {
-            if (_trailRenderer == null) return;
-
-            // Build trail from old positions
-            Vector2[] trailPositions = new Vector2[Projectile.oldPos.Length];
-            for (int i = 0; i < trailPositions.Length; i++)
+            try
             {
-                if (Projectile.oldPos[i] == Vector2.Zero)
-                {
-                    trailPositions[i] = Projectile.Center;
-                }
-                else
-                {
-                    trailPositions[i] = Projectile.oldPos[i] + Projectile.Size / 2f;
-                }
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                DrawBloomTrail(sb);
+                DrawFlareCore(sb);
             }
-
-            Color trailColor = IsBlack ? new Color(40, 40, 60) : new Color(200, 200, 220);
-            Color glowColor = IsEmpowered ? BlackSwanUtils.GetRainbow() : (IsBlack ? new Color(60, 60, 90) : new Color(240, 240, 255));
-
-            MiscShaderData shader = BlackSwanShaderLoader.GetFlareTrailShader();
-            if (shader != null)
+            catch { }
+            finally
             {
-                shader.UseColor(trailColor);
-                shader.UseSecondaryColor(glowColor);
+                try { sb.End(); } catch { }
                 try
                 {
-                    shader.Shader.Parameters["uTime"]?.SetValue(Main.GameUpdateCount * 0.03f);
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
                 }
                 catch { }
             }
 
-            // Main trail
-            var mainSettings = new BlackSwanTrailSettings(
-                width: (float t) => MathHelper.Lerp(8f, 1f, t) * (IsEmpowered ? 1.3f : 1f),
-                trailColor: (float t) => Color.Lerp(trailColor, Color.Transparent, t * t),
-                shader: shader,
-                smoothen: true
-            );
+            return false;
+        }
 
-            sb.End();
-            _trailRenderer.RenderTrail(trailPositions, mainSettings, 30);
+        private void DrawBloomTrail(SpriteBatch sb)
+        {
+            Texture2D bloom = MagnumTextureRegistry.GetSoftGlow();
+            if (bloom == null) return;
 
-            // Glow overlay pass (additive)
-            var glowSettings = new BlackSwanTrailSettings(
-                width: (float t) => MathHelper.Lerp(12f, 2f, t) * (IsEmpowered ? 1.5f : 1f),
-                trailColor: (float t) => new Color(glowColor.R, glowColor.G, glowColor.B, 0) * (1f - t) * 0.3f,
-                shader: shader,
-                smoothen: true
-            );
+            Vector2 origin = bloom.Size() * 0.5f;
 
-            _trailRenderer.RenderTrail(trailPositions, glowSettings, 30);
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            {
+                if (Projectile.oldPos[i] == Vector2.Zero) continue;
 
-            // Restore SpriteBatch
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                float t = (float)i / Projectile.oldPos.Length;
+                Vector2 drawPos = Projectile.oldPos[i] + Projectile.Size * 0.5f - Main.screenPosition;
+                float trailAlpha = (1f - t) * 0.6f;
+                float trailScale = MathHelper.Lerp(0.15f, 0.03f, t) * (IsEmpowered ? 1.3f : 1f);
+
+                // Dual-polarity trail color
+                Color trailCol = IsBlack
+                    ? new Color(40, 40, 60, 0)
+                    : new Color(200, 200, 220, 0);
+
+                sb.Draw(bloom, drawPos, null, trailCol * trailAlpha, 0f, origin, trailScale, SpriteEffects.None, 0f);
+
+                // White core trail
+                sb.Draw(bloom, drawPos, null, new Color(255, 255, 255, 0) * trailAlpha * 0.3f, 0f, origin, trailScale * 0.4f, SpriteEffects.None, 0f);
+
+                // Rainbow accent on empowered
+                if (IsEmpowered && i % 2 == 0)
+                {
+                    float hue = (t + Main.GameUpdateCount * 0.01f) % 1f;
+                    Color rainbow = Main.hslToRgb(hue, 0.85f, 0.8f);
+                    sb.Draw(bloom, drawPos, null, new Color(rainbow.R, rainbow.G, rainbow.B, 0) * trailAlpha * 0.25f,
+                        0f, origin, trailScale * 1.8f, SpriteEffects.None, 0f);
+                }
+            }
         }
 
         private void DrawFlareCore(SpriteBatch sb)
         {
-            Texture2D softRadial = null;
-            Texture2D pointBloom = null;
-            Texture2D starAccent = null;
-            try
-            {
-                softRadial = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom",
-                    AssetRequestMode.ImmediateLoad)?.Value;
-                pointBloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom",
-                    AssetRequestMode.ImmediateLoad)?.Value;
-                starAccent = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft",
-                    AssetRequestMode.ImmediateLoad)?.Value;
-            }
-            catch { }
-
-            if (softRadial == null && pointBloom == null) return;
+            Texture2D radial = MagnumTextureRegistry.GetRadialBloom();
+            Texture2D point = MagnumTextureRegistry.GetPointBloom();
+            Texture2D star = MagnumTextureRegistry.GetStar4Soft();
 
             Vector2 screenPos = Projectile.Center - Main.screenPosition;
-
             float pulse = 0.8f + 0.2f * (float)Math.Sin(Projectile.timeLeft * 0.15f);
             float baseScale = IsEmpowered ? 0.5f : 0.35f;
 
-            // Switch to additive
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
             Color outerColor = IsBlack ? new Color(40, 40, 60, 0) : new Color(220, 220, 240, 0);
 
-            // Layer 1: Wide soft halo (SoftRadialBloom)
-            if (softRadial != null)
+            // Layer 1: Wide soft halo
+            if (radial != null)
             {
-                Vector2 srOrigin = new Vector2(softRadial.Width / 2f, softRadial.Height / 2f);
-                sb.Draw(softRadial, screenPos, null, outerColor * 0.35f * pulse, 0f, srOrigin, baseScale * 2.2f, SpriteEffects.None, 0f);
+                Vector2 srOrigin = radial.Size() * 0.5f;
+                sb.Draw(radial, screenPos, null, outerColor * 0.35f * pulse, 0f, srOrigin, baseScale * 2.2f, SpriteEffects.None, 0f);
 
                 // Layer 2: Mid polarity glow
                 Color midColor = IsBlack ? new Color(60, 60, 85, 0) : new Color(200, 200, 230, 0);
-                sb.Draw(softRadial, screenPos, null, midColor * 0.45f * pulse, 0f, srOrigin, baseScale * 1.2f, SpriteEffects.None, 0f);
+                sb.Draw(radial, screenPos, null, midColor * 0.45f * pulse, 0f, srOrigin, baseScale * 1.2f, SpriteEffects.None, 0f);
             }
 
-            // Layer 3: Intense core (PointBloom)
-            if (pointBloom != null)
+            // Layer 3: White-hot core
+            if (point != null)
             {
-                Vector2 pbOrigin = new Vector2(pointBloom.Width / 2f, pointBloom.Height / 2f);
-                sb.Draw(pointBloom, screenPos, null, new Color(255, 255, 255, 0) * 0.7f * pulse, 0f, pbOrigin, baseScale * 0.6f, SpriteEffects.None, 0f);
+                Vector2 pbOrigin = point.Size() * 0.5f;
+                sb.Draw(point, screenPos, null, new Color(255, 255, 255, 0) * 0.7f * pulse, 0f, pbOrigin, baseScale * 0.6f, SpriteEffects.None, 0f);
             }
 
             // Layer 4: Rotating star accent
-            if (starAccent != null)
+            if (star != null)
             {
-                Vector2 starOrigin = new Vector2(starAccent.Width / 2f, starAccent.Height / 2f);
+                Vector2 starOrigin = star.Size() * 0.5f;
                 Color starCol = IsBlack ? new Color(100, 100, 140, 0) : new Color(240, 240, 255, 0);
                 float starRot = Projectile.timeLeft * 0.12f;
-                sb.Draw(starAccent, screenPos, null, starCol * 0.35f * pulse, starRot, starOrigin, baseScale * 0.4f, SpriteEffects.None, 0f);
+                sb.Draw(star, screenPos, null, starCol * 0.35f * pulse, starRot, starOrigin, baseScale * 0.4f, SpriteEffects.None, 0f);
             }
 
-            // Empowered: rainbow ring
-            if (IsEmpowered && softRadial != null)
+            // Empowered: rainbow outer ring
+            if (IsEmpowered && radial != null)
             {
-                Vector2 srOrigin = new Vector2(softRadial.Width / 2f, softRadial.Height / 2f);
-                Color rainbow = BlackSwanUtils.GetRainbow(Projectile.timeLeft * 0.02f);
-                sb.Draw(softRadial, screenPos, null, new Color(rainbow.R, rainbow.G, rainbow.B, 0) * 0.3f, 0f, srOrigin, baseScale * 3.5f, SpriteEffects.None, 0f);
+                float hue = (Projectile.timeLeft * 0.02f) % 1f;
+                Color rainbow = Main.hslToRgb(hue, 0.85f, 0.8f);
+                Vector2 srOrigin = radial.Size() * 0.5f;
+                sb.Draw(radial, screenPos, null, new Color(rainbow.R, rainbow.G, rainbow.B, 0) * 0.3f, 0f, srOrigin, baseScale * 3.5f, SpriteEffects.None, 0f);
             }
-
-            // Restore
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
+
+        #endregion
 
         public override void OnKill(int timeLeft)
         {
-            // Death VFX
+            // Death VFX — dual-polarity spark burst
             for (int i = 0; i < 4; i++)
             {
                 Vector2 sparkVel = Main.rand.NextVector2CircularEdge(3f, 3f);
-                BlackSwanParticleHandler.SpawnParticle(
-                    new DualitySparkParticle(Projectile.Center, sparkVel, Main.rand.NextBool(), 15, 0.3f));
+                bool isBlack = Main.rand.NextBool();
+                Color col = isBlack ? new Color(30, 30, 45) : new Color(240, 240, 255);
+                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowTorch, sparkVel, 0, col, 0.3f);
+                d.noGravity = true;
             }
 
-            // Death music notes and feather scatter
-            SwanLakeVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 12f, 0.5f, 0.7f, 20);
-            SwanLakeVFXLibrary.SpawnFeatherDrift(Projectile.Center, 2, 15f, 0.2f);
-
-            _trailRenderer?.Dispose();
+            try { SwanLakeVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 12f, 0.5f, 0.7f, 20); } catch { }
+            try { SwanLakeVFXLibrary.SpawnFeatherDrift(Projectile.Center, 2, 15f, 0.2f); } catch { }
         }
     }
 }

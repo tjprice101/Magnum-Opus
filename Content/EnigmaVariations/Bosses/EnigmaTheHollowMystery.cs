@@ -25,6 +25,7 @@ using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.EnigmaVariations.Bosses.Systems;
 using static MagnumOpus.Common.Systems.BossDialogueSystem;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.EnigmaVariations.Bosses
 {
@@ -178,7 +179,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
 
         public override void SetDefaults()
         {
-            // Hitbox = 80% of visual size (245x166 frame × 3.0 scale)
+            // Hitbox = 80% of visual size (245x166 frame ﾃ・3.0 scale)
             NPC.width = 588;
             NPC.height = 398;
             NPC.damage = BaseDamage;
@@ -349,7 +350,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 CustomParticles.EnigmaEyeGaze(eyePos, EnigmaPurple, 0.5f, Main.player[NPC.target].Center);
             }
             
-            string message = difficultyTier == 2 ? "V̴O̵I̷D̶ ̸R̶E̴V̵E̷L̴A̵T̵I̷O̵N̷" : "O̷B̶S̵E̶S̴S̶I̴O̶N̷";
+            string message = difficultyTier == 2 ? "VﾌｴOﾌｵIﾌｷDﾌｶ ﾌｸRﾌｶEﾌｴVﾌｵEﾌｷLﾌｴAﾌｵTﾌｵIﾌｷOﾌｵNﾌｷ" : "OﾌｷBﾌｶSﾌｵEﾌｶSﾌｴSﾌｶIﾌｴOﾌｶNﾌｷ";
             Color textColor = difficultyTier == 2 ? EnigmaGreen : EnigmaPurple;
             CombatText.NewText(NPC.Hitbox, textColor, message, true);
             
@@ -1422,7 +1423,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 
                 if (Timer == 1)
                 {
-                    Main.NewText("T̷H̴E̵ ̴V̸O̷I̸D̵ ̴S̷P̷E̸A̶K̵S̴", EnigmaGreen);
+                    Main.NewText("TﾌｷHﾌｴEﾌｵ ﾌｴVﾌｸOﾌｷIﾌｸDﾌｵ ﾌｴSﾌｷPﾌｷEﾌｸAﾌｶKﾌｵSﾌｴ", EnigmaGreen);
                     SoundEngine.PlaySound(SoundID.NPCDeath52 with { Pitch = -0.5f, Volume = 1.5f }, NPC.Center);
                 }
                 
@@ -3184,7 +3185,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
-            Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
+            Texture2D tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             int frameWidth = tex.Width / 6;
             int frameHeight = tex.Height / 6;
             int row = currentFrame / 6;

@@ -11,31 +11,32 @@ using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Trails;
 using MagnumOpus.Common.Systems.Particles;
 using static MagnumOpus.Common.Systems.Particles.Particle;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Spring.Weapons
 {
     /// <summary>
-    /// Blossom's Edge held-projectile swing  Ethe gentle first movement of spring.
-    /// 3-phase cherry blossom combo: Quick Slash ↁEWide Arc ↁEFlourishing Thrust.
+    /// Blossom's Edge held-projectile swing 遯ｶ繝ｻthe gentle first movement of spring.
+    /// 3-phase cherry blossom combo: Quick Slash 遶翫・Wide Arc 遶翫・Flourishing Thrust.
     /// Each swing scatters petals; every 5th hit triggers Renewal Strike (8 HP heal);
     /// crits trigger Spring Bloom (seeking crystals + AoE petal burst).
     /// </summary>
     public sealed class BlossomsEdgeSwing : MeleeSwingBase
     {
-        // ── Theme Colors ──
+        // 隨渉隨渉 Theme Colors 隨渉隨渉
         private static readonly Color SpringPink = MagnumThemePalettes.SpringPink;
         private static readonly Color SpringWhite = MagnumThemePalettes.SpringWhite;
         private static readonly Color SpringGreen = MagnumThemePalettes.SpringLightGreen;
         private static readonly Color CherryBlossom = MagnumThemePalettes.SpringPink;
 
-        // ── Hit Counter (stored in ai[2]) ──
+        // 隨渉隨渉 Hit Counter (stored in ai[2]) 隨渉隨渉
         private int HitCounter
         {
             get => (int)Projectile.ai[2];
             set => Projectile.ai[2] = value;
         }
 
-        // ── 6-Color Palette: pianissimo ↁEsforzando ──
+        // 隨渉隨渉 6-Color Palette: pianissimo 遶翫・sforzando 隨渉隨渉
         private static readonly Color[] SpringPalette = new Color[]
         {
             new Color(120, 80, 100),    // [0] Deep rose shadow
@@ -46,9 +47,9 @@ namespace MagnumOpus.Content.Spring.Weapons
             new Color(255, 250, 250),   // [5] White-hot petal core
         };
 
-        #region ── Combo Phase Definitions ──
+        #region 隨渉隨渉 Combo Phase Definitions 隨渉隨渉
 
-        // Phase 0  EQuick Slash (the breath of new petals)
+        // Phase 0 遯ｶ繝ｻQuick Slash (the breath of new petals)
         private static readonly ComboPhase Phase0_QuickSlash = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -64,7 +65,7 @@ namespace MagnumOpus.Content.Spring.Weapons
             damageMult: 0.9f
         );
 
-        // Phase 1  EWide Arc (the blossom in full bloom)
+        // Phase 1 遯ｶ繝ｻWide Arc (the blossom in full bloom)
         private static readonly ComboPhase Phase1_WideArc = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -80,7 +81,7 @@ namespace MagnumOpus.Content.Spring.Weapons
             damageMult: 1.0f
         );
 
-        // Phase 2  EFlourishing Thrust (petals scatter in the wind)
+        // Phase 2 遯ｶ繝ｻFlourishing Thrust (petals scatter in the wind)
         private static readonly ComboPhase Phase2_Flourish = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -98,7 +99,7 @@ namespace MagnumOpus.Content.Spring.Weapons
 
         #endregion
 
-        #region ── Abstract Overrides ──
+        #region 隨渉隨渉 Abstract Overrides 隨渉隨渉
 
         protected override ComboPhase[] GetAllPhases() => new ComboPhase[]
         {
@@ -122,7 +123,7 @@ namespace MagnumOpus.Content.Spring.Weapons
 
         #endregion
 
-        #region ── Virtual Overrides ──
+        #region 隨渉隨渉 Virtual Overrides 隨渉隨渉
 
         protected override Terraria.Audio.SoundStyle GetSwingSound()
         {
@@ -139,7 +140,7 @@ namespace MagnumOpus.Content.Spring.Weapons
 
         protected override Microsoft.Xna.Framework.Graphics.Texture2D GetBladeTexture()
         {
-            return ModContent.Request<Texture2D>("MagnumOpus/Content/Spring/Weapons/BlossomsEdge").Value;
+            return ModContent.Request<Texture2D>("MagnumOpus/Content/Spring/Weapons/BlossomsEdge", AssetRequestMode.ImmediateLoad).Value;
         }
 
         protected override Vector3 GetLightColor()
@@ -149,7 +150,7 @@ namespace MagnumOpus.Content.Spring.Weapons
 
         #endregion
 
-        #region ── Combo Specials ──
+        #region 隨渉隨渉 Combo Specials 隨渉隨渉
 
         protected override void HandleComboSpecials()
         {
@@ -217,13 +218,13 @@ namespace MagnumOpus.Content.Spring.Weapons
                 }
             }
 
-            // ── Dense dust + petal particles every frame during active swing ──
+            // 隨渉隨渉 Dense dust + petal particles every frame during active swing 隨渉隨渉
             if (Progression > 0.10f && Progression < 0.92f)
             {
                 Vector2 tipPos = GetBladeTipPosition();
                 float bladeLen = CurrentPhase.BladeLength;
 
-                // Pink petal dust  Edense, 2 per frame
+                // Pink petal dust 遯ｶ繝ｻdense, 2 per frame
                 for (int i = 0; i < 2; i++)
                 {
                     Vector2 dustPos = Owner.MountedCenter + SwordDirection * bladeLen * Main.rand.NextFloat(0.4f, 1f);
@@ -264,17 +265,17 @@ namespace MagnumOpus.Content.Spring.Weapons
 
         #endregion
 
-        #region ── On Hit NPC ──
+        #region 隨渉隨渉 On Hit NPC 隨渉隨渉
 
         protected override void OnSwingHitNPC(NPC target, NPC.HitInfo hit, int remainingDamageCount)
         {
             Player owner = Main.player[Projectile.owner];
 
-            // ── Increment hit counter ──
+            // 隨渉隨渉 Increment hit counter 隨渉隨渉
             HitCounter++;
 
-            // ── Visual impact layers ──
-            // Halo rings  Epink ↁEgreen gradient
+            // 隨渉隨渉 Visual impact layers 隨渉隨渉
+            // Halo rings 遯ｶ繝ｻpink 遶翫・green gradient
             for (int i = 0; i < 4; i++)
             {
                 float progress = i / 4f;
@@ -318,7 +319,7 @@ namespace MagnumOpus.Content.Spring.Weapons
                 petal.noGravity = true;
             }
 
-            // ── RENEWAL STRIKE  Eevery 5th hit heals 8 HP ──
+            // 隨渉隨渉 RENEWAL STRIKE 遯ｶ繝ｻevery 5th hit heals 8 HP 隨渉隨渉
             if (HitCounter >= 5)
             {
                 HitCounter = 0;
@@ -349,7 +350,7 @@ namespace MagnumOpus.Content.Spring.Weapons
                 }
             }
 
-            // ── SPRING BLOOM  Eon crit: seeking crystals + AoE ──
+            // 隨渉隨渉 SPRING BLOOM 遯ｶ繝ｻon crit: seeking crystals + AoE 隨渉隨渉
             if (hit.Crit)
             {
                 // Crit flash
@@ -384,7 +385,7 @@ namespace MagnumOpus.Content.Spring.Weapons
                         count: 4
                     );
 
-                    // AoE  E50% damage to nearby enemies within 100 tiles
+                    // AoE 遯ｶ繝ｻ50% damage to nearby enemies within 100 tiles
                     for (int i = 0; i < Main.maxNPCs; i++)
                     {
                         NPC npc = Main.npc[i];
@@ -400,7 +401,7 @@ namespace MagnumOpus.Content.Spring.Weapons
 
         #endregion
 
-        #region ── Custom VFX ──
+        #region 隨渉隨渉 Custom VFX 隨渉隨渉
 
         protected override void DrawCustomVFX(SpriteBatch sb)
         {

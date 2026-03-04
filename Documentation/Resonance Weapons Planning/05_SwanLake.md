@@ -1,319 +1,521 @@
 # 🦢 Swan Lake — Resonance Weapons Planning
 
-> *"Grace dying beautifully — the swan's final dance."*
+> *"Grace dying beautifully — pure white, black contrast, prismatic rainbow edges."*
 
 ## Theme Identity
 
 | Attribute | Value |
 |-----------|-------|
-| **Musical Soul** | Tchaikovsky's Swan Lake — beauty in tragedy, grace over despair |
+| **Musical Soul** | Tchaikovsky's Swan Lake — grace in monochrome, dying beauty |
 | **Emotional Core** | Elegance, tragedy, ethereal beauty |
-| **Color Palette** | Pure white, black contrast, prismatic rainbow edges |
-| **Palette Hex** | Obsidian Black `(10, 10, 15)` → Swan White `(245, 245, 255)` → Pearl Shimmer `(230, 220, 245)` → Prismatic Edge `(200, 180, 255)` → Iridescent Rainbow (shifts through full spectrum at edges) |
+| **Color Palette** | Pure white, obsidian black, silver, prismatic rainbow edges |
+| **Core Hex** | ObsidianBlack `(20, 20, 30)` → DarkSilver `(80, 80, 100)` → Silver `(180, 185, 200)` → PureWhite `(240, 240, 250)` → PrismaticShimmer `(220, 230, 255)` → RainbowFlash `(255, 255, 255)` |
+| **Extended Colors** | SwanBlack `(15, 15, 25)`, IcyBlue `(180, 220, 255)`, BalletPink `(255, 200, 220)`, CurseViolet `(60, 30, 80)`, Pearlescent `(240, 230, 245)`, LakeSurface `(160, 180, 210)` |
 | **Lore Color** | `new Color(240, 240, 255)` — Pure White |
-| **Lore Keywords** | Swan, feather, grace, lake, reflection, black & white, iridescence, elegance, tragedy, death dance |
-| **VFX Language** | Floating feathers, liquid reflections, graceful arcs, prismatic refractions, pearlescent trails, monochrome elegance with rainbow prismatic accents at edges |
+| **Lore Keywords** | Grace, feathers, swan, lake, reflection, duality, monochrome, elegance, tragedy, dance |
+| **VFX Language** | White/black feathers drifting gracefully, prismatic rainbow shimmer at edges, clean graceful arcs, flowing trails, ballet movements, dual polarity, pearlescent sheen |
+
+### Shared Infrastructure (Already Exists)
+| System | Lines | Purpose |
+|--------|-------|---------|
+| `SwanLakePalette.cs` | 488 | 6 core colors + 17 extended + 7 per-weapon blade palettes + 13 gradient helpers + item bloom |
+| `SwanLakeVFXLibrary.cs` | 742 | All bloom stacks, trail widths, music notes, dust, feather VFX, prismatic, halos, impact composites, lighting |
+| `SwanLakeShaderManager.cs` | 636 | 14 shader keys (12 per-weapon + 3 legacy), 5 noise textures, 12 preset methods, fallback chain |
+| `SwansMark` debuff | 121 | -10 defense, universal (all 6 weapons) |
+| `MournfulGaze` debuff | 110 | -15% movement speed (Destruction Halo) |
+| `FlameOfTheSwan` debuff | 295 | +10% vulnerability + 0.1% HP DoT (Pearlescent Rockets) |
+
+---
+
+## Foundation Weapons Integration Map
+
+Swan Lake weapons are the mod's most elegant — clean monochrome aesthetics with sudden prismatic reveals. Foundations provide **mesh construction, blend management, and rendering scaffolding** while per-weapon shaders handle the unique white-black-prismatic visual identity.
+
+| Foundation | Used By | Purpose |
+|-----------|---------|---------|
+| **SwordSmearFoundation** | Call of the Black Swan | Swing arc smear — SmearDistortShader with dual-polarity (black/white) LUT |
+| **RibbonFoundation** | All 6 weapons | Trail strips — Mode 3 (Basic) for bullets/arrows, Mode 6 (Energy Surge) for bolts/rockets, Mode 1 (Pure Bloom) for minion movement |
+| **ImpactFoundation** | All 6 weapons | Hit VFX — RippleShader for swan mark rings, DamageZoneShader for splash/mystery zones |
+| **MaskFoundation** | Pearlescent Lake (splash zone), Iridescent Flock (formation aura) | RadialNoiseMaskShader for persistent AoE zones and crystal formation rings |
+| **ExplosionParticlesFoundation** | Black Swan, Pearlescent Lake, Chromatic Swan Song, Swan's Lament | Feather/spark bursts on major impacts — white/prismatic sparks |
+| **SparkleProjectileFoundation** | Iridescent Wingspan, Iridescent Flock, Chromatic Swan Song | SparkleTrailShader for bolt shimmer trails, crystal shard trails |
+| **MagicOrbFoundation** | Chromatic Swan Song (Aria Detonation), Iridescent Wingspan (convergence) | OrbBolt rendering pattern for expanding ring detonations |
+| **LaserFoundation** | Iridescent Wingspan (convergence laser bolts) | ConvergenceBeamShader for prismatic convergence laser burst |
+| **SmokeFoundation** | Swan's Lament (grief smoke), Black Swan (monochromatic smoke) | Smoke particle rendering for dark atmospheric wisps |
+| **AttackAnimationFoundation** | Black Swan (Grand Jeté slam) | Cinematic slam sequence with screen effects |
 
 ---
 
 ## Weapons Overview
 
-| # | Weapon | Class | Key Mechanic |
-|---|--------|-------|-------------|
-| 1 | Call of the Black Swan | Melee | Black swan arcs with dark feather storms |
-| 2 | The Swan's Lament | Ranged | Lamenting shots with destruction halos |
-| 3 | Call of the Pearlescent Lake | Ranged | Pearlescent rockets with prismatic splash |
-| 4 | Iridescent Wingspan | Magic | Wingspan bolts with rainbow shimmer |
-| 5 | Chromatic Swan Song | Magic | Chromatic bolts with aria detonations |
-| 6 | Feather of the Iridescent Flock | Summon | Iridescent crystal minion flock |
-| 7 | Feather's Call | Special | Boss transformation item |
+| # | Weapon | Class | Damage | Key Mechanic |
+|---|--------|-------|--------|-------------|
+| 1 | Call of the Black Swan | Melee (Exoblade) | 400 | 3-phase ballet combo + Grace/Dark Mirror duality |
+| 2 | Call of the Pearlescent Lake | Ranged (Gun) | 380 | Rapid-fire + Tidal rockets + Still Waters + Splash Zones |
+| 3 | Chromatic Swan Song | Magic (Pistol) | 290 | Chromatic scale cycling + Aria detonations + Opus finale |
+| 4 | Feather of the Iridescent Flock | Summon | 260 | V-formation crystals + synchronized dive + oil-sheen iridescence |
+| 5 | Iridescent Wingspan | Magic (Staff) | 420 | 5-bolt fans + cursor convergence → Prismatic Burst |
+| 6 | The Swan's Lament | Ranged (Shotgun) | 180 | Grief flash shotgun + Lamentation stacks + Destruction Halo |
 
 ---
 
-## 1. Call of the Black Swan (Melee)
+## 1. Call of the Black Swan (Melee — Exoblade-Style)
 
 ### Identity & Musical Soul
-The Black Swan is the dark mirror — Odile, the deceptive enchantress. Where white swans are graceful and mournful, the Black Swan is **fierce elegance**. Every swing of this blade is a violent dance move — pirouettes of dark feathers and arcs of obsidian energy. The tragedy is that the Black Swan's beauty is as real as the White Swan's, but driven by darker purpose.
+The black swan — duality incarnate. An Exoblade-style greatsword whose visuals shift between black (Dark Mirror) and white (Grace) depending on whether the player takes damage while swinging. Each combo phase is a ballet movement: Entrechat, Fouetté, Grand Jeté.
 
 ### Lore Line
-*"She danced not for love, but for the ruin of those who watch."*
+*"Every swan carries both shadow and light. Which one dances depends on whether you flinch."*
 
-### Combat Mechanics
-- **3-Phase Dance Combo** (extends MeleeSwingItemBase):
-  - **Phase 1 — Entrechat**: Quick diagonal slash. Spawns 3 black feather projectiles in a fan arc. Feathers drift down gracefully while dealing damage.
-  - **Phase 2 — Fouetté**: Spinning horizontal slash (wider arc). Spawns a BlackSwanFlareProj — a dark radial flare that damages enemies in a circle. Feather trail lingers.
-  - **Phase 3 — Grand Jeté**: Leaping overhead slam (player gets small upward impulse). Spawns a swan silhouette shockwave (expanding crescent) + 5 feathers rain down from above.
-- **Swan's Grace**: Successive hits without getting hit build Grace stacks (max 5). Each stack: +8% swing speed, trail becomes more prismatic. At max Grace, next swing releases Prismatic Swan — a spectral white-rainbow swan that charges forward through enemies.
-- **Black Mirror**: If the player takes damage while swinging, Grace stacks convert to Dark Mirror stacks. Dark Mirror: +15% damage but -5% speed per stack.
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  CALL OF THE BLACK SWAN — Foundation Architecture   │
+├─────────────────────────────────────────────────────┤
+│  BASE: Exoblade-style held greatsword               │
+│  (40-point trail arc, CurveSegment animation)       │
+│  ┌───────────────────────────────────────────────┐  │
+│  │ SwordSmearFoundation (SmearDistortShader)     │  │
+│  │  → Dual-polarity swing smear                  │  │
+│  │  → Grace: ShadowCore→Silver→PureWhite LUT    │  │
+│  │  → Dark Mirror: ObsidianBlack→DarkSilver LUT │  │
+│  │  → distortStrength: 0.04→0.06→0.10 by phase  │  │
+│  │  → Phase 2 (Grand Jeté): overhead slam curve  │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ RibbonFoundation (Mode 6: Energy Surge)       │  │
+│  │  → 40-point trail arc rendering               │  │
+│  │  → Polarity-dependent color (dark/light)      │  │
+│  │  → 2-pass: main trail + glow overlay (×0.55)  │  │
+│  │  → BlackSwanSlash shader: Voronoi noise       │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ SparkleProjectileFoundation (flare projs)     │  │
+│  │  → BlackSwanFlareProj homing sub-projectiles  │  │
+│  │  → SparkleTrailShader: polarity-colored       │  │
+│  │  → Dual polarity (random B/W per instance)    │  │
+│  │  → P0: 3 fan, P1: 5/8 radial, P2: shockwave  │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (Ripple + SlashMark)         │  │
+│  │  → RippleShader: Grace/polarity impact rings  │  │
+│  │  → SlashMarkShader: phase hit marks           │  │
+│  │  → Phase 2 crit → full MeleeImpact() composite│  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ExplosionParticlesFoundation (Grand Jeté)     │  │
+│  │  → Phase 2: 12 radial DualitySparks          │  │
+│  │  → 5 feather rain from above (×0.3 dmg)      │  │
+│  │  → 4 MonochromaticSmoke clouds               │  │
+│  │  → Max Grace: Prismatic Swan rainbow burst    │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ SmokeFoundation (monochromatic smoke)         │  │
+│  │  → MonochromaticSmokeParticle from Phase 2   │  │
+│  │  → Expands 20% then shrinks, slow drift       │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ AttackAnimationFoundation (Grand Jeté)        │  │
+│  │  → Phase 2 overhead slam: windup→fast slam    │  │
+│  │  → CurveSegment: SineIn→ExpOut→bounce         │  │
+│  │  → Player upward velocity boost               │  │
+│  └───────────────────────────────────────────────┘  │
+│  CUSTOM SHADERS (3 keys, 2 .fx):                   │
+│  → DualPolaritySwing.fx (BlackSwanSlash P0)         │
+│  → SwanFlareTrail.fx (BlackSwanFlareTrail P0)       │
+│  → DualPolaritySwing.fx (BlackSwanSwingSprite P0)   │
+│  UNIQUE SYSTEMS:                                    │
+│  → Grace stacks (0-5): +8% speed per stack          │
+│  → Dark Mirror stacks (0-5): +15% dmg, -5% speed   │
+│  → Grace→Dark Mirror on hit while swinging          │
+│  → Max Grace → Prismatic Swan release (rainbow AoE) │
+│  → Legacy Empowerment (3 flare hits → 5s, 8 flares)│
+│  → SwansMark on all flare hits                      │
+│  4-LAYER BLOOM (blade tip, additive):               │
+│  → Outer halo (×1.4, 20%) + Mid ring (×0.8, 35%)   │
+│  → Core (×0.35, 55%) + Prismatic star (×0.25, 30%) │
+│  3 PARTICLE TYPES:                                  │
+│  → FeatherDriftParticle (Alpha, tumbling feather)   │
+│  → DualitySparkParticle (Additive, velocity-squish) │
+│  → MonochromaticSmokeParticle (Alpha, expanding)    │
+└─────────────────────────────────────────────────────┘
+```
 
-### VFX Architecture Plan
-
-#### Custom Shaders (3)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `BlackSwanArc.fx` | Swing trail with feather-edge texture | UV-scrolled trail strip. Core: pure black. Edges: white-to-prismatic shimmer (rainbow at very edge tips). Feather-shaped alpha mask along edges (jagged feather silhouettes). |
-| `SwanGraceAura.fx` | Grace stack indicator aura around player | Soft SDF circle. At 0 stacks: invisible. Each stack adds a faint white ring. At 5 stacks: full prismatic rainbow shimmer. If Dark Mirror: inverts to obsidian aura with dark purple edges. |
-| `PrismaticSwanCharge.fx` | Spectral swan projectile on max Grace release | Swan silhouette body with internal prismatic color scroll (rainbow UV flowing through). White core → prismatic edges → rainbow trail. Motion blur/afterimage stretch. |
-
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| BlackFeatherParticle | Drifts down slowly, tumbling rotation | Black feather sprite with subtle prismatic edge highlight, 40-60 frame life |
-| WhiteFeatherParticle | Lighter, rises slightly before drifting | White feather with iridescent sheen, 50-70 frame life |
-| PrismaticSparkParticle | Burst at prismatic effect moments | Rainbow color that shifts through spectrum, tiny 2-3px, 5-8 frame burst |
-| GraceStackGlintParticle | Orbits player at arm's reach per Grace stack | Tiny white sparkle, slow orbit, 1 per stack |
-
-#### Bloom Layers
-1. **Blade edge**: Thin white glow at cutting edge during swing (tight, elegant)
-2. **Feather scatter**: Subtle white micro-bloom on each feather projectile
-3. **Grace aura**: Growing white-prismatic glow around player (scales with stacks)
-4. **Prismatic Swan**: 3-layer bloom (white core → rainbow mid → wide soft white outer)
-
-#### Trail Rendering
-- BlackSwanPrimitiveRenderer (existing): Verify supports feather-edge alpha mask
-- Trail width: Thin and elegant — narrow strip with graceful curve
-- Trail color: Black body → white edge → prismatic tip fringe
-
-#### Asset Requirements
-| Asset | Path | Midjourney Prompt |
-|-------|------|-------------------|
-| Black feather texture | `Assets/SwanLake/CalloftheBlackSwan/Pixel/BlackFeather.png` | "Elegant black feather with subtle iridescent rainbow shimmer at edges, game particle sprite, on solid black background, 32x64px --ar 1:2 --style raw" |
-| Swan silhouette | `Assets/SwanLake/CalloftheBlackSwan/Trails/SwanSilhouette.png` | "Graceful swan in flight silhouette, pure white, wings spread wide, elegant curved neck, on solid black background, 256x128px --ar 2:1 --style raw" |
-| Prismatic trail texture | `Assets/SwanLake/CalloftheBlackSwan/Trails/PrismaticTrail.png` | "Rainbow prismatic energy trail texture, smooth gradient through full color spectrum, white center fading to rainbow edges, on solid black background, 512x64px seamless --ar 8:1 --style raw" |
-
-#### Debuffs
-| Debuff | Effect | Duration |
-|--------|--------|----------|
-| Swan's Mark | Marked enemies have -10 defense. Visual: black feather stuck to enemy. | 300 frames (5s) |
+### Combat Mechanics — 3-Phase Ballet Combo
+| Phase | Ballet Move | Duration | Blade | DmgMult | Flares Spawned | Foundation |
+|-------|-----------|----------|-------|---------|----------------|-----------|
+| 0 | Entrechat | 20 | 155px | ×0.85 | 3 fan (×0.4) | SwordSmear + Ribbon |
+| 1 | Fouetté | 24 | 160px | ×1.0 | 5 radial (or 8 emp, ×2) | SwordSmear + Ribbon + Sparkle |
+| 2 | Grand Jeté | 28 | 175px | ×1.4 | Shockwave + 5 feather rain (×0.3) | ALL foundations |
 
 ---
 
-## 2. The Swan's Lament (Ranged)
+## 2. Call of the Pearlescent Lake (Ranged — Rapid-Fire Gun)
 
 ### Identity & Musical Soul
-A lament is a sorrowful song of mourning. This ranged weapon fires bullets infused with the dying swan's grief — each shot carries the weight of loss. The Destruction Halo it spawns is the final ring of light as the swan falls. Elegant in destruction, mournful in every sound.
+The lake itself — rapid-fire pearl bullets that shimmer like droplets on a still lake. Standing still creates a zone of calm that empowers the rockets. Kills leave persistent splash zones like ripples spreading across water.
 
 ### Lore Line
-*"Each shot is a tear, and each tear is a farewell."*
+*"The lake remembers every stone that breaks its surface."*
 
-### Combat Mechanics
-- **Lament Bullet**: Primary fire — fast-moving white bullet that leaves a brief white streak trail. On hit, spawns a burst of 3 feather shrapnel in a cone behind the target.
-- **Destruction Halo**: Every 6th shot fires a DestructionHaloProj — a large, slow-moving halo ring that expands as it travels (starts tight, reaches max radius at 2s). Enemies touching the halo rim take damage and are afflicted with Mournful Gaze (-15% movement speed).
-- **Lamentation Stack**: Hitting the same enemy consecutively builds Lamentation. At 5 Lamentation on one target: the target begins weeping (cosmetic + -20% attack speed).
-- **Finale Lament**: If a Destruction Halo kills an enemy, the halo detonates into a white flash nova — all enemies within nova radius receive Lamentation instantly at 5 stacks.
-
-### VFX Architecture Plan
-
-#### Custom Shaders (2)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `DestructionHaloRing.fx` | Expanding halo ring projectile | SDF ring that expands over time (radius driven by uniform). Ring body: white with prismatic edge shimmer. Inner feathered edge → outer sharp dropoff. Subtle pulsing alpha. |
-| `LamentBulletStreak.fx` | Clean elegant bullet streak trail | Ultra-thin trail strip, bright white center → transparent edge. No noise — perfectly clean line. Fades rapidly behind bullet. |
-
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| FeatherShrapnelParticle | Bursts in cone behind hit target, tumbles | White-pearl feathersprites, 3 per burst, 20-30 frame life with slow drift |
-| HaloGlintParticle | Orbits along the halo ring circumference | Tiny prismatic sparkle, follows ring edge, 10 frame life |
-| LamentationTeardropParticle | Falls from Lamentation-stacked target | Small white-blue teardrop, slow gravity fall, 30 frame life |
-| NovaFeatherBurstParticle | Radial burst from Finale Lament nova | White feathers bursting radially, 15-20 per nova, 25 frame life |
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  CALL OF THE PEARLESCENT LAKE — Foundation Arch.    │
+├─────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────┐  │
+│  │ RibbonFoundation (Mode 6: Energy Surge)       │  │
+│  │  → 3-pass rocket trail rendering              │  │
+│  │  → Pass 1: Bloom underlay (×3 width, 20%)    │  │
+│  │  → Pass 2: Core trail (×1 width, full color)  │  │
+│  │  → Pass 3: Overbright halo (×1.5, 15%)       │  │
+│  │  → PearlescentRocketTrail shader              │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ MaskFoundation (RadialNoiseMaskShader)        │  │
+│  │  → SplashZone persistent AoE (5s, 64px×mult) │  │
+│  │  → 25% slow on enemies inside                 │  │
+│  │  → Pearlescent pulsing, rainbow shimmer edge  │  │
+│  │  → 3-layer: wide bloom + inner glow + ring    │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (Ripple + DamageZone)        │  │
+│  │  → RippleShader: concentric ripple rings      │  │
+│  │  → DamageZone: SplashZone rendering           │  │
+│  │  → On-kill: 3 staggered RippleRings           │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ExplosionParticlesFoundation (on-kill)        │  │
+│  │  → PearlDropletParticles (8-12 scattered)     │  │
+│  │  → LakeMistParticles (5-8 rising)             │  │
+│  │  → PrismaticFeatherParticles (Tidal only: 6)  │  │
+│  │  → Music notes + feather burst via VFXLibrary │  │
+│  └───────────────────────────────────────────────┘  │
+│  CUSTOM SHADERS:                                    │
+│  → PearlescentRocketTrail.fx (opal-shimmer 3-pass)  │
+│  → LakeExplosion.fx (concentric water-ripple)        │
+│  UNIQUE SYSTEMS:                                    │
+│  → Tidal Rocket (every 8th shot): 1.4× dmg, 2× rad │
+│  → Still Waters: stand still 1.5s → mild homing     │
+│  → SplashZone (on-kill): 5s persistent AoE, 25% slow│
+│  → Sine-wave wobble travel (±0.5 amplitude)          │
+│  → FlameOfTheSwan debuff (+10% vuln + HP DoT)       │
+│  5-LAYER BLOOM (rocket core):                       │
+│  → Lake (×0.5, 25%) + Pearl (×0.3, 40%)            │
+│  → Core (×0.15, 60%) + Star glimmer (×0.2, 30%)    │
+│  → Tidal extra ring (×0.7, 20%, IcyBlue)            │
+│  4 PARTICLE TYPES:                                  │
+│  → RippleRingParticle (48-seg expanding ring)        │
+│  → LakeMistParticle (rising, slowly expanding)       │
+│  → PearlDropletParticle (falling, 3-layer bloom)     │
+│  → PrismaticFeatherParticle (tumbling rainbow edge)  │
+└─────────────────────────────────────────────────────┘
+```
 
 ---
 
-## 3. Call of the Pearlescent Lake (Ranged)
+## 3. Chromatic Swan Song (Magic — Musical Scale Pistol)
 
 ### Identity & Musical Soul
-The Pearlescent Lake is the world where swans exist — a shimmering body of water that catches moonlight and scatters it into a thousand prismatic reflections. This weapon fires rockets that carry the lake's pearlescent beauty, creating splash zones of iridescent liquid that persist and damage enemies stepping through them.
+The swan's final song — a chromatic scale of seven distinct colors, each cast cycling through C→D→E→F→G→A→B. Completing an octave unlocks the Opus — a devastating seven-ring chromatic detonation. Every hit triggers an Aria explosion.
 
 ### Lore Line
-*"The lake does not forgive those who disturb its surface."*
+*"The last song of the swan contains every color that ever was."*
 
-### Combat Mechanics
-- **Pearlescent Rocket**: Primary fire — medium-speed rocket with iridescent pearlescent trail. On impact: splash zone (persistent AoE, 4 tile radius, lasts 5 seconds) of shimmering "lake water."
-- **Lake Surface Zones**: Splash zones are persistent damage fields. Enemies in them take continuous damage + slow (25%). Zone color shifts through pearl/rainbow slowly. Multiple zones can overlap for stacking damage.
-- **Ripple Effect**: Alternate fire — fires a "surface ripple" projectile that travels along the ground horizontally. Creates a line of small splash zones wherever it passes (think: a stone skipping across the lake).
-- **Perfect Reflection**: If you fire a rocket directly downward into an existing splash zone, it "reflects" into an upward geyser — 3 prismatic pillars of lake water erupt, piercing upward through enemies with high damage.
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  CHROMATIC SWAN SONG — Foundation Architecture      │
+├─────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────┐  │
+│  │ SparkleProjectileFoundation (bolt trails)     │  │
+│  │  → ChromaticBoltProj shimmer trail            │  │
+│  │  → SparkleTrailShader: per-note spectrum color│  │
+│  │  → CrystalShimmerShader: bolt body jewel      │  │
+│  │  → 2-pass: main trail + bloom underlay (×2.5) │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ MagicOrbFoundation (Aria detonation)          │  │
+│  │  → AriaDetonationProj rendering pattern       │  │
+│  │  → 3-ring expanding explosion (Inner/Mid/Outer)│  │
+│  │  → Normal: 120px, Harmonic: 200px, Opus: 300px│  │
+│  │  → Opus: 7 overlapping chromatic ring layers  │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (Ripple)                     │  │
+│  │  → RippleShader: per-ring expansion           │  │
+│  │  → Inner (white) → Mid (scale color) → Outer  │  │
+│  │  → Scale with Harmonic/Opus mode multiplier   │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ExplosionParticlesFoundation (Aria bursts)    │  │
+│  │  → AriaBurstParticle (64-seg expanding rings) │  │
+│  │  → PrismaticShardParticle (falling, spinning) │  │
+│  │  → HarmonicNoteParticle (floating upward)     │  │
+│  │  → ChromaticSparkParticle (fast decay)        │  │
+│  │  → Scale: Normal→Harmonic→Opus particle count │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ RibbonFoundation (Mode 3: Basic Trail Strip)  │  │
+│  │  → Bolt tracer, per-note rainbow color        │  │
+│  └───────────────────────────────────────────────┘  │
+│  CUSTOM SHADERS:                                    │
+│  → ChromaticTrail.fx (rainbow-shifting bolt trail)   │
+│  → AriaExplosion.fx (chromatic aria detonation)      │
+│  UNIQUE SYSTEMS:                                    │
+│  → Chromatic Scale (C-D-E-F-G-A-B): hue per note   │
+│  → Opus Detonation: 7 casts → 3× dmg, 7-ring 300px │
+│  → Harmonic Stack: 5 different targets → enhanced   │
+│  → Dying Breath (<30% HP): 2× speed, +50% radius   │
+│  → Every bolt hit → AriaDetonation (always explodes)│
+│  4-LAYER BLOOM (bolt core):                         │
+│  → Scale color (×0.4, 25%) + Shifted hue (×0.25, 35%)│
+│  → Core (×0.12, 55%) + Rainbow star (×0.18, 25%)    │
+│  4 PARTICLE TYPES:                                  │
+│  → ChromaticSparkParticle (Additive, spectrum shift) │
+│  → HarmonicNoteParticle (Alpha, floating notes)     │
+│  → AriaBurstParticle (Additive, 64-seg rings)       │
+│  → PrismaticShardParticle (Additive, falling shards)│
+└─────────────────────────────────────────────────────┘
+```
 
-### VFX Architecture Plan
-
-#### Custom Shaders (3)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `PearlescentSplashZone.fx` | Persistent lake water AoE field | Flat screen-space plane. Internal UV-scroll with water caustics pattern (use noise texture for caustics). Color: pearl white → prismatic shifting. Alpha pulsing gently. Edge feathered with SDF circle. |
-| `PearlescentRocketTrail.fx` | Rocket trail with liquid pearl shimmer | Strip trail — pearlescent color (white that shifts to subtle pastel rainbow based on noise). Internal UV-scroll, slow speed. Elegant, liquid feel. |
-| `PrismaticGeyser.fx` | Reflected upward geyser pillars | Vertical beam shader with rising UV-scroll. Prismatic rainbow with white highlights. Liquid distortion at base. Spray particles at top. |
-
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| PearlDropletParticle | Splashes out from rocket impact, arcs downward | Small pearlescent drops, gravity-affected arcs, 15 frame life |
-| LakeSurfaceShimmerParticle | Rises from splash zone periodically | Subtle white motes, slow upward drift, 20 frame life |
-| GeyserSprayParticle | Ejected from top of geyser pillars | Fast-moving prismatic drops, small arc, 10 frame life |
-| RippleRingParticle | Expanding ring at each ripple bounce point | White expanding ring, very thin, 15 frame life |
+### Chromatic Scale → Aria → Opus Pipeline
+| Scale Pos | Note | Hue | Bolt Color | Aria Mode | Particles |
+|-----------|------|-----|-----------|-----------|-----------|
+| 0 | C | 0/7 | Red | Normal (×0.5, 120px) | 3 ring + 12 shard + 8 note + 20 spark |
+| 1 | D | 1/7 | Orange | Normal | Same |
+| 2 | E | 2/7 | Yellow | Normal | Same |
+| 3 | F | 3/7 | Green | If 3 consec hits: Harmonic (×2, 200px) | 3 ring + 24 shard + 14 note + 30 spark |
+| 4 | G | 4/7 | Cyan | Normal/Harmonic | Varies |
+| 5 | A | 5/7 | Blue | Normal/Harmonic | Varies |
+| 6 | B | 6/7 | Purple | Normal/Harmonic | Varies |
+| OPUS | All | Full | Rainbow | Opus (×3, 300px, 7 rings) | 7 ring + 36 shard + 14 note + 30 spark |
 
 ---
 
-## 4. Iridescent Wingspan (Magic)
+## 4. Feather of the Iridescent Flock (Summon)
 
 ### Identity & Musical Soul
-Wingspan — the full spread of a swan's wings catching iridescent light. This magic weapon fires bolts that fan outward like spreading wings, then converge at the cursor. The rainbow iridescence shifts as the bolts travel, creating a mesmerizing display of light. Grace in motion, beauty in destruction.
+The flock — minion crystals that fly in V-formation behind the player like swans in flight. Each crystal has an oil-sheen iridescent shimmer. They coordinate dive attacks and connect with formation lines when enough gather.
 
 ### Lore Line
-*"To witness the full wingspan is to know both the beauty and the death."*
+*"One feather drifts. A flock transforms the sky."*
 
-### Combat Mechanics
-- **Wingspan Bolt Fan**: Primary fire — fires 5 bolts in a wingspan pattern (2 flanking bolts arc outward then curve inward, 1 center bolt goes straight, 2 inner bolts arc gently). All 5 converge at cursor position. Each bolt shimmers with different spectrum color.
-- **Iridescent Trail Persistence**: Bolt trails linger briefly (0.5s). Enemies that touch lingering trails take minor damage + receive Iridescent Burn (DoT that visual is rainbow flames).
-- **Prismatic Convergence**: When all 5 bolts converge at the cursor, they create a prismatic burst — damage scales with how many bolts arrived (1 bolt: 1x, 5 bolts: 2.5x). Perfect 5-bolt convergence also spawns a brief prismatic orb that shoots 8 rainbow lasers in cardinal directions.
-- **Wingspan Resonance**: If you cast within 1 second of the previous convergence, the next fan inherits the rainbow color cycle from where the last one ended — visual continuity that also grants +10% damage on sequential casts.
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  FEATHER OF THE IRIDESCENT FLOCK — Foundation Arch. │
+├─────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────┐  │
+│  │ SparkleProjectileFoundation (crystal shards)  │  │
+│  │  → CrystalShardProj shimmer trail             │  │
+│  │  → SparkleTrailShader: iridescent oil-sheen   │  │
+│  │  → 8×8px, pen=1, mild homing (0.04, 500u)    │  │
+│  │  → 3 per volley, 8° spread, 8-tick delay      │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ MaskFoundation (RadialNoiseMaskShader)        │  │
+│  │  → FlockAura when 3+ crystals active          │  │
+│  │  → Iridescent color cycling per frame         │  │
+│  │  → Formation ring connecting adjacent crystals │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ RibbonFoundation (Mode 1: Pure Bloom)         │  │
+│  │  → Crystal dive trail during attack phase     │  │
+│  │  → CrystalOrbitTrail shader, oil-sheen color  │  │
+│  │  → No trail during passive V-formation        │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (Ripple)                     │  │
+│  │  → RippleShader: dive impact rings            │  │
+│  │  → 5 CrystalShardParticles + 3 IridescentFeathers│
+│  │  → Music notes + prismatic sparkles           │  │
+│  └───────────────────────────────────────────────┘  │
+│  CUSTOM SHADERS:                                    │
+│  → CrystalOrbitTrail.fx (oil-sheen dive trail)       │
+│  → FlockAura.fx (formation aura when 3+ crystals)   │
+│  UNIQUE SYSTEMS:                                    │
+│  → V-Formation: even=left arm, odd=right arm        │
+│  → 4-phase cycle: Formation(2s)→Volley→Dive→Return │
+│  → Synchronized Dive (3+): FindUnclaimedNPC() spread│
+│  → +5% damage per swan beyond first                 │
+│  → Crystal Resonance: 4+ crystals → OilShimmer      │
+│  → Formation lines between adjacent crystals         │
+│  → 0.34 minion slots per crystal                     │
+│  4-LAYER BLOOM (crystal core):                      │
+│  → Iridescent halo (×0.35, 25%) + White spark core  │
+│  → Prismatic star (×0.15, 30%) + Dive bloom (×0.5)  │
+│  4 PARTICLE TYPES:                                  │
+│  → IridescentFeatherParticle (Alpha, oil-sheen sway)│
+│  → CrystalShardParticle (Additive, fast-fall spin)  │
+│  → FormationGlowParticle (Additive, 48-seg ring)    │
+│  → OilShimmerParticle (Additive, drifting glow mote)│
+└─────────────────────────────────────────────────────┘
+```
 
-### VFX Architecture Plan
-
-#### Custom Shaders (2)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `WingspanBoltShimmer.fx` | Individual bolt body with color-cycling iridescence | SDF orb projectile body. Color: cycles through full spectrum based on bolt's lifetime + a per-bolt offset (so each of the 5 is at different hue). Internal glow pulse. Rainbow gradient around edge. |
-| `PrismaticConvergenceBurst.fx` | 5-bolt convergence explosion | Expanding SDF circle with rainbow radial gradient (each sector a different color, like a color wheel). Center white. Edge prismatic. Cardinals highlighted for laser spawn. Brief (0.3s). |
-
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| IridescentTrailSparkParticle | Shed from bolt trail as it travels | Tiny rainbow sparkle, color matched to bolt's current hue, 8 frame life |
-| ConvergenceFlashParticle | Brief central burst at convergence point | White-rainbow flash, 4 frame burst |
-| ConvergenceLaserSparkParticle | Shed from cardinal laser lines | Rainbow spark, directional, 6 frame life |
-| WingspanResonanceGlintParticle | Brief glint on player when Resonance is active | White-to-rainbow glint near weapon hand, 3 frame |
+### Attack Cycle Per Crystal
+| Phase | Duration | Behavior | Foundation |
+|-------|----------|----------|-----------|
+| Formation Flight | 120 ticks (2s) | V-formation drift, bobbing | RibbonFoundation (no trail) |
+| Shard Volley | ~24 ticks | 3 CrystalShardProj, 8° spread | SparkleProjectile |
+| Dive Attack | ≤50 ticks | Charge through target at speed 20 | Ribbon (trail active) + Impact |
+| Return | Variable | Fly back to V-formation position | Ribbon (trail fading) |
 
 ---
 
-## 5. Chromatic Swan Song (Magic)
+## 5. Iridescent Wingspan (Magic — Convergence Staff)
 
 ### Identity & Musical Soul
-The swan song — the final, most beautiful performance before death. This weapon channels **chromatic magic** — a full spectrum of power unleashed in bolts that detonate into **aria detonations**: structured, musical explosions where each ring of the blast corresponds to a different note and color. It's the most dramatic weapon in the Swan Lake arsenal — the last performance.
+The wingspan — five bolts fired in a fan that curve toward the cursor. When all five converge, a prismatic burst erupts. The feeling of wings spreading wide then folding inward with devastating precision.
 
 ### Lore Line
-*"The final song is always the most beautiful. It has to be."*
+*"Each feather seeks its place. Together, they become flight."*
 
-### Combat Mechanics
-- **Chromatic Bolt**: Primary fire — moderately fast bolt that shifts through full rainbow spectrum as it travels. On impact, triggers Aria Detonation.
-- **Aria Detonation**: Impact explosion structured as 3 concentric expanding rings, each a different color (inner: white, mid: random spectrum color, outer: complementary spectrum color). Each ring deals damage separately. Enemies hit by all 3 rings take bonus shatter damage.
-- **Chromatic Scale**: Consecutive casts cycle the Aria Detonation through the chromatic scale (C-D-E-F-G-A-B). Each "note" changes the mid-ring color and subtly alters the detonation pattern (some rings are wider, some faster). Completing a full octave (7 consecutive casts) triggers Opus Detonation — all 7 colors detonate simultaneously in a massive prismatic explosion.
-- **Dying Breath**: Below 30% HP, Chromatic Bolts gain double travel speed and Aria Detonations gain +50% radius. Visual: bolts gain black feather particles mixed into the rainbow.
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  IRIDESCENT WINGSPAN — Foundation Architecture      │
+├─────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────┐  │
+│  │ SparkleProjectileFoundation (wing bolts)      │  │
+│  │  → WingspanBoltProj shimmer trail             │  │
+│  │  → SparkleTrailShader: per-bolt hue offset    │  │
+│  │  → 5 bolts: -24°, -10°, 0°, +10°, +24° fan   │  │
+│  │  → Each bolt has unique hue (index/5)          │  │
+│  │  → 2-pass: main + bloom underlay (×2.5, 15%)  │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ LaserFoundation (convergence laser burst)     │  │
+│  │  → Prismatic Convergence: all 5 bolts meet    │  │
+│  │  → 8 rainbow laser bolts in cardinal dirs     │  │
+│  │  → ConvergenceBeamShader: 2.5× dmg per laser  │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (Ripple)                     │  │
+│  │  → RippleShader: bolt hit rings               │  │
+│  │  → Convergence burst ring (scaled up)         │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ExplosionParticlesFoundation (convergence)    │  │
+│  │  → WingBurstParticle (expanding wing flash)   │  │
+│  │  → 10 prismatic sparkles + 5 music notes      │  │
+│  │  → 5 EtherealFeathers drifting upward         │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ RibbonFoundation (Mode 6: Energy Surge)       │  │
+│  │  → Wing bolt trails, spectral blue/prismatic  │  │
+│  │  → WingspanFlareTrail shader                 │  │
+│  └───────────────────────────────────────────────┘  │
+│  CUSTOM SHADERS:                                    │
+│  → EtherealWing.fx (ethereal wing display)           │
+│  → WingspanFlareTrail.fx (spectral bolt trail)       │
+│  UNIQUE SYSTEMS:                                    │
+│  → Ethereal Flight Charge: +8/hit, max 100          │
+│  → At 100 charge: 1 empowered bolt (3×, pen=5)     │
+│  → Convergence: bolts curve to cursor after 30 ticks│
+│  → All 5 meet → Prismatic Convergence (8 lasers)    │
+│  → Wingspan Resonance: 60-tick +10% dmg after conv  │
+│  → HoldItem: ethereal wing particle display          │
+│  4-LAYER BLOOM (+1 empowered):                      │
+│  → Ethereal halo (×1.8, 25%) + Mid glow (×1.0, 40%)│
+│  → Core (×0.4, 60%) + Star (×0.35, 30%)             │
+│  → Empowered: Golden aura (×2.5, 20%, WingGold)     │
+│  4 PARTICLE TYPES:                                  │
+│  → EtherealFeatherParticle (Additive, rising sway)  │
+│  → WingSparkParticle (Additive, fast decay)          │
+│  → WingBurstParticle (Additive, expanding flash)    │
+│  → PrismaticMoteParticle (Additive, drifting glow)  │
+└─────────────────────────────────────────────────────┘
+```
 
-### VFX Architecture Plan
-
-#### Custom Shaders (3)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `ChromaticBoltBody.fx` | Bolt with full-spectrum color cycling | SDF orb with color that cycles through HSV hue (0→360°) based on lifetime. Internal noise distortion for "living" feel. Bright center → prismatic edge. |
-| `AriaDetonationRings.fx` | 3-ring structured explosion | Three expanding SDF rings, each with independent color uniform, independent expansion rate. White center flash. Rings have feathered edges. Uses additive blending. |
-| `OpusDetonation.fx` | 7-color octave completion mega-explosion | All 7 chromatic scale colors detonating in overlapping rings simultaneously. Intense white center → rainbow bands. Screen shake. Brief chromatic aberration. |
-
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| ChromaticTrailParticle | Trail behind bolt, color-matched | Medium rainbow sparkle, 8-10 frame life, matches bolt's current hue |
-| AriaRingGlintParticle | Spawns along each detonation ring circumference | Tiny glint matched to ring color, 4 frame life, fast radial motion |
-| OpusFeatherBurstParticle | Massive burst from Opus Detonation | White feathers + rainbow sparkles intermixed, 30+ particles, 20 frame life |
-| DyingBreathFeatherParticle | Black feathers mixed into low-HP bolts | Black feather despite rainbow bolt, sharp contrast, drifting, 25 frame life |
+### Convergence Pipeline
+| Stage | Trigger | Result | Foundation |
+|-------|---------|--------|-----------|
+| Fan Fire | Use item | 5 bolts in 58° spread fan | SparkleProjectile |
+| Flight | First 30 ticks | Straight line travel | Ribbon (trail) |
+| Convergence | After 30 ticks | Bolts curve toward cursor (0.02-0.08 strength) | SparkleProjectile |
+| Arrival | Bolt within 20px of cursor | Registers convergence on WingspanPlayer | — |
+| Prismatic Burst | All 5 converge | 8 cardinal laser bolts (2.5× each) + massive VFX | Laser + Explosion + Impact |
+| Resonance Window | 60 ticks post-burst | +10% damage bonus on next fan | — |
 
 ---
 
-## 6. Feather of the Iridescent Flock (Summon)
+## 6. The Swan's Lament (Ranged — Grief Shotgun)
 
 ### Identity & Musical Soul
-Not one swan, but a flock — an iridescent crystalline minion that represents the corps de ballet. This summon conjures a crystal swan that attacks autonomously, launching shards and performing dive attacks. Each additional summon adds another swan to the flock, and they coordinate their attacks in formation, creating **visual formations** that echo ballet choreography.
+The lament — mourning expressed as violence. A dark shotgun that fires salvos of grief, building Lamentation stacks on enemies. Most of the time it's dark and monochrome, but sudden "revelation" flashes of prismatic color break through — like beauty piercing through sorrow.
 
 ### Lore Line
-*"Alone, a swan is beautiful. Together, they are devastating."*
+*"Grief is not darkness. It is the memory of light."*
 
-### Combat Mechanics
-- **Iridescent Crystal Minion**: Summons a crystalline swan that floats near the player. Attack pattern cycles:
-  - **Formation Flight**: 2s of passive circling (swans maintain elegant formation)
-  - **Shard Volley**: Each swan launches 3 crystal shard projectiles at nearest enemy
-  - **Dive Attack**: Swans take turns performing dive attacks (charges through enemy)
-- **Flock Coordination**: Multiple swans fly in formation (V-formation with player at center). The more swans, the wider the V. Formation grants +5% damage per swan beyond the first.
-- **Synchronized Dive**: When 3+ swans are summoned, they can all dive simultaneously (targeting different enemies). This creates a visual spectacle of coordinated attack.
-- **Crystal Resonance**: When a swan is in formation (not attacking), it generates an iridescent aura. If 4+ swans are in formation, the aura becomes a Crystal Resonance field — allies in the field gain +3% crit chance.
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  THE SWAN'S LAMENT — Foundation Architecture        │
+├─────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────┐  │
+│  │ RibbonFoundation (Mode 3: Basic Trail Strip)  │  │
+│  │  → LamentBulletProj tracer trail (18-point)   │  │
+│  │  → Width: 8→1px with ×(1-p*0.5) taper        │  │
+│  │  → CatharsisWhite→grey, GriefFlash gold flicker│
+│  │  → LamentBulletTrail shader                   │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ MaskFoundation (RadialNoiseMaskShader)        │  │
+│  │  → DestructionHaloProj ring rendering         │  │
+│  │  → Expanding: 20→180px, EaseOutQuart          │  │
+│  │  → Ring-shaped collision (30px band at edge)  │  │
+│  │  → 2-layer: bloom + ring + inner hollow       │  │
+│  │  → DestructionRevelation shader               │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (Ripple)                     │  │
+│  │  → RippleShader: bullet/halo hit rings        │  │
+│  │  → 3 feather shrapnel (cone, mixed B/W)       │  │
+│  │  → Applies MournfulGaze debuff (Halo hits)    │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ SmokeFoundation (grief smoke)                 │  │
+│  │  → GriefSmoke trailing behind bullets         │  │
+│  │  → Heavy, slow, squared opacity falloff       │  │
+│  │  → NoiseSmoke texture                         │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ExplosionParticlesFoundation (Finale Lament)  │  │
+│  │  → 16 WhiteTorch nova on Halo kill            │  │
+│  │  → Prismatic sparkles + music notes           │  │
+│  │  → 12 PrismaticFlash at MaxRadius             │  │
+│  │  → 8 GriefSmoke at cardinal positions         │  │
+│  └───────────────────────────────────────────────┘  │
+│  CUSTOM SHADERS:                                    │
+│  → LamentBulletTrail.fx (grief-flash bullet streak)  │
+│  → DestructionRevelation.fx (destruction halo ring)  │
+│  UNIQUE SYSTEMS:                                    │
+│  → 10-16 bullets per shot in 22° spread cone        │
+│  → Destruction Halo (every 6th): 1.5× dmg, ring AoE │
+│  → Lamentation Stacks (per-NPC, max 5): +10% vuln  │
+│  → Max stacks → enemy "weeps" (teardrop particles)  │
+│  → Lament's Echo: kills boost fire rate (1.0→0.5×)  │
+│  → Echo widens spread (1.0→1.8×)                    │
+│  → Finale Lament: Halo kill → 5 stacks to all 200px │
+│  → GriefFlash: pow(sin(t*6π), 8) → narrow peaks     │
+│  4-LAYER BLOOM (bullet core, +flash):               │
+│  → Grief halo (×0.35, 25%) + Revelation (×0.2, 40%)│
+│  → Core (×0.12, 65%) + Flash star (if flash>0.4)    │
+│  4 PARTICLE TYPES:                                  │
+│  → GriefSmoke (Alpha, heavy slow, NoiseSmoke tex)   │
+│  → PrismaticFlashParticle (Additive, 6-10f burst)   │
+│  → DestructionRingParticle (Additive, expanding ring)│
+│  → LamentEmberParticle (Additive, B/W flicker)      │
+└─────────────────────────────────────────────────────┘
+```
 
-### VFX Architecture Plan
-
-#### Custom Shaders (2)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `IridescentCrystalBody.fx` | Crystal swan minion body shader | Pearlescent surface shader — white base with iridescent rainbow reflection based on angle/normal. Faceted crystal appearance with specular highlights. Subtle pulsing glow. |
-| `FlockFormationLine.fx` | V-formation visual connection between swans | Thin line strip connecting swans in V-formation. White with prismatic shimmer. More visible when more swans present. Pulsing alpha. |
-
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| CrystalShardTrailParticle | Trail behind crystal shard projectiles | White-prismatic shard fragments, 3-4px, tumbling, 8 frame life |
-| DiveAttackStreakParticle | Fast streak during dive attack | White streak with rainbow edge, 6 frame life, directional |
-| FormationAuraGlintParticle | Ambient sparkles around formation swans | Tiny prismatic glints, slow orbit around each swan, 20 frame life |
-| CrystalResonanceFieldParticle | Rising from resonance field area | Iridescent motes drifting upward, slow, 30 frame life |
+### Lamentation → Finale Pipeline
+| Stage | Trigger | Effect | Foundation |
+|-------|---------|--------|-----------|
+| Stack Building | Any Lament projectile hit | +1 Lamentation Stack (per-NPC, max 5) | — |
+| Weeping | 5 stacks on single NPC | +10% incoming damage, teardrop particles | ImpactFoundation |
+| Destruction Halo | Every 6th shot | Expanding ring, MournfulGaze debuff | MaskFoundation |
+| Finale Lament | Halo kills weeping enemy | ALL enemies within 200px → 5 stacks instantly | ExplosionParticles |
+| Echo Cascade | Any kill during Echo window | Fire rate boost (×0.5) + spread widen (×1.8) | — |
 
 ---
 
-## 7. Feather's Call (Special — Transformation Item)
+## Foundation Coverage Matrix
 
-### Identity & Musical Soul
-The ultimate Swan Lake weapon — a rare 1% boss drop that transforms the player into a **mini Swan Lake boss**. This is the swan's final transformation — Odette becoming the swan itself. The player gains entirely unique attacks and movement while the transformation lasts. It's not a weapon you use casually — it's a spectacular moment.
+| Foundation | BlackSwan | PearlLake | ChromSong | IridFlock | IridWing | Lament |
+|-----------|----------|----------|----------|----------|---------|--------|
+| SwordSmearFoundation | ✅ | | | | | |
+| RibbonFoundation | ✅ M6 | ✅ M6 | ✅ M3 | ✅ M1 | ✅ M6 | ✅ M3 |
+| ImpactFoundation | ✅ Rip+SM | ✅ Rip+DZ | ✅ Ripple | ✅ Ripple | ✅ Ripple | ✅ Ripple |
+| MaskFoundation | | ✅ Splash | | ✅ Aura | | ✅ Halo |
+| ExplosionParticles | ✅ GrandJ | ✅ OnKill | ✅ Aria | | ✅ Converg | ✅ Finale |
+| SparkleProjectile | ✅ Flares | | ✅ Bolts | ✅ Shards | ✅ WingBolt | |
+| MagicOrbFoundation | | | ✅ Aria | | | |
+| LaserFoundation | | | | | ✅ Converg | |
+| SmokeFoundation | ✅ Mono | | | | | ✅ Grief |
+| AttackAnimation | ✅ GrandJ | | | | | |
 
-### Lore Line
-*"To truly call the feather is to become what you once sought to protect."*
-
-### Combat Mechanics
-- **Transformation**: Using the item begins continuous mana drain. Player transforms into a miniature Swan Lake boss with:
-  - **Hover flight**: Free movement in all directions
-  - **Feather Barrage** (auto): Continuously fires homing feather projectiles at nearby enemies
-  - **Wing Gust** (left click): Directional wing gust that pushes enemies away + damages in cone
-  - **Lake's Embrace** (right click): Creates a circular pearlescent lake zone at cursor. Enemies in zone are slowed 40%, allies heal 3 HP/s.
-  - **Swan's Sacrifice** (at <20% mana): Final burst of prismatic energy expanding from player, dealing massive damage. Ends transformation.
-- **Duration**: Lasts until mana depletes or player manually cancels. High mana cost/s.
-- **Transformation VFX**: The player model is replaced with a custom sprite — large white-prismatic swan with iridescent wings. Feather particles constantly shed.
-
-### VFX Architecture Plan
-
-#### Custom Shaders (3)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `SwanTransformBody.fx` | Transformed player swan body rendering | Full body replacement shader. Pearlescent white body, iridescent wing surfaces that shift color with movement angle. Feathered edge alpha masking. Glowing core. |
-| `LakeEmbraceZone.fx` | Healing/slowing lake zone AoE | Circular pearlescent surface (water caustics UV-scroll). Subtle prismatic shimmer. Healing pulse rings expanding from center. Very elegant. |
-| `SwanSacrifice.fx` | Final burst on mana depletion | Expanding prismatic nova from player center. Intense white → rainbow → white ring. Screen flash. All remaining feather particles burst outward simultaneously. |
-
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| TransformFeatherShedParticle | Constantly sheds from transformed swan | White-iridescent feathers, slow drift down/back, continuous spawning, 40 frame life |
-| WingGustFeatherParticle | Directional cone burst from Wing Gust | Fast-moving white feather spray in cone, 15-20 per gust, 15 frame life |
-| HomingFeatherProjectileParticle | Trail behind homing feather auto-attacks | Tiny white sparkle trail, 4 frame life |
-| SacrificeFeatherExplosionParticle | Massive burst from Swan's Sacrifice | All available feather types in radial explosion, 50+ particles, 30 frame life |
-
----
-
-## Cross-Theme Synergy Notes
-
-### Swan Lake Theme Unity
-All weapons share the white/black/prismatic palette with elegance and tragedy:
-- **Call of the Black Swan**: Dark elegance — obsidian meeting prismatic fire
-- **The Swan's Lament**: Sorrowful ranged precision with mournful halo detonations
-- **Call of the Pearlescent Lake**: Liquid beauty — persistent water zones and geyser reflections
-- **Iridescent Wingspan**: Fan convergence with full-spectrum iridescent wonder
-- **Chromatic Swan Song**: The final aria — structured musical detonations in full chromatic scale
-- **Feather of the Iridescent Flock**: Ballet corps — coordinated crystal swans in formation
-- **Feather's Call**: Apotheosis — become the swan itself
-
-### Visual Distinction Strategy
-Despite sharing white-prismatic palette, each weapon has a distinct visual approach:
-- **Black Swan** uses black-dominant with prismatic accents (dark elegance)
-- **Lament** uses clean white shots with structured halo geometry
-- **Pearlescent Lake** uses liquid caustic surfaces and water VFX
-- **Wingspan** uses individual bolt color-cycling across the spectrum
-- **Chromatic Swan Song** uses structured ring detonations with musical scale mapping
-- **Iridescent Flock** uses crystalline/faceted aesthetics
-- **Feather's Call** uses full-body transformation with constant feather shedding
-
-### Musical Motifs
-- **Feather physics**: Almost every weapon sheds feathers — black, white, or prismatic. Each weapon's feathers behave differently (drift, tumble, burst, home) to maintain uniqueness.
-- **Formation/choreography**: Swan Lake is a ballet — weapons should feel choreographed. The Flock literally flies in formation. Chromatic Swan Song's detonations are structured like musical phrases.
-- **Tragedy and sacrifice**: Dying Breath mechanic (Swan Song), Swan's Sacrifice (Feather's Call), Lament's mournful themes. Beauty born from loss.
-- **Water/lake imagery**: Pearlescent Lake and Lake's Embrace tie back to the actual lake setting.
+### Swan Lake Lore Consistency
+- All lore references grace, elegance, feathers, swans, lakes, reflections, dance, duality, beauty, tragedy
+- NEVER fire, cosmos, void, mystery, bells — those belong to other themes
+- Foundation parameters always use monochrome (black↔white) gradient LUTs with prismatic rainbow accents at edges
+- SwansMark is the UNIVERSAL debuff — all 6 weapons apply it
+- Each weapon has exactly 2 dedicated .fx shaders + 4 custom particle types (consistent architecture)
+- Bloom stacks are universally 4-layer (SoftRadialBloom outer → SoftRadialBloom mid → PointBloom core → Star accent)

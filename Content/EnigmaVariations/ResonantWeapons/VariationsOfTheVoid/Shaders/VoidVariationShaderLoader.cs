@@ -7,7 +7,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
 {
     /// <summary>
     /// Loads VariationsOfTheVoid weapon-specific shaders into GameShaders.Misc.
-    /// Each shader is self-contained — no shared Enigma shader manager.
+    /// Each shader is self-contained 窶・no shared Enigma shader manager.
     /// </summary>
     [Autoload(Side = ModSide.Client)]
     public sealed class VoidVariationShaderLoader : ModSystem
@@ -20,14 +20,14 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
             var assets = Mod.Assets;
             Asset<Effect> Load(string path) => assets.Request<Effect>(path, AssetRequestMode.ImmediateLoad);
 
-            // Swing trail shader — two techniques: VoidVariationSwingFlow (main trail) and VoidVariationSwingGlow (soft bloom)
+            // Swing trail shader 窶・two techniques: VoidVariationSwingFlow (main trail) and VoidVariationSwingGlow (soft bloom)
             SwingTrailAsset = Load("Content/EnigmaVariations/ResonantWeapons/VariationsOfTheVoid/Shaders/VoidVariationSwingTrail");
-            GameShaders.Misc["MagnumOpus:VoidVariationSwingFlow"] = new MiscShaderData(SwingTrailAsset, "VoidVariationSwingFlow");
-            GameShaders.Misc["MagnumOpus:VoidVariationSwingGlow"] = new MiscShaderData(SwingTrailAsset, "VoidVariationSwingGlow");
+            GameShaders.Misc["MagnumOpus:VoidVariationSwingFlow"] = new MiscShaderData(SwingTrailAsset, "P0");
+            GameShaders.Misc["MagnumOpus:VoidVariationSwingGlow"] = new MiscShaderData(SwingTrailAsset, "P0");
 
-            // Beam shader — tri-beam convergence visual
+            // Beam shader 窶・tri-beam convergence visual
             BeamAsset = Load("Content/EnigmaVariations/ResonantWeapons/VariationsOfTheVoid/Shaders/VoidVariationBeam");
-            GameShaders.Misc["MagnumOpus:VoidVariationBeamFlow"] = new MiscShaderData(BeamAsset, "VoidVariationBeamFlow");
+            GameShaders.Misc["MagnumOpus:VoidVariationBeamFlow"] = new MiscShaderData(BeamAsset, "P0");
         }
     }
 }

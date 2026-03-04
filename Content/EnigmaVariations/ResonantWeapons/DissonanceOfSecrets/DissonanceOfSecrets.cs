@@ -21,9 +21,17 @@ using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecrets.Ut
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecrets
 {
     /// <summary>
-    /// DISSONANCE OF SECRETS - Magic weapon that launches Riddle Cascade Orbs
-    /// Orbs grow and deal aura damage, periodically firing homing Riddlebolts
-    /// On death, orbs trigger cascade explosions
+    /// DISSONANCE OF SECRETS — Magic growing orb weapon (Enigma Variations theme).
+    /// A riddle that grows larger the longer it exists — a void orb that swells and consumes.
+    /// 
+    /// Fires growing void orbs that scale from 0.5→2.0 over their 5s lifetime.
+    /// Orbs decelerate (×0.985/frame), dealing aura damage every 15 frames (30%).
+    /// Spawns homing riddlebolts every 60 frames like forbidden knowledge escaping containment.
+    /// On death: cascade explosion + 4 SeekingCrystals.
+    /// ParadoxBrand on all hits.
+    /// 
+    /// Custom Shaders: DissonanceOrbAura.fx, DissonanceRiddleTrail.fx
+    /// Foundation: MagicOrbFoundation + MaskFoundation (RadialNoiseMaskShader) planned
     /// </summary>
     public class DissonanceOfSecrets : ModItem
     {
@@ -69,11 +77,12 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect", "Launches pulsing orbs of chaotic energy"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect2", "Orbs grow and deal continuous aura damage"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect3", "Periodically fires homing Riddlebolts at nearby enemies"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect4", "Orbs explode in cascade detonations on expiry"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaLore", "'Every secret speaks in dissonance, if you know how to listen.'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires a growing void orb that swells and consumes as it drifts"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Orb deals periodic aura damage to nearby enemies as it grows"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Periodically spawns homing riddlebolts that seek nearby targets"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "On expiry, detonates in a cascade explosion spawning seeking crystals"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Hits brand enemies with Paradox Brand"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Some things grow when you don't look at them.'")
             {
                 OverrideColor = EnigmaPurple
             });
@@ -130,9 +139,20 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
             // Layer 3: White-hot core
             sb.Draw(bloomTex, drawPos, null, Color.White * 0.7f, 0f, bloomTex.Size() / 2f, currentScale * 0.4f, SpriteEffects.None, 0f);
 
-            // Layer 4: Glyph sprite tinted SecretPurple
+            // Layer 4: EN Star Flare — rotating Enigma identity burst
+            Texture2D starFlare = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
+            float starRot = Main.GameUpdateCount * 0.025f;
+            sb.Draw(starFlare, drawPos, null, DissonanceUtils.CascadeGreen * 0.45f, starRot,
+                starFlare.Size() / 2f, currentScale * 0.6f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(starFlare, drawPos, null, DissonanceUtils.SecretPurple * 0.3f, -starRot * 0.8f,
+                starFlare.Size() / 2f, currentScale * 0.45f * pulse, SpriteEffects.None, 0f);
+
+            // Layer 5: Glyph sprite tinted SecretPurple
             Color glyphColor = DissonanceUtils.SecretPurple * 0.85f;
             sb.Draw(glyphTex, drawPos, null, glyphColor, Projectile.rotation, glyphTex.Size() / 2f, currentScale * 0.8f, SpriteEffects.None, 0f);
+
+            // Theme texture accents
+            DissonanceUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
@@ -237,7 +257,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
                 if (Vector2.Distance(npc.Center, Projectile.Center) > auraRadius) continue;
                 
                 npc.SimpleStrikeNPC((int)(Projectile.damage * 0.3f), 0, false, 0f, null, false, 0f, true);
-                npc.AddBuff(ModContent.BuffType<ParadoxBrand>(), 180);
+                npc.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
                 npc.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(npc, 1);
             }
         }
@@ -274,7 +294,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 360);
+            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
             target.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(target, 2);
             
             Lighting.AddLight(target.Center, EnigmaGreen.ToVector3() * 0.5f);
@@ -409,6 +429,12 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
             sb.Draw(bloomTex, drawPos, null, Color.White * 0.5f, 0f,
                 bloomTex.Size() / 2f, coreScale * 0.4f, SpriteEffects.None, 0f);
 
+            // EN Star Flare — rotating green starburst on riddlebolt
+            Texture2D starFlare = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
+            float starRot = Main.GameUpdateCount * 0.04f;
+            sb.Draw(starFlare, drawPos, null, DissonanceUtils.CascadeGreen * 0.35f, starRot,
+                starFlare.Size() / 2f, coreScale * 0.8f, SpriteEffects.None, 0f);
+
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
@@ -479,7 +505,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 300);
+            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
             target.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(target, 1);
             
             Lighting.AddLight(target.Center, EnigmaGreen.ToVector3() * 0.4f);

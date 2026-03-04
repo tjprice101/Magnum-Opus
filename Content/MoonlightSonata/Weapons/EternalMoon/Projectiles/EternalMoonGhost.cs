@@ -11,20 +11,24 @@ using Terraria.ModLoader;
 namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 {
     /// <summary>
-    /// Ghost Reflection — a translucent delayed echo of the player's swing.
-    /// Spawned at Half Moon phase (phase 2+), appearing as spectral copies of the blade
-    /// offset at ±30° from the main swing. Deals reduced damage and has ethereal VFX.
+    /// Ghost Reflection — a spectral echo blade that orbits above the player's head.
+    /// Spawned at Half Moon phase (phase 2+), appearing as a spinning phantom blade
+    /// circling above the player in a tilted orbit. Deals reduced damage and has ethereal VFX.
     /// </summary>
     public class EternalMoonGhost : ModProjectile
     {
-        private const float BladeLength = 140f;
-        private const int GhostSwingTime = 40;
+        private const float BladeLength = 120f;
+        private const int GhostLifetime = 55;
+        private const float OrbitRadius = 60f;
+        private const float OrbitHeightOffset = -70f; // Above player's head
+        private const float OrbitSpeed = MathHelper.TwoPi * 1.8f; // Radians per second equivalent
 
         public Player Owner => Main.player[Projectile.owner];
         public int LunarPhase => (int)Projectile.ai[0];
-        public int GhostSide => (int)Projectile.ai[1]; // -1 or +1
+        public int GhostSide => (int)Projectile.ai[1]; // -1 or +1, determines initial orbit angle offset
 
-        private float _swingProgress;
+        private float _orbitAngle;
+        private float _lifeProgress;
 
         public override string Texture => "MagnumOpus/Content/MoonlightSonata/Weapons/EternalMoon/EternalMoon";
 
@@ -35,52 +39,67 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             Projectile.DamageType = DamageClass.MeleeNoSpeed;
             Projectile.tileCollide = false;
             Projectile.penetrate = -1;
-            Projectile.timeLeft = GhostSwingTime;
+            Projectile.timeLeft = GhostLifetime;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = 30;
             Projectile.Opacity = 0.35f;
         }
 
+        /// <summary>Gets the current orbit center (above the player's head).</summary>
+        private Vector2 OrbitCenter => Owner.MountedCenter + new Vector2(0f, OrbitHeightOffset);
+
+        /// <summary>Gets the current blade tip position based on orbit angle.</summary>
+        private Vector2 GetBladeTipPosition()
+        {
+            // Tilted elliptical orbit: wider horizontally, compressed vertically for perspective
+            Vector2 orbitOffset = new Vector2(
+                (float)Math.Cos(_orbitAngle) * OrbitRadius,
+                (float)Math.Sin(_orbitAngle) * OrbitRadius * 0.4f); // Flatten Y for perspective tilt
+            return OrbitCenter + orbitOffset;
+        }
+
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
         {
             float _ = 0f;
-            float angle = Projectile.velocity.ToRotation() + GetSwingAngle(_swingProgress) * GhostSide;
-            Vector2 dir = angle.ToRotationVector2();
-            Vector2 start = Owner.MountedCenter;
-            Vector2 end = start + dir * BladeLength * Projectile.scale;
+            Vector2 bladeCenter = GetBladeTipPosition();
+            Vector2 bladeDir = _orbitAngle.ToRotationVector2();
+            Vector2 start = bladeCenter - bladeDir * BladeLength * 0.4f * Projectile.scale;
+            Vector2 end = bladeCenter + bladeDir * BladeLength * 0.6f * Projectile.scale;
             return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), start, end, 20f, ref _);
-        }
-
-        private float GetSwingAngle(float progress)
-        {
-            // Ghost swings use a simple sinusoidal arc
-            return MathHelper.PiOver2 * 1.4f * ((float)Math.Sin(progress * MathHelper.Pi) * 2f - 1f);
         }
 
         public override void AI()
         {
-            _swingProgress = 1f - (Projectile.timeLeft / (float)GhostSwingTime);
+            _lifeProgress = 1f - (Projectile.timeLeft / (float)GhostLifetime);
 
-            // Anchor to owner
-            Projectile.Center = Owner.MountedCenter;
+            // Initialize orbit angle on first frame
+            if (_lifeProgress < 0.02f)
+                _orbitAngle = GhostSide * MathHelper.Pi; // Start on opposite sides if 2 ghosts
 
-            // Ethereal lunar particles from ghost blade tip
+            // Spin the orbit
+            float speedMult = 1f + LunarPhase * 0.15f; // Faster at higher phases
+            _orbitAngle += OrbitSpeed / 60f * speedMult; // Per-tick increment
+
+            // Anchor to owner (orbit center follows player)
+            Projectile.Center = GetBladeTipPosition();
+
+            // Ethereal lunar particles from ghost blade
             if (!Main.dedServ)
             {
-                float angle = Projectile.velocity.ToRotation() + GetSwingAngle(_swingProgress) * GhostSide;
-                Vector2 tipPos = Owner.MountedCenter + angle.ToRotationVector2() * BladeLength;
+                Vector2 tipPos = GetBladeTipPosition();
 
-                // Tidal mote trail along ghost blade
+                // Tidal mote trail along orbit path
                 if (Main.rand.NextBool(3))
                 {
-                    Vector2 moteVel = angle.ToRotationVector2().RotatedByRandom(0.4f) * Main.rand.NextFloat(1f, 2.5f);
+                    Vector2 tangent = new Vector2(-(float)Math.Sin(_orbitAngle), (float)Math.Cos(_orbitAngle) * 0.4f);
+                    Vector2 moteVel = tangent * Main.rand.NextFloat(1f, 2.5f);
                     Color moteColor = Color.Lerp(EternalMoonUtils.Violet, EternalMoonUtils.IceBlue, Main.rand.NextFloat()) * 0.6f;
                     LunarParticleHandler.SpawnParticle(new TidalMoteParticle(
                         tipPos + Main.rand.NextVector2Circular(8f, 8f), moteVel,
                         Main.rand.NextFloat(0.2f, 0.4f), moteColor, Main.rand.Next(15, 30)));
                 }
 
-                // Moon glint sparkles at tip
+                // Moon glint sparkles
                 if (Main.rand.NextBool(7))
                 {
                     LunarParticleHandler.SpawnParticle(new MoonGlintParticle(
@@ -92,57 +111,65 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                 // Subtle tidal droplets falling from ghost blade
                 if (Main.rand.NextBool(8))
                 {
-                    float bladePos = Main.rand.NextFloat(0.3f, 1f);
-                    Vector2 dropPos = Owner.MountedCenter + angle.ToRotationVector2() * BladeLength * bladePos;
-                    Vector2 dropVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-0.3f, 0.3f));
+                    Vector2 dropVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(0.2f, 0.8f));
                     LunarParticleHandler.SpawnParticle(new TidalDropletParticle(
-                        dropPos, dropVel, Main.rand.NextFloat(0.15f, 0.3f),
+                        tipPos, dropVel, Main.rand.NextFloat(0.15f, 0.3f),
                         EternalMoonUtils.IceBlue * 0.4f, Main.rand.Next(15, 25)));
                 }
             }
 
             // Fade in then out
-            float fadeProgress = _swingProgress;
-            Projectile.Opacity = fadeProgress < 0.15f ? fadeProgress / 0.15f * 0.35f :
-                                 fadeProgress > 0.85f ? (1f - fadeProgress) / 0.15f * 0.35f : 0.35f;
+            Projectile.Opacity = _lifeProgress < 0.15f ? _lifeProgress / 0.15f * 0.4f :
+                                 _lifeProgress > 0.8f ? (1f - _lifeProgress) / 0.2f * 0.4f : 0.4f;
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             var texture = Terraria.GameContent.TextureAssets.Projectile[Type].Value;
-            float angle = Projectile.velocity.ToRotation() + GetSwingAngle(_swingProgress) * GhostSide;
-            Vector2 direction = angle.ToRotationVector2();
+            Vector2 drawPos = GetBladeTipPosition() - Main.screenPosition;
 
-            int drawDirection = Math.Sign(Projectile.velocity.X) <= 0 ? -1 : 1;
-            SpriteEffects effects = drawDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+            // Blade rotates to follow the orbit tangent direction for a natural spinning look
+            float bladeRotation = _orbitAngle + MathHelper.PiOver4;
+            SpriteEffects effects = SpriteEffects.None;
 
             // Ghostly tint: translucent lunar colors — phase-dependent intensity
             float phaseGlow = MathHelper.Lerp(0.3f, 0.5f, LunarPhase / 4f);
-            Color ghostColor = Color.Lerp(EternalMoonUtils.Violet, EternalMoonUtils.IceBlue, _swingProgress);
+            Color ghostColor = Color.Lerp(EternalMoonUtils.Violet, EternalMoonUtils.IceBlue,
+                (float)Math.Sin(_orbitAngle * 0.5f) * 0.5f + 0.5f);
             ghostColor *= Projectile.Opacity;
 
-            float rotation = angle + MathHelper.PiOver4 + (drawDirection == -1 ? MathHelper.Pi : 0f);
+            // Switch to Additive for glow layers
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
 
             // Layer 1: Wide outer glow (additive bloom under the ghost blade)
-            Color outerGlow = EternalMoonUtils.DarkPurple;
-            outerGlow.A = 0;
-            Main.EntitySpriteDraw(texture, Owner.MountedCenter - Main.screenPosition, null,
-                outerGlow * Projectile.Opacity * 0.1f, rotation, texture.Size() / 2f,
-                2.8f * Projectile.scale, effects, 0);
+            Color outerGlow = EternalMoonUtils.DarkPurple with { A = 0 };
+            Main.EntitySpriteDraw(texture, drawPos, null,
+                outerGlow * Projectile.Opacity * 0.12f, bladeRotation, texture.Size() / 2f,
+                2.6f * Projectile.scale, effects, 0);
 
             // Layer 2: Ghost blade body
-            Main.EntitySpriteDraw(texture, Owner.MountedCenter - Main.screenPosition, null,
-                ghostColor, rotation, texture.Size() / 2f, 2.2f * Projectile.scale, effects, 0);
+            Main.EntitySpriteDraw(texture, drawPos, null,
+                ghostColor, bladeRotation, texture.Size() / 2f, 2.0f * Projectile.scale, effects, 0);
 
             // Layer 3: Core glow overlay (additive)
-            Color glowColor = EternalMoonUtils.IceBlue;
-            glowColor.A = 0;
-            Main.EntitySpriteDraw(texture, Owner.MountedCenter - Main.screenPosition, null,
-                glowColor * Projectile.Opacity * phaseGlow, rotation, texture.Size() / 2f,
-                2.4f * Projectile.scale, effects, 0);
+            Color glowColor = EternalMoonUtils.IceBlue with { A = 0 };
+            Main.EntitySpriteDraw(texture, drawPos, null,
+                glowColor * Projectile.Opacity * phaseGlow, bladeRotation, texture.Size() / 2f,
+                2.2f * Projectile.scale, effects, 0);
 
-            // Add moonlight
-            Vector2 tipPos = Owner.MountedCenter + direction * BladeLength * 0.5f;
+            // Restore to AlphaBlend
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
+
+            // Add moonlight at orbit position
+            Vector2 tipPos = GetBladeTipPosition();
             Lighting.AddLight(tipPos, EternalMoonUtils.IceBlue.ToVector3() * Projectile.Opacity * 0.3f);
 
             return false;

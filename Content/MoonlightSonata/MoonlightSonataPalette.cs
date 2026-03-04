@@ -91,7 +91,7 @@ namespace MagnumOpus.Content.MoonlightSonata
         // =================================================================
 
         /// <summary>Lore text color for ModifyTooltips.</summary>
-        public static readonly Color LoreText = new Color(138, 43, 226);
+        public static readonly Color LoreText = new Color(140, 100, 200);
 
         /// <summary>Special weapon effect tooltip color.</summary>
         public static readonly Color EffectTooltip = new Color(180, 150, 255);

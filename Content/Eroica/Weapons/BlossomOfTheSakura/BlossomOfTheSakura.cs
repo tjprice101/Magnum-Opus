@@ -10,8 +10,18 @@ using Terraria;
 
 namespace MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura
 {
+    /// <summary>
+    /// Blossom of the Sakura — Eroica ranged weapon that rains sakura arrows from afar.
+    /// Arrows bloom into petal explosions on contact, with a charged Petal Storm volley alt-fire
+    /// and homing Tracer Blossom shots that mark targets for bonus damage.
+    /// </summary>
     public class BlossomOfTheSakura : ModItem
     {
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             Item.ResearchUnlockCount = 1;
@@ -46,7 +56,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura
             "Every 5th shot fires a Tracer Blossom that marks targets for 10% bonus damage")
             { OverrideColor = EroicaPalette.Gold });
             tooltips.Add(new TooltipLine(Mod, "Lore",
-            "'The blossoms do not choose where they fall; they trust the wind.'")
+            "'Every bullet carries a petal. Every petal, a prayer.'")
             { OverrideColor = EroicaPalette.Scarlet });
         }
     }

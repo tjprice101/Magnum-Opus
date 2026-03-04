@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using MagnumOpus.Content.SwanLake;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Utilities
 {
@@ -54,6 +55,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Utiliti
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        // ─────────── THEME TEXTURE ACCENTS ───────────
+
+        public static void DrawThemeAccents(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)
+        {
+            SwanLakeVFXLibrary.DrawThemeCrystalAccent(sb, worldPos, scale, intensity * 0.5f);
+            float rot = (float)Main.GameUpdateCount * 0.02f;
+            SwanLakeVFXLibrary.DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.4f, rot);
         }
     }
 }

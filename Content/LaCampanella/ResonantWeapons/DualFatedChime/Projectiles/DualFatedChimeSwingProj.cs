@@ -11,7 +11,13 @@ using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Particles;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Primitives;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Shaders;
+using MagnumOpus.Content.LaCampanella;
 using MagnumOpus.Content.LaCampanella.Debuffs;
+using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
+using MagnumOpus.Content.FoundationWeapons.ExplosionParticlesFoundation;
+using MagnumOpus.Content.FoundationWeapons.ThinSlashFoundation;
+using MagnumOpus.Content.FoundationWeapons.XSlashFoundation;
+using MagnumOpus.Content.FoundationWeapons.RibbonFoundation;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Projectiles
 {
@@ -334,7 +340,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
 
         #region Phase-Specific Projectile Spawning
 
-        /// <summary>Phase 2: Single flame wave projectile from blade tip.</summary>
+        /// <summary>Phase 2: Single flame wave projectile from blade tip + Foundation RippleEffect.</summary>
         private void SpawnFlameWaveProjectile(float rotation)
         {
             Vector2 swordDir = rotation.ToRotationVector2();
@@ -346,6 +352,12 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
                 ModContent.ProjectileType<BellFlameWaveProj>(),
                 Projectile.damage / 3, Projectile.knockBack * 0.3f, Projectile.owner);
 
+            // === FOUNDATION: RippleEffectProjectile — Bell ring wave at blade tip ===
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), tipPos, Vector2.Zero,
+                ModContent.ProjectileType<RippleEffectProjectile>(),
+                0, 0f, Projectile.owner);
+
             DualFatedChimeParticleHandler.SpawnParticle(
                 new InfernalEmberParticle(tipPos, flameVel * 0.3f, 0.7f, 18, 0.5f));
             DualFatedChimeParticleHandler.SpawnParticle(
@@ -354,19 +366,31 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             SoundEngine.PlaySound(SoundID.Item45 with { Pitch = 0.1f, Volume = 0.5f }, tipPos);
         }
 
-        /// <summary>Phase 3: Double shockwave ring + ground fire dust.</summary>
+        /// <summary>Phase 3: Double shockwave ring + ground fire zone via Foundation DamageZone.</summary>
         private void SpawnResonanceGroundFire(float rotation)
         {
             Vector2 swordDir = rotation.ToRotationVector2();
             Vector2 tipPos = Projectile.Center + swordDir * BladeLength * Projectile.scale;
 
-            // Double shockwave effect via expanding dust rings
+            // === FOUNDATION: RippleEffectProjectile — Double bell ring shockwave ===
             for (int ring = 0; ring < 2; ring++)
             {
-                float ringDelay = ring * 0.15f;
-                int dustCount = 16 + ring * 8;
-                float radius = 30f + ring * 25f;
+                Projectile.NewProjectile(
+                    Projectile.GetSource_FromThis(), tipPos, Vector2.Zero,
+                    ModContent.ProjectileType<RippleEffectProjectile>(),
+                    0, 0f, Projectile.owner);
+            }
 
+            // === FOUNDATION: DamageZoneProjectile — Persistent flame zone ===
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), tipPos, Vector2.Zero,
+                ModContent.ProjectileType<DamageZoneProjectile>(),
+                Projectile.damage / 3, 0f, Projectile.owner);
+
+            // Expanding dust rings for immediate visual impact
+            for (int ring = 0; ring < 2; ring++)
+            {
+                int dustCount = 16 + ring * 8;
                 for (int i = 0; i < dustCount; i++)
                 {
                     float angle = MathHelper.TwoPi * i / dustCount;
@@ -401,13 +425,29 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             SoundEngine.PlaySound(SoundID.Item14 with { Pitch = -0.3f, Volume = 0.7f }, tipPos);
         }
 
-        /// <summary>Phase 4: 12 directional Bell Flame Waves in a full circle.</summary>
+        /// <summary>Phase 4: Grand Toll — 12 directional Bell Flame Waves + Foundation XSlash + ExplosionParticles.</summary>
         private void SpawnGrandTollFlameCircle(float rotation)
         {
             Vector2 swordDir = rotation.ToRotationVector2();
             Vector2 tipPos = Projectile.Center + swordDir * BladeLength * Projectile.scale;
             int waveCount = 12;
 
+            // === FOUNDATION: XSlashEffect — Cross-detonation at Grand Toll center ===
+            // fireIntensity = 0.15 (very intense), InfernalOrange → BellGold → WhiteHot
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), tipPos, Vector2.Zero,
+                ModContent.ProjectileType<XSlashEffect>(),
+                0, 0f, Projectile.owner,
+                ai0: rotation, ai1: (float)XSlashStyle.LaCampanella);
+
+            // === FOUNDATION: SparkExplosionProjectile — Bell Shatter spark burst (60 sparks) ===
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), tipPos, Vector2.Zero,
+                ModContent.ProjectileType<SparkExplosionProjectile>(),
+                (int)(Projectile.damage * 0.3f), Projectile.knockBack * 0.3f, Projectile.owner,
+                ai0: (float)SparkMode.RadialScatter);
+
+            // 12 directional Bell Flame Waves
             for (int i = 0; i < waveCount; i++)
             {
                 float angle = MathHelper.TwoPi * i / waveCount;
@@ -423,6 +463,12 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
                 DualFatedChimeParticleHandler.SpawnParticle(
                     new InfernalEmberParticle(tipPos, flameVel * 0.2f, 0.8f, 15, 0.4f));
             }
+
+            // === FOUNDATION: RippleEffectProjectile — Massive bell shockwave ===
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), tipPos, Vector2.Zero,
+                ModContent.ProjectileType<RippleEffectProjectile>(),
+                0, 0f, Projectile.owner);
 
             // Massive bell chime flash
             DualFatedChimeParticleHandler.SpawnParticle(new BellChimeFlashParticle(tipPos, 25, 3.0f));
@@ -470,7 +516,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
 
         #endregion
 
-        #region On Hit — Bell Resonance Stacking
+        #region On Hit — Bell Resonance Stacking + Foundation Impacts
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
@@ -481,8 +527,27 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             var resonance = target.GetGlobalNPC<BellResonanceNPC>();
             resonance.AddResonanceRing(target, Projectile.owner);
 
-            // Impact VFX — scales with combo phase
             Vector2 hitPos = target.Center;
+
+            // === FOUNDATION: RippleEffectProjectile — Bell ring shockwave on every hit ===
+            // Bell chime visual: concentric ripple rings expanding from impact
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), hitPos, Vector2.Zero,
+                ModContent.ProjectileType<RippleEffectProjectile>(),
+                0, 0f, Projectile.owner);
+
+            // === FOUNDATION: ThinSlashEffect — Thin flame slash marks on hit (Phase 2+) ===
+            if (ComboPhase >= 2)
+            {
+                float slashAngle = Projectile.rotation + Main.rand.NextFloat(-0.2f, 0.2f);
+                Projectile.NewProjectile(
+                    Projectile.GetSource_FromThis(), hitPos, Vector2.Zero,
+                    ModContent.ProjectileType<ThinSlashEffect>(),
+                    0, 0f, Projectile.owner,
+                    ai0: slashAngle, ai1: (float)SlashStyle.GoldenEdge);
+            }
+
+            // Custom particle impact VFX — scales with combo phase
             int emberCount = 5 + ComboPhase * 2;
             for (int i = 0; i < emberCount; i++)
             {
@@ -520,22 +585,53 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
 
         #region Rendering
 
+        private static bool _particlesDrawnThisFrame;
+        private static int _lastParticleDrawFrame;
+
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
 
-            // Layer 1: Shader-driven infernal swing trail
-            if (Progression > 0.18f)
-                DrawSlashTrail(sb);
+            try
+            {
+                // Layer 1: Shader-driven infernal swing trail
+                if (Progression > 0.18f)
+                    DrawSlashTrail(sb);
 
-            // Layer 2: Bloom underlays at blade tip
-            DrawBloomUnderlays(sb);
+                // Layer 2: Bloom underlays at blade tip
+                DrawBloomUnderlays(sb);
 
-            // Layer 3: Blade sprite
-            DrawBlade(sb, lightColor);
+                // Layer 3: Blade sprite
+                DrawBlade(sb, lightColor);
 
-            // Layer 4: Particles
-            DualFatedChimeParticleHandler.DrawAllParticles(sb);
+                // Layer 4: Particles — only draw once per frame across all instances
+                int currentFrame = (int)Main.GameUpdateCount;
+                if (_lastParticleDrawFrame != currentFrame)
+                {
+                    _lastParticleDrawFrame = currentFrame;
+                    DualFatedChimeParticleHandler.DrawAllParticles(sb);
+                }
+
+                // Theme texture accents
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                DualFatedChimeUtils.DrawThemeAccents(sb, Projectile.Center - Main.screenPosition, Projectile.scale);
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch
+            {
+                // Ensure SpriteBatch is restored on any rendering failure
+                try
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
 
             return false;
         }
@@ -596,37 +692,47 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
                 smoothen: true
             );
 
-            sb.End();
-            _trailRenderer.RenderTrail(_trailPositions, mainSettings, RenderPointCount);
-
-            if (shader != null)
+            try
             {
-                try
-                {
-                    shader.UseColor(edgeColor * 0.6f);
-                    shader.UseSecondaryColor(new Color(255, 240, 200) * 0.3f);
-                }
-                catch { }
+                sb.End();
             }
+            catch { }
 
-            var glowSettings = new DualFatedChimeTrailSettings(
-                width: (float t) =>
+            try
+            {
+                _trailRenderer.RenderTrail(_trailPositions, mainSettings, RenderPointCount);
+
+                if (shader != null)
                 {
-                    float baseWidth = (1f - t * 0.5f) * BladeLength * 0.6f * Projectile.scale * _squishFactor;
-                    return baseWidth * trailOpacity * 0.5f;
-                },
-                trailColor: (float t) =>
-                {
-                    return DualFatedChimeUtils.Additive(edgeColor, trailOpacity * 0.35f * (1f - t));
-                },
-                shader: shader,
-                smoothen: true
-            );
+                    try
+                    {
+                        shader.UseColor(edgeColor * 0.6f);
+                        shader.UseSecondaryColor(new Color(255, 240, 200) * 0.3f);
+                    }
+                    catch { }
+                }
 
-            _trailRenderer.RenderTrail(_trailPositions, glowSettings, RenderPointCount);
+                var glowSettings = new DualFatedChimeTrailSettings(
+                    width: (float t) =>
+                    {
+                        float baseWidth = (1f - t * 0.5f) * BladeLength * 0.6f * Projectile.scale * _squishFactor;
+                        return baseWidth * trailOpacity * 0.5f;
+                    },
+                    trailColor: (float t) =>
+                    {
+                        return DualFatedChimeUtils.Additive(edgeColor, trailOpacity * 0.35f * (1f - t));
+                    },
+                    shader: shader,
+                    smoothen: true
+                );
 
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                _trailRenderer.RenderTrail(_trailPositions, glowSettings, RenderPointCount);
+            }
+            finally
+            {
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
         }
 
         private void DrawBloomUnderlays(SpriteBatch sb)
@@ -670,6 +776,24 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             {
                 Color phaseBloom = DualFatedChimeUtils.Additive(new Color(255, 60, 0), 0.12f * bloomPulse * (ComboPhase - 2));
                 sb.Draw(bloomTex, tipPos, null, phaseBloom, 0f, bloomOrigin, 2.0f * Projectile.scale * phaseScale, SpriteEffects.None, 0f);
+            }
+
+            // --- LC Radial Slash Star Impact — sharp infernal star flare on blade tip ---
+            LaCampanellaVFXLibrary.DrawRadialSlashStar(sb, tipPos,
+                0.25f * Projectile.scale * phaseScale,
+                (float)Main.GameUpdateCount * 0.04f,
+                0.3f * bloomPulse,
+                LaCampanellaPalette.FlameYellow);
+
+            // --- LC Power Effect Ring — concentric ring on higher combo phases ---
+            if (ComboPhase >= 2)
+            {
+                float ringPulse = 0.7f + 0.3f * (float)Math.Sin(Main.GameUpdateCount * 0.12f);
+                LaCampanellaVFXLibrary.DrawPowerEffectRing(sb, tipPos,
+                    0.3f * Projectile.scale * phaseScale,
+                    -(float)Main.GameUpdateCount * 0.025f,
+                    0.2f * ringPulse * (ComboPhase - 1),
+                    LaCampanellaPalette.InfernalOrange);
             }
 
             sb.End();

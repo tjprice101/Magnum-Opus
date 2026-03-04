@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using MagnumOpus.Content.SwanLake;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.Utilities
 {
@@ -14,7 +15,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.U
         public static readonly Color LakeSilver = new Color(180, 195, 220);
         public static readonly Color DeepLake = new Color(40, 50, 80);
         public static readonly Color MistBlue = new Color(160, 180, 210);
-        public static readonly Color LoreColor = new Color(220, 225, 235);
+        public static readonly Color LoreColor = new Color(240, 240, 255);
 
         public static readonly Color[] RipplePalette = new Color[]
         {
@@ -66,6 +67,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.U
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        // ─────────── THEME TEXTURE ACCENTS ───────────
+
+        public static void DrawThemeAccents(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)
+        {
+            SwanLakeVFXLibrary.DrawThemeCrystalAccent(sb, worldPos, scale, intensity * 0.5f);
+            float rot = (float)Main.GameUpdateCount * 0.02f;
+            SwanLakeVFXLibrary.DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.4f, rot);
         }
     }
 }

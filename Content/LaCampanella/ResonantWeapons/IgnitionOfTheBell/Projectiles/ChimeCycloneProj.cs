@@ -7,7 +7,12 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Particles;
+using MagnumOpus.Content.LaCampanella;
 using MagnumOpus.Content.LaCampanella.Debuffs;
+using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
+using MagnumOpus.Content.FoundationWeapons.ExplosionParticlesFoundation;
+using MagnumOpus.Content.FoundationWeapons.XSlashFoundation;
+using MagnumOpus.Content.FoundationWeapons.SmokeFoundation;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Projectiles
 {
@@ -230,6 +235,19 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             IgnitionOfTheBellParticleHandler.SpawnParticle(
                 new BellIgnitionFlashParticle(Projectile.Center, 14, 2.5f));
 
+            // === FOUNDATION: RippleEffectProjectile — Cyclone detonation shockwave ===
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero,
+                ModContent.ProjectileType<RippleEffectProjectile>(),
+                0, 0f, Projectile.owner);
+
+            // === FOUNDATION: SparkExplosionProjectile — Cyclone detonation radial scatter ===
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero,
+                ModContent.ProjectileType<SparkExplosionProjectile>(),
+                0, 0f, Projectile.owner,
+                ai0: (float)SparkMode.RadialScatter);
+
             // Detonation sound
             SoundEngine.PlaySound(SoundID.Item14 with { Pitch = -0.2f, Volume = 1.0f }, Projectile.Center);
 
@@ -283,6 +301,26 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             IgnitionOfTheBellParticleHandler.SpawnParticle(
                 new BellIgnitionFlashParticle(center, 18, 3.5f));
 
+            // === FOUNDATION: XSlashEffect — Chimequake massive ground X-cross detonation ===
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), center, Vector2.Zero,
+                ModContent.ProjectileType<XSlashEffect>(),
+                0, 0f, Projectile.owner,
+                ai0: Main.rand.NextFloat(MathHelper.TwoPi), ai1: (float)XSlashStyle.LaCampanella);
+
+            // === FOUNDATION: DamageZoneProjectile — Persistent chimequake flame zone ===
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), center, Vector2.Zero,
+                ModContent.ProjectileType<DamageZoneProjectile>(),
+                (int)(Projectile.damage * 0.5f), 0f, Projectile.owner);
+
+            // === FOUNDATION: SparkExplosionProjectile — Chimequake massive spark burst ===
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), center, Vector2.Zero,
+                ModContent.ProjectileType<SparkExplosionProjectile>(),
+                0, 0f, Projectile.owner,
+                ai0: (float)SparkMode.SpiralShrapnel);
+
             // Chimequake damage: hurt all enemies in ChimequakeRadius
             for (int i = 0; i < Main.maxNPCs; i++)
             {
@@ -326,11 +364,26 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             }
         }
 
+        private static int _lastParticleDrawFrame;
+
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            DrawCycloneAura(sb);
-            DrawCycloneParticles(sb);
+            try
+            {
+                DrawCycloneAura(sb);
+                DrawCycloneParticles(sb);
+            }
+            catch
+            {
+                try
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
             return false;
         }
 
@@ -353,7 +406,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             float pulse = 0.6f + 0.4f * (float)Math.Sin(_timer * 0.15f + progress * 3f);
             float intensity = 0.5f + 0.5f * progress;
 
-            sb.End();
+            try { sb.End(); } catch { }
+            try
+            {
             sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
@@ -375,15 +430,42 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
                 IgnitionOfTheBellUtils.Additive(new Color(255, 210, 80), coreIntensity),
                 0f, origin, 0.5f + progress * 0.3f, SpriteEffects.None, 0f);
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            // --- LC Impact Ellipse — expanding infernal shockwave ring in vortex ---
+            {
+                float ellipseScale = (1.8f - progress * 0.8f) * pulse;
+                LaCampanellaVFXLibrary.DrawImpactEllipse(sb, screenPos,
+                    ellipseScale * 0.3f, _spinAngle * 0.3f,
+                    0.18f * pulse * intensity, LaCampanellaPalette.InfernalOrange);
+            }
+
+            // --- LC Power Effect Ring — contracting ring as vortex intensifies ---
+            if (progress > 0.3f)
+            {
+                float ringIntensity = (progress - 0.3f) / 0.7f;
+                LaCampanellaVFXLibrary.DrawPowerEffectRing(sb, screenPos,
+                    (1.2f - ringIntensity * 0.5f) * pulse * 0.3f,
+                    -_spinAngle * 0.5f,
+                    0.2f * ringIntensity * pulse, LaCampanellaPalette.FlameYellow);
+            }
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
         }
 
         private void DrawCycloneParticles(SpriteBatch sb)
         {
-            IgnitionOfTheBellParticleHandler handler = ModContent.GetInstance<IgnitionOfTheBellParticleHandler>();
-            handler?.DrawAllParticles(sb);
+            int currentFrame = (int)Main.GameUpdateCount;
+            if (_lastParticleDrawFrame != currentFrame)
+            {
+                _lastParticleDrawFrame = currentFrame;
+                IgnitionOfTheBellParticleHandler handler = ModContent.GetInstance<IgnitionOfTheBellParticleHandler>();
+                handler?.DrawAllParticles(sb);
+            }
         }
     }
 }

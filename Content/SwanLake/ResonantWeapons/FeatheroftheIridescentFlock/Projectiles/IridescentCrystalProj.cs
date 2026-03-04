@@ -1,436 +1,526 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.Graphics.Shaders;
+using Terraria.Audio;
 using MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFlock.Utilities;
-using MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFlock.Shaders;
-using MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFlock.Particles;
-using MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFlock.Primitives;
 using MagnumOpus.Content.SwanLake.Debuffs;
+using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
-using ReLogic.Content;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFlock.Projectiles
 {
     /// <summary>
-    /// Iridescent Crystal — orbiting minion crystal for Feather of the Iridescent Flock.
-    /// 
-    /// BEHAVIOR:
-    /// • Orbits the player at a set radius and angle speed
-    /// • Uses 0.34 minion slots
-    /// • Periodically locks onto closest enemy and dashes to strike
-    /// • After striking, returns to orbit with oil-sheen trail
-    /// • When 3+ crystals exist, participates in Flock Formation:
-    ///   — iridescent lines connect crystals
-    ///   — formation fires a beam every 60 ticks at targeted enemy
+    /// Orbiting crystal minion for Feather of the Iridescent Flock (summoner).
+    /// V-formation positioning, 4-state cycle: Formation → ShardVolley → DiveAttack → Return.
+    /// Crystal resonance at 4+ active crystals. Fires CrystalShardProj volleys.
+    /// Foundation-pattern rendering: SpriteBatch bloom layers, no primitives/custom particles.
     /// </summary>
     public class IridescentCrystalProj : ModProjectile
     {
-        private enum CrystalState { Orbiting, Attacking, Returning }
+        public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
 
-        private const int TrailLength = 16;
-        private Vector2[] _trail = new Vector2[TrailLength];
-        private FlockPrimitiveRenderer _renderer;
-        private CrystalState _state = CrystalState.Orbiting;
-        private int _attackTimer;
-        private int _cooldown;
-        private NPC _attackTarget;
+        // --- AI State Machine ---
+        private enum CrystalState { FormationFlight, ShardVolley, DiveAttack, Return }
 
-        // ai[0] = orbit angle offset assigned at spawn
-        private float OrbitOffset => Projectile.ai[0];
-        private float _orbitAngle;
-        private float _orbitRadius = 80f;
+        public ref float Timer => ref Projectile.ai[0];
+        public ref float StateTimer => ref Projectile.ai[1];
+        private ref float StateFloat => ref Projectile.localAI[0];
+        public ref float CrystalIndex => ref Projectile.localAI[1]; // Position in V-formation
 
-        public override string Texture => "MagnumOpus/Content/SwanLake/ResonantWeapons/FeatheroftheIridescentFlock/FeatheroftheIridescentFlock";
+        private CrystalState CurrentState
+        {
+            get => (CrystalState)(int)StateFloat;
+            set => StateFloat = (float)value;
+        }
+
+        private const int TrailLength = 10;
+        private Vector2[] oldPos = new Vector2[TrailLength];
+        private float idleRotation = 0f;
+        private int volleyShots = 0;
+
+        private Player Owner => Main.player[Projectile.owner];
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.MinionSacrificable[Type] = true;
-            ProjectileID.Sets.CultistIsResistantTo[Type] = true;
-            Main.projPet[Type] = true;
+            ProjectileID.Sets.MinionSacrificable[Projectile.type] = true;
+            ProjectileID.Sets.MinionTargettingFeature[Projectile.type] = true;
+            Main.projPet[Projectile.type] = true;
         }
 
         public override void SetDefaults()
         {
-            Projectile.width = 20;
-            Projectile.height = 20;
+            Projectile.width = 24;
+            Projectile.height = 24;
             Projectile.friendly = true;
+            Projectile.hostile = false;
             Projectile.DamageType = DamageClass.Summon;
             Projectile.penetrate = -1;
+            Projectile.timeLeft = 18000;
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
+            Projectile.minionSlots = 1f;
             Projectile.minion = true;
-            Projectile.minionSlots = 0.34f;
-            Projectile.timeLeft = 2;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = 30;
         }
 
         public override bool? CanCutTiles() => false;
-        public override bool MinionContactDamage() => _state == CrystalState.Attacking;
+        public override bool MinionContactDamage() => CurrentState == CrystalState.DiveAttack;
 
         public override void AI()
         {
-            Player owner = Main.player[Projectile.owner];
+            // --- Minion buff check ---
+            if (!CheckActive()) return;
 
-            // Validate buff
-            if (!owner.active || owner.dead) { Projectile.Kill(); return; }
+            Timer++;
+            StateTimer++;
+
+            // --- Trail recording ---
+            for (int i = TrailLength - 1; i > 0; i--)
+                oldPos[i] = oldPos[i - 1];
+            oldPos[0] = Projectile.Center;
+
+            // --- Idle rotation ---
+            idleRotation += 0.02f;
+
+            // --- State machine ---
+            NPC target = FindTarget();
+
+            switch (CurrentState)
+            {
+                case CrystalState.FormationFlight:
+                    DoFormationFlight(target);
+                    break;
+                case CrystalState.ShardVolley:
+                    DoShardVolley(target);
+                    break;
+                case CrystalState.DiveAttack:
+                    DoDiveAttack(target);
+                    break;
+                case CrystalState.Return:
+                    DoReturn();
+                    break;
+            }
+
+            // --- Ambient iridescent dust ---
+            if (Timer % 6 == 0)
+            {
+                Color c = FlockUtils.GetIridescent(Timer * 0.01f + CrystalIndex * 0.25f);
+                Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(8, 8),
+                    DustID.WhiteTorch, Vector2.Zero, 0, c, 0.4f);
+                d.noGravity = true;
+            }
+
+            // Lighting
+            Color lightColor = FlockUtils.GetIridescent(Timer * 0.005f);
+            Lighting.AddLight(Projectile.Center, lightColor.ToVector3() * 0.4f);
+
+            // Rotation visual
+            Projectile.rotation += 0.03f;
+        }
+
+        private bool CheckActive()
+        {
+            Player owner = Owner;
+            if (owner.dead || !owner.active)
+            {
+                Projectile.Kill();
+                return false;
+            }
+
             if (owner.HasBuff(ModContent.BuffType<IridescentFlockBuff>()))
                 Projectile.timeLeft = 2;
 
-            // Update trail
-            for (int i = TrailLength - 1; i > 0; i--) _trail[i] = _trail[i - 1];
-            _trail[0] = Projectile.Center;
-
-            _cooldown = Math.Max(0, _cooldown - 1);
-
-            switch (_state)
-            {
-                case CrystalState.Orbiting:
-                    AIOrbit(owner);
-                    break;
-                case CrystalState.Attacking:
-                    AIAttack(owner);
-                    break;
-                case CrystalState.Returning:
-                    AIReturn(owner);
-                    break;
-            }
-
-            // Formation visuals when 3+ crystals
-            if (owner.ownedProjectileCounts[Type] >= 3 && _state == CrystalState.Orbiting)
-            {
-                if (Main.rand.NextBool(12))
-                {
-                    var shimmer = new OilShimmerParticle();
-                    shimmer.Initialize(
-                        Projectile.Center + Main.rand.NextVector2Circular(8f, 8f),
-                        Main.rand.NextVector2Circular(0.5f, 0.5f),
-                        FlockUtils.GetIridescent(Main.rand.NextFloat()),
-                        Main.rand.NextFloat(0.4f, 0.8f)
-                    );
-                    FlockParticleHandler.Spawn(shimmer);
-                }
-            }
-
-            // Iridescent light
-            Color lightCol = FlockUtils.GetOilSheen(_orbitAngle, Main.GameUpdateCount);
-            Lighting.AddLight(Projectile.Center, lightCol.ToVector3() * 0.3f);
+            return true;
         }
 
-        private void AIOrbit(Player owner)
+        // ================================================================
+        // STATE: Formation Flight — idle V-formation around owner
+        // ================================================================
+        private void DoFormationFlight(NPC target)
         {
-            _orbitAngle += 0.03f;
-            float angle = _orbitAngle + OrbitOffset;
-            Vector2 target = owner.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * _orbitRadius;
+            // V-formation positioning
+            Vector2 formationPos = GetFormationPosition();
+            Vector2 toFormation = formationPos - Projectile.Center;
+            float dist = toFormation.Length();
 
-            Projectile.velocity = (target - Projectile.Center) * 0.15f;
-            Projectile.Center += Projectile.velocity;
-            Projectile.rotation = angle + MathHelper.PiOver2;
-
-            // Look for attack target
-            if (_cooldown <= 0)
+            if (dist > 8f)
             {
-                NPC closest = FindClosestNPC(400f);
-                if (closest != null)
+                float speed = MathHelper.Clamp(dist * 0.08f, 2f, 16f);
+                Projectile.velocity = toFormation.SafeNormalize(Vector2.UnitY) * speed;
+            }
+            else
+            {
+                Projectile.velocity *= 0.85f;
+            }
+
+            // Transition to attack if target in range
+            if (target != null && StateTimer > 60)
+            {
+                float targetDist = Vector2.Distance(Projectile.Center, target.Center);
+                if (targetDist < 500f)
                 {
-                    _attackTarget = closest;
-                    _state = CrystalState.Attacking;
-                    _attackTimer = 0;
+                    // Alternate between volley and dive based on crystal index
+                    bool doVolley = (int)CrystalIndex % 2 == 0 || CountActiveCrystals() < 3;
+                    TransitionTo(doVolley ? CrystalState.ShardVolley : CrystalState.DiveAttack);
                 }
             }
         }
 
-        private void AIAttack(Player owner)
+        private Vector2 GetFormationPosition()
         {
-            _attackTimer++;
+            int index = (int)CrystalIndex;
+            float spacing = 50f;
+            float forwardOffset = -40f; // Behind owner
 
-            if (_attackTarget == null || !_attackTarget.active || _attackTarget.dontTakeDamage)
+            // V-formation: even indices go left, odd go right
+            int side = index % 2 == 0 ? -1 : 1;
+            int row = (index + 1) / 2;
+
+            Vector2 offset = new Vector2(forwardOffset - row * spacing * 0.5f, side * row * spacing);
+            // Gentle bobbing
+            offset.Y += MathF.Sin(Timer * 0.04f + index * 1.2f) * 8f;
+
+            return Owner.Center + offset;
+        }
+
+        // ================================================================
+        // STATE: Shard Volley — fires 3-burst CrystalShardProj homing shards
+        // ================================================================
+        private void DoShardVolley(NPC target)
+        {
+            if (target == null || !target.active)
             {
-                _state = CrystalState.Returning;
-                _cooldown = 45;
+                TransitionTo(CrystalState.Return);
                 return;
             }
 
-            // Dash toward target
-            Vector2 toTarget = (_attackTarget.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-            float dashSpeed = 18f;
-            Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * dashSpeed, 0.2f);
-            Projectile.Center += Projectile.velocity;
-            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
+            // Hover near owner during volley
+            Vector2 hoverPos = Owner.Center + new Vector2(-30f, -60f - CrystalIndex * 20f);
+            Vector2 toHover = hoverPos - Projectile.Center;
+            Projectile.velocity = toHover.SafeNormalize(Vector2.UnitY) * MathHelper.Clamp(toHover.Length() * 0.06f, 0f, 8f);
 
-            // Attack particles
-            if (Main.rand.NextBool(2))
+            // Fire shards in 3-burst
+            if (StateTimer % 15 == 0 && volleyShots < 3 && Projectile.owner == Main.myPlayer)
             {
-                var shard = new CrystalShardParticle();
-                shard.Initialize(
-                    Projectile.Center,
-                    -Projectile.velocity.SafeNormalize(Vector2.Zero) * Main.rand.NextFloat(1f, 3f),
-                    FlockUtils.GetIridescent(Main.rand.NextFloat()),
-                    Main.rand.NextFloat(0.5f, 0.9f)
-                );
-                FlockParticleHandler.Spawn(shard);
+                Vector2 toTarget = (target.Center - Projectile.Center).SafeNormalize(Vector2.UnitY);
+                float spread = MathHelper.ToRadians(10f) * (volleyShots - 1);
+                Vector2 vel = toTarget.RotatedBy(spread) * 10f;
+
+                Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center,
+                    vel, ModContent.ProjectileType<CrystalShardProj>(),
+                    Projectile.damage / 2, Projectile.knockBack * 0.5f, Projectile.owner);
+
+                volleyShots++;
+                SoundEngine.PlaySound(SoundID.Item28, Projectile.Center);
+
+                // Fire dust
+                for (int i = 0; i < 3; i++)
+                {
+                    Color c = FlockUtils.GetIridescent(Main.rand.NextFloat());
+                    Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.WhiteTorch, vel * 0.3f, 0, c, 0.6f);
+                    d.noGravity = true;
+                }
             }
 
-            // Timeout return
-            if (_attackTimer > 60)
+            // After 3 shots, return
+            if (volleyShots >= 3 && StateTimer > 60)
+                TransitionTo(CrystalState.Return);
+        }
+
+        // ================================================================
+        // STATE: Dive Attack — synchronized dive toward target
+        // ================================================================
+        private void DoDiveAttack(NPC target)
+        {
+            if (target == null || !target.active)
             {
-                _state = CrystalState.Returning;
-                _cooldown = 30;
+                TransitionTo(CrystalState.Return);
+                return;
+            }
+
+            // Windup phase (first 20 ticks): pull back slightly
+            if (StateTimer < 20)
+            {
+                Vector2 awayFromTarget = (Projectile.Center - target.Center).SafeNormalize(Vector2.UnitY);
+                Projectile.velocity = awayFromTarget * 3f;
+            }
+            // Dive phase
+            else if (StateTimer < 60)
+            {
+                Vector2 toTarget = (target.Center - Projectile.Center).SafeNormalize(Vector2.UnitY);
+                float diveSpeed = 14f + (StateTimer - 20) * 0.15f;
+                Projectile.velocity = toTarget * diveSpeed;
+
+                // Dive trail dust
+                if (StateTimer % 2 == 0)
+                {
+                    Color c = FlockUtils.GetOilSheen(Projectile.rotation, Timer * 0.02f);
+                    Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.WhiteTorch,
+                        -Projectile.velocity * 0.2f, 0, c, 0.7f);
+                    d.noGravity = true;
+                }
+            }
+            // Post-dive: transition back
+            else
+            {
+                TransitionTo(CrystalState.Return);
             }
         }
 
-        private void AIReturn(Player owner)
+        // ================================================================
+        // STATE: Return — fly back to formation
+        // ================================================================
+        private void DoReturn()
         {
-            float angle = _orbitAngle + OrbitOffset;
-            Vector2 orbitPos = owner.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * _orbitRadius;
+            Vector2 formationPos = GetFormationPosition();
+            Vector2 toPos = formationPos - Projectile.Center;
+            float dist = toPos.Length();
 
-            Projectile.velocity = (orbitPos - Projectile.Center) * 0.12f;
-            Projectile.Center += Projectile.velocity;
-            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
+            float speed = MathHelper.Clamp(dist * 0.1f, 3f, 18f);
+            Projectile.velocity = toPos.SafeNormalize(Vector2.UnitY) * speed;
 
-            if (Vector2.Distance(Projectile.Center, orbitPos) < 15f)
+            if (dist < 30f || StateTimer > 90)
+                TransitionTo(CrystalState.FormationFlight);
+        }
+
+        private void TransitionTo(CrystalState newState)
+        {
+            CurrentState = newState;
+            StateTimer = 0;
+            volleyShots = 0;
+        }
+
+        private NPC FindTarget()
+        {
+            // Check for player-targeted NPC first
+            if (Owner.HasMinionAttackTargetNPC)
             {
-                _state = CrystalState.Orbiting;
-                _cooldown = 60;
+                NPC target = Main.npc[Owner.MinionAttackTargetNPC];
+                if (target.active && !target.friendly && Vector2.Distance(Projectile.Center, target.Center) < 800f)
+                    return target;
             }
+
+            // Find closest hostile NPC
+            NPC closest = null;
+            float bestDist = 600f;
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (!npc.active || npc.friendly || npc.dontTakeDamage) continue;
+                float dist = Vector2.Distance(Projectile.Center, npc.Center);
+                if (dist < bestDist)
+                {
+                    bestDist = dist;
+                    closest = npc;
+                }
+            }
+            return closest;
+        }
+
+        private int CountActiveCrystals()
+        {
+            int count = 0;
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                if (Main.projectile[i].active && Main.projectile[i].type == Projectile.type &&
+                    Main.projectile[i].owner == Projectile.owner)
+                    count++;
+            }
+            return count;
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(ModContent.BuffType<FlameOfTheSwan>(), 180); // 3 seconds
-            _state = CrystalState.Returning;
-            _cooldown = 45;
+            target.AddBuff(ModContent.BuffType<SwansMark>(), 240);
 
-            // Impact particles
-            for (int i = 0; i < 5; i++)
+            // Iridescent impact sparkle
+            for (int i = 0; i < 8; i++)
             {
-                var shard = new CrystalShardParticle();
-                shard.Initialize(
-                    target.Center + Main.rand.NextVector2Circular(10f, 10f),
-                    Main.rand.NextVector2Circular(4f, 4f),
-                    FlockUtils.GetIridescent(Main.rand.NextFloat()),
-                    Main.rand.NextFloat(0.5f, 1.0f)
-                );
-                FlockParticleHandler.Spawn(shard);
+                Color c = FlockUtils.GetIridescent(i / 8f);
+                Dust d = Dust.NewDustPerfect(target.Center, DustID.WhiteTorch,
+                    Main.rand.NextVector2Circular(4, 4), 0, c, 0.8f);
+                d.noGravity = true;
             }
 
-            // Feather burst
-            for (int i = 0; i < 3; i++)
+            // Crystal resonance: if 4+ crystals active, bonus burst
+            if (CountActiveCrystals() >= 4)
             {
-                var feather = new IridescentFeatherParticle();
-                feather.Initialize(
-                    target.Center + Main.rand.NextVector2Circular(15f, 15f),
-                    Main.rand.NextVector2Circular(2f, 2f) + new Vector2(0, -0.5f),
-                    FlockUtils.GetOilSheen(Main.rand.NextFloat(MathHelper.TwoPi), Main.GameUpdateCount),
-                    Main.rand.NextFloat(0.6f, 1.0f)
-                );
-                FlockParticleHandler.Spawn(feather);
+                for (int i = 0; i < 12; i++)
+                {
+                    float angle = MathHelper.TwoPi / 12f * i;
+                    Vector2 vel = angle.ToRotationVector2() * 4f;
+                    Color c = FlockUtils.GetOilSheen(angle, Timer * 0.01f);
+                    Dust d = Dust.NewDustPerfect(target.Center, DustID.WhiteTorch, vel, 0, c, 1.0f);
+                    d.noGravity = true;
+                }
             }
 
-            // Music notes on crystal strike — flock's iridescent chime
-            SwanLakeVFXLibrary.SpawnMusicNotes(target.Center, 2, 12f, 0.5f, 0.8f, 22);
-
-            // Prismatic sparkle accents
-            SwanLakeVFXLibrary.SpawnPrismaticSparkles(target.Center, 3, 10f);
+            try { SwanLakeVFXLibrary.SpawnRainbowBurst(target.Center, 5, 3f); } catch { }
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            Vector2 screenPos = Main.screenPosition;
 
-            // === Shader trail ===
-            DrawOilSheenTrail(sb);
+            try
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // === Formation lines ===
-            DrawFormationLines(sb);
+                Texture2D bloom = MagnumTextureRegistry.GetSoftGlow();
+                Texture2D point = MagnumTextureRegistry.GetPointBloom();
+                Texture2D radial = MagnumTextureRegistry.GetRadialBloom();
+                Texture2D star = MagnumTextureRegistry.GetStar4Soft();
 
-            // === Crystal bloom ===
-            DrawCrystalBloom(sb);
+                Vector2 drawPos = Projectile.Center - screenPos;
+                float pulse = 0.85f + 0.15f * MathF.Sin((float)Main.timeForVisualEffects * 0.06f + CrystalIndex * 1.5f);
 
-            // === Sprite ===
-            DrawCrystalSprite(sb, lightColor);
+                // --- Formation lines to nearby crystals ---
+                DrawFormationLines(sb, screenPos, point);
 
-            // === Particles ===
-            FlockParticleHandler.DrawAllParticles(sb);
+                // --- Soft bloom trail for movement ---
+                if (bloom != null && (CurrentState == CrystalState.DiveAttack || Projectile.velocity.Length() > 4f))
+                {
+                    Vector2 bOrigin = bloom.Size() * 0.5f;
+                    for (int i = TrailLength - 1; i >= 1; i--)
+                    {
+                        if (oldPos[i] == Vector2.Zero) continue;
+                        float progress = 1f - i / (float)TrailLength;
+                        Color c = FlockUtils.GetIridescent(i / (float)TrailLength + Timer * 0.008f);
+                        sb.Draw(bloom, oldPos[i] - screenPos, null, c * (progress * 0.3f),
+                            0f, bOrigin, 0.15f + progress * 0.1f, SpriteEffects.None, 0f);
+                    }
+                }
+
+                // --- Outer oil-sheen glow ---
+                if (radial != null)
+                {
+                    Vector2 rOrigin = radial.Size() * 0.5f;
+                    Color oilColor = FlockUtils.GetOilSheen(idleRotation, (float)Main.timeForVisualEffects * 0.01f);
+                    sb.Draw(radial, drawPos, null, oilColor * 0.15f * pulse, 0f, rOrigin, 0.35f * pulse, SpriteEffects.None, 0f);
+                }
+
+                // --- Iridescent glow ring (6 dots orbiting) ---
+                if (bloom != null)
+                {
+                    Vector2 bOrigin = bloom.Size() * 0.5f;
+                    for (int i = 0; i < 6; i++)
+                    {
+                        float angle = MathHelper.TwoPi / 6f * i + idleRotation;
+                        Vector2 orbitPos = drawPos + angle.ToRotationVector2() * 14f;
+                        Color c = FlockUtils.GetIridescent(i / 6f + Timer * 0.005f);
+                        sb.Draw(bloom, orbitPos, null, c * 0.2f * pulse, 0f, bOrigin, 0.08f, SpriteEffects.None, 0f);
+                    }
+                }
+
+                // --- Core bloom (crystal center) ---
+                if (bloom != null)
+                {
+                    Vector2 bOrigin = bloom.Size() * 0.5f;
+                    Color coreColor = Color.Lerp(FlockUtils.PetalLavender, FlockUtils.CrystalAqua, 
+                        0.5f + 0.5f * MathF.Sin(Timer * 0.03f));
+                    sb.Draw(bloom, drawPos, null, coreColor * 0.35f * pulse, 0f, bOrigin, 0.25f * pulse, SpriteEffects.None, 0f);
+                }
+
+                // White hot center
+                if (point != null)
+                {
+                    Vector2 pOrigin = point.Size() * 0.5f;
+                    sb.Draw(point, drawPos, null, Color.White * 0.7f, 0f, pOrigin, 0.12f * pulse, SpriteEffects.None, 0f);
+                }
+
+                // Star sparkle
+                if (star != null)
+                {
+                    Vector2 sOrigin = star.Size() * 0.5f;
+                    float starRot = (float)Main.timeForVisualEffects * 0.03f + CrystalIndex;
+                    Color starColor = FlockUtils.GetIridescent(Timer * 0.01f);
+                    sb.Draw(star, drawPos, null, starColor * 0.25f * pulse, starRot, sOrigin, 0.15f, SpriteEffects.None, 0f);
+                }
+
+                // --- Dive attack: stronger glow ---
+                if (CurrentState == CrystalState.DiveAttack && bloom != null)
+                {
+                    Vector2 bOrigin = bloom.Size() * 0.5f;
+                    sb.Draw(bloom, drawPos, null, Color.White * 0.4f, 0f, bOrigin, 0.4f, SpriteEffects.None, 0f);
+                }
+
+                // --- Draw crystal sprite ---
+                DrawCrystalSpriteAdditive(sb, drawPos, lightColor);
+            }
+            catch { }
+            finally
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
+            // Theme accents (additive)
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
+            FlockUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
 
             return false;
         }
 
-        private void DrawOilSheenTrail(SpriteBatch sb)
+        private void DrawFormationLines(SpriteBatch sb, Vector2 screenPos, Texture2D point)
         {
-            if (_state == CrystalState.Orbiting) return;
+            if (point == null || CurrentState != CrystalState.FormationFlight) return;
 
-            var valid = new List<Vector2>();
-            foreach (var p in _trail) if (p != Vector2.Zero) valid.Add(p);
-            if (valid.Count < 3) return;
+            Vector2 pOrigin = point.Size() * 0.5f;
 
-            _renderer ??= new FlockPrimitiveRenderer();
-
-            var settings = new FlockTrailSettings(
-                t => MathHelper.Lerp(10f, 2f, t),
-                t => {
-                    Color sheen = FlockUtils.GetOilSheen(t * MathHelper.TwoPi, Main.GameUpdateCount);
-                    return sheen * (1f - t * 0.6f);
-                },
-                FlockShaderLoader.HasCrystalOrbitTrailShader ? GameShaders.Misc["MagnumOpus:CrystalOrbitTrail"] : null
-            );
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            _renderer.RenderTrail(valid.ToArray(), settings, 14);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-        }
-
-        private void DrawFormationLines(SpriteBatch sb)
-        {
-            Player owner = Main.player[Projectile.owner];
-            if (owner.ownedProjectileCounts[Type] < 3) return;
-
-            // Find other crystals and draw iridescent lines between adjacent ones
-            var crystals = new List<Vector2>();
             for (int i = 0; i < Main.maxProjectiles; i++)
             {
-                Projectile p = Main.projectile[i];
-                if (p.active && p.owner == Projectile.owner && p.type == Type)
-                    crystals.Add(p.Center);
+                Projectile other = Main.projectile[i];
+                if (!other.active || other.type != Projectile.type || other.whoAmI == Projectile.whoAmI ||
+                    other.owner != Projectile.owner) continue;
+
+                float dist = Vector2.Distance(Projectile.Center, other.Center);
+                if (dist > 200f || dist < 10f) continue;
+
+                // Draw faint line of dots between crystals
+                int dotCount = (int)(dist / 20f);
+                for (int d = 1; d < dotCount; d++)
+                {
+                    float t = d / (float)dotCount;
+                    Vector2 dotPos = Vector2.Lerp(Projectile.Center, other.Center, t) - screenPos;
+                    Color c = FlockUtils.GetIridescent(t + Timer * 0.003f);
+                    sb.Draw(point, dotPos, null, c * 0.08f, 0f, pOrigin, 0.04f, SpriteEffects.None, 0f);
+                }
             }
+        }
 
-            if (crystals.Count < 3) return;
+        private void DrawCrystalSpriteAdditive(SpriteBatch sb, Vector2 drawPos, Color lightColor)
+        {
+            Texture2D tex = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
+            if (tex == null) return;
 
-            Texture2D pixel = MagnumTextureRegistry.GetPointBloom();
-            if (pixel == null) return;
-            float alpha = 0.25f + (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.1f;
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            for (int i = 0; i < crystals.Count; i++)
-            {
-                int j = (i + 1) % crystals.Count;
-                Vector2 start = crystals[i] - Main.screenPosition;
-                Vector2 end = crystals[j] - Main.screenPosition;
-                Vector2 dir = end - start;
-                float dist = dir.Length();
-                if (dist < 1f) continue;
-                float rot = dir.ToRotation();
-                Color lineCol = FlockUtils.GetIridescent((float)i / crystals.Count +
-                    (float)Main.GameUpdateCount * 0.01f);
-
-                sb.Draw(pixel, start, new Rectangle(0, 0, 1, 1), lineCol * alpha,
-                    rot, Vector2.Zero, new Vector2(dist, 2f), SpriteEffects.None, 0f);
-            }
-
+            // Draw sprite in alpha blend (within the additive region, switch briefly)
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-        }
 
-        private void DrawCrystalBloom(SpriteBatch sb)
-        {
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.1f + OrbitOffset) * 0.1f + 0.9f;
-            Color col = FlockUtils.GetOilSheen(_orbitAngle, Main.GameUpdateCount);
+            Vector2 origin = tex.Size() * 0.5f;
+            Color drawColor = Projectile.GetAlpha(lightColor);
+            // Iridescent tint on sprite
+            Color tint = FlockUtils.GetIridescent(Timer * 0.008f);
+            drawColor = Color.Lerp(drawColor, tint, 0.15f);
 
-            // Load VFX Asset Library bloom textures
-            Texture2D softRadial = null;
-            Texture2D pointBloom = null;
-            Texture2D starAccent = null;
-            try
-            {
-                softRadial = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom",
-                    AssetRequestMode.ImmediateLoad)?.Value;
-                pointBloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom",
-                    AssetRequestMode.ImmediateLoad)?.Value;
-                starAccent = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft",
-                    AssetRequestMode.ImmediateLoad)?.Value;
-            }
-            catch { }
+            sb.Draw(tex, drawPos, null, drawColor, Projectile.rotation, origin, Projectile.scale, SpriteEffects.None, 0f);
 
+            // Back to additive for caller's remaining draws
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Layer 1: Outer iridescent halo (SoftRadialBloom)
-            if (softRadial != null)
-            {
-                Vector2 srOrigin = new Vector2(softRadial.Width / 2f, softRadial.Height / 2f);
-                sb.Draw(softRadial, drawPos, null, new Color(col.R, col.G, col.B, 0) * 0.25f * pulse,
-                    0f, srOrigin, 0.35f, SpriteEffects.None, 0f);
-            }
-
-            // Layer 2: Core white spark (PointBloom)
-            if (pointBloom != null)
-            {
-                Vector2 pbOrigin = new Vector2(pointBloom.Width / 2f, pointBloom.Height / 2f);
-                sb.Draw(pointBloom, drawPos, null, new Color(255, 255, 255, 0) * 0.40f * pulse,
-                    0f, pbOrigin, 0.10f, SpriteEffects.None, 0f);
-            }
-
-            // Layer 3: Rotating star accent — prismatic shimmer
-            if (starAccent != null)
-            {
-                Vector2 starOrigin = new Vector2(starAccent.Width / 2f, starAccent.Height / 2f);
-                Color prismatic = FlockUtils.GetIridescent(_orbitAngle + Main.GameUpdateCount * 0.02f);
-                sb.Draw(starAccent, drawPos, null, new Color(prismatic.R, prismatic.G, prismatic.B, 0) * 0.30f * pulse,
-                    _orbitAngle * 2f, starOrigin, 0.15f, SpriteEffects.None, 0f);
-            }
-
-            // Layer 4: Attacking state — intensified bloom
-            if (_state == CrystalState.Attacking && softRadial != null)
-            {
-                Vector2 srOrigin = new Vector2(softRadial.Width / 2f, softRadial.Height / 2f);
-                Color attackGlow = FlockUtils.GetIridescent(Main.GameUpdateCount * 0.03f);
-                sb.Draw(softRadial, drawPos, null, new Color(attackGlow.R, attackGlow.G, attackGlow.B, 0) * 0.35f,
-                    0f, srOrigin, 0.5f, SpriteEffects.None, 0f);
-            }
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-        }
-
-        private void DrawCrystalSprite(SpriteBatch sb, Color lightColor)
-        {
-            // Draw as a small glowing diamond shape
-            Texture2D tex = MagnumTextureRegistry.GetRadialBloom();
-            if (tex == null) return;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = tex.Size() * 0.5f;
-            Color body = FlockUtils.GetOilSheen(_orbitAngle, Main.GameUpdateCount);
-
-            sb.Draw(tex, drawPos, null, body, Projectile.rotation, origin,
-                new Vector2(0.1f, 0.18f), SpriteEffects.None, 0f);
-
-            // Additive bloom overlay
-            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-            if (glow != null)
-                sb.Draw(glow, drawPos, null, body * 0.4f, Projectile.rotation,
-                    glow.Size() * 0.5f, new Vector2(0.15f, 0.27f), SpriteEffects.None, 0f);
-        }
-
-        private NPC FindClosestNPC(float maxRange)
-        {
-            NPC closest = null;
-            float best = maxRange;
-            for (int i = 0; i < Main.maxNPCs; i++)
-            {
-                NPC n = Main.npc[i];
-                if (!n.active || n.friendly || n.dontTakeDamage) continue;
-                float d = Vector2.Distance(Projectile.Center, n.Center);
-                if (d < best) { best = d; closest = n; }
-            }
-            return closest;
         }
     }
 }

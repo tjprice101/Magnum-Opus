@@ -34,8 +34,8 @@ namespace MagnumOpus.Content.Eroica.Minions
         public static void ExitShaderRegion(SpriteBatch sb)
         {
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
         }
     }
 
@@ -223,7 +223,7 @@ namespace MagnumOpus.Content.Eroica.Minions
     /// <summary>Finality music note — rises with rotation.</summary>
     public class FinalityNoteParticle : Particle
     {
-        public override string Texture => "MusicNote1";
+        public override string Texture => "MusicNoteQuarter";
         public override bool UseAdditiveBlend => true;
         public override bool SetLifetime => true;
 

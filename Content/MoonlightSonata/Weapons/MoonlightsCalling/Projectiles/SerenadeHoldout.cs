@@ -347,6 +347,19 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
             int resonance = serenade.ResonanceLevel;
             float resMult = SerenadePlayer.ResonanceIntensity[resonance];
 
+            // === FOUNDATION VFX: MoonlightPuddle (ImpactFoundation DamageZoneShader) ===
+            // Persistent prismatic damage zone at the beam origin on channel end.
+            if (Projectile.owner == Main.myPlayer)
+            {
+                Projectile.NewProjectile(
+                    Projectile.GetSource_FromThis(),
+                    Owner.MountedCenter, Vector2.Zero,
+                    ModContent.ProjectileType<MoonlightPuddle>(),
+                    0, 0f, Projectile.owner,
+                    ai0: resonance
+                );
+            }
+
             // Grand finale burst — spark count scales with resonance
             int sparkCount = 20 + resonance * 6;
             for (int i = 0; i < sparkCount; i++)
@@ -570,17 +583,29 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
             var origin = tex.Size() * 0.5f;
             Color resColor = SerenadePlayer.ResonanceColors[resonance];
 
+            // Switch to Additive for bloom glow layers
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
             // Outer glow — shifts color with resonance
-            Color outerCol = Color.Lerp(PrismViolet, resColor, 0.4f) * (0.5f * intensity * pulse);
-            Main.spriteBatch.Draw(tex, drawPos, null, outerCol, 0f, origin, (1.5f + resonance * 0.2f) * intensity, SpriteEffects.None, 0f);
+            Color outerCol = Color.Lerp(PrismViolet, resColor, 0.4f) with { A = 0 };
+            Main.spriteBatch.Draw(tex, drawPos, null, outerCol * (0.5f * intensity * pulse), 0f, origin, (1.5f + resonance * 0.2f) * intensity, SpriteEffects.None, 0f);
 
             // Mid glow
-            Color midCol = Color.Lerp(RefractedBlue, resColor, 0.3f) * (0.4f * intensity * pulse);
-            Main.spriteBatch.Draw(tex, drawPos, null, midCol, 0f, origin, (0.8f + resonance * 0.1f) * intensity, SpriteEffects.None, 0f);
+            Color midCol = Color.Lerp(RefractedBlue, resColor, 0.3f) with { A = 0 };
+            Main.spriteBatch.Draw(tex, drawPos, null, midCol * (0.4f * intensity * pulse), 0f, origin, (0.8f + resonance * 0.1f) * intensity, SpriteEffects.None, 0f);
 
             // Core
-            Color coreCol = MoonWhite * (0.7f * intensity * pulse);
-            Main.spriteBatch.Draw(tex, drawPos, null, coreCol, 0f, origin, 0.3f * intensity, SpriteEffects.None, 0f);
+            Color coreCol = MoonWhite with { A = 0 };
+            Main.spriteBatch.Draw(tex, drawPos, null, coreCol * (0.7f * intensity * pulse), 0f, origin, 0.3f * intensity, SpriteEffects.None, 0f);
+
+            // Restore to AlphaBlend
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
         }
     }
 }

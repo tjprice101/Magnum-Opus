@@ -11,7 +11,22 @@ namespace MagnumOpus.Content.Eroica
     /// Every Eroica weapon, projectile, dust, and VFX helper references
     /// textures through this class instead of inline ModContent.Request calls.
     /// Textures are loaded once at mod init via ImmediateLoad.
+    /// 
+    /// Implemented as a ModSystem so tModLoader calls Load()/Unload() automatically.
     /// </summary>
+    public class EroicaTexturesSystem : ModSystem
+    {
+        public override void OnModLoad()
+        {
+            EroicaTextures.Load();
+        }
+
+        public override void Unload()
+        {
+            EroicaTextures.Unload();
+        }
+    }
+
     public static class EroicaTextures
     {
         // ══════════════════════════════════════════════════════╁E
@@ -230,7 +245,7 @@ namespace MagnumOpus.Content.Eroica
 
             // Celestial Valor
             CelestialValorBlade = Req("MagnumOpus/Content/Eroica/Weapons/CelestialValor/CelestialValor");
-            CelestialValorSwingTex = Req("MagnumOpus/Content/Eroica/Weapons/CelestialValor/CelestialValor_Swing");
+            CelestialValorSwingTex = Req("MagnumOpus/Content/Eroica/Weapons/CelestialValor/CelestialValorSwing");
             CelestialValorProjectileTex = Req("MagnumOpus/Content/Eroica/Weapons/CelestialValor/CelestialValorProjectile");
 
             // Sakura's Blossom

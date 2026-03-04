@@ -27,23 +27,23 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Shaders
         public override void PostSetupContent()
         {
             // Load DualPolaritySlash shader → swing arc trail
-            if (TryLoadMiscShader("Effects/SwanLake/CalloftheBlackSwan/DualPolaritySwing",
-                "DualPolarityFlow", "MagnumOpus:BlackSwanSlash"))
+            if (TryLoadMiscShader("MagnumOpus/Effects/SwanLake/CalloftheBlackSwan/DualPolaritySwing",
+                "P0", "MagnumOpus:BlackSwanSlash"))
             {
                 HasSlashShader = true;
             }
 
             // Load SwanFlareTrail shader → flare projectile trail
-            if (TryLoadMiscShader("Effects/SwanLake/CalloftheBlackSwan/SwanFlareTrail",
-                "SwanFlareMain", "MagnumOpus:BlackSwanFlareTrail"))
+            if (TryLoadMiscShader("MagnumOpus/Effects/SwanLake/CalloftheBlackSwan/SwanFlareTrail",
+                "P0", "MagnumOpus:BlackSwanFlareTrail"))
             {
                 HasFlareTrailShader = true;
             }
 
             // Load SwingSprite shader → blade sprite rotation filter
             // Reuse the Exoblade's SwingSprite shader pattern if available, or load our own
-            if (TryLoadScreenShader("Effects/SwanLake/CalloftheBlackSwan/DualPolaritySwing",
-                "DualPolarityGlow", "MagnumOpus:BlackSwanSwingSprite"))
+            if (TryLoadScreenShader("MagnumOpus/Effects/SwanLake/CalloftheBlackSwan/DualPolaritySwing",
+                "P0", "MagnumOpus:BlackSwanSwingSprite"))
             {
                 HasSwingSpriteShader = true;
             }

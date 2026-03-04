@@ -12,19 +12,20 @@ using MagnumOpus.Common.Systems.VFX.Trails;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Summer.Projectiles;
 using static MagnumOpus.Common.Systems.Particles.Particle;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Summer.Weapons
 {
     /// <summary>
-    /// Zenith Cleaver held-projectile swing  Ethe blazing second movement of summer.
-    /// 3-phase solar combo: Scorching Slash ↁESolar Arc ↁEZenith Slam.
+    /// Zenith Cleaver held-projectile swing 遯ｶ繝ｻthe blazing second movement of summer.
+    /// 3-phase solar combo: Scorching Slash 遶翫・Solar Arc 遶翫・Zenith Slam.
     /// Every swing fires a SolarWave; every 7th hit unleashes Zenith Strike
     /// (ZenithFlare + 8 radial SolarWaves). Hits apply Sunstroke debuffs
     /// and spawn seeking SummerCrystals.
     /// </summary>
     public sealed class ZenithCleaverSwing : MeleeSwingBase
     {
-        // ── Theme Colors ──
+        // 隨渉隨渉 Theme Colors 隨渉隨渉
         private static readonly Color SunGold = MagnumThemePalettes.SunGold;
         private static readonly Color SunOrange = MagnumThemePalettes.SunOrange;
         private static readonly Color SunWhite = MagnumThemePalettes.SunWhite;
@@ -32,14 +33,14 @@ namespace MagnumOpus.Content.Summer.Weapons
 
         private int _crystalCooldown;
 
-        // ── Swing Counter (stored in ai[2])  EZenith Strike triggers on 7th ──
+        // 隨渉隨渉 Swing Counter (stored in ai[2]) 遯ｶ繝ｻZenith Strike triggers on 7th 隨渉隨渉
         private int SwingCounter
         {
             get => (int)Projectile.ai[2];
             set => Projectile.ai[2] = value;
         }
 
-        // ── 6-Color Palette: pianissimo ↁEsforzando (solar heat gradient) ──
+        // 隨渉隨渉 6-Color Palette: pianissimo 遶翫・sforzando (solar heat gradient) 隨渉隨渉
         private static readonly Color[] SummerPalette = new Color[]
         {
             new Color(120, 50, 10),     // [0] Deep amber shadow
@@ -50,9 +51,9 @@ namespace MagnumOpus.Content.Summer.Weapons
             new Color(255, 250, 240),   // [5] White-hot solar core
         };
 
-        #region ── Combo Phase Definitions ──
+        #region 隨渉隨渉 Combo Phase Definitions 隨渉隨渉
 
-        // Phase 0  EScorching Slash (a quick cutting beam of summer heat)
+        // Phase 0 遯ｶ繝ｻScorching Slash (a quick cutting beam of summer heat)
         private static readonly ComboPhase Phase0_ScorchingSlash = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -68,7 +69,7 @@ namespace MagnumOpus.Content.Summer.Weapons
             damageMult: 0.85f
         );
 
-        // Phase 1  ESolar Arc (the sun's arc across the zenith sky)
+        // Phase 1 遯ｶ繝ｻSolar Arc (the sun's arc across the zenith sky)
         private static readonly ComboPhase Phase1_SolarArc = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -84,7 +85,7 @@ namespace MagnumOpus.Content.Summer.Weapons
             damageMult: 1.0f
         );
 
-        // Phase 2  EZenith Slam (the sun at its peak  Emaximum devastation)
+        // Phase 2 遯ｶ繝ｻZenith Slam (the sun at its peak 遯ｶ繝ｻmaximum devastation)
         private static readonly ComboPhase Phase2_ZenithSlam = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -102,7 +103,7 @@ namespace MagnumOpus.Content.Summer.Weapons
 
         #endregion
 
-        #region ── Abstract Overrides ──
+        #region 隨渉隨渉 Abstract Overrides 隨渉隨渉
 
         protected override ComboPhase[] GetAllPhases() => new ComboPhase[]
         {
@@ -126,7 +127,7 @@ namespace MagnumOpus.Content.Summer.Weapons
 
         #endregion
 
-        #region ── Virtual Overrides ──
+        #region 隨渉隨渉 Virtual Overrides 隨渉隨渉
 
         protected override SoundStyle GetSwingSound()
         {
@@ -143,7 +144,7 @@ namespace MagnumOpus.Content.Summer.Weapons
 
         protected override Texture2D GetBladeTexture()
         {
-            return ModContent.Request<Texture2D>("MagnumOpus/Content/Summer/Weapons/ZenithCleaver").Value;
+            return ModContent.Request<Texture2D>("MagnumOpus/Content/Summer/Weapons/ZenithCleaver", AssetRequestMode.ImmediateLoad).Value;
         }
 
         protected override Vector3 GetLightColor()
@@ -153,14 +154,14 @@ namespace MagnumOpus.Content.Summer.Weapons
 
         #endregion
 
-        #region ── Combo Specials ──
+        #region 隨渉隨渉 Combo Specials 隨渉隨渉
 
         protected override void HandleComboSpecials()
         {
             if (_crystalCooldown > 0) _crystalCooldown--;
             if (hasSpawnedSpecial) return;
 
-            // ── Every swing fires a SolarWave at ~55% progress ──
+            // 隨渉隨渉 Every swing fires a SolarWave at ~55% progress 隨渉隨渉
             if (Progression >= 0.55f && !hasSpawnedSpecial)
             {
                 hasSpawnedSpecial = true;
@@ -170,7 +171,7 @@ namespace MagnumOpus.Content.Summer.Weapons
                     Vector2 tipPos = GetBladeTipPosition();
                     Vector2 waveVel = SwordDirection * 14f;
 
-                    // Standard SolarWave  Ehalf damage
+                    // Standard SolarWave 遯ｶ繝ｻhalf damage
                     Projectile.NewProjectile(
                         Projectile.GetSource_FromThis(),
                         tipPos,
@@ -192,7 +193,7 @@ namespace MagnumOpus.Content.Summer.Weapons
                         flare.noGravity = true;
                     }
 
-                    // ── Zenith Strike check  Eevery 7th swing ──
+                    // 隨渉隨渉 Zenith Strike check 遯ｶ繝ｻevery 7th swing 隨渉隨渉
                     SwingCounter++;
                     if (SwingCounter >= 7)
                     {
@@ -202,13 +203,13 @@ namespace MagnumOpus.Content.Summer.Weapons
                 }
             }
 
-            // ── Dense solar dust + embers every frame during active swing ──
+            // 隨渉隨渉 Dense solar dust + embers every frame during active swing 隨渉隨渉
             if (Progression > 0.10f && Progression < 0.92f)
             {
                 Vector2 tipPos = GetBladeTipPosition();
                 float bladeLen = CurrentPhase.BladeLength;
 
-                // Solar flare dust  E2 per frame (dense, fiery)
+                // Solar flare dust 遯ｶ繝ｻ2 per frame (dense, fiery)
                 for (int i = 0; i < 2; i++)
                 {
                     Vector2 dustPos = Owner.MountedCenter + SwordDirection * bladeLen * Main.rand.NextFloat(0.35f, 1f);
@@ -241,7 +242,7 @@ namespace MagnumOpus.Content.Summer.Weapons
                     sparkle.noGravity = true;
                 }
 
-                // Solar shimmer trail  EhslToRgb for iridescent heat
+                // Solar shimmer trail 遯ｶ繝ｻhslToRgb for iridescent heat
                 if (Main.rand.NextBool(3))
                 {
                     float hue = Main.rand.NextFloat(0.10f, 0.16f);
@@ -285,13 +286,13 @@ namespace MagnumOpus.Content.Summer.Weapons
         }
 
         /// <summary>
-        /// Zenith Strike: fires ZenithFlare + 8 radial SolarWaves  Ethe climactic chord.
+        /// Zenith Strike: fires ZenithFlare + 8 radial SolarWaves 遯ｶ繝ｻthe climactic chord.
         /// </summary>
         private void TriggerZenithStrike(Vector2 tipPos)
         {
             SoundEngine.PlaySound(SoundID.Item45 with { Pitch = 0.2f, Volume = 1.1f }, tipPos);
 
-            // Central ZenithFlare projectile  Edouble damage
+            // Central ZenithFlare projectile 遯ｶ繝ｻdouble damage
             Projectile.NewProjectile(
                 Projectile.GetSource_FromThis(),
                 tipPos,
@@ -302,7 +303,7 @@ namespace MagnumOpus.Content.Summer.Weapons
                 Projectile.owner
             );
 
-            // 8 radial SolarWaves  Ethird damage
+            // 8 radial SolarWaves 遯ｶ繝ｻthird damage
             for (int i = 0; i < 8; i++)
             {
                 float angle = MathHelper.TwoPi * i / 8f;
@@ -318,7 +319,7 @@ namespace MagnumOpus.Content.Summer.Weapons
                 );
             }
 
-            // ── Zenith Strike VFX ──
+            // 隨渉隨渉 Zenith Strike VFX 隨渉隨渉
             // Central white flash
             for (int i = 0; i < 6; i++)
             {
@@ -337,7 +338,7 @@ namespace MagnumOpus.Content.Summer.Weapons
                 burst.noGravity = true;
             }
 
-            // Halo rings  Egold to red gradient
+            // Halo rings 遯ｶ繝ｻgold to red gradient
             for (int ring = 0; ring < 5; ring++)
             {
                 float progress = ring / 5f;
@@ -355,17 +356,17 @@ namespace MagnumOpus.Content.Summer.Weapons
 
         #endregion
 
-        #region ── On Hit NPC ──
+        #region 隨渉隨渉 On Hit NPC 隨渉隨渉
 
         protected override void OnSwingHitNPC(NPC target, NPC.HitInfo hit, int remainingDamageCount)
         {
             Player owner = Main.player[Projectile.owner];
 
-            // ── Sunstroke Debuffs ──
+            // 隨渉隨渉 Sunstroke Debuffs 隨渉隨渉
             target.AddBuff(BuffID.OnFire3, 180);   // Hellfire 3 seconds
             target.AddBuff(BuffID.Daybreak, 120);   // Daybreak 2 seconds
 
-            // ── Seeking Summer Crystals  E2-3 crystals at 30% damage (30-frame cooldown) ──
+            // 隨渉隨渉 Seeking Summer Crystals 遯ｶ繝ｻ2-3 crystals at 30% damage (30-frame cooldown) 隨渉隨渉
             if (_crystalCooldown <= 0)
             {
                 if (Main.myPlayer == Projectile.owner)
@@ -383,9 +384,9 @@ namespace MagnumOpus.Content.Summer.Weapons
                 _crystalCooldown = 30;
             }
 
-            // ── Impact VFX Layers ──
+            // 隨渉隨渉 Impact VFX Layers 隨渉隨渉
 
-            // Gradient halo rings  ESunGold ↁESunRed
+            // Gradient halo rings 遯ｶ繝ｻSunGold 遶翫・SunRed
             for (int i = 0; i < 4; i++)
             {
                 float progress = i / 4f;
@@ -400,7 +401,7 @@ namespace MagnumOpus.Content.Summer.Weapons
                 }
             }
 
-            // Solar shimmer flares  EhslToRgb 0.08-0.18
+            // Solar shimmer flares 遯ｶ繝ｻhslToRgb 0.08-0.18
             for (int i = 0; i < 6; i++)
             {
                 float progress = i / 6f;
@@ -413,7 +414,7 @@ namespace MagnumOpus.Content.Summer.Weapons
                 shimmer.noGravity = true;
             }
 
-            // Dust explosion  ESolarFlare + Enchanted_Gold radial burst
+            // Dust explosion 遯ｶ繝ｻSolarFlare + Enchanted_Gold radial burst
             for (int i = 0; i < 8; i++)
             {
                 float angle = MathHelper.TwoPi * i / 8f;
@@ -445,7 +446,7 @@ namespace MagnumOpus.Content.Summer.Weapons
                 ember.noGravity = true;
             }
 
-            // Music notes  Escattered from impact (1-in-2 per hit, visible)
+            // Music notes 遯ｶ繝ｻscattered from impact (1-in-2 per hit, visible)
             for (int i = 0; i < 3; i++)
             {
                 float noteAngle = MathHelper.TwoPi * i / 3f + Main.rand.NextFloat(-0.3f, 0.3f);
@@ -464,7 +465,7 @@ namespace MagnumOpus.Content.Summer.Weapons
 
         #endregion
 
-        #region ── Custom VFX ──
+        #region 隨渉隨渉 Custom VFX 隨渉隨渉
 
         protected override void DrawCustomVFX(SpriteBatch sb)
         {

@@ -94,7 +94,7 @@ namespace MagnumOpus.Content.Fate
         // =================================================================
 
         /// <summary>Lore text color for ModifyTooltips.</summary>
-        public static readonly Color LoreText = new Color(255, 60, 80);
+        public static readonly Color LoreText = new Color(180, 40, 80);
 
         /// <summary>Special weapon effect tooltip color.</summary>
         public static readonly Color EffectTooltip = new Color(255, 230, 180);

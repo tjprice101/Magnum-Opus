@@ -21,14 +21,14 @@ using static MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Utili
 namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projectiles
 {
     /// <summary>
-    /// Incisor of Moonlight — Main swing/dash projectile.
-    /// "The Stellar Scalpel" — precision cuts that reveal constellations beneath reality.
+    /// Incisor of Moonlight 窶・Main swing/dash projectile.
+    /// "The Stellar Scalpel" 窶・precision cuts that reveal constellations beneath reality.
     ///
     /// Two states:
-    ///   Swinging — resonance arc trail, constellation node sparks, homing lunar beams
-    ///   LunarDash — dash through enemies with constellation pierce trail
+    ///   Swinging 窶・resonance arc trail, constellation node sparks, homing lunar beams
+    ///   LunarDash 窶・dash through enemies with constellation pierce trail
     ///
-    /// After dash-hit, enables empowered swing → Lunar Nova explosion + lifesteal.
+    /// After dash-hit, enables empowered swing 竊・Lunar Nova explosion + lifesteal.
     /// </summary>
     public class IncisorSwingProj : ModProjectile
     {
@@ -81,7 +81,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
 
         public static float MaxSwingAngle = MathHelper.PiOver2 * 1.75f;
 
-        // Musical movement: Grave (slow pull) → Allegro (fast swing) → Diminuendo (settle)
+        // Musical movement: Grave (slow pull) 竊・Allegro (fast swing) 竊・Diminuendo (settle)
         public CurveSegment GravePull = new(PolyOutEasing, 0f, -1f, 0.28f, 2);
         public CurveSegment AllegroSwing = new(PolyInEasing, 0.25f, -0.72f, 1.62f, 4);
         public CurveSegment DiminuendoSettle = new(PolyOutEasing, 0.83f, 0.9f, 0.1f, 2);
@@ -260,7 +260,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
         }
 
         // =====================================================================
-        // SWINGING BEHAVIOR — resonance arc + homing beams + music dusts
+        // SWINGING BEHAVIOR 窶・resonance arc + homing beams + music dusts
         // =====================================================================
 
         public void DoBehavior_Swinging()
@@ -334,7 +334,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
                 IncisorParticleHandler.SpawnParticle(mist);
             }
 
-            // Fire homing lunar beams during 60–100% of swing
+            // Fire homing lunar beams during 60窶・00% of swing
             int beamStart = (int)(SwingTime * 0.6f);
             int beamPeriod = (int)(SwingTime * 0.4f);
             int beamEnd = beamStart + beamPeriod;
@@ -355,7 +355,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
         }
 
         // =====================================================================
-        // LUNAR DASH BEHAVIOR — constellation pierce through enemies
+        // LUNAR DASH BEHAVIOR 窶・constellation pierce through enemies
         // =====================================================================
 
         public void DoBehavior_LunarDash()
@@ -431,20 +431,20 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
         }
 
         // =====================================================================
-        // DRAWING — Three layers: Slash arc → Pierce trail → Blade sprite
+        // DRAWING 窶・Three layers: Slash arc 竊・Pierce trail 竊・Blade sprite
         // =====================================================================
 
         public float SlashWidthFunction(float cr, Vector2 vp)
-            => SquishAtProgress(RealProgressionAtTrailCompletion(cr)) * Projectile.scale * 42f;
+            => SquishAtProgress(RealProgressionAtTrailCompletion(cr)) * Projectile.scale * 58f;
 
         public Color SlashColorFunction(float cr, Vector2 vp)
             => new Color(170, 140, 255) * Utils.GetLerpValue(0.95f, 0.3f, cr, true) * Projectile.Opacity;
 
         public float SlashBloomWidthFunction(float cr, Vector2 vp)
-            => SquishAtProgress(RealProgressionAtTrailCompletion(cr)) * Projectile.scale * 60f;
+            => SquishAtProgress(RealProgressionAtTrailCompletion(cr)) * Projectile.scale * 85f;
 
         public Color SlashBloomColorFunction(float cr, Vector2 vp)
-            => new Color(120, 80, 200) * Utils.GetLerpValue(0.9f, 0.35f, cr, true) * Projectile.Opacity * 0.25f;
+            => new Color(120, 80, 200) * Utils.GetLerpValue(0.9f, 0.35f, cr, true) * Projectile.Opacity * 0.3f;
 
         public float PierceWidthFunction(float cr, Vector2 vp)
         {
@@ -478,7 +478,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
         }
 
         /// <summary>
-        /// Constellation star node flare at the blade tip — a sharp 4-pointed star
+        /// Constellation star node flare at the blade tip 窶・a sharp 4-pointed star
         /// with a soft glow undertone. Only visible during the active swing arc.
         /// "Each cut reveals the stars beneath reality."
         /// </summary>
@@ -488,9 +488,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
                 return;
 
             var starTex = ModContent.Request<Texture2D>(
-                "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard").Value;
+                "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard", AssetRequestMode.ImmediateLoad).Value;
             var bloomTex = ModContent.Request<Texture2D>(
-                "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom").Value;
+                "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
 
             Vector2 tipPos = Owner.MountedCenter + SwordDirection * BladeLength * Projectile.scale
                 - Main.screenPosition;
@@ -498,20 +498,20 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
             float starPulse = 0.6f + 0.4f * MathF.Sin(Timer * 0.15f);
             float opacity = MathF.Sin(MathHelper.Pi * (Progression - 0.25f) / 0.6f);
 
-            // Soft glow underlayer — violet constellation nebula
+            // Soft glow underlayer 窶・violet constellation nebula
             Color glowColor = MulticolorLerp(Progression, IncisorPalette) with { A = 0 };
             Main.spriteBatch.Draw(bloomTex, tipPos, null, glowColor * opacity * 0.3f,
                 0f, bloomTex.Size() * 0.5f, 0.4f * starPulse * Projectile.scale,
                 SpriteEffects.None, 0f);
 
-            // Sharp 4-pointed star — constellation node revelation
+            // Sharp 4-pointed star 窶・constellation node revelation
             Color starColor = Color.Lerp(new Color(230, 235, 255),
                 new Color(170, 140, 255), Progression) with { A = 0 };
             Main.spriteBatch.Draw(starTex, tipPos, null, starColor * opacity * 0.8f,
                 SwordRotation, starTex.Size() * 0.5f, 0.2f * starPulse * Projectile.scale,
                 SpriteEffects.None, 0f);
 
-            // Secondary star at 45° offset — cross pattern
+            // Secondary star at 45ﾂｰ offset 窶・cross pattern
             Main.spriteBatch.Draw(starTex, tipPos, null, starColor * opacity * 0.4f,
                 SwordRotation + MathHelper.PiOver4, starTex.Size() * 0.5f,
                 0.15f * starPulse * Projectile.scale, SpriteEffects.None, 0f);
@@ -609,7 +609,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
 
             if (State == SwingState.Swinging)
             {
-                // Swing sprite shader — rotates the square weapon texture
+                // Swing sprite shader 窶・rotates the square weapon texture
                 Effect swingFX = Filters.Scene["MagnumOpus:IncisorSwingSprite"].GetShader().Shader;
                 swingFX.Parameters["rotation"].SetValue(SwingAngleShift + MathHelper.PiOver4
                     + (Direction == -1 ? MathHelper.Pi : 0f));
@@ -623,7 +623,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
 
                 Main.EntitySpriteDraw(texture, Owner.MountedCenter - Main.screenPosition, null,
                     Color.White, BaseRotation, texture.Size() / 2f,
-                    SquishVector * 1.5f * Projectile.scale, dir, 0);
+                    SquishVector * 2.2f * Projectile.scale, dir, 0);
 
                 Main.spriteBatch.End();
                 Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
@@ -664,7 +664,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
         }
 
         // =====================================================================
-        // ON-HIT — Dash freeze + slash chain OR empowered nova + lifesteal
+        // ON-HIT 窶・Dash freeze + slash chain OR empowered nova + lifesteal
         // =====================================================================
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
@@ -716,7 +716,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
                 }
                 Owner.DoLifestealDirect(target, (int)Math.Round(hit.Damage * 0.04), 0.4f);
 
-                // Musical climax — hue-shifting notes erupt from the Lunar Nova
+                // Musical climax 窶・hue-shifting notes erupt from the Lunar Nova
                 if (!Main.dedServ)
                     MoonlightVFXLibrary.SpawnMusicNotes(target.Center, count: 6, spread: 35f,
                         minScale: 0.7f, maxScale: 1.1f, lifetime: 50);

@@ -25,13 +25,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
                     AssetRequestMode.ImmediateLoad);
                 if (fx?.Value != null)
                 {
-                    GameShaders.Misc["MagnumOpus:ArcaneOrbTrail"] = new MiscShaderData(fx, "TrailPass");
+                    GameShaders.Misc["MagnumOpus:ArcaneOrbTrail"] = new MiscShaderData(fx, "P0");
                     HasOrbShader = true;
                 }
             }
             catch
             {
-                try { if (GameShaders.Misc.ContainsKey("MagnumOpus:HeroicFlameTrail")) HasOrbShader = true; } catch { }
+                HasOrbShader = false;
             }
 
             try
@@ -41,13 +41,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
                     AssetRequestMode.ImmediateLoad);
                 if (fx?.Value != null)
                 {
-                    GameShaders.Misc["MagnumOpus:EmpoweredLightning"] = new MiscShaderData(fx, "TrailPass");
+                    GameShaders.Misc["MagnumOpus:EmpoweredLightning"] = new MiscShaderData(fx, "P0");
                     HasLightningShader = true;
                 }
             }
             catch
             {
-                try { if (GameShaders.Misc.ContainsKey("MagnumOpus:ScrollingTrailShader")) HasLightningShader = true; } catch { }
+                HasLightningShader = false;
             }
 
             try
@@ -57,13 +57,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
                     AssetRequestMode.ImmediateLoad);
                 if (fx?.Value != null)
                 {
-                    GameShaders.Misc["MagnumOpus:FangEmpoweredAura"] = new MiscShaderData(fx, "TrailPass");
+                    GameShaders.Misc["MagnumOpus:FangEmpoweredAura"] = new MiscShaderData(fx, "P0");
                     HasAuraShader = true;
                 }
             }
             catch
             {
-                try { if (GameShaders.Misc.ContainsKey("MagnumOpus:RadialScrollShader")) HasAuraShader = true; } catch { }
+                HasAuraShader = false;
             }
         }
 
@@ -72,11 +72,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
             if (!HasOrbShader) return null;
             try
             {
-                if (GameShaders.Misc.TryGetValue("MagnumOpus:ArcaneOrbTrail", out var s)) return s;
-                if (GameShaders.Misc.TryGetValue("MagnumOpus:HeroicFlameTrail", out s)) return s;
+                return GameShaders.Misc["MagnumOpus:ArcaneOrbTrail"];
             }
-            catch { }
-            return null;
+            catch
+            {
+                HasOrbShader = false;
+                return null;
+            }
         }
 
         public static MiscShaderData GetLightningShader()
@@ -84,11 +86,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
             if (!HasLightningShader) return null;
             try
             {
-                if (GameShaders.Misc.TryGetValue("MagnumOpus:EmpoweredLightning", out var s)) return s;
-                if (GameShaders.Misc.TryGetValue("MagnumOpus:ScrollingTrailShader", out s)) return s;
+                return GameShaders.Misc["MagnumOpus:EmpoweredLightning"];
             }
-            catch { }
-            return null;
+            catch
+            {
+                HasLightningShader = false;
+                return null;
+            }
         }
 
         public static MiscShaderData GetAuraShader()
@@ -96,11 +100,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
             if (!HasAuraShader) return null;
             try
             {
-                if (GameShaders.Misc.TryGetValue("MagnumOpus:FangEmpoweredAura", out var s)) return s;
-                if (GameShaders.Misc.TryGetValue("MagnumOpus:RadialScrollShader", out s)) return s;
+                return GameShaders.Misc["MagnumOpus:FangEmpoweredAura"];
             }
-            catch { }
-            return null;
+            catch
+            {
+                HasAuraShader = false;
+                return null;
+            }
         }
     }
 }

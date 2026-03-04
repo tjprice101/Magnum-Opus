@@ -21,6 +21,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
     {
         public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/ResonanceOfABygoneReality";
 
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             Item.damage = 400;
@@ -43,9 +48,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "FateEffect", "Rapid-fire cosmic bullets"));
-            tooltips.Add(new TooltipLine(Mod, "FateSpecial", "Every 5th hit summons a spectral blade that slashes for 3 seconds"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Memories of a world erased from existence'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Rapid-fire cosmic bullets with 40% ammo conservation"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Every 5th hit summons a spectral blade that slashes for 3 seconds at 2x damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Bygone Resonance: blade and bullet striking the same enemy within 0.5s triggers a delayed explosion"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Every 10th combined hit grants Reality Fade — 0.3 seconds of invulnerability"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The past does not stay buried. It echoes through every bullet.'")
             {
                 OverrideColor = new Color(180, 40, 80) // Cosmic Crimson — Fate lore color
             });

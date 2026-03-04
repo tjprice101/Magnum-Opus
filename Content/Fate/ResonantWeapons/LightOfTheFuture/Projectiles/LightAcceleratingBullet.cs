@@ -141,10 +141,62 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture.Projectiles
             }
         }
 
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+        {
+            // Speed-based damage scaling: faster bullets deal more damage
+            float speedRatio = MathHelper.Clamp((_currentSpeed - 6f) / (MaxSpeed - 6f), 0f, 1f);
+            if (speedRatio > 0.3f)
+            {
+                // Up to +100% damage at max speed
+                float bonus = speedRatio * 1.0f;
+                modifiers.FinalDamage *= 1f + bonus;
+            }
+        }
+
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             // Apply DestinyCollapse debuff
             target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 300);
+
+            float speedRatio = MathHelper.Clamp((_currentSpeed - 6f) / (MaxSpeed - 6f), 0f, 1f);
+
+            // Cascade: peak-speed kills spawn 2 child bullets that continue at full speed
+            if (target.life <= 0 && speedRatio > 0.8f && Main.myPlayer == Projectile.owner)
+            {
+                Player owner = Main.player[Projectile.owner];
+                var lp = owner.LightOfFuture();
+                if (lp.CascadeCooldown <= 0)
+                {
+                    lp.CascadeChain++;
+                    lp.CascadeCooldown = 10; // Brief cooldown to prevent infinite loop
+                    float baseAngle = Projectile.velocity.ToRotation();
+                    for (int c = 0; c < 2; c++)
+                    {
+                        float fanAngle = baseAngle + (c == 0 ? -0.15f : 0.15f);
+                        Vector2 childVel = fanAngle.ToRotationVector2() * _currentSpeed;
+                        int childProj = Projectile.NewProjectile(
+                            Projectile.GetSource_FromThis(),
+                            target.Center, childVel,
+                            ModContent.ProjectileType<LightAcceleratingBullet>(),
+                            (int)(Projectile.damage * 0.6f),
+                            Projectile.knockBack * 0.5f,
+                            Projectile.owner);
+                        // Child bullets start at current speed (already fast)
+                        if (childProj >= 0 && childProj < Main.maxProjectiles)
+                        {
+                            Main.projectile[childProj].penetrate = 2; // Fewer pierces
+                            Main.projectile[childProj].timeLeft = 90; // Shorter life
+                        }
+                    }
+
+                    // Cascade VFX
+                    if (!Main.dedServ)
+                    {
+                        LightParticleHandler.SpawnParticle(new LightBloomFlare(
+                            target.Center, LightUtils.MuzzleGold, 0.5f, 12));
+                    }
+                }
+            }
 
             // Impact VFX
             if (!Main.dedServ)
@@ -196,55 +248,72 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            // Draw GPU trail
-            if (Projectile.oldPos.Length >= 2)
+            SpriteBatch sb = Main.spriteBatch;
+
+            try
             {
-                float speedRatio = MathHelper.Clamp((_currentSpeed - 6f) / (MaxSpeed - 6f), 0f, 1f);
+                // Draw GPU trail (requires SpriteBatch to be ended)
+                if (Projectile.oldPos.Length >= 2)
+                {
+                    float speedRatio = MathHelper.Clamp((_currentSpeed - 6f) / (MaxSpeed - 6f), 0f, 1f);
 
-                var settings = new LightTrailSettings(
-                    width: (progress, idx) =>
+                    var settings = new LightTrailSettings(
+                        width: (progress, idx) =>
+                        {
+                            float baseWidth = 6f + speedRatio * 10f;
+                            return baseWidth * (1f - progress * 0.8f);
+                        },
+                        color: (progress) =>
+                        {
+                            Color c = LightUtils.BulletGradient(speedRatio * (1f - progress * 0.5f));
+                            float fade = 1f - MathF.Pow(progress, 1.3f);
+                            return c * fade * 0.8f;
+                        }
+                    );
+
+                    // Use oldPos for trail points
+                    Vector2[] points = new Vector2[TrailLength];
+                    int count = 0;
+                    for (int i = 0; i < Projectile.oldPos.Length && i < TrailLength; i++)
                     {
-                        float baseWidth = 6f + speedRatio * 10f;
-                        return baseWidth * (1f - progress * 0.8f);
-                    },
-                    color: (progress) =>
-                    {
-                        Color c = LightUtils.BulletGradient(speedRatio * (1f - progress * 0.5f));
-                        float fade = 1f - MathF.Pow(progress, 1.3f);
-                        return c * fade * 0.8f;
+                        if (Projectile.oldPos[i] == Vector2.Zero) break;
+                        points[i] = Projectile.oldPos[i] + Projectile.Size / 2f;
+                        count++;
                     }
-                );
 
-                // Use oldPos for trail points
-                Vector2[] points = new Vector2[TrailLength];
-                int count = 0;
-                for (int i = 0; i < Projectile.oldPos.Length && i < TrailLength; i++)
-                {
-                    if (Projectile.oldPos[i] == Vector2.Zero) break;
-                    points[i] = Projectile.oldPos[i] + Projectile.Size / 2f;
-                    count++;
+                    if (count >= 2)
+                    {
+                        sb.End();
+                        LightTrailRenderer.RenderTrail(points, settings, count);
+                        sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                            DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                    }
                 }
 
-                if (count >= 2)
-                {
-                    LightTrailRenderer.RenderTrail(points, settings, count);
-                }
+                // Draw bullet core sprite
+                _glowTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow");
+                float sr = MathHelper.Clamp((_currentSpeed - 6f) / (MaxSpeed - 6f), 0f, 1f);
+                Color coreCol = Color.Lerp(LightUtils.LaserCyan, LightUtils.PlasmaWhite, sr) * 0.9f;
+                float coreScale = 0.15f + sr * 0.12f;
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+
+                sb.Draw(_glowTex.Value, drawPos, null, coreCol with { A = 0 },
+                    Projectile.rotation, _glowTex.Value.Size() / 2f, coreScale, SpriteEffects.None, 0f);
+
+                // Outer bloom layer
+                Color bloomCol = LightUtils.TrailViolet * 0.4f;
+                sb.Draw(_glowTex.Value, drawPos, null, bloomCol with { A = 0 },
+                    0f, _glowTex.Value.Size() / 2f, coreScale * 2.5f, SpriteEffects.None, 0f);
             }
-
-            // Draw bullet core sprite
-            _glowTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow");
-            float sr = MathHelper.Clamp((_currentSpeed - 6f) / (MaxSpeed - 6f), 0f, 1f);
-            Color coreCol = Color.Lerp(LightUtils.LaserCyan, LightUtils.PlasmaWhite, sr) * 0.9f;
-            float coreScale = 0.15f + sr * 0.12f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            Main.spriteBatch.Draw(_glowTex.Value, drawPos, null, coreCol with { A = 0 },
-                Projectile.rotation, _glowTex.Value.Size() / 2f, coreScale, SpriteEffects.None, 0f);
-
-            // Outer bloom layer
-            Color bloomCol = LightUtils.TrailViolet * 0.4f;
-            Main.spriteBatch.Draw(_glowTex.Value, drawPos, null, bloomCol with { A = 0 },
-                0f, _glowTex.Value.Size() / 2f, coreScale * 2.5f, SpriteEffects.None, 0f);
+            catch
+            {
+                try
+                {
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
 
             return false;
         }

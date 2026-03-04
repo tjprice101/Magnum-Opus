@@ -59,6 +59,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
 
         protected override Color GetLoreColor() => EnigmaPurple;
 
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         protected override void SetWeaponDefaults()
         {
             Item.damage = 600;
@@ -72,12 +77,13 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
         protected override void AddWeaponTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "[Ultimate Enigma Weapon]") { OverrideColor = EnigmaGreen });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Creates dimensional slashes that persist and warp space"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "3-phase combo: The Question, The Doubt, The Silence"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Every swing stacks Inevitability on all enemies on screen"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", $"Current stacks: {inevitabilityStacks}/{MaxInevitabilityStacks}"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "At max stacks triggers Paradox Collapse with massive devastation"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", $"Inevitability: {inevitabilityStacks}/{MaxInevitabilityStacks} — at max, triggers Paradox Collapse"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Hits brand enemies with Paradox Brand, increasing Enigma damage taken by 20%"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Crits spawn void-green seeking crystals that home on branded enemies"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
-                "'What is the answer to everything? There is none. That is the final question.'")
+                "'Resolution is an illusion. There is only the next question.'")
             {
                 OverrideColor = EnigmaPurple
             });
@@ -104,6 +110,14 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
 
         protected override void OnShoot(Player player, int projectileIndex)
         {
+            // Determine stacks based on combo phase: Phase 0 = 2, Phase 1 = 3, Phase 2 = 5
+            int stacksToAdd = CurrentComboStep switch
+            {
+                0 => 2,
+                1 => 3,
+                _ => 5,
+            };
+
             // Stack Inevitability on ALL on-screen enemies
             bool anyEnemies = false;
             foreach (NPC npc in Main.ActiveNPCs)
@@ -111,14 +125,17 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
                 if (!npc.friendly && Vector2.Distance(npc.Center, player.Center) < 1200f)
                 {
                     anyEnemies = true;
-                    npc.AddBuff(ModContent.BuffType<ParadoxBrand>(), 600);
+                    npc.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480); // 8 seconds
                     var brandNPC = npc.GetGlobalNPC<ParadoxBrandNPC>();
-                    brandNPC.AddParadoxStack(npc, 1);
+                    brandNPC.AddParadoxStack(npc, stacksToAdd);
                 }
             }
 
             if (anyEnemies)
-                AddInevitabilityStack();
+            {
+                for (int i = 0; i < stacksToAdd; i++)
+                    AddInevitabilityStack();
+            }
 
             // === PARADOX COLLAPSE CHECK ===
             if (inevitabilityStacks >= MaxInevitabilityStacks)

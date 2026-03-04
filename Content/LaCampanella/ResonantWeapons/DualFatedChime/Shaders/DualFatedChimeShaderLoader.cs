@@ -26,29 +26,29 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Shaders
         public override void PostSetupContent()
         {
             // Try to load from per-weapon shader path first, fallback to shared La Campanella shaders
-            if (TryLoadMiscShader("Effects/LaCampanella/DualFatedChime/InfernalFlameSlash",
+            if (TryLoadMiscShader("MagnumOpus/Effects/LaCampanella/DualFatedChime/InfernalFlameSlash",
                 "InfernalFlameMain", "MagnumOpus:DualFatedChimeSlash"))
             {
                 HasSlashShader = true;
             }
-            else if (TryLoadMiscShader("Effects/HeroicFlameTrail",
+            else if (TryLoadMiscShader("MagnumOpus/Effects/HeroicFlameTrail",
                 "HeroicFlameTrailPass", "MagnumOpus:DualFatedChimeSlash"))
             {
                 HasSlashShader = true;
             }
 
-            if (TryLoadMiscShader("Effects/LaCampanella/DualFatedChime/BellFlameTrail",
+            if (TryLoadMiscShader("MagnumOpus/Effects/LaCampanella/DualFatedChime/BellFlameTrail",
                 "BellFlameMain", "MagnumOpus:DualFatedChimeFlame"))
             {
                 HasFlameShader = true;
             }
-            else if (TryLoadMiscShader("Effects/ScrollingTrailShader",
+            else if (TryLoadMiscShader("MagnumOpus/Effects/ScrollingTrailShader",
                 "ScrollingTrailPass", "MagnumOpus:DualFatedChimeFlame"))
             {
                 HasFlameShader = true;
             }
 
-            if (TryLoadMiscShader("Effects/LaCampanella/DualFatedChime/InfernoWaltzAura",
+            if (TryLoadMiscShader("MagnumOpus/Effects/LaCampanella/DualFatedChime/InfernoWaltzAura",
                 "WaltzAuraMain", "MagnumOpus:DualFatedChimeWaltz"))
             {
                 HasWaltzShader = true;
@@ -88,25 +88,46 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Shaders
         /// <summary>Get the slash trail shader if available.</summary>
         public static MiscShaderData GetSlashShader()
         {
-            if (HasSlashShader)
+            if (!HasSlashShader) return null;
+            try
+            {
                 return GameShaders.Misc["MagnumOpus:DualFatedChimeSlash"];
-            return null;
+            }
+            catch
+            {
+                HasSlashShader = false;
+                return null;
+            }
         }
 
         /// <summary>Get the flame trail shader if available.</summary>
         public static MiscShaderData GetFlameShader()
         {
-            if (HasFlameShader)
+            if (!HasFlameShader) return null;
+            try
+            {
                 return GameShaders.Misc["MagnumOpus:DualFatedChimeFlame"];
-            return null;
+            }
+            catch
+            {
+                HasFlameShader = false;
+                return null;
+            }
         }
 
         /// <summary>Get the waltz aura shader if available.</summary>
         public static MiscShaderData GetWaltzShader()
         {
-            if (HasWaltzShader)
+            if (!HasWaltzShader) return null;
+            try
+            {
                 return GameShaders.Misc["MagnumOpus:DualFatedChimeWaltz"];
-            return null;
+            }
+            catch
+            {
+                HasWaltzShader = false;
+                return null;
+            }
         }
     }
 }

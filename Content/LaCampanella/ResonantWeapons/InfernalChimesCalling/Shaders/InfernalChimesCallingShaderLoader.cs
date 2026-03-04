@@ -25,13 +25,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
                     AssetRequestMode.ImmediateLoad);
                 if (fx?.Value != null)
                 {
-                    GameShaders.Misc["MagnumOpus:ChoirMinionTrail"] = new MiscShaderData(fx, "TrailPass");
+                    GameShaders.Misc["MagnumOpus:ChoirMinionTrail"] = new MiscShaderData(fx, "P0");
                     HasMinionTrailShader = true;
                 }
             }
             catch
             {
-                try { if (GameShaders.Misc.ContainsKey("MagnumOpus:HeroicFlameTrail")) HasMinionTrailShader = true; } catch { }
+                HasMinionTrailShader = false;
             }
 
             try
@@ -41,13 +41,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
                     AssetRequestMode.ImmediateLoad);
                 if (fx?.Value != null)
                 {
-                    GameShaders.Misc["MagnumOpus:MusicalShockwave"] = new MiscShaderData(fx, "TrailPass");
+                    GameShaders.Misc["MagnumOpus:MusicalShockwave"] = new MiscShaderData(fx, "P0");
                     HasShockwaveShader = true;
                 }
             }
             catch
             {
-                try { if (GameShaders.Misc.ContainsKey("MagnumOpus:RadialScrollShader")) HasShockwaveShader = true; } catch { }
+                HasShockwaveShader = false;
             }
 
             try
@@ -57,13 +57,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
                     AssetRequestMode.ImmediateLoad);
                 if (fx?.Value != null)
                 {
-                    GameShaders.Misc["MagnumOpus:ChoirFlameAura"] = new MiscShaderData(fx, "TrailPass");
+                    GameShaders.Misc["MagnumOpus:ChoirFlameAura"] = new MiscShaderData(fx, "P0");
                     HasFlameAuraShader = true;
                 }
             }
             catch
             {
-                try { if (GameShaders.Misc.ContainsKey("MagnumOpus:RadialScrollShader")) HasFlameAuraShader = true; } catch { }
+                HasFlameAuraShader = false;
             }
         }
 
@@ -72,11 +72,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
             if (!HasMinionTrailShader) return null;
             try
             {
-                if (GameShaders.Misc.TryGetValue("MagnumOpus:ChoirMinionTrail", out var s)) return s;
-                if (GameShaders.Misc.TryGetValue("MagnumOpus:HeroicFlameTrail", out s)) return s;
+                return GameShaders.Misc["MagnumOpus:ChoirMinionTrail"];
             }
-            catch { }
-            return null;
+            catch
+            {
+                HasMinionTrailShader = false;
+                return null;
+            }
         }
 
         public static MiscShaderData GetShockwaveShader()
@@ -84,11 +86,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
             if (!HasShockwaveShader) return null;
             try
             {
-                if (GameShaders.Misc.TryGetValue("MagnumOpus:MusicalShockwave", out var s)) return s;
-                if (GameShaders.Misc.TryGetValue("MagnumOpus:RadialScrollShader", out s)) return s;
+                return GameShaders.Misc["MagnumOpus:MusicalShockwave"];
             }
-            catch { }
-            return null;
+            catch
+            {
+                HasShockwaveShader = false;
+                return null;
+            }
         }
 
         public static MiscShaderData GetFlameAuraShader()
@@ -96,11 +100,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
             if (!HasFlameAuraShader) return null;
             try
             {
-                if (GameShaders.Misc.TryGetValue("MagnumOpus:ChoirFlameAura", out var s)) return s;
-                if (GameShaders.Misc.TryGetValue("MagnumOpus:RadialScrollShader", out s)) return s;
+                return GameShaders.Misc["MagnumOpus:ChoirFlameAura"];
             }
-            catch { }
-            return null;
+            catch
+            {
+                HasFlameAuraShader = false;
+                return null;
+            }
         }
     }
 }

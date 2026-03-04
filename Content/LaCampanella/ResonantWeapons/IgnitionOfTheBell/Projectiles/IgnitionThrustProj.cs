@@ -11,6 +11,10 @@ using MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Particle
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Primitives;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Shaders;
 using MagnumOpus.Content.LaCampanella.Debuffs;
+using MagnumOpus.Content.LaCampanella;
+using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
+using MagnumOpus.Content.FoundationWeapons.ExplosionParticlesFoundation;
+using MagnumOpus.Content.FoundationWeapons.XSlashFoundation;
 using static MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Utilities.IgnitionOfTheBellUtils;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Projectiles
@@ -287,7 +291,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             // Apply Resonant Toll
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 1);
 
-            // Phase 0 (Ignition Strike): Spawn ground geyser at target
+            // === FOUNDATION: RippleEffectProjectile — Geyser eruption ring on every hit ===
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), target.Center, Vector2.Zero,
+                ModContent.ProjectileType<RippleEffectProjectile>(),
+                0, 0f, Projectile.owner);
+
+            // Phase 0 (Ignition Strike): Spawn ground geyser at target + ExplosionParticles at geyser tip
             if (Phase == ThrustPhase.IgnitionStrike && Projectile.owner == Main.myPlayer)
             {
                 Vector2 geyserPos = new Vector2(target.Center.X, target.Bottom.Y);
@@ -301,6 +311,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
                     Projectile.owner,
                     ai0: 0f // Full-size geyser
                 );
+
+                // === FOUNDATION: SparkExplosionProjectile — Geyser eruption sparks (upward bias) ===
+                Projectile.NewProjectile(
+                    Projectile.GetSource_FromThis(), geyserPos, Vector2.Zero,
+                    ModContent.ProjectileType<SparkExplosionProjectile>(),
+                    0, 0f, Projectile.owner,
+                    ai0: (float)SparkMode.FountainCascade);
             }
 
             // Phase 1 (Tolling Frenzy): Spawn smaller geyser on each sub-thrust hit
@@ -333,14 +350,45 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
                 new BellIgnitionFlashParticle(hitPos, 10, 1f));
         }
 
+        private static int _lastParticleDrawFrame;
+
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
 
-            DrawFlameTrail(sb);
-            DrawBloomUnderlays(sb);
-            DrawLanceSprite(sb, lightColor);
-            DrawParticles(sb);
+            try
+            {
+                DrawFlameTrail(sb);
+                DrawBloomUnderlays(sb);
+                DrawLanceSprite(sb, lightColor);
+
+                // Particle dedup — only draw once per frame
+                int currentFrame = (int)Main.GameUpdateCount;
+                if (_lastParticleDrawFrame != currentFrame)
+                {
+                    _lastParticleDrawFrame = currentFrame;
+                    DrawParticles(sb);
+                }
+
+                // Theme texture accents
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                IgnitionOfTheBellUtils.DrawThemeAccents(sb, Projectile.Center - Main.screenPosition, Projectile.scale);
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch
+            {
+                try
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
 
             return false;
         }
@@ -404,20 +452,26 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
                 smoothen: false
             );
 
-            sb.End();
-            _trailRenderer.RenderTrail(trailPositions, mainSettings, trailCount);
+            try { sb.End(); } catch { }
 
-            var glowSettings = new IgnitionOfTheBellPrimitiveRenderer.IgnitionOfTheBellTrailSettings(
-                width: (float t) => 24f * (float)Math.Sin(t * Math.PI) * Math.Max(extension, 0),
-                trailColor: (float t) => Additive(glowColor, 0.2f * (float)Math.Sin(t * Math.PI)),
-                shader: shader,
-                smoothen: false
-            );
+            try
+            {
+                _trailRenderer.RenderTrail(trailPositions, mainSettings, trailCount);
 
-            _trailRenderer.RenderTrail(trailPositions, glowSettings, trailCount);
+                var glowSettings = new IgnitionOfTheBellPrimitiveRenderer.IgnitionOfTheBellTrailSettings(
+                    width: (float t) => 24f * (float)Math.Sin(t * Math.PI) * Math.Max(extension, 0),
+                    trailColor: (float t) => Additive(glowColor, 0.2f * (float)Math.Sin(t * Math.PI)),
+                    shader: shader,
+                    smoothen: false
+                );
 
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                _trailRenderer.RenderTrail(trailPositions, glowSettings, trailCount);
+            }
+            finally
+            {
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
         }
 
         private void DrawBloomUnderlays(SpriteBatch sb)
@@ -436,30 +490,58 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             Vector2 tipPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = new Vector2(bloomTex.Width / 2f, bloomTex.Height / 2f);
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            try { sb.End(); } catch { }
+            try
+            {
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            float pulse = 0.8f + 0.2f * (float)Math.Sin(Timer * 0.3f);
+                float pulse = 0.8f + 0.2f * (float)Math.Sin(Timer * 0.3f);
 
-            // Crimson outer bloom
-            sb.Draw(bloomTex, tipPos, null,
-                Additive(new Color(200, 40, 0), 0.25f * extension * pulse),
-                0f, origin, 1.0f, SpriteEffects.None, 0f);
+                // Crimson outer bloom
+                sb.Draw(bloomTex, tipPos, null,
+                    Additive(new Color(200, 40, 0), 0.25f * extension * pulse),
+                    0f, origin, 1.0f, SpriteEffects.None, 0f);
 
-            // Magma mid bloom
-            sb.Draw(bloomTex, tipPos, null,
-                Additive(new Color(255, 120, 20), 0.35f * extension * pulse),
-                0f, origin, 0.55f, SpriteEffects.None, 0f);
+                // Magma mid bloom
+                sb.Draw(bloomTex, tipPos, null,
+                    Additive(new Color(255, 120, 20), 0.35f * extension * pulse),
+                    0f, origin, 0.55f, SpriteEffects.None, 0f);
 
-            // White-hot core
-            sb.Draw(bloomTex, tipPos, null,
-                Additive(new Color(255, 240, 210), 0.5f * extension),
-                0f, origin, 0.2f, SpriteEffects.None, 0f);
+                // White-hot core
+                sb.Draw(bloomTex, tipPos, null,
+                    Additive(new Color(255, 240, 210), 0.5f * extension),
+                    0f, origin, 0.2f, SpriteEffects.None, 0f);
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                // --- LC Power Effect Ring — infernal concentric ring around lance tip ---
+                if (extension > 0.3f)
+                {
+                    float ringPulse = 0.6f + 0.4f * (float)Math.Sin(Timer * 0.25f);
+                    LaCampanellaVFXLibrary.DrawPowerEffectRing(sb, tipPos,
+                        0.35f * extension,
+                        Timer * 0.03f,
+                        0.25f * extension * ringPulse,
+                        LaCampanellaPalette.InfernalOrange);
+                }
+
+                // --- LC Infernal Beam Ring — fiery halo during thrust peak ---
+                if (extension > 0.6f)
+                {
+                    float beamPulse = 0.5f + 0.5f * (float)Math.Sin(Timer * 0.35f);
+                    LaCampanellaVFXLibrary.DrawInfernalBeamRing(sb, tipPos,
+                        0.28f * extension,
+                        -Timer * 0.04f,
+                        0.2f * beamPulse * extension,
+                        LaCampanellaPalette.FlameYellow);
+                }
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
         }
 
         private void DrawLanceSprite(SpriteBatch sb, Color lightColor)
@@ -489,16 +571,22 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             // Fire overlay on the blade
             if (extension > 0.3f)
             {
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                try { sb.End(); } catch { }
+                try
+                {
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-                Color fireOverlay = Additive(GetMagmaFlicker(), 0.3f * extension);
-                sb.Draw(tex, drawPos, null, fireOverlay, rot, origin, drawScale * 1.02f, fx, 0f);
-
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                    Color fireOverlay = Additive(GetMagmaFlicker(), 0.3f * extension);
+                    sb.Draw(tex, drawPos, null, fireOverlay, rot, origin, drawScale * 1.02f, fx, 0f);
+                }
+                catch { }
+                finally
+                {
+                    try { sb.End(); } catch { }
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                }
             }
         }
 

@@ -9,8 +9,19 @@ using Terraria;
 
 namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
 {
+    /// <summary>
+    /// Sakura's Blossom — Eroica melee weapon embodying the hero's beauty and sacrifice.
+    /// Features a fluid 3-phase Petal Dance combo that scatters cherry blossom petals, a Blossom Counter
+    /// reflect mechanic that turns enemy projectiles into homing petal-blades, and a Sakura Meditation
+    /// stance that empowers the next swing with doubled range and petals.
+    /// </summary>
     public class SakurasBlossom : ModItem
     {
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             Item.ResearchUnlockCount = 1;
@@ -46,7 +57,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
             "Sakura Meditation: hold without nearby enemies for enhanced next swing")
             { OverrideColor = EroicaPalette.Gold });
             tooltips.Add(new TooltipLine(Mod, "Lore",
-            "'Every petal that falls is a promise kept.'")
+            "'A single petal falls. An army follows.'")
             { OverrideColor = new Color(200, 50, 50) });
         }
     }

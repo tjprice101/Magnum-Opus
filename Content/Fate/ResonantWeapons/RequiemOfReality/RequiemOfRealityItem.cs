@@ -39,6 +39,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality
         // Glow texture for hold VFX
         private static Asset<Texture2D> _glowTex;
 
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             // === PRESERVED STATS (from original) ===
@@ -65,10 +70,12 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Swings release cosmic music notes that seek nearby enemies"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Every 4th swing performs a Finale and summons a spectral blade"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "The spectral blade detonates, seeks, and slashes through enemies autonomously"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The final requiem for a dying reality'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Swings release 3-5 cosmic music notes that seek nearby enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "4-movement combo cycle: Adagio, Allegro, Scherzo, Finale"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Finale summons an autonomous spectral blade with a 6-phase attack sequence"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Hits build Spectral Resonance — at 3 stacks, triggers a 2.5x cosmic burst"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "15% chance on hit to tear reality, creating a lingering damage rift"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The cosmos does not mourn. It simply ends, and begins again.'")
             {
                 OverrideColor = new Color(180, 40, 80) // Cosmic Crimson
             });

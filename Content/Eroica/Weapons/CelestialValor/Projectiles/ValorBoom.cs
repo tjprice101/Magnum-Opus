@@ -2,6 +2,8 @@
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
+using MagnumOpus.Content.FoundationWeapons.SparkleProjectileFoundation;
+using ReLogic.Content;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -17,6 +19,8 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
     /// </summary>
     public class ValorBoom : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
+
         private const int MaxLife = 30;
         private bool spawnedVFX = false;
 
@@ -121,7 +125,71 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
                 sb.Draw(flare, drawPos, null, flareColor * (0.3f * (1f - progress * 2f)), flareRot + MathHelper.PiOver4, flareOrigin, flareScale * 0.7f, SpriteEffects.None, 0f);
             }
 
+            // ── Layer 3: SPF Impact Star Flare (ImpactFoundation-style) ──
+            DrawImpactStarFlare(sb, progress, fade);
+
+            // Eroica theme impact ring
+            EroicaVFXLibrary.BeginEroicaAdditive(sb);
+            EroicaVFXLibrary.DrawThemeImpactRing(sb, Projectile.Center, 1f, 0.4f, (float)Main.GameUpdateCount * 0.02f);
+            EroicaVFXLibrary.EndEroicaAdditive(sb);
+
             return false;
+        }
+
+        /// <summary>
+        /// ImpactFoundation-style expanding star flare — SPFTextures StarFlare + SoftGlow
+        /// for multi-scale bloom depth on the detonation impact.
+        /// </summary>
+        private void DrawImpactStarFlare(SpriteBatch sb, float progress, float fade)
+        {
+            Texture2D starFlare = SPFTextures.StarFlare.Value;
+            Texture2D softGlow = SPFTextures.SoftGlow.Value;
+            if (starFlare == null || softGlow == null) return;
+
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+
+            try
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+
+                float expandScale = 0.5f + progress * 2f;
+
+                // Wide SoftGlow expanding haze
+                if (softGlow != null)
+                {
+                    Vector2 glowOrigin = softGlow.Size() * 0.5f;
+                    Color hazeColor = EroicaPalette.Scarlet with { A = 0 };
+                    sb.Draw(softGlow, drawPos, null, hazeColor * (fade * 0.2f),
+                        0f, glowOrigin, expandScale * 0.8f, SpriteEffects.None, 0f);
+                }
+
+                // Star flare at center — bright early, fades
+                if (starFlare != null && progress < 0.6f)
+                {
+                    float flareFade = 1f - progress / 0.6f;
+                    float flareRot = progress * MathHelper.TwoPi * 3f;
+                    Color flareColor = EroicaPalette.HotCore with { A = 0 };
+                    sb.Draw(starFlare, drawPos, null, flareColor * (flareFade * 0.4f),
+                        flareRot, starFlare.Size() * 0.5f, expandScale * 0.4f, SpriteEffects.None, 0f);
+
+                    // Second rotated star for cross pattern
+                    Color crossColor = EroicaPalette.Gold with { A = 0 };
+                    sb.Draw(starFlare, drawPos, null, crossColor * (flareFade * 0.25f),
+                        flareRot + MathHelper.PiOver4, starFlare.Size() * 0.5f, expandScale * 0.3f, SpriteEffects.None, 0f);
+                }
+            }
+            finally
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+            }
         }
     }
 }

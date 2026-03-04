@@ -18,9 +18,9 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
 {
     /// <summary>
     /// The held spinning sword that orbits the player during each Coda swing.
-    /// Orbit radius 65f, ±144° arc (0.8π), swing speed 0.12 rad/frame.
+    /// Orbit radius 65f, ﾂｱ144ﾂｰ arc (0.8ﾏ), swing speed 0.12 rad/frame.
     /// Deals melee damage via line collision from player center to tip.
-    /// Self-contained VFX — uses own particle handler for all effects.
+    /// Self-contained VFX 窶・uses own particle handler for all effects.
     /// </summary>
     public class CodaHeldSwing : ModProjectile
     {
@@ -30,7 +30,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
         // Orbit radius around player
         private const float OrbitRadius = 65f;
 
-        // Maximum swing arc: ±144° = 0.8π
+        // Maximum swing arc: ﾂｱ144ﾂｰ = 0.8ﾏ
         private const float MaxSwingArc = MathHelper.Pi * 0.8f;
 
         // Current swing angle offset
@@ -111,7 +111,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
             // Keep alive
             Projectile.timeLeft = 2;
 
-            // Advance swing angle — ±144° arc
+            // Advance swing angle 窶・ﾂｱ144ﾂｰ arc
             SwingAngle += SwingSpeed * owner.direction;
             SwingAngle = MathHelper.Clamp(SwingAngle, -MaxSwingArc, MaxSwingArc);
 
@@ -178,7 +178,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
                     14));
             }
 
-            // Glyphs — fate's runes
+            // Glyphs 窶・fate's runes
             if (Main.rand.NextBool(15))
             {
                 CodaParticleHandler.SpawnParticle(new GlyphBurstParticle(
@@ -188,7 +188,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
                     16));
             }
 
-            // Music notes — the coda's symphony
+            // Music notes 窶・the coda's symphony
             if (Main.rand.NextBool(8))
             {
                 Color noteColor = Color.Lerp(CodaUtils.CodaCrimson, CodaUtils.CodaPurple, Main.rand.NextFloat());
@@ -267,7 +267,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D weaponTex = ModContent.Request<Texture2D>(Texture).Value;
+            Texture2D weaponTex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
 
             if (weaponTex == null) return false;
 
@@ -276,53 +276,83 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
             Vector2 origin = weaponTex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
-            // === Layer 0: Shader-driven swing arc trail ===
-            DrawShaderTrail();
-
-            // === Layer 1: Afterimage trail (sprite-based, with chromatic separation) ===
-            for (int i = 0; i < trailPositions.Length; i++)
+            try
             {
-                int actualIndex = (trailIndex - i + trailPositions.Length) % trailPositions.Length;
-                if (trailPositions[actualIndex] == Vector2.Zero) continue;
+                // === Layer 0: Shader-driven swing arc trail (GPU primitives) ===
+                spriteBatch.End();
+                DrawShaderTrail();
 
-                Vector2 trailPos = trailPositions[actualIndex] - Main.screenPosition;
-                float trailRot = trailRotations[actualIndex];
+                // Restart SpriteBatch for sprite-based layers
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
-                float progress = (float)i / trailPositions.Length;
-                float trailAlpha = (1f - progress) * 0.4f;
-                float trailScale = 1f - progress * 0.2f;
+                // === Layer 1: Afterimage trail (sprite-based, with chromatic separation) ===
+                for (int i = 0; i < trailPositions.Length; i++)
+                {
+                    int actualIndex = (trailIndex - i + trailPositions.Length) % trailPositions.Length;
+                    if (trailPositions[actualIndex] == Vector2.Zero) continue;
 
-                // Chromatic split: crimson and purple ghosts offset in opposite directions
-                Vector2 chromDir = trailRot.ToRotationVector2();
-                Vector2 chromOffset = new Vector2(-chromDir.Y, chromDir.X) * (1.5f + progress * 3f);
+                    Vector2 trailPos = trailPositions[actualIndex] - Main.screenPosition;
+                    float trailRot = trailRotations[actualIndex];
 
-                Color purpleGhost = CodaUtils.CodaPurple with { A = 0 } * (trailAlpha * 0.5f);
-                Color crimsonGhost = CodaUtils.CodaCrimson with { A = 0 } * (trailAlpha * 0.4f);
+                    float progress = (float)i / trailPositions.Length;
+                    float trailAlpha = (1f - progress) * 0.4f;
+                    float trailScale = 1f - progress * 0.2f;
 
-                spriteBatch.Draw(weaponTex, trailPos - chromOffset, null, purpleGhost, trailRot, origin, trailScale, SpriteEffects.None, 0f);
-                spriteBatch.Draw(weaponTex, trailPos + chromOffset, null, crimsonGhost, trailRot, origin, trailScale * 0.95f, SpriteEffects.None, 0f);
+                    // Chromatic split: crimson and purple ghosts offset in opposite directions
+                    Vector2 chromDir = trailRot.ToRotationVector2();
+                    Vector2 chromOffset = new Vector2(-chromDir.Y, chromDir.X) * (1.5f + progress * 3f);
 
-                // Core trail (original)
-                Color trailColor = Color.Lerp(CodaUtils.CodaPink, CodaUtils.CodaPurple, progress);
-                trailColor = trailColor with { A = 0 } * trailAlpha;
-                spriteBatch.Draw(weaponTex, trailPos, null, trailColor, trailRot, origin, trailScale, SpriteEffects.None, 0f);
+                    Color purpleGhost = CodaUtils.CodaPurple with { A = 0 } * (trailAlpha * 0.5f);
+                    Color crimsonGhost = CodaUtils.CodaCrimson with { A = 0 } * (trailAlpha * 0.4f);
+
+                    spriteBatch.Draw(weaponTex, trailPos - chromOffset, null, purpleGhost, trailRot, origin, trailScale, SpriteEffects.None, 0f);
+                    spriteBatch.Draw(weaponTex, trailPos + chromOffset, null, crimsonGhost, trailRot, origin, trailScale * 0.95f, SpriteEffects.None, 0f);
+
+                    // Core trail (original)
+                    Color trailColor = Color.Lerp(CodaUtils.CodaPink, CodaUtils.CodaPurple, progress);
+                    trailColor = trailColor with { A = 0 } * trailAlpha;
+                    spriteBatch.Draw(weaponTex, trailPos, null, trailColor, trailRot, origin, trailScale, SpriteEffects.None, 0f);
+                }
+
+                // === Layer 2: Outer cosmic glow (pulsing) ===
+                float pulse = 1f + MathF.Sin((float)Main.timeForVisualEffects * 0.07f) * 0.08f;
+                Color outerGlow = CodaUtils.CodaPurple with { A = 0 } * 0.35f;
+                spriteBatch.Draw(weaponTex, drawPos, null, outerGlow, Projectile.rotation, origin, 1.2f * pulse, SpriteEffects.None, 0f);
+
+                // === Layer 3: Middle glow layer ===
+                Color midGlow = CodaUtils.CodaPink with { A = 0 } * 0.4f;
+                spriteBatch.Draw(weaponTex, drawPos, null, midGlow, Projectile.rotation, origin, 1.1f, SpriteEffects.None, 0f);
+
+                // === Layer 4: Main weapon sprite ===
+                spriteBatch.Draw(weaponTex, drawPos, null, lightColor, Projectile.rotation, origin, 1f, SpriteEffects.None, 0f);
+
+                // === Layer 5: Inner bright glow ===
+                Color innerGlow = Color.Lerp(CodaUtils.CodaCrimson, Color.White, 0.4f) with { A = 0 } * 0.35f;
+                spriteBatch.Draw(weaponTex, drawPos, null, innerGlow, Projectile.rotation, origin, 0.85f, SpriteEffects.None, 0f);
+            }
+            catch
+            {
+                try
+                {
+                    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
             }
 
-            // === Layer 2: Outer cosmic glow (pulsing) ===
-            float pulse = 1f + MathF.Sin((float)Main.timeForVisualEffects * 0.07f) * 0.08f;
-            Color outerGlow = CodaUtils.CodaPurple with { A = 0 } * 0.35f;
-            spriteBatch.Draw(weaponTex, drawPos, null, outerGlow, Projectile.rotation, origin, 1.2f * pulse, SpriteEffects.None, 0f);
-
-            // === Layer 3: Middle glow layer ===
-            Color midGlow = CodaUtils.CodaPink with { A = 0 } * 0.4f;
-            spriteBatch.Draw(weaponTex, drawPos, null, midGlow, Projectile.rotation, origin, 1.1f, SpriteEffects.None, 0f);
-
-            // === Layer 4: Main weapon sprite ===
-            spriteBatch.Draw(weaponTex, drawPos, null, lightColor, Projectile.rotation, origin, 1f, SpriteEffects.None, 0f);
-
-            // === Layer 5: Inner bright glow ===
-            Color innerGlow = Color.Lerp(CodaUtils.CodaCrimson, Color.White, 0.4f) with { A = 0 } * 0.35f;
-            spriteBatch.Draw(weaponTex, drawPos, null, innerGlow, Projectile.rotation, origin, 0.85f, SpriteEffects.None, 0f);
+            // Theme accents (additive pass)
+            try
+            {
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                CodaUtils.DrawThemeAccents(spriteBatch, Projectile.Center, 1f, 0.6f);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
 
             return false;
         }

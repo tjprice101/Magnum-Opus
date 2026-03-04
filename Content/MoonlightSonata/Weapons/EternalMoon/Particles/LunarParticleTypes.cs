@@ -502,4 +502,437 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Particles
                 color * opacity, 0f, tex.Size() / 2f, Scale * 0.4f, SpriteEffects.None, 0f);
         }
     }
+
+    // =================================================================
+    // THEME-SPECIFIC LUNAR PARTICLES — Moonlight Sonata VFX Library
+    // =================================================================
+
+    /// <summary>Internal lazy texture cache for Lunar theme-specific textures.</summary>
+    internal static class LunarThemeTextures
+    {
+        private static Asset<Texture2D> _msStarFlare;
+        private static Asset<Texture2D> _msLensFlare;
+        private static Asset<Texture2D> _msGlowOrb;
+        private static Asset<Texture2D> _msCrescentMoon;
+        private static Asset<Texture2D> _msMusicNote;
+        private static Asset<Texture2D> _msTidalMistWisp;
+        private static Asset<Texture2D> _msHarmonicImpact;
+        private static Asset<Texture2D> _msPowerEffectRing;
+        private static Asset<Texture2D> _msRadialSlashStar;
+        private static Asset<Texture2D> _msGradientLUT;
+
+        public static Texture2D MSStarFlare => (_msStarFlare ??= ModContent.Request<Texture2D>(
+            "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Glow and Bloom/MS Star Flare")).Value;
+        public static Texture2D MSLensFlare => (_msLensFlare ??= ModContent.Request<Texture2D>(
+            "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Glow and Bloom/MS Lens Flare")).Value;
+        public static Texture2D MSGlowOrb => (_msGlowOrb ??= ModContent.Request<Texture2D>(
+            "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Glow and Bloom/MS Glow Orb")).Value;
+        public static Texture2D MSCrescentMoon => (_msCrescentMoon ??= ModContent.Request<Texture2D>(
+            "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Particles/MS Crescent Moon")).Value;
+        public static Texture2D MSMusicNote => (_msMusicNote ??= ModContent.Request<Texture2D>(
+            "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Particles/MS Music Note")).Value;
+        public static Texture2D MSTidalMistWisp => (_msTidalMistWisp ??= ModContent.Request<Texture2D>(
+            "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Particles/MS Tidal Mist Wisp")).Value;
+        public static Texture2D MSHarmonicImpact => (_msHarmonicImpact ??= ModContent.Request<Texture2D>(
+            "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Impacts/MS Harmonic Resonance Wave Impact")).Value;
+        public static Texture2D MSPowerEffectRing => (_msPowerEffectRing ??= ModContent.Request<Texture2D>(
+            "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Impacts/MS Power Effect Ring")).Value;
+        public static Texture2D MSRadialSlashStar => (_msRadialSlashStar ??= ModContent.Request<Texture2D>(
+            "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Impacts/MS Radial Slash Star Impact")).Value;
+        public static Texture2D MSGradientLUT => (_msGradientLUT ??= ModContent.Request<Texture2D>(
+            "MagnumOpus/Assets/VFX Asset Library/ColorGradients/MoonlightSonataGradientLUTandRAMP")).Value;
+    }
+
+    /// <summary>
+    /// Tidal crescent particle using the themed MS Crescent Moon texture.
+    /// Drifts from the blade tip during swings, representing the lunar pull of the tides.
+    /// </summary>
+    public class TidalCrescentParticle : LunarParticle
+    {
+        private readonly float _wobblePhase;
+
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        public TidalCrescentParticle(Vector2 position, Vector2 velocity, float scale, Color color, int lifetime)
+        {
+            Position = position;
+            Velocity = velocity;
+            Scale = scale;
+            DrawColor = color;
+            Lifetime = lifetime;
+            Rotation = velocity.ToRotation();
+            _wobblePhase = Main.rand.NextFloat(MathHelper.TwoPi);
+        }
+
+        public override void Update()
+        {
+            Velocity *= 0.96f;
+            Velocity.Y -= 0.015f;
+            Rotation += (float)Math.Sin(_wobblePhase + Time * 0.05f) * 0.025f;
+            Scale *= 0.997f;
+        }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            Texture2D tex = LunarThemeTextures.MSCrescentMoon;
+            Vector2 origin = tex.Size() * 0.5f;
+            Vector2 drawPos = Position - Main.screenPosition;
+
+            float opacity = 1f - (float)Math.Pow(LifetimeCompletion, 1.5f);
+            Color color = Color.Lerp(DrawColor, EternalMoonUtils.DarkPurple, LifetimeCompletion * 0.4f);
+            color.A = 0;
+
+            spriteBatch.Draw(tex, drawPos, null, color * opacity,
+                Rotation, origin, Scale * 0.22f, SpriteEffects.None, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Tidal mist wisp using the MS Tidal Mist Wisp texture.
+    /// Slow-expanding mist that enhances atmospheric depth around swing paths.
+    /// </summary>
+    public class TidalMistWispParticle : LunarParticle
+    {
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        public TidalMistWispParticle(Vector2 position, Vector2 velocity, float scale, Color color, int lifetime)
+        {
+            Position = position;
+            Velocity = velocity;
+            Scale = scale;
+            DrawColor = color;
+            Lifetime = lifetime;
+            Rotation = Main.rand.NextFloat(MathHelper.TwoPi);
+        }
+
+        public override void Update()
+        {
+            Velocity *= 0.97f;
+            Scale += 0.006f;
+            Rotation += 0.002f;
+        }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            Texture2D tex = LunarThemeTextures.MSTidalMistWisp;
+            Vector2 origin = tex.Size() * 0.5f;
+            Vector2 drawPos = Position - Main.screenPosition;
+
+            float opacity = EternalMoonUtils.SineBumpEasing(LifetimeCompletion, 1) * 0.25f;
+            Color color = Color.Lerp(DrawColor, EternalMoonUtils.DarkPurple, LifetimeCompletion * 0.5f);
+            color.A = 0;
+
+            spriteBatch.Draw(tex, drawPos, null, color * opacity,
+                Rotation, origin, Scale * 0.22f, SpriteEffects.None, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Star flare particle using the MS Star Flare texture.
+    /// Bright, pulsing 4-pointed flash at swing impact points and combo finisher peaks.
+    /// </summary>
+    public class LunarStarFlareParticle : LunarParticle
+    {
+        private readonly float _pulseRate;
+
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        public LunarStarFlareParticle(Vector2 position, float scale, Color color, int lifetime)
+        {
+            Position = position;
+            Velocity = Vector2.Zero;
+            Scale = scale;
+            DrawColor = color;
+            Lifetime = lifetime;
+            Rotation = Main.rand.NextFloat(MathHelper.TwoPi);
+            _pulseRate = 0.1f + Main.rand.NextFloat(0.06f);
+        }
+
+        public override void Update()
+        {
+            Rotation += 0.02f;
+        }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            Texture2D tex = LunarThemeTextures.MSStarFlare;
+            Vector2 origin = tex.Size() * 0.5f;
+            Vector2 drawPos = Position - Main.screenPosition;
+
+            float pulse = 0.7f + 0.3f * (float)Math.Sin(Time * _pulseRate);
+            float opacity = (1f - (float)Math.Pow(LifetimeCompletion, 1.5f)) * pulse;
+            Color color = Color.Lerp(DrawColor, EternalMoonUtils.MoonWhite, pulse * 0.3f);
+            color.A = 0;
+
+            spriteBatch.Draw(tex, drawPos, null, color * opacity,
+                Rotation, origin, Scale * 0.3f * pulse, SpriteEffects.None, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Radial slash star impact using the MS Radial Slash Star Impact texture.
+    /// Dramatic expanding star-burst at combo finisher hit points.
+    /// </summary>
+    public class RadialSlashStarParticle : LunarParticle
+    {
+        private readonly float _maxScale;
+
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        public RadialSlashStarParticle(Vector2 position, Color color, float maxScale, int lifetime)
+        {
+            Position = position;
+            Velocity = Vector2.Zero;
+            DrawColor = color;
+            _maxScale = maxScale;
+            Lifetime = lifetime;
+            Scale = 0f;
+            Rotation = Main.rand.NextFloat(MathHelper.TwoPi);
+        }
+
+        public override void Update()
+        {
+            float t = LifetimeCompletion;
+            Scale = _maxScale * (float)(1.0 - Math.Pow(1.0 - t, 3));
+            Rotation += 0.01f;
+        }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            Texture2D tex = LunarThemeTextures.MSRadialSlashStar;
+            Vector2 origin = tex.Size() * 0.5f;
+            Vector2 drawPos = Position - Main.screenPosition;
+
+            float fade = (1f - LifetimeCompletion * LifetimeCompletion) * 0.7f;
+            Color color = DrawColor;
+            color.A = 0;
+
+            spriteBatch.Draw(tex, drawPos, null, color * fade,
+                Rotation, origin, Scale * 0.4f, SpriteEffects.None, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Harmonic resonance wave using the MS Harmonic Resonance Wave Impact texture.
+    /// Expanding harmonic wave at tidal surge and perfect rhythm moments.
+    /// </summary>
+    public class LunarHarmonicWaveParticle : LunarParticle
+    {
+        private readonly float _maxScale;
+
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        public LunarHarmonicWaveParticle(Vector2 position, Color color, float maxScale, int lifetime)
+        {
+            Position = position;
+            Velocity = Vector2.Zero;
+            DrawColor = color;
+            _maxScale = maxScale;
+            Lifetime = lifetime;
+            Scale = 0f;
+        }
+
+        public override void Update()
+        {
+            float t = LifetimeCompletion;
+            Scale = _maxScale * (float)(1.0 - Math.Pow(1.0 - t, 3));
+        }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            Texture2D tex = LunarThemeTextures.MSHarmonicImpact;
+            Vector2 origin = tex.Size() * 0.5f;
+            Vector2 drawPos = Position - Main.screenPosition;
+
+            float fade = (1f - LifetimeCompletion * LifetimeCompletion) * 0.6f;
+            Color color = DrawColor;
+            color.A = 0;
+
+            spriteBatch.Draw(tex, drawPos, null, color * fade,
+                0f, origin, Scale * 0.5f, SpriteEffects.None, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Power effect ring using the MS Power Effect Ring texture.
+    /// Concentrated ring burst at tidal surge activation and finisher impacts.
+    /// </summary>
+    public class LunarPowerRingParticle : LunarParticle
+    {
+        private readonly float _maxScale;
+
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        public LunarPowerRingParticle(Vector2 position, Color color, float maxScale, int lifetime)
+        {
+            Position = position;
+            Velocity = Vector2.Zero;
+            DrawColor = color;
+            _maxScale = maxScale;
+            Lifetime = lifetime;
+            Scale = 0.1f;
+            Rotation = Main.rand.NextFloat(MathHelper.TwoPi);
+        }
+
+        public override void Update()
+        {
+            float t = LifetimeCompletion;
+            Scale = _maxScale * (float)(1.0 - Math.Pow(1.0 - t, 3));
+            Rotation += 0.01f;
+        }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            Texture2D tex = LunarThemeTextures.MSPowerEffectRing;
+            Vector2 origin = tex.Size() * 0.5f;
+            Vector2 drawPos = Position - Main.screenPosition;
+
+            float fade = (1f - (float)Math.Pow(LifetimeCompletion, 1.5f)) * 0.6f;
+            Color color = DrawColor;
+            color.A = 0;
+
+            spriteBatch.Draw(tex, drawPos, null, color * fade,
+                Rotation, origin, Scale * 0.35f, SpriteEffects.None, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Themed music note using the MS Music Note texture.
+    /// Ascending music notes that scatter from blade tip during swings and impacts.
+    /// </summary>
+    public class LunarMusicNoteParticle : LunarParticle
+    {
+        private readonly float _wavePhase;
+
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        public LunarMusicNoteParticle(Vector2 position, Vector2 velocity, float scale, Color color, int lifetime)
+        {
+            Position = position;
+            Velocity = velocity;
+            Scale = scale;
+            DrawColor = color;
+            Lifetime = lifetime;
+            _wavePhase = Main.rand.NextFloat(MathHelper.TwoPi);
+            Rotation = Main.rand.NextFloat(-0.3f, 0.3f);
+        }
+
+        public override void Update()
+        {
+            Velocity *= 0.96f;
+            Velocity.Y -= 0.03f;
+            Position.X += (float)Math.Sin(_wavePhase + Time * 0.06f) * 0.4f;
+            Rotation += Velocity.X * 0.01f;
+        }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            Texture2D tex = LunarThemeTextures.MSMusicNote;
+            Vector2 origin = tex.Size() * 0.5f;
+            Vector2 drawPos = Position - Main.screenPosition;
+
+            float opacity = 1f - (float)Math.Pow(LifetimeCompletion, 2f);
+            float pulse = 0.85f + 0.15f * (float)Math.Sin(Time * 0.1f);
+            Color color = DrawColor;
+            color.A = 0;
+
+            spriteBatch.Draw(tex, drawPos, null, color * opacity * pulse,
+                Rotation, origin, Scale * 0.25f, SpriteEffects.None, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Lens flare using the MS Lens Flare texture for EternalMoon.
+    /// Cinematic lens flare at swing impact peaks and tidal surge activations.
+    /// </summary>
+    public class EternalMoonLensFlareParticle : LunarParticle
+    {
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        public EternalMoonLensFlareParticle(Vector2 position, float scale, Color color, int lifetime)
+        {
+            Position = position;
+            Velocity = Vector2.Zero;
+            Scale = scale;
+            DrawColor = color;
+            Lifetime = lifetime;
+            Rotation = Main.rand.NextFloat(MathHelper.TwoPi);
+        }
+
+        public override void Update()
+        {
+            Rotation += 0.01f;
+            Scale *= 1.005f;
+        }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            Texture2D tex = LunarThemeTextures.MSLensFlare;
+            Vector2 origin = tex.Size() * 0.5f;
+            Vector2 drawPos = Position - Main.screenPosition;
+
+            float opacity = 1f - (float)Math.Pow(LifetimeCompletion, 2f);
+            Color color = DrawColor;
+            color.A = 0;
+
+            spriteBatch.Draw(tex, drawPos, null, color * opacity * 0.8f,
+                Rotation, origin, Scale * 0.4f, SpriteEffects.None, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Glowing orb using the MS Glow Orb texture for EternalMoon.
+    /// Soft ethereal bloom on blade core and impact sites.
+    /// </summary>
+    public class EternalMoonGlowOrbParticle : LunarParticle
+    {
+        private readonly float _pulseSpeed;
+
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        public EternalMoonGlowOrbParticle(Vector2 position, float scale, Color color, int lifetime)
+        {
+            Position = position;
+            Velocity = Vector2.Zero;
+            Scale = scale;
+            DrawColor = color;
+            Lifetime = lifetime;
+            _pulseSpeed = 0.1f + Main.rand.NextFloat(0.05f);
+        }
+
+        public override void Update() { }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            Texture2D tex = LunarThemeTextures.MSGlowOrb;
+            Vector2 origin = tex.Size() * 0.5f;
+            Vector2 drawPos = Position - Main.screenPosition;
+
+            float pulse = 0.8f + 0.2f * (float)Math.Sin(Time * _pulseSpeed);
+            float opacity = (1f - LifetimeCompletion * LifetimeCompletion) * pulse * 0.5f;
+            Color color = DrawColor;
+            color.A = 0;
+
+            spriteBatch.Draw(tex, drawPos, null, color * opacity,
+                0f, origin, Scale * 0.3f * pulse, SpriteEffects.None, 0f);
+        }
+    }
 }

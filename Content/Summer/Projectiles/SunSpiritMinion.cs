@@ -10,6 +10,7 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Summer.Projectiles
 {
@@ -217,7 +218,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
             CustomParticles.GenericFlare(Projectile.Center, SunGold * 0.5f, 0.35f, 12);
             CustomParticles.GenericFlare(Projectile.Center, SunGold * 0.3f, 0.25f, 10);
             
-            // ☁EMUSICAL BURST on fire!
+            // 隨倥・MUSICAL BURST on fire!
             ThemedParticles.MusicNoteBurst(Projectile.Center, SunGold, 5, 3f);
             
             // Solar ray burst
@@ -256,7 +257,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
                 CustomParticles.GenericFlare(formationCenter, SunOrange, 0.7f, 20);
                 CustomParticles.GenericFlare(formationCenter, SunRed, 0.55f, 18);
                 
-                // ☁EMUSICAL SYMPHONY - Grand note burst for Zenith Formation!
+                // 隨倥・MUSICAL SYMPHONY - Grand note burst for Zenith Formation!
                 ThemedParticles.MusicNoteBurst(formationCenter, SunGold, 12, 6f);
                 ThemedParticles.MusicNoteRing(formationCenter, SunOrange, 60f, 8);
                 
@@ -320,7 +321,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
 
         private void SpawnAmbientEffects()
         {
-            // ☁EMUSICAL NOTATION - Notes orbit the sun spirit! - VISIBLE SCALE 0.72f+
+            // 隨倥・MUSICAL NOTATION - Notes orbit the sun spirit! - VISIBLE SCALE 0.72f+
             if (Main.rand.NextBool(8))
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1.5f, -0.5f));
@@ -360,7 +361,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
@@ -437,7 +438,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
             // Core flare
             CustomParticles.GenericFlare(Projectile.Center, SunOrange * 0.4f, 0.25f, 5);
 
-            // ☁EMUSICAL NOTATION - Notes trail from solar flare! - VISIBLE SCALE 0.7f+
+            // 隨倥・MUSICAL NOTATION - Notes trail from solar flare! - VISIBLE SCALE 0.7f+
             if (Main.rand.NextBool(5))
             {
                 Vector2 noteVel = -Projectile.velocity * 0.04f + new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), Main.rand.NextFloat(-0.8f, -0.2f));
@@ -456,7 +457,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
             // Apply On Fire
             target.AddBuff(BuffID.OnFire3, 180);
 
-            // ☁EMUSICAL IMPACT - Notes burst with solar fire!
+            // 隨倥・MUSICAL IMPACT - Notes burst with solar fire!
             ThemedParticles.MusicNoteBurst(target.Center, SunGold, 6, 3.5f);
 
             // Hit VFX - layered bloom
@@ -556,7 +557,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
             // Bright core
             CustomParticles.GenericFlare(Projectile.Center, SunWhite * 0.5f, 0.35f, 5);
 
-            // ☁EMUSICAL NOTATION - Blazing notes trail from zenith flare! - VISIBLE SCALE 0.75f+
+            // 隨倥・MUSICAL NOTATION - Blazing notes trail from zenith flare! - VISIBLE SCALE 0.75f+
             if (Main.rand.NextBool(3))
             {
                 Vector2 noteVel = -Projectile.velocity * 0.05f + new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1.2f, -0.4f));
@@ -576,7 +577,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
             target.AddBuff(BuffID.OnFire3, 300);
             target.AddBuff(BuffID.Daybreak, 150);
 
-            // ☁EMUSICAL IMPACT - Grand solar symphony!
+            // 隨倥・MUSICAL IMPACT - Grand solar symphony!
             ThemedParticles.MusicNoteBurst(target.Center, SunGold, 10, 5f);
             ThemedParticles.MusicNoteRing(target.Center, SunWhite, 45f, 6);
 
@@ -609,7 +610,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // ☁EMUSICAL FINALE - Zenith explosion with notes!
+            // 隨倥・MUSICAL FINALE - Zenith explosion with notes!
             ThemedParticles.MusicNoteBurst(Projectile.Center, SunGold, 8, 4.5f);
             
             // Zenith explosion - layered bloom cascade

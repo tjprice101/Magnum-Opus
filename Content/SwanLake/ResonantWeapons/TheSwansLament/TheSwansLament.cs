@@ -12,14 +12,26 @@ using MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Utilities;
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament
 {
     /// <summary>
-    /// The Swan's Lament — a mourning shotgun that finds catharsis in destruction.
-    /// Fires a wide spread of dark bullets. Each enemy kill triggers "Lament's Echo":
-    /// increased fire rate + wider spread for a chain-reaction window.
-    /// On-death Destruction Halos deal AoE damage with prismatic revelation flashes.
+    /// The Swan's Lament — a mourning shotgun (OVERHAUL).
+    /// 
+    /// COMBAT SYSTEM:
+    /// • Lament Bullet: Fast white bullet with white streak trail, 3 feather shrapnel on hit
+    /// • Destruction Halo: Every 6th shot fires a slow-moving expanding halo ring
+    ///   - Enemies touching halo rim receive Mournful Gaze (-15% movement speed)
+    /// • Lamentation Stacks: Consecutive hits on same target build stacks (max 5)
+    ///   - At 5 stacks: target begins weeping (-20% attack speed, cosmetic)
+    /// • Finale Lament: If a Destruction Halo kills an enemy, all enemies within
+    ///   nova radius receive 5 Lamentation stacks instantly
+    /// • Lament's Echo: Kills boost fire rate + spread temporarily
     /// </summary>
     public class TheSwansLament : ModItem
     {
         public override string Texture => "MagnumOpus/Content/SwanLake/ResonantWeapons/TheSwansLament/TheSwansLament";
+
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
 
         public override void SetDefaults()
         {
@@ -44,13 +56,17 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1",
-                "Fires a mourning volley of dark bullets in a wide arc"));
+                "Fires a mourning volley of white bullets that leave streak trails"));
             tooltips.Add(new TooltipLine(Mod, "Effect2",
-                "Killing enemies triggers Lament's Echo — briefly increasing fire rate and spread"));
+                "On hit, bullets scatter 3 feather shrapnel behind the target"));
             tooltips.Add(new TooltipLine(Mod, "Effect3",
-                "Slain enemies release Destruction Halos that damage nearby foes"));
+                "Every 6th shot fires a Destruction Halo — a slow, expanding ring that afflicts Mournful Gaze"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4",
+                "Consecutive hits build Lamentation — at 5 stacks, enemies begin weeping"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5",
+                "Killing enemies with a Halo triggers Finale Lament, spreading full Lamentation to nearby foes"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
-                "'Even in grief, the swan's cry shakes the heavens.'")
+                "'Each shot is a tear, and each tear is a farewell.'")
             {
                 OverrideColor = new Color(240, 240, 255)
             });
@@ -59,27 +75,51 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
             Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            var echoPlayer = player.GetModPlayer<LamentPlayer>();
-            float fireRateMult = echoPlayer.FireRateMult;
-            float spreadMult = echoPlayer.SpreadMult;
+            var lamentPlayer = player.GetModPlayer<LamentPlayer>();
+            float spreadMult = lamentPlayer.SpreadMult;
 
-            // Base 10-15 bullets, Echo doesn't change count but tightens/widens spread
-            int bulletCount = Main.rand.Next(10, 16);
-            float baseSpread = MathHelper.ToRadians(22f); // ±22° base
-            float actualSpread = baseSpread * spreadMult;
+            // Check if this is a Destruction Halo shot (every 6th)
+            bool isHaloShot = lamentPlayer.AdvanceShotCounter();
 
-            for (int i = 0; i < bulletCount; i++)
+            if (isHaloShot)
             {
-                float angle = Main.rand.NextFloat(-actualSpread, actualSpread);
-                float speedVariance = Main.rand.NextFloat(0.85f, 1.15f);
-                Vector2 bulletVel = velocity.RotatedBy(angle) * speedVariance;
+                // Fire a Destruction Halo instead of normal bullets
+                Projectile.NewProjectile(source, position, velocity * 0.4f,
+                    ModContent.ProjectileType<DestructionHaloProj>(),
+                    (int)(damage * 1.5f), knockback * 2f, player.whoAmI);
 
-                Projectile.NewProjectile(source, position, bulletVel,
-                    ModContent.ProjectileType<LamentBulletProj>(),
-                    damage, knockback, player.whoAmI);
+                // Still fire a few bullets alongside the halo
+                int sideCount = 4;
+                float sideSpread = MathHelper.ToRadians(15f);
+                for (int i = 0; i < sideCount; i++)
+                {
+                    float angle = Main.rand.NextFloat(-sideSpread, sideSpread);
+                    Vector2 bulletVel = velocity.RotatedBy(angle) * Main.rand.NextFloat(0.9f, 1.1f);
+                    Projectile.NewProjectile(source, position, bulletVel,
+                        ModContent.ProjectileType<LamentBulletProj>(),
+                        damage, knockback, player.whoAmI);
+                }
+            }
+            else
+            {
+                // Normal bullet volley
+                int bulletCount = Main.rand.Next(10, 16);
+                float baseSpread = MathHelper.ToRadians(22f);
+                float actualSpread = baseSpread * spreadMult;
+
+                for (int i = 0; i < bulletCount; i++)
+                {
+                    float angle = Main.rand.NextFloat(-actualSpread, actualSpread);
+                    float speedVariance = Main.rand.NextFloat(0.85f, 1.15f);
+                    Vector2 bulletVel = velocity.RotatedBy(angle) * speedVariance;
+
+                    Projectile.NewProjectile(source, position, bulletVel,
+                        ModContent.ProjectileType<LamentBulletProj>(),
+                        damage, knockback, player.whoAmI);
+                }
             }
 
-            return false; // we handle all projectile spawning
+            return false;
         }
 
         public override void ModifyWeaponDamage(Player player, ref StatModifier damage)

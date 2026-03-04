@@ -40,9 +40,31 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
         /// <summary>Direction alternator for swing variety.</summary>
         public int SwingDirection => SwingCounter % 2 == 0 ? 1 : -1;
 
+        // === STAR MAP CHARGE SYSTEM ===
+        /// <summary>Ticks the weapon has been held (for Star Map Overlay charge). Max 120 (2s).</summary>
+        public int ChargeTimer;
+
+        /// <summary>Charge level 0.0-1.0, derived from ChargeTimer / 120.</summary>
+        public float ChargeLevel => MathHelper.Clamp(ChargeTimer / 120f, 0f, 1f);
+
+        /// <summary>Beam damage multiplier: 1x at 0.5s, 1.5x at 1s, 2.5x at 2s.</summary>
+        public float BeamDamageMultiplier => ChargeLevel < 0.25f ? 1f :
+            ChargeLevel < 0.5f ? 1f + (ChargeLevel - 0.25f) * 2f :
+            1.5f + (ChargeLevel - 0.5f) * 2f;
+
+        /// <summary>Number of star points visible in the Star Map Overlay (scales with charge).</summary>
+        public int StarMapStarCount => (int)(ChargeLevel * 12f);
+
+        /// <summary>Whether the last full-charge beam killed an enemy (triggers Constellation Shatter).</summary>
+        public bool ConstellationShatterTriggered;
+
+        /// <summary>Cooldown for Constellation Shatter (prevents spam).</summary>
+        public int ShatterCooldown;
+
         public override void ResetEffects()
         {
             JustTriggeredConvergence = false;
+            ConstellationShatterTriggered = false;
         }
 
         public override void PostUpdate()
@@ -59,6 +81,13 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
 
             if (ConvergenceCooldown > 0)
                 ConvergenceCooldown--;
+
+            if (ShatterCooldown > 0)
+                ShatterCooldown--;
+
+            // Charge timer decays when not actively swinging
+            if (ComboResetTimer <= 0 && ChargeTimer > 0)
+                ChargeTimer = (int)(ChargeTimer * 0.95f);
 
             // Decay combo intensity slowly
             ComboIntensity *= 0.993f;

@@ -5,8 +5,9 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
-using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Content.FoundationWeapons.SparkleProjectileFoundation;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
@@ -75,8 +76,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 float progress = Projectile.ai[0] / WindupTime;
                 
                 // === PHASE 1: Central pulsing flare - building energy ===
-                Color centralColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, pulse);
-                CustomParticles.GenericFlare(Projectile.Center, centralColor, 0.5f + progress * 0.4f, 8);
+                Color centralColor = Color.Lerp(EroicaPalette.Scarlet, EroicaPalette.Gold, pulse);
+                EroicaVFXLibrary.BloomFlare(Projectile.Center, centralColor, 0.5f + progress * 0.4f, 8);
                 
                 // === PHASE 2: Converging gradient particles - power gathering ===
                 if (Projectile.ai[0] % 2 == 0)
@@ -88,7 +89,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                         Vector2 spawnPos = Projectile.Center + angle.ToRotationVector2() * radius;
                         Vector2 vel = (Projectile.Center - spawnPos).SafeNormalize(Vector2.Zero) * (4f + progress * 3f);
                         float gradientProgress = Main.rand.NextFloat();
-                        Color particleColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, gradientProgress);
+                        Color particleColor = Color.Lerp(EroicaPalette.Scarlet, EroicaPalette.Gold, gradientProgress);
                         
                         var glow = new GenericGlowParticle(spawnPos, vel, particleColor, 0.35f + progress * 0.15f, 18, true);
                         MagnumParticleHandler.SpawnParticle(glow);
@@ -104,28 +105,28 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                         float orbitAngle = MathHelper.TwoPi * i / points + Projectile.ai[0] * 0.15f;
                         float orbitRadius = 35f + pulse * 10f;
                         Vector2 orbitPos = Projectile.Center + orbitAngle.ToRotationVector2() * orbitRadius;
-                        Color orbitColor = Color.Lerp(UnifiedVFX.Eroica.Crimson, UnifiedVFX.Eroica.Sakura, (float)i / points);
-                        CustomParticles.GenericFlare(orbitPos, orbitColor, 0.3f + progress * 0.2f, 10);
+                        Color orbitColor = Color.Lerp(EroicaPalette.Crimson, EroicaPalette.Sakura, (float)i / points);
+                        EroicaVFXLibrary.BloomFlare(orbitPos, orbitColor, 0.3f + progress * 0.2f, 10);
                     }
                 }
                 
                 // === PHASE 4: Sakura petal warning - thematic signature ===
                 if (Main.rand.NextBool(4))
                 {
-                    ThemedParticles.SakuraPetals(Projectile.Center, 1, 45f);
+                    EroicaVFXLibrary.SpawnSakuraPetals(Projectile.Center, 1, 45f);
                 }
                 
                 // === PHASE 5: Music notes as the fist prepares ===
                 if (Main.rand.NextBool(6) && progress > 0.4f)
                 {
                     Vector2 noteVel = Main.rand.NextVector2Circular(2f, 2f);
-                    ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(20f, 20f), 
-                        noteVel, UnifiedVFX.Eroica.Gold, 0.35f, 25);
+                    EroicaVFXLibrary.SpawnMusicNote(Projectile.Center + Main.rand.NextVector2Circular(20f, 20f), 
+                        noteVel, EroicaPalette.Gold, 0.35f, 25);
                 }
                 
                 // Enhanced pulsing lighting
                 float lightIntensity = 0.8f + progress * 0.5f + pulse * 0.2f;
-                Lighting.AddLight(Projectile.Center, UnifiedVFX.Eroica.Crimson.ToVector3() * lightIntensity);
+                Lighting.AddLight(Projectile.Center, EroicaPalette.Crimson.ToVector3() * lightIntensity);
                 
                 return;
             }
@@ -140,10 +141,10 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 // === CHARGE START: MASSIVE FRACTAL BURST ===
                 
                 // Central white flash - the moment of release
-                CustomParticles.GenericFlare(Projectile.Center, Color.White, 1.4f, 20);
+                EroicaVFXLibrary.BloomFlare(Projectile.Center, Color.White, 1.4f, 20);
                 
-                // UnifiedVFX themed impact
-                UnifiedVFX.Eroica.Impact(Projectile.Center, 1.5f);
+                // Eroica themed impact
+                EroicaVFXLibrary.HeroicImpact(Projectile.Center, 1.5f);
                 
                 // 8-point fractal star burst with Eroica gradient
                 for (int i = 0; i < 8; i++)
@@ -151,25 +152,23 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     float angle = MathHelper.TwoPi * i / 8f;
                     Vector2 flareOffset = angle.ToRotationVector2() * 45f;
                     float gradientProgress = (float)i / 8f;
-                    Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, gradientProgress);
-                    CustomParticles.GenericFlare(Projectile.Center + flareOffset, fractalColor, 0.6f, 18);
+                    Color fractalColor = Color.Lerp(EroicaPalette.Scarlet, EroicaPalette.Gold, gradientProgress);
+                    EroicaVFXLibrary.BloomFlare(Projectile.Center + flareOffset, fractalColor, 0.6f, 18);
                     
                     // Secondary ring
                     Vector2 innerOffset = angle.ToRotationVector2() * 25f;
-                    Color innerColor = Color.Lerp(UnifiedVFX.Eroica.Crimson, UnifiedVFX.Eroica.Sakura, gradientProgress);
-                    CustomParticles.GenericFlare(Projectile.Center + innerOffset, innerColor, 0.45f, 15);
+                    Color innerColor = Color.Lerp(EroicaPalette.Crimson, EroicaPalette.Sakura, gradientProgress);
+                    EroicaVFXLibrary.BloomFlare(Projectile.Center + innerOffset, innerColor, 0.45f, 15);
                 }
                 
                 // Cascading halo rings
                 for (int ring = 0; ring < 4; ring++)
                 {
-                    float ringProgress = ring / 4f;
-                    Color ringColor = Color.Lerp(UnifiedVFX.Eroica.Gold, UnifiedVFX.Eroica.Scarlet, ringProgress);
-                    CustomParticles.HaloRing(Projectile.Center, ringColor, 0.5f + ring * 0.2f, 15 + ring * 5);
+                    EroicaVFXLibrary.SpawnGradientHaloRings(Projectile.Center, 1, 0.5f + ring * 0.2f);
                 }
                 
                 // Sakura petal explosion for thematic signature
-                ThemedParticles.SakuraPetals(Projectile.Center, 8, 60f);
+                EroicaVFXLibrary.SpawnSakuraPetals(Projectile.Center, 8, 60f);
                 
                 // Spark spray in charge direction
                 for (int i = 0; i < 12; i++)
@@ -177,7 +176,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     float spreadAngle = chargeDirection.ToRotation() + Main.rand.NextFloat(-0.6f, 0.6f);
                     Vector2 sparkVel = spreadAngle.ToRotationVector2() * Main.rand.NextFloat(8f, 16f);
                     float gradientProgress = Main.rand.NextFloat();
-                    Color sparkColor = Color.Lerp(UnifiedVFX.Eroica.Flame, UnifiedVFX.Eroica.Gold, gradientProgress);
+                    Color sparkColor = Color.Lerp(EroicaPalette.Flame, EroicaPalette.Gold, gradientProgress);
                     
                     var spark = new GenericGlowParticle(Projectile.Center, sparkVel, sparkColor, 0.4f, 20, true);
                     MagnumParticleHandler.SpawnParticle(spark);
@@ -189,8 +188,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     float noteAngle = MathHelper.TwoPi * i / 4f;
                     Vector2 notePos = Projectile.Center + noteAngle.ToRotationVector2() * 30f;
                     Vector2 noteVel = noteAngle.ToRotationVector2() * 3f;
-                    Color noteColor = Color.Lerp(UnifiedVFX.Eroica.Gold, UnifiedVFX.Eroica.Sakura, (float)i / 4f);
-                    ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.4f, 30);
+                    Color noteColor = Color.Lerp(EroicaPalette.Gold, EroicaPalette.Sakura, (float)i / 4f);
+                    EroicaVFXLibrary.SpawnMusicNote(notePos, noteVel, noteColor, 0.4f, 30);
                 }
             }
             
@@ -201,13 +200,13 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             
             // Core glow every frame - the blazing fist
             float trailPulse = (float)Math.Sin(Projectile.ai[0] * 0.15f) * 0.15f + 0.85f;
-            CustomParticles.GenericFlare(Projectile.Center, UnifiedVFX.Eroica.Gold * trailPulse, 0.55f, 6);
+            EroicaVFXLibrary.BloomFlare(Projectile.Center, EroicaPalette.Gold * trailPulse, 0.55f, 6);
             
             // Dense gradient glow particles
             for (int i = 0; i < 4; i++)
             {
                 float gradientProgress = Main.rand.NextFloat();
-                Color particleColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, gradientProgress);
+                Color particleColor = Color.Lerp(EroicaPalette.Scarlet, EroicaPalette.Gold, gradientProgress);
                 Vector2 randomOffset = Main.rand.NextVector2Circular(12f, 12f);
                 Vector2 vel = -Projectile.velocity * 0.12f + Main.rand.NextVector2Circular(2f, 2f);
                 
@@ -220,16 +219,16 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             if (Main.rand.NextBool(3))
             {
                 Vector2 petalOffset = Main.rand.NextVector2Circular(15f, 15f);
-                ThemedParticles.SakuraPetals(Projectile.Center + petalOffset, 1, 25f);
+                EroicaVFXLibrary.SpawnSakuraPetals(Projectile.Center + petalOffset, 1, 25f);
             }
             
             // Music notes occasionally streaming behind
             if (Main.rand.NextBool(5))
             {
                 float noteProgress = Main.rand.NextFloat();
-                Color noteColor = Color.Lerp(UnifiedVFX.Eroica.Gold, UnifiedVFX.Eroica.Sakura, noteProgress);
+                Color noteColor = Color.Lerp(EroicaPalette.Gold, EroicaPalette.Sakura, noteProgress);
                 Vector2 noteVel = -Projectile.velocity * 0.08f + Main.rand.NextVector2Circular(1.5f, 1.5f);
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.3f, 25);
+                EroicaVFXLibrary.SpawnMusicNote(Projectile.Center, noteVel, noteColor, 0.3f, 25);
             }
             
             // Periodic flare bursts - rhythmic intensity
@@ -240,17 +239,17 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 {
                     float angle = MathHelper.TwoPi * i / 4f + Projectile.ai[0] * 0.1f;
                     Vector2 flarePos = Projectile.Center + angle.ToRotationVector2() * 25f;
-                    Color flareColor = Color.Lerp(UnifiedVFX.Eroica.Crimson, UnifiedVFX.Eroica.Flame, (float)i / 4f);
-                    CustomParticles.GenericFlare(flarePos, flareColor, 0.35f, 10);
+                    Color flareColor = Color.Lerp(EroicaPalette.Crimson, EroicaPalette.Flame, (float)i / 4f);
+                    EroicaVFXLibrary.BloomFlare(flarePos, flareColor, 0.35f, 10);
                 }
                 
                 // Mini halo pulse
-                CustomParticles.HaloRing(Projectile.Center, UnifiedVFX.Eroica.Gold * 0.6f, 0.3f, 12);
+                EroicaVFXLibrary.SpawnGradientHaloRings(Projectile.Center, 1, 0.3f);
             }
             
             // Strong dynamic lighting
             float lightPulse = (float)Math.Sin(Projectile.ai[0] * 0.2f) * 0.1f + 1.1f;
-            Lighting.AddLight(Projectile.Center, UnifiedVFX.Eroica.Gold.ToVector3() * lightPulse);
+            Lighting.AddLight(Projectile.Center, EroicaPalette.Gold.ToVector3() * lightPulse);
             
             // Screen shake removed - weapons should not cause screen shake
         }
@@ -258,18 +257,18 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         public override void OnKill(int timeLeft)
         {
             // Powerful valor burst for heroic fist
-            DynamicParticleEffects.EroicaDeathValorBurst(Projectile.Center, 1.1f);
+            EroicaVFXLibrary.DeathHeroicFlash(Projectile.Center, 1.1f);
             SoundEngine.PlaySound(SoundID.Item14 with { Volume = 0.6f, Pitch = 0f }, Projectile.Center);
         }
 
         public override void OnHitPlayer(Player target, Player.HurtInfo info)
         {
             // === Central impact flash ===
-            CustomParticles.GenericFlare(target.Center, Color.White, 1.0f, 15);
-            CustomParticles.GenericFlare(target.Center, UnifiedVFX.Eroica.Crimson, 0.75f, 18);
+            EroicaVFXLibrary.BloomFlare(target.Center, Color.White, 1.0f, 15);
+            EroicaVFXLibrary.BloomFlare(target.Center, EroicaPalette.Crimson, 0.75f, 18);
             
-            // === UnifiedVFX themed impact ===
-            UnifiedVFX.Eroica.Impact(target.Center, 1.2f);
+            // === Eroica themed impact ===
+            EroicaVFXLibrary.HeroicImpact(target.Center, 1.2f);
             
             // === 6-point fractal burst ===
             for (int i = 0; i < 6; i++)
@@ -277,8 +276,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 float angle = MathHelper.TwoPi * i / 6f;
                 Vector2 flareOffset = angle.ToRotationVector2() * 30f;
                 float gradientProgress = (float)i / 6f;
-                Color fractalColor = Color.Lerp(UnifiedVFX.Eroica.Scarlet, UnifiedVFX.Eroica.Gold, gradientProgress);
-                CustomParticles.GenericFlare(target.Center + flareOffset, fractalColor, 0.45f, 15);
+                Color fractalColor = Color.Lerp(EroicaPalette.Scarlet, EroicaPalette.Gold, gradientProgress);
+                EroicaVFXLibrary.BloomFlare(target.Center + flareOffset, fractalColor, 0.45f, 15);
             }
             
             // === Gradient spark spray ===
@@ -287,18 +286,18 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 float angle = MathHelper.TwoPi * i / 10f;
                 Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
                 float gradientProgress = Main.rand.NextFloat();
-                Color sparkColor = Color.Lerp(UnifiedVFX.Eroica.Flame, UnifiedVFX.Eroica.Gold, gradientProgress);
+                Color sparkColor = Color.Lerp(EroicaPalette.Flame, EroicaPalette.Gold, gradientProgress);
                 
                 var spark = new GenericGlowParticle(target.Center, sparkVel, sparkColor, 0.3f, 18, true);
                 MagnumParticleHandler.SpawnParticle(spark);
             }
             
             // === Sakura petals on impact ===
-            ThemedParticles.SakuraPetals(target.Center, 3, 35f);
+            EroicaVFXLibrary.SpawnSakuraPetals(target.Center, 3, 35f);
             
             // === Halo rings ===
-            CustomParticles.HaloRing(target.Center, UnifiedVFX.Eroica.Gold, 0.4f, 15);
-            CustomParticles.HaloRing(target.Center, UnifiedVFX.Eroica.Crimson, 0.3f, 12);
+            EroicaVFXLibrary.SpawnGradientHaloRings(target.Center, 1, 0.4f);
+            EroicaVFXLibrary.SpawnGradientHaloRings(target.Center, 1, 0.3f);
             
             // Screen shake removed - weapons should not cause screen shake
         }
@@ -307,77 +306,91 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D texture = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
+            Texture2D glowTex = SPFTextures.SparkleSoft.Value;
             Vector2 drawOrigin = new Vector2(texture.Width / 2, texture.Height / 2);
             Vector2 glowOrigin = glowTex.Size() / 2f;
             
-            // === Multi-layer trail with additive blending ===
-            if (hasCharged && Projectile.oldPos.Length > 0)
+            try
             {
-                MagnumVFX.BeginAdditiveBlend(spriteBatch);
-                
-                for (int k = 0; k < Projectile.oldPos.Length; k++)
+                // === Multi-layer trail with additive blending ===
+                if (hasCharged && Projectile.oldPos.Length > 0)
                 {
-                    if (Projectile.oldPos[k] == Vector2.Zero) continue;
+                    EroicaVFXLibrary.BeginEroicaAdditive(spriteBatch);
                     
-                    Vector2 drawPos = Projectile.oldPos[k] - Main.screenPosition + new Vector2(Projectile.width / 2, Projectile.height / 2);
-                    float trailProgress = (float)k / Projectile.oldPos.Length;
-                    float trailAlpha = 1f - trailProgress;
-                    float trailScale = Projectile.scale * (1f - trailProgress * 0.4f);
-                    
-                    // Layer 1: Outer scarlet glow
-                    Color outerColor = UnifiedVFX.Eroica.Scarlet * trailAlpha * 0.4f;
-                    spriteBatch.Draw(glowTex, drawPos, null, outerColor, Projectile.oldRot[k], 
-                        glowOrigin, trailScale * 2.2f, SpriteEffects.None, 0f);
-                    
-                    // Layer 2: Mid gold glow
-                    Color midColor = UnifiedVFX.Eroica.Gold * trailAlpha * 0.35f;
-                    spriteBatch.Draw(glowTex, drawPos, null, midColor, Projectile.oldRot[k], 
-                        glowOrigin, trailScale * 1.6f, SpriteEffects.None, 0f);
-                    
-                    // Layer 3: Inner sakura/flame core
-                    float gradientProgress = trailProgress;
-                    Color innerColor = Color.Lerp(UnifiedVFX.Eroica.Flame, UnifiedVFX.Eroica.Sakura, gradientProgress) * trailAlpha * 0.5f;
-                    spriteBatch.Draw(glowTex, drawPos, null, innerColor, Projectile.oldRot[k], 
-                        glowOrigin, trailScale * 1.1f, SpriteEffects.None, 0f);
-                    
-                    // Texture afterimage every 3rd position
-                    if (k % 3 == 0)
+                    for (int k = 0; k < Projectile.oldPos.Length; k++)
                     {
-                        Color textureTrailColor = Color.Lerp(UnifiedVFX.Eroica.Gold, UnifiedVFX.Eroica.Crimson, gradientProgress) * trailAlpha * 0.6f;
-                        spriteBatch.Draw(texture, drawPos, null, textureTrailColor, Projectile.oldRot[k], 
-                            drawOrigin, trailScale * 0.9f, SpriteEffects.None, 0f);
+                        if (Projectile.oldPos[k] == Vector2.Zero) continue;
+                        
+                        Vector2 drawPos = Projectile.oldPos[k] - Main.screenPosition + new Vector2(Projectile.width / 2, Projectile.height / 2);
+                        float trailProgress = (float)k / Projectile.oldPos.Length;
+                        float trailAlpha = 1f - trailProgress;
+                        float trailScale = Projectile.scale * (1f - trailProgress * 0.4f);
+                        
+                        // Layer 1: Outer scarlet glow
+                        Color outerColor = EroicaPalette.Scarlet * trailAlpha * 0.4f;
+                        spriteBatch.Draw(glowTex, drawPos, null, outerColor, Projectile.oldRot[k], 
+                            glowOrigin, trailScale * 2.2f, SpriteEffects.None, 0f);
+                        
+                        // Layer 2: Mid gold glow
+                        Color midColor = EroicaPalette.Gold * trailAlpha * 0.35f;
+                        spriteBatch.Draw(glowTex, drawPos, null, midColor, Projectile.oldRot[k], 
+                            glowOrigin, trailScale * 1.6f, SpriteEffects.None, 0f);
+                        
+                        // Layer 3: Inner sakura/flame core
+                        float gradientProgress = trailProgress;
+                        Color innerColor = Color.Lerp(EroicaPalette.Flame, EroicaPalette.Sakura, gradientProgress) * trailAlpha * 0.5f;
+                        spriteBatch.Draw(glowTex, drawPos, null, innerColor, Projectile.oldRot[k], 
+                            glowOrigin, trailScale * 1.1f, SpriteEffects.None, 0f);
+                        
+                        // Texture afterimage every 3rd position
+                        if (k % 3 == 0)
+                        {
+                            Color textureTrailColor = Color.Lerp(EroicaPalette.Gold, EroicaPalette.Crimson, gradientProgress) * trailAlpha * 0.6f;
+                            spriteBatch.Draw(texture, drawPos, null, textureTrailColor, Projectile.oldRot[k], 
+                                drawOrigin, trailScale * 0.9f, SpriteEffects.None, 0f);
+                        }
                     }
+                    
+                    EroicaVFXLibrary.EndEroicaAdditive(spriteBatch);
                 }
                 
-                MagnumVFX.EndAdditiveBlend(spriteBatch);
+                // === Main projectile with enhanced glow layers ===
+                Vector2 mainPos = Projectile.Center - Main.screenPosition;
+                float pulse = (float)Math.Sin(Projectile.ai[0] * 0.15f) * 0.1f + 1f;
+                float glowScale = hasCharged ? 1.2f : 1f + (float)Math.Sin(Projectile.ai[0] * 0.3f) * 0.3f;
+                
+                EroicaVFXLibrary.BeginEroicaAdditive(spriteBatch);
+                
+                // Outer scarlet bloom
+                spriteBatch.Draw(glowTex, mainPos, null, EroicaPalette.Scarlet * 0.35f, Projectile.rotation, 
+                    glowOrigin, Projectile.scale * glowScale * pulse * 2.5f, SpriteEffects.None, 0f);
+                
+                // Mid gold bloom
+                spriteBatch.Draw(glowTex, mainPos, null, EroicaPalette.Gold * 0.4f, Projectile.rotation, 
+                    glowOrigin, Projectile.scale * glowScale * pulse * 1.8f, SpriteEffects.None, 0f);
+                
+                // Inner flame bloom
+                spriteBatch.Draw(glowTex, mainPos, null, EroicaPalette.Flame * 0.5f, Projectile.rotation, 
+                    glowOrigin, Projectile.scale * glowScale * pulse * 1.2f, SpriteEffects.None, 0f);
+                
+                EroicaVFXLibrary.EndEroicaAdditive(spriteBatch);
+                
+                // Main texture with bright glow tint
+                spriteBatch.Draw(texture, mainPos, null, new Color(255, 230, 200), Projectile.rotation, 
+                    drawOrigin, Projectile.scale * glowScale, SpriteEffects.None, 0f);
             }
-            
-            // === Main projectile with enhanced glow layers ===
-            Vector2 mainPos = Projectile.Center - Main.screenPosition;
-            float pulse = (float)Math.Sin(Projectile.ai[0] * 0.15f) * 0.1f + 1f;
-            float glowScale = hasCharged ? 1.2f : 1f + (float)Math.Sin(Projectile.ai[0] * 0.3f) * 0.3f;
-            
-            MagnumVFX.BeginAdditiveBlend(spriteBatch);
-            
-            // Outer scarlet bloom
-            spriteBatch.Draw(glowTex, mainPos, null, UnifiedVFX.Eroica.Scarlet * 0.35f, Projectile.rotation, 
-                glowOrigin, Projectile.scale * glowScale * pulse * 2.5f, SpriteEffects.None, 0f);
-            
-            // Mid gold bloom
-            spriteBatch.Draw(glowTex, mainPos, null, UnifiedVFX.Eroica.Gold * 0.4f, Projectile.rotation, 
-                glowOrigin, Projectile.scale * glowScale * pulse * 1.8f, SpriteEffects.None, 0f);
-            
-            // Inner flame bloom
-            spriteBatch.Draw(glowTex, mainPos, null, UnifiedVFX.Eroica.Flame * 0.5f, Projectile.rotation, 
-                glowOrigin, Projectile.scale * glowScale * pulse * 1.2f, SpriteEffects.None, 0f);
-            
-            MagnumVFX.EndAdditiveBlend(spriteBatch);
-            
-            // Main texture with bright glow tint
-            spriteBatch.Draw(texture, mainPos, null, new Color(255, 230, 200), Projectile.rotation, 
-                drawOrigin, Projectile.scale * glowScale, SpriteEffects.None, 0f);
-            
+            finally
+            {
+                // Ensure SpriteBatch is restored to default state on any exception
+                try { spriteBatch.End(); } catch { }
+                spriteBatch.Begin(default, default, default, default, default, default, Main.GameViewMatrix.TransformationMatrix);
+            }
+
+            // Eroica theme accent
+            EroicaVFXLibrary.BeginEroicaAdditive(spriteBatch);
+            EroicaVFXLibrary.DrawThemeSakuraAccent(spriteBatch, Projectile.Center, 1f, 0.5f);
+            EroicaVFXLibrary.EndEroicaAdditive(spriteBatch);
+
             return false;
         }
     }

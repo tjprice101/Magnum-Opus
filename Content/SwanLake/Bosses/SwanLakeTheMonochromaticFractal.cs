@@ -14,6 +14,7 @@ using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.SwanLake.Bosses.Systems;
 using static MagnumOpus.Common.Systems.BossDialogueSystem;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.SwanLake.Bosses
 {
@@ -166,7 +167,7 @@ namespace MagnumOpus.Content.SwanLake.Bosses
 
         public override void SetDefaults()
         {
-            // Hitbox = 80% of visual size (474x554 frame × 0.96 scale)
+            // Hitbox = 80% of visual size (474x554 frame ・・・0.96 scale)
             NPC.width = 364;
             NPC.height = 425;
             NPC.damage = 170; // Tier 4 damage (Campanella 130, Fate ~220)
@@ -3217,11 +3218,11 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             Texture2D texture;
             if (isUsingAttackSprite)
             {
-                texture = ModContent.Request<Texture2D>(AttackTexture).Value;
+                texture = ModContent.Request<Texture2D>(AttackTexture, AssetRequestMode.ImmediateLoad).Value;
             }
             else
             {
-                texture = ModContent.Request<Texture2D>(Texture).Value;
+                texture = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             }
 
             // Calculate frame rectangle for 6x6 sprite sheet

@@ -38,35 +38,41 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Part
         {
             if (_particles.Count == 0) return;
 
-            var additive = _particles.Where(p => p.UseAdditiveBlend).ToList();
-            var alpha = _particles.Where(p => !p.UseAdditiveBlend).ToList();
-
-            // Additive pass
-            if (additive.Count > 0)
+            try
             {
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                var additive = _particles.Where(p => p.UseAdditiveBlend).ToList();
+                var alpha = _particles.Where(p => !p.UseAdditiveBlend).ToList();
 
-                foreach (var p in additive)
-                    p.Draw(sb);
+                // Additive pass
+                if (additive.Count > 0)
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                    foreach (var p in additive)
+                        p.Draw(sb);
+                }
+
+                // Alpha pass
+                if (alpha.Count > 0)
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                    foreach (var p in alpha)
+                        p.Draw(sb);
+                }
             }
-
-            // Alpha pass
-            if (alpha.Count > 0)
+            catch { }
+            finally
             {
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                // Always restore standard state
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-                foreach (var p in alpha)
-                    p.Draw(sb);
             }
-
-            // Restore
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
         public override void OnWorldUnload()

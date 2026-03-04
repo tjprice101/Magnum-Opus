@@ -10,6 +10,9 @@ using Terraria.Audio;
 using MagnumOpus.Common;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Projectiles;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Utilities;
+using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
+using MagnumOpus.Content.FoundationWeapons.ExplosionParticlesFoundation;
+using MagnumOpus.Content.FoundationWeapons.RibbonFoundation;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime
 {
@@ -148,11 +151,11 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "5-phase alternating inferno waltz combo with escalating power"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Hits apply Bell Resonance stacks — at 5 stacks, triggers devastating Bell Shatter"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Toll 2 and Toll 4 grant a brief dodge with invincibility frames"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "5-phase Inferno Waltz combo with alternating twin bell-blades"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Hits apply Bell Resonance rings — at 5 rings, triggers devastating Bell Shatter"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Toll 2 and Toll 4 grant a brief Flame Waltz Dodge with invincibility frames"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Grand Toll unleashes 12 directional bell flame waves"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Two bells toll as one — their song turns steel to cinder'")
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Two bells. One fate. Infinite fire.'")
             {
                 OverrideColor = DualFatedChimeUtils.LoreColor
             });

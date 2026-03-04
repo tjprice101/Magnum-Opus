@@ -9,8 +9,18 @@ using Terraria;
 
 namespace MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura
 {
+    /// <summary>
+    /// Finality of the Sakura — Eroica summoner staff that calls forth a spectral sakura spirit guardian.
+    /// The ghostly cherry blossom tree minion fires petal-blade volleys, creates periodic petal shields,
+    /// unleashes a Final Bloom supernova every 15 seconds, and can sacrifice itself to prevent lethal damage.
+    /// </summary>
     public class FinalityOfTheSakura : ModItem
     {
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             Item.width = 48;
@@ -46,8 +56,10 @@ namespace MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura
             "Spirit fires petal blade volleys and periodically creates a sakura shield"));
             tooltips.Add(new TooltipLine(Mod, "Effect3",
             "Every 15 seconds the spirit unleashes a Final Bloom petal supernova"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4",
+            "Self-Sacrifice: the spirit can prevent one lethal blow, consuming itself"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
-            "'The sakura does not mourn its own falling; it becomes the wind.'")
+            "'The last petal never touches the ground.'")
             {
                 OverrideColor = new Color(200, 50, 50)
             });

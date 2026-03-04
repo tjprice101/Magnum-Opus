@@ -49,10 +49,10 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Throws a blazing spectral chain that spins and ricochets"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Bounces up to 4 times between enemies, exploding on each hit"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Returns to you after bouncing, ignites struck enemies"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The chains that bind the damned to their fate'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Hurls a blazing chain whip with 12-tile reach"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Hits build Chain Link stacks — at 5 stacks, enemies become Fully Bound"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Every 5th hit triggers chain lightning that arcs between nearby foes"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'No sinner escapes the chain. It finds them in the dark.'")
             {
                 OverrideColor = new Color(200, 50, 30)
             });

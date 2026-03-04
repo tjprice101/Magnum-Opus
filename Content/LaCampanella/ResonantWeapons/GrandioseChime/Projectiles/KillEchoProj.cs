@@ -6,11 +6,13 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Particles;
 using MagnumOpus.Content.LaCampanella.Debuffs;
+using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Projectiles
 {
     /// <summary>
-    /// Kill Echo — spawns at enemy death location, seeks nearest enemy within range,
+    /// Kill Echo 遯ｶ繝ｻspawns at enemy death location, seeks nearest enemy within range,
     /// deals 60% of killing blow damage, then chains again (up to 3 total chains).
     /// ai[0] = chain range, ai[1] = current chain depth.
     /// </summary>
@@ -104,6 +106,12 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
             // VFX at strike point
             GrandioseChimeParticleHandler.SpawnParticle(new KillEchoParticle(target.Center, 1.5f, 12));
 
+            // === FOUNDATION: RippleEffectProjectile — Kill Echo chain terminus ring ===
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), target.Center, Vector2.Zero,
+                ModContent.ProjectileType<RippleEffectProjectile>(),
+                0, 0f, Projectile.owner);
+
             // If this kill echo killed the target, chain further
             if (target.life <= 0 && ChainDepth < 2)
             {
@@ -130,18 +138,28 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            var tex = ModContent.Request<Texture2D>(Texture).Value;
+            var tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             float fade = (float)Projectile.timeLeft / 30f;
 
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
             // Echo orb
-            Color echoColor = GrandioseChimeUtils.EchoPalette[1] * fade * 0.5f;
+            Color echoColor = (GrandioseChimeUtils.EchoPalette[1] with { A = 0 }) * fade * 0.5f;
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
                 echoColor, 0f, tex.Size() / 2f, 0.2f, SpriteEffects.None, 0f);
 
             // Outer glow
-            Color glow = GrandioseChimeUtils.EchoPalette[0] * fade * 0.3f;
+            Color glow = (GrandioseChimeUtils.EchoPalette[0] with { A = 0 }) * fade * 0.3f;
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
                 glow, 0f, tex.Size() / 2f, 0.4f, SpriteEffects.None, 0f);
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
             return false;
         }

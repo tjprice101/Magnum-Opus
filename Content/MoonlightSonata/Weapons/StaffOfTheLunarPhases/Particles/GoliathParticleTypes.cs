@@ -12,7 +12,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
     // TEXTURE CACHE
     // =================================================================
 
-    /// <summary>Lazy texture loader for Goliath particle assets.</summary>
+    /// <summary>Lazy texture loader for Goliath particle assets — includes Moonlight Sonata theme-specific textures.</summary>
     internal static class GoliathTextures
     {
         private static Asset<Texture2D> _pointBloom;
@@ -24,6 +24,17 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
         private static Asset<Texture2D> _energyFlare;
         private static Asset<Texture2D> _glyph;
 
+        // === Moonlight Sonata Theme-Specific Textures ===
+        private static Asset<Texture2D> _msStarFlare;
+        private static Asset<Texture2D> _msLensFlare;
+        private static Asset<Texture2D> _msGlowOrb;
+        private static Asset<Texture2D> _msCrescentMoon;
+        private static Asset<Texture2D> _msMusicNote;
+        private static Asset<Texture2D> _msHarmonicImpact;
+        private static Asset<Texture2D> _msPowerEffectRing;
+        private static Asset<Texture2D> _msGradientLUT;
+
+        // Generic shared textures
         public static Texture2D PointBloom => (_pointBloom ??= ModContent.Request<Texture2D>(
             "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom")).Value;
         public static Texture2D SoftRadialBloom => (_softRadialBloom ??= ModContent.Request<Texture2D>(
@@ -40,6 +51,30 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
             "MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare")).Value;
         public static Texture2D Glyph => (_glyph ??= ModContent.Request<Texture2D>(
             "MagnumOpus/Assets/Particles Asset Library/MusicNote")).Value;
+
+        // Moonlight Sonata theme-specific — glow and bloom
+        public static Texture2D MSStarFlare => (_msStarFlare ??= ModContent.Request<Texture2D>(
+            "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Glow and Bloom/MS Star Flare")).Value;
+        public static Texture2D MSLensFlare => (_msLensFlare ??= ModContent.Request<Texture2D>(
+            "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Glow and Bloom/MS Lens Flare")).Value;
+        public static Texture2D MSGlowOrb => (_msGlowOrb ??= ModContent.Request<Texture2D>(
+            "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Glow and Bloom/MS Glow Orb")).Value;
+
+        // Moonlight Sonata theme-specific — particles
+        public static Texture2D MSCrescentMoon => (_msCrescentMoon ??= ModContent.Request<Texture2D>(
+            "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Particles/MS Crescent Moon")).Value;
+        public static Texture2D MSMusicNote => (_msMusicNote ??= ModContent.Request<Texture2D>(
+            "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Particles/MS Music Note")).Value;
+
+        // Moonlight Sonata theme-specific — impacts
+        public static Texture2D MSHarmonicImpact => (_msHarmonicImpact ??= ModContent.Request<Texture2D>(
+            "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Impacts/MS Harmonic Resonance Wave Impact")).Value;
+        public static Texture2D MSPowerEffectRing => (_msPowerEffectRing ??= ModContent.Request<Texture2D>(
+            "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Impacts/MS Power Effect Ring")).Value;
+
+        // Moonlight Sonata color gradient LUT
+        public static Texture2D MSGradientLUT => (_msGradientLUT ??= ModContent.Request<Texture2D>(
+            "MagnumOpus/Assets/VFX Asset Library/ColorGradients/MoonlightSonataGradientLUTandRAMP")).Value;
     }
 
     // =================================================================
@@ -492,6 +527,270 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
             // Core
             sb.Draw(tex, drawPos, null, color,
                 0f, origin, Scale * 0.25f, SpriteEffects.None, 0f);
+        }
+    }
+
+    // =================================================================
+    // THEME-SPECIFIC GOLIATH PARTICLES — Moonlight Sonata VFX Library
+    // =================================================================
+
+    /// <summary>
+    /// Goliath star flare using the MS Star Flare texture.
+    /// Bright 4-pointed flare that appears at beam impact points and phase transitions.
+    /// </summary>
+    public class GoliathStarFlareParticle : GoliathParticle
+    {
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        private readonly float _pulseSpeed;
+
+        public GoliathStarFlareParticle(Vector2 position, float scale, Color color, int lifetime)
+        {
+            Position = position;
+            Velocity = Vector2.Zero;
+            Scale = scale;
+            DrawColor = color;
+            Lifetime = lifetime;
+            Rotation = Main.rand.NextFloat(MathHelper.TwoPi);
+            _pulseSpeed = 0.1f + Main.rand.NextFloat(0.08f);
+        }
+
+        public override void Update()
+        {
+            Rotation += 0.02f;
+        }
+
+        public override void CustomDraw(SpriteBatch sb)
+        {
+            Texture2D tex = GoliathTextures.MSStarFlare;
+            Vector2 origin = tex.Size() * 0.5f;
+            Vector2 drawPos = Position - Main.screenPosition;
+
+            float pulse = 0.75f + 0.25f * (float)Math.Sin(Time * _pulseSpeed);
+            float opacity = (1f - (float)Math.Pow(LifetimeCompletion, 1.5f)) * pulse;
+            Color color = Color.Lerp(DrawColor, GoliathUtils.SupermoonWhite, pulse * 0.3f);
+            color.A = 0;
+
+            sb.Draw(tex, drawPos, null, color * opacity,
+                Rotation, origin, Scale * 0.35f * pulse, SpriteEffects.None, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Goliath crescent moon particle using the MS Crescent Moon texture.
+    /// Drifts from the Goliath during phase transitions, representing lunar cycles.
+    /// </summary>
+    public class GoliathCrescentParticle : GoliathParticle
+    {
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        private readonly float _wobblePhase;
+
+        public GoliathCrescentParticle(Vector2 position, Vector2 velocity, float scale, Color color, int lifetime)
+        {
+            Position = position;
+            Velocity = velocity;
+            Scale = scale;
+            DrawColor = color;
+            Lifetime = lifetime;
+            Rotation = velocity.ToRotation();
+            _wobblePhase = Main.rand.NextFloat(MathHelper.TwoPi);
+        }
+
+        public override void Update()
+        {
+            Velocity *= 0.96f;
+            Velocity.Y -= 0.02f;
+            Rotation += (float)Math.Sin(_wobblePhase + Time * 0.05f) * 0.02f;
+            Scale *= 0.998f;
+        }
+
+        public override void CustomDraw(SpriteBatch sb)
+        {
+            Texture2D tex = GoliathTextures.MSCrescentMoon;
+            Vector2 origin = tex.Size() * 0.5f;
+            Vector2 drawPos = Position - Main.screenPosition;
+
+            float opacity = 1f - (float)Math.Pow(LifetimeCompletion, 1.5f);
+            Color color = Color.Lerp(DrawColor, GoliathUtils.NebulaPurple, LifetimeCompletion * 0.4f);
+            color.A = 0;
+
+            sb.Draw(tex, drawPos, null, color * opacity,
+                Rotation, origin, Scale * 0.2f, SpriteEffects.None, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Goliath glow orb using the MS Glow Orb texture.
+    /// Ethereal lunar bloom layer for Goliath body and beam impacts.
+    /// </summary>
+    public class GoliathGlowOrbParticle : GoliathParticle
+    {
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        private readonly float _pulseRate;
+
+        public GoliathGlowOrbParticle(Vector2 position, float scale, Color color, int lifetime)
+        {
+            Position = position;
+            Velocity = Vector2.Zero;
+            Scale = scale;
+            DrawColor = color;
+            Lifetime = lifetime;
+            _pulseRate = 0.08f + Main.rand.NextFloat(0.04f);
+        }
+
+        public override void Update() { }
+
+        public override void CustomDraw(SpriteBatch sb)
+        {
+            Texture2D tex = GoliathTextures.MSGlowOrb;
+            Vector2 origin = tex.Size() * 0.5f;
+            Vector2 drawPos = Position - Main.screenPosition;
+
+            float pulse = 0.8f + 0.2f * (float)Math.Sin(Time * _pulseRate);
+            float opacity = (1f - LifetimeCompletion * LifetimeCompletion) * pulse * 0.5f;
+            Color color = DrawColor;
+            color.A = 0;
+
+            sb.Draw(tex, drawPos, null, color * opacity,
+                0f, origin, Scale * 0.3f * pulse, SpriteEffects.None, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Goliath harmonic wave impact using the MS Harmonic Resonance Wave Impact texture.
+    /// Expanding concentric wave on Goliath phase transition moments.
+    /// </summary>
+    public class GoliathHarmonicWaveParticle : GoliathParticle
+    {
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        private readonly float _maxScale;
+
+        public GoliathHarmonicWaveParticle(Vector2 position, Color color, float maxScale, int lifetime)
+        {
+            Position = position;
+            Velocity = Vector2.Zero;
+            DrawColor = color;
+            _maxScale = maxScale;
+            Lifetime = lifetime;
+            Scale = 0f;
+        }
+
+        public override void Update()
+        {
+            float t = LifetimeCompletion;
+            Scale = _maxScale * GoliathUtils.ExpoOut(t);
+        }
+
+        public override void CustomDraw(SpriteBatch sb)
+        {
+            Texture2D tex = GoliathTextures.MSHarmonicImpact;
+            Vector2 origin = tex.Size() * 0.5f;
+            Vector2 drawPos = Position - Main.screenPosition;
+
+            float fade = (1f - LifetimeCompletion * LifetimeCompletion) * 0.6f;
+            Color color = DrawColor;
+            color.A = 0;
+
+            sb.Draw(tex, drawPos, null, color * fade,
+                0f, origin, Scale * 0.45f, SpriteEffects.None, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Goliath lens flare using the MS Lens Flare texture.
+    /// Cinematic flare at supermoon beam focus points.
+    /// </summary>
+    public class GoliathLensFlareParticle : GoliathParticle
+    {
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        public GoliathLensFlareParticle(Vector2 position, float scale, Color color, int lifetime)
+        {
+            Position = position;
+            Velocity = Vector2.Zero;
+            Scale = scale;
+            DrawColor = color;
+            Lifetime = lifetime;
+            Rotation = Main.rand.NextFloat(MathHelper.TwoPi);
+        }
+
+        public override void Update()
+        {
+            Rotation += 0.01f;
+            Scale *= 1.003f;
+        }
+
+        public override void CustomDraw(SpriteBatch sb)
+        {
+            Texture2D tex = GoliathTextures.MSLensFlare;
+            Vector2 origin = tex.Size() * 0.5f;
+            Vector2 drawPos = Position - Main.screenPosition;
+
+            float opacity = 1f - (float)Math.Pow(LifetimeCompletion, 2f);
+            Color color = DrawColor;
+            color.A = 0;
+
+            sb.Draw(tex, drawPos, null, color * opacity * 0.7f,
+                Rotation, origin, Scale * 0.35f, SpriteEffects.None, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Goliath themed music note using the MS Music Note texture.
+    /// Floats upward from beam impacts and phase transitions.
+    /// </summary>
+    public class GoliathMoonlightNoteParticle : GoliathParticle
+    {
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        private readonly float _wavePhase;
+
+        public GoliathMoonlightNoteParticle(Vector2 position, Vector2 velocity, float scale, Color color, int lifetime)
+        {
+            Position = position;
+            Velocity = velocity;
+            Scale = scale;
+            DrawColor = color;
+            Lifetime = lifetime;
+            _wavePhase = Main.rand.NextFloat(MathHelper.TwoPi);
+            Rotation = Main.rand.NextFloat(-0.3f, 0.3f);
+        }
+
+        public override void Update()
+        {
+            Velocity *= 0.95f;
+            Velocity.Y -= 0.04f;
+            Position.X += (float)Math.Sin(_wavePhase + Time * 0.05f) * 0.4f;
+        }
+
+        public override void CustomDraw(SpriteBatch sb)
+        {
+            Texture2D tex = GoliathTextures.MSMusicNote;
+            Vector2 origin = tex.Size() * 0.5f;
+            Vector2 drawPos = Position - Main.screenPosition;
+
+            float opacity = 1f - (float)Math.Pow(LifetimeCompletion, 2f);
+            float pulse = 0.85f + 0.15f * (float)Math.Sin(Time * 0.08f);
+            Color color = DrawColor;
+            color.A = 0;
+
+            sb.Draw(tex, drawPos, null, color * opacity * pulse,
+                Rotation, origin, Scale * 0.25f, SpriteEffects.None, 0f);
         }
     }
 }

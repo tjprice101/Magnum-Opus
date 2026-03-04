@@ -7,7 +7,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
 {
     /// <summary>
     /// Loads TheUnresolvedCadence weapon-specific shaders into GameShaders.Misc.
-    /// Each shader is self-contained — no shared Enigma shader manager.
+    /// Each shader is self-contained 窶・no shared Enigma shader manager.
     /// </summary>
     [Autoload(Side = ModSide.Client)]
     public sealed class CadenceShaderLoader : ModSystem
@@ -20,14 +20,14 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
             var assets = Mod.Assets;
             Asset<Effect> Load(string path) => assets.Request<Effect>(path, AssetRequestMode.ImmediateLoad);
 
-            // Swing trail shader — two techniques: CadenceSwingFlow (main trail) and CadenceSwingGlow (soft bloom)
+            // Swing trail shader 窶・two techniques: CadenceSwingFlow (main trail) and CadenceSwingGlow (soft bloom)
             SwingTrailAsset = Load("Content/EnigmaVariations/ResonantWeapons/TheUnresolvedCadence/Shaders/CadenceSwingTrail");
-            GameShaders.Misc["MagnumOpus:CadenceSwingFlow"] = new MiscShaderData(SwingTrailAsset, "CadenceSwingFlow");
-            GameShaders.Misc["MagnumOpus:CadenceSwingGlow"] = new MiscShaderData(SwingTrailAsset, "CadenceSwingGlow");
+            GameShaders.Misc["MagnumOpus:CadenceSwingFlow"] = new MiscShaderData(SwingTrailAsset, "P0");
+            GameShaders.Misc["MagnumOpus:CadenceSwingGlow"] = new MiscShaderData(SwingTrailAsset, "P0");
 
-            // Collapse shader — Paradox Collapse warp visual
+            // Collapse shader 窶・Paradox Collapse warp visual
             CollapseAsset = Load("Content/EnigmaVariations/ResonantWeapons/TheUnresolvedCadence/Shaders/CadenceCollapse");
-            GameShaders.Misc["MagnumOpus:CadenceCollapseWarp"] = new MiscShaderData(CollapseAsset, "CadenceCollapseWarp");
+            GameShaders.Misc["MagnumOpus:CadenceCollapseWarp"] = new MiscShaderData(CollapseAsset, "P0");
         }
     }
 }

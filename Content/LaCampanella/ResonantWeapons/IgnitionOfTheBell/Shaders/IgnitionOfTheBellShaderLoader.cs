@@ -33,19 +33,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Shad
                     AssetRequestMode.ImmediateLoad);
                 if (thrustFx?.Value != null)
                 {
-                    GameShaders.Misc["MagnumOpus:IgnitionThrustTrail"] = new MiscShaderData(thrustFx, "TrailPass");
+                    GameShaders.Misc["MagnumOpus:IgnitionThrustTrail"] = new MiscShaderData(thrustFx, "P0");
                     HasThrustShader = true;
                 }
             }
             catch
             {
-                // Fallback to shared 
-                try
-                {
-                    if (GameShaders.Misc.ContainsKey("MagnumOpus:HeroicFlameTrail"))
-                        HasThrustShader = true;
-                }
-                catch { }
+                HasThrustShader = false;
             }
 
             // Cyclone shader
@@ -56,18 +50,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Shad
                     AssetRequestMode.ImmediateLoad);
                 if (cycloneFx?.Value != null)
                 {
-                    GameShaders.Misc["MagnumOpus:CycloneFlameShader"] = new MiscShaderData(cycloneFx, "TrailPass");
+                    GameShaders.Misc["MagnumOpus:CycloneFlameShader"] = new MiscShaderData(cycloneFx, "P0");
                     HasCycloneShader = true;
                 }
             }
             catch
             {
-                try
-                {
-                    if (GameShaders.Misc.ContainsKey("MagnumOpus:RadialScrollShader"))
-                        HasCycloneShader = true;
-                }
-                catch { }
+                HasCycloneShader = false;
             }
 
             // Geyser shader
@@ -78,18 +67,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Shad
                     AssetRequestMode.ImmediateLoad);
                 if (geyserFx?.Value != null)
                 {
-                    GameShaders.Misc["MagnumOpus:InfernalGeyserShader"] = new MiscShaderData(geyserFx, "TrailPass");
+                    GameShaders.Misc["MagnumOpus:InfernalGeyserShader"] = new MiscShaderData(geyserFx, "P0");
                     HasGeyserShader = true;
                 }
             }
             catch
             {
-                try
-                {
-                    if (GameShaders.Misc.ContainsKey("MagnumOpus:ScrollingTrailShader"))
-                        HasGeyserShader = true;
-                }
-                catch { }
+                HasGeyserShader = false;
             }
         }
 
@@ -98,11 +82,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Shad
             if (!HasThrustShader) return null;
             try
             {
-                if (GameShaders.Misc.TryGetValue("MagnumOpus:IgnitionThrustTrail", out var s)) return s;
-                if (GameShaders.Misc.TryGetValue("MagnumOpus:HeroicFlameTrail", out s)) return s;
+                return GameShaders.Misc["MagnumOpus:IgnitionThrustTrail"];
             }
-            catch { }
-            return null;
+            catch
+            {
+                HasThrustShader = false;
+                return null;
+            }
         }
 
         public static MiscShaderData GetCycloneShader()
@@ -110,11 +96,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Shad
             if (!HasCycloneShader) return null;
             try
             {
-                if (GameShaders.Misc.TryGetValue("MagnumOpus:CycloneFlameShader", out var s)) return s;
-                if (GameShaders.Misc.TryGetValue("MagnumOpus:RadialScrollShader", out s)) return s;
+                return GameShaders.Misc["MagnumOpus:CycloneFlameShader"];
             }
-            catch { }
-            return null;
+            catch
+            {
+                HasCycloneShader = false;
+                return null;
+            }
         }
 
         public static MiscShaderData GetGeyserShader()
@@ -122,11 +110,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Shad
             if (!HasGeyserShader) return null;
             try
             {
-                if (GameShaders.Misc.TryGetValue("MagnumOpus:InfernalGeyserShader", out var s)) return s;
-                if (GameShaders.Misc.TryGetValue("MagnumOpus:ScrollingTrailShader", out s)) return s;
+                return GameShaders.Misc["MagnumOpus:InfernalGeyserShader"];
             }
-            catch { }
-            return null;
+            catch
+            {
+                HasGeyserShader = false;
+                return null;
+            }
         }
     }
 }

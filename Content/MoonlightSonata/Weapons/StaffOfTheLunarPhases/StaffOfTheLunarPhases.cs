@@ -37,6 +37,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases
         // SETUP
         // =================================================================
 
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             Item.width = 44;

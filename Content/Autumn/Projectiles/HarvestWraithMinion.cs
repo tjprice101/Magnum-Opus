@@ -10,6 +10,7 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Autumn.Projectiles
 {
@@ -226,7 +227,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(burst);
             }
 
-            // ☁EMUSICAL TOLL - Death toll sounds with spectral chord
+            // 笘・MUSICAL TOLL - Death toll sounds with spectral chord
             ThemedParticles.MusicNoteBurst(Projectile.Center, WraithGreen, 12, 6f);
             ThemedParticles.MusicNoteRing(Projectile.Center, DecayPurple, 55f, 8);
         }
@@ -268,7 +269,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(wisp);
             }
 
-            // ☁EMUSICAL NOTATION - Wraith hums spectral melody - VISIBLE SCALE 0.7f+
+            // 笘・MUSICAL NOTATION - Wraith hums spectral melody - VISIBLE SCALE 0.7f+
             if (Main.rand.NextBool(10))
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-2f, -0.5f));
@@ -296,7 +297,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(spark);
             }
 
-            // ☁EMUSICAL IMPACT - Wraith strike note
+            // 笘・MUSICAL IMPACT - Wraith strike note
             ThemedParticles.MusicNoteBurst(target.Center, WraithGreen, 5, 3.5f);
             
             // Dynamic autumn decay impact
@@ -326,14 +327,14 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(burst);
             }
 
-            // ☁EMUSICAL FINALE - Wraith departing melody
+            // 笘・MUSICAL FINALE - Wraith departing melody
             ThemedParticles.MusicNoteBurst(Projectile.Center, DecayPurple, 8, 4f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MusicNoteWithSlashes").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MusicNoteWithSlashes", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
@@ -434,7 +435,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
-            // ☁EMUSICAL NOTATION - Soul orb carries healing melody - VISIBLE SCALE 0.68f+
+            // 笘・MUSICAL NOTATION - Soul orb carries healing melody - VISIBLE SCALE 0.68f+
             if (Main.rand.NextBool(6))
             {
                 Vector2 noteVel = new Vector2(0, Main.rand.NextFloat(-1.5f, -0.5f));
@@ -469,7 +470,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(burst);
             }
 
-            // ☁EMUSICAL FINALE - Soul absorbed with gentle healing note
+            // 笘・MUSICAL FINALE - Soul absorbed with gentle healing note
             ThemedParticles.MusicNoteBurst(Projectile.Center, SoulWhite, 5, 3f);
         }
 

@@ -9,12 +9,14 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.Particles;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.Primitives;
+using MagnumOpus.Content.LaCampanella;
 using MagnumOpus.Content.LaCampanella.Debuffs;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.Projectiles
 {
     /// <summary>
-    /// Campanella Choir Bell Minion — spectral bell that hovers in arc formation.
+    /// Campanella Choir Bell Minion 遯ｶ繝ｻspectral bell that hovers in arc formation.
     /// 
     /// Bells attack sequentially with 0.3s stagger. Each fires a MinionShockwaveProj.
     /// During Infernal Crescendo (every 12s): all bells charge for 2s, then fire simultaneously.
@@ -321,7 +323,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
             Vector2 chargePos = GetFormationPosition(owner);
             MoveToward(chargePos, 0.12f);
 
-            // Intense charging particles — spiral inward
+            // Intense charging particles 遯ｶ繝ｻspiral inward
             if (StateTimer % 2 == 0)
             {
                 float angle = Main.rand.NextFloat(MathHelper.TwoPi);
@@ -392,16 +394,27 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 1);
         }
 
+        private static int _lastParticleDrawFrame;
+
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
 
             // Draw particles (only from first bell to avoid multi-draw)
             if (_bellIndex == 0)
-                InfernalChimesParticleHandler.DrawAllParticles(sb);
+            {
+                int currentFrame = (int)Main.GameUpdateCount;
+                if (_lastParticleDrawFrame != currentFrame)
+                {
+                    _lastParticleDrawFrame = currentFrame;
+                    InfernalChimesParticleHandler.DrawAllParticles(sb);
+                }
+            }
 
             // Draw minion sprite
-            var tex = ModContent.Request<Texture2D>(Texture).Value;
+            var tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Color drawColor = Lighting.GetColor((int)(Projectile.Center.X / 16f), (int)(Projectile.Center.Y / 16f));
 
@@ -432,6 +445,12 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
 
             if (bloomTex != null)
             {
+                try { sb.End(); } catch { }
+                try
+                {
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
                 Color bloomCol = InfernalChimesCallingUtils.Additive(
                     InfernalChimesCallingUtils.ChoirPalette[2], glowIntensity * 0.35f);
                 sb.Draw(bloomTex, drawPos, null, bloomCol, 0f, bloomTex.Size() / 2f, 0.3f, SpriteEffects.None, 0f);
@@ -444,9 +463,52 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
                         InfernalChimesCallingUtils.ChoirPalette[4], chargeGlow * 0.4f);
                     sb.Draw(bloomTex, drawPos, null, chargeColor, 0f, bloomTex.Size() / 2f,
                         0.2f + chargeGlow * 0.3f, SpriteEffects.None, 0f);
+
+                    // --- LC Power Effect Ring 遯ｶ繝ｻbuilding concentric ring during crescendo charge ---
+                    float ringRot = (float)Main.GameUpdateCount * 0.03f + _bellIndex * MathHelper.PiOver4;
+                    LaCampanellaVFXLibrary.DrawPowerEffectRing(sb, drawPos,
+                        0.25f + chargeGlow * 0.2f, ringRot,
+                        0.2f * chargeGlow, LaCampanellaPalette.InfernalOrange);
+
+                    // --- LC Bright Star 遯ｶ繝ｻbuilding star at crescendo peak ---
+                    if (chargeGlow > 0.5f)
+                    {
+                        float starIntensity = (chargeGlow - 0.5f) * 2f;
+                        LaCampanellaVFXLibrary.DrawBrightStar(sb, drawPos,
+                            0.12f + starIntensity * 0.1f, -ringRot * 1.5f,
+                            0.3f * starIntensity, LaCampanellaPalette.BellGold);
+                    }
+                }
+                }
+                catch { }
+                finally
+                {
+                    try { sb.End(); } catch { }
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
                 }
             }
 
+            // Theme texture accents
+            try { sb.End(); } catch { }
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            InfernalChimesCallingUtils.DrawThemeAccents(sb, Projectile.Center - Main.screenPosition, Projectile.scale);
+            try { sb.End(); } catch { }
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            } // end outer try
+            catch
+            {
+                try
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
             return false;
         }
 

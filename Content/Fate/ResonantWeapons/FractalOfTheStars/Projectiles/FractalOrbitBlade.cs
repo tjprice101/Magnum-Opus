@@ -224,6 +224,41 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
                 FractalParticleHandler.SpawnParticle(new FractalSpark(
                     target.Center, sparkVel, FractalUtils.StarGold, 0.2f, 10));
             }
+
+            // Fractal Recursion: on hit, spawn sub-fracture orbit blades at 1/3 size & damage
+            int currentDepth = (int)Projectile.localAI[0];
+            int maxDepth = Owner.Fractal().MaxRecursionDepth;
+            if (currentDepth < maxDepth && Main.myPlayer == Projectile.owner && Main.rand.NextBool(3))
+            {
+                Owner.Fractal().TotalFracturesTriggered++;
+                int subCount = currentDepth == 0 ? 2 : 1; // First split = 2, deeper = 1
+                for (int s = 0; s < subCount; s++)
+                {
+                    float subAngle = Main.rand.NextFloat(MathHelper.TwoPi);
+                    int subProj = Projectile.NewProjectile(
+                        Projectile.GetSource_OnHit(target),
+                        target.Center,
+                        Vector2.Zero,
+                        ModContent.ProjectileType<FractalOrbitBlade>(),
+                        Math.Max(1, Projectile.damage / 3),
+                        Projectile.knockBack * 0.3f,
+                        Projectile.owner,
+                        subAngle,
+                        0f);
+                    if (subProj >= 0 && subProj < Main.maxProjectiles)
+                    {
+                        Main.projectile[subProj].localAI[0] = currentDepth + 1;
+                        Main.projectile[subProj].scale = Projectile.scale * 0.6f; // Visually smaller
+                        Main.projectile[subProj].timeLeft = 300; // Half duration for sub-fractures
+                    }
+                }
+                // Sub-fracture VFX flash
+                if (!Main.dedServ)
+                {
+                    FractalParticleHandler.SpawnParticle(new FractalBloomFlare(
+                        target.Center, FractalUtils.StarGold, 0.35f, 8));
+                }
+            }
         }
 
         public override bool? CanDamage()
@@ -244,9 +279,28 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             float opacity = 1f - Projectile.alpha / 255f;
 
-            DrawConstellationTrail(sb, opacity);
-            DrawBladeSprite(sb, lightColor, opacity);
-            DrawStarGlow(sb, opacity);
+            try
+            {
+                // End SpriteBatch for GPU primitive trail drawing
+                sb.End();
+                DrawConstellationTrail(sb, opacity);
+
+                // Restart SpriteBatch for sprite-based layers
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
+                DrawBladeSprite(sb, lightColor, opacity);
+                DrawStarGlow(sb, opacity);
+            }
+            catch
+            {
+                try
+                {
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
 
             return false;
         }

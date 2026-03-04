@@ -10,9 +10,20 @@ using Terraria;
 
 namespace MagnumOpus.Content.Eroica.Weapons.PiercingLightOfTheSakura
 {
+    /// <summary>
+    /// Piercing Light of the Sakura — Eroica ranged weapon focusing sakura radiance into concentrated piercing beams.
+    /// Fires fast projectiles that pierce through multiple enemies with radiant bursts, with every 8th shot
+    /// becoming a Culmination beam that pierces infinitely and leaves a persistent damaging light trail.
+    /// Stacks Radiant Marks on repeated hits for a massive detonation at 5 stacks.
+    /// </summary>
     public class PiercingLightOfTheSakura : ModItem
     {
         private int shotCounter = 0;
+
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
 
         public override void SetDefaults()
         {
@@ -63,7 +74,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.PiercingLightOfTheSakura
             "Hero's Final Light: below 20% HP, Culmination fires every 4th shot")
             { OverrideColor = EroicaPalette.Gold });
             tooltips.Add(new TooltipLine(Mod, "Lore",
-            "'The light that pierces is the one that never faltered.'")
+            "'The eighth note shatters silence.'")
             {
                 OverrideColor = new Color(200, 50, 50)
             });

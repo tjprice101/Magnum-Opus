@@ -10,10 +10,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Shaders
     /// Self-contained shader loader for Requiem of Reality.
     /// Loads 4 unique shaders from Effects/Fate/RequiemOfReality/:
     ///
-    ///   1. RequiemSwingTrail     — Main melee swing arc trail with cosmic fire
-    ///   2. RequiemNoteTrail      — Seeking music note projectile trail
-    ///   3. RequiemComboAura      — Radial aura for spectral blade combo trigger
-    ///   4. RequiemImpactBloom    — Directional impact flash/bloom
+    ///   1. RequiemSwingTrail     窶・Main melee swing arc trail with cosmic fire
+    ///   2. RequiemNoteTrail      窶・Seeking music note projectile trail
+    ///   3. RequiemComboAura      窶・Radial aura for spectral blade combo trigger
+    ///   4. RequiemImpactBloom    窶・Directional impact flash/bloom
     ///
     /// Keys: "MagnumOpus:Requiem<Purpose>"
     /// </summary>
@@ -53,7 +53,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Shaders
             {
                 // Wide glow underlayer pass from same shader
                 GameShaders.Misc["MagnumOpus:RequiemSwingGlow"] =
-                    new MiscShaderData(SwingTrailShader, "RequiemSwingGlow");
+                    new MiscShaderData(SwingTrailShader, "P0");
             }
         }
 
@@ -77,7 +77,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Shaders
                 var fallback = ModContent.Request<Effect>("MagnumOpus/Effects/ScrollingTrailShader", AssetRequestMode.ImmediateLoad);
                 if (fallback?.Value != null)
                 {
-                    GameShaders.Misc[key] = new MiscShaderData(fallback, "ScrollingTrailPass");
+                    GameShaders.Misc[key] = new MiscShaderData(fallback, "P0");
                     return true;
                 }
             }

@@ -204,6 +204,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
             float baseAngle = toMouse.ToRotation();
             float spreadAngle = MathHelper.ToRadians(18f);
 
+            var cp = Owner.Conductor();
+            float beamMult = cp.BeamDamageMultiplier;
+            int starMapStars = cp.StarMapStarCount;
+
             for (int i = 0; i < 3; i++)
             {
                 float angleOffset = MathHelper.Lerp(-spreadAngle, spreadAngle, (i + 0.5f) / 3f);
@@ -214,7 +218,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
                     Projectile.GetSource_FromThis(),
                     spawnPos, projVelocity,
                     ModContent.ProjectileType<ConductorSwordBeam>(),
-                    Projectile.damage, Projectile.knockBack,
+                    (int)(Projectile.damage * beamMult), Projectile.knockBack,
                     Projectile.owner, _phase, 0f);
             }
         }
@@ -287,6 +291,9 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
 
             var cp = Owner.Conductor();
 
+            // Increment charge timer per hit (fuels BeamDamageMultiplier)
+            cp.ChargeTimer = Math.Min(cp.ChargeTimer + 20, 120);
+
             // 3 cosmic lightning strikes
             for (int strike = 0; strike < 3; strike++)
             {
@@ -294,9 +301,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
                 SpawnLightningStrikeVFX(target.Center + strikeOffset, 1.0f + strike * 0.15f);
             }
 
-            // 5 seeking crystal shards at 25% dmg (particle-only — no shared system)
+            // 5 seeking crystal shards at 25% dmg scaled by beam multiplier
             if (Projectile.owner == Main.myPlayer)
             {
+                float beamMult = cp.BeamDamageMultiplier;
                 for (int i = 0; i < 5; i++)
                 {
                     float angle = MathHelper.TwoPi * i / 5f + Main.rand.NextFloat(-0.2f, 0.2f);
@@ -306,7 +314,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
                         target.Center + Main.rand.NextVector2Circular(10f, 10f),
                         shardVel,
                         ModContent.ProjectileType<ConductorSwordBeam>(),
-                        (int)(damageDone * 0.25f),
+                        (int)(damageDone * 0.25f * beamMult),
                         Projectile.knockBack * 0.3f,
                         Projectile.owner,
                         3f, // ai[0] = 3 means "crystal shard mode"
@@ -459,11 +467,47 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
             float comboIntensity = cp.ComboIntensity;
             float progress = SwingProgress;
 
-            DrawLayer1_ElectricGlow(sb, comboIntensity);
-            DrawLayer2_CoreTrail(sb, comboIntensity);
-            DrawLayer3_LightningSparks(sb, progress, comboIntensity);
-            DrawLayer4_WeaponSprite(sb, lightColor);
-            DrawLayer5_ComboAura(sb, comboIntensity);
+            try
+            {
+                // End SpriteBatch before GPU primitive trail draws
+                sb.End();
+
+                // GPU primitive layers (trail renderers use DrawUserIndexedPrimitives)
+                DrawLayer1_ElectricGlow(sb, comboIntensity);
+                DrawLayer2_CoreTrail(sb, comboIntensity);
+
+                // Restart SpriteBatch for sprite-based layers
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
+                // Sprite-based layers (manage their own additive state changes)
+                DrawLayer3_LightningSparks(sb, progress, comboIntensity);
+                DrawLayer4_WeaponSprite(sb, lightColor);
+                DrawLayer5_ComboAura(sb, comboIntensity);
+            }
+            catch
+            {
+                // Safety: ensure SpriteBatch is restored to Terraria's expected state
+                try
+                {
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
+
+            // Theme accents (additive pass)
+            try
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                ConductorUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.4f);
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
 
             return false;
         }

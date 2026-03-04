@@ -23,6 +23,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
     {
         public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/DestinysCrescendo";
 
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             Item.damage = 400;
@@ -44,9 +49,13 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "FateEffect", "Summons a cosmic deity that rapidly slashes enemies"));
-            tooltips.Add(new TooltipLine(Mod, "FateSpecial", "The deity periodically fires cosmic light beams"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'At the crescendo, even gods must answer the conductor's call'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Summons a cosmic deity minion with 4-phase Musical Escalation"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Pianissimo, Piano, Forte, Fortissimo — escalates every 15 seconds"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Beam volleys per phase: 1 / 2 / 3 / 5, with decreasing cooldowns"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Deity scales in size from 1.0x to 1.5x as escalation builds"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Deity Presence grants passive damage, regen, and defense based on phase"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Taking heavy damage (>200) resets escalation to Pianissimo"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The symphony of fate plays softly at first. By the finale, it shakes the heavens.'")
             {
                 OverrideColor = new Color(180, 40, 80)
             });

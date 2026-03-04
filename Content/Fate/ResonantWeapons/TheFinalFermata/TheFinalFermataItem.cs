@@ -28,6 +28,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata
     {
         public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/TheFinalFermata";
 
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             Item.damage = 520;
@@ -50,14 +55,20 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "FateEffect",
-                "Summons 3 spectral blades that orbit in formation"));
-            tooltips.Add(new TooltipLine(Mod, "FateSpecial",
-                "Every few moments, all blades slash toward the nearest enemy"));
-            tooltips.Add(new TooltipLine(Mod, "FateSpecial2",
-                "At maximum blades, deals greatly increased damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1",
+                "Summons 3 spectral swords that orbit in triangular formation (max 6, hexagonal)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2",
+                "Every 90 frames, all swords perform a synchronized slash toward the nearest enemy"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3",
+                "Fermata Power: sustained hold grants +10% damage per second, up to 5x at 5 seconds"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4",
+                "Harmonic Alignment: 3+ swords focus the same target with convergent crossfire"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5",
+                "Hold for 10 seconds to manifest a Sustained Note \u2014 an autonomous minion"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6",
+                "At 6 swords, synchronized slash damage is multiplied by 1.5x"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
-                "'In the silence between notes, worlds are born and die'")
+                "'Hold the note. Hold it until the stars remember what silence is.'")
             {
                 OverrideColor = new Color(180, 40, 80) // Fate cosmic crimson
             });

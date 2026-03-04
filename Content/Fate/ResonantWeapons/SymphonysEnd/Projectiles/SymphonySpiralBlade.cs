@@ -125,6 +125,14 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
                 float bonus = MathHelper.Clamp((speedFactor - 1.5f) * 0.3f, 0f, 0.5f);
                 modifiers.SourceDamage += bonus;
             }
+
+            // Diminuendo damage boost during cooldown
+            if (Main.player[Projectile.owner] is Player owner)
+            {
+                var sym = owner.Symphony();
+                if (sym.IsDiminuendo)
+                    modifiers.FinalDamage *= sym.DiminuendoDamageMultiplier;
+            }
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
@@ -141,9 +149,15 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
 
         // ─── Death → Shatter ──────────────────────────────────────
 
+        /// <summary>Whether this blade is a Final Note (set via Projectile.localAI[1] = 1).</summary>
+        private bool IsFinalNote => Projectile.localAI[1] >= 1f;
+
         public override void OnKill(int timeLeft)
         {
-            SpawnFragments();
+            if (IsFinalNote)
+                FinalNoteDetonation();
+            else
+                SpawnFragments();
 
             // Decrement blade counter
             if (Main.player[Projectile.owner] is Player owner)
@@ -156,18 +170,62 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
             {
                 SymphonyParticleFactory.SpawnShatterBurst(Projectile.Center);
                 SymphonyParticleHandler.Spawn(SymphonyParticleFactory.Ring(
-                    Projectile.Center, SymphonyUtils.FinalWhite, 0.2f, 22));
-                Lighting.AddLight(Projectile.Center, SymphonyUtils.SymphonyPink.ToVector3() * 0.8f);
+                    Projectile.Center, SymphonyUtils.FinalWhite, IsFinalNote ? 0.6f : 0.2f, IsFinalNote ? 30 : 22));
+                Lighting.AddLight(Projectile.Center, SymphonyUtils.SymphonyPink.ToVector3() * (IsFinalNote ? 2f : 0.8f));
             }
+        }
+
+        /// <summary>Final Note cosmic detonation — massive visual burst instead of fragments.</summary>
+        private void FinalNoteDetonation()
+        {
+            if (Main.dedServ) return;
+
+            // Massive multi-layer particle burst
+            SymphonyParticleHandler.SpawnBurst(Projectile.Center, 20, 12f, 0.5f,
+                SymphonyUtils.SymphonyViolet, SymphonyParticleType.Spark, 22);
+            SymphonyParticleHandler.SpawnBurst(Projectile.Center, 16, 8f, 0.45f,
+                SymphonyUtils.SymphonyPink, SymphonyParticleType.Spark, 20);
+            SymphonyParticleHandler.SpawnBurst(Projectile.Center, 10, 5f, 0.55f,
+                SymphonyUtils.FinalWhite, SymphonyParticleType.Spark, 18);
+
+            // Music note burst — the final chord
+            SymphonyParticleHandler.SpawnBurst(Projectile.Center, 8, 6f, 0.3f,
+                SymphonyUtils.SymphonyViolet, SymphonyParticleType.Note, 24);
+
+            // Shatter burst for dramatic fragment scattering
+            SymphonyParticleFactory.SpawnShatterBurst(Projectile.Center, 18);
+
+            // Multiple expanding rings
+            for (int r = 0; r < 3; r++)
+            {
+                Color ringCol = r switch
+                {
+                    0 => SymphonyUtils.SymphonyViolet,
+                    1 => SymphonyUtils.SymphonyPink,
+                    _ => SymphonyUtils.FinalWhite
+                };
+                SymphonyParticleHandler.Spawn(SymphonyParticleFactory.Ring(
+                    Projectile.Center, ringCol, 0.4f + r * 0.15f, 26 + r * 4));
+            }
+
+            SoundEngine.PlaySound(Terraria.ID.SoundID.Item14 with { Pitch = -0.3f, Volume = 1.2f }, Projectile.Center);
         }
 
         private void SpawnFragments()
         {
             if (Main.myPlayer != Projectile.owner) return;
 
-            for (int i = 0; i < 4; i++)
+            // Fragment count scales with Crescendo Mode (4 base, 6 in Crescendo)
+            int fragCount = 4;
+            if (Main.player[Projectile.owner] is Player owner)
             {
-                float angle = MathHelper.TwoPi * i / 4f + Main.rand.NextFloat(-0.3f, 0.3f);
+                var sym = owner.Symphony();
+                fragCount = sym.FragmentCount;
+            }
+
+            for (int i = 0; i < fragCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / fragCount + Main.rand.NextFloat(-0.3f, 0.3f);
                 Vector2 fragVel = angle.ToRotationVector2() * Main.rand.NextFloat(6f, 10f);
 
                 Projectile.NewProjectile(
@@ -187,24 +245,51 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
         {
             SpriteBatch sb = Main.spriteBatch;
 
-            // 1. End default SpriteBatch for custom rendering
-            sb.End();
+            try
+            {
+                // 1. End default SpriteBatch for custom rendering
+                sb.End();
 
-            // 2. Draw trail (shader-driven)
-            DrawTrail();
+                // 2. Draw trail (shader-driven GPU primitives)
+                DrawTrail();
 
-            // 3. Chromatic afterimage echoes + blade sprite (additive)
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
-                SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
-                null, Main.GameViewMatrix.TransformationMatrix);
-            DrawAfterimages(sb);
-            DrawBlade(sb);
-            sb.End();
+                // 3. Chromatic afterimage echoes + blade sprite (additive)
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                    SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
+                    null, Main.GameViewMatrix.TransformationMatrix);
+                DrawAfterimages(sb);
+                DrawBlade(sb);
+                sb.End();
 
-            // 4. Restart normal SpriteBatch
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullNone,
-                null, Main.GameViewMatrix.TransformationMatrix);
+                // 4. Restart normal SpriteBatch
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullNone,
+                    null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch
+            {
+                // Safety: ensure SpriteBatch is restored to Terraria's expected state
+                try
+                {
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                        Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullNone,
+                        null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
+
+            // Theme accents (additive pass)
+            try
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                SymphonyUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
 
             return false;
         }

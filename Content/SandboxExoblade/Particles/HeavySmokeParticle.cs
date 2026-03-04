@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.SandboxExoblade.Particles
 {
@@ -49,7 +50,7 @@ namespace MagnumOpus.Content.SandboxExoblade.Particles
 
         public override void CustomDraw(SpriteBatch spriteBatch)
         {
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Content/SandboxExoblade/Particles/HeavySmoke").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Content/SandboxExoblade/Particles/HeavySmoke", AssetRequestMode.ImmediateLoad).Value;
             int animationFrame = (int)Math.Floor(Time / ((float)(Lifetime / (float)FrameAmount)));
             Rectangle frame = new Rectangle(80 * Variant, 80 * animationFrame, 80, 80);
             Color col = Color * Opacity;

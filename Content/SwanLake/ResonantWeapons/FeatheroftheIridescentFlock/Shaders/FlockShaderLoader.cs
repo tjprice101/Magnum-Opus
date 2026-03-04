@@ -21,12 +21,12 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
 
         public override void PostSetupContent()
         {
-            if (TryLoadMiscShader("Effects/SwanLake/FeatheroftheIridescentFlock/CrystalOrbitTrail",
-                "CrystalOrbitMain", "MagnumOpus:CrystalOrbitTrail"))
+            if (TryLoadMiscShader("MagnumOpus/Effects/SwanLake/FeatheroftheIridescentFlock/CrystalOrbitTrail",
+                "P0", "MagnumOpus:CrystalOrbitTrail"))
                 HasCrystalOrbitTrailShader = true;
 
-            if (TryLoadMiscShader("Effects/SwanLake/FeatheroftheIridescentFlock/FlockAura",
-                "FlockAuraMain", "MagnumOpus:FlockAura"))
+            if (TryLoadMiscShader("MagnumOpus/Effects/SwanLake/FeatheroftheIridescentFlock/FlockAura",
+                "P0", "MagnumOpus:FlockAura"))
                 HasFlockAuraShader = true;
         }
 

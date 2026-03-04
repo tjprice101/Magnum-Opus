@@ -1,334 +1,562 @@
 # 🔔 La Campanella — Resonance Weapons Planning
 
-> *"The ringing bell, virtuosic fire — passion forged in black smoke and orange flame."*
+> *"The ringing bell, virtuosic fire — passion made sound, sound made flame."*
 
 ## Theme Identity
 
 | Attribute | Value |
 |-----------|-------|
-| **Musical Soul** | Liszt's La Campanella — virtuosic bell etude, fiery and relentless |
+| **Musical Soul** | Liszt's La Campanella — the ringing bell, virtuosic fire |
 | **Emotional Core** | Passion, intensity, burning brilliance |
 | **Color Palette** | Black smoke, orange flames, gold highlights |
-| **Palette Hex** | Smoky Black `(30, 20, 15)` → Deep Ember `(160, 60, 10)` → Infernal Orange `(255, 140, 40)` → Bell Gold `(255, 210, 80)` → Chime White `(255, 245, 220)` |
+| **Palette Hex** | SootBlack `(20, 12, 8)` → DeepEmber `(140, 40, 15)` → InfernalOrange `(255, 120, 30)` → FlameYellow `(255, 200, 60)` → BellGold `(255, 220, 120)` → WhiteHot `(255, 245, 220)` |
 | **Lore Color** | `new Color(255, 140, 40)` — Infernal Orange |
-| **Lore Keywords** | Bells, chimes, fire, passion, virtuosity, ringing, resonance |
-| **VFX Language** | Bell chime ripples, black smoke billowing, orange-gold flame trails, bell-shaped shockwaves, ringing resonance waves, fire virtuosity |
+| **Lore Keywords** | Fire, bells, chimes, resonance, passion, intensity, inferno, virtuosity |
+| **VFX Language** | Heavy black smoke billowing, orange flames crackling, bell chime shockwaves, ember scatter, molten trails, geyser pillars, infernal detonations |
+
+### Shared Infrastructure (Already Exists)
+| System | Purpose |
+|--------|---------|
+| `LaCampanellaPalette.cs` | 353-line palette — core 6-stop fire gradient + per-weapon blade palettes |
+| `LaCampanellaVFXLibrary.cs` | 904-line VFX library — bloom stacking, shader setup, trail helpers, music notes, dust, impacts |
+| `LaCampanellaShaderManager.cs` | 288-line shader manager — 7 weapon presets wrapping shared shaders |
+| `LaCampanellaThemeTextures` | Lazy-loaded texture registry (Impact, Beam, Projectile, Trail, Noise, LUT textures) |
+
+---
+
+## Foundation Weapons Integration Map
+
+La Campanella weapons already have extensive self-contained VFX systems (each weapon has 3 dedicated .fx shaders, custom particles, and primitive renderers). Foundations serve as the **structural backbone beneath these custom systems** — providing the mesh construction, blend state management, and rendering pipeline that weapon-specific shaders plug into.
+
+| Foundation | Used By | Purpose |
+|-----------|---------|---------|
+| **SwordSmearFoundation** | Dual Fated Chime, Ignition of the Bell | Swing arc smear — SmearDistortShader as base, weapon shaders add fire customization on top |
+| **RibbonFoundation** | All 7 weapons | Trail strips — various modes per weapon (Ember Drift for melee, Energy Surge for beams, Basic Trail for bullets) |
+| **ThinSlashFoundation** | Dual Fated Chime | Thin flame slash marks — ThinSlashShader SDF in infernal orange |
+| **XSlashFoundation** | Dual Fated Chime (Grand Toll), Ignition (Chimequake) | Cross-detonation effects — XSlashShader with fire scrolling |
+| **ImpactFoundation** | All 7 weapons | Hit VFX — RippleShader for bell shockwaves, DamageZoneShader for fire zones, SlashMarkShader for cuts |
+| **InfernalBeamFoundation** | Grandiose Chime, Ignition of the Bell | InfernalBeamBodyShader — golden beam body, infernal geyser pillars |
+| **LaserFoundation** | Grandiose Chime | ConvergenceBeamShader for main golden beam with 4 detail textures |
+| **ThinLaserFoundation** | Fang of the Infinite Bell | ThinBeamShader for lightning arcs between bouncing orbs |
+| **ExplosionParticlesFoundation** | Dual Fated Chime, Ignition, Symphonic Annihilator, Infernal Chimes | Spark bursts — bell shatter, geyser sparks, rocket explosions, sacrifice detonations |
+| **SmokeFoundation** | Ignition (Cyclone), Symphonic (rockets), Infernal Chimes | Heavy fire smoke — cyclone smoke ring, rocket exhaust, sacrifice smoke |
+| **SparkleProjectileFoundation** | Fang (bell orbs), Piercing Bells (seeking crystals) | SparkleTrailShader for glittering orb/crystal trails |
+| **MaskFoundation** | Fang (Empowered Aura), Infernal Chimes (summoning circle) | RadialNoiseMaskShader for empowerment aura and summoning rituals |
+| **MagicOrbFoundation** | Fang of the Infinite Bell | OrbBolt pattern for bouncing bell orbs and echo children |
+| **AttackAnimationFoundation** | Dual Fated Chime (Grand Toll), Ignition (Chimequake) | Cinematic finisher sequences |
 
 ---
 
 ## Weapons Overview
 
-| # | Weapon | Class | Key Mechanic |
-|---|--------|-------|-------------|
-| 1 | Dual Fated Chime | Melee | Twin chime inferno waltz with bell flame waves |
-| 2 | Ignition of the Bell | Melee | Thrust-based with infernal geysers and chime cyclone |
-| 3 | Symphonic Bellfire Annihilator | Ranged | Heavy launcher with crescendo waves and bellfire rockets |
-| 4 | Piercing Bell's Resonance | Ranged | Precision weapon with staccato bullets and resonant detonation |
-| 5 | Grandiose Chime | Ranged | Beam + note mines + kill echo chains |
-| 6 | Fang of the Infinite Bell | Magic | Infinite bell orbs with stacking damage buffs |
-| 7 | Infernal Chimes' Calling | Summon | Campanella Choir minion with shockwave attacks |
+| # | Weapon | Class | Damage | Key Mechanic |
+|---|--------|-------|--------|-------------|
+| 1 | Dual Fated Chime | Melee | 380 | 5-phase Inferno Waltz combo → Grand Toll → Bell Shatter |
+| 2 | Ignition of the Bell | Melee | 340 | 3-phase thrust combo → Chime Cyclone → Chimequake |
+| 3 | Fang of the Infinite Bell | Magic | 95 | Bouncing bell orbs + echo children + Infinite Crescendo |
+| 4 | Grandiose Chime | Ranged | 240 | Golden beam + Kill Echo Chains + bell-note mines |
+| 5 | Piercing Bell's Resonance | Ranged | 165 | Staccato marker bullets + seeking crystals + Resonant Detonation |
+| 6 | Symphonic Bellfire Annihilator | Ranged | 494 | Bell shockwaves + bellfire rockets + Symphonic Overture |
+| 7 | Infernal Chimes' Calling | Summon | 145 | Spectral bell choir (5 minions) + Infernal Crescendo + Bell Sacrifice |
 
 ---
 
 ## 1. Dual Fated Chime (Melee)
 
 ### Identity & Musical Soul
-The Dual Fated Chime is the **opening bell-strike of La Campanella** — twin blades that ring like bells with every clash. Each swing should produce a visible shockwave ring emanating from the point of impact, like sound waves from a struck bell. The weapon alternates between the two chimes in an inferno waltz — left-right-left-right in escalating intensity, trailing black smoke and orange fire.
+Twin bells of fate — an alternating dual-wield combo that builds resonance stacks like a bell being struck harder and harder. The weapon IS a bell, and every swing RINGS.
 
 ### Lore Line
-*"Two bells toll as one — their song turns steel to cinder."*
+*"Two bells. One fate. Infinite fire."*
 
-### Combat Mechanics
-- **Inferno Waltz Combo**: 5-phase alternating left/right combo:
-  - **Toll 1 — Opening Peal**: Right chime horizontal slash. Bell shockwave ring on contact.
-  - **Toll 2 — Answer**: Left chime diagonal slash. Faster.
-  - **Toll 3 — Escalation**: Right chime upward arc + flame wave projectile.
-  - **Toll 4 — Resonance**: Left chime downward slam. Double shockwave ring + ground fire.
-  - **Toll 5 — Grand Toll**: Both chimes cross-slash. BellFlameWaveProj in full circle (12 directional waves). Massive bell chime SFX.
-- **Bell Resonance Stacking**: Each hit on the same target within 3s adds a Resonance Ring (visual ring around enemy, max 5). At 5 rings, next hit triggers Bell Shatter — massive damage burst + all rings detonate as AoE waves.
-- **Flame Waltz Dodge**: During Phase 2 or 4, the player sways slightly in swing direction (small dash-dodge). Provides 0.2s iframes.
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  DUAL FATED CHIME — Foundation Architecture         │
+├─────────────────────────────────────────────────────┤
+│  BASE CLASS: ModItem (channeled, 5-phase combo)     │
+│  ┌───────────────────────────────────────────────┐  │
+│  │ SwordSmearFoundation (SmearDistortShader)     │  │
+│  │  → Per-phase alternating swing smear overlay  │  │
+│  │  → InfernalOrange→BellGold→WhiteHot LUT      │  │
+│  │  → distortStrength: 0.07 → 0.14 by phase     │  │
+│  │  → Left/Right alternation per phase           │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ RibbonFoundation (Mode 5: Ember Drift)        │  │
+│  │  → Flame trail behind each swing              │  │
+│  │  → 40-point ring buffer, ember-scatter UV     │  │
+│  │  → Width scales with Bell Resonance stacks    │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ThinSlashFoundation (ThinSlashShader SDF)     │  │
+│  │  → Thin flame slash marks on-hit              │  │
+│  │  → Infernal orange / gold edge variants       │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ XSlashFoundation (Grand Toll only)            │  │
+│  │  → Grand Toll cross-detonation + Bell Shatter │  │
+│  │  → fireIntensity = 0.15 (very intense)        │  │
+│  │  → InfernalOrange → BellGold → WhiteHot       │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (Ripple + DamageZone)        │  │
+│  │  → RippleShader: bell ring shockwave on-hit   │  │
+│  │  → DamageZone: resonance zone from flame waves│  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ExplosionParticlesFoundation (Bell Shatter)   │  │
+│  │  → Bell Shatter at 5 resonance stacks (80+)  │  │
+│  │  → 12 directional BellFlameWaveProj sparks    │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ AttackAnimationFoundation (Grand Toll)        │  │
+│  │  → Grand Toll cinematic sequence              │  │
+│  │  → Camera pan → slam → 12 flame waves         │  │
+│  └───────────────────────────────────────────────┘  │
+│  CUSTOM SHADERS (layered on foundations):            │
+│  → BellFlameTrail.fx (flame flow trail)              │
+│  → InfernalFlameSlash.fx (flame slash overlay)       │
+│  → InfernoWaltzAura.fx (waltz dodge aura)            │
+│  UNIQUE SYSTEMS:                                    │
+│  → Bell Resonance Stacking (max 5 → Bell Shatter)  │
+│  → Flame Waltz Dodge (0.2s iframes on Toll 2 & 4)  │
+│  → DualFatedChimePlayer tracker                      │
+└─────────────────────────────────────────────────────┘
+```
 
-### VFX Architecture Plan
+### Combat Mechanics (5-Phase Inferno Waltz)
+| Phase | Name | Duration | Action | Foundation |
+|-------|------|----------|--------|-----------|
+| 0 | Opening Peal | — | Initial strike | SwordSmear + Ribbon |
+| 1 | Answer | — | Counter sweep | SwordSmear + Ribbon |
+| 2 | Escalation | — | Rising intensity | SwordSmear + Ribbon + ThinSlash |
+| 3 | Resonance | — | Full resonance + InfernoWaltzProj | SwordSmear + Ribbon + Impact |
+| 4 | Grand Toll | — | 12 directional flame waves | ALL + XSlash + ExplosionParticles + AttackAnim |
 
-#### Custom Shaders (4)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `ChimeShockwave.fx` | Bell strike shockwave rings | Expanding SDF ring with thickness falloff. Color: white-hot center → orange → black smoke edge. Ring thickness decreases as radius grows. Multiple rings at staggered timings for resonance echo. |
-| `InfernoWaltzTrail.fx` | Flame trail behind chime swings | UV-scrolled fire texture with FBM noise distortion. Color ramp: black smoke edge → deep ember → bright orange → gold. Tip-to-base gradient via UV.x. |
-| `BellFlameWave.fx` | Directional flame wave projectile | Thin flame strip expanding outward. Internal noise scroll for fire turbulence. Orange-gold gradient with black smoke edges. |
-| `BellResonanceRing.fx` | Resonance stacking rings on target | Concentric SDF rings around target center. Each ring pulses at slightly different frequency (harmonics). Gold → orange gradient. Additive. |
+### VFX Architecture — Foundation-Based
 
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| BellChimeParticle | Expands outward from impact as visible sound wave | Thin gold ring (SDF rendered or animated sprite), expanding, 15 frame life |
-| CampanellaEmberParticle | Rises from flame trails with rotation | Orange-gold embers, 3-5px, flickering brightness, 20-35 frame life |
-| BlackSmokeParticle | Billows from swing path, slow drift upward | Dark grey-black smoke wisps, large (10-20px), slow movement, 40-60 frame life |
-| BellShatterParticle | Radial burst from Bell Shatter detonation | Gold metallic shards + orange fire sparks, 15-25 particles, decelerating |
-| InfernoWaltzSparkParticle | Sheds from chime blades during swing | Small bright orange sparks, fast, short trail, 10 frame life |
+#### Swing Arcs → SwordSmearFoundation
+- `gradientTex`: InfernalOrange → BellGold → WhiteHot (fire-themed LUT)
+- `distortStrength` scales: 0.07 (Opening) → 0.10 (Escalation) → 0.14 (Grand Toll)
+- `flowSpeed`: 0.6 → 1.0 with phase intensity
+- Alternating left/right swing direction per phase
 
-#### Bloom Layers
-1. **Chime glow**: Persistent orange-gold bloom along each blade (pulsing with swing rhythm)
-2. **Shockwave ring**: Expanding ring bloom (white-hot center, additive)
-3. **Impact burst**: 3-layer (white core + orange mid + smoky outer ring)
-4. **Flame wave**: Orange-gold glow trailing flame wave projectiles
-5. **Grand Toll**: Triple stacked shockwave rings + full-screen orange vignette flash
+#### Trail → RibbonFoundation (Mode 5: Ember Drift)
+- Ember-scatter texture, infernal orange core → gold edges
+- `RibbonWidthHead = 22f × (1 + resonanceStacks * 0.15)` — widens with stacks
+- `RibbonWidthTail = 3f`
 
-#### Asset Requirements
-| Asset | Path | Midjourney Prompt |
-|-------|------|-------------------|
-| Fire trail texture | `Assets/LaCampanella/DualFatedChime/Trails/InfernoWaltz.png` | "Horizontal flame trail with billowing black smoke edges and bright orange-gold fire center, intense fire energy, on solid black background, 512x64px seamless --ar 8:1 --style raw" |
-| Bell shockwave ring | `Assets/LaCampanella/DualFatedChime/Flare/BellShockwave.png` | "Thin expanding circular shockwave ring, gold-white energy with subtle bell shape at peak, on solid black background, 256x256px --ar 1:1 --style raw" |
-| Resonance ring indicator | `Assets/LaCampanella/DualFatedChime/Orbs/ResonanceRing.png` | "Concentric thin golden rings (3-5 nested), bell-themed energy, on solid black background, 128x128px --ar 1:1 --style raw" |
-| Bell shatter texture | `Assets/LaCampanella/DualFatedChime/ImpactSlash/BellShatter.png` | "Radial explosion of golden metallic bell fragments with orange fire, on solid black background, 256x256px --ar 1:1 --style raw" |
+#### Bell Ring → ImpactFoundation (RippleShader)
+- `ringCount = 4`, `ringThickness = 0.08` — bell ring visual
+- InfernalOrange → BellGold concentric ripples
+- Ring expansion synced to "chime" timing
 
-#### Debuffs
-| Debuff | Effect | Duration |
-|--------|--------|----------|
-| BellResonance | Stacking debuff (1-5 rings), visual indicator. At 5, next hit triggers Bell Shatter. | 180 frames per stack |
-| InfernalBurn | DoT (fire damage) | 120 frames |
+#### Grand Toll → XSlash + ExplosionParticles + AttackAnimation
+1. **AttackAnimationFoundation**: Camera → slam → 12 flame waves → camera return
+2. **XSlashFoundation**: `fireIntensity = 0.15`, `scrollSpeed = 0.8`, infernal fire cross
+3. **ExplosionParticlesFoundation**: `SparkCount = 60`, infernal ember colors
+4. **ImpactFoundation** (DamageZoneShader): Persistent flame zone from overlapping waves
 
 ---
 
 ## 2. Ignition of the Bell (Melee)
 
 ### Identity & Musical Soul
-Ignition of the Bell is La Campanella's **percussive power** — where Dual Fated Chime slashes, Ignition *thrusts and slams*. This is the anvil-strike, the hammer-on-bell. A thrust-based weapon that drives the point home with infernal geysers erupting from the ground and chime cyclone vortexes that pull enemies in. Where the Chime dances, Ignition **overwhelms**.
+The ignition — a spear/thrust weapon that drives flames INTO the earth. Where Dual Fated Chime swings wide, Ignition thrusts deep. Ground geysers, fire cyclones, chimequakes.
 
 ### Lore Line
-*"The first spark was all it took. The bell has been burning ever since."*
+*"The bell does not ring. It ignites."*
 
-### Combat Mechanics
-- **Bell Thrust Combo**: 3-phase thrust combo:
-  - **Phase 1 — Ignition Strike**: Forward thrust + ground geyser pillar at impact point.
-  - **Phase 2 — Tolling Frenzy**: Rapid triple thrust (left-center-right). Each thrust spawns a smaller geyser.
-  - **Phase 3 — Chime Cyclone**: Spin attack creating a fire cyclone vortex that pulls enemies inward for 2 seconds, then detonates.
-- **Infernal Geyser**: Ground-targeted fire pillars that erupt from below. Enemies standing on the geyser point take initial hit + lingering fire damage.
-- **Chimequake**: Every 3rd Phase 3 Cyclone detonation triggers a Chimequake — the ground cracks with fire in a large area, dealing persistent damage for 3 seconds.
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  IGNITION OF THE BELL — Foundation Architecture     │
+├─────────────────────────────────────────────────────┤
+│  BASE CLASS: ModItem (channeled, 3-phase)           │
+│  ┌───────────────────────────────────────────────┐  │
+│  │ SwordSmearFoundation (SmearDistortShader)     │  │
+│  │  → Forward thrust smear (directional)         │  │
+│  │  → DeepEmber→InfernalOrange→WhiteHot LUT      │  │
+│  │  → distortStrength: 0.08 (focused heat)       │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ InfernalBeamFoundation (InfernalBeamBody)     │  │
+│  │  → Ground geyser pillar rendering             │  │
+│  │  → Multi-texture compositing, vertical beam   │  │
+│  │  → Infernal gradient, BaseBeamWidth = 50f     │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ RibbonFoundation (Mode 6: Energy Surge)       │  │
+│  │  → Thrust trail energy surge behind weapon    │  │
+│  │  → Short, intense, focused trail              │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ XSlashFoundation (Chimequake only)            │  │
+│  │  → Every 3rd Cyclone triggers Chimequake      │  │
+│  │  → Massive ground X-cross detonation          │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (Ripple + DamageZone)        │  │
+│  │  → RippleShader: geyser eruption ring         │  │
+│  │  → DamageZone: cyclone pull zone              │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ExplosionParticlesFoundation (geysers)        │  │
+│  │  → Geyser eruption spark burst (upward bias)  │  │
+│  │  → Cyclone detonation radial scatter          │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ SmokeFoundation (Cyclone)                     │  │
+│  │  → Fire cyclone heavy smoke ring              │  │
+│  │  → Rotating smoke puffs, InfernalOrange core  │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ AttackAnimationFoundation (Chimequake)        │  │
+│  │  → Chimequake cinematic ground-slam           │  │
+│  └───────────────────────────────────────────────┘  │
+│  CUSTOM SHADERS:                                    │
+│  → IgnitionThrustTrail.fx (thrust trail)             │
+│  → InfernalGeyserShader.fx (vertical geyser)        │
+│  → CycloneFlameShader.fx (vortex rendering)          │
+│  UNIQUE SYSTEMS:                                    │
+│  → IgnitionOfTheBellPlayer tracker                   │
+│  → Chimequake counter (every 3rd cyclone)            │
+└─────────────────────────────────────────────────────┘
+```
 
-### VFX Architecture Plan
+### Combat Mechanics (3-Phase Thrust Combo)
+| Phase | Name | Projectile | Foundation |
+|-------|------|-----------|-----------|
+| 1 | Ignition Strike | IgnitionThrustProj + InfernalGeyserProj | SwordSmear + Ribbon + InfernalBeam + ExplosionParticles |
+| 2 | Tolling Frenzy | 3× IgnitionThrustProj + smaller geysers | SwordSmear + Ribbon + Impact |
+| 3 | Chime Cyclone | ChimeCycloneProj (2s pull + detonation) | Smoke + ImpactFoundation (DamageZone) + ExplosionParticles |
 
-#### Custom Shaders (3)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `InfernalGeyser.fx` | Ground fire pillar eruption | Vertical beam shader with FBM noise for fire edge. Color: black base → deep red → bright orange → gold tips. UV.y scrolls upward (rising fire). Width pulses then narrows (eruption → dissipation). |
-| `ChimeCyclone.fx` | Fire tornado vortex | Radial scrolling UV with spiral distortion. Concentric rings rotating at different speeds. Orange-gold inner → black smoke outer. Radial inward pull visualization. |
-| `ChimequakeGround.fx` | Ground crack fire effect | Ground-plane projected shader. Voronoi noise for crack pattern. Cracks colored orange-gold (fire), surrounding area dark. Cracks widen then cool over 3s. |
+### VFX Architecture — Foundation-Based
 
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| GeyserFlameParticle | Erupts upward, decelerates, drifts to sides | Orange-gold flames, 5-10px, turbulent movement, 20-30 frame life |
-| GeyserGroundSparkParticle | Radial burst at geyser base along ground | Orange sparks, flat trajectory, 4-6px, 12 frame life |
-| CycloneDebrisParticle | Spiral inward toward cyclone center | Dark grey-orange debris chunks, orbiting, 30-40 frame life |
-| ChimequakeCrackParticle | Rises from ground cracks as embers | Small orange-red embers, slow upward, 25 frame life |
+#### Thrust Trail → SwordSmearFoundation + RibbonFoundation
+- SmearDistortShader in thrust direction (narrower arc than Dual Fated Chime's wide swings)
+- RibbonFoundation Mode 6 (Energy Surge) for focused directional trail
 
-#### Asset Requirements
-| Asset | Path | Midjourney Prompt |
-|-------|------|-------------------|
-| Geyser fire texture | `Assets/LaCampanella/IgnitionOfTheBell/Beams/InfernalGeyser.png` | "Vertical fire geyser pillar, dark base erupting through orange to gold flame tips, intense volcanic fire, on solid black background, 64x256px --ar 1:4 --style raw" |
-| Cyclone fire texture | `Assets/LaCampanella/IgnitionOfTheBell/Orbs/FireCyclone.png` | "Top-down fire tornado with spiral flame pattern, orange-gold center with black smoke outer, on solid black background, 256x256px --ar 1:1 --style raw" |
-| Ground crack texture | `Assets/LaCampanella/IgnitionOfTheBell/Orbs/ChimequakeCracks.png` | "Top-down cracked ground with orange fire glowing through cracks, Voronoi cell pattern, dark stone with bright fire veins, on solid black background, 256x256px --ar 1:1 --style raw" |
+#### Ground Geysers → InfernalBeamFoundation
+- **InfernalBeamBodyShader** rendered VERTICALLY (rotated 90°)
+- `BaseBeamWidth = 50f`, infernal gradient LUT
+- Multi-texture compositing: fire noise + ember detail + geyser body + glow
+- ExplosionParticlesFoundation at geyser tip: `SparkCount = 25`, upward velocity bias
+
+#### Cyclone → SmokeFoundation + ImpactFoundation
+- **SmokeFoundation**: 40 puffs in rotating circular pattern, infernal orange smoke
+- **ImpactFoundation** (DamageZoneShader): `circleRadius = 0.6`, pull zone, 2s duration
+- Detonation: ExplosionParticlesFoundation `SparkCount = 50` + ImpactFoundation RippleShader
 
 ---
 
-## 3. Symphonic Bellfire Annihilator (Ranged)
+## 3. Fang of the Infinite Bell (Magic)
 
 ### Identity & Musical Soul
-The Annihilator is La Campanella's **fortissimo** — maximum volume, maximum power, maximum fire. A heavy launcher that fires bellfire rockets and crescendo waves. Every shot should feel like detonating a church bell filled with gunpowder. Massive, loud, devastating. This is the weapon for when subtlety has failed.
+Bell-shaped energy orbs that bounce endlessly between enemies — the bell's echo that never fades. Each bounce amplifies, stacks build, and at maximum resonance the orbs erupt with lightning.
 
 ### Lore Line
-*"When the bell toll becomes a bombardment, even silence trembles."*
+*"Every echo louder than the last."*
 
-### Combat Mechanics
-- **Grand Crescendo Wave**: Primary fire — launches a slow-moving bell-shaped shockwave that expands as it travels. Pierces enemies but slows on each pierce. Empowered by Crescendo Buff.
-- **Bellfire Rocket**: Alt fire — rapid bellfire rockets that arc slightly. On impact, create small fire patches (1.5s). 
-- **Buff Stacking System**:
-  - **Grand Crescendo Buff**: Stacks on enemy kills with Crescendo Waves (max 5). Each stack: +10% wave size, +8% damage.
-  - **Bellfire Crescendo Buff**: Stacks on enemy kills with Bellfire Rockets (max 3). Each stack: rockets fire in bursts of 2, then 3, then 4.
-- **Symphonic Overture**: When both buff stacks are at maximum simultaneously, next primary fire shoots a Symphonic Overture — a massive full-screen-width crescendo wave that ignores all piercing slowdown.
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  FANG OF THE INFINITE BELL — Foundation Architecture│
+├─────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────┐  │
+│  │ MagicOrbFoundation (OrbBolt pattern)          │  │
+│  │  → Main bell orb rendering (3-layer bloom)    │  │
+│  │  → RadialNoiseMaskShader for orb body         │  │
+│  │  → Echo children: half size OrbBolt copies    │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ SparkleProjectileFoundation                   │  │
+│  │  → Bell orb shimmer trail while bouncing      │  │
+│  │  → SparkleTrailShader: sparkleSpeed=4.0       │  │
+│  │  → Gold/orange sparkle trail                  │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ThinLaserFoundation (ThinBeamShader)          │  │
+│  │  → Lightning arcs between airborne orbs       │  │
+│  │  → MaxBounces=0, BaseBeamWidth=8f             │  │
+│  │  → Triggers at 10+ bounce stacks              │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ MaskFoundation (RadialNoiseMaskShader)        │  │
+│  │  → Empowered Aura at 10+ stacks              │  │
+│  │  → FBM noise, OrbDrawScale=0.3f              │  │
+│  │  → InfernalOrange→BellGold glow              │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (RippleShader)               │  │
+│  │  → Bounce impact ring (bell chime visual)     │  │
+│  │  → ringCount = 2 per bounce                   │  │
+│  │  → Orb explosion at 20 stacks (Ripple + DZ)  │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ExplosionParticlesFoundation (orb explosion)  │  │
+│  │  → At 20 stacks: orb detonation spark burst  │  │
+│  │  → SparkCount = 35, gold/white sparks         │  │
+│  └───────────────────────────────────────────────┘  │
+│  CUSTOM SHADERS:                                    │
+│  → ArcaneOrbTrail.fx (orb trail)                     │
+│  → EmpoweredAura.fx (stack aura)                     │
+│  → EmpoweredLightning.fx (arc rendering)             │
+│  UNIQUE SYSTEMS:                                    │
+│  → Bounce stacking (+3% magic dmg/stack, max 20)   │
+│  → Echo orbs (half dmg children on bounce)           │
+│  → Infinite Crescendo alt-fire (10 bounces, 150%)   │
+│  → InfiniteBellDamageBuff / EmpoweredBuff            │
+└─────────────────────────────────────────────────────┘
+```
 
-### VFX Architecture Plan
+### VFX Architecture — Foundation-Based
 
-#### Custom Shaders (3)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `CrescendoWaveBody.fx` | Expanding bell-shaped shockwave | SDF bell curve shape (inverted parabola top, flared edges). UV.x scrolls along wave width. Internal flame texture overlay. Gold → orange gradient with black smoke edges. Scale parameter for crescendo buff sizing. |
-| `BellfireRocketTrail.fx` | Rocket exhaust trail | Thin strip trail, UV-scroll fast. Orange → red → black gradient. Smoke texture overlay on outer edges. |
-| `SymphonicOverture.fx` | Maximum power full-width wave | Enhanced CrescendoWaveBody with chromatic aberration, screen distortion around edges, and multilayer glow. White-hot core → gold → orange cascade. |
+#### Bell Orb → MagicOrbFoundation + SparkleProjectileFoundation
+- **MagicOrbFoundation**: RadialNoiseMaskShader for bell-shaped orb body, 3-layer bloom (InfernalOrange core → BellGold mid → WhiteHot center)
+- **SparkleProjectileFoundation**: SparkleTrailShader for continuous shimmer trail during flight
+- Echo children: 50% scale MagicOrb copies with faster decay
 
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| CrescendoRippleParticle | Expands outward from wave's path | Thin gold ring sections (arc segments), expanding, 12 frame life |
-| BellfireExplosionParticle | Radial burst at rocket impact | Orange-gold fire shards + black smoke puffs, 12-18 per impact |
-| GroundFireParticle | Lingers on ground fire patches | Small orange flames, slight upward drift, flicker, 20-30 frame life |
-| OvertureFlashParticle | Full-screen flash at Symphonic Overture | Screen-wide gold wash, 5 frame flash, white-hot center |
+#### Lightning Arcs → ThinLaserFoundation
+- Triggers at 10+ bounce stacks
+- `MaxBounces = 0`, `BaseBeamWidth = 8f`, `MaxSegmentLength = 400f`
+- Gold → White gradient, rapid fade (15-frame lifetime per arc)
+- Random arcs between active orbs every 8 ticks
 
-#### Debuffs
-| Debuff | Effect | Duration |
-|--------|--------|----------|
-| BellfireIgnition | Stacking fire DoT from rockets | 90 frames per stack, max 3 |
-| CrescendoPressure | Hit enemies move 15% slower per wave hit | 120 frames |
+#### Empowered State → MaskFoundation
+- Player aura at 10+ stacks: `OrbDrawScale = 0.3f`, FBM noise, InfernalOrange pulse
+- EmpoweredBuff visual indicator: +10% attack speed halo
+
+#### Bounce Impact → ImpactFoundation (RippleShader)
+- Each bounce: `ringCount = 2`, `ringThickness = 0.04`, small bell chime ring
+- At 20 stacks: `ringCount = 5`, `ringThickness = 0.08` + DamageZoneShader for explosion zone
 
 ---
 
-## 4. Piercing Bell's Resonance (Ranged)
+## 4. Grandiose Chime (Ranged — Beam)
 
 ### Identity & Musical Soul
-Where the Annihilator is brute force, Piercing Bell's Resonance is **precision percussion** — the crisp staccato notes of La Campanella played exactly right. A precision ranged weapon where well-placed shots create resonant feedback loops that amplify each other. Patient, technical, rewarding.
+A grand golden beam weapon — the bell's voice made visible. Wide devastating beam that triggers kill echoes like harmonics spreading from a struck bell.
 
 ### Lore Line
-*"A single note, perfectly placed, can shatter a fortress."*
+*"The bell speaks, and the world answers in fire."*
 
-### Combat Mechanics
-- **Staccato Bullets**: Primary fire — precision shots that embed a Resonant Marker on hit. Markers are golden bell icons visible on enemy.
-- **Seeking Crystals**: Every 4th shot fires a Seeking Crystal that homes toward the nearest Resonant Marker.
-- **Resonant Detonation**: When 3+ Resonant Markers overlap on the same enemy, the player can alt-fire to trigger Resonant Blast — all markers detonate simultaneously in overlapping bell-shaped shockwaves. Damage scales with marker count.
-- **Resonant Note Projectiles**: Each detonation spawns scattered Resonant Notes that linger 3s and damage enemies passing through them (landmine effect).
-- **Perfect Pitch**: If you detonate exactly 5 markers (not 3, not 7, exactly 5), the detonation deals 2x damage and applies Resonant Silence (prevents enemy attacks for 1s).
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  GRANDIOSE CHIME — Foundation Architecture          │
+├─────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────┐  │
+│  │ LaserFoundation (ConvergenceBeamShader)       │  │
+│  │  → Main golden beam body (4 detail textures)  │  │
+│  │  → BaseBeamWidth = 80f (wide golden beam)     │  │
+│  │  → Infernal gradient LUT                      │  │
+│  │  → Triple width at Grandiose Crescendo        │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ InfernalBeamFoundation (alt rendering)        │  │
+│  │  → Grandiose Crescendo beam body              │  │
+│  │  → InfernalBeamBodyShader at 150% scale       │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ MaskFoundation (RadialNoiseMaskShader)        │  │
+│  │  → NoteMineProj orb rendering (floating mines)│  │
+│  │  → FBM noise, pulsing gold, OrbDrawScale=0.15│  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (Ripple + DamageZone)        │  │
+│  │  → RippleShader: beam impact zone             │  │
+│  │  → DamageZone: kill echo chain zones          │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ RibbonFoundation (Mode 6: Energy Surge)       │  │
+│  │  → Kill Echo chain projectile trails          │  │
+│  │  → Short, bright energy surge per chain       │  │
+│  └───────────────────────────────────────────────┘  │
+│  CUSTOM SHADERS:                                    │
+│  → GrandioseBeamShader.fx (beam body)                │
+│  → MineShader.fx (floating note mine)                │
+│  → BarrageShader.fx (crescendo barrage)              │
+│  UNIQUE SYSTEMS:                                    │
+│  → Kill Echo Chains (3 chains, 60% dmg each)        │
+│  → Note Mines (max 5, 80% dmg, alt-fire)            │
+│  → Grandiose Crescendo (5 chain kills → triple beam) │
+└─────────────────────────────────────────────────────┘
+```
 
-### VFX Architecture Plan
+### VFX Architecture — Foundation-Based
 
-#### Custom Shaders (3)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `ResonantMarkerGlow.fx` | Golden bell marker on enemy | Small SDF bell shape with pulsing glow. Gold color. Additive. Pulse frequency increases with marker count. |
-| `ResonantBlastWave.fx` | Bell-shaped detonation wave | Bell-curve SDF expanding from each marker point. Overlapping markers create interference pattern (multiplicative blending between waves). Gold → white at overlap. |
-| `ResonantNoteField.fx` | Lingering damage note zones | Small circular SDF with embedded music note shape. Gentle pulse. Orange-gold. Additive aura around each note. |
+#### Main Beam → LaserFoundation (ConvergenceBeamShader)
+- `BaseBeamWidth = 80f`, 4 detail textures in infernal palette
+- Infernal gradient LUT: SootBlack → InfernalOrange → BellGold → WhiteHot
+- Normal mode: standard width. Crescendo mode: `BaseBeamWidth = 240f` (triple)
 
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| StaccatoBulletTrailParticle | Tight trail behind precision shots | Gold sparks, tiny (1-2px), 8 frame life, thin line |
-| SeekingCrystalGlintParticle | Orbits seeking crystal projectile | Small gold glints, 3-4 orbiting, tight radius |
-| ResonantBlastRippleParticle | Concentric rings expanding from detonation | Gold ring waves, 3-5 rings staggered, 10 frame life each |
-| ResonantNoteMineDriftParticle | Drifts near lingering note zones | Tiny gold motes, hovering, minimal movement, 30 frame life |
+#### Crescendo Beam → InfernalBeamFoundation
+- Activates during Grandiose Crescendo (5 chain kills)
+- `BaseBeamWidth = 120f`, `MaxBeamLength = 3000f`
+- Multi-texture compositing at 150% scale, infernal fire noise
+
+#### Note Mines → MaskFoundation (RadialNoiseMaskShader)
+- `OrbDrawScale = 0.15f`, FBM noise mode
+- Gold pulsing orbs floating in position
+- 3-layer: bloom halo → shader orb → gold core
+
+#### Kill Echo → RibbonFoundation (Mode 6: Energy Surge) + ImpactFoundation
+- Chain projectiles: short, bright energy surge trails
+- Each chain terminus: ImpactFoundation RippleShader (`ringCount = 2`, gold)
 
 ---
 
-## 5. Grandiose Chime (Ranged)
+## 5. Piercing Bell's Resonance (Ranged — Sniper)
 
 ### Identity & Musical Soul
-The Grandiose Chime is the **cathedral organ** of La Campanella's arsenal — grand, resonant, overwhelming in scope. It fires wide beams, deploys note mines, and chain-kills echo through connected enemies. This is the weapon of a conductor commanding a grand orchestra of destruction.
+Precision bullets that embed resonant markers like bell tolls — building to a devastating Resonant Detonation that punishes enemies for every toll they've absorbed.
 
 ### Lore Line
-*"When the grand chime sounds, the world holds its breath."*
+*"Count the tolls. Each one is a judgment."*
 
-### Combat Mechanics
-- **Grandiose Beam**: Primary fire — wide golden beam that sweeps through enemies. Short range but covers wide angle.
-- **Bellfire Notes**: Alt fire — deploys floating bell-note mines (max 5 deployed). Mines activate when enemy passes near, dealing damage + small shockwave.
-- **Kill Echo Chain**: When an enemy is killed by any Grandiose Chime attack, a Kill Echo propagates to the nearest enemy within 15 tiles (deals 60% of killing blow damage). Can chain up to 3 times.
-- **Grandiose Crescendo**: After 5 Kill Echoes chain completely (3 kills from one chain), the next beam fire becomes Grandiose — triple width, +50% damage, and deploys 3 note mines along beam path automatically.
-
-### VFX Architecture Plan
-
-#### Custom Shaders (3)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `GrandioseBeamBody.fx` | Wide golden beam | Beam quad with UV-scroll. Internal bell-pattern texture overlay. Gold → white core → gold gradient across beam width. Noise distortion on edges for organic shimmer. |
-| `BellfireNoteMine.fx` | Floating bell-note mine glow | SDF music note shape with radial glow aura. Gentle pulse (breathing). Gold body with orange aura ring. Activation: rapid pulse + expand ring. |
-| `KillEchoChain.fx` | Lightning-like chain between enemies | Bezier curve strip between kill point and next target. Gold with white-hot core. Rapid flash (appears for 5 frames). |
-
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| GrandioseBeamSparkParticle | Sheds from beam edges | Gold sparks, perpendicular to beam, 3-4px, 10 frame life |
-| NoteMineOrbitalParticle | Orbits deployed mine | Tiny gold dots, 2-3 orbiting per mine, slow rotation |
-| KillEchoFlashParticle | Brief flash at chain connection point | White-gold flash, 3 frame burst, bright |
-| MineActivationParticle | Radial burst when mine triggers | Gold-orange sparks + sound wave ring, 10-15 particles |
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  PIERCING BELL'S RESONANCE — Foundation Arch.       │
+├─────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────┐  │
+│  │ RibbonFoundation (Mode 3: Basic Trail Strip)  │  │
+│  │  → Staccato bullet tracer trail               │  │
+│  │  → 15-point short trail, InfernalOrange       │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ SparkleProjectileFoundation                   │  │
+│  │  → SeekingCrystalProj rendering (every 4th)   │  │
+│  │  → SparkleTrailShader: gold crystal shimmer   │  │
+│  │  → CrystalShimmerShader: facet glow           │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (Ripple + DamageZone)        │  │
+│  │  → RippleShader: marker embed ring            │  │
+│  │  → DamageZone: Resonant Detonation zone       │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ExplosionParticlesFoundation (Detonation)     │  │
+│  │  → Resonant Detonation spark burst            │  │
+│  │  → SparkCount scales with marker count        │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ MaskFoundation (marker visual on enemies)     │  │
+│  │  → RadialNoiseMaskShader for resonant glyph   │  │
+│  │  → Visible marker count on enemy              │  │
+│  └───────────────────────────────────────────────┘  │
+│  CUSTOM SHADERS:                                    │
+│  → BulletTrailShader.fx (bullet trail)               │
+│  → CrystalGlowShader.fx (seeking crystal)           │
+│  → ResonantBlastShader.fx (detonation blast)         │
+│  UNIQUE SYSTEMS:                                    │
+│  → ResonantMarkerNPC (per-enemy marker tracking)    │
+│  → Perfect Pitch (exactly 5 markers = 2x + landmines)│
+│  → Resonant Note landmines                           │
+└─────────────────────────────────────────────────────┘
+```
 
 ---
 
-## 6. Fang of the Infinite Bell (Magic)
+## 6. Symphonic Bellfire Annihilator (Ranged — Rockets)
 
 ### Identity & Musical Soul
-The Fang is La Campanella's **infinite repetition** — the bell that never stops ringing. In the original piece, the bell motif repeats hundreds of times. This weapon channels that infinite resonance as magic — bell orbs that stack endlessly, each empowering the next. The longer you fight, the more devastating the bell becomes. This is patience and persistence as weapons.
+The LOUDEST weapon in the entire mod — bell-shaped shockwaves and arcing rockets that crescendo toward a devastating Symphonic Overture. This is the climax of the concert.
 
 ### Lore Line
-*"Infinity is not a destination; it is a bell that rings without ceasing."*
+*"Fortissimo. Always fortissimo."*
 
-### Combat Mechanics
-- **Infinite Bell Orbs**: Primary fire — launches bell-shaped energy orbs. Each orb bounces between enemies 2 times. On each bounce, it spawns a smaller echo orb (half damage, bounces once).
-- **Stacking Damage System**:
-  - **Infinite Bell Damage Buff**: Each bell orb that successfully bounces grants +3% magic damage (max 20 stacks = +60%). Stacks decay 1 per second after 3s of no bouncing.
-  - **Infinite Bell Empowered Buff**: At 10+ stacks, bell orbs gain lightning arcs between them (visual chain lightning). At 20 stacks, orbs explode on final bounce instead of fading.
-- **Empowered Lightning**: At 10+ stacks, when multiple bell orbs are airborne simultaneously, golden lightning arcs between them. Enemies in the arc path take 30% orb damage.
-- **Infinite Crescendo**: At max stacks (20), alt-fire to consume all stacks for one massive Infinite Bell — a slow-moving giant bell orb that bounces 10 times, each bounce does full damage + spawns 4 echo orbs. Ground shakes on each bounce.
-
-### VFX Architecture Plan
-
-#### Custom Shaders (3)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `InfiniteBellOrb.fx` | Bell orb body shader | SDF bell/circle hybrid shape with internal gold energy swirl. Color ramp: black center → deep orange → gold surface → white hot edges. Scale parameter for echo orb sizing. |
-| `BellLightningArc.fx` | Inter-orb lightning chain | Jagged line strip between orb positions (CPU-computed Bézier with randomized offsets). Gold → white color. Sharp bright bolts with glow around them. 2 frame flicker cycle. |
-| `InfiniteCrescendoOrb.fx` | Giant max-stack bell orb | Enhanced InfiniteBellOrb with double size, more turbulent internal energy (higher noise frequency), and pulsing screen distortion around it. Ground impact shader overlay at each bounce point. |
-
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| BellOrbTrailParticle | Short trail behind bouncing orbs | Gold-white sparkle dots, 3-4px, 8 frame life |
-| BounceImpactParticle | Radial burst at each bounce point | Gold sparks + small bell ring ripple, 8-12 per bounce |
-| LightningSparkParticle | Sheds from lightning arcs | Bright white-gold sparks, fast random movement, 5 frame life |
-| EchoOrbBirthParticle | Brief flash at echo orb spawn | Orange flash ring expanding, 5 frame burst |
-| CrescendoGroundShakeParticle | Rises from ground at Infinite Crescendo bounce | Large orange-gold fire embers, erupts upward, 25 frame life |
-
-#### Debuffs
-| Debuff | Effect | Duration |
-|--------|--------|----------|
-| BellEchoDissonance | Each bounce hit adds +5% damage taken from bell orbs (max 3 stacks) | 180 frames per stack |
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  SYMPHONIC BELLFIRE ANNIHILATOR — Foundation Arch.   │
+├─────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────┐  │
+│  │ ImpactFoundation (Ripple)                     │  │
+│  │  → Grand Crescendo Wave expanding ring        │  │
+│  │  → RippleShader: ringCount=6, massive bell    │  │
+│  │  → Bell-shaped piercing shockwave visual      │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ RibbonFoundation (Mode 6: Energy Surge)       │  │
+│  │  → Bellfire Rocket exhaust trail              │  │
+│  │  → Short, hot, arcing trail with smoke        │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ExplosionParticlesFoundation (rocket impact)  │  │
+│  │  → Rocket detonation spark burst              │  │
+│  │  → SparkCount = 35 per rocket, fire colors    │  │
+│  │  → Upward spray + radial scatter              │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ SmokeFoundation (rocket exhaust + impact)     │  │
+│  │  → Rocket exhaust trailing smoke              │  │
+│  │  → Impact crater smoke ring                   │  │
+│  │  → PuffCount = 15 per impact                  │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ InfernalBeamFoundation (Symphonic Overture)   │  │
+│  │  → Overture massive beam body                 │  │
+│  │  → Both crescendos maxed = devastating beam   │  │
+│  └───────────────────────────────────────────────┘  │
+│  CUSTOM SHADERS:                                    │
+│  → RocketTrailShader.fx (rocket exhaust)             │
+│  → ExplosionShader.fx (detonation flash)             │
+│  → CrescendoShader.fx (crescendo wave overlay)       │
+│  UNIQUE SYSTEMS:                                    │
+│  → Grand Crescendo Buff (max 5, +10% wave/+8% dmg)  │
+│  → Bellfire Crescendo Buff (max 3, +rocket split)    │
+│  → Symphonic Overture (both maxed → 200% beam)       │
+└─────────────────────────────────────────────────────┘
+```
 
 ---
 
 ## 7. Infernal Chimes' Calling (Summon)
 
 ### Identity & Musical Soul
-The Infernal Chimes' Calling summons a **Campanella Choir** — a ghostly bell orchestra that rings destruction. The minion is not a single entity but a formation of 3-5 spectral bells that hover around the player and attack in coordinated bell-strike patterns. The choir should feel like an infernal orchestra — each bell chiming in turn to create a deadly melody.
+A choir of spectral bells — 5 floating minions that attack in musical sequence, their shockwaves overlapping to create harmony. Bell Sacrifice is the ultimate act of devotion — one bell gives its life for devastating damage.
 
 ### Lore Line
-*"The choir sings not hymns of peace, but anthems of annihilation."*
+*"The choir sings in flame. The encore is silence."*
 
-### Combat Mechanics
-- **Campanella Choir**: Summons spectral bell minions (3 at base, +1 per additional summon up to 5). Bells hover in arc formation around player.
-- **Bell Strike Pattern**: Bells attack in sequence — Bell 1 fires, then Bell 2, then Bell 3, etc. (staggered 0.3s). Each fires a Shockwave Projectile (bell-shaped wave).
-- **Harmonic Convergence**: When all bells fire within 1 second of each other (full sequence), their shockwaves overlap at target. Overlapping waves deal 2x damage in the intersection zone.
-- **Infernal Crescendo**: Every 12 seconds, all bells charge simultaneously (glow intensifies for 2s), then fire a synchronized Infernal Barrage — 5 simultaneous massive shockwaves that create a grid-like interference pattern.
-- **Bell Sacrifice**: Right-click to sacrifice one bell (min 2 remaining). Sacrificed bell detonates in a massive AoE. Respawns after 15 seconds.
-
-### VFX Architecture Plan
-
-#### Custom Shaders (3)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `CampanellaChoirAura.fx` | Spectral bell entity glow | SDF bell shape with radial glow. Color: translucent gold → orange edge. Gentle pulse at different frequencies per bell (harmonics). |
-| `ChoirShockwaveProj.fx` | Individual bell shockwave attack | Expanding bell-curve SDF. Gold → orange → transparent. Narrow → wide expansion. |
-| `InfernalBarrageInterference.fx` | Overlapping shockwave grid | Multiplicative blend of 5 expanding wave SDFs. Where waves overlap, intensity doubles creating bright nodes. Gold-white at nodes. |
-
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| ChoirBellGlintParticle | Orbits each bell entity slowly | Tiny gold sparkles, 2-3 per bell, slow orbit |
-| ShockwaveRippleParticle | Expands outward from shockwave edge | Thin gold ring arcs, 10 frame life, expanding |
-| InfernalChargeParticle | Spirals toward bells during charge phase | Orange-gold motes, inward spiral, consumed at bell center |
-| SacrificeExplosionParticle | Massive radial burst at sacrifice detonation | Large gold-orange fire shards + smoke + bell fragment shapes, 30+ particles |
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  INFERNAL CHIMES' CALLING — Foundation Architecture │
+├─────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────┐  │
+│  │ MaskFoundation (RadialNoiseMaskShader)        │  │
+│  │  → Summoning circle ritual on cast            │  │
+│  │  → Cosmic noise, rotationSpeed = 0.25         │  │
+│  │  → Infernal orange → gold glow circle         │  │
+│  │  → Minion flame aura (small scale per bell)   │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ RibbonFoundation (Mode 5: Ember Drift)        │  │
+│  │  → Minion movement trail rendering            │  │
+│  │  → Per-bell ember drift trail                 │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (Ripple + DamageZone)        │  │
+│  │  → RippleShader: shockwave per minion attack  │  │
+│  │  → DamageZone: Harmonic Convergence overlap   │  │
+│  │  → Overlapping shockwaves = 2x damage visual  │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ExplosionParticlesFoundation (Sacrifice)      │  │
+│  │  → Bell Sacrifice AoE detonation (3x damage)  │  │
+│  │  → SparkCount = 90, massive gold/flame burst  │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ SmokeFoundation (Sacrifice)                   │  │
+│  │  → Sacrifice smoke mushroom                   │  │
+│  │  → PuffCount = 35, rising infernal smoke      │  │
+│  └───────────────────────────────────────────────┘  │
+│  CUSTOM SHADERS:                                    │
+│  → ChoirMinionTrail.fx (minion trail)                │
+│  → ChoirFlameAura.fx (per-bell aura)                 │
+│  → MusicalShockwave.fx (shockwave rendering)         │
+│  UNIQUE SYSTEMS:                                    │
+│  → Sequential attack pattern (0.3s stagger)          │
+│  → Harmonic Convergence (overlap = 2x damage)        │
+│  → Infernal Crescendo (every 12s synchronized)       │
+│  → Bell Sacrifice (1 bell detonates, 15s respawn)    │
+│  → CampanellaChoirBuff persistence                   │
+└─────────────────────────────────────────────────────┘
+```
 
 ---
 
-## Cross-Theme Synergy Notes
+## Foundation Coverage Matrix
 
-### La Campanella Theme Unity
-All weapons share the black-orange-gold palette with bell/chime motifs:
-- **Dual Fated Chime**: Twin bells, waltz rhythm, shockwave rings
-- **Ignition of the Bell**: Percussive power, geysers from below, cyclone vortex
-- **Symphonic Bellfire Annihilator**: Maximum firepower, crescendo waves, screen-shaking rockets
-- **Piercing Bell's Resonance**: Precision, resonant markers, interference patterns
-- **Grandiose Chime**: Grand scope, beam + mines + kill chains
-- **Fang of the Infinite Bell**: Infinite stacking, bouncing orbs, lightning chains
-- **Infernal Chimes' Calling**: Bell choir formation, coordinated attacks, harmonic overlap
+| Foundation | Dual Fated | Ignition | Fang | Grandiose | Piercing | Symphonic | Infernal Chimes |
+|-----------|-----------|----------|------|-----------|----------|-----------|----------------|
+| SwordSmearFoundation | ✅ | ✅ | | | | | |
+| RibbonFoundation | ✅ M5 | ✅ M6 | | ✅ M6 | ✅ M3 | ✅ M6 | ✅ M5 |
+| ThinSlashFoundation | ✅ | | | | | | |
+| XSlashFoundation | ✅ Grand | ✅ Quake | | | | | |
+| ImpactFoundation | ✅ Rip+DZ | ✅ Rip+DZ | ✅ Rip | ✅ Rip+DZ | ✅ Rip+DZ | ✅ Ripple | ✅ Rip+DZ |
+| InfernalBeamFoundation | | ✅ Geyser | | ✅ Crescendo | | ✅ Overture | |
+| LaserFoundation | | | | ✅ | | | |
+| ThinLaserFoundation | | | ✅ | | | | |
+| ExplosionParticles | ✅ Shatter | ✅ Geyser | ✅ Orb | | ✅ Detonate | ✅ Rocket | ✅ Sacrifice |
+| SmokeFoundation | | ✅ Cyclone | | | | ✅ Rocket | ✅ Sacrifice |
+| SparkleProjectile | | | ✅ Orb | | ✅ Crystal | | |
+| MaskFoundation | | | ✅ Aura | ✅ Mine | ✅ Marker | | ✅ Summon |
+| MagicOrbFoundation | | | ✅ | | | | |
+| AttackAnimation | ✅ Grand | ✅ Quake | | | | | |
 
-### Musical Motifs
-- **Bell shockwave rings** appear in EVERY weapon (different sizes, behaviors) — the unifying visual motif
-- **Black smoke + orange fire** is the palette foundation — every weapon uses this differently
-- **Stacking/crescendo mechanics** reflect La Campanella's continuous build — most weapons have escalating power systems
-- **Percussion** over melody — these are impact-focused, percussive weapons. SFX should emphasize bells, chimes, metallic strikes, and resonant tones
+### La Campanella Lore Consistency
+- All lore references fire, bells, chimes, resonance, passion, inferno
+- NEVER moonlight, petals, void, cosmos — those belong to other themes
+- Foundation parameters always use infernal/fire gradient LUTs (SootBlack → InfernalOrange → BellGold → WhiteHot)
+- Bell chime shockwave rings are the signature impact style (RippleShader with high ringCount)

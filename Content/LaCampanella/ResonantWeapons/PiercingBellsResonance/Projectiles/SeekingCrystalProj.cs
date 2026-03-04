@@ -7,6 +7,8 @@ using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Uti
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Particles;
 using MagnumOpus.Content.LaCampanella.Debuffs;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Utilities;
+using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Projectiles
 {
@@ -102,6 +104,12 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
         {
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 1);
             target.GetGlobalNPC<ResonantMarkerNPC>().AddMarker(target);
+
+            // === FOUNDATION: RippleEffectProjectile — Crystal impact ring ===
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), target.Center, Vector2.Zero,
+                ModContent.ProjectileType<RippleEffectProjectile>(),
+                0, 0f, Projectile.owner);
         }
 
         public override void OnKill(int timeLeft)
@@ -118,7 +126,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            var tex = ModContent.Request<Texture2D>(Texture).Value;
+            var tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
 
             // Rotating crystal with color pulse
             float pulse = 0.85f + (float)Math.Sin(Main.GameUpdateCount * 0.2f + Projectile.whoAmI * 2f) * 0.15f;
@@ -129,11 +137,19 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
                 crystalColor * pulse, crystalRotation, tex.Size() / 2f, 0.5f * pulse, SpriteEffects.None, 0f);
 
-            // Crystal aura glow
-            var bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow").Value;
-            Color auraColor = PiercingBellsResonanceUtils.CrystalPalette[2] * 0.2f;
+            // Crystal aura glow (additive so black background disappears)
+            var bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
+            Color auraColor = (PiercingBellsResonanceUtils.CrystalPalette[2] with { A = 0 }) * 0.2f;
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             sb.Draw(bloomTex, Projectile.Center - Main.screenPosition, null,
                 auraColor, 0f, bloomTex.Size() / 2f, 0.25f, SpriteEffects.None, 0f);
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
             return false;
         }

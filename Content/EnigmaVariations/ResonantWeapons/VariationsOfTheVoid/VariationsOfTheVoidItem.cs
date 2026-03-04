@@ -17,9 +17,12 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
     /// VARIATIONS OF THE VOID — Enigma Melee Sword (Item).
     /// Held-projectile swing via MeleeSwingItemBase → VariationsOfTheVoidSwing.
     /// 
-    /// Mechanics preserved from legacy:
-    ///   • On finisher combo, spawns VoidConvergenceBeamSet tri-beam
-    ///   • ParadoxBrand on hit, seeking crystals on crit
+    /// Mechanics:
+    ///   • 3-Phase combo: Horizontal Sweep → Diagonal Slash → Heavy Slam
+    ///   • Phase 1 spawns DimensionalSlash (33%), Phase 2 spawns 3 DimSlash + 3 seekers
+    ///   • Every 3rd strike spawns VoidConvergenceBeamSet tri-beam convergence
+    ///   • Beams converge over 120 frames → Void Resonance Explosion (3x, 100→300 AoE)
+    ///   • ParadoxBrand on hit (8s), seeking crystals on crit
     /// </summary>
     public class VariationsOfTheVoidItem : MeleeSwingItemBase
     {
@@ -41,6 +44,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
 
         protected override Color GetLoreColor() => EnigmaPurple;
 
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         protected override void SetWeaponDefaults()
         {
             Item.damage = 380;
@@ -53,11 +61,13 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
 
         protected override void AddWeaponTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Every third strike summons three converging void beams"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Beams slowly converge toward the cursor and resonate when aligned"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Hits apply Paradox Brand with stacking void damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "3-phase combo: Horizontal Sweep, Diagonal Slash, Heavy Slam"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Spawns dimensional slashes that tear through enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Every third strike summons three converging void beams"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Beams that converge create a Void Resonance Explosion"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Hits apply Paradox Brand, crits spawn seeking crystals"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
-                "'Three questions. One answer. The void.'")
+                "'The void does not vary. You do.'")
             {
                 OverrideColor = EnigmaPurple
             });

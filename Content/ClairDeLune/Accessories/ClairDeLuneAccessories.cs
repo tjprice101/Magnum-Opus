@@ -515,7 +515,7 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
                         Player.GetSource_OnHit(target),
                         target.Center,
                         Vector2.Zero,
-                        ModContent.ProjectileType<TemporalEchoProjectile>(),
+                        ModContent.ProjectileType<TemporalEchoAccessoryProjectile>(),
                         echoDamage,
                         0f,
                         Player.whoAmI,
@@ -530,9 +530,9 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
     }
 
     /// <summary>
-    /// Temporal Echo - Delayed damage repeat
+    /// Temporal Echo - Delayed damage repeat (Accessory version)
     /// </summary>
-    public class TemporalEchoProjectile : ModProjectile
+    public class TemporalEchoAccessoryProjectile : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow";
 

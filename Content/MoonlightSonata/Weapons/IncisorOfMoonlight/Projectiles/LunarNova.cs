@@ -6,11 +6,12 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projectiles
 {
     /// <summary>
-    /// Lunar Nova  Eexpanding ring AoE explosion on empowered slash hit.
+    /// Lunar Nova 遯ｶ繝ｻexpanding ring AoE explosion on empowered slash hit.
     /// Spawns a shower of LunarMoteParticles and MoonlightMistParticles.
     /// A moonlight-themed supernova that radiates purple and silver light.
     /// </summary>
@@ -78,8 +79,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom").Value;
-            Texture2D ringTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle").Value;
+            Texture2D bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D ringTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 bloomOrigin = bloomTex.Size() / 2f;
             Vector2 ringOrigin = ringTex.Size() / 2f;

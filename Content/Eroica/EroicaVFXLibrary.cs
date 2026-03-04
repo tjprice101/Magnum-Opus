@@ -1,8 +1,10 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using Terraria;
 using Terraria.ID;
+using Terraria.ModLoader;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.VFX;
 using static MagnumOpus.Common.Systems.VFX.GodRaySystem;
@@ -110,7 +112,7 @@ namespace MagnumOpus.Content.Eroica
         {
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
+                Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullCounterClockwise,
                 null, Main.GameViewMatrix.TransformationMatrix);
         }
 
@@ -1112,6 +1114,425 @@ namespace MagnumOpus.Content.Eroica
         {
             Color col = GetPaletteColor(paletteT);
             Lighting.AddLight(worldPos, col.ToVector3() * intensity);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // EROICA THEME-SPECIFIC VFX — VFX Library Assets
+        // ═══════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Draw an Eroica-themed Radial Slash Star Impact at the given position.
+        /// Sharp star-burst expanding flash for melee weapon combo finishers and heavy hits.
+        /// Uses the theme-specific ER Radial Slash Star Impact texture.
+        /// </summary>
+        public static void DrawRadialSlashStarImpact(SpriteBatch sb, Vector2 worldPos,
+            float scale, float rotation, float opacity = 0.7f, float paletteT = 0.4f)
+        {
+            Texture2D tex = EroicaThemeTextures.ERRadialSlashStar;
+            if (tex == null) return;
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = tex.Size() * 0.5f;
+            Color color = GetPaletteColor(paletteT) with { A = 0 };
+
+            sb.Draw(tex, drawPos, null, color * opacity,
+                rotation, origin, scale * 0.4f, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Draw an Eroica Power Effect Ring — concentrated expanding ring burst.
+        /// Used at on-hit moments, shockwave centers, and combo transitions.
+        /// </summary>
+        public static void DrawPowerEffectRing(SpriteBatch sb, Vector2 worldPos,
+            float scale, float rotation, float opacity = 0.6f)
+        {
+            Texture2D tex = EroicaThemeTextures.ERPowerEffectRing;
+            if (tex == null) return;
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = tex.Size() * 0.5f;
+            Color color = GetPaletteColor(0.3f) with { A = 0 };
+
+            sb.Draw(tex, drawPos, null, color * opacity,
+                rotation, origin, scale * 0.35f, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Draw the Eroica Harmonic Resonance Wave Impact — concentric expanding waves.
+        /// Used at important impact moments and phase transitions.
+        /// </summary>
+        public static void DrawHarmonicResonanceWave(SpriteBatch sb, Vector2 worldPos,
+            float scale, float opacity = 0.5f)
+        {
+            Texture2D tex = EroicaThemeTextures.ERHarmonicImpact;
+            if (tex == null) return;
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = tex.Size() * 0.5f;
+            Color color = Color.Lerp(Scarlet, Gold, 0.4f) with { A = 0 };
+
+            sb.Draw(tex, drawPos, null, color * opacity,
+                0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Spawn Eroica-themed sakura petal particles using the ER Sakura Petal texture.
+        /// The petals drift gracefully with gentle rotation, matching the Eroica "hero's farewell".
+        /// </summary>
+        public static void SpawnThemedSakuraPetals(Vector2 pos, int count = 5, float spread = 30f)
+        {
+            Texture2D tex = EroicaThemeTextures.ERSakuraPetal;
+            if (tex == null) { SpawnSakuraPetals(pos, count, spread); return; }
+
+            for (int i = 0; i < count; i++)
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(spread, spread);
+                Vector2 vel = new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), -1f - Main.rand.NextFloat(1.5f));
+                float scale = Main.rand.NextFloat(0.4f, 0.7f);
+                Color color = Color.Lerp(Sakura, Gold, Main.rand.NextFloat(0.3f));
+
+                var particle = new EroicaThemedSpriteParticle(
+                    pos + offset, vel, tex, color, scale, 50 + Main.rand.Next(20),
+                    wobble: true, floatUp: true);
+                MagnumParticleHandler.SpawnParticle(particle);
+            }
+        }
+
+        /// <summary>
+        /// Spawn Eroica-themed rising ember particles using the ER Rising Ember texture.
+        /// Embers rise with heat shimmer, used for fire weapon impacts and trail accents.
+        /// </summary>
+        public static void SpawnThemedRisingEmbers(Vector2 pos, int count = 8, float spread = 20f)
+        {
+            Texture2D tex = EroicaThemeTextures.ERRisingEmber;
+            if (tex == null) return;
+
+            for (int i = 0; i < count; i++)
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(spread, spread);
+                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(1.5f, 3f));
+                float scale = Main.rand.NextFloat(0.3f, 0.6f);
+                Color color = Color.Lerp(Scarlet, OrangeGold, Main.rand.NextFloat());
+
+                var particle = new EroicaThemedSpriteParticle(
+                    pos + offset, vel, tex, color, scale, 40 + Main.rand.Next(20),
+                    wobble: false, floatUp: true);
+                MagnumParticleHandler.SpawnParticle(particle);
+            }
+        }
+
+        /// <summary>
+        /// Spawn Eroica-themed laurel leaf particles using the ER Laurel Leaf texture.
+        /// Leaves scatter like a champion's crown scattering, used on finisher hits and victory moments.
+        /// </summary>
+        public static void SpawnThemedLaurelLeaves(Vector2 pos, int count = 4, float spread = 25f)
+        {
+            Texture2D tex = EroicaThemeTextures.ERLaurelLeaf;
+            if (tex == null) return;
+
+            for (int i = 0; i < count; i++)
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(spread, spread);
+                Vector2 vel = new Vector2(Main.rand.NextFloat(-2f, 2f), -Main.rand.NextFloat(0.5f, 2f));
+                float scale = Main.rand.NextFloat(0.3f, 0.55f);
+                Color color = Color.Lerp(Gold, PollenGold, Main.rand.NextFloat());
+
+                var particle = new EroicaThemedSpriteParticle(
+                    pos + offset, vel, tex, color, scale, 50 + Main.rand.Next(20),
+                    wobble: true, floatUp: true);
+                MagnumParticleHandler.SpawnParticle(particle);
+            }
+        }
+
+        /// <summary>
+        /// Draw the Eroica Crumbling Shatter Burst at impact points.
+        /// A dramatic radial shatter effect for shield breaks, heavy impacts, and boss transitions.
+        /// </summary>
+        public static void DrawCrumblingShatterBurst(SpriteBatch sb, Vector2 worldPos,
+            float scale, float opacity = 0.6f)
+        {
+            Texture2D tex = EroicaThemeTextures.ERCrumblingShatter;
+            if (tex == null) return;
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = tex.Size() * 0.5f;
+            Color color = GetPaletteColor(0.35f) with { A = 0 };
+
+            sb.Draw(tex, drawPos, null, color * opacity,
+                Main.rand.NextFloat(MathHelper.TwoPi), origin, scale * 0.45f, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Enhanced Heroic Impact that uses all theme-specific VFX Library assets.
+        /// Combines bloom, star burst, power ring, sakura petals, rising embers, and harmonic wave.
+        /// </summary>
+        public static void ThemedHeroicImpact(Vector2 pos, float scale = 1f)
+        {
+            // Base heroic impact (existing)
+            HeroicImpact(pos, scale);
+
+            // Theme-specific overlay layers
+            SpawnThemedSakuraPetals(pos, (int)(3 + scale * 2), 20f * scale);
+            SpawnThemedRisingEmbers(pos, (int)(4 + scale * 3), 15f * scale);
+        }
+
+        /// <summary>
+        /// Draw Theme-specific layered impact overlay on SpriteBatch.
+        /// Call from PreDraw after existing bloom layers for enhanced star/ring/wave.
+        /// </summary>
+        public static void DrawThemedImpactOverlay(SpriteBatch sb, Vector2 worldPos, float scale, float time)
+        {
+            float expandT = MathHelper.Clamp(time * 3f, 0f, 1f);
+            float opacity = 1f - expandT * expandT;
+
+            DrawRadialSlashStarImpact(sb, worldPos, scale * expandT * 1.5f,
+                time * 0.5f, opacity * 0.7f, 0.4f);
+            DrawPowerEffectRing(sb, worldPos, scale * expandT * 2f,
+                time * 0.3f, opacity * 0.5f);
+            DrawHarmonicResonanceWave(sb, worldPos, scale * expandT * 2.5f, opacity * 0.4f);
+        }
+
+        /// <summary>
+        /// Eroica Radial Burst with Heavy Streaks — dramatic directional burst.
+        /// Used for finisher slam moments and high-intensity projectile detonations.
+        /// </summary>
+        public static void DrawRadialBurstHeavyStreaks(SpriteBatch sb, Vector2 worldPos,
+            float scale, float rotation, float opacity = 0.6f)
+        {
+            Texture2D tex = EroicaThemeTextures.ERRadialBurstHeavyStreaks;
+            if (tex == null) return;
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = tex.Size() * 0.5f;
+            Color color = Color.Lerp(Scarlet, Gold, 0.3f) with { A = 0 };
+
+            sb.Draw(tex, drawPos, null, color * opacity,
+                rotation, origin, scale * 0.4f, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Draw Eroica-themed Infernal Beam Ring — used for beam weapon impacts and muzzle effects.
+        /// </summary>
+        public static void DrawInfernalBeamRing(SpriteBatch sb, Vector2 worldPos,
+            float scale, float rotation, float opacity = 0.5f)
+        {
+            Texture2D tex = EroicaThemeTextures.ERInfernalBeamRing;
+            if (tex == null) return;
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = tex.Size() * 0.5f;
+            Color color = Color.Lerp(Scarlet, Flame, 0.5f) with { A = 0 };
+
+            sb.Draw(tex, drawPos, null, color * opacity,
+                rotation, origin, scale * 0.35f, SpriteEffects.None, 0f);
+        }
+
+        // ─────────── THEME TEXTURE VFX ───────────
+
+        /// <summary>
+        /// Draws a themed heroic impact ring using ER Power Effect Ring + Harmonic Impact.
+        /// Must be called in Additive blend mode (or {A=0} pattern).
+        /// </summary>
+        public static void DrawThemeImpactRing(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f, float rotation = 0f)
+        {
+            Vector2 drawPos = worldPos - Main.screenPosition;
+
+            Texture2D ring = EroicaThemeTextures.ERPowerEffectRing;
+            if (ring != null)
+            {
+                Vector2 origin = ring.Size() * 0.5f;
+                sb.Draw(ring, drawPos, null,
+                    (Scarlet with { A = 0 }) * 0.55f * intensity, rotation, origin,
+                    scale * 0.15f, SpriteEffects.None, 0f);
+                sb.Draw(ring, drawPos, null,
+                    (Gold with { A = 0 }) * 0.35f * intensity, -rotation * 0.7f, origin,
+                    scale * 0.11f, SpriteEffects.None, 0f);
+            }
+
+            Texture2D impact = EroicaThemeTextures.ERHarmonicImpact;
+            if (impact != null)
+            {
+                Vector2 impOrigin = impact.Size() * 0.5f;
+                sb.Draw(impact, drawPos, null,
+                    (Crimson with { A = 0 }) * 0.45f * intensity, rotation * 1.3f, impOrigin,
+                    scale * 0.12f, SpriteEffects.None, 0f);
+            }
+        }
+
+        /// <summary>
+        /// Draws a themed sakura petal overlay — rotating petals as accent.
+        /// Must be called in Additive blend mode.
+        /// </summary>
+        public static void DrawThemeSakuraAccent(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)
+        {
+            Texture2D petal = EroicaThemeTextures.ERSakuraPetal;
+            if (petal == null) return;
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = petal.Size() * 0.5f;
+            float rot = (float)Main.GameUpdateCount * 0.04f;
+
+            // Outer sakura glow layer
+            sb.Draw(petal, drawPos, null,
+                (Sakura with { A = 0 }) * 0.45f * intensity, rot, origin,
+                scale * 0.08f, SpriteEffects.None, 0f);
+            // Inner bright counter-rotating layer
+            sb.Draw(petal, drawPos, null,
+                (HotCore with { A = 0 }) * 0.3f * intensity, -rot * 0.6f, origin,
+                scale * 0.05f, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Draws a heroic radial slash burst using ER Radial Slash Star.
+        /// Must be called in Additive blend mode.
+        /// </summary>
+        public static void DrawThemeRadialSlash(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)
+        {
+            Texture2D star = EroicaThemeTextures.ERRadialSlashStar;
+            if (star == null) return;
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = star.Size() * 0.5f;
+            float rot = (float)Main.GameUpdateCount * 0.03f;
+
+            // Wide scarlet burst
+            sb.Draw(star, drawPos, null,
+                (Scarlet with { A = 0 }) * 0.5f * intensity, rot, origin,
+                scale * 0.12f, SpriteEffects.None, 0f);
+            // Tight gold core
+            sb.Draw(star, drawPos, null,
+                (Gold with { A = 0 }) * 0.35f * intensity, -rot * 0.5f, origin,
+                scale * 0.07f, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Combined theme impact: bloom stack + sakura accent + radial slash + impact ring.
+        /// </summary>
+        public static void DrawThemeImpactFull(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)
+        {
+            DrawEroicaBloomStack(sb, worldPos, scale, 0.3f, intensity);
+            DrawThemeSakuraAccent(sb, worldPos, scale, intensity * 0.7f);
+            DrawThemeRadialSlash(sb, worldPos, scale, intensity * 0.8f);
+            float rot = (float)Main.GameUpdateCount * 0.02f;
+            DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.6f, rot);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // EROICA THEME-SPECIFIC TEXTURE CACHE
+    // ═══════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Lazy texture loader for Eroica theme-specific VFX Library assets.
+    /// All textures from Assets/VFX Asset Library/Theme Specific/Eroica/.
+    /// </summary>
+    internal static class EroicaThemeTextures
+    {
+        private static Texture2D _erSakuraPetal;
+        private static Texture2D _erRisingEmber;
+        private static Texture2D _erLaurelLeaf;
+        private static Texture2D _erRadialSlashStar;
+        private static Texture2D _erPowerEffectRing;
+        private static Texture2D _erHarmonicImpact;
+        private static Texture2D _erCrumblingShatter;
+        private static Texture2D _erRadialBurstHeavyStreaks;
+        private static Texture2D _erInfernalBeamRing;
+        private static Texture2D _erGyratoryOrb;
+        private static Texture2D _erOrbitingEnergySphere;
+        private static Texture2D _erPulsatingMusicNoteOrb;
+        private static Texture2D _erEnergyMotionBeam;
+        private static Texture2D _erEnergySurgeBeam;
+        private static Texture2D _erGradientLUT;
+        private static Texture2D _erPaleGradientLUT;
+
+        // Particles
+        public static Texture2D ERSakuraPetal => _erSakuraPetal ??= LoadTex("Theme Specific/Eroica/Particles/ER Sakura Petal (Unique to Eroica)");
+        public static Texture2D ERRisingEmber => _erRisingEmber ??= LoadTex("Theme Specific/Eroica/Particles/ER Rising Ember");
+        public static Texture2D ERLaurelLeaf => _erLaurelLeaf ??= LoadTex("Theme Specific/Eroica/Particles/ER Laurel Leaf");
+
+        // Impact Effects
+        public static Texture2D ERRadialSlashStar => _erRadialSlashStar ??= LoadTex("Theme Specific/Eroica/Impact Effects/ER Radial Slash Star Impact");
+        public static Texture2D ERPowerEffectRing => _erPowerEffectRing ??= LoadTex("Theme Specific/Eroica/Impact Effects/ER Power Effect Ring");
+        public static Texture2D ERHarmonicImpact => _erHarmonicImpact ??= LoadTex("Theme Specific/Eroica/Impact Effects/ER Harmonic Resonance Wave Impact");
+        public static Texture2D ERCrumblingShatter => _erCrumblingShatter ??= LoadTex("Theme Specific/Eroica/Impact Effects/ER Crumbling Shatter Burst");
+
+        // Beam Textures
+        public static Texture2D ERRadialBurstHeavyStreaks => _erRadialBurstHeavyStreaks ??= LoadTex("Theme Specific/Eroica/Beam Textures/ER Radial Burst Heavy Streaks");
+        public static Texture2D ERInfernalBeamRing => _erInfernalBeamRing ??= LoadTex("Theme Specific/Eroica/Beam Textures/ER Infernal Beam Ring");
+        public static Texture2D EREnergyMotionBeam => _erEnergyMotionBeam ??= LoadTex("Theme Specific/Eroica/Beam Textures/ER Energy Motion Beam");
+        public static Texture2D EREnergySurgeBeam => _erEnergySurgeBeam ??= LoadTex("Theme Specific/Eroica/Beam Textures/ER Energy Surge Beam");
+
+        // Projectiles
+        public static Texture2D ERGyratoryOrb => _erGyratoryOrb ??= LoadTex("Theme Specific/Eroica/Projectiles/ER Gyratory Orb");
+        public static Texture2D EROrbitingEnergySphere => _erOrbitingEnergySphere ??= LoadTex("Theme Specific/Eroica/Projectiles/ER Orbiting Energy Sphere");
+        public static Texture2D ERPulsatingMusicNoteOrb => _erPulsatingMusicNoteOrb ??= LoadTex("Theme Specific/Eroica/Projectiles/ER Pulsating Music Note Orb");
+
+        // Color Gradients
+        public static Texture2D ERGradientLUT => _erGradientLUT ??= LoadTex("ColorGradients/EroicaGradientLUTandRAMP");
+        public static Texture2D ERPaleGradientLUT => _erPaleGradientLUT ??= LoadTex("ColorGradients/EroicaGradientPALELUTandRAMP");
+
+        private static Texture2D LoadTex(string subPath)
+        {
+            string fullPath = "MagnumOpus/Assets/VFX Asset Library/" + subPath;
+            if (ModContent.HasAsset(fullPath))
+                return ModContent.Request<Texture2D>(fullPath, ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Generic theme-specific sprite particle for Eroica.
+    /// Renders a given texture with gentle wobble/float animation, additive blend, and fade-out.
+    /// Used by SpawnThemedSakuraPetals, SpawnThemedRisingEmbers, SpawnThemedLaurelLeaves, etc.
+    /// </summary>
+    public class EroicaThemedSpriteParticle : Particle
+    {
+        private readonly Texture2D _texture;
+        private readonly bool _wobble;
+        private readonly bool _floatUp;
+        private readonly float _wobblePhase;
+
+        public EroicaThemedSpriteParticle(Vector2 position, Vector2 velocity, Texture2D texture,
+            Color color, float scale, int lifetime, bool wobble = true, bool floatUp = true)
+        {
+            Position = position;
+            Velocity = velocity;
+            _texture = texture;
+            Color = color;
+            Scale = scale;
+            Lifetime = lifetime;
+            _wobble = wobble;
+            _floatUp = floatUp;
+            _wobblePhase = Main.rand.NextFloat(MathHelper.TwoPi);
+            Rotation = Main.rand.NextFloat(-0.3f, 0.3f);
+        }
+
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        public override void Update()
+        {
+            Velocity *= 0.96f;
+            if (_floatUp)
+                Velocity.Y -= 0.02f;
+            if (_wobble)
+                Position.X += (float)Math.Sin(_wobblePhase + Time * 0.05f) * 0.5f;
+            Rotation += Velocity.X * 0.01f;
+            Scale *= 0.998f;
+        }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            if (_texture == null) return;
+            Vector2 origin = _texture.Size() * 0.5f;
+            Vector2 drawPos = Position - Main.screenPosition;
+
+            float opacity = 1f - (float)Math.Pow(LifetimeCompletion, 1.5f);
+            Color color = Color with { A = 0 };
+
+            spriteBatch.Draw(_texture, drawPos, null, color * opacity,
+                Rotation, origin, Scale * 0.3f, SpriteEffects.None, 0f);
         }
     }
 }

@@ -4,23 +4,24 @@ using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.FoundationWeapons.SwordSmearFoundation
 {
     /// <summary>
-    /// SmearSwingProjectile — The visual swing projectile for SwordSmearFoundation.
+    /// SmearSwingProjectile 遯ｶ繝ｻThe visual swing projectile for SwordSmearFoundation.
     ///
     /// Performs a simple angular swing from one side to the other (like vanilla Swing
     /// useStyle), then renders the currently selected SlashArc texture as a large
     /// additive overlay centered on the player during the swing.
     ///
     /// Visual layers:
-    ///  1. SMEAR ARC — The selected SlashArc texture rendered additively (3 layers:
+    ///  1. SMEAR ARC 遯ｶ繝ｻThe selected SlashArc texture rendered additively (3 layers:
     ///     outer glow, main, core) centered on the player, rotated to follow the swing.
-    ///  2. BLADE SPRITE — The vanilla Katana texture drawn along the swing angle.
-    ///  3. TIP GLOW — Additive bloom at the blade tip position.
-    ///  4. ROOT GLOW — Soft bloom at the swing origin (hand position).
-    ///  5. DUST — Style-colored dust particles along the swing arc.
+    ///  2. BLADE SPRITE 遯ｶ繝ｻThe vanilla Katana texture drawn along the swing angle.
+    ///  3. TIP GLOW 遯ｶ繝ｻAdditive bloom at the blade tip position.
+    ///  4. ROOT GLOW 遯ｶ繝ｻSoft bloom at the swing origin (hand position).
+    ///  5. DUST 遯ｶ繝ｻStyle-colored dust particles along the swing arc.
     ///
     /// ai[0] = SmearStyle index from the item.
     /// </summary>
@@ -79,7 +80,7 @@ namespace MagnumOpus.Content.FoundationWeapons.SwordSmearFoundation
 
             // ---- SWING ANIMATION (eased) ----
             float progress = MathHelper.Clamp((float)timer / SwingDuration, 0f, 1f);
-            // Smoothstep easing — accelerates then decelerates
+            // Smoothstep easing 遯ｶ繝ｻaccelerates then decelerates
             float eased = progress * progress * (3f - 2f * progress);
 
             float currentAngle = startAngle + MathHelper.ToRadians(SwingArcDeg) * eased * swingDirection;
@@ -266,7 +267,7 @@ namespace MagnumOpus.Content.FoundationWeapons.SwordSmearFoundation
                 styleColors[1] * smearAlpha * 0.5f, 0f,
                 softGlow.Size() / 2f, 0.2f, SpriteEffects.None, 0f);
 
-            // Star flare at tip — rotates with swing
+            // Star flare at tip 遯ｶ繝ｻrotates with swing
             sb.Draw(starFlare, tipDrawPos, null,
                 styleColors[2] * smearAlpha * 0.4f, currentAngle * 0.5f,
                 starFlare.Size() / 2f, 0.12f, SpriteEffects.None, 0f);
@@ -287,7 +288,7 @@ namespace MagnumOpus.Content.FoundationWeapons.SwordSmearFoundation
             // ==================================================================
             //  LAYER 4: BLADE SPRITE
             // ==================================================================
-            Texture2D bladeTex = ModContent.Request<Texture2D>(Texture).Value;
+            Texture2D bladeTex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             Vector2 bladeOrigin = new Vector2(0, bladeTex.Height); // Bottom-left origin for rotation
 
             // Flip sprite based on swing direction

@@ -14,19 +14,20 @@ using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.ModLoader;
 using static MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Utilities.SerenadeUtils;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectiles
 {
     /// <summary>
-    /// SerenadeBeam — the primary bouncing beam projectile for Moonlight's Calling.
+    /// SerenadeBeam 遯ｶ繝ｻthe primary bouncing beam projectile for Moonlight's Calling.
     /// 
     /// Behavior:
     /// - Fires as a prismatic bolt with a trailing beam rendered via the PrismaticBeam shader.
     /// - Bounces off tiles (max 5 bounces), each bounce:
-    ///   · Spawns a RefractionRipple VFX particle burst
-    ///   · Increases spectral spread (more rainbow colors in beam)
-    ///   · Adds prismatic charge to the player
-    ///   · After 3+ bounces: spawns SpectralChild beams that split outward
+    ///   ・ゑｽｷ Spawns a RefractionRipple VFX particle burst
+    ///   ・ゑｽｷ Increases spectral spread (more rainbow colors in beam)
+    ///   ・ゑｽｷ Adds prismatic charge to the player
+    ///   ・ゑｽｷ After 3+ bounces: spawns SpectralChild beams that split outward
     /// - Final bounce (5th) triggers a prismatic detonation
     /// - Has homing after 2+ bounces (gentle curve toward nearest NPC)
     /// - Trail stored in oldPos[] for GPU rendering
@@ -92,7 +93,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
                     float speed = Projectile.velocity.Length();
                     Vector2 currentDir = Vector2.Normalize(Projectile.velocity);
 
-                    // Gentle curve — strength increases with bounces
+                    // Gentle curve 遯ｶ繝ｻstrength increases with bounces
                     float strength = HomingStrength * (1f + BounceCount * 0.3f);
                     Vector2 newDir = Vector2.Lerp(currentDir, desiredDir, strength);
                     newDir.Normalize();
@@ -237,9 +238,59 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
                 Main.dust[d].noGravity = true;
             }
 
-            // Hue-shifting music notes — the harp's refracted harmonics
+            // Hue-shifting music notes 遯ｶ繝ｻthe harp's refracted harmonics
             MoonlightVFXLibrary.SpawnMusicNotes(Projectile.Center, count: 2 + BounceCount,
                 spread: 15f + BounceCount * 5f, minScale: 0.5f, maxScale: 0.9f, lifetime: 35);
+
+            // === THEME-SPECIFIC: MS Star Flare at bounce point ===
+            SerenadeParticleHandler.Spawn(new SerenadeStarFlareParticle(
+                Projectile.Center, 1.5f + intensity * 0.5f,
+                GetBeamGradient(SpectralPhase), 20 + BounceCount * 4));
+
+            // === THEME-SPECIFIC: MS Harmonic Resonance Wave expanding from bounce ===
+            SerenadeParticleHandler.Spawn(new SerenadeResonanceWaveParticle(
+                Projectile.Center, GetBeamGradient(SpectralPhase),
+                2f + intensity, 25 + BounceCount * 5));
+
+            // === THEME-SPECIFIC: Harmonic standing wave ribbon fragments ===
+            for (int i = 0; i < 3 + BounceCount; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2CircularEdge(3f, 3f);
+                Color col = GetSpectralColor(i % SerenadeUtils.SpectralColors.Length);
+                SerenadeParticleHandler.Spawn(new HarmonicWaveRibbonParticle(
+                    Projectile.Center, vel, col, 0.5f + intensity * 0.2f, 30 + Main.rand.Next(15)));
+            }
+
+            // === THEME-SPECIFIC: Moonlight music notes (themed texture) ===
+            int msNoteCount = 2 + BounceCount / 2;
+            for (int i = 0; i < msNoteCount; i++)
+            {
+                Vector2 vel = new Vector2(Main.rand.NextFloat(-2f, 2f), -Main.rand.NextFloat(1f, 2.5f));
+                Color startCol = GetSpectralColor(Main.rand.Next(7));
+                Color endCol = MoonWhite;
+                SerenadeParticleHandler.Spawn(new SerenadeMoonlightNoteParticle(
+                    Projectile.Center + Main.rand.NextVector2Circular(10f, 10f), vel,
+                    startCol, endCol, 0.4f + Main.rand.NextFloat(0.3f), 40 + Main.rand.Next(15)));
+            }
+
+            // === THEME-SPECIFIC: MS Glow Orb bloom at bounce point ===
+            SerenadeParticleHandler.Spawn(new SerenadeGlowOrbParticle(
+                Projectile.Center, 1.8f + intensity * 0.4f,
+                GetBeamGradient(SpectralPhase), 20));
+
+            // === FOUNDATION VFX: SerenadeRipple (ImpactFoundation RippleShader) ===
+            // Prismatic concentric ring ripple at each bounce point.
+            // Ring count and colors scale with BounceCount via ai[0].
+            if (Projectile.owner == Main.myPlayer)
+            {
+                Projectile.NewProjectile(
+                    Projectile.GetSource_FromThis(),
+                    Projectile.Center, Vector2.Zero,
+                    ModContent.ProjectileType<SerenadeRipple>(),
+                    0, 0f, Projectile.owner,
+                    ai0: BounceCount
+                );
+            }
         }
 
         private void SpawnSpectralChildren()
@@ -283,7 +334,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
         {
             target.AddBuff(ModContent.BuffType<MusicalDissonance>(), 300);
 
-            // On-hit prismatic spark burst — resonance enhances count
+            // On-hit prismatic spark burst 遯ｶ繝ｻresonance enhances count
             if (!Main.dedServ)
             {
                 var serenade = Owner.Serenade();
@@ -317,10 +368,20 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
 
         public override bool PreDraw(ref Color lightColor)
         {
-            // Draw trail via GPU primitive renderer
-            DrawBeamTrail();
+            // End the active SpriteBatch before GPU primitive drawing
+            Main.spriteBatch.End();
+            try
+            {
+                // Draw trail via GPU primitive renderer
+                DrawBeamTrail();
+            }
+            finally
+            {
+                // Restore SpriteBatch to Terraria's expected state
+                Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
-            // Draw beam head glow
+            // Draw beam head glow (uses SpriteBatch)
             DrawBeamHead();
 
             return false; // Skip default drawing
@@ -355,8 +416,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
             }
 
             var glowSettings = new SerenadeTrailSettings(
-                widthFunction: (t, _) => BeamWidth * 2f * (1f - t * 0.5f) * bounceIntensity,
-                colorFunction: (t, _) => GetBeamGradient(t) * (0.5f * (1f - t)),
+                widthFunction: (t, _) => BeamWidth * 2.2f * MathF.Pow(1f - t, 1.5f) * bounceIntensity,
+                colorFunction: (t, _) => GetBeamGradient(t) * (0.5f * MathF.Pow(1f - t, 1.2f)),
                 smoothen: true,
                 shader: glowShader
             );
@@ -375,7 +436,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
                 beamShader.Shader?.Parameters["uScrollSpeed"]?.SetValue(3f);
                 beamShader.Shader?.Parameters["uDistortionAmt"]?.SetValue(0.04f + SpectralPhase * 0.06f);
                 beamShader.Shader?.Parameters["uOverbrightMult"]?.SetValue(1.5f);
-                // Musical wave noise pattern — adds flowing harmonic texture to the beam body
+                // Musical wave noise pattern 遯ｶ繝ｻadds flowing harmonic texture to the beam body
                 beamShader.UseImage1(ModContent.Request<Texture2D>(
                     "MagnumOpus/Assets/VFX Asset Library/NoiseTextures/MusicalWavePattern"));
                 beamShader.Shader?.Parameters["uHasSecondaryTex"]?.SetValue(1f);
@@ -384,8 +445,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
             }
 
             var beamSettings = new SerenadeTrailSettings(
-                widthFunction: (t, _) => BeamWidth * (1f - t * 0.4f) * bounceIntensity,
-                colorFunction: (t, _) => GetBeamGradient(t * SpectralPhase) * (1f - t * 0.3f),
+                widthFunction: (t, _) => BeamWidth * MathF.Pow(1f - t, 1.3f) * bounceIntensity,
+                colorFunction: (t, _) => GetBeamGradient(t * SpectralPhase) * (1f - MathF.Pow(t, 0.8f) * 0.4f),
                 smoothen: true,
                 shader: beamShader
             );
@@ -401,11 +462,17 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
             if (pointBloom == null) return;
 
             var softBloom = ModContent.Request<Texture2D>(
-                "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom").Value;
+                "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
 
             float bounceIntensity = GetBounceIntensity(BounceCount, MaxBounces);
             float pulse = 1f + MathF.Sin(AliveTime * 0.3f) * 0.15f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
+
+            // Switch to Additive for bloom layers (A=0 colors are invisible in AlphaBlend)
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Layer 1: Wide atmospheric halo (SoftRadialBloom) — prismatic outer glow
             Color haloColor = GetBeamGradient(SpectralPhase * 0.3f) with { A = 0 };
@@ -433,6 +500,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
                 (MoonWhite with { A = 0 }) * 0.7f * bounceIntensity,
                 0f, pointBloom.Size() * 0.5f, 0.25f * bounceIntensity * pulse,
                 SpriteEffects.None, 0f);
+
+            // Restore to AlphaBlend
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
         }
     }
 }

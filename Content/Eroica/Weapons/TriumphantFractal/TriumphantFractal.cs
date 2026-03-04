@@ -10,8 +10,19 @@ using Terraria;
 
 namespace MagnumOpus.Content.Eroica.Weapons.TriumphantFractal
 {
+    /// <summary>
+    /// Triumphant Fractal — Eroica magic weapon manifesting heroism as self-similar fractal patterns.
+    /// Fires bolts that recursively split into smaller copies on impact (2 generations of 3-way splits),
+    /// with overlapping fragments creating Resonance Zone AoE damage patches. Features a Fractal Shield
+    /// alt-fire that absorbs projectiles and a Triumph Accumulator that unleashes a 64-fragment barrage.
+    /// </summary>
     public class TriumphantFractal : ModItem
     {
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             Item.ResearchUnlockCount = 1;
@@ -43,8 +54,10 @@ namespace MagnumOpus.Content.Eroica.Weapons.TriumphantFractal
             "Overlapping fragments create Resonance Zones — brief AoE damage patches"));
             tooltips.Add(new TooltipLine(Mod, "Effect3",
             "After 10 fractal kills, next cast fires a Triumphant Fractal with 64 fragments"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4",
+            "Fractal Shield alt-fire absorbs projectiles and converts them to fractal energy"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
-            "'In every fragment of heroism, the whole sacrifice echoes.'")
+            "'In every fragment, the whole persists.'")
             {
                 OverrideColor = new Color(200, 50, 50)
             });

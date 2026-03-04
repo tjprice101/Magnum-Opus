@@ -2,18 +2,27 @@
 using MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
+using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria;
 using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Content.OdeToJoy.HarmonicCores;
 using MagnumOpus.Content.OdeToJoy.ResonanceEnergies;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon
 {
+    /// <summary>
+    /// Petal Storm Cannon — heavy artillery that fires petal cluster barrages.
+    /// 3-cluster spread per shot, clusters explode into persistent vortex zones that merge.
+    /// Hurricane Mode after 3 consecutive shots: charged shot sweeps the battlefield.
+    /// Seasonal Petals cycle: pink → gold → white.
+    /// </summary>
     public class PetalStormCannon : ModItem
     {
+        private int _shotCount;
+        private int _shotCooldown;
+
         public override void SetDefaults()
         {
             Item.width = 62;
@@ -30,9 +39,37 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon
             Item.autoReuse = true;
             Item.noMelee = true;
             Item.crit = 20;
-            Item.shoot = ProjectileID.RocketI;
-            Item.shootSpeed = 8f;
+            Item.shoot = ModContent.ProjectileType<PetalClusterProjectile>();
+            Item.shootSpeed = 10f;
             Item.useAmmo = AmmoID.Rocket;
+        }
+
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        {
+            _shotCount++;
+            int seasonalIndex = _shotCount;
+
+            // 3-cluster spread
+            float spreadAngle = MathHelper.ToRadians(12f);
+            for (int i = -1; i <= 1; i++)
+            {
+                Vector2 spreadVel = velocity.RotatedBy(spreadAngle * i);
+                int proj = Projectile.NewProjectile(source, position, spreadVel,
+                    ModContent.ProjectileType<PetalClusterProjectile>(), damage, knockback, player.whoAmI);
+                if (proj >= 0 && proj < Main.maxProjectiles)
+                    Main.projectile[proj].ai[0] = seasonalIndex; // seasonal color index
+            }
+
+            // After 3 consecutive shots, spawn Hurricane if player holds fire
+            if (_shotCount >= 3 && player.channel)
+            {
+                Vector2 hurricaneVel = velocity.SafeNormalize(Vector2.UnitX) * 6f;
+                Projectile.NewProjectile(source, position, hurricaneVel,
+                    ModContent.ProjectileType<HurricaneShotProjectile>(), (int)(damage * 2f), knockback * 2f, player.whoAmI);
+                _shotCount = 0;
+            }
+
+            return false;
         }
 
         public override void AddRecipes()
@@ -48,11 +85,11 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Converts any rocket into explosive petal bombs that arc through the air"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Petal bombs detonate into 8 homing shrapnel petals and a lingering petal storm vortex"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "The petal storm lasts 5 seconds, damaging all enemies caught in the whirling bloom"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "All impacts inflict Poisoned and Venom"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Where the cannon roars, a garden erupts — every detonation a verse in the jubilant anthem of creation'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Converts rockets into 3 petal cluster bombs that create persistent petal vortex zones"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Overlapping vortex zones merge into larger storms with increased damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "After 3 shots, holding fire launches a Hurricane Shot that sweeps the battlefield"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Stand inside your own petal storm for +8% damage, +5% crit for 3s"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The storm does not discriminate. Joy and ruin travel together.'")
             {
                 OverrideColor = new Color(255, 200, 50)
             });

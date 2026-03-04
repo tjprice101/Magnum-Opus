@@ -4,11 +4,12 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator.Utilities;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator.Particles
 {
     /// <summary>
-    /// Rocket exhaust ember — elongated fire particle trailing behind rocket.
+    /// Rocket exhaust ember 遯ｶ繝ｻelongated fire particle trailing behind rocket.
     /// </summary>
     public class RocketExhaustParticle : SymphonicBellfireParticle
     {
@@ -35,7 +36,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
 
         public override void Draw(SpriteBatch sb)
         {
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
             float fade = 1f - LifetimeCompletion;
             Vector2 stretch = new Vector2(stretchFactor * Scale * 0.1f, Scale * 0.08f);
             sb.Draw(tex, Position - Main.screenPosition, null,
@@ -44,7 +45,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
     }
 
     /// <summary>
-    /// Explosion fireball — large expanding fire sphere on rocket detonation.
+    /// Explosion fireball 遯ｶ繝ｻlarge expanding fire sphere on rocket detonation.
     /// </summary>
     public class ExplosionFireballParticle : SymphonicBellfireParticle
     {
@@ -67,7 +68,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
 
         public override void Draw(SpriteBatch sb)
         {
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
             float fade = 1f - LifetimeCompletion;
             sb.Draw(tex, Position - Main.screenPosition, null,
                 DrawColor * (fade * 0.5f), 0f, tex.Size() / 2f, Scale * 0.4f, SpriteEffects.None, 0f);
@@ -75,7 +76,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
     }
 
     /// <summary>
-    /// Crescendo wave ring — expanding golden ring for Grand Crescendo detonation.
+    /// Crescendo wave ring 遯ｶ繝ｻexpanding golden ring for Grand Crescendo detonation.
     /// </summary>
     public class CrescendoWaveParticle : SymphonicBellfireParticle
     {
@@ -99,7 +100,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
 
         public override void Draw(SpriteBatch sb)
         {
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad).Value;
             float fade = 1f - LifetimeCompletion;
             float scale = currentRadius / (tex.Width * 0.5f);
             sb.Draw(tex, Position - Main.screenPosition, null,
@@ -108,7 +109,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
     }
 
     /// <summary>
-    /// Symphonic note — musical identity particle for the annihilator, fiery notes.
+    /// Symphonic note 遯ｶ繝ｻmusical identity particle for the annihilator, fiery notes.
     /// </summary>
     public class SymphonicNoteParticle : SymphonicBellfireParticle
     {
@@ -145,7 +146,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
 
         public override void Draw(SpriteBatch sb)
         {
-            var tex = ModContent.Request<Texture2D>($"MagnumOpus/Assets/Particles Asset Library/{NoteTextureNames[noteVariant]}").Value;
+            var tex = ModContent.Request<Texture2D>($"MagnumOpus/Assets/Particles Asset Library/{NoteTextureNames[noteVariant]}", AssetRequestMode.ImmediateLoad).Value;
             float fade = 1f - LifetimeCompletion;
             float alpha = fade > 0.5f ? 1f : fade * 2f;
             sb.Draw(tex, Position - Main.screenPosition, null,

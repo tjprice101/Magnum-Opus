@@ -142,29 +142,62 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Primiti
                 return;
 
             GraphicsDevice device = Main.graphics.GraphicsDevice;
+            if (device == null || device.IsDisposed)
+                return;
+
             EnsureBuffers(device);
 
+            // Save all graphics states for proper restoration
             var oldRasterizer = device.RasterizerState;
+            var oldBlendState = device.BlendState;
+            var oldDepthStencil = device.DepthStencilState;
+            var oldSampler0 = device.SamplerStates[0];
+
             device.RasterizerState = RasterizerState.CullNone;
+            device.BlendState = BlendState.Additive;
+            device.DepthStencilState = DepthStencilState.None;
+            device.SamplerStates[0] = SamplerState.LinearWrap;
 
             Matrix view = Matrix.CreateLookAt(Vector3.Zero, Vector3.UnitZ, Vector3.Up);
             Matrix projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1);
             Matrix transform = view * projection;
 
-            if (settings.Shader != null)
+            try
             {
-                settings.Shader.Shader.Parameters["uWorldViewProjection"]?.SetValue(transform);
-                settings.Shader.Apply();
+                if (settings.Shader != null)
+                {
+                    settings.Shader.Shader.Parameters["uWorldViewProjection"]?.SetValue(transform);
+                    settings.Shader.Apply();
+                }
+                else
+                {
+                    // Fallback: use a BasicEffect so the GPU has a valid shader pipeline
+                    var basicEffect = new BasicEffect(device)
+                    {
+                        VertexColorEnabled = true,
+                        TextureEnabled = false,
+                        World = Matrix.Identity,
+                        View = view,
+                        Projection = projection
+                    };
+                    basicEffect.CurrentTechnique.Passes[0].Apply();
+                }
+
+                _vertexBuffer.SetData(_vertices, 0, vertexCount, SetDataOptions.Discard);
+                _indexBuffer.SetData(_indices, 0, indexCount, SetDataOptions.Discard);
+
+                device.SetVertexBuffer(_vertexBuffer);
+                device.Indices = _indexBuffer;
+                device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertexCount, 0, indexCount / 3);
             }
-
-            _vertexBuffer.SetData(_vertices, 0, vertexCount, SetDataOptions.Discard);
-            _indexBuffer.SetData(_indices, 0, indexCount, SetDataOptions.Discard);
-
-            device.SetVertexBuffer(_vertexBuffer);
-            device.Indices = _indexBuffer;
-            device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertexCount, 0, indexCount / 3);
-
-            device.RasterizerState = oldRasterizer;
+            finally
+            {
+                // Restore all graphics states
+                device.RasterizerState = oldRasterizer;
+                device.BlendState = oldBlendState;
+                device.DepthStencilState = oldDepthStencil;
+                device.SamplerStates[0] = oldSampler0;
+            }
         }
 
         #region Position Processing

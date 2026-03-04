@@ -17,13 +17,15 @@ using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCadence.P
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCadence.Dusts;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCadence.Utilities;
 using static MagnumOpus.Common.Systems.Particles.Particle;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCadence
 {
     /// <summary>
-    /// THE UNRESOLVED CADENCE — Swing projectile (held-projectile combo).
-    /// 3-phase combo: VoidCleave → ParadoxSlash → DimensionalSeverance
-    /// Each swing a different movement in the Enigma's unknowable melody.
+    /// THE UNRESOLVED CADENCE 窶・Swing projectile (held-projectile combo).
+    /// 3-phase combo: The Question 竊・The Doubt 竊・The Silence
+    /// Each swing builds Inevitability. At 10 stacks, Paradox Collapse tears reality.
+    /// Glitch aesthetic: chromatic aberration, scan-line flickers, dimensional tears.
     /// </summary>
     public sealed class TheUnresolvedCadenceSwing : MeleeSwingBase
     {
@@ -37,20 +39,20 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
 
         private static readonly Color[] EnigmaPalette = new Color[]
         {
-            MagnumThemePalettes.EnigmaBlack,      // [0] Pianissimo — void darkness
-            MagnumThemePalettes.EnigmaDeepPurple,  // [1] Piano — deep arcane
-            MagnumThemePalettes.EnigmaPurple,      // [2] Mezzo — enigma purple
-            new Color(100, 140, 200),              // [3] Forte — transitional
-            MagnumThemePalettes.EnigmaGreen,       // [4] Fortissimo — eerie green
-            new Color(180, 255, 180),              // [5] Sforzando — bright green-white
+            MagnumThemePalettes.EnigmaBlack,      // [0] Pianissimo 窶・void darkness
+            MagnumThemePalettes.EnigmaDeepPurple,  // [1] Piano 窶・deep arcane
+            MagnumThemePalettes.EnigmaPurple,      // [2] Mezzo 窶・enigma purple
+            new Color(100, 140, 200),              // [3] Forte 窶・transitional
+            MagnumThemePalettes.EnigmaGreen,       // [4] Fortissimo 窶・eerie green
+            new Color(180, 255, 180),              // [5] Sforzando 窶・bright green-white
         };
 
         #endregion
 
         #region Combo Phases
 
-        // Phase 0: VoidCleave — Quick, probing slash
-        private static readonly ComboPhase Phase0_VoidCleave = new ComboPhase(
+        // Phase 0: The Question 窶・Quick, probing diagonal slash
+        private static readonly ComboPhase Phase0_TheQuestion = new ComboPhase(
             new CurveSegment[]
             {
                 new CurveSegment(EasingType.PolyOut, 0f, -0.9f, 0.2f, 2),
@@ -65,8 +67,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
             damageMult: 0.85f
         );
 
-        // Phase 1: ParadoxSlash — Reversed arc, reality-bending
-        private static readonly ComboPhase Phase1_ParadoxSlash = new ComboPhase(
+        // Phase 1: The Doubt 窶・Cross-slash (X pattern), reversed arc
+        private static readonly ComboPhase Phase1_TheDoubt = new ComboPhase(
             new CurveSegment[]
             {
                 new CurveSegment(EasingType.PolyOut, 0f, -1f, 0.3f, 2),
@@ -81,8 +83,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
             damageMult: 1.0f
         );
 
-        // Phase 2: DimensionalSeverance — Heavy finisher, tears space
-        private static readonly ComboPhase Phase2_DimensionalSeverance = new ComboPhase(
+        // Phase 2: The Silence 窶・Heavy downward slam, tears space
+        private static readonly ComboPhase Phase2_TheSilence = new ComboPhase(
             new CurveSegment[]
             {
                 new CurveSegment(EasingType.PolyOut, 0f, -1.1f, 0.3f, 2),
@@ -103,9 +105,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
 
         protected override ComboPhase[] GetAllPhases() => new[]
         {
-            Phase0_VoidCleave,
-            Phase1_ParadoxSlash,
-            Phase2_DimensionalSeverance,
+            Phase0_TheQuestion,
+            Phase1_TheDoubt,
+            Phase2_TheSilence,
         };
 
         protected override Color[] GetPalette() => EnigmaPalette;
@@ -117,7 +119,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
         {
             return comboStep switch
             {
-                2 => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/VerticalEllipse",
+                0 => "MagnumOpus/Assets/VFX Asset Library/SlashArcs/SwordArcSmear",
+                1 => "MagnumOpus/Assets/VFX Asset Library/SlashArcs/FlamingSwordArcSmear",
+                2 => "MagnumOpus/Assets/VFX Asset Library/SlashArcs/FullCircleSwordArcSlash",
                 _ => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse",
             };
         }
@@ -129,7 +133,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
         protected override Texture2D GetBladeTexture()
         {
             if (ModContent.HasAsset("MagnumOpus/Content/EnigmaVariations/ResonantWeapons/TheUnresolvedCadence/TheUnresolvedCadence"))
-                return ModContent.Request<Texture2D>("MagnumOpus/Content/EnigmaVariations/ResonantWeapons/TheUnresolvedCadence/TheUnresolvedCadence").Value;
+                return ModContent.Request<Texture2D>("MagnumOpus/Content/EnigmaVariations/ResonantWeapons/TheUnresolvedCadence/TheUnresolvedCadence", AssetRequestMode.ImmediateLoad).Value;
             return base.GetBladeTexture();
         }
 
@@ -155,13 +159,13 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
         {
             if (hasSpawnedSpecial) return;
 
-            // Phase 0 at 55% — no gameplay effect (was VFX only)
+            // Phase 0 at 55% 窶・no gameplay effect (was VFX only)
             if (ComboStep == 0 && Progression >= 0.55f)
             {
                 hasSpawnedSpecial = true;
             }
 
-            // Phase 1 at 60% — dimensional slash sub-projectile
+            // Phase 1 at 60% 窶・dimensional slash sub-projectile
             if (ComboStep == 1 && Progression >= 0.60f)
             {
                 hasSpawnedSpecial = true;
@@ -177,7 +181,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
                 }
             }
 
-            // Phase 2 at 50% — massive dimensional tear (finisher)
+            // Phase 2 at 50% 窶・massive dimensional tear (finisher)
             if (ComboStep == 2 && Progression >= 0.50f)
             {
                 hasSpawnedSpecial = true;
@@ -222,8 +226,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
 
         protected override void OnSwingHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // ParadoxBrand debuff
-            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 600);
+            // ParadoxBrand debuff 窶・8 second duration per doc
+            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
             var brandNPC = target.GetGlobalNPC<ParadoxBrandNPC>();
             brandNPC.AddParadoxStack(target, hit.Crit ? 5 : 3);
 
@@ -271,6 +275,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
 
             Vector2 tipPos = GetBladeTipPosition();
             int timer = (int)Timer;
+            int stacks = TheUnresolvedCadenceItem.GetInevitabilityStacks();
+            float stackIntensity = stacks / 10f; // 0..1
 
             // Base particles for ALL phases: 1-2 DimensionalRiftMotes per frame at swing tip
             for (int i = 0; i < Main.rand.Next(1, 3); i++)
@@ -281,20 +287,66 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
                     tipPos + offset, vel, Main.rand.NextFloat(0.15f, 0.35f), Main.rand.Next(15, 25)));
             }
 
-            // Phase 0-1 (early combo): VoidCleaveParticle every 3 frames at swing tip
-            if (ComboStep <= 1 && timer % 3 == 0)
+            // === Glitch Aesthetic: rectangular glitch artifacts near blade ===
+            if (timer % 2 == 0 && Main.rand.NextBool(3))
+            {
+                // Small rectangular "glitch" fragments 窶・Enigma's digital tear reality
+                Vector2 glitchPos = Vector2.Lerp(Owner.MountedCenter, tipPos, Main.rand.NextFloat(0.3f, 1f));
+                glitchPos += Main.rand.NextVector2Circular(12f, 12f);
+                Color glitchColor = Main.rand.NextBool() ? CadenceUtils.DimensionalGreen : CadenceUtils.CadenceViolet;
+                CadenceParticleHandler.Spawn(new VoidCleaveParticle(
+                    glitchPos, Vector2.Zero, glitchColor * 0.9f, Main.rand.NextFloat(0.15f, 0.3f), Main.rand.Next(3, 6)));
+            }
+
+            // Phase 0 (The Question): VoidCleaveParticle every 3 frames at swing tip
+            if (ComboStep == 0 && timer % 3 == 0)
             {
                 Vector2 vel = SwordDirection * Main.rand.NextFloat(2f, 5f);
                 CadenceParticleHandler.Spawn(new VoidCleaveParticle(
                     tipPos, vel, CadenceUtils.CadenceViolet, Main.rand.NextFloat(0.3f, 0.6f), Main.rand.Next(12, 20)));
             }
 
-            // Phase 2+ (later combo): ParadoxSlashRipple every 2 frames at swing tip
+            // Phase 1 (The Doubt): Two perpendicular particle streams for X-pattern feel
+            if (ComboStep == 1 && timer % 2 == 0)
+            {
+                for (int side = -1; side <= 1; side += 2)
+                {
+                    Vector2 crossVel = SwordDirection.RotatedBy(MathHelper.PiOver4 * side) * Main.rand.NextFloat(3f, 6f);
+                    CadenceParticleHandler.Spawn(new DimensionalRiftMote(
+                        tipPos + Main.rand.NextVector2Circular(6f, 6f), crossVel,
+                        Main.rand.NextFloat(0.2f, 0.4f), Main.rand.Next(10, 18)));
+                }
+            }
+
+            // Phase 2 (The Silence): Heavy ParadoxSlashRipple every 2 frames at swing tip
             if (ComboStep >= 2 && timer % 2 == 0)
             {
                 Color rippleColor = Main.rand.NextBool() ? CadenceUtils.SeveranceLime : CadenceUtils.DimensionalGreen;
                 CadenceParticleHandler.Spawn(new ParadoxSlashRipple(
                     tipPos, rippleColor, Main.rand.NextFloat(0.2f, 0.4f), Main.rand.Next(20, 35)));
+            }
+
+            // === Inevitability escalation VFX: more particles as stacks grow ===
+            if (stacks >= 3 && timer % 4 == 0)
+            {
+                // Eerie green motes orbiting around the blade 窶・more as stacks increase
+                int extraMotes = (int)(stacks * 0.3f);
+                for (int i = 0; i < extraMotes; i++)
+                {
+                    Vector2 orbitOffset = Main.rand.NextVector2Circular(20f + stacks * 3f, 20f + stacks * 3f);
+                    CadenceParticleHandler.Spawn(new DimensionalRiftMote(
+                        tipPos + orbitOffset, -orbitOffset * 0.05f,
+                        Main.rand.NextFloat(0.1f, 0.25f), Main.rand.Next(20, 35)));
+                }
+            }
+
+            // === InevitabilityGlyph at high stacks: eye-like glyph flickers near blade ===
+            if (stacks >= 7 && timer % 6 == 0)
+            {
+                float glyphAngle = Main.rand.NextFloat(MathHelper.TwoPi);
+                CadenceParticleHandler.Spawn(new InevitabilityGlyphParticle(
+                    tipPos, 30f, glyphAngle, stacks,
+                    CadenceUtils.DimensionalGreen, 0.3f, 20));
             }
 
             // CadenceRiftDust every 5 frames
@@ -305,11 +357,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
                     dustVel.X, dustVel.Y);
             }
 
-            // Attack burst at peak swing (mid-point of animation): 3-5 VoidCleaveParticle along the arc
+            // Attack burst at peak swing: 3-6 VoidCleaveParticles along the arc + impact ripple
             int attackFrame = (int)(SwingTime * 0.5f);
             if (timer == attackFrame)
             {
-                int burstCount = Main.rand.Next(3, 6);
+                int burstCount = Main.rand.Next(3, 7);
                 for (int i = 0; i < burstCount; i++)
                 {
                     float arcOffset = MathHelper.Lerp(-0.4f, 0.4f, i / (float)Math.Max(burstCount - 1, 1));
@@ -319,6 +371,10 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
                     CadenceParticleHandler.Spawn(new VoidCleaveParticle(
                         burstPos, burstVel, CadenceUtils.CadenceViolet, Main.rand.NextFloat(0.4f, 0.8f), Main.rand.Next(15, 25)));
                 }
+
+                // Slash impact ripple at tip
+                CadenceParticleHandler.Spawn(new ParadoxSlashRipple(
+                    tipPos, CadenceUtils.SeveranceLime, 0.35f + ComboStep * 0.1f, 25));
             }
         }
 

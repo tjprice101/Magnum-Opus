@@ -7,7 +7,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.S
 {
     /// <summary>
     /// Loads TheSilentMeasure's weapon-specific shaders into GameShaders.Misc.
-    /// Each shader is self-contained — no shared Enigma shader manager.
+    /// Each shader is self-contained 窶・no shared Enigma shader manager.
     /// </summary>
     [Autoload(Side = ModSide.Client)]
     public sealed class SilentShaderLoader : ModSystem
@@ -20,14 +20,14 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.S
             var assets = Mod.Assets;
             Asset<Effect> Load(string path) => assets.Request<Effect>(path, AssetRequestMode.ImmediateLoad);
 
-            // Seeker trail shader — dotted/dashed energy trail for homing seekers
+            // Seeker trail shader 窶・dotted/dashed energy trail for homing seekers
             SeekerTrailAsset = Load("Content/EnigmaVariations/ResonantWeapons/TheSilentMeasure/Shaders/SilentSeekerTrail");
-            GameShaders.Misc["MagnumOpus:SilentSeekerFlow"] = new MiscShaderData(SeekerTrailAsset, "SilentSeekerFlow");
+            GameShaders.Misc["MagnumOpus:SilentSeekerFlow"] = new MiscShaderData(SeekerTrailAsset, "P0");
 
-            // Question burst shader — expanding burst with "?" motif + soft glow
+            // Question burst shader 窶・expanding burst with "?" motif + soft glow
             QuestionBurstAsset = Load("Content/EnigmaVariations/ResonantWeapons/TheSilentMeasure/Shaders/SilentQuestionBurst");
-            GameShaders.Misc["MagnumOpus:SilentQuestionBlast"] = new MiscShaderData(QuestionBurstAsset, "SilentQuestionBlast");
-            GameShaders.Misc["MagnumOpus:SilentQuestionGlow"] = new MiscShaderData(QuestionBurstAsset, "SilentQuestionGlow");
+            GameShaders.Misc["MagnumOpus:SilentQuestionBlast"] = new MiscShaderData(QuestionBurstAsset, "P0");
+            GameShaders.Misc["MagnumOpus:SilentQuestionGlow"] = new MiscShaderData(QuestionBurstAsset, "P0");
         }
     }
 }

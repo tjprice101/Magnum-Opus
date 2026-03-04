@@ -10,10 +10,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Shaders
     /// Self-contained shader loader for Fractal of the Stars.
     /// Loads 4 unique shaders from Effects/Fate/FractalOfTheStars/:
     ///
-    ///   1. FractalSwingTrail        — Main swing arc trail (2 techniques: main + glow)
-    ///   2. FractalConstellationTrail — Constellation-line connecting trail
-    ///   3. FractalStarFracture      — Geometric fractal explosion pattern
-    ///   4. FractalOrbitGlow         — Glow for orbiting spectral blades
+    ///   1. FractalSwingTrail        窶・Main swing arc trail (2 techniques: main + glow)
+    ///   2. FractalConstellationTrail 窶・Constellation-line connecting trail
+    ///   3. FractalStarFracture      窶・Geometric fractal explosion pattern
+    ///   4. FractalOrbitGlow         窶・Glow for orbiting spectral blades
     ///
     /// Keys: "MagnumOpus:Fractal<Purpose>"
     /// </summary>
@@ -52,7 +52,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Shaders
             if (HasSwingTrail)
             {
                 GameShaders.Misc["MagnumOpus:FractalSwingGlow"] =
-                    new MiscShaderData(SwingTrailShader, "FractalSwingGlow");
+                    new MiscShaderData(SwingTrailShader, "P0");
             }
         }
 
@@ -76,7 +76,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Shaders
                 var fallback = ModContent.Request<Effect>("MagnumOpus/Effects/ScrollingTrailShader", AssetRequestMode.ImmediateLoad);
                 if (fallback?.Value != null)
                 {
-                    GameShaders.Misc[key] = new MiscShaderData(fallback, "ScrollingTrailPass");
+                    GameShaders.Misc[key] = new MiscShaderData(fallback, "P0");
                     return true;
                 }
             }

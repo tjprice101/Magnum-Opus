@@ -1,430 +1,661 @@
-# ✨ Fate — Resonance Weapons Planning
+# ⭐ Fate — Resonance Weapons Planning
 
-> *"The celestial symphony of destiny — you wield the power of the cosmos itself."*
+> *"The celestial symphony of destiny — black void, dark pink, bright crimson, celestial white."*
 
 ## Theme Identity
 
 | Attribute | Value |
 |-----------|-------|
-| **Musical Soul** | Beethoven's Symphony No. 5 "Fate" — the knock of destiny, cosmic inevitability |
-| **Emotional Core** | Cosmic inevitability, endgame awe, celestial power |
+| **Musical Soul** | Beethoven's Symphony No. 5 (Fate) — the celestial symphony of destiny |
+| **Emotional Core** | Cosmic inevitability, endgame awe |
 | **Color Palette** | Black void, dark pink, bright crimson, celestial white |
-| **Palette Hex** | Cosmic Void `(5, 0, 15)` → Dark Nebula Pink `(160, 30, 80)` → Fate Crimson `(220, 40, 60)` → Stellar White `(255, 250, 255)` → Constellation Gold `(255, 220, 140)` |
+| **Core Hex** | CosmicVoid `(15, 5, 20)` → DarkPink `(180, 50, 100)` → BrightCrimson `(255, 60, 80)` → StarGold `(255, 230, 180)` → WhiteCelestial `(255, 255, 255)` → SupernovaWhite `(255, 255, 250)` |
+| **Extended Colors** | FatePurple `(120, 30, 140)`, NebulaPurple `(160, 80, 200)`, FateCyan `(100, 200, 255)`, ConstellationSilver `(200, 210, 240)`, DestinyFlame `(255, 120, 60)`, CosmicDawn `(220, 100, 80)`, CosmicRose `(220, 80, 130)` |
 | **Lore Color** | `new Color(180, 40, 80)` — Cosmic Crimson |
-| **Lore Keywords** | Destiny, cosmos, constellation, star, fate, inevitability, celestial, symphony, annihilation, conductor |
-| **VFX Language** | Ancient constellation glyphs, star particle streams, cosmic cloud energy, nebula trails, chromatic aberration, gravitational lensing, screen distortions |
+| **Lore Keywords** | Destiny, cosmos, stars, constellations, fate, symphony, finale, celestial, supernova, annihilation |
+| **VFX Language** | Ancient glyphs, star particles, cosmic cloud energy, screen distortions, chromatic aberration, constellation patterns, gravitational vortex, reality tears |
+
+### Shared Infrastructure (Already Exists)
+| System | Lines | Purpose |
+|--------|-------|---------|
+| `FatePalette.cs` | 473 | 6 core + 9 extended colors, 10 per-weapon palette arrays, gradient/shimmer helpers |
+| `FateVFXLibrary.cs` | 832 | Bloom stacking, dust helpers, cosmic clouds, music notes, trail functions (NOT referenced by weapons) |
+| `FateShaderManager.cs` | 350 | 10 trail presets, noise textures (NOT referenced by weapons) |
+| `FateCosmicVFX.cs` | 725 | Older cosmic VFX with EnhancedParticles (NOT referenced by weapons) |
+| `FateAstrographSystem.cs` | 599 | 10 constellation patterns (Orion, Scorpius, Leo, etc.) |
+| `DestinyCollapse` debuff | 667 | 8-stack gravitational collapse, Singularity→Supernova→Cosmic Revisit (ALL 10 weapons) |
+| `SpectralResonance` debuff | 124 | 3-stack burst (Requiem only) |
+| `FateWeaponDebuffs` | — | RealityFrayed (Requiem), AnnihilationMark (Coda), BygoneEcho (Bygone Reality) |
+
+### Architecture Note
+All 10 Fate weapons are **fully self-contained** (~12-14 .cs files + 4 .fx shaders each). Each weapon duplicates its own palette, easing, SpriteBatch helpers, particle system, and trail renderer internally. The ONLY shared runtime dependency is `Content/Fate/Debuffs/`. Foundations provide the **mesh construction, blend management, and rendering scaffolding patterns** that each weapon's self-contained systems build upon.
+
+---
+
+## Foundation Weapons Integration Map
+
+Fate is the endgame cosmic theme — every weapon should feel like wielding the power of the cosmos itself. Foundations provide technical scaffolding for rendering at maximum visual quality.
+
+| Foundation | Used By | Purpose |
+|-----------|---------|---------|
+| **SwordSmearFoundation** | Requiem, Opus, Fractal, Conductor, Coda | Swing arc smear — SmearDistortShader with cosmic pink/crimson/gold LUT |
+| **RibbonFoundation** | All 10 weapons | Trail strips — Mode 7 (Cosmic) for melee, Mode 6 (Energy Surge) for beams/projectiles, Mode 3 (Basic) for bullets |
+| **ImpactFoundation** | All 10 weapons | Hit VFX — RippleShader for destiny rings, DamageZoneShader for reality tears, SlashMarkShader for impact marks |
+| **ExplosionParticlesFoundation** | All 10 weapons | Cosmic detonations — supernova bursts, star fractures, blade shatters |
+| **SparkleProjectileFoundation** | Most weapons | SparkleTrailShader for cosmic notes, seekers, crystal shards, homing star particles |
+| **LaserFoundation** | Conductor (beam salvos), Fermata (slash waves) | ConvergenceBeamShader for homing cosmic beams |
+| **ThinLaserFoundation** | Conductor (lightning), Fractal (prismatic beam) | ThinBeamShader for chain lightning and beam strikes |
+| **InfernalBeamFoundation** | Final Fermata (temporal wave) | InfernalBeamBodyShader for sustained cosmic beams |
+| **MaskFoundation** | Crescendo (deity aura), Requiem (combo aura), Fermata (orbit ring) | RadialNoiseMaskShader for cosmic auras and formation rings |
+| **MagicOrbFoundation** | Symphony's End (spiral blades), Opus (energy balls) | OrbBolt rendering for cosmic projectile bodies |
+| **ThinSlashFoundation** | Requiem (spectral blade slash), Fractal (star fracture) | ThinSlashShader SDF for dimensional cut marks |
+| **XSlashFoundation** | Coda (Annihilation detonation) | XSlashShader for cross-tear ultimate VFX |
+| **SmokeFoundation** | Requiem (reality tear), Light of Future (smoke wisps) | Nebula smoke wisps from cosmic impacts |
+| **AttackAnimationFoundation** | Coda (Finale), Fractal (Star Fracture), Conductor (Convergence) | Cinematic sequences with screen effects |
+| **AttackFoundation** | All projectile-spawning weapons | Base projectile pattern for cosmic notes, beams, seekers |
 
 ---
 
 ## Weapons Overview
 
-| # | Weapon | Class | Key Mechanic |
-|---|--------|-------|-------------|
-| 1 | Requiem of Reality | Melee | Spectral blades + cosmic note attacks |
-| 2 | The Conductor's Last Constellation | Melee | Held swing + sword beam release |
-| 3 | Coda of Annihilation | Melee | Zenith-style ultimate sword |
-| 4 | Opus Ultima | Melee | THE Magnum Opus — 3-movement master weapon |
-| 5 | Fractal of the Stars | Melee | Orbiting spectral star blades with Star Fracture |
-| 6 | Resonance of a Bygone Reality | Ranged | Spectral blade + rapid bullet fusion |
-| 7 | Light of the Future | Ranged | Accelerating light bullets + cosmic rockets |
-| 8 | The Final Fermata | Magic | Spectral swords + slash waves |
-| 9 | Symphony's End | Magic | Spiraling blades that shatter on contact |
-| 10 | Destiny's Crescendo | Summon | Crescendo Deity minion with cosmic beams |
+| # | Weapon | Class | Damage | Key Mechanic |
+|---|--------|-------|--------|-------------|
+| 1 | Requiem of Reality | Melee | 740 | 4-movement combo + Spectral Blade + Reality Tears |
+| 2 | The Final Fermata | Magic | 520 | 6 orbiting spectral swords + synchronized slash + Fermata Power (5×) |
+| 3 | Destiny's Crescendo | Summon | 400 | Deity minion + 4-phase Musical Escalation (Pianissimo→Fortissimo) |
+| 4 | Symphony's End | Magic | 500 | Rapid-fire spiral blades + Crescendo Mode + Final Note ultimate |
+| 5 | Resonance of a Bygone Reality | Ranged | 400 | Rapid-fire + spectral blade every 5th hit + Bygone Resonance dual-hit |
+| 6 | Light of the Future | Ranged | 680 | Accelerating railgun (6→42 speed) + cosmic rockets + Cascade kills |
+| 7 | Coda of Annihilation | Melee | 1350 | **Zenith-equivalent** — throws 14 theme melee weapon copies |
+| 8 | Opus Ultima | Melee | 720 | 3-movement combo + energy balls→seekers + Opus Resonance stacks |
+| 9 | Fractal of the Stars | Melee | 850 | 3-phase geometric combo + orbiting star blades + Star Fracture recursion |
+| 10 | The Conductor's Last Constellation | Melee | 780 | 3-phase orchestral combo + homing beams + lightning + Convergence |
 
 ---
 
-## 1. Requiem of Reality (Melee)
+## 1. Requiem of Reality (Melee — 4-Movement Combo)
 
 ### Identity & Musical Soul
-A requiem for reality itself — this blade cuts not just flesh but the fabric of existence. Each swing tears a small rift where spectral blades emerge, and cosmic notes scatter like stars being born and dying in the blade's wake. The first of the Fate melee weapons — powerful but not the pinnacle.
+The requiem — a mass for the dead. A blade that plays four movements: Adagio (slow, mournful), Allegro (quick, desperate), Scherzo (wild, spinning), Finale (the final, devastating stroke). Reality tears open in its wake.
 
 ### Lore Line
-*"Reality sang its last note when this blade was forged."*
+*"The cosmos does not mourn. It simply ends, and begins again."*
 
-### Combat Mechanics
-- **3-Phase Combo**:
-  - **Phase 1 — Opening Motif**: Horizontal slash spawning 2 RequiemSpectralBlades that fly forward (pass through enemies).
-  - **Phase 2 — Development**: Rising diagonal slash spawning 3 RequiemCosmicNotes (homing projectiles shaped like musical notes, crimson energy).
-  - **Phase 3 — Recapitulation**: Heavy slam spawning 4 spectral blades in a fan + a gravity pull at slam point (draws enemies inward for 1s).
-- **Reality Tear**: On-hit effect — 15% chance to spawn a small reality tear behind the enemy (lingering 2s), dealing continuous damage to anything inside.
-- **Spectral Resonance**: Spectral blades that pass through enemies leave Spectral Resonance stacks (max 3). At 3 stacks, enemy takes a delayed burst of cosmic damage after 1 second.
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  REQUIEM OF REALITY — Foundation Architecture       │
+├─────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────┐  │
+│  │ SwordSmearFoundation (SmearDistortShader)     │  │
+│  │  → 4-movement escalating cosmic smear          │  │
+│  │  → CosmicVoid→FatePurple→BrightCrimson LUT    │  │
+│  │  → distortStrength: 0.05→0.07→0.09→0.14       │  │
+│  │  → 5-layer rendering pipeline                  │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ RibbonFoundation (Mode 7: Cosmic Flow)        │  │
+│  │  → 24-point trail arc, cosmic pink/crimson     │  │
+│  │  → RequiemSwingTrail shader + noise texture    │  │
+│  │  → RequiemSwingGlow shader (wide glow layer)   │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ SparkleProjectileFoundation (cosmic notes)    │  │
+│  │  → RequiemCosmicNote homing music notes        │  │
+│  │  → 3-5 per swing, 40% dmg, 2-phase AI         │  │
+│  │  → SparkleTrailShader: pink-red hue band       │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ AttackFoundation (Spectral Blade)             │  │
+│  │  → RequiemSpectralBlade: 6-phase autonomous AI │  │
+│  │  → Rise→Orbit→Detonate→Seek→Slash→Return      │  │
+│  │  → Spawns on 4th swing (Finale), 2× dmg       │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (Ripple + DamageZone)        │  │
+│  │  → RippleShader: destiny expansion rings       │  │
+│  │  → DamageZone: RequiemRealityTear (lingering)  │  │
+│  │  → RequiemImpactBloom shader (directional)     │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ MaskFoundation (RadialNoiseMaskShader)        │  │
+│  │  → RequiemComboAura at combo ≥ 3              │  │
+│  │  → Cosmic nebula noise, pulsing crimson/gold   │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ SmokeFoundation (reality tears)               │  │
+│  │  → Nebula smoke from RequiemRealityTear        │  │
+│  └───────────────────────────────────────────────┘  │
+│  CUSTOM SHADERS (5 keys, 4 files):                  │
+│  → RequiemSwingTrail.fx (SwingMain + SwingGlow)      │
+│  → RequiemNoteTrail.fx (NoteTrailMain)               │
+│  → RequiemComboAura.fx (ComboAuraMain)               │
+│  → RequiemImpactBloom.fx (ImpactBloomMain)           │
+│  DEBUFFS: SpectralResonance (3-stack burst 2.5×)    │
+│  + RealityFrayed (15 DPS) + DestinyCollapse          │
+│  5 PARTICLE TYPES: BloomFlare, Spark, Glyph, Mote, Note │
+└─────────────────────────────────────────────────────┘
+```
 
-### VFX Architecture Plan
-
-#### Custom Shaders (3)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `RequiemSlashTrail.fx` | Swing trail with cosmic energy | UV-scrolled trail strip. Core: deep crimson → cosmic void. Edge: dark pink → stellar white sparks. Internal nebula noise scroll (cosmic noise texture). |
-| `RealityTearShader.fx` | Small lingering reality rift | Vertical SDF tear — black void center with chromatic aberration at edges (RGB channel splitting). Edge: crimson-pink shimmering. Brief gravitational distortion. |
-| `SpectralBladeBody.fx` | Spectral blade sub-projectile | Transparent ghostly blade shape — cosmic void body → crimson edge with afterimage trail (multiple fading copies behind). |
-
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| CosmicNoteParticle | Homing toward target, rotating | Music note shape, crimson-gold, glowing trail, 60 frame life |
-| SpectralResonancePulseParticle | Expands from enemy at 3 stacks | Crimson ring expanding, thin, 10 frame burst |
-| RealityTearSparkParticle | Sheds from tear edges | Chromatic sparks (color shifts rapidly), 5-8 frame life |
-| NebulaTrailMoteParticle | Drifts from swing trail | Dark pink-crimson motes, slow drift, 15 frame life |
-
-#### Debuffs
-| Debuff | Effect | Duration |
-|--------|--------|----------|
-| SpectralResonance | Stacking (1-3). At 3: delayed cosmic burst. Visual: crimson rings. | 120 frames per stack |
-| RealityFrayed | DoT inside reality tear. 15 damage/s. | While in tear zone |
+### 4-Movement Musical Combo
+| Movement | Name | Arc | Duration | DmgMult | Easing | Foundation |
+|----------|------|-----|----------|---------|--------|-----------|
+| 0 | Adagio | 160° | 30f | 1.0× | SineInOut | SwordSmear + Ribbon |
+| 1 | Allegro | 120° | 22f | 0.9× | QuadOut | SwordSmear + Ribbon + Sparkle |
+| 2 | Scherzo | 270° | 18f | 0.8× | ExpOut | SwordSmear + Ribbon |
+| 3 | Finale | 100° | 26f | 1.5× | BackOut overshoot | ALL foundations + Attack |
 
 ---
 
-## 2. The Conductor's Last Constellation (Melee)
+## 2. The Final Fermata (Magic — Orbiting Swords)
 
 ### Identity & Musical Soul
-The conductor raises the baton one final time — and the last constellation blazes to life. This weapon channels the conductor's dying art: a held swing that charges power from the heavens, then releases it as a devastating sword beam. The constellation theme means star-map visuals, connected star points, and the geometry of the night sky.
+A fermata — the held note at the end. Spectral swords orbit the caster, building in number and power the longer held. The ultimate expression of sustained magical pressure.
 
 ### Lore Line
-*"The last constellation he drew was a blade aimed at eternity."*
+*"Hold the note. Hold it until the stars remember what silence is."*
 
-### Combat Mechanics
-- **Held Swing**: Primary use — channels a held swing projectile. The blade glows brighter the longer held (max 2s). During hold, constellation lines and stars appear around the player (cosmetic, building intensity).
-- **Constellation Sword Beam**: On release — fires a ConductorSwordBeam. Beam power scales with hold time (0.5s: 1x, 1.0s: 1.5x, 2.0s: 2.5x damage). Beam pierces through enemies.
-- **Star Map Overlay**: While charging, a star map overlay appears behind the player — constellation lines connecting star points. The pattern changes per charge level, culminating in a full constellation at max charge.
-- **Conductor's Finale**: If the fully charged beam kills an enemy, the constellation "shatters" — all star points become projectiles that fly toward nearby enemies. 8-12 star projectiles per shatter.
-
-### VFX Architecture Plan
-
-#### Custom Shaders (3)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `ConstellationMapOverlay.fx` | Star map background appearing during charge | Screen-space overlay. Star points (bright dots) with connecting lines. Fades in progressively — more stars/lines at higher charge. Dark background with crimson-gold stars. |
-| `ConductorBeamBody.fx` | Sword beam projectile | Wide beam strip with internal cosmic energy scroll. Nebula noise texture inside. Core: stellar white → crimson body → dark pink edge → void falloff. Chromatic aberration at high power. |
-| `ConstellationShatterProj.fx` | Star projectiles from shattered constellation | Small star SDF (4-point star) with golden-white glow. Trail: thin constellation-line behind (straight line trail, not curved). Impact: small star burst. |
-
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| ChargeStarPointParticle | Appears at star positions during charge | Bright stellar white dot, twinkle effect, stationary, appears one by one as charge builds |
-| ConstellationLineParticle | Connects star points during charge (lines) | Thin white-gold line segments, drawn between star points, 1px width |
-| BeamEdgeSparkParticle | Sheds from beam edges during travel | Crimson-gold sparks, perpendicular drift, 8 frame life |
-| ShatterStarTrailParticle | Trail behind shattered constellation projectiles | Gold sparkle, thin trail, 6 frame life |
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  THE FINAL FERMATA — Foundation Architecture        │
+├─────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────┐  │
+│  │ SparkleProjectileFoundation (spectral swords) │  │
+│  │  → FermataSpectralSwordNew orbiting swords     │  │
+│  │  → SparkleTrailShader: crimson cosmic shimmer  │  │
+│  │  → 3→6 swords, equilateral→hexagonal formation│  │
+│  │  → FermataSwordTrail shader (orbit trail)      │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ MaskFoundation (RadialNoiseMaskShader)        │  │
+│  │  → FermataOrbitRing: formation ring visual     │  │
+│  │  → Cosmic noise, 60px orbit radius             │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ThinSlashFoundation (ThinSlashShader)         │  │
+│  │  → FermataSlashWave: synchronized slash marks  │  │
+│  │  → Every 90 frames: ALL swords slash at once   │  │
+│  │  → FermataSyncSlash shader (arc trail)         │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (Ripple)                     │  │
+│  │  → RippleShader: synchronized slash impact     │  │
+│  │  → FermataTemporalWave shader (temporal wave)  │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ RibbonFoundation (Mode 6: Energy Surge)       │  │
+│  │  → SlashWave trail rendering                   │  │
+│  └───────────────────────────────────────────────┘  │
+│  CUSTOM SHADERS (5 keys, 4 files):                  │
+│  → FermataSwordTrail.fx (Sword + Glow techniques)   │
+│  → FermataOrbitRing.fx (formation ring)              │
+│  → FermataTemporalWave.fx (temporal wave)            │
+│  → FermataSyncSlash.fx (synchronized slash arc)      │
+│  UNIQUE SYSTEMS:                                    │
+│  → Fermata Power: +10%/s sustained hold, max 5×     │
+│  → Harmonic Alignment: 3+ swords focus same target  │
+│  → 10s sustained → autonomous Sustained Note minion │
+│  → Max 6 swords = 1.5× sync slash damage            │
+│  DEBUFFS: DestinyCollapse                           │
+└─────────────────────────────────────────────────────┘
+```
 
 ---
 
-## 3. Coda of Annihilation (Melee)
+## 3. Destiny's Crescendo (Summon — Deity Minion)
 
 ### Identity & Musical Soul
-The coda — the final passage of a musical composition. The Coda of Annihilation is a **Zenith-style weapon** — the pinnacle of melee crafting for the Fate theme. It summons phantom swords that fly toward the cursor, each representing a different Fate weapon incorporated into it. Multiple blades, multiple identities, one devastating symphony of annihilation.
+A crescendo — building from silence to overwhelming power. The deity minion grows in size, strength, and visual intensity over 45 seconds. Taking massive damage resets the crescendo.
 
 ### Lore Line
-*"All melodies find their end here. This is the final bar."*
+*"The symphony of fate plays softly at first. By the finale, it shakes the heavens."*
 
-### Combat Mechanics
-- **Zenith-Style Projectiles**: Using the weapon fires CodaZenithSword projectiles — phantom versions of Fate melee weapons that fly toward the cursor in overlapping arcs. 3-5 swords airborne at once.
-- **Held Swing Anchor**: While using, CodaHeldSwing keeps a physical swing active — combining direct melee with ranged phantom swords.
-- **Annihilation Stacks**: Each phantom sword hit builds Annihilation on the target (max 10). At 10 stacks, the target suffers Annihilation — single massive damage burst equal to 50% of all damage dealt during stack buildup.
-- **Coda Finale**: After 10 seconds of continuous use, the weapon enters Coda Finale — all phantom swords converge simultaneously on the cursor in a spiral pattern, creating a gravitational singularity (brief) that implodes then explodes.
-
-### VFX Architecture Plan
-
-#### Custom Shaders (4)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `CodaZenithSwordBody.fx` | Phantom flying sword rendering | Ghost-blade with cosmic energy fill. Each phantom sword tinted slightly differently (representing different source weapons). Afterimage trail. Crimson-pink with constellation patterns inside. |
-| `CodaSwingTrail.fx` | Held swing trail for the anchor | Massive wide trail — cosmic void with star particles embedded. Deep crimson → black → stellar white sparks at edges. |
-| `AnnihilationSingularity.fx` | Gravitational singularity at Coda Finale | Screen-space gravitational lens distortion pulling pixels inward. Crimson ring at event horizon. Chromatic aberration intensifying toward center. Brief implosion → massive expansion. |
-| `CodaPhantomAura.fx` | Ambient cosmic aura during use | Player surrounded by swirling cosmic cloud energy. Dark pink nebula with embedded star points. Rotates slowly. Intensifies during Finale countdown. |
-
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| PhantomSwordTrailParticle | Trail behind each phantom sword | Crimson-gold sparkle streak, 8 frame life, color varies per phantom |
-| AnnihilationStackRingParticle | Concentric rings on stacked target | Crimson rings tightening with stacks, 1 ring per stack |
-| SingularityDebrisParticle | Pulled inward during singularity, then explodes out | Cosmic debris — star fragments, void shards, 20-40 particles |
-| CodaFinaleStarBurstParticle | Massive burst from singularity explosion | All Fate-theme colors, 50+ particles, radial explosion, 25 frame life |
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  DESTINY'S CRESCENDO — Foundation Architecture      │
+├─────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────┐  │
+│  │ MaskFoundation (RadialNoiseMaskShader)        │  │
+│  │  → CrescendoAuraGlow: deity ambient aura       │  │
+│  │  → Scales with escalation phase (1.0→1.5×)    │  │
+│  │  → Cosmic noise, crimson→gold gradient         │  │
+│  │  → CrescendoSummonBloom shader (summon flash)  │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ SparkleProjectileFoundation (cosmic beams)    │  │
+│  │  → CrescendoCosmicBeam homing beam projectiles │  │
+│  │  → SparkleTrailShader: fire→gold gradient      │  │
+│  │  → 4PointedStarHard texture                    │  │
+│  │  → Phase-scales: 1→2→3→5 beams per volley     │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (Ripple)                     │  │
+│  │  → RippleShader: deity slash impact rings      │  │
+│  │  → CrescendoSlashArc shader (melee arc)        │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ RibbonFoundation (Mode 1: Pure Bloom)         │  │
+│  │  → Deity movement trail (cosmic glow)          │  │
+│  │  → CrescendoBeamTrail shader (beam trails)     │  │
+│  └───────────────────────────────────────────────┘  │
+│  CUSTOM SHADERS (4):                                │
+│  → CrescendoBeamTrail.fx, CrescendoAuraGlow.fx     │
+│  → CrescendoSummonBloom.fx, CrescendoSlashArc.fx   │
+│  MUSICAL ESCALATION (4 phases):                     │
+│  → Pianissimo (0s): 1 beam, 120f CD, 1.0× scale    │
+│  → Piano (15s): 2 beams, 100f CD, 1.15× scale      │
+│  → Forte (30s): 3 beams, 80f CD, 1.3× + buffs      │
+│  → Fortissimo (45s): 5 beams, 60f CD, 1.5× + all   │
+│  → Heavy hit (>200 dmg) → RESET to Pianissimo       │
+│  DEBUFFS: DestinyCollapse                           │
+└─────────────────────────────────────────────────────┘
+```
 
 ---
 
-## 4. Opus Ultima (Melee)
+## 4. Symphony's End (Magic — Rapid Spiral Blades)
 
 ### Identity & Musical Soul
-**THE Magnum Opus.** The culmination of all musical training — the final masterwork. This weapon has a **3-movement combo system** like the Incisor of Moonlight, but grander in every way. Each movement represents a complete section of the symphony: Exposition reveals the theme, Development transforms it, and Recapitulation brings it all together in devastating conclusion. This is the mod's signature weapon.
+The symphony ends — not with a quiet note but with a cascade of spiraling blades. Rapid-fire corkscrewing projectiles that shatter into fragments on impact, building to a Final Note ultimate.
 
 ### Lore Line
-*"This is not a weapon. This is the masterwork — the opus that was always meant to be."*
+*"Every symphony must end. This one ends the world."*
 
-### Combat Mechanics (Existing partial implementation — 720 damage, 3-movement system)
-- **Movement I — Exposition** (SubSteps: 3):
-  - Step 1: Sweeping horizontal arc, wide. Spawns 2 energy ball projectiles.
-  - Step 2: Rising diagonal. Spawns 3 energy balls.
-  - Step 3: Overhead slam. All energy balls detonate → each explodes into 5 homing seekers.
-- **Movement II — Development** (SubSteps: 4):
-  - Steps 1-3: Rapid alternating slashes (left-right-left), each faster and narrower. No sub-projectiles — pure melee + on-hit effects.
-  - Step 4: Charged thrust: On hit → DestinyCollapse (massive screen-filling effect) + 8 seeking crystal shards orbit impact point.
-- **Movement III — Recapitulation** (SubSteps: 2):
-  - Step 1: Massive circular sweep (360°, slow, devastating). During sweep, ALL previously spawned homing seekers and crystal shards reactivate and converge on the sweep's center.
-  - Step 2: The Grand Finale — weapon plants into ground. Celestial beam descends from above through player + expands outward. All Opus effects detonate simultaneously. Screen distortion + shake.
-- **Opus Resonance**: Passive — while equipped, the player pulses with cosmic energy. Each completed movement grants a permanent Opus Resonance stack for the current fight (+5% all damage, max 9 stacks for 3 complete cycles). Stacks visible as orbiting constellation stars.
-
-### VFX Architecture Plan
-
-#### Custom Shaders (6)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `OpusSwingTrail.fx` | Grand swing trail — the richest trail in the mod | Multi-texture layered trail. Layer 1: cosmic void body. Layer 2: nebula noise scroll. Layer 3: constellation star points embedded. Color: deep void → crimson → pink → stellar white at tip. Each movement has different trail parameters (wider, brighter, more layers). |
-| `OpusEnergyBall.fx` | Energy ball projectile body | Pulsing SDF sphere with cosmic cloud fill (UV-scrolled nebula). Dark void center → crimson glow → pink edge. Orbiting small star sparkles around each ball. |
-| `DestinyCollapse.fx` | Screen-filling cosmic collapse effect | Full-screen shader effect: gravitational lens pulling screen edges inward → chromatic aberration → cosmic void circle expanding → bright crimson ring → white flash. 0.8s duration. The most dramatic single-effect in the mod. |
-| `CelestialBeam.fx` | Vertical beam from the heavens in Recapitulation | Full-screen-height beam from top of screen down through player. Internal: constellation patterns scrolling downward. Nebula colors flowing. Massive, awe-inspiring. |
-| `OpusResonanceAura.fx` | Passive aura with orbiting constellation stars | Player aura effect. Base: subtle cosmic shimmer. Per Opus Resonance stack: +1 orbiting star point with constellation line connecting them. At 9 stacks: full constellation pattern orbiting player. |
-| `OpusFinaleExplosion.fx` | Grand Finale all-effects detonation | Everything detonates. Multiple overlapping SDF rings in all Fate colors. Internal cosmic cloud expansion. Star particle supernova. Screen distortion. The visual climax of the weapon. |
-
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| OpusStarSeekerParticle | Trail behind homing seeker projectiles | Gold-crimson sparkle, 6 frame life |
-| CrystalShardOrbitParticle | Orbits around impact point (crystal shard behavior) | Faceted crimson-pink crystal, tight orbit, 180 frame life |
-| DestinyCollapseDebrisParticle | Pulled inward then explodes | Cosmic debris — void shards, star fragments, reality shards, 30+ |
-| CelestialBeamMoteParticle | Descends inside celestial beam | Stellar white motes falling downward inside beam column, 20 frame life |
-| OpusResonanceStarParticle | Orbits player per Resonance stack | Gold star point, slow orbit, persists until stack fades |
-| GrandFinaleCosmicBurstParticle | Massive burst from finale | 80+ particles, all Fate-theme colors, radial explosion, 30 frame life |
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  SYMPHONY'S END — Foundation Architecture           │
+├─────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────┐  │
+│  │ MagicOrbFoundation (spiral blades)            │  │
+│  │  → SymphonySpiralBlade helix-steering body     │  │
+│  │  → OrbBolt rendering: corkscrewing flight      │  │
+│  │  → SymphonySpiralTrail shader (helix trail)    │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ExplosionParticlesFoundation (blade shatter)  │  │
+│  │  → 4 SymphonyBladeFragment per shatter         │  │
+│  │  → SymphonyShatterBloom shader (bloom)         │  │
+│  │  → Gravity-affected scatter fragments          │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ SparkleProjectileFoundation (fragments)       │  │
+│  │  → SymphonyBladeFragment shimmer trail         │  │
+│  │  → SymphonyFragmentTrail shader                │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ RibbonFoundation (Mode 6: Energy Surge)       │  │
+│  │  → Spiral blade energy trail                   │  │
+│  │  → SymphonyCrackle shader (crackle overlay)    │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (Ripple)                     │  │
+│  │  → RippleShader: blade shatter rings           │  │
+│  └───────────────────────────────────────────────┘  │
+│  CUSTOM SHADERS (4):                                │
+│  → SymphonySpiralTrail.fx, SymphonyShatterBloom.fx  │
+│  → SymphonyFragmentTrail.fx, SymphonyCrackle.fx     │
+│  UNIQUE SYSTEMS:                                    │
+│  → Helix steering: perpendicular oscillation sin(θ) │
+│  → Crescendo Mode (3s fire): +50% rate, +size       │
+│  → Diminuendo (stop after Crescendo): +20% dmg 2s   │
+│  → Final Note (10s fire): 5× size, full pierce      │
+│  DEBUFFS: DestinyCollapse                           │
+└─────────────────────────────────────────────────────┘
+```
 
 ---
 
-## 5. Fractal of the Stars (Melee)
+## 5. Resonance of a Bygone Reality (Ranged — Cosmic Gun)
 
 ### Identity & Musical Soul
-Stars have fractal nature — zoom into a nebula and you find smaller nebulae, smaller stars, smaller constellations in infinite recursion. This blade is **forged from shattered constellations**, and each swing spawns orbital remnants — spectral star blades that circle the player like a private galaxy. The fractal motif: on-hit effects create smaller versions of themselves.
+A resonance from a reality that once was — rapid-fire cosmic bullets that summon ghostly spectral blades from the past. When blade and bullet strike the same enemy, they trigger a Bygone Resonance — reality remembering what it was.
 
 ### Lore Line
-*"Every star contains a universe. Every universe, another blade."*
+*"The past does not stay buried. It echoes through every bullet."*
 
-### Combat Mechanics (Existing: 850 damage, 3-phase combo)
-- **3-Phase Combo**:
-  - **Phase 1 — Horizontal Sweep**: Wide slash. On hit: spawns 1 FractalOrbitBlade (spectral star blade that orbits player at medium range).
-  - **Phase 2 — Rising Uppercut**: Vertical upward slash. On hit: spawns 2 orbit blades.
-  - **Phase 3 — Gravity Slam**: Heavy downward slam. On hit: Star Fracture — geometric explosion (fractal pattern expanding outward).
-- **Orbiting Star Blades**: Max 6 orbit blades at once. They circle the player, damaging enemies they pass through. They fire prismatic beams at enemies every 3 seconds.
-- **Star Fracture**: Every 3rd hit triggers Star Fracture — geometric explosion with fractal branching pattern (center → 4 branches → each branch splits into 2 → each sub-branch splits into 2). Visual and damaging.
-- **Fractal Recursion**: Star Fracture damage itself can trigger mini-Star Fractures on hit (1/3 size, 1/3 damage), which can trigger micro-fractures (1/9 size, 1/9 damage), creating cascading fractal destruction.
-
-### VFX Architecture Plan
-
-#### Custom Shaders (3)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `FractalSwingTrail.fx` | Swing trail with embedded star points | Trail strip with star-point UV pattern embedded (not just solid color — visible star shapes along the trail). Cosmic void body → gold-crimson edge. Fractal branching pattern at trail tip. |
-| `StarFractureGeometric.fx` | Fractal geometric explosion | Expanding fractal pattern: straight lines branching at 90° angles. Each generation smaller and dimmer. Gold lines on void background. Brief but visually complex. Recursive nesting. |
-| `OrbitBladeBody.fx` | Orbiting spectral star blade | SDF 4-point star shape. Cosmic fill with internal nebula scroll. Crimson-gold glow. Bright trail behind as it orbits. Prismatic beam shader for ranged attacks. |
-
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| OrbitBladeSparkParticle | Sheds from orbit blade as it circles | Gold-crimson spark, 6 frame life, continuous shedding |
-| StarFractureBranchParticle | Appears along fractal branch lines | Tiny gold flash at each branch point, 3 frame burst |
-| PrismaticBeamSparkParticle | Sheds from orbit blade's ranged beam | Crimson sparkle, perpendicular drift, 5 frame life |
-| MicroFractureFlashParticle | Flash at recursive micro-fracture locations | Tiny gold flash, very brief (2 frame), marks recursion |
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  RESONANCE OF A BYGONE REALITY — Foundation Arch.   │
+├─────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────┐  │
+│  │ RibbonFoundation (Mode 3: Basic Trail Strip)  │  │
+│  │  → ResonanceRapidBullet tracer trail           │  │
+│  │  → ResonanceBulletTrail shader (cosmic streak) │  │
+│  │  → 8×8, pen=1, extraUpdates=2 (fast travel)   │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ AttackFoundation (Spectral Blade)             │  │
+│  │  → ResonanceSpectralBlade: 3-phase AI          │  │
+│  │  → Approach→Slash(35f)→Explode                 │  │
+│  │  → Every 5th hit spawns blade, 2× dmg          │  │
+│  │  → ResonanceBladeTrail shader (slash trail)    │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (Ripple)                     │  │
+│  │  → ResonanceEchoBloom shader (Bygone Resonance)│  │
+│  │  → RippleShader: dual-hit explosion ring       │  │
+│  │  → 12-particle resonance ring burst            │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ExplosionParticlesFoundation (Resonance burst)│  │
+│  │  → Bygone Resonance dual-hit explosion sparks  │  │
+│  │  → ResonanceMuzzleFlash shader (muzzle VFX)    │  │
+│  └───────────────────────────────────────────────┘  │
+│  CUSTOM SHADERS (4):                                │
+│  → ResonanceBladeTrail.fx, ResonanceMuzzleFlash.fx  │
+│  → ResonanceEchoBloom.fx, ResonanceBulletTrail.fx   │
+│  UNIQUE SYSTEMS:                                    │
+│  → 40% ammo conservation                            │
+│  → Spectral Blade every 5th hit (2× dmg)           │
+│  → Bygone Resonance: blade+bullet same enemy <0.5s │
+│  → BygoneEcho debuff marks targets                  │
+│  → Reality Fade: every 10th combined hit → 0.3s inv │
+│  DEBUFFS: DestinyCollapse + BygoneEcho              │
+└─────────────────────────────────────────────────────┘
+```
 
 ---
 
-## 6. Resonance of a Bygone Reality (Ranged)
+## 6. Light of the Future (Ranged — Cosmic Railgun)
 
 ### Identity & Musical Soul
-Resonance from a reality that no longer exists — echoes of a cosmic event that happened eons ago. This weapon fires spectral blades and rapid bullets simultaneously, blending melee aesthetics with ranged delivery. The "bygone reality" aspect means visual distortions — things slightly out of phase, ghostly afterimages, temporal echoes.
+The light that hasn't arrived yet — a railgun whose bullets accelerate from a crawl to blinding speed, growing more powerful and visually intense the faster they travel. The future is bright, and it hits very hard.
 
 ### Lore Line
-*"What you hear is the echo of a universe that no longer exists."*
+*"The fastest light is the one that hasn't arrived yet."*
 
-### Combat Mechanics
-- **Dual Fire Mode**: Primary fire simultaneously shoots:
-  - 1 ResonanceSpectralBlade (slow, piercing, high damage, ghostly)
-  - 3 ResonanceRapidBullets (fast, moderate damage, spread)
-- **Temporal Afterimage**: Spectral blades leave temporal afterimages — ghost copies of themselves that appear 0.3s behind, dealing 30% damage.
-- **Bygone Resonance**: If a spectral blade AND a rapid bullet both hit the same enemy within 0.5s, they trigger Bygone Resonance on the target — a delayed explosion (1s fuse) that deals bonus damage equal to the combined hit.
-- **Reality Fade**: Every 10th combined hit, the player briefly phases (0.3s invulnerability + visual: player becomes semi-transparent with cosmic distortion). Brief window to reposition.
-
-### VFX Architecture Plan
-
-#### Custom Shaders (2)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `BygoneSpectralBlade.fx` | Ghostly spectral blade projectile | Transparent blade silhouette with afterimage duplication (shader draws 3 copies: current + 2 faded behind). Color: crimson → pink → cosmic void fade. Chromatic aberration on afterimages. |
-| `TemporalPhaseEffect.fx` | Player phasing transparency during Reality Fade | Screen-space effect on player sprite: alpha oscillation (flicker) + cosmic noise distortion + chromatic aberration. Brief (0.3s). |
-
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| RapidBulletTrailParticle | Brief trail behind rapid bullets | Crimson-pink streak, thin, 4 frame life |
-| BygoneResonanceRingParticle | Expanding ring at resonance trigger | Gold-crimson ring expanding, 15 frame burst |
-| TemporalGhostParticle | Faint particles around phasing player | Semi-transparent cosmic motes, 10 frame life |
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  LIGHT OF THE FUTURE — Foundation Architecture      │
+├─────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────┐  │
+│  │ RibbonFoundation (Mode 6: Energy Surge)       │  │
+│  │  → LightAcceleratingBullet speed-reactive trail│  │
+│  │  → LightBulletTrail shader (speed→color grad)  │  │
+│  │  → Void→violet→cyan→plasma white gradient      │  │
+│  │  → VFX intensity scales with speed ratio       │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ SparkleProjectileFoundation (cosmic rockets)  │  │
+│  │  → LightCosmicRocket spiral homing rockets     │  │
+│  │  → SparkleTrailShader: spiral offset trail     │  │
+│  │  → Every 3rd shot: 3 rockets ±15° spread       │  │
+│  │  → 600f range, 0.08f turn, spiral flight       │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ExplosionParticlesFoundation (impact + cascade)│  │
+│  │  → LightImpactBloom shader (impact explosion)  │  │
+│  │  → Cascade: peak-speed kills → 2 new bullets   │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (Ripple)                     │  │
+│  │  → RippleShader: rocket AoE explosion ring     │  │
+│  │  → LightMuzzleFlash shader (railgun muzzle)    │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ SmokeFoundation (high-speed wisps)            │  │
+│  │  → Smoke wisps at >60% speed ratio             │  │
+│  └───────────────────────────────────────────────┘  │
+│  CUSTOM SHADERS (4):                                │
+│  → LightRocketTrail.fx, LightMuzzleFlash.fx        │
+│  → LightImpactBloom.fx, LightBulletTrail.fx        │
+│  UNIQUE SYSTEMS:                                    │
+│  → Acceleration: 6f→42f at +1.2f/frame             │
+│  → Speed-based damage: up to +100% at max speed    │
+│  → VFX layers unlock at speed thresholds:           │
+│  │  → >30%: speed line tracers                     │
+│  │  → >50%: star sparks                            │
+│  │  → >60%: smoke wisps                            │
+│  → Cascade: peak-speed kill → 2 new full-speed      │
+│  → 50% ammo conservation                            │
+│  DEBUFFS: DestinyCollapse                           │
+└─────────────────────────────────────────────────────┘
+```
 
 ---
 
-## 7. Light of the Future (Ranged)
+## 7. Coda of Annihilation (Melee — **The Zenith**, 1350 dmg)
 
 ### Identity & Musical Soul
-Where Bygone Reality looks backward, Light of the Future looks forward — accelerating toward destiny. Bullets fired from this weapon **accelerate** over distance, starting slow and becoming devastatingly fast. Cosmic rockets represent the grand celestial events yet to come — supernovae, gamma ray bursts, the heat death of the universe.
+The coda — the final passage. **MagnumOpus's Zenith equivalent.** Throws spectral copies of ALL 14 theme melee weapons from across the entire mod, cycling through every theme's identity. The culmination of everything.
 
 ### Lore Line
-*"Aim not where they are, but where fate decrees they shall be."*
+*"Every blade. Every theme. Every note. The final coda plays them all."*
 
-### Combat Mechanics
-- **Accelerating Bullet**: Primary fire — LightAcceleratingBullet starts at 50% base speed, accelerates to 400% by max range. Damage also scales with current speed (faster = more damage at impact). Trail grows brighter as speed increases.
-- **Cosmic Rocket**: Alt fire (10s cooldown) — LightCosmicRocket. Slow-traveling rocket that draws in nearby bullets (gravitational pull). On detonation: massive cosmic explosion. All bullets absorbed by the rocket's gravity increase the explosion damage.
-- **Future Sight**: While holding fire for 2+ seconds without releasing, a targeting reticle appears at cursor showing where bullets will reach peak speed. Enemies in the "kill zone" have their silhouettes highlighted.
-- **Cascade**: If an accelerating bullet kills an enemy at peak speed, it spawns 2 smaller bullets that continue at peak speed in a slight fan. Cascade can chain.
-
-### VFX Architecture Plan
-
-#### Custom Shaders (2)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `AcceleratingBulletTrail.fx` | Trail that intensifies with speed | Trail strip that gets wider and brighter as bullet accelerates. Color transitions: dim crimson (slow) → bright stellar white (fast). Internal energy scroll speed also tied to velocity. |
-| `CosmicRocketExplosion.fx` | Massive cosmic explosion from rocket detonation | Expanding nebula-cloud sphere. Multi-layer: void center → crimson ring → pink cloud → gold highlights → stellar white outer ring. Internal star points flash randomly. Brief gravitational lens distortion before explosion. |
-
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| AccelerationGlintParticle | Appears along bullet trail, more frequent at higher speed | Gold-white sparkle, 4 frame life, spacing decreases with speed |
-| RocketGravityPullParticle | Spirals into rocket during bullet absorption | Crimson motes spiraling inward, 15 frame life |
-| CosmicExplosionDebrisParticle | Radial burst from rocket explosion | Multi-color cosmic debris, 30+ particles, 20 frame life |
-| CascadeSpawnFlashParticle | Flash at cascade spawn point | Gold burst, 3 frame, marks chain kill |
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  CODA OF ANNIHILATION — Foundation Architecture     │
+├─────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────┐  │
+│  │ SwordSmearFoundation (SmearDistortShader)     │  │
+│  │  → CodaHeldSwing orbital arc                   │  │
+│  │  → CodaSwingArc shader (swing arc trail)       │  │
+│  │  → 65f orbit radius, ±144° arc, 0.12 rad/frame│  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ SparkleProjectileFoundation (Zenith swords)   │  │
+│  │  → CodaZenithSword flying homing swords        │  │
+│  │  → 14 weapon textures cycling per swing         │  │
+│  │  → 600f homing range, 0.25f max turn speed     │  │
+│  │  → CodaZenithTrail shader (Zenith + Glow)      │  │
+│  │  → 2-3 per swing, 60×60 hitbox, infinite pierce│  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ XSlashFoundation (Annihilation detonation)    │  │
+│  │  → XSlashShader: Coda Finale cross-tear VFX    │  │
+│  │  → Triggered after 10s continuous use           │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (Ripple + DamageZone)        │  │
+│  │  → CodaImpactBurst shader (impact explosion)   │  │
+│  │  → CodaAnnihilationBloom shader (finale flash) │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ExplosionParticlesFoundation (AnnihilationMark)│  │
+│  │  → 10-stack AnnihilationMark detonation burst  │  │
+│  │  → 50% accumulated damage as explosion          │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ AttackAnimationFoundation (Coda Finale)       │  │
+│  │  → 10s continuous use → Coda Finale cinematic  │  │
+│  │  → 5s cooldown between Finales                  │  │
+│  │  → Enhanced VFX, intensified spawn rate         │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ RibbonFoundation (Mode 7: Cosmic Flow)        │  │
+│  │  → 12-point trail on each Zenith sword          │  │
+│  │  → Color tinted per weapon index (14 themes)   │  │
+│  └───────────────────────────────────────────────┘  │
+│  CUSTOM SHADERS (5 keys, 4 files):                  │
+│  → CodaZenithTrail.fx (ZenithMain + ZenithGlow)     │
+│  → CodaSwingArc.fx (SwingArcMain)                   │
+│  → CodaImpactBurst.fx (ImpactBurstMain)             │
+│  → CodaAnnihilationBloom.fx (AnnihilationBloomMain)  │
+│  14-WEAPON CYCLE:                                   │
+│  → 0-1: Moonlight Sonata (purple, light blue)       │
+│  → 2-3: Eroica (scarlet, gold)                      │
+│  → 4-5: La Campanella (orange, golden orange)        │
+│  → 6-7: Enigma (purple, green)                      │
+│  → 8: Swan Lake (white)                              │
+│  → 9-13: Fate (dark pink, crimson, purple, rose, rose)│
+│  DEBUFFS: AnnihilationMark (10 stack→50% detonation)│
+│  + DestinyCollapse                                   │
+└─────────────────────────────────────────────────────┘
+```
 
 ---
 
-## 8. The Final Fermata (Magic)
+## 8. Opus Ultima (Melee — Energy Ball Combo)
 
 ### Identity & Musical Soul
-A fermata is a musical hold — a note sustained beyond its normal duration, at the performer's discretion. The Final Fermata holds magic in suspended animation before releasing it. Spectral swords hover in place, accumulating power, then slash through targets on command. It's the dramatic pause before the devastating conclusion.
+The ultimate opus — a blade whose swings release energy balls that shatter into homing seekers. Each completed 3-movement cycle builds Opus Resonance stacks, strengthening all damage.
 
 ### Lore Line
-*"Time holds its breath. The fermata decides when it exhales."*
+*"The final work. The magnum opus. Written in starfire."*
 
-### Combat Mechanics
-- **Spectral Sword Placement**: Primary fire — places a FermataSpectralSwordNew at the cursor position. Sword hovers stationary, glowing. Up to 5 swords can be placed simultaneously.
-- **Slash Wave Release**: Alt fire — ALL placed swords simultaneously slash toward the nearest enemy, launching FermataSlashWaves. Each sword fires independently. Waves pierce.
-- **Fermata Power**: Swords gain +10% damage per second they're held in place (max 5x at 5s). Visual: swords glow brighter, pulsing faster. Incentivizes strategic placement then dramatic release.
-- **Harmonic Alignment**: If 3+ swords are placed in a line or triangle formation, they become Harmonically Aligned — connected by cosmic energy lines. Aligned swords' slash waves converge to the same point (crossfire), and the intersection deals bonus damage.
-- **Sustained Note**: If a single sword is held for 10s without being released, it transforms into a Sustained Note — an autonomous minion that follows the player and fires slash waves every 2s. Max 1 Sustained Note.
-
-### VFX Architecture Plan
-
-#### Custom Shaders (3)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `FermataSwordHover.fx` | Hovering spectral sword body | Ghost sword — semi-transparent with cosmic fill. Pulsing glow that intensifies with hold time. Crimson-pink base → stellar white at max charge. Subtle rotation oscillation. |
-| `FermataSlashWave.fx` | Slash wave projectile from sword release | Crescent-arc shape (like a blade wave). Cosmic energy body with nebula scroll. Pink-crimson core → void edge. Fast-moving, brief afterimage. |
-| `HarmonicAlignmentLines.fx` | Energy lines connecting aligned swords | Thin beam strips between sword positions. Internal energy pulse traveling along line. Crimson-gold color. Brighter at midpoints. |
-
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| SwordHoverGlintParticle | Orbits each hovering sword | Tiny crimson-gold sparkle, slow orbit, 30 frame life |
-| SlashWaveTrailParticle | Trail behind slash wave projectile | Pink-crimson streak, 6 frame life |
-| AlignmentPulseParticle | Travels along harmonic alignment lines | Gold pulse mote, moves between swords, 15 frame life |
-| SustainedNoteAuraParticle | Ambient aura around sustained note minion | Cosmic shimmer particles, slow orbit, continuous, 20 frame life |
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  OPUS ULTIMA — Foundation Architecture              │
+├─────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────┐  │
+│  │ SwordSmearFoundation (SmearDistortShader)     │  │
+│  │  → 3-movement cosmic swing smear               │  │
+│  │  → OpusSwingTrail shader + noise texture       │  │
+│  │  → 5-layer rendering pipeline                  │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ MagicOrbFoundation (energy balls)             │  │
+│  │  → OpusEnergyBallProjectile, 3 modes           │  │
+│  │  → Mode 0: forward ball → explodes to 5 seekers│  │
+│  │  → Mode 1: homing seeker                       │  │
+│  │  → Mode 2: crystal shard (40% dmg, on-hit)    │  │
+│  │  → OpusEnergyBall shader (body glow)           │  │
+│  │  → OpusSeekerTrail shader (seeker trail)       │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ExplosionParticlesFoundation (ball explosion)  │  │
+│  │  → Energy ball → 5 seekers burst               │  │
+│  │  → OpusExplosion shader (explosion bloom)       │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (Ripple)                     │  │
+│  │  → RippleShader: energy ball detonation ring   │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ RibbonFoundation (Mode 7: Cosmic Flow)        │  │
+│  │  → 24-point swing trail                       │  │
+│  └───────────────────────────────────────────────┘  │
+│  CUSTOM SHADERS (4):                                │
+│  → OpusSwingTrail.fx, OpusSeekerTrail.fx            │
+│  → OpusExplosion.fx, OpusEnergyBall.fx              │
+│  3-MOVEMENT COMBO:                                  │
+│  → Exposition (150°, 28f, 1.0×): 1 energy ball     │
+│  → Development (120°, 20f, 0.9×): 2 twin balls     │
+│  → Recapitulation (180°, 32f, 1.2×): 1 massive ball│
+│  OPUS RESONANCE: +5% all dmg per cycle (max 9, +45%)│
+│  On melee hit: 3-5 crystal shards (Mode 2, 40%)     │
+│  DEBUFFS: DestinyCollapse                           │
+└─────────────────────────────────────────────────────┘
+```
 
 ---
 
-## 9. Symphony's End (Magic)
+## 9. Fractal of the Stars (Melee — Geometric Star Fracture)
 
 ### Identity & Musical Soul
-Where all melodies find their conclusion. This is the Fate theme's rapid-fire magic weapon — a torrential barrage of spectral blades corkscrewing toward the cursor. Where The Final Fermata is deliberate and strategic, Symphony's End is the **fortissimo cascade** — unrelenting, overwhelming, the final measures played at maximum intensity.
+Fractal geometry made blade — each hit spawns orbiting star blades, and the third strike triggers a Star Fracture that recursively explodes into smaller fractures. The mathematical beauty of the cosmos expressed as devastation.
 
 ### Lore Line
-*"The symphony does not fade. It ENDS."*
+*"The stars do not scatter randomly. They fracture in self-similar patterns, infinitely deep."*
 
-### Combat Mechanics (Existing: 500 damage, 8 useTime)
-- **Spiraling Spectral Blades**: Primary fire — rapid-fire (8 useTime = very fast). Each shot fires a spectral blade that corkscrews toward the cursor (helical spiral path, not straight line).
-- **Contact Shatter**: On contact with enemy, blade shatters into 4 fragments. Fragments fly in cardinal directions from impact, dealing 25% of main damage each.
-- **Crescendo Mode**: After 3 seconds of continuous fire, enters Crescendo Mode — fire rate increases 50%, blades grow larger, fragments increase to 6. Visual: player gains cosmic aura, blades trail more intensely.
-- **Diminuendo**: If you stop firing, there's a 2s "cooldown" period. During Diminuendo, accuracy decreases (blades wobble) but damage increases by 20% (slamming the brakes intensifies each hit).
-- **Final Note**: If you fire for exactly 10s continuously then stop, the last blade is a Final Note — giant blade (5x size) that doesn't shatter but instead passes through all enemies and detonates at max range in a cosmic burst.
-
-### VFX Architecture Plan
-
-#### Custom Shaders (2)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `SpiralBladeBody.fx` | Corkscrewing spectral blade | Ghost blade with internal cosmic energy. Rotation driven by shader (blade visually spins on its axis during spiral flight). Trail: tight helix sparkles. Color: crimson → pink → stellar white core. |
-| `FinalNoteDetonation.fx` | Giant final blade cosmic detonation | Massive expanding ring at max range. All Fate colors: void → crimson → pink → gold → white in concentric rings. Internal star burst. Screen shake. |
-
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| HelixTrailParticle | Helix pattern trail behind spiraling blade | Crimson-gold sparkle following helix path, 8 frame life |
-| ShatterFragmentParticle | Brief flash at shatter point | Pink flash + 4 directional streaks, 4 frame burst |
-| CrescendoAuraParticle | Cosmic aura around player during Crescendo Mode | Dark pink cosmic motes, orbiting player, 20 frame life |
-| FinalNoteShockwaveParticle | Expanding ring from Final Note detonation | Gold-white ring, expanding, 15 frame life |
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  FRACTAL OF THE STARS — Foundation Architecture     │
+├─────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────┐  │
+│  │ SwordSmearFoundation (SmearDistortShader)     │  │
+│  │  → 3-phase geometric swing smear               │  │
+│  │  → FractalSwingTrail shader + constellation    │  │
+│  │  → 5-layer rendering pipeline                  │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ SparkleProjectileFoundation (orbit blades)    │  │
+│  │  → FractalOrbitBlade: orbiting spectral stars  │  │
+│  │  → Max 6 active, 120px orbit, 0.04 rad/frame  │  │
+│  │  → Fires prismatic beam every 60 frames         │  │
+│  │  → FractalOrbitGlow shader (ambient glow)      │  │
+│  │  → FractalConstellationTrail shader (trail)    │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ThinSlashFoundation (ThinSlashShader)         │  │
+│  │  → Star Fracture geometric cut marks           │  │
+│  │  → Phase 2 Gravity Slam trigger                │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ExplosionParticlesFoundation (Star Fracture)  │  │
+│  │  → FractalStarFracture shader (geometric VFX)  │  │
+│  │  → RECURSIVE: sub-fractures at 1/3 size + 1/3 dmg│
+│  │  → Cascading geometric explosion pattern        │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ AttackAnimationFoundation (Gravity Slam)      │  │
+│  │  → Phase 2: ExpIn easing (slow→fast slam)     │  │
+│  │  → Screen shake on Star Fracture trigger       │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (Ripple)                     │  │
+│  │  → RippleShader: fracture detonation rings     │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ RibbonFoundation (Mode 7: Cosmic Flow)        │  │
+│  │  → 24-point swing trail + orbit blade trails   │  │
+│  └───────────────────────────────────────────────┘  │
+│  CUSTOM SHADERS (4):                                │
+│  → FractalSwingTrail.fx, FractalStarFracture.fx     │
+│  → FractalOrbitGlow.fx, FractalConstellationTrail.fx│
+│  3-PHASE COMBO:                                     │
+│  → Horizontal Sweep (170°, 22f, 1.0×): sparks      │
+│  → Rising Uppercut (130°, 16f, 0.95×): stars rise   │
+│  → Gravity Slam (120°, 24f, 1.4×): STAR FRACTURE   │
+│  DEBUFFS: DestinyCollapse                           │
+└─────────────────────────────────────────────────────┘
+```
 
 ---
 
-## 10. Destiny's Crescendo (Summon)
+## 10. The Conductor's Last Constellation (Melee — Orchestral Baton)
 
 ### Identity & Musical Soul
-A crescendo is the building of volume and intensity — and this weapon summons a **Crescendo Deity** that embodies that escalation. The minion starts calm and grows more devastating over time, entering escalating phases of power. It builds from prayer to proclamation to divine wrath. The ultimate summoner weapon of the Fate theme.
+The conductor's baton — each swing directs an orchestra of cosmic beams and lightning. The 3-phase combo builds like an orchestral performance: a decisive Downbeat, a building Crescendo, then a thunderous Forte with convergence.
 
 ### Lore Line
-*"It began as a whisper. It will end as a decree from the stars themselves."*
+*"The last constellation is the one the conductor draws with their final baton stroke."*
 
-### Combat Mechanics
-- **Crescendo Deity Minion**: Summons a floating deity entity (cosmic being with constellation-pattern body) that attacks automatically.
-- **Escalation Phases** (deity phases up every 15 seconds of combat):
-  - **Phase 1 — Pianissimo** (0-15s): Fires single CrescendoCosmicBeam at nearest enemy. Slow rate of fire. Subtle visual presence.
-  - **Phase 2 — Piano** (15-30s): Fires 2 beams in alternating targets. Faster rate. Deity grows slightly larger, brighter.
-  - **Phase 3 — Forte** (30-45s): Fires 3 beams simultaneously. Spawns small orbiting star shields (block 1 projectile each). Deity noticeably larger.
-  - **Phase 4 — Fortissimo** (45s+): Fires 5 beams in rapid succession. Orbiting shields become offensive (launch at enemies). Deity at full size with cosmic aura. 
-- **Cosmic Beam**: CrescendoCosmicBeam — channeled beam that sweeps across enemies. Damage scales with phase. Visual intensity scales dramatically.
-- **Crescendo Reset**: If the player takes heavy damage (>20% HP in one hit), deity resets to Phase 1. Must be protected.
-- **Deity Presence**: The deity provides a passive effect based on phase: P1: +3% damage, P2: +5% damage + regen 1/s, P3: +8% damage + regen 2/s + 5 defense, P4: +12% damage + regen 3/s + 10 defense.
-
-### VFX Architecture Plan
-
-#### Custom Shaders (4)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `CrescendoDeityBody.fx` | The deity entity body shader | Cosmic humanoid silhouette. Body made of constellation patterns (star points + lines). Color: void body → crimson constellation lines → gold star points. Body scale increases per phase. At Phase 4: full cosmic nebula fill with star map overlay. |
-| `CrescendoCosmicBeam.fx` | The deity's beam attack | Channeled beam strip. Phase 1: thin, dim crimson. Phase 2: medium, brighter. Phase 3: wide, intense. Phase 4: massive, all Fate colors cycling, internal star burst pattern. UV-scroll speed tied to phase. |
-| `CrescendoStarShield.fx` | Orbiting star shield around deity | SDF 4-point star with gold-white glow. Orbits deity. On breaking: shatters into sparks. At Phase 4: star transforms from shield to projectile (trail added). |
-| `CrescendoPresenceAura.fx` | Passive aura around player based on deity phase | Subtle cosmic shimmer extending from player. Phase 1: barely visible. Phase 4: dramatic cosmic cloud with constellation lines extending from player. |
-
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| DeityConstellationGlintParticle | Twinkles at star points on deity body | Gold-white twinkle, periodic flash, 5 frame per twinkle |
-| CosmicBeamEdgeParticle | Sheds from beam edges | Crimson-pink sparks, perpendicular drift, 6 frame life |
-| StarShieldOrbitParticle | Trail behind orbiting star shields | Gold sparkle, tight orbit trail, 8 frame life |
-| PhaseTransitionBurstParticle | Burst when deity escalates phase | All Fate colors in expanding ring, 10-15 particles, 10 frame burst |
-| DeityResetFlashParticle | Flash burst when deity resets to Phase 1 | Dark red flash + falling star particles (sad visual), 15 frame life |
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  THE CONDUCTOR'S LAST CONSTELLATION — Foundation    │
+├─────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────┐  │
+│  │ SwordSmearFoundation (SmearDistortShader)     │  │
+│  │  → 3-phase orchestral swing smear              │  │
+│  │  → ConductorSwingTrail shader (+Glow technique)│  │
+│  │  → Electric/lightning spark accents             │  │
+│  │  → 5-layer rendering pipeline                  │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ LaserFoundation (beam salvos)                 │  │
+│  │  → 3 ConductorSwordBeam per swing, 18° spread │  │
+│  │  → Aggressive homing: 700f range, 0.12f turn   │  │
+│  │  → ConductorBeamShader (beam trail)            │  │
+│  │  → Phase 3: crystal shard mode (25% dmg)       │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ThinLaserFoundation (chain lightning)         │  │
+│  │  → ConductorLightningShader (lightning bolt)   │  │
+│  │  → 3 cosmic lightning strikes per hit          │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (Ripple)                     │  │
+│  │  → ConductorConvergence shader (convergence)   │  │
+│  │  → RippleShader: beam impact rings             │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ AttackAnimationFoundation (Convergence)       │  │
+│  │  → Phase 2 (Forte) 3rd combo hit               │  │
+│  │  → All active beams converge on cursor          │  │
+│  │  → Cosmic lightning storm accompaniment        │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ RibbonFoundation (Mode 7: Cosmic Flow)        │  │
+│  │  → 24-point swing trail + beam trails          │  │
+│  └───────────────────────────────────────────────┘  │
+│  CUSTOM SHADERS (5 keys, 4 files):                  │
+│  → ConductorSwingTrail.fx (Trail + Glow)             │
+│  → ConductorLightningShader.fx (bolt VFX)            │
+│  → ConductorConvergence.fx (convergence beam)        │
+│  → ConductorBeamShader.fx (sword beam trail)         │
+│  3-PHASE ORCHESTRAL COMBO:                          │
+│  → Downbeat (150°, 22f, 1.0×, QuadIn): 3 beams down│
+│  → Crescendo (130°, 18f, 0.95×, SineInOut): wider   │
+│  → Forte (180°, 26f, 1.35×, ExpIn→explosion):       │
+│    → Lightning cascade + beam Convergence on cursor  │
+│    → Constellation shatters → 8-12 homing stars      │
+│  On hit: DestinyCollapse(5s) + 3 lightning + 5 shards│
+│  DEBUFFS: DestinyCollapse                           │
+└─────────────────────────────────────────────────────┘
+```
 
 ---
 
-## Cross-Theme Synergy Notes
+## Foundation Coverage Matrix
 
-### Fate Theme Unity
-All weapons share cosmic void + crimson + pink + stellar white palette with celestial/destiny motifs:
-- **Requiem of Reality**: Foundational — cosmic tears and spectral blades
-- **Conductor's Last Constellation**: Star map charging + devastating beam release
-- **Coda of Annihilation**: Zenith-style multi-sword + gravitational singularity
-- **Opus Ultima**: THE masterwork — 3-movement symphony of cosmic destruction
-- **Fractal of the Stars**: Recursive fractal geometry + orbital mechanics
-- **Resonance of a Bygone Reality**: Temporal echoes + dual fire mode (melee+ranged fusion)
-- **Light of the Future**: Acceleration mechanics + future-sight targeting
-- **The Final Fermata**: Strategic placement + dramatic simultaneous release
-- **Symphony's End**: Overwhelming rapid-fire with crescendo escalation
-- **Destiny's Crescendo**: Phase-escalating deity with crescendo power buildup
+| Foundation | Requiem | Fermata | Cresc. | Symph. | Bygone | Light | Coda | Opus | Fractal | Conductor |
+|-----------|---------|---------|--------|--------|--------|-------|------|------|---------|-----------|
+| SwordSmear | ✅ | | | | | | ✅ | ✅ | ✅ | ✅ |
+| Ribbon | ✅ M7 | ✅ M6 | ✅ M1 | ✅ M6 | ✅ M3 | ✅ M6 | ✅ M7 | ✅ M7 | ✅ M7 | ✅ M7 |
+| Impact | ✅ Rip+DZ | ✅ Rip | ✅ Rip | ✅ Rip | ✅ Rip | ✅ Rip | ✅ Rip+DZ | ✅ Rip | ✅ Rip | ✅ Rip |
+| Explosion | | | | ✅ Shatter | ✅ Resonance | ✅ Cascade | ✅ Annihil | ✅ Ball→5 | ✅ StarFrac | |
+| SparklePrj | ✅ Notes | ✅ Swords | ✅ Beams | ✅ Frags | | ✅ Rockets | ✅ Zenith | | ✅ Orbits | |
+| Laser | | | | | | | | | | ✅ Beams |
+| ThinLaser | | | | | | | | | ✅ Prismatic | ✅ Lightning |
+| InfernalBeam | | ✅ Temporal | | | | | | | | |
+| Mask | ✅ Aura | ✅ Ring | ✅ Aura | | | | | | | |
+| MagicOrb | | | | ✅ Spiral | | | | ✅ EBall | | |
+| ThinSlash | | ✅ Slash | | | | | | | ✅ Fracture | |
+| XSlash | | | | | | | ✅ Finale | | | |
+| Smoke | ✅ Rift | | | | | ✅ >60% | | | | |
+| AttackAnim | | | | | | | ✅ Finale | | ✅ Slam | ✅ Converge |
+| Attack | ✅ SpecBlade | | | | ✅ SpecBlade | | | | | |
 
-### Power Hierarchy
-Fate is an endgame theme. Weapons are ordered by power:
-1. **Opus Ultima** (THE weapon — 720 damage, 3-movement system)
-2. **Fractal of the Stars** (850 damage, recursive destruction)
-3. **Coda of Annihilation** (Zenith-style pinnacle)
-4. **Destiny's Crescendo** (escalating deity)
-5. **The remaining weapons** (each powerful in their niche)
-
-### Visual Escalation
-Fate weapons should feel increasingly cosmic and dramatic:
-- Lower-tier Fate weapons: Crimson energy, star sparkles, subtle cosmic FX
-- Mid-tier: Constellation patterns, nebula trails, screen-edge effects
-- Top-tier (Opus Ultima, Coda): Full screen distortions, gravitational lensing, cosmic singularities, multi-layer shader-driven effects that command the entire screen
-
-### Musical Motifs
-- **Musical structure as combat structure**: Exposition/Development/Recapitulation (Opus Ultima), Crescendo phases (Destiny's Crescendo), Fermata hold-and-release (Final Fermata), Coda finale (Coda of Annihilation)
-- **Conductor imagery**: The player is the conductor. Weapons respond to their timing, their rhythm, their intent.
-- **Constellation geometry**: Star maps, connected star points, geometric patterns in the night sky
-- **Destiny/inevitability**: Effects feel cosmic and unavoidable — gravitational pulls, homing projectiles, cascading chain reactions
+### Fate Lore Consistency
+- All lore references destiny, cosmos, stars, constellations, symphony, finale, celestial, supernova, annihilation
+- NEVER moonlight, bells, feathers, void/mystery, fire/bells — those belong to other themes
+- DestinyCollapse is the UNIVERSAL debuff — all 10 weapons apply it
+- Dark prismatic palette: black→pink→crimson with celestial white highlights
+- Each weapon: ~12-14 self-contained .cs files + 4 dedicated .fx shaders
+- 5 melee / 2 magic / 2 ranged / 1 summon — melee-dominant endgame theme
+- Coda of Annihilation (1350 dmg) = mod Zenith, cycles all 14 theme melee weapons

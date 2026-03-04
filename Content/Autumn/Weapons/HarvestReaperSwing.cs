@@ -12,32 +12,33 @@ using MagnumOpus.Common.Systems.VFX.Trails;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Autumn.Projectiles;
 using static MagnumOpus.Common.Systems.Particles.Particle;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Autumn.Weapons
 {
     /// <summary>
-    /// Harvest Reaper held-projectile swing  Ethe slow dirge of autumn's decay.
-    /// 4-phase scythe combo: Reaping Sweep ↁEDecay Slash ↁESoul Rend ↁETwilight Judgement.
+    /// Harvest Reaper held-projectile swing 窶・the slow dirge of autumn's decay.
+    /// 4-phase scythe combo: Reaping Sweep 竊・Decay Slash 竊・Soul Rend 竊・Twilight Judgement.
     /// Every 5th hit applies Autumn's Decay (Ichor + seeking crystals);
     /// kills spawn soul wisps; every 8th COMBO triggers Twilight Slash (DecayCrescentWave).
     /// </summary>
     public sealed class HarvestReaperSwing : MeleeSwingBase
     {
-        // ── Theme Colors ──
+        // 笏笏 Theme Colors 笏笏
         private static readonly Color AutumnOrange = MagnumThemePalettes.AutumnOrange;
         private static readonly Color AutumnBrown = MagnumThemePalettes.AutumnBrown;
         private static readonly Color AutumnRed = MagnumThemePalettes.AutumnRed;
         private static readonly Color AutumnGold = MagnumThemePalettes.AutumnHarvestGold;
         private static readonly Color DecayPurple = MagnumThemePalettes.AutumnDecayPurple;
 
-        // ── Counters (stored in ai[2]) ──
+        // 笏笏 Counters (stored in ai[2]) 笏笏
         private int HitCounter
         {
             get => (int)Projectile.ai[2];
             set => Projectile.ai[2] = value;
         }
 
-        // ── 6-Color Palette: pianissimo ↁEsforzando ──
+        // 笏笏 6-Color Palette: pianissimo 竊・sforzando 笏笏
         private static readonly Color[] AutumnPalette = new Color[]
         {
             new Color(80, 40, 20),      // [0] Dark bark shadow
@@ -48,9 +49,9 @@ namespace MagnumOpus.Content.Autumn.Weapons
             new Color(255, 245, 220),   // [5] White-hot harvest core
         };
 
-        #region ── Combo Phase Definitions ──
+        #region 笏笏 Combo Phase Definitions 笏笏
 
-        // Phase 0  EReaping Sweep (slow, wide horizontal arc  Ethe first leaves falling)
+        // Phase 0 窶・Reaping Sweep (slow, wide horizontal arc 窶・the first leaves falling)
         private static readonly ComboPhase Phase0_ReapingSweep = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -66,7 +67,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
             damageMult: 0.9f
         );
 
-        // Phase 1  EDecay Slash (quick backhand  Ethe wind scattering dead leaves)
+        // Phase 1 窶・Decay Slash (quick backhand 窶・the wind scattering dead leaves)
         private static readonly ComboPhase Phase1_DecaySlash = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -82,7 +83,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
             damageMult: 1.0f
         );
 
-        // Phase 2  ESoul Rend (overhead slam  Ethe weight of autumn's sorrow)
+        // Phase 2 窶・Soul Rend (overhead slam 窶・the weight of autumn's sorrow)
         private static readonly ComboPhase Phase2_SoulRend = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -98,7 +99,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
             damageMult: 1.15f
         );
 
-        // Phase 3  ETwilight Judgement (massive finisher  Ethe last light fading)
+        // Phase 3 窶・Twilight Judgement (massive finisher 窶・the last light fading)
         private static readonly ComboPhase Phase3_TwilightJudgement = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -116,7 +117,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
 
         #endregion
 
-        #region ── Abstract Overrides ──
+        #region 笏笏 Abstract Overrides 笏笏
 
         protected override ComboPhase[] GetAllPhases() => new ComboPhase[]
         {
@@ -142,7 +143,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
 
         #endregion
 
-        #region ── Virtual Overrides ──
+        #region 笏笏 Virtual Overrides 笏笏
 
         protected override SoundStyle GetSwingSound()
         {
@@ -159,7 +160,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
 
         protected override Texture2D GetBladeTexture()
         {
-            return ModContent.Request<Texture2D>("MagnumOpus/Content/Autumn/Weapons/HarvestReaper").Value;
+            return ModContent.Request<Texture2D>("MagnumOpus/Content/Autumn/Weapons/HarvestReaper", AssetRequestMode.ImmediateLoad).Value;
         }
 
         protected override Vector3 GetLightColor()
@@ -169,7 +170,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
 
         #endregion
 
-        #region ── Combo Specials ──
+        #region 笏笏 Combo Specials 笏笏
 
         protected override void HandleComboSpecials()
         {
@@ -199,7 +200,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 }
             }
 
-            // Phase 3 at ~85%: Twilight Slash finisher  Espawn DecayCrescentWave
+            // Phase 3 at ~85%: Twilight Slash finisher 窶・spawn DecayCrescentWave
             if (ComboStep == 3 && Progression >= 0.85f)
             {
                 hasSpawnedSpecial = true;
@@ -234,13 +235,13 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 }
             }
 
-            // ── Dense dust + leaf particles every frame during active swing ──
+            // 笏笏 Dense dust + leaf particles every frame during active swing 笏笏
             if (Progression > 0.10f && Progression < 0.92f)
             {
                 Vector2 tipPos = GetBladeTipPosition();
                 float bladeLen = CurrentPhase.BladeLength;
 
-                // Autumn torch dust  Edense, 2 per frame
+                // Autumn torch dust 窶・dense, 2 per frame
                 for (int i = 0; i < 2; i++)
                 {
                     Vector2 dustPos = Owner.MountedCenter + SwordDirection * bladeLen * Main.rand.NextFloat(0.4f, 1f);
@@ -290,7 +291,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
 
         #endregion
 
-        #region ── On Hit NPC ──
+        #region 笏笏 On Hit NPC 笏笏
 
         protected override void OnSwingHitNPC(NPC target, NPC.HitInfo hit, int remainingDamageCount)
         {
@@ -298,7 +299,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
 
             HitCounter++;
 
-            // ── Gradient halo rings  Eorange ↁEpurple ──
+            // 笏笏 Gradient halo rings 窶・orange 竊・purple 笏笏
             for (int i = 0; i < 4; i++)
             {
                 float progress = i / 4f;
@@ -342,7 +343,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 MagnumParticleHandler.SpawnParticle(leaf);
             }
 
-            // ── AUTUMN'S DECAY  Eevery 5th hit: Ichor + seeking crystals ──
+            // 笏笏 AUTUMN'S DECAY 窶・every 5th hit: Ichor + seeking crystals 笏笏
             if (HitCounter >= 5)
             {
                 HitCounter = 0;
@@ -375,7 +376,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 }
             }
 
-            // ── SOUL HARVEST  Ekills spawn healing wisp ──
+            // 笏笏 SOUL HARVEST 窶・kills spawn healing wisp 笏笏
             if (target.life <= 0)
             {
                 if (Main.myPlayer == Projectile.owner && Main.netMode != NetmodeID.MultiplayerClient)
@@ -414,7 +415,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
 
         #endregion
 
-        #region ── Custom VFX ──
+        #region 笏笏 Custom VFX 笏笏
 
         protected override void DrawCustomVFX(SpriteBatch sb)
         {

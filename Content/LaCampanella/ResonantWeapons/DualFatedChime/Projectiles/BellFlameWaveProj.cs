@@ -10,6 +10,8 @@ using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Particles;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Primitives;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Shaders;
 using MagnumOpus.Content.LaCampanella.Debuffs;
+using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
+using MagnumOpus.Content.FoundationWeapons.RibbonFoundation;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Projectiles
 {
@@ -126,6 +128,12 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
                 DualFatedChimeParticleHandler.SpawnParticle(
                     new BellSmokeParticle(hitPos, smokeVel, 30, 0.8f, 0.4f));
             }
+
+            // === FOUNDATION: RippleEffectProjectile — Bell flame wave impact ring ===
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), hitPos, Vector2.Zero,
+                ModContent.ProjectileType<RippleEffectProjectile>(),
+                0, 0f, Projectile.owner);
         }
 
         public override bool PreDraw(ref Color lightColor)

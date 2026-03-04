@@ -433,6 +433,43 @@ When implementing or referencing VFX, shaders, particles, trails, or any visual 
 
 ---
 
+## Foundation Weapon Systems (Recommended Templates)
+
+The `Content/FoundationWeapons/` folder contains a library of **standalone, fully working VFX weapon systems** that demonstrate best-practice implementations for common visual effect types in tModLoader. Each subfolder is a self-contained weapon showcasing a specific VFX category — attacks, trails, particles, beams, slashes, explosions, ribbons, and more.
+
+These are **recommended references, not requirements**. When implementing any visual effect for a weapon, it is worth reviewing the relevant Foundation Weapon to understand how MagnumOpus structures that type of effect — then build upon it with the weapon's own unique mechanics and musical identity.
+
+### What They Cover
+
+| Foundation System | Demonstrates |
+|-------------------|-------------|
+| **AttackFoundation** | Base attack projectile patterns — spawning, velocity, lifetime, hit detection |
+| **AttackAnimationFoundation** | Animated attack sequences with frame-by-frame sprite progression |
+| **SwordSmearFoundation** | Melee sword smear/slash VFX — motion blur, swing arc overlays, directional streaks |
+| **ThinSlashFoundation** | Thin precision slash arcs — clean, fast melee cut lines |
+| **XSlashFoundation** | Cross-slash patterns — dual intersecting slash arcs |
+| **LaserFoundation** | Full-width laser beams — continuous beam rendering with head/body/tail segments |
+| **ThinLaserFoundation** | Narrow precision laser beams — thinner beam rendering |
+| **InfernalBeamFoundation** | Infernal-themed beam rendering — fire/energy beam with noise and distortion |
+| **MagicOrbFoundation** | Magic orb projectiles — glowing spheres with bloom, trails, and impact effects |
+| **SparkleProjectileFoundation** | Sparkle/particle projectiles — shimmering projectile rendering with light accents |
+| **RibbonFoundation** | Ribbon/trail strip rendering — flowing fabric-like trails behind projectiles or weapons |
+| **ImpactFoundation** | Impact/hit VFX — multi-layered burst effects on enemy contact |
+| **ExplosionParticlesFoundation** | Explosion particle systems — radial burst, debris scatter, layered detonation |
+| **SmokeFoundation** | Smoke and mist effects — soft billowing particles with fade and drift |
+| **MaskFoundation** | Alpha mask techniques — shaping effects with mask textures for clean visual boundaries |
+
+### How to Use Them
+
+1. **Browse `Content/FoundationWeapons/`** to find the system closest to the effect you need
+2. **Read the implementation** to understand vertex construction, shader binding, draw calls, blend states, and timing
+3. **Use them as a starting point** — every weapon's VFX should ultimately be unique, but Foundation Weapons provide the structural skeleton and rendering patterns to build from
+4. **Combine multiple foundations** — a rich weapon might draw from SwordSmearFoundation for its swing, RibbonFoundation for its trail, ImpactFoundation for its hits, and ExplosionParticlesFoundation for its finisher
+
+Foundation Weapons are templates for *how* to render an effect type. The *what* — colors, textures, timing, layering, musical motifs — comes from the weapon's theme identity and planning doc.
+
+---
+
 ## Suggestions & Inspiration (Recommendation Only)
 
 The following are **non-mandatory recommendations** for VFX and shader reference. These are not rules  Ethey are starting points for inspiration when designing weapon effects, trails, bloom, and shader-driven visuals.

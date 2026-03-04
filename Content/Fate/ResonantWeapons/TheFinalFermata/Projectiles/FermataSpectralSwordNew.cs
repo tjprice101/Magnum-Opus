@@ -162,7 +162,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Projectiles
             toTarget.Normalize();
             Vector2 slashVel = toTarget * 18f;
 
-            float dmgMult = owner.Fermata().DamageMultiplier;
+            float dmgMult = owner.Fermata().DamageMultiplier * owner.Fermata().FermataPowerMultiplier;
             int slashDamage = (int)(Projectile.damage * 0.6f * dmgMult);
 
             Projectile.NewProjectile(
@@ -268,12 +268,19 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Projectiles
 
         public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
-            // 1.5x damage at max 6 swords
             Player owner = Main.player[Projectile.owner];
-            if (owner.Fermata().AtMaxSwords)
-            {
+            var fermata = owner.Fermata();
+
+            // Fermata Power: +10% per second held (max 5x at 5s)
+            modifiers.FinalDamage *= fermata.FermataPowerMultiplier;
+
+            // Harmonic Alignment bonus: 1.5x at max 6 swords
+            if (fermata.AtMaxSwords)
                 modifiers.FinalDamage *= 1.5f;
-            }
+
+            // Harmonic Alignment convergence bonus: if aligned, extra 20%
+            if (fermata.IsHarmonicallyAligned)
+                modifiers.FinalDamage *= 1.2f;
         }
 
         public override void OnKill(int timeLeft)
@@ -307,41 +314,68 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Projectiles
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
-            // Draw trail
-            _trail?.Draw(sb, _spectralAlpha);
+            try
+            {
+                // Draw trail (SpriteBatch-based, handles its own additive state)
+                _trail?.Draw(sb, _spectralAlpha);
 
-            // === GLOW LAYERS (additive) ===
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null,
-                Main.GameViewMatrix.TransformationMatrix);
+                // === GLOW LAYERS (additive) ===
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null,
+                    Main.GameViewMatrix.TransformationMatrix);
 
-            float pulse = 1f + MathF.Sin(Main.GameUpdateCount * 0.12f + OrbitOffset * 3f) * 0.1f;
+                float pulse = 1f + MathF.Sin(Main.GameUpdateCount * 0.12f + OrbitOffset * 3f) * 0.1f;
 
-            // Outer purple glow
-            sb.Draw(texture, drawPos, null,
-                FermataUtils.FermataPurple * 0.2f * _spectralAlpha,
-                Projectile.rotation, origin, 1.3f * pulse, SpriteEffects.None, 0f);
+                // Outer purple glow
+                sb.Draw(texture, drawPos, null,
+                    FermataUtils.FermataPurple * 0.2f * _spectralAlpha,
+                    Projectile.rotation, origin, 1.3f * pulse, SpriteEffects.None, 0f);
 
-            // Mid crimson glow
-            sb.Draw(texture, drawPos, null,
-                FermataUtils.FermataCrimson * 0.25f * _spectralAlpha,
-                Projectile.rotation, origin, 1.15f * pulse, SpriteEffects.None, 0f);
+                // Mid crimson glow
+                sb.Draw(texture, drawPos, null,
+                    FermataUtils.FermataCrimson * 0.25f * _spectralAlpha,
+                    Projectile.rotation, origin, 1.15f * pulse, SpriteEffects.None, 0f);
 
-            // Inner silver highlight
-            sb.Draw(texture, drawPos, null,
-                FermataUtils.GhostSilver * 0.15f * _spectralAlpha,
-                Projectile.rotation, origin, 1.05f * pulse, SpriteEffects.None, 0f);
+                // Inner silver highlight
+                sb.Draw(texture, drawPos, null,
+                    FermataUtils.GhostSilver * 0.15f * _spectralAlpha,
+                    Projectile.rotation, origin, 1.05f * pulse, SpriteEffects.None, 0f);
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null,
-                Main.GameViewMatrix.TransformationMatrix);
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null,
+                    Main.GameViewMatrix.TransformationMatrix);
 
-            // === MAIN SPECTRAL SWORD ===
-            Color spectralColor = Color.White * _spectralAlpha * 0.9f;
-            sb.Draw(texture, drawPos, null, spectralColor,
-                Projectile.rotation, origin, 0.95f, SpriteEffects.None, 0f);
+                // === MAIN SPECTRAL SWORD ===
+                Color spectralColor = Color.White * _spectralAlpha * 0.9f;
+                sb.Draw(texture, drawPos, null, spectralColor,
+                    Projectile.rotation, origin, 0.95f, SpriteEffects.None, 0f);
+            }
+            catch
+            {
+                // Safety: ensure SpriteBatch is restored to Terraria's expected state
+                try
+                {
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null,
+                        Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
+
+            // Theme accents (additive pass)
+            try
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                FermataUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
 
             return false;
         }

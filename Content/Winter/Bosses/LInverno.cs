@@ -14,6 +14,7 @@ using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Winter.Materials;
 using MagnumOpus.Content.Winter.Bosses.Systems;
 using MagnumOpus.Common.Systems.Bosses;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Winter.Bosses
 {
@@ -1212,7 +1213,7 @@ namespace MagnumOpus.Content.Winter.Bosses
         
         public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
-            Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
+            Texture2D texture = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = NPC.Center - screenPos;
             Vector2 origin = texture.Size() / 2f;
             Rectangle sourceRect = texture.Bounds;

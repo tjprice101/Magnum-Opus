@@ -94,6 +94,19 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
         {
             if (Main.dedServ) return;
 
+            // === FOUNDATION VFX: PrismaticMaskOrb (MaskFoundation RadialNoiseMaskShader) ===
+            // Swirling noise sphere at detonation center — dramatic, prismatic.
+            if (Projectile.owner == Main.myPlayer)
+            {
+                Projectile.NewProjectile(
+                    Projectile.GetSource_FromThis(),
+                    Projectile.Center, Vector2.Zero,
+                    ModContent.ProjectileType<PrismaticMaskOrb>(),
+                    0, 0f, Projectile.owner,
+                    ai0: 0.5f // mid spectral phase
+                );
+            }
+
             // === Central burst ===
             // 5-layer bloom cascade (same as Eternal Moon detonation, prismatic themed)
             for (int layer = 0; layer < 5; layer++)

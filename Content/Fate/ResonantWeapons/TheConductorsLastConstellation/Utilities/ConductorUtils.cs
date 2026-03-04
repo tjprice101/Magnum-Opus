@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MagnumOpus.Content.Fate;
 using System;
 using Terraria;
 using Terraria.ModLoader;
@@ -266,6 +267,18 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
             if (t < 0.66f)
                 return Color.Lerp(LightningGold, CelestialWhite, (t - 0.33f) / 0.33f);
             return Color.Lerp(CelestialWhite, ConductorCyan, (t - 0.66f) / 0.34f);
+        }
+
+        // ─────────── THEME TEXTURE ACCENTS ───────────
+
+        /// <summary>
+        /// Draws theme-textured accents. Call under Additive blend.
+        /// </summary>
+        public static void DrawThemeAccents(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)
+        {
+            FateVFXLibrary.DrawThemeCelestialGlyph(sb, worldPos, scale, intensity * 0.5f);
+            float rot = (float)Main.GameUpdateCount * 0.02f;
+            FateVFXLibrary.DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.4f, rot);
         }
     }
 }

@@ -9,6 +9,7 @@ using MagnumOpus.Common.Systems.Particles;
 
 // Dynamic particle effects for aesthetically pleasing animations
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Spring.Projectiles
 {
@@ -161,7 +162,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
         {
             hasSplit = true;
             
-            // ☁EMUSICAL BURST - VISIBLE notes scatter as petals bloom! (scale 0.75f)
+            // 隨倥・MUSICAL BURST - VISIBLE notes scatter as petals bloom! (scale 0.75f)
             for (int i = 0; i < 8; i++)
             {
                 float angle = MathHelper.TwoPi * i / 8f;
@@ -239,9 +240,9 @@ namespace MagnumOpus.Content.Spring.Projectiles
         {
             SpriteBatch sb = Main.spriteBatch;
             
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
-            Texture2D coreTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
-            Texture2D petalTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D coreTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D petalTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
             
             Vector2 glowOrigin = glowTex.Size() / 2f;
             Vector2 coreOrigin = coreTex.Size() / 2f;
@@ -278,7 +279,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // ☁ELAYERED DEATH - Multiple particle types!
+            // 隨倥・LAYERED DEATH - Multiple particle types!
             
             // Central flash
             CustomParticles.GenericFlare(Projectile.Center, SpringWhite, 0.5f, 15);
@@ -408,7 +409,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // ☁EMUSICAL IMPACT - VISIBLE notes burst on hit! (scale 0.75f)
+            // 隨倥・MUSICAL IMPACT - VISIBLE notes burst on hit! (scale 0.75f)
             for (int i = 0; i < 5; i++)
             {
                 float angle = MathHelper.TwoPi * i / 5f;
@@ -459,8 +460,8 @@ namespace MagnumOpus.Content.Spring.Projectiles
         {
             SpriteBatch sb = Main.spriteBatch;
             
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
-            Texture2D petalTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D petalTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
             
             Vector2 glowOrigin = glowTex.Size() / 2f;
             Vector2 petalOrigin = petalTex.Size() / 2f;
@@ -585,9 +586,9 @@ namespace MagnumOpus.Content.Spring.Projectiles
         {
             SpriteBatch sb = Main.spriteBatch;
             
-            Texture2D haloTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle").Value;
-            Texture2D petalTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
+            Texture2D haloTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D petalTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
             
             Vector2 haloOrigin = haloTex.Size() / 2f;
             Vector2 petalOrigin = petalTex.Size() / 2f;

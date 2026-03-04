@@ -10,11 +10,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture.Shaders
     /// Self-contained shader loader for Light of the Future.
     /// Loads 5 unique shaders from Effects/Fate/LightOfTheFuture/:
     ///
-    ///   1. LightBulletTrail  — Accelerating bullet trail with speed lines
-    ///   2. LightRocketTrail  — Spiraling rocket smoke/fire trail
-    ///   3. LightMuzzleFlash  — Cosmic muzzle burst shader
-    ///   4. LightImpactBloom  — Impact shockwave/bloom
-    ///   5. LightAccelGlow    — Accelerating glow aura on bullet core
+    ///   1. LightBulletTrail  窶・Accelerating bullet trail with speed lines
+    ///   2. LightRocketTrail  窶・Spiraling rocket smoke/fire trail
+    ///   3. LightMuzzleFlash  窶・Cosmic muzzle burst shader
+    ///   4. LightImpactBloom  窶・Impact shockwave/bloom
+    ///   5. LightAccelGlow    窶・Accelerating glow aura on bullet core
     ///
     /// Keys: "MagnumOpus:Light<Purpose>"
     /// </summary>
@@ -53,7 +53,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture.Shaders
             if (HasBulletTrail)
             {
                 GameShaders.Misc["MagnumOpus:LightAccelGlow"] =
-                    new MiscShaderData(BulletTrailShader, "AccelGlowPass");
+                    new MiscShaderData(BulletTrailShader, "P0");
             }
         }
 
@@ -77,7 +77,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture.Shaders
                 var fallback = ModContent.Request<Effect>("MagnumOpus/Effects/ScrollingTrailShader", AssetRequestMode.ImmediateLoad);
                 if (fallback?.Value != null)
                 {
-                    GameShaders.Misc[key] = new MiscShaderData(fallback, "ScrollingTrailPass");
+                    GameShaders.Misc[key] = new MiscShaderData(fallback, "P0");
                     return true;
                 }
             }

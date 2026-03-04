@@ -41,6 +41,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
 
         private static Asset<Texture2D> _glowTex;
 
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             // === PRESERVED STATS ===
@@ -67,11 +72,13 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Each swing conducts a different orchestral movement"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Releases 3 homing spectral beams per swing in an 18 degree spread"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Strikes call down 3 cosmic lightning bolts and 5 seeking crystal shards"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Every 3rd swing triggers Convergence — a cosmic lightning storm"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The final symphony, written in starlight'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "3-phase orchestral combo: Downbeat, Crescendo, Forte"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Each swing fires 3 aggressively homing beams in an 18-degree spread"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "On hit: 3 cosmic lightning bolts + 5 seeking crystal shards at 25% damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Forte's 3rd combo hit triggers Convergence — all beams converge on cursor with cosmic lightning"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "A Star Map constellation builds around you while attacking"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Fully-powered beam kills shatter the constellation into 8-12 homing star projectiles"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The last constellation is the one the conductor draws with their final baton stroke.'")
             {
                 OverrideColor = new Color(180, 40, 80) // Cosmic Crimson (Fate theme)
             });

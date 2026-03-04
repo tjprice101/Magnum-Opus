@@ -4,11 +4,12 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.Utilities;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.Particles
 {
     // =========================================================================
-    //  QUESTION MARK PARTICLE — Floating "?" shaped glyph particles
+    //  QUESTION MARK PARTICLE 窶・Floating "?" shaped glyph particles
     //  Appear at bullet split points and impact sites. AlphaBlend.
     //  Slowly rotate and fade with pulsing scale.
     // =========================================================================
@@ -60,12 +61,12 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.P
             // Use a glyph texture for the "?" shape
             int glyphIndex = (int)(Position.X + Position.Y) % NoteTextureNames.Length;
             string glyphPath = $"MagnumOpus/Assets/Particles Asset Library/{NoteTextureNames[Math.Abs(glyphIndex)]}";
-            var tex = ModContent.Request<Texture2D>(glyphPath).Value;
+            var tex = ModContent.Request<Texture2D>(glyphPath, AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
             Color drawColor = Color * alpha;
 
             // Soft glow behind the glyph
-            var glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom").Value;
+            var glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             sb.Draw(glowTex, drawPos, null, drawColor * 0.25f, 0f, glowTex.Size() / 2f, Scale * 2.5f, SpriteEffects.None, 0f);
 
             // The glyph itself
@@ -74,7 +75,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.P
     }
 
     // =========================================================================
-    //  SEEKER TRAIL DOT — Small dot particles left behind by homing seekers
+    //  SEEKER TRAIL DOT 窶・Small dot particles left behind by homing seekers
     //  Forms dotted trail lines. Additive, very quick fade.
     // =========================================================================
     public class SeekerTrailDot : SilentParticle
@@ -104,7 +105,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.P
             alpha *= alpha; // Quick quadratic fade
             if (alpha <= 0f) return;
 
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
             // Layer 1: Outer soft glow
@@ -115,7 +116,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.P
     }
 
     // =========================================================================
-    //  CHAIN LIGHTNING PARTICLE — Bright flash particles along lightning arcs
+    //  CHAIN LIGHTNING PARTICLE 窶・Bright flash particles along lightning arcs
     //  Additive, 3-layer bloom, velocity-stretched in direction of lightning.
     // =========================================================================
     public class ChainLightningParticle : SilentParticle
@@ -149,7 +150,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.P
             alpha = MathF.Pow(alpha, 0.7f);
             if (alpha <= 0f) return;
 
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
             // Velocity-stretched scale for directional feel
@@ -168,7 +169,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.P
     }
 
     // =========================================================================
-    //  MEASURE IMPACT RING — Expanding ring at the "?" explosion impact
+    //  MEASURE IMPACT RING 窶・Expanding ring at the "?" explosion impact
     //  Additive, renders a circle from triangle fan with fade-out.
     // =========================================================================
     public class MeasureImpactRing : SilentParticle
@@ -205,7 +206,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.P
             float innerRadius = outerRadius * 0.85f;
             Color ringColor = Color * alpha;
 
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
             for (int i = 0; i < segments; i++)

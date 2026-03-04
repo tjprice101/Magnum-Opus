@@ -104,6 +104,11 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Color outerColor = new Color(255, 180, 220, 50);
             spriteBatch.Draw(texture, outerRect, outerColor);
 
+            // Eroica theme accent
+            EroicaVFXLibrary.BeginEroicaAdditive(spriteBatch);
+            EroicaVFXLibrary.DrawThemeSakuraAccent(spriteBatch, Projectile.Center, 1f, 0.5f);
+            EroicaVFXLibrary.EndEroicaAdditive(spriteBatch);
+
             return false; // Don't draw the default sprite
         }
 

@@ -19,6 +19,7 @@ using MagnumOpus.Content.SwanLake.HarmonicCores;
 using MagnumOpus.Content.Materials.EnemyDrops;
 using MagnumOpus.Common.Systems.Bosses;
 using MagnumOpus.Common.Systems.Shaders;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.SwanLake.Enemies
 {
@@ -32,7 +33,7 @@ namespace MagnumOpus.Content.SwanLake.Enemies
     /// 
     /// 5 GRACEFUL BUT DEADLY ATTACKS:
     /// 1. Pirouette of Blades - Spinning attack launching feather blades in spirals
-    /// 2. Grand Jeté - Leaping dash attack with feather explosion on landing
+    /// 2. Grand Jet・・ｽｩ - Leaping dash attack with feather explosion on landing
     /// 3. Pas de Deux - Creates a shadow clone that mirrors attacks
     /// 4. Swan's Lament - Channeled scream that sends out damaging sound waves
     /// 5. Dying Swan - Ultimate: Graceful death dance with massive feather storm
@@ -137,7 +138,7 @@ namespace MagnumOpus.Content.SwanLake.Enemies
         public override void SetDefaults()
         {
             // SWAN LAKE MINI-BOSS STATS - Graceful but deadly
-            // Hitbox = (90/6) ÁE(51/6) ÁE0.8 = 15 ÁE8.5 ÁE0.8 = 12 ÁE6
+            // Hitbox = (90/6) ・・・(51/6) ・・・0.8 = 15 ・・・8.5 ・・・0.8 = 12 ・・・6
             NPC.width = 12;
             NPC.height = 6;
             NPC.damage = 140; // Slightly lower than other minibosses
@@ -172,7 +173,7 @@ namespace MagnumOpus.Content.SwanLake.Enemies
 
         public override void OnSpawn(IEntitySource source)
         {
-            // Size variation ±15%
+            // Size variation ・ゑｽｱ15%
             if (!hasSetSize)
             {
                 sizeMultiplier = Main.rand.NextFloat(0.85f, 1.15f);
@@ -1220,7 +1221,7 @@ namespace MagnumOpus.Content.SwanLake.Enemies
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Draw orbiting feathers
-            Texture2D featherTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/ThinTall4PointedStar").Value;
+            Texture2D featherTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/ThinTall4PointedStar", AssetRequestMode.ImmediateLoad).Value;
             foreach (var featherPos in orbitingFeatherPositions)
             {
                 int index = orbitingFeatherPositions.IndexOf(featherPos);
@@ -1381,7 +1382,7 @@ namespace MagnumOpus.Content.SwanLake.Enemies
                 CustomParticles.PrismaticSparkle(Projectile.Center, sparkleColor, 0.2f);
             }
             
-            // ☁EMUSICAL NOTATION - Swan Lake graceful melody
+            // 隨倥・MUSICAL NOTATION - Swan Lake graceful melody
             if (Main.rand.NextBool(8))
             {
                 float hue = (Main.GameUpdateCount * 0.01f + Main.rand.NextFloat()) % 1f;
@@ -1448,7 +1449,7 @@ namespace MagnumOpus.Content.SwanLake.Enemies
             
             CustomParticles.GenericFlare(Projectile.Center, isWhite ? Color.White : new Color(50, 50, 60), 0.4f, 12);
             
-            // ☁EMUSICAL FINALE - Feathered symphony
+            // 隨倥・MUSICAL FINALE - Feathered symphony
             float hue = (Main.GameUpdateCount * 0.02f) % 1f;
             Color finaleColor = Main.hslToRgb(hue, 0.9f, 0.85f);
             ThemedParticles.MusicNoteBurst(Projectile.Center, finaleColor, 4, 3f);
@@ -1501,7 +1502,7 @@ namespace MagnumOpus.Content.SwanLake.Enemies
                     MagnumParticleHandler.SpawnParticle(glow);
                 }
                 
-                // ☁EMUSICAL NOTATION - Swan Lake graceful melody on sound wave
+                // 隨倥・MUSICAL NOTATION - Swan Lake graceful melody on sound wave
                 if (Main.rand.NextBool(4))
                 {
                     float noteAngle = MathHelper.TwoPi * Main.rand.NextFloat();
@@ -1526,7 +1527,7 @@ namespace MagnumOpus.Content.SwanLake.Enemies
             Vector2 targetCenter = targetHitbox.Center.ToVector2();
             float distanceToTarget = Vector2.Distance(Projectile.Center, targetCenter);
             
-            // Hit if target is within the ring (radius ± 20)
+            // Hit if target is within the ring (radius ・ゑｽｱ 20)
             return distanceToTarget >= radius - 25f && distanceToTarget <= radius + 25f;
         }
 
@@ -1650,7 +1651,7 @@ namespace MagnumOpus.Content.SwanLake.Enemies
                 MagnumParticleHandler.SpawnParticle(shadow);
             }
             
-            // ☁EMUSICAL NOTATION - Swan Lake graceful melody (shadowy variant)
+            // 隨倥・MUSICAL NOTATION - Swan Lake graceful melody (shadowy variant)
             if (Main.rand.NextBool(10))
             {
                 float hue = (Main.GameUpdateCount * 0.01f + Main.rand.NextFloat()) % 1f;
@@ -1710,7 +1711,7 @@ namespace MagnumOpus.Content.SwanLake.Enemies
             
             CustomParticles.HaloRing(Projectile.Center, new Color(30, 30, 40), 0.6f, 20);
             
-            // ☁EMUSICAL FINALE - Feathered symphony (shadowy variant)
+            // 隨倥・MUSICAL FINALE - Feathered symphony (shadowy variant)
             float hue = (Main.GameUpdateCount * 0.02f) % 1f;
             Color finaleColor = Main.hslToRgb(hue, 0.7f, 0.75f) * 0.8f;
             ThemedParticles.MusicNoteBurst(Projectile.Center, finaleColor, 4, 3f);

@@ -239,8 +239,8 @@ namespace MagnumOpus.Content.SandboxLastPrism
 
             String GradLocation = "MagnumOpus/Assets/SandboxLastPrism/Gradients/";
 
-            laserEffect.Parameters["onTex"].SetValue(ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Trails/Clear/GlowTrailClear").Value);
-            laserEffect.Parameters["gradientTex"].SetValue(ModContent.Request<Texture2D>(GradLocation + lpci.textureLocation).Value);
+            laserEffect.Parameters["onTex"].SetValue(ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Trails/Clear/GlowTrailClear", AssetRequestMode.ImmediateLoad).Value);
+            laserEffect.Parameters["gradientTex"].SetValue(ModContent.Request<Texture2D>(GradLocation + lpci.textureLocation, AssetRequestMode.ImmediateLoad).Value);
             laserEffect.Parameters["baseColor"].SetValue(Color.White.ToVector3() * 1f);
             laserEffect.Parameters["satPower"].SetValue(0.8f - (combinedLaserStartBoostPower * 0.8f));
 

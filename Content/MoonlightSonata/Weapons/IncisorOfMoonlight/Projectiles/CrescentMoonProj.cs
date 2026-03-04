@@ -122,12 +122,19 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
             float pulse = 0.85f + 0.15f * MathF.Sin(Projectile.ai[1] * 0.1f);
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
+            // Switch to Additive blending for glow/bloom layers
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
+
             // Soft bloom underlayer
             Color glowColor = new Color(100, 140, 220) with { A = 0 };
             Main.spriteBatch.Draw(bloomTex, drawPos, null, glowColor * 0.35f * pulse,
                 0f, bloomTex.Size() * 0.5f, 0.5f * Projectile.scale, SpriteEffects.None, 0f);
 
-            // Crescent body 窶・pale blue
+            // Crescent body — pale blue
             Color bodyColor = Color.Lerp(new Color(135, 206, 250), new Color(200, 210, 255),
                 MathF.Sin(Projectile.ai[1] * 0.05f) * 0.5f + 0.5f) with { A = 0 };
             Main.spriteBatch.Draw(crescentTex, drawPos, null, bodyColor * 0.9f,
@@ -139,16 +146,31 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
                 Projectile.rotation + MathHelper.PiOver4, crescentTex.Size() * 0.5f,
                 0.15f * pulse, SpriteEffects.None, 0f);
 
-            // Afterimage trail
-            for (int i = 1; i < Math.Min(Projectile.oldPos.Length, 8); i++)
+            // Ribbon trail — afterimage sparkles along trail
+            for (int i = 1; i < Math.Min(Projectile.oldPos.Length, 12); i++)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero) break;
-                float fade = 1f - i / 8f;
+                float fade = 1f - i / 12f;
+                fade *= fade;
                 Vector2 oldDrawPos = Projectile.oldPos[i] + Projectile.Size * 0.5f - Main.screenPosition;
-                Main.spriteBatch.Draw(crescentTex, oldDrawPos, null, bodyColor * fade * 0.3f,
-                    Projectile.oldRot[i], crescentTex.Size() * 0.5f, 0.2f * fade,
+
+                // Bloom trail ribbon
+                Color ribbonColor = Color.Lerp(new Color(135, 206, 250), new Color(170, 140, 255), i / 12f) with { A = 0 };
+                Main.spriteBatch.Draw(bloomTex, oldDrawPos, null, ribbonColor * fade * 0.25f,
+                    0f, bloomTex.Size() * 0.5f, 0.3f * fade * Projectile.scale, SpriteEffects.None, 0f);
+
+                // Crescent afterimage
+                Main.spriteBatch.Draw(crescentTex, oldDrawPos, null, bodyColor * fade * 0.4f,
+                    Projectile.oldRot[i], crescentTex.Size() * 0.5f, 0.25f * fade,
                     SpriteEffects.None, 0f);
             }
+
+            // Restore to AlphaBlend
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
 
             return false;
         }

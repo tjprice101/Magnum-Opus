@@ -11,10 +11,11 @@ using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Fate.Debuffs;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Fate.Projectiles
 {
-    /* COMMENTED OUT — replaced by self-contained ResonanceOfABygoneReality folder
+    /* COMMENTED OUT 遯ｶ繝ｻreplaced by self-contained ResonanceOfABygoneReality folder
     #region Fate1Gun Projectiles - Rapid Bullets with Spectral Blade spawns
 
     /// <summary>
@@ -86,7 +87,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 FateCosmicVFX.SpawnCosmicMusicNotes(Projectile.Center, 1, 8f, 0.15f);
             }
             
-            // ☁EMUSICAL NOTATION - Rapid bullet melody trail
+            // 隨倥・MUSICAL NOTATION - Rapid bullet melody trail
             if (Main.rand.NextBool(10))
             {
                 Color noteColor = Color.Lerp(new Color(180, 50, 100), new Color(255, 60, 80), Main.rand.NextFloat());
@@ -105,7 +106,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             FateCosmicVFX.SpawnCosmicExplosion(target.Center, 0.4f);
             FateCosmicVFX.SpawnGlyphBurst(target.Center, 4, 4f, 0.2f);
             
-            // ☁EMUSICAL IMPACT - Rapid bullet chord
+            // 隨倥・MUSICAL IMPACT - Rapid bullet chord
             ThemedParticles.MusicNoteBurst(target.Center, new Color(180, 50, 100), 3, 2.5f);
             
             // Every 5th hit spawns spectral blade
@@ -140,14 +141,14 @@ namespace MagnumOpus.Content.Fate.Projectiles
             FateCosmicVFX.SpawnGlyphBurst(Projectile.Center, 3, 3f, 0.15f);
             FateVFXLibrary.SpawnStarSparkles(Projectile.Center, 4, 15f, 0.2f);
             
-            // ☁EMUSICAL FINALE - Bullet's final note
+            // 隨倥・MUSICAL FINALE - Bullet's final note
             ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(180, 50, 100), 3, 2f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
             
             float pulse = 1f + (float)Math.Sin(pulsePhase) * 0.15f;
@@ -301,7 +302,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                     CustomParticles.Glyph(Projectile.Center, FatePalette.FatePurple, 0.22f, -1);
                 }
                 
-                // ☁EMUSICAL NOTATION - Slash symphony trail
+                // 隨倥・MUSICAL NOTATION - Slash symphony trail
                 if (Main.rand.NextBool(4))
                 {
                     Color noteColor = Color.Lerp(new Color(180, 50, 100), new Color(255, 60, 80), Main.rand.NextFloat());
@@ -330,7 +331,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             FateCosmicVFX.SpawnGlyphBurst(target.Center, 4, 4f, 0.25f);
             FateVFXLibrary.SpawnStarSparkles(target.Center, 6, 25f, 0.25f);
             
-            // ☁EMUSICAL IMPACT - Slash chord burst
+            // 隨倥・MUSICAL IMPACT - Slash chord burst
             ThemedParticles.MusicNoteBurst(target.Center, new Color(180, 50, 100), 5, 4f);
             
             // Cosmic spark burst in slash direction
@@ -359,7 +360,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             // Cosmic music notes
             FateCosmicVFX.SpawnCosmicMusicNotes(Projectile.Center, 4, 30f, 0.3f);
             
-            // ☁EMUSICAL FINALE - Grand slash crescendo
+            // 隨倥・MUSICAL FINALE - Grand slash crescendo
             ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(180, 50, 100), 6, 5f);
             ThemedParticles.MusicNoteBurst(Projectile.Center, Color.White, 3, 3f);
             
@@ -388,7 +389,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
+            Texture2D tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             
@@ -532,7 +533,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 FateCosmicVFX.SpawnCosmicMusicNotes(Projectile.Center, 1, 12f, 0.2f);
             }
             
-            // ☁EMUSICAL NOTATION - Accelerating cosmic melody
+            // 隨倥・MUSICAL NOTATION - Accelerating cosmic melody
             if (Main.rand.NextBool((int)MathHelper.Lerp(12f, 5f, speedRatio)))
             {
                 Color noteColor = Color.Lerp(new Color(180, 50, 100), new Color(255, 60, 80), Main.rand.NextFloat());
@@ -575,7 +576,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             FateVFXLibrary.SpawnStarSparkles(target.Center, 8 + (int)(speedRatio * 6), 30f + speedRatio * 20f, 0.3f);
             FateCosmicVFX.SpawnGlyphBurst(target.Center, 5, 5f, 0.3f);
             
-            // ☁EMUSICAL IMPACT - Accelerating cosmic chord burst
+            // 隨倥・MUSICAL IMPACT - Accelerating cosmic chord burst
             ThemedParticles.MusicNoteBurst(target.Center, new Color(180, 50, 100), 4 + (int)(speedRatio * 3), 3.5f + speedRatio * 2f);
 
             // Spawn 3 cosmic rockets from around the player
@@ -609,14 +610,14 @@ namespace MagnumOpus.Content.Fate.Projectiles
             FateCosmicVFX.SpawnCosmicExplosion(Projectile.Center, 0.5f);
             FateVFXLibrary.SpawnStarSparkles(Projectile.Center, 6, 25f, 0.25f);
             
-            // ☁EMUSICAL FINALE - Cosmic round's final echo
+            // 隨倥・MUSICAL FINALE - Cosmic round's final echo
             ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(180, 50, 100), 5, 3.5f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/WholeNote").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/WholeNote", AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
             
             float speedRatio = currentSpeed / MaxSpeed;
@@ -718,7 +719,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 MagnumParticleHandler.SpawnParticle(glow);
             }
             
-            // ☁EMUSICAL NOTATION - Rocket melody trail
+            // 隨倥・MUSICAL NOTATION - Rocket melody trail
             if (Main.rand.NextBool(8))
             {
                 Color noteColor = Color.Lerp(new Color(180, 50, 100), new Color(255, 60, 80), Main.rand.NextFloat());
@@ -763,7 +764,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             FateVFXLibrary.SpawnStarSparkles(Projectile.Center, 8, 25f, 0.25f);
             FateCosmicVFX.SpawnGlyphBurst(Projectile.Center, 4, 4f, 0.2f);
             
-            // ☁EMUSICAL FINALE - Rocket's explosive finale
+            // 隨倥・MUSICAL FINALE - Rocket's explosive finale
             ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(180, 50, 100), 5, 4f);
             
             SoundEngine.PlaySound(SoundID.Item14 with { Volume = 0.6f }, Projectile.Center);
@@ -772,7 +773,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
             
             float pulse = 1f + (float)Math.Sin(pulsePhase) * 0.12f;
@@ -1030,7 +1031,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 FateCosmicVFX.SpawnCosmicMusicNotes(Projectile.Center, 1, 15f, 0.18f);
             }
             
-            // ☁EMUSICAL PRESENCE - Cosmic Deity's eternal symphony
+            // 隨倥・MUSICAL PRESENCE - Cosmic Deity's eternal symphony
             if (Main.rand.NextBool(12))
             {
                 Color noteColor = Color.Lerp(new Color(120, 30, 140), Color.White, Main.rand.NextFloat());
@@ -1047,7 +1048,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         {
             target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 120);
             
-            // ☁EMUSICAL IMPACT - Deity's cosmic chord
+            // 隨倥・MUSICAL IMPACT - Deity's cosmic chord
             ThemedParticles.MusicNoteBurst(target.Center, new Color(180, 50, 100), 5, 4f);
         }
 
@@ -1056,8 +1057,8 @@ namespace MagnumOpus.Content.Fate.Projectiles
             SpriteBatch spriteBatch = Main.spriteBatch;
             
             // Load the actual Cosmic Deity sprite (120x68 single frame)
-            Texture2D deityTex = ModContent.Request<Texture2D>("MagnumOpus/Content/Fate/Projectiles/CosmicDeityMinion").Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/QuarterNote").Value;
+            Texture2D deityTex = ModContent.Request<Texture2D>("MagnumOpus/Content/Fate/Projectiles/CosmicDeityMinion", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/QuarterNote", AssetRequestMode.ImmediateLoad).Value;
             
             Vector2 deityOrigin = deityTex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
@@ -1185,7 +1186,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 FateCosmicVFX.SpawnCosmicMusicNotes(Projectile.Center, 1, 10f, 0.18f);
             }
             
-            // ☁EMUSICAL NOTATION - Deity beam melody trail
+            // 隨倥・MUSICAL NOTATION - Deity beam melody trail
             if (Main.rand.NextBool(6))
             {
                 Color noteColor = Color.Lerp(new Color(180, 50, 100), new Color(255, 60, 80), Main.rand.NextFloat());
@@ -1205,7 +1206,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             FateVFXLibrary.SpawnStarSparkles(target.Center, 6, 25f, 0.25f);
             FateCosmicVFX.SpawnGlyphBurst(target.Center, 4, 4f, 0.25f);
             
-            // ☁EMUSICAL IMPACT - Deity beam chord burst
+            // 隨倥・MUSICAL IMPACT - Deity beam chord burst
             ThemedParticles.MusicNoteBurst(target.Center, new Color(180, 50, 100), 5, 4f);
         }
 
@@ -1215,14 +1216,14 @@ namespace MagnumOpus.Content.Fate.Projectiles
             FateCosmicVFX.SpawnGlyphBurst(Projectile.Center, 5, 4f, 0.25f);
             FateVFXLibrary.SpawnStarSparkles(Projectile.Center, 8, 20f, 0.25f);
             
-            // ☁EMUSICAL FINALE - Deity beam's final chord
+            // 隨倥・MUSICAL FINALE - Deity beam's final chord
             ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(180, 50, 100), 5, 4f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard", AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
             
             float pulse = 1f + (float)Math.Sin(pulsePhase) * 0.15f;

@@ -9,6 +9,7 @@ using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Particles;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Primitives;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Shaders;
+using MagnumOpus.Content.LaCampanella;
 using MagnumOpus.Content.LaCampanella.Debuffs;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Projectiles
@@ -251,6 +252,19 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             sb.Draw(bloomTex, screenPos, null,
                 DualFatedChimeUtils.Additive(new Color(255, 240, 200), 0.35f),
                 0f, origin, coreScale, SpriteEffects.None, 0f);
+
+            // --- LC Impact Ellipse — expanding shockwave ring around the waltz ---
+            float ellipseScale = MathHelper.Lerp(0.3f, 0.7f, progress) * pulse;
+            LaCampanellaVFXLibrary.DrawImpactEllipse(sb, screenPos,
+                ellipseScale, _spinAngle * 0.5f,
+                0.2f * pulse, LaCampanellaPalette.FlameYellow);
+
+            // --- LC Bright Star — rotating infernal star at waltz center ---
+            float starPulse = 0.6f + 0.4f * (float)Math.Sin(Timer * 0.18f);
+            LaCampanellaVFXLibrary.DrawBrightStar(sb, screenPos,
+                0.2f * starPulse * (1f + progress * 0.5f),
+                -_spinAngle * 1.3f,
+                0.3f * starPulse, LaCampanellaPalette.BellGold);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,

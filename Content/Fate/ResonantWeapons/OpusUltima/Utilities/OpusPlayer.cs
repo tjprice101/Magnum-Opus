@@ -33,9 +33,27 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Utilities
         /// <summary>Whether energy balls have been fired this swing.</summary>
         public bool EnergyBallsFired;
 
+        // === OPUS RESONANCE PASSIVE ===
+        /// <summary>Opus Resonance stacks (0-9). Each completed movement grants +1 stack. +5% all damage per stack.</summary>
+        public int OpusResonanceStacks;
+
+        /// <summary>Maximum Opus Resonance stacks (3 full movement cycles × 3 movements).</summary>
+        public const int MaxResonanceStacks = 9;
+
+        /// <summary>Ticks since last resonance gain. Stacks decay after 600 ticks (10s) out of combat.</summary>
+        public int ResonanceDecayTimer;
+        private const int ResonanceDecayDelay = 600;
+
+        /// <summary>Damage bonus multiplier from Opus Resonance (1.0 + stacks * 0.05).</summary>
+        public float ResonanceDamageMultiplier => 1f + OpusResonanceStacks * 0.05f;
+
+        /// <summary>Whether the Grand Finale was just triggered this frame.</summary>
+        public bool GrandFinaleTriggered;
+
         public override void ResetEffects()
         {
             JustTriggeredRecap = false;
+            GrandFinaleTriggered = false;
         }
 
         public override void PostUpdate()
@@ -52,6 +70,17 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Utilities
 
             // Decay combo intensity slowly
             ComboIntensity *= 0.995f;
+
+            // Opus Resonance decay timer
+            if (ResonanceDecayTimer > 0)
+            {
+                ResonanceDecayTimer--;
+                if (ResonanceDecayTimer <= 0 && OpusResonanceStacks > 0)
+                {
+                    OpusResonanceStacks--;
+                    ResonanceDecayTimer = 120; // Lose 1 stack every 2s after decay starts
+                }
+            }
         }
 
         /// <summary>
@@ -73,6 +102,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Utilities
             {
                 JustTriggeredRecap = true;
                 ComboIntensity = 1f; // Max intensity on Recapitulation
+
+                // Grant Opus Resonance stack on each completed movement cycle
+                if (OpusResonanceStacks < MaxResonanceStacks)
+                    OpusResonanceStacks++;
+                ResonanceDecayTimer = ResonanceDecayDelay;
             }
 
             return movement;

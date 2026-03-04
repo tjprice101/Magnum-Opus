@@ -21,6 +21,7 @@ using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.LaCampanella.Bosses.Systems;
 using static MagnumOpus.Common.Systems.BossDialogueSystem;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.LaCampanella.Bosses
 {
@@ -2149,7 +2150,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         
         public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
-            Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
+            Texture2D tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             int frameWidth = tex.Width / 6;
             int frameHeight = tex.Height / 6;
             int row = currentFrame / 6;

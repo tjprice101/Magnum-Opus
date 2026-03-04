@@ -13,6 +13,7 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Content.Eroica.Enemies;
 using MagnumOpus.Common.Systems.Bosses;
 using MagnumOpus.Common.Systems.Shaders;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
 {
@@ -102,7 +103,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
         public override void SetDefaults()
         {
             // MINI-BOSS STATS
-            // Hitbox = (1660/6) ÁE(868/6) ÁE1.15 ÁE0.8 = 276.6 ÁE144.6 ÁE1.15 ÁE0.8 = 254 ÁE133
+            // Hitbox = (1660/6) ・・・(868/6) ・・・1.15 ・・・0.8 = 276.6 ・・・144.6 ・・・1.15 ・・・0.8 = 254 ・・・133
             NPC.width = 254;
             NPC.height = 133;
             NPC.damage = 170;
@@ -160,7 +161,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
                 ThemedParticles.EroicaSparkles(NPC.Center, 3, NPC.width * 0.5f);
             }
 
-            // Unified stolen valor ambient VFX  Ecommander's presence, corrupted glow
+            // Unified stolen valor ambient VFX 遯ｶ繝ｻcommander's presence, corrupted glow
             EroicaEnemyVFX.StolenValorAmbientAura(NPC.Center, (int)StateTimer, (int)CurrentState > 3 ? 1 : 0);
 
             // Spawn minions on first tick
@@ -360,7 +361,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
                 
                 SoundEngine.PlaySound(SoundID.Item73 with { Volume = 0.7f }, NPC.Center);
 
-                // Unified minion barrage VFX  Esynchronized fire flash
+                // Unified minion barrage VFX 遯ｶ繝ｻsynchronized fire flash
                 EroicaEnemyVFX.MinionBarrageVFX(NPC.Center);
             }
 
@@ -401,7 +402,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
                 
                 SoundEngine.PlaySound(SoundID.Item74, NPC.Center);
 
-                // Unified charging formation VFX  Ecoordinated charge burst
+                // Unified charging formation VFX 遯ｶ繝ｻcoordinated charge burst
                 Vector2 chargeDirection = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX);
                 EroicaEnemyVFX.ChargingFormationVFX(NPC.Center, chargeDirection);
 
@@ -448,7 +449,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
                 if (StateTimer % 18 == 0)
                     SoundEngine.PlaySound(SoundID.Item45 with { Volume = 0.5f }, NPC.Center);
 
-                // Unified orbital bombardment VFX  Espiraling energy ring
+                // Unified orbital bombardment VFX 遯ｶ繝ｻspiraling energy ring
                 EroicaEnemyVFX.OrbitalBombardmentVFX(NPC.Center, orbitAngle);
             }
 
@@ -483,7 +484,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
 
                 SoundEngine.PlaySound(SoundID.Item8, target.Center);
 
-                // Unified false glory VFX  Ecage ring flash, corrupted enclosure
+                // Unified false glory VFX 遯ｶ繝ｻcage ring flash, corrupted enclosure
                 EroicaEnemyVFX.FalseGloryVFX(target.Center);
 
                 // Teleport effect
@@ -600,7 +601,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
 
                 ThemedParticles.EroicaShockwave(NPC.Center, 3.5f);
 
-                // Unified stolen triumph VFX  Eultimate explosion, commander's wrath
+                // Unified stolen triumph VFX 遯ｶ繝ｻultimate explosion, commander's wrath
                 EroicaEnemyVFX.StolenTriumphVFX(NPC.Center);
             }
 
@@ -678,7 +679,8 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
 
         public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
-            Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
+            Texture2D texture = Terraria.GameContent.TextureAssets.Npc[NPC.type].Value;
+            if (texture == null) return true;
 
             int frameWidth = texture.Width / FrameColumns;
             int frameHeight = texture.Height / FrameRows;
@@ -703,9 +705,15 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
                 EnemyShaderManager.ApplyAuraParams(auraShader, NPC, new Color(180, 150, 50), new Color(100, 40, 40), pulse);
                 spriteBatch.End();
                 spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, auraShader, Main.GameViewMatrix.TransformationMatrix);
-                spriteBatch.Draw(texture, drawPos, sourceRect, Color.White, NPC.rotation, origin, NPC.scale * 1.15f, effects, 0f);
-                spriteBatch.End();
-                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, default, default, null, Main.GameViewMatrix.TransformationMatrix);
+                try
+                {
+                    spriteBatch.Draw(texture, drawPos, sourceRect, Color.White, NPC.rotation, origin, NPC.scale * 1.15f, effects, 0f);
+                }
+                finally
+                {
+                    spriteBatch.End();
+                    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, default, default, null, Main.GameViewMatrix.TransformationMatrix);
+                }
             }
 
             // Shader-driven trail layer (only when moving fast)
@@ -717,14 +725,20 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
                     EnemyShaderManager.ApplyTrailParams(trailShader, NPC, new Color(180, 150, 50), new Color(100, 40, 40), NPC.velocity.Length() / 12f);
                     spriteBatch.End();
                     spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, trailShader, Main.GameViewMatrix.TransformationMatrix);
-                    for (int t = 1; t <= 3; t++)
+                    try
                     {
-                        Vector2 trailPos = drawPos - NPC.velocity * t * 2f;
-                        float trailAlpha = 1f - (t / 4f);
-                        spriteBatch.Draw(texture, trailPos, sourceRect, Color.White * trailAlpha, NPC.rotation, origin, NPC.scale, effects, 0f);
+                        for (int t = 1; t <= 3; t++)
+                        {
+                            Vector2 trailPos = drawPos - NPC.velocity * t * 2f;
+                            float trailAlpha = 1f - (t / 4f);
+                            spriteBatch.Draw(texture, trailPos, sourceRect, Color.White * trailAlpha, NPC.rotation, origin, NPC.scale, effects, 0f);
+                        }
                     }
-                    spriteBatch.End();
-                    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, default, default, null, Main.GameViewMatrix.TransformationMatrix);
+                    finally
+                    {
+                        spriteBatch.End();
+                        spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, default, default, null, Main.GameViewMatrix.TransformationMatrix);
+                    }
                 }
             }
 
@@ -758,7 +772,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
 
             if (NPC.life <= 0)
             {
-                // Unified stolen valor death VFX  Ecommander's fall, corrupted flash
+                // Unified stolen valor death VFX 遯ｶ繝ｻcommander's fall, corrupted flash
                 EroicaEnemyVFX.StolenValorDeathVFX(NPC.Center);
 
                 ThemedParticles.EroicaImpact(NPC.Center, 4f);

@@ -12,24 +12,25 @@ using MagnumOpus.Common.Systems.VFX.Trails;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Winter.Projectiles;
 using static MagnumOpus.Common.Systems.Particles.Particle;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Winter.Weapons
 {
     /// <summary>
-    /// Glacial Executioner held-projectile swing  Ewinter's merciless sentence.
-    /// 4-phase greataxe combo: Frost Cleave ↁERime Backhand ↁEPermafrost Slam ↁEAbsolute Zero.
+    /// Glacial Executioner held-projectile swing 遯ｶ繝ｻwinter's merciless sentence.
+    /// 4-phase greataxe combo: Frost Cleave 遶翫・Rime Backhand 遶翫・Permafrost Slam 遶翫・Absolute Zero.
     /// 25% freeze chance on hit; always applies Frostburn2; frozen enemies take 30% bonus;
     /// Phase 3 finisher spawns AvalancheWave; Phase 2 spawns ice bolt sub-projectiles.
     /// </summary>
     public sealed class GlacialExecutionerSwing : MeleeSwingBase
     {
-        // ── Theme Colors ──
+        // 隨渉隨渉 Theme Colors 隨渉隨渉
         private static readonly Color IceBlue = MagnumThemePalettes.WinterIceBlue;
         private static readonly Color FrostWhite = MagnumThemePalettes.WinterFrostPure;
         private static readonly Color DeepBlue = MagnumThemePalettes.WinterDeepBlue;
         private static readonly Color CrystalCyan = MagnumThemePalettes.WinterCrystalCyan;
 
-        // ── 6-Color Palette: pianissimo ↁEsforzando ──
+        // 隨渉隨渉 6-Color Palette: pianissimo 遶翫・sforzando 隨渉隨渉
         private static readonly Color[] WinterPalette = new Color[]
         {
             new Color(30, 50, 100),     // [0] Deep ocean shadow
@@ -40,9 +41,9 @@ namespace MagnumOpus.Content.Winter.Weapons
             new Color(240, 250, 255),   // [5] White-hot frost core
         };
 
-        #region ── Combo Phase Definitions ──
+        #region 隨渉隨渉 Combo Phase Definitions 隨渉隨渉
 
-        // Phase 0  EFrost Cleave (heavy horizontal  Ethe first breath of winter)
+        // Phase 0 遯ｶ繝ｻFrost Cleave (heavy horizontal 遯ｶ繝ｻthe first breath of winter)
         private static readonly ComboPhase Phase0_FrostCleave = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -58,7 +59,7 @@ namespace MagnumOpus.Content.Winter.Weapons
             damageMult: 0.95f
         );
 
-        // Phase 1  ERime Backhand (quick reverse  Ebiting frost wind)
+        // Phase 1 遯ｶ繝ｻRime Backhand (quick reverse 遯ｶ繝ｻbiting frost wind)
         private static readonly ComboPhase Phase1_RimeBackhand = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -74,7 +75,7 @@ namespace MagnumOpus.Content.Winter.Weapons
             damageMult: 1.0f
         );
 
-        // Phase 2  EPermafrost Slam (overhead  Ethe ice age descends)
+        // Phase 2 遯ｶ繝ｻPermafrost Slam (overhead 遯ｶ繝ｻthe ice age descends)
         private static readonly ComboPhase Phase2_PermafrostSlam = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -90,7 +91,7 @@ namespace MagnumOpus.Content.Winter.Weapons
             damageMult: 1.2f
         );
 
-        // Phase 3  EAbsolute Zero (massive finisher  Ethe world goes still)
+        // Phase 3 遯ｶ繝ｻAbsolute Zero (massive finisher 遯ｶ繝ｻthe world goes still)
         private static readonly ComboPhase Phase3_AbsoluteZero = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -108,7 +109,7 @@ namespace MagnumOpus.Content.Winter.Weapons
 
         #endregion
 
-        #region ── Abstract Overrides ──
+        #region 隨渉隨渉 Abstract Overrides 隨渉隨渉
 
         protected override ComboPhase[] GetAllPhases() => new ComboPhase[]
         {
@@ -134,7 +135,7 @@ namespace MagnumOpus.Content.Winter.Weapons
 
         #endregion
 
-        #region ── Virtual Overrides ──
+        #region 隨渉隨渉 Virtual Overrides 隨渉隨渉
 
         protected override SoundStyle GetSwingSound()
         {
@@ -151,7 +152,7 @@ namespace MagnumOpus.Content.Winter.Weapons
 
         protected override Texture2D GetBladeTexture()
         {
-            return ModContent.Request<Texture2D>("MagnumOpus/Content/Winter/Weapons/GlacialExecutioner").Value;
+            return ModContent.Request<Texture2D>("MagnumOpus/Content/Winter/Weapons/GlacialExecutioner", AssetRequestMode.ImmediateLoad).Value;
         }
 
         protected override Vector3 GetLightColor()
@@ -161,7 +162,7 @@ namespace MagnumOpus.Content.Winter.Weapons
 
         #endregion
 
-        #region ── Combo Specials ──
+        #region 隨渉隨渉 Combo Specials 隨渉隨渉
 
         protected override void HandleComboSpecials()
         {
@@ -191,7 +192,7 @@ namespace MagnumOpus.Content.Winter.Weapons
                 }
             }
 
-            // Phase 3 at ~85%: Absolute Zero finisher  Espawn AvalancheWave
+            // Phase 3 at ~85%: Absolute Zero finisher 遯ｶ繝ｻspawn AvalancheWave
             if (ComboStep == 3 && Progression >= 0.85f)
             {
                 hasSpawnedSpecial = true;
@@ -226,13 +227,13 @@ namespace MagnumOpus.Content.Winter.Weapons
                 }
             }
 
-            // ── Dense dust + frost particles every frame during active swing ──
+            // 隨渉隨渉 Dense dust + frost particles every frame during active swing 隨渉隨渉
             if (Progression > 0.10f && Progression < 0.92f)
             {
                 Vector2 tipPos = GetBladeTipPosition();
                 float bladeLen = CurrentPhase.BladeLength;
 
-                // Ice torch dust  Edense, 2 per frame
+                // Ice torch dust 遯ｶ繝ｻdense, 2 per frame
                 for (int i = 0; i < 2; i++)
                 {
                     Vector2 dustPos = Owner.MountedCenter + SwordDirection * bladeLen * Main.rand.NextFloat(0.4f, 1f);
@@ -282,7 +283,7 @@ namespace MagnumOpus.Content.Winter.Weapons
 
         #endregion
 
-        #region ── On Hit NPC ──
+        #region 隨渉隨渉 On Hit NPC 隨渉隨渉
 
         protected override void OnSwingHitNPC(NPC target, NPC.HitInfo hit, int remainingDamageCount)
         {
@@ -291,7 +292,7 @@ namespace MagnumOpus.Content.Winter.Weapons
             // Always apply Frostburn2
             target.AddBuff(BuffID.Frostburn2, 240);
 
-            // ── Absolute Zero: 25% freeze chance ──
+            // 隨渉隨渉 Absolute Zero: 25% freeze chance 隨渉隨渉
             if (Main.rand.NextFloat() < 0.25f)
             {
                 target.AddBuff(BuffID.Frozen, 90);
@@ -319,7 +320,7 @@ namespace MagnumOpus.Content.Winter.Weapons
                 }
             }
 
-            // ── Gradient halo rings  Edeep blue ↁEfrost white ──
+            // 隨渉隨渉 Gradient halo rings 遯ｶ繝ｻdeep blue 遶翫・frost white 隨渉隨渉
             for (int i = 0; i < 4; i++)
             {
                 float progress = i / 4f;
@@ -376,7 +377,7 @@ namespace MagnumOpus.Content.Winter.Weapons
 
         #endregion
 
-        #region ── Custom VFX ──
+        #region 隨渉隨渉 Custom VFX 隨渉隨渉
 
         protected override void DrawCustomVFX(SpriteBatch sb)
         {

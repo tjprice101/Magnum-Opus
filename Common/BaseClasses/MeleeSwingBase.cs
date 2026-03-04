@@ -136,9 +136,9 @@ namespace MagnumOpus.Common.BaseClasses
         private Color[] Palette => _palette ??= GetPalette();
 
         // H-1 fix: Pre-allocated trail buffers to avoid per-frame GC pressure
-        private Vector2[] _trailPosBuffer = new Vector2[TrailLength];
-        private float[] _trailRotBuffer = new float[TrailLength];
-        private int _lastTrailCount;
+        protected Vector2[] _trailPosBuffer = new Vector2[TrailLength];
+        protected float[] _trailRotBuffer = new float[TrailLength];
+        protected int _lastTrailCount;
 
         // H-2/H-3 fix: Cached textures to avoid per-frame ModContent.Request lookups
         private Texture2D _cachedBladeTex;

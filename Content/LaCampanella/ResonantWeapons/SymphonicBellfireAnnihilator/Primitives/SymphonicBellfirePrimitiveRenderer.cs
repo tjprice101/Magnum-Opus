@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator.Primitives
 {
@@ -80,25 +81,51 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
                 vertexBuffer.SetData(vertices, 0, vertCount);
                 indexBuffer.SetData(indices, 0, idxCount);
 
-                var trailTex = ModContent.Request<Texture2D>(settings.TrailTexturePath).Value;
+                var trailTex = ModContent.Request<Texture2D>(settings.TrailTexturePath, AssetRequestMode.ImmediateLoad).Value;
 
                 sb.End();
-                device.SetVertexBuffer(vertexBuffer);
-                device.Indices = indexBuffer;
-                device.Textures[0] = trailTex;
-                device.SamplerStates[0] = SamplerState.LinearClamp;
 
-                device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertCount, 0, idxCount / 3);
+                BlendState oldBlend = device.BlendState;
+                DepthStencilState oldDepth = device.DepthStencilState;
+                RasterizerState oldRaster = device.RasterizerState;
+                try
+                {
+                    device.SetVertexBuffer(vertexBuffer);
+                    device.Indices = indexBuffer;
+                    device.Textures[0] = trailTex;
+                    device.SamplerStates[0] = SamplerState.LinearClamp;
+                    device.BlendState = BlendState.Additive;
+                    device.DepthStencilState = DepthStencilState.None;
+                    device.RasterizerState = RasterizerState.CullNone;
 
-                device.SetVertexBuffer(null);
-                device.Indices = null;
+                    var basicEffect = new BasicEffect(device)
+                    {
+                        VertexColorEnabled = true,
+                        TextureEnabled = true,
+                        Texture = trailTex,
+                        World = Matrix.Identity,
+                        View = Matrix.Identity,
+                        Projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1)
+                    };
+                    foreach (var pass in basicEffect.CurrentTechnique.Passes) pass.Apply();
+
+                    device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertCount, 0, idxCount / 3);
+                }
+                finally
+                {
+                    device.BlendState = oldBlend;
+                    device.DepthStencilState = oldDepth;
+                    device.RasterizerState = oldRaster;
+                    device.SetVertexBuffer(null);
+                    device.Indices = null;
+                }
 
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
                 if (settings.BloomIntensity > 0f && points.Count > 0)
                 {
-                    var bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
+                    var bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
                     Color bloomCol = settings.ColorStart * settings.BloomIntensity;
                     sb.Draw(bloomTex, points[0] - screenPos, null, bloomCol, 0f,
                         bloomTex.Size() / 2f, settings.Width * 0.02f, SpriteEffects.None, 0f);

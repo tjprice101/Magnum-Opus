@@ -176,6 +176,50 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
         {
             target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 300);
 
+            // Constellation Shatter: if the beam kills and charge is high, spawn homing star projectiles
+            if (target.life <= 0 && Projectile.owner == Main.myPlayer)
+            {
+                Player owner = Main.player[Projectile.owner];
+                var cp = owner.Conductor();
+                if (cp.ChargeLevel >= 0.5f && cp.ShatterCooldown <= 0)
+                {
+                    cp.ConstellationShatterTriggered = true;
+                    cp.ShatterCooldown = 120; // 2s cooldown
+                    int starCount = 8 + (int)(cp.ChargeLevel * 4); // 8-12 stars
+                    for (int s = 0; s < starCount; s++)
+                    {
+                        float angle = MathHelper.TwoPi * s / starCount + Main.rand.NextFloat(-0.15f, 0.15f);
+                        Vector2 starVel = angle.ToRotationVector2() * Main.rand.NextFloat(6f, 10f);
+                        Projectile.NewProjectile(
+                            Projectile.GetSource_FromThis(),
+                            target.Center + Main.rand.NextVector2Circular(10f, 10f),
+                            starVel,
+                            ModContent.ProjectileType<ConductorSwordBeam>(),
+                            (int)(Projectile.damage * 0.35f),
+                            Projectile.knockBack * 0.2f,
+                            Projectile.owner,
+                            3f, // crystal shard mode (homing)
+                            0f);
+                    }
+                    // Shatter VFX burst
+                    if (!Main.dedServ)
+                    {
+                        for (int i = 0; i < 16; i++)
+                        {
+                            float burstAngle = MathHelper.TwoPi * i / 16f;
+                            Vector2 burstVel = burstAngle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
+                            ConductorParticleHandler.SpawnParticle(new ConductorSpark(
+                                target.Center, burstVel, ConductorUtils.LightningGold, 0.3f, 18));
+                        }
+                        ConductorParticleHandler.SpawnParticle(new ConductorBloomFlare(
+                            target.Center, ConductorUtils.CelestialWhite, 0.8f, 20));
+                        ConductorParticleHandler.SpawnParticle(new ConductorBloomFlare(
+                            target.Center, ConductorUtils.LightningGold, 0.6f, 16));
+                        SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f, Volume = 0.9f }, target.Center);
+                    }
+                }
+            }
+
             if (Main.dedServ) return;
 
             // Impact burst
@@ -223,9 +267,28 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
             SpriteBatch sb = Main.spriteBatch;
             float opacity = 1f - Projectile.alpha / 255f;
 
-            DrawBeamTrail(sb, opacity);
-            DrawBeamBody(sb, lightColor, opacity);
-            DrawTipGlow(sb, opacity);
+            try
+            {
+                // End SpriteBatch for GPU primitive trail drawing
+                sb.End();
+                DrawBeamTrail(sb, opacity);
+
+                // Restart SpriteBatch for sprite-based drawing
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
+                DrawBeamBody(sb, lightColor, opacity);
+                DrawTipGlow(sb, opacity);
+            }
+            catch
+            {
+                try
+                {
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
 
             return false;
         }

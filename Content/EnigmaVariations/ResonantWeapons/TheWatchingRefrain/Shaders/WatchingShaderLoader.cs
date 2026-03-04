@@ -7,7 +7,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
 {
     /// <summary>
     /// Loads TheWatchingRefrain's weapon-specific shaders into GameShaders.Misc.
-    /// Each shader is self-contained — no shared Enigma shader manager.
+    /// Each shader is self-contained 窶・no shared Enigma shader manager.
     /// </summary>
     [Autoload(Side = ModSide.Client)]
     public sealed class WatchingShaderLoader : ModSystem
@@ -20,14 +20,14 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
             var assets = Mod.Assets;
             Asset<Effect> Load(string path) => assets.Request<Effect>(path, AssetRequestMode.ImmediateLoad);
 
-            // Phantom aura shader — two techniques: WatchingPhantomGhost (spectral trail) and WatchingPhantomGlow (bloom)
+            // Phantom aura shader 窶・two techniques: WatchingPhantomGhost (spectral trail) and WatchingPhantomGlow (bloom)
             PhantomAuraAsset = Load("Content/EnigmaVariations/ResonantWeapons/TheWatchingRefrain/Shaders/WatchingPhantomAura");
-            GameShaders.Misc["MagnumOpus:WatchingPhantomGhost"] = new MiscShaderData(PhantomAuraAsset, "WatchingPhantomGhost");
-            GameShaders.Misc["MagnumOpus:WatchingPhantomGlow"] = new MiscShaderData(PhantomAuraAsset, "WatchingPhantomGlow");
+            GameShaders.Misc["MagnumOpus:WatchingPhantomGhost"] = new MiscShaderData(PhantomAuraAsset, "P0");
+            GameShaders.Misc["MagnumOpus:WatchingPhantomGlow"] = new MiscShaderData(PhantomAuraAsset, "P0");
 
             // Mystery zone area shader
             MysteryZoneAsset = Load("Content/EnigmaVariations/ResonantWeapons/TheWatchingRefrain/Shaders/WatchingMysteryZone");
-            GameShaders.Misc["MagnumOpus:WatchingMysteryField"] = new MiscShaderData(MysteryZoneAsset, "WatchingMysteryField");
+            GameShaders.Misc["MagnumOpus:WatchingMysteryField"] = new MiscShaderData(MysteryZoneAsset, "P0");
         }
     }
 }

@@ -14,12 +14,12 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Shaders
 
         public override void PostSetupContent()
         {
-            if (TryLoadMiscShader("Effects/SwanLake/IridescentWingspan/EtherealWing",
-                "EtherealWingMain", "MagnumOpus:EtherealWing"))
+            if (TryLoadMiscShader("MagnumOpus/Effects/SwanLake/IridescentWingspan/EtherealWing",
+                "P0", "MagnumOpus:EtherealWing"))
                 HasEtherealWingShader = true;
 
-            if (TryLoadMiscShader("Effects/SwanLake/IridescentWingspan/WingspanFlareTrail",
-                "WingspanFlareMain", "MagnumOpus:WingspanFlareTrail"))
+            if (TryLoadMiscShader("MagnumOpus/Effects/SwanLake/IridescentWingspan/WingspanFlareTrail",
+                "P0", "MagnumOpus:WingspanFlareTrail"))
                 HasWingspanFlareTrailShader = true;
         }
 

@@ -32,6 +32,13 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Utilities
         /// <summary>Number of orbiting blades currently active.</summary>
         public int OrbitBladeCount;
 
+        // === FRACTAL RECURSION ===
+        /// <summary>Current fractal recursion depth (0 = normal, 1 = sub-fracture, 2 = micro-fracture).</summary>
+        public int MaxRecursionDepth = 2;
+
+        /// <summary>Total Star Fractures triggered this combat (for visual escalation).</summary>
+        public int TotalFracturesTriggered;
+
         /// <summary>Direction alternator for swing variety.</summary>
         public int SwingDirection => SwingCounter % 2 == 0 ? 1 : -1;
 
@@ -84,6 +91,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Utilities
                     JustTriggeredStarFracture = true;
                     StarFractureCooldown = 45; // 0.75 second cooldown
                     ComboIntensity = 1f;
+                    TotalFracturesTriggered++;
                 }
             }
 

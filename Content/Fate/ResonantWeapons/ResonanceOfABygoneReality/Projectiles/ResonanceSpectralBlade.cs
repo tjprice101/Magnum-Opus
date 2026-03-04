@@ -6,14 +6,15 @@ using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.Fate.Debuffs;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
 {
     /// <summary>
-    /// Spectral Slashing Blade — summoned on every 5th Resonance bullet hit.
-    /// 3-phase AI: approach (Phase 0) → slash through at 35f (Phase 1) → explode (Phase 2).
+    /// Spectral Slashing Blade 遯ｶ繝ｻsummoned on every 5th Resonance bullet hit.
+    /// 3-phase AI: approach (Phase 0) 遶翫・slash through at 35f (Phase 1) 遶翫・explode (Phase 2).
     /// 60-frame life, 3 penetrate, localNPCHitCooldown=5, applies DestinyCollapse.
-    /// Self-contained VFX — no global VFX system references.
+    /// Self-contained VFX 遯ｶ繝ｻno global VFX system references.
     /// </summary>
     public class ResonanceSpectralBlade : ModProjectile
     {
@@ -87,7 +88,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
                     }
                 }
 
-                // Approach VFX — building energy
+                // Approach VFX 遯ｶ繝ｻbuilding energy
                 if (!Main.dedServ && Main.rand.NextBool(3))
                 {
                     Color col = ResonanceUtils.GradientLerp(Main.rand.NextFloat());
@@ -146,6 +147,30 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
             hasHitTarget = true;
             target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 90);
 
+            // Bygone Resonance: track blade hit for dual-hit detection
+            if (Main.myPlayer == Projectile.owner)
+            {
+                Player owner = Main.player[Projectile.owner];
+                var rp = owner.Resonance();
+                rp.CombinedHitCounter++;
+                bool resonanceTriggered = rp.OnBladeHit(target.whoAmI);
+
+                if (resonanceTriggered && !Main.dedServ)
+                {
+                    // Bygone Resonance dual-hit explosion
+                    for (int r = 0; r < 12; r++)
+                    {
+                        float rAngle = MathHelper.TwoPi * r / 12f;
+                        Vector2 burstVel = rAngle.ToRotationVector2() * Main.rand.NextFloat(5f, 9f);
+                        ResonanceParticleHandler.Spawn(ResonanceParticleType.MuzzleSpark,
+                            target.Center, burstVel, ResonanceUtils.BygoneCrimson, 0.35f, 18);
+                    }
+                    ResonanceParticleHandler.Spawn(ResonanceParticleType.EchoRing,
+                        target.Center, Vector2.Zero, ResonanceUtils.BygoneCrimson, 0.7f, 22);
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f, Volume = 0.8f }, target.Center);
+                }
+            }
+
             if (Main.dedServ) return;
 
             // Slash impact VFX
@@ -202,41 +227,54 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
-            Vector2 origin = tex.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            float pulse = 1f + MathF.Sin(pulsePhase) * 0.12f;
 
-            // Trail during slash phase
-            if (Phase == 1)
+            try
             {
-                for (int i = 0; i < Projectile.oldPos.Length; i++)
+                Texture2D tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
+                Vector2 origin = tex.Size() / 2f;
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                float pulse = 1f + MathF.Sin(pulsePhase) * 0.12f;
+
+                // Trail during slash phase
+                if (Phase == 1)
                 {
-                    if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                    float progress = (float)i / Projectile.oldPos.Length;
-                    Color trailColor = ResonanceUtils.GradientLerp(progress) * (1f - progress) * 0.5f;
-                    Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                    sb.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, (1f - progress * 0.4f) * pulse, SpriteEffects.None, 0f);
+                    for (int i = 0; i < Projectile.oldPos.Length; i++)
+                    {
+                        if (Projectile.oldPos[i] == Vector2.Zero) continue;
+                        float progress = (float)i / Projectile.oldPos.Length;
+                        Color trailColor = ResonanceUtils.GradientLerp(progress) * (1f - progress) * 0.5f;
+                        Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                        sb.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, (1f - progress * 0.4f) * pulse, SpriteEffects.None, 0f);
+                    }
                 }
+
+                // Multi-layer celestial bloom
+                ResonanceUtils.BeginAdditive(sb);
+
+                float intensityMult = Phase == 1 ? 1.3f : 1f;
+
+                // Outer nebula glow
+                sb.Draw(tex, drawPos, null, ResonanceUtils.NebulaPurple * 0.25f * intensityMult, Projectile.rotation, origin, 1.8f * pulse, SpriteEffects.None, 0f);
+                // Mid cosmic rose energy
+                sb.Draw(tex, drawPos, null, ResonanceUtils.CosmicRose * 0.35f * intensityMult, Projectile.rotation, origin, 1.5f * pulse, SpriteEffects.None, 0f);
+                // Inner star gold field
+                sb.Draw(tex, drawPos, null, ResonanceUtils.StarGold * 0.3f * intensityMult, Projectile.rotation, origin, 1.25f * pulse, SpriteEffects.None, 0f);
+
+                ResonanceUtils.EndAdditive(sb);
+
+                // Core sword sprite — ghostly tinted
+                float ghostAlpha = Phase == 1 ? 0.95f : 0.7f;
+                sb.Draw(tex, drawPos, null, Color.White * ghostAlpha, Projectile.rotation, origin, 1f * pulse, SpriteEffects.None, 0f);
             }
-
-            // Multi-layer celestial bloom
-            ResonanceUtils.BeginAdditive(sb);
-
-            float intensityMult = Phase == 1 ? 1.3f : 1f;
-
-            // Outer nebula glow
-            sb.Draw(tex, drawPos, null, ResonanceUtils.NebulaPurple * 0.25f * intensityMult, Projectile.rotation, origin, 1.8f * pulse, SpriteEffects.None, 0f);
-            // Mid cosmic rose energy
-            sb.Draw(tex, drawPos, null, ResonanceUtils.CosmicRose * 0.35f * intensityMult, Projectile.rotation, origin, 1.5f * pulse, SpriteEffects.None, 0f);
-            // Inner star gold field
-            sb.Draw(tex, drawPos, null, ResonanceUtils.StarGold * 0.3f * intensityMult, Projectile.rotation, origin, 1.25f * pulse, SpriteEffects.None, 0f);
-
-            ResonanceUtils.EndAdditive(sb);
-
-            // Core sword sprite — ghostly tinted
-            float ghostAlpha = Phase == 1 ? 0.95f : 0.7f;
-            sb.Draw(tex, drawPos, null, Color.White * ghostAlpha, Projectile.rotation, origin, 1f * pulse, SpriteEffects.None, 0f);
+            catch
+            {
+                try
+                {
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
 
             return false;
         }

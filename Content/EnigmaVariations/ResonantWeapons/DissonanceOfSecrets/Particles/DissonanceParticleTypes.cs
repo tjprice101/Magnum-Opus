@@ -4,11 +4,12 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecrets.Utilities;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecrets.Particles
 {
     // =========================================================================
-    //  RIDDLE ECHO — Soft glow motes that spiral outward from the orb
+    //  RIDDLE ECHO 窶・Soft glow motes that spiral outward from the orb
     //  Like whispered secrets escaping from a sealed vault
     // =========================================================================
     public class RiddleEchoParticle : DissonanceParticle
@@ -53,21 +54,21 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
             alpha = MathF.Pow(alpha, 0.4f); // Slow fade, linger like whispers
             if (alpha <= 0f) return;
 
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
             Color drawColor = Color * alpha;
 
-            // Layer 1: Outer halo bloom — the secret's aura
+            // Layer 1: Outer halo bloom 窶・the secret's aura
             sb.Draw(tex, drawPos, null, drawColor * 0.25f, Rotation, tex.Size() / 2f, Scale * 2.5f, SpriteEffects.None, 0f);
-            // Layer 2: Colored core — the riddle itself
+            // Layer 2: Colored core 窶・the riddle itself
             sb.Draw(tex, drawPos, null, drawColor * 0.65f, Rotation, tex.Size() / 2f, Scale, SpriteEffects.None, 0f);
-            // Layer 3: White-hot center — a flicker of truth
+            // Layer 3: White-hot center 窶・a flicker of truth
             sb.Draw(tex, drawPos, null, Color.White * alpha * 0.35f, Rotation, tex.Size() / 2f, Scale * 0.35f, SpriteEffects.None, 0f);
         }
     }
 
     // =========================================================================
-    //  SECRET GLYPH — Orbiting arcane glyphs around the cascade orb
+    //  SECRET GLYPH 窶・Orbiting arcane glyphs around the cascade orb
     //  Slowly rotating with pulsing visibility, like forbidden runes
     // =========================================================================
     public class SecretGlyphParticle : DissonanceParticle
@@ -110,18 +111,18 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
 
         public override void CustomDraw(SpriteBatch sb)
         {
-            // Pulsing visibility — glyphs flicker in and out like half-remembered secrets
+            // Pulsing visibility 窶・glyphs flicker in and out like half-remembered secrets
             float pulse = DissonanceUtils.SineBump(LifetimeCompletion);
             float flicker = MathF.Sin(Time * 0.12f) * 0.2f + 0.8f;
             float alpha = pulse * flicker;
             if (alpha <= 0.01f) return;
 
             string glyphPath = $"MagnumOpus/Assets/Particles Asset Library/{NoteTextureNames[_glyphVariant]}";
-            var tex = ModContent.Request<Texture2D>(glyphPath).Value;
+            var tex = ModContent.Request<Texture2D>(glyphPath, AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
             // Soft glow halo behind the glyph
-            var glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom").Value;
+            var glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             sb.Draw(glowTex, drawPos, null, Color * alpha * 0.25f, 0f, glowTex.Size() / 2f, Scale * 3.5f, SpriteEffects.None, 0f);
             // The glyph itself
             sb.Draw(tex, drawPos, null, Color * alpha, Rotation, tex.Size() / 2f, Scale, SpriteEffects.None, 0f);
@@ -129,7 +130,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
     }
 
     // =========================================================================
-    //  CASCADE SPARK — Fast directional sparks for the cascade explosion
+    //  CASCADE SPARK 窶・Fast directional sparks for the cascade explosion
     //  Reality splitting with sharp bright sparks, motion-blur stretched
     // =========================================================================
     public class CascadeSparkParticle : DissonanceParticle
@@ -165,7 +166,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
             alpha *= alpha; // Quadratic falloff
             if (alpha <= 0f) return;
 
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/PartiGlow").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/PartiGlow", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
             // Stretch by velocity for motion-blur feel
@@ -178,7 +179,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
     }
 
     // =========================================================================
-    //  RIDDLEBOLT TRAIL MOTE — Tiny trail motes left behind by riddlebolts
+    //  RIDDLEBOLT TRAIL MOTE 窶・Tiny trail motes left behind by riddlebolts
     //  Fading quickly like the echo of a whispered answer
     // =========================================================================
     public class RiddleboltTrailMote : DissonanceParticle
@@ -212,7 +213,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
             float alpha = 1f - LifetimeCompletion;
             if (alpha <= 0f) return;
 
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
             // Layer 1: Soft glow

@@ -49,10 +49,11 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Throws a dark eclipse orb that tracks your cursor"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "While airborne, spawns blazing wrath shards that seek enemies"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Explodes on impact with enemies or tiles"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The sun's wrath made manifest'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Throws a slow-moving eclipse orb with a dark core and fire corona"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Orb tracks your cursor and splits into 6 wrath shards on impact"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Critical hits cause Corona Flare — 12 shards + fire nova"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Destroyed orbs leave Eclipse Fields that increase damage taken by 15%"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The sun that rises for judgment is not the sun that brings dawn.'")
             {
                 OverrideColor = new Color(200, 50, 30) // Dies Irae blood red
             });

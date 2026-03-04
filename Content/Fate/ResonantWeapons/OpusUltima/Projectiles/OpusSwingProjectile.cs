@@ -113,6 +113,16 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
 
             if (Projectile.ai[1] >= duration)
             {
+                // Grant Opus Resonance stack on Recapitulation completion
+                if (_movement == 2 && Projectile.owner == Main.myPlayer)
+                {
+                    var opData = Owner.Opus();
+                    if (opData.OpusResonanceStacks < 9)
+                    {
+                        opData.OpusResonanceStacks++;
+                        opData.ResonanceDecayTimer = 600; // Reset decay timer
+                    }
+                }
                 Projectile.Kill();
                 return;
             }
@@ -280,22 +290,49 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
             // DestinyCollapse debuff (4 seconds = 240 ticks)
             target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 240);
 
-            // Spawn seeking crystal shards (3-5, crit=5)
+            var op = Owner.Opus();
+
+            // Spawn seeking crystal shards (3-5, crit=5) scaled by Opus Resonance
             if (Main.myPlayer == Projectile.owner)
             {
                 int shardCount = hit.Crit ? 5 : Main.rand.Next(3, 6);
+                float resMult = op.ResonanceDamageMultiplier;
                 for (int i = 0; i < shardCount; i++)
                 {
                     float angle = MathHelper.TwoPi * i / shardCount + Main.rand.NextFloat(-0.2f, 0.2f);
                     Vector2 shardVel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 8f);
                     Projectile.NewProjectile(Projectile.GetSource_FromThis(), target.Center, shardVel,
                         ModContent.ProjectileType<OpusEnergyBallProjectile>(),
-                        (int)(damageDone * 0.4f), 2f, Projectile.owner,
+                        (int)(damageDone * 0.4f * resMult), 2f, Projectile.owner,
                         2f, 0f); // ai[0]=2 (crystal shard mode)
                 }
             }
 
+            // Grand Finale: on Recapitulation kill, if 9 stacks, massive cosmic detonation
+            if (_movement == 2 && target.life <= 0 && Main.myPlayer == Projectile.owner)
+            {
+                if (op.OpusResonanceStacks >= 9 && !op.GrandFinaleTriggered)
+                {
+                    op.GrandFinaleTriggered = true;
+                    // Celestial beam: massive energy ball that pierces with huge damage
+                    Vector2 toMouse = (Main.MouseWorld - Owner.Center).SafeNormalize(Vector2.UnitY);
+                    Projectile.NewProjectile(Projectile.GetSource_FromThis(),
+                        target.Center, toMouse * 4f,
+                        ModContent.ProjectileType<OpusEnergyBallProjectile>(),
+                        (int)(Projectile.damage * 3f), 10f, Projectile.owner,
+                        0f, 2.5f); // Giant 2.5x energy ball
+                }
+            }
+
             SpawnImpactVFX(target.Center);
+        }
+
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+        {
+            // Apply Opus Resonance damage scaling
+            var op = Owner.Opus();
+            if (op.OpusResonanceStacks > 0)
+                modifiers.FinalDamage *= op.ResonanceDamageMultiplier;
         }
 
         private void SpawnImpactVFX(Vector2 pos)
@@ -370,11 +407,46 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
             float comboIntensity = op.ComboIntensity;
             float progress = SwingProgress;
 
-            DrawLayer1_CosmicGlow(sb, comboIntensity);
-            DrawLayer2_CoreTrail(sb, comboIntensity);
-            DrawLayer3_GoldenSparks(sb, progress, comboIntensity);
-            DrawLayer4_WeaponSprite(sb, lightColor);
-            DrawLayer5_ComboAura(sb, comboIntensity);
+            try
+            {
+                // End SpriteBatch before GPU primitive trail draws
+                sb.End();
+
+                // GPU primitive layers (trail renderers use DrawUserIndexedPrimitives)
+                DrawLayer1_CosmicGlow(sb, comboIntensity);
+                DrawLayer2_CoreTrail(sb, comboIntensity);
+
+                // Restart SpriteBatch for sprite-based layers
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
+                // Sprite-based layers (manage their own additive state changes)
+                DrawLayer3_GoldenSparks(sb, progress, comboIntensity);
+                DrawLayer4_WeaponSprite(sb, lightColor);
+                DrawLayer5_ComboAura(sb, comboIntensity);
+            }
+            catch
+            {
+                try
+                {
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
+
+            // Theme accents (additive pass)
+            try
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                OpusUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.4f);
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
 
             return false;
         }

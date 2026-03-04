@@ -115,7 +115,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Bells attack sequentially with staggered shockwaves"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Overlapping waves achieve Harmonic Convergence for double damage"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Right click to sacrifice one bell in a devastating explosion"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The choir sings not hymns of peace, but anthems of annihilation.'")
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The choir sings in flame. The encore is silence.'")
             {
                 OverrideColor = InfernalChimesCallingUtils.LoreColor
             });

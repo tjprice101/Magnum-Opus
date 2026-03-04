@@ -6,6 +6,10 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using Terraria.GameContent;
+using MagnumOpus.Content.Eroica;
+using MagnumOpus.Content.FoundationWeapons.RibbonFoundation;
+using MagnumOpus.Content.FoundationWeapons.SparkleProjectileFoundation;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
@@ -287,17 +291,28 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Rectangle sourceRect = new Rectangle(col * frameWidth, row * frameHeight, frameWidth, frameHeight);
             Vector2 origin = new Vector2(frameWidth / 2f, frameHeight / 2f);
 
-            // 笏笏 Layer 1: GPU Energy Trail 笏笏
+            // ── Layer 1: GPU Energy Trail ──
             DrawEnergyTrail(sb);
 
-            // 笏笏 Layer 2: Afterimage chain 笏笏
+            // ── Layer 1b: Pure Bloom Ribbon (RibbonFoundation Mode 1) ──
+            DrawPureBloomTrail(sb);
+
+            // ── Layer 2: Afterimage chain ──
             DrawAfterimages(sb, tex, sourceRect, origin);
 
-            // 笏笏 Layer 3: Core spritesheet frame with glow 笏笏
+            // ── Layer 3: Core spritesheet frame with glow ──
             DrawProjectileCore(sb, tex, sourceRect, origin, lightColor);
 
-            // 笏笏 Layer 4: Additive bloom overlay 笏笏
+            // ── Layer 3b: Crystal Shimmer (SparkleProjectileFoundation) ──
+            DrawCrystalShimmer(sb);
+
+            // ── Layer 4: Additive bloom overlay ──
             DrawBloomOverlay(sb, origin, frameWidth, frameHeight);
+
+            // Eroica theme accent
+            EroicaVFXLibrary.BeginEroicaAdditive(sb);
+            EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.4f);
+            EroicaVFXLibrary.EndEroicaAdditive(sb);
 
             return false;
         }
@@ -331,14 +346,161 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 smoothen: true
             );
 
+            sb.End();
             try
             {
-                sb.End();
                 PiercingTrailRenderer.RenderTrail(positions, settings);
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             }
-            catch { }
+            finally
+            {
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+        }
+
+        /// <summary>
+        /// RibbonFoundation Mode 1 (Pure Bloom) — bright bloom sprites stacked along trail.
+        /// Gold → lightning-white, velocity-stretched for flowing crescendo appearance.
+        /// </summary>
+        private void DrawPureBloomTrail(SpriteBatch sb)
+        {
+            if (AgeTimer < 3) return;
+
+            int validCount = 0;
+            for (int i = 0; i < TrailLength; i++)
+            {
+                if (trailPositions[i] != Vector2.Zero)
+                    validCount++;
+                else
+                    break;
+            }
+            if (validCount < 4) return;
+
+            Texture2D bloomTex = RBFTextures.SoftGlowBright.Value;
+            Texture2D coreTex = RBFTextures.PointBloom.Value;
+            if (bloomTex == null || coreTex == null) return;
+
+            Vector2 bloomOrigin = bloomTex.Size() / 2f;
+            Vector2 coreOrigin = coreTex.Size() / 2f;
+            const float WidthHead = 10f;
+            const float WidthTail = 2f;
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                SamplerState.LinearClamp, DepthStencilState.None,
+                RasterizerState.CullNone, null,
+                Main.GameViewMatrix.TransformationMatrix);
+            try
+            {
+
+            for (int i = 0; i < validCount; i++)
+            {
+                float progress = (float)i / validCount; // 0 = head (newest), 1 = tail (oldest)
+                float headStrength = 1f - progress;
+                float fade = headStrength * headStrength;
+                if (fade < 0.01f) continue;
+
+                float width = MathHelper.Lerp(WidthTail, WidthHead, headStrength);
+                float scale = width / bloomTex.Width;
+
+                // Velocity direction for stretching
+                Vector2 vel;
+                if (i + 1 < validCount)
+                    vel = trailPositions[i] - trailPositions[i + 1];
+                else
+                    vel = Projectile.velocity;
+                float rot = vel.ToRotation() + MathHelper.PiOver2;
+
+                Vector2 pos = trailPositions[i] - Main.screenPosition;
+                float stretchX = scale;
+                float stretchY = scale * 2.5f;
+
+                // Outer glow — gold lightning haze
+                Color outerColor = PiercingUtils.LightGold with { A = 0 } * (fade * 0.3f);
+                sb.Draw(bloomTex, pos, null, outerColor, rot, bloomOrigin,
+                    new Vector2(stretchX * 1.8f, stretchY * 1.4f), SpriteEffects.None, 0f);
+
+                // Main body — gold → white transition
+                Color bodyColor = Color.Lerp(PiercingUtils.BrilliantWhite, PiercingUtils.LightGold, progress) with { A = 0 } * (fade * 0.5f);
+                sb.Draw(bloomTex, pos, null, bodyColor, rot, bloomOrigin,
+                    new Vector2(stretchX, stretchY), SpriteEffects.None, 0f);
+
+                // Hot core — pure white, tight
+                Color coreColor = Color.White with { A = 0 } * (fade * 0.4f * headStrength);
+                sb.Draw(coreTex, pos, null, coreColor, rot, coreOrigin,
+                    new Vector2(stretchX * 0.4f, stretchY * 0.6f), SpriteEffects.None, 0f);
+            }
+
+            }
+            finally
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+            }
+        }
+
+        /// <summary>
+        /// SparkleProjectileFoundation crystal shimmer — faceted overlay on crescendo core.
+        /// CrystalBody (gold, rotating) + CrystalOverlay (lightning-pink, counter-rotate) + StarFlare (white, pulse).
+        /// </summary>
+        private void DrawCrystalShimmer(SpriteBatch sb)
+        {
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            float time = (float)Main.timeForVisualEffects * 0.03f;
+
+            Texture2D crystalBody = SPFTextures.CrystalBody.Value;
+            Texture2D crystalOverlay = SPFTextures.CrystalOverlay.Value;
+            Texture2D starFlare = SPFTextures.StarFlare.Value;
+            if (crystalBody == null || crystalOverlay == null || starFlare == null) return;
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                SamplerState.LinearClamp, DepthStencilState.None,
+                RasterizerState.CullNone, null,
+                Main.GameViewMatrix.TransformationMatrix);
+            try
+            {
+
+            float pulse = 0.8f + 0.2f * (float)Math.Sin(AgeTimer * 0.15f);
+            float shimmerScale = Projectile.scale * 0.45f;
+
+            // Crystal body — gold, slow rotation
+            if (crystalBody != null)
+            {
+                Color bodyColor = PiercingUtils.LightGold with { A = 0 };
+                sb.Draw(crystalBody, drawPos, null, bodyColor * 0.3f * pulse,
+                    time * 0.5f, crystalBody.Size() * 0.5f, shimmerScale, SpriteEffects.None, 0f);
+            }
+
+            // Crystal overlay — crescendo pink, counter-rotate
+            if (crystalOverlay != null)
+            {
+                Color overlayColor = PiercingUtils.CrescendoPink with { A = 0 };
+                sb.Draw(crystalOverlay, drawPos, null, overlayColor * 0.2f * pulse,
+                    -time * 0.4f, crystalOverlay.Size() * 0.5f, shimmerScale * 0.95f, SpriteEffects.None, 0f);
+            }
+
+            // Star flare — brilliant white, pulsating
+            if (starFlare != null)
+            {
+                Color flareColor = PiercingUtils.BrilliantWhite with { A = 0 };
+                float flarePulse = 0.6f + 0.4f * (float)Math.Sin(AgeTimer * 0.2f + 1f);
+                sb.Draw(starFlare, drawPos, null, flareColor * 0.25f * flarePulse,
+                    Projectile.rotation, starFlare.Size() * 0.5f, shimmerScale * 0.7f, SpriteEffects.None, 0f);
+            }
+
+            }
+            finally
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+            }
         }
 
         private void DrawAfterimages(SpriteBatch sb, Texture2D tex, Rectangle sourceRect, Vector2 origin)
@@ -408,6 +570,25 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             sb.Draw(tex, drawPos, new Rectangle(0, 0, frameWidth, frameHeight),
                 bloomColor * bloomAlpha, Projectile.rotation, origin, bloomScale, SpriteEffects.None, 0f);
             PiercingUtils.ExitShaderRegion(sb);
+
+            // === THEME-SPECIFIC: ER Radial Burst Heavy Streaks — piercing radial energy ===
+            Texture2D burstTex = EroicaThemeTextures.ERRadialBurstHeavyStreaks;
+            if (burstTex != null)
+            {
+                Color burstColor = Color.Lerp(EroicaVFXLibrary.Gold, EroicaVFXLibrary.Sakura, 0.3f) with { A = 0 };
+                float burstPulse = 0.75f + 0.25f * (float)Math.Sin(AgeTimer * 0.12f);
+                sb.Draw(burstTex, drawPos, null, burstColor * 0.15f * burstPulse,
+                    Projectile.rotation, burstTex.Size() * 0.5f, Projectile.scale * 0.5f * burstPulse, SpriteEffects.None, 0f);
+            }
+
+            // === THEME-SPECIFIC: ER Sakura Petal accent — single petal halo ===
+            Texture2D petalTex = EroicaThemeTextures.ERSakuraPetal;
+            if (petalTex != null)
+            {
+                Color petalColor = EroicaVFXLibrary.Sakura with { A = 0 };
+                sb.Draw(petalTex, drawPos, null, petalColor * 0.12f,
+                    AgeTimer * 0.025f, petalTex.Size() * 0.5f, Projectile.scale * 0.35f, SpriteEffects.None, 0f);
+            }
         }
 
         #endregion

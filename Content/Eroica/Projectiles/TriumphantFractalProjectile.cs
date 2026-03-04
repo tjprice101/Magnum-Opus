@@ -9,6 +9,8 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.Eroica;
+using MagnumOpus.Content.FoundationWeapons.SparkleProjectileFoundation;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
@@ -281,20 +283,28 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = tex.Size() / 2f;
 
-            // 笏笏 Layer 1: GPU Fractal Energy Trail 笏笏
+            // ── Layer 1: GPU Fractal Energy Trail ──
             DrawFractalTrail(sb);
 
-            // 笏笏 Layer 2: Lightning arcs 笏笏
+            // ── Layer 2: Lightning arcs ──
             DrawLightningArcs(sb);
 
-            // 笏笏 Layer 3: Afterimage chain 笏笏
+            // ── Layer 3: Afterimage chain ──
             DrawAfterimages(sb, tex, origin);
 
-            // 笏笏 Layer 4: Core fractal sprite 笏笏
+            // ── Layer 3b: Crystal Shimmer overlay (SparkleProjectileFoundation) ──
+            DrawCrystalShimmer(sb, origin);
+
+            // ── Layer 4: Core fractal sprite ──
             DrawCore(sb, tex, origin, lightColor);
 
-            // 笏笏 Layer 5: Additive bloom 笏笏
+            // ── Layer 5: Additive bloom ──
             DrawBloomOverlay(sb, origin);
+
+            // Eroica theme accent
+            EroicaVFXLibrary.BeginEroicaAdditive(sb);
+            EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.4f);
+            EroicaVFXLibrary.EndEroicaAdditive(sb);
 
             return false;
         }
@@ -328,14 +338,16 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 smoothen: true
             );
 
+            sb.End();
             try
             {
-                sb.End();
                 FractalTrailRenderer.RenderTrail(positions, settings);
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             }
-            catch { }
+            finally
+            {
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
+            }
         }
 
         private void DrawLightningArcs(SpriteBatch sb)
@@ -417,6 +429,69 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             FractalUtils.ExitShaderRegion(sb);
         }
 
+        /// <summary>
+        /// SparkleProjectileFoundation-style crystal shimmer overlay.
+        /// Draws CrystalBody + StarFlare textures from SPF with fractal gold coloring.
+        /// </summary>
+        private void DrawCrystalShimmer(SpriteBatch sb, Vector2 origin)
+        {
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            float time = (float)Main.timeForVisualEffects * 0.01f;
+
+            // Crystal body overlay — geometric shimmer from SPF
+            Texture2D crystalBody = SPFTextures.CrystalBody.Value;
+            Texture2D crystalOverlay = SPFTextures.CrystalOverlay.Value;
+            Texture2D starFlare = SPFTextures.StarFlare.Value;
+
+            if (crystalBody != null)
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+                try
+                {
+
+                // Crystal body — fractal gold with rotation
+                Color bodyCol = FractalUtils.FractalGold with { A = 0 };
+                float shimmerPulse = 0.5f + 0.5f * MathF.Sin(time * 3f);
+                sb.Draw(crystalBody, drawPos, null, bodyCol * (0.2f * shimmerPulse),
+                    Projectile.rotation + time * 0.5f, crystalBody.Size() * 0.5f,
+                    Projectile.scale * 0.35f, SpriteEffects.None, 0f);
+
+                // Crystal overlay — violet counter-rotating
+                if (crystalOverlay != null)
+                {
+                    Color overlayCol = FractalUtils.FractalViolet with { A = 0 };
+                    float overlayPulse = 0.4f + 0.6f * MathF.Sin(time * 3f + 1.2f);
+                    sb.Draw(crystalOverlay, drawPos, null, overlayCol * (0.15f * overlayPulse),
+                        -Projectile.rotation - time * 0.3f, crystalOverlay.Size() * 0.5f,
+                        Projectile.scale * 0.3f, SpriteEffects.None, 0f);
+                }
+
+                // Star flare — directional sparkle
+                if (starFlare != null)
+                {
+                    Color flareCol = FractalUtils.CrystalWhite with { A = 0 };
+                    float flarePulse = 0.3f + 0.7f * MathF.Sin(time * 5f);
+                    sb.Draw(starFlare, drawPos, null, flareCol * (0.25f * flarePulse),
+                        Projectile.rotation, starFlare.Size() * 0.5f,
+                        Projectile.scale * 0.2f, SpriteEffects.None, 0f);
+                }
+
+                }
+                finally
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                        Main.DefaultSamplerState, DepthStencilState.None,
+                        RasterizerState.CullCounterClockwise, null,
+                        Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
+        }
+
         private void DrawCore(SpriteBatch sb, Texture2D tex, Vector2 origin, Color lightColor)
         {
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -445,6 +520,25 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             FractalUtils.EnterShaderRegion(sb);
             sb.Draw(tex, drawPos, null, bloomColor * 0.35f, Projectile.rotation, origin, bloomScale, SpriteEffects.None, 0f);
             FractalUtils.ExitShaderRegion(sb);
+
+            // === THEME-SPECIFIC: ER Gyratory Orb overlay — geometric fractal energy halo ===
+            Texture2D orbTex = EroicaThemeTextures.ERGyratoryOrb;
+            if (orbTex != null)
+            {
+                Color orbColor = EroicaVFXLibrary.Gold with { A = 0 };
+                float orbPulse = 0.7f + 0.3f * (float)Math.Sin(AgeTimer * 0.12f);
+                sb.Draw(orbTex, drawPos, null, orbColor * 0.2f * orbPulse,
+                    -AgeTimer * 0.03f, orbTex.Size() * 0.5f, Projectile.scale * 0.45f * orbPulse, SpriteEffects.None, 0f);
+            }
+
+            // === THEME-SPECIFIC: ER Power Effect Ring pulsing around fractal bolt ===
+            Texture2D ringTex = EroicaThemeTextures.ERPowerEffectRing;
+            if (ringTex != null)
+            {
+                Color ringColor = EroicaVFXLibrary.GetPaletteColor(0.4f) with { A = 0 };
+                sb.Draw(ringTex, drawPos, null, ringColor * 0.15f,
+                    AgeTimer * 0.015f, ringTex.Size() * 0.5f, Projectile.scale * 0.55f, SpriteEffects.None, 0f);
+            }
         }
 
         #endregion

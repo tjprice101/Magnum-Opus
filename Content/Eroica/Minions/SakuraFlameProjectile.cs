@@ -6,6 +6,8 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Content.FoundationWeapons.RibbonFoundation;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Eroica.Minions
 {
@@ -182,17 +184,25 @@ namespace MagnumOpus.Content.Eroica.Minions
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = tex.Size() / 2f;
 
-            // 笏笏 Layer 1: GPU Flame Trail 笏笏
+            // ── Layer 1: GPU Flame Trail ──
             DrawFlameTrail(sb);
 
-            // 笏笏 Layer 2: Afterimages 笏笏
+            // ── Layer 1b: Ember Drift Ribbon (RibbonFoundation Mode 5) ──
+            DrawEmberDriftRibbon(sb);
+
+            // ── Layer 2: Afterimages ──
             DrawAfterimages(sb, tex, origin);
 
-            // 笏笏 Layer 3: Core flame sprite 笏笏
+            // ── Layer 3: Core flame sprite ──
             DrawCore(sb, tex, origin, lightColor);
 
-            // 笏笏 Layer 4: Additive bloom 笏笏
+            // ── Layer 4: Additive bloom ──
             DrawBloom(sb, tex, origin);
+
+            // Eroica theme accent
+            EroicaVFXLibrary.BeginEroicaAdditive(sb);
+            EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.4f);
+            EroicaVFXLibrary.EndEroicaAdditive(sb);
 
             return false;
         }
@@ -232,6 +242,90 @@ namespace MagnumOpus.Content.Eroica.Minions
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             }
             catch { }
+        }
+
+        /// <summary>
+        /// RibbonFoundation Mode 5 (Ember Drift) — crimson-violet ember texture strip overlay.
+        /// Width 12→2, fast decay matching the 45-tick flame lifetime.
+        /// </summary>
+        private void DrawEmberDriftRibbon(SpriteBatch sb)
+        {
+            if (ageTimer < 2) return;
+
+            int validCount = 0;
+            for (int i = 0; i < TrailLength; i++)
+            {
+                if (trailPositions[i] != Vector2.Zero) validCount++;
+                else break;
+            }
+            if (validCount < 3) return;
+
+            // Use RibbonFoundation BasicTrail strip texture for ember drift ribbon
+            Texture2D stripTex = RBFTextures.BasicTrail.Value;
+            if (stripTex == null) return;
+
+            int texW = stripTex.Width;
+            int texH = stripTex.Height;
+            float time = (float)Main.timeForVisualEffects * 0.008f;
+            const float WidthHead = 12f;
+            const float WidthTail = 2f;
+            float lifeAlpha = 1f - fadeProgress;
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                SamplerState.LinearWrap, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
+
+            try
+            {
+            int srcWidth = Math.Max(1, texW / validCount);
+
+            for (int i = 0; i < validCount - 1; i++)
+            {
+                float progress = 1f - (float)i / validCount; // 1 = head, 0 = tail
+                float fade = progress * progress * lifeAlpha;
+                if (fade < 0.01f) continue;
+
+                float width = MathHelper.Lerp(WidthTail, WidthHead, progress);
+
+                Vector2 segDir = trailPositions[i] - trailPositions[i + 1];
+                float segLength = segDir.Length();
+                if (segLength < 0.5f) continue;
+                float segAngle = segDir.ToRotation();
+
+                float uStart = ((float)i / validCount + time * 4f) % 1f;
+                int srcX = (int)(uStart * texW) % texW;
+                Rectangle srcRect = new Rectangle(srcX, 0, srcWidth, texH);
+
+                float scaleX = segLength / (float)srcWidth;
+                float scaleY = width / (float)texH;
+
+                Vector2 pos = trailPositions[i] - Main.screenPosition;
+                Vector2 drawOrigin = new Vector2(0, texH / 2f);
+
+                // Crimson-violet ember body
+                Color bodyColor = Color.Lerp(FinalityUtils.AbyssalCrimson, FinalityUtils.FateViolet, progress * 0.4f) with { A = 0 };
+                sb.Draw(stripTex, pos, srcRect, bodyColor * (fade * 0.4f), segAngle, drawOrigin,
+                    new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
+
+                // Ember-gold hot inner line
+                if (progress > 0.5f)
+                {
+                    Color hotColor = FinalityUtils.EmberGold with { A = 0 };
+                    sb.Draw(stripTex, pos, srcRect, hotColor * (fade * 0.15f), segAngle, drawOrigin,
+                        new Vector2(scaleX, scaleY * 0.5f), SpriteEffects.None, 0f);
+                }
+            }
+            }
+            finally
+            {
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
+            }
         }
 
         private void DrawAfterimages(SpriteBatch sb, Texture2D tex, Vector2 origin)

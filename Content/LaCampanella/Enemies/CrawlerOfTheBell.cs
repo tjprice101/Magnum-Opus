@@ -16,6 +16,7 @@ using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.Bosses;
 using MagnumOpus.Common.Systems.Shaders;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.LaCampanella.Enemies
 {
@@ -107,7 +108,7 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
         public override void SetDefaults()
         {
             // MINI-BOSS STATS - Reduced size by 50%
-            // Hitbox = (4380/6) ÁE(3000/6) ÁE0.5 ÁE0.8 = 730 ÁE500 ÁE0.5 ÁE0.8 = 292 ÁE200
+            // Hitbox = (4380/6) ・・・(3000/6) ・・・0.5 ・・・0.8 = 730 ・・・500 ・・・0.5 ・・・0.8 = 292 ・・・200
             NPC.width = 292;
             NPC.height = 200;
             NPC.damage = 150;
@@ -774,7 +775,7 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             float alpha = 1f - Projectile.alpha / 255f;
 
@@ -821,7 +822,7 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             float alpha = 1f - Projectile.alpha / 255f;
 
@@ -876,7 +877,7 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             float alpha = 1f - Projectile.alpha / 255f;
 
@@ -926,7 +927,7 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
 
             Main.spriteBatch.Draw(glow, pos, null, CampanellaOrange, Projectile.rotation, glow.Size() / 2, 0.3f, SpriteEffects.None, 0f);
@@ -1002,7 +1003,7 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
         {
             if (Projectile.alpha >= 255) return false;
 
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad).Value;
             float alpha = 1f - Projectile.alpha / 255f;
 
             // Draw pillar as stretched glow
@@ -1067,7 +1068,7 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
 
             Main.spriteBatch.Draw(glow, pos, null, CampanellaOrange, Projectile.rotation, glow.Size() / 2, 0.5f, SpriteEffects.None, 0f);

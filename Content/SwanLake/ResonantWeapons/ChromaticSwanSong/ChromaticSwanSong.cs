@@ -61,20 +61,58 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
             Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            var csp = player.ChromaticSwan();
+
+            // Advance chromatic scale on each cast
+            csp.RegisterCast();
+            int scalePos = csp.ChromaticScalePosition;
+
             // Slight random spread for pistol feel
             velocity = velocity.RotatedByRandom(MathHelper.ToRadians(4f));
 
-            // Muzzle chromatic sparks
+            // Dying Breath: below 30% HP, bolts travel at double speed
+            if (csp.DyingBreathActive)
+                velocity *= 2f;
+
+            // ai[0]: 0 = normal, 1 = harmonic-ready, 2 = opus detonation
+            float ai0 = 0f;
+            if (csp.OpusReady)
+            {
+                ai0 = 2f;
+                csp.ConsumeOpus();
+            }
+            else if (csp.HarmonicStack >= 5)
+            {
+                ai0 = 1f;
+            }
+
+            // ai[1] = chromatic scale position (0-6)
+            Projectile.NewProjectile(source, position, velocity, type, damage, knockback,
+                player.whoAmI, ai0: ai0, ai1: scalePos);
+
+            // Muzzle chromatic sparks — color from current scale note
+            Color noteColor = ChromaticSwanPlayer.GetScaleColor(scalePos);
             for (int i = 0; i < 4; i++)
             {
                 Vector2 dustVel = velocity.SafeNormalize(Vector2.Zero) * Main.rand.NextFloat(1f, 4f)
                     + Main.rand.NextVector2Circular(2f, 2f);
-                Color col = ChromaticSwanUtils.GetChromatic(Main.rand.NextFloat());
-                Dust d = Dust.NewDustPerfect(position, DustID.RainbowTorch, dustVel, 0, col, 0.8f);
+                Dust d = Dust.NewDustPerfect(position, DustID.RainbowTorch, dustVel, 0, noteColor, 0.8f);
                 d.noGravity = true;
             }
 
-            return true;
+            // Opus ready flash — golden sparkle burst on the 7th cast
+            if (ai0 == 2f)
+            {
+                for (int i = 0; i < 12; i++)
+                {
+                    Vector2 sparkVel = Main.rand.NextVector2Circular(6f, 6f);
+                    Dust d = Dust.NewDustPerfect(position, DustID.RainbowTorch, sparkVel, 0, Color.White, 1.4f);
+                    d.noGravity = true;
+                }
+                SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 1.0f, Volume = 0.9f }, position);
+            }
+
+            return false; // We manually spawned the projectile
         }
 
         public override void HoldItem(Player player)
@@ -100,6 +138,30 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong
                 Lighting.AddLight(player.Center, stackColor.ToVector3() * 0.3f * intensity);
             }
 
+            // Chromatic Scale progress — rising notes showing octave position
+            if (csp.ConsecutiveCasts > 0)
+            {
+                float progress = csp.ConsecutiveCasts / 7f;
+                if (Main.rand.NextFloat() < progress * 0.4f)
+                {
+                    Color noteCol = ChromaticSwanPlayer.GetScaleColor(csp.ChromaticScalePosition);
+                    Vector2 noteOffset = new Vector2(Main.rand.NextFloat(-16f, 16f), 10f);
+                    Dust d = Dust.NewDustPerfect(player.Top + noteOffset, DustID.RainbowTorch,
+                        new Vector2(0, -1.5f), 0, noteCol, 0.6f + progress * 0.4f);
+                    d.noGravity = true;
+                }
+            }
+
+            // Dying Breath indicator — black wisps when below 30% HP
+            if (csp.DyingBreathActive && Main.rand.NextBool(4))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(16f, 16f);
+                Dust d = Dust.NewDustPerfect(player.Center + offset, DustID.Smoke,
+                    new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-2f, -0.5f)),
+                    150, Color.Black, 0.8f);
+                d.noGravity = true;
+            }
+
             // Chromatic ambient
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f);
             Color ambient = ChromaticSwanUtils.GetChromatic(0f);
@@ -111,13 +173,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1",
-                "Fires chromatic bolts that shift through the spectrum"));
+                "Fires chromatic bolts that detonate into structured Aria explosions"));
             tooltips.Add(new TooltipLine(Mod, "Effect2",
-                "Three consecutive hits on the same enemy triggers an Aria Detonation"));
+                "Consecutive casts cycle through the chromatic scale (C-D-E-F-G-A-B)"));
             tooltips.Add(new TooltipLine(Mod, "Effect3",
-                "Hitting different enemies builds harmonic charge for devastating releases"));
+                "Completing a full octave (7 casts) triggers an Opus Detonation — all 7 colors at once"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4",
+                "Below 30% HP: Dying Breath doubles bolt speed and expands detonation radius by 50%"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
-                "'Every color sings its own note in the swan's final aria'")
+                "'The final song is always the most beautiful. It has to be.'")
             {
                 OverrideColor = ChromaticSwanUtils.LoreColor
             });

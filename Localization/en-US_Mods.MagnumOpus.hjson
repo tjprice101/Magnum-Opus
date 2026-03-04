@@ -4432,6 +4432,121 @@ Buffs: {
 		DisplayName: Lunar Impact
 		Description: Mods.MagnumOpus.Buffs.LunarImpact.Description
 	}
+
+	AnnihilationMark: {
+		DisplayName: Annihilation Mark
+		Description: Mods.MagnumOpus.Buffs.AnnihilationMark.Description
+	}
+
+	BygoneEcho: {
+		DisplayName: Bygone Echo
+		Description: Mods.MagnumOpus.Buffs.BygoneEcho.Description
+	}
+
+	RealityFrayed: {
+		DisplayName: Reality Frayed
+		Description: Mods.MagnumOpus.Buffs.RealityFrayed.Description
+	}
+
+	SpectralResonance: {
+		DisplayName: Spectral Resonance
+		Description: Mods.MagnumOpus.Buffs.SpectralResonance.Description
+	}
+
+	MoonlitSilenceDebuff: {
+		DisplayName: Moonlit Silence Debuff
+		Description: Mods.MagnumOpus.Buffs.MoonlitSilenceDebuff.Description
+	}
+
+	MournfulGaze: {
+		DisplayName: Mournful Gaze
+		Description: Mods.MagnumOpus.Buffs.MournfulGaze.Description
+	}
+
+	SwansMark: {
+		DisplayName: Swans Mark
+		Description: Mods.MagnumOpus.Buffs.SwansMark.Description
+	}
+
+	JudgmentFlameDebuff: {
+		DisplayName: Judgment Flame Debuff
+		Description: Mods.MagnumOpus.Buffs.JudgmentFlameDebuff.Description
+	}
+
+	SentenceCageDebuff: {
+		DisplayName: Sentence Cage Debuff
+		Description: Mods.MagnumOpus.Buffs.SentenceCageDebuff.Description
+	}
+
+	ChainLinkMark: {
+		DisplayName: Chain Link Mark
+		Description: Mods.MagnumOpus.Buffs.ChainLinkMark.Description
+	}
+
+	FullyBound: {
+		DisplayName: Fully Bound
+		Description: Mods.MagnumOpus.Buffs.FullyBound.Description
+	}
+
+	DeathMarkDebuff: {
+		DisplayName: Death Mark Debuff
+		Description: Mods.MagnumOpus.Buffs.DeathMarkDebuff.Description
+	}
+
+	TolledDebuff: {
+		DisplayName: Tolled Debuff
+		Description: Mods.MagnumOpus.Buffs.TolledDebuff.Description
+	}
+
+	ElysianBurnDebuff: {
+		DisplayName: Elysian Burn Debuff
+		Description: Mods.MagnumOpus.Buffs.ElysianBurnDebuff.Description
+	}
+
+	ElysianMarkDebuff: {
+		DisplayName: Elysian Mark Debuff
+		Description: Mods.MagnumOpus.Buffs.ElysianMarkDebuff.Description
+	}
+
+	HymnResonanceDebuff: {
+		DisplayName: Hymn Resonance Debuff
+		Description: Mods.MagnumOpus.Buffs.HymnResonanceDebuff.Description
+	}
+
+	JubilantBurnDebuff: {
+		DisplayName: Jubilant Burn Debuff
+		Description: Mods.MagnumOpus.Buffs.JubilantBurnDebuff.Description
+	}
+
+	PollenSlowDebuff: {
+		DisplayName: Pollen Slow Debuff
+		Description: Mods.MagnumOpus.Buffs.PollenSlowDebuff.Description
+	}
+
+	PollinatedDebuff: {
+		DisplayName: Pollinated Debuff
+		Description: Mods.MagnumOpus.Buffs.PollinatedDebuff.Description
+	}
+
+	ThornedDebuff: {
+		DisplayName: Thorned Debuff
+		Description: Mods.MagnumOpus.Buffs.ThornedDebuff.Description
+	}
+
+	RoseThornBleedDebuff: {
+		DisplayName: Rose Thorn Bleed Debuff
+		Description: Mods.MagnumOpus.Buffs.RoseThornBleedDebuff.Description
+	}
+
+	VineRootDebuff: {
+		DisplayName: Vine Root Debuff
+		Description: Mods.MagnumOpus.Buffs.VineRootDebuff.Description
+	}
+
+	ThornAccumulationDebuff: {
+		DisplayName: Thorn Accumulation Debuff
+		Description: Mods.MagnumOpus.Buffs.ThornAccumulationDebuff.Description
+	}
 }
 
 Items: {
@@ -7506,6 +7621,21 @@ Items: {
 		DisplayName: Swans Lament
 		Tooltip: ""
 	}
+
+	AutomatonsTuningForkItem: {
+		DisplayName: Automatons Tuning Fork Item
+		Tooltip: ""
+	}
+
+	GearDrivenArbiterItem: {
+		DisplayName: Gear Driven Arbiter Item
+		Tooltip: ""
+	}
+
+	LunarPhylacteryItem: {
+		DisplayName: Lunar Phylactery Item
+		Tooltip: ""
+	}
 }
 
 NPCs: {
@@ -8328,4 +8458,101 @@ Projectiles: {
 	SOMirrorBolt.DisplayName: S O Mirror Bolt
 	SOMirrorSentry.DisplayName: S O Mirror Sentry
 	SOWhiteSwanSpirit.DisplayName: S O White Swan Spirit
+	RequiemRealityTear.DisplayName: Requiem Reality Tear
+	CrescentMoonProj.DisplayName: Crescent Moon Proj
+	CrescentWaveProj.DisplayName: Crescent Wave Proj
+	OrbitingNoteProj.DisplayName: Orbiting Note Proj
+	StaccatoNoteProj.DisplayName: Staccato Note Proj
+	SplashZoneProj.DisplayName: Splash Zone Proj
+	CrystalShardProj.DisplayName: Crystal Shard Proj
+	TidalRippleEffect.DisplayName: Tidal Ripple Effect
+	TidalThinSlash.DisplayName: Tidal Thin Slash
+	TidalXSlashEffect.DisplayName: Tidal X Slash Effect
+	MoonlightPuddle.DisplayName: Moonlight Puddle
+	PrismaticMaskOrb.DisplayName: Prismatic Mask Orb
+	SerenadeRipple.DisplayName: Serenade Ripple
+	SupernovaRipple.DisplayName: Supernova Ripple
+	SupernovaSmokeRing.DisplayName: Supernova Smoke Ring
+	SupernovaSparks.DisplayName: Supernova Sparks
+	TemporalEchoAccessoryProjectile.DisplayName: Temporal Echo Accessory Projectile
+	AutomatonMinionProjectile.DisplayName: Automaton Minion Projectile
+	ConductorFinalNoteProjectile.DisplayName: Conductor Final Note Projectile
+	FrequencyZoneProjectile.DisplayName: Frequency Zone Projectile
+	PerfectResonanceProjectile.DisplayName: Perfect Resonance Projectile
+	ChronologicalitySwing.DisplayName: Chronologicality Swing
+	ClockworkOverflowProjectile.DisplayName: Clockwork Overflow Projectile
+	TimeSlowFieldProjectile.DisplayName: Time Slow Field Projectile
+	HourBeamProjectile.DisplayName: Hour Beam Projectile
+	MinuteOrbProjectile.DisplayName: Minute Orb Projectile
+	PendulumZoneProjectile.DisplayName: Pendulum Zone Projectile
+	SecondBoltProjectile.DisplayName: Second Bolt Projectile
+	DriveGearProjectile.DisplayName: Drive Gear Projectile
+	GearMeshZoneProjectile.DisplayName: Gear Mesh Zone Projectile
+	MediumGearProjectile.DisplayName: Medium Gear Projectile
+	SmallGearProjectile.DisplayName: Small Gear Projectile
+	MasterMechanismBombProjectile.DisplayName: Master Mechanism Bomb Projectile
+	StickyBombProjectile.DisplayName: Sticky Bomb Projectile
+	ArbiterMinionProjectile.DisplayName: Arbiter Minion Projectile
+	ArbiterVerdictProjectile.DisplayName: Arbiter Verdict Projectile
+	MoonlightBeamProjectile.DisplayName: Moonlight Beam Projectile
+	MoonlightSentinelProjectile.DisplayName: Moonlight Sentinel Projectile
+	MechanismBulletProjectile.DisplayName: Mechanism Bullet Projectile
+	MechanismEjectGearProjectile.DisplayName: Mechanism Eject Gear Projectile
+	MidnightStrikeShotProjectile.DisplayName: Midnight Strike Shot Projectile
+	DreamAlignmentProjectile.DisplayName: Dream Alignment Projectile
+	DreamSphereProjectile.DisplayName: Dream Sphere Projectile
+	InnerSphereBoltProjectile.DisplayName: Inner Sphere Bolt Projectile
+	MiddleSphereOrbProjectile.DisplayName: Middle Sphere Orb Projectile
+	OuterSphereBombProjectile.DisplayName: Outer Sphere Bomb Projectile
+	ForwardFieldProjectile.DisplayName: Forward Field Projectile
+	ReverseFieldProjectile.DisplayName: Reverse Field Projectile
+	TemporalParadoxProjectile.DisplayName: Temporal Paradox Projectile
+	TemporalArrowProjectile.DisplayName: Temporal Arrow Projectile
+	TemporalFractureProjectile.DisplayName: Temporal Fracture Projectile
+	FrozenMomentProjectile.DisplayName: Frozen Moment Projectile
+	TemporalThrustProjectile.DisplayName: Temporal Thrust Projectile
+	TimePierceBoomerangProjectile.DisplayName: Time Pierce Boomerang Projectile
+	ChainLightningArc.DisplayName: Chain Lightning Arc
+	HellfireZoneProjectile.DisplayName: Hellfire Zone Projectile
+	EclipseFieldProjectile.DisplayName: Eclipse Field Projectile
+	DarkSermonSigilProjectile.DisplayName: Dark Sermon Sigil Projectile
+	PenanceShotProjectile.DisplayName: Penance Shot Projectile
+	GoliathMaskAura.DisplayName: Goliath Mask Aura
+	GoliathRipple.DisplayName: Goliath Ripple
+	NebulaWhisperShot.DisplayName: Nebula Whisper Shot
+	ExecutionFanBlade.DisplayName: Execution Fan Blade
+	CosmicRequiemOrbProjectile.DisplayName: Cosmic Requiem Orb Projectile
+	StarEchoProjectile.DisplayName: Star Echo Projectile
+	AnthemBeamProjectile.DisplayName: Anthem Beam Projectile
+	GloryNoteProjectile.DisplayName: Glory Note Projectile
+	VictoryFanfareProjectile.DisplayName: Victory Fanfare Projectile
+	ElysianVerdictExplosion.DisplayName: Elysian Verdict Explosion
+	GoldenDropletProjectile.DisplayName: Golden Droplet Projectile
+	JoyousGeyserBurstProjectile.DisplayName: Joyous Geyser Burst Projectile
+	ApexOrbProjectile.DisplayName: Apex Orb Projectile
+	ExordiumBoltProjectile.DisplayName: Exordium Bolt Projectile
+	GloriaBoltProjectile.DisplayName: Gloria Bolt Projectile
+	GloriaFragmentProjectile.DisplayName: Gloria Fragment Projectile
+	RisingBoltProjectile.DisplayName: Rising Bolt Projectile
+	HurricaneShotProjectile.DisplayName: Hurricane Shot Projectile
+	PetalClusterProjectile.DisplayName: Petal Cluster Projectile
+	PetalVortexZone.DisplayName: Petal Vortex Zone
+	ThornShrapnelProjectile.DisplayName: Thorn Shrapnel Projectile
+	GardenerSwingProj.DisplayName: Gardener Swing Proj
+	PodDetonationProjectile.DisplayName: Pod Detonation Projectile
+	SeedPodProjectile.DisplayName: Seed Pod Projectile
+	GoldenFieldProjectile.DisplayName: Golden Field Projectile
+	HomingSeedProjectile.DisplayName: Homing Seed Projectile
+	MassBloomProjectile.DisplayName: Mass Bloom Projectile
+	PollenShotProjectile.DisplayName: Pollen Shot Projectile
+	OvationShockwaveProjectile.DisplayName: Ovation Shockwave Projectile
+	RoseRainPetalProjectile.DisplayName: Rose Rain Petal Projectile
+	ThrownRoseProjectile.DisplayName: Thrown Rose Projectile
+	BotanicalBurstProjectile.DisplayName: Botanical Burst Projectile
+	ThornboundSwingProj.DisplayName: Thornbound Swing Proj
+	ThornLashProjectile.DisplayName: Thorn Lash Projectile
+	ThornWallProjectile.DisplayName: Thorn Wall Projectile
+	BloomThornProjectile.DisplayName: Bloom Thorn Projectile
+	CrystallineThornProjectile.DisplayName: Crystalline Thorn Projectile
+	ThornDetonationProjectile.DisplayName: Thorn Detonation Projectile
 }

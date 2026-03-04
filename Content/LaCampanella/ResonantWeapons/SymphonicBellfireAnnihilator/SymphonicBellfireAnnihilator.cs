@@ -26,6 +26,11 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
         public override string Texture => "MagnumOpus/Content/LaCampanella/ResonantWeapons/SymphonicBellfireAnnihilator/SymphonicBellfireAnnihilator";
         public override string Name => "SymphonicBellfireAnnihilator";
 
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             Item.damage = 494;
@@ -136,7 +141,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Wave kills grant Grand Crescendo stacks (max 5): +10% wave size and +8% damage per stack"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Rocket kills grant Bellfire Crescendo stacks (max 3): rockets fire in bursts of 2, 3, then 4"));
             tooltips.Add(new TooltipLine(Mod, "Effect5", "Both at maximum triggers Symphonic Overture: a massive wave ignoring all pierce slowdown"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'When the bell toll becomes a bombardment, even silence trembles.'")
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Fortissimo. Always fortissimo.'")
             {
                 OverrideColor = new Color(255, 140, 40)
             });

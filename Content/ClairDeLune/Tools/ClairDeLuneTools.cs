@@ -13,6 +13,7 @@ using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.ClairDeLune.Tools
 {
@@ -383,7 +384,7 @@ namespace MagnumOpus.Content.ClairDeLune.Tools
         public override bool PreDraw(ref Color lightColor)
         {
             // Draw with glow
-            Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
+            Texture2D texture = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
             

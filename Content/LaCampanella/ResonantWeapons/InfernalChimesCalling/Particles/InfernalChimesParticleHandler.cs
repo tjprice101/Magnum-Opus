@@ -34,24 +34,30 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
         {
             if (Particles.Count == 0) return;
 
-            // Additive pass
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            foreach (var p in Particles)
-                if (p.UseAdditiveBlend) p.Draw(sb);
+            try
+            {
+                // Additive pass
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                foreach (var p in Particles)
+                    if (p.UseAdditiveBlend) p.Draw(sb);
 
-            // Alpha pass
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            foreach (var p in Particles)
-                if (!p.UseAdditiveBlend) p.Draw(sb);
-
-            // Restore
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                // Alpha pass
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                foreach (var p in Particles)
+                    if (!p.UseAdditiveBlend) p.Draw(sb);
+            }
+            catch { }
+            finally
+            {
+                // Restore
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
         }
     }
 }

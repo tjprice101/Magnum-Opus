@@ -1,6 +1,8 @@
 ﻿using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
+using MagnumOpus.Content.FoundationWeapons.RibbonFoundation;
+using ReLogic.Content;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -95,6 +97,9 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
                 sb.Draw(bloom, drawPos, null, trailColor * (fade * 0.35f), 0f, origin, 0.25f * fade + 0.1f, SpriteEffects.None, 0f);
             }
 
+            // ── Layer 1b: Pure Bloom Ribbon (RibbonFoundation Mode 1) ──
+            DrawPureBloomRibbon(sb);
+
             // ── Layer 2: Core bloom at projectile center ──
             EroicaVFXLibrary.DrawEroicaBloomStack(sb, Projectile.Center,
                 EroicaPalette.Scarlet, EroicaPalette.Gold, 0.3f, 0.85f);
@@ -110,7 +115,80 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
                 sb.Draw(flare, flarePos, null, flareCol * 0.4f, rot, flareOrigin, 0.25f, SpriteEffects.None, 0f);
             }
 
+            // Eroica theme accent
+            EroicaVFXLibrary.BeginEroicaAdditive(sb);
+            EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.5f);
+            EroicaVFXLibrary.EndEroicaAdditive(sb);
+
             return false;
+        }
+
+        /// <summary>
+        /// RibbonFoundation Mode 1 (Pure Bloom) — velocity-stretched bloom sprites along trail.
+        /// Gold → crimson gradient, 3-layer per point (outer haze, body, hot core).
+        /// </summary>
+        private void DrawPureBloomRibbon(SpriteBatch sb)
+        {
+            int validCount = 0;
+            for (int i = 0; i < TrailLength; i++)
+            {
+                if (trailPositions[i] != Vector2.Zero) validCount++;
+                else break;
+            }
+            if (validCount < 3) return;
+
+            Texture2D bloomTex = RBFTextures.SoftGlowBright.Value;
+            Texture2D coreTex = RBFTextures.PointBloom.Value;
+            if (bloomTex == null || coreTex == null) return;
+
+            Vector2 bloomOrigin = bloomTex.Size() / 2f;
+            Vector2 coreOrigin = coreTex.Size() / 2f;
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
+            try
+            {
+            for (int i = 0; i < validCount; i++)
+            {
+                float progress = (float)i / validCount;
+                float headStrength = 1f - progress;
+                float fade = headStrength * headStrength;
+                if (fade < 0.01f) continue;
+
+                float width = MathHelper.Lerp(2f, 10f, headStrength);
+                float scale = width / bloomTex.Width;
+
+                Vector2 vel = i + 1 < validCount ? trailPositions[i] - trailPositions[i + 1] : Projectile.velocity;
+                float rot = vel.ToRotation() + MathHelper.PiOver2;
+
+                Vector2 pos = trailPositions[i] - Main.screenPosition;
+                float stretchX = scale;
+                float stretchY = scale * 2.2f;
+
+                Color outerColor = EroicaPalette.Scarlet with { A = 0 } * (fade * 0.3f);
+                sb.Draw(bloomTex, pos, null, outerColor, rot, bloomOrigin,
+                    new Vector2(stretchX * 1.6f, stretchY * 1.3f), SpriteEffects.None, 0f);
+
+                Color bodyColor = Color.Lerp(Color.White, EroicaPalette.Gold, progress) with { A = 0 } * (fade * 0.45f);
+                sb.Draw(bloomTex, pos, null, bodyColor, rot, bloomOrigin,
+                    new Vector2(stretchX, stretchY), SpriteEffects.None, 0f);
+
+                Color coreColor = Color.White with { A = 0 } * (fade * 0.35f * headStrength);
+                sb.Draw(coreTex, pos, null, coreColor, rot, coreOrigin,
+                    new Vector2(stretchX * 0.4f, stretchY * 0.6f), SpriteEffects.None, 0f);
+            }
+            }
+            finally
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+            }
         }
     }
 }

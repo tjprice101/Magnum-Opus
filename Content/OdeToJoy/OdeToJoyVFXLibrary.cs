@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ID;
 
@@ -226,6 +227,111 @@ namespace MagnumOpus.Content.OdeToJoy
         public static Color GetPaletteColor(float t)
         {
             return OdeToJoyPalette.GetGradient(t);
+        }
+
+        // ─────────── THEME TEXTURE VFX ───────────
+        // Uses OdeToJoyThemeTextures for garden/blossom-themed visuals.
+
+        /// <summary>
+        /// Draws a themed power ring using OJ Power Effect Ring + Harmonic Impact.
+        /// Must be called in Additive blend mode (or {A=0} pattern).
+        /// </summary>
+        public static void DrawThemeImpactRing(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f, float rotation = 0f)
+        {
+            Vector2 drawPos = worldPos - Main.screenPosition;
+
+            Texture2D ring = OdeToJoyThemeTextures.OJPowerEffectRing?.Value;
+            if (ring != null)
+            {
+                Vector2 origin = ring.Size() * 0.5f;
+                sb.Draw(ring, drawPos, null,
+                    (OdeToJoyPalette.GoldenPollen with { A = 0 }) * 0.5f * intensity, rotation, origin,
+                    scale * 0.14f, SpriteEffects.None, 0f);
+                sb.Draw(ring, drawPos, null,
+                    (OdeToJoyPalette.RosePink with { A = 0 }) * 0.35f * intensity, -rotation * 0.6f, origin,
+                    scale * 0.10f, SpriteEffects.None, 0f);
+            }
+
+            Texture2D impact = OdeToJoyThemeTextures.OJHarmonicImpact?.Value;
+            if (impact != null)
+            {
+                Vector2 impOrigin = impact.Size() * 0.5f;
+                sb.Draw(impact, drawPos, null,
+                    (OdeToJoyPalette.WhiteBloom with { A = 0 }) * 0.4f * intensity, rotation * 1.3f, impOrigin,
+                    scale * 0.12f, SpriteEffects.None, 0f);
+            }
+        }
+
+        /// <summary>
+        /// Draws a themed blossom sparkle accent at a position.
+        /// Perfect for melee impacts and projectile hit effects.
+        /// </summary>
+        public static void DrawThemeBlossomSparkle(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f)
+        {
+            Texture2D sparkle = OdeToJoyThemeTextures.OJBlossomSparkle?.Value;
+            if (sparkle == null) return;
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = sparkle.Size() * 0.5f;
+            float rot = (float)Main.GameUpdateCount * 0.035f;
+
+            sb.Draw(sparkle, drawPos, null,
+                (OdeToJoyPalette.PetalPink with { A = 0 }) * 0.5f * intensity, rot, origin,
+                scale * 0.08f, SpriteEffects.None, 0f);
+            sb.Draw(sparkle, drawPos, null,
+                (OdeToJoyPalette.SunlightYellow with { A = 0 }) * 0.35f * intensity, -rot * 0.5f, origin,
+                scale * 0.06f, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Draws a themed thorn fragment burst accent.
+        /// Great for melee weapon slash impacts.
+        /// </summary>
+        public static void DrawThemeThornAccent(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f)
+        {
+            Texture2D thorn = OdeToJoyThemeTextures.OJThornFragment?.Value;
+            if (thorn == null) return;
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = thorn.Size() * 0.5f;
+            float rot = (float)Main.GameUpdateCount * 0.04f;
+
+            sb.Draw(thorn, drawPos, null,
+                (OdeToJoyPalette.LeafGreen with { A = 0 }) * 0.4f * intensity, rot, origin,
+                scale * 0.07f, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Draws a themed floral wave overlay using harmonic wave texture.
+        /// </summary>
+        public static void DrawThemeFloralWave(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f)
+        {
+            Texture2D wave = OdeToJoyThemeTextures.OJHarmonicWaveFloral?.Value;
+            if (wave == null) return;
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = wave.Size() * 0.5f;
+            float rot = (float)Main.GameUpdateCount * 0.015f;
+
+            sb.Draw(wave, drawPos, null,
+                (OdeToJoyPalette.GoldenPollen with { A = 0 }) * 0.3f * intensity, rot, origin,
+                scale * 0.12f, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Combined theme impact: blossom sparkle + impact ring + thorn accent.
+        /// </summary>
+        public static void DrawThemeImpactFull(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f)
+        {
+            DrawThemeBlossomSparkle(sb, worldPos, scale, intensity * 0.7f);
+            float rot = (float)Main.GameUpdateCount * 0.02f;
+            DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.5f, rot);
+            DrawThemeThornAccent(sb, worldPos, scale * 0.8f, intensity * 0.4f);
         }
     }
 }

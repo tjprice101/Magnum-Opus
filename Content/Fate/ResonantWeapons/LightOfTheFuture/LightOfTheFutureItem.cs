@@ -16,13 +16,13 @@ using MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture.Projectiles;
 namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture
 {
     /// <summary>
-    /// Light of the Future — The Cosmic Railgun.
+    /// Light of the Future 窶・The Cosmic Railgun.
     /// Fires destiny itself. Each shot starts slow then ACCELERATES to insane speed.
     ///
     /// SELF-CONTAINED WEAPON SYSTEM (no shared VFX libraries):
     ///   - Own particle system (LightParticleHandler)
     ///   - Own GPU trail renderer (LightTrailRenderer)
-    ///   - Own shader pipeline (LightShaderLoader → 4 .fx files)
+    ///   - Own shader pipeline (LightShaderLoader 竊・4 .fx files)
     ///   - Own ModPlayer state (LightPlayer via player.LightOfFuture())
     ///   - Own projectiles (LightAcceleratingBullet, LightCosmicRocket)
     ///
@@ -36,6 +36,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture
         public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/LightOfTheFuture";
 
         private static Asset<Texture2D> _glowTex;
+
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
 
         public override void SetDefaults()
         {
@@ -53,16 +58,18 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture
             Item.autoReuse = true;
             Item.noMelee = true;
             Item.shoot = ModContent.ProjectileType<LightAcceleratingBullet>();
-            Item.shootSpeed = 6f; // Starts slow — bullet accelerates
+            Item.shootSpeed = 6f; // Starts slow 窶・bullet accelerates
             Item.useAmmo = AmmoID.Bullet;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires accelerating cosmic rounds that pierce enemies"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Every 3rd shot fires 3 homing cosmic rockets"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "50% chance to not consume ammo"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Tomorrow's brilliance, wielded today'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires accelerating cosmic rounds — speed ramps from 6 to 42, damage scales with velocity"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Every 3rd shot fires 3 homing cosmic rockets in a spread at 1.5x damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "VFX intensifies at speed thresholds: tracers at 30%, sparks at 50%, smoke at 60%"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Cascade: peak-speed kills spawn 2 new full-speed bullets that continue the chain"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "50% chance to not consume ammo"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The fastest light is the one that hasn't arrived yet.'")
             {
                 OverrideColor = new Color(180, 40, 80) // Cosmic Crimson
             });
@@ -160,7 +167,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture
             LightParticleHandler.SpawnParticle(new LightBloomFlare(muzzlePos, LightUtils.MuzzleGold, 0.5f, 14));
             LightParticleHandler.SpawnParticle(new LightBloomFlare(muzzlePos, LightUtils.PlasmaWhite, 0.3f, 10));
 
-            // Directional sparks — tight cone along barrel
+            // Directional sparks 窶・tight cone along barrel
             for (int i = 0; i < 5; i++)
             {
                 Vector2 sparkVel = direction.RotatedByRandom(0.3f) * Main.rand.NextFloat(4f, 8f);
@@ -197,7 +204,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture
 
         private void SpawnRocketMuzzleFlash(Vector2 pos, Vector2 direction)
         {
-            // Enhanced flash — bigger, with crimson accent
+            // Enhanced flash 窶・bigger, with crimson accent
             LightParticleHandler.SpawnParticle(new LightBloomFlare(pos, LightUtils.ImpactCrimson, 0.7f, 18));
             LightParticleHandler.SpawnParticle(new LightBloomFlare(pos, LightUtils.MuzzleGold, 0.6f, 16));
             LightParticleHandler.SpawnParticle(new LightBloomFlare(pos, LightUtils.PlasmaWhite, 0.4f, 12));
@@ -210,7 +217,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture
                 LightParticleHandler.SpawnParticle(new LightSpark(pos, sparkVel, sparkCol * 0.8f, 0.2f, 12));
             }
 
-            // Three directional glyphs — one for each rocket
+            // Three directional glyphs 窶・one for each rocket
             for (int i = 0; i < 3; i++)
             {
                 float angle = direction.ToRotation() + (i - 1) * 0.25f;
@@ -235,7 +242,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture
         {
             // Bloom behind the weapon sprite in world
             _glowTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow");
-            Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
+            Texture2D tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Item.position - Main.screenPosition + new Vector2(Item.width / 2f, Item.height / 2f);
             Vector2 origin = new Vector2(tex.Width / 2f, tex.Height / 2f);
             float time = (float)Main.timeForVisualEffects;

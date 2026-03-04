@@ -4,11 +4,12 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Utilities;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Particles
 {
     /// <summary>
-    /// Beam muzzle flash — elongated directional burst from the weapon barrel.
+    /// Beam muzzle flash 遯ｶ繝ｻelongated directional burst from the weapon barrel.
     /// </summary>
     public class GrandioseBeamFlashParticle : GrandioseChimeParticle
     {
@@ -29,7 +30,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Particl
 
         public override void Draw(SpriteBatch sb)
         {
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
             float fade = 1f - LifetimeCompletion;
             Vector2 stretch = new Vector2(flashLength * 0.02f * Scale, Scale * 0.12f);
             sb.Draw(tex, Position - Main.screenPosition, null,
@@ -38,7 +39,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Particl
     }
 
     /// <summary>
-    /// Barrage burning note particle — fiery note that arcs outward from main beam.
+    /// Barrage burning note particle 遯ｶ繝ｻfiery note that arcs outward from main beam.
     /// </summary>
     public class BurningNoteParticle : GrandioseChimeParticle
     {
@@ -73,7 +74,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Particl
 
         public override void Draw(SpriteBatch sb)
         {
-            var tex = ModContent.Request<Texture2D>($"MagnumOpus/Assets/Particles Asset Library/{NoteTextureNames[noteVariant]}").Value;
+            var tex = ModContent.Request<Texture2D>($"MagnumOpus/Assets/Particles Asset Library/{NoteTextureNames[noteVariant]}", AssetRequestMode.ImmediateLoad).Value;
             float fade = 1f - LifetimeCompletion;
             float alpha = fade > 0.5f ? 1f : fade * 2f;
             sb.Draw(tex, Position - Main.screenPosition, null,
@@ -82,7 +83,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Particl
     }
 
     /// <summary>
-    /// Mine pulse particle — concentric ring expanding from note mine detonation.
+    /// Mine pulse particle 遯ｶ繝ｻconcentric ring expanding from note mine detonation.
     /// </summary>
     public class MineDetonationPulseParticle : GrandioseChimeParticle
     {
@@ -106,7 +107,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Particl
 
         public override void Draw(SpriteBatch sb)
         {
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad).Value;
             float fade = 1f - LifetimeCompletion;
             float scale = currentRadius / (tex.Width * 0.5f);
             sb.Draw(tex, Position - Main.screenPosition, null,
@@ -115,7 +116,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Particl
     }
 
     /// <summary>
-    /// Kill echo particle — spectral afterimage that marks where an enemy died.
+    /// Kill echo particle 遯ｶ繝ｻspectral afterimage that marks where an enemy died.
     /// </summary>
     public class KillEchoParticle : GrandioseChimeParticle
     {
@@ -138,7 +139,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Particl
 
         public override void Draw(SpriteBatch sb)
         {
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
             float fade = 1f - LifetimeCompletion;
             sb.Draw(tex, Position - Main.screenPosition, null,
                 DrawColor * (fade * 0.4f), 0f, tex.Size() / 2f, Scale * 0.3f, SpriteEffects.None, 0f);

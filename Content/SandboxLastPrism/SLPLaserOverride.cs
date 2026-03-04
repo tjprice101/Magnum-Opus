@@ -328,8 +328,8 @@ namespace MagnumOpus.Content.SandboxLastPrism
 
             myEffect.Parameters["WorldViewProjection"].SetValue(Main.GameViewMatrix.NormalizedTransformationmatrix);
 
-            myEffect.Parameters["onTex"].SetValue(ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Trails/Clear/ThinLineGlowClear").Value);
-            myEffect.Parameters["gradientTex"].SetValue(ModContent.Request<Texture2D>(GradLocation + lpci.textureLocation).Value);
+            myEffect.Parameters["onTex"].SetValue(ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Trails/Clear/ThinLineGlowClear", AssetRequestMode.ImmediateLoad).Value);
+            myEffect.Parameters["gradientTex"].SetValue(ModContent.Request<Texture2D>(GradLocation + lpci.textureLocation, AssetRequestMode.ImmediateLoad).Value);
             myEffect.Parameters["baseColor"].SetValue(Color.White.ToVector3());
             myEffect.Parameters["satPower"].SetValue(0.25f);
 

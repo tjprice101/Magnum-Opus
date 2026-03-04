@@ -1,4 +1,6 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using MagnumOpus.Content.Fate;
 using System;
 using Terraria;
 
@@ -87,5 +89,17 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
         /// <summary>Circular offset at the given angle and radius.</summary>
         public static Vector2 HelixOffset(float angle, float radius)
             => new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * radius;
+
+        // ─────────── THEME TEXTURE ACCENTS ───────────
+
+        /// <summary>
+        /// Draws theme-textured accents. Call under Additive blend.
+        /// </summary>
+        public static void DrawThemeAccents(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)
+        {
+            FateVFXLibrary.DrawThemeCelestialGlyph(sb, worldPos, scale, intensity * 0.5f);
+            float rot = (float)Main.GameUpdateCount * 0.02f;
+            FateVFXLibrary.DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.4f, rot);
+        }
     }
 }

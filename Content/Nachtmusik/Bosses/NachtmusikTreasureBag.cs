@@ -9,7 +9,17 @@ using Terraria.GameContent.Creative;
 using MagnumOpus.Common;
 using MagnumOpus.Content.Nachtmusik.ResonanceEnergies;
 using MagnumOpus.Content.Nachtmusik.HarmonicCores;
-using MagnumOpus.Content.Nachtmusik.ResonantWeapons;
+using MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner;
+using MagnumOpus.Content.Nachtmusik.Weapons.MidnightsCrescendo;
+using MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance;
+using MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer;
+using MagnumOpus.Content.Nachtmusik.Weapons.NebulasWhisper;
+using MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars;
+using MagnumOpus.Content.Nachtmusik.Weapons.StarweaversGrimoire;
+using MagnumOpus.Content.Nachtmusik.Weapons.RequiemOfTheCosmos;
+using MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton;
+using MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture;
+using MagnumOpus.Content.Nachtmusik.Weapons.ConductorOfConstellations;
 
 namespace MagnumOpus.Content.Nachtmusik.Bosses
 {

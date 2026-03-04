@@ -7,7 +7,9 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.Particles;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.Primitives;
+using MagnumOpus.Content.LaCampanella;
 using MagnumOpus.Content.LaCampanella.Debuffs;
+using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.Projectiles
 {
@@ -64,6 +66,12 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
                     FangOfTheInfiniteBellParticleHandler.SpawnParticle(
                         new EmpoweredSparkParticle(_targetPos, vel, 18, 0.35f));
                 }
+
+                // === FOUNDATION: RippleEffectProjectile — Lightning strike ring ===
+                Projectile.NewProjectile(
+                    Projectile.GetSource_FromThis(), _targetPos, Vector2.Zero,
+                    ModContent.ProjectileType<RippleEffectProjectile>(),
+                    0, 0f, Projectile.owner);
             }
 
             // Position at target for collision
@@ -130,14 +138,34 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
             return false;
         }
 
+        private static int _lastParticleDrawFrame;
+
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            DrawLightningBolt(sb);
-            DrawImpactBloom(sb);
+            try
+            {
+                DrawLightningBolt(sb);
+                DrawImpactBloom(sb);
 
-            FangOfTheInfiniteBellParticleHandler handler = ModContent.GetInstance<FangOfTheInfiniteBellParticleHandler>();
-            handler?.DrawAllParticles(sb);
+                int currentFrame = (int)Main.GameUpdateCount;
+                if (_lastParticleDrawFrame != currentFrame)
+                {
+                    _lastParticleDrawFrame = currentFrame;
+                    FangOfTheInfiniteBellParticleHandler handler = ModContent.GetInstance<FangOfTheInfiniteBellParticleHandler>();
+                    handler?.DrawAllParticles(sb);
+                }
+            }
+            catch
+            {
+                try
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
             return false;
         }
 
@@ -167,7 +195,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
                 shader: shader,
                 smoothen: false);
 
-            sb.End();
+            try { sb.End(); } catch { }
             _trailRenderer.RenderTrail(_lightningPath, mainSettings, _lightningPath.Length);
 
             // Glow pass
@@ -193,7 +221,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
             Vector2 screenPos = _targetPos - Main.screenPosition;
             Vector2 origin = new(bloomTex.Width / 2f, bloomTex.Height / 2f);
 
-            sb.End();
+            try { sb.End(); } catch { }
+            try
+            {
             sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
@@ -204,9 +234,27 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
                 FangOfTheInfiniteBellUtils.Additive(new Color(255, 255, 200), 0.7f * fade),
                 0f, origin, 0.35f * fade, SpriteEffects.None, 0f);
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            // --- LC Radial Slash Star — sharp impact star at lightning strike point ---
+            float starRot = (float)Main.GameUpdateCount * 0.06f;
+            LaCampanellaVFXLibrary.DrawRadialSlashStar(sb, screenPos,
+                0.3f * fade, starRot, 0.4f * fade,
+                LaCampanellaPalette.FlameYellow);
+
+            // --- LC Beam Lens Flare — bright explosion flare at impact ---
+            if (fade > 0.5f)
+            {
+                LaCampanellaVFXLibrary.DrawBeamLensFlare(sb, screenPos,
+                    0.2f * fade, 0f, 0.25f * (fade - 0.5f) * 2f,
+                    LaCampanellaPalette.WhiteHot);
+            }
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
         }
 
         public override void OnKill(int timeLeft)

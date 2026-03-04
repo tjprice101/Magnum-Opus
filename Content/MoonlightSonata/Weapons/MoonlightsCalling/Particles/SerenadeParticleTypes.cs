@@ -335,6 +335,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Particles
 
     // =========================================================================
     // TEXTURE HELPER — lazy-loaded texture references for particles
+    // (includes Moonlight Sonata theme-specific textures from VFX Library)
     // =========================================================================
     internal static class SerenadeTextures
     {
@@ -344,10 +345,51 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Particles
         private static Texture2D _softCircle;
         private static Texture2D[] _noteTextures;
 
+        // === Moonlight Sonata Theme-Specific Textures ===
+        private static Texture2D _msStarFlare;
+        private static Texture2D _msLensFlare;
+        private static Texture2D _msGlowOrb;
+        private static Texture2D _msCrescentMoon;
+        private static Texture2D _msMusicNote;
+        private static Texture2D _msTidalMistWisp;
+        private static Texture2D _msHarmonicImpact;
+        private static Texture2D _msPowerEffectRing;
+        private static Texture2D _msEnergyMotionBeam;
+        private static Texture2D _msEnergySurgeBeam;
+        private static Texture2D _msHarmonicStandingWave;
+        private static Texture2D _msGradientLUT;
+        private static Texture2D _msBasicTrail;
+
+        // Generic shared textures
         public static Texture2D PointBloom => _pointBloom ??= LoadTex("Assets/VFX Asset Library/GlowAndBloom/PointBloom");
         public static Texture2D SoftRadialBloom => _softRadialBloom ??= LoadTex("Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom");
         public static Texture2D StarSoft => _starSoft ??= LoadTex("Assets/Particles Asset Library/Stars/4PointedStarSoft");
         public static Texture2D SoftCircle => _softCircle ??= LoadTex("Assets/VFX Asset Library/MasksAndShapes/SoftCircle");
+
+        // Moonlight Sonata theme-specific — glow and bloom
+        public static Texture2D MSStarFlare => _msStarFlare ??= LoadTex("Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Glow and Bloom/MS Star Flare");
+        public static Texture2D MSLensFlare => _msLensFlare ??= LoadTex("Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Glow and Bloom/MS Lens Flare");
+        public static Texture2D MSGlowOrb => _msGlowOrb ??= LoadTex("Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Glow and Bloom/MS Glow Orb");
+
+        // Moonlight Sonata theme-specific — particles
+        public static Texture2D MSCrescentMoon => _msCrescentMoon ??= LoadTex("Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Particles/MS Crescent Moon");
+        public static Texture2D MSMusicNote => _msMusicNote ??= LoadTex("Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Particles/MS Music Note");
+        public static Texture2D MSTidalMistWisp => _msTidalMistWisp ??= LoadTex("Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Particles/MS Tidal Mist Wisp");
+
+        // Moonlight Sonata theme-specific — impacts
+        public static Texture2D MSHarmonicImpact => _msHarmonicImpact ??= LoadTex("Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Impacts/MS Harmonic Resonance Wave Impact");
+        public static Texture2D MSPowerEffectRing => _msPowerEffectRing ??= LoadTex("Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Impacts/MS Power Effect Ring");
+
+        // Moonlight Sonata theme-specific — beam textures
+        public static Texture2D MSEnergyMotionBeam => _msEnergyMotionBeam ??= LoadTex("Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Beam Textures/MS Energy Motion Beam");
+        public static Texture2D MSEnergySurgeBeam => _msEnergySurgeBeam ??= LoadTex("Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Beam Textures/MS Energy Surge Beam");
+
+        // Moonlight Sonata theme-specific — trails and ribbons
+        public static Texture2D MSHarmonicStandingWave => _msHarmonicStandingWave ??= LoadTex("Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Trails and Ribbons/MS Harmonic Standing Wave Ribbon");
+        public static Texture2D MSBasicTrail => _msBasicTrail ??= LoadTex("Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Trails and Ribbons/MS Basic Trail");
+
+        // Moonlight Sonata color gradient LUT
+        public static Texture2D MSGradientLUT => _msGradientLUT ??= LoadTex("Assets/VFX Asset Library/ColorGradients/MoonlightSonataGradientLUTandRAMP");
 
         private static readonly string[] NoteNames = new[]
         {
@@ -370,6 +412,227 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Particles
             if (ModContent.HasAsset(path))
                 return ModContent.Request<Texture2D>(path, ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
             return null;
+        }
+    }
+
+    // =================================================================
+    // THEME-SPECIFIC SERENADE PARTICLES — Moonlight Sonata VFX Library
+    // =================================================================
+
+    /// <summary>
+    /// Harmonic standing wave ribbon particle using the MS Harmonic Standing Wave Ribbon texture.
+    /// Undulates along beam segments to convey harmonic resonance visually.
+    /// </summary>
+    public class HarmonicWaveRibbonParticle : SerenadeParticle
+    {
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        private readonly float _waveFreq;
+
+        public HarmonicWaveRibbonParticle(Vector2 pos, Vector2 vel, Color color, float scale, int lifetime)
+        {
+            Position = pos;
+            Velocity = vel;
+            DrawColor = color;
+            Scale = scale;
+            Lifetime = lifetime;
+            Rotation = vel.ToRotation();
+            _waveFreq = 0.08f + Main.rand.NextFloat(0.04f);
+        }
+
+        public override void Update()
+        {
+            Velocity *= 0.97f;
+            float wave = (float)Math.Sin(Time * _waveFreq) * 1.5f;
+            Vector2 perp = Velocity.SafeNormalize(Vector2.UnitY).RotatedBy(MathHelper.PiOver2);
+            Position += perp * wave * 0.3f;
+            Rotation = Velocity.ToRotation();
+        }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            var tex = SerenadeTextures.MSHarmonicStandingWave;
+            if (tex == null) return;
+            var origin = tex.Size() * 0.5f;
+
+            float opacity = SerenadeUtils.SineBump(LifetimeCompletion) * 0.6f;
+            Color color = DrawColor;
+            color.A = 0;
+
+            spriteBatch.Draw(tex, Position - Main.screenPosition, null, color * opacity,
+                Rotation, origin, Scale * 0.2f, SpriteEffects.None, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Serenade star flare particle using the MS Star Flare texture.
+    /// A sharp 4-pointed flare that flashes at beam head, bounce points, and resonance events.
+    /// </summary>
+    public class SerenadeStarFlareParticle : SerenadeParticle
+    {
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        public SerenadeStarFlareParticle(Vector2 pos, float scale, Color color, int lifetime)
+        {
+            Position = pos;
+            Velocity = Vector2.Zero;
+            Scale = scale;
+            DrawColor = color;
+            Lifetime = lifetime;
+            Rotation = Main.rand.NextFloat(MathHelper.TwoPi);
+        }
+
+        public override void Update()
+        {
+            Rotation += 0.015f;
+        }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            var tex = SerenadeTextures.MSStarFlare;
+            if (tex == null) return;
+            var origin = tex.Size() * 0.5f;
+
+            float opacity = 1f - (float)Math.Pow(LifetimeCompletion, 1.8f);
+            float pulse = 0.85f + 0.15f * (float)Math.Sin(Time * 0.15f);
+            Color color = Color.Lerp(DrawColor, SerenadeUtils.MoonWhite, pulse * 0.3f);
+            color.A = 0;
+
+            spriteBatch.Draw(tex, Position - Main.screenPosition, null, color * opacity * pulse,
+                Rotation, origin, Scale * 0.3f * pulse, SpriteEffects.None, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Serenade glow orb particle using the MS Glow Orb texture.
+    /// Soft ethereal bloom layer for beam head and resonance level transitions.
+    /// </summary>
+    public class SerenadeGlowOrbParticle : SerenadeParticle
+    {
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        public SerenadeGlowOrbParticle(Vector2 pos, float scale, Color color, int lifetime)
+        {
+            Position = pos;
+            Velocity = Vector2.Zero;
+            Scale = scale;
+            DrawColor = color;
+            Lifetime = lifetime;
+        }
+
+        public override void Update() { }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            var tex = SerenadeTextures.MSGlowOrb;
+            if (tex == null) return;
+            var origin = tex.Size() * 0.5f;
+
+            float pulse = 0.8f + 0.2f * (float)Math.Sin(Time * 0.12f);
+            float opacity = (1f - LifetimeCompletion * LifetimeCompletion) * pulse * 0.5f;
+            Color color = DrawColor;
+            color.A = 0;
+
+            spriteBatch.Draw(tex, Position - Main.screenPosition, null, color * opacity,
+                0f, origin, Scale * 0.35f * pulse, SpriteEffects.None, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Serenade resonance impact wave using the MS Harmonic Resonance Wave Impact texture.
+    /// Expanding concentric wave at beam bounce points and resonance transitions.
+    /// </summary>
+    public class SerenadeResonanceWaveParticle : SerenadeParticle
+    {
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        private readonly float _maxScale;
+
+        public SerenadeResonanceWaveParticle(Vector2 pos, Color color, float maxScale, int lifetime)
+        {
+            Position = pos;
+            Velocity = Vector2.Zero;
+            DrawColor = color;
+            _maxScale = maxScale;
+            Lifetime = lifetime;
+            Scale = 0f;
+        }
+
+        public override void Update()
+        {
+            float t = LifetimeCompletion;
+            Scale = _maxScale * SerenadeUtils.ExpoOut(t);
+        }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            var tex = SerenadeTextures.MSHarmonicImpact;
+            if (tex == null) return;
+            var origin = tex.Size() * 0.5f;
+
+            float fade = (1f - LifetimeCompletion * LifetimeCompletion) * 0.6f;
+            Color color = DrawColor;
+            color.A = 0;
+
+            spriteBatch.Draw(tex, Position - Main.screenPosition, null, color * fade,
+                0f, origin, Scale * 0.4f, SpriteEffects.None, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Themed music note particle using the MS Music Note texture for Serenade.
+    /// Floats with prismatic shimmer along beam path segments.
+    /// </summary>
+    public class SerenadeMoonlightNoteParticle : SerenadeParticle
+    {
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
+
+        private readonly float _wavePhase;
+        private readonly Color _startColor;
+        private readonly Color _endColor;
+
+        public SerenadeMoonlightNoteParticle(Vector2 pos, Vector2 vel, Color startColor, Color endColor, float scale, int lifetime)
+        {
+            Position = pos;
+            Velocity = vel;
+            _startColor = startColor;
+            _endColor = endColor;
+            Scale = scale;
+            Lifetime = lifetime;
+            _wavePhase = Main.rand.NextFloat(MathHelper.TwoPi);
+            Rotation = Main.rand.NextFloat(-0.3f, 0.3f);
+        }
+
+        public override void Update()
+        {
+            Velocity *= 0.95f;
+            Velocity.Y -= 0.04f;
+            Position.X += (float)Math.Sin(_wavePhase + Time * 0.05f) * 0.5f;
+        }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            var tex = SerenadeTextures.MSMusicNote;
+            if (tex == null) return;
+            var origin = tex.Size() * 0.5f;
+
+            float t = LifetimeCompletion;
+            float opacity = 1f - t * t;
+            Color color = Color.Lerp(_startColor, _endColor, t);
+            color.A = 0;
+
+            spriteBatch.Draw(tex, Position - Main.screenPosition, null, color * opacity,
+                Rotation, origin, Scale * 0.25f, SpriteEffects.None, 0f);
         }
     }
 }

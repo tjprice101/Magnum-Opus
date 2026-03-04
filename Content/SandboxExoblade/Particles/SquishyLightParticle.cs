@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.SandboxExoblade.Particles
 {
@@ -41,8 +42,8 @@ namespace MagnumOpus.Content.SandboxExoblade.Particles
 
         public override void CustomDraw(SpriteBatch spriteBatch)
         {
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Content/SandboxExoblade/Particles/Light").Value;
-            Texture2D bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Content/SandboxExoblade/Textures/BloomCircle").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Content/SandboxExoblade/Particles/Light", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Content/SandboxExoblade/Textures/BloomCircle", AssetRequestMode.ImmediateLoad).Value;
             float squish = MathHelper.Clamp(Velocity.Length() / 10f * SquishStrenght, 1f, MaxSquish);
             float rot = Velocity.ToRotation() + MathHelper.PiOver2;
             Vector2 origin = tex.Size() / 2f;

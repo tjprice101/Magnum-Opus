@@ -11,7 +11,6 @@ using ReLogic.Content;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Enemies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
-using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Tools
 {
@@ -64,7 +63,7 @@ namespace MagnumOpus.Content.Eroica.Tools
             // Enhanced ambient particles when flying using new particle system
             if (!hideVisual && player.velocity.Y != 0)
             {
-                ThemedParticles.EroicaAura(player.Center, 35f);
+                EroicaVFXLibrary.SpawnHeroicAura(player.Center, 35f);
             }
         }
 
@@ -150,7 +149,7 @@ namespace MagnumOpus.Content.Eroica.Tools
                 Player.immuneTime = 2;
                 Player.immuneNoBlink = true;
                 
-                ThemedParticles.DodgeTrail(Player.Center, Player.velocity, false);
+                EroicaVFXLibrary.DodgeTrail(Player.Center, Player.velocity);
                 
                 for (int i = 0; i < 2; i++)
                 {
@@ -163,7 +162,7 @@ namespace MagnumOpus.Content.Eroica.Tools
                 {
                     isDodging = false;
                     dodgeTimer = 0;
-                    ThemedParticles.EroicaImpact(Player.Center, 1f);
+                    EroicaVFXLibrary.HeroicImpact(Player.Center, 1f);
                 }
             }
             
@@ -231,8 +230,8 @@ namespace MagnumOpus.Content.Eroica.Tools
             
             SoundEngine.PlaySound(SoundID.Item71 with { Pitch = 0.3f, Volume = 0.8f }, Player.Center);
             
-            ThemedParticles.EroicaImpact(Player.Center, 1.5f);
-            ThemedParticles.TeleportBurst(Player.Center, false);
+            EroicaVFXLibrary.HeroicImpact(Player.Center, 1.5f);
+            EroicaVFXLibrary.TeleportBurst(Player.Center);
         }
         
         public override void HideDrawLayers(PlayerDrawSet drawInfo)

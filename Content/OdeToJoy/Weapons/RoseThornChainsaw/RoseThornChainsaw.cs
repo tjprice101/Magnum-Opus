@@ -12,6 +12,12 @@ using MagnumOpus.Content.OdeToJoy.ResonanceEnergies;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw
 {
+    /// <summary>
+    /// Rose Thorn Chainsaw — pure botanical aggression.
+    /// Continuous chainsaw with thorn fling every 0.5s.
+    /// Petal Storm buildup at 4s of operation → 360° eruption.
+    /// Enemies killed leave Rose Garden healing patches.
+    /// </summary>
     public class RoseThornChainsaw : ModItem
     {
         public override void SetDefaults()
@@ -33,31 +39,50 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw
             Item.shoot = ModContent.ProjectileType<ChainsawHoldoutProjectile>();
             Item.shootSpeed = 32f;
             Item.UseSound = SoundID.Item22;
-            Item.rare = ModContent.RarityType<global::MagnumOpus.Common.OdeToJoyRarity>();
+            Item.rare = ModContent.RarityType<OdeToJoyRarity>();
             Item.value = Item.sellPrice(platinum: 4);
+        }
+
+        public override bool CanUseItem(Player player)
+        {
+            // Only one holdout at a time
+            int projType = ModContent.ProjectileType<ChainsawHoldoutProjectile>();
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                if (Main.projectile[i].active && Main.projectile[i].type == projType
+                    && Main.projectile[i].owner == player.whoAmI)
+                    return false;
+            }
+            return true;
         }
 
         public override void AddRecipes()
         {
             CreateRecipe()
-            .AddIngredient(ModContent.ItemType<ResonantCoreOfOdeToJoy>(), 25)
-            .AddIngredient(ModContent.ItemType<OdeToJoyResonantEnergy>(), 20)
-            .AddIngredient(ModContent.ItemType<HarmonicCoreOfOdeToJoy>(), 3)
-            .AddIngredient(ItemID.LunarBar, 20)
-            .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
-            .Register();
+                .AddIngredient(ModContent.ItemType<ResonantCoreOfOdeToJoy>(), 25)
+                .AddIngredient(ModContent.ItemType<OdeToJoyResonantEnergy>(), 20)
+                .AddIngredient(ModContent.ItemType<HarmonicCoreOfOdeToJoy>(), 3)
+                .AddIngredient(ItemID.LunarBar, 20)
+                .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
+                .Register();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Rapidly shreds enemies with a whirling storm of enchanted thorns"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Periodically launches thorn chains that ricochet off terrain"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Contact inflicts venomous bloom — Poisoned and Venom stack on hit"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Critical strikes spawn bonus thorn shrapnel"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1",
+                "Hold to run continuously — deals rapid contact damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2",
+                "Flings thorn shrapnel at nearby enemies every 0.5 seconds"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3",
+                "After 4 seconds of operation, erupts in a 360-degree Petal Storm"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4",
+                "Holding longer increases rev speed — at max rev, +40% damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5",
+                "Enemies killed leave Rose Garden patches that heal 2 HP/s"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
-            "'From the garden's deepest tangle, where joy takes root in thorns, the song of reckless spring roars forth'")
+                "'Every rose has its chainsaw.'")
             {
-                OverrideColor = new Color(255, 200, 50)
+                OverrideColor = ChainsawTextures.LoreColor
             });
         }
     }

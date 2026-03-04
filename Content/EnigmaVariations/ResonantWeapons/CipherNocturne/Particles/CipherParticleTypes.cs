@@ -4,11 +4,12 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Utilities;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Particles
 {
     // =========================================================================
-    //  UNRAVEL MOTE — Soft glow particles that drift along the beam
+    //  UNRAVEL MOTE 窶・Soft glow particles that drift along the beam
     //  Like reality fraying at the seams, small void motes orbit and drift
     // =========================================================================
     public class UnravelMoteParticle : CipherParticle
@@ -46,7 +47,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Par
             alpha = MathF.Pow(alpha, 0.5f); // Slow fade
             if (alpha <= 0f) return;
 
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
             Color drawColor = Color * alpha;
 
@@ -60,7 +61,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Par
     }
 
     // =========================================================================
-    //  CIPHER GLYPH — Floating enigma glyphs that orbit the beam
+    //  CIPHER GLYPH 窶・Floating enigma glyphs that orbit the beam
     //  Each glyph is a slowly rotating arcane symbol
     // =========================================================================
     public class CipherGlyphParticle : CipherParticle
@@ -106,18 +107,18 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Par
 
             int glyphIndex = (int)(Position.X * 3 + Position.Y) % NoteTextureNames.Length;
             string glyphPath = $"MagnumOpus/Assets/Particles Asset Library/{NoteTextureNames[Math.Abs(glyphIndex)]}";
-            var tex = ModContent.Request<Texture2D>(glyphPath).Value;
+            var tex = ModContent.Request<Texture2D>(glyphPath, AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
             // Glyph with soft glow behind
-            var glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom").Value;
+            var glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             sb.Draw(glowTex, drawPos, null, Color * alpha * 0.3f, 0f, glowTex.Size() / 2f, Scale * 3f, SpriteEffects.None, 0f);
             sb.Draw(tex, drawPos, null, Color * alpha, Rotation, tex.Size() / 2f, Scale, SpriteEffects.None, 0f);
         }
     }
 
     // =========================================================================
-    //  SNAP-BACK SPARK — Fast directional sparks for the snap-back explosion
+    //  SNAP-BACK SPARK 窶・Fast directional sparks for the snap-back explosion
     //  Reality collapsing inward with sharp bright sparks
     // =========================================================================
     public class SnapBackSparkParticle : CipherParticle
@@ -153,7 +154,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Par
             alpha *= alpha;
             if (alpha <= 0f) return;
 
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/PartiGlow").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/PartiGlow", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
             // Stretched by velocity for motion-blur feel
@@ -166,7 +167,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Par
     }
 
     // =========================================================================
-    //  VOID DISTORTION RING — Expanding ring that fades, for beam impacts
+    //  VOID DISTORTION RING 窶・Expanding ring that fades, for beam impacts
     // =========================================================================
     public class VoidDistortionRingParticle : CipherParticle
     {
@@ -192,7 +193,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Par
             float alpha = 1f - LifetimeCompletion;
             if (alpha <= 0f) return;
 
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
             sb.Draw(tex, drawPos, null, Color * alpha * 0.6f, 0f, tex.Size() / 2f, Scale, SpriteEffects.None, 0f);
@@ -201,7 +202,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Par
     }
 
     // =========================================================================
-    //  BEAM CORE PULSE — Pulsing glow at the beam origin
+    //  BEAM CORE PULSE 窶・Pulsing glow at the beam origin
     // =========================================================================
     public class BeamCorePulseParticle : CipherParticle
     {
@@ -232,7 +233,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Par
             float pulse = MathF.Sin(Time * _pulseSpeed) * 0.3f + 0.7f;
             if (alpha <= 0f) return;
 
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
             sb.Draw(tex, drawPos, null, Color * alpha * 0.4f, 0f, tex.Size() / 2f, Scale * 3f * pulse, SpriteEffects.None, 0f);

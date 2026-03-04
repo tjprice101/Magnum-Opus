@@ -47,9 +47,11 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.StaffOfFinalJudgement
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Summons 5 floating ignition orbs that orbit the cursor"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "After a delay, orbs seek enemies and detonate on contact"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The final judgment cannot be appealed, only endured'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Places floating fire mines that auto-arm after 1 second"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Armed mines detonate when enemies approach within 3 tiles"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Adjacent mines chain-detonate with +30% bonus damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "3+ mines detonating within 1 second triggers Judgment Storm — massive fire rain"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Judgment does not chase. Judgment waits.'")
             {
                 OverrideColor = new Color(200, 50, 30)
             });

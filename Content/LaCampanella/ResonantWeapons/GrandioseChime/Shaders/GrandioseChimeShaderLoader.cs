@@ -30,7 +30,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Shaders
             try
             {
                 var effect = ModContent.Request<Microsoft.Xna.Framework.Graphics.Effect>(path, AssetRequestMode.ImmediateLoad).Value;
-                GameShaders.Misc[key] = new MiscShaderData(new Terraria.Ref<Microsoft.Xna.Framework.Graphics.Effect>(effect), "AutoPass");
+                GameShaders.Misc[key] = new MiscShaderData(new Terraria.Ref<Microsoft.Xna.Framework.Graphics.Effect>(effect), "P0");
                 return true;
             }
             catch
@@ -38,10 +38,53 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Shaders
                 try
                 {
                     var fallback = ModContent.Request<Microsoft.Xna.Framework.Graphics.Effect>(fallbackPath, AssetRequestMode.ImmediateLoad).Value;
-                    GameShaders.Misc[key] = new MiscShaderData(new Terraria.Ref<Microsoft.Xna.Framework.Graphics.Effect>(fallback), "AutoPass");
+                    GameShaders.Misc[key] = new MiscShaderData(new Terraria.Ref<Microsoft.Xna.Framework.Graphics.Effect>(fallback), "P0");
+                    return true;
                 }
                 catch { }
                 return false;
+            }
+        }
+
+        public static MiscShaderData GetBeamShader()
+        {
+            if (!HasBeamShader) return null;
+            try
+            {
+                return GameShaders.Misc["GrandioseChimeBeam"];
+            }
+            catch
+            {
+                HasBeamShader = false;
+                return null;
+            }
+        }
+
+        public static MiscShaderData GetBarrageShader()
+        {
+            if (!HasBarrageShader) return null;
+            try
+            {
+                return GameShaders.Misc["GrandioseChimeBarrage"];
+            }
+            catch
+            {
+                HasBarrageShader = false;
+                return null;
+            }
+        }
+
+        public static MiscShaderData GetMineShader()
+        {
+            if (!HasMineShader) return null;
+            try
+            {
+                return GameShaders.Misc["GrandioseChimeMine"];
+            }
+            catch
+            {
+                HasMineShader = false;
+                return null;
             }
         }
     }

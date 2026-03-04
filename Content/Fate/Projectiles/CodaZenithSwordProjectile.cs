@@ -350,7 +350,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 );
             }
             
-            // ☁EMUSICAL NOTATION - Zenith cosmic trail
+            // 笘・MUSICAL NOTATION - Zenith cosmic trail
             if (Main.rand.NextBool(6))
             {
                 Color noteColor = Color.Lerp(weaponColor, new Color(180, 50, 100), Main.rand.NextFloat());
@@ -378,7 +378,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             // Sound
             SoundEngine.PlaySound(SoundID.Item71 with { Volume = 0.6f, Pitch = 0.2f }, target.Center);
             
-            // ☁EMUSICAL IMPACT - Fate's chord burst
+            // 笘・MUSICAL IMPACT - Fate's chord burst
             ThemedParticles.MusicNoteBurst(target.Center, new Color(180, 50, 100), 5, 3.5f);
         }
         
@@ -402,7 +402,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 MagnumParticleHandler.SpawnParticle(glow);
             }
             
-            // ☁EMUSICAL FINALE - Cosmic symphony
+            // 笘・MUSICAL FINALE - Cosmic symphony
             ThemedParticles.MusicNoteBurst(Projectile.Center, Color.White, 6, 4f);
         }
         
@@ -503,7 +503,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         // These are kept alive by resetting Time=0 each frame, creating smooth continuous arcs
         private Particle _primarySmear;   // Main cosmic arc
         private Particle _secondarySmear; // Smokey nebula layer
-        private Particle _trientSmear;    // 120° signature arc
+        private Particle _trientSmear;    // 120ﾂｰ signature arc
         
         // === PRIMITIVE TRAIL MESH (TRUE NEBULA FLAME) ===
         // RibbonTrailSystem creates a triangle strip mesh with CalamityFireShader
@@ -656,7 +656,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 FateVFXLibrary.SpawnCosmicCloudTrail(tipPos, actualAngle.ToRotationVector2() * 1.5f, 0.3f);
             }
             
-            // ☁EMUSICAL NOTATION - Coda swing symphony
+            // 笘・MUSICAL NOTATION - Coda swing symphony
             if (Main.rand.NextBool(8))
             {
                 Color noteColor = Color.Lerp(new Color(180, 50, 100), new Color(255, 60, 80), Main.rand.NextFloat());
@@ -698,7 +698,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             // Scale the smear based on weapon scale and swing intensity
             float smearScale = Projectile.scale * 2.2f;
             
-            // === PRIMARY SMEAR: TrientCircularSmear (120° arc) ===
+            // === PRIMARY SMEAR: TrientCircularSmear (120ﾂｰ arc) ===
             // The signature Ark of the Cosmos effect
             if (_trientSmear == null)
             {
@@ -781,7 +781,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             CustomParticles.GenericFlare(hitPos, FatePalette.WhiteCelestial, 0.7f, 18);
             CustomParticles.GlyphBurst(hitPos, FatePalette.DarkPink, 4, 4f);
             
-            // ☁EMUSICAL IMPACT - Fate's chord burst
+            // 笘・MUSICAL IMPACT - Fate's chord burst
             ThemedParticles.MusicNoteBurst(hitPos, new Color(180, 50, 100), 5, 3.5f);
             
             // Cosmic lightning to nearby enemies
@@ -814,7 +814,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D weaponTex = ModContent.Request<Texture2D>(Texture).Value;
+            Texture2D weaponTex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             
             if (weaponTex == null) return false;
             

@@ -175,6 +175,10 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Prim
 
         private void RenderToGPU(IgnitionOfTheBellVertex[] vertices, short[] indices, int vertCount, int triCount, IgnitionOfTheBellTrailSettings settings)
         {
+            var oldBlendState = _device.BlendState;
+            var oldRasterizer = _device.RasterizerState;
+            var oldDepthStencil = _device.DepthStencilState;
+
             try
             {
                 _vertexBuffer.SetData(vertices, 0, vertCount, SetDataOptions.Discard);
@@ -184,16 +188,40 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Prim
                 _device.Indices = _indexBuffer;
 
                 _device.RasterizerState = RasterizerState.CullNone;
+                _device.BlendState = BlendState.Additive;
+                _device.DepthStencilState = DepthStencilState.None;
 
                 if (settings.Shader != null)
                 {
+                    Matrix view = Matrix.CreateLookAt(Vector3.Zero, Vector3.UnitZ, Vector3.Up);
+                    Matrix projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1);
+                    settings.Shader.Shader.Parameters["uWorldViewProjection"]?.SetValue(view * projection);
                     try { settings.Shader.Apply(); }
                     catch { }
+                }
+                else
+                {
+                    // Fallback: BasicEffect so GPU has a valid shader pipeline
+                    var basicEffect = new BasicEffect(_device)
+                    {
+                        VertexColorEnabled = true,
+                        TextureEnabled = false,
+                        World = Matrix.Identity,
+                        View = Matrix.CreateLookAt(Vector3.Zero, Vector3.UnitZ, Vector3.Up),
+                        Projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1)
+                    };
+                    basicEffect.CurrentTechnique.Passes[0].Apply();
                 }
 
                 _device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertCount, 0, triCount);
             }
             catch { }
+            finally
+            {
+                _device.BlendState = oldBlendState;
+                _device.RasterizerState = oldRasterizer;
+                _device.DepthStencilState = oldDepthStencil;
+            }
         }
 
         #endregion

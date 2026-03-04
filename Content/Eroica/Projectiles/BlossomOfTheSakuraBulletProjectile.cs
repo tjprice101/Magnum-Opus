@@ -8,6 +8,8 @@ using Terraria.ModLoader;
 using Terraria.Audio;
 using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Content.Eroica;
+using MagnumOpus.Content.FoundationWeapons.RibbonFoundation;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
@@ -319,19 +321,105 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = tex.Size() / 2f;
 
-            // 笏笏 Layer 1: GPU Tracer Trail 笏笏
+            // ── Layer 1: GPU Tracer Trail ──
             DrawTracerTrail(sb);
 
-            // 笏笏 Layer 2: Afterimage chain 笏笏
+            // ── Layer 1b: Basic Trail Strip overlay (RibbonFoundation Mode 3) ──
+            DrawBasicTrailStrip(sb);
+
+            // ── Layer 2: Afterimage chain ──
             DrawAfterimages(sb, tex, origin);
 
-            // 笏笏 Layer 3: Core bullet sprite with heat glow 笏笏
+            // ── Layer 3: Core bullet sprite with heat glow ──
             DrawBulletCore(sb, tex, origin, lightColor);
 
-            // 笏笏 Layer 4: Additive bloom overlay 笏笏
+            // ── Layer 4: Additive bloom overlay ──
             DrawBloomOverlay(sb, origin);
 
+            // Eroica theme accent
+            EroicaVFXLibrary.BeginEroicaAdditive(sb);
+            EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.4f);
+            EroicaVFXLibrary.EndEroicaAdditive(sb);
+
             return false;
+        }
+
+        /// <summary>
+        /// RibbonFoundation Mode 3 (Basic Trail Strip) — heat-reactive bullet tracer ribbon.
+        /// Width 8→1, color interpolates from SakuraPink→WhiteHot based on heatProgress.
+        /// </summary>
+        private void DrawBasicTrailStrip(SpriteBatch sb)
+        {
+            if (AgeTimer < 3) return;
+
+            int validCount = 0;
+            for (int i = 0; i < TrailLength; i++)
+            {
+                if (trailPositions[i] != Vector2.Zero)
+                    validCount++;
+                else
+                    break;
+            }
+            if (validCount < 3) return;
+
+            Texture2D stripTex = RBFTextures.BasicTrail.Value;
+            if (stripTex == null) return;
+
+            int texW = stripTex.Width;
+            int texH = stripTex.Height;
+            float time = (float)Main.timeForVisualEffects * 0.006f;
+            const float WidthHead = 8f;
+            const float WidthTail = 1f;
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                SamplerState.LinearWrap, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
+            try
+            {
+
+            int srcWidth = Math.Max(1, texW / validCount);
+            Color heatColor = BlossomUtils.GetHeatGradient(HeatProgress);
+
+            for (int i = 0; i < validCount - 1; i++)
+            {
+                float progress = 1f - (float)i / validCount; // 1 = head, 0 = tail
+                float fade = progress * progress;
+                if (fade < 0.01f) continue;
+
+                float width = MathHelper.Lerp(WidthTail, WidthHead, progress);
+
+                Vector2 segDir = trailPositions[i] - trailPositions[i + 1];
+                float segLength = segDir.Length();
+                if (segLength < 0.5f) continue;
+                float segAngle = segDir.ToRotation();
+
+                float uStart = ((float)i / validCount + time * 3f) % 1f;
+                int srcX = (int)(uStart * texW) % texW;
+                Rectangle srcRect = new Rectangle(srcX, 0, srcWidth, texH);
+
+                float scaleX = segLength / (float)srcWidth;
+                float scaleY = width / (float)texH;
+
+                Vector2 pos = trailPositions[i] - Main.screenPosition;
+                Vector2 drawOrigin = new Vector2(0, texH / 2f);
+
+                // Heat-reactive: cool pink → hot white
+                Color bodyColor = Color.Lerp(BlossomUtils.CoolPetal, heatColor, progress * 0.6f) with { A = 0 };
+                sb.Draw(stripTex, pos, srcRect, bodyColor * (fade * 0.5f), segAngle, drawOrigin,
+                    new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
+            }
+
+            }
+            finally
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+            }
         }
 
         private void DrawTracerTrail(SpriteBatch sb)
@@ -366,14 +454,16 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 smoothen: true
             );
 
+            sb.End();
             try
             {
-                sb.End();
                 BlossomTrailRenderer.RenderTrail(positions, settings);
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             }
-            catch { }
+            finally
+            {
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
+            }
         }
 
         private void DrawAfterimages(SpriteBatch sb, Texture2D tex, Vector2 origin)
@@ -448,6 +538,29 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             sb.Draw(bloomTex, drawPos, null, bloomColor * bloomAlpha, Projectile.rotation, origin,
                 bloomScale, SpriteEffects.None, 0f);
             BlossomUtils.ExitShaderRegion(sb);
+
+            // === THEME-SPECIFIC: ER Power Effect Ring pulsing behind the projectile ===
+            Texture2D ringTex = EroicaThemeTextures.ERPowerEffectRing;
+            if (ringTex != null)
+            {
+                Color ringColor = EroicaVFXLibrary.GetPaletteColor(0.3f + HeatProgress * 0.3f) with { A = 0 };
+                float ringPulse = 0.8f + 0.2f * (float)Math.Sin(AgeTimer * 0.15f);
+                sb.Draw(ringTex, drawPos, null, ringColor * 0.2f * ringPulse,
+                    AgeTimer * 0.02f, ringTex.Size() * 0.5f, Projectile.scale * 0.5f * ringPulse, SpriteEffects.None, 0f);
+            }
+
+            // === THEME-SPECIFIC: ER Radial Slash Star overlay on hot bullets ===
+            if (HeatProgress > 0.5f)
+            {
+                Texture2D starTex = EroicaThemeTextures.ERRadialSlashStar;
+                if (starTex != null)
+                {
+                    float starOpacity = (HeatProgress - 0.5f) * 2f * 0.3f;
+                    Color starColor = EroicaVFXLibrary.Gold with { A = 0 };
+                    sb.Draw(starTex, drawPos, null, starColor * starOpacity,
+                        AgeTimer * 0.03f, starTex.Size() * 0.5f, Projectile.scale * 0.4f, SpriteEffects.None, 0f);
+                }
+            }
         }
 
         #endregion

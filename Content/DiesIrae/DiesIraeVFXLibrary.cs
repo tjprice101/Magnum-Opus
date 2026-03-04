@@ -800,5 +800,137 @@ namespace MagnumOpus.Content.DiesIrae
             Color col = GetPaletteColor(paletteT);
             Lighting.AddLight(worldPos, col.ToVector3() * intensity);
         }
+
+        // ─────────── THEME TEXTURE VFX ───────────
+        // Uses DiesIraeThemeTextures for theme-specific visuals
+        // that go beyond the universal MagnumTextureRegistry blooms.
+
+        /// <summary>
+        /// Draws a themed judgment impact ring using DiesIrae Power Effect Ring + Harmonic Impact.
+        /// Must be called while SpriteBatch is in Additive blend mode (or using {A=0} pattern).
+        /// </summary>
+        public static void DrawThemeImpactRing(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f, float rotation = 0f)
+        {
+            Vector2 drawPos = worldPos - Main.screenPosition;
+
+            // Layer 1: Power Effect Ring — expanding concentric wrath ring
+            Texture2D ring = DiesIraeThemeTextures.DIPowerEffectRing?.Value;
+            if (ring != null)
+            {
+                Vector2 origin = ring.Size() * 0.5f;
+                sb.Draw(ring, drawPos, null,
+                    (BloodRed with { A = 0 }) * 0.55f * intensity, rotation, origin,
+                    scale * 0.15f, SpriteEffects.None, 0f);
+                sb.Draw(ring, drawPos, null,
+                    (EmberOrange with { A = 0 }) * 0.35f * intensity, -rotation * 0.7f, origin,
+                    scale * 0.10f, SpriteEffects.None, 0f);
+            }
+
+            // Layer 2: Harmonic Impact — shockwave overlay
+            Texture2D impact = DiesIraeThemeTextures.DIHarmonicImpact?.Value;
+            if (impact != null)
+            {
+                Vector2 impOrigin = impact.Size() * 0.5f;
+                sb.Draw(impact, drawPos, null,
+                    (JudgmentGold with { A = 0 }) * 0.5f * intensity, rotation * 1.3f, impOrigin,
+                    scale * 0.12f, SpriteEffects.None, 0f);
+            }
+        }
+
+        /// <summary>
+        /// Draws theme-specific hellfire star flares at a position using DI Star Flare textures.
+        /// Must be called while SpriteBatch is in Additive blend mode (or using {A=0} pattern).
+        /// </summary>
+        public static void DrawThemeStarFlare(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f)
+        {
+            Vector2 drawPos = worldPos - Main.screenPosition;
+
+            Texture2D flare = DiesIraeThemeTextures.DIStarFlare?.Value;
+            if (flare != null)
+            {
+                Vector2 origin = flare.Size() * 0.5f;
+                float rot = (float)Main.GameUpdateCount * 0.04f;
+                sb.Draw(flare, drawPos, null,
+                    (EmberOrange with { A = 0 }) * 0.5f * intensity, rot, origin,
+                    scale * 0.08f, SpriteEffects.None, 0f);
+            }
+
+            Texture2D flare2 = DiesIraeThemeTextures.DIStarFlare2?.Value;
+            if (flare2 != null)
+            {
+                Vector2 origin = flare2.Size() * 0.5f;
+                float rot = -(float)Main.GameUpdateCount * 0.03f;
+                sb.Draw(flare2, drawPos, null,
+                    (JudgmentGold with { A = 0 }) * 0.35f * intensity, rot, origin,
+                    scale * 0.06f, SpriteEffects.None, 0f);
+            }
+        }
+
+        /// <summary>
+        /// Draws a themed radial slash burst for melee hit impacts using DI Radial Slash Star.
+        /// Must be called in Additive blend mode.
+        /// </summary>
+        public static void DrawThemeRadialSlash(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f, float rotation = 0f)
+        {
+            Texture2D slashStar = DiesIraeThemeTextures.DIRadialSlashStar?.Value;
+            if (slashStar == null) return;
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = slashStar.Size() * 0.5f;
+
+            sb.Draw(slashStar, drawPos, null,
+                (BloodRed with { A = 0 }) * 0.4f * intensity, rotation, origin,
+                scale * 0.14f, SpriteEffects.None, 0f);
+            sb.Draw(slashStar, drawPos, null,
+                (EmberOrange with { A = 0 }) * 0.6f * intensity, -rotation * 0.5f, origin,
+                scale * 0.08f, SpriteEffects.None, 0f);
+            sb.Draw(slashStar, drawPos, null,
+                (JudgmentGold with { A = 0 }) * 0.7f * intensity, rotation * 1.5f, origin,
+                scale * 0.04f, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Draws the DI Cracked Earth noise texture as a distortion overlay.
+        /// Useful for hellfire ground impacts and judgment zones.
+        /// Must be called in Additive blend mode.
+        /// </summary>
+        public static void DrawCrackedEarthOverlay(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f)
+        {
+            Texture2D noise = DiesIraeThemeTextures.DICrackedEarthNoise?.Value;
+            if (noise == null) return;
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = noise.Size() * 0.5f;
+
+            sb.Draw(noise, drawPos, null,
+                (InfernalRed with { A = 0 }) * 0.3f * intensity, 0f, origin,
+                scale * 0.1f, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Combined theme bloom stack: universal bloom layers + theme star flare + impact ring.
+        /// The "full package" for Dies Irae impacts. Manages its own SpriteBatch state.
+        /// </summary>
+        public static void DrawThemeImpactFull(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f, int comboStep = 0)
+        {
+            float stepMult = 1f + comboStep * 0.15f;
+            float adjustedScale = scale * stepMult;
+            float adjustedIntensity = intensity * stepMult;
+
+            // Universal bloom layers
+            DrawDiesIraeBloomStack(sb, worldPos, adjustedScale, 0.3f, adjustedIntensity);
+
+            // Theme star flare
+            DrawThemeStarFlare(sb, worldPos, adjustedScale, adjustedIntensity * 0.7f);
+
+            // Theme impact ring
+            float rot = (float)Main.GameUpdateCount * 0.02f;
+            DrawThemeImpactRing(sb, worldPos, adjustedScale, adjustedIntensity * 0.6f, rot);
+        }
     }
 }

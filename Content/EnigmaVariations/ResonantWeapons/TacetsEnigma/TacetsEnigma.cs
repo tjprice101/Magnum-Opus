@@ -21,8 +21,18 @@ using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma.Utilities
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
 {
     /// <summary>
-    /// TACET'S ENIGMA - Ranged weapon that fires enigmatic shots
-    /// Every 4th shot is a "paradox shot" — larger, stronger, and triggers paradox explosions
+    /// TACET'S ENIGMA — Ranged gun weapon (Enigma Variations theme).
+    /// "Tacet" — silence in a musical score. A gun that fires in silence, building
+    /// invisible paradox stacks until the target is overwhelmed.
+    /// 
+    /// Normal shots pierce 2 and apply ParadoxBrand.
+    /// Every 4th shot fires TacetParadoxBolt (2.5x damage, pierce 4).
+    /// ParadoxBrand stacking — at 10 stacks triggers AoE explosion (200 radius, 50%).
+    /// Chain damage on paradox bolt hits (3 chains, 250 range, 30% damage).
+    /// Muzzle flash particles on all shots (brighter on paradox shots).
+    /// 
+    /// Custom Shaders: TacetBulletTrail.fx, TacetParadoxExplosion.fx
+    /// Foundation: RibbonFoundation + SparkleProjectileFoundation + ImpactFoundation planned
     /// </summary>
     public class TacetsEnigma : ModItem
     {
@@ -32,7 +42,12 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
         
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
-        
+
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             Item.damage = 265;
@@ -79,10 +94,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect", "Fires enigmatic shots that phase through reality"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect2", "Every 4th shot is a Paradox Shot with enhanced power"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect3", "Paradox shots trigger chain explosions on impact"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaLore", "'In silence, the greatest riddles find their voice.'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires void-laced bullets that pierce through enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Every 4th shot is a Paradox Bolt — 2.5x damage with chain explosions"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Paradox Brand stacks on hit — at 10 stacks triggers a paradox explosion"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Paradox Bolts chain damage to 3 nearby enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The most dangerous note is the one you never hear.'")
             {
                 OverrideColor = EnigmaPurple
             });
@@ -183,6 +199,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
             // Glyph sprite faintly on top
             sb.Draw(glyphTex, drawPos, null, TacetUtils.TacetPurple * 0.35f, rotation,
                 glyphTex.Size() / 2f, 0.5f, SpriteEffects.None, 0f);
+
+            // Theme texture accents
+            TacetUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
             
             TacetUtils.ExitShaderRegion(sb);
             
@@ -228,8 +247,17 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 300);
+            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
             target.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(target, 1);
+            
+            // Impact VFX — silence burst motes on hit
+            for (int i = 0; i < Main.rand.Next(3, 6); i++)
+            {
+                Vector2 impactVel = Main.rand.NextVector2CircularEdge(3f, 3f) * Main.rand.NextFloat(0.4f, 1.0f);
+                Color impactColor = Color.Lerp(TacetUtils.FlashWhite, TacetUtils.TacetPurple, Main.rand.NextFloat(0.2f, 0.6f));
+                TacetParticleHandler.Spawn(new SilenceBurstParticle(
+                    target.Center, impactVel, impactColor, Main.rand.NextFloat(0.15f, 0.3f), Main.rand.Next(6, 10)));
+            }
             
             // Check for paradox explosion on stacked targets
             if (target.GetGlobalNPC<ParadoxBrandNPC>().GetParadoxStacks() >= 10)
@@ -237,7 +265,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
                 TriggerParadoxExplosion(target);
             }
             
-            Lighting.AddLight(target.Center, EnigmaGreen.ToVector3() * 0.4f);
+            Lighting.AddLight(target.Center, EnigmaGreen.ToVector3() * 0.5f);
         }
         
         private void TriggerParadoxExplosion(NPC target)
@@ -255,7 +283,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
                 if (Vector2.Distance(npc.Center, target.Center) > explosionRadius) continue;
                 
                 npc.SimpleStrikeNPC((int)(Projectile.damage * 0.5f), 0, false, 0f, null, false, 0f, true);
-                npc.AddBuff(ModContent.BuffType<ParadoxBrand>(), 240);
+                npc.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
                 npc.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(npc, 2);
             }
             
@@ -286,13 +314,17 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
         public override void OnKill(int timeLeft)
         {
             // Death burst — silence shards scatter
-            for (int i = 0; i < Main.rand.Next(4, 7); i++)
+            for (int i = 0; i < Main.rand.Next(6, 10); i++)
             {
                 Vector2 burstVel = Main.rand.NextVector2CircularEdge(4f, 4f) * Main.rand.NextFloat(0.6f, 1.2f);
+                Color burstColor = Color.Lerp(TacetUtils.TacetPurple, TacetUtils.ParadoxGreen, Main.rand.NextFloat(0.2f, 0.5f));
                 TacetParticleHandler.Spawn(new SilenceBurstParticle(
-                    Projectile.Center, burstVel, TacetUtils.TacetPurple, Main.rand.NextFloat(0.2f, 0.4f), Main.rand.Next(8, 14)));
+                    Projectile.Center, burstVel, burstColor, Main.rand.NextFloat(0.2f, 0.4f), Main.rand.Next(8, 14)));
             }
-            for (int i = 0; i < Main.rand.Next(2, 4); i++)
+            // Fading tacet glow on death
+            TacetParticleHandler.Spawn(new ParadoxBoltGlowParticle(
+                Projectile.Center, Vector2.Zero, TacetUtils.TacetPurple, 0.35f, 18));
+            for (int i = 0; i < Main.rand.Next(3, 6); i++)
             {
                 Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<TacetSilenceDust>(),
                     Main.rand.NextVector2Circular(2f, 2f), 0, default, Main.rand.NextFloat(0.4f, 0.7f));
@@ -350,6 +382,22 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
             
             TacetUtils.ExitShaderRegion(sb);
             
+            // === Layer 5: EN Star Flare — dual-rotating paradox starburst ===
+            Texture2D starFlareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
+            float starFlareRot1 = (float)Main.timeForVisualEffects * 0.04f;
+            float starFlareRot2 = -(float)Main.timeForVisualEffects * 0.03f;
+            Color starFlareColor = Color.Lerp(TacetUtils.ParadoxGreen, TacetUtils.UnstableLime, 0.5f + 0.5f * (float)Math.Sin(Main.timeForVisualEffects * 0.1));
+            sb.Draw(starFlareTex, drawPos, null, starFlareColor * 0.45f, starFlareRot1,
+                starFlareTex.Size() / 2f, 0.35f, SpriteEffects.None, 0f);
+            sb.Draw(starFlareTex, drawPos, null, TacetUtils.TacetPurple * 0.3f, starFlareRot2,
+                starFlareTex.Size() / 2f, 0.25f, SpriteEffects.None, 0f);
+            
+            // === Layer 6: EN Power Effect Ring — expanding paradox ring ===
+            Texture2D powerRingTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Power Effect Ring", AssetRequestMode.ImmediateLoad).Value;
+            float ringPulse = 0.3f + 0.08f * (float)Math.Sin(Main.timeForVisualEffects * 0.12);
+            sb.Draw(powerRingTex, drawPos, null, TacetUtils.ParadoxGreen * 0.25f, spinRotation * 0.5f,
+                powerRingTex.Size() / 2f, ringPulse, SpriteEffects.None, 0f);
+            
             return false;
         }
         
@@ -396,25 +444,30 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 360);
+            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
             target.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(target, 3);
             
-            // Chain damage to nearby enemy not yet hit
+            // Chain damage to up to 3 nearby enemies not yet hit
             if (!hitEnemies.Contains(target.whoAmI))
             {
                 hitEnemies.Add(target.whoAmI);
                 
                 float chainRange = 250f;
+                int chainCount = 0;
+                const int maxChains = 3;
+                
                 foreach (NPC npc in Main.ActiveNPCs)
                 {
+                    if (chainCount >= maxChains) break;
                     if (npc.friendly || npc.whoAmI == target.whoAmI) continue;
                     if (hitEnemies.Contains(npc.whoAmI)) continue;
                     if (Vector2.Distance(npc.Center, target.Center) > chainRange) continue;
                     
                     npc.SimpleStrikeNPC((int)(Projectile.damage * 0.3f), 0, false, 0f, null, false, 0f, true);
+                    chainCount++;
                     
                     // Chain lightning VFX — motes along the line between target and chained enemy
-                    int moteCount = Main.rand.Next(5, 9);
+                    int moteCount = Main.rand.Next(7, 12);
                     for (int m = 0; m < moteCount; m++)
                     {
                         float lerp = (float)m / moteCount;
@@ -424,28 +477,40 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
                         TacetParticleHandler.Spawn(new ChainLightningMoteParticle(
                             motePos, moteVel, moteColor, Main.rand.NextFloat(0.2f, 0.4f), 12));
                     }
-                    
-                    break;
                 }
             }
             
-            Lighting.AddLight(target.Center, EnigmaGreen.ToVector3() * 0.6f);
+            // Impact burst — convergence flash on paradox bolt hit
+            for (int i = 0; i < Main.rand.Next(4, 7); i++)
+            {
+                Vector2 impactVel = Main.rand.NextVector2CircularEdge(4f, 4f) * Main.rand.NextFloat(0.5f, 1.1f);
+                Color impactColor = Color.Lerp(TacetUtils.ParadoxGreen, TacetUtils.UnstableLime, Main.rand.NextFloat());
+                TacetParticleHandler.Spawn(new SilenceBurstParticle(
+                    target.Center, impactVel, impactColor, Main.rand.NextFloat(0.2f, 0.35f), Main.rand.Next(8, 12)));
+            }
+            
+            Lighting.AddLight(target.Center, EnigmaGreen.ToVector3() * 0.7f);
         }
         
         public override void OnKill(int timeLeft)
         {
             // Death burst — paradox collapse
-            for (int i = 0; i < Main.rand.Next(8, 13); i++)
+            for (int i = 0; i < Main.rand.Next(12, 18); i++)
             {
                 Vector2 burstVel = Main.rand.NextVector2CircularEdge(6f, 6f) * Main.rand.NextFloat(0.5f, 1.3f);
                 Color burstColor = Color.Lerp(TacetUtils.ParadoxGreen, TacetUtils.TacetPurple, Main.rand.NextFloat());
                 TacetParticleHandler.Spawn(new SilenceBurstParticle(
                     Projectile.Center, burstVel, burstColor, Main.rand.NextFloat(0.25f, 0.5f), Main.rand.Next(10, 16)));
             }
-            // Fading paradox glow
+            // Double fading paradox glow — collapse rings
             TacetParticleHandler.Spawn(new ParadoxBoltGlowParticle(
-                Projectile.Center, Vector2.Zero, TacetUtils.ParadoxGreen, 0.5f, 25));
-            for (int i = 0; i < Main.rand.Next(4, 6); i++)
+                Projectile.Center, Vector2.Zero, TacetUtils.ParadoxGreen, 0.6f, 25));
+            TacetParticleHandler.Spawn(new ParadoxBoltGlowParticle(
+                Projectile.Center, Vector2.Zero, TacetUtils.TacetPurple, 0.4f, 30));
+            // Paradox stack symbol on death
+            TacetParticleHandler.Spawn(new ParadoxStackParticle(
+                Projectile.Center, 0f, 0f, TacetUtils.UnstableLime, 0.5f, 20));
+            for (int i = 0; i < Main.rand.Next(6, 9); i++)
             {
                 Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<TacetSilenceDust>(),
                     Main.rand.NextVector2Circular(3f, 3f), 0, default, Main.rand.NextFloat(0.5f, 0.9f));

@@ -30,7 +30,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
             try
             {
                 var effect = ModContent.Request<Microsoft.Xna.Framework.Graphics.Effect>(path, AssetRequestMode.ImmediateLoad).Value;
-                GameShaders.Misc[key] = new MiscShaderData(new Terraria.Ref<Microsoft.Xna.Framework.Graphics.Effect>(effect), "AutoPass");
+                GameShaders.Misc[key] = new MiscShaderData(new Terraria.Ref<Microsoft.Xna.Framework.Graphics.Effect>(effect), "P0");
                 return true;
             }
             catch
@@ -38,10 +38,53 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
                 try
                 {
                     var fallback = ModContent.Request<Microsoft.Xna.Framework.Graphics.Effect>(fallbackPath, AssetRequestMode.ImmediateLoad).Value;
-                    GameShaders.Misc[key] = new MiscShaderData(new Terraria.Ref<Microsoft.Xna.Framework.Graphics.Effect>(fallback), "AutoPass");
+                    GameShaders.Misc[key] = new MiscShaderData(new Terraria.Ref<Microsoft.Xna.Framework.Graphics.Effect>(fallback), "P0");
+                    return true;
                 }
                 catch { }
                 return false;
+            }
+        }
+
+        public static MiscShaderData GetRocketTrailShader()
+        {
+            if (!HasRocketTrailShader) return null;
+            try
+            {
+                return GameShaders.Misc["SymphonicRocketTrail"];
+            }
+            catch
+            {
+                HasRocketTrailShader = false;
+                return null;
+            }
+        }
+
+        public static MiscShaderData GetCrescendoShader()
+        {
+            if (!HasCrescendoShader) return null;
+            try
+            {
+                return GameShaders.Misc["SymphonicCrescendo"];
+            }
+            catch
+            {
+                HasCrescendoShader = false;
+                return null;
+            }
+        }
+
+        public static MiscShaderData GetExplosionShader()
+        {
+            if (!HasExplosionShader) return null;
+            try
+            {
+                return GameShaders.Misc["SymphonicExplosion"];
+            }
+            catch
+            {
+                HasExplosionShader = false;
+                return null;
             }
         }
     }

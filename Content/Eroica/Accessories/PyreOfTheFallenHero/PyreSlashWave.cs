@@ -188,23 +188,28 @@ namespace MagnumOpus.Content.Eroica.Accessories.PyreOfTheFallenHero
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
-            // Draw trail rings (older = more transparent)
-            for (int t = radiusHistory.Count - 1; t >= 0; t--)
+            try
             {
-                float trailRadius = radiusHistory[t];
-                float trailAlpha = (1f - (float)t / TrailLength) * 0.4f;
-                DrawSlashRing(spriteBatch, trailRadius, trailAlpha, t);
+                // Draw trail rings (older = more transparent)
+                for (int t = radiusHistory.Count - 1; t >= 0; t--)
+                {
+                    float trailRadius = radiusHistory[t];
+                    float trailAlpha = (1f - (float)t / TrailLength) * 0.4f;
+                    DrawSlashRing(spriteBatch, trailRadius, trailAlpha, t);
+                }
+                
+                // Draw main ring with glow
+                DrawSlashRing(spriteBatch, currentRadius, 0.8f, -1);
+                
+                // Draw bright inner glow
+                DrawCenterGlow(spriteBatch);
             }
-            
-            // Draw main ring with glow
-            DrawSlashRing(spriteBatch, currentRadius, 0.8f, -1);
-            
-            // Draw bright inner glow
-            DrawCenterGlow(spriteBatch);
-            
-            // Restore normal blending
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            finally
+            {
+                // Restore normal blending
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
+            }
             
             return false;
         }

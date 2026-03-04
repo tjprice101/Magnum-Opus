@@ -27,6 +27,20 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture.Utilities
         /// <summary>Whether the last shot was a rocket volley trigger.</summary>
         public bool JustFiredRockets;
 
+        // === FUTURE SIGHT (Doc mechanic: hold 2+ seconds shows targeting reticle) ===
+        /// <summary>Ticks the fire button has been held continuously.</summary>
+        public int HoldTimer;
+
+        /// <summary>Whether Future Sight reticle should be displayed (held 2+ seconds).</summary>
+        public bool FutureSightActive => HoldTimer >= 120;
+
+        // === CASCADE (Doc mechanic: peak-speed kill spawns 2 smaller bullets) ===
+        /// <summary>Number of cascade chain kills in the current chain.</summary>
+        public int CascadeChain;
+
+        /// <summary>Cooldown between cascade triggers (prevents infinite chains).</summary>
+        public int CascadeCooldown;
+
         public override void ResetEffects()
         {
             JustFiredRockets = false;
@@ -46,6 +60,18 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture.Utilities
 
             // Decay combo intensity slowly
             ComboIntensity *= 0.995f;
+
+            // Future Sight hold timer
+            if (Player.channel || Player.itemAnimation > 0)
+                HoldTimer++;
+            else
+                HoldTimer = 0;
+
+            // Cascade cooldown
+            if (CascadeCooldown > 0)
+                CascadeCooldown--;
+            else
+                CascadeChain = 0;
         }
 
         /// <summary>

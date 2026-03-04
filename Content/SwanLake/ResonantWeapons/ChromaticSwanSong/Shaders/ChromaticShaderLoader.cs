@@ -21,12 +21,12 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Shaders
 
         public override void PostSetupContent()
         {
-            if (TryLoadMiscShader("Effects/SwanLake/ChromaticSwanSong/ChromaticTrail",
-                "ChromaticTrailMain", "MagnumOpus:ChromaticTrail"))
+            if (TryLoadMiscShader("MagnumOpus/Effects/SwanLake/ChromaticSwanSong/ChromaticTrail",
+                "P0", "MagnumOpus:ChromaticTrail"))
                 HasChromaticTrailShader = true;
 
-            if (TryLoadMiscShader("Effects/SwanLake/ChromaticSwanSong/AriaExplosion",
-                "AriaExplosionMain", "MagnumOpus:AriaExplosion"))
+            if (TryLoadMiscShader("MagnumOpus/Effects/SwanLake/ChromaticSwanSong/AriaExplosion",
+                "P0", "MagnumOpus:AriaExplosion"))
                 HasAriaExplosionShader = true;
         }
 

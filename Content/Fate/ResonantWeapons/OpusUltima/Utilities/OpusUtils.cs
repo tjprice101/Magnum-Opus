@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MagnumOpus.Content.Fate;
 using System;
 using Terraria;
 using Terraria.ModLoader;
@@ -224,6 +225,18 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Utilities
             sb.Draw(tex, pos, null, Additive(RoyalPurple, 0.2f), rotation, origin, scale * 1.15f * pulse, SpriteEffects.None, 0f);
             sb.Draw(tex, pos, null, Additive(OpusCrimson, 0.15f), rotation, origin, scale * 1.08f * pulse, SpriteEffects.None, 0f);
             sb.Draw(tex, pos, null, Additive(GloryGold, 0.12f), rotation, origin, scale * 1.04f, SpriteEffects.None, 0f);
+        }
+
+        // ─────────── THEME TEXTURE ACCENTS ───────────
+
+        /// <summary>
+        /// Draws theme-textured accents. Call under Additive blend.
+        /// </summary>
+        public static void DrawThemeAccents(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)
+        {
+            FateVFXLibrary.DrawThemeCelestialGlyph(sb, worldPos, scale, intensity * 0.5f);
+            float rot = (float)Main.GameUpdateCount * 0.02f;
+            FateVFXLibrary.DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.4f, rot);
         }
     }
 }

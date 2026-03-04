@@ -1,6 +1,8 @@
 ﻿using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
+using MagnumOpus.Content.FoundationWeapons.SparkleProjectileFoundation;
+using ReLogic.Content;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -16,6 +18,8 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
     /// </summary>
     public class ValorSlash : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
+
         private const int MaxLife = 25;
 
         public override void SetDefaults()
@@ -93,7 +97,54 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
             EroicaVFXLibrary.DrawEroicaBloomStack(sb, Projectile.Center,
                 EroicaPalette.Scarlet, EroicaPalette.Gold, 0.2f * fade, 0.6f * fade);
 
+            // ── Layer 3: SPF Star Flare accent (ThinSlash-style) ──
+            DrawSlashFlareAccent(sb, fade);
+
+            // Eroica theme accent
+            EroicaVFXLibrary.BeginEroicaAdditive(sb);
+            EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.5f);
+            EroicaVFXLibrary.EndEroicaAdditive(sb);
+
             return false;
+        }
+
+        /// <summary>
+        /// ThinSlashFoundation-style star flare accent at the slash center.
+        /// SPFTextures StarFlare provides a crisp, bright accent point.
+        /// </summary>
+        private void DrawSlashFlareAccent(SpriteBatch sb, float fade)
+        {
+            Texture2D starFlare = SPFTextures.StarFlare.Value;
+            if (starFlare == null || fade < 0.05f) return;
+
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+
+            try
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+
+                // Gold star flare aligned to slash direction
+                Color flareColor = EroicaPalette.Gold with { A = 0 };
+                sb.Draw(starFlare, drawPos, null, flareColor * (fade * 0.35f),
+                    Projectile.rotation, starFlare.Size() * 0.5f, 0.25f * fade, SpriteEffects.None, 0f);
+
+                // Smaller hot core flare
+                Color hotColor = EroicaPalette.HotCore with { A = 0 };
+                sb.Draw(starFlare, drawPos, null, hotColor * (fade * 0.2f),
+                    Projectile.rotation + MathHelper.PiOver4, starFlare.Size() * 0.5f, 0.15f * fade, SpriteEffects.None, 0f);
+            }
+            finally
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+            }
         }
     }
 }

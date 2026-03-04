@@ -16,14 +16,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
     /// Feather of the Iridescent Flock — Summoner Staff.
     /// 
     /// COMBAT SYSTEM:
-    /// • Summons orbiting crystal feathers that orbit the player
+    /// • Summons iridescent crystal swans that fly in V-formation behind the player
     /// • Each crystal costs 0.34 mana slots (can summon up to ~9 with maxed slots)
-    /// • Crystals orbit at varying distances, periodically lashing out at nearby enemies
-    /// • When 3+ crystals are active, they form a "Flock Formation":
-    ///   — Connected by iridescent energy lines
-    ///   — Formation periodically fires a focused beam at the targeted enemy
-    ///   — Formation beam grows stronger with more crystals
-    /// • Right-clicking while holding retargets all crystals to cursor position
+    /// • ATTACK CYCLE (per crystal):
+    ///   1. Formation Flight (2s) — V-formation behind player
+    ///   2. Shard Volley — fires 3 CrystalShardProj at nearest enemy
+    ///   3. Dive Attack — charges through target (synchronized when 3+ swans)
+    ///   4. Returns to formation
+    /// • +5% damage per swan beyond the first (Flock Strength)
+    /// • Crystal Resonance: 4+ swans in formation → nearby allies gain +3% crit
     /// 
     /// STATS PRESERVED:
     /// Damage 260, Mana 20, Knockback 3, Sell 60g, SwanRarity
@@ -64,14 +65,13 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
         {
             player.AddBuff(Item.buffType, 2);
 
-            // Calculate orbit slot for this crystal
+            // Pass sequential formation slot index so crystals know their V-formation position
             int existingCount = player.ownedProjectileCounts[Item.shoot];
-            float orbitAngle = existingCount * MathHelper.TwoPi / 7f; // Distribute evenly
 
             Projectile.NewProjectile(source, player.Center, Vector2.Zero, type,
-                damage, knockback, player.whoAmI, ai0: orbitAngle);
+                damage, knockback, player.whoAmI, ai0: existingCount);
 
-            // Summoning VFX
+            // Summoning VFX — prismatic crystal burst
             for (int i = 0; i < 12; i++)
             {
                 float angle = MathHelper.TwoPi * i / 12f;
@@ -84,9 +84,36 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
             return false;
         }
 
+        public override void ModifyWeaponDamage(Player player, ref StatModifier damage)
+        {
+            // Flock Strength: +5% damage per swan beyond the first
+            int crystalCount = player.ownedProjectileCounts[ModContent.ProjectileType<IridescentCrystalProj>()];
+            if (crystalCount > 1)
+            {
+                damage *= 1f + 0.05f * (crystalCount - 1);
+            }
+        }
+
         public override void HoldItem(Player player)
         {
             int crystalCount = player.ownedProjectileCounts[ModContent.ProjectileType<IridescentCrystalProj>()];
+
+            // Crystal Resonance: 4+ swans in formation grant +3% crit to holder
+            if (crystalCount >= 4)
+            {
+                player.GetCritChance(DamageClass.Generic) += 3;
+
+                // Resonance aura particle
+                if (Main.rand.NextBool(4))
+                {
+                    Vector2 offset = Main.rand.NextVector2Circular(50f, 50f);
+                    Color resColor = FlockUtils.GetIridescent(Main.rand.NextFloat());
+                    Dust d = Dust.NewDustPerfect(player.Center + offset, DustID.RainbowTorch,
+                        Vector2.UnitY * -0.5f, 0, resColor, 0.5f);
+                    d.noGravity = true;
+                    d.fadeIn = 0.8f;
+                }
+            }
 
             // Formation glow when 3+ crystals
             if (crystalCount >= 3)
@@ -110,13 +137,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1",
-                "Summons iridescent crystal feathers that orbit and strike enemies"));
+                "Summons iridescent crystal swans that fly in V-formation"));
             tooltips.Add(new TooltipLine(Mod, "Effect2",
-                "Each crystal uses a third of a minion slot"));
+                "Crystals cycle through shard volleys and synchronized dive attacks"));
             tooltips.Add(new TooltipLine(Mod, "Effect3",
-                "Three or more crystals form a flock that fires focused energy beams"));
+                "Each additional swan increases flock damage by 5%"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4",
+                "Four or more swans create Crystal Resonance, granting +3% crit chance"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
-                "'A thousand feathers catch the light — each one a different color of grief'")
+                "'Alone, a swan is beautiful. Together, they are devastating.'")
             {
                 OverrideColor = FlockUtils.LoreColor
             });

@@ -745,5 +745,131 @@ namespace MagnumOpus.Content.ClairDeLune
                 MagnumParticleHandler.SpawnParticle(sparkle);
             }
         }
+
+        // ─────────── THEME TEXTURE VFX ───────────
+        // Uses ClairDeLuneThemeTextures for dreamy, clockwork-themed visuals.
+
+        /// <summary>
+        /// Draws a themed power ring using Clair de Lune Power Effect Ring texture.
+        /// Must be called in Additive blend mode (or {A=0} pattern).
+        /// </summary>
+        public static void DrawThemeImpactRing(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f, float rotation = 0f)
+        {
+            Vector2 drawPos = worldPos - Main.screenPosition;
+
+            Texture2D ring = ClairDeLuneThemeTextures.CLPowerEffectRing?.Value;
+            if (ring != null)
+            {
+                Vector2 origin = ring.Size() * 0.5f;
+                sb.Draw(ring, drawPos, null,
+                    (SoftBlue with { A = 0 }) * 0.5f * intensity, rotation, origin,
+                    scale * 0.14f, SpriteEffects.None, 0f);
+                sb.Draw(ring, drawPos, null,
+                    (PearlWhite with { A = 0 }) * 0.35f * intensity, -rotation * 0.6f, origin,
+                    scale * 0.10f, SpriteEffects.None, 0f);
+            }
+        }
+
+        /// <summary>
+        /// Draws a themed radial slash star using Clair de Lune texture.
+        /// Useful for projectile impacts and melee hit effects.
+        /// </summary>
+        public static void DrawThemeRadialStar(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f)
+        {
+            Texture2D star = ClairDeLuneThemeTextures.CLRadialSlashStar?.Value;
+            if (star == null) return;
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = star.Size() * 0.5f;
+            float rot = (float)Main.GameUpdateCount * 0.03f;
+
+            sb.Draw(star, drawPos, null,
+                (PearlBlue with { A = 0 }) * 0.5f * intensity, rot, origin,
+                scale * 0.08f, SpriteEffects.None, 0f);
+            sb.Draw(star, drawPos, null,
+                (WhiteHot with { A = 0 }) * 0.4f * intensity, -rot * 0.5f, origin,
+                scale * 0.05f, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Draws a themed clockwork gear fragment accent.
+        /// Perfect for melee hit impacts and clockwork-themed effects.
+        /// </summary>
+        public static void DrawThemeClockworkAccent(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f)
+        {
+            Texture2D gear = ClairDeLuneThemeTextures.CLClockGearFragment?.Value;
+            if (gear == null) return;
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = gear.Size() * 0.5f;
+            float rot = (float)Main.GameUpdateCount * 0.04f;
+
+            sb.Draw(gear, drawPos, null,
+                (ClockworkBrass with { A = 0 }) * 0.4f * intensity, rot, origin,
+                scale * 0.07f, SpriteEffects.None, 0f);
+            sb.Draw(gear, drawPos, null,
+                (MoonbeamGold with { A = 0 }) * 0.25f * intensity, -rot * 0.3f, origin,
+                scale * 0.05f, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Draws a themed clock face shard — large, ethereal clockwork accent.
+        /// Best used as a background layer during special attacks.
+        /// </summary>
+        public static void DrawThemeClockFaceShard(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f)
+        {
+            Texture2D shard = ClairDeLuneThemeTextures.CLClockFaceShard?.Value;
+            if (shard == null) return;
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = shard.Size() * 0.5f;
+            float rot = (float)Main.GameUpdateCount * 0.01f;
+
+            sb.Draw(shard, drawPos, null,
+                (NightMist with { A = 0 }) * 0.3f * intensity, rot, origin,
+                scale * 0.10f, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Combined theme impact: bloom + radial star + impact ring + clockwork accent.
+        /// </summary>
+        public static void DrawThemeImpactFull(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f)
+        {
+            DrawClairDeLuneBloomStack(sb, worldPos, scale, 0.3f, intensity);
+            float rot = (float)Main.GameUpdateCount * 0.02f;
+            DrawThemeRadialStar(sb, worldPos, scale, intensity * 0.6f);
+            DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.5f, rot);
+            DrawThemeClockworkAccent(sb, worldPos, scale * 0.7f, intensity * 0.4f);
+        }
+
+        /// <summary>
+        /// Draws a subtle layered theme accent (radial star + impact ring + clockwork gear)
+        /// around a projectile. Manages SpriteBatch state internally — safe to call from
+        /// PreDraw at any blend-state point.
+        /// </summary>
+        public static void DrawThemeAccents(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 0.5f)
+        {
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
+                null, Main.GameViewMatrix.TransformationMatrix);
+
+            float rot = (float)Main.GameUpdateCount * 0.02f;
+            DrawThemeRadialStar(sb, worldPos, scale, intensity * 0.6f);
+            DrawThemeImpactRing(sb, worldPos, scale * 0.8f, intensity * 0.4f, rot);
+            DrawThemeClockworkAccent(sb, worldPos, scale * 0.6f, intensity * 0.3f);
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
+        }
     }
 }

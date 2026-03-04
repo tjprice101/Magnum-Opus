@@ -887,5 +887,107 @@ namespace MagnumOpus.Content.Nachtmusik
                 }
             }
         }
+
+        // ─────────── THEME TEXTURE VFX ───────────
+        // Uses NachtmusikThemeTextures for theme-specific stellar visuals.
+
+        /// <summary>
+        /// Draws a themed cosmic impact ring using Nachtmusik Power Effect Ring.
+        /// Must be called in Additive blend mode (or {A=0} pattern).
+        /// </summary>
+        public static void DrawThemeImpactRing(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f, float rotation = 0f)
+        {
+            Vector2 drawPos = worldPos - Main.screenPosition;
+
+            Texture2D ring = NachtmusikThemeTextures.NKPowerEffectRing?.Value;
+            if (ring != null)
+            {
+                Vector2 origin = ring.Size() * 0.5f;
+                sb.Draw(ring, drawPos, null,
+                    (StarlitBlue with { A = 0 }) * 0.5f * intensity, rotation, origin,
+                    scale * 0.15f, SpriteEffects.None, 0f);
+                sb.Draw(ring, drawPos, null,
+                    (CosmicPurple with { A = 0 }) * 0.3f * intensity, -rotation * 0.7f, origin,
+                    scale * 0.10f, SpriteEffects.None, 0f);
+            }
+        }
+
+        /// <summary>
+        /// Draws themed stellar lens flare at a position using Nachtmusik star textures.
+        /// Must be called in Additive blend mode.
+        /// </summary>
+        public static void DrawThemeStarFlare(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f)
+        {
+            Vector2 drawPos = worldPos - Main.screenPosition;
+
+            Texture2D flare = NachtmusikThemeTextures.NKLensFlare?.Value;
+            if (flare != null)
+            {
+                Vector2 origin = flare.Size() * 0.5f;
+                float rot = (float)Main.GameUpdateCount * 0.035f;
+                sb.Draw(flare, drawPos, null,
+                    (StarWhite with { A = 0 }) * 0.5f * intensity, rot, origin,
+                    scale * 0.08f, SpriteEffects.None, 0f);
+                sb.Draw(flare, drawPos, null,
+                    (RadianceGold with { A = 0 }) * 0.3f * intensity, -rot * 0.5f, origin,
+                    scale * 0.06f, SpriteEffects.None, 0f);
+            }
+        }
+
+        /// <summary>
+        /// Draws themed radial slash star for melee impacts using NK Radial Slash Star.
+        /// Must be called in Additive blend mode.
+        /// </summary>
+        public static void DrawThemeRadialSlash(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f, float rotation = 0f)
+        {
+            Texture2D slash = NachtmusikThemeTextures.NKRadialSlashStar?.Value;
+            if (slash == null) return;
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = slash.Size() * 0.5f;
+
+            sb.Draw(slash, drawPos, null,
+                (DeepBlue with { A = 0 }) * 0.4f * intensity, rotation, origin,
+                scale * 0.14f, SpriteEffects.None, 0f);
+            sb.Draw(slash, drawPos, null,
+                (StarlitBlue with { A = 0 }) * 0.6f * intensity, -rotation * 0.5f, origin,
+                scale * 0.08f, SpriteEffects.None, 0f);
+            sb.Draw(slash, drawPos, null,
+                (StarWhite with { A = 0 }) * 0.7f * intensity, rotation * 1.5f, origin,
+                scale * 0.04f, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Draws a themed comet burst at a position using NK Comet texture.
+        /// Must be called in Additive blend mode.
+        /// </summary>
+        public static void DrawThemeComet(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f, float rotation = 0f)
+        {
+            Texture2D comet = NachtmusikThemeTextures.NKComet?.Value;
+            if (comet == null) return;
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = comet.Size() * 0.5f;
+
+            sb.Draw(comet, drawPos, null,
+                (StarlitBlue with { A = 0 }) * 0.55f * intensity, rotation, origin,
+                scale * 0.10f, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Combined theme impact: bloom + star flare + impact ring.
+        /// </summary>
+        public static void DrawThemeImpactFull(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f)
+        {
+            DrawNachtmusikBloomStack(sb, worldPos, scale, 0.3f, intensity);
+            DrawThemeStarFlare(sb, worldPos, scale, intensity * 0.7f);
+            float rot = (float)Main.GameUpdateCount * 0.02f;
+            DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.6f, rot);
+        }
     }
 }

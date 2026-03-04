@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.Utilities;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.Particles
 {
@@ -42,7 +43,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
 
         public override void Draw(SpriteBatch sb)
         {
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
             float fade = 1f - LifetimeCompletion;
             float alpha = fade * fade;
             sb.Draw(tex, Position - Main.screenPosition, null,
@@ -51,7 +52,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
     }
 
     /// <summary>
-    /// Expanding ring pulse emitted on bell-ring attacks — concentric circle that grows and fades.
+    /// Expanding ring pulse emitted on bell-ring attacks 遯ｶ繝ｻconcentric circle that grows and fades.
     /// </summary>
     public class BellRingPulseParticle : InfernalChimesParticle
     {
@@ -77,7 +78,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
 
         public override void Draw(SpriteBatch sb)
         {
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad).Value;
             float fade = 1f - LifetimeCompletion;
             float alpha = fade * 0.6f;
             float scale = currentRadius / (tex.Width * 0.5f);
@@ -112,7 +113,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
 
         public override void Draw(SpriteBatch sb)
         {
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
             float fade = 1f - LifetimeCompletion;
             sb.Draw(tex, Position - Main.screenPosition, null,
                 DrawColor * (fade * 0.7f), 0f, tex.Size() / 2f, Scale * 0.5f, SpriteEffects.None, 0f);
@@ -120,7 +121,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
     }
 
     /// <summary>
-    /// Musical note particle that drifts upward from minion during choir performance — the musical identity particle.
+    /// Musical note particle that drifts upward from minion during choir performance 遯ｶ繝ｻthe musical identity particle.
     /// </summary>
     public class MusicalChoirNoteParticle : InfernalChimesParticle
     {
@@ -162,7 +163,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
         public override void Draw(SpriteBatch sb)
         {
             string path = $"MagnumOpus/Assets/Particles Asset Library/{NoteTextureNames[noteVariant]}";
-            var tex = ModContent.Request<Texture2D>(path).Value;
+            var tex = ModContent.Request<Texture2D>(path, AssetRequestMode.ImmediateLoad).Value;
             float fade = 1f - LifetimeCompletion;
             float alpha = fade > 0.5f ? 1f : fade * 2f;
             sb.Draw(tex, Position - Main.screenPosition, null,

@@ -13,6 +13,8 @@ using MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Buffs;
 using MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Dusts;
 using MagnumOpus.Content.LaCampanella.Debuffs;
 using MagnumOpus.Content.MoonlightSonata;
+using MagnumOpus.Content.FoundationWeapons.RibbonFoundation;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Projectiles
 {
@@ -22,6 +24,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
     /// On first tile or enemy contact: massive radial explosion using SupernovaBlast shader.
     /// Spawns expanding shockwave ring + crater ring particles + screen shake.
     /// Spawns 6 secondary lunar fragment projectiles on explosion.
+    ///
+    /// FOUNDATION VFX INTEGRATION:
+    /// - FLIGHT: Energy Surge ribbon overlay (RibbonFoundation Mode 6) atop CometTrail shaders
+    /// - DETONATION: SupernovaSparks + SupernovaSmokeRing + SupernovaRipple spawned in Explode()
     /// </summary>
     public class SupernovaShell : ModProjectile
     {
@@ -246,6 +252,31 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
                 lunarTint = Color.Lerp(CometUtils.SupernovaColor, cp.CurrentLunarColor, 0.4f);
             }
 
+            // === FOUNDATION VFX: Shader-driven base layers ===
+            // SupernovaSparks — radial burst of 55+ sparks (ExplosionParticlesFoundation)
+            if (Projectile.owner == Main.myPlayer)
+            {
+                Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center,
+                    Vector2.Zero, ModContent.ProjectileType<SupernovaSparks>(),
+                    0, 0f, Projectile.owner, ai0: lunarMult);
+            }
+
+            // SupernovaSmokeRing — 30 animated smoke puffs (SmokeFoundation)
+            if (Projectile.owner == Main.myPlayer)
+            {
+                Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center,
+                    Vector2.Zero, ModContent.ProjectileType<SupernovaSmokeRing>(),
+                    0, 0f, Projectile.owner, ai0: lunarMult);
+            }
+
+            // SupernovaRipple — 5-ring concentric shockwave (ImpactFoundation + RippleShader)
+            if (Projectile.owner == Main.myPlayer)
+            {
+                Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center,
+                    Vector2.Zero, ModContent.ProjectileType<SupernovaRipple>(),
+                    0, 0f, Projectile.owner, ai0: lunarMult);
+            }
+
             // === LUNAR CYCLE INDICATOR RINGS ===
             CometParticleHandler.Spawn(new LunarCycleRingParticle(
                 Projectile.Center, lunarTint, 2.5f * lunarMult, 30));
@@ -313,6 +344,61 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
                     debrisColor, 0.4f + Main.rand.NextFloat(0.3f), 35 + Main.rand.Next(20)));
             }
 
+            // === THEME-SPECIFIC: MS Star Flare corona burst ===
+            CometParticleHandler.Spawn(new SupernovaStarFlareParticle(
+                Projectile.Center, 3.5f * lunarMult, lunarTint, 25));
+            CometParticleHandler.Spawn(new SupernovaStarFlareParticle(
+                Projectile.Center, 2f * lunarMult, CometUtils.CometCoreWhite, 20));
+
+            // === THEME-SPECIFIC: MS Lens Flare cinematic flash ===
+            CometParticleHandler.Spawn(new LunarLensFlareParticle(
+                Projectile.Center, 2.5f * lunarMult, lunarTint, 30));
+
+            // === THEME-SPECIFIC: MS Harmonic Resonance Wave expanding impact ===
+            CometParticleHandler.Spawn(new HarmonicResonanceWaveParticle(
+                Projectile.Center, lunarTint, 5f * lunarMult, 35));
+            CometParticleHandler.Spawn(new HarmonicResonanceWaveParticle(
+                Projectile.Center, CometUtils.CometCoreWhite * 0.5f, 3f * lunarMult, 25));
+
+            // === THEME-SPECIFIC: MS Power Effect Ring concentrated burst ===
+            CometParticleHandler.Spawn(new LunarPowerRingParticle(
+                Projectile.Center, lunarTint, 4f * lunarMult, 30));
+
+            // === THEME-SPECIFIC: Crescent moon fragments scattering outward ===
+            int crescentCount = (int)(6 * lunarMult);
+            for (int i = 0; i < crescentCount; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2CircularEdge(3f, 3f) * lunarMult;
+                Color crescCol = Color.Lerp(CometUtils.DeepSpaceViolet, lunarTint, Main.rand.NextFloat(0.6f));
+                CometParticleHandler.Spawn(new ResurrectionCrescentParticle(
+                    Projectile.Center, vel, 0.6f + Main.rand.NextFloat(0.3f), crescCol, 40 + Main.rand.Next(15)));
+            }
+
+            // === THEME-SPECIFIC: Tidal mist wisps drifting from detonation ===
+            for (int i = 0; i < 6; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(1.5f, 1.5f);
+                Color mistCol = Color.Lerp(CometUtils.DeepSpaceViolet, lunarTint, Main.rand.NextFloat(0.3f));
+                CometParticleHandler.Spawn(new TidalMistWispParticle(
+                    Projectile.Center + Main.rand.NextVector2Circular(30f, 30f), vel,
+                    0.8f + Main.rand.NextFloat(0.5f), mistCol, 50 + Main.rand.Next(20)));
+            }
+
+            // === THEME-SPECIFIC: Moonlight music notes ascending from explosion ===
+            int noteCount = 3 + (int)(3 * lunarMult);
+            for (int i = 0; i < noteCount; i++)
+            {
+                Vector2 vel = new Vector2(Main.rand.NextFloat(-2f, 2f), -Main.rand.NextFloat(1f, 3f));
+                Color noteCol = Color.Lerp(CometUtils.GetCometGradient(Main.rand.NextFloat()), CometUtils.CometCoreWhite, 0.3f);
+                CometParticleHandler.Spawn(new MoonlightMusicNoteParticle(
+                    Projectile.Center + Main.rand.NextVector2Circular(15f, 15f), vel,
+                    0.5f + Main.rand.NextFloat(0.3f), noteCol, 45 + Main.rand.Next(15)));
+            }
+
+            // === THEME-SPECIFIC: MS Glow Orb ethereal bloom overlay ===
+            CometParticleHandler.Spawn(new MoonlightGlowOrbParticle(
+                Projectile.Center, 3f * lunarMult, lunarTint, 25));
+
             // Comet mist cloud
             for (int i = 0; i < 12; i++)
             {
@@ -324,8 +410,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
             }
 
             // Music notes cascading upward from destruction — the supernova sings
-            int noteCount = 6 + (int)(4 * lunarMult);
-            MoonlightVFXLibrary.SpawnMusicNotes(Projectile.Center, count: noteCount,
+            int noteCount2 = 6 + (int)(4 * lunarMult);
+            MoonlightVFXLibrary.SpawnMusicNotes(Projectile.Center, count: noteCount2,
                 spread: 35f * lunarMult, minScale: 0.5f, maxScale: 1.1f,
                 lifetime: 50 + (int)(lunarMult * 15));
 
@@ -348,16 +434,116 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
         {
             if (Main.dedServ) return false;
 
-            // Pass 1: Glow trail
+            // Pass 1: Glow trail (CometTrailGlow shader)
             DrawGlowTrail();
 
-            // Pass 2: Main shell trail
+            // Pass 2: Main shell trail (CometTrailMain shader)
             DrawMainTrail();
 
-            // Pass 3: Head glow
+            // Pass 3: Energy Surge ribbon overlay (RibbonFoundation Mode 6)
+            DrawEnergySurgeRibbon();
+
+            // Pass 4: Head glow bloom stacking
             DrawHeadGlow();
 
             return false;
+        }
+
+        // =================================================================
+        // ENERGY SURGE RIBBON (Foundation: RibbonFoundation Mode 6)
+        // =================================================================
+
+        private static Asset<Texture2D> _energySurgeTex;
+
+        /// <summary>
+        /// Draws an Energy Surge texture strip ribbon over the CometTrail.
+        /// Adapted from RibbonFoundation's DrawTextureStripRibbon pattern.
+        /// Uses the EnergySurgeBeam texture UV-mapped along Projectile.oldPos.
+        /// Lunar palette: purple outer → ice blue body → white-hot core near head.
+        /// </summary>
+        private void DrawEnergySurgeRibbon()
+        {
+            _energySurgeTex ??= ModContent.Request<Texture2D>(
+                "MagnumOpus/Assets/VFX Asset Library/BeamTextures/EnergySurgeBeam");
+            if (!_energySurgeTex.IsLoaded) return;
+
+            Texture2D stripTex = _energySurgeTex.Value;
+            int texW = stripTex.Width;
+            int texH = stripTex.Height;
+            float time = (float)Main.timeForVisualEffects * 0.005f;
+
+            // Collect valid trail positions
+            Vector2[] positions = Projectile.oldPos;
+            int validCount = 0;
+            for (int i = 0; i < positions.Length; i++)
+            {
+                if (positions[i] != Vector2.Zero) validCount++;
+                else break;
+            }
+            if (validCount < 3) return;
+
+            SpriteBatch sb = Main.spriteBatch;
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                SamplerState.LinearWrap, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
+
+            // Lunar colors: purple outer → ice blue mid → white-hot core
+            Color outerColor = CometUtils.DeepSpaceViolet;
+            Color midColor = new Color(120, 190, 255); // LunarShine
+            Color coreColor = CometUtils.CometCoreWhite;
+
+            const float RibbonWidthHead = 24f;
+            const float RibbonWidthTail = 3f;
+            int srcWidth = Math.Max(1, texW / validCount);
+
+            for (int i = 0; i < validCount - 1; i++)
+            {
+                float progress = (float)i / validCount;
+                float fade = progress * progress;
+                if (fade < 0.01f) continue;
+
+                float width = MathHelper.Lerp(RibbonWidthTail, RibbonWidthHead, progress);
+
+                Vector2 segStart = positions[i] + Projectile.Size * 0.5f;
+                Vector2 segEnd = positions[i + 1] + Projectile.Size * 0.5f;
+                Vector2 segDir = segEnd - segStart;
+                float segLength = segDir.Length();
+                if (segLength < 0.5f) continue;
+                float segAngle = segDir.ToRotation();
+
+                float uStart = (progress + time * 2f) % 1f;
+                int srcX = (int)(uStart * texW) % texW;
+                Rectangle srcRect = new Rectangle(srcX, 0, srcWidth, texH);
+
+                float scaleX = segLength / (float)srcWidth;
+                float scaleY = width / (float)texH;
+
+                Vector2 pos = segStart - Main.screenPosition;
+                Vector2 origin = new Vector2(0, texH / 2f);
+
+                // Body — lunar tinted
+                Color bodyCol = Color.Lerp(outerColor, midColor, progress) * (fade * 0.45f);
+                sb.Draw(stripTex, pos, srcRect, bodyCol, segAngle, origin,
+                    new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
+
+                // Hot core near the head
+                if (progress > 0.5f)
+                {
+                    float coreFade = (progress - 0.5f) / 0.5f;
+                    Color cc = Color.Lerp(midColor, coreColor, coreFade * 0.5f) * (fade * coreFade * 0.3f);
+                    sb.Draw(stripTex, pos, srcRect, cc, segAngle, origin,
+                        new Vector2(scaleX * 0.5f, scaleY * 0.5f), SpriteEffects.None, 0f);
+                }
+            }
+
+            // Restore for next pass
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
         }
 
         private void DrawGlowTrail()
@@ -430,15 +616,29 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
             if (Projectile.owner >= 0 && Projectile.owner < Main.maxPlayers && Main.player[Projectile.owner].active)
                 lunarTint = Color.Lerp(CometUtils.SupernovaColor, Main.player[Projectile.owner].Resurrection().CurrentLunarColor, 0.3f);
 
-            // Pulsing glow with lunar influence
+            // Switch to Additive for bloom rendering
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
+
+            // Pulsing glow with lunar influence — scaled down
             float pulse = 0.8f + MathF.Sin(AliveTime * 0.15f) * 0.2f;
-            sb.Draw(bloom, drawPos, null, lunarTint * 0.5f * pulse, 0f, origin, 0.7f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, lunarTint with { A = 0 } * 0.4f * pulse, 0f, origin, 0.5f, SpriteEffects.None, 0f);
 
             // Mid glow layer
-            sb.Draw(bloom, drawPos, null, CometUtils.SupernovaColor * 0.25f, 0f, origin, 0.5f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, CometUtils.SupernovaColor with { A = 0 } * 0.2f, 0f, origin, 0.35f, SpriteEffects.None, 0f);
 
             // Core glow
-            sb.Draw(bloom, drawPos, null, CometUtils.CometCoreWhite * 0.5f, 0f, origin, 0.35f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, CometUtils.CometCoreWhite with { A = 0 } * 0.4f, 0f, origin, 0.25f, SpriteEffects.None, 0f);
+
+            // Restore to AlphaBlend
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
         }
 
         // =================================================================

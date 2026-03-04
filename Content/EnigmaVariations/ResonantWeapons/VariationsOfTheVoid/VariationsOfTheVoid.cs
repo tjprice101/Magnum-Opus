@@ -102,14 +102,33 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
                     bloom.Size() / 2f, 0.2f * pulse, SpriteEffects.None, 0f);
             }
 
-            // Convergence point glow when nearly aligned
+            // Convergence point glow when nearly aligned — EN Star Flare + EN Power Effect Ring
             if (convergenceProgress > 0.7f)
             {
+                Texture2D starFlare = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
+                Texture2D powerRing = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Power Effect Ring", AssetRequestMode.ImmediateLoad).Value;
                 Vector2 convergePt = owner.Center + toCursorDraw * Math.Min(beamLengths[0], MaxBeamLength) - Main.screenPosition;
                 float convergeIntensity = (convergenceProgress - 0.7f) / 0.3f;
+
+                // EN Power Effect Ring — rotating convergence boundary
+                float ringRot = Main.GameUpdateCount * 0.02f;
+                sb.Draw(powerRing, convergePt, null, VoidVariationUtils.RiftTeal * 0.4f * convergeIntensity, ringRot,
+                    powerRing.Size() / 2f, 0.35f * pulse, SpriteEffects.None, 0f);
+                sb.Draw(powerRing, convergePt, null, VoidVariationUtils.VariationViolet * 0.25f * convergeIntensity, -ringRot * 0.7f,
+                    powerRing.Size() / 2f, 0.25f * pulse, SpriteEffects.None, 0f);
+
+                // EN Star Flare — spinning convergence starburst
+                float starRot = Main.GameUpdateCount * 0.03f;
+                sb.Draw(starFlare, convergePt, null, VoidVariationUtils.VoidSurge * 0.5f * convergeIntensity, starRot,
+                    starFlare.Size() / 2f, 0.3f * pulse, SpriteEffects.None, 0f);
+
+                // Soft radial bloom behind everything
                 sb.Draw(bloom, convergePt, null, VoidVariationUtils.SunderingWhite * 0.4f * convergeIntensity, 0f,
                     bloom.Size() / 2f, 0.5f * pulse, SpriteEffects.None, 0f);
             }
+
+            // Theme texture accents
+            VoidVariationUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
@@ -269,7 +288,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
                 {
                     int damage = (int)(Projectile.damage * alignmentMultiplier);
                     npc.SimpleStrikeNPC(damage, 0, false, 0f, null, false, 0f, true);
-                    npc.AddBuff(ModContent.BuffType<ParadoxBrand>(), 300);
+                    npc.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
                     npc.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(npc, isAligned ? 2 : 1);
                 }
             }
@@ -379,15 +398,31 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
             sb.Draw(bloom, drawPos, null, VoidVariationUtils.VariationViolet * outerAlpha, 0f,
                 bloom.Size() / 2f, outerScale, SpriteEffects.None, 0f);
 
-            // Layer 2: Inner core — VoidSurge/SunderingWhite, brighter
+            // Layer 2: EN Power Effect Ring — rotating resonance field boundary
+            Texture2D powerRing = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Power Effect Ring", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D starFlare = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
+            float ringRot = Main.GameUpdateCount * 0.02f;
+            sb.Draw(powerRing, drawPos, null, VoidVariationUtils.RiftTeal * 0.45f * intensity, ringRot,
+                powerRing.Size() / 2f, outerScale * 0.4f, SpriteEffects.None, 0f);
+            sb.Draw(powerRing, drawPos, null, VoidVariationUtils.VariationViolet * 0.3f * intensity, -ringRot * 0.6f,
+                powerRing.Size() / 2f, outerScale * 0.3f, SpriteEffects.None, 0f);
+
+            // Layer 3: Inner core — VoidSurge/SunderingWhite, brighter
             Color coreColor = Color.Lerp(VoidVariationUtils.VoidSurge, VoidVariationUtils.SunderingWhite,
                 MathF.Sin(Main.GameUpdateCount * 0.15f) * 0.5f + 0.5f);
             sb.Draw(bloom, drawPos, null, coreColor * intensity * 0.55f, 0f,
                 bloom.Size() / 2f, outerScale * 0.5f * pulse, SpriteEffects.None, 0f);
 
-            // Layer 3: White-hot center — SunderingWhite
+            // Layer 4: White-hot center — SunderingWhite
             sb.Draw(bloom, drawPos, null, VoidVariationUtils.SunderingWhite * intensity * 0.7f, 0f,
                 bloom.Size() / 2f, outerScale * 0.2f, SpriteEffects.None, 0f);
+
+            // Layer 5: EN Star Flare — spinning starburst at resonance center
+            float starRot = Main.GameUpdateCount * 0.035f;
+            sb.Draw(starFlare, drawPos, null, VoidVariationUtils.VoidSurge * 0.5f * intensity, starRot,
+                starFlare.Size() / 2f, outerScale * 0.35f, SpriteEffects.None, 0f);
+            sb.Draw(starFlare, drawPos, null, VoidVariationUtils.RiftTeal * 0.3f * intensity, -starRot * 1.2f,
+                starFlare.Size() / 2f, outerScale * 0.25f, SpriteEffects.None, 0f);
 
             // 4 rotating X-shaped beams — cosmic explosion arms
             float beamLength = 180f * intensity;

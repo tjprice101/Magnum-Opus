@@ -38,6 +38,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars
 
         private static Asset<Texture2D> _glowTex;
 
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             // === PRESERVED STATS ===
@@ -64,10 +69,12 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Swings in a 3-phase combo: sweep, uppercut, and gravity slam"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "On hit, spawns orbiting spectral star blades that fire prismatic beams"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Every 3rd hit triggers a Star Fracture — a massive fractal explosion"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The stars shattered, and from their fractures, destiny was rewritten'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "3-phase geometric combo: Horizontal Sweep, Rising Uppercut, Gravity Slam"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "On hit, spawns orbiting spectral star blades (max 6) that fire prismatic beams every 60 frames"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Gravity Slam triggers Star Fracture — a recursive geometric explosion"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Fractal Recursion: sub-fractures cascade at 1/3 size and 1/3 damage per depth"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "The mathematical beauty of the cosmos expressed as devastation"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The stars do not scatter randomly. They fracture in self-similar patterns, infinitely deep.'")
             {
                 OverrideColor = new Color(180, 40, 80) // Cosmic Crimson (Fate theme)
             });

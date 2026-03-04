@@ -23,12 +23,12 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.S
 
         public override void PostSetupContent()
         {
-            if (TryLoadMiscShader("Effects/SwanLake/CallofthePearlescentLake/PearlescentRocketTrail",
-                "PearlescentTrailMain", "MagnumOpus:PearlescentRocketTrail"))
+            if (TryLoadMiscShader("MagnumOpus/Effects/SwanLake/CallofthePearlescentLake/PearlescentRocketTrail",
+                "P0", "MagnumOpus:PearlescentRocketTrail"))
                 HasRocketTrailShader = true;
 
-            if (TryLoadMiscShader("Effects/SwanLake/CallofthePearlescentLake/LakeExplosion",
-                "LakeExplosionMain", "MagnumOpus:LakeExplosion"))
+            if (TryLoadMiscShader("MagnumOpus/Effects/SwanLake/CallofthePearlescentLake/LakeExplosion",
+                "P0", "MagnumOpus:LakeExplosion"))
                 HasLakeExplosionShader = true;
         }
 

@@ -4,7 +4,6 @@ using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Pets
 {
@@ -169,13 +168,13 @@ namespace MagnumOpus.Content.Eroica.Pets
             // Themed particle heroic aura
             if (Main.rand.NextBool(15))
             {
-                ThemedParticles.EroicaAura(Projectile.Center, 25f);
+                EroicaVFXLibrary.SpawnHeroicAura(Projectile.Center, 25f);
             }
             
             // Custom particle soft glow trail
             if (Main.rand.NextBool(18) && isWalking)
             {
-                CustomParticles.EroicaTrailFlare(Projectile.Center, Projectile.velocity);
+                EroicaVFXLibrary.SpawnFlameTrailDust(Projectile.Center, Projectile.velocity);
             }
             
             // ☁EMUSICAL PRESENCE - Heroic aura (ambient notes for pet)
@@ -183,7 +182,7 @@ namespace MagnumOpus.Content.Eroica.Pets
             {
                 Color noteColor = Color.Lerp(new Color(200, 50, 50), new Color(255, 150, 180), Main.rand.NextFloat());
                 float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f;
-                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(12f, 12f), new Vector2(0, -0.6f), noteColor, 0.7f * shimmer, 28);
+                EroicaVFXLibrary.SpawnMusicNote(Projectile.Center + Main.rand.NextVector2Circular(12f, 12f), new Vector2(0, -0.6f), noteColor, 0.7f * shimmer, 28);
             }
         }
 
@@ -238,7 +237,11 @@ namespace MagnumOpus.Content.Eroica.Pets
             // Main sprite
             Main.EntitySpriteDraw(texture, drawPos, sourceRect, lightColor, Projectile.rotation,
                 origin, drawScale, effects, 0);
-
+            // Eroica theme accent
+            SpriteBatch sb = Main.spriteBatch;
+            EroicaVFXLibrary.BeginEroicaAdditive(sb);
+            EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.4f);
+            EroicaVFXLibrary.EndEroicaAdditive(sb);
             return false;
         }
     }

@@ -298,23 +298,35 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
         {
             if (Main.dedServ) return false;
 
-            _glowTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow");
-            _flareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Flare/flare_16");
-            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/CosmicNebulaClouds");
-
             SpriteBatch sb = Main.spriteBatch;
 
-            switch (Mode)
+            try
             {
-                case ModeEnergyBall:
-                    DrawEnergyBall(sb);
-                    break;
-                case ModeSeeker:
-                    DrawSeeker(sb);
-                    break;
-                case ModeCrystalShard:
-                    DrawCrystalShard(sb);
-                    break;
+                _glowTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow");
+                _flareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Flare/flare_16");
+                _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/CosmicNebulaClouds");
+
+                switch (Mode)
+                {
+                    case ModeEnergyBall:
+                        DrawEnergyBall(sb);
+                        break;
+                    case ModeSeeker:
+                        DrawSeeker(sb);
+                        break;
+                    case ModeCrystalShard:
+                        DrawCrystalShard(sb);
+                        break;
+                }
+            }
+            catch
+            {
+                try
+                {
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
             }
 
             return false;

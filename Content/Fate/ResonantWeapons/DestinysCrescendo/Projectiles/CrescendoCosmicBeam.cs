@@ -6,6 +6,7 @@ using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.Fate.Debuffs;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
 {
@@ -22,6 +23,9 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard";
 
         private float pulsePhase = 0f;
+
+        /// <summary>Escalation Phase (0-3) passed from CrescendoDeityMinion via ai[0].</summary>
+        private int Phase => (int)Projectile.ai[0];
 
         public override void SetStaticDefaults()
         {
@@ -43,51 +47,70 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
             Projectile.localNPCHitCooldown = 15;
         }
 
+        /// <summary>Scale penetration with phase after defaults are set (called from AI first tick).</summary>
+        private bool _phaseApplied = false;
+        private void ApplyPhaseScaling()
+        {
+            if (_phaseApplied) return;
+            _phaseApplied = true;
+            // Phase 0: 3 pen, Phase 1: 4, Phase 2: 5, Phase 3: 7
+            Projectile.penetrate += Phase;
+            if (Phase >= 3) Projectile.penetrate += 1;
+            // Wider hitbox at higher phases
+            int sizeBonus = Phase * 4;
+            Projectile.width += sizeBonus;
+            Projectile.height += sizeBonus;
+        }
+
         public override void AI()
         {
+            ApplyPhaseScaling();
+
             Projectile.rotation = Projectile.velocity.ToRotation();
             pulsePhase += 0.18f;
 
             if (Main.dedServ) return;
 
-            // === COSMIC BEAM TRAIL VFX ===
+            float phaseIntensity = 1f + Phase * 0.35f; // VFX density multiplier
+
+            // === COSMIC BEAM TRAIL VFX (scaled with phase) ===
 
             // Gradient glow particles trailing behind the beam
-            if (Main.rand.NextBool(2))
+            if (Main.rand.NextFloat() < 0.5f * phaseIntensity)
             {
                 Color trailColor = CrescendoUtils.GetCrescendoGradient(Main.rand.NextFloat(0.3f, 0.8f));
                 Vector2 vel = -Projectile.velocity * 0.08f + Main.rand.NextVector2Circular(1f, 1f);
-                CrescendoParticleHandler.Spawn(CrescendoParticleFactory.OrbGlow(Projectile.Center, vel, trailColor * 0.5f, 0.16f, 14));
+                CrescendoParticleHandler.Spawn(CrescendoParticleFactory.OrbGlow(Projectile.Center, vel, trailColor * (0.5f + Phase * 0.1f), 0.16f + Phase * 0.04f, 14));
             }
 
-            // Star sparkles in trail
-            if (Main.rand.NextBool(3))
+            // Star sparkles in trail 遯ｶ繝ｻmore at higher phases
+            if (Main.rand.NextFloat() < 0.33f * phaseIntensity)
             {
-                Vector2 sparkPos = Projectile.Center + Main.rand.NextVector2Circular(12f, 12f);
+                Vector2 sparkPos = Projectile.Center + Main.rand.NextVector2Circular(12f + Phase * 4f, 12f + Phase * 4f);
                 Color sparkCol = Main.rand.NextBool(2) ? CrescendoUtils.StarGold : CrescendoUtils.CelestialWhite;
                 CrescendoParticleHandler.Spawn(CrescendoParticleFactory.DivineSpark(sparkPos,
-                    Main.rand.NextVector2Circular(1.5f, 1.5f), sparkCol * 0.4f, 0.12f, 12));
+                    Main.rand.NextVector2Circular(1.5f, 1.5f), sparkCol * (0.4f + Phase * 0.1f), 0.12f + Phase * 0.03f, 12));
             }
 
             // Cosmic cloud wisps along beam path
-            if (Main.rand.NextBool(3))
+            if (Main.rand.NextFloat() < 0.33f * phaseIntensity * 0.4f)
             {
-                CrescendoParticleFactory.SpawnAuraWisps(Projectile.Center, 1, 10f);
+                CrescendoParticleFactory.SpawnAuraWisps(Projectile.Center, 1, 10f + Phase * 3f);
             }
 
-            // Glyph accents
-            if (Main.rand.NextBool(8))
+            // Glyph accents 遯ｶ繝ｻmore frequent at higher phases
+            if (Main.rand.NextFloat() < (0.125f + Phase * 0.05f))
             {
-                CrescendoParticleHandler.Spawn(CrescendoParticleFactory.GlyphCircle(Projectile.Center, CrescendoUtils.DeityPurple * 0.5f, 0.2f, 16));
+                CrescendoParticleHandler.Spawn(CrescendoParticleFactory.GlyphCircle(Projectile.Center, CrescendoUtils.DeityPurple * (0.5f + Phase * 0.1f), 0.2f + Phase * 0.05f, 16));
             }
 
-            // Cosmic music notes — the beam sings
-            if (Main.rand.NextBool(6))
+            // Cosmic music notes 遯ｶ繝ｻthe beam sings louder at higher phases
+            if (Main.rand.NextFloat() < (0.17f + Phase * 0.06f))
             {
-                CrescendoParticleFactory.SpawnCosmicNotes(Projectile.Center, 1, 8f);
+                CrescendoParticleFactory.SpawnCosmicNotes(Projectile.Center, 1, 8f + Phase * 2f);
             }
 
-            Lighting.AddLight(Projectile.Center, CrescendoUtils.CelestialWhite.ToVector3() * 1.3f);
+            Lighting.AddLight(Projectile.Center, CrescendoUtils.CelestialWhite.ToVector3() * (1.3f + Phase * 0.3f));
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
@@ -118,45 +141,60 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
             SoundEngine.PlaySound(SoundID.Item10 with { Pitch = 0.5f, Volume = 0.5f }, Projectile.Center);
         }
 
-        // ═══════════ PREDRAW — GRADIENT TRAIL + MULTI-LAYER BLOOM ═══════════
+        // 隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨翫・PREDRAW 遯ｶ繝ｻGRADIENT TRAIL + MULTI-LAYER BLOOM 隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨翫・
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard").Value;
-            Vector2 origin = tex.Size() / 2f;
 
-            float pulse = 1f + MathF.Sin(pulsePhase) * 0.15f;
-
-            // === PASS 1: Gradient trail from oldPos ===
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            try
             {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                Color trailColor = CrescendoUtils.GetCrescendoGradient(0.2f + progress * 0.6f) * (1f - progress) * 0.6f;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                float trailScale = (1f - progress * 0.4f) * 0.7f * pulse;
-                spriteBatch.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
+                Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard", AssetRequestMode.ImmediateLoad).Value;
+                Vector2 origin = tex.Size() / 2f;
+
+                float pulse = 1f + MathF.Sin(pulsePhase) * 0.15f;
+                float phaseScale = 1f + Phase * 0.2f; // Beams visually larger at higher phases
+                float phaseGlow = 1f + Phase * 0.15f; // Brighter glow at higher phases
+
+                // === PASS 1: Gradient trail from oldPos ===
+                for (int i = 0; i < Projectile.oldPos.Length; i++)
+                {
+                    if (Projectile.oldPos[i] == Vector2.Zero) continue;
+                    float progress = (float)i / Projectile.oldPos.Length;
+                    Color trailColor = CrescendoUtils.GetCrescendoGradient(0.2f + progress * 0.6f) * (1f - progress) * 0.6f * phaseGlow;
+                    Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                    float trailScale = (1f - progress * 0.4f) * 0.7f * pulse * phaseScale;
+                    spriteBatch.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
+                }
+
+                // === PASS 2: Multi-layer additive bloom (phase-scaled) ===
+                CrescendoUtils.BeginAdditive(spriteBatch);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+
+                // Layer 1: Deity purple outer glow
+                spriteBatch.Draw(tex, drawPos, null, CrescendoUtils.DeityPurple * (0.4f * phaseGlow), Projectile.rotation, origin, 1.2f * pulse * phaseScale, SpriteEffects.None, 0f);
+
+                // Layer 2: Divine crimson mid
+                spriteBatch.Draw(tex, drawPos, null, CrescendoUtils.DivineCrimson * (0.5f * phaseGlow), Projectile.rotation, origin, 0.9f * pulse * phaseScale, SpriteEffects.None, 0f);
+
+                // Layer 3: Crescendo pink inner
+                spriteBatch.Draw(tex, drawPos, null, CrescendoUtils.CrescendoPink * (0.6f * phaseGlow), Projectile.rotation, origin, 0.6f * pulse * phaseScale, SpriteEffects.None, 0f);
+
+                // Layer 4: Celestial white hot core
+                spriteBatch.Draw(tex, drawPos, null, CrescendoUtils.CelestialWhite * (0.85f * phaseGlow), Projectile.rotation, origin, 0.35f * pulse * phaseScale, SpriteEffects.None, 0f);
+
+                CrescendoUtils.BeginAlpha(spriteBatch);
             }
-
-            // === PASS 2: Multi-layer additive bloom ===
-            CrescendoUtils.BeginAdditive(spriteBatch);
-
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            // Layer 1: Deity purple outer glow
-            spriteBatch.Draw(tex, drawPos, null, CrescendoUtils.DeityPurple * 0.4f, Projectile.rotation, origin, 1.2f * pulse, SpriteEffects.None, 0f);
-
-            // Layer 2: Divine crimson mid
-            spriteBatch.Draw(tex, drawPos, null, CrescendoUtils.DivineCrimson * 0.5f, Projectile.rotation, origin, 0.9f * pulse, SpriteEffects.None, 0f);
-
-            // Layer 3: Crescendo pink inner
-            spriteBatch.Draw(tex, drawPos, null, CrescendoUtils.CrescendoPink * 0.6f, Projectile.rotation, origin, 0.6f * pulse, SpriteEffects.None, 0f);
-
-            // Layer 4: Celestial white hot core
-            spriteBatch.Draw(tex, drawPos, null, CrescendoUtils.CelestialWhite * 0.85f, Projectile.rotation, origin, 0.35f * pulse, SpriteEffects.None, 0f);
-
-            CrescendoUtils.BeginAlpha(spriteBatch);
+            catch
+            {
+                try
+                {
+                    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
 
             return false;
         }

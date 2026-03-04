@@ -41,38 +41,45 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Particl
         /// <summary>
         /// Draw all active particles. Call from a draw hook.
         /// Two passes: additive then alpha-blend.
+        /// Safe SpriteBatch state management with try/finally.
         /// </summary>
         public static void DrawAllParticles(SpriteBatch spriteBatch)
         {
             if (_particles.Count == 0)
                 return;
 
-            // Pass 1: Additive particles (glows, sparks, fire)
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            foreach (var p in _particles)
+            try
             {
-                if (p.UseAdditiveBlend)
-                    p.Draw(spriteBatch);
+                // Pass 1: Additive particles (glows, sparks, fire)
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                foreach (var p in _particles)
+                {
+                    if (p.UseAdditiveBlend)
+                        p.Draw(spriteBatch);
+                }
+
+                // Pass 2: Alpha-blend particles (smoke, embers)
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                foreach (var p in _particles)
+                {
+                    if (!p.UseAdditiveBlend)
+                        p.Draw(spriteBatch);
+                }
             }
-
-            // Pass 2: Alpha-blend particles (smoke, embers)
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            foreach (var p in _particles)
+            catch { }
+            finally
             {
-                if (!p.UseAdditiveBlend)
-                    p.Draw(spriteBatch);
+                // Always restore standard state
+                try { spriteBatch.End(); } catch { }
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
-            // Restore standard state
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
         public override void OnWorldUnload()

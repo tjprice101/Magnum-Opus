@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using MagnumOpus.Content.SwanLake;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Utilities
 {
@@ -16,7 +17,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Utilities
         public static readonly Color GriefGrey = new Color(100, 95, 110);
         public static readonly Color CatharsisWhite = new Color(235, 230, 245);
         public static readonly Color RevelationGold = new Color(255, 220, 140);
-        public static readonly Color LoreColor = new Color(180, 175, 200);
+        public static readonly Color LoreColor = new Color(240, 240, 255);
 
         public static readonly Color[] LamentPalette = new Color[]
         {
@@ -72,6 +73,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Utilities
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        // ─────────── THEME TEXTURE ACCENTS ───────────
+
+        public static void DrawThemeAccents(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)
+        {
+            SwanLakeVFXLibrary.DrawThemeCrystalAccent(sb, worldPos, scale, intensity * 0.5f);
+            float rot = (float)Main.GameUpdateCount * 0.02f;
+            SwanLakeVFXLibrary.DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.4f, rot);
         }
     }
 }

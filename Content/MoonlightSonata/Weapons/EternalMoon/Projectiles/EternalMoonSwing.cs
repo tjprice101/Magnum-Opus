@@ -46,6 +46,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
     ///   Half Moon Ghost        — Spawns 2 delayed ghost reflections that repeat the swing
     ///
     /// --- VISUAL LAYERS (render order) ---
+    ///   0. Smear Overlay       — SwordSmearFoundation SmearDistortShader: 3-sublayer arc distortion
     ///   1. Tidal Glow Pass     — Wide, soft bloom underlayer using TidalTrailGlow shader
     ///   2. Tidal Trail Pass    — Core arc trail using TidalTrailMain shader with caustic highlights
     ///   3. Surge Trail         — During dash: trailing positions with TidalTrailGlow shader
@@ -217,6 +218,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
         private static Asset<Texture2D> _noiseTexture;
         private static Asset<Texture2D> _softRadialBloom;
         private static Asset<Texture2D> _gradientRamp;
+
+        // SmearDistortShader overlay (Foundation-based swing arc distortion)
+        private static Asset<Texture2D> _smearArcTexture;
+        private static Asset<Texture2D> _smearNoiseTex;
+        private static Asset<Texture2D> _smearGradientTex;
+        private static Effect _smearDistortShader;
+        private static bool _smearShaderLoaded;
 
         #endregion
 
@@ -435,35 +443,29 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                     Projectile.knockBack / 3f, Projectile.owner, _lunarPhase);
             }
 
-            // === HALF MOON GHOST REFLECTIONS ===
+            // === HALF MOON GHOST REFLECTION ===
+            // Spawn a single orbiting ghost blade above the player at Half Moon+
             if (_lunarPhase >= 2 && Progression > 0.3f && Progression < 0.35f && Main.myPlayer == Projectile.owner)
             {
-                // Spawn 2 ghost reflection projectiles offset by ±30°
-                for (int i = -1; i <= 1; i += 2)
-                {
-                    Vector2 ghostVel = Projectile.velocity.RotatedBy(MathHelper.ToRadians(30) * i);
-                    int ghostDamage = (int)(Projectile.damage * 0.4f);
-                    Projectile.NewProjectile(Projectile.GetSource_FromAI(), Projectile.Center, ghostVel,
-                        ModContent.ProjectileType<EternalMoonGhost>(), ghostDamage, Projectile.knockBack * 0.3f,
-                        Projectile.owner, _lunarPhase, i);
-                }
+                int ghostDamage = (int)(Projectile.damage * 0.4f);
+                Projectile.NewProjectile(Projectile.GetSource_FromAI(), Projectile.Center, Projectile.velocity,
+                    ModContent.ProjectileType<EternalMoonGhost>(), ghostDamage, Projectile.knockBack * 0.3f,
+                    Projectile.owner, _lunarPhase, 1);
             }
 
             // === ECHOING TIDES (every 4th swing) ===
-            // Every 4th swing echoes the previous 3 swings as ghostly afterimage replays
+            // Every 4th swing spawns 2 orbiting ghost echoes above the player
             if (Owner.EternalMoon().ShouldEchoTides && Progression > 0.25f && Progression < 0.3f && Main.myPlayer == Projectile.owner)
             {
-                // Spawn 3 offset ghost echoes with staggered timing
-                for (int echo = 0; echo < 3; echo++)
+                for (int echo = 0; echo < 2; echo++)
                 {
-                    float angleOffset = MathHelper.ToRadians(15 * (echo - 1));
-                    Vector2 echoVel = Projectile.velocity.RotatedBy(angleOffset);
                     int echoDamage = (int)(Projectile.damage * 0.25f);
-                    int proj = Projectile.NewProjectile(Projectile.GetSource_FromAI(), Projectile.Center, echoVel,
+                    int side = echo == 0 ? 1 : -1;
+                    int proj = Projectile.NewProjectile(Projectile.GetSource_FromAI(), Projectile.Center, Projectile.velocity,
                         ModContent.ProjectileType<EternalMoonGhost>(), echoDamage, Projectile.knockBack * 0.2f,
-                        Projectile.owner, _lunarPhase, echo == 1 ? -1 : 1);
+                        Projectile.owner, _lunarPhase, side);
                     if (Main.projectile.IndexInRange(proj))
-                        Main.projectile[proj].timeLeft -= echo * 6; // Staggered timing
+                        Main.projectile[proj].timeLeft -= echo * 8; // Staggered timing
                 }
 
                 // Echoing tides VFX — pulse rings
@@ -739,12 +741,148 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             if (Projectile.Opacity <= 0f || InPostSurgeStasis)
                 return false;
 
+            DrawSmearOverlay();
             DrawTidalGlow();
             DrawTidalTrail();
             DrawSurgeTrail();
             DrawBlade();
             DrawCrescentBloom();
             return false;
+        }
+
+        /// <summary>
+        /// Layer 0 (Foundation): SmearDistortShader overlay from SwordSmearFoundation.
+        /// Renders the SwordArcSmear texture with fluid distortion shader in 3 sub-layers
+        /// (outer glow → main body → bright core), using Moonlight Sonata palette.
+        /// Parameters scale with tidal phase: distortStrength 0.08→0.12, flowSpeed 0.4→0.8.
+        /// </summary>
+        public void DrawSmearOverlay()
+        {
+            if (State != SwingState.Swinging || Progression < 0.25f)
+                return;
+
+            // Lazy-load smear shader and textures
+            if (!_smearShaderLoaded)
+            {
+                _smearShaderLoaded = true;
+                try
+                {
+                    _smearDistortShader = ModContent.Request<Effect>(
+                        "MagnumOpus/Content/FoundationWeapons/SwordSmearFoundation/Shaders/SmearDistortShader",
+                        AssetRequestMode.ImmediateLoad).Value;
+                }
+                catch { _smearDistortShader = null; }
+            }
+
+            _smearArcTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/SlashArcs/SwordArcSmear");
+            _smearNoiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/TileableFBMNoise");
+            _smearGradientTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/ColorGradients/MoonlightSonataGradientLUTandRAMP");
+
+            Texture2D smearTex = _smearArcTexture.Value;
+            Vector2 smearOrigin = smearTex.Size() / 2f;
+            SpriteBatch sb = Main.spriteBatch;
+            Vector2 drawOrigin = Owner.MountedCenter - Main.screenPosition;
+
+            // Scale smear to match blade length (doc: BladeLength=100f visual scale for smear)
+            float maxDim = MathF.Max(smearTex.Width, smearTex.Height);
+            float smearScale = (BladeLength * 2.2f) / maxDim;
+            if (PerformingFullMoonSlash)
+                smearScale *= FullMoonUpscale;
+
+            // Rotation follows the current swing angle
+            float smearRotation = SwordRotation + (Direction < 0 ? MathHelper.Pi : 0f);
+
+            // Fade envelope: smooth in after 0.25, sustain, fade at tail
+            float smearAlpha;
+            if (Progression < 0.35f)
+                smearAlpha = (Progression - 0.25f) / 0.10f;
+            else if (Progression > 0.85f)
+                smearAlpha = (1f - Progression) / 0.15f;
+            else
+                smearAlpha = 1f;
+            smearAlpha = MathHelper.Clamp(smearAlpha, 0f, 1f) * _phaseIntensity;
+
+            // Tidal phase scaling: distort and flow intensify with tidal phase
+            float tidalMult = 1f + _phaseIntensity * 0.5f;
+            float baseDistort = MathHelper.Lerp(0.08f, 0.12f, _phaseIntensity);
+            float flowSpeed = MathHelper.Lerp(0.4f, 0.8f, _phaseIntensity);
+
+            if (_smearDistortShader != null)
+            {
+                // --- SHADER PATH: fluid distortion + gradient coloring (Moonlight palette) ---
+                sb.End();
+                sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+                    SamplerState.LinearWrap, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.EffectMatrix);
+
+                float time = (float)Main.gameTimeCache.TotalGameTime.TotalSeconds;
+
+                _smearDistortShader.Parameters["uTime"]?.SetValue(time);
+                _smearDistortShader.Parameters["fadeAlpha"]?.SetValue(smearAlpha);
+                _smearDistortShader.Parameters["flowSpeed"]?.SetValue(flowSpeed);
+                _smearDistortShader.Parameters["noiseScale"]?.SetValue(2.5f);
+                _smearDistortShader.Parameters["noiseTex"]?.SetValue(_smearNoiseTex.Value);
+                _smearDistortShader.Parameters["gradientTex"]?.SetValue(_smearGradientTex.Value);
+
+                // Sub-layer A: Wide outer tidal glow (stronger distortion)
+                _smearDistortShader.Parameters["distortStrength"]?.SetValue(baseDistort * tidalMult);
+                _smearDistortShader.CurrentTechnique.Passes[0].Apply();
+                sb.Draw(smearTex, drawOrigin, null,
+                    Color.White * smearAlpha * 0.45f,
+                    smearRotation, smearOrigin,
+                    smearScale * 1.15f, SpriteEffects.None, 0f);
+
+                // Sub-layer B: Main smear body (medium distortion)
+                _smearDistortShader.Parameters["distortStrength"]?.SetValue(baseDistort * 0.625f * tidalMult);
+                _smearDistortShader.CurrentTechnique.Passes[0].Apply();
+                sb.Draw(smearTex, drawOrigin, null,
+                    Color.White * smearAlpha * 0.75f,
+                    smearRotation, smearOrigin,
+                    smearScale, SpriteEffects.None, 0f);
+
+                // Sub-layer C: Bright core (subtle distortion, sharper detail)
+                _smearDistortShader.Parameters["distortStrength"]?.SetValue(baseDistort * 0.3125f * tidalMult);
+                _smearDistortShader.CurrentTechnique.Passes[0].Apply();
+                sb.Draw(smearTex, drawOrigin, null,
+                    Color.White * smearAlpha * 0.6f,
+                    smearRotation, smearOrigin,
+                    smearScale * 0.85f, SpriteEffects.None, 0f);
+
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            else
+            {
+                // --- FALLBACK: static colored layers (no shader available) ---
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.EffectMatrix);
+
+                sb.Draw(smearTex, drawOrigin, null,
+                    DarkPurple * smearAlpha * 0.35f,
+                    smearRotation, smearOrigin,
+                    smearScale * 1.15f, SpriteEffects.None, 0f);
+
+                sb.Draw(smearTex, drawOrigin, null,
+                    IceBlue * smearAlpha * 0.65f,
+                    smearRotation, smearOrigin,
+                    smearScale, SpriteEffects.None, 0f);
+
+                sb.Draw(smearTex, drawOrigin, null,
+                    MoonWhite * smearAlpha * 0.5f,
+                    smearRotation, smearOrigin,
+                    smearScale * 0.85f, SpriteEffects.None, 0f);
+
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
         }
 
         /// <summary>Layer 1: Wide, soft tidal glow underlayer.</summary>
@@ -983,6 +1121,26 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             Color coreWhite = MoonWhite with { A = 0 };
             Main.spriteBatch.Draw(sharpBloom, tipPos, null, coreWhite * crescentOpacity * 0.6f,
                 SwordRotation, sharpBloom.Size() / 2f, crescentScale * 0.2f * Projectile.scale, SpriteEffects.None, 0f);
+
+            // === THEME-SPECIFIC BLOOM LAYERS ===
+            // Layer 5: MS Star Flare — sharp 4-pointed flare at blade tip
+            var msStarFlare = LunarThemeTextures.MSStarFlare;
+            if (msStarFlare != null)
+            {
+                Color flareColor = tidalInner with { A = 0 };
+                Main.spriteBatch.Draw(msStarFlare, tipPos, null, flareColor * crescentOpacity * 0.45f,
+                    SwordRotation * 0.3f, msStarFlare.Size() / 2f, crescentScale * 0.35f * Projectile.scale, SpriteEffects.None, 0f);
+            }
+
+            // Layer 6: MS Glow Orb — soft ethereal bloom overlay behind the crescent
+            var msGlowOrb = LunarThemeTextures.MSGlowOrb;
+            if (msGlowOrb != null)
+            {
+                float orbPulse = 0.85f + 0.15f * (float)Math.Sin(Progression * MathHelper.Pi * 3f);
+                Color orbColor = tidalOuter with { A = 0 };
+                Main.spriteBatch.Draw(msGlowOrb, tipPos, null, orbColor * crescentOpacity * 0.2f * orbPulse,
+                    0f, msGlowOrb.Size() / 2f, crescentScale * 1.4f * Projectile.scale * orbPulse, SpriteEffects.None, 0f);
+            }
         }
 
         #endregion
@@ -1012,6 +1170,27 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                     LunarParticleHandler.SpawnParticle(new GravityWellMoteParticle(
                         spawnPos, target.Center, Main.rand.NextFloat(0.3f, 0.5f),
                         Color.Lerp(Violet, IceBlue, Main.rand.NextFloat()), Main.rand.Next(30, 50)));
+                }
+            }
+
+            // === FOUNDATION VFX: Impact Effects on Regular Swings ===
+            if (Main.myPlayer == Projectile.owner && State == SwingState.Swinging)
+            {
+                // TidalThinSlash — razor-thin slash mark at hit direction angle
+                float hitAngle = (target.Center - Owner.MountedCenter).ToRotation();
+                int slashStyle = _lunarPhase >= 2 ? 1 : 0; // Violet Cut at higher phases, Ice Cyan at lower
+                Projectile.NewProjectile(Projectile.GetSource_FromAI(),
+                    target.Center, Vector2.Zero,
+                    ModContent.ProjectileType<TidalThinSlash>(),
+                    0, 0f, Projectile.owner, hitAngle, slashStyle);
+
+                // Phase 2+ spawns TidalRippleEffect — expanding concentric rings
+                if (_lunarPhase >= 2)
+                {
+                    Projectile.NewProjectile(Projectile.GetSource_FromAI(),
+                        target.Center, Vector2.Zero,
+                        ModContent.ProjectileType<TidalRippleEffect>(),
+                        0, 0f, Projectile.owner, _phaseIntensity);
                 }
             }
 
@@ -1056,6 +1235,26 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 
                     LunarParticleHandler.SpawnParticle(new LunarBloomParticle(
                         target.Center, 1f, CrescentGlow, 25, 0.06f));
+                }
+
+                // Foundation VFX: Cross-slash thin lines on Surge impact
+                if (Main.myPlayer == Projectile.owner)
+                {
+                    float surgeAngle = Projectile.velocity.ToRotation();
+                    for (int i = 0; i < 2; i++)
+                    {
+                        float slashAngle = surgeAngle + MathHelper.PiOver4 * (i == 0 ? 1 : -1);
+                        Projectile.NewProjectile(Projectile.GetSource_FromAI(),
+                            target.Center, Vector2.Zero,
+                            ModContent.ProjectileType<TidalThinSlash>(),
+                            0, 0f, Projectile.owner, slashAngle, 1); // Style 1: Violet Cut (Surge intensity)
+                    }
+
+                    // Ripple expanding rings at surge impact
+                    Projectile.NewProjectile(Projectile.GetSource_FromAI(),
+                        target.Center, Vector2.Zero,
+                        ModContent.ProjectileType<TidalRippleEffect>(),
+                        0, 0f, Projectile.owner, 1.2f); // Enhanced tidal strength for Surge
                 }
             }
 

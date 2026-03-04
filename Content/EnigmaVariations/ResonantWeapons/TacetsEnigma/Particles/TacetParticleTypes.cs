@@ -4,11 +4,12 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma.Utilities;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma.Particles
 {
     // =========================================================================
-    //  SILENCE BURST — Muzzle flash angular burst of silence-themed shards
+    //  SILENCE BURST 窶・Muzzle flash angular burst of silence-themed shards
     //  Like breaking glass made of compressed silence, sharp and brief
     // =========================================================================
     public class SilenceBurstParticle : TacetParticle
@@ -46,7 +47,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma.Parti
             alpha = MathF.Pow(alpha, 0.7f);
             if (alpha <= 0f) return;
 
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/PartiGlow").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/PartiGlow", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
             // Velocity-stretched scale for motion blur shard feel
@@ -60,8 +61,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma.Parti
     }
 
     // =========================================================================
-    //  PARADOX BOLT GLOW — Glowing orb traveling with the paradox bolt
-    //  Leaves afterimages, multi-layered bloom: outer soft → halo middle → white center
+    //  PARADOX BOLT GLOW 窶・Glowing orb traveling with the paradox bolt
+    //  Leaves afterimages, multi-layered bloom: outer soft 竊・halo middle 竊・white center
     // =========================================================================
     public class ParadoxBoltGlowParticle : TacetParticle
     {
@@ -102,8 +103,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma.Parti
             float alpha = 1f - LifetimeCompletion;
             if (alpha <= 0f) return;
 
-            var softBloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom").Value;
-            var haloTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle").Value;
+            var softBloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
+            var haloTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad).Value;
 
             // Draw afterimages (faded copies trailing behind)
             for (int i = 0; i < _afterimagePositions.Length; i++)
@@ -131,7 +132,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma.Parti
     }
 
     // =========================================================================
-    //  PARADOX STACK — Small pulsing glyphs / ? marks orbiting the player
+    //  PARADOX STACK 窶・Small pulsing glyphs / ? marks orbiting the player
     //  Shows current stack count, AlphaBlend, uses Glyph textures
     // =========================================================================
     public class ParadoxStackParticle : TacetParticle
@@ -182,14 +183,14 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma.Parti
             if (alpha <= 0f) return;
 
             string glyphPath = $"MagnumOpus/Assets/Particles Asset Library/{NoteTextureNames[_glyphIndex]}";
-            var tex = ModContent.Request<Texture2D>(glyphPath).Value;
+            var tex = ModContent.Request<Texture2D>(glyphPath, AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
             float pulse = MathF.Sin(Time * 0.15f) * 0.15f + 1f;
             float pulseScale = Scale * pulse;
 
             // Glow behind the glyph
-            var glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom").Value;
+            var glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             sb.Draw(glowTex, drawPos, null, Color * alpha * 0.25f, 0f, glowTex.Size() / 2f, pulseScale * 3f, SpriteEffects.None, 0f);
 
             // Glyph itself
@@ -198,7 +199,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma.Parti
     }
 
     // =========================================================================
-    //  CHAIN LIGHTNING MOTE — Tiny bright motes scattered along lightning paths
+    //  CHAIN LIGHTNING MOTE 窶・Tiny bright motes scattered along lightning paths
     //  Additive, simple 2-layer, very short lifetime (10-15 frames)
     // =========================================================================
     public class ChainLightningMoteParticle : TacetParticle
@@ -234,7 +235,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma.Parti
             alpha *= alpha; // Rapid falloff
             if (alpha <= 0f) return;
 
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
             // Layer 1: Colored glow

@@ -25,6 +25,11 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell
     {
         public override string Texture => "MagnumOpus/Content/LaCampanella/ResonantWeapons/FangOfTheInfiniteBell/FangOfTheInfiniteBell";
 
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             Item.width = 40;
@@ -95,7 +100,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Each bounce grants stacking magic damage (max +60%)"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "At 10+ stacks, lightning arcs between airborne orbs"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Right click at max stacks for Infinite Crescendo"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Infinity is not a destination; it is a bell that rings without ceasing.'")
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Every echo louder than the last.'")
             {
                 OverrideColor = FangOfTheInfiniteBellUtils.LoreColor
             });

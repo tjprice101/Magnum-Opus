@@ -31,8 +31,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         public static void ExitShaderRegion(SpriteBatch sb)
         {
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
         }
     }
 
@@ -81,29 +81,29 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            try
+            {
+                Texture2D bloom = MagnumTextureRegistry.GetBloom();
+                if (bloom == null) return;
 
-            Texture2D bloom = MagnumTextureRegistry.GetBloom();
-            if (bloom == null)
+                Vector2 origin = bloom.Size() * 0.5f;
+
+                for (int i = 0; i < positions.Length - 1; i++)
+                {
+                    float completion = (float)i / (positions.Length - 1);
+                    float width = settings.WidthFunction(completion);
+                    Color col = settings.ColorFunction(completion);
+                    col.A = 0;
+
+                    float scale = width / 32f;
+                    Vector2 drawPos = positions[i] - Main.screenPosition;
+                    sb.Draw(bloom, drawPos, null, col, 0f, origin, scale, SpriteEffects.None, 0f);
+                }
+            }
+            finally
             {
                 sb.End();
-                return;
             }
-
-            Vector2 origin = bloom.Size() * 0.5f;
-
-            for (int i = 0; i < positions.Length - 1; i++)
-            {
-                float completion = (float)i / (positions.Length - 1);
-                float width = settings.WidthFunction(completion);
-                Color col = settings.ColorFunction(completion);
-                col.A = 0;
-
-                float scale = width / 32f;
-                Vector2 drawPos = positions[i] - Main.screenPosition;
-                sb.Draw(bloom, drawPos, null, col, 0f, origin, scale, SpriteEffects.None, 0f);
-            }
-
-            sb.End();
         }
     }
 
@@ -185,7 +185,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
     /// <summary>Fractal music note — rises with gentle sine wobble.</summary>
     public class FractalNoteParticle : Particle
     {
-        public override string Texture => "MusicNote1";
+        public override string Texture => "MusicNoteQuarter";
         public override bool UseAdditiveBlend => true;
         public override bool SetLifetime => true;
 

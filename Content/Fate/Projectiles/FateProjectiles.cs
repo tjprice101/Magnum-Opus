@@ -12,6 +12,7 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Fate.Debuffs;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Fate.Projectiles
 {
@@ -113,7 +114,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                     FatePalette.FatePurple, 0.2f, -1);
             }
             
-            // ☁EMUSICAL NOTATION - Cosmic destiny trail
+            // 隨倥・MUSICAL NOTATION - Cosmic destiny trail
             if (Main.rand.NextBool(6))
             {
                 Color noteColor = Color.Lerp(new Color(180, 50, 100), new Color(255, 60, 80), Main.rand.NextFloat());
@@ -143,7 +144,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             // Enhanced impact burst with full bloom
             UnifiedVFXBloom.Fate.ImpactEnhanced(target.Center, 0.8f);
             
-            // ☁EMUSICAL IMPACT - Fate's chord burst
+            // 隨倥・MUSICAL IMPACT - Fate's chord burst
             ThemedParticles.MusicNoteBurst(target.Center, new Color(180, 50, 100), 5, 3.5f);
             
             // === SEEKING CRYSTALS - Cosmic lightning burst ===
@@ -169,14 +170,14 @@ namespace MagnumOpus.Content.Fate.Projectiles
             FateVFXLibrary.SpawnStarSparkles(Projectile.Center, 8, 25f, 0.25f);
             SoundEngine.PlaySound(SoundID.Item10, Projectile.Center);
             
-            // ☁EMUSICAL FINALE - Cosmic symphony
+            // 隨倥・MUSICAL FINALE - Cosmic symphony
             ThemedParticles.MusicNoteBurst(Projectile.Center, Color.White, 6, 4f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
+            Texture2D tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
             
             // Pulsing effects for magical feel
@@ -265,7 +266,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 MagnumParticleHandler.SpawnParticle(shard);
             }
             
-            // ☁EMUSICAL NOTATION - Glass distortion shimmer
+            // 隨倥・MUSICAL NOTATION - Glass distortion shimmer
             if (Main.rand.NextBool(4))
             {
                 Color noteColor = Color.Lerp(new Color(180, 50, 100), Color.White, Main.rand.NextFloat());
@@ -329,7 +330,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 FateCosmicVFX.SpawnCosmicMusicNotes(Projectile.Center, 1, 15f, 0.3f);
             }
             
-            // ☁EMUSICAL NOTATION - Cosmic destiny trail
+            // 隨倥・MUSICAL NOTATION - Cosmic destiny trail
             if (Main.rand.NextBool(6))
             {
                 Color noteColor = Color.Lerp(new Color(180, 50, 100), new Color(255, 60, 80), Main.rand.NextFloat());
@@ -363,7 +364,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             FateCosmicVFX.SpawnCosmicExplosion(target.Center, 1.2f);
             SoundEngine.PlaySound(SoundID.Item14, target.Center);
             
-            // ☁EMUSICAL IMPACT - Fate's chord burst
+            // 隨倥・MUSICAL IMPACT - Fate's chord burst
             ThemedParticles.MusicNoteBurst(target.Center, new Color(180, 50, 100), 6, 4f);
         }
 
@@ -371,14 +372,14 @@ namespace MagnumOpus.Content.Fate.Projectiles
         {
             FateVFXLibrary.SpawnCosmicCloudBurst(Projectile.Center, 0.8f, 12);
             
-            // ☁EMUSICAL FINALE - Cosmic symphony
+            // 隨倥・MUSICAL FINALE - Cosmic symphony
             ThemedParticles.MusicNoteBurst(Projectile.Center, Color.White, 6, 4f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard", AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
 
             // Trail - scaled for player-sized projectile
@@ -467,7 +468,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             // Trail
             FateVFXLibrary.SpawnCosmicCloudTrail(Projectile.Center, Projectile.velocity, 0.5f);
             
-            // ☁EMUSICAL NOTATION - Cosmic seeker trail
+            // 隨倥・MUSICAL NOTATION - Cosmic seeker trail
             if (Main.rand.NextBool(7))
             {
                 Color noteColor = Color.Lerp(new Color(180, 50, 100), new Color(255, 60, 80), Main.rand.NextFloat());
@@ -483,7 +484,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 180);
             FateCosmicVFX.SpawnCosmicExplosion(target.Center, 0.5f);
             
-            // ☁EMUSICAL IMPACT - Fate's chord burst
+            // 隨倥・MUSICAL IMPACT - Fate's chord burst
             ThemedParticles.MusicNoteBurst(target.Center, new Color(180, 50, 100), 4, 3f);
             
             // === SEEKING CRYSTALS - Cosmic seeker burst ===
@@ -506,14 +507,14 @@ namespace MagnumOpus.Content.Fate.Projectiles
             FateCosmicVFX.SpawnGlyphBurst(Projectile.Center, 4, 3f, 0.2f);
             SoundEngine.PlaySound(SoundID.Item10, Projectile.Center);
             
-            // ☁EMUSICAL FINALE - Cosmic symphony
+            // 隨倥・MUSICAL FINALE - Cosmic symphony
             ThemedParticles.MusicNoteBurst(Projectile.Center, Color.White, 5, 3.5f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
 
             spriteBatch.End();
@@ -644,7 +645,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 FateVFXLibrary.SpawnCosmicCloudTrail(beamStart, aimDir * 2f, 0.3f + chargeIntensity * 0.2f);
             }
             
-            // ☁EMUSICAL NOTATION - Cosmic beam channeling
+            // 隨倥・MUSICAL NOTATION - Cosmic beam channeling
             if (Main.rand.NextBool(5))
             {
                 Color noteColor = Color.Lerp(new Color(180, 50, 100), Color.White, chargeIntensity / MaxCharge);
@@ -674,7 +675,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
+            Texture2D tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -842,7 +843,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                     FatePalette.FatePurple, 0.25f, -1);
             }
             
-            // ☁EMUSICAL NOTATION - Cosmic destiny trail
+            // 隨倥・MUSICAL NOTATION - Cosmic destiny trail
             if (Main.rand.NextBool(8))
             {
                 Color noteColor = Color.Lerp(new Color(180, 50, 100), new Color(255, 60, 80), Main.rand.NextFloat());
@@ -907,7 +908,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
+            Texture2D tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             
@@ -992,7 +993,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 FateVFXLibrary.SpawnStarSparkles(Projectile.Center, 1, 10f * BeamSize, 0.2f);
             }
             
-            // ☁EMUSICAL NOTATION - Prismatic trail
+            // 隨倥・MUSICAL NOTATION - Prismatic trail
             if (Main.rand.NextBool(6))
             {
                 Color noteColor = Color.Lerp(prismaticColor, Color.White, Main.rand.NextFloat(0.3f));
@@ -1007,7 +1008,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         {
             target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 180);
             
-            // ☁EMUSICAL IMPACT - Fate's chord burst
+            // 隨倥・MUSICAL IMPACT - Fate's chord burst
             ThemedParticles.MusicNoteBurst(target.Center, new Color(180, 50, 100), 4, 3f);
             
             // === SEEKING CRYSTALS - Cosmic beam impact ===
@@ -1028,7 +1029,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
 
             float hue = (ColorProgress + Main.GameUpdateCount * 0.02f) % 1f;
@@ -1199,7 +1200,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MusicNote").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MusicNote", AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
 
             float colorCycle = Main.GameUpdateCount * 0.03f + Projectile.ai[0];

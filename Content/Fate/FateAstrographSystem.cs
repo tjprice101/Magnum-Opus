@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems.Particles;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Fate
 {
@@ -435,7 +436,7 @@ namespace MagnumOpus.Content.Fate
             if (!initialized) return false;
             
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D starTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MusicNote").Value;
+            Texture2D starTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MusicNote", AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = starTex.Size() / 2f;
             
             int timer = TotalTime - Projectile.timeLeft;

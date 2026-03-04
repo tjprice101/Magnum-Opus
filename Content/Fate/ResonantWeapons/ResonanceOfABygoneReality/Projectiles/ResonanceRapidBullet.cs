@@ -5,14 +5,15 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
 {
     /// <summary>
-    /// Resonance Rapid Bullet — small 8×8 fast cosmic projectile.
+    /// Resonance Rapid Bullet 遯ｶ繝ｻsmall 8・・・ fast cosmic projectile.
     /// extraUpdates=2, 120-frame life, 1 penetrate.
-    /// Every 5th hit (per player via ResonancePlayer) spawns a ResonanceSpectralBlade at 2× damage.
-    /// Self-contained VFX through own particle system and renderer — no FateCosmicVFX / FateVFXLibrary.
+    /// Every 5th hit (per player via ResonancePlayer) spawns a ResonanceSpectralBlade at 2・・・damage.
+    /// Self-contained VFX through own particle system and renderer 遯ｶ繝ｻno FateCosmicVFX / FateVFXLibrary.
     /// </summary>
     public class ResonanceRapidBullet : ModProjectile
     {
@@ -103,9 +104,29 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
             Player owner = Main.player[Projectile.owner];
             var rp = owner.Resonance();
             rp.HitCounter++;
+            rp.CombinedHitCounter++;
+
+            // Bygone Resonance: track bullet hit for dual-hit detection
+            bool resonanceTriggered = rp.OnBulletHit(target.whoAmI);
 
             // Impact VFX
             SpawnImpactParticles(target.Center);
+
+            // Bygone Resonance explosion on trigger
+            if (resonanceTriggered && !Main.dedServ)
+            {
+                // 12-particle resonance ring burst
+                for (int i = 0; i < 12; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 12f;
+                    Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
+                    ResonanceParticleHandler.Spawn(ResonanceParticleType.MuzzleSpark,
+                        target.Center, burstVel, ResonanceUtils.BygoneCrimson, 0.3f, 16);
+                }
+                ResonanceParticleHandler.Spawn(ResonanceParticleType.EchoRing,
+                    target.Center, Vector2.Zero, ResonanceUtils.BygoneCrimson, 0.6f, 20);
+                SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.1f, Volume = 0.7f }, target.Center);
+            }
 
             // Every 5th hit spawns spectral blade
             if (rp.HitCounter >= 5)
@@ -213,35 +234,61 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
-            Vector2 origin = tex.Size() / 2f;
-            float pulse = 1f + MathF.Sin(pulsePhase) * 0.15f;
 
-            // Draw old-position trail
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            try
             {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                Color trailColor = ResonanceUtils.GradientLerp(progress * 0.8f + 0.2f) * (1f - progress) * 0.5f;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                float trailScale = (0.2f - progress * 0.1f) * pulse;
-                sb.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
+                Texture2D tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
+                Vector2 origin = tex.Size() / 2f;
+                float pulse = 1f + MathF.Sin(pulsePhase) * 0.15f;
+
+                // Draw old-position trail
+                for (int i = 0; i < Projectile.oldPos.Length; i++)
+                {
+                    if (Projectile.oldPos[i] == Vector2.Zero) continue;
+                    float progress = (float)i / Projectile.oldPos.Length;
+                    Color trailColor = ResonanceUtils.GradientLerp(progress * 0.8f + 0.2f) * (1f - progress) * 0.5f;
+                    Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                    float trailScale = (0.2f - progress * 0.1f) * pulse;
+                    sb.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
+                }
+
+                // Switch to additive for multi-layer bloom
+                ResonanceUtils.BeginAdditive(sb);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+
+                // Outer nebula glow
+                sb.Draw(tex, drawPos, null, ResonanceUtils.NebulaPurple * 0.3f, Projectile.rotation, origin, 0.4f * pulse, SpriteEffects.None, 0f);
+                // Mid cosmic rose layer
+                sb.Draw(tex, drawPos, null, ResonanceUtils.CosmicRose * 0.6f, Projectile.rotation, origin, 0.28f * pulse, SpriteEffects.None, 0f);
+                // Hot white-silver core
+                sb.Draw(tex, drawPos, null, ResonanceUtils.ConstellationSilver * 0.8f, Projectile.rotation, origin, 0.15f * pulse, SpriteEffects.None, 0f);
+
+                // Restore normal blend
+                ResonanceUtils.EndAdditive(sb);
+            }
+            catch
+            {
+                try
+                {
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
             }
 
-            // Switch to additive for multi-layer bloom
-            ResonanceUtils.BeginAdditive(sb);
-
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            // Outer nebula glow
-            sb.Draw(tex, drawPos, null, ResonanceUtils.NebulaPurple * 0.3f, Projectile.rotation, origin, 0.4f * pulse, SpriteEffects.None, 0f);
-            // Mid cosmic rose layer
-            sb.Draw(tex, drawPos, null, ResonanceUtils.CosmicRose * 0.6f, Projectile.rotation, origin, 0.28f * pulse, SpriteEffects.None, 0f);
-            // Hot white-silver core
-            sb.Draw(tex, drawPos, null, ResonanceUtils.ConstellationSilver * 0.8f, Projectile.rotation, origin, 0.15f * pulse, SpriteEffects.None, 0f);
-
-            // Restore normal blend
-            ResonanceUtils.EndAdditive(sb);
+            // Theme accents (additive pass)
+            try
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                ResonanceUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
 
             return false;
         }

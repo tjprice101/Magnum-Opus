@@ -1,216 +1,232 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using Terraria;
-using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Content.SwanLake.Debuffs;
-using MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Particles;
-using MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Shaders;
+using Terraria.Audio;
 using MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Utilities;
-using ReLogic.Content;
+using MagnumOpus.Content.SwanLake.Debuffs;
+using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Projectiles
 {
     /// <summary>
-    /// Destruction Halo — spawned on enemy death by LamentGlobalNPC.
-    /// An expanding ring of prismatic revelation that deals AoE damage.
-    /// Mostly dark, with sudden flashes of white-gold as the ring expands.
+    /// Expanding halo ring projectile for The Swan's Lament.
+    /// Ring-shaped collision (edge only), EaseOutQuart expansion 20px → 180px over 2s.
+    /// Applies MournfulGaze debuff. Foundation-pattern rendering.
     /// </summary>
     public class DestructionHaloProj : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/HardCircleMask";
+        public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
 
-        private float _currentRadius;
-        private const float MaxRadius = 140f;
-        private const int ExpandDuration = 35;
+        public ref float Timer => ref Projectile.ai[0];
 
-        // The halo hits each NPC only once
-        private bool[] _hitNPC;
+        private const float StartRadius = 20f;
+        private const float MaxRadius = 180f;
+        private const int Duration = 120; // 2 seconds
+        private const float RingThickness = 28f; // How thick the damage ring is
+
+        private float Expansion => EaseOutQuart(MathHelper.Clamp(Timer / Duration, 0f, 1f));
+        private float CurrentRadius => MathHelper.Lerp(StartRadius, MaxRadius, Expansion);
+
+        private static float EaseOutQuart(float t) => 1f - MathF.Pow(1f - t, 4f);
 
         public override void SetDefaults()
         {
-            Projectile.width = 2;
-            Projectile.height = 2;
+            Projectile.width = 360;
+            Projectile.height = 360;
             Projectile.friendly = true;
+            Projectile.hostile = false;
             Projectile.DamageType = DamageClass.Ranged;
             Projectile.penetrate = -1;
-            Projectile.timeLeft = ExpandDuration;
+            Projectile.timeLeft = Duration;
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
             Projectile.usesLocalNPCImmunity = true;
-            Projectile.localNPCHitCooldown = -1; // hit each NPC once
-            Projectile.alpha = 255;
+            Projectile.localNPCHitCooldown = -1; // Hit once per NPC
+            Projectile.alpha = 0;
         }
 
         public override void AI()
         {
-            if (_hitNPC == null)
-                _hitNPC = new bool[Main.maxNPCs];
+            Timer++;
 
-            float progress = 1f - ((float)Projectile.timeLeft / ExpandDuration);
-            _currentRadius = MathHelper.Lerp(0f, MaxRadius, EaseOutQuart(progress));
+            // Slow velocity decay (if spawned with velocity)
+            Projectile.velocity *= 0.96f;
 
-            // Expand the hitbox to match the ring radius
-            int diameter = (int)(_currentRadius * 2f);
-            Projectile.position = Projectile.Center - new Vector2(diameter / 2f);
-            Projectile.width = diameter;
-            Projectile.height = diameter;
-
-            // VFX: concentric destruction rings
-            if (Main.GameUpdateCount % 3 == 0)
+            // Resize hitbox to encompass the ring
+            float radius = CurrentRadius;
+            int newSize = (int)(radius * 2 + RingThickness);
+            if (Math.Abs(Projectile.width - newSize) > 4)
             {
-                LamentParticleHandler.Spawn(new DestructionRingParticle(),
-                    Projectile.Center + Main.rand.NextVector2Circular(10f, 10f),
-                    Vector2.Zero,
-                    Color.Lerp(LamentUtils.GriefGrey, LamentUtils.RevelationGold, progress),
-                    _currentRadius / MaxRadius * 1.5f, 20);
+                Projectile.position += new Vector2((Projectile.width - newSize) / 2f, (Projectile.height - newSize) / 2f);
+                Projectile.width = newSize;
+                Projectile.height = newSize;
             }
 
-            // Prismatic flash sparks around the ring edge
-            if (Main.rand.NextBool(2))
+            // Ring edge dust
+            if (Timer % 2 == 0)
             {
                 float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                Vector2 ringEdge = Projectile.Center + angle.ToRotationVector2() * _currentRadius;
-                float flashVal = LamentUtils.GetGriefFlashIntensity(progress);
-
-                if (flashVal > 0.3f)
-                {
-                    LamentParticleHandler.Spawn(new PrismaticFlashParticle(),
-                        ringEdge, Main.rand.NextVector2Circular(0.5f, 0.5f),
-                        LamentUtils.CatharsisWhite,
-                        Main.rand.NextFloat(0.3f, 0.7f), 10);
-                }
-                else
-                {
-                    LamentParticleHandler.Spawn(new LamentEmberParticle(),
-                        ringEdge, angle.ToRotationVector2() * Main.rand.NextFloat(0.5f, 2f),
-                        LamentUtils.MourningBlack,
-                        Main.rand.NextFloat(0.2f, 0.4f), 15);
-                }
+                Vector2 ringPos = Projectile.Center + angle.ToRotationVector2() * radius;
+                Color c = Color.Lerp(LamentUtils.CatharsisWhite, LamentUtils.GriefGrey, Main.rand.NextFloat(0.3f));
+                Dust d = Dust.NewDustPerfect(ringPos, DustID.WhiteTorch,
+                    angle.ToRotationVector2() * 1.5f, 0, c, 0.6f);
+                d.noGravity = true;
             }
 
-            // Dynamic lighting
-            float lightPulse = 0.3f + 0.5f * LamentUtils.GetGriefFlashIntensity(progress);
-            Lighting.AddLight(Projectile.Center,
-                LamentUtils.CatharsisWhite.ToVector3() * lightPulse);
-        }
+            // Gold accent particles at ring front
+            if (Timer % 6 == 0)
+            {
+                float angle = Main.rand.NextFloat(MathHelper.TwoPi);
+                Vector2 ringPos = Projectile.Center + angle.ToRotationVector2() * radius;
+                Dust d = Dust.NewDustPerfect(ringPos, DustID.WhiteTorch,
+                    angle.ToRotationVector2() * 0.5f, 0, LamentUtils.RevelationGold, 0.5f);
+                d.noGravity = true;
+            }
 
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            target.AddBuff(ModContent.BuffType<FlameOfTheSwan>(), 480); // 8 seconds on halo hits
+            Lighting.AddLight(Projectile.Center, 0.4f, 0.4f, 0.5f);
         }
 
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
         {
-            // Ring-shaped collision: only hits at the ring's edge, not the center
+            // Ring-shaped collision: only hits at the edge of the ring, not inside
             float dist = Vector2.Distance(Projectile.Center, targetHitbox.Center.ToVector2());
-            float ringThickness = 30f;
-            return dist >= (_currentRadius - ringThickness) && dist <= (_currentRadius + ringThickness);
+            float targetRadius = Math.Max(targetHitbox.Width, targetHitbox.Height) / 2f;
+            float radius = CurrentRadius;
+
+            float innerEdge = radius - RingThickness / 2f;
+            float outerEdge = radius + RingThickness / 2f;
+
+            return dist - targetRadius < outerEdge && dist + targetRadius > innerEdge;
+        }
+
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            target.AddBuff(ModContent.BuffType<MournfulGaze>(), 300);
+            target.AddBuff(ModContent.BuffType<SwansMark>(), 180);
+
+            // Impact flash at hit point
+            for (int i = 0; i < 4; i++)
+            {
+                Dust d = Dust.NewDustPerfect(target.Center, DustID.WhiteTorch,
+                    Main.rand.NextVector2Circular(3, 3), 0, LamentUtils.CatharsisWhite, 0.8f);
+                d.noGravity = true;
+            }
         }
 
         public override void OnKill(int timeLeft)
         {
-            // Final revelation flash
-            SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.4f, Volume = 0.6f }, Projectile.Center);
-
-            for (int i = 0; i < 12; i++)
+            // Final flash burst
+            for (int i = 0; i < 16; i++)
             {
-                Vector2 vel = Main.rand.NextVector2CircularEdge(4f, 4f);
-                LamentParticleHandler.Spawn(new PrismaticFlashParticle(),
-                    Projectile.Center + vel * Main.rand.NextFloat(MaxRadius * 0.5f, MaxRadius),
-                    vel * 0.5f, LamentUtils.RevelationGold,
-                    Main.rand.NextFloat(0.4f, 0.8f), 12);
+                float angle = MathHelper.TwoPi / 16f * i;
+                Vector2 vel = angle.ToRotationVector2() * 3f;
+                Dust d = Dust.NewDustPerfect(Projectile.Center + angle.ToRotationVector2() * CurrentRadius,
+                    DustID.WhiteTorch, vel, 0, LamentUtils.CatharsisWhite, 0.5f);
+                d.noGravity = true;
             }
-
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 pos = Projectile.Center + angle.ToRotationVector2() * MaxRadius;
-                LamentParticleHandler.Spawn(new GriefSmoke(),
-                    pos, angle.ToRotationVector2() * 2f,
-                    LamentUtils.MourningBlack, 1.2f, 35);
-            }
-
-            // Revelation music note cascade — the swan's final song
-            SwanLakeVFXLibrary.SpawnMusicNotes(Projectile.Center, 5, MaxRadius * 0.6f, 0.7f, 1.1f, 30);
-
-            // Feather scatter from the destruction ring edge
-            SwanLakeVFXLibrary.SpawnFeatherBurst(Projectile.Center, 4, 0.3f);
-
-            // Prismatic sparkle cascade
-            SwanLakeVFXLibrary.SpawnPrismaticSparkles(Projectile.Center, 6, MaxRadius * 0.5f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
-            var spriteBatch = Main.spriteBatch;
-            float progress = 1f - ((float)Projectile.timeLeft / ExpandDuration);
+            SpriteBatch sb = Main.spriteBatch;
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            float radius = CurrentRadius;
+            float lifeProgress = Timer / Duration;
 
-            var tex = ModContent.Request<Texture2D>(Texture,
-                ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
-            var origin = new Vector2(tex.Width, tex.Height) * 0.5f;
+            // Fade: full near start, fading out in last 30%
+            float opacity = lifeProgress > 0.7f ? MathHelper.Lerp(1f, 0f, (lifeProgress - 0.7f) / 0.3f) : 1f;
 
-            float opacity = progress < 0.3f ? progress / 0.3f : (1f - progress) / 0.7f;
-            opacity = MathHelper.Clamp(opacity, 0f, 1f);
-
-            float flashIntensity = LamentUtils.GetGriefFlashIntensity(progress);
-
-            // === LAYER 1: Bloom backdrop (additive) ===
-            Texture2D softRadial = null;
             try
             {
-                softRadial = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom",
-                    AssetRequestMode.ImmediateLoad)?.Value;
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Texture2D radial = MagnumTextureRegistry.GetRadialBloom();
+                Texture2D bloom = MagnumTextureRegistry.GetSoftGlow();
+                Texture2D point = MagnumTextureRegistry.GetPointBloom();
+                Texture2D halo = MagnumTextureRegistry.GetHaloRing();
+
+                // --- Soft radial bloom backdrop (the "halo glow") ---
+                if (radial != null)
+                {
+                    Vector2 rOrigin = radial.Size() * 0.5f;
+                    float backdropScale = (radius + 30f) / (radial.Width * 0.5f);
+                    Color backdropColor = Color.Lerp(LamentUtils.GriefGrey, LamentUtils.CatharsisWhite, 0.3f);
+                    sb.Draw(radial, drawPos, null, backdropColor * 0.12f * opacity, 0f, rOrigin, backdropScale, SpriteEffects.None, 0f);
+                }
+
+                // --- Halo ring texture if available ---
+                if (halo != null)
+                {
+                    Vector2 hOrigin = halo.Size() * 0.5f;
+                    float haloScale = (radius * 2f) / halo.Width;
+                    float spin = (float)Main.timeForVisualEffects * 0.01f;
+                    sb.Draw(halo, drawPos, null, LamentUtils.CatharsisWhite * 0.5f * opacity, spin, hOrigin, haloScale, SpriteEffects.None, 0f);
+                    // Gold accent layer
+                    sb.Draw(halo, drawPos, null, LamentUtils.RevelationGold * 0.15f * opacity, -spin * 0.7f, hOrigin, haloScale * 1.05f, SpriteEffects.None, 0f);
+                }
+                else if (bloom != null)
+                {
+                    // Fallback: construct ring from bloom dots
+                    Vector2 bOrigin = bloom.Size() * 0.5f;
+                    int ringSegments = 32;
+                    for (int i = 0; i < ringSegments; i++)
+                    {
+                        float angle = MathHelper.TwoPi / ringSegments * i;
+                        Vector2 ringPos = drawPos + angle.ToRotationVector2() * radius;
+                        Color c = Color.Lerp(LamentUtils.CatharsisWhite, LamentUtils.GriefGrey, 0.2f);
+                        // Outer ring
+                        sb.Draw(bloom, ringPos, null, c * 0.35f * opacity, 0f, bOrigin, 0.18f, SpriteEffects.None, 0f);
+                    }
+                    // Inner ring (slightly smaller, darker) to create ring effect
+                    float innerRadius = radius * 0.85f;
+                    for (int i = 0; i < ringSegments; i++)
+                    {
+                        float angle = MathHelper.TwoPi / ringSegments * i + 0.05f;
+                        Vector2 ringPos = drawPos + angle.ToRotationVector2() * innerRadius;
+                        sb.Draw(bloom, ringPos, null, LamentUtils.GriefGrey * 0.2f * opacity, 0f, bOrigin, 0.12f, SpriteEffects.None, 0f);
+                    }
+                }
+
+                // --- Bright point accents at cardinal positions (rotating) ---
+                if (point != null)
+                {
+                    Vector2 pOrigin = point.Size() * 0.5f;
+                    float rotOffset = (float)Main.timeForVisualEffects * 0.025f;
+                    for (int i = 0; i < 4; i++)
+                    {
+                        float angle = MathHelper.PiOver2 * i + rotOffset;
+                        Vector2 accentPos = drawPos + angle.ToRotationVector2() * radius;
+                        sb.Draw(point, accentPos, null, Color.White * 0.6f * opacity, 0f, pOrigin, 0.15f, SpriteEffects.None, 0f);
+                    }
+                }
+
+                // --- Gold shimmer trailing the expansion ---
+                if (bloom != null && lifeProgress < 0.6f)
+                {
+                    Vector2 bOrigin = bloom.Size() * 0.5f;
+                    for (int i = 0; i < 6; i++)
+                    {
+                        float angle = MathHelper.TwoPi / 6f * i + Timer * 0.08f;
+                        Vector2 shimmerPos = drawPos + angle.ToRotationVector2() * (radius * 0.95f);
+                        sb.Draw(bloom, shimmerPos, null, LamentUtils.RevelationGold * 0.2f * opacity, 0f, bOrigin, 0.1f, SpriteEffects.None, 0f);
+                    }
+                }
             }
             catch { }
-
-            LamentUtils.BeginAdditive(spriteBatch);
-
-            // Bloom glow backdrop behind ring
-            if (softRadial != null)
+            finally
             {
-                var srOrigin = new Vector2(softRadial.Width, softRadial.Height) * 0.5f;
-                float bloomScale = (_currentRadius * 2.5f) / softRadial.Width;
-                Color bloomColor = Color.Lerp(LamentUtils.GriefGrey, LamentUtils.RevelationGold, flashIntensity);
-                spriteBatch.Draw(softRadial, Projectile.Center - Main.screenPosition, null,
-                    new Color(bloomColor.R, bloomColor.G, bloomColor.B, 0) * opacity * 0.2f, 0f, srOrigin, bloomScale,
-                    SpriteEffects.None, 0f);
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
-            // === LAYER 2: Outer ring glow ===
-
-            // Outer halo
-            float outerScale = (_currentRadius * 2f) / tex.Width;
-            Color outerColor = Color.Lerp(LamentUtils.GriefGrey, LamentUtils.RevelationGold, flashIntensity);
-            spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null,
-                outerColor * opacity * 0.4f, 0f, origin, outerScale,
-                SpriteEffects.None, 0f);
-
-            // Inner hollow (slightly smaller, darker to create ring effect)
-            float innerScale = outerScale * 0.82f;
-            spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null,
-                LamentUtils.MourningBlack * opacity * 0.6f, 0f, origin, innerScale,
-                SpriteEffects.None, 0f);
-
-            // Flash overlay during prismatic moments
-            if (flashIntensity > 0.4f)
-            {
-                spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null,
-                    LamentUtils.CatharsisWhite * (flashIntensity - 0.4f) * opacity * 0.5f,
-                    0f, origin, outerScale * 1.05f, SpriteEffects.None, 0f);
-            }
-
-            LamentUtils.RestoreSpriteBatch(spriteBatch);
 
             return false;
-        }
-
-        private static float EaseOutQuart(float t)
-        {
-            t = 1f - t;
-            return 1f - t * t * t * t;
         }
     }
 }

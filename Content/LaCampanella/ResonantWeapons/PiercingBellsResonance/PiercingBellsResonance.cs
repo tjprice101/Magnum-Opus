@@ -24,6 +24,11 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
         public override string Texture => "MagnumOpus/Content/LaCampanella/ResonantWeapons/PiercingBellsResonance/PiercingBellsResonance";
         public override string Name => "PiercingBellsResonance";
 
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             Item.damage = 165;
@@ -168,7 +173,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Right click to trigger Resonant Detonation on enemies with 3+ markers"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Detonations spawn lingering Resonant Note landmines"));
             tooltips.Add(new TooltipLine(Mod, "Effect5", "Perfect Pitch: exactly 5 markers deals double detonation damage"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'A single note, perfectly placed, can shatter a fortress.'")
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Count the tolls. Each one is a judgment.'")
             {
                 OverrideColor = new Color(255, 140, 40)
             });

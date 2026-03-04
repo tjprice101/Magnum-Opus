@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.Audio;
+using Terraria.Graphics;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -12,6 +13,8 @@ using MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Primitive
 using MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Buffs;
 using MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Dusts;
 using MagnumOpus.Content.MoonlightSonata;
+using MagnumOpus.Content.FoundationWeapons.SparkleProjectileFoundation;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Projectiles
 {
@@ -21,6 +24,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
     /// Each pierce applies stacking Lunar Impact and spawns fire particles.
     /// Trail at maximum CometTrail intensity (white-hot).
     /// Destroys on tile contact.
+    ///
+    /// FOUNDATION VFX INTEGRATION:
+    /// - SPARKLE TRAIL OVERLAY (SparkleProjectileFoundation): SparkleTrailShader VertexStrip
+    ///   layered over CometTrail for crystalline comet glitter effect
+    /// - SPARKLE ACCENTS: 4PointedStarHard sprites at trail points for discrete glitter flashes
+    /// - ENHANCED BLOOM: Multi-scale bloom stacking with lunar phase colors
     /// </summary>
     public class CometCore : ModProjectile
     {
@@ -190,17 +199,27 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
         // RENDERING
         // =================================================================
 
+        // Foundation sparkle shader + texture cache
+        private Effect _sparkleTrailShader;
+        private static Asset<Texture2D> _gradientLUT;
+
         public override bool PreDraw(ref Color lightColor)
         {
             if (Main.dedServ) return false;
 
-            // Pass 1: Wide burning glow trail
+            // Pass 1: Wide burning glow trail (CometTrailGlow shader)
             DrawGlowTrail();
 
-            // Pass 2: Main comet body trail
+            // Pass 2: Main comet body trail (CometTrailMain shader)
             DrawMainTrail();
 
-            // Pass 3: Burning head orb
+            // Pass 3: Sparkle Trail Overlay (SparkleProjectileFoundation)
+            DrawSparkleTrailOverlay();
+
+            // Pass 4: Sparkle Accents (additive star sprites)
+            DrawSparkleAccents();
+
+            // Pass 5: Burning head orb + enhanced bloom
             DrawHeadGlow();
 
             return false;
@@ -276,14 +295,204 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
             if (Projectile.owner >= 0 && Projectile.owner < Main.maxPlayers && Main.player[Projectile.owner].active)
                 lunarTint = Color.Lerp(CometUtils.CometCoreColor, Main.player[Projectile.owner].Resurrection().CurrentLunarColor, 0.25f);
 
+            // Switch to Additive for bloom rendering
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
+
             // Outer burning glow with lunar tinting
-            sb.Draw(bloom, drawPos, null, lunarTint * 0.5f, 0f, origin, 0.8f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, lunarTint with { A = 0 } * 0.5f, 0f, origin, 0.6f, SpriteEffects.None, 0f);
 
             // Mid glow layer
-            sb.Draw(bloom, drawPos, null, CometUtils.CometCoreColor * 0.3f, 0f, origin, 0.55f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, CometUtils.CometCoreColor with { A = 0 } * 0.3f, 0f, origin, 0.4f, SpriteEffects.None, 0f);
 
             // White-hot core
-            sb.Draw(bloom, drawPos, null, CometUtils.FrigidImpact * 0.7f, 0f, origin, 0.4f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, CometUtils.FrigidImpact with { A = 0 } * 0.7f, 0f, origin, 0.3f, SpriteEffects.None, 0f);
+
+            // Foundation-enhanced: additional multi-scale bloom stacking
+            Texture2D softGlow = SPFTextures.SoftGlow.Value;
+            Vector2 glowOrigin = softGlow.Size() / 2f;
+            float pulse = 0.85f + 0.15f * MathF.Sin(AliveTime * 0.12f);
+
+            // Wide ice blue outer halo
+            sb.Draw(softGlow, drawPos, null, new Color(120, 190, 255) with { A = 0 } * (0.12f * pulse),
+                0f, glowOrigin, 0.4f, SpriteEffects.None, 0f);
+
+            // Tight violet accent
+            sb.Draw(softGlow, drawPos, null, CometUtils.ImpactCrater with { A = 0 } * (0.08f * pulse),
+                0f, glowOrigin, 0.2f, SpriteEffects.None, 0f);
+
+            // Restore to AlphaBlend
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        // =================================================================
+        // SPARKLE TRAIL OVERLAY (Foundation: SparkleProjectileFoundation)
+        // =================================================================
+
+        /// <summary>
+        /// Draws a SparkleTrailShader-driven VertexStrip overlay on top of the
+        /// existing CometTrail rendering. This adds crystalline glitter sparkle
+        /// to the comet's wake.
+        ///
+        /// Uses Projectile.oldPos/oldRot trail data to build a VertexStrip.
+        /// Lunar palette: DeepSpaceViolet outer, CometCoreWhite core.
+        /// sparkleSpeed=3.0, sparkleScale=0.6, glitterDensity=4.0 for dense
+        /// comet-appropriate sparkle frequency.
+        /// </summary>
+        private void DrawSparkleTrailOverlay()
+        {
+            SpriteBatch sb = Main.spriteBatch;
+
+            // Count valid trail positions
+            int validCount = 0;
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            {
+                if (Projectile.oldPos[i] != Vector2.Zero) validCount++;
+                else break;
+            }
+            if (validCount < 4) return;
+
+            // Build ordered position/rotation arrays
+            Vector2[] positions = new Vector2[validCount];
+            float[] rotations = new float[validCount];
+            for (int i = 0; i < validCount; i++)
+            {
+                positions[i] = Projectile.oldPos[i] + Projectile.Size * 0.5f;
+                rotations[i] = Projectile.oldRot[i];
+            }
+
+            // End SpriteBatch for raw vertex drawing
+            sb.End();
+
+            // Build VertexStrip
+            Color StripColor(float progress)
+            {
+                float alpha = progress * progress;
+                return Color.White * alpha;
+            }
+
+            float StripWidth(float progress)
+            {
+                return MathHelper.Lerp(2f, 18f, progress);
+            }
+
+            VertexStrip strip = new VertexStrip();
+            strip.PrepareStrip(positions, rotations, StripColor, StripWidth,
+                -Main.screenPosition, includeBacksides: true);
+
+            // Load sparkle trail shader
+            if (_sparkleTrailShader == null)
+            {
+                _sparkleTrailShader = ModContent.Request<Effect>(
+                    "MagnumOpus/Content/FoundationWeapons/SparkleProjectileFoundation/Shaders/SparkleTrailShader",
+                    AssetRequestMode.ImmediateLoad).Value;
+            }
+
+            // Load gradient LUT
+            _gradientLUT ??= ModContent.Request<Texture2D>(
+                "MagnumOpus/Assets/VFX Asset Library/ColorGradients/MoonlightSonataGradientLUTandRAMP");
+
+            // Configure shader with comet parameters
+            _sparkleTrailShader.Parameters["WorldViewProjection"]?.SetValue(
+                Main.GameViewMatrix.NormalizedTransformationmatrix);
+            _sparkleTrailShader.Parameters["uTime"]?.SetValue(
+                (float)Main.timeForVisualEffects * 0.02f + AliveTime * 0.1f);
+
+            _sparkleTrailShader.Parameters["sparkleTex"]?.SetValue(SPFTextures.SparkleHard.Value);
+            _sparkleTrailShader.Parameters["gradientTex"]?.SetValue(_gradientLUT.Value);
+            _sparkleTrailShader.Parameters["glowMaskTex"]?.SetValue(SPFTextures.SoftCircle.Value);
+
+            // Lunar comet colors
+            _sparkleTrailShader.Parameters["coreColor"]?.SetValue(CometUtils.CometCoreWhite.ToVector3());
+            _sparkleTrailShader.Parameters["outerColor"]?.SetValue(CometUtils.DeepSpaceViolet.ToVector3());
+
+            // Dense comet-appropriate sparkle parameters
+            _sparkleTrailShader.Parameters["trailIntensity"]?.SetValue(1.2f);
+            _sparkleTrailShader.Parameters["sparkleSpeed"]?.SetValue(3.0f);
+            _sparkleTrailShader.Parameters["sparkleScale"]?.SetValue(0.6f);
+            _sparkleTrailShader.Parameters["glitterDensity"]?.SetValue(4.0f);
+            _sparkleTrailShader.Parameters["tipFadeStart"]?.SetValue(0.65f);
+            _sparkleTrailShader.Parameters["edgeSoftness"]?.SetValue(0.35f);
+
+            // Draw with shader
+            _sparkleTrailShader.CurrentTechnique.Passes["SparkleTrailPass"].Apply();
+            strip.DrawTrail();
+
+            // Reset pixel shader
+            Main.pixelShader.CurrentTechnique.Passes[0].Apply();
+
+            // Restart SpriteBatch
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        // =================================================================
+        // SPARKLE ACCENTS (Foundation: SparkleProjectileFoundation pattern)
+        // =================================================================
+
+        /// <summary>
+        /// Draws discrete sparkle flash sprites at trail points.
+        /// 4PointedStarHard + ThinTall4PointedStar with cubic sin-wave flash timing.
+        /// </summary>
+        private void DrawSparkleAccents()
+        {
+            SpriteBatch sb = Main.spriteBatch;
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
+
+            Texture2D starTex = SPFTextures.SparkleHard.Value;
+            Texture2D thinStarTex = SPFTextures.SparkleThin.Value;
+            Vector2 starOrigin = starTex.Size() / 2f;
+            Vector2 thinOrigin = thinStarTex.Size() / 2f;
+
+            float time = (float)Main.timeForVisualEffects * 0.04f;
+            Color iceBlue = new(120, 190, 255);
+
+            // Sparkle at every 3rd trail point
+            for (int i = 2; i < Projectile.oldPos.Length; i += 3)
+            {
+                if (Projectile.oldPos[i] == Vector2.Zero) break;
+
+                float progress = (float)i / TrailLength;
+                float fade = (1f - progress) * (1f - progress);
+                if (fade < 0.02f) continue;
+
+                Vector2 pos = Projectile.oldPos[i] + Projectile.Size * 0.5f - Main.screenPosition;
+
+                // Cubic sin flash — brief bright peaks
+                float flash = MathF.Sin(time + i * 1.7f);
+                flash = flash * flash * flash;
+                flash = MathF.Max(flash, 0f);
+
+                if (flash > 0.1f)
+                {
+                    float scale = 0.08f + flash * 0.12f;
+                    float rotation = time * 0.5f + i * 0.4f;
+                    Color col = Color.Lerp(iceBlue, CometUtils.CometCoreWhite, flash) * (fade * flash * 0.6f);
+
+                    sb.Draw(starTex, pos, null, col, rotation, starOrigin, scale, SpriteEffects.None, 0f);
+                    sb.Draw(thinStarTex, pos, null, col * 0.5f, rotation + 0.4f, thinOrigin, scale * 0.7f, SpriteEffects.None, 0f);
+                }
+            }
+
+            // Restore
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
         }
 
         // =================================================================

@@ -9,6 +9,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.LaCampanella.Bosses
 {
@@ -320,7 +321,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             float fade = Projectile.timeLeft > 30 ? 1f : Projectile.timeLeft / 30f;
             
             // The visual is entirely particle-based in AI, so just draw a small core glow
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare", AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = glowTex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             
@@ -448,7 +449,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         {
             // Draw as large flame column using glow textures
             float baseHeight = 80f * Projectile.scale;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare", AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = glowTex.Size() / 2f;
             
             for (int layer = 0; layer < 5; layer++)
@@ -592,7 +593,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
         {
             if (currentLength <= 0) return false;
             
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare").Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare", AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = glowTex.Size() / 2f;
             Vector2 direction = Projectile.velocity.SafeNormalize(Vector2.UnitX);
             float rotation = direction.ToRotation();

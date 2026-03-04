@@ -18,6 +18,7 @@ using MagnumOpus.Content.Fate.HarmonicCores;
 using MagnumOpus.Content.Materials.EnemyDrops;
 using MagnumOpus.Common.Systems.Bosses;
 using MagnumOpus.Common.Systems.Shaders;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Fate.Enemies
 {
@@ -126,7 +127,7 @@ namespace MagnumOpus.Content.Fate.Enemies
         {
             // FATE MINI-BOSS STATS - STRONGER than Swan Lake (950k boss, 170 damage)
             // This is endgame content - terrifying power
-            // Hitbox = 292 ÁE164 ÁE0.8 = 233 ÁE131 (single frame sprite)
+            // Hitbox = 292 ・・・164 ・・・0.8 = 233 ・・・131 (single frame sprite)
             NPC.width = 233;
             NPC.height = 131;
             NPC.damage = 220; // Higher than Swan Lake boss (170)
@@ -1301,7 +1302,7 @@ namespace MagnumOpus.Content.Fate.Enemies
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
+            Texture2D tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = tex.Size() / 2f;
             

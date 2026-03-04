@@ -2,11 +2,14 @@
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Bloom;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Content.Eroica;
 using MagnumOpus.Content.Eroica.Weapons.CelestialValor.Buffs;
 using MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles;
+using MagnumOpus.Content.FoundationWeapons.SwordSmearFoundation;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using ReLogic.Content;
 using System;
 using Terraria.Audio;
 using Terraria.GameContent;
@@ -41,6 +44,21 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
         private const int MaxAfterimages = 10;
         private float[] afterimageRotations = new float[MaxAfterimages];
         private int afterimageHead = 0;
+
+        // ── Ribbon trail tracking (RibbonFoundation Mode 5: Ember Drift) ──
+        private const int RibbonTrailLength = 40;
+        private const float RibbonWidthHead = 24f;
+        private const float RibbonWidthTail = 4f;
+        private Vector2[] ribbonPositions;
+        private float[] ribbonRotations;
+        private int ribbonIndex;
+        private int ribbonCount;
+
+        // ── SwordSmear shader constants (per-phase distortion scaling) ──
+        private static readonly float[] SmearDistortPerPhase = { 0.06f, 0.08f, 0.10f, 0.12f };
+        private static readonly float[] SmearFlowPerPhase = { 0.4f, 0.55f, 0.7f, 0.9f };
+        private static readonly float[] RibbonWidthScale = { 1.0f, 1.1f, 1.2f, 1.4f };
+        private const float BladeLength = 95f;
 
         // ── Combo phase definitions (durations in AI ticks) ──
         private static readonly int[] PhaseDuration = { 20, 24, 30, 26 };
@@ -83,6 +101,18 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
                 swingRotation = ArcStart[0] * swingDirection;
                 for (int i = 0; i < MaxAfterimages; i++)
                     afterimageRotations[i] = swingRotation;
+
+                // Initialize ribbon trail buffer
+                ribbonPositions = new Vector2[RibbonTrailLength];
+                ribbonRotations = new float[RibbonTrailLength];
+                ribbonIndex = 0;
+                ribbonCount = 0;
+                Vector2 initTip = player.Center + swingRotation.ToRotationVector2() * BladeLength;
+                for (int i = 0; i < RibbonTrailLength; i++)
+                {
+                    ribbonPositions[i] = initTip;
+                    ribbonRotations[i] = swingRotation;
+                }
             }
 
             Projectile.Center = player.Center;
@@ -102,10 +132,21 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
             afterimageRotations[afterimageHead] = swingRotation;
             afterimageHead = (afterimageHead + 1) % MaxAfterimages;
 
-            // ── Blade tip VFX ──
-            float bladeLen = 95f;
+            // ── Blade tip position (needed for ribbon + VFX) ──
             Vector2 tipDir = swingRotation.ToRotationVector2();
-            Vector2 tipPos = player.Center + tipDir * bladeLen;
+            Vector2 tipPos = player.Center + tipDir * BladeLength;
+
+            // ── Ribbon trail record (blade tip positions) ──
+            if (ribbonPositions != null)
+            {
+                ribbonPositions[ribbonIndex] = tipPos;
+                ribbonRotations[ribbonIndex] = swingRotation;
+                ribbonIndex = (ribbonIndex + 1) % RibbonTrailLength;
+                if (ribbonCount < RibbonTrailLength)
+                    ribbonCount++;
+            }
+
+            // ── Blade tip VFX ──
 
             bool heroResolve = player.statLife < player.statLifeMax2 * 0.3f;
             SpawnPerFrameVFX(tipPos, phaseIdx, heroResolve, player);
@@ -286,6 +327,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
             SpriteEffects flip = swingDirection > 0 ? SpriteEffects.None : SpriteEffects.FlipVertically;
 
             int phase = (int)MathHelper.Clamp(ComboPhase, 0, 3);
+            float progress = MathHelper.Clamp(PhaseTimer / (float)PhaseDuration[phase], 0f, 1f);
             float intensity = 0.6f + phase * 0.15f;
             bool heroResolve = player.statLife < player.statLifeMax2 * 0.3f;
             if (heroResolve) intensity += 0.2f;
@@ -293,10 +335,24 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
             Vector2 playerDraw = player.Center - Main.screenPosition;
             float drawBaseRot = swingRotation + (swingDirection > 0 ? -MathHelper.PiOver4 : MathHelper.PiOver4 + MathHelper.Pi);
 
-            // ── Layer 1: Afterimage trail ──
+            // ═══════════════════════════════════════════════════════════════════
+            //  LAYER 1: SWORD SMEAR ARC — SmearDistortShader (Foundation pattern)
+            // ═══════════════════════════════════════════════════════════════════
+            DrawSmearArc(sb, playerDraw, phase, progress);
+
+            // ═══════════════════════════════════════════════════════════════════
+            //  LAYER 2: RIBBON TRAIL — Ember Drift texture strip (Foundation pattern)
+            // ═══════════════════════════════════════════════════════════════════
+            DrawRibbonTrail(sb, phase);
+
+            // ═══════════════════════════════════════════════════════════════════
+            //  LAYER 3: AFTERIMAGE TRAIL — Blade sprite afterimages
+            // ═══════════════════════════════════════════════════════════════════
             DrawAfterimages(sb, bladeTex, bladeOrigin, bladeScale, flip, playerDraw, phase, drawBaseRot);
 
-            // ── Layer 2: Main blade sprite ──
+            // ═══════════════════════════════════════════════════════════════════
+            //  LAYER 4: MAIN BLADE SPRITE
+            // ═══════════════════════════════════════════════════════════════════
             Color bladeTint = Color.Lerp(lightColor, EroicaVFXLibrary.GetPaletteColor(0.35f + phase * 0.12f), 0.3f);
             sb.Draw(bladeTex, playerDraw, null, bladeTint, drawBaseRot, bladeOrigin, bladeScale, flip, 0f);
 
@@ -304,14 +360,249 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
             Color bladeGlow = EroicaVFXLibrary.GetPaletteColor(0.5f + phase * 0.1f) with { A = 0 };
             sb.Draw(bladeTex, playerDraw, null, bladeGlow * 0.3f, drawBaseRot, bladeOrigin, bladeScale * 1.03f, flip, 0f);
 
-            // ── Layer 3: Bloom at blade tip ──
+            // ═══════════════════════════════════════════════════════════════════
+            //  LAYER 5: BLADE TIP BLOOM
+            // ═══════════════════════════════════════════════════════════════════
             DrawBladeTipBloom(sb, player, phase, intensity);
 
-            // ── Layer 4: Valor gauge aura ──
+            // ═══════════════════════════════════════════════════════════════════
+            //  LAYER 6: VALOR GAUGE AURA
+            // ═══════════════════════════════════════════════════════════════════
             if (valorGauge > 40f)
                 DrawValorAura(sb, player);
 
+            // Eroica theme accent
+            EroicaVFXLibrary.BeginEroicaAdditive(sb);
+            EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.3f);
+            EroicaVFXLibrary.EndEroicaAdditive(sb);
+
             return false;
+        }
+
+        /// <summary>
+        /// SwordSmearFoundation pattern — renders the swing arc overlay using SmearDistortShader
+        /// with 3 sub-layers (outer glow, main smear, bright core). Per-phase distortion scaling
+        /// from SmearDistortPerPhase[]. Falls back to static colored layers if shader unavailable.
+        /// </summary>
+        private void DrawSmearArc(SpriteBatch sb, Vector2 playerDraw, int phase, float progress)
+        {
+            // Get the smear arc texture — use the heroic flaming arc for Celestial Valor
+            Texture2D smearTex = EroicaTextures.FlamingArcSwordSlash?.Value;
+            if (smearTex == null) return;
+
+            Vector2 smearOrigin = smearTex.Size() / 2f;
+            float maxDim = MathF.Max(smearTex.Width, smearTex.Height);
+            float smearScale = (BladeLength * 2.4f) / maxDim;
+            float smearRotation = swingRotation;
+
+            // Smear fade: ramp in → hold → ramp out
+            float smearAlpha;
+            if (progress < 0.1f)
+                smearAlpha = progress / 0.1f;
+            else if (progress > 0.85f)
+                smearAlpha = (1f - progress) / 0.15f;
+            else
+                smearAlpha = 1f;
+
+            // Try shader path first (SmearDistortShader from SwordSmearFoundation)
+            Effect shader = SMFTextures.SmearDistortShader;
+            float distortStrength = SmearDistortPerPhase[phase];
+            float flowSpeed = SmearFlowPerPhase[phase];
+
+            if (shader != null)
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+                    SamplerState.LinearWrap, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.EffectMatrix);
+                try
+                {
+                float time = (float)Main.gameTimeCache.TotalGameTime.TotalSeconds;
+                shader.Parameters["uTime"]?.SetValue(time);
+                shader.Parameters["fadeAlpha"]?.SetValue(smearAlpha);
+                shader.Parameters["flowSpeed"]?.SetValue(flowSpeed);
+                shader.Parameters["noiseScale"]?.SetValue(2.5f);
+
+                // Bind FBM noise texture
+                Texture2D noiseTex = EroicaTextures.PerlinNoise?.Value ?? SMFTextures.FBMNoise.Value;
+                shader.Parameters["noiseTex"]?.SetValue(noiseTex);
+
+                // Bind Eroica gradient LUT
+                Texture2D gradTex = EroicaTextures.EroicaLUT?.Value;
+                if (gradTex != null)
+                    shader.Parameters["gradientTex"]?.SetValue(gradTex);
+
+                // Sub-layer A: Wide outer glow (scarlet haze)
+                shader.Parameters["distortStrength"]?.SetValue(distortStrength * 1.33f);
+                shader.CurrentTechnique.Passes[0].Apply();
+                sb.Draw(smearTex, playerDraw, null,
+                    Color.White * smearAlpha * 0.45f, smearRotation, smearOrigin,
+                    smearScale * 1.15f, SpriteEffects.None, 0f);
+
+                // Sub-layer B: Main smear (crimson-gold gradient)
+                shader.Parameters["distortStrength"]?.SetValue(distortStrength);
+                shader.CurrentTechnique.Passes[0].Apply();
+                sb.Draw(smearTex, playerDraw, null,
+                    Color.White * smearAlpha * 0.75f, smearRotation, smearOrigin,
+                    smearScale, SpriteEffects.None, 0f);
+
+                // Sub-layer C: Bright core (hot white center)
+                shader.Parameters["distortStrength"]?.SetValue(distortStrength * 0.5f);
+                shader.CurrentTechnique.Passes[0].Apply();
+                sb.Draw(smearTex, playerDraw, null,
+                    Color.White * smearAlpha * 0.6f, smearRotation, smearOrigin,
+                    smearScale * 0.85f, SpriteEffects.None, 0f);
+                }
+                finally
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                        Main.DefaultSamplerState, DepthStencilState.None,
+                        RasterizerState.CullCounterClockwise, null,
+                        Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
+            else
+            {
+                // Fallback: static Eroica-colored layers without shader
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.EffectMatrix);
+                try
+                {
+                Color outerCol = EroicaPalette.DeepScarlet with { A = 0 };
+                Color mainCol = Color.Lerp(EroicaPalette.Scarlet, EroicaPalette.Gold, 0.3f) with { A = 0 };
+                Color coreCol = EroicaPalette.HotCore with { A = 0 };
+
+                sb.Draw(smearTex, playerDraw, null,
+                    outerCol * smearAlpha * 0.4f, smearRotation, smearOrigin,
+                    smearScale * 1.15f, SpriteEffects.None, 0f);
+                sb.Draw(smearTex, playerDraw, null,
+                    mainCol * smearAlpha * 0.65f, smearRotation, smearOrigin,
+                    smearScale, SpriteEffects.None, 0f);
+                sb.Draw(smearTex, playerDraw, null,
+                    coreCol * smearAlpha * 0.5f, smearRotation, smearOrigin,
+                    smearScale * 0.85f, SpriteEffects.None, 0f);
+                }
+                finally
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                        Main.DefaultSamplerState, DepthStencilState.None,
+                        RasterizerState.CullCounterClockwise, null,
+                        Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
+        }
+
+        /// <summary>
+        /// RibbonFoundation Mode 5 (Ember Drift) — renders a texture-strip trail along
+        /// recorded blade tip positions. Uses EmberScatter texture with crimson→gold coloring,
+        /// width tapering from head to tail, scaled by combo phase.
+        /// </summary>
+        private void DrawRibbonTrail(SpriteBatch sb, int phase)
+        {
+            if (ribbonPositions == null || ribbonCount < 3) return;
+
+            Texture2D stripTex = EroicaTextures.EmberScatter?.Value;
+            if (stripTex == null) return;
+
+            // Unwind ring buffer (oldest → newest)
+            Vector2[] positions = new Vector2[ribbonCount];
+            float[] rotations = new float[ribbonCount];
+            for (int i = 0; i < ribbonCount; i++)
+            {
+                int bufIdx = (ribbonIndex - ribbonCount + i + RibbonTrailLength * 2) % RibbonTrailLength;
+                positions[i] = ribbonPositions[bufIdx];
+                rotations[i] = ribbonRotations[bufIdx];
+            }
+
+            int texW = stripTex.Width;
+            int texH = stripTex.Height;
+            float time = (float)Main.timeForVisualEffects * 0.005f;
+            int srcWidth = Math.Max(1, texW / positions.Length);
+            float phaseWidthScale = RibbonWidthScale[phase];
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                SamplerState.LinearWrap, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
+            try
+            {
+            // Draw texture strip segments
+            for (int i = 0; i < positions.Length - 1; i++)
+            {
+                float progress = (float)i / positions.Length;
+                float fade = progress * progress;
+                if (fade < 0.01f) continue;
+
+                float width = MathHelper.Lerp(RibbonWidthTail, RibbonWidthHead, progress) * phaseWidthScale;
+
+                Vector2 segDir = positions[i + 1] - positions[i];
+                float segLength = segDir.Length();
+                if (segLength < 0.5f) continue;
+                float segAngle = segDir.ToRotation();
+
+                float uStart = (progress + time * 2f) % 1f;
+                int srcX = (int)(uStart * texW) % texW;
+                Rectangle srcRect = new Rectangle(srcX, 0, srcWidth, texH);
+
+                float scaleX = segLength / (float)srcWidth;
+                float scaleY = width / (float)texH;
+
+                Vector2 pos = positions[i] - Main.screenPosition;
+                Vector2 origin = new Vector2(0, texH / 2f);
+
+                // Body: crimson core → gold edges
+                Color bodyColor = Color.Lerp(EroicaPalette.Crimson, EroicaPalette.Gold, progress) with { A = 0 };
+                bodyColor *= fade * 0.7f;
+                sb.Draw(stripTex, pos, srcRect, bodyColor, segAngle, origin,
+                    new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
+
+                // Inner core (brighter for newer positions)
+                if (progress > 0.5f)
+                {
+                    float coreFade = (progress - 0.5f) / 0.5f;
+                    Color coreColor = Color.Lerp(EroicaPalette.Gold, EroicaPalette.HotCore, coreFade * 0.5f) with { A = 0 };
+                    coreColor *= fade * coreFade * 0.4f;
+                    sb.Draw(stripTex, pos, srcRect, coreColor, segAngle, origin,
+                        new Vector2(scaleX * 0.5f, scaleY * 0.5f), SpriteEffects.None, 0f);
+                }
+            }
+
+            // Bloom overlay along trail (every few positions)
+            Texture2D bloomTex = EroicaTextures.SoftGlow?.Value;
+            if (bloomTex != null)
+            {
+                Vector2 bloomOrigin = bloomTex.Size() / 2f;
+                int step = Math.Max(1, positions.Length / 12);
+                for (int i = 0; i < positions.Length; i += step)
+                {
+                    float progress = (float)i / positions.Length;
+                    float fade = progress * progress * 0.35f;
+                    if (fade < 0.01f) continue;
+
+                    float width = MathHelper.Lerp(RibbonWidthTail, RibbonWidthHead, progress) * phaseWidthScale;
+                    float scale = width / bloomTex.Width * 1.5f;
+
+                    Vector2 pos = positions[i] - Main.screenPosition;
+                    Color glowColor = Color.Lerp(EroicaPalette.DeepScarlet, EroicaPalette.Gold, progress) with { A = 0 };
+                    sb.Draw(bloomTex, pos, null, glowColor * fade, 0f, bloomOrigin, scale, SpriteEffects.None, 0f);
+                }
+            }
+            }
+            finally
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+            }
         }
 
         private void DrawAfterimages(SpriteBatch sb, Texture2D tex, Vector2 origin, float scale,
@@ -339,8 +630,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 
         private void DrawBladeTipBloom(SpriteBatch sb, Player player, int phase, float intensity)
         {
-            float bladeLen = 95f;
-            Vector2 tipPos = player.Center + swingRotation.ToRotationVector2() * bladeLen;
+            Vector2 tipPos = player.Center + swingRotation.ToRotationVector2() * BladeLength;
 
             EroicaVFXLibrary.DrawEroicaBloomStack(sb, tipPos,
                 EroicaPalette.DeepScarlet, EroicaPalette.Gold,
@@ -351,6 +641,18 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
             {
                 EroicaVFXLibrary.DrawCounterRotatingFlares(sb, tipPos,
                     0.22f + phase * 0.04f, (float)Main.GameUpdateCount * 0.05f, intensity * 0.6f);
+            }
+
+            // ER Radial Slash Star — sharp star flare on blade tip
+            Texture2D starTex = EroicaThemeTextures.ERRadialSlashStar;
+            if (starTex != null)
+            {
+                Vector2 starOrigin = starTex.Size() * 0.5f;
+                Vector2 starDrawPos = tipPos - Main.screenPosition;
+                float starRot = (float)Main.GameUpdateCount * 0.04f * (player.direction == 1 ? 1f : -1f);
+                Color starCol = Color.Lerp(EroicaPalette.Scarlet, EroicaPalette.Gold, intensity) with { A = 0 };
+                sb.Draw(starTex, starDrawPos, null, starCol * (0.3f * intensity), starRot, starOrigin,
+                    0.2f + phase * 0.05f, SpriteEffects.None, 0f);
             }
         }
 
@@ -367,6 +669,18 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
             Color glowCol = Color.Lerp(EroicaPalette.Scarlet, EroicaPalette.Gold, ratio) with { A = 0 };
             sb.Draw(bloom, drawPos, null, glowCol * (0.12f * ratio * pulse), 0f, bloomOrigin,
                 1.2f * ratio, SpriteEffects.None, 0f);
+
+            // ER Power Effect Ring — concentric energy ring around valor aura
+            Texture2D ringTex = EroicaThemeTextures.ERPowerEffectRing;
+            if (ringTex != null && ratio > 0.3f)
+            {
+                Vector2 ringOrigin = ringTex.Size() * 0.5f;
+                float ringScale = 0.5f * ratio;
+                float ringRot = (float)Main.GameUpdateCount * 0.02f;
+                Color ringCol = EroicaPalette.Gold with { A = 0 };
+                sb.Draw(ringTex, drawPos, null, ringCol * (0.15f * ratio * pulse), ringRot, ringOrigin,
+                    ringScale, SpriteEffects.None, 0f);
+            }
         }
 
         #endregion

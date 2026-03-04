@@ -9,6 +9,7 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.EnigmaVariations.Bosses
 {
@@ -76,13 +77,24 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/whiteFireEyeA").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/whiteFireEyeA", AssetRequestMode.ImmediateLoad).Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             
+            var sb = Main.spriteBatch;
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            
             // Core
-            Main.spriteBatch.Draw(glow, pos, null, EnigmaGreen, 0f, glow.Size() / 2, 0.5f, SpriteEffects.None, 0f);
-            Main.spriteBatch.Draw(glow, pos, null, EnigmaPurple * 0.6f, 0f, glow.Size() / 2, 0.7f, SpriteEffects.None, 0f);
-            Main.spriteBatch.Draw(glow, pos, null, Color.White * 0.4f, 0f, glow.Size() / 2, 0.3f, SpriteEffects.None, 0f);
+            sb.Draw(glow, pos, null, (EnigmaGreen with { A = 0 }), 0f, glow.Size() / 2, 0.5f, SpriteEffects.None, 0f);
+            sb.Draw(glow, pos, null, (EnigmaPurple with { A = 0 }) * 0.6f, 0f, glow.Size() / 2, 0.7f, SpriteEffects.None, 0f);
+            sb.Draw(glow, pos, null, Color.White with { A = 0 } * 0.4f, 0f, glow.Size() / 2, 0.3f, SpriteEffects.None, 0f);
+            
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }
@@ -143,12 +155,23 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MusicNoteWithSlashes").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MusicNoteWithSlashes", AssetRequestMode.ImmediateLoad).Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             float alpha = 1f - Projectile.alpha / 255f;
             
-            Main.spriteBatch.Draw(glow, pos, null, EnigmaPurple * alpha, Projectile.rotation, glow.Size() / 2, 0.6f, SpriteEffects.None, 0f);
-            Main.spriteBatch.Draw(glow, pos, null, EnigmaGreen * alpha * 0.5f, Projectile.rotation * 0.5f, glow.Size() / 2, 0.8f, SpriteEffects.None, 0f);
+            var sb = Main.spriteBatch;
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            sb.Draw(glow, pos, null, (EnigmaPurple with { A = 0 }) * alpha, Projectile.rotation, glow.Size() / 2, 0.6f, SpriteEffects.None, 0f);
+            sb.Draw(glow, pos, null, (EnigmaGreen with { A = 0 }) * alpha * 0.5f, Projectile.rotation * 0.5f, glow.Size() / 2, 0.8f, SpriteEffects.None, 0f);
+            
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }
@@ -349,15 +372,26 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         {
             if (Projectile.timeLeft > 90 - DelayFrames) return false;
             
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad).Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             
             // Shockwave effect - scaled for player-sized projectile
             float progress = 1f - Projectile.timeLeft / (90f - DelayFrames);
             float alpha = 1f - progress;
             
-            Main.spriteBatch.Draw(glow, pos, null, EnigmaPurple * alpha, 0f, glow.Size() / 2, new Vector2(0.5f, 0.6f), SpriteEffects.None, 0f);
-            Main.spriteBatch.Draw(glow, pos, null, EnigmaGreen * alpha * 0.6f, 0f, glow.Size() / 2, new Vector2(0.35f, 0.45f), SpriteEffects.None, 0f);
+            var sb = Main.spriteBatch;
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            
+            sb.Draw(glow, pos, null, (EnigmaPurple with { A = 0 }) * alpha, 0f, glow.Size() / 2, new Vector2(0.5f, 0.6f), SpriteEffects.None, 0f);
+            sb.Draw(glow, pos, null, (EnigmaGreen with { A = 0 }) * alpha * 0.6f, 0f, glow.Size() / 2, new Vector2(0.35f, 0.45f), SpriteEffects.None, 0f);
+            
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }
@@ -462,7 +496,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/TallMusicNote").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/TallMusicNote", AssetRequestMode.ImmediateLoad).Value;
             SpriteBatch spriteBatch = Main.spriteBatch;
             
             float progress = 1f - (float)Projectile.timeLeft / BeamDuration;
@@ -593,7 +627,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/QuarterNote").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/QuarterNote", AssetRequestMode.ImmediateLoad).Value;
             SpriteBatch spriteBatch = Main.spriteBatch;
             
             float progress = 1f - (float)Projectile.timeLeft / WallDuration;

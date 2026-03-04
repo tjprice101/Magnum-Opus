@@ -6,7 +6,9 @@ using Terraria.ModLoader;
 using Terraria.Audio;
 using Terraria.GameContent;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
+using MagnumOpus.Content.Eroica;
 using MagnumOpus.Content.Eroica.Weapons.FuneralPrayer;
+using MagnumOpus.Content.FoundationWeapons.RibbonFoundation;
 using System;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
@@ -294,19 +296,113 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = tex.Size() / 2f;
 
-            // 笏笏 Layer 1: GPU Funeral Flame Trail 笏笏
+            // ── Layer 1: GPU Funeral Flame Trail ──
             DrawFlameTrail(sb);
 
-            // 笏笏 Layer 2: Afterimage chain 笏笏
+            // ── Layer 1b: Convergence Beam Body (LaserFoundation pattern) ──
+            DrawConvergenceBeamBody(sb);
+
+            // ── Layer 2: Afterimage chain ──
             DrawAfterimages(sb, tex, origin);
 
-            // 笏笏 Layer 3: Core beam sprite with crimson glow 笏笏
+            // ── Layer 3: Core beam sprite with crimson glow ──
             DrawBeamCore(sb, tex, origin);
 
-            // 笏笏 Layer 4: Additive bloom 笏笏
+            // ── Layer 4: Additive bloom ──
             DrawBloomOverlay(sb, origin);
 
+            // Eroica theme accent
+            EroicaVFXLibrary.BeginEroicaAdditive(sb);
+            EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.4f);
+            EroicaVFXLibrary.EndEroicaAdditive(sb);
+
             return false;
+        }
+
+        /// <summary>
+        /// LaserFoundation-style convergence beam body rendered as a texture strip
+        /// along trail positions. Uses EnergySurgeBeam for funeral fire texture.
+        /// BaseBeamWidth = 40f per doc spec.
+        /// </summary>
+        private void DrawConvergenceBeamBody(SpriteBatch sb)
+        {
+            if (ageTimer < 2) return;
+
+            int validCount = 0;
+            for (int i = 0; i < TrailLength; i++)
+            {
+                if (trailPositions[i] != Vector2.Zero)
+                    validCount++;
+                else
+                    break;
+            }
+            if (validCount < 3) return;
+
+            Texture2D stripTex = RBFTextures.EnergySurgeBeam.Value;
+            if (stripTex == null) return;
+
+            int texW = stripTex.Width;
+            int texH = stripTex.Height;
+            float time = (float)Main.timeForVisualEffects * 0.007f;
+            const float BaseBeamWidth = 40f;
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                SamplerState.LinearWrap, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
+            try
+            {
+
+            int srcWidth = Math.Max(1, texW / validCount);
+
+            for (int i = 0; i < validCount - 1; i++)
+            {
+                float progress = 1f - (float)i / validCount; // 1 = head, 0 = tail
+                float fade = progress * progress;
+                if (fade < 0.01f) continue;
+
+                float width = BaseBeamWidth * (0.3f + 0.7f * progress);
+
+                Vector2 segDir = trailPositions[i] - trailPositions[i + 1];
+                float segLength = segDir.Length();
+                if (segLength < 0.5f) continue;
+                float segAngle = segDir.ToRotation();
+
+                float uStart = ((float)i / validCount + time * 3f) % 1f;
+                int srcX = (int)(uStart * texW) % texW;
+                Rectangle srcRect = new Rectangle(srcX, 0, srcWidth, texH);
+
+                float scaleX = segLength / (float)srcWidth;
+                float scaleY = width / (float)texH;
+
+                Vector2 pos = trailPositions[i] - Main.screenPosition;
+                Vector2 origin = new Vector2(0, texH / 2f);
+
+                // Crimson → Violet gradient for funeral beam
+                Color bodyColor = Color.Lerp(FuneralUtils.DeepCrimson, FuneralUtils.RequiemViolet, 1f - progress) with { A = 0 };
+                sb.Draw(stripTex, pos, srcRect, bodyColor * (fade * 0.5f), segAngle, origin,
+                    new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
+
+                // Ember core at high intensity
+                if (progress > 0.4f)
+                {
+                    float coreFade = (progress - 0.4f) / 0.6f;
+                    Color coreColor = FuneralUtils.SmolderingAmber with { A = 0 };
+                    sb.Draw(stripTex, pos, srcRect, coreColor * (fade * coreFade * 0.3f), segAngle, origin,
+                        new Vector2(scaleX * 0.4f, scaleY * 0.4f), SpriteEffects.None, 0f);
+                }
+            }
+
+            }
+            finally
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+            }
         }
 
         private void DrawFlameTrail(SpriteBatch sb)
@@ -338,14 +434,16 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 smoothen: true
             );
 
+            sb.End();
             try
             {
-                sb.End();
                 FuneralTrailRenderer.RenderTrail(positions, settings);
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             }
-            catch { }
+            finally
+            {
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
+            }
         }
 
         private void DrawAfterimages(SpriteBatch sb, Texture2D tex, Vector2 origin)
@@ -402,6 +500,28 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             FuneralUtils.EnterShaderRegion(sb);
             sb.Draw(tex, drawPos, null, bloomColor * 0.35f, Projectile.rotation, origin, 1.5f + pulse, SpriteEffects.None, 0f);
             FuneralUtils.ExitShaderRegion(sb);
+
+            // --- ER Infernal Beam Ring overlay — fiery halo around the beam ---
+            Texture2D ringTex = EroicaThemeTextures.ERInfernalBeamRing;
+            if (ringTex != null)
+            {
+                Vector2 ringOrigin = ringTex.Size() * 0.5f;
+                float ringPulse = 0.7f + (float)Math.Sin(ageTimer * 0.25f) * 0.3f;
+                Color ringCol = FuneralUtils.SmolderingAmber with { A = 0 };
+                sb.Draw(ringTex, drawPos, null, ringCol * (0.2f * ringPulse), Projectile.rotation, ringOrigin,
+                    0.35f + pulse * 0.1f, SpriteEffects.None, 0f);
+            }
+
+            // --- ER Harmonic Resonance Wave — pulsing wave behind the beam ---
+            Texture2D waveTex = EroicaThemeTextures.ERHarmonicImpact;
+            if (waveTex != null)
+            {
+                Vector2 waveOrigin = waveTex.Size() * 0.5f;
+                float wavePulse = 0.6f + (float)Math.Sin(ageTimer * 0.18f) * 0.4f;
+                Color waveCol = Color.Lerp(FuneralUtils.SmolderingAmber, FuneralUtils.PrayerFlame, wavePulse) with { A = 0 };
+                sb.Draw(waveTex, drawPos, null, waveCol * (0.15f * wavePulse), Projectile.rotation + MathHelper.PiOver4, waveOrigin,
+                    0.4f, SpriteEffects.None, 0f);
+            }
         }
 
         #endregion

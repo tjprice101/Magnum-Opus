@@ -3,11 +3,12 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Particles
 {
     /// <summary>
-    /// Soft moonlight mist particle  Ea gently fading, slowly drifting glow puff.
+    /// Soft moonlight mist particle 遯ｶ繝ｻa gently fading, slowly drifting glow puff.
     /// Used for impact smoke and lunar nova explosion clouds.
     /// Non-spritesheet: uses a single soft glow texture with rotation and fade.
     /// </summary>
@@ -59,7 +60,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Particle
 
         public override void CustomDraw(SpriteBatch spriteBatch)
         {
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad).Value;
             Color col = Color * Opacity;
             Vector2 origin = tex.Size() / 2f;
             spriteBatch.Draw(tex, Position - Main.screenPosition, null, col, Rotation,

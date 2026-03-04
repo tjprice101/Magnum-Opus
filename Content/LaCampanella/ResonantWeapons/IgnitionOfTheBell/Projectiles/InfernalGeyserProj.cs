@@ -8,6 +8,8 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Particles;
 using MagnumOpus.Content.LaCampanella.Debuffs;
+using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
+using MagnumOpus.Content.FoundationWeapons.ExplosionParticlesFoundation;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Projectiles
 {
@@ -77,6 +79,22 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
 
                 IgnitionOfTheBellParticleHandler.SpawnParticle(
                     new BellIgnitionFlashParticle(_groundPos, IsSmall ? 8 : 14, IsSmall ? 1.2f : 2f));
+
+                // === FOUNDATION: RippleEffectProjectile — Geyser eruption ring at base ===
+                if (!IsSmall)
+                {
+                    Projectile.NewProjectile(
+                        Projectile.GetSource_FromThis(), _groundPos, Vector2.Zero,
+                        ModContent.ProjectileType<RippleEffectProjectile>(),
+                        0, 0f, Projectile.owner);
+                }
+
+                // === FOUNDATION: SparkExplosionProjectile — Eruption burst sparks ===
+                Projectile.NewProjectile(
+                    Projectile.GetSource_FromThis(), _groundPos, Vector2.Zero,
+                    ModContent.ProjectileType<SparkExplosionProjectile>(),
+                    0, 0f, Projectile.owner,
+                    ai0: (float)SparkMode.FountainCascade);
             }
 
             _timer++;

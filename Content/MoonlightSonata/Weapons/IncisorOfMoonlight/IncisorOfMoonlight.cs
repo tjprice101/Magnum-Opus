@@ -64,6 +64,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight
         // SETUP
         // =====================================================================
 
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             Item.width = 60;
@@ -75,7 +80,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight
             Item.useStyle = ItemUseStyleID.Swing;
             Item.knockBack = 6.5f;
             Item.value = Item.sellPrice(gold: 25);
-            Item.rare = ModContent.RarityType<EroicaRainbowRarity>();
+            Item.rare = ModContent.RarityType<MoonlightSonataRarity>();
             Item.autoReuse = true;
             Item.shootSpeed = 8f;
 

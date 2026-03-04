@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MagnumOpus.Content.Fate;
 using System;
 using Terraria;
 
@@ -19,6 +20,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
         public static readonly Color CosmicRose = new Color(220, 80, 130);
         public static readonly Color StarGold = new Color(255, 230, 180);
         public static readonly Color ConstellationSilver = new Color(200, 210, 240);
+        public static readonly Color BygoneCrimson = new Color(200, 40, 60); // Bygone Resonance trigger color
 
         private static readonly Color[] Palette = { VoidBlack, NebulaMist, NebulaPurple, CosmicRose, StarGold, ConstellationSilver };
 
@@ -77,6 +79,18 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
         public static Color RandomPaletteColor()
         {
             return GradientLerp(Main.rand.NextFloat());
+        }
+
+        // ─────────── THEME TEXTURE ACCENTS ───────────
+
+        /// <summary>
+        /// Draws theme-textured accents. Call under Additive blend.
+        /// </summary>
+        public static void DrawThemeAccents(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)
+        {
+            FateVFXLibrary.DrawThemeCelestialGlyph(sb, worldPos, scale, intensity * 0.5f);
+            float rot = (float)Main.GameUpdateCount * 0.02f;
+            FateVFXLibrary.DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.4f, rot);
         }
     }
 }

@@ -4,11 +4,12 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Utilities;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Particles
 {
     /// <summary>
-    /// Muzzle flash streak — elongated directional flash spawned when firing.
+    /// Muzzle flash streak 遯ｶ繝ｻelongated directional flash spawned when firing.
     /// </summary>
     public class MuzzleFlashParticle : PiercingBellsParticle
     {
@@ -33,7 +34,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
 
         public override void Draw(SpriteBatch sb)
         {
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
             float fade = 1f - LifetimeCompletion;
             float alpha = fade * fade;
             // Draw elongated flash
@@ -44,7 +45,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
     }
 
     /// <summary>
-    /// Bullet tracer spark — tiny bright particle that trails behind each bullet.
+    /// Bullet tracer spark 遯ｶ繝ｻtiny bright particle that trails behind each bullet.
     /// </summary>
     public class BulletTracerParticle : PiercingBellsParticle
     {
@@ -59,7 +60,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
 
         public override void Draw(SpriteBatch sb)
         {
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
             float fade = 1f - LifetimeCompletion;
             sb.Draw(tex, Position - Main.screenPosition, null,
                 DrawColor * fade, Rotation, tex.Size() / 2f, Scale, SpriteEffects.None, 0f);
@@ -67,7 +68,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
     }
 
     /// <summary>
-    /// Resonant blast flash — large radial burst for the 20th shot detonation.
+    /// Resonant blast flash 遯ｶ繝ｻlarge radial burst for the 20th shot detonation.
     /// </summary>
     public class ResonantBlastFlashParticle : PiercingBellsParticle
     {
@@ -91,7 +92,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
 
         public override void Draw(SpriteBatch sb)
         {
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
             float fade = 1f - LifetimeCompletion;
             sb.Draw(tex, Position - Main.screenPosition, null,
                 DrawColor * (fade * 0.5f), 0f, tex.Size() / 2f, Scale * 0.4f, SpriteEffects.None, 0f);
@@ -99,7 +100,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
     }
 
     /// <summary>
-    /// Homing music note — drifts toward enemies after resonant blast, musical identity particle.
+    /// Homing music note 遯ｶ繝ｻdrifts toward enemies after resonant blast, musical identity particle.
     /// </summary>
     public class ResonantNoteParticle : PiercingBellsParticle
     {
@@ -138,7 +139,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
         public override void Draw(SpriteBatch sb)
         {
             string path = $"MagnumOpus/Assets/Particles Asset Library/{NoteTextureNames[noteVariant]}";
-            var tex = ModContent.Request<Texture2D>(path).Value;
+            var tex = ModContent.Request<Texture2D>(path, AssetRequestMode.ImmediateLoad).Value;
             float fade = 1f - LifetimeCompletion;
             float alpha = fade > 0.5f ? 1f : fade * 2f;
             sb.Draw(tex, Position - Main.screenPosition, null,

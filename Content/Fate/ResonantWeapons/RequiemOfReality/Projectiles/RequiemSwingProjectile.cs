@@ -14,6 +14,7 @@ using MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Particles;
 using MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Primitives;
 using MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Shaders;
 using MagnumOpus.Content.Fate.Debuffs;
+using MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
 {
@@ -37,9 +38,9 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
     {
         public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/RequiemOfReality";
 
-        // Swing arc parameters per movement
+        // Swing arc parameters per movement (from Resonance Weapons Planning doc)
         private static readonly float[] ArcAngles = { 160f, 120f, 270f, 100f };  // Degrees
-        private static readonly float[] SwingDurations = { 24f, 16f, 28f, 20f }; // Frames
+        private static readonly float[] SwingDurations = { 30f, 22f, 18f, 26f }; // Frames — Adagio(slow), Allegro(quick), Scherzo(wild), Finale(devastating)
         private static readonly float[] DamageMultipliers = { 1f, 0.9f, 0.8f, 1.5f };
 
         // Trail system
@@ -54,6 +55,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
         private static Asset<Texture2D> _noiseTex;
         private static Asset<Texture2D> _glowTex;
         private static Asset<Texture2D> _flareTex;
+        private static Asset<Texture2D> _celestialGlyphTex;
+        private static Asset<Texture2D> _supernovaTex;
+        private static Asset<Texture2D> _fateTrailTex;
+        private static Asset<Texture2D> _fateImpactTex;
 
         // Properties
         private Player Owner => Main.player[Projectile.owner];
@@ -120,21 +125,21 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
 
             float progress = Projectile.ai[1] / duration;
 
-            // Swing easing per movement
+            // Swing easing per movement (from Resonance Weapons Planning doc)
             float easedProgress;
             switch (_movement)
             {
-                case 0: // Adagio: smooth sine
+                case 0: // Adagio: smooth, mournful — SineInOut
                     easedProgress = RequiemUtils.SineInOut(progress);
                     break;
-                case 1: // Allegro: fast start
+                case 1: // Allegro: quick, desperate — QuadOut
                     easedProgress = RequiemUtils.QuadOut(progress);
                     break;
-                case 2: // Scherzo: constant speed spin
-                    easedProgress = progress;
+                case 2: // Scherzo: wild, spinning — ExpOut (fast start, decelerating)
+                    easedProgress = RequiemUtils.ExpOut(progress);
                     break;
-                case 3: // Finale: slow windup, fast slam
-                    easedProgress = RequiemUtils.ExpIn(progress);
+                case 3: // Finale: devastating overhead slam — BackOut overshoot
+                    easedProgress = RequiemUtils.BackOut(progress);
                     break;
                 default:
                     easedProgress = progress;
@@ -233,6 +238,46 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 300);
+
+            // === SPECTRAL RESONANCE STACKING ===
+            target.AddBuff(ModContent.BuffType<SpectralResonance>(), 120);
+            var resonanceNPC = target.GetGlobalNPC<SpectralResonanceNPC>();
+            bool maxReached = resonanceNPC.AddStack(damageDone);
+            if (maxReached && !Main.dedServ)
+            {
+                // Visual indicator: bright crimson pulse ring at max stacks
+                for (int i = 0; i < 8; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 8f;
+                    Vector2 vel = angle.ToRotationVector2() * 3f;
+                    RequiemParticleHandler.SpawnParticle(new RequiemBloomFlare(
+                        target.Center + vel * 5f, RequiemUtils.BrightCrimson, 0.3f, 18));
+                }
+            }
+
+            // === REALITY TEAR (15% chance) ===
+            if (Main.rand.NextFloat() < 0.15f)
+            {
+                // Spawn a reality tear projectile behind the enemy
+                Vector2 tearPos = target.Center + Main.rand.NextVector2Circular(15f, 15f);
+                Projectile.NewProjectile(Projectile.GetSource_FromThis(), tearPos, Vector2.Zero,
+                    ModContent.ProjectileType<RequiemRealityTear>(),
+                    (int)(Projectile.damage * 0.3f), 0f, Projectile.owner);
+
+                // Chromatic spark burst at tear spawn
+                if (!Main.dedServ)
+                {
+                    for (int i = 0; i < 6; i++)
+                    {
+                        Color sparkCol = i % 3 == 0 ? RequiemUtils.BrightCrimson :
+                                         i % 3 == 1 ? RequiemUtils.DarkPink : RequiemUtils.FatePurple;
+                        Vector2 sparkVel = Main.rand.NextVector2Circular(4f, 4f);
+                        RequiemParticleHandler.SpawnParticle(new RequiemSparkParticle(
+                            tearPos, sparkVel, sparkCol, 0.2f, 12));
+                    }
+                }
+            }
+
             SpawnImpactVFX(target.Center);
         }
 
@@ -302,19 +347,58 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
 
             // Lazy load textures
             _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/TileableFBMNoise");
-            _glowTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow");
-            _flareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Flare/flare_16");
+            _glowTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow");
+            _flareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/StarFlare");
+            _celestialGlyphTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Fate/Particles/FA Celestial Glyph");
+            _supernovaTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Fate/Particles/FA Supernova Core");
+            _fateTrailTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Fate/Trails and Ribbons/FA Basic Trail");
+            _fateImpactTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Fate/Impact Effects/FA Harmonic Resonance Wave Impact");
 
             SpriteBatch sb = Main.spriteBatch;
             var rp = Owner.Requiem();
             float comboIntensity = rp.ComboIntensity;
             float progress = SwingProgress;
 
-            DrawLayer1_CosmicGlow(sb, comboIntensity);
-            DrawLayer2_CoreTrail(sb, comboIntensity);
-            DrawLayer3_ConstellationSparks(sb, progress, comboIntensity);
-            DrawLayer4_WeaponSprite(sb, lightColor);
-            DrawLayer5_ComboAura(sb, comboIntensity);
+            try
+            {
+                // End SpriteBatch before GPU primitive trail draws
+                sb.End();
+
+                // GPU primitive layers (trail renderers use DrawUserIndexedPrimitives)
+                DrawLayer1_CosmicGlow(sb, comboIntensity);
+                DrawLayer2_CoreTrail(sb, comboIntensity);
+
+                // Restart SpriteBatch for sprite-based layers
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
+                // Sprite-based layers (manage their own additive state changes)
+                DrawLayer3_ConstellationSparks(sb, progress, comboIntensity);
+                DrawLayer4_WeaponSprite(sb, lightColor);
+                DrawLayer5_ComboAura(sb, comboIntensity);
+            }
+            catch
+            {
+                try
+                {
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
+
+            // Theme accents (additive pass)
+            try
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                RequiemUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.4f);
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
 
             return false;
         }

@@ -35,6 +35,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling
         public const int SerenadeManaCost = 40;
         public const float SerenadeDamageMultiplier = 1.8f;
 
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             Item.width = 28;
@@ -168,7 +173,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling
             }
 
             tooltips.Add(new TooltipLine(Mod, "Lore",
-                "'The moon whispers secrets to those who listen — each note a color, each color a truth'")
+                "'She called to the moon, and the moon wept silver.'")
             { OverrideColor = new Color(140, 100, 200) });
         }
 

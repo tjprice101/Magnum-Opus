@@ -6,11 +6,12 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Particles;
 using MagnumOpus.Content.LaCampanella.Debuffs;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Projectiles
 {
     /// <summary>
-    /// Bellfire barrage note  Eone of 7 burning note projectiles spread on every 3rd shot.
+    /// Bellfire barrage note 遯ｶ繝ｻone of 7 burning note projectiles spread on every 3rd shot.
     /// Slower than main beam, deals AoE on impact, leaves burning trail.
     /// </summary>
     public class BellfireNoteProj : ModProjectile
@@ -70,17 +71,25 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            var tex = ModContent.Request<Texture2D>(Texture).Value;
+            var tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             float pulse = 0.9f + (float)Math.Sin(Main.GameUpdateCount * 0.2f + Projectile.whoAmI) * 0.1f;
             Color noteColor = GrandioseChimeUtils.BarragePalette[Main.rand.Next(3)] * pulse;
 
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
                 noteColor, Projectile.rotation, tex.Size() / 2f, 0.55f, SpriteEffects.None, 0f);
 
-            // Fire glow behind
-            var bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow").Value;
+            // Fire glow behind (additive so black background disappears)
+            var bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             sb.Draw(bloomTex, Projectile.Center - Main.screenPosition, null,
-                GrandioseChimeUtils.BarragePalette[1] * 0.2f, 0f, bloomTex.Size() / 2f, 0.2f, SpriteEffects.None, 0f);
+                (GrandioseChimeUtils.BarragePalette[1] with { A = 0 }) * 0.2f, 0f, bloomTex.Size() / 2f, 0.2f, SpriteEffects.None, 0f);
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
             return false;
         }

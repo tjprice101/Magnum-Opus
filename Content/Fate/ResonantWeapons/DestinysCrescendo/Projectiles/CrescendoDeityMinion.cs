@@ -6,11 +6,12 @@ using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.Fate.Debuffs;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
 {
     /// <summary>
-    /// Cosmic Deity Minion — the conductor's divine instrument made manifest.
+    /// Cosmic Deity Minion 遯ｶ繝ｻthe conductor's divine instrument made manifest.
     /// 
     /// Idle: Floats near owner with orbiting glyph particles, cosmic mist, and divine light pulse.
     /// Combat: Seeks nearest enemy within 800f, approaches at offset, then:
@@ -30,7 +31,40 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
         private int attackCooldown = 0;
         private int beamCooldown = 0;
         private const int SlashCooldown = 12;
-        private const int BeamCooldownMax = 120;
+        private const int BeamCooldownBase = 120;
+        private int lastPhase = -1; // Track phase for transition VFX
+
+        /// <summary>Beam cooldown scales with Escalation Phase: Pianissimo=120, Piano=100, Forte=80, Fortissimo=60.</summary>
+        private int BeamCooldownMax
+        {
+            get
+            {
+                int phase = Main.player[Projectile.owner].Crescendo().EscalationPhase;
+                return phase switch
+                {
+                    0 => 120,
+                    1 => 100,
+                    2 => 80,
+                    _ => 60
+                };
+            }
+        }
+
+        /// <summary>Deity visual scale per phase: grows larger as it escalates.</summary>
+        private float PhaseScale
+        {
+            get
+            {
+                int phase = Main.player[Projectile.owner].Crescendo().EscalationPhase;
+                return phase switch
+                {
+                    0 => 1.0f,
+                    1 => 1.15f,
+                    2 => 1.3f,
+                    _ => 1.5f
+                };
+            }
+        }
 
         public override void SetStaticDefaults()
         {
@@ -69,6 +103,23 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
             if (owner.whoAmI == Main.myPlayer)
                 owner.Crescendo().ActiveDeityCount = owner.ownedProjectileCounts[Projectile.type];
 
+            var cp = owner.Crescendo();
+
+            // === PHASE TRANSITION VFX ===
+            if (cp.EscalationPhase != lastPhase && lastPhase >= 0 && !Main.dedServ)
+            {
+                // Phase escalation burst 遯ｶ繝ｻexpanding ring of all Fate colors
+                CrescendoParticleHandler.SpawnBurst(Projectile.Center, 15, 8f, 0.35f,
+                    CrescendoUtils.StarGold, CrescendoParticleType.DivineSpark, 18);
+                CrescendoParticleHandler.SpawnBurst(Projectile.Center, 8, 5f, 0.4f,
+                    CrescendoUtils.CrescendoPink, CrescendoParticleType.GlyphCircle, 22);
+                CrescendoParticleFactory.SpawnCosmicNotes(Projectile.Center, 5, 30f);
+                CrescendoParticleHandler.Spawn(CrescendoParticleFactory.BeamFlare(
+                    Projectile.Center, Vector2.Zero, CrescendoUtils.CelestialWhite, 0.9f, 16));
+                SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.4f * cp.EscalationPhase, Volume = 0.7f }, Projectile.Center);
+            }
+            lastPhase = cp.EscalationPhase;
+
             attackCooldown = Math.Max(0, attackCooldown - 1);
             beamCooldown = Math.Max(0, beamCooldown - 1);
 
@@ -92,11 +143,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
                     PerformSlash(target);
                 }
 
-                // Cosmic beam attack
+                // Cosmic beam attack 遯ｶ繝ｻfires BeamsPerVolley beams based on Escalation Phase
                 if (beamCooldown <= 0)
                 {
                     beamCooldown = BeamCooldownMax;
-                    FireCosmicBeam(target);
+                    FireCosmicBeamVolley(target, cp);
                 }
             }
             else
@@ -162,7 +213,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
             return closest;
         }
 
-        // ═══════════ SLASH ATTACK ═══════════
+        // 隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨翫・SLASH ATTACK 隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨翫・
 
         private void PerformSlash(NPC target)
         {
@@ -193,95 +244,137 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
             SoundEngine.PlaySound(SoundID.Item1 with { Pitch = 0.3f, Volume = 0.6f }, Projectile.Center);
         }
 
-        // ═══════════ COSMIC BEAM ATTACK ═══════════
+        // 隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨翫・COSMIC BEAM VOLLEY (Phase-Scaled) 隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨翫・
 
-        private void FireCosmicBeam(NPC target)
+        private void FireCosmicBeamVolley(NPC primaryTarget, CrescendoPlayer cp)
         {
-            Vector2 direction = (target.Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
+            int beamCount = cp.BeamsPerVolley;
+            float phaseMultiplier = 1f + cp.EscalationPhase * 0.15f; // 1x/1.15x/1.3x/1.45x damage
 
-            Projectile.NewProjectile(
-                Projectile.GetSource_FromThis(),
-                Projectile.Center,
-                direction * 18f,
-                ModContent.ProjectileType<CrescendoCosmicBeam>(),
-                (int)(Projectile.damage * 1.5f),
-                Projectile.knockBack,
-                Projectile.owner
-            );
+            // Gather potential targets for multi-beam spread
+            var targets = new System.Collections.Generic.List<NPC>();
+            targets.Add(primaryTarget);
 
-            // === BEAM FIRE VFX ===
-            // Glyph burst at emission point
-            CrescendoParticleHandler.SpawnBurst(Projectile.Center, 8, 6f, 0.3f, CrescendoUtils.DeityPurple, CrescendoParticleType.GlyphCircle, 20);
-
-            // Star sparkle explosion
-            for (int i = 0; i < 12; i++)
+            // For multi-beam phases, find alternate targets
+            if (beamCount > 1)
             {
-                float angle = MathHelper.TwoPi * i / 12f;
-                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 7f);
-                Color sparkCol = CrescendoUtils.GetCrescendoGradient((float)i / 12f);
-                CrescendoParticleHandler.Spawn(CrescendoParticleFactory.DivineSpark(Projectile.Center, sparkVel, sparkCol, 0.2f, 16));
+                for (int i = 0; i < Main.maxNPCs; i++)
+                {
+                    NPC npc = Main.npc[i];
+                    if (npc.active && npc.CanBeChasedBy(Projectile) && npc.whoAmI != primaryTarget.whoAmI
+                        && Vector2.Distance(Projectile.Center, npc.Center) < 900f)
+                    {
+                        targets.Add(npc);
+                        if (targets.Count >= beamCount) break;
+                    }
+                }
             }
 
-            // Central flash
-            CrescendoParticleHandler.Spawn(CrescendoParticleFactory.BeamFlare(Projectile.Center, Vector2.Zero, CrescendoUtils.CelestialWhite, 0.7f, 14));
+            // Fire beams 遯ｶ繝ｻdistribute across available targets
+            for (int b = 0; b < beamCount; b++)
+            {
+                NPC beamTarget = targets[b % targets.Count];
+                Vector2 direction = (beamTarget.Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
 
-            // Music notes cascade
-            CrescendoParticleFactory.SpawnCosmicNotes(Projectile.Center, 4, 25f);
+                // Slight angular spread for multi-beams aimed at same target
+                if (beamCount > 1 && targets.Count < beamCount)
+                {
+                    float spreadAngle = MathHelper.ToRadians(8f) * (b - beamCount / 2f);
+                    direction = direction.RotatedBy(spreadAngle);
+                }
 
-            SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f }, Projectile.Center);
+                int beamProj = Projectile.NewProjectile(
+                    Projectile.GetSource_FromThis(),
+                    Projectile.Center,
+                    direction * 18f,
+                    ModContent.ProjectileType<CrescendoCosmicBeam>(),
+                    (int)(Projectile.damage * 1.5f * phaseMultiplier),
+                    Projectile.knockBack,
+                    Projectile.owner,
+                    ai0: cp.EscalationPhase // Pass phase to beam for visual scaling
+                );
+
+                // Stagger fire timing for Fortissimo rapid succession feel
+                if (cp.EscalationPhase >= 3 && beamProj >= 0 && beamProj < Main.maxProjectiles)
+                    Main.projectile[beamProj].timeLeft -= b * 5;
+            }
+
+            // === BEAM FIRE VFX (scaled with phase) ===
+            int burstCount = 8 + cp.EscalationPhase * 3;
+            CrescendoParticleHandler.SpawnBurst(Projectile.Center, burstCount, 6f + cp.EscalationPhase * 1.5f,
+                0.3f + cp.EscalationPhase * 0.05f, CrescendoUtils.DeityPurple, CrescendoParticleType.GlyphCircle, 20);
+
+            for (int i = 0; i < 12 + cp.EscalationPhase * 4; i++)
+            {
+                float angle = MathHelper.TwoPi * i / (12 + cp.EscalationPhase * 4);
+                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 7f + cp.EscalationPhase * 2f);
+                Color sparkCol = CrescendoUtils.GetCrescendoGradient((float)i / (12 + cp.EscalationPhase * 4));
+                CrescendoParticleHandler.Spawn(CrescendoParticleFactory.DivineSpark(Projectile.Center, sparkVel, sparkCol, 0.2f + cp.EscalationPhase * 0.04f, 16));
+            }
+
+            CrescendoParticleHandler.Spawn(CrescendoParticleFactory.BeamFlare(Projectile.Center, Vector2.Zero,
+                CrescendoUtils.CelestialWhite, 0.7f + cp.EscalationPhase * 0.15f, 14));
+
+            CrescendoParticleFactory.SpawnCosmicNotes(Projectile.Center, 4 + cp.EscalationPhase, 25f);
+
+            SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f + cp.EscalationPhase * 0.1f }, Projectile.Center);
         }
 
-        // ═══════════ PER-FRAME DEITY AURA ═══════════
+        // 隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨翫・PER-FRAME DEITY AURA 隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨翫・
 
         private void SpawnDeityAura()
         {
             if (Main.dedServ) return;
 
             float time = (float)Main.timeForVisualEffects;
+            int phase = Main.player[Projectile.owner].Crescendo().EscalationPhase;
+            float phaseIntensity = 1f + phase * 0.3f; // Aura density scales with phase
 
-            // Orbiting glyphs — 4 glyphs in divine formation (every 4 frames)
-            if (Main.GameUpdateCount % 4 == 0)
+            // Orbiting glyphs 遯ｶ繝ｻcount scales with phase (4 base + 2 per phase)
+            int glyphInterval = Math.Max(2, 4 - phase);
+            if (Main.GameUpdateCount % glyphInterval == 0)
             {
                 float orbitAngle = Main.GameUpdateCount * 0.06f;
-                CrescendoParticleFactory.SpawnOrbitingGlyphs(Projectile.Center, 4, 40f, orbitAngle, 0.3f);
+                int glyphCount = 4 + phase * 2;
+                CrescendoParticleFactory.SpawnOrbitingGlyphs(Projectile.Center, glyphCount, 40f + phase * 8f, orbitAngle, 0.3f + phase * 0.05f);
             }
 
-            // Star sparkles — constant celestial shimmer
-            if (Main.rand.NextBool(5))
+            // Star sparkles 遯ｶ繝ｻintensity scales with phase
+            if (Main.rand.NextFloat() < 0.2f * phaseIntensity)
             {
-                Vector2 sparkPos = Projectile.Center + Main.rand.NextVector2Circular(25f, 25f);
+                Vector2 sparkPos = Projectile.Center + Main.rand.NextVector2Circular(25f + phase * 5f, 25f + phase * 5f);
                 Color sparkCol = Main.rand.NextBool(3) ? CrescendoUtils.StarGold : CrescendoUtils.CelestialWhite;
                 CrescendoParticleHandler.Spawn(CrescendoParticleFactory.OrbGlow(sparkPos,
-                    Main.rand.NextVector2Circular(0.4f, 0.4f), sparkCol * 0.4f, 0.14f, 14));
+                    Main.rand.NextVector2Circular(0.4f, 0.4f), sparkCol * (0.4f + phase * 0.1f), 0.14f + phase * 0.03f, 14));
             }
 
-            // Cosmic cloud wisps — nebula aura
-            if (Main.rand.NextBool(4))
+            // Cosmic cloud wisps 遯ｶ繝ｻmore frequent at higher phases
+            if (Main.rand.NextFloat() < 0.25f * phaseIntensity * 0.4f)
             {
-                CrescendoParticleFactory.SpawnAuraWisps(Projectile.Center, 1, 20f);
+                CrescendoParticleFactory.SpawnAuraWisps(Projectile.Center, 1, 20f + phase * 5f);
             }
 
-            // Cosmic electricity — occasional divine sparks
-            if (Main.rand.NextBool(10))
+            // Cosmic electricity 遯ｶ繝ｻmore frequent and larger at higher phases
+            if (Main.rand.NextFloat() < 0.1f * phaseIntensity)
             {
-                Vector2 elecPos = Projectile.Center + Main.rand.NextVector2Circular(30f, 30f);
-                Vector2 elecVel = Main.rand.NextVector2Circular(3f, 3f);
+                Vector2 elecPos = Projectile.Center + Main.rand.NextVector2Circular(30f + phase * 8f, 30f + phase * 8f);
+                Vector2 elecVel = Main.rand.NextVector2Circular(3f + phase, 3f + phase);
                 CrescendoParticleHandler.Spawn(CrescendoParticleFactory.DivineSpark(elecPos, elecVel,
-                    CrescendoUtils.DivineCrimson * 0.7f, 0.12f, 10));
+                    CrescendoUtils.DivineCrimson * (0.7f + phase * 0.1f), 0.12f + phase * 0.03f, 10));
             }
 
-            // Music notes — the deity hums the crescendo
-            if (Main.rand.NextBool(12))
+            // Music notes 遯ｶ繝ｻthe deity's hum grows louder with phase
+            if (Main.rand.NextFloat() < (0.08f + phase * 0.04f))
             {
-                CrescendoParticleFactory.SpawnCosmicNotes(Projectile.Center, 1, 15f);
+                CrescendoParticleFactory.SpawnCosmicNotes(Projectile.Center, 1 + (phase >= 3 ? 1 : 0), 15f + phase * 3f);
             }
 
-            // Pulsing divine light
-            float pulse = 0.35f + MathF.Sin(time * 0.1f) * 0.12f;
+            // Pulsing divine light 遯ｶ繝ｻbrighter per phase
+            float pulse = (0.35f + phase * 0.12f) + MathF.Sin(time * 0.1f) * (0.12f + phase * 0.04f);
             Lighting.AddLight(Projectile.Center, CrescendoUtils.DivineCrimson.ToVector3() * pulse);
         }
 
-        // ═══════════ ON HIT ═══════════
+        // 隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨翫・ON HIT 隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨翫・
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
@@ -295,55 +388,84 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
             CrescendoParticleHandler.Spawn(CrescendoParticleFactory.BeamFlare(target.Center, Vector2.Zero, CrescendoUtils.CelestialWhite * 0.7f, 0.4f, 10));
         }
 
-        // ═══════════ PREDRAW — MULTI-LAYER BLOOM ═══════════
+        // 隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨翫・PREDRAW 遯ｶ繝ｻMULTI-LAYER BLOOM 隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨翫・
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
 
-            // Load textures
-            Texture2D deityTex = ModContent.Request<Texture2D>("MagnumOpus/Content/Fate/Projectiles/CosmicDeityMinion").Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/QuarterNote").Value;
+            try
+            {
+                // Load textures
+                Texture2D deityTex = ModContent.Request<Texture2D>("MagnumOpus/Content/Fate/Projectiles/CosmicDeityMinion", AssetRequestMode.ImmediateLoad).Value;
+                Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/QuarterNote", AssetRequestMode.ImmediateLoad).Value;
 
-            Vector2 deityOrigin = deityTex.Size() / 2f;
-            Vector2 glowOrigin = glowTex.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Vector2 deityOrigin = deityTex.Size() / 2f;
+                Vector2 glowOrigin = glowTex.Size() / 2f;
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
-            float time = (float)Main.timeForVisualEffects;
-            float pulse = 1f + MathF.Sin(time * 0.08f) * 0.1f;
-            float breathe = 1f + MathF.Sin(time * 0.04f) * 0.06f;
-            SpriteEffects effects = Projectile.velocity.X < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+                float time = (float)Main.timeForVisualEffects;
+                float pulse = 1f + MathF.Sin(time * 0.08f) * 0.1f;
+                float breathe = 1f + MathF.Sin(time * 0.04f) * 0.06f;
+                SpriteEffects effects = Projectile.velocity.X < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 
-            // === PASS 1: Outer cosmic aura glow (additive, behind sprite) ===
-            CrescendoUtils.BeginAdditive(spriteBatch);
+                // Phase-based scaling — deity grows larger and brighter per Escalation Phase
+                float pScale = PhaseScale;
+                float phaseGlow = 1f + (pScale - 1f) * 0.8f; // Glow intensity tracks phase
 
-            // Layer 1: Vast void purple — the cosmic shadow
-            spriteBatch.Draw(glowTex, drawPos, null, CrescendoUtils.VoidBlack * 0.35f, 0f, glowOrigin, 2.8f * breathe, SpriteEffects.None, 0f);
+                // === PASS 1: Outer cosmic aura glow (additive, behind sprite) ===
+                CrescendoUtils.BeginAdditive(spriteBatch);
 
-            // Layer 2: Deep deity purple — the entity's resonance field
-            spriteBatch.Draw(glowTex, drawPos, null, CrescendoUtils.DeityPurple * 0.45f, 0f, glowOrigin, 2.0f * pulse, SpriteEffects.None, 0f);
+                // Layer 1: Vast void purple — the cosmic shadow
+                spriteBatch.Draw(glowTex, drawPos, null, CrescendoUtils.VoidBlack * (0.35f * phaseGlow), 0f, glowOrigin, 2.8f * breathe * pScale, SpriteEffects.None, 0f);
 
-            // Layer 3: Crescendo pink — fate's heartbeat
-            spriteBatch.Draw(glowTex, drawPos, null, CrescendoUtils.CrescendoPink * 0.55f, 0f, glowOrigin, 1.4f * pulse, SpriteEffects.None, 0f);
+                // Layer 2: Deep deity purple — the entity's resonance field
+                spriteBatch.Draw(glowTex, drawPos, null, CrescendoUtils.DeityPurple * (0.45f * phaseGlow), 0f, glowOrigin, 2.0f * pulse * pScale, SpriteEffects.None, 0f);
 
-            // Layer 4: Divine crimson — the deity's inner fire
-            spriteBatch.Draw(glowTex, drawPos, null, CrescendoUtils.DivineCrimson * 0.4f, 0f, glowOrigin, 0.9f * pulse, SpriteEffects.None, 0f);
+                // Layer 3: Crescendo pink — fate's heartbeat
+                spriteBatch.Draw(glowTex, drawPos, null, CrescendoUtils.CrescendoPink * (0.55f * phaseGlow), 0f, glowOrigin, 1.4f * pulse * pScale, SpriteEffects.None, 0f);
 
-            CrescendoUtils.BeginAlpha(spriteBatch);
+                // Layer 4: Divine crimson — the deity's inner fire
+                spriteBatch.Draw(glowTex, drawPos, null, CrescendoUtils.DivineCrimson * (0.4f * phaseGlow), 0f, glowOrigin, 0.9f * pulse * pScale, SpriteEffects.None, 0f);
 
-            // === PASS 2: Main deity sprite ===
-            spriteBatch.Draw(deityTex, drawPos, null, Color.White * 0.95f, 0f, deityOrigin, 1f, effects, 0f);
+                CrescendoUtils.BeginAlpha(spriteBatch);
 
-            // === PASS 3: Inner bright glow on top (additive) ===
-            CrescendoUtils.BeginAdditive(spriteBatch);
+                // === PASS 2: Main deity sprite (scaled with phase) ===
+                spriteBatch.Draw(deityTex, drawPos, null, Color.White * 0.95f, 0f, deityOrigin, pScale, effects, 0f);
 
-            // Star gold divine radiance
-            spriteBatch.Draw(glowTex, drawPos, null, CrescendoUtils.StarGold * 0.25f, 0f, glowOrigin, 0.7f * pulse, SpriteEffects.None, 0f);
+                // === PASS 3: Inner bright glow on top (additive) ===
+                CrescendoUtils.BeginAdditive(spriteBatch);
 
-            // Celestial white core
-            spriteBatch.Draw(glowTex, drawPos, null, CrescendoUtils.CelestialWhite * 0.3f, 0f, glowOrigin, 0.4f * pulse, SpriteEffects.None, 0f);
+                // Star gold divine radiance
+                spriteBatch.Draw(glowTex, drawPos, null, CrescendoUtils.StarGold * (0.25f * phaseGlow), 0f, glowOrigin, 0.7f * pulse * pScale, SpriteEffects.None, 0f);
 
-            CrescendoUtils.BeginAlpha(spriteBatch);
+                // Celestial white core
+                spriteBatch.Draw(glowTex, drawPos, null, CrescendoUtils.CelestialWhite * (0.3f * phaseGlow), 0f, glowOrigin, 0.4f * pulse * pScale, SpriteEffects.None, 0f);
+
+                CrescendoUtils.BeginAlpha(spriteBatch);
+            }
+            catch
+            {
+                try
+                {
+                    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
+
+            // Theme accents (additive pass)
+            try
+            {
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                CrescendoUtils.DrawThemeAccents(spriteBatch, Projectile.Center, 1f, 0.6f);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
 
             return false;
         }

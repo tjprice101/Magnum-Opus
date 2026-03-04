@@ -34,23 +34,30 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
             var add = _particles.Where(p => p.UseAdditiveBlend).ToList();
             var alpha = _particles.Where(p => !p.UseAdditiveBlend).ToList();
 
-            if (add.Count > 0)
+            try
             {
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-                foreach (var p in add) p.Draw(sb);
+                if (add.Count > 0)
+                {
+                    try { sb.End(); } catch { }
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                    foreach (var p in add) p.Draw(sb);
+                }
+                if (alpha.Count > 0)
+                {
+                    try { sb.End(); } catch { }
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                    foreach (var p in alpha) p.Draw(sb);
+                }
             }
-            if (alpha.Count > 0)
+            catch { }
+            finally
             {
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-                foreach (var p in alpha) p.Draw(sb);
             }
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
         public override void OnWorldUnload() { _particles.Clear(); }

@@ -4,6 +4,9 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
+using MagnumOpus.Content.FoundationWeapons.ExplosionParticlesFoundation;
+using MagnumOpus.Content.FoundationWeapons.XSlashFoundation;
 
 namespace MagnumOpus.Content.LaCampanella.Debuffs
 {
@@ -116,7 +119,27 @@ namespace MagnumOpus.Content.LaCampanella.Debuffs
                 }
             }
 
-            // Massive VFX: expanding fire shockwave rings
+            // === FOUNDATION: SparkExplosionProjectile — 12 directional Bell Flame Wave sparks (80+ sparks) ===
+            Projectile.NewProjectile(
+                player.GetSource_FromThis(), center, Vector2.Zero,
+                ModContent.ProjectileType<SparkExplosionProjectile>(),
+                0, 0f, playerOwner,
+                ai0: (float)SparkMode.RadialScatter);
+
+            // === FOUNDATION: XSlashEffect — Bell Shatter cross-detonation ===
+            Projectile.NewProjectile(
+                player.GetSource_FromThis(), center, Vector2.Zero,
+                ModContent.ProjectileType<XSlashEffect>(),
+                0, 0f, playerOwner,
+                ai0: Main.rand.NextFloat(MathHelper.TwoPi), ai1: (float)XSlashStyle.LaCampanella);
+
+            // === FOUNDATION: RippleEffectProjectile — Massive expanding bell shockwave ===
+            Projectile.NewProjectile(
+                player.GetSource_FromThis(), center, Vector2.Zero,
+                ModContent.ProjectileType<RippleEffectProjectile>(),
+                0, 0f, playerOwner);
+
+            // Legacy VFX: expanding fire shockwave rings (layered on top of Foundation)
             for (int ring = 0; ring < 3; ring++)
             {
                 int dustCount = 24 + ring * 12;

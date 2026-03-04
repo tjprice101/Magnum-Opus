@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.SandboxExoblade.Particles
 {
@@ -62,7 +63,7 @@ namespace MagnumOpus.Content.SandboxExoblade.Particles
         public override void CustomDraw(SpriteBatch spriteBatch)
         {
             Vector2 scale = Squash * Scale;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Content/SandboxExoblade/Particles/GlowSpark").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Content/SandboxExoblade/Particles/GlowSpark", AssetRequestMode.ImmediateLoad).Value;
             spriteBatch.Draw(texture, Position - Main.screenPosition, null, Color, Rotation, texture.Size() * 0.5f, scale, 0, 0f);
             if (Glowing)
                 spriteBatch.Draw(texture, Position - Main.screenPosition, null, Color.Lerp(Color.White, Color.Transparent, (float)Math.Pow(LifetimeCompletion, 3D)), Rotation, texture.Size() * 0.5f, scale * new Vector2(0.45f, 1f), 0, 0f);

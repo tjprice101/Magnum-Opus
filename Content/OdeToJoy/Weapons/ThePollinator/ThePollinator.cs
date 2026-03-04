@@ -2,18 +2,27 @@
 using MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator.Projectiles;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
+using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria;
 using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Content.OdeToJoy.HarmonicCores;
 using MagnumOpus.Content.OdeToJoy.ResonanceEnergies;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator
 {
+    /// <summary>
+    /// The Pollinator — ranged weapon of patient, spreading destruction.
+    /// Fires pollen shots that apply Pollinated debuff (DoT + chain spreading).
+    /// Pollinated enemies trigger Mass Bloom on death (AoE + homing seeds + golden field).
+    /// Harvest Season at 5 blooms: 3x DoT + doubled bloom radius.
+    /// </summary>
     public class ThePollinator : ModItem
     {
+        private int _massBloomCount;
+        private int _massBloomTimer;
+
         public override void SetDefaults()
         {
             Item.width = 52;
@@ -30,9 +39,16 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator
             Item.autoReuse = true;
             Item.noMelee = true;
             Item.crit = 15;
-            Item.shoot = ProjectileID.Bullet;
+            Item.shoot = ModContent.ProjectileType<PollenShotProjectile>();
             Item.shootSpeed = 14f;
             Item.useAmmo = AmmoID.Bullet;
+        }
+
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        {
+            // Override ammo to pollen shot
+            Projectile.NewProjectile(source, position, velocity, ModContent.ProjectileType<PollenShotProjectile>(), damage, knockback, player.whoAmI);
+            return false;
         }
 
         public override void AddRecipes()
@@ -48,11 +64,11 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Converts bullets into pollen seeds that home toward enemies"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Pollen seeds burst into homing rose petals on hit"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Every 4th shot fires a larger pollen burst that explodes into a radial shower of petals"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "All projectiles inflict Poisoned"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Where pollen drifts, the garden of joy blooms eternal — each seed a note in nature's jubilant hymn'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Converts bullets into pollen shots that apply Pollinated — 1% HP/s DoT that spreads to nearby enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Pollinated enemies trigger Mass Bloom on death — golden explosion + 3 homing seed projectiles"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Mass Bloom sites become Golden Fields that heal allies 3 HP/s and grant +5% damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "After 5 Mass Blooms within 10 seconds, triggers Harvest Season — 3x DoT for 5s"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The pollen does not hate. The pollen simply is. And soon, everything else simply was.'")
             {
                 OverrideColor = new Color(255, 200, 50)
             });

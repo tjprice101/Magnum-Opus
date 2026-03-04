@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using MagnumOpus.Content.LaCampanella;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.Utilities
 {
@@ -86,6 +87,15 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
                 if (dist < bestDist) { bestDist = dist; best = npc; }
             }
             return best;
+        }
+
+        // ─────────── THEME TEXTURE ACCENTS ───────────
+
+        public static void DrawThemeAccents(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)
+        {
+            LaCampanellaVFXLibrary.DrawThemeStarFlare(sb, worldPos, scale, intensity * 0.5f);
+            float rot = (float)Main.GameUpdateCount * 0.02f;
+            LaCampanellaVFXLibrary.DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.4f, rot);
         }
     }
 }

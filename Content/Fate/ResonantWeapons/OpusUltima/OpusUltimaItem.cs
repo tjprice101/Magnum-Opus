@@ -42,6 +42,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima
         // Glow texture for hold VFX
         private static Asset<Texture2D> _glowTex;
 
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             // === PRESERVED STATS ===
@@ -68,10 +73,12 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Each swing writes a measure of cosmic music"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Fires cosmic energy balls that explode into 5 homing seekers"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Every third swing performs the Recapitulation — a massive energy blast"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The ultimate composition, the magnum opus of destruction'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "3-movement combo: Exposition, Development, Recapitulation"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Swings release energy balls that explode into 5 homing seekers"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Recapitulation fires a massive 1.5x energy blast — on melee hit, spawns 3-5 crystal shards"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Opus Resonance: each completed cycle grants +5% all damage (max 9 stacks, +45%)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Resonance stacks orbit as visible constellation stars"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The final work. The magnum opus. Written in starfire.'")
             {
                 OverrideColor = new Color(180, 40, 80) // Cosmic Crimson
             });

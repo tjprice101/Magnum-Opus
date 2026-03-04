@@ -10,10 +10,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
     /// Self-contained shader loader for The Conductor's Last Constellation.
     /// Loads 4 unique shaders from Effects/Fate/TheConductorsLastConstellation/:
     ///
-    ///   1. ConductorSwingTrail      — Main swing arc trail (2 techniques: main + glow)
-    ///   2. ConductorBeamShader      — Beam rendering for homing sword beams
-    ///   3. ConductorLightningShader — Lightning cascade electric effect
-    ///   4. ConductorConvergence     — Convergence explosion on 3rd combo
+    ///   1. ConductorSwingTrail      窶・Main swing arc trail (2 techniques: main + glow)
+    ///   2. ConductorBeamShader      窶・Beam rendering for homing sword beams
+    ///   3. ConductorLightningShader 窶・Lightning cascade electric effect
+    ///   4. ConductorConvergence     窶・Convergence explosion on 3rd combo
     ///
     /// Keys (5 total, because swing trail has 2 techniques):
     ///   "MagnumOpus:ConductorSwingTrail"
@@ -57,7 +57,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
             if (HasSwingTrail)
             {
                 GameShaders.Misc["MagnumOpus:ConductorSwingGlow"] =
-                    new MiscShaderData(SwingTrailShader, "ConductorSwingGlow");
+                    new MiscShaderData(SwingTrailShader, "P0");
             }
         }
 
@@ -81,7 +81,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
                 var fallback = ModContent.Request<Effect>("MagnumOpus/Effects/ScrollingTrailShader", AssetRequestMode.ImmediateLoad);
                 if (fallback?.Value != null)
                 {
-                    GameShaders.Misc[key] = new MiscShaderData(fallback, "ScrollingTrailPass");
+                    GameShaders.Misc[key] = new MiscShaderData(fallback, "P0");
                     return true;
                 }
             }

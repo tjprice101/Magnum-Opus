@@ -110,7 +110,7 @@ namespace MagnumOpus.Content.SwanLake
         // =================================================================
 
         /// <summary>Lore text color for ModifyTooltips.</summary>
-        public static readonly Color LoreText = new Color(220, 225, 235);
+        public static readonly Color LoreText = new Color(240, 240, 255);
 
         /// <summary>Special weapon effect tooltip color — prismatic hint.</summary>
         public static readonly Color EffectTooltip = new Color(180, 220, 255);

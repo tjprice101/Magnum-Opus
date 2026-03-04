@@ -4,11 +4,12 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain.Utilities;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain.Particles
 {
     // =========================================================================
-    //  PHANTOM WISP — Ghostly wisps that drift around the phantom minion,
+    //  PHANTOM WISP 窶・Ghostly wisps that drift around the phantom minion,
     //  like ethereal breath. Additive, 3-layer glow, velocity-squished, orbiting.
     // =========================================================================
     public class PhantomWispParticle : WatchingParticle
@@ -54,7 +55,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
             float alpha = WatchingUtils.SineBump(LifetimeCompletion) * 0.8f;
             if (alpha <= 0f) return;
 
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
             // Velocity-squish: stretch along velocity direction
@@ -75,7 +76,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
     }
 
     // =========================================================================
-    //  WATCHING EYE — Floating eye-like glyph particles that blink/pulse
+    //  WATCHING EYE 窶・Floating eye-like glyph particles that blink/pulse
     //  when the minion shifts phase. AlphaBlend, uses Glyph textures,
     //  scale pulses in/out like an eye blinking.
     // =========================================================================
@@ -122,11 +123,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
             if (alpha <= 0f) return;
 
             string glyphPath = $"MagnumOpus/Assets/Particles Asset Library/{NoteTextureNames[_glyphIndex]}";
-            var tex = ModContent.Request<Texture2D>(glyphPath).Value;
+            var tex = ModContent.Request<Texture2D>(glyphPath, AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
             // Soft glow behind the eye glyph
-            var glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom").Value;
+            var glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             sb.Draw(glowTex, drawPos, null, WatchingUtils.GazeGreen * alpha * 0.25f, 0f,
                 glowTex.Size() / 2f, Scale * 3f, SpriteEffects.None, 0f);
 
@@ -137,7 +138,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
     }
 
     // =========================================================================
-    //  MYSTERY ZONE RIPPLE — Expanding ripple rings at mystery zone boundaries,
+    //  MYSTERY ZONE RIPPLE 窶・Expanding ripple rings at mystery zone boundaries,
     //  like gravitational waves. Additive, custom draw rendering concentric rings
     //  from triangle-fan, fading outward.
     // =========================================================================
@@ -182,7 +183,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
                 Color ringColor = Color.Lerp(Color, WatchingUtils.SpectralMint, ringRatio * 0.5f) * ringAlpha;
 
                 // Draw ring as connected line segments with bloom texture
-                var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom").Value;
+                var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
                 for (int s = 0; s < segments; s++)
                 {
                     float angle = MathHelper.TwoPi * s / segments;
@@ -195,7 +196,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
     }
 
     // =========================================================================
-    //  PHANTOM BOLT TRAIL MOTE — Small streaking motes behind phantom bolt
+    //  PHANTOM BOLT TRAIL MOTE 窶・Small streaking motes behind phantom bolt
     //  projectiles. Additive, simple 2-layer with SparkleFlare1, short lifetime,
     //  velocity-stretched.
     // =========================================================================
@@ -229,7 +230,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
             alpha *= alpha; // Quadratic fade
             if (alpha <= 0f) return;
 
-            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/PartiGlow").Value;
+            var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/PartiGlow", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
             // Velocity-stretch for motion blur

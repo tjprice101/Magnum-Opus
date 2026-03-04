@@ -9,7 +9,11 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator.Particles;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator.Primitives;
+using MagnumOpus.Content.LaCampanella;
 using MagnumOpus.Content.LaCampanella.Debuffs;
+using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
+using MagnumOpus.Content.FoundationWeapons.ExplosionParticlesFoundation;
+using MagnumOpus.Content.FoundationWeapons.SmokeFoundation;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator.Projectiles
 {
@@ -25,6 +29,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
         private List<Vector2> trailPositions = new List<Vector2>();
         private const int MaxTrailPoints = 16;
         private SymphonicBellfirePrimitiveRenderer trailRenderer;
+        private static int _lastParticleDrawFrame = -1;
 
         private const float FirePatchDuration = 90; // 1.5 seconds
         private const float ExplosionRadius = 80f;
@@ -116,6 +121,19 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
             SpawnFirePatch();
 
             SoundEngine.PlaySound(SoundID.Item14 with { Pitch = 0.2f, Volume = 0.7f }, Projectile.Center);
+
+            // === FOUNDATION: RippleEffectProjectile — Rocket detonation shockwave ===
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero,
+                ModContent.ProjectileType<RippleEffectProjectile>(),
+                0, 0f, Projectile.owner);
+
+            // === FOUNDATION: SparkExplosionProjectile — Rocket detonation spark burst ===
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero,
+                ModContent.ProjectileType<SparkExplosionProjectile>(),
+                0, 0f, Projectile.owner,
+                ai0: (float)SparkMode.RadialScatter);
         }
 
         private void SpawnFirePatch()
@@ -147,8 +165,15 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
 
-            SymphonicBellfireParticleHandler.DrawAllParticles(sb);
+            int currentFrame = (int)Main.GameUpdateCount;
+            if (_lastParticleDrawFrame != currentFrame)
+            {
+                _lastParticleDrawFrame = currentFrame;
+                SymphonicBellfireParticleHandler.DrawAllParticles(sb);
+            }
 
             // Trail
             if (trailPositions.Count >= 2)
@@ -179,7 +204,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
                     Projectile.rotation, tex.Size() / 2f, Projectile.scale, SpriteEffects.None, 0f);
             }
 
-            // Bloom orb
+            // Bloom orb + LC flare + LC star in Additive
+            try { sb.End(); } catch { }
+            try
+            {
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
             Texture2D bloomTex = null;
             try
             {
@@ -194,6 +225,46 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
                     bloomCol, 0f, bloomTex.Size() / 2f, 0.2f, SpriteEffects.None, 0f);
             }
 
+            // LC Beam Lens Flare - explosive flare halo behind the rocket
+            {
+                Vector2 rocketScreen = Projectile.Center - Main.screenPosition;
+                float rocketPulse = 0.7f + 0.3f * (float)Math.Sin(Main.GameUpdateCount * 0.2f);
+                LaCampanellaVFXLibrary.DrawBeamLensFlare(sb, rocketScreen,
+                    0.18f * rocketPulse, Projectile.rotation, 0.2f * rocketPulse,
+                    LaCampanellaPalette.InfernalOrange);
+            }
+
+            // LC Bright Star Projectile - rotating star at rocket core
+            {
+                Vector2 rocketScreen = Projectile.Center - Main.screenPosition;
+                float starRot = (float)Main.GameUpdateCount * 0.07f;
+                LaCampanellaVFXLibrary.DrawBrightStar(sb, rocketScreen,
+                    0.12f, starRot, 0.25f,
+                    LaCampanellaPalette.FlameYellow, useVariant2: true);
+            }
+
+            // Theme texture accents
+            SymphonicBellfireUtils.DrawThemeAccents(sb, Projectile.Center - Main.screenPosition, Projectile.scale);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
+            } // end outer try
+            catch
+            {
+                try
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
             return false;
         }
     }

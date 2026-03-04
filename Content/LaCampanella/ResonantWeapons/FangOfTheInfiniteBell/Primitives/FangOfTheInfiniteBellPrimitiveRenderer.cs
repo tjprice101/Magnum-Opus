@@ -127,17 +127,43 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
                 indices[idx++] = bl; indices[idx++] = tr; indices[idx++] = br;
             }
 
+            BlendState oldBlend = _device.BlendState;
+            DepthStencilState oldDepth = _device.DepthStencilState;
+            RasterizerState oldRaster = _device.RasterizerState;
             try
             {
                 _vertexBuffer.SetData(vertices, 0, vertCount, SetDataOptions.Discard);
                 _indexBuffer.SetData(indices, 0, (positions.Length - 1) * 6, SetDataOptions.Discard);
                 _device.SetVertexBuffer(_vertexBuffer);
                 _device.Indices = _indexBuffer;
+                _device.BlendState = BlendState.Additive;
+                _device.DepthStencilState = DepthStencilState.None;
                 _device.RasterizerState = RasterizerState.CullNone;
-                if (settings.Shader != null) try { settings.Shader.Apply(); } catch { }
+                if (settings.Shader != null)
+                {
+                    try { settings.Shader.Apply(); } catch { }
+                }
+                else
+                {
+                    var basicEffect = new BasicEffect(_device)
+                    {
+                        VertexColorEnabled = true,
+                        TextureEnabled = false,
+                        World = Matrix.Identity,
+                        View = Matrix.Identity,
+                        Projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1)
+                    };
+                    foreach (var pass in basicEffect.CurrentTechnique.Passes) pass.Apply();
+                }
                 _device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertCount, 0, (positions.Length - 1) * 2);
             }
             catch { }
+            finally
+            {
+                _device.BlendState = oldBlend;
+                _device.DepthStencilState = oldDepth;
+                _device.RasterizerState = oldRaster;
+            }
         }
 
         private void EnsureBuffers()

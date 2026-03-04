@@ -17,7 +17,7 @@ using ReLogic.Content;
 namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Projectiles
 {
     /// <summary>
-    /// Standard Chamber — Moonlight Comet Round.
+    /// Standard Chamber 窶・Moonlight Comet Round.
     /// Ricochets off tiles up to 10 times with escalating crater detonations.
     /// Each bounce creates a small AoE blast and spawns VFX.
     /// Smart homing begins after bounce 7.
@@ -120,7 +120,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
         {
             if (Main.dedServ) return;
 
-            // Ember trail — every tick
+            // Ember trail 窶・every tick
             if (AliveTime % 1 == 0)
             {
                 Vector2 offset = Main.rand.NextVector2Circular(4f, 4f);
@@ -132,7 +132,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
                     0.3f + CometPhase * 0.3f, 15 + Main.rand.Next(10)));
             }
 
-            // Dust trail — every 2 ticks
+            // Dust trail 窶・every 2 ticks
             if (AliveTime % 2 == 0)
             {
                 int d = Dust.NewDust(Projectile.position, Projectile.width, Projectile.height,
@@ -141,7 +141,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
                 Main.dust[d].scale = 0.8f + CometPhase * 0.5f;
             }
 
-            // Head mist — every 4 ticks
+            // Head mist 窶・every 4 ticks
             if (AliveTime % 4 == 0)
             {
                 CometParticleHandler.Spawn(new CometMistParticle(
@@ -195,7 +195,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
             float phase = CometPhase;
             Color craterColor = CometUtils.GetCometGradient(phase);
 
-            // Crater bloom — size escalates with bounces
+            // Crater bloom 窶・size escalates with bounces
             float bloomScale = 1.0f + phase * 1.5f;
             CometParticleHandler.Spawn(new CraterBloomParticle(
                 Projectile.Center, craterColor, bloomScale, 20 + (int)(phase * 15)));
@@ -230,7 +230,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
                 Main.dust[d].scale = 1.0f + phase * 0.8f;
             }
 
-            // Hue-shifting music notes — the gun's ricochets ring out like a timpani finale
+            // Hue-shifting music notes 窶・the gun's ricochets ring out like a timpani finale
             int noteCount = 2 + (int)(phase * 4);
             MoonlightVFXLibrary.SpawnMusicNotes(Projectile.Center, count: noteCount,
                 spread: 20f + phase * 25f, minScale: 0.5f, maxScale: 1.0f,
@@ -299,13 +299,23 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
         {
             if (Main.dedServ) return false;
 
-            // Pass 1: Glow underlayer trail
-            DrawGlowTrail();
+            // End the active SpriteBatch before GPU primitive drawing
+            Main.spriteBatch.End();
+            try
+            {
+                // Pass 1: Glow underlayer trail
+                DrawGlowTrail();
 
-            // Pass 2: Main comet body trail
-            DrawMainTrail();
+                // Pass 2: Main comet body trail
+                DrawMainTrail();
+            }
+            finally
+            {
+                // Restore SpriteBatch to Terraria's expected state
+                Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
-            // Pass 3: Head glow orb
+            // Pass 3: Head glow orb (uses SpriteBatch)
             DrawHeadGlow();
 
             return false;
@@ -322,7 +332,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
                 glowShader.UseOpacity(0.4f + CometPhase * 0.3f);
                 glowShader.UseSaturation(CometPhase); // uPhase for the shader
 
-                // Nebula wisp noise — gaseous comet wake texture for each ricochet
+                // Nebula wisp noise 窶・gaseous comet wake texture for each ricochet
                 glowShader.UseImage1(ModContent.Request<Texture2D>(
                     "MagnumOpus/Assets/VFX Asset Library/NoiseTextures/NebulaWispNoise"));
             }
@@ -355,7 +365,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
                 mainShader.UseOpacity(0.7f + CometPhase * 0.3f);
                 mainShader.UseSaturation(CometPhase);
 
-                // Nebula wisp noise — inner comet body distortion
+                // Nebula wisp noise 窶・inner comet body distortion
                 mainShader.UseImage1(ModContent.Request<Texture2D>(
                     "MagnumOpus/Assets/VFX Asset Library/NoiseTextures/NebulaWispNoise"));
             }
@@ -388,29 +398,44 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
 
             // Layer 1: Directional comet ellipse — stretched along velocity for comet shape
             var ellipseTex = ModContent.Request<Texture2D>(
-                "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/WideSoftEllipse").Value;
+                "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/WideSoftEllipse", AssetRequestMode.ImmediateLoad).Value;
+
+            // Switch to Additive for bloom rendering
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
+
             Color ellipseColor = CometUtils.GetCometGradient(CometPhase * 0.8f) with { A = 0 };
             float ellipseScale = 0.3f + CometPhase * 0.25f;
             sb.Draw(ellipseTex, drawPos, null, ellipseColor * (0.3f + CometPhase * 0.2f),
                 velRotation, ellipseTex.Size() * 0.5f,
                 new Vector2(ellipseScale * 1.8f, ellipseScale), SpriteEffects.None, 0f);
 
-            // Layer 2: Wide atmospheric bloom — soft outer halo
+            // Layer 2: Wide atmospheric bloom — soft outer halo (scaled down some)
             Color outerColor = CometUtils.GetCometGradient(CometPhase) with { A = 0 };
-            float outerScale = 0.6f + CometPhase * 0.4f;
-            sb.Draw(bloom, drawPos, null, outerColor * (0.4f + CometPhase * 0.3f),
+            float outerScale = 0.45f + CometPhase * 0.3f;
+            sb.Draw(bloom, drawPos, null, outerColor * (0.35f + CometPhase * 0.25f),
                 0f, bloom.Size() * 0.5f, outerScale, SpriteEffects.None, 0f);
 
             // Layer 3: Mid glow — comet coma
             Color midColor = CometUtils.GetCometGradient(CometPhase * 0.5f) with { A = 0 };
-            sb.Draw(bloom, drawPos, null, midColor * 0.3f,
-                0f, bloom.Size() * 0.5f, outerScale * 0.65f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, midColor * 0.25f,
+                0f, bloom.Size() * 0.5f, outerScale * 0.6f, SpriteEffects.None, 0f);
 
             // Layer 4: Bright inner core
             Color coreColor = CometUtils.FrigidImpact with { A = 0 };
-            float coreScale = 0.3f + CometPhase * 0.2f;
-            sb.Draw(bloom, drawPos, null, coreColor * (0.6f + CometPhase * 0.4f),
+            float coreScale = 0.25f + CometPhase * 0.15f;
+            sb.Draw(bloom, drawPos, null, coreColor * (0.5f + CometPhase * 0.35f),
                 0f, bloom.Size() * 0.5f, coreScale, SpriteEffects.None, 0f);
+
+            // Restore to AlphaBlend
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
         }
 
         // =================================================================

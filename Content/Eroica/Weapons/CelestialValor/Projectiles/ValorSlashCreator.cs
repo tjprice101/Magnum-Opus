@@ -7,6 +7,8 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
 {
     public class ValorSlashCreator : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
+
         public override void SetDefaults()
         {
             Projectile.width = 2;

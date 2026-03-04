@@ -1,6 +1,8 @@
 ﻿using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
+using MagnumOpus.Content.FoundationWeapons.SparkleProjectileFoundation;
+using ReLogic.Content;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -16,6 +18,8 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
     /// </summary>
     public class ValorBeam : ModProjectile
     {
+        public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
+
         private const int TrailLength = 16;
         private Vector2[] trailPositions = new Vector2[TrailLength];
         private bool trailInitialized = false;
@@ -103,7 +107,63 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
                 sb.Draw(streak, streakDraw, null, streakColor * 0.7f, Projectile.rotation, streakOrigin, new Vector2(0.6f, 0.2f), SpriteEffects.None, 0f);
             }
 
+            // ── Crystal shimmer overlay (SparkleProjectileFoundation) ──
+            DrawCrystalShimmer(sb);
+
+            // Eroica theme accent
+            EroicaVFXLibrary.BeginEroicaAdditive(sb);
+            EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.5f);
+            EroicaVFXLibrary.EndEroicaAdditive(sb);
+
             return false;
+        }
+
+        /// <summary>
+        /// SparkleProjectileFoundation crystal shimmer — gold faceted overlay on beam core.
+        /// CrystalBody (gold, rotating) + StarFlare (white, pulsing).
+        /// </summary>
+        private void DrawCrystalShimmer(SpriteBatch sb)
+        {
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            float time = (float)Main.timeForVisualEffects * 0.04f;
+
+            Texture2D crystalBody = SPFTextures.CrystalBody.Value;
+            Texture2D starFlare = SPFTextures.StarFlare.Value;
+            if (crystalBody == null || starFlare == null) return;
+
+            try
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+
+                // Crystal body — gold facets, slow rotation
+                if (crystalBody != null)
+                {
+                    Color bodyColor = EroicaPalette.Gold with { A = 0 };
+                    sb.Draw(crystalBody, drawPos, null, bodyColor * 0.25f,
+                        time * 0.6f, crystalBody.Size() * 0.5f, 0.2f, SpriteEffects.None, 0f);
+                }
+
+                // Star flare — white pulsing
+                if (starFlare != null)
+                {
+                    float pulse = 0.6f + 0.4f * (float)Math.Sin(Main.GameUpdateCount * 0.15f);
+                    Color flareColor = EroicaPalette.HotCore with { A = 0 };
+                    sb.Draw(starFlare, drawPos, null, flareColor * 0.2f * pulse,
+                        Projectile.rotation, starFlare.Size() * 0.5f, 0.15f, SpriteEffects.None, 0f);
+                }
+            }
+            finally
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+            }
         }
     }
 }

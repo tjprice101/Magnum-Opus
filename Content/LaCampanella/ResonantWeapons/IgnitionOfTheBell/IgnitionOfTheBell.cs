@@ -10,6 +10,9 @@ using MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Utilitie
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Particles;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Projectiles;
 using MagnumOpus.Common;
+using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
+using MagnumOpus.Content.FoundationWeapons.ExplosionParticlesFoundation;
+using MagnumOpus.Content.FoundationWeapons.SmokeFoundation;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell
 {
@@ -24,6 +27,11 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell
     public class IgnitionOfTheBell : ModItem
     {
         public override string Texture => "MagnumOpus/Content/LaCampanella/ResonantWeapons/IgnitionOfTheBell/IgnitionOfTheBell";
+
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
 
         public override void SetDefaults()
         {
@@ -106,11 +114,11 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "3-phase thrust combo with infernal geysers"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "3-phase thrust combo with infernal geysers and fire cyclones"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Chime Cyclone pulls enemies in before detonating"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Every 3rd Cyclone detonation triggers a Chimequake"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Every 3rd Cyclone detonation triggers a devastating Chimequake"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
-                "'The first spark was all it took. The bell has been burning ever since.'")
+                "'The bell does not ring. It ignites.'")
             {
                 OverrideColor = IgnitionOfTheBellUtils.LoreColor
             });

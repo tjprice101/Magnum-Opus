@@ -6,6 +6,8 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using Terraria.GameContent;
+using MagnumOpus.Content.FoundationWeapons.SparkleProjectileFoundation;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
@@ -161,7 +163,71 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             PiercingUtils.ExitShaderRegion(sb);
 
+            // ── ImpactFoundation-style expanding bloom ring (SPFTextures) ──
+            DrawImpactBloomRing(sb, drawPos, lifeProgress, ringAlpha);
+
+            // Eroica theme impact ring
+            EroicaVFXLibrary.BeginEroicaAdditive(sb);
+            EroicaVFXLibrary.DrawThemeImpactRing(sb, Projectile.Center, 1f, 0.4f, (float)Main.GameUpdateCount * 0.02f);
+            EroicaVFXLibrary.EndEroicaAdditive(sb);
+
             return false;
+        }
+
+        /// <summary>
+        /// ImpactFoundation expanding bloom ring — multi-scale soft glow stack
+        /// that expands and fades with the lightning explosion lifetime.
+        /// </summary>
+        private void DrawImpactBloomRing(SpriteBatch sb, Vector2 drawPos, float lifeProgress, float alpha)
+        {
+            Texture2D softGlow = SPFTextures.SoftGlow.Value;
+            Texture2D starFlare = SPFTextures.StarFlare.Value;
+            if (softGlow == null) return;
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                SamplerState.LinearClamp, DepthStencilState.None,
+                RasterizerState.CullNone, null,
+                Main.GameViewMatrix.TransformationMatrix);
+
+            try
+            {
+                Vector2 glowOrigin = softGlow.Size() * 0.5f;
+                float expandScale = 0.3f + lifeProgress * 1.2f;
+                float fadeAlpha = alpha * (1f - lifeProgress * 0.5f);
+
+                // Outer lightning-gold expanding haze
+                Color outerColor = PiercingUtils.LightGold with { A = 0 };
+                sb.Draw(softGlow, drawPos, null, outerColor * fadeAlpha * 0.25f,
+                    0f, glowOrigin, expandScale * 1.6f, SpriteEffects.None, 0f);
+
+                // Mid crimson-gold ring body
+                Color midColor = Color.Lerp(PiercingUtils.LightGold, PiercingUtils.CrescendoPink, 0.3f) with { A = 0 };
+                sb.Draw(softGlow, drawPos, null, midColor * fadeAlpha * 0.35f,
+                    0f, glowOrigin, expandScale, SpriteEffects.None, 0f);
+
+                // Tight white-hot core
+                Color hotColor = PiercingUtils.BrilliantWhite with { A = 0 };
+                float coreScale = expandScale * 0.4f * (1f - lifeProgress);
+                sb.Draw(softGlow, drawPos, null, hotColor * fadeAlpha * 0.4f,
+                    0f, glowOrigin, coreScale, SpriteEffects.None, 0f);
+
+                // Star flare accent at center (early phase only)
+                if (starFlare != null && lifeProgress < 0.5f)
+                {
+                    float flareFade = 1f - lifeProgress * 2f;
+                    sb.Draw(starFlare, drawPos, null, hotColor * flareFade * 0.3f,
+                        spiralAngle * 0.5f, starFlare.Size() * 0.5f, expandScale * 0.5f, SpriteEffects.None, 0f);
+                }
+            }
+            finally
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+            }
         }
     }
 }

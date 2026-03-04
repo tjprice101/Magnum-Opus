@@ -45,8 +45,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         public static void ExitShaderRegion(SpriteBatch sb)
         {
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
         }
     }
 
@@ -100,23 +100,27 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            for (int i = 0; i < positions.Length - 1; i++)
+            try
             {
-                if (positions[i] == Vector2.Zero || positions[i + 1] == Vector2.Zero) continue;
+                for (int i = 0; i < positions.Length - 1; i++)
+                {
+                    if (positions[i] == Vector2.Zero || positions[i + 1] == Vector2.Zero) continue;
 
-                float completion = (float)i / (positions.Length - 1);
-                float width = settings.WidthFunction(completion);
-                Color color = settings.ColorFunction(completion);
-                color.A = 0;
+                    float completion = (float)i / (positions.Length - 1);
+                    float width = settings.WidthFunction(completion);
+                    Color color = settings.ColorFunction(completion);
+                    color.A = 0;
 
-                float scale = width / bloomTex.Width * 2f;
-                Vector2 drawPos = positions[i] - Main.screenPosition;
+                    float scale = width / bloomTex.Width * 2f;
+                    Vector2 drawPos = positions[i] - Main.screenPosition;
 
-                sb.Draw(bloomTex, drawPos, null, color, 0f, origin, scale, SpriteEffects.None, 0f);
+                    sb.Draw(bloomTex, drawPos, null, color, 0f, origin, scale, SpriteEffects.None, 0f);
+                }
             }
-
-            sb.End();
+            finally
+            {
+                sb.End();
+            }
         }
     }
 
@@ -196,7 +200,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
     /// </summary>
     public class BulletPetalParticle : Particle
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MusicNote1";
+        public override string Texture => "MusicNoteQuarter";
         public override bool SetLifetime => true;
         public override bool UseAdditiveBlend => true;
 

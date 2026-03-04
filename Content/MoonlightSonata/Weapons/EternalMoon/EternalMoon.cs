@@ -45,6 +45,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon
         public static int SurgeDashTime = 45;
         public static int BaseUseTime = 38;
 
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             Item.width = 50;
@@ -141,7 +146,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon
                 $"Current phase: {phaseName}")
             { OverrideColor = EternalMoonUtils.GetLunarGradient(player.EternalMoon().LunarPhase / 4f) });
             tooltips.Add(new TooltipLine(Mod, "Lore",
-                "'The eternal cycle made blade — each swing echoes moonlight on water'")
+                "'The tide remembers what the shore forgets.'")
             { OverrideColor = new Color(140, 100, 200) });
         }
 

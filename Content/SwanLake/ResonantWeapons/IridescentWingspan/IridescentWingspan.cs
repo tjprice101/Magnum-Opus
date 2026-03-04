@@ -85,14 +85,22 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan
                 return false;
             }
 
-            // Normal: fire 3 bolts in spread
-            float spread = MathHelper.ToRadians(12f);
-            for (int i = -1; i <= 1; i++)
+            // Normal: fire 5 bolts in wingspan fan pattern (2 outer arc, 2 inner arc, 1 center)
+            // Each bolt gets a unique hue offset via ai[1] for spectrum cycling
+            float[] spreadAngles = { -24f, -10f, 0f, 10f, 24f };
+            for (int i = 0; i < 5; i++)
             {
-                Vector2 spreadVel = velocity.RotatedBy(spread * i);
+                float angleRad = MathHelper.ToRadians(spreadAngles[i]);
+                Vector2 spreadVel = velocity.RotatedBy(angleRad);
+                float hueOffset = (float)i / 5f; // Each bolt at different spectrum position
                 Projectile.NewProjectile(source, position, spreadVel, type,
-                    damage, knockback, player.whoAmI, ai0: 0f);
+                    damage, knockback, player.whoAmI, ai0: 0f, ai1: hueOffset);
             }
+
+            // Track resonance — if cast within 1s of last convergence, grant bonus
+            var wspData = player.Wingspan();
+            if (wspData.ResonanceTimer > 0)
+                wspData.ResonanceDamageBonus = 0.10f; // +10% on sequential casts
 
             // Muzzle sparks
             for (int i = 0; i < 5; i++)
@@ -158,18 +166,27 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan
             }
         }
 
+        public override void ModifyWeaponDamage(Player player, ref StatModifier damage)
+        {
+            var wsp = player.Wingspan();
+            if (wsp.ResonanceDamageBonus > 0f)
+                damage += wsp.ResonanceDamageBonus;
+        }
+
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1",
-                "Fires three spectral wing bolts in a spread pattern"));
+                "Fires five spectral wing bolts in a wingspan fan that converge at the cursor"));
             tooltips.Add(new TooltipLine(Mod, "Effect2",
-                "Each hit charges ethereal wings, at full charge the next cast fires a devastating wing blast"));
+                "All 5 bolts converging triggers a Prismatic Convergence burst with rainbow lasers"));
             tooltips.Add(new TooltipLine(Mod, "Effect3",
-                "The empowered blast passes through walls and pierces enemies"));
+                "Casting within 1 second of a convergence grants Wingspan Resonance: +10% damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4",
+                "Each hit charges ethereal wings — at full charge, fires a devastating empowered wing blast"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
-                "'Spread your wings one final time — let the world see how beautifully they burn'")
+                "'To witness the full wingspan is to know both the beauty and the death.'")
             {
-                OverrideColor = WingspanUtils.LoreColor
+                OverrideColor = new Color(240, 240, 255)
             });
         }
 

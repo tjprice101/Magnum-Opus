@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using MagnumOpus.Content.SwanLake;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Utilities
 {
@@ -43,7 +44,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Utiliti
         public static readonly Color FeatherBlack = new Color(15, 15, 25);
 
         /// <summary>Lore tooltip color.</summary>
-        public static readonly Color LoreColor = new Color(220, 225, 235);
+        public static readonly Color LoreColor = new Color(240, 240, 255);
 
         /// <summary>Get a cycling rainbow color.</summary>
         public static Color GetRainbow(float offset = 0f)
@@ -265,5 +266,14 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Utiliti
         }
 
         #endregion
+
+        // ─────────── THEME TEXTURE ACCENTS ───────────
+
+        public static void DrawThemeAccents(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)
+        {
+            SwanLakeVFXLibrary.DrawThemeCrystalAccent(sb, worldPos, scale, intensity * 0.5f);
+            float rot = (float)Main.GameUpdateCount * 0.02f;
+            SwanLakeVFXLibrary.DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.4f, rot);
+        }
     }
 }

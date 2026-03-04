@@ -144,6 +144,23 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                 LunarParticleHandler.SpawnParticle(new LunarBloomParticle(
                     target.Center, 0.5f, EternalMoonUtils.CrescentGlow, 15, 0.04f));
             }
+
+            // === FOUNDATION VFX: Ripple + ThinSlash on wave impact ===
+            if (Main.myPlayer == Projectile.owner)
+            {
+                // TidalRippleEffect — expanding concentric rings at wave impact
+                Projectile.NewProjectile(Projectile.GetSource_FromAI(),
+                    target.Center, Vector2.Zero,
+                    ModContent.ProjectileType<TidalRippleEffect>(),
+                    0, 0f, Projectile.owner, 0.7f); // Moderate tidal phase for wave hits
+
+                // TidalThinSlash — directional slash mark along wave travel direction
+                float waveAngle = Projectile.velocity.ToRotation();
+                Projectile.NewProjectile(Projectile.GetSource_FromAI(),
+                    target.Center, Vector2.Zero,
+                    ModContent.ProjectileType<TidalThinSlash>(),
+                    0, 0f, Projectile.owner, waveAngle, 0); // Style 0: Ice Cyan for wave impacts
+            }
         }
 
         public override bool PreDraw(ref Color lightColor)

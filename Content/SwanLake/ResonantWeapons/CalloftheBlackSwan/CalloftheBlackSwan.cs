@@ -14,17 +14,22 @@ using MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Utilities;
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan
 {
     /// <summary>
-    /// Call of the Black Swan — Melee Greatsword.
-    /// Exoblade-inspired self-contained weapon with channel-held swing projectile.
+    /// Call of the Black Swan — Melee Greatsword (OVERHAUL).
+    /// The Black Swan is Odile — fierce elegance, dark ballet of destruction.
     /// 
-    /// COMBAT SYSTEM:
-    /// • Left-click: 3-phase ballet combo (Plié → Arabesque → Grand Jeté)
-    /// • Phase 2 (Grand Jeté) fires 3 homing Black Swan Flares
-    /// • Landing 3 flares triggers empowerment (next Phase 2 fires 8 flares at 2× damage)
-    /// • Each phase has unique CurveSegment animation with per-phase blade length and damage
+    /// COMBAT SYSTEM (OVERHAUL):
+    /// • 3-Phase Dance Combo: Entrechat → Fouetté → Grand Jeté
+    ///   - Phase 1 (Entrechat): Quick diagonal slash, spawns 3 black feather projectiles in fan arc
+    ///   - Phase 2 (Fouetté): Spinning horizontal slash, spawns BlackSwanFlare radial AoE
+    ///   - Phase 3 (Grand Jeté): Leaping overhead slam + swan silhouette shockwave + 5 feather rain
+    /// • Swan's Grace: Successive hits without getting hit build Grace stacks (max 5)
+    ///   - Each stack: +8% swing speed, trail becomes more prismatic
+    ///   - At max Grace: next swing releases Prismatic Swan charge projectile
+    /// • Black Mirror: Taking damage while swinging converts Grace → Dark Mirror stacks
+    ///   - Dark Mirror: +15% damage but -5% speed per stack
+    /// • Swan's Mark debuff: -10 defense on marked enemies
     /// 
-    /// STATS PRESERVED FROM ORIGINAL:
-    /// Damage 400, UseTime 28, Knockback 7, Sell 60g, SwanRarity
+    /// STATS: Damage 400, UseTime 28, Knockback 7, Sell 60g, SwanRarity
     /// </summary>
     public class CalloftheBlackSwan : ModItem
     {
@@ -96,36 +101,86 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan
             return false;
         }
 
+        public override float UseSpeedMultiplier(Player player)
+        {
+            var bsp = player.BlackSwan();
+            return bsp.GetGraceSpeedMultiplier();
+        }
+
+        public override void ModifyWeaponDamage(Player player, ref StatModifier damage)
+        {
+            var bsp = player.BlackSwan();
+            if (bsp.DarkMirrorStacks > 0)
+                damage *= bsp.GetDarkMirrorDamageMultiplier();
+        }
+
         public override void HoldItem(Player player)
         {
             var bsp = player.BlackSwan();
 
-            // Empowered visual feedback — self-contained particles only
-            if (bsp.IsEmpowered)
+            // Grace stack visual feedback
+            if (bsp.GraceStacks > 0)
             {
-                float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.2f);
+                float graceIntensity = bsp.PrismaticIntensity;
+                float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.15f);
 
-                // Gentle dual-polarity dust rising
-                if (Main.rand.NextBool(5))
+                // Grace glint particles orbiting at arm's reach — 1 per stack
+                for (int i = 0; i < bsp.GraceStacks; i++)
                 {
-                    Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
-                    bool isBlack = Main.rand.NextBool();
-                    int dustType = isBlack ? DustID.Shadowflame : DustID.WhiteTorch;
-                    Color col = isBlack ? Color.Black : Color.White;
-                    Dust d = Dust.NewDustPerfect(player.Center + offset, dustType,
-                        new Vector2(0, -1.5f) + Main.rand.NextVector2Circular(0.8f, 0.8f), 0, col, 1.3f);
-                    d.noGravity = true;
-                    d.fadeIn = 1.1f;
+                    float angle = Main.GameUpdateCount * 0.03f + MathHelper.TwoPi * i / bsp.GraceStacks;
+                    Vector2 orbitPos = player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 30f;
+
+                    if (Main.rand.NextBool(8))
+                    {
+                        Color sparkCol = Color.Lerp(Color.White, Main.hslToRgb((Main.GameUpdateCount * 0.01f + (float)i / 5f) % 1f, 0.8f, 0.8f), graceIntensity);
+                        Dust d = Dust.NewDustPerfect(orbitPos, DustID.WhiteTorch,
+                            Main.rand.NextVector2Circular(0.3f, 0.3f), 0, sparkCol, 0.5f + graceIntensity * 0.3f);
+                        d.noGravity = true;
+                    }
                 }
 
-                // Pulsing rainbow light
-                float hue = (Main.GameUpdateCount * 0.02f) % 1f;
-                Vector3 rainbowLight = Main.hslToRgb(hue, 0.8f, 0.6f).ToVector3();
-                Lighting.AddLight(player.Center, (0.6f + pulse * 0.2f) * rainbowLight);
+                // Max Grace — prismatic aura ready
+                if (bsp.IsMaxGrace)
+                {
+                    float hue = (Main.GameUpdateCount * 0.02f) % 1f;
+                    Vector3 rainbowLight = Main.hslToRgb(hue, 0.85f, 0.7f).ToVector3();
+                    Lighting.AddLight(player.Center, (0.6f + pulse * 0.2f) * rainbowLight);
+
+                    if (Main.rand.NextBool(4))
+                    {
+                        Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
+                        Color prismatic = Main.hslToRgb(Main.rand.NextFloat(), 0.9f, 0.8f);
+                        Dust d = Dust.NewDustPerfect(player.Center + offset, DustID.RainbowTorch,
+                            new Vector2(0, -1.5f) + Main.rand.NextVector2Circular(0.8f, 0.8f), 0, prismatic, 1.1f);
+                        d.noGravity = true;
+                    }
+                }
+                else
+                {
+                    // Gentle white glow that strengthens with stacks
+                    Lighting.AddLight(player.Center, new Vector3(0.3f + graceIntensity * 0.3f, 0.3f + graceIntensity * 0.3f, 0.35f + graceIntensity * 0.25f));
+                }
             }
-            else
+
+            // Dark Mirror visual feedback — ominous dark aura
+            if (bsp.DarkMirrorStacks > 0)
             {
-                // Subtle monochrome ambient
+                float mirrorIntensity = (float)bsp.DarkMirrorStacks / BlackSwanPlayer.MaxStacks;
+                if (Main.rand.NextBool(6))
+                {
+                    Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
+                    Color darkCol = Color.Lerp(new Color(30, 30, 45), new Color(60, 10, 80), mirrorIntensity);
+                    Dust d = Dust.NewDustPerfect(player.Center + offset, DustID.Shadowflame,
+                        new Vector2(0, -1f) + Main.rand.NextVector2Circular(0.5f, 0.5f), 100, darkCol, 1.0f + mirrorIntensity * 0.5f);
+                    d.noGravity = true;
+                }
+
+                Lighting.AddLight(player.Center, new Vector3(0.15f * mirrorIntensity, 0.05f * mirrorIntensity, 0.25f * mirrorIntensity));
+            }
+
+            // Base ambient glow if no stacks
+            if (bsp.GraceStacks == 0 && bsp.DarkMirrorStacks == 0)
+            {
                 if (Main.rand.NextBool(12))
                 {
                     Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
@@ -143,11 +198,13 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Swings send black and white flares that track enemies"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Landing 3 flares empowers the next swing with devastating force"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Where black meets white, the swan takes flight'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Three-phase ballet combo: Entrechat, Fouetté, and Grand Jeté"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Successive hits build Swan's Grace, each stack increases swing speed by 8%"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "At maximum Grace, the next swing unleashes the Prismatic Swan"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Taking damage while swinging converts Grace to Dark Mirror: +15% damage, -5% speed per stack"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'She danced not for love, but for the ruin of those who watch.'")
             {
-                OverrideColor = BlackSwanUtils.LoreColor
+                OverrideColor = new Color(240, 240, 255)
             });
         }
 

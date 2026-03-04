@@ -14,13 +14,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 {
     /// <summary>
     /// Tidal Detonation — a massive area-of-effect explosion spawned on Full Moon empowered hit.
-    /// A sphere of crushing tidal moonlight that expands outward, dealing heavy damage to all
-    /// nearby enemies. Features layered visual effects:
-    ///   - Expanding bloom rings in the lunar palette
-    ///   - Cascading crescent sparks radiating outward  
-    ///   - Heavy tidal smoke lingering in the aftermath
-    ///   - Music note particles floating upward through the destruction
-    ///   - Screen shake at detonation
+    /// 
+    /// REWORKED FOUNDATION ARCHITECTURE:
+    /// - XSlashFoundation: TidalXSlashEffect spawned for the blazing X-shaped cross VFX
+    /// - ImpactFoundation: TidalRippleEffect spawned for expanding shockwave rings
+    /// - ThinSlashFoundation: TidalThinSlash spawned for razor-thin impact marks
+    /// - Existing particle cascade (bloom, sparks, smoke, notes) retained for layered richness
+    /// 
+    /// The detonation itself handles damage, screen shake, and particle spawning.
+    /// Foundation VFX projectiles handle shader-driven rendering.
     /// </summary>
     public class EternalMoonTidalDetonation : ModProjectile
     {
@@ -91,6 +93,38 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             Player owner = Main.player[Projectile.owner];
             var emPlayer = owner.EternalMoon();
             float tidalMult = emPlayer.TidalPhaseMultiplier;
+
+            // === FOUNDATION VFX: XSlashEffect — Blazing tidal X-cross ===
+            if (Main.myPlayer == Projectile.owner)
+            {
+                float impactAngle = Main.rand.NextFloat(MathHelper.TwoPi);
+                Projectile.NewProjectile(Projectile.GetSource_FromAI(),
+                    Projectile.Center, Vector2.Zero,
+                    ModContent.ProjectileType<TidalXSlashEffect>(),
+                    0, 0f, Projectile.owner, impactAngle, tidalMult);
+            }
+
+            // === FOUNDATION VFX: RippleEffect — Expanding shockwave rings ===
+            if (Main.myPlayer == Projectile.owner)
+            {
+                Projectile.NewProjectile(Projectile.GetSource_FromAI(),
+                    Projectile.Center, Vector2.Zero,
+                    ModContent.ProjectileType<TidalRippleEffect>(),
+                    0, 0f, Projectile.owner, tidalMult);
+            }
+
+            // === FOUNDATION VFX: ThinSlash marks — 3 radial cuts through the detonation ===
+            if (Main.myPlayer == Projectile.owner)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    float slashAngle = MathHelper.TwoPi * i / 3f + Main.rand.NextFloat(-0.2f, 0.2f);
+                    Projectile.NewProjectile(Projectile.GetSource_FromAI(),
+                        Projectile.Center, Vector2.Zero,
+                        ModContent.ProjectileType<TidalThinSlash>(),
+                        0, 0f, Projectile.owner, slashAngle, 0f); // style 0 = Ice Cyan
+                }
+            }
 
             // === GRAVITATIONAL PULL at detonation center ===
             emPlayer.StartGravitationalPull(Projectile.Center);
@@ -205,12 +239,22 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             var texture = Terraria.GameContent.TextureAssets.Projectile[Type].Value;
             float progress = 1f - (Projectile.timeLeft / (float)DetonationLifetime);
 
-            // Expanding rings
+            SpriteBatch sb = Main.spriteBatch;
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+
+            // Switch to additive for all detonation rendering
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
+
+            // Expanding bloom rings (original system, now complementing Foundation VFX)
             for (int ring = 0; ring < 3; ring++)
             {
                 float ringProgress = Math.Clamp(progress - ring * 0.1f, 0f, 1f);
                 float ringScale = ringProgress * 3f * (1 + ring * 0.3f);
-                float ringOpacity = (1f - ringProgress) * 0.4f;
+                float ringOpacity = (1f - ringProgress) * 0.35f;
 
                 Color ringColor = ring switch
                 {
@@ -220,9 +264,22 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                 };
                 ringColor.A = 0;
 
-                Main.spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null,
+                sb.Draw(texture, drawPos, null,
                     ringColor * ringOpacity, 0f, texture.Size() / 2f, ringScale, SpriteEffects.None, 0f);
             }
+
+            // Central glow pulse that fades with the detonation
+            float coreAlpha = (1f - progress * progress) * 0.6f;
+            sb.Draw(texture, drawPos, null,
+                EternalMoonUtils.IceBlue with { A = 0 } * coreAlpha,
+                0f, texture.Size() / 2f, 0.8f + progress * 0.5f, SpriteEffects.None, 0f);
+
+            // Restore standard blend state
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
 
             return false;
         }

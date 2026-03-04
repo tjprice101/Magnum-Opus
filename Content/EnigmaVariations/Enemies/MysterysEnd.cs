@@ -18,12 +18,13 @@ using MagnumOpus.Content.EnigmaVariations.ResonantOres;
 using MagnumOpus.Content.Materials.EnemyDrops;
 using MagnumOpus.Common.Systems.Bosses;
 using MagnumOpus.Common.Systems.Shaders;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.EnigmaVariations.Enemies
 {
     /// <summary>
     /// Mystery's End - A powerful Jungle mini-boss from the Enigma theme.
-    /// Features ±15% size variation for visual variety.
+    /// Features ﾂｱ15% size variation for visual variety.
     /// Spawns randomly in the Jungle biome after Moon Lord is defeated (5% chance).
     /// Drops Enigma-themed crafting materials similar to Eroica's desert mini-bosses.
     /// 
@@ -108,7 +109,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         public override void SetDefaults()
         {
             // MINI-BOSS STATS - Similar to Eroica mini-bosses
-            // Hitbox = (4200/6) ÁE(2880/6) ÁE0.8 = 700 ÁE480 ÁE0.8 = 560 ÁE384
+            // Hitbox = (4200/6) ﾃ・(2880/6) ﾃ・0.8 = 700 ﾃ・480 ﾃ・0.8 = 560 ﾃ・384
             NPC.width = 560;
             NPC.height = 384;
             NPC.damage = 140;
@@ -144,7 +145,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
             // Apply size variation on spawn
             if (!hasSetSize)
             {
-                // ±15% size variation
+                // ﾂｱ15% size variation
                 sizeMultiplier = 0.85f + Main.rand.NextFloat() * 0.3f; // 0.85 to 1.15
                 NPC.scale = sizeMultiplier;
                 
@@ -867,7 +868,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             
             Main.spriteBatch.Draw(glow, pos, null, EnigmaGreen, 0f, glow.Size() / 2, 0.4f, SpriteEffects.None, 0f);
@@ -953,7 +954,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/whiteFireEyeA").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/whiteFireEyeA", AssetRequestMode.ImmediateLoad).Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             float alpha = 1f - Projectile.alpha / 255f;
             
@@ -1031,7 +1032,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MusicNote").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MusicNote", AssetRequestMode.ImmediateLoad).Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             
             // Glow
@@ -1104,7 +1105,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/whiteFireEyeA").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/whiteFireEyeA", AssetRequestMode.ImmediateLoad).Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             
             Main.spriteBatch.Draw(texture, pos, null, EnigmaPurple * 0.5f, Projectile.rotation, texture.Size() / 2, 0.45f, SpriteEffects.None, 0f);
@@ -1181,7 +1182,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
+            Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             
             // Swirling vortex effect
@@ -1263,7 +1264,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         public override bool PreDraw(ref Color lightColor)
         {
             int eyeIndex = ((Projectile.timeLeft / 5) % 8) + 1;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/whiteFireEyeA").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/whiteFireEyeA", AssetRequestMode.ImmediateLoad).Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             
             // Glow layers

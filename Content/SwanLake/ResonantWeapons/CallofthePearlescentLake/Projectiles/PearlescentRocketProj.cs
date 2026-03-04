@@ -1,411 +1,120 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
 using Terraria;
-using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.Graphics.Shaders;
+using Terraria.Audio;
 using MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.Utilities;
-using MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.Shaders;
-using MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.Particles;
-using MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.Primitives;
 using MagnumOpus.Content.SwanLake.Debuffs;
+using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
-using ReLogic.Content;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.Projectiles
 {
     /// <summary>
-    /// Pearlescent Rocket — the core projectile for Call of the Pearlescent Lake.
-    /// 
-    /// BEHAVIOR:
-    /// • Travels in a straight line with subtle sine-wave wobble
-    /// • Leaves a 3-pass shader-driven trail (bloom underlay → core → overbright halo)
-    /// • Tidal rockets (ai[0] ≥ 1) are larger, seek enemies, have 2× explosion radius
-    /// • Still Waters rockets (ai[1] ≥ 1) gently home toward nearest enemy
-    /// • On impact: concentric water-ripple explosion, pearl droplets, mist clouds
-    /// • Applies FlameOfTheSwan debuff for 5 seconds
+    /// Ranged rocket projectile for Call of the Pearlescent Lake.
+    /// Sine-wave wobble flight, homing for tidal/still-waters variants.
+    /// On-kill spawns SplashZoneProj + concentric ripple VFX.
+    /// Foundation-pattern rendering: SpriteBatch bloom trail, no primitives, no custom particles.
     /// </summary>
     public class PearlescentRocketProj : ModProjectile
     {
-        private const int TrailLength = 24;
-        private Vector2[] _trailPositions = new Vector2[TrailLength];
-        private float[] _trailRotations = new float[TrailLength];
-        private PearlescentPrimitiveRenderer _renderer;
+        public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
 
-        private bool IsTidal => Projectile.ai[0] >= 1f;
-        private bool IsStillWaters => Projectile.ai[1] >= 1f;
+        // --- AI Slots ---
+        public ref float Timer => ref Projectile.ai[0];
+        public ref float WobblePhase => ref Projectile.ai[1];
+        public ref float HomingStrength => ref Projectile.ai[2];
 
-        public override string Texture => "MagnumOpus/Content/SwanLake/ResonantWeapons/CallofthePearlescentLake/CallofthePearlescentLake";
+        // --- Trail ---
+        private const int TrailLength = 18;
+        private Vector2[] oldPos = new Vector2[TrailLength];
+        private float[] oldRot = new float[TrailLength];
 
-        public override void SetStaticDefaults()
-        {
-            ProjectileID.Sets.TrailCacheLength[Type] = TrailLength;
-            ProjectileID.Sets.TrailingMode[Type] = 2;
-        }
+        // --- Variant flags (set by weapon on spawn via Projectile.localAI) ---
+        public bool IsTidalWaters => Projectile.localAI[0] == 1f;
+        public bool IsStillWaters => Projectile.localAI[0] == 2f;
+
+        private Player Owner => Main.player[Projectile.owner];
+        private float LifeProgress => Timer / 300f;
+
+        public override void SetStaticDefaults() { ProjectileID.Sets.TrailCacheLength[Projectile.type] = TrailLength; }
 
         public override void SetDefaults()
         {
-            Projectile.width = IsTidal ? 18 : 12;
-            Projectile.height = IsTidal ? 18 : 12;
+            Projectile.width = 16;
+            Projectile.height = 16;
             Projectile.friendly = true;
+            Projectile.hostile = false;
             Projectile.DamageType = DamageClass.Ranged;
             Projectile.penetrate = 1;
-            Projectile.timeLeft = 240;
-            Projectile.extraUpdates = 1;
+            Projectile.timeLeft = 300;
             Projectile.tileCollide = true;
             Projectile.ignoreWater = true;
-            Projectile.alpha = 255;
+            Projectile.extraUpdates = 1;
+            Projectile.alpha = 0;
         }
 
         public override void AI()
         {
-            Projectile.alpha = Math.Max(Projectile.alpha - 25, 0);
+            Timer++;
+            Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // Update trail
-            for (int i = TrailLength - 1; i > 0; i--)
+            // --- Sine-wave wobble ---
+            WobblePhase += 0.12f;
+            float wobbleOffset = MathF.Sin(WobblePhase) * 3.5f;
+            Vector2 perp = Projectile.velocity.SafeNormalize(Vector2.UnitY).RotatedBy(MathHelper.PiOver2);
+            Projectile.position += perp * wobbleOffset;
+
+            // --- Homing (tidal / still waters variants) ---
+            if (IsTidalWaters || IsStillWaters)
             {
-                _trailPositions[i] = _trailPositions[i - 1];
-                _trailRotations[i] = _trailRotations[i - 1];
-            }
-            _trailPositions[0] = Projectile.Center;
-            _trailRotations[0] = Projectile.velocity.ToRotation();
-
-            // Subtle sine wobble
-            float wobble = (float)Math.Sin(Projectile.timeLeft * 0.15f) * 0.8f;
-            Projectile.velocity = Projectile.velocity.RotatedBy(MathHelper.ToRadians(wobble * 0.3f));
-
-            // Homing behavior for Tidal and Still Waters rockets
-            if (IsTidal || IsStillWaters)
-            {
-                float homingRange = IsTidal ? 500f : 300f;
-                float homingStrength = IsTidal ? 0.06f : 0.03f;
+                float homingRange = IsTidalWaters ? 350f : 250f;
+                float homingFactor = IsTidalWaters ? 0.04f : 0.025f;
 
                 NPC target = FindClosestNPC(homingRange);
                 if (target != null)
                 {
-                    Vector2 toTarget = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                    Projectile.velocity = Vector2.Lerp(Projectile.velocity.SafeNormalize(Vector2.Zero),
-                        toTarget, homingStrength) * Projectile.velocity.Length();
+                    Vector2 toTarget = (target.Center - Projectile.Center).SafeNormalize(Vector2.UnitY);
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * Projectile.velocity.Length(), homingFactor);
                 }
             }
 
-            Projectile.rotation = Projectile.velocity.ToRotation();
-
-            // Trail particles
-            if (Main.rand.NextBool(3))
+            // --- Trail recording ---
+            for (int i = TrailLength - 1; i > 0; i--)
             {
-                var droplet = new PearlDropletParticle();
-                droplet.Initialize(
-                    Projectile.Center + Main.rand.NextVector2Circular(4f, 4f),
-                    -Projectile.velocity.SafeNormalize(Vector2.Zero) * Main.rand.NextFloat(0.5f, 2f)
-                        + Main.rand.NextVector2Circular(1f, 1f),
-                    Color.Lerp(PearlescentUtils.PearlWhite, PearlescentUtils.LakeSilver, Main.rand.NextFloat()),
-                    Main.rand.NextFloat(0.5f, 1.0f)
-                );
-                PearlescentParticleHandler.Spawn(droplet);
+                oldPos[i] = oldPos[i - 1];
+                oldRot[i] = oldRot[i - 1];
             }
+            oldPos[0] = Projectile.Center;
+            oldRot[0] = Projectile.rotation;
 
-            // Tidal rocket extra glow
-            if (IsTidal)
+            // --- Ambient dust ---
+            if (Timer % 2 == 0)
             {
-                Lighting.AddLight(Projectile.Center, PearlescentUtils.PearlWhite.ToVector3() * 0.6f);
-
-                if (Main.rand.NextBool(2))
-                {
-                    var mist = new LakeMistParticle();
-                    mist.Initialize(
-                        Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
-                        Main.rand.NextVector2Circular(0.8f, 0.8f),
-                        PearlescentUtils.MistBlue,
-                        Main.rand.NextFloat(0.6f, 1.2f)
-                    );
-                    PearlescentParticleHandler.Spawn(mist);
-                }
-            }
-            else
-            {
-                Lighting.AddLight(Projectile.Center, PearlescentUtils.LakeSilver.ToVector3() * 0.3f);
-            }
-        }
-
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            target.AddBuff(ModContent.BuffType<FlameOfTheSwan>(), 300); // 5 seconds
-
-            // Pearlescent music notes — lake's melodic ripple
-            SwanLakeVFXLibrary.SpawnMusicNotes(target.Center, IsTidal ? 3 : 1, 14f, 0.5f, 0.8f, 22);
-
-            // Prismatic sparkle accents on impact
-            SwanLakeVFXLibrary.SpawnPrismaticSparkles(target.Center, IsTidal ? 4 : 2, 10f);
-        }
-
-        public override void OnKill(int timeLeft)
-        {
-            // Sound
-            SoundEngine.PlaySound(SoundID.Item14 with { Pitch = 0.5f, Volume = 0.6f }, Projectile.Center);
-
-            float explosionRadius = IsTidal ? 80f : 45f;
-
-            // Concentric ripple rings
-            int ringCount = IsTidal ? 4 : 2;
-            for (int r = 0; r < ringCount; r++)
-            {
-                var ripple = new RippleRingParticle();
-                ripple.Initialize(
-                    Projectile.Center,
-                    Vector2.Zero,
-                    Color.Lerp(PearlescentUtils.PearlWhite, PearlescentUtils.LakeSilver, (float)r / ringCount),
-                    0.8f - r * 0.15f
-                );
-                ripple.Setup(explosionRadius * (0.6f + r * 0.3f));
-                PearlescentParticleHandler.Spawn(ripple);
-            }
-
-            // Pearl droplet burst
-            int dropletCount = IsTidal ? 16 : 8;
-            for (int i = 0; i < dropletCount; i++)
-            {
-                float angle = MathHelper.TwoPi * i / dropletCount + Main.rand.NextFloat(-0.2f, 0.2f);
-                float speed = Main.rand.NextFloat(2f, 6f) * (IsTidal ? 1.5f : 1f);
-                var droplet = new PearlDropletParticle();
-                droplet.Initialize(
-                    Projectile.Center,
-                    new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * speed,
-                    PearlescentUtils.RipplePalette[Main.rand.Next(PearlescentUtils.RipplePalette.Length)],
-                    Main.rand.NextFloat(0.7f, 1.3f)
-                );
-                PearlescentParticleHandler.Spawn(droplet);
-            }
-
-            // Mist clouds
-            for (int i = 0; i < 5; i++)
-            {
-                var mist = new LakeMistParticle();
-                mist.Initialize(
-                    Projectile.Center + Main.rand.NextVector2Circular(15f, 15f),
-                    Main.rand.NextVector2Circular(2f, 2f),
-                    Color.Lerp(PearlescentUtils.MistBlue, PearlescentUtils.PearlWhite, Main.rand.NextFloat()),
-                    Main.rand.NextFloat(0.8f, 1.5f)
-                );
-                PearlescentParticleHandler.Spawn(mist);
-            }
-
-            // Prismatic feather shards
-            if (IsTidal)
-            {
-                for (int i = 0; i < 6; i++)
-                {
-                    var feather = new PrismaticFeatherParticle();
-                    feather.Initialize(
-                        Projectile.Center + Main.rand.NextVector2Circular(10f, 10f),
-                        Main.rand.NextVector2Circular(3f, 3f) + new Vector2(0, -1f),
-                        PearlescentUtils.PearlWhite,
-                        Main.rand.NextFloat(0.6f, 1.1f)
-                    );
-                    feather.Setup();
-                    PearlescentParticleHandler.Spawn(feather);
-                }
-            }
-
-            // Vanilla dust for fullness
-            for (int i = 0; i < 10; i++)
-            {
-                Dust d = Dust.NewDustPerfect(Projectile.Center,
-                    DustID.WhiteTorch,
-                    Main.rand.NextVector2Circular(4f, 4f), 0,
-                    PearlescentUtils.PearlWhite, 1.2f);
+                Color dustColor = PearlescentUtils.GetRainbow(Timer * 0.02f);
+                Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(6, 6),
+                    DustID.WhiteTorch, -Projectile.velocity * 0.3f, 0, dustColor, 0.6f);
                 d.noGravity = true;
             }
 
-            // VFX Library: Music notes cascading from the lake's shattered surface
-            SwanLakeVFXLibrary.SpawnMusicNotes(Projectile.Center, IsTidal ? 5 : 3,
-                explosionRadius * 0.5f, 0.6f, 1.0f, 28);
+            // --- Pearlescent shimmer dust (white core sparkle) ---
+            if (Timer % 4 == 0)
+            {
+                Dust s = Dust.NewDustPerfect(Projectile.Center, DustID.TintableDustLighted,
+                    Main.rand.NextVector2Circular(2, 2), 0, Color.White, 0.5f);
+                s.noGravity = true;
+            }
 
-            // VFX Library: Feather burst — the lake weeps
-            SwanLakeVFXLibrary.SpawnFeatherBurst(Projectile.Center, IsTidal ? 4 : 2, 0.35f);
-
-            // VFX Library: Prismatic sparkles dancing across the ripples
-            SwanLakeVFXLibrary.SpawnPrismaticSparkles(Projectile.Center, IsTidal ? 6 : 3,
-                explosionRadius * 0.4f);
+            // --- Lighting ---
+            Lighting.AddLight(Projectile.Center, 0.8f, 0.8f, 0.9f);
         }
 
-        public override bool PreDraw(ref Color lightColor)
-        {
-            SpriteBatch sb = Main.spriteBatch;
-
-            // === LAYER 1: Shader-driven primitive trail ===
-            DrawShaderTrail(sb);
-
-            // === LAYER 2: Bloom glow core ===
-            DrawBloomCore(sb);
-
-            // === LAYER 3: Projectile sprite ===
-            DrawRocketSprite(sb, lightColor);
-
-            // === LAYER 4: Per-weapon particles ===
-            PearlescentParticleHandler.DrawAllParticles(sb);
-
-            return false;
-        }
-
-        private void DrawShaderTrail(SpriteBatch sb)
-        {
-            // Build valid trail array
-            var validPositions = new List<Vector2>();
-            foreach (var pos in _trailPositions)
-                if (pos != Vector2.Zero) validPositions.Add(pos);
-            if (validPositions.Count < 3) return;
-
-            _renderer ??= new PearlescentPrimitiveRenderer();
-
-            float baseWidth = IsTidal ? 22f : 14f;
-
-            // 3-pass rendering (like the shader comments suggest):
-            // Pass 1 — soft bloom underlay at 3× width
-            var bloomSettings = new PearlescentTrailSettings(
-                t => baseWidth * 3f * (1f - t * 0.7f),
-                t => Color.Lerp(PearlescentUtils.LakeSilver, PearlescentUtils.DeepLake, t) * 0.25f,
-                PearlescentShaderLoader.HasRocketTrailShader ? GameShaders.Misc["MagnumOpus:PearlescentRocketTrail"] : null,
-                smoothen: true
-            );
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            if (PearlescentShaderLoader.HasRocketTrailShader)
-            {
-                var shader = GameShaders.Misc["MagnumOpus:PearlescentRocketTrail"];
-                shader.UseColor(PearlescentUtils.PearlWhite);
-                shader.UseSecondaryColor(PearlescentUtils.LakeSilver);
-                shader.UseSaturation((float)Main.GameUpdateCount * 0.02f);
-            }
-            _renderer.RenderTrail(validPositions.ToArray(), bloomSettings, 20);
-
-            // Pass 2 — core trail at 1× width
-            var coreSettings = new PearlescentTrailSettings(
-                t => baseWidth * (1f - t * 0.6f),
-                t => Color.Lerp(PearlescentUtils.PearlWhite, PearlescentUtils.LakeSilver, t) * (1f - t * 0.5f),
-                PearlescentShaderLoader.HasRocketTrailShader ? GameShaders.Misc["MagnumOpus:PearlescentRocketTrail"] : null
-            );
-            _renderer.RenderTrail(validPositions.ToArray(), coreSettings, 20);
-
-            // Pass 3 — overbright halo at 1.5× width
-            var haloSettings = new PearlescentTrailSettings(
-                t => baseWidth * 1.5f * (1f - t * 0.8f),
-                t => PearlescentUtils.PearlWhite * 0.15f * (1f - t),
-                PearlescentShaderLoader.HasRocketTrailShader ? GameShaders.Misc["MagnumOpus:PearlescentRocketTrail"] : null
-            );
-            _renderer.RenderTrail(validPositions.ToArray(), haloSettings, 20);
-
-            // Restore
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-        }
-
-        private void DrawBloomCore(SpriteBatch sb)
-        {
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f + 0.9f;
-            float baseScale = (IsTidal ? 0.6f : 0.35f) * pulse;
-            float alpha = (255 - Projectile.alpha) / 255f;
-
-            // Load VFX Asset Library bloom textures
-            Texture2D softRadial = null;
-            Texture2D pointBloom = null;
-            Texture2D starAccent = null;
-            try
-            {
-                softRadial = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom",
-                    AssetRequestMode.ImmediateLoad)?.Value;
-                pointBloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom",
-                    AssetRequestMode.ImmediateLoad)?.Value;
-                starAccent = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft",
-                    AssetRequestMode.ImmediateLoad)?.Value;
-            }
-            catch { }
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Layer 1: Outer pearlescent halo (SoftRadialBloom)
-            if (softRadial != null)
-            {
-                Vector2 srOrigin = new Vector2(softRadial.Width / 2f, softRadial.Height / 2f);
-                sb.Draw(softRadial, drawPos, null, new Color(PearlescentUtils.LakeSilver.R, PearlescentUtils.LakeSilver.G,
-                    PearlescentUtils.LakeSilver.B, 0) * 0.35f * alpha, 0f, srOrigin, baseScale * 1.8f, SpriteEffects.None, 0f);
-            }
-
-            // Layer 2: Mid pearl glow (SoftRadialBloom)
-            if (softRadial != null)
-            {
-                Vector2 srOrigin = new Vector2(softRadial.Width / 2f, softRadial.Height / 2f);
-                sb.Draw(softRadial, drawPos, null, new Color(PearlescentUtils.PearlWhite.R, PearlescentUtils.PearlWhite.G,
-                    PearlescentUtils.PearlWhite.B, 0) * 0.30f * alpha, 0f, srOrigin, baseScale, SpriteEffects.None, 0f);
-            }
-
-            // Layer 3: Inner white-hot core (PointBloom)
-            if (pointBloom != null)
-            {
-                Vector2 pbOrigin = new Vector2(pointBloom.Width / 2f, pointBloom.Height / 2f);
-                sb.Draw(pointBloom, drawPos, null, new Color(255, 255, 255, 0) * 0.60f * alpha,
-                    0f, pbOrigin, baseScale * 0.4f, SpriteEffects.None, 0f);
-            }
-
-            // Layer 4: Soft rotating star — lake reflection glimmer (4PointedStarSoft)
-            if (starAccent != null)
-            {
-                Vector2 starOrigin = new Vector2(starAccent.Width / 2f, starAccent.Height / 2f);
-                float starRot = Main.GameUpdateCount * 0.03f;
-                Color shimmer = Color.Lerp(PearlescentUtils.PearlWhite, PearlescentUtils.MistBlue, pulse);
-                sb.Draw(starAccent, drawPos, null, new Color(shimmer.R, shimmer.G, shimmer.B, 0) * 0.25f * alpha,
-                    starRot, starOrigin, baseScale * 0.8f, SpriteEffects.None, 0f);
-            }
-
-            // Layer 5: Tidal extra bloom ring
-            if (IsTidal && softRadial != null)
-            {
-                Vector2 srOrigin = new Vector2(softRadial.Width / 2f, softRadial.Height / 2f);
-                sb.Draw(softRadial, drawPos, null, new Color(PearlescentUtils.PearlWhite.R, PearlescentUtils.PearlWhite.G,
-                    PearlescentUtils.PearlWhite.B, 0) * 0.25f * alpha, 0f, srOrigin, baseScale * 2.5f, SpriteEffects.None, 0f);
-            }
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-        }
-
-        private void DrawRocketSprite(SpriteBatch sb, Color lightColor)
-        {
-            // Draw a small glowing orb as the rocket body (no separate texture needed)
-            Texture2D tex = MagnumTextureRegistry.GetRadialBloom();
-            if (tex == null) return;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = tex.Size() * 0.5f;
-            float alpha = (255 - Projectile.alpha) / 255f;
-            float scale = IsTidal ? 0.25f : 0.18f;
-
-            Color body = Color.Lerp(PearlescentUtils.PearlWhite, PearlescentUtils.LakeSilver,
-                (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.5f + 0.5f);
-
-            sb.Draw(tex, drawPos, null, body * alpha, Projectile.rotation, origin, scale, SpriteEffects.None, 0f);
-
-            // Additive bloom overlay
-            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-            if (glow != null)
-                sb.Draw(glow, drawPos, null, body * alpha * 0.4f, Projectile.rotation,
-                    glow.Size() * 0.5f, scale * 1.8f, SpriteEffects.None, 0f);
-        }
-
-        private NPC FindClosestNPC(float maxRange)
+        private NPC FindClosestNPC(float range)
         {
             NPC closest = null;
-            float bestDist = maxRange;
+            float bestDist = range;
             for (int i = 0; i < Main.maxNPCs; i++)
             {
                 NPC npc = Main.npc[i];
@@ -418,6 +127,188 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
                 }
             }
             return closest;
+        }
+
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            target.AddBuff(ModContent.BuffType<SwansMark>(), 300);
+
+            // Rainbow impact burst
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi / 8f * i;
+                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
+                Color c = PearlescentUtils.GetRainbow(i / 8f);
+                Dust d = Dust.NewDustPerfect(target.Center, DustID.WhiteTorch, vel, 0, c, 1.0f);
+                d.noGravity = true;
+            }
+
+            // VFXLibrary integration (safe)
+            try { SwanLakeVFXLibrary.SpawnRainbowBurst(target.Center, 6, 4f); } catch { }
+        }
+
+        public override void OnKill(int timeLeft)
+        {
+            SoundEngine.PlaySound(SoundID.Item14, Projectile.Center);
+
+            // Spawn SplashZone AoE
+            if (Projectile.owner == Main.myPlayer)
+            {
+                Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center,
+                    Vector2.Zero, ModContent.ProjectileType<SplashZoneProj>(),
+                    Projectile.damage / 3, 0f, Projectile.owner);
+            }
+
+            // Concentric ripple dust burst (3 rings)
+            for (int ring = 0; ring < 3; ring++)
+            {
+                int count = 10 + ring * 6;
+                float ringSpeed = 2f + ring * 2.5f;
+                for (int i = 0; i < count; i++)
+                {
+                    float angle = MathHelper.TwoPi / count * i;
+                    Vector2 vel = angle.ToRotationVector2() * ringSpeed;
+                    Color c = Color.Lerp(PearlescentUtils.PearlWhite, PearlescentUtils.GetRainbow(i / (float)count + ring * 0.33f), 0.4f);
+                    Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.WhiteTorch, vel, 0, c, 0.8f - ring * 0.15f);
+                    d.noGravity = true;
+                }
+            }
+
+            // Feather drift
+            try { SwanLakeVFXLibrary.SpawnFeatherDrift(Projectile.Center, 4, 25f); } catch { }
+
+            // Screen impact
+            for (int i = 0; i < 12; i++)
+            {
+                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.Smoke,
+                    Main.rand.NextVector2Circular(5, 5), 100, Color.LightGray, 1.2f);
+                d.noGravity = false;
+            }
+        }
+
+        public override bool PreDraw(ref Color lightColor)
+        {
+            SpriteBatch sb = Main.spriteBatch;
+            Vector2 screenPos = Main.screenPosition;
+
+            try
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Texture2D bloom = MagnumTextureRegistry.GetSoftGlow();
+                Texture2D point = MagnumTextureRegistry.GetPointBloom();
+                Texture2D radial = MagnumTextureRegistry.GetRadialBloom();
+
+                // --- Bloom trail from oldPos ---
+                if (bloom != null)
+                {
+                    Vector2 bloomOrigin = bloom.Size() * 0.5f;
+                    for (int i = TrailLength - 1; i >= 1; i--)
+                    {
+                        if (oldPos[i] == Vector2.Zero) continue;
+                        float progress = 1f - i / (float)TrailLength;
+                        float trailAlpha = progress * 0.6f;
+                        float trailScale = 0.35f + progress * 0.25f;
+
+                        Color trailColor = Color.Lerp(PearlescentUtils.LakeSilver, PearlescentUtils.PearlWhite, progress);
+                        // Rainbow tint along trail
+                        Color rainbow = PearlescentUtils.GetRainbow(i / (float)TrailLength + (float)Main.timeForVisualEffects * 0.01f);
+                        trailColor = Color.Lerp(trailColor, rainbow, 0.25f);
+
+                        sb.Draw(bloom, oldPos[i] - screenPos, null, trailColor * trailAlpha,
+                            oldRot[i], bloomOrigin, trailScale, SpriteEffects.None, 0f);
+                    }
+                }
+
+                // --- Rocket core bloom stack ---
+                Vector2 drawPos = Projectile.Center - screenPos;
+                float pulse = 0.9f + 0.1f * MathF.Sin((float)Main.timeForVisualEffects * 0.08f);
+
+                // Outer pearl glow (wide, soft)
+                if (radial != null)
+                {
+                    Vector2 radialOrigin = radial.Size() * 0.5f;
+                    Color outerColor = Color.Lerp(PearlescentUtils.MistBlue, PearlescentUtils.PearlWhite, 0.5f);
+                    sb.Draw(radial, drawPos, null, outerColor * 0.25f * pulse, 0f, radialOrigin, 0.7f * pulse, SpriteEffects.None, 0f);
+                }
+
+                // Mid glow (pearlescent)
+                if (bloom != null)
+                {
+                    Vector2 bloomOrigin = bloom.Size() * 0.5f;
+                    sb.Draw(bloom, drawPos, null, PearlescentUtils.PearlWhite * 0.5f * pulse, 0f, bloomOrigin, 0.4f * pulse, SpriteEffects.None, 0f);
+                }
+
+                // Hot core (bright)
+                if (point != null)
+                {
+                    Vector2 pointOrigin = point.Size() * 0.5f;
+                    sb.Draw(point, drawPos, null, Color.White * 0.8f, 0f, pointOrigin, 0.25f * pulse, SpriteEffects.None, 0f);
+                }
+
+                // --- Rainbow shimmer ring at projectile ---
+                if (bloom != null)
+                {
+                    Vector2 bloomOrigin = bloom.Size() * 0.5f;
+                    for (int i = 0; i < 6; i++)
+                    {
+                        float angle = MathHelper.TwoPi / 6f * i + (float)Main.timeForVisualEffects * 0.03f;
+                        Vector2 offset = angle.ToRotationVector2() * 8f;
+                        Color rc = PearlescentUtils.GetRainbow(i / 6f);
+                        sb.Draw(bloom, drawPos + offset, null, rc * 0.2f, 0f, bloomOrigin, 0.15f, SpriteEffects.None, 0f);
+                    }
+                }
+
+                // --- Draw rocket sprite on top ---
+                DrawRocketSprite(sb, drawPos, lightColor);
+            }
+            catch { }
+            finally
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
+            // Theme accents (additive)
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
+            PearlescentUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
+
+            return false;
+        }
+
+        private void DrawRocketSprite(SpriteBatch sb, Vector2 drawPos, Color lightColor)
+        {
+            Texture2D tex = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
+            if (tex == null) return;
+
+            Vector2 origin = tex.Size() * 0.5f;
+            float rot = Projectile.rotation + MathHelper.PiOver2;
+
+            // Subtle white glow behind sprite
+            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+            if (glow != null)
+            {
+                Vector2 glowOrigin = glow.Size() * 0.5f;
+                sb.Draw(glow, drawPos, null, PearlescentUtils.PearlWhite * 0.3f, 0f, glowOrigin, 0.25f, SpriteEffects.None, 0f);
+            }
+
+            // Switch to alpha blend for sprite
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            sb.Draw(tex, drawPos, null, Projectile.GetAlpha(lightColor), rot, origin, Projectile.scale, SpriteEffects.None, 0f);
+
+            // Back to additive for caller
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
     }
 }

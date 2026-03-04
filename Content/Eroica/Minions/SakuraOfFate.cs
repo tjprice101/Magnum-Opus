@@ -6,6 +6,9 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using Terraria.GameContent;
+using MagnumOpus.Content.FoundationWeapons.SparkleProjectileFoundation;
+using MagnumOpus.Content.FoundationWeapons.RibbonFoundation;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Eroica.Minions
 {
@@ -354,17 +357,25 @@ namespace MagnumOpus.Content.Eroica.Minions
             Vector2 origin = new Vector2(frameW / 2f, frameH / 2f);
             SpriteEffects flipEffect = Projectile.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 
-            // 笏笏 Layer 1: Dark flame aura trail 笏笏
+            // ── Layer 1: Dark flame aura trail ──
             DrawAuraTrail(sb);
 
-            // 笏笏 Layer 2: Afterimages 笏笏
+            // ── Layer 1b: Dark Flame Aura Bloom (MaskFoundation-style) ──
+            DrawDarkFlameAura(sb);
+
+            // ── Layer 2: Afterimages ──
             DrawAfterimages(sb, tex, frameRect, origin, flipEffect);
 
-            // 笏笏 Layer 3: Core sprite 笏笏
+            // ── Layer 3: Core sprite ──
             DrawCore(sb, tex, frameRect, origin, flipEffect, lightColor);
 
-            // 笏笏 Layer 4: Additive bloom overlay 笏笏
+            // ── Layer 4: Additive bloom overlay ──
             DrawBloomOverlay(sb, tex, frameRect, origin, flipEffect);
+
+            // Eroica theme accent
+            EroicaVFXLibrary.BeginEroicaAdditive(sb);
+            EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.4f);
+            EroicaVFXLibrary.EndEroicaAdditive(sb);
 
             return false;
         }
@@ -404,6 +415,55 @@ namespace MagnumOpus.Content.Eroica.Minions
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             }
             catch { }
+        }
+
+        /// <summary>
+        /// MaskFoundation-style dark flame aura — multi-scale bloom ring around the minion.
+        /// Uses SPFTextures.SoftGlow for gentle dark crimson-violet ambient presence.
+        /// Pulsates slowly like a breathing dark flame aura.
+        /// </summary>
+        private void DrawDarkFlameAura(SpriteBatch sb)
+        {
+            Texture2D softGlow = SPFTextures.SoftGlow.Value;
+            if (softGlow == null) return;
+
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            Vector2 glowOrigin = softGlow.Size() * 0.5f;
+
+            float pulse = 0.85f + 0.15f * (float)Math.Sin(Timer * 0.05f);
+            float attackFlare = State == AIState.Attacking ? 1.2f : 1f;
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                SamplerState.LinearClamp, DepthStencilState.None,
+                RasterizerState.CullNone, null,
+                Main.GameViewMatrix.TransformationMatrix);
+
+            try
+            {
+                // Outer dark violet haze — wide, faint
+                Color outerColor = FinalityUtils.FateViolet with { A = 0 };
+                sb.Draw(softGlow, drawPos, null, outerColor * (0.12f * pulse * attackFlare),
+                    0f, glowOrigin, 0.6f * Projectile.scale * attackFlare, SpriteEffects.None, 0f);
+
+                // Mid abyssal crimson ring
+                Color midColor = FinalityUtils.AbyssalCrimson with { A = 0 };
+                sb.Draw(softGlow, drawPos, null, midColor * (0.18f * pulse * attackFlare),
+                    0f, glowOrigin, 0.35f * Projectile.scale * attackFlare, SpriteEffects.None, 0f);
+
+                // Inner ember-gold hot core
+                Color innerColor = FinalityUtils.EmberGold with { A = 0 };
+                sb.Draw(softGlow, drawPos, null, innerColor * (0.1f * pulse),
+                    0f, glowOrigin, 0.15f * Projectile.scale, SpriteEffects.None, 0f);
+            }
+            finally
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+            }
         }
 
         private void DrawAfterimages(SpriteBatch sb, Texture2D tex, Rectangle frameRect, Vector2 origin, SpriteEffects flip)

@@ -197,15 +197,20 @@ namespace MagnumOpus.Content.Eroica.Accessories.SymphonyOfScarletFlames
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
-            // Draw layered glow effect
-            DrawExplosionGlow(spriteBatch);
-            
-            // Draw shockwave ring
-            DrawShockwaveRing(spriteBatch);
-            
-            // Restore normal blending
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            try
+            {
+                // Draw layered glow effect
+                DrawExplosionGlow(spriteBatch);
+                
+                // Draw shockwave ring
+                DrawShockwaveRing(spriteBatch);
+            }
+            finally
+            {
+                // Restore normal blending
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
+            }
             
             return false;
         }

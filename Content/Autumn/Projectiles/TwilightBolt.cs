@@ -11,6 +11,7 @@ using MagnumOpus.Common.Systems.VFX;
 
 // Dynamic particle effects for aesthetically pleasing animations
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Autumn.Projectiles
 {
@@ -169,7 +170,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                     CustomParticles.GenericFlare(wispPos, TwilightOrange * 0.7f, 0.18f, 10);
                 }
 
-                // ☁EMUSICAL CRIT - VISIBLE triumphant twilight chord (scale 0.85f)
+                // 笘・MUSICAL CRIT - VISIBLE triumphant twilight chord (scale 0.85f)
                 for (int n = 0; n < 8; n++)
                 {
                     float angle = MathHelper.TwoPi * n / 8f;
@@ -196,7 +197,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(spark);
             }
 
-            // ☁EMUSICAL IMPACT - VISIBLE twilight melody (scale 0.75f)
+            // 笘・MUSICAL IMPACT - VISIBLE twilight melody (scale 0.75f)
             for (int n = 0; n < 5; n++)
             {
                 float angle = MathHelper.TwoPi * n / 5f;
@@ -230,14 +231,14 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(burst);
             }
 
-            // ☁EMUSICAL FINALE - Twilight bolt fading note
+            // 笘・MUSICAL FINALE - Twilight bolt fading note
             ThemedParticles.MusicNoteBurst(Projectile.Center, TwilightPurple, 6, 3.5f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
@@ -249,7 +250,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
 
             Color mainColor = Color.Lerp(TwilightPurple, TwilightOrange, distProgress);
             
-            // ✁EBRIGHT MULTI-LAYER BLOOM - Outer glow
+            // 笨・BRIGHT MULTI-LAYER BLOOM - Outer glow
             spriteBatch.Draw(texture, drawPos, null, mainColor with { A = 0 } * 0.35f, 0f, origin, 0.65f * pulse * (1f + distProgress * 0.4f), SpriteEffects.None, 0f);
             // Middle energy layer
             spriteBatch.Draw(texture, drawPos, null, mainColor with { A = 0 } * 0.55f, 0f, origin, 0.45f * pulse, SpriteEffects.None, 0f);
@@ -325,7 +326,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
             // Core moon glow
             CustomParticles.GenericFlare(Projectile.Center, MoonSilver * 0.4f, 0.35f, 6);
 
-            // ☁EMUSICAL NOTATION - Harvest moon carries lunar melody - VISIBLE SCALE 0.75f+
+            // 笘・MUSICAL NOTATION - Harvest moon carries lunar melody - VISIBLE SCALE 0.75f+
             if (Main.rand.NextBool(4))
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-2.5f, -1f));
@@ -385,7 +386,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(spark);
             }
 
-            // ☁EMUSICAL IMPACT - Grand harvest moon chord
+            // 笘・MUSICAL IMPACT - Grand harvest moon chord
             ThemedParticles.MusicNoteBurst(target.Center, MoonGold, 10, 5f);
             ThemedParticles.MusicNoteRing(target.Center, MoonSilver, 45f, 6);
         }
@@ -413,7 +414,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(burst);
             }
 
-            // ☁EMUSICAL FINALE - Harvest moon finale crescendo
+            // 笘・MUSICAL FINALE - Harvest moon finale crescendo
             ThemedParticles.MusicNoteBurst(Projectile.Center, MoonGold, 12, 5.5f);
             ThemedParticles.MusicNoteRing(Projectile.Center, MoonSilver, 55f, 8);
         }
@@ -475,7 +476,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
-            // ☁EMUSICAL NOTATION - Leaf shard whispers autumn tune - VISIBLE SCALE 0.68f+
+            // 笘・MUSICAL NOTATION - Leaf shard whispers autumn tune - VISIBLE SCALE 0.68f+
             if (Main.rand.NextBool(6))
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.8f, 0.8f), Main.rand.NextFloat(-1.5f, -0.5f));
@@ -521,7 +522,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(spark);
             }
 
-            // ☁EMUSICAL IMPACT - Leaf shard note
+            // 笘・MUSICAL IMPACT - Leaf shard note
             ThemedParticles.MusicNoteBurst(target.Center, AutumnGold, 4, 3f);
         }
 
@@ -537,7 +538,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(burst);
             }
 
-            // ☁EMUSICAL FINALE - Leaf shard final note
+            // 笘・MUSICAL FINALE - Leaf shard final note
             ThemedParticles.MusicNoteBurst(Projectile.Center, AutumnOrange, 4, 3f);
         }
 

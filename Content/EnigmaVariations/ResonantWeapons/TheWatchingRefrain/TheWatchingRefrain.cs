@@ -21,8 +21,18 @@ using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain.Uti
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
 {
     /// <summary>
-    /// THE WATCHING REFRAIN - Summoner weapon that summons Unsolved Phantom minions
-    /// Phantoms attack enemies with bolts, create rifts, and mystery zones
+    /// THE WATCHING REFRAIN — Summoner weapon (Enigma Variations theme).
+    /// The watcher — a phantom that observes, judges, and creates mystery zones
+    /// of crowd control. Playing the refrain that never changes but always disturbs.
+    /// 
+    /// Summons UnsolvedPhantomMinion (1 slot, hovers 150u behind player).
+    /// Minion fires PhantomBolts every 40 frames (penetrate 2, chain 30%).
+    /// PhantomBolt on-hit spawns PhantomRift (60-frame lingering AoE zone).
+    /// Creates MysteryZone every 300 frames (160×160 AoE, slows 0.85×, pulls to center).
+    /// All hits apply ParadoxBrand.
+    /// 
+    /// Custom Shaders: WatchingPhantomAura.fx, WatchingMysteryZone.fx
+    /// Foundation: MaskFoundation + SparkleProjectileFoundation + ImpactFoundation planned
     /// </summary>
     public class TheWatchingRefrain : ModItem
     {
@@ -64,10 +74,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect", "Summons an Unsolved Phantom to fight for you"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect2", "Phantoms fire homing bolts and create mystery zones"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect3", "Mystery zones slow and pull enemies toward their center"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaLore", "'The refrain repeats, watching, waiting — always watching.'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Summons a watching phantom that observes and judges enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Phantom fires void bolts that spawn lingering rift zones on hit"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Periodically creates Mystery Zones that slow and pull enemies inward"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "All hits brand enemies with Paradox Brand"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'It watches. It always watches.'")
             {
                 OverrideColor = EnigmaPurple
             });
@@ -148,6 +159,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 texOrigin = tex.Size() / 2f;
             sb.Draw(tex, drawPos, null, WatchingUtils.RefrainPurple * (0.6f * Projectile.Opacity), Projectile.rotation, texOrigin, Projectile.scale, SpriteEffects.None, 0f);
+
+            // Theme texture accents
+            WatchingUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
             
             WatchingUtils.ExitShaderRegion(sb);
             return false;
@@ -344,7 +358,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 300);
+            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
             target.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(target, 1);
             
             Lighting.AddLight(target.Center, EnigmaGreen.ToVector3() * 0.4f);
@@ -386,6 +400,16 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
             Vector2 glyphOrigin = glyphTex.Size() / 2f;
             sb.Draw(glyphTex, drawPos, null, WatchingUtils.PhantomWhite * 0.8f, Projectile.rotation, glyphOrigin, Projectile.scale * 0.8f, SpriteEffects.None, 0f);
             
+            // === Layer 4: EN Star Flare — dual-rotating spectral starburst ===
+            Texture2D starFlareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
+            float sfRot1 = (float)Main.timeForVisualEffects * 0.05f;
+            float sfRot2 = -(float)Main.timeForVisualEffects * 0.04f;
+            Color sfColor = Color.Lerp(WatchingUtils.GazeGreen, WatchingUtils.SpectralMint, 0.5f + 0.5f * (float)Math.Sin(Main.timeForVisualEffects * 0.08));
+            sb.Draw(starFlareTex, drawPos, null, sfColor * 0.4f, sfRot1,
+                starFlareTex.Size() / 2f, 0.25f, SpriteEffects.None, 0f);
+            sb.Draw(starFlareTex, drawPos, null, WatchingUtils.RefrainPurple * 0.25f, sfRot2,
+                starFlareTex.Size() / 2f, 0.18f, SpriteEffects.None, 0f);
+            
             WatchingUtils.ExitShaderRegion(sb);
             return false;
         }
@@ -425,7 +449,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 300);
+            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
             target.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(target, 1);
             
             // Impact VFX
@@ -434,22 +458,29 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
                 WatchingUtils.RefrainPurple,
                 40f,
                 25));
-            int burstCount = Main.rand.Next(3, 6);
+            int burstCount = Main.rand.Next(5, 9);
             for (int i = 0; i < burstCount; i++)
             {
                 WatchingParticleHandler.Spawn(new PhantomBoltTrailMote(
                     target.Center,
                     Main.rand.NextVector2CircularEdge(3f, 3f),
-                    WatchingUtils.GazeGreen,
-                    Main.rand.NextFloat(0.1f, 0.2f),
+                    Color.Lerp(WatchingUtils.GazeGreen, WatchingUtils.SpectralMint, Main.rand.NextFloat()),
+                    Main.rand.NextFloat(0.1f, 0.22f),
                     18));
             }
+            // Eye witness on impact
             WatchingParticleHandler.Spawn(new WatchingEyeParticle(
                 target.Center + new Vector2(0, -24f),
                 new Vector2(0, -0.3f),
                 WatchingUtils.GazeGreen,
                 0.2f,
                 25));
+            // Second ripple for layered impact
+            WatchingParticleHandler.Spawn(new MysteryZoneRipple(
+                target.Center,
+                WatchingUtils.GazeGreen * 0.7f,
+                25f,
+                18));
             
             // Chain damage to one nearby enemy
             if (!hitEnemies.Contains(target.whoAmI))
@@ -463,7 +494,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
                     if (Vector2.Distance(npc.Center, target.Center) > chainRange) continue;
                     
                     npc.SimpleStrikeNPC((int)(Projectile.damage * 0.3f), 0, false, 0f, null, false, 0f, true);
-                    npc.AddBuff(ModContent.BuffType<ParadoxBrand>(), 180);
+                    npc.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
                     break;
                 }
             }
@@ -479,14 +510,14 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
         public override void OnKill(int timeLeft)
         {
             // Death burst VFX
-            int moteCount = Main.rand.Next(4, 7);
+            int moteCount = Main.rand.Next(6, 10);
             for (int i = 0; i < moteCount; i++)
             {
                 WatchingParticleHandler.Spawn(new PhantomBoltTrailMote(
                     Projectile.Center,
-                    Main.rand.NextVector2CircularEdge(2.5f, 2.5f),
-                    WatchingUtils.SpectralMint,
-                    Main.rand.NextFloat(0.1f, 0.18f),
+                    Main.rand.NextVector2CircularEdge(3f, 3f),
+                    Color.Lerp(WatchingUtils.SpectralMint, WatchingUtils.GazeGreen, Main.rand.NextFloat()),
+                    Main.rand.NextFloat(0.1f, 0.2f),
                     20));
             }
             WatchingParticleHandler.Spawn(new PhantomWispParticle(
@@ -496,7 +527,13 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
                 WatchingUtils.RefrainPurple,
                 0.4f,
                 45));
-            for (int i = 0; i < 3; i++)
+            // Death ripple
+            WatchingParticleHandler.Spawn(new MysteryZoneRipple(
+                Projectile.Center,
+                WatchingUtils.GazeGreen * 0.8f,
+                30f,
+                20));
+            for (int i = 0; i < 5; i++)
             {
                 Dust.NewDust(Projectile.position, Projectile.width, Projectile.height,
                     ModContent.DustType<WatchingPhantomDust>(), Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1f, 1f));
@@ -545,6 +582,21 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
             Texture2D riftTex = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 riftOrigin = riftTex.Size() / 2f;
             sb.Draw(riftTex, drawPos, null, WatchingUtils.RefrainPurple * (0.5f * Projectile.Opacity), time * 0.4f, riftOrigin, Projectile.scale * 0.6f, SpriteEffects.None, 0f);
+            
+            // === Layer 5: EN Star Flare — dual-rotating rift starburst ===
+            Texture2D riftStarFlare = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
+            float riftSfRot1 = time * 1.2f;
+            float riftSfRot2 = -time * 0.9f;
+            sb.Draw(riftStarFlare, drawPos, null, WatchingUtils.GazeGreen * (0.35f * Projectile.Opacity), riftSfRot1,
+                riftStarFlare.Size() / 2f, 0.4f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(riftStarFlare, drawPos, null, WatchingUtils.RefrainPurple * (0.25f * Projectile.Opacity), riftSfRot2,
+                riftStarFlare.Size() / 2f, 0.3f * antiPulse, SpriteEffects.None, 0f);
+            
+            // === Layer 6: EN Power Effect Ring — expanding rift ring ===
+            Texture2D riftPowerRing = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Power Effect Ring", AssetRequestMode.ImmediateLoad).Value;
+            float riftRingPulse = 0.35f + 0.1f * (float)Math.Sin(time * 5f);
+            sb.Draw(riftPowerRing, drawPos, null, WatchingUtils.GazeGreen * (0.2f * Projectile.Opacity), time * 0.6f,
+                riftPowerRing.Size() / 2f, riftRingPulse, SpriteEffects.None, 0f);
             
             WatchingUtils.ExitShaderRegion(sb);
             return false;
@@ -609,7 +661,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 240);
+            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
             target.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(target, 1);
             
             Lighting.AddLight(target.Center, EnigmaGreen.ToVector3() * 0.3f);
@@ -623,18 +675,31 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
                 WatchingUtils.PhantomWhite,
                 60f,
                 35));
-            int wispCount = Main.rand.Next(6, 9);
+            // Double ripple for dramatic collapse
+            WatchingParticleHandler.Spawn(new MysteryZoneRipple(
+                Projectile.Center,
+                WatchingUtils.GazeGreen * 0.8f,
+                40f,
+                25));
+            int wispCount = Main.rand.Next(8, 12);
             for (int i = 0; i < wispCount; i++)
             {
                 WatchingParticleHandler.Spawn(new PhantomWispParticle(
                     Projectile.Center,
                     15f,
                     Main.rand.NextFloat(MathHelper.TwoPi),
-                    WatchingUtils.RefrainPurple,
-                    Main.rand.NextFloat(0.2f, 0.35f),
+                    Color.Lerp(WatchingUtils.RefrainPurple, WatchingUtils.GazeGreen, Main.rand.NextFloat(0.2f, 0.5f)),
+                    Main.rand.NextFloat(0.2f, 0.4f),
                     35));
             }
-            for (int i = 0; i < 5; i++)
+            // Eye witness on rift death
+            WatchingParticleHandler.Spawn(new WatchingEyeParticle(
+                Projectile.Center,
+                new Vector2(0, -0.5f),
+                WatchingUtils.GazeGreen,
+                0.25f,
+                20));
+            for (int i = 0; i < 7; i++)
             {
                 Dust.NewDust(Projectile.position, Projectile.width, Projectile.height,
                     ModContent.DustType<WatchingPhantomDust>(), Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-1.5f, 1.5f));
@@ -688,6 +753,12 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
             
             // Subtle core highlight
             sb.Draw(bloom, drawPos, null, WatchingUtils.SpectralMint * (0.12f * lifeFade), 0f, bloomOrigin, zoneScale * 0.5f, SpriteEffects.None, 0f);
+            
+            // === Layer 4: EN Power Effect Ring — mystery zone boundary ring ===
+            Texture2D zonePowerRing = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Power Effect Ring", AssetRequestMode.ImmediateLoad).Value;
+            float zoneRingPulse = zoneScale * (1.4f + 0.15f * (float)Math.Sin(time * 2.5f));
+            sb.Draw(zonePowerRing, drawPos, null, WatchingUtils.RefrainPurple * (0.15f * lifeFade), slowRot * 0.3f,
+                zonePowerRing.Size() / 2f, zoneRingPulse, SpriteEffects.None, 0f);
             
             WatchingUtils.ExitShaderRegion(sb);
             return false;
@@ -761,7 +832,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
                 
                 // Damage
                 npc.SimpleStrikeNPC(Projectile.damage, 0, false, 0f, null, false, 0f, true);
-                npc.AddBuff(ModContent.BuffType<ParadoxBrand>(), 180);
+                npc.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
                 npc.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(npc, 1);
                 
                 // Slow effect (reduce velocity)
@@ -781,18 +852,35 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
                 WatchingUtils.PhantomWhite,
                 80f,
                 40));
-            int wispCount = Main.rand.Next(5, 8);
+            // Double expanding ripple on zone death
+            WatchingParticleHandler.Spawn(new MysteryZoneRipple(
+                Projectile.Center,
+                WatchingUtils.RefrainPurple * 0.7f,
+                60f,
+                30));
+            int wispCount = Main.rand.Next(7, 11);
             for (int i = 0; i < wispCount; i++)
             {
                 WatchingParticleHandler.Spawn(new PhantomWispParticle(
                     Projectile.Center,
                     25f,
                     Main.rand.NextFloat(MathHelper.TwoPi),
-                    WatchingUtils.RefrainPurple,
-                    Main.rand.NextFloat(0.2f, 0.35f),
+                    Color.Lerp(WatchingUtils.RefrainPurple, WatchingUtils.GazeGreen, Main.rand.NextFloat(0.2f, 0.5f)),
+                    Main.rand.NextFloat(0.2f, 0.4f),
                     40));
             }
-            for (int i = 0; i < 4; i++)
+            // Eye particles on zone collapse
+            for (int i = 0; i < Main.rand.Next(2, 4); i++)
+            {
+                Vector2 eyePos = Projectile.Center + Main.rand.NextVector2Circular(40f, 40f);
+                WatchingParticleHandler.Spawn(new WatchingEyeParticle(
+                    eyePos,
+                    new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -0.4f),
+                    WatchingUtils.GazeGreen,
+                    0.18f,
+                    22));
+            }
+            for (int i = 0; i < 6; i++)
             {
                 Dust.NewDust(Projectile.position, Projectile.width, Projectile.height,
                     ModContent.DustType<WatchingPhantomDust>(), Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, 0f));

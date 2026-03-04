@@ -6,11 +6,12 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Particles;
 using MagnumOpus.Content.LaCampanella.Debuffs;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Projectiles
 {
     /// <summary>
-    /// Resonant Note — lingering landmine spawned by Resonant Detonation.
+    /// Resonant Note 遯ｶ繝ｻlingering landmine spawned by Resonant Detonation.
     /// Drifts slowly, hovers in place, damages enemies passing through for 3 seconds.
     /// Musical note identity with gold aura.
     /// </summary>
@@ -81,7 +82,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            var tex = ModContent.Request<Texture2D>(Texture).Value;
+            var tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             float fade = Math.Min(1f, (float)Projectile.timeLeft / 30f); // Fade out in last 0.5s
             float pulse = 0.85f + (float)Math.Sin(Main.GameUpdateCount * 0.12f + Projectile.whoAmI) * 0.15f;
             Color drawColor = PiercingBellsResonanceUtils.ResonancePalette[2] * pulse * fade;
@@ -89,15 +90,23 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
                 drawColor, Projectile.rotation, tex.Size() / 2f, 0.5f * pulse, SpriteEffects.None, 0f);
 
-            // Aura glow
+            // Aura glow (additive so black background disappears)
             Texture2D bloomTex = null;
             try { bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow", ReLogic.Content.AssetRequestMode.ImmediateLoad)?.Value; } catch { }
             if (bloomTex != null)
             {
-                Color aura = PiercingBellsResonanceUtils.ResonancePalette[1] * 0.15f * fade;
+                Color aura = (PiercingBellsResonanceUtils.ResonancePalette[1] with { A = 0 }) * 0.15f * fade;
                 float auraScale = DamageRadius / (bloomTex.Width * 0.5f);
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
                 sb.Draw(bloomTex, Projectile.Center - Main.screenPosition, null,
                     aura, 0f, bloomTex.Size() / 2f, auraScale, SpriteEffects.None, 0f);
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
             return false;

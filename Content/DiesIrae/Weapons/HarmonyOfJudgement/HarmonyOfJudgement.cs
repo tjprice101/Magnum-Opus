@@ -54,9 +54,11 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Summons a judgment sigil that fires piercing rays of judgment fire"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Rays pierce multiple enemies, burning all they touch"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'In harmony, heaven and hell converge to deliver judgment'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Summons a judgment sigil that autonomously processes targets"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Sigils cycle through Scan, Judge, and Execute phases"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Multiple sigils targeting the same enemy trigger Collective Judgment for double damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Five rapid executions within 10 seconds enters Harmonized Verdict state"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'When many voices speak as one, there is no appeal'")
             {
                 OverrideColor = new Color(200, 50, 30)
             });

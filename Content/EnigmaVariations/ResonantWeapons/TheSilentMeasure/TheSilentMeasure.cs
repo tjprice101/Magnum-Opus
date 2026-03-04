@@ -22,9 +22,17 @@ using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.Utili
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure
 {
     /// <summary>
-    /// THE SILENT MEASURE - Ranged bow weapon that fires enigmatic arrows
-    /// Every 5th shot is a Paradox Piercing Bolt with enhanced effects
-    /// Regular arrows are Question Seeker Bolts that split on hit
+    /// THE SILENT MEASURE — Ranged bow weapon (Enigma Variations theme).
+    /// A measure of silence — arrows that ask questions and seek answers.
+    /// 
+    /// Normal shots: QuestionSeekerBolt (pierce 2), apply ParadoxBrand.
+    /// On first hit: arrow splits into 3 homing QuestionSeekers (50% damage).
+    /// Chain lightning damage on QuestionSeekerBolt hit (30-40% to nearest).
+    /// Every 5th shot fires ParadoxPiercingBolt (2x damage, pierce 5, chain to 3).
+    /// SeekingCrystals (2 per arrow, 20% damage).
+    /// 
+    /// Custom Shaders: SilentSeekerTrail.fx, SilentQuestionBurst.fx
+    /// Foundation: RibbonFoundation + SparkleProjectileFoundation + ThinLaserFoundation planned
     /// </summary>
     public class TheSilentMeasure : ModItem
     {
@@ -62,10 +70,12 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect", "Fires reality-warping arrows that split into homing seekers on hit"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect2", "Every 5th shot is a Paradox Piercing Bolt with chain lightning"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect3", "Seekers hunt down nearby enemies with relentless precision"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaLore", "'Silence measures what sound cannot — the space between notes where truth resides.'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Arrows split into 3 homing seekers on first hit"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Every 5th shot fires a Paradox Piercing Bolt with chain lightning"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Hits chain lightning damage to nearby enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Spawns homing seeking crystals from arrow impacts"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Hits brand enemies with Paradox Brand"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The question has weight. The answer, none.'")
             {
                 OverrideColor = EnigmaPurple
             });
@@ -143,6 +153,17 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure
             Texture2D bloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             sb.Draw(bloom, drawPos, null, SilentUtils.QuestionViolet * 0.6f, 0f, bloom.Size() / 2f, 0.2f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null, SilentUtils.AnswerWhite * 0.3f, 0f, bloom.Size() / 2f, 0.08f, SpriteEffects.None, 0f);
+
+            // EN Star Flare — subtle seeker flare accent
+            {
+                Texture2D sfTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
+                Vector2 sfOrigin = sfTex.Size() / 2f;
+                float sfRot = (float)Main.GameUpdateCount * 0.03f;
+                sb.Draw(sfTex, drawPos, null, SilentUtils.QuestionViolet * 0.25f, sfRot, sfOrigin, 0.12f, SpriteEffects.None, 0f);
+            }
+
+            // Theme texture accents
+            SilentUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
             
             SilentUtils.ExitShaderRegion(sb);
             return false;
@@ -189,7 +210,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 300);
+            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
             target.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(target, 1);
             
             SeekingCrystalHelper.SpawnEnigmaCrystals(
@@ -279,7 +300,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure
                 if (Vector2.Distance(npc.Center, target.Center) > chainRange) continue;
                 
                 npc.SimpleStrikeNPC((int)(Projectile.damage * 0.3f), 0, false, 0f, null, false, 0f, true);
-                npc.AddBuff(ModContent.BuffType<ParadoxBrand>(), 180);
+                npc.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
                 
                 // Chain lightning VFX between target and chained enemy
                 Vector2 chainStart = target.Center;
@@ -448,7 +469,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 300);
+            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
             target.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(target, 1);
             
             Lighting.AddLight(target.Center, EnigmaGreen.ToVector3() * 0.4f);
@@ -513,6 +534,26 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure
             
             // White hot core
             sb.Draw(bloom, drawPos, null, SilentUtils.AnswerWhite * 0.7f, 0f, bloom.Size() / 2f, 0.15f, SpriteEffects.None, 0f);
+
+            // Layer 4: EN Star Flare — dual-rotating spectral flare for paradox bolt
+            {
+                Texture2D starFlareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
+                Vector2 sfOrigin = starFlareTex.Size() / 2f;
+                float sfRotA = (float)Main.GameUpdateCount * 0.04f;
+                float sfRotB = -(float)Main.GameUpdateCount * 0.025f;
+                float sfScale = 0.22f + MathF.Sin((float)Main.GameUpdateCount * 0.08f) * 0.04f;
+                sb.Draw(starFlareTex, drawPos, null, SilentUtils.EnigmaEmerald * 0.45f, sfRotA, sfOrigin, sfScale, SpriteEffects.None, 0f);
+                sb.Draw(starFlareTex, drawPos, null, SilentUtils.QuestionViolet * 0.3f, sfRotB, sfOrigin, sfScale * 0.85f, SpriteEffects.None, 0f);
+            }
+
+            // Layer 5: EN Power Effect Ring — rotating void ring
+            {
+                Texture2D ringTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Power Effect Ring", AssetRequestMode.ImmediateLoad).Value;
+                Vector2 prOrigin = ringTex.Size() / 2f;
+                float prRot = (float)Main.GameUpdateCount * 0.03f;
+                sb.Draw(ringTex, drawPos, null, SilentUtils.QuestionViolet * 0.3f, prRot, prOrigin, 0.18f, SpriteEffects.None, 0f);
+                sb.Draw(ringTex, drawPos, null, SilentUtils.BrightQuestion * 0.2f, -prRot * 0.6f, prOrigin, 0.25f, SpriteEffects.None, 0f);
+            }
             
             SilentUtils.ExitShaderRegion(sb);
             return false;
@@ -567,7 +608,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 360);
+            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
             target.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(target, 2);
             
             // Chain lightning damage to nearby enemies
@@ -616,21 +657,31 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure
         
         public override void OnKill(int timeLeft)
         {
-            for (int i = 0; i < Main.rand.Next(6, 11); i++)
+            for (int i = 0; i < Main.rand.Next(10, 16); i++)
             {
                 SilentParticleHandler.Spawn(new ChainLightningParticle(
-                    Projectile.Center + Main.rand.NextVector2Circular(10f, 10f),
-                    Main.rand.NextVector2CircularEdge(3f, 3f) * Main.rand.NextFloat(1f, 3f),
+                    Projectile.Center + Main.rand.NextVector2Circular(12f, 12f),
+                    Main.rand.NextVector2CircularEdge(4f, 4f) * Main.rand.NextFloat(1f, 4f),
                     SilentUtils.BrightQuestion,
-                    Main.rand.NextFloat(0.15f, 0.25f),
-                    18));
+                    Main.rand.NextFloat(0.15f, 0.3f),
+                    20));
             }
-            SilentParticleHandler.Spawn(new MeasureImpactRing(Projectile.Center, SilentUtils.AnswerWhite, 0.4f, 22));
-            for (int i = 0; i < Main.rand.Next(4, 6); i++)
+            SilentParticleHandler.Spawn(new MeasureImpactRing(Projectile.Center, SilentUtils.AnswerWhite, 0.5f, 25));
+            SilentParticleHandler.Spawn(new MeasureImpactRing(Projectile.Center, SilentUtils.EnigmaEmerald * 0.7f, 0.7f, 30));
+            for (int i = 0; i < Main.rand.Next(3, 5); i++)
+            {
+                SilentParticleHandler.Spawn(new QuestionMarkParticle(
+                    Projectile.Center + Main.rand.NextVector2Circular(15f, 15f),
+                    Main.rand.NextVector2CircularEdge(1f, 1f) * Main.rand.NextFloat(0.3f, 0.8f),
+                    SilentUtils.BrightQuestion,
+                    Main.rand.NextFloat(0.2f, 0.4f),
+                    Main.rand.Next(20, 35)));
+            }
+            for (int i = 0; i < Main.rand.Next(6, 9); i++)
             {
                 Dust.NewDust(Projectile.position, Projectile.width, Projectile.height,
                     ModContent.DustType<SilentMeasureDust>(),
-                    Main.rand.NextFloat(-3f, 3f), Main.rand.NextFloat(-3f, 3f));
+                    Main.rand.NextFloat(-4f, 4f), Main.rand.NextFloat(-4f, 4f));
             }
         }
     }

@@ -9,8 +9,18 @@ using Terraria;
 
 namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 {
+    /// <summary>
+    /// Celestial Valor — Eroica's signature melee broadsword embodying the hero's triumphant first movement.
+    /// Features a 4-phase Heroic Crescendo combo with escalating valor slash arcs, beam projectiles,
+    /// a Valor Gauge that builds toward a devastating Gloria finale, and Hero's Resolve empowerment below 30% HP.
+    /// </summary>
     public class CelestialValor : ModItem
     {
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             Item.width = 80;
@@ -44,7 +54,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
             "Hero's Resolve: below 30% HP, all swings deal 25% more damage")
             { OverrideColor = EroicaPalette.Gold });
             tooltips.Add(new TooltipLine(Mod, "Lore",
-            "'To wield valor is to accept that every victory demands sacrifice.'")
+            "'Rise, even when the world says fall.'")
             { OverrideColor = new Color(200, 50, 50) });
         }
     }

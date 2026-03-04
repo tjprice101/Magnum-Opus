@@ -737,5 +737,74 @@ namespace MagnumOpus.Content.SwanLake
             Color lightColor = Color.Lerp(DarkSilver, PureWhite, shift);
             Lighting.AddLight(worldPos, lightColor.ToVector3() * intensity);
         }
+
+        // ─────────── THEME TEXTURE VFX ───────────
+        // Uses SwanLakeThemeTextures for theme-specific visuals.
+
+        /// <summary>
+        /// Draws a themed graceful impact ring using Swan Lake Power Effect Ring + Harmonic Impact.
+        /// Must be called in Additive blend mode (or {A=0} pattern).
+        /// </summary>
+        public static void DrawThemeImpactRing(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f, float rotation = 0f)
+        {
+            Vector2 drawPos = worldPos - Main.screenPosition;
+
+            Texture2D ring = SwanLakeThemeTextures.SLPowerEffectRing?.Value;
+            if (ring != null)
+            {
+                Vector2 origin = ring.Size() * 0.5f;
+                sb.Draw(ring, drawPos, null,
+                    (PureWhite with { A = 0 }) * 0.5f * intensity, rotation, origin,
+                    scale * 0.15f, SpriteEffects.None, 0f);
+                sb.Draw(ring, drawPos, null,
+                    (PrismaticShimmer with { A = 0 }) * 0.3f * intensity, -rotation * 0.7f, origin,
+                    scale * 0.10f, SpriteEffects.None, 0f);
+            }
+
+            Texture2D impact = SwanLakeThemeTextures.SLHarmonicImpact?.Value;
+            if (impact != null)
+            {
+                Vector2 impOrigin = impact.Size() * 0.5f;
+                sb.Draw(impact, drawPos, null,
+                    (Silver with { A = 0 }) * 0.45f * intensity, rotation * 1.3f, impOrigin,
+                    scale * 0.12f, SpriteEffects.None, 0f);
+            }
+        }
+
+        /// <summary>
+        /// Draws a themed crystal shard particle accent at a position.
+        /// Must be called in Additive blend mode.
+        /// </summary>
+        public static void DrawThemeCrystalAccent(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f)
+        {
+            Vector2 drawPos = worldPos - Main.screenPosition;
+
+            Texture2D shard = SwanLakeThemeTextures.SLCrystalShard?.Value;
+            if (shard != null)
+            {
+                Vector2 origin = shard.Size() * 0.5f;
+                float rot = (float)Main.GameUpdateCount * 0.04f;
+                sb.Draw(shard, drawPos, null,
+                    (PureWhite with { A = 0 }) * 0.45f * intensity, rot, origin,
+                    scale * 0.07f, SpriteEffects.None, 0f);
+                sb.Draw(shard, drawPos, null,
+                    (PrismaticShimmer with { A = 0 }) * 0.3f * intensity, -rot * 0.6f, origin,
+                    scale * 0.05f, SpriteEffects.None, 0f);
+            }
+        }
+
+        /// <summary>
+        /// Combined theme impact: universal bloom + theme ring + crystal accents.
+        /// </summary>
+        public static void DrawThemeImpactFull(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f)
+        {
+            DrawSwanBloomStack(sb, worldPos, scale, 0.3f, intensity);
+            DrawThemeCrystalAccent(sb, worldPos, scale, intensity * 0.7f);
+            float rot = (float)Main.GameUpdateCount * 0.02f;
+            DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.6f, rot);
+        }
     }
 }

@@ -23,6 +23,11 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime
         public override string Texture => "MagnumOpus/Content/LaCampanella/ResonantWeapons/GrandioseChime/GrandioseChime";
         public override string Name => "GrandioseChime";
 
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             Item.damage = 240;
@@ -123,7 +128,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Kill Echo chains to the nearest enemy within 15 tiles at 60% damage, up to 3 chains"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Right click to deploy floating bell-note mines (max 5)"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "After 5 complete kill chains, the next beam becomes Grandiose: triple width + 3 auto mines"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'When the grand chime sounds, the world holds its breath.'")
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The bell speaks, and the world answers in fire.'")
             {
                 OverrideColor = new Color(255, 140, 40)
             });

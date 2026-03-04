@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MagnumOpus.Content.Fate;
 using ReLogic.Content;
 using System;
 using Terraria;
@@ -35,7 +36,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Utilities
         };
 
         /// <summary>Lore tooltip color — cosmic crimson.</summary>
-        public static readonly Color LoreColor = new Color(220, 60, 90);
+        public static readonly Color LoreColor = new Color(180, 40, 80);
 
         #endregion
 
@@ -204,5 +205,17 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Utilities
         }
 
         #endregion
+
+        // ─────────── THEME TEXTURE ACCENTS ───────────
+
+        /// <summary>
+        /// Draws theme-textured accents. Call under Additive blend.
+        /// </summary>
+        public static void DrawThemeAccents(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)
+        {
+            FateVFXLibrary.DrawThemeCelestialGlyph(sb, worldPos, scale, intensity * 0.5f);
+            float rot = (float)Main.GameUpdateCount * 0.02f;
+            FateVFXLibrary.DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.4f, rot);
+        }
     }
 }

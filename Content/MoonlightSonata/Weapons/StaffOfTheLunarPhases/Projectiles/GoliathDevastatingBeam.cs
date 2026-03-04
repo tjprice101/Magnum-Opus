@@ -30,7 +30,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
         // =================================================================
 
         public const float BeamSpeed = 18f;
-        public const float BeamWidth = 28f;
+        public const float BeamWidth = 18f;
         public const int TrailLength = 25;
         public const int HealAmount = 15;
         public const float DamageMultiplier = 1.5f;
@@ -190,6 +190,18 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
         {
             if (Main.dedServ) return;
 
+            // Foundation VFX: GoliathRipple at devastating impact (enhanced intensity)
+            if (Projectile.owner == Main.myPlayer)
+            {
+                Player owner = Main.player[Projectile.owner];
+                GoliathPlayer gp = owner.GetModPlayer<GoliathPlayer>();
+                Projectile.NewProjectile(
+                    Projectile.GetSource_FromThis(), impactPos, Vector2.Zero,
+                    ModContent.ProjectileType<GoliathRipple>(),
+                    0, 0f, Projectile.owner,
+                    ai0: gp.LunarPhaseMode, ai1: 1f); // ai0=phase, ai1=1 (devastating)
+            }
+
             // Large impact bloom
             GoliathParticleHandler.Spawn(new ImpactBloomParticle(
                 impactPos, GoliathUtils.SupermoonWhite, 1.2f, 20));
@@ -247,8 +259,19 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
         {
             if (Main.dedServ) return false;
 
-            DrawGlowTrail();
-            DrawMainTrail();
+            // End the active SpriteBatch before GPU primitive drawing
+            Main.spriteBatch.End();
+            try
+            {
+                DrawGlowTrail();
+                DrawMainTrail();
+            }
+            finally
+            {
+                // Restore SpriteBatch to Terraria's expected state
+                Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             DrawHeadGlow();
 
             return false;
@@ -319,20 +342,32 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
             Vector2 origin = bloom.Size() * 0.5f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
-            // Outer glow — cast palette (large, dramatic)
-            Color outerColor = GoliathUtils.WaxingGibbous * (0.5f + IntensityPulse * 0.3f);
-            float outerScale = 0.7f + IntensityPulse * 0.4f;
-            sb.Draw(bloom, drawPos, null, outerColor, 0f, origin, outerScale, SpriteEffects.None, 0f);
+            // Switch to Additive for bloom glow layers
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Outer glow — cast palette (scaled down)
+            Color outerColor = GoliathUtils.WaxingGibbous with { A = 0 };
+            float outerScale = 0.5f + IntensityPulse * 0.25f;
+            sb.Draw(bloom, drawPos, null, outerColor * (0.4f + IntensityPulse * 0.2f), 0f, origin, outerScale, SpriteEffects.None, 0f);
 
             // Middle glow — ice blue
-            Color midColor = GoliathUtils.FullMoonIceBlue * (0.5f + IntensityPulse * 0.3f);
-            float midScale = 0.45f + IntensityPulse * 0.2f;
-            sb.Draw(bloom, drawPos, null, midColor, 0f, origin, midScale, SpriteEffects.None, 0f);
+            Color midColor = GoliathUtils.FullMoonIceBlue with { A = 0 };
+            float midScale = 0.3f + IntensityPulse * 0.15f;
+            sb.Draw(bloom, drawPos, null, midColor * (0.4f + IntensityPulse * 0.2f), 0f, origin, midScale, SpriteEffects.None, 0f);
 
             // Inner core — supermoon white
-            Color coreColor = GoliathUtils.SupermoonWhite * (0.7f + IntensityPulse * 0.3f);
-            float coreScale = 0.25f + IntensityPulse * 0.1f;
-            sb.Draw(bloom, drawPos, null, coreColor, 0f, origin, coreScale, SpriteEffects.None, 0f);
+            Color coreColor = GoliathUtils.SupermoonWhite with { A = 0 };
+            float coreScale = 0.18f + IntensityPulse * 0.08f;
+            sb.Draw(bloom, drawPos, null, coreColor * (0.6f + IntensityPulse * 0.3f), 0f, origin, coreScale, SpriteEffects.None, 0f);
+
+            // Restore to AlphaBlend
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
         // =================================================================

@@ -412,11 +412,46 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
             float comboIntensity = fp.ComboIntensity;
             float progress = SwingProgress;
 
-            DrawLayer1_StellarGlow(sb, comboIntensity);
-            DrawLayer2_CoreTrail(sb, comboIntensity);
-            DrawLayer3_StarSparks(sb, progress, comboIntensity);
-            DrawLayer4_WeaponSprite(sb, lightColor);
-            DrawLayer5_ComboAura(sb, comboIntensity);
+            try
+            {
+                // End SpriteBatch before GPU primitive trail draws
+                sb.End();
+
+                // GPU primitive layers (trail renderers use DrawUserIndexedPrimitives)
+                DrawLayer1_StellarGlow(sb, comboIntensity);
+                DrawLayer2_CoreTrail(sb, comboIntensity);
+
+                // Restart SpriteBatch for sprite-based layers
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
+                // Sprite-based layers (manage their own additive state changes)
+                DrawLayer3_StarSparks(sb, progress, comboIntensity);
+                DrawLayer4_WeaponSprite(sb, lightColor);
+                DrawLayer5_ComboAura(sb, comboIntensity);
+            }
+            catch
+            {
+                try
+                {
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
+
+            // Theme accents (additive pass)
+            try
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                FractalUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.4f);
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
 
             return false;
         }

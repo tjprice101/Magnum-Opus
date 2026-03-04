@@ -5,7 +5,6 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Enemies;
 using MagnumOpus.Common;
-using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Eroica.Tools
 {
@@ -93,7 +92,7 @@ namespace MagnumOpus.Content.Eroica.Tools
             if (Main.rand.NextBool(4))
             {
                 Microsoft.Xna.Framework.Vector2 notePos = hitbox.Center.ToVector2();
-                ThemedParticles.EroicaMusicNotes(notePos, 2, 15f);
+                EroicaVFXLibrary.SpawnMusicNotes(notePos, 2, 15f);
             }
         }
     }

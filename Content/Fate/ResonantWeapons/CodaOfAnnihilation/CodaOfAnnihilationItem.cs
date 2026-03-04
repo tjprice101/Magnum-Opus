@@ -52,6 +52,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation
         private int heldSwingProjectile = -1;
         private bool swingSpawnedThisUse = false;
 
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             Item.damage = 1350;
@@ -124,6 +129,12 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation
 
             // Ambient VFX while holding
             if (Main.dedServ) return;
+
+            // Track continuous use
+            var codaPlayer = player.Coda();
+            if (player.itemAnimation > 0)
+                codaPlayer.IsActivelyUsing = true;
+
             HoldItemVFX(player);
         }
 
@@ -266,9 +277,12 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "FateEffect", "Launches spectral echoes of every score's legendary blades"));
-            tooltips.Add(new TooltipLine(Mod, "FateSpecial", "Each swing summons a different weapon from the symphony of fate"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The final movement - a symphony of every blade that came before'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Throws spectral copies of all 14 theme melee weapons, cycling through every score"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Each swing spawns 2-3 homing swords plus a held orbital swing arc"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Hits build Annihilation stacks on enemies (max 10) — at 10, detonates for 50% accumulated damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "10 seconds of continuous use triggers Coda Finale — a cinematic gravitational singularity"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "The culmination of every blade, every theme, every note"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Every blade. Every theme. Every note. The final coda plays them all.'")
             {
                 OverrideColor = CodaUtils.LoreColor
             });

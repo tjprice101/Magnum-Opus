@@ -10,11 +10,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Shaders
     /// Self-contained shader loader for Opus Ultima.
     /// Loads 5 unique shaders from Effects/Fate/OpusUltima/:
     ///
-    ///   1. OpusSwingTrail   — Main swing arc trail with cosmic fire + gold intensity
-    ///   2. OpusSwingGlow    — Wide bloom glow underlayer (alt pass of OpusSwingTrail)
-    ///   3. OpusEnergyBall   — Swirling cosmic energy orb
-    ///   4. OpusSeekerTrail  — Seeker homing trail
-    ///   5. OpusExplosion    — Supernova explosion effect
+    ///   1. OpusSwingTrail   窶・Main swing arc trail with cosmic fire + gold intensity
+    ///   2. OpusSwingGlow    窶・Wide bloom glow underlayer (alt pass of OpusSwingTrail)
+    ///   3. OpusEnergyBall   窶・Swirling cosmic energy orb
+    ///   4. OpusSeekerTrail  窶・Seeker homing trail
+    ///   5. OpusExplosion    窶・Supernova explosion effect
     ///
     /// Keys: "MagnumOpus:Opus<Purpose>"
     /// </summary>
@@ -53,7 +53,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Shaders
             if (HasSwingTrail)
             {
                 GameShaders.Misc["MagnumOpus:OpusSwingGlow"] =
-                    new MiscShaderData(SwingTrailShader, "OpusSwingGlow");
+                    new MiscShaderData(SwingTrailShader, "P0");
             }
         }
 
@@ -77,7 +77,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Shaders
                 var fallback = ModContent.Request<Effect>("MagnumOpus/Effects/ScrollingTrailShader", AssetRequestMode.ImmediateLoad);
                 if (fallback?.Value != null)
                 {
-                    GameShaders.Misc[key] = new MiscShaderData(fallback, "ScrollingTrailPass");
+                    GameShaders.Misc[key] = new MiscShaderData(fallback, "P0");
                     return true;
                 }
             }

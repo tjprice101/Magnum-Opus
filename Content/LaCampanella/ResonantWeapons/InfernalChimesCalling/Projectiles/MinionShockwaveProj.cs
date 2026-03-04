@@ -8,6 +8,9 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.Particles;
 using MagnumOpus.Content.LaCampanella.Debuffs;
+using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
+using MagnumOpus.Content.FoundationWeapons.ExplosionParticlesFoundation;
+using MagnumOpus.Content.FoundationWeapons.SmokeFoundation;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.Projectiles
 {
@@ -120,6 +123,29 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
                 SoundEngine.PlaySound(SoundID.Item14, Projectile.Center);
             else
                 SoundEngine.PlaySound(SoundID.Item28, Projectile.Center);
+
+            // === FOUNDATION: RippleEffectProjectile — Shockwave ring per minion attack ===
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero,
+                ModContent.ProjectileType<RippleEffectProjectile>(),
+                0, 0f, Projectile.owner);
+
+            // === FOUNDATION: Sacrifice-specific effects ===
+            if (IsSacrifice)
+            {
+                // SparkExplosionProjectile — Bell Sacrifice massive gold/flame burst
+                Projectile.NewProjectile(
+                    Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero,
+                    ModContent.ProjectileType<SparkExplosionProjectile>(),
+                    0, 0f, Projectile.owner,
+                    ai0: (float)SparkMode.SpiralShrapnel);
+
+                // DamageZoneProjectile — Sacrifice persistent damage zone
+                Projectile.NewProjectile(
+                    Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero,
+                    ModContent.ProjectileType<DamageZoneProjectile>(),
+                    (int)(Projectile.damage * 0.3f), 0f, Projectile.owner);
+            }
         }
 
         private void DealWaveDamage(float progress)
@@ -181,6 +207,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             float progress = 1f - (float)Projectile.timeLeft / Duration;
             float fade = 1f - progress;
 
@@ -190,7 +218,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = tex.Size() / 2f;
 
-            sb.End();
+            try { sb.End(); } catch { }
+            try
+            {
             sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
@@ -221,11 +251,26 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
                     InfernalChimesCallingUtils.ShockwavePalette[5], sacFlash * 0.6f);
                 sb.Draw(tex, drawPos, null, sacColor, 0f, origin, ringScale * 0.6f, SpriteEffects.None, 0f);
             }
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+            } // end outer try
+            catch
+            {
+                try
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
             return false;
         }
     }

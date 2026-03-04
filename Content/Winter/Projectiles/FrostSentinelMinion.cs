@@ -10,6 +10,7 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Winter.Weapons;
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Winter.Projectiles
 {
@@ -153,7 +154,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
                 MagnumParticleHandler.SpawnParticle(particle);
             }
 
-            // ☁EMUSICAL NOTATION - Sentinel frost hymn - VISIBLE SCALE 0.72f+
+            // 隨倥・MUSICAL NOTATION - Sentinel frost hymn - VISIBLE SCALE 0.72f+
             if (Main.rand.NextBool(8))
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, -0.5f));
@@ -320,7 +321,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
                 var frostSparkle = new SparkleParticle(target.Center, Vector2.Zero, IceBlue * 0.6f, 0.5f * 0.6f, 18);
                 MagnumParticleHandler.SpawnParticle(frostSparkle);
 
-                // ☁EMUSICAL CRIT - Shatter Strike crystal chord
+                // 隨倥・MUSICAL CRIT - Shatter Strike crystal chord
                 ThemedParticles.MusicNoteBurst(target.Center, CrystalCyan * 0.8f, 8, 5f);
                 ThemedParticles.MusicNoteRing(target.Center, IceBlue * 0.65f, 40f, 6);
 
@@ -337,7 +338,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
             // Standard hit VFX
             CustomParticles.GenericFlare(target.Center, IceBlue, 0.45f, 14);
 
-            // ☁EMUSICAL IMPACT - Sentinel strike note
+            // 隨倥・MUSICAL IMPACT - Sentinel strike note
             ThemedParticles.MusicNoteBurst(target.Center, IceBlue * 0.65f, 4, 3f);
             
             // Dynamic winter frost impact
@@ -348,7 +349,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -385,7 +386,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
             var frostSparkle = new SparkleParticle(Projectile.Center, Vector2.Zero, IceBlue * 0.6f, 0.45f * 0.6f, 18);
             MagnumParticleHandler.SpawnParticle(frostSparkle);
 
-            // ☁EMUSICAL FINALE - Sentinel farewell melody
+            // 隨倥・MUSICAL FINALE - Sentinel farewell melody
             ThemedParticles.MusicNoteBurst(Projectile.Center, CrystalCyan * 0.7f, 8, 4.5f);
             ThemedParticles.MusicNoteRing(Projectile.Center, IceBlue * 0.6f, 45f, 6);
 
@@ -470,7 +471,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
-            // ☁EMUSICAL NOTATION - Frost bolt whisper - VISIBLE SCALE 0.68f+
+            // 隨倥・MUSICAL NOTATION - Frost bolt whisper - VISIBLE SCALE 0.68f+
             if (Main.rand.NextBool(6))
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.8f, 0.8f), Main.rand.NextFloat(-1f, -0.3f));
@@ -496,7 +497,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
             CustomParticles.GenericFlare(target.Center, CrystalCyan, 0.4f, 14);
 
-            // ☁EMUSICAL IMPACT - Frost bolt impact note
+            // 隨倥・MUSICAL IMPACT - Frost bolt impact note
             ThemedParticles.MusicNoteBurst(target.Center, IceBlue * 0.6f, 4, 3f);
             
             // Dynamic winter frost bolt impact
@@ -506,7 +507,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -534,7 +535,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // ☁EMUSICAL FINALE - Frost bolt fade
+            // 隨倥・MUSICAL FINALE - Frost bolt fade
             ThemedParticles.MusicNoteBurst(Projectile.Center, IceBlue * 0.5f, 4, 2.5f);
 
             for (int i = 0; i < 5; i++)

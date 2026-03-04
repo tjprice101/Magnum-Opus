@@ -827,5 +827,96 @@ namespace MagnumOpus.Content.Fate
             float pulse = (float)Math.Sin(time * 0.08f) * 0.15f + 0.85f;
             Lighting.AddLight(worldPos, lightColor.ToVector3() * pulse * intensity);
         }
+
+        // ─────────── THEME TEXTURE VFX ───────────
+        // Uses FateThemeTextures for theme-specific celestial visuals.
+
+        /// <summary>
+        /// Draws a themed celestial impact using Fate Power Effect Ring + Harmonic Impact.
+        /// Must be called in Additive blend mode (or {A=0} pattern).
+        /// </summary>
+        public static void DrawThemeImpactRing(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f, float rotation = 0f)
+        {
+            Vector2 drawPos = worldPos - Main.screenPosition;
+
+            Texture2D ring = FateThemeTextures.FAPowerEffectRing?.Value;
+            if (ring != null)
+            {
+                Vector2 origin = ring.Size() * 0.5f;
+                sb.Draw(ring, drawPos, null,
+                    (BrightCrimson with { A = 0 }) * 0.5f * intensity, rotation, origin,
+                    scale * 0.15f, SpriteEffects.None, 0f);
+                sb.Draw(ring, drawPos, null,
+                    (DarkPink with { A = 0 }) * 0.3f * intensity, -rotation * 0.7f, origin,
+                    scale * 0.10f, SpriteEffects.None, 0f);
+            }
+
+            Texture2D impact = FateThemeTextures.FAHarmonicImpact?.Value;
+            if (impact != null)
+            {
+                Vector2 impOrigin = impact.Size() * 0.5f;
+                sb.Draw(impact, drawPos, null,
+                    (WhiteCelestial with { A = 0 }) * 0.45f * intensity, rotation * 1.3f, impOrigin,
+                    scale * 0.12f, SpriteEffects.None, 0f);
+            }
+        }
+
+        /// <summary>
+        /// Draws themed celestial glyph at a position using Fate glyph texture.
+        /// Must be called in Additive blend mode.
+        /// </summary>
+        public static void DrawThemeCelestialGlyph(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f)
+        {
+            Vector2 drawPos = worldPos - Main.screenPosition;
+
+            Texture2D glyph = FateThemeTextures.FACelestialGlyph?.Value;
+            if (glyph != null)
+            {
+                Vector2 origin = glyph.Size() * 0.5f;
+                float rot = (float)Main.GameUpdateCount * 0.025f;
+                sb.Draw(glyph, drawPos, null,
+                    (StarGold with { A = 0 }) * 0.45f * intensity, rot, origin,
+                    scale * 0.08f, SpriteEffects.None, 0f);
+                sb.Draw(glyph, drawPos, null,
+                    (DarkPink with { A = 0 }) * 0.3f * intensity, -rot * 0.6f, origin,
+                    scale * 0.06f, SpriteEffects.None, 0f);
+            }
+        }
+
+        /// <summary>
+        /// Draws a themed supernova core burst at a position.
+        /// Must be called in Additive blend mode.
+        /// </summary>
+        public static void DrawThemeSupernovaCore(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f)
+        {
+            Texture2D core = FateThemeTextures.FASupernovaCore?.Value;
+            if (core == null) return;
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = core.Size() * 0.5f;
+
+            sb.Draw(core, drawPos, null,
+                (BrightCrimson with { A = 0 }) * 0.5f * intensity, 0f, origin,
+                scale * 0.10f, SpriteEffects.None, 0f);
+            sb.Draw(core, drawPos, null,
+                (WhiteCelestial with { A = 0 }) * 0.7f * intensity, 0f, origin,
+                scale * 0.05f, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Combined theme impact: bloom + celestial glyph + impact ring + supernova core.
+        /// </summary>
+        public static void DrawThemeImpactFull(SpriteBatch sb, Vector2 worldPos,
+            float scale, float intensity = 1f)
+        {
+            DrawFateBloomStack(sb, worldPos, scale, 0.3f, intensity);
+            DrawThemeCelestialGlyph(sb, worldPos, scale, intensity * 0.6f);
+            float rot = (float)Main.GameUpdateCount * 0.02f;
+            DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.5f, rot);
+            DrawThemeSupernovaCore(sb, worldPos, scale * 0.8f, intensity * 0.4f);
+        }
     }
 }

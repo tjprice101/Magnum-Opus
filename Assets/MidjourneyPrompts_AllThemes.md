@@ -25,7 +25,7 @@
 # ═══════════════════════════════════════════
 
 > **Musical Soul:** Liszt's virtuosic fire — ringing bells, cascading arpeggios, passionate intensity
-> **Visual Motifs:** Bell shapes, bell curves, ringing vibration waves, cascading flame tongues, candle-like flickers, hammered piano strings, molten dripping metal, forge heat shimmer
+> **Visual Motifs:** Bell silhouettes, bell curves, ringing vibration waves, chime clusters, resonating bronze, cascading arpeggios, tubular chime shapes, bell clapper strikes, carillon towers, concentric resonance rings, hand-bell outlines, wind chime strands
 > **Emotional Core:** Passion, intensity, burning brilliance, virtuosic speed
 > **Colors (applied at runtime):** Black smoke, orange flames, gold highlights
 
@@ -35,17 +35,17 @@
 
 ### LC Braided Energy Helix Beam
 ```
-White intertwined double-helix beam segment on solid black background, two spiraling strands of molten energy twisted around each other like bell-rope fibers, bright white glowing core with softer gray outer wisps, hammered metal texture along the strand surfaces, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White intertwined double-helix beam segment on solid black background, two spiraling strands of resonant energy twisted around each other like bell-rope fibers, bright white glowing core with softer gray outer wisps, concentric vibration rings emanating from each strand, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### LC Cracking Energy Fissure Beam
 ```
-White cracking fissure beam segment on solid black background, horizontal energy beam with fracture lines radiating outward like a cracked church bell, jagged bright cracks forming mosaic pattern through the beam body, hot white core with gray stress fractures branching to edges, molten seams between fragments, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White cracking fissure beam segment on solid black background, horizontal energy beam with fracture lines radiating outward like a cracked church bell, jagged bright cracks forming mosaic pattern through the beam body, hot white core with gray stress fractures branching to edges, resonance cracks between fragments like a bell struck too hard, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### LC Energy Motion Beam
 ```
-White flowing energy beam segment on solid black background, horizontal stream of cascading energy droplets falling like rapid piano arpeggios, each droplet elongated and flame-shaped, flowing left to right in rhythmic cascading pattern, bright core drops with soft gray motion trails, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White flowing energy beam segment on solid black background, horizontal stream of cascading energy droplets falling like rapid piano arpeggios, each droplet elongated and chime-shaped, flowing left to right in rhythmic cascading pattern, bright core drops with soft gray motion trails, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### LC Energy Surge Beam
@@ -55,12 +55,12 @@ White surging energy beam on solid black background, powerful horizontal energy 
 
 ### LC Horizontal Beam Streak
 ```
-White horizontal beam streak on solid black background, clean linear energy column with flickering candle-flame edges dancing along both sides, the central beam razor-sharp and intensely bright, edge flames asymmetric and wild like forge fire, tileable horizontal strip, game VFX texture, 256x32px --ar 8:1 --style raw
+White horizontal beam streak on solid black background, clean linear energy column with flickering bell-resonance edges dancing along both sides, the central beam razor-sharp and intensely bright, edge waves asymmetric and wild like rapidly struck chimes, tileable horizontal strip, game VFX texture, 256x32px --ar 8:1 --style raw
 ```
 
 ### LC Infernal Beam Ring
 ```
-White ring-shaped beam cross-section on solid black background, circular beam rendered as a ring of molten bell-metal with dripping heated rivulets trailing downward, ring surface textured with hammered metal dimples, bright white hot spots where the metal is freshest, darker gray cooling sections, game VFX texture, 128x128px --ar 1:1 --style raw
+White ring-shaped beam cross-section on solid black background, circular beam rendered as a bell mouth seen from below, the rim vibrating with concentric resonance rings expanding outward, bell surface textured with gentle bronze patina dimples, bright white spots where the bell resonates strongest, darker gray dampened sections, game VFX texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### LC Oscillating Frequency Wave Beam
@@ -75,7 +75,7 @@ White acoustic wave beam on solid black background, horizontal beam made of conc
 
 ### LC Turbulent Plasma Core Segment
 ```
-White turbulent energy core on solid black background, horizontal beam core with roiling forge-fire turbulence, churning molten metal texture with bright white hot spots surrounded by darker swirling currents, small bubbling eruptions along the surface like molten gold in a crucible, intense and chaotic internal motion, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White turbulent energy core on solid black background, horizontal beam core with roiling bell-resonance turbulence, churning vibration waves with bright white hotspots surrounded by darker swirling overtone currents, small chime-burst eruptions along the surface where harmonic frequencies collide, intense and chaotic internal motion, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### LC Thin Linear Glow
@@ -85,22 +85,22 @@ White thin linear glow on solid black background, extremely fine horizontal line
 
 ### LC Beam Lens Flare Explosion Impact
 ```
-White radial burst on solid black background, explosive bell-strike impact flare with energy radiating outward in concentric rings like sound waves from a struck bell, bright white center with radiating streaks of decreasing intensity, ring-shaped pressure waves expanding outward, sparks flying in spiral patterns, game VFX texture, 128x128px --ar 1:1 --style raw
+White radial burst on solid black background, explosive bell-strike impact flare with energy radiating outward in concentric rings like sound waves from a struck bell, bright white center with radiating streaks of decreasing intensity, ring-shaped resonance waves expanding outward, tiny chime fragments flying in spiral patterns, game VFX texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### LC Radial Burst Fade Streaks Lens Flare
 ```
-White radial streaked lens flare on solid black background, central bright point with long fading streaks radiating outward like hammered sparks flying from an anvil, streaks vary in length and intensity creating asymmetric forge-spark burst, soft gray glow envelope around the cluster, game VFX texture, 128x128px --ar 1:1 --style raw
+White radial streaked lens flare on solid black background, central bright point with long fading streaks radiating outward like resonance waves from a struck chime, streaks vary in length and intensity creating asymmetric bell-ring burst, soft gray glow envelope around the cluster, game VFX texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### LC Radial Burst Heavy Streaks Lens Flare
 ```
-White heavy radial burst on solid black background, massive forge-hammer impact flare with thick bold streaks radiating from center like molten metal spattering from a heavy blow, each streak tapers from thick bright base to thin gray tip, uneven distribution suggesting violent directional force, bright hot core with intense radial energy, game VFX texture, 128x128px --ar 1:1 --style raw
+White heavy radial burst on solid black background, massive bell-clapper impact flare with thick bold streaks radiating from center like resonance waves from a great bell's toll, each streak tapers from thick bright base to thin gray tip, uneven distribution suggesting powerful directional force, bright hot core with intense radial chime energy, game VFX texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### LC 8-Point Starburst Flare (Projectile)
 ```
-White 8-pointed starburst on solid black background, brilliant flare shaped like a ringing bell's acoustic radiation pattern, eight sharp points radiating symmetrically with bright tips, each point slightly flame-shaped with flickering edges, narrow bright core with larger soft glow between the points, game VFX texture, 128x128px --ar 1:1 --style raw
+White 8-pointed starburst on solid black background, brilliant flare shaped like a ringing bell's acoustic radiation pattern, eight sharp points radiating symmetrically with bright tips, each point slightly chime-shaped with vibrating edges, narrow bright core with larger soft glow between the points, game VFX texture, 128x128px --ar 1:1 --style raw
 ```
 
 ---
@@ -109,7 +109,7 @@ White 8-pointed starburst on solid black background, brilliant flare shaped like
 
 ### LC Glow Orb
 ```
-White soft circular glow on solid black background, perfectly round orb of light with forge-like heat falloff, extremely bright pinpoint center rapidly falling off to medium gray then black, the falloff curve shaped like a bell curve with a sharp bright peak, subtle heat shimmer texture in the mid-range, game VFX bloom texture, 128x128px --ar 1:1 --style raw
+White soft circular glow on solid black background, perfectly round orb of light with resonant bell-curve falloff, extremely bright pinpoint center rapidly falling off to medium gray then black, the falloff curve shaped like a bell curve with a sharp bright peak, subtle concentric chime-ring texture in the mid-range, game VFX bloom texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### LC Lens Flare
@@ -119,17 +119,17 @@ White complex lens flare on solid black background, multi-element flare arrangem
 
 ### LC Point Bloom
 ```
-White pinpoint bloom on solid black background, tiny intensely bright center point with wide soft Gaussian bloom extending outward, the bloom envelope shaped like a flame tip — slightly taller than wide, elongated upward like a candle flame, gentle flickering edge irregularities, game VFX bloom texture, 64x64px --ar 1:1 --style raw
+White pinpoint bloom on solid black background, tiny intensely bright center point with wide soft Gaussian bloom extending outward, the bloom envelope shaped like a bell tip — slightly taller than wide, elongated upward like a chime resonance, gentle vibration edge irregularities, game VFX bloom texture, 64x64px --ar 1:1 --style raw
 ```
 
 ### LC Soft Glow
 ```
-White soft glow on solid black background, large diffuse luminous cloud with gentle Gaussian falloff, slightly uneven edges suggesting heat haze or warm air convection, the glow center offset slightly upward like rising heat, extremely smooth and atmospheric, game VFX bloom texture, 256x256px --ar 1:1 --style raw
+White soft glow on solid black background, large diffuse luminous cloud with gentle Gaussian falloff, slightly uneven edges suggesting bell-wave resonance or vibrating air, the glow center offset slightly upward like rising resonance, extremely smooth and atmospheric, game VFX bloom texture, 256x256px --ar 1:1 --style raw
 ```
 
 ### LC Soft Glow Bright Center
 ```
-White bloom with bright center on solid black background, large soft glow with an extremely intense white hotspot in the center like molten metal at forging temperature, the bright core takes up about 20% of the radius then falls off rapidly to a wide soft gray halo, game VFX bloom texture, 256x256px --ar 1:1 --style raw
+White bloom with bright center on solid black background, large soft glow with an extremely intense white hotspot in the center like a bell struck at its resonant frequency, the bright core takes up about 20% of the radius then falls off rapidly to a wide soft gray halo, game VFX bloom texture, 256x256px --ar 1:1 --style raw
 ```
 
 ### LC Soft Radial Bloom
@@ -139,7 +139,7 @@ White radial bloom on solid black background, circular bloom with subtle concent
 
 ### LC Star Flare
 ```
-White star-shaped flare on solid black background, four-pointed star flare with elongated vertical and horizontal spikes like forge sparks, each spike has a bright base that tapers to a fine point, the horizontal spikes slightly longer than vertical suggesting hammer-strike direction, bright center core where all spikes meet, game VFX bloom texture, 64x64px --ar 1:1 --style raw
+White star-shaped flare on solid black background, four-pointed star flare with elongated vertical and horizontal spikes like resonating chime prongs, each spike has a bright base that tapers to a fine point, the horizontal spikes slightly longer than vertical suggesting bell-clapper strike direction, bright center core where all spikes meet, game VFX bloom texture, 64x64px --ar 1:1 --style raw
 ```
 
 ---
@@ -153,32 +153,32 @@ White resonance wave impact on solid black background, circular expanding shockw
 
 ### LC Crumbling Shatter Burst
 ```
-White shatter burst on solid black background, explosive fragmentation pattern like a shattered bell, large angular shards radiating outward from center, each shard bright at its inner edge and darker at outer edge, cracks and fracture lines between shards, some smaller debris particles scattered between the major fragments, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White shatter burst on solid black background, explosive fragmentation pattern like a shattered bell, large angular bell-metal shards radiating outward from center, each shard bright at its inner edge and darker at outer edge, resonance cracks and fracture lines between shards, some smaller chime-fragment debris scattered between the major fragments, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### LC Impact Ellipse
 ```
-White impact ellipse on solid black background, horizontally elongated elliptical impact burst like a forge hammer striking an anvil, the ellipse brighter and thicker at center thinning toward the pointed ends, splash-like ejection streaks along the top edge suggesting molten metal spray, game VFX impact texture, 128x64px --ar 2:1 --style raw
+White impact ellipse on solid black background, horizontally elongated elliptical impact burst like a bell clapper striking the bell's inner wall, the ellipse brighter and thicker at center thinning toward the pointed ends, concentric resonance ring streaks along the top edge suggesting acoustic wave spray, game VFX impact texture, 128x64px --ar 2:1 --style raw
 ```
 
 ### LC Power Effect Ring
 ```
-White power ring on solid black background, bold expanding ring of energy with flame-tongue protrusions along the outer edge, the ring itself thick and bright, outer edge decorated with small upward-licking flame shapes evenly spaced, inner edge smooth, ring slightly thicker at cardinal points suggesting directional force, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White power ring on solid black background, bold expanding ring of energy with chime-prong protrusions along the outer edge, the ring itself thick and bright, outer edge decorated with small upward-reaching bell-curve shapes evenly spaced, inner edge smooth, ring slightly thicker at cardinal points suggesting directional resonance force, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### LC Radial Slash Star Impact
 ```
-White radial slash star on solid black background, six-pointed impact star with each point shaped like a curved flame, points alternate between long and short creating dynamic asymmetry, bright white center hub with streaks extending to each flame-point tip, overall shape suggests a spinning fire wheel, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White radial slash star on solid black background, six-pointed impact star with each point shaped like a curved chime prong, points alternate between long and short creating dynamic asymmetry, bright white center hub with streaks extending to each chime-point tip, overall shape suggests a spinning bell-resonance wheel, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### LC X-Shaped Impact Cross
 ```
-White X-shaped cross impact on solid black background, two crossing diagonal slash marks forming an X, each slash line tapers from thick bright center to thin gray tips, the intersection point extremely bright with a small explosion burst, edges of each slash have flickering flame-like irregularities, small forge sparks scattered around the intersection, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White X-shaped cross impact on solid black background, two crossing diagonal slash marks forming an X, each slash line tapers from thick bright center to thin gray tips, the intersection point extremely bright with a small chime-burst explosion, edges of each slash have flickering resonance-wave irregularities, small bell-fragment sparks scattered around the intersection, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### LC Beam Lens Flare Explosion Impact
 ```
-White explosion impact on solid black background, massive radial detonation burst like a great bell being struck with overwhelming force, central blindingly bright core with thick radiating energy bands, concentric pressure waves visible as rings within the burst, outermost ring has flame-like tongues licking outward, debris sparks flying in curved trajectories, game VFX impact texture, 256x256px --ar 1:1 --style raw
+White explosion impact on solid black background, massive radial detonation burst like a great bell being struck with overwhelming force, central blindingly bright core with thick radiating energy bands, concentric resonance waves visible as rings within the burst, outermost ring has chime-vibration tongues ringing outward, bell-fragment debris flying in curved trajectories, game VFX impact texture, 256x256px --ar 1:1 --style raw
 ```
 
 ---
@@ -187,32 +187,32 @@ White explosion impact on solid black background, massive radial detonation burs
 
 ### LC 4-Point Star Shining Projectile
 ```
-White four-pointed star projectile on solid black background, compact shining star with four sharp points, each point shaped like a candle flame — wider at base tapering to sharp tip, bright core where points meet with softer glow envelope, subtle heat shimmer rings around the star, game VFX projectile sprite, 64x64px --ar 1:1 --style raw
+White four-pointed star projectile on solid black background, compact shining star with four sharp points, each point shaped like a bell chime prong — wider at base tapering to sharp tip, bright core where points meet with softer glow envelope, subtle resonance vibration rings around the star, game VFX projectile sprite, 64x64px --ar 1:1 --style raw
 ```
 
 ### LC Bright Star Projectile 1
 ```
-White bright star projectile on solid black background, intense burning star shape with irregular flame-edge points, like a chunk of molten bell-metal flying through air, bright white-hot core with ragged glowing edges, small trailing drip of molten material hanging below, surrounded by heat distortion ring, game VFX projectile sprite, 64x64px --ar 1:1 --style raw
+White bright star projectile on solid black background, intense ringing star shape with irregular chime-edge points, like a fragment of resonant bell-metal flying through air, bright white-hot core with ragged glowing edges, small trailing vibration wake hanging below, surrounded by concentric resonance ring, game VFX projectile sprite, 64x64px --ar 1:1 --style raw
 ```
 
 ### LC Bright Star Projectile 2
 ```
-White blazing projectile on solid black background, rapidly spinning flame wheel projectile, four curved flame arms spiraling from center creating pinwheel rotation, each arm wider at outer tip and narrow at center junction, overall shape suggests a spinning Catherine wheel firework, bright center with gradient gray arms, game VFX projectile sprite, 64x64px --ar 1:1 --style raw
+White blazing projectile on solid black background, rapidly spinning chime-wheel projectile, four curved bell-curve arms spiraling from center creating pinwheel rotation, each arm wider at outer tip and narrow at center junction, overall shape suggests a spinning wind-chime array caught in motion, bright center with gradient gray arms, game VFX projectile sprite, 64x64px --ar 1:1 --style raw
 ```
 
 ### LC Gyratory Orb
 ```
-White spinning orb projectile on solid black background, spherical orb with visible internal rotation — swirling molten patterns visible through a translucent shell, the surface has hammered-metal dimple texture, bright equatorial band where spin is fastest, slightly compressed poles, a small ring orbiting the equator like a bell's acoustic vibration ring, game VFX projectile sprite, 64x64px --ar 1:1 --style raw
+White spinning orb projectile on solid black background, spherical orb with visible internal rotation — swirling resonance patterns visible through a translucent bell-bronze shell, the surface has subtle bell-curve dimple texture, bright equatorial band where spin is fastest, slightly compressed poles, a small ring orbiting the equator like a bell's acoustic vibration ring, game VFX projectile sprite, 64x64px --ar 1:1 --style raw
 ```
 
 ### LC Orbiting Energy Sphere
 ```
-White energy sphere on solid black background, large central orb with three smaller orbiting flame wisps circling it, the main sphere has a forge-fire core with softer outer glow, each orbiting wisp is teardrop-shaped and trails a small gray wake, orbiting wisps spaced at even 120-degree intervals, game VFX projectile sprite, 128x128px --ar 1:1 --style raw
+White energy sphere on solid black background, large central orb with three smaller orbiting chime wisps circling it, the main sphere has a resonant bell core with softer outer glow, each orbiting wisp is teardrop-shaped and trails a small gray resonance wake, orbiting wisps spaced at even 120-degree intervals, game VFX projectile sprite, 128x128px --ar 1:1 --style raw
 ```
 
 ### LC Pulsating Music Note Orb
 ```
-White music-themed orb on solid black background, circular orb containing a visible musical note shape within — a quarter note silhouette burning bright inside a sphere of flame, the note appears to be made of molten metal, sphere edges flicker with candle-flame irregularity, small resonance ripples emanating from the orb surface, game VFX projectile sprite, 64x64px --ar 1:1 --style raw
+White music-themed orb on solid black background, circular orb containing a visible musical note shape within — a quarter note silhouette ringing bright inside a sphere of bell-bronze energy, the note appears to be cast from resonant chime metal, sphere edges shimmer with vibration wave irregularity, small resonance ripples emanating from the orb surface, game VFX projectile sprite, 64x64px --ar 1:1 --style raw
 ```
 
 ---
@@ -221,17 +221,17 @@ White music-themed orb on solid black background, circular orb containing a visi
 
 ### LC Flaming Sword Arc Smear
 ```
-White sword arc smear on solid black background, sweeping 120-degree crescent blade arc with aggressive flame-tongue edges, the arc is thick and bright at the leading edge thinning toward the trailing edge, flame licks extend outward from the outer curve irregularly, inner curve smooth and precise, hot spots brightest at the arc's midpoint, game VFX slash texture, 256x256px --ar 1:1 --style raw
+White sword arc smear on solid black background, sweeping 120-degree crescent blade arc with aggressive bell-chime resonance edges, the arc is thick and bright at the leading edge thinning toward the trailing edge, vibration wave rings extend outward from the outer curve irregularly, inner curve smooth and precise like a bell's rim, hot spots brightest at the arc's midpoint, game VFX slash texture, 256x256px --ar 1:1 --style raw
 ```
 
 ### LC Flaming Sword Arc Smear 2
 ```
-White sword arc smear variant on solid black background, wider 150-degree sweeping arc with double-layered structure, outer layer thin and wispy with flame filaments, inner layer thick bright concentrated energy core, the two layers separated by a narrow gap of darkness creating depth, flame sparks scattering from the leading edge, game VFX slash texture, 256x256px --ar 1:1 --style raw
+White sword arc smear variant on solid black background, wider 150-degree sweeping arc with double-layered structure, outer layer thin and wispy with resonance wave filaments, inner layer thick bright concentrated energy core, the two layers separated by a narrow gap of darkness creating depth, bell-fragment sparks scattering from the leading edge, game VFX slash texture, 256x256px --ar 1:1 --style raw
 ```
 
 ### LC Full Circle Sword Arc Slash
 ```
-White full 360-degree sword arc on solid black background, complete circular slash ring with forge-hammer intensity, ring varies in thickness — thickest and brightest at the 3 o'clock position (strike point) thinning toward the opposite side, flame eruptions at the thickest point, hammered-metal texture along the ring body, small forge sparks ejecting outward from the strike point, game VFX slash texture, 256x256px --ar 1:1 --style raw
+White full 360-degree sword arc on solid black background, complete circular slash ring with bell-toll intensity, ring varies in thickness — thickest and brightest at the 3 o'clock position (strike point) thinning toward the opposite side, resonance wave eruptions at the thickest point, bell-bronze texture along the ring body, small chime fragments ejecting outward from the strike point, game VFX slash texture, 256x256px --ar 1:1 --style raw
 ```
 
 ### LC Sword Arc Smear
@@ -245,7 +245,7 @@ White clean sword arc on solid black background, precise 90-degree arc slash wit
 
 ### LC Basic Trail
 ```
-White basic trail strip on solid black background, horizontal gradient strip bright on left fading to black on right, the bright end has flickering candle-flame edge irregularity, the fade-out is not smooth but has ember-like bright speckles scattered in the darker region like dying forge embers, overall a flame-trail character, game VFX trail texture, 256x64px --ar 1:1 --style raw
+White basic trail strip on solid black background, horizontal gradient strip bright on left fading to black on right, the bright end has flickering chime-ring edge irregularity, the fade-out is not smooth but has resonance-pulse bright speckles scattered in the darker region like fading bell echoes, overall a chime-trail character, game VFX trail texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### LC Harmonic Standing Wave Ribbon
@@ -255,7 +255,7 @@ White standing wave ribbon on solid black background, horizontal strip with visi
 
 ### LC Spiraling Vortex Energy Strip
 ```
-White spiraling energy strip on solid black background, horizontal strip with internal helical spiral pattern that twists along the strip length, the spiral made of flame-tongue shapes wrapping around a central axis, bright spiral crests with darker troughs, overall the strip tapers from bright/wide on left to narrow/dark on right, forge-fire intensity, game VFX trail texture, 256x64px --ar 1:1 --style raw
+White spiraling energy strip on solid black background, horizontal strip with internal helical spiral pattern that twists along the strip length, the spiral made of bell-curve wave shapes wrapping around a central axis, bright spiral crests with darker troughs, overall the strip tapers from bright/wide on left to narrow/dark on right, ringing chime intensity, game VFX trail texture, 256x64px --ar 1:1 --style raw
 ```
 
 ---
@@ -264,7 +264,7 @@ White spiraling energy strip on solid black background, horizontal strip with in
 
 ### LC Lightning Surge
 ```
-White jagged lightning bolt on solid black background, horizontal electrical arc with forge-spark character, the main bolt path thick and angular with sharp 90-degree direction changes, bright white core with thinner secondary forking branches, each branch terminates in a tiny bright spark point, the bolt shape suggests hammered metal shattering — angular and aggressive rather than smooth, game VFX lightning texture, 256x64px --ar 1:1 --style raw
+White jagged lightning bolt on solid black background, horizontal electrical arc with bell-strike character, the main bolt path thick and angular with sharp 90-degree direction changes, bright white core with thinner secondary forking branches, each branch terminates in a tiny bright chime point, the bolt shape suggests a bell rung with overwhelming force — angular resonance cracks radiating outward, game VFX lightning texture, 256x64px --ar 1:1 --style raw
 ```
 
 ---
@@ -278,7 +278,7 @@ Grayscale seamless tileable noise texture on solid black background, wave patter
 
 ### LC Cosmic Energy Vortex
 ```
-Grayscale seamless tileable noise texture on solid black background, swirling vortex pattern with forge-fire character, molten metal currents spiraling inward toward a bright center, the spiral arms have rough hammered texture rather than smooth curves, turbulent eddies along the spiral edges, intense bright concentration at the center suggesting extreme heat, 256x256px seamless tile --ar 1:1 --style raw
+Grayscale seamless tileable noise texture on solid black background, swirling vortex pattern with bell-resonance character, resonant energy currents spiraling inward toward a bright center, the spiral arms have vibrating chime texture rather than smooth curves, turbulent eddies along the spiral edges, intense bright concentration at the center suggesting extreme acoustic resonance, 256x256px seamless tile --ar 1:1 --style raw
 ```
 
 ### LC Unique Theme Noise — Bell Resonance Pattern
@@ -292,7 +292,7 @@ Grayscale seamless tileable noise texture on solid black background, concentric 
 
 ### LC Smoke Puff Cloud
 ```
-White smoke puff on solid black background, billowing cloud of forge smoke with heavy dense character, thick opaque center with wispy trailing tendrils, small bright ember points scattered within the smoke body, the cloud shape slightly elongated vertically suggesting rising heat convection, textured with soot-heavy density variations, game VFX texture, 128x128px --ar 1:1 --style raw
+White smoke puff on solid black background, billowing cloud of bell-resonance haze with heavy dense character, thick opaque center with wispy trailing tendrils, small bright chime-spark points scattered within the smoke body, the cloud shape slightly elongated vertically suggesting rising vibration energy, textured with concentric ring density variations, game VFX texture, 128x128px --ar 1:1 --style raw
 ```
 
 ---
@@ -301,7 +301,7 @@ White smoke puff on solid black background, billowing cloud of forge smoke with 
 
 ### LC Music Note
 ```
-White music note symbol on solid black background, standard eighth note shape rendered as if forged from molten metal, the note head round and bright like a bell shape, the stem has subtle hammered texture, a tiny flame wisp curling from the flag, sharp clean edges with very subtle heat glow bloom around the silhouette, game particle texture, 32x32px --ar 1:1 --style raw
+White music note symbol on solid black background, standard eighth note shape rendered as if cast from resonant bell bronze, the note head round and bright like a bell shape, the stem has subtle chime-metal texture, tiny concentric resonance rings emanating from the note head, sharp clean edges with very subtle vibration glow bloom around the silhouette, game particle texture, 32x32px --ar 1:1 --style raw
 ```
 
 ### LC Quarter Note
@@ -316,32 +316,32 @@ White whole note on solid black background, open oval ring shape like a bell mou
 
 ### LC Star Particle
 ```
-White star particle on solid black background, four-pointed star with each point shaped like a small candle flame, sharp elongated points with bright tips, the center where points meet is the brightest, subtle asymmetry in point lengths suggesting flickering, game particle texture, 32x32px --ar 1:1 --style raw
+White star particle on solid black background, four-pointed star with each point shaped like a small chime prong, sharp elongated points with bright tips, the center where points meet is the brightest with concentric resonance rings, subtle asymmetry in point lengths suggesting vibration, game particle texture, 32x32px --ar 1:1 --style raw
 ```
 
 ### LC Glyph
 ```
-White arcane glyph on solid black background, circular symbol incorporating a bell silhouette at its center surrounded by musical notation fragments, small flame decorations at the cardinal points, thin precise line work, the overall shape suggests a musical protection ward or forge sigil, game particle texture, 32x32px --ar 1:1 --style raw
+White arcane glyph on solid black background, circular symbol incorporating a bell silhouette at its center surrounded by musical notation fragments, small chime decorations at the cardinal points, thin precise line work, the overall shape suggests a musical resonance ward or carillon sigil, game particle texture, 32x32px --ar 1:1 --style raw
 ```
 
 ### LC Energy Flare
 ```
-White energy flare burst on solid black background, radial burst of forge sparks exploding outward from center, bright intensely white core with elongated spark streaks radiating at varied angles, some sparks curve slightly suggesting they were thrown from a spinning wheel, game particle texture, 64x64px --ar 1:1 --style raw
+White energy flare burst on solid black background, radial burst of chime resonance exploding outward from center, bright intensely white core with elongated vibration streaks radiating at varied angles, some streaks curve slightly suggesting concentric bell-ring waves, game particle texture, 64x64px --ar 1:1 --style raw
 ```
 
 ### LC Sword Arc Particle
 ```
-White sword arc particle on solid black background, 90-degree crescent arc with flame-tongue edges on the outer curve, the arc bright and thick transitioning from maximum brightness at center to fading at both ends, inner edge clean and sharp, outer edge wild with fire licks, game particle texture, 64x64px --ar 1:1 --style raw
+White sword arc particle on solid black background, 90-degree crescent arc with bell-resonance wave edges on the outer curve, the arc bright and thick transitioning from maximum brightness at center to fading at both ends, inner edge clean and sharp, outer edge rippling with chime vibrations, game particle texture, 64x64px --ar 1:1 --style raw
 ```
 
 ### LC Halo Ring
 ```
-White glowing halo on solid black background, circular ring of light with flame-like flickering brightness variations around its circumference, the ring width varies — thicker at top and bottom (bell vibration nodes), thinner at sides, soft bloom around the ring, game particle texture, 64x64px --ar 1:1 --style raw
+White glowing halo on solid black background, circular ring of light with chime-like ringing brightness variations around its circumference, the ring width varies — thicker at top and bottom (bell vibration nodes), thinner at sides, soft resonance bloom around the ring, game particle texture, 64x64px --ar 1:1 --style raw
 ```
 
 ### LC Flame Impact Explosion
 ```
-White flame explosion on solid black background, violent radial explosion with thick flame tongues shooting outward in all directions, bright white-hot center with dense overlapping flame shapes, outer edges have individual flame wisps breaking free, overall shape slightly asymmetric suggesting directional force, game particle texture, 64x64px --ar 1:1 --style raw
+White bell-strike explosion on solid black background, violent radial explosion with thick resonance waves shooting outward in all directions, bright white-hot center with dense overlapping chime-ring shapes, outer edges have individual bell-fragment wisps breaking free, overall shape slightly asymmetric suggesting directional force, game particle texture, 64x64px --ar 1:1 --style raw
 ```
 
 ---
@@ -352,7 +352,7 @@ White flame explosion on solid black background, violent radial explosion with t
 # ═══════════════════════════════════════════
 
 > **Musical Soul:** Beethoven's Third Symphony — the hero's journey, triumph through adversity, noble sacrifice
-> **Visual Motifs:** Sakura petals, rising embers ascending to heaven, golden laurel wreaths, sword-cross memorial marks, fluttering war banners, phoenix feather wisps, heroic shield shapes, broken chains
+> **Visual Motifs:** Sakura blossoms, falling cherry blossom petals, sakura branches in bloom, petal cascades, sakura petal storms, blossom-strewn paths, pink petal whorls, sakura canopies, cherry blossom drifts, floating petal clouds, blooming branch silhouettes
 > **Emotional Core:** Courage, sacrifice, triumphant glory, noble spirit
 > **Colors (applied at runtime):** Scarlet, crimson, gold, sakura pink
 
@@ -362,12 +362,12 @@ White flame explosion on solid black background, violent radial explosion with t
 
 ### ER Braided Energy Helix Beam
 ```
-White intertwined double-helix beam on solid black background, two spiraling strands wrapped around each other like intertwined laurel branches, each strand composed of small leaf-shaped segments connected in a chain, bright core strand with softer outer strand, elegant classical proportions, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White intertwined double-helix beam on solid black background, two spiraling strands wrapped around each other like intertwined sakura branches, each strand composed of small petal-shaped segments connected in a flowing chain, bright core strand with softer outer strand, elegant natural proportions, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### ER Cracking Energy Fissure Beam
 ```
-White cracking fissure beam on solid black background, horizontal beam with noble fracture patterns resembling cracked marble or broken classical columns, the cracks form angular geometric patterns like shattered stained glass from a cathedral, bright fragments with darker dividing lines, the fragmentation beautiful rather than chaotic — ordered heroic destruction, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White cracking fissure beam on solid black background, horizontal beam with noble fracture patterns resembling cracked sakura wood or splitting cherry bark, the cracks form organic branching patterns like sakura tree branches, bright fragments with darker dividing lines, the fragmentation beautiful rather than chaotic — petals revealed in the cracks, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### ER Energy Motion Beam
@@ -377,22 +377,22 @@ White flowing energy beam on solid black background, horizontal stream of rising
 
 ### ER Energy Surge Beam
 ```
-White energy surge beam on solid black background, powerful horizontal beam with triumphant crescendo intensity, the energy builds from left to right in rising waves like a symphony reaching its climax, each wave crest higher and brighter than the last, the peaks crowned with small fleur-de-lis or laurel-leaf shapes, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White energy surge beam on solid black background, powerful horizontal beam with sakura-blossom crescendo intensity, the energy builds from left to right in rising waves like petals caught in a spring wind reaching its climax, each wave crest crowned with small cherry blossom shapes, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### ER Horizontal Beam Streak
 ```
-White horizontal beam streak on solid black background, clean powerful beam with subtle banner-ripple edges flowing along both sides like a war banner unfurling, the central beam steady and strong, edge ripples suggest fabric-like flowing motion, noble and directed, tileable horizontal strip, game VFX texture, 256x32px --ar 8:1 --style raw
+White horizontal beam streak on solid black background, clean powerful beam with subtle petal-drift edges flowing along both sides like sakura petals falling past the beam, the central beam steady and strong, edge ripples suggest drifting blossom-like flowing motion, noble and directed, tileable horizontal strip, game VFX texture, 256x32px --ar 8:1 --style raw
 ```
 
 ### ER Infernal Beam Ring
 ```
-White ring-shaped beam element on solid black background, heroic halo ring with evenly spaced laurel leaf decorations around its circumference, the ring bold and thick with classical proportions, each leaf bright and clearly defined, gaps between leaves softly glowing, the overall ring majestic like a victor's crown, game VFX texture, 128x128px --ar 1:1 --style raw
+White ring-shaped beam element on solid black background, heroic sakura wreath ring with evenly spaced cherry blossom decorations around its circumference, the ring bold and thick with natural proportions, each blossom bright and clearly defined, gaps between blossoms softly glowing, the overall ring majestic like a victor's sakura crown, game VFX texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### ER Oscillating Frequency Wave Beam
 ```
-White oscillating wave beam on solid black background, horizontal beam composed of marching wave forms like a military hymn's rhythm — steady consistent peaks with heroic regularity, each wave crest adorned with a tiny rising ember shape, the wave pattern strong and disciplined rather than chaotic, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White oscillating wave beam on solid black background, horizontal beam composed of marching wave forms like a heroic hymn's rhythm — steady consistent peaks with noble regularity, each wave crest adorned with a tiny rising sakura petal shape, the wave pattern strong and graceful, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### ER Sound Wave Beam
@@ -402,7 +402,7 @@ White sound wave beam on solid black background, horizontal beam of concentric a
 
 ### ER Turbulent Plasma Core Segment
 ```
-White turbulent core on solid black background, horizontal beam core with roiling energy that suggests rising embers and ascending spirit, upward-flowing bright streams within the beam body, scattered bright points like embers rising from a funeral pyre, noble and reverent in character rather than chaotic, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White turbulent core on solid black background, horizontal beam core with roiling energy that suggests sakura petals rising on warm spring updrafts, upward-flowing bright streams within the beam body, scattered bright points like cherry blossom petals rising from a blooming grove, noble and reverent in character rather than chaotic, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### ER Thin Linear Glow
@@ -412,7 +412,7 @@ White thin linear glow on solid black background, fine horizontal line like a dr
 
 ### ER Beam Lens Flare Explosion Impact
 ```
-White radial burst on solid black background, heroic detonation burst with six major radiating beams arranged like a star/compass rose, the vertical beam longest (reaching toward heaven), each beam tapers perfectly, concentric rings between the beams like sonar waves, rising ember particles scattered throughout, game VFX texture, 128x128px --ar 1:1 --style raw
+White radial burst on solid black background, heroic detonation burst with six major radiating beams arranged like a star/compass rose, the vertical beam longest (reaching toward heaven), each beam tapers perfectly, concentric rings between the beams like petal-scatter waves, rising sakura petal shapes scattered throughout, game VFX texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### ER Radial Burst Fade Streaks
@@ -451,7 +451,7 @@ White soft glow on solid black background, large diffuse luminous cloud with nob
 
 ### ER Soft Radial Bloom
 ```
-White radial bloom on solid black background, circular bloom with very subtle laurel-wreath patterning at the mid-radius — barely visible brighter arcs suggesting leaf shapes arranged in a circle within the overall soft glow, creating an almost subliminal crown of light, game VFX bloom texture, 128x128px --ar 1:1 --style raw
+White radial bloom on solid black background, circular bloom with very subtle sakura-wreath patterning at the mid-radius — barely visible brighter arcs suggesting petal shapes arranged in a circle within the overall soft glow, creating an almost subliminal crown of cherry blossoms, game VFX bloom texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### ER Star Flare
@@ -465,22 +465,22 @@ White star flare on solid black background, four-pointed star with perfectly sym
 
 ### ER Harmonic Resonance Wave Impact
 ```
-White resonance impact on solid black background, expanding shockwave visualized as a heroic battle cry, the main wave ring thick and bold, followed by secondary thinner rings at harmonic intervals, rising ember-like particles lifting from the ring's passage, the rings suggest outward-expanding courage inspiring nearby allies, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White resonance impact on solid black background, expanding shockwave visualized as a heroic petal burst, the main wave ring thick and bold, followed by secondary thinner rings at harmonic intervals, rising sakura-petal particles lifting from the ring's passage, the rings suggest outward-expanding cherry blossom storm, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### ER Crumbling Shatter Burst
 ```
-White shatter burst on solid black background, noble destruction — large geometric fragments breaking outward like shattered classical masonry, each fragment has clean angular edges, fragments larger near center becoming smaller toward edges, between fragments a bright lattice of breaking energy, suggests a shield breaking under final sacrifice, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White shatter burst on solid black background, noble destruction — large petal-shaped fragments breaking outward like cherry blossoms torn from a branch by a powerful wind, each fragment has organic curved edges, fragments larger near center becoming smaller toward edges, between fragments a bright lattice of breaking energy, suggests sakura branches shattering under the weight of bloom, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### ER Power Effect Ring
 ```
-White power ring on solid black background, majestic expanding ring with evenly spaced small emblem-like protrusions along the outer edge, each protrusion a tiny shield or laurel shape, the ring itself bold and unwavering, inner glow slightly brighter creating depth, a ring of heroic power expanding from the strike point, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White power ring on solid black background, majestic expanding ring with evenly spaced small sakura-blossom protrusions along the outer edge, each protrusion a tiny cherry blossom five-petal shape, the ring itself bold and unwavering, inner glow slightly brighter creating depth, a ring of blossoming power expanding from the strike point, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### ER Radial Slash Star Impact
 ```
-White radial slash star on solid black background, six-pointed impact star where each point resembles an upward-reaching sword blade, points alternate in length, bright center is a hexagonal core, the overall shape suggests a memorial star or hero's sigil left at the point of impact, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White radial slash star on solid black background, six-pointed impact star where each point resembles a sakura petal elongated into a blade shape, points alternate in length, bright center is a hexagonal core shaped like a cherry blossom viewed from above, the overall shape suggests a memorial blossom sigil left at the point of impact, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### ER X-Shaped Impact Cross
@@ -494,7 +494,7 @@ White X cross impact on solid black background, two crossing slashes forming a n
 
 ### ER Gyratory Orb
 ```
-White spinning orb on solid black background, spherical projectile with visible internal rotation of noble energy, the surface has subtle shield-like faceted panels, bright equatorial band, a faint ring of small rising ember points orbiting the sphere's circumference, dignified and powerful, game VFX projectile sprite, 64x64px --ar 1:1 --style raw
+White spinning orb on solid black background, spherical projectile with visible internal rotation of noble energy, the surface has subtle five-petal sakura-faceted panels, bright equatorial band, a faint ring of small rising petal points orbiting the sphere's circumference, dignified and powerful, game VFX projectile sprite, 64x64px --ar 1:1 --style raw
 ```
 
 ### ER Orbiting Energy Sphere
@@ -504,7 +504,7 @@ White energy sphere on solid black background, central bright sphere with three 
 
 ### ER Pulsating Music Note Orb
 ```
-White music orb on solid black background, glowing sphere containing a visible musical note silhouette inside, the note shape elegant and refined like calligraphic script, the sphere surface has a faint shield-pattern lattice, subtle rising embers float upward from the sphere's top, game VFX projectile sprite, 64x64px --ar 1:1 --style raw
+White music orb on solid black background, glowing sphere containing a visible musical note silhouette inside, the note shape elegant and refined like calligraphic script, the sphere surface has a faint sakura-petal lattice, subtle cherry blossom wisps float upward from the sphere's top, game VFX projectile sprite, 64x64px --ar 1:1 --style raw
 ```
 
 ---
@@ -518,7 +518,7 @@ White sword arc smear on solid black background, noble 120-degree sweeping cresc
 
 ### ER Full Circle Sword Arc Slash
 ```
-White full 360-degree sword arc on solid black background, complete spinning slash circle with heroic intensity, the ring uniformly thick and decisive like a whirlwind of blades, evenly spaced brighter nodes around the circumference where the slash is most concentrated, tiny rising embers scattered inside the circle ascending upward, game VFX slash texture, 256x256px --ar 1:1 --style raw
+White full 360-degree sword arc on solid black background, complete spinning slash circle with heroic intensity, the ring uniformly thick and decisive like a whirlwind of blades, evenly spaced brighter nodes around the circumference where the slash is most concentrated, tiny rising sakura petals scattered inside the circle drifting upward, game VFX slash texture, 256x256px --ar 1:1 --style raw
 ```
 
 ### ER Sword Arc Smear
@@ -532,17 +532,17 @@ White sword arc on solid black background, clean precise 90-degree arc with the 
 
 ### ER Basic Trail
 ```
-White basic trail strip on solid black background, horizontal gradient bright on left fading to right, the bright end decorated with subtle banner-like ripple edges, the fade-out has small rising ember sparkle points ascending upward from the trail body, the overall trail noble and warm, game VFX trail texture, 256x64px --ar 1:1 --style raw
+White basic trail strip on solid black background, horizontal gradient bright on left fading to right, the bright end decorated with subtle petal-drift ripple edges, the fade-out has small rising sakura petal sparkle points drifting upward from the trail body, the overall trail noble and warm, game VFX trail texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### ER Harmonic Standing Wave Ribbon
 ```
-White standing wave ribbon on solid black background, horizontal strip with visible wave pattern — the wave peaks are decorated with tiny laurel-leaf shapes like a victory garland strung along the ribbon, steady and rhythmic — a march tempo rather than wild oscillation, soft bloom at each wave node, game VFX trail texture, 256x64px --ar 1:1 --style raw
+White standing wave ribbon on solid black background, horizontal strip with visible wave pattern — the wave peaks are decorated with tiny sakura-petal shapes like cherry blossoms strung along the ribbon, steady and rhythmic — a graceful waltz tempo rather than wild oscillation, soft bloom at each wave node, game VFX trail texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### ER Spiraling Vortex Energy Strip
 ```
-White spiraling strip on solid black background, horizontal strip with internal helical pattern of rising energy, the spiral arms shaped like phoenix feathers — elongated and elegant, twisting upward as they progress along the strip, bright feather crests with soft gray valleys, tapering from wide/bright left to narrow/faint right, game VFX trail texture, 256x64px --ar 1:1 --style raw
+White spiraling strip on solid black background, horizontal strip with internal helical pattern of rising energy, the spiral arms shaped like sakura petals caught in an updraft — elongated and elegant, twisting upward as they progress along the strip, bright petal crests with soft gray valleys, tapering from wide/bright left to narrow/faint right, game VFX trail texture, 256x64px --ar 1:1 --style raw
 ```
 
 ---
@@ -575,12 +575,12 @@ White rising ember particle on solid black background, tiny elongated bright poi
 
 ### ER Laurel Leaf
 ```
-White laurel leaf on solid black background, single classical laurel leaf shape, pointed oval with visible central rib and branching veins, bright and sharply defined, the leaf curves slightly as if on a wreath, noble botanical accuracy, game particle texture, 32x16px --ar 2:1 --style raw
+White sakura petal on solid black background, single cherry blossom petal in gentle curved shape, pointed oval with visible central vein and delicate texture, bright and sharply defined, the petal curves slightly as if drifting on wind, noble botanical accuracy, game particle texture, 32x16px --ar 2:1 --style raw
 ```
 
 ### ER Glyph
 ```
-White heroic glyph on solid black background, circular symbol incorporating a sword silhouette crossed with a laurel branch, surrounded by a thin precise ring, small ember dots at the cardinal points, classical heraldic styling, game particle texture, 32x32px --ar 1:1 --style raw
+White heroic glyph on solid black background, circular symbol incorporating a sakura blossom silhouette crossed with a cherry branch, surrounded by a thin precise ring, small petal dots at the cardinal points, elegant botanical styling, game particle texture, 32x32px --ar 1:1 --style raw
 ```
 
 ---
@@ -591,7 +591,7 @@ White heroic glyph on solid black background, circular symbol incorporating a sw
 # ═══════════════════════════════════════════
 
 > **Musical Soul:** Tchaikovsky's ballet — dying grace, ethereal beauty, elegance even in destruction
-> **Visual Motifs:** Swan feathers drifting, ballet tutu fabric wisps, rippling water reflections, prismatic rainbow shimmer at edges, graceful arching curves, crescent moon shapes, lake surface distortions, crystal ice
+> **Visual Motifs:** Pearlescent nacre sheen, chaotic swan wake turbulence, iridescent water disturbance, churning wake foam, pearl shell fragments, shattered pearl surfaces, swirling opalescent eddies, prismatic rainbow shimmer in churned water, roiling white water, nacre-coated debris, mother-of-pearl fracture patterns
 > **Emotional Core:** Elegance, tragedy, ethereal beauty, graceful departure
 > **Colors (applied at runtime):** Pure white, black contrast, prismatic rainbow edges
 
@@ -601,52 +601,52 @@ White heroic glyph on solid black background, circular symbol incorporating a sw
 
 ### SL Braided Energy Helix Beam
 ```
-White intertwined double-helix beam on solid black background, two spiraling ribbon-like strands wrapped around each other like ballet ribbons intertwining, each strand thin and graceful with flowing fabric-like edges, the twist is gentle and elegant rather than tight, soft bloom along the ribbon surfaces, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White intertwined double-helix beam on solid black background, two spiraling ribbon-like strands wrapped around each other like churning wake currents intertwining, each strand flowing with pearlescent turbulence and nacre-sheen surface, the twist is chaotic and powerful yet beautiful, iridescent shimmer highlights along the strand surfaces, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### SL Cracking Energy Fissure Beam
 ```
-White cracking beam on solid black background, horizontal beam with delicate crystalline fracture patterns like cracking ice on a frozen lake, thin hairline fractures spreading in organic branching patterns, bright ice-crystal shards along the cracks, the beauty of something frozen and fragile breaking apart, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White cracking beam on solid black background, horizontal beam with pearlescent fracture patterns like cracking mother-of-pearl shell, thin iridescent fractures spreading in chaotic branching patterns, bright nacre shards along the cracks revealing opalescent layers beneath, the beauty of something precious shattering into prismatic chaos, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### SL Energy Motion Beam
 ```
-White flowing energy beam on solid black background, horizontal stream of drifting feather-light shapes like down feathers carried on a gentle breeze, each feather shape soft and luminous, tumbling and floating left to right, some overlapping creating depth layers, graceful and unhurried, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White flowing energy beam on solid black background, horizontal stream of churning wake-foam shapes like the chaotic turbulence behind a swan's powerful stroke, each shape roiling and tumbling with pearlescent sheen, scattered pearl fragments drift left to right creating iridescent depth layers, graceful chaos, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### SL Energy Surge Beam
 ```
-White energy surge beam on solid black background, horizontal beam with graceful crescendo intensity like a ballet dancer's grand jeté — energy builds in a soaring arc, peaks with ethereal brilliance, then descends gracefully, the peak has a spray of tiny scattered points like stage light catching crystalline dust, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White energy surge beam on solid black background, horizontal beam with chaotic crescendo intensity like a swan's powerful takeoff churning the lake — energy builds in a violent surge, peaks with pearlescent brilliance, then crashes back, the peak has a spray of nacre-sheen fragments scattered like roiling wake foam, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### SL Horizontal Beam Streak
 ```
-White horizontal beam on solid black background, clean linear beam with perfectly smooth edges that have subtle ripple distortion like viewing the beam through water, the central line pure and bright, the ripple edges create a reflective shimmering effect, elegant and serene, tileable horizontal strip, game VFX texture, 256x32px --ar 8:1 --style raw
+White horizontal beam on solid black background, clean linear beam with chaotic wake-ripple distortion along both edges like viewing the beam through churning pearlescent water, the central line pure and bright, the ripple edges create a turbulent iridescent shimmering effect, powerful and ethereal, tileable horizontal strip, game VFX texture, 256x32px --ar 8:1 --style raw
 ```
 
 ### SL Infernal Beam Ring
 ```
-White ring beam element on solid black background, delicate circular ring like a ripple on a perfectly still lake, the ring thin and precise, subtle secondary and tertiary concentric ripple rings spaced inside and outside, the water-ripple quality is ethereal and pristine, game VFX texture, 128x128px --ar 1:1 --style raw
+White ring beam element on solid black background, circular ring like a swan's wake spreading in a chaotic circle on disturbed water, the ring thick and turbulent with pearlescent nacre texture, secondary and tertiary concentric wake-rings spaced inside and outside, the water-turbulence quality is wild yet beautiful, game VFX texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### SL Oscillating Frequency Wave Beam
 ```
-White oscillating wave beam on solid black background, horizontal beam composed of flowing sine waves like the gentle undulation of a swan's wake on water, smooth and regular with long wavelengths, the wave peaks catch light like water crests, delicate and hypnotic, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White oscillating wave beam on solid black background, horizontal beam composed of chaotic undulations like the turbulent wake of a swan's powerful wing-beats on water, waves irregular and overlapping with pearlescent shimmer at their crests, the pattern wild yet hypnotic, nacre highlights catching light, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### SL Sound Wave Beam
 ```
-White sound wave beam on solid black background, horizontal beam of expanding arcs flowing left to right like ripples from a swan touching water, each arc thin and delicate, arcs overlap creating moiré interference patterns of exquisite mathematical beauty, ethereal and translucent in character, game VFX texture, 256x64px --ar 1:1 --style raw
+White sound wave beam on solid black background, horizontal beam of expanding arcs flowing left to right like chaotic wake-waves from a swan's passage, each arc churning with pearlescent turbulence, arcs collide and create moiré interference patterns of chaotic iridescent beauty, powerful and overwhelming, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### SL Turbulent Plasma Core
 ```
-White turbulent core on solid black background, horizontal beam core with gentle rolling turbulence like mist rolling across a lake surface at dawn, soft billowing forms that flow and merge, no harsh elements — everything diffuse and dreamlike, bright wisps within the mist body, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White turbulent core on solid black background, horizontal beam core with violent pearlescent turbulence like a swan churning lake water into foam, chaotic roiling forms that crash and coalesce with nacre-sheen highlights, bright churning wake-foam within the beam body, wild yet beautiful internal chaos, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### SL Thin Linear Glow
 ```
-White thin linear glow on solid black background, extremely fine horizontal line like a strand of spider silk catching moonlight, delicate and barely visible with soft bloom, the thinness itself is the beauty — fragile, precise, heartbreakingly delicate, tileable horizontal strip, game VFX texture, 256x16px --ar 16:1 --style raw
+White thin linear glow on solid black background, extremely fine horizontal line like a strand of pearlescent wake-light cutting through dark water, iridescent and barely visible with soft prismatic bloom, the thinness itself is the beauty — fragile, precise, a single thread of nacre in darkness, tileable horizontal strip, game VFX texture, 256x16px --ar 16:1 --style raw
 ```
 
 ---
@@ -655,22 +655,22 @@ White thin linear glow on solid black background, extremely fine horizontal line
 
 ### SL Glow Orb
 ```
-White soft circular glow on solid black background, ethereal orb with wide gentle Gaussian falloff, the center only moderately bright compared to the expansive soft glow — creating a diffuse misty quality rather than a hot center, like moonlight through fog, extremely soft and dreamlike, game VFX bloom texture, 128x128px --ar 1:1 --style raw
+White soft circular glow on solid black background, ethereal orb with wide pearlescent Gaussian falloff, the center radiating with nacre-sheen intensity creating a diffuse iridescent quality, like light refracting through a shattered pearl, extremely soft and dreamlike, game VFX bloom texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### SL Lens Flare
 ```
-White lens flare on solid black background, multi-element flare with elongated horizontal anamorphic streak dominant, delicate rainbow iris-diffraction rings ghosting above and below the streak, the flare feels prismatic and crystal-like, each element razor-fine and ethereal, game VFX bloom texture, 128x128px --ar 1:1 --style raw
+White lens flare on solid black background, multi-element flare with elongated horizontal anamorphic streak dominant, iridescent nacre-rainbow diffraction rings ghosting above and below the streak, the flare feels prismatic and pearl-like, each element razor-fine and pearlescent, game VFX bloom texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### SL Point Bloom
 ```
-White pinpoint bloom on solid black background, tiny bright center with extensive wide soft bloom that creates a stage-spotlight quality, the bloom perfectly circular and even, suggesting a single perfect spotlight illuminating a dancer on a dark stage, game VFX bloom texture, 64x64px --ar 1:1 --style raw
+White pinpoint bloom on solid black background, tiny bright center with extensive wide soft bloom that creates a pearlescent spotlight quality, the bloom iridescent and shimmering, suggesting a single precious pearl illuminating from within on a dark stage, game VFX bloom texture, 64x64px --ar 1:1 --style raw
 ```
 
 ### SL Star Flare
 ```
-White star flare on solid black background, six-pointed star with long impossibly thin spikes like ice crystal needles, each spike hair-fine and perfectly straight, the hexagonal symmetry of a snowflake, bright center point, the spikes seem to shimmer and vibrate with crystalline fragility, game VFX bloom texture, 64x64px --ar 1:1 --style raw
+White star flare on solid black background, six-pointed star with long impossibly thin spikes like fractured nacre crystal needles, each spike hair-fine and slightly iridescent, the hexagonal symmetry of a shattered pearl, bright center point, the spikes seem to shimmer with pearlescent fragility, game VFX bloom texture, 64x64px --ar 1:1 --style raw
 ```
 
 ---
@@ -679,22 +679,22 @@ White star flare on solid black background, six-pointed star with long impossibl
 
 ### SL Harmonic Resonance Wave Impact
 ```
-White resonance impact on solid black background, expanding ripple impact like a stone dropped in a perfectly still lake, concentric circles expanding outward with mathematical precision, each ring the same thin delicate weight, the gaps between rings perfectly even, pristine and ordered, drifting feather-like particles scattered between the rings, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White resonance impact on solid black background, expanding wake-ripple impact like a swan crashing onto turbulent water, concentric circles expanding outward with chaotic energy, each ring churning with pearlescent turbulence, the gaps between rings filled with nacre debris and foam, scattered iridescent shell-fragment particles between the rings, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### SL Crumbling Shatter Burst
 ```
-White shatter burst on solid black background, crystalline fragmentation like a frozen lake surface cracking, irregular polygon shards of ice breaking apart with beautiful geometric precision, each shard has smooth faces and sharp edges, tiny prismatic sparkle points at shard corners where light would refract, elegant destruction, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White shatter burst on solid black background, pearlescent fragmentation like a mother-of-pearl shell shattering, irregular polygon shards of nacre breaking apart with beautiful chaotic energy, each shard has smooth iridescent faces and sharp edges, tiny prismatic sparkle points at shard corners where light refracts through the pearl layers, elegant destruction, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### SL Power Effect Ring
 ```
-White power ring on solid black background, thin elegant expanding ring with small swan-feather shapes trailing from the outer edge like feathers shed from a spinning dancer's costume, the ring itself delicate and precise, feather shapes drift outward and downward gracefully, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White power ring on solid black background, thin chaotic expanding ring with small pearl-fragment shapes trailing from the outer edge like nacre debris shed from a churning wake, the ring itself pearlescent and turbulent, fragments drift outward and scatter chaotically, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### SL X-Shaped Impact Cross
 ```
-White X cross on solid black background, two crossing lines forming a delicate X like crossed ballet ribbons, each line thin and flowing with slight fabric-like curves rather than harsh straight slashes, the intersection has a small bright bloom, ribbon ends taper to fine points, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White X cross on solid black background, two crossing lines forming a chaotic X like intersecting swan wake-paths on disturbed water, each line turbulent and flowing with pearlescent wave-like curves, the intersection has a bright iridescent bloom, wake-froth edges taper to fine dissolving points, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ---
@@ -703,12 +703,12 @@ White X cross on solid black background, two crossing lines forming a delicate X
 
 ### SL Sword Arc Smear
 ```
-White sword arc on solid black background, graceful 120-degree sweeping arc like a dancer's arm tracing through stage light, the arc wide and flowing with soft edges like silk fabric in motion, brightness gradient flows from leading to trailing edge, inner curve decorated with tiny feather-light wisps breaking away, game VFX slash texture, 256x256px --ar 1:1 --style raw
+White sword arc on solid black background, chaotic 120-degree sweeping arc like a swan's wing slashing through water, the arc wide and churning with pearlescent wake-foam edges, brightness gradient flows from leading to trailing edge, inner curve decorated with tiny nacre-fragment wisps breaking away in turbulent scatter, game VFX slash texture, 256x256px --ar 1:1 --style raw
 ```
 
 ### SL Full Circle Sword Arc
 ```
-White full 360-degree arc on solid black background, complete pirouette circle — the ring varies in opacity like a spinning dancer becoming a blur, thicker sections suggest the body and thinner sections the limbs, tiny scattered points within the circle like stage dust caught in a spotlight, game VFX slash texture, 256x256px --ar 1:1 --style raw
+White full 360-degree arc on solid black background, complete chaotic wake-circle — the ring churns with pearlescent turbulence like a swan spinning on the water's surface, thicker sections of roiling wake-foam and thinner sections of iridescent spray, tiny scattered pearl-fragment points within the circle like nacre debris caught in a whirlpool, game VFX slash texture, 256x256px --ar 1:1 --style raw
 ```
 
 ---
@@ -717,12 +717,12 @@ White full 360-degree arc on solid black background, complete pirouette circle �
 
 ### SL Basic Trail
 ```
-White basic trail strip on solid black background, horizontal gradient bright on left fading right, the bright end has soft feathery edges like down, the fade-out dissolves into individual small floating feather particles rather than a smooth gradient, graceful dissolution, game VFX trail texture, 256x64px --ar 1:1 --style raw
+White basic trail strip on solid black background, horizontal gradient bright on left fading right, the bright end has churning wake-foam edges with pearlescent sheen, the fade-out dissolves into individual small floating nacre-shard particles rather than a smooth gradient, chaotic beautiful dissolution, game VFX trail texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### SL Harmonic Standing Wave Ribbon
 ```
-White standing wave ribbon on solid black background, horizontal strip with gentle flowing sine wave — the wave pattern smooth and balletic with long wavelengths, each wave crest catches light like a satin ribbon rippling in gentle wind, incredibly smooth and graceful, game VFX trail texture, 256x64px --ar 1:1 --style raw
+White standing wave ribbon on solid black background, horizontal strip with chaotic flowing wave — the wave pattern turbulent and powerful like a swan's wake on disturbed water, each wave crest catches pearlescent light like nacre-sheened foam, wild and beautiful in its irregularity, game VFX trail texture, 256x64px --ar 1:1 --style raw
 ```
 
 ---
@@ -731,22 +731,22 @@ White standing wave ribbon on solid black background, horizontal strip with gent
 
 ### SL Music Note
 ```
-White music note on solid black background, flowing cursive music note with balletic grace, the note head opens into a tiny crescent shape, the flag extends into a flowing ribbon-like tail that curls elegantly, extremely refined calligraphy, game particle texture, 32x32px --ar 1:1 --style raw
+White music note on solid black background, flowing music note with pearlescent nacre surface, the note head opens into a tiny crescent shape with iridescent sheen, the flag extends into a flowing wake-trail tail that churns elegantly, mother-of-pearl texture throughout, game particle texture, 32x32px --ar 1:1 --style raw
 ```
 
 ### SL Swan Feather (Already exists — enhance)
 ```
-White swan feather on solid black background, single large pristine feather with visible rachis and detailed barb structure, the feather slightly curved as if drifting through air, some barbs slightly separated at the tip suggesting gentle wear, luminous and soft with delicate edge translucency, game particle texture, 48x24px --ar 2:1 --style raw
+White swan feather on solid black background, single large feather with visible rachis and barb structure, the feather surface coated in pearlescent nacre sheen with iridescent highlights, some barbs scattered chaotically at the tip as if torn by turbulent wake, luminous and opalescent with prismatic edge translucency, game particle texture, 48x24px --ar 2:1 --style raw
 ```
 
 ### SL Crystal Shard
 ```
-White crystal shard on solid black background, elongated hexagonal ice crystal with faceted surfaces, each facet has a different brightness suggesting light refraction, the shard slightly asymmetric and natural-looking, tiny bright points at the crystal's sharpest vertices, game particle texture, 32x16px --ar 2:1 --style raw
+White pearl shard on solid black background, elongated mother-of-pearl fragment with layered nacre surfaces, each layer has a different iridescent brightness suggesting light refracting through pearlescent material, the shard slightly asymmetric and chaotic-looking, tiny bright prismatic points at the shard's sharpest vertices, game particle texture, 32x16px --ar 2:1 --style raw
 ```
 
 ### SL Water Ripple
 ```
-White water ripple on solid black background, single expanding concentric circle ripple like one perfect circular wave on a still lake surface, the ripple ring thin and precise, with a smaller secondary ring inside it, extremely clean and minimal, game particle texture, 32x32px --ar 1:1 --style raw
+White wake-ripple on solid black background, single expanding chaotic circular wave like turbulent wake-rings spreading from a swan's powerful landing, the ripple ring thick and churning with pearlescent foam-sheen, with a smaller more violent secondary ring inside it, iridescent and dynamic, game particle texture, 32x32px --ar 1:1 --style raw
 ```
 
 ---
@@ -757,7 +757,7 @@ White water ripple on solid black background, single expanding concentric circle
 # ═══════════════════════════════════════════
 
 > **Musical Soul:** Beethoven's Adagio sostenuto — quiet sorrow, moonlit peace, gentle nocturnal melancholy
-> **Visual Motifs:** Crescent moons, tidal waves (gentle), moonbeam shafts, silvery mist, lunar phases, soft fog rolling, gentle water ripples in moonlight, willow branch silhouettes, moth wings, tide pools
+> **Visual Motifs:** Crescent moons, twinkling star fields, moonbeam shafts laced with starlight, silvery mist, lunar phases, scattered star clusters, gentle star-point sparkles, celestial moon-and-star arrangements, moon haloes with star companions, starlit night sky fragments, soft fog rolling under stars
 > **Emotional Core:** Melancholy, peace, mystical stillness, quiet sorrow
 > **Colors (applied at runtime):** Deep dark purples, vibrant light blues, violet, ice blue
 
@@ -767,7 +767,7 @@ White water ripple on solid black background, single expanding concentric circle
 
 ### MS Braided Energy Helix Beam
 ```
-White intertwined helix beam on solid black background, two spiraling strands of lunar energy winding around each other like moonlit tidal currents intertwining, the strands flow like slow water — thick and languid, soft edges suggest mist-shrouded forms, gentle and hypnotic rather than energetic, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White intertwined helix beam on solid black background, two spiraling strands of lunar energy winding around each other like moonlit currents intertwining, the strands flow like slow starlight — thick and languid, soft edges suggest mist-shrouded forms with tiny embedded star points twinkling along the strands, gentle and hypnotic rather than energetic, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### MS Cracking Energy Fissure Beam
@@ -777,22 +777,22 @@ White cracking beam on solid black background, horizontal beam with hairline cra
 
 ### MS Energy Motion Beam
 ```
-White flowing energy beam on solid black background, horizontal stream of drifting mist forms like fog rolling across a moonlit moor, each mist shape soft-edged and billowing, some forms resemble small crescent shapes carried on the breeze, the motion is slow and meditative, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White flowing energy beam on solid black background, horizontal stream of drifting starlit mist forms like fog rolling across a moonlit sky, each mist shape soft-edged with tiny star-point sparkles embedded within, some forms resemble small crescent shapes with companion stars drifting alongside, the motion is slow and meditative, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### MS Energy Surge Beam
 ```
-White tidal surge beam on solid black background, horizontal beam with gentle tidal wave energy — the intensity rises and falls like ocean tides under the moon's pull, broad gentle swells rather than sharp peaks, the brightest points are smooth rounded crests, a sense of gravitational pull and lunar influence, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White tidal surge beam on solid black background, horizontal beam with gentle lunar wave energy — the intensity rises and falls like the moon's pull on gentle tides, broad gentle swells rather than sharp peaks, the brightest points are smooth rounded crests adorned with small twinkling star points, a sense of gravitational pull and moonlit starfield influence, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### MS Oscillating Frequency Wave Beam
 ```
-White oscillating wave beam on solid black background, horizontal beam composed of slow deep oscillations like the adagio tempo of the sonata, long wavelengths and deep amplitude suggesting profound emotional weight, each wave crest has a small crescent-shaped highlight like a tiny moon reflection, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White oscillating wave beam on solid black background, horizontal beam composed of slow deep oscillations like the adagio tempo of the sonata, long wavelengths and deep amplitude suggesting profound emotional weight, each wave crest has a small crescent-shaped highlight with tiny companion star points flanking it like a moon with stars, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### MS Sound Wave Beam
 ```
-White sound wave beam on solid black background, horizontal beam of overlapping soft arcs flowing left to right like moonbeam shafts through clouds, each arc broad and gentle, the arcs create soft interference patterns like moonlight dappling through a forest canopy, quiet and serene, game VFX texture, 256x64px --ar 1:1 --style raw
+White sound wave beam on solid black background, horizontal beam of overlapping soft arcs flowing left to right like moonbeam shafts laced with starlight through clouds, each arc broad and gentle, the arcs create soft interference patterns like moonlight and stars dappling through a night canopy, quiet and serene, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### MS Turbulent Plasma Core
@@ -806,17 +806,17 @@ White turbulent core on solid black background, horizontal beam core with slow r
 
 ### MS Glow Orb
 ```
-White soft circular glow on solid black background, gentle lunar orb with wide ethereal falloff, the center moderately bright with an extremely gradual Gaussian fade creating maximum atmospheric haze, the glow feels like looking at the moon through a thin veil of clouds, soft and sorrowful, game VFX bloom texture, 128x128px --ar 1:1 --style raw
+White soft circular glow on solid black background, gentle lunar orb with wide ethereal falloff, the center moderately bright with an extremely gradual Gaussian fade creating maximum atmospheric haze, the glow feels like looking at the moon through a thin veil of clouds with a few tiny star points scattered in the haze, soft and sorrowful, game VFX bloom texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### MS Lens Flare
 ```
-White lens flare on solid black background, crescent-shaped primary flare element — a soft bright crescent like the moon in its waning phase, accompanied by two or three small circular ghost elements along a diagonal line, quiet and understated rather than dramatic, the crescent shape is the dominant element, game VFX bloom texture, 128x128px --ar 1:1 --style raw
+White lens flare on solid black background, crescent-shaped primary flare element — a soft bright crescent like the moon in its waning phase, accompanied by two or three small star-point ghost elements along a diagonal line like companion stars, quiet and understated rather than dramatic, the crescent-and-stars arrangement is the dominant element, game VFX bloom texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### MS Star Flare
 ```
-White star flare on solid black background, four-pointed star with elongated VERTICAL spike suggesting a moonbeam descending from above, the vertical spike three times longer than the horizontal spike, creating an asymmetric shape like moonlight streaming down, soft and gentle, game VFX bloom texture, 64x64px --ar 1:1 --style raw
+White star flare on solid black background, four-pointed star with elongated VERTICAL spike suggesting a moonbeam descending from above with twinkling star companions, the vertical spike three times longer than the horizontal spike, creating an asymmetric shape like starlit moonlight streaming down, soft and gentle, game VFX bloom texture, 64x64px --ar 1:1 --style raw
 ```
 
 ### MS Soft Radial Bloom
@@ -830,7 +830,7 @@ White radial bloom on solid black background, circular bloom with subtle crescen
 
 ### MS Harmonic Resonance Wave Impact
 ```
-White resonance impact on solid black background, tidal ripple impact — soft concentric rings expanding outward like moonlit tide waves on a shore, each ring broad and gentle with wide spacing, the rings fade gradually rather than sharply, moth-wing-shaped particles drifting between the rings, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White resonance impact on solid black background, lunar ripple impact — soft concentric rings expanding outward like moonlit waves on a shore beneath a starry sky, each ring broad and gentle with wide spacing, the rings fade gradually rather than sharply, tiny twinkling star-point particles drifting between the rings, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### MS Power Effect Ring
@@ -840,7 +840,7 @@ White power ring on solid black background, thin crescent-decorated ring — the
 
 ### MS Radial Slash Star Impact
 ```
-White radial star impact on solid black background, four-pointed impact star with softened rounded points like moonbeams, each point tapers gradually with wide soft edges, the spaces between points have very faint fog-like fill rather than sharp darkness, gentle and melancholy, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White radial star impact on solid black background, four-pointed impact star with softened rounded points like moonbeams crowned with tiny star sparkles, each point tapers gradually with wide soft edges, the spaces between points have very faint starlit fog-like fill rather than sharp darkness, gentle and melancholy, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ---
@@ -849,12 +849,12 @@ White radial star impact on solid black background, four-pointed impact star wit
 
 ### MS Sword Arc Smear
 ```
-White sword arc on solid black background, gentle 120-degree sweeping arc like a moonbeam slowly drawn across the sky, the arc soft and wide with misty edges that blend smoothly into darkness, no harsh boundaries, brightness fades from a gentle peak at center toward both ends, ethereal and sorrowful like a sigh made visible, game VFX slash texture, 256x256px --ar 1:1 --style raw
+White sword arc on solid black background, gentle 120-degree sweeping arc like a moonbeam slowly drawn across a starlit sky, the arc soft and wide with misty starlit edges that blend smoothly into darkness, no harsh boundaries, scattered tiny star points embedded in the arc body, brightness fades from a gentle peak at center toward both ends, ethereal and sorrowful like a sigh made visible, game VFX slash texture, 256x256px --ar 1:1 --style raw
 ```
 
 ### MS Full Circle Sword Arc
 ```
-White full 360-degree arc on solid black background, complete circular arc resembling a lunar halo — the bright ring around the moon on a misty night, the ring even and gentle with wide soft edges that fade to nothing, a single brighter crescent segment suggesting a momentary brightening, game VFX slash texture, 256x256px --ar 1:1 --style raw
+White full 360-degree arc on solid black background, complete circular arc resembling a lunar halo — the bright ring around the moon on a starry misty night, the ring even and gentle with wide soft edges that fade to nothing, embedded tiny star points twinkling along the halo, a single brighter crescent segment suggesting a momentary brightening, game VFX slash texture, 256x256px --ar 1:1 --style raw
 ```
 
 ---
@@ -863,12 +863,12 @@ White full 360-degree arc on solid black background, complete circular arc resem
 
 ### MS Basic Trail
 ```
-White basic trail strip on solid black background, horizontal gradient bright on left fading right, the bright end diffuse and misty like fog, the fade-out is gradual and organic with wisps of mist extending beyond the main body, the overall trail feels like moonlit fog slowly dissipating, game VFX trail texture, 256x64px --ar 1:1 --style raw
+White basic trail strip on solid black background, horizontal gradient bright on left fading right, the bright end diffuse and misty like a moonbeam with tiny star sparkles, the fade-out is gradual and organic with wisps of starlit mist extending beyond the main body, the overall trail feels like moonlight and stars slowly dissipating, game VFX trail texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### MS Harmonic Standing Wave Ribbon
 ```
-White wave ribbon on solid black background, horizontal strip with gentle tidal undulation — very long wavelength low amplitude waves like the surface of a calm moonlit sea, the wave crests have a faint crescent highlight, incredibly gentle and meditative in rhythm, game VFX trail texture, 256x64px --ar 1:1 --style raw
+White wave ribbon on solid black background, horizontal strip with gentle lunar undulation — very long wavelength low amplitude waves like the surface of a calm moonlit sea beneath stars, the wave crests have a faint crescent highlight with tiny star companions, incredibly gentle and meditative in rhythm, game VFX trail texture, 256x64px --ar 1:1 --style raw
 ```
 
 ---
@@ -877,7 +877,7 @@ White wave ribbon on solid black background, horizontal strip with gentle tidal 
 
 ### MS Music Note
 ```
-White music note on solid black background, gentle half note rendered in thin delicate lines, the note head open (hollow) like a crescent moon, the stem thin and slightly curved like a willow branch, surrounded by a very faint misty glow halo, melancholic and quiet, game particle texture, 32x32px --ar 1:1 --style raw
+White music note on solid black background, gentle half note rendered in thin delicate lines, the note head open (hollow) like a crescent moon, the stem thin and slightly curved like a sliver of starlight, surrounded by a scatter of very faint twinkling star-point dots, melancholic and quiet, game particle texture, 32x32px --ar 1:1 --style raw
 ```
 
 ### MS Crescent Moon
@@ -887,17 +887,17 @@ White crescent moon on solid black background, thin waning crescent moon shape w
 
 ### MS Moth Wing
 ```
-White moth wing on solid black background, single moth wing with visible wing-scale texture and subtle eyespot pattern, the wing broad and slightly triangular, edges feathered and soft like a real moth, ethereal and nocturnal, game particle texture, 32x24px --ar 4:3 --style raw
+White twinkling star cluster on solid black background, small cluster of three to five star points of varying brightness arranged in a gentle arc, each star has a tiny four-pointed sparkle, the cluster curves softly like a fragment of a constellation, ethereal and nocturnal, game particle texture, 32x24px --ar 4:3 --style raw
 ```
 
 ### MS Tidal Mist Wisp
 ```
-White mist wisp on solid black background, small elongated wisp of fog, softly feathered at all edges, slightly curved as if drifting on a gentle breeze, thicker at one end thinning to nothing at the other, the softest most ethereal particle shape possible, game particle texture, 32x16px --ar 2:1 --style raw
+White starlit mist wisp on solid black background, small elongated wisp of moonlit fog with tiny embedded star-point sparkles, softly feathered at all edges, slightly curved as if drifting beneath a starry sky, thicker at one end thinning to nothing at the other, the softest most ethereal particle with twinkling stars woven through, game particle texture, 32x16px --ar 2:1 --style raw
 ```
 
 ### MS Glyph
 ```
-White glyph on solid black background, circular symbol with a crescent moon at center flanked by small tidal wave curves, surrounded by a thin ring, tiny dot-stars at cardinal points, the linework thin and delicate, suggests a nocturnal ward or lunar seal, game particle texture, 32x32px --ar 1:1 --style raw
+White glyph on solid black background, circular symbol with a crescent moon at center flanked by small twinkling star-point clusters, surrounded by a thin ring, tiny dot-stars at cardinal points and additional scattered star companions, the linework thin and delicate, suggests a lunar-stellar ward or moon-and-stars seal, game particle texture, 32x32px --ar 1:1 --style raw
 ```
 
 ---
@@ -908,8 +908,8 @@ White glyph on solid black background, circular symbol with a crescent moon at c
 # ═══════════════════════════════════════════
 
 > **Musical Soul:** Elgar's enigma — mystery, hidden meanings, what lurks behind the veil, unknowable truths
-> **Visual Motifs:** Watching eyes, void tendrils, occult sigils, impossible geometries, warping spaces, cryptic runes, eldritch tentacles, fractal spirals, Penrose triangles, dissolving reality
-> **Emotional Core:** Mystery, dread, arcane secrets, unknowable horror
+> **Visual Motifs:** Watching eyes, question mark silhouettes, cryptic glyphs, riddle-inscribed circles, puzzle-piece fragments, cipher text scrolls, mysterious keyholes, unsolved sigils, labyrinth patterns, mirrored reflections, hidden messages, arcane question symbols
+> **Emotional Core:** Mystery, dread, arcane secrets, unknowable enigma
 > **Colors (applied at runtime):** Void black, deep purple, eerie green flame
 
 ---
@@ -918,17 +918,17 @@ White glyph on solid black background, circular symbol with a crescent moon at c
 
 ### EN Braided Energy Helix Beam
 ```
-White intertwined helix beam on solid black background, two spiraling strands like eldritch tentacles coiling around each other, the surfaces textured with tiny sucker-like bumps, the coil tightens and loosens irregularly as if the tendrils are alive and squirming, disturbing organic quality, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White intertwined helix beam on solid black background, two spiraling strands like enigmatic cipher scripts coiling around each other, the surfaces textured with tiny glyph-like markings and question mark fragments, the coil tightens and loosens irregularly as if encoding and decoding a mysterious message, cryptic and unsettling quality, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### EN Cracking Energy Fissure Beam
 ```
-White cracking beam on solid black background, horizontal beam with reality-fracture cracks, the cracks don't follow material stress patterns but instead form impossible geometric angles that shouldn't exist, some cracks seem to open into deeper darkness beyond the beam, Escher-like paradox geometry, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White cracking beam on solid black background, horizontal beam with reality-fracture cracks, the cracks don't follow material stress patterns but instead form question-mark-like curves and impossible puzzle-piece angles that shouldn't exist, some cracks seem to open into deeper mystery beyond the beam, Escher-like paradox geometry, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### EN Energy Motion Beam
 ```
-White flowing energy beam on solid black background, horizontal stream of drifting occult sigil fragments, broken rune shapes and arcane letterforms flowing left to right as if torn from a forbidden manuscript, some fragments rotate or overlap creating momentary recognizable (yet meaningless) words, unsettling, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White flowing energy beam on solid black background, horizontal stream of drifting cryptic glyph fragments, broken cipher symbols and arcane question-mark letterforms flowing left to right as if torn from a forbidden manuscript of riddles, some fragments rotate or overlap creating momentary recognizable (yet meaningless) words, unsettling, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### EN Energy Surge Beam
@@ -948,7 +948,7 @@ White sound wave beam on solid black background, horizontal beam of warped and d
 
 ### EN Turbulent Plasma Core
 ```
-White turbulent core on solid black background, horizontal beam core with writhing organic turbulence, the churning patterns form momentary eye shapes and tendril silhouettes before dissolving back into chaos, something watches from within the energy, alive and aware, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White turbulent core on solid black background, horizontal beam core with writhing mysterious turbulence, the churning patterns form momentary eye shapes and question mark silhouettes before dissolving back into chaos, something watches from within the energy — an unanswered riddle given form, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ---
@@ -976,7 +976,7 @@ White star flare on solid black background, irregular star with an inconsistent 
 
 ### EN Harmonic Resonance Wave Impact
 ```
-White resonance impact on solid black background, expanding wave rings that warp and distort reality, the rings are not perfect circles but wobble and buckle as if space resists their expansion, sections of rings fade to nothing mid-arc then reappear, eye-shaped distortion at center, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White resonance impact on solid black background, expanding wave rings that warp and distort reality, the rings are not perfect circles but wobble and buckle as if reality resists their expansion, sections of rings fade to nothing mid-arc then reappear like vanishing riddles, eye-shaped distortion at center watching, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### EN Crumbling Shatter Burst
@@ -986,12 +986,12 @@ White shatter burst on solid black background, reality fragmenting into impossib
 
 ### EN Power Effect Ring
 ```
-White power ring on solid black background, expanding ring decorated with arcane sigils and eye motifs spaced around its circumference, the ring itself slightly irregular as if hand-drawn by a mad scholar, the sigils are legible but meaningless — occult power symbols from no real tradition, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White power ring on solid black background, expanding ring decorated with arcane glyphs and eye motifs spaced around its circumference, the ring itself slightly irregular as if inscribed by a mysterious hand, the glyphs are legible but meaningless — unsolvable riddle symbols from no known language, question-mark fragments between the glyphs, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### EN X-Shaped Impact Cross
 ```
-White X cross on solid black background, two crossing slashes that don't quite intersect correctly — they slip past each other in impossible perspective, each slash has tentacle-like wisps trailing from it, the near-intersection point has a bright disturbing eye-shaped flash, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White X cross on solid black background, two crossing slashes that don't quite intersect correctly — they slip past each other in impossible perspective, each slash has mysterious glyph-like wisps trailing from it, the near-intersection point has a bright disturbing eye-shaped flash that seems to ask a question, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ---
@@ -1000,12 +1000,12 @@ White X cross on solid black background, two crossing slashes that don't quite i
 
 ### EN Sword Arc Smear
 ```
-White sword arc on solid black background, 120-degree sweeping arc whose edges writhe with tiny tendril protrusions, the arc body shows faint eye-spot patterns at irregular intervals, brightness is uneven — sections flicker between bright and dim unpredictably, the whole arc has an organic alive quality, game VFX slash texture, 256x256px --ar 1:1 --style raw
+White sword arc on solid black background, 120-degree sweeping arc whose edges ripple with tiny glyph and question-mark protrusions, the arc body shows faint eye-spot patterns at irregular intervals, brightness is uneven — sections flicker between bright and dim unpredictably, the whole arc has a cryptic mysterious quality, game VFX slash texture, 256x256px --ar 1:1 --style raw
 ```
 
 ### EN Full Circle Sword Arc
 ```
-White full 360-degree arc on solid black background, complete circle that isn't quite a circle — it spirals inward very slightly creating a subtle vortex, the ring surface textured with tiny occult symbols, bright sections alternate asymmetrically with dimmer sections, the overall shape is disorienting and wrong, game VFX slash texture, 256x256px --ar 1:1 --style raw
+White full 360-degree arc on solid black background, complete circle that isn't quite a circle — it spirals inward very slightly creating a subtle vortex, the ring surface textured with tiny cryptic glyph symbols and question marks, bright sections alternate asymmetrically with dimmer sections, the overall shape is disorienting and riddling, game VFX slash texture, 256x256px --ar 1:1 --style raw
 ```
 
 ---
@@ -1014,7 +1014,7 @@ White full 360-degree arc on solid black background, complete circle that isn't 
 
 ### EN Basic Trail
 ```
-White trail strip on solid black background, horizontal gradient that doesn't fade smoothly but dissolves in patches — sections of the trail vanish revealing the void behind while other sections remain bright, as if the trail exists partially in another dimension, disturbing intermittent visibility, game VFX trail texture, 256x64px --ar 1:1 --style raw
+White trail strip on solid black background, horizontal gradient that doesn't fade smoothly but dissolves in patches — sections of the trail vanish revealing the void behind while other sections remain bright, as if the trail exists partially as an unsolvable riddle, disturbing intermittent visibility like a mystery that reveals and conceals, game VFX trail texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### EN Harmonic Standing Wave Ribbon
@@ -1028,7 +1028,7 @@ White wave ribbon on solid black background, horizontal strip with a wave patter
 
 ### EN Lightning Surge
 ```
-White lightning bolt on solid black background, electrical arc that branches into tentacle-like organic tendrils rather than jagged angles, the branches reach and grasp like fingers, some branches curl back on themselves, the bolt seems directed by malicious intelligence rather than physics, game VFX lightning texture, 256x64px --ar 1:1 --style raw
+White lightning bolt on solid black background, electrical arc that branches into cryptic glyph-like shapes rather than jagged angles, the branches form partial question marks and mysterious symbols, some branches curl back on themselves forming eye-like loops, the bolt seems directed by unknowable intelligence rather than physics, game VFX lightning texture, 256x64px --ar 1:1 --style raw
 ```
 
 ---
@@ -1037,27 +1037,27 @@ White lightning bolt on solid black background, electrical arc that branches int
 
 ### EN Music Note
 ```
-White music note on solid black background, a music note where the note head is replaced by a tiny eye shape, the stem and flag rendered in occult spidery linework, the overall shape barely recognizable as a note — corrupted and wrong, game particle texture, 32x32px --ar 1:1 --style raw
+White music note on solid black background, a music note where the note head is replaced by a tiny eye shape, the stem and flag rendered in mysterious cipher-like linework, the overall shape barely recognizable as a note — a riddle encoded in musical form, game particle texture, 32x32px --ar 1:1 --style raw
 ```
 
 ### EN Enigma Eye (Already exists — enhance variants)
 ```
-White watching eye on solid black background, single detailed eye with visible iris ring and bright pupil center, the eye is slightly inhuman — too round, the iris too detailed, small eldritch tendrils extend from the corners, the eye radiates an active malevolent awareness, game particle texture, 32x32px --ar 1:1 --style raw
+White watching eye on solid black background, single detailed eye with visible iris ring and bright pupil center, the eye is slightly inhuman — too round, the iris too detailed, small question-mark-shaped wisps extend from the corners, the eye radiates an active searching awareness as if seeking an answer, game particle texture, 32x32px --ar 1:1 --style raw
 ```
 
 ### EN Void Tendril
 ```
-White tendril on solid black background, single curving organic tentacle shape tapering from thick base to thin tip, the surface textured with tiny sucker marks, the tendril curves in an S-shape as if reaching for something, slightly transparent at the thinnest end, game particle texture, 48x16px --ar 3:1 --style raw
+White question mark wisp on solid black background, single curving abstract shape tapering from thick base to thin tip forming a question-mark-like silhouette, the surface textured with tiny glyph marks, the shape curves in an S-shape as if asking a question, slightly transparent at the thinnest end, game particle texture, 48x16px --ar 3:1 --style raw
 ```
 
 ### EN Impossible Geometry Shard
 ```
-White geometric shard on solid black background, small Penrose-triangle-like impossible shape, each face has a different brightness suggesting an object that cannot exist in 3D space, clean lines and precise angles, mathematically disturbing, game particle texture, 32x32px --ar 1:1 --style raw
+White puzzle shard on solid black background, small impossible-geometry puzzle piece, each face has a different brightness suggesting an object that cannot exist in 3D space, clean lines and precise angles forming a riddle in geometric form, mathematically mysterious, game particle texture, 32x32px --ar 1:1 --style raw
 ```
 
 ### EN Glyph (Occult)
 ```
-White glyph on solid black background, complex arcane sigil with concentric circles and intersecting lines forming an occult diagram, a watching eye at the very center, tiny illegible rune-like symbols along the circle borders, unsettling and unholy, game particle texture, 32x32px --ar 1:1 --style raw
+White glyph on solid black background, complex arcane glyph with concentric circles and intersecting lines forming a mysterious cipher diagram, a watching eye at the very center, tiny illegible question-mark-like symbols along the circle borders, cryptic and unsolvable, game particle texture, 32x32px --ar 1:1 --style raw
 ```
 
 ---
@@ -1199,7 +1199,7 @@ White supernova core on solid black background, tiny incredibly bright point sur
 # ═══════════════════════════════════════════
 
 > **Musical Soul:** Debussy's Clair de Lune — dreamy, impressionistic, the beauty of a moonlit evening, gentle luminescence
-> **Visual Motifs:** Water lily pads, gentle ripples, impressionist brush strokes, soft-focus moonlight, dew drops, gentle mist, floating dust motes in moonbeams, fireflies, glass reflections, puddle reflections
+> **Visual Motifs:** Shattered clock faces, broken clock hands, fractured hourglasses, scattered gear fragments, flowing sand from broken timepieces, pendulum arcs, clock number fragments, cracked glass watch faces, stopped clock towers, ticking echoes visualized, melting clock edges, time-frozen debris
 > **Emotional Core:** Dreamlike calm, gentle luminescence, tender nostalgia, reverie
 > **Colors (applied at runtime):** Night mist blue, soft blue, pearl white
 
@@ -1209,27 +1209,27 @@ White supernova core on solid black background, tiny incredibly bright point sur
 
 ### CL Braided Energy Helix Beam
 ```
-White intertwined helix beam on solid black background, two gently twisting streams like moonlight reflecting off two intertwined streams of water, soft-focus impressionistic quality, the edges slightly blurred as if painted with a soft brush, each strand wider and more diffuse than sharp, dreamlike, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White intertwined helix beam on solid black background, two gently twisting streams like the twin hands of a shattered clock spiraling through time's wake, each strand trailing broken gear-tooth edges and fractured numeral fragments, soft-focus quality as if time itself is blurring, dreamlike, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### CL Energy Motion Beam
 ```
-White flowing energy beam on solid black background, horizontal stream of drifting shapes like fireflies and dew drops floating on a gentle current, each shape small and perfectly round with a soft halo, scattered at varying distances creating bokeh-like depth, peaceful and hypnotic, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White flowing energy beam on solid black background, horizontal stream of drifting clock fragments and gear pieces floating on a gentle current of time's wake, each shape small and precise — tiny gear teeth, clock hand fragments, numeral shards — with a soft halo, scattered at varying distances creating depth, peaceful yet melancholy, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### CL Energy Surge Beam
 ```
-White energy surge beam on solid black background, horizontal beam with gentle impressionistic swells like music notes rising and falling in a reverie, each swell soft-edged and rounded, the intensity is never harsh — even the brightest points have diffuse soft-focus quality, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White energy surge beam on solid black background, horizontal beam with gentle clock-tick swells like seconds passing and accumulating, each swell soft-edged and rounded like a pendulum's arc, the intensity is never harsh — even the brightest points have soft-focus quality of time viewed through frosted glass, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### CL Oscillating Frequency Wave Beam
 ```
-White wave beam on solid black background, horizontal beam of gentle ripples like moonlight playing across a shallow pool, the ripples are wide gentle curves with soft reflection highlights at their peaks, the pattern dreamlike and soothing, almost hypnotic in its gentle regularity, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White wave beam on solid black background, horizontal beam of gentle oscillations like a pendulum swinging back and forth through time, the ripples mark each tick with a soft clock-hand arc highlight at their peaks, the pattern dreamlike and soothing — the steady rhythm of time passing, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### CL Sound Wave Beam
 ```
-White sound wave beam on solid black background, horizontal beam of overlapping soft circles like water lily pad reflections in moonlit water, each circle soft-edged and slightly overlapping the next, creating a chain of gentle luminous forms, impressionistic and peaceful, game VFX texture, 256x64px --ar 1:1 --style raw
+White sound wave beam on solid black background, horizontal beam of overlapping soft circles like shattered clock faces viewed through time's distortion, each circle soft-edged with numeral fragments barely visible at the edges, creating a chain of gentle broken timepiece forms, dreamlike and melancholy, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ---
@@ -1243,12 +1243,12 @@ White glow on solid black background, extremely soft and diffuse circular glow, 
 
 ### CL Lens Flare
 ```
-White lens flare on solid black background, impressionistic bokeh-style flare — multiple soft hexagonal shapes of varying sizes arranged loosely around a central soft disc, each bokeh shape slightly different in size, like light through a rain-spotted window, dreamy and unfocused, game VFX bloom texture, 128x128px --ar 1:1 --style raw
+White lens flare on solid black background, clock-face-style flare — multiple soft circular shapes of varying sizes arranged around a central soft disc like hour markers on a clock face, each element at a different radial position, like time fragments scattered through light, dreamy and unfocused, game VFX bloom texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### CL Star Flare
 ```
-White star flare on solid black background, soft diffuse four-pointed star with extremely wide rounded points — more of a soft luminous plus-shape than sharp star, the edges completely faded and blurred, like starlight seen through tears or gentle mist, game VFX bloom texture, 64x64px --ar 1:1 --style raw
+White star flare on solid black background, soft diffuse four-pointed star with clock-hand-shaped points — two longer points (hour and minute hands) and two shorter, the edges completely faded and blurred, like a clock face dissolving into time's wake, game VFX bloom texture, 64x64px --ar 1:1 --style raw
 ```
 
 ---
@@ -1257,12 +1257,12 @@ White star flare on solid black background, soft diffuse four-pointed star with 
 
 ### CL Harmonic Resonance Wave Impact
 ```
-White resonance impact on solid black background, gentle expanding ripple circles like a petal falling onto moonlit water, the rings wide-spaced and incredibly soft, each ring barely brighter than the next, no harshness — everything fades with impressionistic softness, tiny firefly-like points drifting between rings, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White resonance impact on solid black background, gentle expanding ripple circles like the aftershock of a clock shattering, the rings wide-spaced and soft like time ripples spreading outward, each ring barely brighter than the next, no harshness — everything fades with dreamlike softness, tiny clock-gear-fragment points drifting between rings, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### CL Power Effect Ring
 ```
-White power ring on solid black background, gossamer-thin ring that is more impression than solid line, the ring formed by many tiny soft dots arranged in a circle like a necklace of dew drops catching moonlight, each dot has a miniature bloom, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White power ring on solid black background, gossamer-thin ring that is more impression than solid line, the ring formed by many tiny soft dots arranged in a circle like clock-face hour markers, each dot has a miniature bloom like the glow of numerals on a phosphorescent watch face, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ---
@@ -1271,7 +1271,7 @@ White power ring on solid black background, gossamer-thin ring that is more impr
 
 ### CL Sword Arc Smear
 ```
-White sword arc on solid black background, 120-degree sweeping arc rendered in impressionistic brush-stroke style, the arc wide and soft like a watercolor wash, edges completely blurred and organic, no sharp lines — the slash is a gentle sweeping reflection of light on water, game VFX slash texture, 256x256px --ar 1:1 --style raw
+White sword arc on solid black background, 120-degree sweeping arc rendered like a clock hand sweeping through time, the arc wide and soft like a timepiece's motion blur, edges completely blurred and organic, no sharp lines — the slash is a gentle sweeping arc of a clock hand dissolving into time's wake, game VFX slash texture, 256x256px --ar 1:1 --style raw
 ```
 
 ---
@@ -1280,12 +1280,12 @@ White sword arc on solid black background, 120-degree sweeping arc rendered in i
 
 ### CL Basic Trail
 ```
-White trail on solid black background, horizontal gradient that dissolves into scattered soft dots like firefly lights gradually spacing farther apart and dimming, the bright end is a diffuse soft glow, the fade-out is a constellation of dimming gentle points, dreaming and wistful, game VFX trail texture, 256x64px --ar 1:1 --style raw
+White trail on solid black background, horizontal gradient that dissolves into scattered soft clock-fragment dots like broken timepiece elements gradually spacing farther apart and dimming, the bright end is a diffuse soft glow of concentrated time, the fade-out is a constellation of dimming clock shards, dreamlike and wistful, game VFX trail texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### CL Harmonic Standing Wave Ribbon
 ```
-White wave ribbon on solid black background, horizontal strip with the gentlest possible undulation — almost flat with barely perceptible sine wave, the wave crests have soft impressionistic highlights like moonlight on tiny ripples, extremely calm and meditative, game VFX trail texture, 256x64px --ar 1:1 --style raw
+White wave ribbon on solid black background, horizontal strip with the gentlest possible undulation — almost flat with barely perceptible pendulum-swing wave, the wave crests have soft highlights like the gentle tick of a clock's second hand, extremely calm and meditative — the quiet passage of time, game VFX trail texture, 256x64px --ar 1:1 --style raw
 ```
 
 ---
@@ -1294,27 +1294,162 @@ White wave ribbon on solid black background, horizontal strip with the gentlest 
 
 ### CL Music Note
 ```
-White music note on solid black background, whole note rendered as a soft luminous oval with an impressionistic quality — edges blurred, the interior slightly textured like light on water, surrounded by a gentle misty glow, the note seems to float and drift, game particle texture, 32x32px --ar 1:1 --style raw
+White music note on solid black background, whole note rendered as a soft luminous oval with a clock-face quality — edges blurred, the interior slightly textured like the worn surface of an antique timepiece, surrounded by a gentle misty glow of fading time, the note seems to float and drift like a moment suspended in time's wake, game particle texture, 32x32px --ar 1:1 --style raw
 ```
 
-### CL Firefly
+### CL Clock Gear Fragment
 ```
-White firefly particle on solid black background, tiny bright oval point with very wide soft bloom extending around it, the bloom slightly elongated suggesting movement, like a single firefly captured mid-flight on a summer night, minimal and magical, game particle texture, 16x16px --ar 1:1 --style raw
-```
-
-### CL Dew Drop
-```
-White dew drop on solid black background, single perfect sphere of water catching moonlight, a bright highlight crescent on upper left, softer fill glow on lower right, extremely tiny and precious, like a single drop of moonlight condensed, game particle texture, 16x16px --ar 1:1 --style raw
+White clock gear fragment on solid black background, tiny bright gear-tooth shape with very wide soft bloom extending around it, the bloom slightly elongated suggesting the fragment is drifting through time's wake, like a single piece of a shattered clock suspended in eternal freefall, minimal and melancholy, game particle texture, 16x16px --ar 1:1 --style raw
 ```
 
-### CL Impressionist Brush Stroke
+### CL Hourglass Sand Grain
 ```
-White brush stroke on solid black background, single short impressionist paint dab — wider in the middle tapering at both ends, slightly textured with visible brush-hair lines, soft-edged, like a Monet brush stroke made of light, game particle texture, 32x16px --ar 2:1 --style raw
+White hourglass sand grain on solid black background, single perfect sphere of luminous sand catching light, a bright highlight crescent on upper left, softer fill glow on lower right, extremely tiny and precious, like a single grain of time freed from a shattered hourglass, game particle texture, 16x16px --ar 1:1 --style raw
+```
+
+### CL Clock Hand Fragment
+```
+White clock hand fragment on solid black background, single narrow tapered shard — wider at one end narrowing to a point like a broken clock hand, slightly textured with fine engraved lines, soft-edged, like a minute hand snapped from a shattered timepiece and dissolving into light, game particle texture, 32x16px --ar 2:1 --style raw
 ```
 
 ### CL Glyph
 ```
-White glyph on solid black background, circular symbol with a water lily silhouette at center, surrounded by a ring of tiny dew-drop dots, the linework soft and slightly imprecise — impressionistic rather than architectural, gentle and dreamlike, game particle texture, 32x32px --ar 1:1 --style raw
+White glyph on solid black background, circular symbol with a clock face silhouette at center — Roman numerals faintly visible around the rim, surrounded by a ring of tiny gear-tooth dots, the linework soft and slightly imprecise — the clock is cracked and fading, gentle and dreamlike, game particle texture, 32x32px --ar 1:1 --style raw
+```
+
+---
+
+## Clair de Lune — Projectiles
+
+### CL Gyratory Orb
+```
+White spinning orb on solid black background, spherical projectile with gentle internal swirling like clock hands spinning inside a glass sphere, the surface has soft-focus temporal quality, rotation suggested by subtle directional gear-tooth streaks within the sphere, surrounded by a wide tender bloom of fading time, dreamy and precious, game VFX projectile sprite, 64x64px --ar 1:1 --style raw
+```
+
+### CL Orbiting Energy Sphere
+```
+White energy sphere on solid black background, central soft glow orb with three tiny clock-gear-like points orbiting gently around it, each orbiting point has a miniature bloom trail, the main sphere has soft-focus temporal quality, the orbiters drift lazily like gear fragments shed from a dissolving clock, game VFX projectile sprite, 128x128px --ar 1:1 --style raw
+```
+
+### CL Pulsating Music Note Orb
+```
+White music orb on solid black background, diffuse luminous sphere containing a gentle whole-note shape visible within, the note rendered in soft clock-hand strokes, the sphere surface has the quality of light through a cracked timepiece — shifting and dreamy, surrounded by a wide soft halo of scattered time, game VFX projectile sprite, 64x64px --ar 1:1 --style raw
+```
+
+---
+
+## Clair de Lune — Additional Beam Textures
+
+### CL Cracking Energy Fissure Beam
+```
+White cracking beam on solid black background, horizontal beam with delicate crack patterns like a clock face shattering in slow motion, the cracks form soft organic branching shapes like fracture lines spreading across a timepiece's crystal, bright fracture lines fading to gossamer gray edges, the breaking is beautiful and inevitable — time itself fragmenting, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+```
+
+### CL Turbulent Plasma Core
+```
+White turbulent core on solid black background, horizontal beam core with gentle temporal turbulence, soft billowing forms like sand from a shattered hourglass drifting through time's wake, the movement is unhurried and meditative — luminous shapes merge and separate like the overlapping shadows of clock hands, bright wisps with diffuse soft edges, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+```
+
+---
+
+## Clair de Lune — Additional Glow and Bloom
+
+### CL Point Bloom
+```
+White pinpoint bloom on solid black background, tiny bright center with enormously wide soft bloom creating a diffuse temporal glow, the bloom so wide and gentle it resembles a softly glowing clock numeral dissolving rather than a point of light, like the last tick of a dying clock seen through tear-blurred eyes, game VFX bloom texture, 64x64px --ar 1:1 --style raw
+```
+
+### CL Soft Radial Bloom
+```
+White radial bloom on solid black background, circular bloom with gentle concentric ripple structure like the face of a clock with its numerals dissolving outward in rings, the ripples barely perceptible — more feeling than form, everything soft-focus and time-worn, game VFX bloom texture, 128x128px --ar 1:1 --style raw
+```
+
+---
+
+## Clair de Lune — Additional Impact Effects
+
+### CL Crumbling Shatter Burst
+```
+White shatter burst on solid black background, gentle fragmentation like a clock face bursting in slow motion, thin curved shards of timepiece glass drifting apart with soft dreamy trajectories, each shard luminous and translucent with faint numeral traces, tiny gear-tooth sparkle points at the fracture edges, the destruction impossibly gentle and beautiful, game VFX impact texture, 128x128px --ar 1:1 --style raw
+```
+
+### CL Radial Slash Star Impact
+```
+White radial star impact on solid black background, soft four-pointed impact star with wide clock-hand-shaped points, each point a broad diffuse wash of light like a clock hand dissolving rather than a sharp spike, the spaces between points filled with gentle hourglass sand mist, a dreamy impact that suggests the shattering of a moment, game VFX impact texture, 128x128px --ar 1:1 --style raw
+```
+
+### CL X-Shaped Impact Cross
+```
+White X cross impact on solid black background, two crossing arcs like clock hands crossing at midnight, each arc soft-edged and time-worn, the intersection has a warm diffuse bloom like the last light of a dying timepiece, temporal and tender, game VFX impact texture, 128x128px --ar 1:1 --style raw
+```
+
+---
+
+## Clair de Lune — Additional Slash Arcs
+
+### CL Full Circle Sword Arc
+```
+White full 360-degree arc on solid black background, complete gentle circle like a clock face viewed from above, the ring soft and time-worn with fading numeral-trace edges, opacity varies subtly around the circumference like the fading glow of each hour marker, tiny scattered glow points like gear fragments caught in a spin, game VFX slash texture, 256x256px --ar 1:1 --style raw
+```
+
+### CL Impressionist Sweep Arc Smear
+```
+White sword arc smear on solid black background, 90-degree gentle sweep rendered as a series of overlapping soft dabs — like a sequence of clock positions arranged in an arc, each position slightly different in size and brightness, the overall arc soft and luminous like a clock hand tracing through the hours in time-lapse, game VFX slash texture, 256x256px --ar 1:1 --style raw
+```
+
+---
+
+## Clair de Lune — Additional Trails and Ribbons
+
+### CL Spiraling Vortex Energy Strip
+```
+White spiraling strip on solid black background, horizontal strip with gentle internal spiral of soft luminous forms like clock gears and numeral fragments caught in a lazy temporal whirlpool, the spiral arms are wide and diffuse — clock hand silhouettes twisting along the strip, bright soft center tapering to faint scattered gear-tooth points on the right, game VFX trail texture, 256x64px --ar 1:1 --style raw
+```
+
+---
+
+## Clair de Lune — Lightning
+
+### CL Lightning Surge
+```
+White lightning bolt on solid black background, the gentlest possible electrical arc — a single soft branching path like cracks spreading across a clock's crystal face or the fracture lines of a shattered hourglass, the branches are smooth and organic rather than jagged, each branch fades to a soft point like the last grain of sand falling, luminous and dreamlike rather than violent, game VFX lightning texture, 256x64px --ar 1:1 --style raw
+```
+
+---
+
+## Clair de Lune — Noise Textures
+
+### CL Musical Wave Pattern
+```
+Grayscale seamless tileable noise texture on solid black background, gentle overlapping pendulum-arc ripples like the rhythm of time passing across broken clock faces, the waves have long wavelengths and low amplitude creating soft luminous undulations, dreamy and meditative like the ticking of eternity, 256x256px seamless tile --ar 1:1 --style raw
+```
+
+### CL Cosmic Energy Vortex
+```
+Grayscale seamless tileable noise texture on solid black background, soft swirling vortex of luminous temporal forms, the spiral arms wide and diffuse like the unwinding mainspring of a broken clock slowly releasing its stored time, gentle and unhurried rotation with soft-focus edges throughout, dreamy atmospheric quality, 256x256px seamless tile --ar 1:1 --style raw
+```
+
+### CL Unique Theme Noise — Shattered Timepiece Dapple Pattern
+```
+Grayscale seamless tileable noise texture on solid black background, pattern of scattered soft round and gear-shaped forms at varying sizes and brightnesses, like fragments of shattered clock faces and gears drifting through darkness, each fragment soft-edged and luminous with traces of clock numerals, the overall pattern gentle and dreamlike with no harsh elements, 256x256px seamless tile --ar 1:1 --style raw
+```
+
+---
+
+## Clair de Lune — Smoke and Atmospheric
+
+### CL Smoke Puff Cloud
+```
+White smoke puff on solid black background, impossibly soft diffuse cloud of luminous temporal mist, no hard edges anywhere — the entire form dissolves gently into the surrounding darkness, like the exhaled sigh of a clock winding down forever, the cloud shape slightly elongated horizontally suggesting the passage of a final moment, dreaming and ephemeral, game VFX texture, 128x128px --ar 1:1 --style raw
+```
+
+---
+
+## Clair de Lune — Additional Particles
+
+### CL Clock Face Shard
+```
+White clock face shard on solid black background, single broad curved fragment of a shattered clock face with gentle luminous quality, the shard wider at base narrowing to a cracked edge, surface has subtle impression of Roman numerals and hour marks — faintly embossed, edges translucent and fading gently, drifting through time's wake, game particle texture, 32x24px --ar 4:3 --style raw
 ```
 
 ---
@@ -1468,15 +1603,126 @@ White glyph on solid black background, circular symbol with judgment scales at c
 ```
 
 ---
+
+## Dies Irae — Projectiles
+
+### DI Gyratory Orb
+```
+White spinning orb on solid black background, heavy dense sphere of compressed destruction, the surface cracked with lava-bright fissures revealing a molten interior, the sphere spins with grinding force — visible rotation through asymmetric crack patterns, chunks of cooled crust breaking away from the spinning surface, game VFX projectile sprite, 64x64px --ar 1:1 --style raw
+```
+
+### DI Orbiting Energy Sphere
+```
+White energy sphere on solid black background, central dense orb of apocalyptic energy with three orbiting chain-link fragments circling it like shrapnel caught in a gravity well, the main sphere smolders with internal fissures, each orbiting fragment trails ash and ember, heavy and threatening, game VFX projectile sprite, 128x128px --ar 1:1 --style raw
+```
+
+### DI Pulsating Music Note Orb
+```
+White music orb on solid black background, dense smoldering sphere containing a music note branded into its surface — the note burned and scarred into the sphere's cooling crust, the note glows with internal lava-bright heat, the sphere surface cracked and ashen around the brand, game VFX projectile sprite, 64x64px --ar 1:1 --style raw
+```
+
+---
+
+## Dies Irae — Additional Beam Textures
+
+### DI Energy Motion Beam
+```
+White flowing energy beam on solid black background, horizontal stream of falling ash and burning debris carried on scorching winds, each particle a thick angular chunk trailing embers, heavy fragments tumble left to right with violent momentum, dense and oppressive — the air itself burns, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+```
+
+### DI Oscillating Frequency Wave Beam
+```
+White oscillating wave beam on solid black background, horizontal beam of violent seismic oscillations like a magnitude-ten earthquake captured in waveform, the peaks are sharp and jagged with steep violent slopes, each crest cracks at its tip like breaking stone, relentless destructive rhythm with no soft moments, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+```
+
+---
+
+## Dies Irae — Additional Glow and Bloom
+
+### DI Point Bloom
+```
+White pinpoint bloom on solid black background, harsh intensely bright center point with aggressive steep falloff, the bloom is compact and angry — concentrated destructive light, the edges have a subtle flickering ember-speckle quality suggesting the light itself is burning, wrathful and focused, game VFX bloom texture, 64x64px --ar 1:1 --style raw
+```
+
+### DI Soft Radial Bloom
+```
+White radial bloom on solid black background, circular bloom with cracked-earth texture radiating from center, the cracks form a web of fissures through the glow as if the light itself is damaging the surface it rests on, ember-bright nodes where major fissures intersect, game VFX bloom texture, 128x128px --ar 1:1 --style raw
+```
+
+---
+
+## Dies Irae — Additional Impact Effects
+
+### DI Radial Slash Star Impact
+```
+White radial star impact on solid black background, six-pointed impact star with thick brutal points like shattered stone pillars radiating from a cataclysmic strike, each point jagged and crumbling at its edges, deep lava-bright fissures running down the center of each point, the geometry of divine punishment, game VFX impact texture, 128x128px --ar 1:1 --style raw
+```
+
+---
+
+## Dies Irae — Additional Slash Arcs
+
+### DI Flaming Sword Arc Smear
+```
+White sword arc smear on solid black background, wide violent 150-degree arc of pure destruction, the arc body thick and heavy with crumbling stone-like texture, the outer edge erupts with molten debris and heavy lava droplets, the inner edge is a raw bright wound of exposed energy, each section of the arc cracks and breaks as if carved through bedrock, game VFX slash texture, 256x256px --ar 1:1 --style raw
+```
+
+---
+
+## Dies Irae — Additional Trails and Ribbons
+
+### DI Spiraling Vortex Energy Strip
+```
+White spiraling strip on solid black background, horizontal strip with violent internal tornado of ash and ember, the spiral arms are thick churning columns of destruction wrapping around the strip axis, lava-bright fissures run along the spiral crests, the strip tapers from maximum devastation on left to crumbling ash dissolution on right, game VFX trail texture, 256x64px --ar 1:1 --style raw
+```
+
+---
+
+## Dies Irae — Noise Textures
+
+### DI Musical Wave Pattern
+```
+Grayscale seamless tileable noise texture on solid black background, violent seismic waveform pattern with sharp aggressive peaks and deep troughs, the waves crack at their crests revealing brighter sub-layers, the pattern suggests relentless destructive tremors — earthquake oscillograph recording the end of the world, 256x256px seamless tile --ar 1:1 --style raw
+```
+
+### DI Cosmic Energy Vortex
+```
+Grayscale seamless tileable noise texture on solid black background, churning maelstrom of volcanic turbulence, thick heavy currents of magma-like energy colliding and grinding against each other, the vortex center is a white-hot point of maximum destruction, cracks and fissures radiate through the swirling pattern, 256x256px seamless tile --ar 1:1 --style raw
+```
+
+### DI Unique Theme Noise — Cracked Earth Pattern
+```
+Grayscale seamless tileable noise texture on solid black background, network of deep lava fissures cracking through scorched earth, the cracks form an interconnected web of bright hot lines against darker cooled surfaces, crack intersections are brighter where magma pools, the pattern suggests ground shattered by divine judgment, 256x256px seamless tile --ar 1:1 --style raw
+```
+
+---
+
+## Dies Irae — Smoke and Atmospheric
+
+### DI Smoke Puff Cloud
+```
+White smoke puff on solid black background, thick heavy plume of volcanic ash and choking smoke, extremely dense and opaque in the center, the cloud edges roil with violent convection currents, bright ember points embedded throughout like burning fragments carried skyward, the smoke is suffocating and wrathful — a pyroclastic cloud of judgment, game VFX texture, 128x128px --ar 1:1 --style raw
+```
+
+---
+
+## Dies Irae — Additional Particles
+
+### DI Falling Ember
+```
+White ember particle on solid black background, large glowing fragment of scorched material tumbling through air, one face bright and molten, the edges cooling to gray, the shape irregular and angular like a chunk of destroyed structure, tiny ash wisps trailing from the cooler edges, game particle texture, 24x24px --ar 1:1 --style raw
+```
+
+---
 ---
 
 # ═══════════════════════════════════════════
 # THEME 9: NACHTMUSIK — A Little Night Music
 # ═══════════════════════════════════════════
 
-> **Musical Soul:** Mozart's Eine Kleine Nachtmusik — playful nocturnal elegance, stellar beauty, the joy of stargazing, sophisticated night revelry
-> **Visual Motifs:** Constellations, telescope star fields, elegant night sky, precise star points, comet trails, crescent moon with stars, nocturnal flowers (evening primrose, moonflower), astronomical instruments, crescendo wave lines, dance-floor sparkle
-> **Emotional Core:** Nocturnal wonder, stellar beauty, sophisticated joy, cosmic elegance
+> **Musical Soul:** Mozart's Eine Kleine Nachtmusik — playful nocturnal elegance, twilight beauty, the joy of stargazing under moonlit skies, sophisticated night revelry
+> **Visual Motifs:** Twilight skies, moonlit clouds, starry evenings, soft star points, comet trails, crescent moon with stars, nocturnal flowers (evening primrose, moonflower), dusk gradients, twilight silhouettes, moonbeams through clouds, evening mist
+> **Emotional Core:** Nocturnal wonder, stellar beauty, sophisticated joy, twilight elegance
 > **Colors (applied at runtime):** Deep indigo, starlight silver, cosmic blue
 
 ---
@@ -1485,12 +1731,12 @@ White glyph on solid black background, circular symbol with judgment scales at c
 
 ### NK Braided Energy Helix Beam
 ```
-White intertwined helix beam on solid black background, two spiraling star-trails wrapping around each other like dual comet paths in the night sky, each strand dotted with tiny precise star points along its length, the strands are clean and precise — astronomical accuracy, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White intertwined helix beam on solid black background, two spiraling star-trails wrapping around each other like dual comet paths across a twilight sky, each strand dotted with tiny soft star points along its length, the strands are graceful and flowing — moonlit elegance, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### NK Energy Motion Beam
 ```
-White flowing energy beam on solid black background, horizontal stream of tiny star points drifting like a meteor shower, each point precise and sharp, some stars brighter and larger (different magnitudes), occasional streak shapes like shooting stars, elegant nighttime astronomy captured in a beam, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White flowing energy beam on solid black background, horizontal stream of tiny star points drifting like a meteor shower across a twilight sky, each point soft and twinkling, some stars brighter and larger, occasional streak shapes like shooting stars, elegant nighttime wonder captured in a beam, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### NK Energy Surge Beam
@@ -1509,17 +1755,17 @@ White wave beam on solid black background, horizontal beam of precise orchestral
 
 ### NK Glow Orb
 ```
-White glow on solid black background, precise stellar-magnitude glow — a bright star with controlled clean Gaussian falloff, the center pointlike and brilliant, falloff even and calculated like a real star's apparent brightness profile, surrounded at far distance by scattered faint point companions, game VFX bloom texture, 128x128px --ar 1:1 --style raw
+White glow on solid black background, warm twilight-star glow — a bright star with soft clean Gaussian falloff, the center bright and twinkling, falloff wide and gentle like a star seen through evening mist, surrounded at far distance by scattered faint point companions, game VFX bloom texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### NK Lens Flare
 ```
-White lens flare on solid black background, telescope-optics flare — central bright disc with precise thin diffraction spikes from a telescope's secondary mirror support vanes, subtle Airy disc rings around the central point, realistic astronomical optics quality, elegant and scientific, game VFX bloom texture, 128x128px --ar 1:1 --style raw
+White lens flare on solid black background, twilight-star flare — central bright disc with elegant thin diffraction spikes like starlight through evening atmosphere, subtle soft rings around the central point, the quality of a brilliant star seen on a clear moonlit night, beautiful and nocturnal, game VFX bloom texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### NK Star Flare
 ```
-White star flare on solid black background, precise four-pointed star with razor-thin spikes of equal length, perfect symmetry like a calibration star in a telescope eyepiece, tiny Airy disc ring around the center, clean and scientific in quality, game VFX bloom texture, 64x64px --ar 1:1 --style raw
+White star flare on solid black background, elegant four-pointed star with thin spikes of equal length, perfect symmetry like the brightest star on a moonlit evening, tiny soft halo ring around the center, clean and beautiful in quality, game VFX bloom texture, 64x64px --ar 1:1 --style raw
 ```
 
 ---
@@ -1528,12 +1774,12 @@ White star flare on solid black background, precise four-pointed star with razor
 
 ### NK Harmonic Resonance Wave Impact
 ```
-White resonance impact on solid black background, expanding rings like sonar/radar display, precise circular rings at mathematically even intervals, each ring thin and clean, tiny star points scattered in the spaces between rings like a sky chart expanding, elegant ordered expansion, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White resonance impact on solid black background, expanding rings like twilight ripples spreading across a moonlit sky, graceful circular rings at even intervals, each ring thin and elegant, tiny star points scattered in the spaces between rings like a starry evening expanding, elegant ordered expansion, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### NK Power Effect Ring
 ```
-White power ring on solid black background, clean precise ring with constellation-point decorations at regular intervals around its circumference, thin constellation-line segments connecting some points, the ring is a star chart in circular form, astronomical and elegant, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White power ring on solid black background, clean elegant ring with constellation-point decorations at regular intervals around its circumference, thin constellation-line segments connecting some points, the ring is a starry sky in circular form, nocturnal and elegant, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ---
@@ -1542,7 +1788,7 @@ White power ring on solid black background, clean precise ring with constellatio
 
 ### NK Sword Arc Smear
 ```
-White sword arc on solid black background, 120-degree sweeping arc rendered as a band of starlit sky, the arc body contains scattered tiny star points creating a Milky Way-arc effect, bright central band with fainter scattered stars toward the edges, elegant cosmic sweep, game VFX slash texture, 256x256px --ar 1:1 --style raw
+White sword arc on solid black background, 120-degree sweeping arc rendered as a band of twilight starlit sky, the arc body contains scattered tiny star points creating a Milky Way-arc effect, bright central band with fainter scattered stars toward the edges, elegant moonlit sweep, game VFX slash texture, 256x256px --ar 1:1 --style raw
 ```
 
 ---
@@ -1585,7 +1831,147 @@ White flower on solid black background, small moonflower blossom with five petal
 
 ### NK Glyph
 ```
-White glyph on solid black background, circular symbol incorporating an astronomical sextant or compass rose design, star-point decorations at key angles, tiny musical notation fragments integrated into the geometric framework, precise and elegant — the intersection of music and astronomy, game particle texture, 32x32px --ar 1:1 --style raw
+White glyph on solid black background, circular symbol incorporating a crescent moon and star design, star-point decorations at key angles, tiny musical notation fragments integrated into the nocturnal framework, elegant and beautiful — the intersection of music and moonlit night, game particle texture, 32x32px --ar 1:1 --style raw
+```
+
+---
+
+## Nachtmusik — Projectiles
+
+### NK Gyratory Orb
+```
+White spinning orb on solid black background, spherical projectile resembling a miniature twilight sky captured in a sphere, the surface shows soft starlit patterns like a moonlit celestial globe, bright equatorial band from rotation, tiny star points embedded in the surface like mapped constellations, elegant and nocturnal, game VFX projectile sprite, 64x64px --ar 1:1 --style raw
+```
+
+### NK Orbiting Energy Sphere
+```
+White energy sphere on solid black background, central bright star with three smaller companion stars orbiting in graceful elliptical paths like a multiple star system seen on a clear twilight evening, the main star dominant and bright, each orbiter smaller and at a different distance, thin soft orbital path traces barely visible, moonlit elegance, game VFX projectile sprite, 128x128px --ar 1:1 --style raw
+```
+
+### NK Pulsating Music Note Orb
+```
+White music orb on solid black background, glowing sphere containing a graceful music note shape rendered as a constellation — the note formed by bright star points connected with thin lines, the sphere has an elegant twilight quality like a musical note mapped onto the moonlit evening sky, game VFX projectile sprite, 64x64px --ar 1:1 --style raw
+```
+
+---
+
+## Nachtmusik — Additional Beam Textures
+
+### NK Cracking Energy Fissure Beam
+```
+White cracking beam on solid black background, horizontal beam with graceful fracture patterns resembling the clean splitting of moonlit crystal, each crack forms along elegant planes, bright faceted surfaces at different angles catch starlight, the fracturing reveals deeper layers of embedded twilight-star lights, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+```
+
+### NK Sound Wave Beam
+```
+White sound wave beam on solid black background, horizontal beam of precise acoustic arcs flowing left to right like serenade melody lines visualized through an oscilloscope, each arc clean and mathematically defined, arcs overlap at musical intervals suggesting harmonic relationships, tiny star sparkle points at each wave intersection, game VFX texture, 256x64px --ar 1:1 --style raw
+```
+
+### NK Turbulent Plasma Core
+```
+White turbulent core on solid black background, horizontal beam core with elegant twilight-nebula turbulence, soft bright wisps folding and swirling like moonlit evening clouds, embedded soft star points of varying brightnesses scattered throughout, the turbulence suggests a starry twilight sky coming alive, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+```
+
+---
+
+## Nachtmusik — Additional Glow and Bloom
+
+### NK Point Bloom
+```
+White pinpoint bloom on solid black background, elegant twilight-star point with soft Gaussian bloom, the center bright and twinkling like the evening star at dusk, the falloff gentle and atmospheric, a soft halo suggestion at the bloom boundary — the quality of starlight through evening air, game VFX bloom texture, 64x64px --ar 1:1 --style raw
+```
+
+### NK Soft Radial Bloom
+```
+White radial bloom on solid black background, circular bloom with subtle embedded constellation patterns — tiny star points arranged in graceful figures within the overall soft glow, like a star field seen through moonlit evening mist, the bloom provides warmth while the star points add twinkling structure, game VFX bloom texture, 128x128px --ar 1:1 --style raw
+```
+
+---
+
+## Nachtmusik — Additional Impact Effects
+
+### NK Crumbling Shatter Burst
+```
+White shatter burst on solid black background, elegant fragmentation like a moonlit crystal dome shattering to reveal the starry twilight beyond, each shard has softly polished surfaces catching starlight at different angles, the shards separate cleanly and gracefully, tiny star-point sparkles at fracture edges, sophisticated destruction, game VFX impact texture, 128x128px --ar 1:1 --style raw
+```
+
+### NK Radial Slash Star Impact
+```
+White radial star impact on solid black background, elegant eight-pointed star where each point aligns gracefully outward, the points taper to fine needle-sharp tips like starlight diffraction spikes, tiny constellation-dot clusters decorate the spaces between points, the geometry of a brilliant twilight star impact, game VFX impact texture, 128x128px --ar 1:1 --style raw
+```
+
+### NK X-Shaped Impact Cross
+```
+White X cross impact on solid black background, two gracefully crossing lines forming an X like moonbeams intersecting through twilight clouds, each line thin and elegant with soft brightness, the intersection has a bright twinkling star point, small star-dot markers along each line at regular intervals, nocturnal and elegant, game VFX impact texture, 128x128px --ar 1:1 --style raw
+```
+
+---
+
+## Nachtmusik — Additional Slash Arcs
+
+### NK Full Circle Sword Arc
+```
+White full 360-degree arc on solid black background, complete circular slash rendered as a ring of starlight, the ring body contains embedded star points of varying magnitudes like a band of the Milky Way bent into a circle, brighter concentration at one section suggesting the strike point, elegant and cosmic, game VFX slash texture, 256x256px --ar 1:1 --style raw
+```
+
+### NK Comet Trail Sword Arc Smear
+```
+White sword arc smear on solid black background, elegant 120-degree arc with the clean precision of a comet tail, the arc body bright and dense at the leading edge dissolving into scattered individual star points at the trailing end, tiny constellation-like clusters embedded in the arc body, sophisticated celestial sweep, game VFX slash texture, 256x256px --ar 1:1 --style raw
+```
+
+---
+
+## Nachtmusik — Additional Trails and Ribbons
+
+### NK Spiraling Vortex Energy Strip
+```
+White spiraling strip on solid black background, horizontal strip with elegant internal spiral of twilight starlit streams, the spiral arms are graceful and flowing — moonlit stellar jets wrapping around a nocturnal axis, bright star points concentrated along the spiral crests, the strip tapers from dense bright star cluster on left to scattered distant twilight stars on right, game VFX trail texture, 256x64px --ar 1:1 --style raw
+```
+
+---
+
+## Nachtmusik — Lightning
+
+### NK Lightning Surge
+```
+White lightning bolt on solid black background, elegant electrical arc with the graceful precision of a constellation line connecting stars across a twilight sky, the main bolt path clean and angular with deliberate direction changes, each direction change marked by a bright star-point node, branches thin and delicate like secondary constellation connections, nocturnal and beautiful, game VFX lightning texture, 256x64px --ar 1:1 --style raw
+```
+
+---
+
+## Nachtmusik — Noise Textures
+
+### NK Musical Wave Pattern
+```
+Grayscale seamless tileable noise texture on solid black background, precise wave pattern composed of clean serenade-tempo oscillations with mathematical regularity, the waves are elegant and structured like sheet music notation spaced on a staff, bright wave crests with exact periodicity and controlled amplitude, sophisticated and orderly, 256x256px seamless tile --ar 1:1 --style raw
+```
+
+### NK Cosmic Energy Vortex
+```
+Grayscale seamless tileable noise texture on solid black background, elegant twilight spiral pattern seen from above, soft spiral arms studded with twinkling star concentrations, the spiral geometry flowing and graceful, dark wisps between bright arms like moonlit evening clouds parting to reveal stars, nocturnal and magnificent, 256x256px seamless tile --ar 1:1 --style raw
+```
+
+### NK Unique Theme Noise — Twilight Star Field Pattern
+```
+Grayscale seamless tileable noise texture on solid black background, atmospheric star field with points of varying brightnesses distributed across the tile like a twilight sky, brighter stars have subtle four-point diffraction spikes, dimmer stars are soft glowing dots, occasional denser cluster regions suggesting star clusters seen through evening mist, the warmth of a moonlit sky, 256x256px seamless tile --ar 1:1 --style raw
+```
+
+---
+
+## Nachtmusik — Smoke and Atmospheric
+
+### NK Smoke Puff Cloud
+```
+White smoke puff on solid black background, elegant wisp of moonlit evening mist, the cloud has delicate internal structure with soft filaments and density variations like a twilight cloud catching the last light of dusk, subtle bright star-point nodes within the cloud, the cloud edges dissolve into faint wisps of evening atmosphere, nocturnal and serene rather than mundane, game VFX texture, 128x128px --ar 1:1 --style raw
+```
+
+---
+
+## Nachtmusik — Additional Particles
+
+### NK Dancing Sparkle
+```
+White sparkle particle on solid black background, small elegant starburst with six thin rays of equal length surrounding a bright center point, like a single star twinkling on a moonlit evening or a moment of twilight sparkle, clean and radiant, the rays thin and elegant, game particle texture, 16x16px --ar 1:1 --style raw
 ```
 
 ---
@@ -1595,8 +1981,8 @@ White glyph on solid black background, circular symbol incorporating an astronom
 # THEME 10: ODE TO JOY — Universal Brotherhood
 # ═══════════════════════════════════════════
 
-> **Musical Soul:** Beethoven's Ninth — the triumph of the human spirit, universal joy, celebration, the brotherhood of all humanity
-> **Visual Motifs:** Fireworks, jubilant confetti, radiant sunbursts, champagne bubble sparkle, festival streamers, golden laurels, rays of dawn, cathedral light shafts, raised hands, celebration bells, torch flames
+> **Musical Soul:** Beethoven's Ninth — the triumph of the human spirit, universal joy, the brotherhood of all humanity expressed through nature's beauty
+> **Visual Motifs:** Blooming roses, scattered petals, unfurling flower buds, thorned vines, rose gardens in full bloom, pollen drifting on warm air, intertwined stems, fallen petals on the ground, flower crowns, pressed flowers, botanical illustrations, blossom cascades
 > **Emotional Core:** Joy, celebration, triumph of spirit, radiant warmth
 > **Colors (applied at runtime):** Warm gold, radiant amber, jubilant light
 
@@ -1606,27 +1992,27 @@ White glyph on solid black background, circular symbol incorporating an astronom
 
 ### OJ Braided Energy Helix Beam
 ```
-White intertwined helix beam on solid black background, two spiraling strands like celebratory streamers twisting together in joyful spirals, the strands are wide and flowing like festival ribbons, each twist is open and exuberant, tiny sparkle points scattered along the streamer edges, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White intertwined helix beam on solid black background, two spiraling strands like flowering vines twisting together in graceful spirals, the strands are organic and flowing like climbing rose stems, each twist adorned with tiny petal shapes unfurling along the edges, tiny pollen points scattered along the vine paths, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### OJ Energy Motion Beam
 ```
-White flowing energy beam on solid black background, horizontal stream of rising celebration shapes — confetti pieces, tiny sparkle bursts, and small star shapes tumbling joyfully left to right, the shapes are varied and numerous creating a festival procession feeling, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White flowing energy beam on solid black background, horizontal stream of drifting botanical forms — rose petals, tiny flower buds, and small leaf shapes tumbling gracefully left to right, the shapes are varied and delicate creating a gentle petal procession feeling, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### OJ Energy Surge Beam
 ```
-White energy surge beam on solid black background, horizontal beam building to a glorious fortissimo climax, the energy rises in triumphant ascending waves, each wave crest larger and more brilliant than the last, the final peak explodes with radiating streamers and sparkles, the joy is OVERWHELMING, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White energy surge beam on solid black background, horizontal beam building to a glorious full-bloom climax, the energy rises in ascending waves like flowers opening one by one, each wave crest larger and more brilliant than the last — buds becoming full roses, the final peak bursts into radiating petals and pollen, the bloom is OVERWHELMING, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### OJ Sound Wave Beam
 ```
-White sound wave beam on solid black background, horizontal beam of jubilant waves flowing left to right like a crowd's cheer visualized in sound waves, the arcs are full and round suggesting rich choral harmony, waves overlap and create bright constructive interference where voices join together, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White sound wave beam on solid black background, horizontal beam of flourishing waves flowing left to right like a garden in full bloom visualized as sound waves, the arcs are full and round suggesting lush petal curves, waves overlap and create bright constructive interference where blossoms converge together, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### OJ Oscillating Frequency Wave Beam
 ```
-White wave beam on solid black background, horizontal beam of triumphant chorale harmonics — multiple wave frequencies layered together to create rich complex waveform, the combined pattern has a warm rounded character, occasional bright peaks where all harmonics align in glorious unison, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+White wave beam on solid black background, horizontal beam of layered botanical harmonics — multiple wave frequencies layered together to create rich organic waveform, the combined pattern has a warm rounded character like overlapping rose petals viewed in profile, occasional bright peaks where all harmonics align in glorious full bloom, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
 ```
 
 ---
@@ -1635,17 +2021,17 @@ White wave beam on solid black background, horizontal beam of triumphant chorale
 
 ### OJ Glow Orb
 ```
-White glow on solid black background, warm expansive bloom with generous Gaussian falloff, the center bright and inviting, the falloff wide and embracing — this light welcomes rather than blinds, the warmth feels like golden sunlight on skin, generous and giving, game VFX bloom texture, 128x128px --ar 1:1 --style raw
+White glow on solid black background, warm expansive bloom with generous Gaussian falloff, the center bright and inviting like the heart of a rose, the falloff wide and embracing like petals opening outward — this light welcomes rather than blinds, the warmth feels like golden sunlight on a garden in full bloom, generous and giving, game VFX bloom texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### OJ Lens Flare
 ```
-White lens flare on solid black background, jubilant multi-element flare with a central bright disc, multiple warm concentric ring elements, and thin streaks that fan outward in a sunburst pattern, the flare feels like dawn breaking — rays of first light, celebration and new beginning, game VFX bloom texture, 128x128px --ar 1:1 --style raw
+White lens flare on solid black background, botanical multi-element flare with a central bright disc like a flower's center, petals of soft glow arranged around it, and thin stamens that radiate outward in a rose-bloom pattern, the flare feels like a flower opening at dawn — petals of first light, blooming and new, game VFX bloom texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### OJ Star Flare
 ```
-White star flare on solid black background, six-pointed star with wide generous spikes that radiate warmth, the points broader than sharp, the center large and inviting, between the major spikes smaller secondary spikes create a full sunburst pattern, joyful and radiant, game VFX bloom texture, 64x64px --ar 1:1 --style raw
+White star flare on solid black background, six-pointed flare with wide generous petal-shaped spikes that radiate warmth, the points softer and rounder than sharp — like flower petals in a radial arrangement, the center large and inviting, between the major petals smaller secondary wisps create a full blossom pattern, joyful and radiant, game VFX bloom texture, 64x64px --ar 1:1 --style raw
 ```
 
 ---
@@ -1654,22 +2040,22 @@ White star flare on solid black background, six-pointed star with wide generous 
 
 ### OJ Harmonic Resonance Wave Impact
 ```
-White resonance impact on solid black background, expanding firework-burst rings, each ring erupts with small sparkle points like a pyrotechnic display, the rings expand with celebration energy, between rings tiny confetti-like particle shapes scatter, the overall impression is a triumphant firework detonation, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White resonance impact on solid black background, expanding blossom-burst rings, each ring erupts with small petal shapes like a rose bursting into bloom in accelerated time, the rings expand with flowering energy, between rings tiny petal-like particle shapes scatter like pollen, the overall impression is a triumphant floral detonation, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### OJ Crumbling Shatter Burst
 ```
-White burst on solid black background, not destruction but ERUPTION of celebration — fragments burst outward like confetti cannon, each fragment a different small geometric shape (triangles, circles, stars, rectangles), the fragments scatter joyfully rather than violently, bright and festive, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White burst on solid black background, not destruction but ERUPTION of blossoming — fragments burst outward like a flower exploding into bloom, each fragment a different petal shape (broad rose petals, narrow lily petals, tiny bud fragments), the petals scatter joyfully rather than violently, bright and botanical, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### OJ Power Effect Ring
 ```
-White power ring on solid black background, expanding ring wreathed in tiny celebration elements — small flags, streamers, and musical note shapes decorate the ring's circumference, the ring itself golden-warm in brightness, a victory lap of light, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White power ring on solid black background, expanding ring wreathed in tiny botanical elements — small rose petals, curling vine tendrils, and tiny bud shapes decorate the ring's circumference, the ring itself golden-warm in brightness, a flowering wreath of light, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ### OJ X-Shaped Impact Cross
 ```
-White X cross on solid black background, two crossing streaks that burst with sparkle at their intersection — the cross is a firework pattern, star-burst decoration at the center where the streaks meet, each streak tapers but is adorned with small point-sparkles along its length, triumphant, game VFX impact texture, 128x128px --ar 1:1 --style raw
+White X cross on solid black background, two crossing vine stems that bloom with petals at their intersection — the cross is a floral pattern, rose-blossom decoration at the center where the stems meet, each stem is adorned with small thorn-point highlights along its length, triumphant and botanical, game VFX impact texture, 128x128px --ar 1:1 --style raw
 ```
 
 ---
@@ -1678,12 +2064,12 @@ White X cross on solid black background, two crossing streaks that burst with sp
 
 ### OJ Sword Arc Smear
 ```
-White sword arc on solid black background, jubilant 120-degree sweeping arc with celebration energy, the arc body sparkles with tiny embedded point lights, the leading edge erupts with small confetti-like shapes, the trailing edge dissolves into sparkle dust, the swing is triumphant and exuberant, game VFX slash texture, 256x256px --ar 1:1 --style raw
+White sword arc on solid black background, flourishing 120-degree sweeping arc with blooming energy, the arc body shimmers with tiny embedded petal shapes, the leading edge erupts with small rose-petal forms cascading outward, the trailing edge dissolves into scattered pollen dust, the swing is triumphant and lush, game VFX slash texture, 256x256px --ar 1:1 --style raw
 ```
 
 ### OJ Full Circle Sword Arc
 ```
-White full 360-degree arc on solid black background, complete triumphant spin with firework-ring quality, the circle is a bright bold ring with sparkle-burst bright points evenly spaced like embedded fireworks detonating along the ring's path, tiny celebratory particles fill the interior, game VFX slash texture, 256x256px --ar 1:1 --style raw
+White full 360-degree arc on solid black background, complete triumphant spin with flowering-wreath quality, the circle is a bright bold ring with blossom-bright points evenly spaced like roses blooming along the ring's path, tiny petals and pollen fill the interior, game VFX slash texture, 256x256px --ar 1:1 --style raw
 ```
 
 ---
@@ -1692,12 +2078,12 @@ White full 360-degree arc on solid black background, complete triumphant spin wi
 
 ### OJ Basic Trail
 ```
-White trail on solid black background, horizontal gradient that dissolves into festival sparkle, the bright end overflows with tiny celebration points, the fade-out scatters into confetti-like shapes and diminishing sparkle points, the overall feel is a celebration parade trail, game VFX trail texture, 256x64px --ar 1:1 --style raw
+White trail on solid black background, horizontal gradient that dissolves into scattered petal drift, the bright end overflows with tiny rose-blossom points, the fade-out scatters into falling petal shapes and diminishing pollen points, the overall feel is a garden trail of scattered blossoms, game VFX trail texture, 256x64px --ar 1:1 --style raw
 ```
 
 ### OJ Harmonic Standing Wave Ribbon
 ```
-White wave ribbon on solid black background, horizontal strip with joyful chorale-wave pattern, each wave crest adorned with a tiny sunburst shape, the rhythm is allegro — quick and energetic, the wave pattern rises and leaps with the exuberance of Beethoven's finale, game VFX trail texture, 256x64px --ar 1:1 --style raw
+White wave ribbon on solid black background, horizontal strip with joyful blooming-wave pattern, each wave crest adorned with a tiny rose-bud shape unfurling, the rhythm is allegro — quick and energetic, the wave pattern rises and leaps with the exuberance of flowers opening in time-lapse, game VFX trail texture, 256x64px --ar 1:1 --style raw
 ```
 
 ---
@@ -1706,7 +2092,7 @@ White wave ribbon on solid black background, horizontal strip with joyful choral
 
 ### OJ Lightning Surge
 ```
-White lightning bolt on solid black background, bright triumphant bolt splitting into MANY branches — not threatening but celebratory, like a firework trail branching into multiple streamers, each branch ends in a small bright star-burst, the bolt travels upward suggesting ascension and joy rather than destructive strike, game VFX lightning texture, 256x64px --ar 1:1 --style raw
+White lightning bolt on solid black background, bright triumphant bolt splitting into MANY branches — not threatening but botanical, like a vine rapidly growing and branching into multiple flowering tendrils, each branch ends in a small bright blossom-burst, the bolt reaches upward suggesting growth and flourishing rather than destructive strike, game VFX lightning texture, 256x64px --ar 1:1 --style raw
 ```
 
 ---
@@ -1715,32 +2101,134 @@ White lightning bolt on solid black background, bright triumphant bolt splitting
 
 ### OJ Music Note
 ```
-White music note on solid black background, joyful eighth note rendered with bold confident strokes, the note head round and full, the flag upturned and enthusiastic, the entire note slightly tilted as if dancing, surrounded by a scatter of tiny sparkle dots like celebration confetti, game particle texture, 32x32px --ar 1:1 --style raw
+White music note on solid black background, joyful eighth note rendered with bold confident strokes, the note head round and full like a rose bud, the flag upturned and enthusiastic like an unfurling petal, the entire note slightly tilted as if dancing, surrounded by a scatter of tiny pollen dots like drifting garden dust, game particle texture, 32x32px --ar 1:1 --style raw
 ```
 
-### OJ Confetti
+### OJ Rose Petal
 ```
-White confetti piece on solid black background, small rectangular strip slightly curled and twisted like thrown confetti, one face bright and one face slightly darker suggesting dimension, the curl creates a dynamic shape suggesting mid-air tumbling, game particle texture, 16x8px --ar 2:1 --style raw
-```
-
-### OJ Firework Sparkle
-```
-White firework sparkle on solid black background, bright central point with four short radiating lines and four tiny dots between them creating an 8-element sparkle burst, like a single moment from a firework captured in freeze frame, crisp and celebratory, game particle texture, 16x16px --ar 1:1 --style raw
+White rose petal on solid black background, single broad curved petal with gentle luminous quality, slightly curled and cupped like a freshly fallen rose petal, one face bright with delicate vein-line texture, the curl creates a dynamic shape suggesting mid-air drifting, soft edges, game particle texture, 16x8px --ar 2:1 --style raw
 ```
 
-### OJ Festival Streamer
+### OJ Blossom Sparkle
 ```
-White streamer on solid black background, short curling ribbon of celebration streamer, the ribbon twists and curls in space showing both bright face and shadowed curve, wider at one end where it was released, tapering at the other where it curls, dynamic and festive, game particle texture, 32x16px --ar 2:1 --style raw
+White blossom sparkle on solid black background, bright central point with five soft petal-shaped radiating forms and tiny pollen dots between them creating a flower-burst shape, like a single rose opening in fast-forward captured at peak bloom, warm and botanical, game particle texture, 16x16px --ar 1:1 --style raw
 ```
 
-### OJ Sunburst Fragment
+### OJ Vine Tendril
 ```
-White sunburst fragment on solid black background, single radiating ray-shape like one spoke of a sunburst, wider at the base tapering to a fine point, the base has a tiny arc-shape connecting to where other rays would be, warm and radiant, game particle texture, 32x8px --ar 1:1 --style raw
+White vine tendril on solid black background, short curling vine stem, the tendril twists and curls gracefully in space showing organic growth, wider at one end where it joins the main stem, tapering to a delicate spiraling tip with a tiny bud, dynamic and botanical, game particle texture, 32x16px --ar 2:1 --style raw
+```
+
+### OJ Thorn Fragment
+```
+White thorn fragment on solid black background, single curved thorn shape like one thorn broken from a rose stem, wider at the base tapering to a sharp fine point, the base has a tiny arc-shape where it connected to the stem, warm and organic, game particle texture, 32x8px --ar 1:1 --style raw
 ```
 
 ### OJ Glyph
 ```
-White glyph on solid black background, circular symbol with a radiant sun design at center surrounded by musical notation fragments, the sun has triangular rays, tiny laurel leaves flank the sides, the ring decorated with small celebration-dot patterns, joyful and triumphant, game particle texture, 32x32px --ar 1:1 --style raw
+White glyph on solid black background, circular symbol with a blooming rose design at center surrounded by musical notation fragments, the rose has layered petals spiraling outward, tiny leaf shapes flank the sides, the ring decorated with small thorn-dot patterns, joyful and botanical, game particle texture, 32x32px --ar 1:1 --style raw
+```
+
+---
+
+## Ode to Joy — Projectiles
+
+### OJ Gyratory Orb
+```
+White spinning orb on solid black background, spherical projectile like a flower bud about to bloom, the surface decorated with tiny embossed botanical shapes — petals, leaves, and vine-curl swirls, the orb spins with flourishing energy, a wide warm bloom surrounds it like golden pollen haze, game VFX projectile sprite, 64x64px --ar 1:1 --style raw
+```
+
+### OJ Orbiting Energy Sphere
+```
+White energy sphere on solid black background, bright central orb of blooming energy with three orbiting petal-cluster wisps circling gracefully, each orbiting wisp shaped like a tiny flower mid-bloom, the main sphere radiates warm generous light, the orbiters trail scattered pollen-like particles, game VFX projectile sprite, 128x128px --ar 1:1 --style raw
+```
+
+### OJ Pulsating Music Note Orb
+```
+White music orb on solid black background, radiant sphere containing a proud joyful eighth note visible within, the note rendered in bold botanical strokes, the sphere itself shimmers with embedded tiny petal points like pollen dust, a warm flourishing glow suffuses the entire form, game VFX projectile sprite, 64x64px --ar 1:1 --style raw
+```
+
+---
+
+## Ode to Joy — Additional Beam Textures
+
+### OJ Cracking Energy Fissure Beam
+```
+White cracking beam on solid black background, horizontal beam with botanical fracture patterns like a flower bud’s shell cracking open to reveal the bloom within, the cracks form organic branching shapes like leaf veins, each fragment is a tiny petal or leaf piece, the breaking is joyful and generative — new life emerging, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+```
+
+### OJ Turbulent Plasma Core
+```
+White turbulent core on solid black background, horizontal beam core with effervescent pollen-drift turbulence, countless tiny bright spheres of pollen rising and swirling within the beam body, the particles are joyful and organic, larger clusters burst into smaller petal fragments, the energy is fizzing with barely contained botanical vitality, tileable horizontal strip, game VFX texture, 256x64px --ar 1:1 --style raw
+```
+
+---
+
+## Ode to Joy — Additional Glow and Bloom
+
+### OJ Point Bloom
+```
+White pinpoint bloom on solid black background, warm bright center with generous broad bloom, the falloff is wide and welcoming — this light invites and embraces, subtle petal-point texture embedded in the mid-range bloom like pollen caught in a shaft of garden sunlight, joyful and radiant, game VFX bloom texture, 64x64px --ar 1:1 --style raw
+```
+
+### OJ Soft Radial Bloom
+```
+White radial bloom on solid black background, circular bloom with subtle petal-ray patterning radiating from center, the rays are soft and wide creating a warm rose-opening quality, between the rays the glow is slightly less intense creating a gentle pulsing flower-like pattern, game VFX bloom texture, 128x128px --ar 1:1 --style raw
+```
+
+---
+
+## Ode to Joy — Additional Impact Effects
+
+### OJ Radial Slash Star Impact
+```
+White radial star impact on solid black background, flourishing six-pointed impact star where each point blooms with petal-dot decorations like a rose bursting open from the center, the points are wide and generous rather than sharp and threatening, tiny petal-like shapes scattered between and around the points, pure botanical joy, game VFX impact texture, 128x128px --ar 1:1 --style raw
+```
+
+---
+
+## Ode to Joy — Additional Slash Arcs
+
+### OJ Flaming Sword Arc Smear
+```
+White sword arc smear on solid black background, triumphant 120-degree arc erupting with blooming energy, the arc body thick and confident with rose-petal decorations along both edges, tiny petal shapes and thorn fragments scatter from the leading edge, the trailing edge dissolves into a shower of diminishing pollen points, game VFX slash texture, 256x256px --ar 1:1 --style raw
+```
+
+---
+
+## Ode to Joy — Additional Trails and Ribbons
+
+### OJ Spiraling Vortex Energy Strip
+```
+White spiraling strip on solid black background, horizontal strip with joyful internal spiral of botanical elements, the spiral arms are made of cascading petal shapes and tiny bud forms twisting like a flowering vine along the strip, bright and dense on the left tapering to scattered drifting petals on the right, game VFX trail texture, 256x64px --ar 1:1 --style raw
+```
+
+---
+
+## Ode to Joy — Noise Textures
+
+### OJ Musical Wave Pattern
+```
+Grayscale seamless tileable noise texture on solid black background, flourishing wave pattern of overlapping botanical harmonics, multiple organic wave frequencies layered to create warm rich combined waveforms, the pattern has a rounded generous character with bright constructive-interference peaks where petal curves align in glorious full bloom, 256x256px seamless tile --ar 1:1 --style raw
+```
+
+### OJ Cosmic Energy Vortex
+```
+Grayscale seamless tileable noise texture on solid black background, radiant rose-bloom vortex with warm generous spiral arms, the arms are wide and open like unfurling petals rather than tight and threatening, bright organic light quality radiates from the center, the pattern feels like a golden rose opening joyfully viewed from above, 256x256px seamless tile --ar 1:1 --style raw
+```
+
+### OJ Unique Theme Noise — Petal Scatter Pattern
+```
+Grayscale seamless tileable noise texture on solid black background, scattered botanical elements — rose petal shapes, tiny leaf silhouettes, and bud-like fragments distributed across the tile at varying sizes and brightnesses, the overall pattern suggests a garden floor covered in freshly fallen petals with light catching their curved surfaces, joyful and organic, 256x256px seamless tile --ar 1:1 --style raw
+```
+
+---
+
+## Ode to Joy — Smoke and Atmospheric
+
+### OJ Smoke Puff Cloud
+```
+White smoke puff on solid black background, light buoyant cloud of golden pollen haze like the aftermath of a rose bush shaking in a warm breeze, the cloud is airy and open rather than dense, tiny bright pollen points embedded throughout like floating garden dust, the cloud shape lifts upward with gentle botanical buoyancy, warm and organic, game VFX texture, 128x128px --ar 1:1 --style raw
 ```
 
 ---
@@ -1800,19 +2288,19 @@ All 10 theme gradient LUTs already exist:
 
 | Category | LC | ER | SL | MS | EN | FA | CL | DI | NK | OJ |
 |----------|----|----|----|----|----|----|----|----|----|----|
-| Beam Textures | 14 | 13 | 11 | 7 | 7 | 5 | 5 | 5 | 4 | 5 |
-| Glow/Bloom | 7 | 6 | 4 | 4 | 3 | 3 | 3 | 3 | 3 | 3 |
-| Impact Effects | 7 | 5 | 4 | 3 | 4 | 3 | 2 | 4 | 2 | 4 |
-| Projectiles | 6 | 3 | — | — | — | — | — | — | — | — |
-| Slash Arcs | 4 | 3 | 2 | 2 | 2 | 2 | 1 | 2 | 1 | 2 |
-| Trails/Ribbons | 3 | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 |
-| Lightning | 1 | 1 | — | — | 1 | — | — | 1 | — | 1 |
-| Noise (themed) | 3 | — | — | — | — | — | — | — | — | — |
-| Smoke/Atmo | 1 | — | — | — | — | — | — | — | — | — |
-| Particles | 9 | 5 | 4 | 5 | 5 | 4 | 5 | 5 | 5 | 6 |
-| **TOTAL** | **55** | **39** | **27** | **23** | **24** | **19** | **21** | **27** | **17** | **28** |
+| Beam Textures | 14 | 13 | 11 | 7 | 7 | 5 | 7 | 7 | 7 | 7 |
+| Glow/Bloom | 7 | 6 | 4 | 4 | 3 | 3 | 5 | 5 | 5 | 5 |
+| Impact Effects | 7 | 5 | 4 | 3 | 4 | 3 | 5 | 5 | 5 | 5 |
+| Projectiles | 6 | 3 | — | — | — | — | 3 | 3 | 3 | 3 |
+| Slash Arcs | 4 | 3 | 2 | 2 | 2 | 2 | 3 | 3 | 3 | 3 |
+| Trails/Ribbons | 3 | 3 | 2 | 2 | 2 | 2 | 3 | 3 | 3 | 3 |
+| Lightning | 1 | 1 | — | — | 1 | — | 1 | 1 | 1 | 1 |
+| Noise (themed) | 3 | — | — | — | — | — | 3 | 3 | 3 | 3 |
+| Smoke/Atmo | 1 | — | — | — | — | — | 1 | 1 | 1 | 1 |
+| Particles | 9 | 5 | 4 | 5 | 5 | 4 | 6 | 6 | 6 | 6 |
+| **TOTAL** | **55** | **39** | **27** | **23** | **24** | **19** | **37** | **37** | **37** | **37** |
 
-> **Grand Total: ~280 unique themed asset prompts across 10 themes**
+> **Grand Total: ~348 unique themed asset prompts across 10 themes**
 
 ---
 

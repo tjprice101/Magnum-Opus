@@ -94,6 +94,12 @@ namespace MagnumOpus.Content.ClairDeLune
         /// <summary>Moonlit frost for cold crystalline accents and impact rings.</summary>
         public static readonly Color MoonlitFrost = new Color(190, 220, 250);
 
+        /// <summary>Pearl frost — crystalline icy white-blue for piercing lance effects (alias for MoonlitFrost).</summary>
+        public static readonly Color PearlFrost = MoonlitFrost;
+
+        /// <summary>Silver lining — bright silver-white for secondary accents and sigil highlights (alias for StarlightSilver).</summary>
+        public static readonly Color SilverLining = StarlightSilver;
+
         // =================================================================
         //  TOOLTIP / UI COLORS
         // =================================================================

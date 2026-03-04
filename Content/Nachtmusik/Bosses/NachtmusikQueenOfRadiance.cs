@@ -12,7 +12,17 @@ using Terraria.Audio;
 using Terraria.Graphics.Effects;
 using MagnumOpus.Content.Nachtmusik.ResonanceEnergies;
 using MagnumOpus.Content.Nachtmusik.HarmonicCores;
-using MagnumOpus.Content.Nachtmusik.ResonantWeapons;
+using MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner;
+using MagnumOpus.Content.Nachtmusik.Weapons.MidnightsCrescendo;
+using MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance;
+using MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer;
+using MagnumOpus.Content.Nachtmusik.Weapons.NebulasWhisper;
+using MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars;
+using MagnumOpus.Content.Nachtmusik.Weapons.StarweaversGrimoire;
+using MagnumOpus.Content.Nachtmusik.Weapons.RequiemOfTheCosmos;
+using MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton;
+using MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture;
+using MagnumOpus.Content.Nachtmusik.Weapons.ConductorOfConstellations;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
@@ -20,6 +30,7 @@ using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Nachtmusik.Bosses.Systems;
 using MagnumOpus.Common.Systems.Bosses;
 using MagnumOpus.Content.Nachtmusik.Enemies;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Nachtmusik.Bosses
 {
@@ -2392,7 +2403,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             Texture2D texture;
             if (isPhase2)
             {
-                texture = ModContent.Request<Texture2D>(Phase2Texture).Value;
+                texture = ModContent.Request<Texture2D>(Phase2Texture, AssetRequestMode.ImmediateLoad).Value;
             }
             else
             {

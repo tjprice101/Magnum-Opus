@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Particles
 {
@@ -65,7 +66,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Particle
         public override void CustomDraw(SpriteBatch spriteBatch)
         {
             Vector2 scale = Squash * Scale;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/ThinTall4PointedStar").Value;
+            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/ThinTall4PointedStar", AssetRequestMode.ImmediateLoad).Value;
             spriteBatch.Draw(tex, Position - Main.screenPosition, null, Color, Rotation,
                 tex.Size() * 0.5f, scale, SpriteEffects.None, 0f);
 
@@ -77,7 +78,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Particle
                     tex.Size() * 0.5f, scale * new Vector2(0.45f, 1f), SpriteEffects.None, 0f);
 
                 // Soft outer bloom glow
-                Texture2D bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom").Value;
+                Texture2D bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom", AssetRequestMode.ImmediateLoad).Value;
                 Color bloomColor = Color * 0.3f;
                 bloomColor.A = 0;
                 spriteBatch.Draw(bloomTex, Position - Main.screenPosition, null, bloomColor, 0f,

@@ -49,10 +49,10 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DamnationsCannon
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires massive exploding balls of wrath"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "On explosion, spawns 5 orbiting shrapnel that seek enemies"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Direct hits cause devastating hellfire explosions"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The cannon that delivers damnation itself'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Lobs an arcing ball of concentrated wrath that explodes on impact"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Explosions spawn 5 homing shrapnel fragments and a hellfire zone"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Hellfire zones persist for 5 seconds with escalating damage"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'This is not a weapon. This is a sentence.'")
             {
                 OverrideColor = new Color(200, 50, 30)
             });

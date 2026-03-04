@@ -16,468 +16,497 @@
 
 ---
 
+## Foundation Weapons Integration Map
+
+Every Moonlight Sonata weapon MUST build its VFX systems on top of existing Foundation Weapons. Below is the master mapping of which Foundations each weapon uses as scaffolding. **No weapon should implement rendering from scratch** — it extends and re-themes Foundation systems.
+
+| Foundation | Used By | Purpose |
+|-----------|---------|---------|
+| **SwordSmearFoundation** | Incisor of Moonlight, Eternal Moon | Swing arc smear overlays with SmearDistortShader — re-themed to lunar purple/blue gradient LUT |
+| **RibbonFoundation** | Incisor of Moonlight, Eternal Moon, Resurrection | Trail rendering (10 modes available) — Harmonic Wave for Incisor, Basic Trail Strip for Eternal Moon, Energy Surge for Resurrection |
+| **ThinSlashFoundation** | Incisor of Moonlight, Eternal Moon | Razor-thin slash marks at impact — ThinSlashShader SDF line in ice-blue/silver |
+| **XSlashFoundation** | Eternal Moon | X-shaped cross impact on Tidal Detonation — XSlashShader fire distortion re-themed to tidal wave colors |
+| **ImpactFoundation** | All 5 weapons | Impact VFX on hit — RippleShader for expanding rings, DamageZoneShader for lingering areas |
+| **ExplosionParticlesFoundation** | Resurrection of the Moon | Supernova shell detonation — SparkCarrier + SparkExplosion with RadialScatter mode |
+| **SmokeFoundation** | Resurrection of the Moon | Smoke ring for supernova detonations — SmokeRingProjectile with lunar-themed 3×6 spritesheet |
+| **SparkleProjectileFoundation** | Resurrection of the Moon | Comet core projectiles — SparkleCrystal with SparkleTrailShader + CrystalShimmerShader in lunar palette |
+| **LaserFoundation** | Moonlight's Calling, Staff of Lunar Phases | Main serenade beam / standard Goliath beam — ConvergenceBeamShader with 4 detail textures |
+| **ThinLaserFoundation** | Moonlight's Calling | Spectral child beams — ThinBeamShader with ricochet disabled |
+| **InfernalBeamFoundation** | Staff of the Lunar Phases | Goliath devastating beam — InfernalBeamBodyShader re-themed with lunar textures |
+| **MaskFoundation** | Moonlight's Calling, Staff of Lunar Phases | Prismatic detonation orb, Goliath aura — RadialNoiseMaskShader |
+| **MagicOrbFoundation** | Moonlight's Calling, Staff of Lunar Phases | Harmonic node orbs, New Moon bolts — RadialNoiseMaskShader + OrbBolt pattern |
+| **AttackAnimationFoundation** | Incisor of Moonlight (Grand Finale) | Cinematic 360° spin finale — camera pan, multi-slash, screen effects |
+
+---
+
 ## Weapons Overview
 
 | # | Weapon | Class | Status | Key Mechanic |
 |---|--------|-------|--------|-------------|
 | 1 | Incisor of Moonlight | Melee | ✅ Implemented | Three Movements of Moonlight (Adagio→Allegretto→Presto→Finale) |
-| 2 | Eternal Moon | Melee | 🔧 Needs VFX Polish | Tidal wave swings, ghost projections, tidal detonations |
-| 3 | Resurrection of the Moon | Ranged | 🔧 Needs VFX Polish | Supernova shells, comet core projectiles |
-| 4 | Moonlight's Calling | Magic | 🔧 Needs VFX Polish | Channeled serenade beam, spectral child beams, prismatic detonation |
-| 5 | Staff of the Lunar Phases | Summon | 🔧 Needs VFX Polish | Goliath of Moonlight minion, devastating charged beams |
+| 2 | Eternal Moon | Melee | 🔧 Needs VFX Rework | Tidal wave swings, ghost projections, tidal detonations |
+| 3 | Resurrection of the Moon | Ranged | 🔧 Needs VFX Rework | Supernova shells, comet core projectiles |
+| 4 | Moonlight's Calling | Magic | 🔧 Needs VFX Rework | Channeled serenade beam, spectral child beams, prismatic detonation |
+| 5 | Staff of the Lunar Phases | Summon | 🔧 Needs VFX Rework | Goliath of Moonlight minion, devastating charged beams |
 
 ---
 
 ## 1. Incisor of Moonlight (Melee) — ✅ IMPLEMENTED
 
 ### Identity & Musical Soul
-The Incisor is the opening movement of Moonlight Sonata made physical — a blade that plays the famous three movements as combat phases. Movement I is the iconic rolling triplets (Adagio Sostenuto), Movement II is the deceptively light Allegretto, Movement III is the furious Presto Agitato, and the Grand Finale is a requiem strike that brings all movements together in a 360° cinematic spin.
+The Incisor is the opening movement of Moonlight Sonata made physical — a blade that plays the famous three movements as combat phases. Movement I is the iconic rolling triplets (Adagio Sostenuto), Movement II is the deceptively light Allegretto, Movement III is the furious Presto Agitato, and the Grand Finale is a requiem strike that brings all movements together.
+
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  INCISOR OF MOONLIGHT — Foundation Architecture     │
+├─────────────────────────────────────────────────────┤
+│  BASE CLASS: MeleeSwingItemBase + MeleeSwingBase    │
+│  ┌───────────────────────────────────────────────┐  │
+│  │ SwordSmearFoundation (SmearDistortShader)     │  │
+│  │  → Swing arc smear per-movement               │  │
+│  │  → Purple/blue gradient LUT per combo phase   │  │
+│  │  → 3-layer distortion (outer/main/core)       │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ RibbonFoundation (Mode 4: Harmonic Wave)      │  │
+│  │  → 40-point position ring buffer trail        │  │
+│  │  → Standing wave ribbon strip texture         │  │
+│  │  → Per-movement color variation               │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ThinSlashFoundation (ThinSlashShader SDF)     │  │
+│  │  → Sub-projectile impact slash marks          │  │
+│  │  → Ice Cyan / Violet Cut style selection      │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (RippleShader)               │  │
+│  │  → Expanding concentric ring ripple on-hit    │  │
+│  │  → Deep purple → ice blue → white color ramp  │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ AttackAnimationFoundation (Grand Finale only) │  │
+│  │  → 360° cinematic spin sequence               │  │
+│  │  → Camera pan + multi-slash + screen effects  │  │
+│  │  → Bloom stacking (SoftGlow, StarFlare, etc)  │  │
+│  └───────────────────────────────────────────────┘  │
+│  UNIQUE ADDITIONS (on top of foundations):           │
+│  → IncisorPrimitiveRenderer (GPU trail, existing)   │
+│  → IncisorParticleHandler (constellation sparks)     │
+│  → Per-movement moon phase indicator (🌑→🌒→🌕→🌟)  │
+└─────────────────────────────────────────────────────┘
+```
 
 ### Combat Mechanics
 - **Movement I — Adagio Sostenuto** (1 swing): Slow, heavy overhead arc. Fires 3 CrescentMoonProj in rolling triplets.
 - **Movement II — Allegretto** (2 swings): Fast dual slash combo. 2nd slash fires 5 StaccatoNoteProj in a fan. Bouncing notes detonate if 3+ hit the same enemy.
-- **Movement III — Presto Agitato** (5 swings): Rapid flurry. Each slash fires a LunarBeamProj + OrbitingNoteProj. 5th slash creates CrescentWaveProj shockwave (Moonlit Silence debuff).
-- **Grand Finale — Requiem Strike** (1 swing): 360° spin. 12 radial CrescentMoonProj. All OrbitingNoteProj converge. Screen flash.
+- **Movement III — Presto Agitato** (5 swings): Rapid flurry. Each slash fires LunarBeamProj + OrbitingNoteProj. 5th slash creates CrescentWaveProj shockwave.
+- **Grand Finale — Requiem Strike** (1 swing): 360° spin via AttackAnimationFoundation. 12 radial CrescentMoonProj. All OrbitingNoteProj converge. Screen flash.
 - **Passive — Lunar Resonance**: Standing still for 2 seconds grants +8% damage on next swing, with visual charging particles.
 
-### VFX Architecture (Implemented)
-- **Custom Shaders**: IncisorSlashShader (swing arc with Voronoi noise), IncisorSwingSprite (blade rotation), IncisorPierceShader, IncisorResonance (standing-wave trail), ConstellationField (parallax starfield)
-- **Primitive Renderer**: IncisorPrimitiveRenderer — 611-line GPU trail system with custom IncisorVertex (Position2D + Color + UV3D), DynamicVertexBuffer/IndexBuffer
-- **Particle System**: Self-contained IncisorParticleHandler (ModSystem, On_Main.DrawDust hook, 500 limit) with ConstellationSparkParticle, LunarMoteParticle, MoonlightMistParticle
-- **Trail Colors**: Per-movement color variation — cold blue (I), silver-white (II), deep purple (III), brilliant white (Finale)
-- **Visual Indicators**: Moon phase icon above player (🌑→🌒→🌕→🌟) during combo
+### VFX Architecture — Foundation-Based
 
-### Sub-Projectiles
-| Projectile | Type | Behavior |
-|-----------|------|----------|
-| CrescentMoonProj | Crescent arc | Shallow arcs, pierce once, applies LunarResonanceDebuff |
-| StaccatoNoteProj | Bouncing note | Bounces off tiles (2x), gravity-affected, 3+ same-target detonation via LunarNova |
-| OrbitingNoteProj | Orbiting note | Orbits player 3s → homes on enemies → converges during Finale |
-| CrescentWaveProj | Expanding ring | EaseOutQuart expansion, applies MoonlitSilenceDebuff (40% slow) |
-| LunarBeamProj | Piercing beam | Fast-moving moonlight beam, pierces enemies |
-| LunarNova | Detonation | Explosion from staccato convergence — massive burst |
+#### Swing Arc Rendering → SwordSmearFoundation
+Extends `SmearSwingProjectile` pattern with **SmearDistortShader**:
+- `noiseTex`: Perlin noise from `Assets/VFX/Noise/`
+- `gradientTex`: Custom lunar gradient LUT (deep purple → ice blue → white)
+- `distortStrength`: 0.05 (main), 0.08 (outer), 0.025 (core)
+- `flowSpeed`: Varies per movement (0.3 Adagio → 0.8 Presto)
+- 3-layer rendering: outer glow → main smear → bright core
 
-### Debuffs
-| Debuff | Effect | Duration |
-|--------|--------|----------|
-| LunarResonanceDebuff | DoT (resonance decay) | 120 frames |
-| MoonlitSilenceDebuff | 40% movement speed reduction | 180 frames |
-| MoonlitStasis | Full stasis (from crescent wave critical) | 60 frames |
+#### Trail Rendering → RibbonFoundation (Mode 4: Harmonic Wave)
+- 40-point ring buffer, `RibbonWidthHead = 20f`, `RibbonWidthTail = 2f`
+- Standing wave ribbon strip texture UV-mapped along position history
+- Colors per movement: cold blue (I), silver-white (II), deep purple (III), brilliant white (Finale)
+
+#### Impact VFX → ImpactFoundation (RippleShader) + ThinSlashFoundation
+- **RippleShader**: `ringCount = 3`, `ringThickness = 0.06`, noise-distorted edges
+- **ThinSlashShader**: `lineWidth = 0.018`, `lineLength = 0.45`, Ice Cyan/Violet Cut styles
+- 3-layer directional bloom along slash direction
+
+#### Grand Finale → AttackAnimationFoundation
+- 4-phase: camera pan → 12 radial slashes → OrbitingNote convergence → camera return
+- Bloom stacking: SoftGlow, StarFlare, GlowOrb, LensFlare in lunar palette
+- Screen effects: B&W brightness shift during slash phase
+
+### Sub-Projectiles (Foundation-Based)
+| Projectile | Foundation | Configuration |
+|-----------|-----------|---------------|
+| CrescentMoonProj | **RibbonFoundation** (Mode 1: Pure Bloom) | Bloom trail, pierce once |
+| StaccatoNoteProj | **SparkleProjectileFoundation** (shimmer trail) | Bouncing, gravity-affected |
+| OrbitingNoteProj | **MagicOrbFoundation** (orb rendering) | Orbits player, then homes |
+| CrescentWaveProj | **ImpactFoundation** (RippleShader) | Expanding ring |
+| LunarBeamProj | **ThinLaserFoundation** (ThinBeamShader) | Fast, piercing |
+| LunarNova | **ExplosionParticlesFoundation** (RadialScatter) | Staccato convergence burst |
 
 ---
 
-## 2. Eternal Moon (Melee) — VFX Polish Required
+## 2. Eternal Moon (Melee) — VFX Rework Required
 
 ### Identity & Musical Soul
-Where the Incisor represents the three movements of Moonlight Sonata, the Eternal Moon embodies the **eternal recurrence of the moon itself** — tidal forces, the gravitational pull, the inescapable cycle. This is a greatsword of overwhelming lunar weight. Every swing should feel like the tide crashing against the shore. If the Incisor dances, the Eternal Moon **drowns**.
+The Eternal Moon embodies the **eternal recurrence of the moon itself** — tidal forces, the gravitational pull, the inescapable cycle. This is a greatsword of overwhelming lunar weight. If the Incisor dances, the Eternal Moon **drowns**.
 
 ### Lore Line
 *"The tide remembers what the shore forgets."*
 
-### Combat Mechanics (Existing — Enhance VFX)
-The Eternal Moon already has:
-- **Tidal Wave Swings**: Each swing creates expanding wave projections
-- **Ghost Projections**: Phantom blades that mimic the player's swing 0.3s later
-- **Crescent Slashes**: Thrown crescent projectiles that return
-- **Tidal Detonation**: Massive AoE when crescent impacts overlap
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  ETERNAL MOON — Foundation Architecture             │
+├─────────────────────────────────────────────────────┤
+│  BASE CLASS: MeleeSwingItemBase + MeleeSwingBase    │
+│  ┌───────────────────────────────────────────────┐  │
+│  │ SwordSmearFoundation (SmearDistortShader)     │  │
+│  │  → Tidal wave smear overlay per swing         │  │
+│  │  → distortStrength scaled by Tidal Phase      │  │
+│  │  → flowSpeed: 0.4 base → 0.8 at Tsunami      │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ RibbonFoundation (Mode 3: Basic Trail Strip)  │  │
+│  │  → 40-point trail with tidal wave texture     │  │
+│  │  → Width scales with tide phase multiplier    │  │
+│  │  → UV-scrolled at 1.5x swing speed            │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ XSlashFoundation (XSlashShader)               │  │
+│  │  → Tidal Detonation cross-impact effect       │  │
+│  │  → Re-themed: purple → blue → white foam      │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (DamageZone + Ripple)        │  │
+│  │  → DamageZone: Gravitational Pull zone        │  │
+│  │  → Ripple: Tidal wave shockwave rings         │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ThinSlashFoundation (ThinSlashShader)         │  │
+│  │  → Impact slash marks on heavy hits           │  │
+│  └───────────────────────────────────────────────┘  │
+│  UNIQUE: Ghost Projection system, Tidal Phase Meter │
+└─────────────────────────────────────────────────────┘
+```
 
-#### Proposed Enhancements
-- **Tidal Phase Meter**: Visible lunar-tide meter (Low Tide → Flood → High Tide → Tsunami). Meter fills as player swings. At Tsunami, next swing creates massive full-screen tidal wave.
-- **Gravitational Pull**: Hits apply a weak vortex — enemies near the target are slowly pulled toward impact point for 1 second.
-- **Echoing Tides**: Every 4th swing echoes the previous 3 swings as ghostly afterimage replays (like waves crashing repeatedly).
+### Combat Mechanics
+- **Tidal Wave Swings**: Each swing creates expanding wave projections via **ImpactFoundation** RippleShader
+- **Ghost Projections**: Phantom blades that mimic the player's swing 0.3s later (custom system)
+- **Crescent Slashes**: Thrown crescent projectiles with **RibbonFoundation** Mode 1 bloom trails
+- **Tidal Detonation**: Massive AoE via **XSlashFoundation** when crescent impacts overlap
+- **Tidal Phase Meter**: Low Tide → Flood → High Tide → Tsunami. Scales all Foundation parameters.
+- **Gravitational Pull**: **ImpactFoundation** DamageZoneShader creates persistent pull zone on heavy hits
 
-### VFX Architecture Plan
+### VFX Architecture — Foundation-Based
 
-#### Custom Shaders (3 new + 1 enhanced)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `EternalMoonTidalTrail.fx` | Tidal wave trail on swings | UV-scrolled water/wave texture with Perlin noise distortion. Color ramp from deep purple core → ice blue edge → white foam tip. `smoothstep` edge fading on Y-axis. |
-| `EternalMoonGhostProjection.fx` | Ghost swing afterimage | Alpha-faded version of the sword sprite with chromatic blue shift. Uses previous frame positions for temporal offset. Additive blend. |
-| `EternalMoonGravityWell.fx` | Gravitational pull VFX around impact | Radial SDF ring that contracts inward over time. Voronoi noise distortion for organic gravitational turbulence. Dark purple with silver streaks. |
-| `EternalMoonPhaseAura.fx` (enhance existing) | Tidal phase meter glow on player | Concentric rings pulsing outward from player center. Ring count = tide phase. Colors intensify from faint purple (Low Tide) to brilliant white (Tsunami). |
+#### Swing Arcs → SwordSmearFoundation
+- **SmearDistortShader**: `distortStrength = 0.08` base (heavier than Incisor's 0.05), scales to 0.12 at Tsunami
+- `FlowSpeed`: 0.4 → 0.8 by tide phase
+- `BladeLength = 100f`, `SwingArcDeg = 170°` for heavy greatsword feel
+- Gradient LUT: deep purple → ice blue → white foam tip
 
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| TidalDropletParticle | Falls with gravity, slight horizontal drift | Soft blue-white water droplets, size 3-6px, alpha fade over 20-30 frames |
-| WaveSprayParticle | Burst radially from impact, high velocity, quick fade | White-to-blue spray mist, 10-15 per impact, arc trajectory |
-| MoonGlintParticle | Stationary sparkle at blade tip, slow rotation | 4-pointed silver star, gentle pulse, 15-25 frame lifetime |
-| GravityWellMoteParticle | Spiral inward toward gravity center | Purple-to-transparent motes, logarithmic spiral path, consumed at center |
+#### Trail → RibbonFoundation (Mode 3: Basic Trail Strip)
+- `TrailLength = 40`, `RibbonWidthHead = 28f`, `RibbonWidthTail = 4f`
+- Width function: `sin(progress * PI) * baseWidth * tidePhaseMultiplier`
+- UV.x scrolls at 1.5x swing speed
+- Tidal wave texture replaces default BasicTrail.png
 
-#### Bloom Layers
-1. **Blade Aura**: Tight soft bloom around sword body (ice blue, scale 1.2x blade size)
-2. **Tidal Crest**: Wide rolling bloom at swing arc apex (deep purple → white gradient)
-3. **Impact Flash**: 3-layer stacked bloom on hit (small white core + medium blue + wide purple ambient)
-4. **Tsunami Flash**: Full-screen white flash (0.1s) with radial bloom rings expanding outward at Tsunami phase
+#### Shockwave Rings → ImpactFoundation (RippleShader)
+- `ringCount = 4`, `ringThickness = 0.08`
+- EaseOutQuad expansion, scales with Tidal Phase level
+- Deep purple → ice blue → white → transparent
 
-#### Trail Rendering
-- **Primitive mesh**: 60-point trail strip, 0.5s trail length
-- **UV scrolling**: Wave-form texture scrolling along UV.x at 1.5x swing speed
-- **Width function**: `sin(progress * PI) * baseWidth * tidePhaseMultiplier` — wider trail at higher tide phases
-- **Color**: LUT ramp sampling — intensity maps to deep purple (cool) → white (hot)
+#### Gravity Zone → ImpactFoundation (DamageZoneShader)
+- `scrollSpeed = 0.2`, `rotationSpeed = 0.1`
+- `circleRadius = 0.4`, `edgeSoftness = 0.1`
+- Purple with silver streaks, enemies pulled to center
 
-#### Asset Requirements
-| Asset | Path | Midjourney Prompt |
-|-------|------|-------------------|
-| Tidal wave trail texture | `Assets/MoonlightSonata/EternalMoon/Trails/TidalWave.png` | "Horizontal flowing water wave texture, deep blue to white gradient, stylized anime water with foam crests, on solid black background, 512x64px seamless tiling --ar 8:1 --style raw" |
-| Ghost projection glow | `Assets/MoonlightSonata/EternalMoon/Trails/GhostGlow.png` | "Soft ethereal ghost trail, translucent blue-silver wisps flowing horizontally, on solid black background, 256x64px, seamless edges --ar 4:1 --style raw" |
+#### Tidal Detonation → XSlashFoundation (XSlashShader)
+- `fireIntensity = 0.08`, `scrollSpeed = 0.4` (water-like UV flow)
+- Gradient LUT re-themed: deep purple → ice blue → white
+- `ShaderDrawScale = 0.28f` for massive detonation
+- 5-layer render: bloom → blazing X → arm bloom → center flash → spray
+
+### Asset Requirements
+| Asset | Path | Prompt |
+|-------|------|--------|
+| Tidal wave trail | `Assets/MoonlightSonata/EternalMoon/Trails/TidalWave.png` | "Horizontal flowing water wave texture, deep blue to white gradient, stylized anime water with foam crests, on solid black background, 512x64px seamless tiling --ar 8:1 --style raw" |
+| Ghost glow | `Assets/MoonlightSonata/EternalMoon/Trails/GhostGlow.png` | "Soft ethereal ghost trail, translucent blue-silver wisps flowing horizontally, on solid black background, 256x64px, seamless edges --ar 4:1 --style raw" |
 | Gravity well mask | `Assets/MoonlightSonata/EternalMoon/Orbs/GravityWell.png` | "Concentric gravitational distortion rings, dark purple center fading to transparent edge, circular mask, on solid black background, 256x256px --ar 1:1 --style raw" |
-| Tidal phase meter icons | `Assets/MoonlightSonata/EternalMoon/Pixel/TidePhase.png` | "4-frame pixel art sprite sheet of moon tide phases, low tide to tsunami, soft blue glow, 64x16px total (16x16 per frame), on solid black background --ar 4:1 --style raw" |
-
-#### Sound Design
-- **Swing**: Deep whoosh with underwater reverb quality (pitch deepens with tide phase)
-- **Ghost projection**: Ethereal echo of the swing sound, 0.3s delay, pitched up slightly
-- **Tidal detonation**: Crashing wave SFX with resonant bass thump
-- **Tsunami phase trigger**: Whale-song-like rising tone + glass bell chime
-
-#### File Structure
-```
-Content/MoonlightSonata/Weapons/EternalMoon/
-├── EternalMoon.cs                          — Main item (existing)
-├── EternalMoonVFX.cs                       — VFX static class (new/enhance)
-├── Projectiles/
-│   ├── EternalMoonSwing.cs                 — Swing projectile (existing)
-│   ├── EternalMoonWave.cs                  — Tidal wave (existing)
-│   ├── EternalMoonGhost.cs                 — Ghost projection (existing)
-│   ├── EternalMoonCrescentSlash.cs         — Crescent (existing)
-│   └── EternalMoonTidalDetonation.cs       — Detonation (existing)
-├── Particles/                              — New self-contained particle system
-│   ├── EternalMoonParticleHandler.cs
-│   ├── TidalDropletParticle.cs
-│   ├── WaveSprayParticle.cs
-│   ├── MoonGlintParticle.cs
-│   └── GravityWellMoteParticle.cs
-├── Primitives/
-│   └── EternalMoonPrimitiveRenderer.cs     — Trail mesh builder
-├── Shaders/
-│   └── EternalMoonShaderLoader.cs          — Shader registration
-├── Utilities/
-│   ├── EternalMoonPlayer.cs                — Tidal phase meter tracker
-│   └── EternalMoonUtils.cs                 — Easing curves, color palettes
-└── Buffs/
-    └── TidalGraspDebuff.cs                 — Gravitational pull slow
-
-Assets/MoonlightSonata/EternalMoon/
-├── Trails/
-│   ├── TidalWave.png
-│   └── GhostGlow.png
-├── Orbs/
-│   └── GravityWell.png
-└── Pixel/
-    └── TidePhase.png
-
-Effects/MoonlightSonata/EternalMoon/
-├── EternalMoonTidalTrail.fx
-├── EternalMoonGhostProjection.fx
-├── EternalMoonGravityWell.fx
-└── EternalMoonPhaseAura.fx
-```
+| Tide phase icons | `Assets/MoonlightSonata/EternalMoon/Pixel/TidePhase.png` | "4-frame pixel art sprite sheet of moon tide phases, low tide to tsunami, soft blue glow, 64x16px total (16x16 per frame), on solid black background --ar 4:1 --style raw" |
 
 ---
 
-## 3. Resurrection of the Moon (Ranged) — VFX Polish Required
+## 3. Resurrection of the Moon (Ranged) — VFX Rework Required
 
 ### Identity & Musical Soul
-The Resurrection is the **third movement's fury made ranged** — the explosive rebirth of the moon after its death. Where the Incisor plays the Sonata with a blade, the Resurrection plays it with cosmic artillery. Every shot should feel like the moon exploding and reforming. Supernova shells that collapse into new moons. Comet cores that trail silver light.
+The Resurrection is the **third movement's fury made ranged** — the explosive rebirth of the moon. Every shot should feel like the moon exploding and reforming. Supernova shells that collapse, comet cores that trail silver light.
 
 ### Lore Line
 *"What dies in moonlight is reborn in starfire."*
 
-### Combat Mechanics (Existing — Enhance VFX)
-- **Supernova Shells**: Primary fire — massive slow projectiles that detonate in expanding rings
-- **Comet Core**: Alt fire — fast piercing projectiles that leave long trails and apply lunar impact on hit
-
-#### Proposed Enhancements
-- **Lunar Cycle Ammo System**: Shots cycle through New Moon (piercing, dark) → Waxing (balanced) → Full Moon (maximum AoE, brilliant white) → Waning (homing, spectral). Each phase has distinct visual identity.
-- **Moonrise Charge**: Hold to charge — longer hold = bigger supernova shell. Visual: gun barrel accumulates swirling lunar energy, silver particles spiral inward.
-- **Eclipse Synergy**: If a Supernova Shell and Comet Core collide, they create a brief Eclipse event — massive circular AoE with both explosion types overlapping.
-
-### VFX Architecture Plan
-
-#### Custom Shaders (3 new)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `ResurrectionShellTrail.fx` | Supernova shell trail | Radial UV-scrolled texture expanding outward from projectile center. FBM noise + Voronoi for turbulent corona effect. Deep purple → ice blue → white gradient via LUT. |
-| `ResurrectionCometTrail.fx` | Comet core trail strip | Classic UV-scrolled comet tail with noise distortion. Wider at head, narrow taper. Silver-white core → purple edge. |
-| `ResurrectionImpactRing.fx` | Supernova detonation rings | Animated SDF ring expanding from center. Ring thickness narrows as radius grows. Color shifts from white (center) → purple (edge) with chromatic fringing. |
-
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| SupernovaEmberParticle | Radial burst from detonation, decelerating | Hot white → cool purple, ember-like flicker, 20-30 per detonation |
-| CometTrailSparkParticle | Shed from comet tail, slight drift, short life | Silver sparkle points, 1-3px, 10-15 frame lifetime, spawns every 2 frames |
-| LunarImpactDebrisParticle | Radial with rotation, gravity-affected | Small lunar rock fragments, purple-tinted, tumble as they fall |
-| MoonriseChargeParticle | Spiral inward toward barrel during charge | Soft purple motes, logarithmic spiral, consumed at gun barrel center |
-
-#### Bloom Layers
-1. **Barrel glow**: Persistent soft bloom at barrel tip (ice blue, pulses with fire rate)
-2. **Shell corona**: Bright bloom ring around supernova shell in flight (3-layer: white core + blue mid + purple outer)
-3. **Comet head**: Tight white-hot bloom at comet core (2-layer: white + ice blue)
-4. **Detonation flash**: 4-layer stacked bloom — tiny white + small blue + medium purple + wide faint violet ambient
-
-#### Trail Rendering
-- **Supernova Shell**: Circular expanding corona behind projectile, 12-point radial mesh, UV scrolls outward
-- **Comet Core**: 40-point trail strip, 0.8s trail length, Bézier-smoothed for graceful arcs
-
-#### Asset Requirements
-| Asset | Path | Midjourney Prompt |
-|-------|------|-------------------|
-| Supernova corona texture | `Assets/MoonlightSonata/ResurrectionOfTheMoon/Trails/SupernovaCrown.png` | "Radial explosion corona texture, bright white center fading to deep purple edges, stylized energy burst, on solid black background, 256x256px --ar 1:1 --style raw" |
-| Comet tail trail | `Assets/MoonlightSonata/ResurrectionOfTheMoon/Trails/CometTail.png` | "Horizontal comet tail energy trail, bright silver-white head fading to soft blue-purple tail, anime styled, on solid black background, 512x64px seamless --ar 8:1 --style raw" |
-| Lunar impact ring | `Assets/MoonlightSonata/ResurrectionOfTheMoon/Flare/ImpactRing.png` | "Thin glowing ring of lunar energy, ice blue with purple fringe, clean circle on solid black background, 256x256px --ar 1:1 --style raw" |
-| Muzzle flash flare | `Assets/MoonlightSonata/ResurrectionOfTheMoon/Flare/MoonMuzzle.png` | "Stylized muzzle flash flare, silver-blue burst with 6 pointed star rays, on solid black background, 128x128px --ar 1:1 --style raw" |
-
-#### Sound Design
-- **Supernova shell fire**: Deep cannon boom with crystalline reverb
-- **Comet core fire**: Sharp crack followed by singing trailing tone
-- **Supernova detonation**: Expanding bass rumble + glass shattering + bell tone
-- **Eclipse synergy**: Both sounds overlaid + sub-bass rumble + rising chime
-
-#### File Structure
+### Foundation Weapons Stack
 ```
-Content/MoonlightSonata/Weapons/ResurrectionOfTheMoon/
-├── ResurrectionOfTheMoon.cs
-├── ResurrectionVFX.cs
-├── Projectiles/
-│   ├── ResurrectionProjectile.cs
-│   ├── SupernovaShell.cs
-│   └── CometCore.cs
-├── Particles/
-│   ├── ResurrectionParticleHandler.cs
-│   ├── SupernovaEmberParticle.cs
-│   ├── CometTrailSparkParticle.cs
-│   ├── LunarImpactDebrisParticle.cs
-│   └── MoonriseChargeParticle.cs
-├── Primitives/
-│   └── ResurrectionPrimitiveRenderer.cs
-├── Shaders/
-│   └── ResurrectionShaderLoader.cs
-├── Utilities/
-│   ├── ResurrectionPlayer.cs
-│   └── ResurrectionUtils.cs
-└── Buffs/
-    └── LunarImpactDebuff.cs
-
-Effects/MoonlightSonata/ResurrectionOfTheMoon/
-├── ResurrectionShellTrail.fx
-├── ResurrectionCometTrail.fx
-└── ResurrectionImpactRing.fx
+┌─────────────────────────────────────────────────────┐
+│  RESURRECTION OF THE MOON — Foundation Architecture │
+├─────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────┐  │
+│  │ ExplosionParticlesFoundation (RadialScatter)  │  │
+│  │  → Supernova detonation sparks (55 sparks)    │  │
+│  │  → Center flash bloom stacking                │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ SmokeFoundation (lunar-themed)                │  │
+│  │  → Supernova smoke ring (30 puffs)            │  │
+│  │  → Purple core → blue body → white edge       │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ SparkleProjectileFoundation                   │  │
+│  │  → Comet Core projectile (5-layer rendering)  │  │
+│  │  → SparkleTrailShader + CrystalShimmerShader  │  │
+│  │  → Homing, piercing, shimmer trail            │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (RippleShader)               │  │
+│  │  → Supernova detonation expanding rings       │  │
+│  │  → White center → purple edge shift           │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ RibbonFoundation (Mode 6: Energy Surge)       │  │
+│  │  → Supernova shell flight trail               │  │
+│  │  → EnergySurgeBeam texture corona             │  │
+│  └───────────────────────────────────────────────┘  │
+│  UNIQUE: Lunar Cycle Ammo, Eclipse Synergy,         │
+│          Moonrise Charge barrel energy               │
+└─────────────────────────────────────────────────────┘
 ```
+
+### Combat Mechanics
+- **Supernova Shells**: Slow projectiles → detonation via **ExplosionParticles** + **Smoke** + **Impact** Foundations
+- **Comet Core**: Fast piercing via **SparkleProjectileFoundation** 5-layer rendering
+- **Lunar Cycle Ammo**: New Moon (piercing) → Waxing → Full Moon (max AoE) → Waning (homing)
+- **Eclipse Synergy**: Shell + Core collision → combined **ExplosionParticles** + **ImpactFoundation** mega-burst
+
+### VFX Architecture — Foundation-Based
+
+#### Supernova Detonation → ExplosionParticlesFoundation + SmokeFoundation + ImpactFoundation
+Three Foundations fire simultaneously on shell impact:
+
+1. **ExplosionParticlesFoundation** (RadialScatter mode):
+   - `SparkCount = 55`, `MaxLifetime = 90`, `DamageRadius = 100f`
+   - SolidWhiteLine + 4PointedStarHard/Soft spark types
+   - Colors: lunar purple → ice blue → white
+   - Center flash: SoftGlow + StarFlare + LensFlare
+
+2. **SmokeFoundation** (lunar smoke):
+   - `PuffCount = 30`, `MaxLifetime = 60`, `RenderScale = 0.3f`
+   - Custom 3×6 spritesheet in lunar blues/purples
+   - Calamity-style lifecycle: expand → contract → fade
+
+3. **ImpactFoundation** (RippleShader):
+   - `ringCount = 5`, `ringThickness = 0.05`
+   - White → ice blue → deep purple outward shift
+
+#### Comet Core → SparkleProjectileFoundation
+Full 5-layer rendering pipeline:
+- **SparkleTrailShader** (VertexStrip): `sparkleSpeed = 3.0`, `sparkleScale = 0.6`, `glitterDensity = 4.0`
+- **CrystalShimmerShader** (SpriteBatch): `shimmerSpeed = 2.0`, `flashIntensity = 0.6`
+- Colors: Ice Blue core, Resonant Silver outer
+- `TrailLength = 24`, `HomingStrength = 0.06f`, `TargetSpeed = 11f`
+- Layers: shader trail → bloom trail → bloom halo → crystal body → sparkle accents
+
+#### Shell Flight Trail → RibbonFoundation (Mode 6: Energy Surge)
+- EnergySurgeBeam texture as ribbon fill
+- 40-point position history
+- `RibbonWidthHead = 24f`, `RibbonWidthTail = 3f`
+- Corona appearance trailing behind shell
+
+### Asset Requirements
+| Asset | Path | Prompt |
+|-------|------|--------|
+| Supernova corona | `Assets/MoonlightSonata/ResurrectionOfTheMoon/Trails/SupernovaCrown.png` | "Radial explosion corona texture, bright white center fading to deep purple edges, stylized energy burst, on solid black background, 256x256px --ar 1:1 --style raw" |
+| Comet tail trail | `Assets/MoonlightSonata/ResurrectionOfTheMoon/Trails/CometTail.png` | "Horizontal comet tail energy trail, bright silver-white head fading to soft blue-purple tail, on solid black background, 512x64px seamless --ar 8:1 --style raw" |
+| Muzzle flash | `Assets/MoonlightSonata/ResurrectionOfTheMoon/Flare/MoonMuzzle.png` | "Stylized muzzle flash flare, silver-blue burst with 6 pointed star rays, on solid black background, 128x128px --ar 1:1 --style raw" |
+| Lunar smoke sheet | `Assets/MoonlightSonata/ResurrectionOfTheMoon/Pixel/LunarSmoke.png` | "3x6 grid smoke puff spritesheet, soft blue-purple watercolor smoke, each cell unique, on solid black background, 384x192px --ar 2:1 --style raw" |
 
 ---
 
-## 4. Moonlight's Calling (Magic) — VFX Polish Required
+## 4. Moonlight's Calling (Magic) — VFX Rework Required
 
 ### Identity & Musical Soul
-Moonlight's Calling is a **serenade to the moon** — a channeled magic weapon that sings moonbeams into existence. Where Incisor fights and Eternal Moon crushes, Moonlight's Calling *reaches out*. It's the longing, the ache, the quiet desperation of a melody played alone in the dark. The beam should feel like moonlight streaming through clouds — soft at first, building to devastating brilliance.
+A **serenade to the moon** — a channeled magic weapon that sings moonbeams into existence. The beam should feel like moonlight streaming through clouds — soft at first, building to devastating brilliance.
 
 ### Lore Line
 *"She called to the moon, and the moon wept silver."*
 
-### Combat Mechanics (Existing — Enhance VFX)
+### Foundation Weapons Stack
+```
+┌─────────────────────────────────────────────────────┐
+│  MOONLIGHT'S CALLING — Foundation Architecture      │
+├─────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────┐  │
+│  │ LaserFoundation (ConvergenceBeamShader)       │  │
+│  │  → Main serenade beam (4 detail textures)     │  │
+│  │  → VertexStrip, UV reps prop. to length       │  │
+│  │  → Beam width breathes with channel time      │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ThinLaserFoundation (ThinBeamShader)          │  │
+│  │  → Spectral child beam rendering              │  │
+│  │  → MaxBounces=0, BaseBeamWidth=10f            │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ MaskFoundation (RadialNoiseMaskShader)        │  │
+│  │  → Prismatic Detonation on-release burst      │  │
+│  │  → Cosmic noise, 3-layer orb rendering        │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ MagicOrbFoundation (orb + bolt rendering)     │  │
+│  │  → Harmonic Node orbs along beam              │  │
+│  │  → OrbBolt sub-projectiles from nodes         │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (DamageZoneShader)           │  │
+│  │  → Moonlight Puddle ground zones              │  │
+│  │  → 180-frame persistent AoE, slows enemies    │  │
+│  └───────────────────────────────────────────────┘  │
+│  UNIQUE: Resonance Building (VFX escalation over    │
+│  channel time), Standing wave math on beam UV       │
+└─────────────────────────────────────────────────────┘
+```
+
+### Combat Mechanics
 - **Serenade Holdout**: Channel to maintain beam
-- **Main Beam**: Central serenade beam that damages continuously
-- **Spectral Child Beams**: After 2s channeling, 2-4 smaller beams split off and home on nearby enemies
-- **Prismatic Detonation**: On release after 4s+ channeling, massive prismatic burst at cursor position
+- **Main Beam**: Continuous damage via **LaserFoundation** ConvergenceBeamShader
+- **Spectral Child Beams**: After 2s, 2-4 beams via **ThinLaserFoundation**
+- **Prismatic Detonation**: On release after 4s+, **MaskFoundation** burst at cursor
+- **Harmonic Nodes**: **MagicOrbFoundation** orbs at standing wave positions on beam; 1.5x damage at nodes
+- **Moonlight Puddles**: **ImpactFoundation** DamageZone where beam touches ground
 
-#### Proposed Enhancements
-- **Resonance Building**: The longer you channel, the more harmonics build. Visual layers increase over time:
-  - 0-1s: Single thin beam (pianissimo)
-  - 1-2s: Beam widens + shimmer particles (piano)
-  - 2-3s: Spectral child beams + standing wave nodes visible on main beam (mezzo-forte)
-  - 3-4s: Full beam + orbiting music note particles + ground glow (forte)
-  - 4s+: Maximum power beam + screen tint + release triggers Prismatic Detonation (fortissimo)
-- **Harmonic Nodes**: Standing wave nodes appear on the beam at harmonic intervals. Enemies positioned at nodes take 1.5x damage.
-- **Moonlight Puddles**: Where the beam touches the ground, it leaves temporary pools of moonlight that slow enemies (3s duration).
+### Resonance Building (Visual Escalation)
+| Channel Time | VFX Layer | Foundation | Intensity |
+|-------------|-----------|-----------|-----------|
+| 0–1s | Single thin beam | LaserFoundation at 0.3x width | Pianissimo |
+| 1–2s | Beam widens + shimmer | LaserFoundation at 0.6x width | Piano |
+| 2–3s | + Child beams + nodes | + ThinLaserFoundation + MagicOrbFoundation | Mezzo-forte |
+| 3–4s | + Full beam + ground glow | LaserFoundation at 1.0x + ImpactFoundation | Forte |
+| 4s+ | Maximum + screen tint | All systems max + MaskFoundation detonation ready | Fortissimo |
 
-### VFX Architecture Plan
+### VFX Architecture — Foundation-Based
 
-#### Custom Shaders (4 new)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `MoonlightBeamBody.fx` | Main serenade beam body | UV.x scrolls along beam length. Layered: base body (smooth gradient) + standing wave overlay (sin pattern with harmonic nodes highlighted). Color ramp from deep purple edge → ice blue body → white center. Noise distortion on edges for organic shimmer. |
-| `MoonlightBeamCore.fx` | Bright inner core of beam | Thinner pass, additive blend, pure white-to-blue. Pulsing intensity tied to harmonics. |
-| `MoonlightPrismaticBurst.fx` | Prismatic detonation on release | Radial expanding SDF circle with chromatic aberration — RGB channels expand at slightly different rates. Purple → blue → silver color cascade. |
-| `MoonlightPuddleGlow.fx` | Ground moonlight pool | Circular SDF with Perlin edge distortion. Soft purple-white interior. Gentle pulse. Top-down projection shader. |
+#### Main Beam → LaserFoundation (ConvergenceBeamShader)
+- 4 detail textures: ThinGlowLine + Spark + Extra (standing wave) + TrailLoop
+- Lunar gradient LUT
+- `BaseBeamWidth = 100f` × channel time scalar (0.3→1.3)
+- `AimSpeed = 0.08f`
 
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| SerenadeNoteParticle | Orbits beam axis in helical path, travels along beam | Eighth/quarter note shapes (from Particle Asset Library), silver-white, gentle glow |
-| HarmonicNodeParticle | Stationary at harmonic nodes, pulses | Bright white-blue star burst, 4-pointed, scale oscillates sinusoidally |
-| ChannelingMistParticle | Rises from player during channeling | Soft purple mist, slow upward drift, widens and fades |
-| PrismaticShardParticle | Radial burst from detonation | Small prismatic triangular shards, each reflects different palette color, spin as they fly |
+#### Child Beams → ThinLaserFoundation (ThinBeamShader)
+- `MaxBounces = 0`, `BaseBeamWidth = 10f`, `MaxSegmentLength = 800f`
+- Silver gradient LUT, alpha 0.6 (ghostly)
 
-#### Bloom Layers
-1. **Staff tip glow**: Small persistent bloom at staff holdout point (purple, grows with channeling)
-2. **Beam ambient**: Wide soft bloom along beam length (ice blue, opacity = channeling time normalized)
-3. **Beam core**: Tight bright bloom along beam center (white, pulsing with standing wave frequency)
-4. **Node highlights**: Bloom orbs at each harmonic node (silver, scale-pulse at harmonic frequency)
-5. **Detonation**: 5-layer massive bloom at detonation site
+#### Harmonic Nodes → MagicOrbFoundation
+- **RadialNoiseMaskShader** orbs at `sin(UV.x * PI * nodeCount)` positions
+- `OrbDrawScale = 0.1f`, `DetectionRadius = 200f`
+- Nebula noise texture, purple-blue appearance
 
-#### Trail / Beam Rendering
-- **Beam mesh**: Quad strip from staff to cursor, 2 passes (body + core)
-- **Width function**: `baseWidth * (1 + 0.3 * sin(time * harmonicFreq))` — gentle breathing
-- **UV.x**: Scrolls at beam's resonance speed (increases with channel time)
-- **UV.y**: 0-1 across beam width, used for edge fading and color ramping
-- **Standing wave overlay**: `sin(UV.x * PI * nodeCount)` multiplied against color for node highlights
+#### Prismatic Detonation → MaskFoundation
+- `MaskOrbProjectile` with Cosmic noise, `OrbDrawScale = 0.8f`, `MaxLifetime = 60`
+- 3-layer: bloom halo → shader orb → core bloom
+- Scale-up entrance, then fade
 
-#### Asset Requirements
-| Asset | Path | Midjourney Prompt |
-|-------|------|-------------------|
-| Beam body texture | `Assets/MoonlightSonata/MoonlightsCalling/Beams/SerenadeBeam.png` | "Horizontal energy beam texture with smooth flowing center and soft shimmering edges, silver-blue-purple color gradient, on solid black background, 512x64px seamless tiling --ar 8:1 --style raw" |
-| Standing wave overlay | `Assets/MoonlightSonata/MoonlightsCalling/Beams/HarmonicWave.png` | "Standing wave pattern texture with bright nodes at regular intervals, white highlights on translucent blue, horizontal strip, on solid black background, 512x32px seamless --ar 16:1 --style raw" |
-| Prismatic burst texture | `Assets/MoonlightSonata/MoonlightsCalling/Flare/PrismaticBurst.png` | "Radial energy burst with chromatic rainbow fringing at edges, bright white center fading to soft iridescent purple, on solid black background, 256x256px --ar 1:1 --style raw" |
-| Moonlight puddle mask | `Assets/MoonlightSonata/MoonlightsCalling/Orbs/MoonlightPuddle.png` | "Top-down view of soft circular moonlight pool, gentle ripple edges, silver-blue glow with purple rim, on solid black background, 128x128px --ar 1:1 --style raw" |
+#### Moonlight Puddles → ImpactFoundation (DamageZoneShader)
+- 180-frame persistent zone
+- `scrollSpeed = 0.15`, `rotationSpeed = 0.1`, `circleRadius = 0.35`
+- Purple-white, 25% enemy slow
 
-#### Sound Design
-- **Channeling start**: Soft harp glissando + sustained singing bowl tone
-- **Resonance building**: Progressive harmonic overtones layered every 1s
-- **Spectral beams**: Ghostly violin harmonics
-- **Prismatic detonation**: Glass bell cascade + massive reverb wash
-- **Moonlight puddle formation**: Gentle water-drop delay effect
-
-#### File Structure
-```
-Content/MoonlightSonata/Weapons/MoonlightsCalling/
-├── MoonlightsCalling.cs
-├── MoonlightsCallingVFX.cs
-├── Projectiles/
-│   ├── SerenadeHoldout.cs
-│   ├── SerenadeBeam.cs
-│   ├── SpectralChildBeam.cs
-│   └── PrismaticDetonation.cs
-├── Particles/
-│   ├── SerenadeParticleHandler.cs
-│   ├── SerenadeNoteParticle.cs
-│   ├── HarmonicNodeParticle.cs
-│   ├── ChannelingMistParticle.cs
-│   └── PrismaticShardParticle.cs
-├── Primitives/
-│   └── SerenadeBeamRenderer.cs
-├── Shaders/
-│   └── SerenadeShaderLoader.cs
-└── Utilities/
-    ├── SerenadePlayer.cs              — Channel time tracking, harmonic state
-    └── SerenadeUtils.cs               — Standing wave math, color palettes
-
-Effects/MoonlightSonata/MoonlightsCalling/
-├── MoonlightBeamBody.fx
-├── MoonlightBeamCore.fx
-├── MoonlightPrismaticBurst.fx
-└── MoonlightPuddleGlow.fx
-```
+### Asset Requirements
+| Asset | Path | Prompt |
+|-------|------|--------|
+| Beam body | `Assets/MoonlightSonata/MoonlightsCalling/Beams/SerenadeBeam.png` | "Horizontal energy beam texture with smooth flowing center and soft shimmering edges, silver-blue-purple color gradient, on solid black background, 512x64px seamless tiling --ar 8:1 --style raw" |
+| Harmonic wave | `Assets/MoonlightSonata/MoonlightsCalling/Beams/HarmonicWave.png` | "Standing wave pattern texture with bright nodes at regular intervals, white highlights on translucent blue, horizontal strip, on solid black background, 512x32px seamless --ar 16:1 --style raw" |
+| Prismatic burst | `Assets/MoonlightSonata/MoonlightsCalling/Flare/PrismaticBurst.png` | "Radial energy burst with chromatic rainbow fringing at edges, bright white center fading to soft iridescent purple, on solid black background, 256x256px --ar 1:1 --style raw" |
+| Puddle mask | `Assets/MoonlightSonata/MoonlightsCalling/Orbs/MoonlightPuddle.png` | "Top-down view of soft circular moonlight pool, gentle ripple edges, silver-blue glow with purple rim, on solid black background, 128x128px --ar 1:1 --style raw" |
 
 ---
 
-## 5. Staff of the Lunar Phases (Summon) — VFX Polish Required
+## 5. Staff of the Lunar Phases (Summon) — VFX Rework Required
 
 ### Identity & Musical Soul
-The Staff summons the **Goliath of Moonlight** — a massive spectral lunar entity that fights alongside the player. This is the Sonata's **silent accompanist** — the bass notes beneath the melody. While the player fights with other Moonlight weapons, the Goliath provides devastating support fire with moonlight beams. It should feel less like a minion and more like the **moon itself has descended to fight alongside you**.
+The Staff summons the **Goliath of Moonlight** — a massive spectral lunar entity. This is the Sonata's **silent accompanist** — the bass notes beneath the melody.
 
 ### Lore Line
 *"The moon does not ask permission to illuminate the dark."*
 
-### Combat Mechanics (Existing — Enhance VFX)
-- **Goliath Moonlight Beam**: Primary attack — focused beam that sweeps toward targeted enemy
-- **Goliath Devastating Beam**: Charged attack (7s cooldown) — massive beam with screen effects
-
-#### Proposed Enhancements
-- **Lunar Phase Attacks**: The Goliath cycles through moon phases, each with different attack behavior:
-  - **New Moon Phase**: Goliath fires rapid dark bolts (low damage, high fire rate)
-  - **Waxing Phase**: Standard beam attack (balanced)
-  - **Full Moon Phase**: Devastating beam (maximum damage, long cooldown)
-  - **Waning Phase**: Healing aura pulse (restores 3 HP to player per pulse, every 2s)
-- **Tidal Influence**: When the Goliath attacks, it generates a subtle gravitational "pull" visual effect — nearby dust particles drift toward the beam path.
-- **Summoning Circle**: When the staff is used, a moonlit summoning circle appears on the ground below the player for 2 seconds with rotating lunar glyphs.
-
-### VFX Architecture Plan
-
-#### Custom Shaders (4 new)
-| Shader | Purpose | Technique |
-|--------|---------|-----------|
-| `GoliathAuraShader.fx` | Ambient aura around the Goliath entity | Radial SDF with Perlin noise edge distortion. Colors cycle through phase palette. Gentle pulse opacity. Additive blend. |
-| `GoliathBeamShader.fx` | Moonlight beam body | Similar to MoonlightBeamBody but wider, more turbulent. FBM noise distortion for raw power feel. Purple-white gradient. |
-| `GoliathDevastatingShader.fx` | Devastating charged beam | Maximum power beam — double-width, chromatic aberration, screen distortion around edges. White core → blue body → purple edge → violet ambient. |
-| `LunarSummonCircle.fx` | Summoning circle VFX | Top-down projected circle with rotating glyph ring. SDF circle + rotating UV for glyphs. Fade in over 0.5s, persist 2s, fade out 0.5s. |
-
-#### Particle System Plan
-| Particle | Behavior | Visual |
-|----------|----------|--------|
-| GoliathOrbitalParticle | Orbits the Goliath entity slowly | Soft purple motes, 6-10 orbiting at various radii, gentle trail |
-| GoliathBeamSparkParticle | Sheds from beam edges, perpendicular drift | Silver-blue sparks, 5-8px, 10-15 frame life, spawns every frame during beam |
-| SummonCircleGlyphParticle | Rises from summoning circle, drifts upward | Glyph shapes from Particle Library, soft purple, slow ascent, fade over 30 frames |
-| LunarHealingParticle | Rises from Goliath toward player during Waning phase | Soft blue-white orbs, gentle arc path, absorbed at player center |
-
-#### Bloom Layers
-1. **Goliath body glow**: Persistent large bloom around entity (deep purple, subtle pulse)
-2. **Eye glow**: Bright point bloom at Goliath's "eye" area (ice blue, constant)
-3. **Beam core**: Tight white bloom along beam path
-4. **Devastating beam**: 5-layer bloom stack + screen flash on fire
-5. **Summoning circle**: Ground-level bloom ring (purple, expanding on summon)
-
-#### Asset Requirements
-| Asset | Path | Midjourney Prompt |
-|-------|------|-------------------|
-| Summoning circle texture | `Assets/MoonlightSonata/StaffOfTheLunarPhases/SummonCircle/LunarCircle.png` | "Top-down magic summoning circle with moon phase symbols around the edge, intricate lunar glyphs, soft purple glow on solid black background, 512x512px --ar 1:1 --style raw" |
-| Goliath aura texture | `Assets/MoonlightSonata/StaffOfTheLunarPhases/Orbs/GoliathAura.png` | "Soft radial energy aura with irregular wispy edges, deep purple center to transparent edge, on solid black background, 256x256px --ar 1:1 --style raw" |
-| Devastating beam texture | `Assets/MoonlightSonata/StaffOfTheLunarPhases/Beams/DevastatingBeam.png` | "Massive power beam texture with turbulent energy edges, white hot center fading to deep purple edges, horizontal strip, on solid black background, 512x128px seamless --ar 4:1 --style raw" |
-| Phase indicator icons | `Assets/MoonlightSonata/StaffOfTheLunarPhases/Pixel/PhaseIcons.png` | "4-frame pixel art sprite sheet of moon phases (new, waxing, full, waning), elegant silver-purple style, 64x16px total (16x16 per frame), on solid black background --ar 4:1 --style raw" |
-
-#### Sound Design
-- **Summoning**: Deep reverberant gong + ascending crystalline tones
-- **Goliath ambient**: Low, sustained bass hum (barely audible, like tidal breathing)
-- **Moonlight beam**: Sustained singing bowl tone + laser whine
-- **Devastating beam**: Full orchestral sforzando (sudden loud) + sustained power chord
-- **Phase transition**: Soft bell chime + whooshing wind sound
-
-#### File Structure
+### Foundation Weapons Stack
 ```
-Content/MoonlightSonata/Weapons/StaffOfTheLunarPhases/
-├── StaffOfTheLunarPhases.cs
-├── StaffVFX.cs
-├── Projectiles/
-│   ├── GoliathMoonlightBeam.cs
-│   └── GoliathDevastatingBeam.cs
-├── Particles/
-│   ├── GoliathParticleHandler.cs
-│   ├── GoliathOrbitalParticle.cs
-│   ├── GoliathBeamSparkParticle.cs
-│   ├── SummonCircleGlyphParticle.cs
-│   └── LunarHealingParticle.cs
-├── Primitives/
-│   └── GoliathBeamRenderer.cs
-├── Shaders/
-│   └── GoliathShaderLoader.cs
-├── Utilities/
-│   ├── GoliathPlayer.cs
-│   └── GoliathUtils.cs
-├── Dusts/
-│   ├── GoliathDust.cs
-│   └── Textures/
-│       └── GoliathDust.png
-└── Buffs/
-    └── GoliathMinionBuff.cs
-
-Effects/MoonlightSonata/StaffOfTheLunarPhases/
-├── GoliathAuraShader.fx
-├── GoliathBeamShader.fx
-├── GoliathDevastatingShader.fx
-└── LunarSummonCircle.fx
+┌─────────────────────────────────────────────────────┐
+│  STAFF OF THE LUNAR PHASES — Foundation Architecture│
+├─────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────┐  │
+│  │ InfernalBeamFoundation (InfernalBeamBody)     │  │
+│  │  → Goliath Devastating Beam (VertexStrip)     │  │
+│  │  → Multi-texture compositing, lunar gradient  │  │
+│  │  → 3-layer spinning origin ring               │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ LaserFoundation (ConvergenceBeamShader)       │  │
+│  │  → Goliath Standard Beam (BaseWidth=60)       │  │
+│  │  → Lower-intensity 4-texture setup            │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ MaskFoundation (RadialNoiseMaskShader)        │  │
+│  │  → Goliath aura + Summoning circle            │  │
+│  │  → Nebula noise, phase-cycling colors         │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ ImpactFoundation (RippleShader)               │  │
+│  │  → Waning Phase healing pulse visual          │  │
+│  ├───────────────────────────────────────────────┤  │
+│  │ MagicOrbFoundation (OrbBolt pattern)          │  │
+│  │  → New Moon Phase rapid dark bolts            │  │
+│  │  → 5-layer bloom bolt rendering               │  │
+│  └───────────────────────────────────────────────┘  │
+│  UNIQUE: Phase cycling, Goliath entity sprites,     │
+│          Summoning circle glyph ring                 │
+└─────────────────────────────────────────────────────┘
 ```
+
+### Lunar Phase Attack Modes
+| Phase | Foundation | Configuration |
+|-------|-----------|---------------|
+| New Moon | **MagicOrbFoundation** (OrbBolt) | Rapid dark bolts, low damage, 5-layer bloom in dark purple |
+| Waxing | **LaserFoundation** (ConvergenceBeam) | Standard beam, BaseWidth=60f, balanced |
+| Full Moon | **InfernalBeamFoundation** (InfernalBeamBody) | Devastating beam, max damage, multi-texture compositing |
+| Waning | **ImpactFoundation** (RippleShader) | Healing pulse, expanding ring per heal, blue-white colors |
+
+### VFX Architecture — Foundation-Based
+
+#### Devastating Beam → InfernalBeamFoundation
+- **InfernalBeamBodyShader** via VertexStrip
+- Re-themed: `noiseTex = Perlin` (gentle, not FBM), `noiseDistortion = 0.03`
+- Lunar gradient LUT: deep purple → ice blue → white
+- `BaseBeamWidth = 90f`, `MaxBeamLength = 2400f`
+- 3-layer spinning ring at Goliath origin, re-tinted purple-blue
+
+#### Standard Beam → LaserFoundation
+- **ConvergenceBeamShader** at 0.6x texture multipliers
+- `BaseBeamWidth = 60f`, lunar gradient LUT
+
+#### Goliath Aura → MaskFoundation
+- **RadialNoiseMaskShader** with Nebula noise
+- `scrollSpeed = 0.15`, `rotationSpeed = 0.08`, `OrbDrawScale = 0.4f`
+- Colors cycle through phase palette
+
+#### Summoning Circle → MaskFoundation (variant)
+- **RadialNoiseMaskShader** with `rotationSpeed = 0.2`, `scrollSpeed = 0.0`
+- Custom circle texture, fade in/out lifecycle
+
+### Asset Requirements
+| Asset | Path | Prompt |
+|-------|------|--------|
+| Summoning circle | `Assets/MoonlightSonata/StaffOfTheLunarPhases/SummonCircle/LunarCircle.png` | "Top-down magic summoning circle with moon phase symbols around the edge, intricate lunar glyphs, soft purple glow on solid black background, 512x512px --ar 1:1 --style raw" |
+| Goliath aura | `Assets/MoonlightSonata/StaffOfTheLunarPhases/Orbs/GoliathAura.png` | "Soft radial energy aura with irregular wispy edges, deep purple center to transparent edge, on solid black background, 256x256px --ar 1:1 --style raw" |
+| Devastating beam | `Assets/MoonlightSonata/StaffOfTheLunarPhases/Beams/DevastatingBeam.png` | "Massive power beam texture with turbulent energy edges, white hot center fading to deep purple edges, horizontal strip, on solid black background, 512x128px seamless --ar 4:1 --style raw" |
 
 ---
 
-## Cross-Theme Synergy Notes
+## Foundation Coverage Matrix
 
-### Moonlight Sonata Theme Unity
-All 5 weapons must feel like movements of the same sonata:
-- **Shared color palette**: Deep Resonance → Frequency Pulse → Resonant Silver → Ice Blue → Crystal Edge → Harmonic White
-- **Shared particle library**: MoonlightVFXLibrary provides SpawnMusicNotes, DrawBloom, MeleeImpact shared across all weapons
-- **Unique per weapon**: Each weapon uses the palette differently. Incisor is constellation-focused, Eternal Moon is tidal, Resurrection is nova-focused, Calling is beam-focused, Staff is entity-focused.
-- **Musical motif**: Music notes appear in ALL weapons' effects, but the note types and behaviors differ (rolling triplets for Incisor, scattered spray for Resurrection, helical orbit for Calling, etc.)
+| Foundation | Incisor | Eternal Moon | Resurrection | Calling | Staff |
+|-----------|---------|-------------|-------------|---------|-------|
+| SwordSmearFoundation | ✅ | ✅ | | | |
+| RibbonFoundation | ✅ M4 | ✅ M3 | ✅ M6 | | |
+| ThinSlashFoundation | ✅ | ✅ | | | |
+| XSlashFoundation | | ✅ | | | |
+| ImpactFoundation | ✅ Ripple | ✅ Both | ✅ Ripple | ✅ DamageZone | ✅ Ripple |
+| ExplosionParticles | | | ✅ | | |
+| SmokeFoundation | | | ✅ | | |
+| SparkleProjectile | | | ✅ | | |
+| LaserFoundation | | | | ✅ | ✅ |
+| ThinLaserFoundation | | | | ✅ | |
+| InfernalBeamFoundation | | | | | ✅ |
+| MaskFoundation | | | | ✅ | ✅ |
+| MagicOrbFoundation | | | | ✅ | ✅ |
+| AttackAnimation | ✅ | | | | |
 
 ### Moonlight Lore Consistency
 - All lore references moonlight, tides, silver, stillness, sorrow
 - NEVER cosmos, stars, galaxies — those belong to Fate and Nachtmusik
-- Moonlight touches the earth, it doesn't come from space. The visual language is earthbound lunar phenomena: tides, reflected light, nocturnal stillness, the ache of something beautiful and unreachable.
+- Foundation parameters always use lunar gradient LUTs, never fire/cosmic gradients

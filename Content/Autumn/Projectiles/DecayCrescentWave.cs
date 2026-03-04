@@ -11,6 +11,7 @@ using MagnumOpus.Common.Systems.VFX;
 
 // Dynamic particle effects for aesthetically pleasing animations
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Autumn.Projectiles
 {
@@ -70,7 +71,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(leaf);
             }
 
-            // ☁EMUSICAL NOTATION - Autumn melody trailing the crescent - VISIBLE SCALE 0.72f+
+            // 笘・MUSICAL NOTATION - Autumn melody trailing the crescent - VISIBLE SCALE 0.72f+
             if (Main.rand.NextBool(4))
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-2f, -0.5f));
@@ -119,7 +120,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(spark);
             }
 
-            // ☁EMUSICAL IMPACT - Harvest crescent slash chord
+            // 笘・MUSICAL IMPACT - Harvest crescent slash chord
             ThemedParticles.MusicNoteBurst(target.Center, AutumnGold, 7, 4f);
 
             // === DYNAMIC PARTICLE EFFECTS - Autumn decay impact ===
@@ -151,7 +152,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(leaf);
             }
 
-            // ☁EMUSICAL FINALE - Crescent wave final note
+            // 笘・MUSICAL FINALE - Crescent wave final note
             ThemedParticles.MusicNoteBurst(Projectile.Center, AutumnOrange, 8, 4.5f);
 
             // === DYNAMIC PARTICLE EFFECTS - Decay dissipation ===
@@ -162,7 +163,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/WideSoftEllipse").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/WideSoftEllipse", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
 
@@ -238,7 +239,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
-            // ☁EMUSICAL NOTATION - Soul wisp carries gentle melody - VISIBLE SCALE 0.68f+
+            // 笘・MUSICAL NOTATION - Soul wisp carries gentle melody - VISIBLE SCALE 0.68f+
             if (Main.rand.NextBool(6))
             {
                 Vector2 noteVel = new Vector2(0, Main.rand.NextFloat(-1.5f, -0.5f));
@@ -274,7 +275,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(burst);
             }
 
-            // ☁EMUSICAL FINALE - Soul absorbed with gentle note
+            // 笘・MUSICAL FINALE - Soul absorbed with gentle note
             ThemedParticles.MusicNoteBurst(Projectile.Center, SoulWhite, 5, 3f);
         }
 

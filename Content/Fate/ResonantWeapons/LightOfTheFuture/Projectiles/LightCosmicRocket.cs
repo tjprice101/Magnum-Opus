@@ -223,46 +223,78 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            // Draw GPU trail
-            if (Projectile.oldPos.Length >= 2)
-            {
-                var settings = new LightTrailSettings(
-                    width: (progress, idx) => 8f * (1f - progress * 0.7f),
-                    color: (progress) =>
-                    {
-                        Color c = LightUtils.RocketGradient(progress);
-                        float fade = 1f - MathF.Pow(progress, 1.5f);
-                        return c * fade * 0.7f;
-                    }
-                );
+            SpriteBatch sb = Main.spriteBatch;
 
-                Vector2[] points = new Vector2[18];
-                int count = 0;
-                for (int i = 0; i < Projectile.oldPos.Length && i < 18; i++)
+            try
+            {
+                // Draw GPU trail (requires SpriteBatch to be ended)
+                if (Projectile.oldPos.Length >= 2)
                 {
-                    if (Projectile.oldPos[i] == Vector2.Zero) break;
-                    points[i] = Projectile.oldPos[i] + Projectile.Size / 2f;
-                    count++;
+                    var settings = new LightTrailSettings(
+                        width: (progress, idx) => 8f * (1f - progress * 0.7f),
+                        color: (progress) =>
+                        {
+                            Color c = LightUtils.RocketGradient(progress);
+                            float fade = 1f - MathF.Pow(progress, 1.5f);
+                            return c * fade * 0.7f;
+                        }
+                    );
+
+                    Vector2[] points = new Vector2[18];
+                    int count = 0;
+                    for (int i = 0; i < Projectile.oldPos.Length && i < 18; i++)
+                    {
+                        if (Projectile.oldPos[i] == Vector2.Zero) break;
+                        points[i] = Projectile.oldPos[i] + Projectile.Size / 2f;
+                        count++;
+                    }
+
+                    if (count >= 2)
+                    {
+                        sb.End();
+                        LightTrailRenderer.RenderTrail(points, settings, count);
+                        sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                            DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                    }
                 }
 
-                if (count >= 2)
-                    LightTrailRenderer.RenderTrail(points, settings, count);
+                // Draw rocket core
+                _glowTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow");
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                float pulse = 1f + MathF.Sin(_spiralPhase * 2f) * 0.15f;
+
+                // Crimson core
+                sb.Draw(_glowTex.Value, drawPos, null,
+                    LightUtils.Additive(LightUtils.ImpactCrimson, 0.7f),
+                    Projectile.rotation, _glowTex.Value.Size() / 2f, 0.12f * pulse, SpriteEffects.None, 0f);
+
+                // Gold outer glow
+                sb.Draw(_glowTex.Value, drawPos, null,
+                    LightUtils.Additive(LightUtils.MuzzleGold, 0.35f),
+                    0f, _glowTex.Value.Size() / 2f, 0.25f * pulse, SpriteEffects.None, 0f);
+            }
+            catch
+            {
+                try
+                {
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
             }
 
-            // Draw rocket core
-            _glowTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow");
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            float pulse = 1f + MathF.Sin(_spiralPhase * 2f) * 0.15f;
-
-            // Crimson core
-            Main.spriteBatch.Draw(_glowTex.Value, drawPos, null,
-                LightUtils.Additive(LightUtils.ImpactCrimson, 0.7f),
-                Projectile.rotation, _glowTex.Value.Size() / 2f, 0.12f * pulse, SpriteEffects.None, 0f);
-
-            // Gold outer glow
-            Main.spriteBatch.Draw(_glowTex.Value, drawPos, null,
-                LightUtils.Additive(LightUtils.MuzzleGold, 0.35f),
-                0f, _glowTex.Value.Size() / 2f, 0.25f * pulse, SpriteEffects.None, 0f);
+            // Theme accents (additive pass)
+            try
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                LightUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
 
             return false;
         }

@@ -22,8 +22,10 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
 {
     /// <summary>
     /// THE UNRESOLVED CADENCE - Projectile classes (DimensionalSlash and ParadoxCollapseUltimate)
-    /// DimensionalSlash: Fast-moving slash projectile spawned by the melee swing
-    /// ParadoxCollapseUltimate: Large AOE explosion from triggering paradox collapse
+    /// DimensionalSlash: Fast-moving dimensional tear projectile spawned by the melee swing.
+    /// Features shader-driven crack pattern, velocity-stretched trail, multi-layer bloom,
+    /// and glitch-aesthetic particle effects matching the Enigma Variations theme.
+    /// ParadoxCollapseUltimate: Large AOE implosion triggered by paradox stack threshold.
     /// </summary>
     public class DimensionalSlash : ModProjectile
     {
@@ -57,7 +59,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
             sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Velocity-stretched MagicPixel trail — CadenceViolet energy streak
+            // Velocity-stretched energy streak — CadenceViolet outer + DimensionalGreen core
             Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
             if (pixel == null) return false;
             float rot = Projectile.velocity.ToRotation();
@@ -69,13 +71,29 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
             sb.Draw(pixel, drawPos, new Rectangle(0, 0, 1, 1), CadenceUtils.DimensionalGreen * alpha * 0.5f,
                 rot, new Vector2(0.5f, 0.5f), new Vector2(trailScale.X * 0.7f, 4f), SpriteEffects.None, 0f);
 
-            // Bloom at center — DimensionalGreen glow
+            // Multi-layer bloom at center using EN Star Flare for Enigma theme identity
             Texture2D bloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D starFlare = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
             float pulse = 1f + 0.15f * MathF.Sin(Main.GameUpdateCount * 0.15f);
-            sb.Draw(bloom, drawPos, null, CadenceUtils.DimensionalGreen * alpha * 0.5f, 0f,
-                bloom.Size() / 2f, 0.3f * pulse, SpriteEffects.None, 0f);
+            
+            // Layer 1: Wide DimensionalGreen ambient glow
+            sb.Draw(bloom, drawPos, null, CadenceUtils.DimensionalGreen * alpha * 0.35f, 0f,
+                bloom.Size() / 2f, 0.4f * pulse, SpriteEffects.None, 0f);
+            // Layer 2: Medium CadenceViolet glow
+            sb.Draw(bloom, drawPos, null, CadenceUtils.CadenceViolet * alpha * 0.3f, 0f,
+                bloom.Size() / 2f, 0.25f * pulse, SpriteEffects.None, 0f);
+            // Layer 3: Tight ParadoxWhite hot core
             sb.Draw(bloom, drawPos, null, CadenceUtils.ParadoxWhite * alpha * 0.25f, 0f,
                 bloom.Size() / 2f, 0.12f * pulse, SpriteEffects.None, 0f);
+            // Layer 4: Star flare overlay — rotating Enigma identity burst
+            float starRot = Main.GameUpdateCount * 0.03f;
+            sb.Draw(starFlare, drawPos, null, CadenceUtils.DimensionalGreen * alpha * 0.4f, starRot,
+                starFlare.Size() / 2f, 0.25f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(starFlare, drawPos, null, CadenceUtils.CadenceViolet * alpha * 0.2f, -starRot * 0.7f,
+                starFlare.Size() / 2f, 0.18f * pulse, SpriteEffects.None, 0f);
+
+            // Theme texture accents
+            CadenceUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
@@ -135,21 +153,38 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            // Apply Paradox Brand (8 seconds per doc) + 2 stacks
             target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
             target.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(target, 2);
             
-            Lighting.AddLight(target.Center, EnigmaGreen.ToVector3() * 0.5f);
+            Lighting.AddLight(target.Center, EnigmaGreen.ToVector3() * 0.6f);
 
-            // Impact VFX
+            // Impact VFX: ripple + radial burst + glitch fragments
             if (!Main.dedServ)
             {
+                // Impact ripple at target center
                 CadenceParticleHandler.Spawn(new ParadoxSlashRipple(
-                    target.Center, CadenceUtils.CadenceViolet, 0.25f, 25));
-                for (int i = 0; i < Main.rand.Next(3, 6); i++)
+                    target.Center, CadenceUtils.CadenceViolet, 0.3f, 25));
+                // Second ripple, slightly delayed scale for layered effect
+                CadenceParticleHandler.Spawn(new ParadoxSlashRipple(
+                    target.Center, CadenceUtils.DimensionalGreen, 0.2f, 30));
+
+                // 4-7 DimensionalRiftMotes radiating outward
+                for (int i = 0; i < Main.rand.Next(4, 8); i++)
                 {
                     Vector2 burstVel = Main.rand.NextVector2CircularEdge(4f, 4f) * Main.rand.NextFloat(0.5f, 1.5f);
                     CadenceParticleHandler.Spawn(new DimensionalRiftMote(
                         target.Center, burstVel, Main.rand.NextFloat(0.2f, 0.4f), Main.rand.Next(12, 22)));
+                }
+
+                // 2-3 VoidCleaveParticle — "digital debris" at impact point
+                for (int i = 0; i < Main.rand.Next(2, 4); i++)
+                {
+                    Vector2 debrisVel = Main.rand.NextVector2CircularEdge(3f, 3f) * Main.rand.NextFloat(0.6f, 1.4f);
+                    Color debrisColor = Main.rand.NextBool() ? CadenceUtils.SeveranceLime : CadenceUtils.DimensionalGreen;
+                    CadenceParticleHandler.Spawn(new VoidCleaveParticle(
+                        target.Center + Main.rand.NextVector2Circular(8f, 8f),
+                        debrisVel, debrisColor, Main.rand.NextFloat(0.2f, 0.4f), Main.rand.Next(8, 15)));
                 }
             }
         }
@@ -158,8 +193,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
         {
             if (Main.dedServ) return;
 
-            // 4-6 DimensionalRiftMote burst
-            for (int i = 0; i < Main.rand.Next(4, 7); i++)
+            // 5-8 DimensionalRiftMote burst
+            for (int i = 0; i < Main.rand.Next(5, 9); i++)
             {
                 Vector2 vel = Main.rand.NextVector2CircularEdge(3f, 3f) * Main.rand.NextFloat(0.5f, 1.5f);
                 CadenceParticleHandler.Spawn(new DimensionalRiftMote(
@@ -168,10 +203,18 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
 
             // 1 ParadoxSlashRipple expanding from center
             CadenceParticleHandler.Spawn(new ParadoxSlashRipple(
-                Projectile.Center, CadenceUtils.DimensionalGreen, 0.3f, 30));
+                Projectile.Center, CadenceUtils.DimensionalGreen, 0.35f, 30));
 
-            // 2-3 CadenceRiftDust
-            for (int i = 0; i < Main.rand.Next(2, 4); i++)
+            // 2-4 VoidCleaveParticle for glitch debris
+            for (int i = 0; i < Main.rand.Next(2, 5); i++)
+            {
+                Vector2 vel = Main.rand.NextVector2CircularEdge(3.5f, 3.5f) * Main.rand.NextFloat(0.4f, 1.3f);
+                CadenceParticleHandler.Spawn(new VoidCleaveParticle(
+                    Projectile.Center, vel, CadenceUtils.CadenceViolet, Main.rand.NextFloat(0.3f, 0.6f), Main.rand.Next(10, 20)));
+            }
+
+            // 3-4 CadenceRiftDust
+            for (int i = 0; i < Main.rand.Next(3, 5); i++)
             {
                 Dust.NewDust(Projectile.position, Projectile.width, Projectile.height,
                     ModContent.DustType<CadenceRiftDust>(),
@@ -215,20 +258,36 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
 
             Texture2D bloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             Texture2D pixel = MagnumTextureRegistry.GetPointBloom();
+            Texture2D starFlare = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D powerRing = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Power Effect Ring", AssetRequestMode.ImmediateLoad).Value;
 
-            // Layer 1: Large outer glow — CadenceViolet, low opacity breathing
+            // Layer 1: Large outer glow — CadenceViolet breathing ambient
             sb.Draw(bloom, drawPos, null, CadenceUtils.CadenceViolet * 0.2f * intensity, 0f,
                 bloom.Size() / 2f, outerScale * pulse, SpriteEffects.None, 0f);
 
-            // Layer 2: Inner core — oscillating DimensionalGreen / SeveranceLime
+            // Layer 2: EN Power Effect Ring — rotating dimensional rift boundary
+            float ringRot = Main.GameUpdateCount * 0.015f;
+            sb.Draw(powerRing, drawPos, null, CadenceUtils.DimensionalGreen * 0.5f * intensity, ringRot,
+                powerRing.Size() / 2f, outerScale * 0.45f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(powerRing, drawPos, null, CadenceUtils.CadenceViolet * 0.3f * intensity, -ringRot * 0.7f,
+                powerRing.Size() / 2f, outerScale * 0.35f * pulse, SpriteEffects.None, 0f);
+
+            // Layer 3: Inner core — oscillating DimensionalGreen / SeveranceLime
             Color coreColor = Color.Lerp(CadenceUtils.DimensionalGreen, CadenceUtils.SeveranceLime,
                 MathF.Sin(Main.GameUpdateCount * 0.12f) * 0.5f + 0.5f);
             sb.Draw(bloom, drawPos, null, coreColor * 0.45f * intensity, 0f,
                 bloom.Size() / 2f, outerScale * 0.5f * pulse, SpriteEffects.None, 0f);
 
-            // Layer 3: White-hot center — ParadoxWhite singularity
+            // Layer 4: White-hot center — ParadoxWhite singularity
             sb.Draw(bloom, drawPos, null, CadenceUtils.ParadoxWhite * 0.6f * intensity, 0f,
                 bloom.Size() / 2f, outerScale * 0.2f * pulse, SpriteEffects.None, 0f);
+
+            // Layer 5: EN Star Flare overlay — spinning Enigma starburst at center
+            float starRot = Main.GameUpdateCount * 0.025f;
+            sb.Draw(starFlare, drawPos, null, CadenceUtils.DimensionalGreen * 0.5f * intensity, starRot,
+                starFlare.Size() / 2f, outerScale * 0.3f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(starFlare, drawPos, null, CadenceUtils.SeveranceLime * 0.3f * intensity, -starRot * 1.3f,
+                starFlare.Size() / 2f, outerScale * 0.22f * pulse, SpriteEffects.None, 0f);
 
             // Crosshatch beams — "implosion" look, slowly rotating
             float beamLength = 200f * intensity;
@@ -329,22 +388,37 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            // Apply Paradox Brand (15 seconds for collapse) + 5 stacks
             target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 900);
             target.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(target, 5);
             
             Lighting.AddLight(target.Center, EnigmaGreen.ToVector3() * 0.8f);
 
-            // Impact VFX
+            // Impact VFX: layered ripple + burst + glyph
             if (!Main.dedServ)
             {
+                // Double-ripple impact — purple then green for dimensional fracture feel
                 CadenceParticleHandler.Spawn(new ParadoxSlashRipple(
-                    target.Center, CadenceUtils.DimensionalGreen, 0.35f, 30));
-                for (int i = 0; i < Main.rand.Next(3, 6); i++)
+                    target.Center, CadenceUtils.DimensionalGreen, 0.4f, 30));
+                CadenceParticleHandler.Spawn(new ParadoxSlashRipple(
+                    target.Center, CadenceUtils.CadenceViolet, 0.25f, 35));
+
+                // 4-7 DimensionalRiftMotes radiating
+                for (int i = 0; i < Main.rand.Next(4, 8); i++)
                 {
                     Vector2 burstVel = Main.rand.NextVector2CircularEdge(5f, 5f) * Main.rand.NextFloat(0.5f, 1.5f);
                     CadenceParticleHandler.Spawn(new DimensionalRiftMote(
                         target.Center, burstVel, Main.rand.NextFloat(0.25f, 0.5f), Main.rand.Next(12, 22)));
                 }
+
+                // 2-3 VoidCleaveParticle — glitch fragments
+                for (int i = 0; i < Main.rand.Next(2, 4); i++)
+                {
+                    Vector2 vel = Main.rand.NextVector2CircularEdge(3f, 3f) * Main.rand.NextFloat(0.5f, 1.2f);
+                    CadenceParticleHandler.Spawn(new VoidCleaveParticle(
+                        target.Center, vel, CadenceUtils.SeveranceLime, Main.rand.NextFloat(0.3f, 0.5f), Main.rand.Next(10, 18)));
+                }
+
                 // Inevitability glyph on stack increment
                 float glyphAngle = Main.rand.NextFloat(MathHelper.TwoPi);
                 CadenceParticleHandler.Spawn(new InevitabilityGlyphParticle(
@@ -361,8 +435,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
             // 1 ParadoxCollapseFlash at center — screen-filling white burst
             CadenceParticleHandler.Spawn(new ParadoxCollapseFlash(Projectile.Center, 2.5f, 45));
 
-            // 15-25 DimensionalRiftMotes in all directions
-            int moteCount = Main.rand.Next(15, 26);
+            // 18-28 DimensionalRiftMotes in all directions — dense mote explosion
+            int moteCount = Main.rand.Next(18, 29);
             for (int i = 0; i < moteCount; i++)
             {
                 Vector2 vel = Main.rand.NextVector2CircularEdge(6f, 6f) * Main.rand.NextFloat(0.5f, 2f);
@@ -371,26 +445,33 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
                     vel, Main.rand.NextFloat(0.3f, 0.7f), Main.rand.Next(20, 40)));
             }
 
-            // 5-8 VoidCleaveParticles in all directions
-            for (int i = 0; i < Main.rand.Next(5, 9); i++)
+            // 6-10 VoidCleaveParticles in all directions — glitch debris
+            for (int i = 0; i < Main.rand.Next(6, 11); i++)
             {
                 Vector2 vel = Main.rand.NextVector2CircularEdge(5f, 5f) * Main.rand.NextFloat(0.8f, 1.8f);
+                Color debrisColor = Main.rand.NextBool() ? CadenceUtils.CadenceViolet : CadenceUtils.SeveranceLime;
                 CadenceParticleHandler.Spawn(new VoidCleaveParticle(
-                    Projectile.Center, vel, CadenceUtils.CadenceViolet, Main.rand.NextFloat(0.5f, 0.9f), Main.rand.Next(18, 30)));
+                    Projectile.Center, vel, debrisColor, Main.rand.NextFloat(0.5f, 0.9f), Main.rand.Next(18, 30)));
             }
 
-            // 3-5 InevitabilityGlyphParticles floating outward
-            for (int i = 0; i < Main.rand.Next(3, 6); i++)
+            // 2 expanding ParadoxSlashRipples at different rates
+            CadenceParticleHandler.Spawn(new ParadoxSlashRipple(
+                Projectile.Center, CadenceUtils.DimensionalGreen, 0.5f, 40));
+            CadenceParticleHandler.Spawn(new ParadoxSlashRipple(
+                Projectile.Center, CadenceUtils.CadenceViolet, 0.35f, 50));
+
+            // 4-6 InevitabilityGlyphParticles floating outward — residual question marks
+            for (int i = 0; i < Main.rand.Next(4, 7); i++)
             {
-                float angle = MathHelper.TwoPi * i / 5f + Main.rand.NextFloat(-0.3f, 0.3f);
+                float angle = MathHelper.TwoPi * i / 6f + Main.rand.NextFloat(-0.3f, 0.3f);
                 CadenceParticleHandler.Spawn(new InevitabilityGlyphParticle(
                     Projectile.Center, Main.rand.NextFloat(60f, 120f), angle,
                     TheUnresolvedCadenceItem.GetInevitabilityStacks(),
                     CadenceUtils.DimensionalGreen, Main.rand.NextFloat(0.4f, 0.7f), Main.rand.Next(30, 50)));
             }
 
-            // 8-10 CadenceRiftDust
-            for (int i = 0; i < Main.rand.Next(8, 11); i++)
+            // 10-12 CadenceRiftDust
+            for (int i = 0; i < Main.rand.Next(10, 13); i++)
             {
                 Dust.NewDust(Projectile.position, Projectile.width, Projectile.height,
                     ModContent.DustType<CadenceRiftDust>(),

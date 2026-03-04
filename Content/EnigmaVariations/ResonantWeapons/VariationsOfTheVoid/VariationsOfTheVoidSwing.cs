@@ -25,10 +25,13 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
     /// VARIATIONS OF THE VOID — Enigma Melee Sword (Swing Projectile).
     /// Held-projectile swing via MeleeSwingBase.
     /// 
-    /// 3-Phase combo — each a different voice of the void:
-    ///   Phase 0: VoidWhisper — fast, subtle cleave
-    ///   Phase 1: AbyssalEcho — medium sweep, flipped arc
-    ///   Phase 2: RiftSunderFinisher — heavy finisher, spawns sub-projectiles
+    /// 3-Phase combo — each a variation of the void's voice:
+    ///   Phase 0: HorizontalSweep — fast sweep, no sub-projectiles
+    ///   Phase 1: DiagonalSlash — upward diagonal + 1 DimensionalSlash (33% damage)
+    ///   Phase 2: HeavySlamFinisher — heavy slam + 3 DimensionalSlash + 3 HomingQuestionSeeker
+    /// Every third strike (after Phase 2) spawns VoidConvergenceBeamSet tri-beam.
+    /// Beams converge over 120 frames → Void Resonance Explosion (3x damage, 100→300 AoE).
+    /// ParadoxBrand on hit (8s), seeking crystals on crit.
     /// </summary>
     public sealed class VariationsOfTheVoidSwing : MeleeSwingBase
     {
@@ -54,7 +57,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
 
         #region Combo Phase Definitions
 
-        private static readonly ComboPhase Phase0_VoidWhisper = new ComboPhase(
+        private static readonly ComboPhase Phase0_HorizontalSweep = new ComboPhase(
             new CurveSegment[]
             {
                 new CurveSegment(EasingType.PolyOut, 0f, -0.8f, 0.15f, 2),
@@ -69,7 +72,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
             damageMult: 0.85f
         );
 
-        private static readonly ComboPhase Phase1_AbyssalEcho = new ComboPhase(
+        private static readonly ComboPhase Phase1_DiagonalSlash = new ComboPhase(
             new CurveSegment[]
             {
                 new CurveSegment(EasingType.PolyOut, 0f, -0.9f, 0.2f, 2),
@@ -84,7 +87,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
             damageMult: 1.0f
         );
 
-        private static readonly ComboPhase Phase2_RiftSunderFinisher = new ComboPhase(
+        private static readonly ComboPhase Phase2_HeavySlamFinisher = new ComboPhase(
             new CurveSegment[]
             {
                 new CurveSegment(EasingType.PolyOut, 0f, -1.0f, 0.3f, 2),
@@ -105,9 +108,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
 
         protected override ComboPhase[] GetAllPhases() => new[]
         {
-            Phase0_VoidWhisper,
-            Phase1_AbyssalEcho,
-            Phase2_RiftSunderFinisher
+            Phase0_HorizontalSweep,
+            Phase1_DiagonalSlash,
+            Phase2_HeavySlamFinisher
         };
 
         protected override Color[] GetPalette() => EnigmaPalette;
@@ -119,8 +122,10 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
         {
             return comboStep switch
             {
-                2 => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/WideSoftEllipse",
-                _ => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/WideSoftEllipse"
+                0 => "MagnumOpus/Assets/VFX Asset Library/SlashArcSmears/SwordArcSmear",
+                1 => "MagnumOpus/Assets/VFX Asset Library/SlashArcSmears/FlamingSwordArcSmear",
+                2 => "MagnumOpus/Assets/VFX Asset Library/SlashArcSmears/FullCircleSwordArcSlash",
+                _ => "MagnumOpus/Assets/VFX Asset Library/SlashArcSmears/SwordArcSmear"
             };
         }
 
@@ -132,7 +137,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
         {
             if (ModContent.HasAsset("MagnumOpus/Content/EnigmaVariations/ResonantWeapons/VariationsOfTheVoid/VariationsOfTheVoid"))
                 return ModContent.Request<Texture2D>(
-                    "MagnumOpus/Content/EnigmaVariations/ResonantWeapons/VariationsOfTheVoid/VariationsOfTheVoid").Value;
+                    "MagnumOpus/Content/EnigmaVariations/ResonantWeapons/VariationsOfTheVoid/VariationsOfTheVoid", AssetRequestMode.ImmediateLoad).Value;
             return base.GetBladeTexture();
         }
 
@@ -156,13 +161,13 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
         {
             if (hasSpawnedSpecial) return;
 
-            // Phase 0 at 55% — no gameplay effect (was VFX only)
+            // Phase 0 at 55% 窶・no gameplay effect (was VFX only)
             if (ComboStep == 0 && Progression >= 0.55f)
             {
                 hasSpawnedSpecial = true;
             }
 
-            // Phase 1 at 60% — dimensional slash sub-projectile
+            // Phase 1 at 60% 窶・dimensional slash sub-projectile
             if (ComboStep == 1 && Progression >= 0.6f)
             {
                 hasSpawnedSpecial = true;
@@ -178,7 +183,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
                 }
             }
 
-            // Phase 2 at 50% — heavy finisher with sub-projectiles
+            // Phase 2 at 50% 窶・heavy finisher with sub-projectiles
             if (ComboStep == 2 && Progression >= 0.5f)
             {
                 hasSpawnedSpecial = true;
@@ -223,10 +228,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
 
         protected override void OnSwingHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 300);
+            // ParadoxBrand: 8 seconds per doc (480 frames)
+            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
             int stacks = hit.Crit ? 4 : 2;
             for (int s = 0; s < stacks; s++)
-                target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 300);
+                target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
 
             if (hit.Crit && Main.myPlayer == Projectile.owner)
             {
@@ -279,20 +285,51 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
                     Main.rand.NextFloat(0.08f, 0.15f), Main.rand.Next(25, 40)));
             }
 
-            // === Phase 0-1: RiftSunderSpark every 3 frames at tip ===
-            if (ComboStep <= 1 && frame % 3 == 0)
+            // === Void echo afterimage 窶・ghostly flicker fragments near blade (doc: "VoidEchoFlickerParticle") ===
+            if (frame % 3 == 0 && Main.rand.NextBool(2))
             {
-                Vector2 sparkVel = SwordDirection.RotatedByRandom(0.4f) * Main.rand.NextFloat(3f, 6f);
+                // Rectangular glitch at a random point along the blade 窶・void echo aesthetic
+                Vector2 echoPos = Vector2.Lerp(Owner.MountedCenter, tipPos, Main.rand.NextFloat(0.3f, 1f));
+                echoPos += Main.rand.NextVector2Circular(10f, 10f);
+                Color echoColor = Main.rand.NextBool() ? VoidVariationUtils.AbyssPurple : VoidVariationUtils.RiftTeal;
+                VoidVariationParticleHandler.Spawn(new RiftSunderSpark(
+                    echoPos, Vector2.Zero, Main.rand.NextFloat(0.12f, 0.22f), Main.rand.Next(3, 6)));
+            }
+
+            // === Phase 0 (Horizontal Sweep): RiftSunderSpark perpendicular to blade every 3 frames ===
+            if (ComboStep == 0 && frame % 3 == 0)
+            {
+                Vector2 sparkVel = SwordDirection.RotatedBy(MathHelper.PiOver2 * Direction) * Main.rand.NextFloat(3f, 6f);
                 VoidVariationParticleHandler.Spawn(new RiftSunderSpark(
                     tipPos, sparkVel, Main.rand.NextFloat(0.1f, 0.2f), Main.rand.Next(15, 25)));
             }
 
-            // === Phase 2+: AbyssalEchoRing every 4 frames at tip ===
-            if (ComboStep >= 2 && frame % 4 == 0)
+            // === Phase 1 (Diagonal Slash): Two flanking spark streams for diagonal X-feel ===
+            if (ComboStep == 1 && frame % 2 == 0)
+            {
+                for (int side = -1; side <= 1; side += 2)
+                {
+                    Vector2 flankVel = SwordDirection.RotatedBy(MathHelper.PiOver4 * side) * Main.rand.NextFloat(3f, 5f);
+                    VoidVariationParticleHandler.Spawn(new RiftSunderSpark(
+                        tipPos + Main.rand.NextVector2Circular(6f, 6f), flankVel,
+                        Main.rand.NextFloat(0.12f, 0.2f), Main.rand.Next(12, 20)));
+                }
+            }
+
+            // === Phase 2 (Heavy Slam): AbyssalEchoRing every 3 frames + dense spark shower ===
+            if (ComboStep >= 2 && frame % 3 == 0)
             {
                 Color ringColor = Main.rand.NextBool() ? VoidVariationUtils.VoidSurge : VoidVariationUtils.RiftTeal;
                 VoidVariationParticleHandler.Spawn(new AbyssalEchoRing(
-                    tipPos, ringColor, 0.15f, Main.rand.Next(20, 35)));
+                    tipPos, ringColor, 0.18f, Main.rand.Next(20, 35)));
+
+                // Extra sparks for finisher weight
+                for (int i = 0; i < 2; i++)
+                {
+                    Vector2 slamVel = SwordDirection * Main.rand.NextFloat(4f, 8f) + Main.rand.NextVector2Circular(3f, 3f);
+                    VoidVariationParticleHandler.Spawn(new RiftSunderSpark(
+                        tipPos, slamVel, Main.rand.NextFloat(0.15f, 0.25f), Main.rand.Next(15, 25)));
+                }
             }
 
             // === Every 5 frames: 1 VoidVariationDust at swing tip ===
@@ -302,10 +339,10 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
                 Dust.NewDustPerfect(tipPos, ModContent.DustType<VoidVariationDust>(), dustVel, 0, default, Main.rand.NextFloat(0.5f, 0.8f));
             }
 
-            // === Mid-swing burst (progress 0.4-0.6): 3-5 RiftSunderSpark along the arc ===
+            // === Mid-swing burst (progress 0.4-0.6): 4-7 RiftSunderSpark along the arc ===
             if (Progression >= 0.4f && Progression <= 0.6f && frame % 2 == 0)
             {
-                int burstCount = Main.rand.Next(3, 6);
+                int burstCount = Main.rand.Next(4, 8);
                 for (int i = 0; i < burstCount; i++)
                 {
                     float arcT = Main.rand.NextFloat();
@@ -313,6 +350,22 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
                     Vector2 burstVel = SwordDirection.RotatedByRandom(0.8f) * Main.rand.NextFloat(4f, 8f);
                     VoidVariationParticleHandler.Spawn(new RiftSunderSpark(
                         arcPos, burstVel, Main.rand.NextFloat(0.12f, 0.22f), Main.rand.Next(12, 20)));
+                }
+            }
+
+            // === Attack peak burst (progress ~0.5): AbyssalEchoRing + VoidWhisperMote radial burst ===
+            int attackFrame = (int)(SwingTime * 0.5f);
+            if ((int)Timer == attackFrame)
+            {
+                VoidVariationParticleHandler.Spawn(new AbyssalEchoRing(
+                    tipPos, VoidVariationUtils.VariationViolet, 0.25f + ComboStep * 0.1f, 30));
+
+                for (int i = 0; i < Main.rand.Next(3, 6); i++)
+                {
+                    Vector2 radialVel = Main.rand.NextVector2CircularEdge(4f, 4f);
+                    VoidVariationParticleHandler.Spawn(new VoidWhisperMote(
+                        tipPos, radialVel, VoidVariationUtils.VoidSurge,
+                        Main.rand.NextFloat(0.15f, 0.25f), Main.rand.Next(15, 25)));
                 }
             }
         }

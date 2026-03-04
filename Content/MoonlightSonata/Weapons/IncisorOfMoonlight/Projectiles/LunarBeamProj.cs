@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Buffs;
 using MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Particles;
 using MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Utilities;
@@ -7,11 +7,12 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projectiles
 {
     /// <summary>
-    /// Homing lunar beam projectile 窶・fired during swing.
+    /// Homing lunar beam projectile 遯ｶ繝ｻfired during swing.
     /// Flies straight initially, then homes on the nearest NPC.
     /// Draws itself with a sprite + bloom circle + layered sprite-based trail.
     /// Trail uses overlapping stretched BeamStreak1 segments rotated along velocity.
@@ -91,8 +92,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom").Value;
-            Texture2D streakTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/BeamTextures/HorizontalBeamStreakSegment").Value;
+            Texture2D bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D streakTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/BeamTextures/HorizontalBeamStreakSegment", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 bloomOrigin = bloomTex.Size() / 2f;
 

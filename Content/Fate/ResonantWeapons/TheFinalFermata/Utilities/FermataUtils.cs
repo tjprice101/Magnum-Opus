@@ -1,4 +1,6 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using MagnumOpus.Content.Fate;
 using System;
 using Terraria;
 using Terraria.Utilities;
@@ -90,6 +92,18 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Utilities
         public static Color LerpColor(Color a, Color b, float t)
         {
             return Color.Lerp(a, b, MathHelper.Clamp(t, 0f, 1f));
+        }
+
+        // ─────────── THEME TEXTURE ACCENTS ───────────
+
+        /// <summary>
+        /// Draws theme-textured accents. Call under Additive blend.
+        /// </summary>
+        public static void DrawThemeAccents(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)
+        {
+            FateVFXLibrary.DrawThemeCelestialGlyph(sb, worldPos, scale, intensity * 0.5f);
+            float rot = (float)Main.GameUpdateCount * 0.02f;
+            FateVFXLibrary.DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.4f, rot);
         }
     }
 }

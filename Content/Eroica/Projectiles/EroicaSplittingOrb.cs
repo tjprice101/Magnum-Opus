@@ -5,8 +5,8 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
-using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Content.FoundationWeapons.SparkleProjectileFoundation;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
@@ -18,10 +18,6 @@ namespace MagnumOpus.Content.Eroica.Projectiles
     {
         // Use placeholder texture - projectile is rendered entirely via particles/PreDraw
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
-        
-        // Colors
-        private static readonly Color EroicaGold = new Color(255, 200, 80);
-        private static readonly Color EroicaScarlet = new Color(200, 50, 50);
         
         private int RecursionDepth
         {
@@ -72,7 +68,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             
             // Lighting - brighter for larger orbs
             float lightIntensity = 0.5f + RecursionDepth * 0.2f;
-            Lighting.AddLight(Projectile.Center, EroicaGold.ToVector3() * lightIntensity);
+            Lighting.AddLight(Projectile.Center, EroicaPalette.Gold.ToVector3() * lightIntensity);
             
             // Rotation
             Projectile.rotation += Projectile.velocity.Length() * 0.03f;
@@ -83,8 +79,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Trail particles - more intense for larger orbs
             if (SplitTimer % (4 - RecursionDepth) == 0)
             {
-                Color trailColor = Color.Lerp(EroicaScarlet, EroicaGold, Main.rand.NextFloat());
-                CustomParticles.GenericFlare(Projectile.Center, trailColor * pulse, 0.2f + RecursionDepth * 0.08f, 12);
+                Color trailColor = Color.Lerp(EroicaPalette.Scarlet, EroicaPalette.Gold, Main.rand.NextFloat());
+                EroicaVFXLibrary.BloomFlare(Projectile.Center, trailColor * pulse, 0.2f + RecursionDepth * 0.08f, 12);
                 
                 // Dust trail
                 int dustType = Main.rand.NextBool() ? DustID.GoldFlame : DustID.CrimsonTorch;
@@ -92,12 +88,12 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 dust.noGravity = true;
             }
             
-            // ☁EMUSICAL NOTATION - Heroic melody trail
+            // 隨倥・MUSICAL NOTATION - Heroic melody trail
             if (Main.rand.NextBool(6))
             {
-                Color noteColor = Color.Lerp(EroicaScarlet, EroicaGold, Main.rand.NextFloat());
+                Color noteColor = Color.Lerp(EroicaPalette.Scarlet, EroicaPalette.Gold, Main.rand.NextFloat());
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
-                ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.35f, 35);
+                EroicaVFXLibrary.SpawnMusicNote(Projectile.Center, noteVel, noteColor, 0.35f, 35);
             }
             
             // Slight homing toward player for larger orbs
@@ -134,8 +130,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             SoundEngine.PlaySound(SoundID.Item14 with { Pitch = pitch, Volume = 0.6f }, Projectile.Center);
             
             // Visual burst
-            CustomParticles.GenericFlare(Projectile.Center, Color.White, 0.5f + RecursionDepth * 0.2f, 15);
-            CustomParticles.HaloRing(Projectile.Center, EroicaGold, 0.25f + RecursionDepth * 0.1f, 12);
+            EroicaVFXLibrary.BloomFlare(Projectile.Center, Color.White, 0.5f + RecursionDepth * 0.2f, 15);
+            EroicaVFXLibrary.SpawnGradientHaloRings(Projectile.Center, 1, 0.25f + RecursionDepth * 0.1f);
             
             // Spawn children
             for (int i = 0; i < splitCount; i++)
@@ -160,12 +156,12 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 );
                 
                 // Spawn particle for each child direction
-                Color burstColor = i % 2 == 0 ? EroicaGold : EroicaScarlet;
-                CustomParticles.GenericFlare(Projectile.Center + childVel.SafeNormalize(Vector2.Zero) * 10f, burstColor, 0.3f, 10);
+                Color burstColor = i % 2 == 0 ? EroicaPalette.Gold : EroicaPalette.Scarlet;
+                EroicaVFXLibrary.BloomFlare(Projectile.Center + childVel.SafeNormalize(Vector2.Zero) * 10f, burstColor, 0.3f, 10);
             }
             
             // Extra particles for visual flair
-            ThemedParticles.SakuraPetals(Projectile.Center, 3 + RecursionDepth, 30f);
+            EroicaVFXLibrary.SpawnSakuraPetals(Projectile.Center, 3 + RecursionDepth, 30f);
         }
         
         public override void OnKill(int timeLeft)
@@ -178,14 +174,14 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             else
             {
                 // Final death burst - crisp heroic flash
-                DynamicParticleEffects.EroicaDeathHeroicFlash(Projectile.Center, 0.6f + RecursionDepth * 0.2f);
+                EroicaVFXLibrary.DeathHeroicFlash(Projectile.Center, 0.6f + RecursionDepth * 0.2f);
             }
         }
         
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft").Value;
+            Texture2D tex = SPFTextures.SparkleSoft.Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             
@@ -197,24 +193,24 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             {
                 float progress = (float)i / Projectile.oldPos.Length;
                 Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                Color trailColor = Color.Lerp(EroicaGold, EroicaScarlet, progress) * (1f - progress) * 0.5f;
+                Color trailColor = Color.Lerp(EroicaPalette.Gold, EroicaPalette.Scarlet, progress) * (1f - progress) * 0.5f;
                 trailColor.A = 0;
                 float trailScale = baseScale * (1f - progress * 0.4f);
                 spriteBatch.Draw(tex, trailPos, null, trailColor, 0f, origin, trailScale, SpriteEffects.None, 0f);
             }
             
             // Outer glow layer
-            Color outerGlow = EroicaGold * 0.3f;
+            Color outerGlow = EroicaPalette.Gold * 0.3f;
             outerGlow.A = 0;
             spriteBatch.Draw(tex, drawPos, null, outerGlow, 0f, origin, baseScale * pulse * 1.6f, SpriteEffects.None, 0f);
             
             // Middle layer
-            Color midGlow = Color.Lerp(EroicaGold, EroicaScarlet, 0.3f) * 0.5f;
+            Color midGlow = Color.Lerp(EroicaPalette.Gold, EroicaPalette.Scarlet, 0.3f) * 0.5f;
             midGlow.A = 0;
             spriteBatch.Draw(tex, drawPos, null, midGlow, 0f, origin, baseScale * pulse * 1.2f, SpriteEffects.None, 0f);
             
             // Core
-            Color coreGlow = Color.Lerp(EroicaScarlet, Color.White, 0.3f) * 0.8f;
+            Color coreGlow = Color.Lerp(EroicaPalette.Scarlet, Color.White, 0.3f) * 0.8f;
             coreGlow.A = 0;
             spriteBatch.Draw(tex, drawPos, null, coreGlow, 0f, origin, baseScale * pulse * 0.7f, SpriteEffects.None, 0f);
             
@@ -223,6 +219,56 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             hotCore.A = 0;
             spriteBatch.Draw(tex, drawPos, null, hotCore, 0f, origin, baseScale * pulse * 0.3f, SpriteEffects.None, 0f);
             
+            // ── Crystal shimmer overlay (SparkleProjectileFoundation pattern) ──
+            // Only for larger orbs (gen 1+), progressively simpler per doc
+            if (RecursionDepth >= 1)
+            {
+                Texture2D crystalBody = SPFTextures.CrystalBody.Value;
+                Texture2D starFlare = SPFTextures.StarFlare.Value;
+                float shimmerTime = (float)Main.timeForVisualEffects * 0.01f;
+                float genScale = RecursionDepth * 0.15f;
+
+                if (crystalBody != null)
+                {
+                    spriteBatch.End();
+                    try
+                    {
+                        spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                            Main.DefaultSamplerState, DepthStencilState.None,
+                            RasterizerState.CullCounterClockwise, null,
+                            Main.GameViewMatrix.TransformationMatrix);
+
+                        Color crystalCol = EroicaPalette.Gold with { A = 0 };
+                        float shimmerPulse = 0.5f + 0.5f * MathF.Sin(shimmerTime * 3f);
+                        spriteBatch.Draw(crystalBody, drawPos, null, crystalCol * (0.15f * shimmerPulse),
+                            shimmerTime * 0.5f, crystalBody.Size() * 0.5f,
+                            baseScale * genScale, SpriteEffects.None, 0f);
+
+                        if (starFlare != null && RecursionDepth >= 2)
+                        {
+                            Color flareCol = Color.White with { A = 0 };
+                            float flarePulse = 0.3f + 0.7f * MathF.Sin(shimmerTime * 5f);
+                            spriteBatch.Draw(starFlare, drawPos, null, flareCol * (0.2f * flarePulse),
+                                Projectile.rotation, starFlare.Size() * 0.5f,
+                                baseScale * genScale * 0.6f, SpriteEffects.None, 0f);
+                        }
+                    }
+                    finally
+                    {
+                        spriteBatch.End();
+                        spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                            Main.DefaultSamplerState, DepthStencilState.None,
+                            RasterizerState.CullCounterClockwise, null,
+                            Main.GameViewMatrix.TransformationMatrix);
+                    }
+                }
+            }
+
+            // Eroica theme accent
+            EroicaVFXLibrary.BeginEroicaAdditive(spriteBatch);
+            EroicaVFXLibrary.DrawThemeSakuraAccent(spriteBatch, Projectile.Center, 1f, 0.5f);
+            EroicaVFXLibrary.EndEroicaAdditive(spriteBatch);
+
             return false;
         }
     }

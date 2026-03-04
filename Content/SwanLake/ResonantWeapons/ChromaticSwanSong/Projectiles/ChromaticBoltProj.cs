@@ -1,43 +1,33 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.Graphics.Shaders;
 using MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Utilities;
-using MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Shaders;
-using MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Particles;
-using MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Primitives;
 using MagnumOpus.Content.SwanLake.Debuffs;
-using ReLogic.Content;
+using MagnumOpus.Content.SwanLake;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Projectiles
 {
     /// <summary>
     /// Chromatic Bolt — main projectile for Chromatic Swan Song.
-    /// 
-    /// BEHAVIOR:
-    /// • Travels in a straight line with a gentle spiral wobble
-    /// • Leaves a rainbow-shifting shader trail
-    /// • On hit: registers hit on player's ChromaticSwanPlayer
-    /// • If 3rd consecutive hit on same target → spawn AriaDetonationProj
-    /// • Applies FlameOfTheSwan for 4 seconds
+    /// Gentle spiral wobble, rainbow-shifting trail. Color based on Chromatic Scale position.
+    /// On impact: triggers Aria Detonation. Foundation-pattern rendering.
+    /// ai[0]: 0=normal, 1=harmonic-charged, 2=Opus Detonation.
+    /// ai[1]: scale position 0-6 (C-D-E-F-G-A-B).
     /// </summary>
     public class ChromaticBoltProj : ModProjectile
     {
-        private const int TrailLength = 20;
-        private Vector2[] _trail = new Vector2[TrailLength];
-        private ChromaticPrimitiveRenderer _renderer;
         private float _hueOffset;
 
         public override string Texture => "MagnumOpus/Content/SwanLake/ResonantWeapons/ChromaticSwanSong/ChromaticSwanSong";
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Type] = TrailLength;
+            ProjectileID.Sets.TrailCacheLength[Type] = 20;
             ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
@@ -60,229 +50,216 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Projecti
             Projectile.alpha = Math.Max(Projectile.alpha - 30, 0);
             _hueOffset += 0.02f;
 
-            // Update trail
-            for (int i = TrailLength - 1; i > 0; i--)
-                _trail[i] = _trail[i - 1];
-            _trail[0] = Projectile.Center;
+            int scalePos = (int)Projectile.ai[1];
 
             // Gentle spiral
             float spiral = (float)Math.Sin(Projectile.timeLeft * 0.2f) * 1.2f;
             Projectile.velocity = Projectile.velocity.RotatedBy(MathHelper.ToRadians(spiral * 0.2f));
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // Chromatic trail sparks
+            // Chromatic trail sparks — vanilla Dust colored by scale note
             if (Main.rand.NextBool(3))
             {
-                var spark = new ChromaticSparkParticle();
-                spark.Initialize(
+                Color sparkCol = ChromaticSwanPlayer.GetScaleColor(scalePos);
+                Dust d = Dust.NewDustPerfect(
                     Projectile.Center + Main.rand.NextVector2Circular(3f, 3f),
+                    DustID.RainbowTorch,
                     -Projectile.velocity.SafeNormalize(Vector2.Zero) * Main.rand.NextFloat(0.5f, 2f)
                         + Main.rand.NextVector2Circular(1f, 1f),
-                    ChromaticSwanUtils.GetChromatic(Main.rand.NextFloat()),
-                    Main.rand.NextFloat(0.6f, 1.0f)
-                );
-                ChromaticParticleHandler.Spawn(spark);
+                    0, sparkCol, Main.rand.NextFloat(0.6f, 1.0f));
+                d.noGravity = true;
             }
 
-            // Light
-            Color lightCol = ChromaticSwanUtils.GetChromatic(0f);
+            // Dying Breath: black feather particles
+            Player owner = Main.player[Projectile.owner];
+            try
+            {
+                if (owner.active && owner.ChromaticSwan().DyingBreathActive && Main.rand.NextBool(4))
+                {
+                    Dust d = Dust.NewDustPerfect(
+                        Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
+                        DustID.Smoke,
+                        -Projectile.velocity.SafeNormalize(Vector2.Zero) * Main.rand.NextFloat(0.3f, 1.5f)
+                            + Main.rand.NextVector2Circular(0.8f, 0.8f),
+                        180, Color.Black, 0.7f);
+                    d.noGravity = true;
+                }
+            }
+            catch { }
+
+            // Light — colored by scale note
+            Color lightCol = ChromaticSwanPlayer.GetScaleColor(scalePos);
             Lighting.AddLight(Projectile.Center, lightCol.ToVector3() * 0.4f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(ModContent.BuffType<FlameOfTheSwan>(), 240); // 4 seconds
+            target.AddBuff(ModContent.BuffType<SwansMark>(), 300);
 
             Player owner = Main.player[Projectile.owner];
-            var csp = owner.ChromaticSwan();
-            csp.RegisterHit(target.whoAmI);
+            ChromaticSwanPlayer csp = null;
+            try { csp = owner.ChromaticSwan(); } catch { }
+            csp?.RegisterHit(target.whoAmI);
 
-            // Aria Detonation trigger
-            if (csp.AriaReady)
-            {
-                csp.ConsumeAria();
+            int scalePos = (int)Projectile.ai[1];
+            bool isOpus = Projectile.ai[0] >= 2f;
+            bool isHarmonic = Projectile.ai[0] >= 1f;
+            bool dyingBreath = csp?.DyingBreathActive ?? false;
 
-                // Spawn aria detonation at target
-                int extraDmg = csp.HarmonicStack >= 5 ? 2 : 1; // Bonus from harmonic stack
-                int ariaDmg = (int)(Projectile.damage * 2.5f * extraDmg);
-                Projectile.NewProjectile(Projectile.GetSource_OnHit(target, "AriaDetonation"),
-                    target.Center, Vector2.Zero, ModContent.ProjectileType<AriaDetonationProj>(),
-                    ariaDmg, 10f, Projectile.owner,
-                    ai0: csp.HarmonicStack >= 5 ? 1f : 0f);
+            // Aria Detonation on EVERY hit
+            float ariaMode = isOpus ? 2f : (isHarmonic ? 1f : 0f);
+            float ariaDmgMult = isOpus ? 3f : (isHarmonic ? 2f : 0.5f);
+            int ariaDmg = (int)(Projectile.damage * ariaDmgMult);
+            float ariaAi1 = scalePos + (dyingBreath ? 100f : 0f);
 
-                if (csp.HarmonicStack >= 5)
-                    csp.ConsumeHarmonicStack();
+            Projectile.NewProjectile(Projectile.GetSource_OnHit(target, "AriaDetonation"),
+                target.Center, Vector2.Zero, ModContent.ProjectileType<AriaDetonationProj>(),
+                ariaDmg, 10f, Projectile.owner, ai0: ariaMode, ai1: ariaAi1);
 
-                SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.6f, Volume = 0.9f }, target.Center);
-            }
+            if (isHarmonic && !isOpus && csp != null && csp.HarmonicStack >= 5)
+                csp.ConsumeHarmonicStack();
 
-            // Hit sparks
+            if (isOpus)
+                SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.2f, Volume = 1.0f }, target.Center);
+            else
+                SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.6f, Volume = 0.7f }, target.Center);
+
+            // Hit sparks — vanilla Dust colored by scale note
+            Color noteColor = ChromaticSwanPlayer.GetScaleColor(scalePos);
             for (int i = 0; i < 6; i++)
             {
-                var shard = new PrismaticShardParticle();
-                shard.Initialize(
+                Dust d = Dust.NewDustPerfect(
                     target.Center + Main.rand.NextVector2Circular(10f, 10f),
+                    DustID.RainbowTorch,
                     Main.rand.NextVector2Circular(5f, 5f),
-                    ChromaticSwanUtils.GetChromatic(Main.rand.NextFloat()),
-                    Main.rand.NextFloat(0.5f, 1.0f)
-                );
-                ChromaticParticleHandler.Spawn(shard);
+                    0, noteColor, Main.rand.NextFloat(0.5f, 1.0f));
+                d.noGravity = true;
             }
 
-            // Chromatic music notes — harmonic resonance on strike
-            SwanLakeVFXLibrary.SpawnMusicNotes(target.Center, 2, 14f, 0.5f, 0.9f, 24);
-
-            // Prismatic sparkle accents
-            SwanLakeVFXLibrary.SpawnPrismaticSparkles(target.Center, 3, 12f);
+            try { SwanLakeVFXLibrary.SpawnMusicNotes(target.Center, 2, 14f, 0.5f, 0.9f, 24); } catch { }
+            try { SwanLakeVFXLibrary.SpawnPrismaticSparkles(target.Center, 3, 12f); } catch { }
         }
 
         public override void OnKill(int timeLeft)
         {
             for (int i = 0; i < 8; i++)
             {
-                var spark = new ChromaticSparkParticle();
-                spark.Initialize(
-                    Projectile.Center,
-                    Main.rand.NextVector2Circular(4f, 4f),
-                    ChromaticSwanUtils.GetChromatic(Main.rand.NextFloat()),
-                    Main.rand.NextFloat(0.4f, 0.8f)
-                );
-                ChromaticParticleHandler.Spawn(spark);
-            }
-
-            for (int i = 0; i < 6; i++)
-            {
+                Color col = ChromaticSwanUtils.GetChromatic(Main.rand.NextFloat());
                 Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowTorch,
-                    Main.rand.NextVector2Circular(3f, 3f), 0,
-                    ChromaticSwanUtils.GetChromatic(Main.rand.NextFloat()), 1f);
+                    Main.rand.NextVector2Circular(4f, 4f), 0, col, Main.rand.NextFloat(0.4f, 0.8f));
                 d.noGravity = true;
             }
 
-            // Chromatic dissolution music notes
-            SwanLakeVFXLibrary.SpawnMusicNotes(Projectile.Center, 3, 18f, 0.6f, 0.9f, 26);
-
-            // Feather drift at death — the swan's final whisper
-            SwanLakeVFXLibrary.SpawnFeatherDrift(Projectile.Center, 2, 0.35f);
+            try { SwanLakeVFXLibrary.SpawnMusicNotes(Projectile.Center, 3, 18f, 0.6f, 0.9f, 26); } catch { }
+            try { SwanLakeVFXLibrary.SpawnFeatherDrift(Projectile.Center, 2, 0.35f); } catch { }
         }
+
+        #region Rendering (Foundation Pattern)
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
 
-            // === Shader trail ===
-            DrawChromaticTrail(sb);
+            try
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // === Bloom core ===
-            DrawBloom(sb);
+                DrawChromaticTrail(sb);
+                DrawBloom(sb);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                try
+                {
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
 
-            // === Particles ===
-            ChromaticParticleHandler.DrawAllParticles(sb);
+            // Theme accents (additive)
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
+            ChromaticSwanUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
 
             return false;
         }
 
         private void DrawChromaticTrail(SpriteBatch sb)
         {
-            var valid = new List<Vector2>();
-            foreach (var p in _trail) if (p != Vector2.Zero) valid.Add(p);
-            if (valid.Count < 3) return;
+            Texture2D bloom = MagnumTextureRegistry.GetSoftGlow();
+            if (bloom == null) return;
 
-            _renderer ??= new ChromaticPrimitiveRenderer();
+            Vector2 origin = bloom.Size() * 0.5f;
 
-            var settings = new ChromaticTrailSettings(
-                t => MathHelper.Lerp(12f, 2f, t),
-                t => ChromaticSwanUtils.GetSpectrumColor(t + _hueOffset) * (1f - t * 0.6f),
-                ChromaticShaderLoader.HasChromaticTrailShader ? GameShaders.Misc["MagnumOpus:ChromaticTrail"] : null
-            );
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            if (ChromaticShaderLoader.HasChromaticTrailShader)
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
-                var shader = GameShaders.Misc["MagnumOpus:ChromaticTrail"];
-                shader.UseColor(Color.White);
-                shader.UseSaturation(_hueOffset);
+                if (Projectile.oldPos[i] == Vector2.Zero) continue;
+
+                float t = (float)i / Projectile.oldPos.Length;
+                Vector2 drawPos = Projectile.oldPos[i] + Projectile.Size * 0.5f - Main.screenPosition;
+                float trailAlpha = (1f - t) * 0.7f * ((255 - Projectile.alpha) / 255f);
+                float trailScale = MathHelper.Lerp(0.18f, 0.04f, t);
+
+                // Chrome spectrum color shifting along trail
+                Color spectrumCol = ChromaticSwanUtils.GetSpectrumColor(t + _hueOffset);
+                sb.Draw(bloom, drawPos, null, new Color(spectrumCol.R, spectrumCol.G, spectrumCol.B, 0) * trailAlpha,
+                    0f, origin, trailScale * 2f, SpriteEffects.None, 0f);
+
+                // White core
+                sb.Draw(bloom, drawPos, null, new Color(255, 255, 255, 0) * trailAlpha * 0.4f,
+                    0f, origin, trailScale * 0.6f, SpriteEffects.None, 0f);
             }
-            _renderer.RenderTrail(valid.ToArray(), settings, 18);
-
-            // Bloom underlay trail
-            var bloomSettings = new ChromaticTrailSettings(
-                t => MathHelper.Lerp(24f, 4f, t),
-                t => ChromaticSwanUtils.GetSpectrumColor(t + _hueOffset) * 0.2f * (1f - t),
-                ChromaticShaderLoader.HasChromaticTrailShader ? GameShaders.Misc["MagnumOpus:ChromaticTrail"] : null
-            );
-            _renderer.RenderTrail(valid.ToArray(), bloomSettings, 18);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
         private void DrawBloom(SpriteBatch sb)
         {
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float alpha = (255 - Projectile.alpha) / 255f;
-            Color col = ChromaticSwanUtils.GetChromatic(0f);
+            Color col = ChromaticSwanUtils.GetChromatic(_hueOffset);
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.2f) * 0.1f + 0.9f;
 
-            // Load VFX Asset Library bloom textures
-            Texture2D softRadial = null;
-            Texture2D pointBloom = null;
-            Texture2D starAccent = null;
-            try
-            {
-                softRadial = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom",
-                    AssetRequestMode.ImmediateLoad)?.Value;
-                pointBloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom",
-                    AssetRequestMode.ImmediateLoad)?.Value;
-                starAccent = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard",
-                    AssetRequestMode.ImmediateLoad)?.Value;
-            }
-            catch { }
+            Texture2D radial = MagnumTextureRegistry.GetRadialBloom();
+            Texture2D point = MagnumTextureRegistry.GetPointBloom();
+            Texture2D star = MagnumTextureRegistry.GetStar4Hard();
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Layer 1: Outer chromatic halo (SoftRadialBloom)
-            if (softRadial != null)
+            // Layer 1: Outer chromatic halo
+            if (radial != null)
             {
-                Vector2 srOrigin = new Vector2(softRadial.Width / 2f, softRadial.Height / 2f);
-                sb.Draw(softRadial, drawPos, null, new Color(col.R, col.G, col.B, 0) * 0.35f * alpha,
+                Vector2 srOrigin = radial.Size() * 0.5f;
+                sb.Draw(radial, drawPos, null, new Color(col.R, col.G, col.B, 0) * 0.35f * alpha,
                     0f, srOrigin, 0.40f * pulse, SpriteEffects.None, 0f);
-            }
 
-            // Layer 2: Mid-spectrum glow (SoftRadialBloom, shifted hue)
-            if (softRadial != null)
-            {
-                Vector2 srOrigin = new Vector2(softRadial.Width / 2f, softRadial.Height / 2f);
+                // Layer 2: Mid-spectrum glow shifted hue
                 Color shifted = ChromaticSwanUtils.GetChromatic(_hueOffset + 0.33f);
-                sb.Draw(softRadial, drawPos, null, new Color(shifted.R, shifted.G, shifted.B, 0) * 0.25f * alpha,
+                sb.Draw(radial, drawPos, null, new Color(shifted.R, shifted.G, shifted.B, 0) * 0.25f * alpha,
                     0f, srOrigin, 0.25f * pulse, SpriteEffects.None, 0f);
             }
 
-            // Layer 3: Concentrated white-hot core (PointBloom)
-            if (pointBloom != null)
+            // Layer 3: White-hot core
+            if (point != null)
             {
-                Vector2 pbOrigin = new Vector2(pointBloom.Width / 2f, pointBloom.Height / 2f);
-                sb.Draw(pointBloom, drawPos, null, new Color(255, 255, 255, 0) * 0.55f * alpha,
+                Vector2 pbOrigin = point.Size() * 0.5f;
+                sb.Draw(point, drawPos, null, new Color(255, 255, 255, 0) * 0.55f * alpha,
                     0f, pbOrigin, 0.12f * pulse, SpriteEffects.None, 0f);
             }
 
-            // Layer 4: Rotating rainbow star accent (4PointedStarHard)
-            if (starAccent != null)
+            // Layer 4: Rotating rainbow star accent
+            if (star != null)
             {
-                Vector2 starOrigin = new Vector2(starAccent.Width / 2f, starAccent.Height / 2f);
+                Vector2 starOrigin = star.Size() * 0.5f;
                 Color rainbow = ChromaticSwanUtils.GetSpectrumColor(_hueOffset);
-                sb.Draw(starAccent, drawPos, null, new Color(rainbow.R, rainbow.G, rainbow.B, 0) * 0.30f * alpha,
+                sb.Draw(star, drawPos, null, new Color(rainbow.R, rainbow.G, rainbow.B, 0) * 0.30f * alpha,
                     _hueOffset * 3f, starOrigin, 0.18f * pulse, SpriteEffects.None, 0f);
             }
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
+
+        #endregion
     }
 }

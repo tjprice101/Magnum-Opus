@@ -14,12 +14,12 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Shaders
 
         public override void PostSetupContent()
         {
-            if (TryLoadMiscShader("Effects/SwanLake/TheSwansLament/LamentBulletTrail",
-                "LamentBulletMain", "MagnumOpus:LamentBulletTrail"))
+            if (TryLoadMiscShader("MagnumOpus/Effects/SwanLake/TheSwansLament/LamentBulletTrail",
+                "P0", "MagnumOpus:LamentBulletTrail"))
                 HasLamentBulletTrailShader = true;
 
-            if (TryLoadMiscShader("Effects/SwanLake/TheSwansLament/DestructionRevelation",
-                "DestructionMain", "MagnumOpus:DestructionRevelation"))
+            if (TryLoadMiscShader("MagnumOpus/Effects/SwanLake/TheSwansLament/DestructionRevelation",
+                "P0", "MagnumOpus:DestructionRevelation"))
                 HasDestructionRevelationShader = true;
         }
 

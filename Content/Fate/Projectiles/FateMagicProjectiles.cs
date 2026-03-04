@@ -11,6 +11,7 @@ using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Fate.Debuffs;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Fate.Projectiles
 {
@@ -105,7 +106,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 FateCosmicVFX.SpawnCosmicMusicNotes(owner.Center, 1, 40f, 0.3f);
             }
             
-            // ☁EMUSICAL NOTATION - Cosmic electricity aura
+            // 隨倥・MUSICAL NOTATION - Cosmic electricity aura
             if (Main.rand.NextBool(6))
             {
                 Color noteColor = Color.Lerp(new Color(180, 50, 100), new Color(255, 60, 80), Main.rand.NextFloat());
@@ -171,7 +172,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
+            Texture2D tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             
@@ -283,7 +284,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 FateCosmicVFX.SpawnCosmicMusicNotes(notePos, 2, 20f, 0.35f);
             }
             
-            // ☁EMUSICAL NOTATION - Zodiac symphony ring
+            // 隨倥・MUSICAL NOTATION - Zodiac symphony ring
             if (Main.rand.NextBool(5))
             {
                 float noteAngle = Main.rand.NextFloat(MathHelper.TwoPi);
@@ -322,7 +323,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 300);
             FateCosmicVFX.SpawnCosmicExplosion(target.Center, 0.5f);
             
-            // ☁EMUSICAL IMPACT - Zodiac chord burst
+            // 隨倥・MUSICAL IMPACT - Zodiac chord burst
             ThemedParticles.MusicNoteBurst(target.Center, new Color(180, 50, 100), 5, 4f);
         }
 
@@ -566,7 +567,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 FateCosmicVFX.SpawnCosmicMusicNotes(Projectile.Center, 1, 12f, 0.22f);
             }
             
-            // ☁EMUSICAL NOTATION - Spectral blade melody trail
+            // 隨倥・MUSICAL NOTATION - Spectral blade melody trail
             if (Main.rand.NextBool(isDashing ? 4 : 8))
             {
                 Color noteColor = Color.Lerp(new Color(180, 50, 100), new Color(255, 60, 80), Main.rand.NextFloat());
@@ -597,7 +598,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             FateCosmicVFX.SpawnGlyphBurst(target.Center, 5, 5f, 0.3f);
             FateVFXLibrary.SpawnStarSparkles(target.Center, 4, 25f, 0.25f);
             
-            // ☁EMUSICAL IMPACT - Spectral blade chord
+            // 隨倥・MUSICAL IMPACT - Spectral blade chord
             ThemedParticles.MusicNoteBurst(target.Center, new Color(180, 50, 100), 4, 3.5f);
             
             // Reset to seeking for next attack
@@ -615,7 +616,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             FateVFXLibrary.SpawnStarSparkles(Projectile.Center, 8, 35f, 0.35f);
             FateCosmicVFX.SpawnCosmicMusicNotes(Projectile.Center, 4, 30f, 0.35f);
             
-            // ☁EMUSICAL FINALE - Grand spectral crescendo
+            // 隨倥・MUSICAL FINALE - Grand spectral crescendo
             ThemedParticles.MusicNoteBurst(Projectile.Center, new Color(180, 50, 100), 7, 5f);
             ThemedParticles.MusicNoteBurst(Projectile.Center, Color.White, 4, 3f);
             
@@ -630,11 +631,11 @@ namespace MagnumOpus.Content.Fate.Projectiles
             Texture2D tex;
             try
             {
-                tex = ModContent.Request<Texture2D>(currentTexturePath).Value;
+                tex = ModContent.Request<Texture2D>(currentTexturePath, AssetRequestMode.ImmediateLoad).Value;
             }
             catch
             {
-                tex = ModContent.Request<Texture2D>(Texture).Value;
+                tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             }
             
             Vector2 origin = tex.Size() / 2f;

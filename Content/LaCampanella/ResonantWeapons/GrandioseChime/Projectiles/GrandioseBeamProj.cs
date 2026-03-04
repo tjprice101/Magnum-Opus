@@ -7,7 +7,10 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Particles;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Primitives;
+using MagnumOpus.Content.LaCampanella;
 using MagnumOpus.Content.LaCampanella.Debuffs;
+using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Projectiles
 {
@@ -56,6 +59,12 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
         {
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, IsGrandiose ? 2 : 1);
 
+            // === FOUNDATION: RippleEffectProjectile — Beam impact zone ring ===
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), target.Center, Vector2.Zero,
+                ModContent.ProjectileType<RippleEffectProjectile>(),
+                0, 0f, Projectile.owner);
+
             // Kill echo chain on enemy death
             if (target.life <= 0)
             {
@@ -86,6 +95,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
 
             if (trailPositions.Count >= 2)
             {
@@ -105,13 +116,53 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
                 catch { }
             }
 
-            var tex = ModContent.Request<Texture2D>(Texture).Value;
+            var tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             float pulse = 0.85f + (float)Math.Sin(Main.GameUpdateCount * 0.3f) * 0.15f;
             float coreScale = IsGrandiose ? 0.3f : 0.15f;
             Color coreColor = GrandioseChimeUtils.BeamPalette[3] * pulse;
+
+            // Draw bloom core + LC ring in Additive
+            try { sb.End(); } catch { }
+            try
+            {
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
                 coreColor, 0f, tex.Size() / 2f, coreScale, SpriteEffects.None, 0f);
 
+            // LC Infernal Beam Ring - fiery halo around beam core
+            {
+                Vector2 beamScreen = Projectile.Center - Main.screenPosition;
+                float ringScale = IsGrandiose ? 0.3f : 0.18f;
+                float ringRot = (float)Main.GameUpdateCount * 0.04f;
+                LaCampanellaVFXLibrary.DrawInfernalBeamRing(sb, beamScreen,
+                    ringScale * pulse, ringRot, 0.25f * pulse,
+                    LaCampanellaPalette.InfernalOrange);
+            }
+
+            // Theme texture accents
+            GrandioseChimeUtils.DrawThemeAccents(sb, Projectile.Center - Main.screenPosition, Projectile.scale);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
+            } // end outer try
+            catch
+            {
+                try
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
             return false;
         }
 

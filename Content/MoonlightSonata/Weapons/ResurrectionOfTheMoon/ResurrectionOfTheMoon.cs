@@ -333,7 +333,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon
 
             // Lore
             tooltips.Add(new TooltipLine(Mod, "Lore",
-                "'From death comes rebirth in silver light — the final movement that silences all'")
+                "'What dies in moonlight is reborn in starfire.'")
             { OverrideColor = new Color(140, 100, 200) });
         }
 

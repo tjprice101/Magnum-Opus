@@ -7,7 +7,9 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator.Particles;
+using MagnumOpus.Content.LaCampanella;
 using MagnumOpus.Content.LaCampanella.Debuffs;
+using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator.Projectiles
 {
@@ -26,6 +28,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
 
         private float _baseWidth = 60f;
         private float _currentWidth;
+        private static int _lastParticleDrawFrame = -1;
         private int _pierceCount;
         private bool _initialized;
 
@@ -117,6 +120,12 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
         {
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, IsSymphonicOverture ? 5 : 2);
 
+            // === FOUNDATION: RippleEffectProjectile — Grand Crescendo Wave expanding ring ===
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), target.Center, Vector2.Zero,
+                ModContent.ProjectileType<RippleEffectProjectile>(),
+                0, 0f, Projectile.owner);
+
             _pierceCount++;
 
             // Slow on pierce (unless Symphonic Overture)
@@ -152,10 +161,17 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             float travelProgress = 1f - (float)Projectile.timeLeft / 180f;
             float fade = Math.Min(1f, (float)Projectile.timeLeft / 30f); // Fade in last 0.5s
 
-            SymphonicBellfireParticleHandler.DrawAllParticles(sb);
+            int currentFrame = (int)Main.GameUpdateCount;
+            if (_lastParticleDrawFrame != currentFrame)
+            {
+                _lastParticleDrawFrame = currentFrame;
+                SymphonicBellfireParticleHandler.DrawAllParticles(sb);
+            }
 
             Texture2D tex = null;
             try
@@ -172,7 +188,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
             float scaleX = _currentWidth / tex.Width * 2.5f;
             float scaleY = _currentWidth * 0.5f / tex.Height * 2.5f;
 
-            sb.End();
+            try { sb.End(); } catch { }
+            try
+            {
             sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
@@ -193,10 +211,42 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
             sb.Draw(tex, drawPos, null, coreColor, Projectile.rotation,
                 origin, new Vector2(scaleX * 0.4f, scaleY * 0.4f), SpriteEffects.None, 0f);
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            // LC Impact Ellipse - expanding shockwave ring on crescendo wave
+            {
+                float ellipsePulse = 0.6f + 0.4f * (float)Math.Sin(Main.GameUpdateCount * 0.18f);
+                LaCampanellaVFXLibrary.DrawImpactEllipse(sb, drawPos,
+                    scaleX * 0.4f * ellipsePulse, Projectile.rotation,
+                    0.2f * fade * ellipsePulse, LaCampanellaPalette.FlameYellow);
+            }
 
+            // LC Power Effect Ring - concentric ring overlay behind wave
+            if (IsSymphonicOverture)
+            {
+                float ringPulse = 0.5f + 0.5f * (float)Math.Sin(Main.GameUpdateCount * 0.14f);
+                LaCampanellaVFXLibrary.DrawPowerEffectRing(sb, drawPos,
+                    scaleX * 0.35f, (float)Main.GameUpdateCount * 0.02f,
+                    0.25f * fade * ringPulse, LaCampanellaPalette.BellGold);
+            }
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
+            } // end outer try
+            catch
+            {
+                try
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
             return false;
         }
 

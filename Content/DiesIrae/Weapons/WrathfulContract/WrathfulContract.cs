@@ -54,10 +54,12 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Summons a wrathful demon that orbits and dashes at enemies"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Every 3rd dash unleashes a burst of 6 homing wrath fireballs"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Costs 2 minion slots"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The contract is sealed in hellfire — there is no breaking it'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Summons a wrathful demon bound by a blood contract"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Constantly drains 1 HP/s while active, heals 5% of enemy max HP on hit"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "After 3 kills, enters Frenzy: 2x attack speed, +30% damage, but 3 HP/s drain"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Below 10% HP triggers Breach of Contract — the demon turns hostile"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Costs 2 minion slots"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The contract demands payment in blood. Yours or theirs — it cares not which'")
             {
                 OverrideColor = new Color(200, 50, 30)
             });

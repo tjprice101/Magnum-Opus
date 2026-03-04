@@ -21,9 +21,16 @@ using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown.Util
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
 {
     /// <summary>
-    /// FUGUE OF THE UNKNOWN - Magic weapon that spawns orbiting "voice" projectiles
-    /// Voices orbit the player and can be released toward enemies
-    /// Hitting enemies with EchoMark debuff builds stacks, culminating in Harmonic Convergence
+    /// FUGUE OF THE UNKNOWN — Magic orbit-and-release weapon (Enigma Variations theme).
+    /// A fugue — multiple voices weaving independently, then converging.
+    /// 
+    /// Left-click spawns orbiting voice projectiles (max 5, progressive positioning).
+    /// Right-click releases all voices with homing + spiral toward nearest enemies.
+    /// Hits apply EchoMark stacks; at 5 marks triggers Harmonic Convergence:
+    ///   5x damage to primary target, 3x chain damage to all marked enemies within 400 units.
+    /// 
+    /// Custom Shaders: FugueVoiceTrail.fx, FugueConvergence.fx
+    /// Foundation: SparkleProjectileFoundation + MaskFoundation + RibbonFoundation planned
     /// </summary>
     public class FugueOfTheUnknown : ModItem
     {
@@ -80,10 +87,12 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect", "Spawns mysterious voice projectiles that orbit you"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect2", "Right-click to release all voices toward nearest enemies"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect3", "Marks enemies with Echo; stacks trigger devastating Harmonic Convergence"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaLore", "'Three voices, interlocking, speaking truths that cannot be known.'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Left-click spawns orbiting voice projectiles around you (max 5)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Right-click releases all voices — they spiral and home toward enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Hits apply EchoMark stacks on enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "At 5 EchoMark stacks, triggers Harmonic Convergence — 5x damage to the target"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Convergence chains 3x damage to all Echo-marked enemies in range"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Five voices. One question. No answer.'")
             {
                 OverrideColor = EnigmaPurple
             });
@@ -164,8 +173,12 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
 
             var bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             var glyphTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MusicNote", AssetRequestMode.ImmediateLoad).Value;
+            var starFlareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
+            var powerRingTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Power Effect Ring", AssetRequestMode.ImmediateLoad).Value;
             Vector2 bloomOrigin = bloomTex.Size() / 2f;
             Vector2 glyphOrigin = glyphTex.Size() / 2f;
+            Vector2 starFlareOrigin = starFlareTex.Size() / 2f;
+            Vector2 powerRingOrigin = powerRingTex.Size() / 2f;
 
             // === Shader overlay: Polyphonic voice spectrum / standing wave interference ===
             {
@@ -196,6 +209,13 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
                 // Core glyph sprite with sin-wave pulsing opacity (0.5 - 1.0)
                 float glyphAlpha = 0.5f + pulse * 0.5f;
                 sb.Draw(glyphTex, drawPos, null, Color.White * glyphAlpha, Projectile.rotation, glyphOrigin, 0.6f, SpriteEffects.None, 0f);
+
+                // Layer 4: EN Star Flare — dual-rotating spectral flare
+                float flareRotA = (float)Main.GameUpdateCount * 0.02f + Projectile.ai[1] * 1.5f;
+                float flareRotB = -(float)Main.GameUpdateCount * 0.015f + Projectile.ai[1] * 2.1f;
+                float flareScale = 0.18f + pulse * 0.06f;
+                sb.Draw(starFlareTex, drawPos, null, FugueUtils.VoicePurple * (0.35f + pulse * 0.15f), flareRotA, starFlareOrigin, flareScale, SpriteEffects.None, 0f);
+                sb.Draw(starFlareTex, drawPos, null, FugueUtils.EchoTeal * (0.25f + pulse * 0.1f), flareRotB, starFlareOrigin, flareScale * 0.8f, SpriteEffects.None, 0f);
             }
             else
             {
@@ -224,7 +244,30 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
 
                 // Glyph sprite at full intensity
                 sb.Draw(glyphTex, drawPos, null, Color.White * 0.9f, Projectile.rotation, glyphOrigin, 0.7f, SpriteEffects.None, 0f);
+
+                // Layer 5: EN Power Effect Ring — rotating ring behind released voice
+                float ringRot = (float)Main.GameUpdateCount * 0.04f;
+                float ringScale = 0.22f + pulse * 0.08f;
+                sb.Draw(powerRingTex, drawPos, null, FugueUtils.EchoTeal * (0.3f + pulse * 0.15f), ringRot, powerRingOrigin, ringScale, SpriteEffects.None, 0f);
+                sb.Draw(powerRingTex, drawPos, null, FugueUtils.VoicePurple * (0.2f + pulse * 0.1f), -ringRot * 0.7f, powerRingOrigin, ringScale * 1.3f, SpriteEffects.None, 0f);
+
+                // Layer 6: EN Star Flare — streaking behind released voice
+                float relFlareRot = velAngle + MathF.Sin((float)Main.GameUpdateCount * 0.1f) * 0.3f;
+                sb.Draw(starFlareTex, drawPos, null, FugueUtils.FugueCyan * (0.35f + pulse * 0.15f), relFlareRot, starFlareOrigin, 0.2f + pulse * 0.05f, SpriteEffects.None, 0f);
             }
+
+            // Theme texture accents (additive pass)
+            try
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                FugueUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
 
             return false;
         }
@@ -310,7 +353,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
                 if (bestTarget != null)
                 {
                     Vector2 toTarget = (bestTarget.Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
-                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * 16f, 0.08f);
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * 14f, 0.04f);
                 }
                 
                 // Spiral motion
@@ -349,11 +392,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             // Apply Echo Mark
-            target.AddBuff(ModContent.BuffType<EchoMark>(), 300);
+            target.AddBuff(ModContent.BuffType<EchoMark>(), 480);
             target.GetGlobalNPC<EchoMarkNPC>().AddEchoStack(target);
             
-            // Apply Paradox Brand
-            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 300);
+            // Apply Paradox Brand (8 seconds per doc)
+            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
             target.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(target, 1);
             
             // Check for Harmonic Convergence
@@ -363,7 +406,30 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
                 TriggerHarmonicConvergence(target);
             }
             
-            Lighting.AddLight(target.Center, EnigmaPurple.ToVector3() * 0.5f);
+            Lighting.AddLight(target.Center, EnigmaPurple.ToVector3() * 0.6f);
+
+            // Impact VFX burst on every hit
+            int impactMotes = Main.rand.Next(3, 6);
+            for (int i = 0; i < impactMotes; i++)
+            {
+                Vector2 impactVel = Main.rand.NextVector2CircularEdge(3f, 3f) * Main.rand.NextFloat(0.4f, 1.0f);
+                Color impactCol = Color.Lerp(FugueUtils.EchoTeal, FugueUtils.VoicePurple, Main.rand.NextFloat());
+                FugueParticleHandler.Spawn(new FugueTrailMote(
+                    target.Center + Main.rand.NextVector2Circular(6f, 6f),
+                    impactVel,
+                    impactCol,
+                    Main.rand.NextFloat(0.2f, 0.4f),
+                    Main.rand.Next(15, 30)
+                ));
+            }
+
+            // Convergence flash on hit
+            FugueParticleHandler.Spawn(new ConvergenceFlashParticle(
+                target.Center,
+                FugueUtils.EchoTeal,
+                Main.rand.NextFloat(0.8f, 1.2f),
+                15
+            ));
         }
         
         private void TriggerHarmonicConvergence(NPC target)
@@ -399,6 +465,27 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
 
             // ======= HARMONIC CONVERGENCE VFX =======
 
+            // EN Power Effect Ring — expanding concentric rings at convergence point
+            {
+                var convRingTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Power Effect Ring", AssetRequestMode.ImmediateLoad).Value;
+                Vector2 convRingOrigin = convRingTex.Size() / 2f;
+                Vector2 convDrawPos = target.Center - Main.screenPosition;
+                float convRot1 = Main.rand.NextFloat(MathHelper.TwoPi);
+                float convRot2 = convRot1 + MathHelper.PiOver4;
+                Main.spriteBatch.Draw(convRingTex, convDrawPos, null, FugueUtils.VoicePurple * 0.6f, convRot1, convRingOrigin, 0.5f, SpriteEffects.None, 0f);
+                Main.spriteBatch.Draw(convRingTex, convDrawPos, null, FugueUtils.EchoTeal * 0.45f, convRot2, convRingOrigin, 0.7f, SpriteEffects.None, 0f);
+            }
+
+            // EN Star Flare — brilliant convergence flash flare
+            {
+                var convFlareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
+                Vector2 convFlareOrigin = convFlareTex.Size() / 2f;
+                Vector2 convDrawPos = target.Center - Main.screenPosition;
+                float convFlareRot = Main.rand.NextFloat(MathHelper.TwoPi);
+                Main.spriteBatch.Draw(convFlareTex, convDrawPos, null, FugueUtils.HarmonicWhite * 0.7f, convFlareRot, convFlareOrigin, 0.4f, SpriteEffects.None, 0f);
+                Main.spriteBatch.Draw(convFlareTex, convDrawPos, null, FugueUtils.FugueCyan * 0.5f, convFlareRot + MathHelper.PiOver2, convFlareOrigin, 0.35f, SpriteEffects.None, 0f);
+            }
+
             // Large flash at primary target — all voices resolving in unison
             FugueParticleHandler.Spawn(new ConvergenceFlashParticle(
                 target.Center,
@@ -408,7 +495,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
             ));
 
             // Burst of trail motes outward from target
-            int burstCount = Main.rand.Next(15, 21);
+            int burstCount = Main.rand.Next(20, 30);
             for (int i = 0; i < burstCount; i++)
             {
                 Vector2 burstVel = Main.rand.NextVector2CircularEdge(5f, 5f) * Main.rand.NextFloat(0.6f, 1.3f);
@@ -423,7 +510,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
             }
 
             // Expanding voice wisps from target
-            int wispCount = Main.rand.Next(3, 6);
+            int wispCount = Main.rand.Next(5, 9);
             for (int i = 0; i < wispCount; i++)
             {
                 Vector2 wispVel = Main.rand.NextVector2CircularEdge(1.5f, 1.5f) * Main.rand.NextFloat(0.4f, 0.8f);
@@ -448,7 +535,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
                 ));
 
                 // Trail motes along the chain line between target and marked enemy
-                int chainMotes = Main.rand.Next(3, 6);
+                int chainMotes = Main.rand.Next(5, 9);
                 for (int j = 0; j < chainMotes; j++)
                 {
                     float t = (j + 1f) / (chainMotes + 1f);
@@ -468,17 +555,30 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
         public override void OnKill(int timeLeft)
         {
             // Death burst: scattered trail motes
-            int moteCount = Main.rand.Next(6, 11);
+            int moteCount = Main.rand.Next(10, 16);
             for (int i = 0; i < moteCount; i++)
             {
-                Vector2 vel = Main.rand.NextVector2CircularEdge(3f, 3f) * Main.rand.NextFloat(0.5f, 1.2f);
+                Vector2 vel = Main.rand.NextVector2CircularEdge(4f, 4f) * Main.rand.NextFloat(0.5f, 1.4f);
                 Color col = Color.Lerp(FugueUtils.EchoTeal, FugueUtils.VoicePurple, Main.rand.NextFloat());
                 FugueParticleHandler.Spawn(new FugueTrailMote(
-                    Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
+                    Projectile.Center + Main.rand.NextVector2Circular(8f, 8f),
                     vel,
                     col,
-                    Main.rand.NextFloat(0.25f, 0.45f),
-                    Main.rand.Next(20, 40)
+                    Main.rand.NextFloat(0.25f, 0.5f),
+                    Main.rand.Next(20, 45)
+                ));
+            }
+
+            // Voice wisp burst on death
+            for (int i = 0; i < Main.rand.Next(2, 4); i++)
+            {
+                Vector2 wispVel = Main.rand.NextVector2CircularEdge(1.5f, 1.5f) * Main.rand.NextFloat(0.3f, 0.7f);
+                FugueParticleHandler.Spawn(new VoiceWispParticle(
+                    Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
+                    wispVel,
+                    FugueUtils.EchoTeal,
+                    Main.rand.NextFloat(0.3f, 0.6f),
+                    Main.rand.Next(30, 50)
                 ));
             }
 
@@ -486,18 +586,18 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
             FugueParticleHandler.Spawn(new ConvergenceFlashParticle(
                 Projectile.Center,
                 FugueUtils.FugueCyan,
-                1.2f,
-                25
+                1.5f,
+                30
             ));
 
             // Echo dust burst
-            for (int i = 0; i < Main.rand.Next(3, 5); i++)
+            for (int i = 0; i < Main.rand.Next(5, 8); i++)
             {
                 Dust.NewDustPerfect(
-                    Projectile.Center + Main.rand.NextVector2Circular(8f, 8f),
+                    Projectile.Center + Main.rand.NextVector2Circular(10f, 10f),
                     ModContent.DustType<FugueEchoDust>(),
-                    Main.rand.NextVector2Circular(1.5f, 1.5f),
-                    0, default, Main.rand.NextFloat(0.5f, 0.9f)
+                    Main.rand.NextVector2Circular(2f, 2f),
+                    0, default, Main.rand.NextFloat(0.5f, 1.0f)
                 );
             }
         }

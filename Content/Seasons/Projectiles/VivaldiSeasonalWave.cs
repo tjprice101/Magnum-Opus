@@ -7,6 +7,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Seasons.Projectiles
 {
@@ -294,10 +295,10 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D arcTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse").Value;
-            Texture2D flareTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare").Value;
-            Texture2D flareTexture2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare").Value;
-            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
+            Texture2D arcTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D flareTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D flareTexture2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
             Vector2 arcOrigin = arcTexture.Size() / 2f;
             Vector2 flareOrigin = flareTexture.Size() / 2f;
             Vector2 flareOrigin2 = flareTexture2.Size() / 2f;

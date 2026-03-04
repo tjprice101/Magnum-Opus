@@ -481,9 +481,28 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             float opacity = 1f - Projectile.alpha / 255f;
 
-            DrawSpectralTrail(sb, opacity);
-            DrawBladeSprite(sb, lightColor, opacity);
-            DrawCosmicGlow(sb, opacity);
+            try
+            {
+                // End SpriteBatch for GPU primitive trail drawing
+                sb.End();
+                DrawSpectralTrail(sb, opacity);
+
+                // Restart SpriteBatch for sprite-based layers
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
+                DrawBladeSprite(sb, lightColor, opacity);
+                DrawCosmicGlow(sb, opacity);
+            }
+            catch
+            {
+                try
+                {
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
 
             return false;
         }

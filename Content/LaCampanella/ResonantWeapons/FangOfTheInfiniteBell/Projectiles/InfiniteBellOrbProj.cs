@@ -8,7 +8,10 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.Particles;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.Primitives;
+using MagnumOpus.Content.LaCampanella;
 using MagnumOpus.Content.LaCampanella.Debuffs;
+using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
+using MagnumOpus.Content.FoundationWeapons.ExplosionParticlesFoundation;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.Projectiles
 {
@@ -252,6 +255,12 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
             }
             FangOfTheInfiniteBellParticleHandler.SpawnParticle(
                 new ArcaneFlashParticle(position, 10, 1.2f, false));
+
+            // === FOUNDATION: RippleEffectProjectile — Bell chime ring on bounce impact ===
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), position, Vector2.Zero,
+                ModContent.ProjectileType<RippleEffectProjectile>(),
+                0, 0f, Projectile.owner);
         }
 
         private void SpawnExplosion()
@@ -283,18 +292,51 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
             }
 
             SoundEngine.PlaySound(SoundID.Item14, Projectile.Center);
+
+            // === FOUNDATION: RippleEffectProjectile — Orb explosion bell shockwave ===
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero,
+                ModContent.ProjectileType<RippleEffectProjectile>(),
+                0, 0f, Projectile.owner);
+
+            // === FOUNDATION: SparkExplosionProjectile — Orb detonation spark burst ===
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero,
+                ModContent.ProjectileType<SparkExplosionProjectile>(),
+                0, 0f, Projectile.owner,
+                ai0: (float)SparkMode.RadialScatter);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
+                // Draw trail
+                DrawOrbTrail(sb);
 
-            // Draw trail
-            DrawOrbTrail(sb);
+                // Draw orb body with bloom
+                DrawOrbBody(sb, lightColor);
 
-            // Draw orb body with bloom
-            DrawOrbBody(sb, lightColor);
-
+                // Theme texture accents
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                FangOfTheInfiniteBellUtils.DrawThemeAccents(sb, Projectile.Center - Main.screenPosition, Projectile.scale);
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch
+            {
+                try
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
             return false;
         }
 
@@ -323,7 +365,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
                 shader: null,
                 smoothen: true);
 
-            sb.End();
+            try { sb.End(); } catch { }
             _trailRenderer.RenderTrail(trail, settings, trail.Length);
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
@@ -347,7 +389,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
                 Vector2 bloomOrigin = new(bloomTex.Width / 2f, bloomTex.Height / 2f);
                 float pulse = 0.85f + 0.15f * (float)Math.Sin(Main.GameUpdateCount * 0.1f);
 
-                sb.End();
+                try { sb.End(); } catch { }
+                try
+                {
                 sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
@@ -363,9 +407,29 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
                     FangOfTheInfiniteBellUtils.GetArcaneGradient(0.85f), 0.6f);
                 sb.Draw(bloomTex, screenPos, null, coreColor, 0f, bloomOrigin, coreScale, SpriteEffects.None, 0f);
 
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                // --- LC Bright Star Projectile — sharp infernal star inside the orb ---
+                float starRot = (float)Main.GameUpdateCount * 0.05f;
+                float starScale = (IsCrescendo ? 0.25f : 0.15f) * pulse;
+                LaCampanellaVFXLibrary.DrawBrightStar(sb, screenPos,
+                    starScale, starRot, 0.35f * pulse,
+                    LaCampanellaPalette.BellGold);
+
+                // --- LC Power Effect Ring — concentric energy ring during crescendo ---
+                if (IsCrescendo)
+                {
+                    float ringPulse = 0.5f + 0.5f * (float)Math.Sin(Main.GameUpdateCount * 0.12f);
+                    LaCampanellaVFXLibrary.DrawPowerEffectRing(sb, screenPos,
+                        0.35f * pulse, -(float)Main.GameUpdateCount * 0.03f,
+                        0.25f * ringPulse, LaCampanellaPalette.InfernalOrange);
+                }
+                }
+                catch { }
+                finally
+                {
+                    try { sb.End(); } catch { }
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                }
             }
 
             // Draw actual sprite

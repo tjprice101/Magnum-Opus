@@ -9,12 +9,13 @@ using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Uti
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Particles;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Primitives;
 using MagnumOpus.Content.LaCampanella.Debuffs;
-using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Utilities;
+using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Projectiles
 {
     /// <summary>
-    /// Staccato bullet wrapper  Ereplaces vanilla bullets with fire-trail-enhanced versions.
+    /// Staccato bullet wrapper 遯ｶ繝ｻreplaces vanilla bullets with fire-trail-enhanced versions.
     /// ai[0] stores original bullet type for visual reference.
     /// </summary>
     public class StaccatoBulletProj : ModProjectile
@@ -62,11 +63,19 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
 
             // Embed a Resonant Marker
             target.GetGlobalNPC<ResonantMarkerNPC>().AddMarker(target);
+
+            // === FOUNDATION: RippleEffectProjectile — Marker embed ring ===
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), target.Center, Vector2.Zero,
+                ModContent.ProjectileType<RippleEffectProjectile>(),
+                0, 0f, Projectile.owner);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
 
             // Draw fire trail
             if (trailPositions.Count >= 2)
@@ -87,11 +96,31 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
             }
 
             // Draw bullet sprite
-            var tex = ModContent.Request<Texture2D>(Texture).Value;
+            var tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             Color drawColor = Color.Lerp(lightColor, PiercingBellsResonanceUtils.StaccatoPalette[2], 0.4f);
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null, drawColor,
                 Projectile.rotation, tex.Size() / 2f, Projectile.scale, SpriteEffects.None, 0f);
 
+            // Theme texture accents
+            try { sb.End(); } catch { }
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            PiercingBellsResonanceUtils.DrawThemeAccents(sb, Projectile.Center - Main.screenPosition, Projectile.scale);
+            try { sb.End(); } catch { }
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            } // end outer try
+            catch
+            {
+                try
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
             return false;
         }
 

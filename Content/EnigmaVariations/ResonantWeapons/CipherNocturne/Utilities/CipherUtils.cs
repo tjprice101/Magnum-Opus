@@ -2,6 +2,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using MagnumOpus.Content.EnigmaVariations;
 
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Utilities
 {
@@ -120,6 +121,15 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Uti
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                 DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        // ─────────── THEME TEXTURE ACCENTS ───────────
+
+        public static void DrawThemeAccents(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)
+        {
+            EnigmaVFXLibrary.DrawThemeStarFlare(sb, worldPos, scale, intensity * 0.5f);
+            float rot = (float)Main.GameUpdateCount * 0.02f;
+            EnigmaVFXLibrary.DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.4f, rot);
         }
     }
 }

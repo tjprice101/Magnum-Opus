@@ -21,9 +21,17 @@ using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Utiliti
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
 {
     /// <summary>
-    /// CIPHER NOCTURNE - Magic beam weapon that channels mysterious arcane energy
-    /// Creates visual distortion effects and increasing damage over beam duration
-    /// When beam ends, all damage areas "snap back" with a burst
+    /// CIPHER NOCTURNE — Magic channeled beam weapon (Enigma Variations theme).
+    /// The cipher — a coded message projected as a beam that unravels reality along its path.
+    /// 
+    /// Channeled beam with tile collision, damage ramps 1x→3x over 2 seconds.
+    /// Records unravel points every 15 frames along the beam path.
+    /// On release: snap-back detonations at all stored unravel points.
+    /// Snap-back spawns SeekingCrystals (3 per detonation, 25% damage).
+    /// ParadoxBrand applied on every beam hit.
+    /// 
+    /// Custom Shaders: CipherBeamTrail.fx, CipherSnapBack.fx
+    /// Foundation: LaserFoundation (ConvergenceBeamShader) planned
     /// </summary>
     public class CipherNocturne : ModItem
     {
@@ -32,7 +40,12 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
         private static readonly Color EnigmaBlack = new Color(15, 10, 20);
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
-        
+
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             Item.damage = 290;
@@ -69,13 +82,14 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect", "Hold to channel a mysterious beam of arcane energy"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect2", "The beam warps and distorts the space around it"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect3", "Damage increases the longer beam is held on target"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaEffect4", "Releasing the beam causes all affected areas to snap back"));
-            tooltips.Add(new TooltipLine(Mod, "EnigmaLore", "'Pull at a thread of existence, and watch it come undone.'") 
-            { 
-                OverrideColor = EnigmaPurple 
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Channels a cipher beam that unravels reality along its path"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Beam damage ramps from 1x to 3x the longer it is held on targets"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Releasing the beam triggers snap-back detonations at every unravel point"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Detonations spawn homing void-green seeking crystals"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Hits brand enemies with Paradox Brand"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The answer was always in the silence between the notes.'")
+            {
+                OverrideColor = EnigmaPurple
             });
         }
         
@@ -123,8 +137,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
             float pulse = 1f + 0.15f * (float)Math.Sin(Main.GameUpdateCount * 0.1f);
             float channelFactor = Math.Min(channelTime / 60f, 1f);
             
-            // Width scales with channel time
-            float baseWidth = 4f + channelFactor * 16f; // 4 → 20px
+            // Width scales with channel time — 35f base → 60f at full ramp
+            float baseWidth = 35f + channelFactor * 25f; // 35 → 60px
             
             // Pixel texture for line drawing
             Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
@@ -170,6 +184,30 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
             // Layer 5: Bloom at beam origin
             sb.Draw(bloomTex, start, null, CipherUtils.ArcaneViolet * 0.4f * channelFactor, 0f,
                 bloomTex.Size() / 2f, bloomScale * 0.6f, SpriteEffects.None, 0f);
+
+            // Layer 6: EN Star Flare at beam endpoint — dual-rotating spectral cipher flare
+            {
+                Texture2D starFlareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
+                Vector2 sfOrigin = starFlareTex.Size() / 2f;
+                float sfRotA = (float)Main.GameUpdateCount * 0.03f;
+                float sfRotB = -(float)Main.GameUpdateCount * 0.02f;
+                float sfScale = (0.2f + channelFactor * 0.15f) * pulse;
+                sb.Draw(starFlareTex, end, null, CipherUtils.UnravelGreen * 0.5f * channelFactor, sfRotA, sfOrigin, sfScale, SpriteEffects.None, 0f);
+                sb.Draw(starFlareTex, end, null, CipherUtils.ArcaneViolet * 0.35f * channelFactor, sfRotB, sfOrigin, sfScale * 0.85f, SpriteEffects.None, 0f);
+            }
+
+            // Layer 7: EN Power Effect Ring at beam endpoint — concentric cipher rings
+            {
+                Texture2D powerRingTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Power Effect Ring", AssetRequestMode.ImmediateLoad).Value;
+                Vector2 prOrigin = powerRingTex.Size() / 2f;
+                float prRot = (float)Main.GameUpdateCount * 0.025f;
+                float prScale = (0.18f + channelFactor * 0.12f) * pulse;
+                sb.Draw(powerRingTex, end, null, CipherUtils.CipherBright * 0.35f * channelFactor, prRot, prOrigin, prScale, SpriteEffects.None, 0f);
+                sb.Draw(powerRingTex, end, null, CipherUtils.ArcaneViolet * 0.25f * channelFactor, -prRot * 0.7f, prOrigin, prScale * 1.4f, SpriteEffects.None, 0f);
+            }
+
+            // Theme texture accents
+            CipherUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
             
             CipherUtils.ExitShaderRegion(sb);
             
@@ -327,7 +365,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
         
         private void DealBeamDamage(Vector2 start, Vector2 end, Vector2 direction, float beamLength)
         {
-            float damageMultiplier = 1f + Math.Min(channelTime / 120f, 2f); // Ramps up over 2 seconds
+            float damageMultiplier = 1f + Math.Min(channelTime / 60f, 2f); // Ramps 1x→3x over 2 seconds (120 frames)
             
             foreach (NPC npc in Main.ActiveNPCs)
             {
@@ -344,7 +382,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
                 {
                     int damage = (int)(Projectile.damage * damageMultiplier);
                     npc.SimpleStrikeNPC(damage, 0, false, 0f, null, false, 0f, true);
-                    npc.AddBuff(ModContent.BuffType<ParadoxBrand>(), 300);
+                    npc.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
                     npc.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(npc, 1);
                 }
             }
@@ -426,6 +464,27 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
                 origin, coreScale * 0.4f, SpriteEffects.None, 0f);
             sb.Draw(bloomTex, drawPos, null, CipherUtils.CipherBright * coreAlpha * 0.6f, 0f,
                 origin, coreScale * 0.7f, SpriteEffects.None, 0f);
+
+            // Layer 5: EN Star Flare — dual-rotating starburst at snap-back center
+            {
+                Texture2D snapFlareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
+                Vector2 snapFlareOrigin = snapFlareTex.Size() / 2f;
+                float snapFlareRotA = (float)Main.GameUpdateCount * 0.06f;
+                float snapFlareRotB = -(float)Main.GameUpdateCount * 0.04f;
+                float snapFlareScale = (0.25f + (1f - progress) * 0.3f) * progress;
+                sb.Draw(snapFlareTex, drawPos, null, CipherUtils.UnravelGreen * coreAlpha * 0.6f, snapFlareRotA, snapFlareOrigin, snapFlareScale, SpriteEffects.None, 0f);
+                sb.Draw(snapFlareTex, drawPos, null, CipherUtils.WhiteRevelation * coreAlpha * 0.4f, snapFlareRotB, snapFlareOrigin, snapFlareScale * 0.8f, SpriteEffects.None, 0f);
+            }
+
+            // Layer 6: EN Power Effect Ring — expanding void ring
+            {
+                Texture2D snapRingTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Power Effect Ring", AssetRequestMode.ImmediateLoad).Value;
+                Vector2 snapRingOrigin = snapRingTex.Size() / 2f;
+                float snapRingRot = (float)Main.GameUpdateCount * 0.05f;
+                float snapRingScale = ringScale * 0.4f;
+                sb.Draw(snapRingTex, drawPos, null, CipherUtils.ArcaneViolet * ringAlpha * 0.4f, snapRingRot, snapRingOrigin, snapRingScale, SpriteEffects.None, 0f);
+                sb.Draw(snapRingTex, drawPos, null, CipherUtils.CipherBright * ringAlpha * 0.25f, -snapRingRot * 0.6f, snapRingOrigin, snapRingScale * 1.3f, SpriteEffects.None, 0f);
+            }
             
             CipherUtils.ExitShaderRegion(sb);
             
@@ -474,7 +533,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 360);
+            target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
             target.GetGlobalNPC<ParadoxBrandNPC>().AddParadoxStack(target, 3);
             
             SeekingCrystalHelper.SpawnEnigmaCrystals(
@@ -488,43 +547,71 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
             );
             
             Lighting.AddLight(target.Center, EnigmaGreen.ToVector3() * 0.8f);
+
+            // Impact burst: scattered unravel motes
+            int impactMotes = Main.rand.Next(4, 7);
+            for (int i = 0; i < impactMotes; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2CircularEdge(4f, 4f) * Main.rand.NextFloat(0.5f, 1.2f);
+                Color col = Color.Lerp(CipherUtils.UnravelGreen, CipherUtils.ArcaneViolet, Main.rand.NextFloat());
+                CipherParticleHandler.Spawn(new UnravelMoteParticle(
+                    target.Center + Main.rand.NextVector2Circular(8f, 8f),
+                    vel, col, Main.rand.NextFloat(0.3f, 0.6f), Main.rand.Next(15, 30)));
+            }
+
+            // Cipher glyph at impact point
+            CipherParticleHandler.Spawn(new CipherGlyphParticle(
+                target.Center, Main.rand.NextFloat(12f, 25f), Main.rand.NextFloat(MathHelper.TwoPi),
+                CipherUtils.CipherBright, Main.rand.NextFloat(0.5f, 0.8f), Main.rand.Next(20, 35)));
         }
         
         public override void OnKill(int timeLeft)
         {
-            // Death burst: 10-15 SnapBackSparkParticle in all directions
-            int burstCount = Main.rand.Next(10, 16);
+            // Death burst: 15-22 SnapBackSparkParticle in all directions
+            int burstCount = Main.rand.Next(15, 23);
             for (int i = 0; i < burstCount; i++)
             {
-                Vector2 vel = Main.rand.NextVector2Unit() * Main.rand.NextFloat(5f, 14f);
+                Vector2 vel = Main.rand.NextVector2Unit() * Main.rand.NextFloat(5f, 16f);
                 Color col = Color.Lerp(CipherUtils.UnravelGreen, CipherUtils.WhiteRevelation, Main.rand.NextFloat());
                 CipherParticleHandler.Spawn(new SnapBackSparkParticle(
-                    Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
-                    vel, col, Main.rand.NextFloat(0.4f, 0.9f), Main.rand.Next(12, 25)));
+                    Projectile.Center + Main.rand.NextVector2Circular(8f, 8f),
+                    vel, col, Main.rand.NextFloat(0.4f, 1.0f), Main.rand.Next(12, 28)));
             }
             
-            // 1 large VoidDistortionRingParticle
+            // 2 VoidDistortionRingParticle — double ripple
             CipherParticleHandler.Spawn(new VoidDistortionRingParticle(
                 Projectile.Center, CipherUtils.ArcaneViolet,
                 1.5f, 30));
+            CipherParticleHandler.Spawn(new VoidDistortionRingParticle(
+                Projectile.Center, CipherUtils.UnravelGreen * 0.7f,
+                1.8f, 35));
             
-            // 3-4 UnravelMoteParticle drifting outward
-            int moteCount = Main.rand.Next(3, 5);
+            // 5-8 UnravelMoteParticle drifting outward
+            int moteCount = Main.rand.Next(5, 9);
             for (int i = 0; i < moteCount; i++)
             {
-                Vector2 vel = Main.rand.NextVector2Unit() * Main.rand.NextFloat(1f, 3f);
+                Vector2 vel = Main.rand.NextVector2Unit() * Main.rand.NextFloat(1f, 4f);
                 Color col = Color.Lerp(CipherUtils.DeepEnigma, CipherUtils.UnravelGreen, Main.rand.NextFloat());
                 CipherParticleHandler.Spawn(new UnravelMoteParticle(
-                    Projectile.Center + Main.rand.NextVector2Circular(10f, 10f),
-                    vel, col, Main.rand.NextFloat(0.4f, 0.7f), Main.rand.Next(25, 45)));
+                    Projectile.Center + Main.rand.NextVector2Circular(12f, 12f),
+                    vel, col, Main.rand.NextFloat(0.4f, 0.8f), Main.rand.Next(25, 50)));
+            }
+
+            // 2-3 CipherGlyphParticle orbiting death point
+            for (int i = 0; i < Main.rand.Next(2, 4); i++)
+            {
+                CipherParticleHandler.Spawn(new CipherGlyphParticle(
+                    Projectile.Center, Main.rand.NextFloat(15f, 30f), Main.rand.NextFloat(MathHelper.TwoPi),
+                    Color.Lerp(CipherUtils.ArcaneViolet, CipherUtils.CipherBright, Main.rand.NextFloat()),
+                    Main.rand.NextFloat(0.4f, 0.7f), Main.rand.Next(25, 40)));
             }
             
-            // 5 CipherVoidDust
-            for (int i = 0; i < 5; i++)
+            // 8 CipherVoidDust
+            for (int i = 0; i < 8; i++)
             {
-                Vector2 vel = Main.rand.NextVector2Unit() * Main.rand.NextFloat(1f, 4f);
+                Vector2 vel = Main.rand.NextVector2Unit() * Main.rand.NextFloat(1f, 5f);
                 Dust.NewDust(Projectile.Center, 0, 0, ModContent.DustType<CipherVoidDust>(),
-                    vel.X, vel.Y, 0, default, Main.rand.NextFloat(0.6f, 1.2f));
+                    vel.X, vel.Y, 0, default, Main.rand.NextFloat(0.6f, 1.3f));
             }
         }
     }

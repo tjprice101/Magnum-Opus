@@ -8,6 +8,7 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Seasons.Projectiles
 {
@@ -179,14 +180,14 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 MagnumParticleHandler.SpawnParticle(particle);
             }
 
-            // ☁EMUSICAL NOTATION - Spring spirit's gentle song (VISIBLE SCALE 0.72f+)
+            // 隨倥・MUSICAL NOTATION - Spring spirit's gentle song (VISIBLE SCALE 0.72f+)
             if (Main.rand.NextBool(8))
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, -0.5f));
                 ThemedParticles.MusicNote(Projectile.Center, noteVel, SpringPink * 0.85f, 0.72f, 38);
             }
             
-            // ☁ESPARKLE ACCENT - Spirit petal shimmer
+            // 隨倥・SPARKLE ACCENT - Spirit petal shimmer
             if (Main.rand.NextBool(6))
             {
                 var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(10f, 10f), Vector2.Zero, SpringGreen, 0.22f, 18);
@@ -212,7 +213,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 MagnumParticleHandler.SpawnParticle(burst);
             }
 
-            // ☁EMUSICAL IMPACT - Spring spirit healing harmony
+            // 隨倥・MUSICAL IMPACT - Spring spirit healing harmony
             ThemedParticles.MusicNoteBurst(target.Center, SpringPink * 0.7f, 4, 3f);
             
             // Dynamic spring bloom impact
@@ -259,8 +260,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
             // Use the ACTUAL sprite texture for the minion
-            Texture2D spriteTexture = ModContent.Request<Texture2D>("MagnumOpus/Content/Spring/Projectiles/FlowerSpriteMinion").Value;
-            Texture2D glowTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
+            Texture2D spriteTexture = ModContent.Request<Texture2D>("MagnumOpus/Content/Spring/Projectiles/FlowerSpriteMinion", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D glowTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
             Vector2 spriteOrigin = spriteTexture.Size() / 2f;
             Vector2 glowOrigin = glowTexture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -331,14 +332,14 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
-            // ☁EMUSICAL NOTATION - Petal bolt flutter (VISIBLE SCALE 0.68f+)
+            // 隨倥・MUSICAL NOTATION - Petal bolt flutter (VISIBLE SCALE 0.68f+)
             if (Main.rand.NextBool(6))
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, -0.5f));
                 ThemedParticles.MusicNote(Projectile.Center, noteVel, SpringPink * 0.8f, 0.68f, 28);
             }
             
-            // ☁ESPARKLE ACCENT - Petal twinkle
+            // 隨倥・SPARKLE ACCENT - Petal twinkle
             if (Main.rand.NextBool(5))
             {
                 var sparkle = new SparkleParticle(Projectile.Center, -Projectile.velocity * 0.08f, SpringPink, 0.18f, 14);
@@ -353,7 +354,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             target.AddBuff(BuffID.Poisoned, 90);
             CustomParticles.GenericFlare(target.Center, SpringPink, 0.35f, 12);
 
-            // ☁EMUSICAL IMPACT - Petal bolt chime
+            // 隨倥・MUSICAL IMPACT - Petal bolt chime
             ThemedParticles.MusicNoteBurst(target.Center, SpringPink * 0.6f, 2, 2f);
             
             // Dynamic spring petal impact
@@ -504,14 +505,14 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 MagnumParticleHandler.SpawnParticle(particle);
             }
 
-            // ☁EMUSICAL NOTATION - Summer spirit's blazing anthem (VISIBLE SCALE 0.72f+)
+            // 隨倥・MUSICAL NOTATION - Summer spirit's blazing anthem (VISIBLE SCALE 0.72f+)
             if (Main.rand.NextBool(8))
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, -0.5f));
                 ThemedParticles.MusicNote(Projectile.Center, noteVel, SummerGold * 0.85f, 0.72f, 38);
             }
             
-            // ☁ESPARKLE ACCENT - Solar spirit shimmer
+            // 隨倥・SPARKLE ACCENT - Solar spirit shimmer
             if (Main.rand.NextBool(5))
             {
                 var sparkle = new SparkleParticle(Projectile.Center + Main.rand.NextVector2Circular(10f, 10f), Vector2.Zero, SummerOrange, 0.25f, 16);
@@ -534,7 +535,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 MagnumParticleHandler.SpawnParticle(burst);
             }
 
-            // ☁EMUSICAL IMPACT - Summer spirit solar fanfare
+            // 隨倥・MUSICAL IMPACT - Summer spirit solar fanfare
             ThemedParticles.MusicNoteBurst(target.Center, SummerGold * 0.75f, 5, 3.5f);
             
             // Dynamic summer blaze impact
@@ -576,7 +577,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard").Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard", AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -639,14 +640,14 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
-            // ☁EMUSICAL NOTATION - Solar bolt sizzle (VISIBLE SCALE 0.68f+)
+            // 隨倥・MUSICAL NOTATION - Solar bolt sizzle (VISIBLE SCALE 0.68f+)
             if (Main.rand.NextBool(5))
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, -0.5f));
                 ThemedParticles.MusicNote(Projectile.Center, noteVel, SummerGold * 0.85f, 0.68f, 28);
             }
             
-            // ☁ESPARKLE ACCENT - Solar sparkle
+            // 隨倥・SPARKLE ACCENT - Solar sparkle
             if (Main.rand.NextBool(4))
             {
                 var sparkle = new SparkleParticle(Projectile.Center, -Projectile.velocity * 0.08f, SummerOrange, 0.2f, 12);
@@ -661,7 +662,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             target.AddBuff(BuffID.OnFire3, 120);
             CustomParticles.GenericFlare(target.Center, SummerGold, 0.4f, 14);
 
-            // ☁EMUSICAL IMPACT - Solar bolt flare
+            // 隨倥・MUSICAL IMPACT - Solar bolt flare
             ThemedParticles.MusicNoteBurst(target.Center, SummerGold * 0.65f, 3, 2.5f);
             
             // Dynamic summer solar bolt impact
@@ -830,7 +831,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 MagnumParticleHandler.SpawnParticle(particle);
             }
 
-            // ☁EMUSICAL NOTATION - Autumn spirit's fading elegy - VISIBLE SCALE 0.72f+
+            // 隨倥・MUSICAL NOTATION - Autumn spirit's fading elegy - VISIBLE SCALE 0.72f+
             if (Main.rand.NextBool(8))
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, -0.5f));
@@ -860,7 +861,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 MagnumParticleHandler.SpawnParticle(burst);
             }
 
-            // ☁EMUSICAL IMPACT - Autumn spirit harvest dirge - VISIBLE SCALE 0.7f+
+            // 隨倥・MUSICAL IMPACT - Autumn spirit harvest dirge - VISIBLE SCALE 0.7f+
             ThemedParticles.MusicNoteBurst(target.Center, AutumnOrange * 0.7f, 4, 3f);
             
             // Decay Glyph burst on impact
@@ -906,8 +907,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
             // Use the ACTUAL sprite texture for the minion
-            Texture2D spriteTexture = ModContent.Request<Texture2D>("MagnumOpus/Content/Autumn/Projectiles/HarvestWraithMinion").Value;
-            Texture2D glowTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle").Value;
+            Texture2D spriteTexture = ModContent.Request<Texture2D>("MagnumOpus/Content/Autumn/Projectiles/HarvestWraithMinion", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D glowTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad).Value;
             Vector2 spriteOrigin = spriteTexture.Size() / 2f;
             Vector2 glowOrigin = glowTexture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -1115,7 +1116,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 MagnumParticleHandler.SpawnParticle(particle);
             }
 
-            // ☁EMUSICAL NOTATION - Winter spirit's frost carol - VISIBLE SCALE 0.72f+
+            // 隨倥・MUSICAL NOTATION - Winter spirit's frost carol - VISIBLE SCALE 0.72f+
             if (Main.rand.NextBool(8))
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, -0.5f));
@@ -1147,7 +1148,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 MagnumParticleHandler.SpawnParticle(burst);
             }
 
-            // ☁EMUSICAL IMPACT - Winter spirit crystalline chime - VISIBLE SCALE 0.72f+
+            // 隨倥・MUSICAL IMPACT - Winter spirit crystalline chime - VISIBLE SCALE 0.72f+
             ThemedParticles.MusicNoteBurst(target.Center, WinterBlue * 0.75f, 5, 3.5f);
             
             // Dynamic winter frost impact
@@ -1198,8 +1199,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
             // Use the ACTUAL sprite texture for the minion
-            Texture2D spriteTexture = ModContent.Request<Texture2D>("MagnumOpus/Content/Winter/Projectiles/FrostSentinelMinion").Value;
-            Texture2D glowTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
+            Texture2D spriteTexture = ModContent.Request<Texture2D>("MagnumOpus/Content/Winter/Projectiles/FrostSentinelMinion", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D glowTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
             Vector2 spriteOrigin = spriteTexture.Size() / 2f;
             Vector2 glowOrigin = glowTexture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -1273,7 +1274,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
-            // ☁EMUSICAL NOTATION - Ice bolt tinkle - VISIBLE SCALE 0.68f+
+            // 隨倥・MUSICAL NOTATION - Ice bolt tinkle - VISIBLE SCALE 0.68f+
             if (Main.rand.NextBool(6))
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1.5f, -0.5f));
@@ -1293,7 +1294,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             target.AddBuff(BuffID.Slow, 60);
             CustomParticles.GenericFlare(target.Center, WinterBlue, 0.35f, 12);
 
-            // ☁EMUSICAL IMPACT - Ice bolt ping - VISIBLE SCALE 0.68f+
+            // 隨倥・MUSICAL IMPACT - Ice bolt ping - VISIBLE SCALE 0.68f+
             ThemedParticles.MusicNoteBurst(target.Center, WinterBlue * 0.6f, 2, 2f);
             
             // Frost sparkle on impact

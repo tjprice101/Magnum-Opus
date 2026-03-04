@@ -1,8 +1,10 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using Terraria;
 using Terraria.ID;
+using Terraria.ModLoader;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Bloom;
@@ -747,6 +749,248 @@ namespace MagnumOpus.Content.LaCampanella
         {
             Color col = GetPaletteColor(paletteT);
             Lighting.AddLight(worldPos, col.ToVector3() * intensity);
+        }
+
+        // ─────────── THEME-SPECIFIC VFX DRAW HELPERS ───────────
+
+        /// <summary>
+        /// Draw a rotating LC Radial Slash Star at the given screen position.
+        /// </summary>
+        public static void DrawRadialSlashStar(SpriteBatch sb, Vector2 screenPos, float scale, float rotation, float opacity, Color tint)
+        {
+            var starTex = LaCampanellaThemeTextures.LCRadialSlashStar;
+            if (starTex == null || !starTex.IsLoaded) return;
+            Texture2D tex = starTex.Value;
+            Vector2 origin = tex.Size() * 0.5f;
+            Color col = tint with { A = 0 };
+            sb.Draw(tex, screenPos, null, col * opacity, rotation, origin, scale, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Draw a pulsing LC Power Effect Ring at the given screen position.
+        /// </summary>
+        public static void DrawPowerEffectRing(SpriteBatch sb, Vector2 screenPos, float scale, float rotation, float opacity, Color tint)
+        {
+            var ringTex = LaCampanellaThemeTextures.LCPowerEffectRing;
+            if (ringTex == null || !ringTex.IsLoaded) return;
+            Texture2D tex = ringTex.Value;
+            Vector2 origin = tex.Size() * 0.5f;
+            Color col = tint with { A = 0 };
+            sb.Draw(tex, screenPos, null, col * opacity, rotation, origin, scale, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Draw the LC Impact Ellipse (expanding shockwave shape).
+        /// </summary>
+        public static void DrawImpactEllipse(SpriteBatch sb, Vector2 screenPos, float scale, float rotation, float opacity, Color tint)
+        {
+            var ellipseTex = LaCampanellaThemeTextures.LCImpactEllipse;
+            if (ellipseTex == null || !ellipseTex.IsLoaded) return;
+            Texture2D tex = ellipseTex.Value;
+            Vector2 origin = tex.Size() * 0.5f;
+            Color col = tint with { A = 0 };
+            sb.Draw(tex, screenPos, null, col * opacity, rotation, origin, scale, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Draw the LC Beam Lens Flare Explosion at the given position.
+        /// </summary>
+        public static void DrawBeamLensFlare(SpriteBatch sb, Vector2 screenPos, float scale, float rotation, float opacity, Color tint)
+        {
+            var flareTex = LaCampanellaThemeTextures.LCBeamLensFlare;
+            if (flareTex == null || !flareTex.IsLoaded) return;
+            Texture2D tex = flareTex.Value;
+            Vector2 origin = tex.Size() * 0.5f;
+            Color col = tint with { A = 0 };
+            sb.Draw(tex, screenPos, null, col * opacity, rotation, origin, scale, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Draw the LC Infernal Beam Ring overlay around a beam or projectile.
+        /// </summary>
+        public static void DrawInfernalBeamRing(SpriteBatch sb, Vector2 screenPos, float scale, float rotation, float opacity, Color tint)
+        {
+            var ringTex = LaCampanellaThemeTextures.LCInfernalBeamRing;
+            if (ringTex == null || !ringTex.IsLoaded) return;
+            Texture2D tex = ringTex.Value;
+            Vector2 origin = tex.Size() * 0.5f;
+            Color col = tint with { A = 0 };
+            sb.Draw(tex, screenPos, null, col * opacity, rotation, origin, scale, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Draw the LC Bright Star projectile overlay (1 or 2).
+        /// </summary>
+        public static void DrawBrightStar(SpriteBatch sb, Vector2 screenPos, float scale, float rotation, float opacity, Color tint, bool useVariant2 = false)
+        {
+            var starTex = useVariant2 ? LaCampanellaThemeTextures.LCBrightStar2 : LaCampanellaThemeTextures.LCBrightStar1;
+            if (starTex == null || !starTex.IsLoaded) return;
+            Texture2D tex = starTex.Value;
+            Vector2 origin = tex.Size() * 0.5f;
+            Color col = tint with { A = 0 };
+            sb.Draw(tex, screenPos, null, col * opacity, rotation, origin, scale, SpriteEffects.None, 0f);
+        }
+
+        // ─────────── THEME TEXTURE VFX ───────────
+
+        /// <summary>
+        /// Draws a themed infernal impact ring using LC Power Effect Ring + Impact Ellipse.
+        /// Must be called in Additive blend mode (or {A=0} pattern).
+        /// </summary>
+        public static void DrawThemeImpactRing(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f, float rotation = 0f)
+        {
+            Vector2 drawPos = worldPos - Main.screenPosition;
+
+            var ringAsset = LaCampanellaThemeTextures.LCPowerEffectRing;
+            if (ringAsset != null && ringAsset.IsLoaded)
+            {
+                Texture2D ring = ringAsset.Value;
+                Vector2 origin = ring.Size() * 0.5f;
+                sb.Draw(ring, drawPos, null,
+                    (InfernalOrange with { A = 0 }) * 0.55f * intensity, rotation, origin,
+                    scale * 0.15f, SpriteEffects.None, 0f);
+                sb.Draw(ring, drawPos, null,
+                    (BellGold with { A = 0 }) * 0.35f * intensity, -rotation * 0.7f, origin,
+                    scale * 0.11f, SpriteEffects.None, 0f);
+            }
+
+            var ellipseAsset = LaCampanellaThemeTextures.LCImpactEllipse;
+            if (ellipseAsset != null && ellipseAsset.IsLoaded)
+            {
+                Texture2D ellipse = ellipseAsset.Value;
+                Vector2 eOrigin = ellipse.Size() * 0.5f;
+                sb.Draw(ellipse, drawPos, null,
+                    (FlameYellow with { A = 0 }) * 0.4f * intensity, rotation * 1.3f, eOrigin,
+                    scale * 0.12f, SpriteEffects.None, 0f);
+            }
+        }
+
+        /// <summary>
+        /// Draws a themed radial star flare using LC Radial Slash Star — dual rotating layers.
+        /// Must be called in Additive blend mode.
+        /// </summary>
+        public static void DrawThemeStarFlare(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)
+        {
+            var starAsset = LaCampanellaThemeTextures.LCRadialSlashStar;
+            if (starAsset == null || !starAsset.IsLoaded) return;
+            Texture2D star = starAsset.Value;
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = star.Size() * 0.5f;
+            float rot = (float)Main.GameUpdateCount * 0.03f;
+
+            // Outer warm glow layer
+            sb.Draw(star, drawPos, null,
+                (InfernalOrange with { A = 0 }) * 0.45f * intensity, rot, origin,
+                scale * 0.10f, SpriteEffects.None, 0f);
+            // Inner bright counter-rotating layer
+            sb.Draw(star, drawPos, null,
+                (WhiteHot with { A = 0 }) * 0.35f * intensity, -rot * 0.6f, origin,
+                scale * 0.06f, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Draws a dramatic bell flash flare using LC Beam Lens Flare.
+        /// Must be called in Additive blend mode.
+        /// </summary>
+        public static void DrawThemeBellFlare(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)
+        {
+            var flareAsset = LaCampanellaThemeTextures.LCBeamLensFlare;
+            if (flareAsset == null || !flareAsset.IsLoaded) return;
+            Texture2D flare = flareAsset.Value;
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = flare.Size() * 0.5f;
+
+            // Wide golden bell flash
+            sb.Draw(flare, drawPos, null,
+                (BellGold with { A = 0 }) * 0.5f * intensity, 0f, origin,
+                scale * 0.18f, SpriteEffects.None, 0f);
+            // Tight white-hot core
+            sb.Draw(flare, drawPos, null,
+                (WhiteHot with { A = 0 }) * 0.3f * intensity, 0f, origin,
+                scale * 0.08f, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Combined theme impact: bloom stack + star flare + impact ring + bell flare.
+        /// </summary>
+        public static void DrawThemeImpactFull(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)
+        {
+            DrawLaCampanellaBloomStack(sb, worldPos, scale, 0.3f, intensity);
+            DrawThemeStarFlare(sb, worldPos, scale, intensity * 0.8f);
+            float rot = (float)Main.GameUpdateCount * 0.02f;
+            DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.6f, rot);
+            DrawThemeBellFlare(sb, worldPos, scale, intensity * 0.5f);
+        }
+    }
+
+    /// <summary>
+    /// Lazy-loaded cache for La Campanella theme-specific VFX Library textures.
+    /// All paths verified against actual files in Assets/VFX Asset Library/Theme Specific/La Campanella/.
+    /// </summary>
+    internal static class LaCampanellaThemeTextures
+    {
+        private const string ThemePath = "MagnumOpus/Assets/VFX Asset Library/Theme Specific/La Campanella";
+
+        // --- Impact Effects ---
+        private static Asset<Texture2D> _lcPowerEffectRing;
+        public static Asset<Texture2D> LCPowerEffectRing =>
+            _lcPowerEffectRing ??= LoadTex($"{ThemePath}/Impact Effects/LC Power Effect Ring");
+
+        private static Asset<Texture2D> _lcRadialSlashStar;
+        public static Asset<Texture2D> LCRadialSlashStar =>
+            _lcRadialSlashStar ??= LoadTex($"{ThemePath}/Impact Effects/LC Radial Slash Star Impact");
+
+        private static Asset<Texture2D> _lcImpactEllipse;
+        public static Asset<Texture2D> LCImpactEllipse =>
+            _lcImpactEllipse ??= LoadTex($"{ThemePath}/Impact Effects/LC Impact Ellipse");
+
+        // --- Beam Textures ---
+        private static Asset<Texture2D> _lcBeamLensFlare;
+        public static Asset<Texture2D> LCBeamLensFlare =>
+            _lcBeamLensFlare ??= LoadTex($"{ThemePath}/Beam Textures/LC Beam Lens Flare Explosion Impact");
+
+        private static Asset<Texture2D> _lcInfernalBeamRing;
+        public static Asset<Texture2D> LCInfernalBeamRing =>
+            _lcInfernalBeamRing ??= LoadTex($"{ThemePath}/Beam Textures/LC Infernal Beam Ring");
+
+        // --- Projectiles ---
+        private static Asset<Texture2D> _lcBrightStar1;
+        public static Asset<Texture2D> LCBrightStar1 =>
+            _lcBrightStar1 ??= LoadTex($"{ThemePath}/Projectiles/LC Bright Star Projectile 1");
+
+        private static Asset<Texture2D> _lcBrightStar2;
+        public static Asset<Texture2D> LCBrightStar2 =>
+            _lcBrightStar2 ??= LoadTex($"{ThemePath}/Projectiles/LC Bright Star Projectile 2");
+
+        // --- Trails and Ribbons ---
+        private static Asset<Texture2D> _lcBasicTrail;
+        public static Asset<Texture2D> LCBasicTrail =>
+            _lcBasicTrail ??= LoadTex($"{ThemePath}/Trails and Ribbons/LC Basic Trail");
+
+        // --- Noise Textures ---
+        private static Asset<Texture2D> _lcCosmicEnergyVortex;
+        public static Asset<Texture2D> LCCosmicEnergyVortex =>
+            _lcCosmicEnergyVortex ??= LoadTex($"{ThemePath}/Noise Textures/LC Cosmic Energy Vortex");
+
+        private static Asset<Texture2D> _lcMusicalWavePattern;
+        public static Asset<Texture2D> LCMusicalWavePattern =>
+            _lcMusicalWavePattern ??= LoadTex($"{ThemePath}/Noise Textures/LC Musical Wave Pattern");
+
+        private static Asset<Texture2D> _lcBellResonancePattern;
+        public static Asset<Texture2D> LCBellResonancePattern =>
+            _lcBellResonancePattern ??= LoadTex($"{ThemePath}/Noise Textures/LC Unique Theme Noise \u2014 Bell Resonance Pattern");
+
+        // --- Color Gradients ---
+        private static Asset<Texture2D> _lcGradientLUT;
+        public static Asset<Texture2D> LCGradientLUT =>
+            _lcGradientLUT ??= LoadTex("MagnumOpus/Assets/VFX Asset Library/ColorGradients/LaCampanellaGradientLUTandRAMP");
+
+        private static Asset<Texture2D> LoadTex(string path)
+        {
+            if (!ModContent.HasAsset(path)) return null;
+            return ModContent.Request<Texture2D>(path, AssetRequestMode.ImmediateLoad);
         }
     }
 }

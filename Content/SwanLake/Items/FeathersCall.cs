@@ -117,9 +117,9 @@ namespace MagnumOpus.Content.SwanLake.Items
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Left-click rains tracking prismatic flares with explosions"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Right-click unleashes devastating black and white lightning"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Grants infinite flight while transformed"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Become the swan, and let the melody flow through you'") 
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'To truly call the feather is to become what you once sought to protect.'") 
             { 
-                OverrideColor = new Color(220, 225, 235) 
+                OverrideColor = new Color(240, 240, 255) 
             });
         }
     }

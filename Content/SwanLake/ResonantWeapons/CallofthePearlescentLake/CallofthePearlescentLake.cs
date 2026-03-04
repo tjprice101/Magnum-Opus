@@ -139,15 +139,17 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1",
-                "Converts ammunition into pearlescent rockets that explode in rippling waves"));
+                "Converts ammunition into pearlescent rockets that leave persistent splash zones on impact"));
             tooltips.Add(new TooltipLine(Mod, "Effect2",
-                "Every 8th shot fires a tidal rocket with amplified blast and seeking"));
+                "Splash zones damage and slow enemies by 25%, with rainbow-shifting prismatic surfaces"));
             tooltips.Add(new TooltipLine(Mod, "Effect3",
+                "Every 8th shot fires a tidal rocket with amplified blast radius and homing"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4",
                 "Standing still creates a pearlescent zone that empowers your rockets"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
-                "'The lake remembers every ripple, and returns them thousandfold'")
+                "'The lake does not forgive those who disturb its surface.'")
             {
-                OverrideColor = PearlescentUtils.LoreColor
+                OverrideColor = new Color(240, 240, 255)
             });
         }
 

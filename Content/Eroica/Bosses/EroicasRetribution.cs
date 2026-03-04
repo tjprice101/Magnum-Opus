@@ -17,6 +17,7 @@ using MagnumOpus.Common.Systems.Bosses;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using static MagnumOpus.Common.Systems.BossDialogueSystem;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Eroica.Bosses
 {
@@ -163,7 +164,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
 
         public override void SetDefaults()
         {
-            // Hitbox = 80% of visual size (269x174 frame × 0.65 scale)
+            // Hitbox = 80% of visual size (269x174 frame ﾃ・0.65 scale)
             NPC.width = 140;
             NPC.height = 90;
             NPC.damage = BaseDamage;
@@ -549,7 +550,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
         private void AI_Phase2_Idle(Player target)
         {
             // Boss gets closer to player as aggression increases
-            float baseDist = 350f - aggressionLevel * 100f; // 350 → 250 as aggression builds
+            float baseDist = 350f - aggressionLevel * 100f; // 350 竊・250 as aggression builds
             float hoverDist = baseDist + difficultyTier * 30f;
             Vector2 idealPos = target.Center + new Vector2(NPC.Center.X > target.Center.X ? hoverDist : -hoverDist, -100f);
             
@@ -1766,7 +1767,8 @@ namespace MagnumOpus.Content.Eroica.Bosses
         
         public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
-            Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
+            Texture2D tex = Terraria.GameContent.TextureAssets.Npc[NPC.type].Value;
+            if (tex == null) return true;
             int frameWidth = tex.Width / 6;
             int frameHeight = tex.Height / 6;
             int row = currentFrame / 6;

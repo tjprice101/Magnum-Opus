@@ -291,6 +291,27 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
             // Apply DestinyCollapse 180 ticks
             target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 180);
 
+            // === ANNIHILATION MARK STACKING ===
+            target.AddBuff(ModContent.BuffType<AnnihilationMark>(), 300);
+            var annihilationNPC = target.GetGlobalNPC<AnnihilationMarkNPC>();
+            bool detonated = annihilationNPC.AddStack(damageDone);
+            if (detonated && !Main.dedServ)
+            {
+                // Massive detonation VFX at max stacks
+                for (int j = 0; j < 12; j++)
+                {
+                    float detonAngle = MathHelper.TwoPi * j / 12f;
+                    Vector2 detonVel = detonAngle.ToRotationVector2() * Main.rand.NextFloat(5f, 10f);
+                    Color detonCol = CodaUtils.GetAnnihilationGradient((float)j / 12f);
+                    CodaParticleHandler.SpawnParticle(new ArcSparkParticle(
+                        target.Center, detonVel, detonCol, 0.5f, 20));
+                }
+                CodaParticleHandler.SpawnParticle(new AnnihilationFlareParticle(
+                    target.Center, Color.White, 1.0f, 20));
+                CodaParticleHandler.SpawnParticle(new AnnihilationFlareParticle(
+                    target.Center, CodaUtils.CodaCrimson, 0.8f, 18));
+            }
+
             // Impact sound
             SoundEngine.PlaySound(SoundID.Item71 with { Volume = 0.6f, Pitch = 0.2f }, target.Center);
         }

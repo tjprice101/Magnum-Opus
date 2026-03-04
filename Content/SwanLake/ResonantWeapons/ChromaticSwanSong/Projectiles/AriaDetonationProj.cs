@@ -6,26 +6,29 @@ using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Utilities;
-using MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Particles;
 using MagnumOpus.Content.SwanLake.Debuffs;
-using ReLogic.Content;
+using MagnumOpus.Content.SwanLake;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Projectiles
 {
     /// <summary>
-    /// Aria Detonation — triggered when 3 consecutive chromatic bolts hit the same target.
-    /// 
-    /// BEHAVIOR:
-    /// • Spawns at target center, deals massive AoE damage in expanding radius
-    /// • Expanding chromatic rings (4 layers) with rainbow particle shards
-    /// • If ai[0] >= 1, this is a Harmonic Release: fires 12 rainbow shards outward
-    /// • Applies FlameOfTheSwan for 8 seconds
-    /// • No collision, pure VFX explosion with damage tick
+    /// Aria Detonation — structured 3-ring explosion triggered on every Chromatic Bolt impact.
+    /// Modes: 0=Normal Aria, 1=Harmonic Release, 2=Opus Detonation (all 7 chromatic colors).
+    /// ai[1] encoding: scalePosition + (dyingBreath ? 100 : 0).
+    /// Foundation-pattern rendering: safe SpriteBatch, MagnumTextureRegistry textures.
     /// </summary>
     public class AriaDetonationProj : ModProjectile
     {
-        private bool IsHarmonicRelease => Projectile.ai[0] >= 1f;
+        private float AriaMode => Projectile.ai[0];
+        private bool IsHarmonicRelease => AriaMode >= 1f;
+        private bool IsOpusDetonation => AriaMode >= 2f;
+        private int ScalePosition => (int)(Projectile.ai[1] % 100f);
+        private bool IsDyingBreath => Projectile.ai[1] >= 100f;
         private int _ticksAlive;
+
+        private float BaseMaxRadius => IsOpusDetonation ? 300f : (IsHarmonicRelease ? 200f : 120f);
+        private float MaxRadius => BaseMaxRadius * (IsDyingBreath ? 1.5f : 1f);
 
         public override string Texture => "MagnumOpus/Content/SwanLake/ResonantWeapons/ChromaticSwanSong/ChromaticSwanSong";
 
@@ -36,196 +39,197 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Projecti
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Magic;
             Projectile.penetrate = -1;
-            Projectile.timeLeft = 20;
+            Projectile.timeLeft = IsOpusDetonation ? 30 : 20;
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
             Projectile.usesLocalNPCImmunity = true;
-            Projectile.localNPCHitCooldown = 20;
+            Projectile.localNPCHitCooldown = 6;
             Projectile.alpha = 0;
         }
 
         public override void AI()
         {
             _ticksAlive++;
+            float lifetime = IsOpusDetonation ? 30f : 20f;
 
             if (_ticksAlive == 1)
             {
-                // Initial burst effects
-                SoundEngine.PlaySound(SoundID.Item14 with { Pitch = 0.8f, Volume = 0.8f }, Projectile.Center);
+                if (IsOpusDetonation)
+                    SoundEngine.PlaySound(SoundID.Item14 with { Pitch = 0.3f, Volume = 1.0f }, Projectile.Center);
+                else
+                    SoundEngine.PlaySound(SoundID.Item14 with { Pitch = 0.8f, Volume = 0.8f }, Projectile.Center);
 
-                // Expanding chromatic rings
-                int ringCount = IsHarmonicRelease ? 5 : 3;
-                for (int r = 0; r < ringCount; r++)
-                {
-                    var ring = new AriaBurstParticle();
-                    ring.Initialize(
-                        Projectile.Center, Vector2.Zero,
-                        ChromaticSwanUtils.GetSpectrumColor((float)r / ringCount),
-                        0.9f - r * 0.1f
-                    );
-                    ring.Setup((IsHarmonicRelease ? 150f : 80f) + r * 30f);
-                    ChromaticParticleHandler.Spawn(ring);
-                }
+                int scalePos = ScalePosition;
+                Color midColor = ChromaticSwanPlayer.GetScaleColor(scalePos);
 
-                // Prismatic shard burst
-                int shardCount = IsHarmonicRelease ? 24 : 12;
+                // Radial shard burst — vanilla Dust
+                int shardCount = IsOpusDetonation ? 36 : (IsHarmonicRelease ? 24 : 12);
                 for (int i = 0; i < shardCount; i++)
                 {
                     float angle = MathHelper.TwoPi * i / shardCount;
-                    float speed = Main.rand.NextFloat(3f, 8f) * (IsHarmonicRelease ? 1.5f : 1f);
+                    float speed = Main.rand.NextFloat(3f, 8f) * (IsOpusDetonation ? 2f : (IsHarmonicRelease ? 1.5f : 1f));
+                    Color shardCol = IsOpusDetonation
+                        ? ChromaticSwanPlayer.GetScaleColor(i % 7)
+                        : (i % 3 == 0 ? Color.White : midColor);
 
-                    var shard = new PrismaticShardParticle();
-                    shard.Initialize(
-                        Projectile.Center,
-                        new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * speed,
-                        ChromaticSwanUtils.GetSpectrumColor((float)i / shardCount),
-                        Main.rand.NextFloat(0.6f, 1.2f)
-                    );
-                    ChromaticParticleHandler.Spawn(shard);
-                }
-
-                // Harmonic notes bursting outward
-                for (int i = 0; i < 8; i++)
-                {
-                    var note = new HarmonicNoteParticle();
-                    note.Initialize(
-                        Projectile.Center + Main.rand.NextVector2Circular(20f, 20f),
-                        new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-3f, -1f)),
-                        ChromaticSwanUtils.GetChromatic(Main.rand.NextFloat()),
-                        Main.rand.NextFloat(0.5f, 1.0f)
-                    );
-                    ChromaticParticleHandler.Spawn(note);
-                }
-
-                // Chromatic sparks
-                for (int i = 0; i < 20; i++)
-                {
-                    var spark = new ChromaticSparkParticle();
-                    spark.Initialize(
-                        Projectile.Center + Main.rand.NextVector2Circular(30f, 30f),
-                        Main.rand.NextVector2Circular(6f, 6f),
-                        ChromaticSwanUtils.GetChromatic(Main.rand.NextFloat()),
-                        Main.rand.NextFloat(0.5f, 1.2f)
-                    );
-                    ChromaticParticleHandler.Spawn(spark);
-                }
-
-                // Vanilla dust for fullness
-                for (int i = 0; i < 15; i++)
-                {
-                    Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(20f, 20f),
-                        DustID.RainbowTorch,
-                        Main.rand.NextVector2Circular(8f, 8f), 0,
-                        ChromaticSwanUtils.GetChromatic(Main.rand.NextFloat()), 1.3f);
+                    Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * speed;
+                    Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowTorch, vel, 0, shardCol, Main.rand.NextFloat(0.6f, 1.2f));
                     d.noGravity = true;
                 }
 
-                // VFX Library: Feather burst for the aria's grand finale
-                SwanLakeVFXLibrary.SpawnFeatherBurst(Projectile.Center, IsHarmonicRelease ? 6 : 3, 0.4f);
+                // Harmonic notes — vanilla Dust rising
+                int noteCount = IsOpusDetonation ? 14 : 8;
+                for (int i = 0; i < noteCount; i++)
+                {
+                    Color noteCol = IsOpusDetonation
+                        ? ChromaticSwanPlayer.GetScaleColor(i % 7)
+                        : ChromaticSwanUtils.GetChromatic(Main.rand.NextFloat());
+                    Vector2 noteVel = new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-3f, -1f));
+                    Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(20f, 20f),
+                        DustID.RainbowTorch, noteVel, 0, noteCol, Main.rand.NextFloat(0.5f, 1.0f));
+                    d.noGravity = true;
+                }
 
-                // VFX Library: Prismatic sparkles cascading outward
-                SwanLakeVFXLibrary.SpawnPrismaticSparkles(Projectile.Center, IsHarmonicRelease ? 8 : 4,
-                    IsHarmonicRelease ? 40f : 25f);
+                // Dying Breath: black feather burst
+                if (IsDyingBreath)
+                {
+                    for (int i = 0; i < 8; i++)
+                    {
+                        Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(15f, 15f),
+                            DustID.Smoke, Main.rand.NextVector2Circular(4f, 4f), 180, Color.Black, 1.0f);
+                        d.noGravity = true;
+                    }
+                }
 
-                // VFX Library: Music notes rising from the detonation
-                SwanLakeVFXLibrary.SpawnMusicNotes(Projectile.Center, IsHarmonicRelease ? 6 : 3,
-                    IsHarmonicRelease ? 35f : 20f, 0.7f, 1.1f, 30);
+                // VFX Library calls
+                int featherCount = IsOpusDetonation ? 8 : (IsHarmonicRelease ? 6 : 3);
+                try { SwanLakeVFXLibrary.SpawnFeatherBurst(Projectile.Center, featherCount, 0.4f); } catch { }
+
+                float sparkRadius = IsOpusDetonation ? 50f : (IsHarmonicRelease ? 40f : 25f);
+                try { SwanLakeVFXLibrary.SpawnPrismaticSparkles(Projectile.Center, IsOpusDetonation ? 12 : (IsHarmonicRelease ? 8 : 4), sparkRadius); } catch { }
+
+                float noteRadius = IsOpusDetonation ? 45f : (IsHarmonicRelease ? 35f : 20f);
+                try { SwanLakeVFXLibrary.SpawnMusicNotes(Projectile.Center, IsOpusDetonation ? 8 : (IsHarmonicRelease ? 6 : 3), noteRadius, 0.7f, 1.1f, 30); } catch { }
             }
 
-            // Expanding hitbox over lifetime
-            float expansion = (float)_ticksAlive / Projectile.timeLeft;
-            int newSize = (int)MathHelper.Lerp(60f, IsHarmonicRelease ? 250f : 150f, expansion);
+            // Expanding hitbox
+            float expansion = (float)_ticksAlive / lifetime;
+            int newSize = (int)MathHelper.Lerp(60f, MaxRadius * 2f, expansion);
             Projectile.Resize(newSize, newSize);
 
-            // Continuous light
-            Color lightCol = ChromaticSwanUtils.GetChromatic(0f);
-            float intensity = 1f - (float)_ticksAlive / 20f;
-            Lighting.AddLight(Projectile.Center, lightCol.ToVector3() * intensity);
+            // Light
+            Color lightCol = ChromaticSwanPlayer.GetScaleColor(ScalePosition);
+            float lightIntensity = 1f - (float)_ticksAlive / lifetime;
+            Lighting.AddLight(Projectile.Center, lightCol.ToVector3() * lightIntensity);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(ModContent.BuffType<FlameOfTheSwan>(), 480); // 8 seconds
+            target.AddBuff(ModContent.BuffType<SwansMark>(), 480);
         }
+
+        #region Rendering (Foundation Pattern)
 
         public override bool PreDraw(ref Color lightColor)
         {
-            // Draw bloom flash
             SpriteBatch sb = Main.spriteBatch;
-            float progress = (float)_ticksAlive / 20f;
+            float lifetime = IsOpusDetonation ? 30f : 20f;
+            float progress = (float)_ticksAlive / lifetime;
             float alpha = (1f - progress) * (1f - progress);
 
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            float scale = MathHelper.Lerp(0.3f, IsHarmonicRelease ? 2.5f : 1.5f, progress);
+            float baseScale = MathHelper.Lerp(0.3f, MaxRadius / 80f, progress);
 
-            // Load VFX Asset Library bloom textures
-            Texture2D softRadial = null;
-            Texture2D pointBloom = null;
-            Texture2D starAccent = null;
+            int scalePos = ScalePosition;
+            Color midColor = ChromaticSwanPlayer.GetScaleColor(scalePos);
+            Color outerColor = ChromaticSwanPlayer.GetComplementaryColor(scalePos);
+
+            Texture2D radial = MagnumTextureRegistry.GetRadialBloom();
+            Texture2D point = MagnumTextureRegistry.GetPointBloom();
+            Texture2D star = MagnumTextureRegistry.GetStarThin();
+
             try
             {
-                softRadial = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom",
-                    AssetRequestMode.ImmediateLoad)?.Value;
-                pointBloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom",
-                    AssetRequestMode.ImmediateLoad)?.Value;
-                starAccent = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/ThinTall4PointedStar",
-                    AssetRequestMode.ImmediateLoad)?.Value;
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                if (radial != null)
+                {
+                    Vector2 srOrigin = radial.Size() * 0.5f;
+
+                    if (IsOpusDetonation)
+                    {
+                        // All 7 chromatic rings as stacked bloom layers
+                        for (int note = 0; note < 7; note++)
+                        {
+                            Color noteCol = ChromaticSwanPlayer.GetScaleColor(note);
+                            float ringScale = baseScale * (0.4f + note * 0.1f);
+                            float ringAlpha = alpha * (0.35f - note * 0.03f);
+                            sb.Draw(radial, drawPos, null,
+                                new Color(noteCol.R, noteCol.G, noteCol.B, 0) * ringAlpha,
+                                0f, srOrigin, ringScale, SpriteEffects.None, 0f);
+                        }
+                    }
+                    else
+                    {
+                        // 3 distinct ring layers
+                        sb.Draw(radial, drawPos, null,
+                            new Color(outerColor.R, outerColor.G, outerColor.B, 0) * alpha * 0.35f,
+                            0f, srOrigin, baseScale * 1.2f, SpriteEffects.None, 0f);
+
+                        sb.Draw(radial, drawPos, null,
+                            new Color(midColor.R, midColor.G, midColor.B, 0) * alpha * 0.4f,
+                            0f, srOrigin, baseScale * 0.7f, SpriteEffects.None, 0f);
+
+                        sb.Draw(radial, drawPos, null,
+                            new Color(255, 255, 255, 0) * alpha * 0.5f,
+                            0f, srOrigin, baseScale * 0.35f, SpriteEffects.None, 0f);
+                    }
+                }
+
+                // White-hot core flash
+                if (point != null)
+                {
+                    Vector2 pbOrigin = point.Size() * 0.5f;
+                    float coreScale = IsOpusDetonation ? 0.35f : 0.25f;
+                    sb.Draw(point, drawPos, null, new Color(255, 255, 255, 0) * alpha * 0.7f,
+                        0f, pbOrigin, baseScale * coreScale, SpriteEffects.None, 0f);
+                }
+
+                // Radiating star at detonation apex
+                if (star != null && progress < 0.5f)
+                {
+                    Vector2 starOrigin = star.Size() * 0.5f;
+                    float starAlpha = 1f - progress * 2f;
+                    float starBaseScale = IsOpusDetonation ? 0.6f : (IsHarmonicRelease ? 0.5f : 0.3f);
+
+                    sb.Draw(star, drawPos, null,
+                        new Color(midColor.R, midColor.G, midColor.B, 0) * starAlpha * 0.6f,
+                        progress * MathHelper.TwoPi, starOrigin,
+                        starBaseScale * (1f + progress), SpriteEffects.None, 0f);
+
+                    sb.Draw(star, drawPos, null,
+                        new Color(255, 255, 255, 0) * starAlpha * 0.4f,
+                        progress * MathHelper.TwoPi + MathHelper.PiOver4, starOrigin,
+                        (starBaseScale - 0.05f) * (1f + progress), SpriteEffects.None, 0f);
+                }
             }
             catch { }
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Layer 1: Outer chromatic shockwave halo (SoftRadialBloom)
-            if (softRadial != null)
+            finally
             {
-                Vector2 srOrigin = new Vector2(softRadial.Width / 2f, softRadial.Height / 2f);
-                Color outer = ChromaticSwanUtils.GetChromatic(progress);
-                sb.Draw(softRadial, drawPos, null, new Color(outer.R, outer.G, outer.B, 0) * alpha * 0.45f,
-                    0f, srOrigin, scale * 1.2f, SpriteEffects.None, 0f);
+                try { sb.End(); } catch { }
+                try
+                {
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
             }
-
-            // Layer 2: Mid-blast chromatic glow (SoftRadialBloom, shifted)
-            if (softRadial != null)
-            {
-                Vector2 srOrigin = new Vector2(softRadial.Width / 2f, softRadial.Height / 2f);
-                Color midCol = ChromaticSwanUtils.GetSpectrumColor(progress * 0.5f);
-                sb.Draw(softRadial, drawPos, null, new Color(midCol.R, midCol.G, midCol.B, 0) * alpha * 0.35f,
-                    0f, srOrigin, scale * 0.6f, SpriteEffects.None, 0f);
-            }
-
-            // Layer 3: White-hot core flash (PointBloom)
-            if (pointBloom != null)
-            {
-                Vector2 pbOrigin = new Vector2(pointBloom.Width / 2f, pointBloom.Height / 2f);
-                sb.Draw(pointBloom, drawPos, null, new Color(255, 255, 255, 0) * alpha * 0.7f,
-                    0f, pbOrigin, scale * 0.25f, SpriteEffects.None, 0f);
-            }
-
-            // Layer 4: Radiating star burst at detonation apex (ThinTall4PointedStar)
-            if (starAccent != null && progress < 0.5f)
-            {
-                Vector2 starOrigin = new Vector2(starAccent.Width / 2f, starAccent.Height / 2f);
-                float starAlpha = (1f - progress * 2f);
-                Color starCol = ChromaticSwanUtils.GetChromatic(progress * 2f);
-                sb.Draw(starAccent, drawPos, null, new Color(starCol.R, starCol.G, starCol.B, 0) * starAlpha * 0.6f,
-                    progress * MathHelper.TwoPi, starOrigin,
-                    (IsHarmonicRelease ? 0.5f : 0.3f) * (1f + progress), SpriteEffects.None, 0f);
-                // Second star rotated 45° for cross pattern
-                sb.Draw(starAccent, drawPos, null, new Color(255, 255, 255, 0) * starAlpha * 0.4f,
-                    progress * MathHelper.TwoPi + MathHelper.PiOver4, starOrigin,
-                    (IsHarmonicRelease ? 0.4f : 0.25f) * (1f + progress), SpriteEffects.None, 0f);
-            }
-
-            // Draw particles on top
-            ChromaticParticleHandler.DrawAllParticles(sb);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             return false;
         }
+
+        #endregion
     }
 }

@@ -9,6 +9,12 @@ using Terraria;
 
 namespace MagnumOpus.Content.Eroica.Weapons.FuneralPrayer
 {
+    /// <summary>
+    /// Funeral Prayer — Eroica magic weapon channeling the solemn Marcia funebre (Funeral March).
+    /// Launches slow funeral pyre projectiles that create persistent ground fires, with an Ash Requiem
+    /// cone attack alt-fire and a Martyr's Exchange mechanic that empowers pyres when the player takes damage.
+    /// Overlapping pyres merge into a devastating Eulogy pillar.
+    /// </summary>
     public class FuneralPrayer : ModItem
     {
         /// <summary>
@@ -18,6 +24,11 @@ namespace MagnumOpus.Content.Eroica.Weapons.FuneralPrayer
         public static void RegisterBeamHit(int shotId, int beamIndex)
         {
             // Tracking hook for beam ricochet chain — can be expanded for damage escalation
+        }
+
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
         }
 
         public override void SetDefaults()
@@ -51,7 +62,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.FuneralPrayer
             tooltips.Add(new TooltipLine(Mod, "Effect3",
             "Martyr's Exchange: taking damage empowers the next pyre"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
-            "'We pray not for victory. We pray for those who ensured it.'")
+            "'Even heroes kneel before the pyre.'")
             {
                 OverrideColor = new Color(200, 50, 50)
             });
