@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.ModLoader;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
@@ -38,7 +39,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         public static void EnterShaderRegion(SpriteBatch sb)
         {
             sb.End();
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
@@ -98,7 +99,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             Vector2 origin = bloomTex.Size() / 2f;
 
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             try
             {
@@ -197,12 +198,14 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
     /// <summary>
     /// Floating sakura petal particle — drifts with gravity and gentle rotation.
+    /// Uses the ER Sakura Petal texture for authentic petal shape.
     /// </summary>
     public class BulletPetalParticle : Particle
     {
-        public override string Texture => "MusicNoteQuarter";
+        public override string Texture => "MagnumOpus/Common/Systems/Particles/Textures/GlowDot"; // Fallback only
         public override bool SetLifetime => true;
         public override bool UseAdditiveBlend => true;
+        public override bool UseCustomDraw => true;
 
         private float initialScale;
         private float wobbleOffset;
@@ -229,6 +232,26 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             float progress = LifetimeCompletion;
             float alpha = progress < 0.1f ? progress / 0.1f : (1f - progress) / 0.9f;
             Scale = initialScale * alpha;
+        }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            // Try ER Sakura Petal texture first, fall back to GlowDot
+            Texture2D tex = EroicaThemeTextures.ERSakuraPetal;
+            if (tex == null)
+            {
+                tex = MagnumTextureRegistry.GetPixelTexture();
+                if (tex == null) return;
+            }
+
+            Vector2 origin = tex.Size() / 2f;
+            Vector2 drawPos = Position - Main.screenPosition;
+            float progress = LifetimeCompletion;
+            float fade = progress < 0.1f ? progress / 0.1f : (1f - progress) / 0.9f;
+            Color drawColor = Color;
+            drawColor.A = 0;
+
+            spriteBatch.Draw(tex, drawPos, null, drawColor * fade, Rotation, origin, Scale, SpriteEffects.None, 0f);
         }
     }
 

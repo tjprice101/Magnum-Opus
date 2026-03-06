@@ -112,7 +112,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.SinCollector.Projectiles
             float sinMult = 1f + sinCount / 30f * 0.6f;
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
 
             // ���� Trail ����
@@ -278,7 +278,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.SinCollector.Projectiles
             float intensMult = 1f + (Tier - 1) * 0.3f;
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
 
             // ���� Trail ����

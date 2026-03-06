@@ -95,24 +95,26 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
                 _vb.SetData(verts, 0, vc, SetDataOptions.Discard);
                 _ib.SetData(indices, 0, (pos.Length - 1) * 6, SetDataOptions.Discard);
                 _device.SetVertexBuffer(_vb); _device.Indices = _ib;
-                _device.BlendState = BlendState.Additive;
+                _device.BlendState = MagnumBlendStates.TrueAdditive;
                 _device.DepthStencilState = DepthStencilState.None;
                 _device.RasterizerState = RasterizerState.CullNone;
                 if (s.Shader != null)
                 {
-                    try { s.Shader.Apply(); } catch { }
+                    try
+                    {
+                        // Set WVP matrix for the vertex shader to transform screen-space positions to clip-space
+                        Matrix view = Matrix.CreateLookAt(Vector3.Zero, Vector3.UnitZ, Vector3.Up);
+                        Matrix projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1);
+                        Matrix wvp = view * projection;
+                        s.Shader.Shader.Parameters["uWorldViewProjection"]?.SetValue(wvp);
+                        s.Shader.Apply();
+                    }
+                    catch { return; }
                 }
                 else
                 {
-                    var basicEffect = new BasicEffect(_device)
-                    {
-                        VertexColorEnabled = true,
-                        TextureEnabled = false,
-                        World = Matrix.Identity,
-                        View = Matrix.Identity,
-                        Projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1)
-                    };
-                    foreach (var pass in basicEffect.CurrentTechnique.Passes) pass.Apply();
+                    // No shader available — skip rendering (BasicEffect is incompatible with custom vertex format)
+                    return;
                 }
                 _device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vc, 0, (pos.Length - 1) * 2);
             }

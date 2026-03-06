@@ -533,7 +533,7 @@ namespace MagnumOpus.Content.SwanLake.Items
 
             // Now restart for additive glow layers
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Rainbow pearlescent glow - cycling colors (brighter during attacks)
             float glowIntensity = isAttacking ? 0.7f : 0.5f;
@@ -747,6 +747,10 @@ namespace MagnumOpus.Content.SwanLake.Items
             SpriteBatch spriteBatch = Main.spriteBatch;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
+            // Switch to additive blending for glow VFX (black-background textures)
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
             // Get color based on flare type
             Color coreColor = FlareType switch
             {
@@ -792,6 +796,10 @@ namespace MagnumOpus.Content.SwanLake.Items
                 Color sparkleCol = Main.hslToRgb((Main.GameUpdateCount * 0.03f + 0.5f) % 1f, 1f, 0.9f) * 0.8f;
                 spriteBatch.Draw(glowTexture, drawPos, null, sparkleCol, sparkleRot, glowTexture.Size() / 2f, 0.3f, SpriteEffects.None, 0f);
             }
+
+            // Restore default blend state
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
             return false; // Don't draw default sprite
         }

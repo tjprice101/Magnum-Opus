@@ -140,7 +140,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Utilities
         public static void EnterShaderRegion(SpriteBatch spriteBatch, BlendState blend = null)
         {
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Immediate, blend ?? BlendState.Additive,
+            spriteBatch.Begin(SpriteSortMode.Immediate, blend ?? MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }

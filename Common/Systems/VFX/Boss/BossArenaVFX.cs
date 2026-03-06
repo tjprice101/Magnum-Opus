@@ -362,7 +362,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 using (var scope = Main.spriteBatch.Scope())
                 {
                     // Begin additive blending
-                    Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                         DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
                     // Draw environmental effects first

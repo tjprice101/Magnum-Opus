@@ -9,6 +9,11 @@ using MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.Utili
 using MagnumOpus.Content.SwanLake.Debuffs;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.Primitives;
+using MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.Shaders;
+using Terraria.Graphics.Shaders;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.Projectiles
 {
@@ -31,6 +36,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
         private const int TrailLength = 18;
         private Vector2[] oldPos = new Vector2[TrailLength];
         private float[] oldRot = new float[TrailLength];
+        private PearlescentPrimitiveRenderer _trailRenderer;
 
         // --- Variant flags (set by weapon on spawn via Projectile.localAI) ---
         public bool IsTidalWaters => Projectile.localAI[0] == 1f;
@@ -149,6 +155,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
 
         public override void OnKill(int timeLeft)
         {
+            _trailRenderer?.Dispose();
             SoundEngine.PlaySound(SoundID.Item14, Projectile.Center);
 
             // Spawn SplashZone AoE
@@ -194,71 +201,186 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
             try
             {
                 sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+
+                // ============ GPU SHADER TRAIL (3-pass pearlescent nacre) ============
+                if (PearlescentShaderLoader.HasRocketTrailShader)
+                {
+                    _trailRenderer ??= new PearlescentPrimitiveRenderer();
+                    var shaderData = GameShaders.Misc["MagnumOpus:PearlescentRocketTrail"];
+                    var effect = shaderData.Shader;
+
+                    // Common shader uniforms
+                    effect.Parameters["uTime"]?.SetValue((float)Main.timeForVisualEffects * 0.02f);
+                    effect.Parameters["uOpacity"]?.SetValue(0.9f);
+                    effect.Parameters["uScrollSpeed"]?.SetValue(0.8f);
+                    effect.Parameters["uNoiseScale"]?.SetValue(2.5f);
+                    effect.Parameters["uPhase"]?.SetValue(LifeProgress);
+
+                    if (MagnumTextureRegistry.PerlinNoise != null)
+                    {
+                        shaderData.UseImage1(MagnumTextureRegistry.PerlinNoise);
+                        effect.Parameters["uHasSecondaryTex"]?.SetValue(1f);
+                        effect.Parameters["uSecondaryTexScale"]?.SetValue(1.5f);
+                        effect.Parameters["uSecondaryTexScroll"]?.SetValue(0.4f);
+                    }
+
+                    float rocketWidth = (IsTidalWaters || IsStillWaters) ? 22f : 18f;
+                    float rocketTaper = (IsTidalWaters || IsStillWaters) ? 28f : 24f;
+
+                    // Pass 1: Wide pearlescent bloom underlay (PearlescentTrailGlow @ 3x)
+                    effect.Parameters["uColor"]?.SetValue(PearlescentUtils.MistBlue.ToVector3());
+                    effect.Parameters["uSecondaryColor"]?.SetValue(PearlescentUtils.PearlWhite.ToVector3());
+                    effect.Parameters["uIntensity"]?.SetValue(0.4f);
+                    effect.Parameters["uOverbrightMult"]?.SetValue(0f);
+                    effect.Parameters["uDistortionAmt"]?.SetValue(0.02f);
+                    effect.CurrentTechnique = effect.Techniques["PearlescentTrailGlow"];
+
+                    var glowSettings = new PearlescentTrailSettings(
+                        t => (rocketWidth + rocketTaper * (1f - t)) * 3f,
+                        t => Color.Lerp(PearlescentUtils.MistBlue, PearlescentUtils.LakeSilver, t) * (0.3f * (1f - t)),
+                        shaderData, true
+                    );
+                    _trailRenderer.RenderTrail(oldPos, glowSettings, TrailLength);
+
+                    // Pass 2: Core opal shimmer (PearlescentTrailMain @ 1x)
+                    effect.Parameters["uColor"]?.SetValue(PearlescentUtils.LakeSilver.ToVector3());
+                    effect.Parameters["uSecondaryColor"]?.SetValue(PearlescentUtils.PearlWhite.ToVector3());
+                    effect.Parameters["uIntensity"]?.SetValue(1.2f);
+                    effect.Parameters["uOverbrightMult"]?.SetValue(0.15f);
+                    effect.Parameters["uDistortionAmt"]?.SetValue(0.05f);
+                    effect.CurrentTechnique = effect.Techniques["PearlescentTrailMain"];
+
+                    var mainSettings = new PearlescentTrailSettings(
+                        t => rocketWidth + rocketTaper * (1f - t),
+                        t => Color.Lerp(PearlescentUtils.PearlWhite, PearlescentUtils.LakeSilver, t) * (0.8f * (1f - t)),
+                        shaderData, true
+                    );
+                    _trailRenderer.RenderTrail(oldPos, mainSettings, TrailLength);
+
+                    // Pass 3: Overbright nacre halo (PearlescentTrailGlow @ 1.5x)
+                    effect.Parameters["uColor"]?.SetValue(Color.White.ToVector3());
+                    effect.Parameters["uSecondaryColor"]?.SetValue(PearlescentUtils.PearlWhite.ToVector3());
+                    effect.Parameters["uIntensity"]?.SetValue(1.8f);
+                    effect.Parameters["uOverbrightMult"]?.SetValue(0.5f);
+                    effect.Parameters["uDistortionAmt"]?.SetValue(0.03f);
+                    effect.CurrentTechnique = effect.Techniques["PearlescentTrailGlow"];
+
+                    var innerSettings = new PearlescentTrailSettings(
+                        t => (rocketWidth + rocketTaper * (1f - t)) * 1.5f,
+                        t => Color.White * (0.35f * (1f - t)),
+                        shaderData, true
+                    );
+                    _trailRenderer.RenderTrail(oldPos, innerSettings, TrailLength);
+                }
+                else
+                {
+                    // Fallback: basic bloom trail when shader unavailable
+                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                    Texture2D fallbackBloom = MagnumTextureRegistry.GetSoftGlow();
+                    if (fallbackBloom != null)
+                    {
+                        Vector2 fbOrigin = fallbackBloom.Size() * 0.5f;
+                        for (int i = TrailLength - 1; i >= 1; i--)
+                        {
+                            if (oldPos[i] == Vector2.Zero) continue;
+                            float progress = 1f - i / (float)TrailLength;
+                            Color c = Color.Lerp(PearlescentUtils.LakeSilver, PearlescentUtils.PearlWhite, progress);
+                            sb.Draw(fallbackBloom, oldPos[i] - screenPos, null, c * (progress * 0.4f),
+                                oldRot[i], fbOrigin, 0.3f + progress * 0.2f, SpriteEffects.None, 0f);
+                        }
+                    }
+                    sb.End();
+                }
+
+                // ============ BLOOM CORE (6-layer pearlescent) ============
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
                 Texture2D bloom = MagnumTextureRegistry.GetSoftGlow();
                 Texture2D point = MagnumTextureRegistry.GetPointBloom();
                 Texture2D radial = MagnumTextureRegistry.GetRadialBloom();
+                Texture2D star = MagnumTextureRegistry.GetStar4Soft();
 
-                // --- Bloom trail from oldPos ---
-                if (bloom != null)
-                {
-                    Vector2 bloomOrigin = bloom.Size() * 0.5f;
-                    for (int i = TrailLength - 1; i >= 1; i--)
-                    {
-                        if (oldPos[i] == Vector2.Zero) continue;
-                        float progress = 1f - i / (float)TrailLength;
-                        float trailAlpha = progress * 0.6f;
-                        float trailScale = 0.35f + progress * 0.25f;
-
-                        Color trailColor = Color.Lerp(PearlescentUtils.LakeSilver, PearlescentUtils.PearlWhite, progress);
-                        // Rainbow tint along trail
-                        Color rainbow = PearlescentUtils.GetRainbow(i / (float)TrailLength + (float)Main.timeForVisualEffects * 0.01f);
-                        trailColor = Color.Lerp(trailColor, rainbow, 0.25f);
-
-                        sb.Draw(bloom, oldPos[i] - screenPos, null, trailColor * trailAlpha,
-                            oldRot[i], bloomOrigin, trailScale, SpriteEffects.None, 0f);
-                    }
-                }
-
-                // --- Rocket core bloom stack ---
                 Vector2 drawPos = Projectile.Center - screenPos;
                 float pulse = 0.9f + 0.1f * MathF.Sin((float)Main.timeForVisualEffects * 0.08f);
+                float variantScale = (IsTidalWaters || IsStillWaters) ? 1.15f : 1f;
 
-                // Outer pearl glow (wide, soft)
+                // Layer 1: Atmospheric radial halo
                 if (radial != null)
                 {
-                    Vector2 radialOrigin = radial.Size() * 0.5f;
-                    Color outerColor = Color.Lerp(PearlescentUtils.MistBlue, PearlescentUtils.PearlWhite, 0.5f);
-                    sb.Draw(radial, drawPos, null, outerColor * 0.25f * pulse, 0f, radialOrigin, 0.7f * pulse, SpriteEffects.None, 0f);
+                    Vector2 rOrigin = radial.Size() * 0.5f;
+                    Color hazeColor = Color.Lerp(PearlescentUtils.MistBlue, PearlescentUtils.LakeSilver, 0.4f);
+                    sb.Draw(radial, drawPos, null, hazeColor * 0.15f * pulse, 0f, rOrigin,
+                        0.8f * variantScale * pulse, SpriteEffects.None, 0f);
                 }
 
-                // Mid glow (pearlescent)
+                // Layer 2: Pearlescent outer glow
                 if (bloom != null)
                 {
-                    Vector2 bloomOrigin = bloom.Size() * 0.5f;
-                    sb.Draw(bloom, drawPos, null, PearlescentUtils.PearlWhite * 0.5f * pulse, 0f, bloomOrigin, 0.4f * pulse, SpriteEffects.None, 0f);
+                    Vector2 bOrigin = bloom.Size() * 0.5f;
+                    Color pearlGlow = Color.Lerp(PearlescentUtils.PearlWhite, PearlescentUtils.MistBlue, 0.3f);
+                    sb.Draw(bloom, drawPos, null, pearlGlow * 0.4f * pulse, 0f, bOrigin,
+                        0.45f * variantScale * pulse, SpriteEffects.None, 0f);
                 }
 
-                // Hot core (bright)
+                // Layer 3: Lake-silver mid glow
+                if (bloom != null)
+                {
+                    Vector2 bOrigin = bloom.Size() * 0.5f;
+                    sb.Draw(bloom, drawPos, null, PearlescentUtils.LakeSilver * 0.5f * pulse, 0f, bOrigin,
+                        0.28f * variantScale * pulse, SpriteEffects.None, 0f);
+                }
+
+                // Layer 4: White-hot core
                 if (point != null)
                 {
-                    Vector2 pointOrigin = point.Size() * 0.5f;
-                    sb.Draw(point, drawPos, null, Color.White * 0.8f, 0f, pointOrigin, 0.25f * pulse, SpriteEffects.None, 0f);
+                    Vector2 pOrigin = point.Size() * 0.5f;
+                    sb.Draw(point, drawPos, null, Color.White * 0.85f, 0f, pOrigin,
+                        0.22f * variantScale * pulse, SpriteEffects.None, 0f);
                 }
 
-                // --- Rainbow shimmer ring at projectile ---
+                // Layer 5: Star sparkle accent (rotating)
+                if (star != null)
+                {
+                    Vector2 sOrigin = star.Size() * 0.5f;
+                    float starRot = (float)Main.timeForVisualEffects * 0.035f;
+                    Color starColor = PearlescentUtils.GetRainbow((float)Main.timeForVisualEffects * 0.006f);
+                    sb.Draw(star, drawPos, null, starColor * 0.25f * pulse, starRot, sOrigin,
+                        0.2f * variantScale, SpriteEffects.None, 0f);
+                }
+
+                // Layer 6: Rainbow shimmer orbit (8 dots cycling)
                 if (bloom != null)
                 {
-                    Vector2 bloomOrigin = bloom.Size() * 0.5f;
+                    Vector2 bOrigin = bloom.Size() * 0.5f;
+                    for (int i = 0; i < 8; i++)
+                    {
+                        float angle = MathHelper.TwoPi / 8f * i + (float)Main.timeForVisualEffects * 0.04f;
+                        Vector2 offset = angle.ToRotationVector2() * (10f * variantScale);
+                        Color rc = PearlescentUtils.GetRainbow(i / 8f + (float)Main.timeForVisualEffects * 0.003f);
+                        sb.Draw(bloom, drawPos + offset, null, rc * 0.2f, 0f, bOrigin, 0.1f, SpriteEffects.None, 0f);
+                    }
+                }
+
+                // Variant: Tidal Waters caustic shimmer counter-ring
+                if (IsTidalWaters && bloom != null)
+                {
+                    Vector2 bOrigin = bloom.Size() * 0.5f;
                     for (int i = 0; i < 6; i++)
                     {
-                        float angle = MathHelper.TwoPi / 6f * i + (float)Main.timeForVisualEffects * 0.03f;
-                        Vector2 offset = angle.ToRotationVector2() * 8f;
-                        Color rc = PearlescentUtils.GetRainbow(i / 6f);
-                        sb.Draw(bloom, drawPos + offset, null, rc * 0.2f, 0f, bloomOrigin, 0.15f, SpriteEffects.None, 0f);
+                        float angle = MathHelper.TwoPi / 6f * i + (float)Main.timeForVisualEffects * -0.025f;
+                        Vector2 offset = angle.ToRotationVector2() * 16f;
+                        sb.Draw(bloom, drawPos + offset, null, PearlescentUtils.MistBlue * 0.15f, 0f, bOrigin, 0.12f, SpriteEffects.None, 0f);
                     }
+                }
+
+                // Variant: Still Waters reflective pearl cross
+                if (IsStillWaters && star != null)
+                {
+                    Vector2 sOrigin = star.Size() * 0.5f;
+                    sb.Draw(star, drawPos, null, PearlescentUtils.PearlWhite * 0.2f,
+                        (float)Main.timeForVisualEffects * -0.02f, sOrigin, 0.3f, SpriteEffects.None, 0f);
                 }
 
                 // --- Draw rocket sprite on top ---
@@ -274,7 +396,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
 
             // Theme accents (additive)
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
             PearlescentUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
@@ -307,7 +429,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
 
             // Back to additive for caller
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
     }

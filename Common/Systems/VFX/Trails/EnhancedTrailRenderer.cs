@@ -601,7 +601,7 @@ namespace MagnumOpus.Common.Systems.VFX
             var previousSamplerState = device.SamplerStates[0];
             
             // Set up proper states for additive trail rendering
-            device.BlendState = BlendState.Additive;
+            device.BlendState = MagnumBlendStates.TrueAdditive;
             device.RasterizerState = RasterizerState.CullNone;
             device.DepthStencilState = DepthStencilState.None;
             device.SamplerStates[0] = SamplerState.LinearClamp;
@@ -656,7 +656,7 @@ namespace MagnumOpus.Common.Systems.VFX
             var previousSamplerState = device.SamplerStates[0];
             
             // Set up proper states for additive trail rendering
-            device.BlendState = BlendState.Additive;
+            device.BlendState = MagnumBlendStates.TrueAdditive;
             device.RasterizerState = RasterizerState.CullNone;
             device.DepthStencilState = DepthStencilState.None;
             device.SamplerStates[0] = SamplerState.LinearWrap;

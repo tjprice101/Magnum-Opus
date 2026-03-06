@@ -70,7 +70,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Particles
             if (Main.dedServ || _active == null || _active.Count == 0) return;
 
             // Pass 1: Additive (bloom, glows, prism flares)
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.PointClamp, DepthStencilState.None,
                 RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 

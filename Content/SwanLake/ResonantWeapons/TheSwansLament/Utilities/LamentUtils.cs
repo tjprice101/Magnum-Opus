@@ -13,19 +13,20 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Utilities
     /// </summary>
     public static class LamentUtils
     {
-        public static readonly Color MourningBlack = new Color(20, 15, 25);
-        public static readonly Color GriefGrey = new Color(100, 95, 110);
-        public static readonly Color CatharsisWhite = new Color(235, 230, 245);
-        public static readonly Color RevelationGold = new Color(255, 220, 140);
+        public static readonly Color MourningBlack = new Color(18, 18, 22);
+        public static readonly Color GriefGrey = new Color(100, 100, 108);
+        public static readonly Color CatharsisWhite = new Color(240, 240, 248);
+        public static readonly Color RevelationWhite = new Color(255, 255, 255);
         public static readonly Color LoreColor = new Color(240, 240, 255);
 
+        /// <summary>Lament palette — neutral black→grey→white mourning ramp. No purple cast.</summary>
         public static readonly Color[] LamentPalette = new Color[]
         {
-            new Color(30, 25, 40),
-            new Color(80, 70, 100),
-            new Color(140, 130, 165),
-            new Color(200, 195, 220),
-            new Color(240, 235, 250),
+            new Color(20, 20, 25),
+            new Color(70, 70, 78),
+            new Color(130, 130, 140),
+            new Color(195, 195, 205),
+            new Color(235, 235, 245),
             new Color(255, 255, 255),
         };
 
@@ -47,7 +48,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Utilities
             if (flash > 0.1f)
             {
                 float hue = (t * 2f + (float)Main.GameUpdateCount * 0.005f) % 1f;
-                return Color.Lerp(GriefGrey, Main.hslToRgb(hue, 0.7f, 0.8f), flash);
+                // Desaturated pastel rainbow flash — not vivid, prismatic over white
+                return Color.Lerp(GriefGrey, Main.hslToRgb(hue, 0.4f, 0.88f), flash);
             }
             return Color.Lerp(MourningBlack, GriefGrey, t);
         }
@@ -64,7 +66,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Utilities
         public static void BeginAdditive(SpriteBatch sb)
         {
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 

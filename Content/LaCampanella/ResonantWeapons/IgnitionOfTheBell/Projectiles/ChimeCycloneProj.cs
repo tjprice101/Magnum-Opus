@@ -7,8 +7,10 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Particles;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Shaders;
 using MagnumOpus.Content.LaCampanella;
 using MagnumOpus.Content.LaCampanella.Debuffs;
+using Terraria.Graphics.Shaders;
 using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
 using MagnumOpus.Content.FoundationWeapons.ExplosionParticlesFoundation;
 using MagnumOpus.Content.FoundationWeapons.XSlashFoundation;
@@ -239,7 +241,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             Projectile.NewProjectile(
                 Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero,
                 ModContent.ProjectileType<RippleEffectProjectile>(),
-                0, 0f, Projectile.owner);
+                0, 0f, Projectile.owner, ai0: 1f);
 
             // === FOUNDATION: SparkExplosionProjectile — Cyclone detonation radial scatter ===
             Projectile.NewProjectile(
@@ -390,9 +392,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
         private void DrawCycloneAura(SpriteBatch sb)
         {
             Texture2D bloomTex = null;
+            Texture2D vortexTex = null;
             try
             {
                 bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow",
+                    ReLogic.Content.AssetRequestMode.ImmediateLoad)?.Value;
+                vortexTex = ModContent.Request<Texture2D>(
+                    "MagnumOpus/Assets/VFX Asset Library/Theme Specific/La Campanella/Noise Textures/LC Cosmic Energy Vortex",
                     ReLogic.Content.AssetRequestMode.ImmediateLoad)?.Value;
             }
             catch { }
@@ -409,30 +415,94 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             try { sb.End(); } catch { }
             try
             {
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            // === SHADER-DRIVEN CYCLONE AURA ===
+            MiscShaderData cycloneShader = IgnitionOfTheBellShaderLoader.GetCycloneShader();
+            if (cycloneShader != null)
+            {
+                try
+                {
+                    cycloneShader.UseColor(new Color(255, 100, 10));
+                    cycloneShader.UseSecondaryColor(new Color(255, 210, 80));
+                    cycloneShader.UseOpacity(intensity * 0.8f);
+                    cycloneShader.Shader.Parameters["uTime"]?.SetValue(Main.GameUpdateCount * 0.04f);
+                    cycloneShader.Shader.Parameters["uIntensity"]?.SetValue(intensity * 1.5f);
+                    cycloneShader.Shader.Parameters["uOverbrightMult"]?.SetValue(1.5f + progress * 0.5f);
+                    cycloneShader.Shader.Parameters["uScrollSpeed"]?.SetValue(2.5f + progress * 2f);
+                    cycloneShader.Shader.Parameters["uNoiseScale"]?.SetValue(4.0f);
+                    cycloneShader.Shader.Parameters["uPhase"]?.SetValue(progress);
+
+                    // Bind the LC Cosmic Energy Vortex as secondary noise texture
+                    if (vortexTex != null)
+                    {
+                        Main.graphics.GraphicsDevice.Textures[1] = vortexTex;
+                        Main.graphics.GraphicsDevice.SamplerStates[1] = SamplerState.LinearWrap;
+                        cycloneShader.Shader.Parameters["uHasSecondaryTex"]?.SetValue(1.0f);
+                        cycloneShader.Shader.Parameters["uSecondaryTexScale"]?.SetValue(1.5f);
+                    }
+                }
+                catch { }
+
+                sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                cycloneShader.Apply();
+
+                // === LC Cosmic Energy Vortex — large UV-scrolled sandstorm overlay ===
+                if (vortexTex != null)
+                {
+                    Vector2 vortexOrigin = new Vector2(vortexTex.Width / 2f, vortexTex.Height / 2f);
+                    float vortexScale = (2.0f - progress * 0.8f) * intensity;
+                    float vortexAlpha = 0.45f * pulse * intensity;
+                    sb.Draw(vortexTex, screenPos, null,
+                        IgnitionOfTheBellUtils.Additive(new Color(255, 120, 20), vortexAlpha),
+                        _spinAngle * 0.6f, vortexOrigin, vortexScale, SpriteEffects.None, 0f);
+
+                    // Counter-rotating inner vortex layer for depth
+                    float innerVortexScale = (1.2f - progress * 0.4f) * intensity;
+                    float innerAlpha = 0.35f * pulse * intensity;
+                    sb.Draw(vortexTex, screenPos, null,
+                        IgnitionOfTheBellUtils.Additive(new Color(255, 80, 0), innerAlpha),
+                        -_spinAngle * 0.9f, vortexOrigin, innerVortexScale, SpriteEffects.FlipHorizontally, 0f);
+                }
+
+                // Shader-enhanced outer vortex
+                float outerScale = (1.5f - progress * 0.75f) * intensity;
+                sb.Draw(bloomTex, screenPos, null,
+                    IgnitionOfTheBellUtils.Additive(new Color(140, 20, 0), 0.3f * pulse * intensity),
+                    _spinAngle, origin, outerScale, SpriteEffects.None, 0f);
+
+                // Shader-enhanced mid rotating ring
+                float midScale = (0.75f - progress * 0.25f) * intensity;
+                sb.Draw(bloomTex, screenPos, null,
+                    IgnitionOfTheBellUtils.Additive(new Color(255, 100, 10), 0.4f * pulse * intensity),
+                    -_spinAngle * 0.7f, origin, midScale, SpriteEffects.None, 0f);
+
+                sb.End();
+            }
+
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Outer contracting vortex glow
-            float outerScale = (3f - progress * 1.5f) * intensity;
+            // Outer contracting vortex glow (non-shader layer for depth)
+            float outerGlowScale = (1.25f - progress * 0.6f) * intensity;
             sb.Draw(bloomTex, screenPos, null,
-                IgnitionOfTheBellUtils.Additive(new Color(140, 20, 0), 0.2f * pulse * intensity),
-                _spinAngle, origin, outerScale, SpriteEffects.None, 0f);
-
-            // Mid rotating ring
-            float midScale = (1.5f - progress * 0.5f) * intensity;
-            sb.Draw(bloomTex, screenPos, null,
-                IgnitionOfTheBellUtils.Additive(new Color(255, 100, 10), 0.3f * pulse * intensity),
-                -_spinAngle * 0.7f, origin, midScale, SpriteEffects.None, 0f);
+                IgnitionOfTheBellUtils.Additive(new Color(140, 20, 0), 0.15f * pulse * intensity),
+                _spinAngle * 0.5f, origin, outerGlowScale, SpriteEffects.None, 0f);
 
             // Intensifying hot core
             float coreIntensity = 0.3f + progress * 0.5f;
             sb.Draw(bloomTex, screenPos, null,
                 IgnitionOfTheBellUtils.Additive(new Color(255, 210, 80), coreIntensity),
-                0f, origin, 0.5f + progress * 0.3f, SpriteEffects.None, 0f);
+                0f, origin, 0.25f + progress * 0.15f, SpriteEffects.None, 0f);
+
+            // Secondary pulsing core for heartbeat effect
+            float heartbeat = (float)Math.Sin(_timer * 0.3f) * 0.15f + 0.85f;
+            sb.Draw(bloomTex, screenPos, null,
+                IgnitionOfTheBellUtils.Additive(new Color(255, 255, 240), coreIntensity * 0.4f * heartbeat),
+                0f, origin, (0.15f + progress * 0.1f) * heartbeat, SpriteEffects.None, 0f);
 
             // --- LC Impact Ellipse — expanding infernal shockwave ring in vortex ---
             {
-                float ellipseScale = (1.8f - progress * 0.8f) * pulse;
+                float ellipseScale = (0.9f - progress * 0.4f) * pulse;
                 LaCampanellaVFXLibrary.DrawImpactEllipse(sb, screenPos,
                     ellipseScale * 0.3f, _spinAngle * 0.3f,
                     0.18f * pulse * intensity, LaCampanellaPalette.InfernalOrange);
@@ -443,7 +513,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             {
                 float ringIntensity = (progress - 0.3f) / 0.7f;
                 LaCampanellaVFXLibrary.DrawPowerEffectRing(sb, screenPos,
-                    (1.2f - ringIntensity * 0.5f) * pulse * 0.3f,
+                    (0.6f - ringIntensity * 0.25f) * pulse * 0.3f,
                     -_spinAngle * 0.5f,
                     0.2f * ringIntensity * pulse, LaCampanellaPalette.FlameYellow);
             }

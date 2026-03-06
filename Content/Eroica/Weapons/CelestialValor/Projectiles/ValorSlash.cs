@@ -1,8 +1,9 @@
-ï»¿using MagnumOpus.Common.Systems;
+using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
-using MagnumOpus.Content.FoundationWeapons.SparkleProjectileFoundation;
-using ReLogic.Content;
+using MagnumOpus.Content.Eroica;
+using MagnumOpus.Content.FoundationWeapons.SwordSmearFoundation;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -13,8 +14,13 @@ using Terraria.ModLoader;
 namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
 {
     /// <summary>
-    /// Crimson-gold slash arc projectile â€” travels outward from the player
-    /// with a wide smear trail, bloom gradient, and musical sparks.
+    /// Crimson-gold slash arc projectile - travels outward from the player
+    /// with a directional smear trail, bloom gradient, and musical sparks.
+    /// 
+    /// ARCHITECTURE: Built on Foundation rendering (SMFTextures).
+    /// - Streak: Smear texture from SMFTextures.SwordArcSmear, 3-layer (outer/body/core)
+    /// - Bloom: Foundation SoftGlow + StarFlare at center
+    /// - Sparks: Eroica directional spark dust via EroicaVFXLibrary
     /// </summary>
     public class ValorSlash : ModProjectile
     {
@@ -47,7 +53,9 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
 
             // Spark trail
             if (Projectile.timeLeft % 3 == 0)
-                EroicaVFXLibrary.SpawnDirectionalSparks(Projectile.Center, Projectile.velocity.SafeNormalize(Vector2.UnitX), 2, 3f);
+                EroicaVFXLibrary.SpawnDirectionalSparks(
+                    Projectile.Center,
+                    Projectile.velocity.SafeNormalize(Vector2.UnitX), 2, 3f);
 
             EroicaVFXLibrary.AddPaletteLighting(Projectile.Center, 0.35f, 0.5f * Projectile.Opacity);
         }
@@ -68,83 +76,63 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             float progress = 1f - (float)Projectile.timeLeft / MaxLife;
             float fade = Projectile.Opacity;
+            if (fade < 0.02f) return false;
 
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
-            // â”€â”€ Layer 1: Wide smear streak â”€â”€
-            Texture2D streak = MagnumTextureRegistry.GetBeamStreak();
-            if (streak != null)
-            {
-                Vector2 streakOrigin = new Vector2(streak.Width * 0.5f, streak.Height * 0.5f);
+            // „Ÿ„Ÿ Foundation rendering: SMFTextures „Ÿ„Ÿ
+            Texture2D smearTex = SMFTextures.SwordArcSmear.Value;
+            Texture2D softGlow = SMFTextures.SoftGlow.Value;
+            Texture2D starFlare = SMFTextures.StarFlare.Value;
 
-                // Outer scarlet smear
-                Color outerColor = EroicaPalette.Scarlet with { A = 0 };
-                sb.Draw(streak, drawPos, null, outerColor * (fade * 0.5f), Projectile.rotation, streakOrigin,
-                    new Vector2(1.8f, 0.4f), SpriteEffects.None, 0f);
+            Vector2 smearOrigin = smearTex.Size() / 2f;
 
-                // Inner gold core
-                Color innerColor = EroicaPalette.Gold with { A = 0 };
-                sb.Draw(streak, drawPos, null, innerColor * (fade * 0.6f), Projectile.rotation, streakOrigin,
-                    new Vector2(1.4f, 0.2f), SpriteEffects.None, 0f);
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
 
-                // Hot white center
-                Color hotColor = EroicaPalette.HotCore with { A = 0 };
-                sb.Draw(streak, drawPos, null, hotColor * (fade * 0.5f), Projectile.rotation, streakOrigin,
-                    new Vector2(1.0f, 0.1f), SpriteEffects.None, 0f);
-            }
+            // Layer 1: Outer scarlet smear
+            sb.Draw(smearTex, drawPos, null,
+                (EroicaPalette.Scarlet with { A = 0 }) * (fade * 0.5f),
+                Projectile.rotation, smearOrigin,
+                new Vector2(1.8f, 0.4f), SpriteEffects.None, 0f);
 
-            // â”€â”€ Layer 2: Bloom at center â”€â”€
-            EroicaVFXLibrary.DrawEroicaBloomStack(sb, Projectile.Center,
-                EroicaPalette.Scarlet, EroicaPalette.Gold, 0.2f * fade, 0.6f * fade);
+            // Layer 2: Inner gold body
+            sb.Draw(smearTex, drawPos, null,
+                (EroicaPalette.Gold with { A = 0 }) * (fade * 0.6f),
+                Projectile.rotation, smearOrigin,
+                new Vector2(1.4f, 0.2f), SpriteEffects.None, 0f);
 
-            // â”€â”€ Layer 3: SPF Star Flare accent (ThinSlash-style) â”€â”€
-            DrawSlashFlareAccent(sb, fade);
+            // Layer 3: Hot white core
+            sb.Draw(smearTex, drawPos, null,
+                (EroicaPalette.HotCore with { A = 0 }) * (fade * 0.5f),
+                Projectile.rotation, smearOrigin,
+                new Vector2(1.0f, 0.1f), SpriteEffects.None, 0f);
 
-            // Eroica theme accent
-            EroicaVFXLibrary.BeginEroicaAdditive(sb);
-            EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.5f);
-            EroicaVFXLibrary.EndEroicaAdditive(sb);
+            // Layer 4: Center bloom (Foundation SoftGlow)
+            sb.Draw(softGlow, drawPos, null,
+                (EroicaPalette.Scarlet with { A = 0 }) * (fade * 0.2f), 0f,
+                softGlow.Size() / 2f, 0.3f, SpriteEffects.None, 0f);
+
+            sb.Draw(softGlow, drawPos, null,
+                (EroicaPalette.Gold with { A = 0 }) * (fade * 0.4f), 0f,
+                softGlow.Size() / 2f, 0.15f, SpriteEffects.None, 0f);
+
+            // Layer 5: Star flare accent
+            sb.Draw(starFlare, drawPos, null,
+                (EroicaPalette.Gold with { A = 0 }) * (fade * 0.35f),
+                Projectile.rotation, starFlare.Size() / 2f,
+                0.15f, SpriteEffects.None, 0f);
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
 
             return false;
-        }
-
-        /// <summary>
-        /// ThinSlashFoundation-style star flare accent at the slash center.
-        /// SPFTextures StarFlare provides a crisp, bright accent point.
-        /// </summary>
-        private void DrawSlashFlareAccent(SpriteBatch sb, float fade)
-        {
-            Texture2D starFlare = SPFTextures.StarFlare.Value;
-            if (starFlare == null || fade < 0.05f) return;
-
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            try
-            {
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
-                    SamplerState.LinearClamp, DepthStencilState.None,
-                    RasterizerState.CullNone, null,
-                    Main.GameViewMatrix.TransformationMatrix);
-
-                // Gold star flare aligned to slash direction
-                Color flareColor = EroicaPalette.Gold with { A = 0 };
-                sb.Draw(starFlare, drawPos, null, flareColor * (fade * 0.35f),
-                    Projectile.rotation, starFlare.Size() * 0.5f, 0.25f * fade, SpriteEffects.None, 0f);
-
-                // Smaller hot core flare
-                Color hotColor = EroicaPalette.HotCore with { A = 0 };
-                sb.Draw(starFlare, drawPos, null, hotColor * (fade * 0.2f),
-                    Projectile.rotation + MathHelper.PiOver4, starFlare.Size() * 0.5f, 0.15f * fade, SpriteEffects.None, 0f);
-            }
-            finally
-            {
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                    Main.DefaultSamplerState, DepthStencilState.None,
-                    RasterizerState.CullCounterClockwise, null,
-                    Main.GameViewMatrix.TransformationMatrix);
-            }
         }
     }
 }

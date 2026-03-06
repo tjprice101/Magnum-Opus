@@ -27,29 +27,29 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Shaders
         {
             // Try to load from per-weapon shader path first, fallback to shared La Campanella shaders
             if (TryLoadMiscShader("MagnumOpus/Effects/LaCampanella/DualFatedChime/InfernalFlameSlash",
-                "InfernalFlameMain", "MagnumOpus:DualFatedChimeSlash"))
+                "P0", "MagnumOpus:DualFatedChimeSlash"))
             {
                 HasSlashShader = true;
             }
-            else if (TryLoadMiscShader("MagnumOpus/Effects/HeroicFlameTrail",
-                "HeroicFlameTrailPass", "MagnumOpus:DualFatedChimeSlash"))
+            else if (TryLoadMiscShader("MagnumOpus/Effects/Eroica/HeroicFlameTrail",
+                "P0", "MagnumOpus:DualFatedChimeSlash"))
             {
                 HasSlashShader = true;
             }
 
             if (TryLoadMiscShader("MagnumOpus/Effects/LaCampanella/DualFatedChime/BellFlameTrail",
-                "BellFlameMain", "MagnumOpus:DualFatedChimeFlame"))
+                "P0", "MagnumOpus:DualFatedChimeFlame"))
             {
                 HasFlameShader = true;
             }
             else if (TryLoadMiscShader("MagnumOpus/Effects/ScrollingTrailShader",
-                "ScrollingTrailPass", "MagnumOpus:DualFatedChimeFlame"))
+                "Pass0", "MagnumOpus:DualFatedChimeFlame"))
             {
                 HasFlameShader = true;
             }
 
             if (TryLoadMiscShader("MagnumOpus/Effects/LaCampanella/DualFatedChime/InfernoWaltzAura",
-                "WaltzAuraMain", "MagnumOpus:DualFatedChimeWaltz"))
+                "P0", "MagnumOpus:DualFatedChimeWaltz"))
             {
                 HasWaltzShader = true;
             }

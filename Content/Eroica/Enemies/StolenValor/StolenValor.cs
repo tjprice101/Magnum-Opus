@@ -704,7 +704,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
             {
                 EnemyShaderManager.ApplyAuraParams(auraShader, NPC, new Color(180, 150, 50), new Color(100, 40, 40), pulse);
                 spriteBatch.End();
-                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, auraShader, Main.GameViewMatrix.TransformationMatrix);
+                spriteBatch.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp, default, default, auraShader, Main.GameViewMatrix.TransformationMatrix);
                 try
                 {
                     spriteBatch.Draw(texture, drawPos, sourceRect, Color.White, NPC.rotation, origin, NPC.scale * 1.15f, effects, 0f);
@@ -724,7 +724,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
                 {
                     EnemyShaderManager.ApplyTrailParams(trailShader, NPC, new Color(180, 150, 50), new Color(100, 40, 40), NPC.velocity.Length() / 12f);
                     spriteBatch.End();
-                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, trailShader, Main.GameViewMatrix.TransformationMatrix);
+                    spriteBatch.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp, default, default, trailShader, Main.GameViewMatrix.TransformationMatrix);
                     try
                     {
                         for (int t = 1; t <= 3; t++)

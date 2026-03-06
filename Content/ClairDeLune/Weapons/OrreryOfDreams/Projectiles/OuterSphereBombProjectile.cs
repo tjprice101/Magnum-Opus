@@ -202,7 +202,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.OrreryOfDreams.Projectiles
 
             _celestialShader.CurrentTechnique = _celestialShader.Techniques["CelestialOrbitPath"];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _celestialShader, matrix);
 
@@ -212,7 +212,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.OrreryOfDreams.Projectiles
             sb.Draw(sc, drawPos, null, Color.White, Projectile.rotation, sc.Size() * 0.5f, bodyScale, SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }
@@ -275,7 +275,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.OrreryOfDreams.Projectiles
 
             _radialNoiseShader.CurrentTechnique = _radialNoiseShader.Techniques["Technique1"];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _radialNoiseShader, matrix);
 
@@ -285,7 +285,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.OrreryOfDreams.Projectiles
             sb.Draw(sc, drawPos, null, Color.White, 0f, sc.Size() * 0.5f, zoneScale, SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }

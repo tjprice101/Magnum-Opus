@@ -179,7 +179,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                 innerColor * 0.6f, 0f, bloom.Size() / 2f, bloomScale, SpriteEffects.None, 0f);
 
             // Trail rendering with shader
-            Main.spriteBatch.EnterShaderRegion(BlendState.Additive);
+            Main.spriteBatch.EnterShaderRegion(MagnumBlendStates.TrueAdditive);
 
             var shader = GameShaders.Misc["MagnumOpus:EternalMoonTidalGlow"];
             shader.UseImage1(_noiseTex);

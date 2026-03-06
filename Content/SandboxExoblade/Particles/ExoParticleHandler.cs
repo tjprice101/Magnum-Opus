@@ -72,7 +72,7 @@ namespace MagnumOpus.Content.SandboxExoblade.Particles
                 return;
 
             // Draw additive particles
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             foreach (ExoParticle particle in activeParticles)
             {
                 if (particle != null && particle.UseAdditiveBlend && particle.UseCustomDraw)

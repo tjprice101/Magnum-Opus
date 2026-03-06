@@ -20,25 +20,25 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
         {
             if (Main.dedServ) return;
 
-            HasRocketTrailShader = TryLoadShader(ShaderBasePath + "RocketTrailShader", "SymphonicRocketTrail", FallbackTrail);
-            HasCrescendoShader = TryLoadShader(ShaderBasePath + "CrescendoShader", "SymphonicCrescendo", FallbackBloom);
-            HasExplosionShader = TryLoadShader(ShaderBasePath + "ExplosionShader", "SymphonicExplosion", FallbackBloom);
+            HasRocketTrailShader = TryLoadShader(ShaderBasePath + "RocketTrailShader", "SymphonicRocketTrail", "P0", FallbackTrail, "Pass0");
+            HasCrescendoShader = TryLoadShader(ShaderBasePath + "CrescendoShader", "SymphonicCrescendo", "P0", FallbackBloom, "DefaultPass");
+            HasExplosionShader = TryLoadShader(ShaderBasePath + "ExplosionShader", "SymphonicExplosion", "P0", FallbackBloom, "DefaultPass");
         }
 
-        private bool TryLoadShader(string path, string key, string fallbackPath)
+        private bool TryLoadShader(string path, string key, string technique, string fallbackPath, string fallbackTechnique)
         {
             try
             {
-                var effect = ModContent.Request<Microsoft.Xna.Framework.Graphics.Effect>(path, AssetRequestMode.ImmediateLoad).Value;
-                GameShaders.Misc[key] = new MiscShaderData(new Terraria.Ref<Microsoft.Xna.Framework.Graphics.Effect>(effect), "P0");
+                var effect = ModContent.Request<Microsoft.Xna.Framework.Graphics.Effect>(path, AssetRequestMode.ImmediateLoad);
+                GameShaders.Misc[key] = new MiscShaderData(effect, technique);
                 return true;
             }
             catch
             {
                 try
                 {
-                    var fallback = ModContent.Request<Microsoft.Xna.Framework.Graphics.Effect>(fallbackPath, AssetRequestMode.ImmediateLoad).Value;
-                    GameShaders.Misc[key] = new MiscShaderData(new Terraria.Ref<Microsoft.Xna.Framework.Graphics.Effect>(fallback), "P0");
+                    var fallback = ModContent.Request<Microsoft.Xna.Framework.Graphics.Effect>(fallbackPath, AssetRequestMode.ImmediateLoad);
+                    GameShaders.Misc[key] = new MiscShaderData(fallback, fallbackTechnique);
                     return true;
                 }
                 catch { }

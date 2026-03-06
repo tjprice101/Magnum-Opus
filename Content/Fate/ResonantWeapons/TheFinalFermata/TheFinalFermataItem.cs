@@ -164,7 +164,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata
             float pulse = 1f + MathF.Sin(time * 0.04f) * 0.03f;
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null,
                 Main.GameViewMatrix.TransformationMatrix);
 

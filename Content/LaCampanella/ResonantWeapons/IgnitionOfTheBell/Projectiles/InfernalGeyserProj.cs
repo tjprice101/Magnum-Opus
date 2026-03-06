@@ -7,7 +7,9 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Particles;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Shaders;
 using MagnumOpus.Content.LaCampanella.Debuffs;
+using Terraria.Graphics.Shaders;
 using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
 using MagnumOpus.Content.FoundationWeapons.ExplosionParticlesFoundation;
 
@@ -86,7 +88,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
                     Projectile.NewProjectile(
                         Projectile.GetSource_FromThis(), _groundPos, Vector2.Zero,
                         ModContent.ProjectileType<RippleEffectProjectile>(),
-                        0, 0f, Projectile.owner);
+                        0, 0f, Projectile.owner, ai0: 1f);
                 }
 
                 // === FOUNDATION: SparkExplosionProjectile — Eruption burst sparks ===
@@ -181,7 +183,20 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            DrawGeyserPillar(sb);
+            try
+            {
+                DrawGeyserPillar(sb);
+            }
+            catch
+            {
+                try
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
             return false;
         }
 
@@ -209,18 +224,59 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             Vector2 origin = new Vector2(bloomTex.Width / 2f, bloomTex.Height / 2f);
             float pulse = 0.8f + 0.2f * (float)Math.Sin(_timer * 0.4f);
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            // === SHADER-DRIVEN GEYSER PILLAR ===
+            MiscShaderData geyserShader = IgnitionOfTheBellShaderLoader.GetGeyserShader();
+
+            // Shader overlay pass first (Immediate mode for pixel shader)
+            if (geyserShader != null && heightMult > 0.1f)
+            {
+                try
+                {
+                    geyserShader.UseColor(new Color(255, 140, 30));
+                    geyserShader.UseSecondaryColor(new Color(255, 240, 210));
+                    geyserShader.UseOpacity(heightMult * 0.7f);
+                    geyserShader.Shader.Parameters["uTime"]?.SetValue(Main.GameUpdateCount * 0.05f);
+                    geyserShader.Shader.Parameters["uIntensity"]?.SetValue(heightMult * 1.5f);
+                    geyserShader.Shader.Parameters["uOverbrightMult"]?.SetValue(1.6f);
+                    geyserShader.Shader.Parameters["uScrollSpeed"]?.SetValue(3.0f);
+                    geyserShader.Shader.Parameters["uNoiseScale"]?.SetValue(5.0f);
+                    geyserShader.Shader.Parameters["uPhase"]?.SetValue(progress);
+                }
+                catch { }
+
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                geyserShader.Apply();
+
+                // Shader-driven geyser column - fewer layers needed with shader distortion
+                int shaderLayers = IsSmall ? 3 : 5;
+                for (int i = 0; i < shaderLayers; i++)
+                {
+                    float t = i / (float)(shaderLayers - 1);
+                    Vector2 layerPos = _groundPos - new Vector2(0, currentHeight * t) - Main.screenPosition;
+                    float widthScale = (1f - t * 0.4f) * (IsSmall ? 0.6f : 1.0f);
+                    float alphaFade = (1f - t * 0.2f) * heightMult;
+
+                    sb.Draw(bloomTex, layerPos, null,
+                        IgnitionOfTheBellUtils.Additive(new Color(255, 140, 30), 0.45f * alphaFade * pulse),
+                        0f, origin, widthScale, SpriteEffects.None, 0f);
+                }
+
+                sb.End();
+            }
+
+            try { sb.End(); } catch { }
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Draw stacked bloom orbs along pillar height
+            // Non-shader bloom layers for depth and glow
             int layerCount = IsSmall ? 4 : 7;
             for (int i = 0; i < layerCount; i++)
             {
                 float t = i / (float)(layerCount - 1);
                 Vector2 layerPos = _groundPos - new Vector2(0, currentHeight * t) - Main.screenPosition;
 
-                // Wider at base, narrower at top
                 float widthScale = (1f - t * 0.5f) * (IsSmall ? 0.5f : 0.8f);
                 float alphaFade = (1f - t * 0.3f) * heightMult;
 
@@ -238,6 +294,12 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
                 sb.Draw(bloomTex, layerPos, null,
                     IgnitionOfTheBellUtils.Additive(new Color(255, 240, 210), 0.5f * alphaFade),
                     0f, origin, widthScale * 0.3f, SpriteEffects.None, 0f);
+
+                // Additional flicker at each layer for visual richness
+                float flicker = (float)Math.Sin(_timer * 0.5f + t * 5f) * 0.1f + 0.9f;
+                sb.Draw(bloomTex, layerPos + new Vector2((float)Math.Sin(_timer * 0.3f + t * 3f) * 3f, 0), null,
+                    IgnitionOfTheBellUtils.Additive(new Color(255, 200, 100), 0.15f * alphaFade * flicker),
+                    0f, origin, widthScale * 0.6f, SpriteEffects.None, 0f);
             }
 
             // Base eruption bloom
@@ -245,6 +307,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             sb.Draw(bloomTex, basePos, null,
                 IgnitionOfTheBellUtils.Additive(new Color(255, 100, 0), 0.4f * heightMult * pulse),
                 0f, origin, IsSmall ? 0.8f : 1.5f, SpriteEffects.None, 0f);
+
+            // Tip glow at top of geyser
+            Vector2 tipPos = _groundPos - new Vector2(0, currentHeight) - Main.screenPosition;
+            float tipPulse = 0.7f + 0.3f * (float)Math.Sin(_timer * 0.6f);
+            sb.Draw(bloomTex, tipPos, null,
+                IgnitionOfTheBellUtils.Additive(new Color(255, 220, 150), 0.35f * heightMult * tipPulse),
+                0f, origin, (IsSmall ? 0.35f : 0.6f) * tipPulse, SpriteEffects.None, 0f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,

@@ -20,7 +20,7 @@ namespace MagnumOpus.Content.SandboxLastPrism.Dusts
             dust.frame = new Rectangle(0, 0, 64, 64);
             dust.fadeIn = 1f;
             dust.noGravity = true;
-            dust.shader = new ArmorShaderData(new Ref<Effect>(ModContent.GetInstance<MagnumOpus>().Assets.Request<Effect>("Effects/SandboxLastPrism/GlowDustShader", AssetRequestMode.ImmediateLoad).Value), "ArmorBasic");
+            dust.shader = new ArmorShaderData(ModContent.GetInstance<MagnumOpus>().Assets.Request<Effect>("Effects/SandboxLastPrism/GlowDustShader", AssetRequestMode.ImmediateLoad), "ArmorBasic");
         }
 
         public override Color? GetAlpha(Dust dust, Color lightColor)

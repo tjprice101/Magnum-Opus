@@ -77,7 +77,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Particle
                 return;
 
             // Additive-blend particles (glow, sparks)
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
             foreach (IncisorParticle p in activeParticles)

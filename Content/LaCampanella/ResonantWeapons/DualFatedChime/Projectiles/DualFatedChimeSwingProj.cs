@@ -356,7 +356,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             Projectile.NewProjectile(
                 Projectile.GetSource_FromThis(), tipPos, Vector2.Zero,
                 ModContent.ProjectileType<RippleEffectProjectile>(),
-                0, 0f, Projectile.owner);
+                0, 0f, Projectile.owner, ai0: 1f);
 
             DualFatedChimeParticleHandler.SpawnParticle(
                 new InfernalEmberParticle(tipPos, flameVel * 0.3f, 0.7f, 18, 0.5f));
@@ -378,7 +378,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
                 Projectile.NewProjectile(
                     Projectile.GetSource_FromThis(), tipPos, Vector2.Zero,
                     ModContent.ProjectileType<RippleEffectProjectile>(),
-                    0, 0f, Projectile.owner);
+                    0, 0f, Projectile.owner, ai0: 1f);
             }
 
             // === FOUNDATION: DamageZoneProjectile — Persistent flame zone ===
@@ -468,7 +468,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             Projectile.NewProjectile(
                 Projectile.GetSource_FromThis(), tipPos, Vector2.Zero,
                 ModContent.ProjectileType<RippleEffectProjectile>(),
-                0, 0f, Projectile.owner);
+                0, 0f, Projectile.owner, ai0: 1f);
 
             // Massive bell chime flash
             DualFatedChimeParticleHandler.SpawnParticle(new BellChimeFlashParticle(tipPos, 25, 3.0f));
@@ -534,7 +534,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             Projectile.NewProjectile(
                 Projectile.GetSource_FromThis(), hitPos, Vector2.Zero,
                 ModContent.ProjectileType<RippleEffectProjectile>(),
-                0, 0f, Projectile.owner);
+                0, 0f, Projectile.owner, ai0: 1f);
 
             // === FOUNDATION: ThinSlashEffect — Thin flame slash marks on hit (Phase 2+) ===
             if (ComboPhase >= 2)
@@ -614,7 +614,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
 
                 // Theme texture accents
                 try { sb.End(); } catch { }
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
                 DualFatedChimeUtils.DrawThemeAccents(sb, Projectile.Center - Main.screenPosition, Projectile.scale);
                 try { sb.End(); } catch { }
@@ -753,7 +753,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             Vector2 bloomOrigin = new Vector2(bloomTex.Width / 2f, bloomTex.Height / 2f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             float bloomPulse = 0.8f + 0.2f * (float)Math.Sin(Main.GameUpdateCount * 0.15f);
@@ -820,9 +820,15 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             // Main blade
             sb.Draw(bladeTex, drawPos, null, lightColor, rot, origin, squishScale, effects, 0f);
 
-            // Infernal fire glow overlay
+            // Infernal fire glow overlay — must use additive blend since Additive() sets A=0
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             Color fireGlow = DualFatedChimeUtils.Additive(DualFatedChimeUtils.GetFireFlicker(), 0.15f + ComboPhase * 0.03f);
             sb.Draw(bladeTex, drawPos, null, fireGlow, rot, origin, squishScale * 1.01f, effects, 0f);
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
         #endregion

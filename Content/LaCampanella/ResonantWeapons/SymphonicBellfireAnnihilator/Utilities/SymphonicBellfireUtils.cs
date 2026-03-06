@@ -22,12 +22,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
             new Color(255, 220, 160), // Ignition white
         };
 
-        // Crescendo = Grand Crescendo wave palette: deep crimson → blazing gold → divine white
+        // Crescendo = Grand Crescendo wave palette: deep crimson → blazing gold → divine white → pure highlight
         public static readonly Color[] CrescendoPalette = new Color[]
         {
             new Color(140, 20, 10),   // Deep crimson
             new Color(255, 160, 30),  // Blazing gold
             new Color(255, 240, 200), // Divine white
+            new Color(255, 255, 240), // Pure highlight
         };
 
         // Volley = volley tracker VFX: dark → building → peak
@@ -65,7 +66,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
         public static void BeginAdditive(SpriteBatch sb)
         {
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 

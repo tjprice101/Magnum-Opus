@@ -58,7 +58,7 @@ namespace MagnumOpus.Common.Systems.VFX.Beams
         {
             // Draw order: Body → Muzzle → Impact (for proper layering)
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
 

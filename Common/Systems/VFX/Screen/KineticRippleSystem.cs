@@ -269,7 +269,7 @@ namespace MagnumOpus.Common.Systems.VFX
             if (ripple.CurrentRadius < 1f || ripple.Intensity < 0.01f) return;
             
             try { spriteBatch.End(); } catch { }
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearWrap,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearWrap,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             Vector2 screenCenter = ripple.Center - Main.screenPosition;

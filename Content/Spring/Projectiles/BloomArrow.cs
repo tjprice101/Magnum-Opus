@@ -252,7 +252,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             float pulse = (float)Math.Sin(Projectile.timeLeft * 0.15f) * 0.1f + 1f;
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // ORBITING PETALS - 5 small flower petals spin around the arrow
             for (int i = 0; i < orbitAngles.Length; i++)
@@ -471,7 +471,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             Color drawColor = Color.Lerp(SpringPink, SpringWhite, (float)Math.Sin(Projectile.timeLeft * 0.1f) * 0.5f + 0.5f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // PETAL SHIMMER TRAIL
             for (int i = 1; i < 4; i++)
@@ -599,7 +599,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             float alpha = Projectile.timeLeft > 60 ? 1f : Projectile.timeLeft / 60f;
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // ORBITING PETALS - 6 petals form a flower shape
             for (int i = 0; i < petalAngles.Length; i++)

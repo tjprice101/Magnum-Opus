@@ -172,8 +172,16 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             var origin = tex.Size() * 0.5f;
 
+            // Switch to additive blending for glow VFX (black-background textures)
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
             Main.spriteBatch.Draw(tex, drawPos, null, MyColor * 0.6f, 0f, origin, 0.7f * pulse, SpriteEffects.None, 0f);
             Main.spriteBatch.Draw(tex, drawPos, null, MoonWhite * 0.5f, 0f, origin, 0.3f * pulse, SpriteEffects.None, 0f);
+
+            // Restore default blend state
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
         }
     }
 }

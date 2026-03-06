@@ -140,7 +140,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
             3 => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse",
             _ => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/VerticalEllipse",
         };
-
+        protected override string GetSmearGradientPath() => "MagnumOpus/Assets/VFX Asset Library/ColorGradients/LaCampanellaGradientLUTandRAMP";
         #endregion
 
         #region 笏笏 Virtual Overrides 笏笏

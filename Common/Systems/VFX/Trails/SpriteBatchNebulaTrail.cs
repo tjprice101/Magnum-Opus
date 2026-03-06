@@ -383,7 +383,7 @@ namespace MagnumOpus.Common.Systems.VFX
             try { spriteBatch.End(); } catch { /* SpriteBatch wasn't active - that's okay */ }
             
             // Start the SpriteBatch in additive mode
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearWrap,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearWrap,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             _spriteBatchStarted = true;
             

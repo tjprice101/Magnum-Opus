@@ -401,14 +401,25 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles
                 _smearShader.Parameters["flowSpeed"]?.SetValue(flowSpeed);
                 _smearShader.Parameters["noiseScale"]?.SetValue(2.5f);
 
-                // Load noise texture (PerlinFlow for temporal energy)
+                // Load noise texture (TileableFBMNoise for organic distortion)
                 Texture2D noiseTex;
                 try
                 {
                     noiseTex = ModContent.Request<Texture2D>(
-                        "MagnumOpus/Assets/VFX Asset Library/NoiseTextures/PerlinNoise",
+                        "MagnumOpus/Assets/VFX Asset Library/NoiseTextures/TileableFBMNoise",
                         AssetRequestMode.ImmediateLoad).Value;
                     _smearShader.Parameters["noiseTex"]?.SetValue(noiseTex);
+                }
+                catch { }
+
+                // Load gradient LUT for Clair de Lune theme coloring
+                Texture2D gradientLUT;
+                try
+                {
+                    gradientLUT = ModContent.Request<Texture2D>(
+                        "MagnumOpus/Assets/VFX Asset Library/ColorGradients/ClairDeLuneGradientLUTandRAMP",
+                        AssetRequestMode.ImmediateLoad).Value;
+                    _smearShader.Parameters["gradientTex"]?.SetValue(gradientLUT);
                 }
                 catch { }
 
@@ -436,7 +447,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles
             {
                 // Fallback: static colored layers without shader
                 sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                     Main.DefaultSamplerState, DepthStencilState.None,
                     RasterizerState.CullCounterClockwise, null,
                     Main.GameViewMatrix.EffectMatrix);
@@ -465,7 +476,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles
             if (bloom == null) return;
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -514,7 +525,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles
             if (bloom == null) return;
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);

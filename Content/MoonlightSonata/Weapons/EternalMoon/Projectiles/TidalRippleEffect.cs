@@ -111,7 +111,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 
             // ---- LAYER 1: IMPACT FLASH ----
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -136,7 +136,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 
             // ---- LAYER 3: SOFT OUTER BLOOM ----
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -187,7 +187,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             rippleShader.Parameters["noiseTex"]?.SetValue(_noisePerlin.Value);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, rippleShader,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -200,7 +200,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                 0f, circleOrigin, expandScale, SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);

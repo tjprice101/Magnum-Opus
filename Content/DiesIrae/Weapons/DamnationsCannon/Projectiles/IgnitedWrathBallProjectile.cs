@@ -144,7 +144,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DamnationsCannon.Projectiles
             Vector2 origin = glow.Size() / 2f;
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
 
             // ���� Trail ����
@@ -274,7 +274,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DamnationsCannon.Projectiles
             Vector2 origin = glow.Size() / 2f;
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
 
             // Trail
@@ -383,7 +383,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DamnationsCannon.Projectiles
             float intensityScale = 1f + elapsed * 0.15f; // brightens over time
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
 
             Vector2 drawPos = Projectile.Center - Main.screenPosition;

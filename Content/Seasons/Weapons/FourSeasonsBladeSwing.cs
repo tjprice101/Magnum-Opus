@@ -172,6 +172,15 @@ namespace MagnumOpus.Content.Seasons.Weapons
             };
         }
 
+        protected override string GetSmearGradientPath() => Math.Clamp(ComboStep, 0, 3) switch
+        {
+            0 => "MagnumOpus/Assets/VFX Asset Library/ColorGradients/EroicaGradientPALELUTandRAMP",     // Spring (pink/cherry blossom tones)
+            1 => "MagnumOpus/Assets/VFX Asset Library/ColorGradients/LaCampanellaGradientLUTandRAMP",   // Summer (orange/gold fire)
+            2 => "MagnumOpus/Assets/VFX Asset Library/ColorGradients/LaCampanellaGradientLUTandRAMP",   // Autumn (amber/harvest gold)
+            3 => "MagnumOpus/Assets/VFX Asset Library/ColorGradients/ClairDeLuneGradientLUTandRAMP",    // Winter (ice blue/pearl)
+            _ => "MagnumOpus/Assets/VFX Asset Library/ColorGradients/OdeToJoyGradientLUTandRAMP",       // Fallback (warm gold)
+        };
+
         protected override int GetInitialDustType()
         {
             return Season switch

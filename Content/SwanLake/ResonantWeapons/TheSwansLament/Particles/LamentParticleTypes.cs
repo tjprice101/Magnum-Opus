@@ -106,7 +106,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Particles
 
             // Outer ring: mostly grey/white, flashes gold at peak
             float flashIntensity = LamentUtils.GetGriefFlashIntensity(LifeRatio);
-            Color ringColor = Color.Lerp(LamentUtils.GriefGrey, LamentUtils.RevelationGold, flashIntensity);
+            Color ringColor = Color.Lerp(LamentUtils.GriefGrey, LamentUtils.RevelationWhite, flashIntensity);
 
             // Draw just the ring (outer circle minus inner)
             spriteBatch.Draw(tex, Position - Main.screenPosition, null,

@@ -205,7 +205,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Projectiles
                 Vector2 pos = Projectile.Center - Main.screenPosition;
 
                 Main.spriteBatch.End();
-                Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
                 if (IsDimensionSever)

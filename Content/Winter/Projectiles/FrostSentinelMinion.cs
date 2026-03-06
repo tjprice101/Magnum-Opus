@@ -354,7 +354,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f + Projectile.whoAmI) * 0.12f + 1f;
 
@@ -512,7 +512,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Trail
             for (int i = 0; i < Projectile.oldPos.Length; i++)

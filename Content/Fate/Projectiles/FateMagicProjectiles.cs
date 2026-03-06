@@ -181,7 +181,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
             // === MULTI-LAYER BLOOM STACK FOR COSMIC ELECTRICITY GLOW ===
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Outer cyan electricity glow
@@ -659,7 +659,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
             // === MULTI-LAYER BLOOM STACK FOR CELESTIAL PULSING GLOW ===
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             Vector2 drawPos = Projectile.Center - Main.screenPosition;

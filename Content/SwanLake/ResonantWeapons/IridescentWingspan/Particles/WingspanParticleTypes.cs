@@ -100,7 +100,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Particl
             Texture2D tex = MagnumTextureRegistry.GetRadialBloom();
             if (tex == null) return;
             Vector2 drawPos = Position - Main.screenPosition;
-            Color col = Color.Lerp(Color.White, WingspanUtils.WingGold, Progress);
+            Color col = Color.Lerp(Color.White, WingspanUtils.WingPrismatic, Progress);
 
             // Wing shape: stretched horizontally
             sb.Draw(tex, drawPos, null, col * alpha * 0.6f, Rotation,

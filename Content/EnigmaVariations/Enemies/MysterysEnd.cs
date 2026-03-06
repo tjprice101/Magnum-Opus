@@ -769,7 +769,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
             {
                 EnemyShaderManager.ApplyAuraParams(auraShader, NPC, new Color(80, 40, 140), new Color(40, 180, 80), eyeGlow);
                 spriteBatch.End();
-                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, auraShader, Main.GameViewMatrix.TransformationMatrix);
+                spriteBatch.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp, default, default, auraShader, Main.GameViewMatrix.TransformationMatrix);
                 spriteBatch.Draw(texture, drawPos, frame, Color.White, 0f, origin, NPC.scale * 1.15f, effects, 0f);
                 spriteBatch.End();
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, default, default, null, Main.GameViewMatrix.TransformationMatrix);
@@ -783,7 +783,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
                 {
                     EnemyShaderManager.ApplyTrailParams(trailShader, NPC, new Color(80, 40, 140), new Color(40, 180, 80), NPC.velocity.Length() / 12f);
                     spriteBatch.End();
-                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, trailShader, Main.GameViewMatrix.TransformationMatrix);
+                    spriteBatch.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp, default, default, trailShader, Main.GameViewMatrix.TransformationMatrix);
                     for (int t = 1; t <= 3; t++)
                     {
                         Vector2 trailPos = drawPos - NPC.velocity * t * 2f;
@@ -870,10 +870,18 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         {
             Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
+
+            // Switch to additive blending for glow VFX (black-background textures)
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             Main.spriteBatch.Draw(glow, pos, null, EnigmaGreen, 0f, glow.Size() / 2, 0.4f, SpriteEffects.None, 0f);
             Main.spriteBatch.Draw(glow, pos, null, EnigmaPurple * 0.6f, 0f, glow.Size() / 2, 0.5f, SpriteEffects.None, 0f);
             Main.spriteBatch.Draw(glow, pos, null, Color.White * 0.3f, 0f, glow.Size() / 2, 0.2f, SpriteEffects.None, 0f);
+
+            // Restore default blend state
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }
@@ -959,9 +967,18 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
             float alpha = 1f - Projectile.alpha / 255f;
             
             // Glow underlay
+
+            // Switch to additive blending for glow VFX (black-background textures)
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
             Main.spriteBatch.Draw(texture, pos, null, EnigmaPurple * alpha * 0.5f, Projectile.rotation, texture.Size() / 2, 0.6f, SpriteEffects.None, 0f);
             // Main eye
             Main.spriteBatch.Draw(texture, pos, null, Color.White * alpha, Projectile.rotation, texture.Size() / 2, 0.5f, SpriteEffects.None, 0f);
+
+            // Restore default blend state
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }
@@ -1036,9 +1053,18 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
             Vector2 pos = Projectile.Center - Main.screenPosition;
             
             // Glow
+
+            // Switch to additive blending for glow VFX (black-background textures)
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
             Main.spriteBatch.Draw(texture, pos, null, EnigmaPurple * 0.6f, Projectile.rotation, texture.Size() / 2, 0.5f, SpriteEffects.None, 0f);
             // Main glyph
             Main.spriteBatch.Draw(texture, pos, null, Color.White * 0.9f, Projectile.rotation, texture.Size() / 2, 0.4f, SpriteEffects.None, 0f);
+
+            // Restore default blend state
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }
@@ -1107,9 +1133,17 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
         {
             Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/whiteFireEyeA", AssetRequestMode.ImmediateLoad).Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
+
+            // Switch to additive blending for glow VFX (black-background textures)
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             Main.spriteBatch.Draw(texture, pos, null, EnigmaPurple * 0.5f, Projectile.rotation, texture.Size() / 2, 0.45f, SpriteEffects.None, 0f);
             Main.spriteBatch.Draw(texture, pos, null, Color.White, Projectile.rotation, texture.Size() / 2, 0.35f, SpriteEffects.None, 0f);
+
+            // Restore default blend state
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }
@@ -1187,8 +1221,17 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
             
             // Swirling vortex effect
             float pulse = (float)Math.Sin(Projectile.ai[0] * 2f) * 0.2f + 0.8f;
+
+            // Switch to additive blending for glow VFX (black-background textures)
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
             Main.spriteBatch.Draw(glow, pos, null, EnigmaPurple * 0.4f * pulse, Projectile.ai[0], glow.Size() / 2, 1.5f, SpriteEffects.None, 0f);
             Main.spriteBatch.Draw(glow, pos, null, EnigmaGreen * 0.3f * pulse, -Projectile.ai[0] * 0.5f, glow.Size() / 2, 1.2f, SpriteEffects.None, 0f);
+
+            // Restore default blend state
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }
@@ -1267,11 +1310,19 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
             Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/whiteFireEyeA", AssetRequestMode.ImmediateLoad).Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             
+            // Switch to additive blending for glow VFX (black-background textures)
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
             // Glow layers
             Main.spriteBatch.Draw(texture, pos, null, EnigmaPurple * 0.5f, Projectile.rotation, texture.Size() / 2, 0.55f, SpriteEffects.None, 0f);
             Main.spriteBatch.Draw(texture, pos, null, EnigmaGreen * 0.3f, Projectile.rotation, texture.Size() / 2, 0.6f, SpriteEffects.None, 0f);
             // Main eye
             Main.spriteBatch.Draw(texture, pos, null, Color.White, Projectile.rotation, texture.Size() / 2, 0.4f, SpriteEffects.None, 0f);
+
+            // Restore default blend state
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }

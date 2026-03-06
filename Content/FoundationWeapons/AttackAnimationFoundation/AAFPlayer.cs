@@ -236,7 +236,7 @@ namespace MagnumOpus.Content.FoundationWeapons.AttackAnimationFoundation
             sb.End();
 
             // ---- ADDITIVE OVERLAYS ----
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.PointClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -285,7 +285,7 @@ namespace MagnumOpus.Content.FoundationWeapons.AttackAnimationFoundation
             // Draw noise-masked zone effect using layered circles
             // Layer 1: wide soft outer glow
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.PointClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);

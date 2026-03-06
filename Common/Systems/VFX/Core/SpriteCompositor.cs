@@ -97,7 +97,7 @@ namespace MagnumOpus.Common.Systems.VFX
             {
                 Texture = baseTexture,
                 Color = Color.White * 0.3f,
-                BlendState = BlendState.Additive,
+                BlendState = MagnumBlendStates.TrueAdditive,
                 UsePulse = true,
                 PulseSpeed = 2f,
                 PulseAmplitude = 0.15f,
@@ -119,7 +119,7 @@ namespace MagnumOpus.Common.Systems.VFX
             {
                 Texture = glowmask ?? baseTexture,
                 Color = glowColor * 0.3f,
-                BlendState = BlendState.Additive,
+                BlendState = MagnumBlendStates.TrueAdditive,
                 Scale = 1.4f,
                 UsePulse = true,
                 PulseSpeed = 3f,
@@ -132,7 +132,7 @@ namespace MagnumOpus.Common.Systems.VFX
             {
                 Texture = glowmask ?? baseTexture,
                 Color = glowColor * 0.5f,
-                BlendState = BlendState.Additive,
+                BlendState = MagnumBlendStates.TrueAdditive,
                 Scale = 1.15f,
                 UsePulse = true,
                 PulseSpeed = 3f,
@@ -163,7 +163,7 @@ namespace MagnumOpus.Common.Systems.VFX
             {
                 Texture = baseTexture,
                 Color = etherealColor * 0.4f,
-                BlendState = BlendState.Additive,
+                BlendState = MagnumBlendStates.TrueAdditive,
                 UseWave = true,
                 WaveSpeed = 2f,
                 WaveAmplitude = 4f,
@@ -179,7 +179,7 @@ namespace MagnumOpus.Common.Systems.VFX
             {
                 Texture = baseTexture,
                 Color = etherealColor * 0.2f,
-                BlendState = BlendState.Additive,
+                BlendState = MagnumBlendStates.TrueAdditive,
                 Scale = 1.3f,
                 UsePulse = true,
                 PulseSpeed = 1.5f,
@@ -202,7 +202,7 @@ namespace MagnumOpus.Common.Systems.VFX
             {
                 Texture = auraTexture ?? baseTexture,
                 Color = auraColor * 0.2f,
-                BlendState = BlendState.Additive,
+                BlendState = MagnumBlendStates.TrueAdditive,
                 Scale = 1.8f,
                 UseRotate = true,
                 RotateSpeed = -0.5f,
@@ -217,7 +217,7 @@ namespace MagnumOpus.Common.Systems.VFX
             {
                 Texture = auraTexture ?? baseTexture,
                 Color = auraColor * 0.4f,
-                BlendState = BlendState.Additive,
+                BlendState = MagnumBlendStates.TrueAdditive,
                 Scale = 1.3f,
                 UseRotate = true,
                 RotateSpeed = 1f,
@@ -359,7 +359,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 }
 
                 // For additive blending, remove alpha channel
-                if (layer.BlendState == BlendState.Additive)
+                if (layer.BlendState == MagnumBlendStates.TrueAdditive)
                 {
                     drawColor = new Color(drawColor.R, drawColor.G, drawColor.B, 0);
                 }
@@ -434,7 +434,7 @@ namespace MagnumOpus.Common.Systems.VFX
 
             // Layer 3: Breathing glow (additive)
             try { spriteBatch.End(); } catch { }
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             Color glowDraw = new Color(glowColor.R, glowColor.G, glowColor.B, 0) * 0.4f;
@@ -460,7 +460,7 @@ namespace MagnumOpus.Common.Systems.VFX
             Color glow = new Color(glowColor.R, glowColor.G, glowColor.B, 0) * glowOpacity;
 
             try { spriteBatch.End(); } catch { }
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             spriteBatch.Draw(texture, position, null, glow, rotation, origin, scale * breath, 

@@ -75,7 +75,7 @@ namespace MagnumOpus.Common.Systems.VFX.Trails
         /// <summary>
         /// Blend state to use when drawing.
         /// </summary>
-        public BlendState BlendState { get; set; } = BlendState.Additive;
+        public BlendState BlendState { get; set; } = MagnumBlendStates.TrueAdditive;
         
         /// <summary>
         /// Alpha/opacity multiplier.
@@ -191,7 +191,7 @@ namespace MagnumOpus.Common.Systems.VFX.Trails
                 PinchTail = true,
                 PinchHead = false,
                 ShouldSmooth = true,
-                BlendState = BlendState.Additive,
+                BlendState = MagnumBlendStates.TrueAdditive,
                 WidthFunction = progress => (1f - progress) * (1f - progress), // Quadratic falloff
                 ColorFunction = progress => Color.Lerp(color, color * 0.3f, progress)
             };
@@ -211,7 +211,7 @@ namespace MagnumOpus.Common.Systems.VFX.Trails
                 PinchTail = true,
                 PinchHead = true,
                 ShouldSmooth = true,
-                BlendState = BlendState.Additive,
+                BlendState = MagnumBlendStates.TrueAdditive,
                 TimesToDraw = 2,
                 WidthFunction = progress => MathF.Sin(progress * MathF.PI), // Bulge in middle
                 ColorFunction = progress => color * (1f - progress * 0.7f)
@@ -232,7 +232,7 @@ namespace MagnumOpus.Common.Systems.VFX.Trails
                 PinchTail = false,
                 PinchHead = false,
                 ShouldSmooth = false, // Sharp for beams
-                BlendState = BlendState.Additive,
+                BlendState = MagnumBlendStates.TrueAdditive,
                 TimesToDraw = 3,
                 Alpha = 0.8f,
                 WidthFunction = progress => 1f, // Constant width
@@ -259,7 +259,7 @@ namespace MagnumOpus.Common.Systems.VFX.Trails
                 PinchTail = true,
                 PinchHead = false,
                 ShouldSmooth = false, // Jagged for lightning
-                BlendState = BlendState.Additive,
+                BlendState = MagnumBlendStates.TrueAdditive,
                 TimesToDraw = 2,
                 WidthFunction = progress =>
                 {
@@ -291,7 +291,7 @@ namespace MagnumOpus.Common.Systems.VFX.Trails
                 PinchTail = true,
                 PinchHead = false,
                 ShouldSmooth = true,
-                BlendState = BlendState.Additive,
+                BlendState = MagnumBlendStates.TrueAdditive,
                 TimesToDraw = 2,
                 WidthFunction = progress => (1f - progress * 0.8f), // Slight taper
                 ColorFunction = progress => Color.Lerp(hotColor, coolColor, progress)
@@ -312,7 +312,7 @@ namespace MagnumOpus.Common.Systems.VFX.Trails
                 PinchTail = true,
                 PinchHead = false,
                 ShouldSmooth = true,
-                BlendState = BlendState.Additive,
+                BlendState = MagnumBlendStates.TrueAdditive,
                 TimesToDraw = 3,
                 Alpha = 0.6f,
                 WidthFunction = progress =>
@@ -350,7 +350,7 @@ namespace MagnumOpus.Common.Systems.VFX.Trails
                 TrailMaxLength = 200f,
                 PinchTail = true,
                 ShouldSmooth = true,
-                BlendState = BlendState.Additive,
+                BlendState = MagnumBlendStates.TrueAdditive,
                 TimesToDraw = 2,
                 WidthFunction = progress => (1f - progress * 0.7f),
                 ColorFunction = progress =>
@@ -378,7 +378,7 @@ namespace MagnumOpus.Common.Systems.VFX.Trails
                 TrailMaxLength = 180f,
                 PinchTail = true,
                 ShouldSmooth = true,
-                BlendState = BlendState.Additive,
+                BlendState = MagnumBlendStates.TrueAdditive,
                 TimesToDraw = 2,
                 WidthFunction = progress => MathF.Pow(1f - progress, 1.5f),
                 ColorFunction = progress => Color.Lerp(gold, scarlet, progress)
@@ -402,7 +402,7 @@ namespace MagnumOpus.Common.Systems.VFX.Trails
                 TrailMaxLength = 220f,
                 PinchTail = true,
                 ShouldSmooth = true,
-                BlendState = BlendState.Additive,
+                BlendState = MagnumBlendStates.TrueAdditive,
                 TimesToDraw = 2,
                 Alpha = 0.9f,
                 WidthFunction = progress =>
@@ -427,7 +427,7 @@ namespace MagnumOpus.Common.Systems.VFX.Trails
                 TrailMaxLength = 240f,
                 PinchTail = true,
                 ShouldSmooth = true,
-                BlendState = BlendState.Additive,
+                BlendState = MagnumBlendStates.TrueAdditive,
                 TimesToDraw = 3,
                 WidthFunction = progress => (1f - progress * 0.6f),
                 ColorFunction = progress =>
@@ -459,7 +459,7 @@ namespace MagnumOpus.Common.Systems.VFX.Trails
                 TrailMaxLength = 280f,
                 PinchTail = true,
                 ShouldSmooth = true,
-                BlendState = BlendState.Additive,
+                BlendState = MagnumBlendStates.TrueAdditive,
                 TimesToDraw = 3,
                 WidthFunction = progress =>
                 {
@@ -497,7 +497,7 @@ namespace MagnumOpus.Common.Systems.VFX.Trails
                 TrailMaxLength = 200f,
                 PinchTail = true,
                 ShouldSmooth = true,
-                BlendState = BlendState.Additive,
+                BlendState = MagnumBlendStates.TrueAdditive,
                 TimesToDraw = 2,
                 Alpha = 0.85f,
                 WidthFunction = progress =>

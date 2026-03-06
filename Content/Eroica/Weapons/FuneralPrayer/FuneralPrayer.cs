@@ -10,22 +10,12 @@ using Terraria;
 namespace MagnumOpus.Content.Eroica.Weapons.FuneralPrayer
 {
     /// <summary>
-    /// Funeral Prayer — Eroica magic weapon channeling the solemn Marcia funebre (Funeral March).
-    /// Launches slow funeral pyre projectiles that create persistent ground fires, with an Ash Requiem
-    /// cone attack alt-fire and a Martyr's Exchange mechanic that empowers pyres when the player takes damage.
-    /// Overlapping pyres merge into a devastating Eulogy pillar.
+    /// Funeral Prayer — Eroica channeled beam weapon channeling the solemn Marcia funebre.
+    /// Hold to fire a sustained funeral flame beam that burns through enemies.
+    /// The beam tracks the cursor smoothly, with collision against tiles.
     /// </summary>
     public class FuneralPrayer : ModItem
     {
-        /// <summary>
-        /// Registers a beam hit for tracking ricochet chain mechanics.
-        /// Called by FuneralPrayerBeam when it first hits an enemy.
-        /// </summary>
-        public static void RegisterBeamHit(int shotId, int beamIndex)
-        {
-            // Tracking hook for beam ricochet chain — can be expanded for damage escalation
-        }
-
         public override void SetStaticDefaults()
         {
             Item.ResearchUnlockCount = 1;
@@ -34,33 +24,45 @@ namespace MagnumOpus.Content.Eroica.Weapons.FuneralPrayer
         public override void SetDefaults()
         {
             Item.ResearchUnlockCount = 1;
-            Item.damage = 340;
+            Item.damage = 105;
             Item.DamageType = DamageClass.Magic;
             Item.width = 50;
             Item.height = 50;
-            Item.useTime = 18;
-            Item.useAnimation = 18;
+            Item.useTime = 10;
+            Item.useAnimation = 10;
             Item.useStyle = ItemUseStyleID.Shoot;
-            Item.knockBack = 7f;
+            Item.knockBack = 3f;
             Item.value = Item.sellPrice(gold: 35);
             Item.rare = ModContent.RarityType<EroicaRainbowRarity>();
             Item.UseSound = SoundID.Item20;
-            Item.autoReuse = true;
-            Item.shoot = ModContent.ProjectileType<FuneralPrayerProjectile>();
-            Item.shootSpeed = 16f;
-            Item.mana = 14;
+            Item.autoReuse = false;
+            Item.channel = true;
+            Item.noUseGraphic = true;
             Item.noMelee = true;
+            Item.shoot = ModContent.ProjectileType<FuneralPrayerChanneledBeam>();
+            Item.shootSpeed = 1f;
+            Item.mana = 8;
             Item.maxStack = 1;
+        }
+
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        {
+            // Prevent duplicate beams — only one channeled beam at a time
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                if (Main.projectile[i].active && Main.projectile[i].owner == player.whoAmI
+                    && Main.projectile[i].type == type)
+                    return false;
+            }
+            return true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1",
-            "Launches funeral pyre projectiles that create lasting ground pyres"));
+            "Hold to channel a sustained funeral flame beam that burns through enemies"));
             tooltips.Add(new TooltipLine(Mod, "Effect2",
-            "Ricochet beams chain between enemies, growing fiercer with each leap"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3",
-            "Martyr's Exchange: taking damage empowers the next pyre"));
+            "The beam tracks the cursor and scorches tiles in its path"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'Even heroes kneel before the pyre.'")
             {

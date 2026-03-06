@@ -1072,13 +1072,14 @@ namespace MagnumOpus.Content.Eroica
 
         /// <summary>
         /// Begins a SpriteBatch in Immediate + Additive mode for shader drawing.
+        /// Uses ShaderAdditive (SourceAlpha blend) so shader alpha masking works correctly.
         /// </summary>
         public static void BeginShaderAdditive(SpriteBatch sb)
         {
             sb.End();
             sb.Begin(
                 SpriteSortMode.Immediate,
-                BlendState.Additive,
+                MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearClamp,
                 DepthStencilState.None,
                 Main.Rasterizer,
@@ -1110,7 +1111,7 @@ namespace MagnumOpus.Content.Eroica
             sb.End();
             sb.Begin(
                 SpriteSortMode.Deferred,
-                BlendState.Additive,
+                MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp,
                 DepthStencilState.None,
                 Main.Rasterizer,

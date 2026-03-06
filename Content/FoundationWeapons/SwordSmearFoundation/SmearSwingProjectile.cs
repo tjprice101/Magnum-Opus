@@ -181,6 +181,7 @@ namespace MagnumOpus.Content.FoundationWeapons.SwordSmearFoundation
             if (shader != null)
             {
                 // --- SHADER PATH: fluid distortion + gradient coloring ---
+                // BlendState.Additive (SourceAlpha) for alpha-transparent arc textures
                 sb.End();
                 sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
                     SamplerState.LinearWrap, DepthStencilState.None,
@@ -226,6 +227,7 @@ namespace MagnumOpus.Content.FoundationWeapons.SwordSmearFoundation
             else
             {
                 // --- FALLBACK: static colored layers (no shader) ---
+                // BlendState.Additive (SourceAlpha) for alpha-transparent arc textures
                 sb.End();
                 sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
                     Main.DefaultSamplerState, DepthStencilState.None,
@@ -253,7 +255,7 @@ namespace MagnumOpus.Content.FoundationWeapons.SwordSmearFoundation
             // ==================================================================
             //  LAYER 2: TIP GLOW
             // ==================================================================
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.EffectMatrix);

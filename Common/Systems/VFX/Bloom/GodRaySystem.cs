@@ -246,7 +246,7 @@ namespace MagnumOpus.Common.Systems.VFX
             try { spriteBatch.End(); } catch { }
             
             // === PASS 1: BLOOM LAYER (additive, wide, dim) ===
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             DrawRays(spriteBatch, burst, 2.0f, alpha * 0.3f, burst.PrimaryColor);
@@ -254,7 +254,7 @@ namespace MagnumOpus.Common.Systems.VFX
             try { spriteBatch.End(); } catch { }
             
             // === PASS 2: MAIN RAYS ===
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             DrawRays(spriteBatch, burst, 1.0f, alpha * 0.7f, burst.SecondaryColor);
@@ -262,7 +262,7 @@ namespace MagnumOpus.Common.Systems.VFX
             try { spriteBatch.End(); } catch { }
             
             // === PASS 3: CORE (thin, bright, white) ===
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             DrawRays(spriteBatch, burst, 0.4f, alpha * 0.9f, Color.White);

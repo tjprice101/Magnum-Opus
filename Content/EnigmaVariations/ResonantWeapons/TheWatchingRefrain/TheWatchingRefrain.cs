@@ -17,6 +17,8 @@ using ReLogic.Content;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain.Particles;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain.Dusts;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain.Utilities;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain.Primitives;
+using MagnumOpus.Content.EnigmaVariations;
 
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
 {
@@ -130,40 +132,125 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Texture2D bloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
-            Vector2 bloomOrigin = bloom.Size() / 2f;
-            
-            // === Shader overlay: Procedural watching eyes on phantom ===
-            EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.WatchingPhantomAura,
-                bloom, drawPos, bloomOrigin, 1.8f,
-                WatchingUtils.GazeGreen.ToVector3(), WatchingUtils.RefrainPurple.ToVector3(),
-                opacity: 0.5f * Projectile.Opacity, intensity: 1.0f,
-                noiseTexture: ShaderLoader.GetNoiseTexture("PerlinNoise"),
-                techniqueName: "WatchingPhantomGhost");
-            
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            // Outer pulsing glow — RefrainPurple, ghostly halo
-            float pulse = 0.85f + 0.15f * (float)Math.Sin(Main.GlobalTimeWrappedHourly * 3f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.RefrainPurple * 0.3f, 0f, bloomOrigin, 0.6f * pulse, SpriteEffects.None, 0f);
-            
-            // Inner phantom body — GazeGreen, brighter core
-            float innerPulse = 0.9f + 0.1f * (float)Math.Sin(Main.GlobalTimeWrappedHourly * 5f + 1f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.GazeGreen * 0.5f, 0f, bloomOrigin, 0.3f * innerPulse, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.SpectralMint * 0.25f, 0f, bloomOrigin, 0.15f, SpriteEffects.None, 0f);
-            
-            // Draw the minion's actual sprite with ghostly transparency
-            Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
-            Vector2 texOrigin = tex.Size() / 2f;
-            sb.Draw(tex, drawPos, null, WatchingUtils.RefrainPurple * (0.6f * Projectile.Opacity), Projectile.rotation, texOrigin, Projectile.scale, SpriteEffects.None, 0f);
+            float time = (float)Main.GameUpdateCount;
 
-            // Theme texture accents
-            WatchingUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
-            
-            WatchingUtils.ExitShaderRegion(sb);
+            // === Stage 1: GPU Primitive Spectral Aura Ring ===
+            {
+                try
+                {
+                    sb.End();
+                    int ringPoints = 32;
+                    var ringPositions = new List<Vector2>(ringPoints + 1);
+                    float auraRadius = 28f + MathF.Sin(time * 0.04f) * 4f;
+                    for (int i = 0; i <= ringPoints; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / ringPoints;
+                        float wobble = MathF.Sin(angle * 3f + time * 0.06f) * 3f;
+                        ringPositions.Add(Projectile.Center + new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * (auraRadius + wobble));
+                    }
+
+                    // Pass 1: Body ring — RefrainPurple to GazeGreen
+                    var bodySettings = new WatchingPrimitiveSettings(
+                        c => 6f + MathF.Sin(c * MathHelper.TwoPi * 2f + time * 0.05f) * 2f,
+                        c => Color.Lerp(WatchingUtils.RefrainPurple, WatchingUtils.GazeGreen, c) * (0.6f * Projectile.Opacity),
+                        ShaderLoader.WatchingPhantomAura,
+                        smoothing: true, maxPoints: 120);
+                    WatchingPrimitiveRenderer.RenderTrail(ringPositions, bodySettings);
+
+                    // Pass 2: Outer glow — WatcherDeep atmospheric
+                    var glowSettings = new WatchingPrimitiveSettings(
+                        c => 12f + MathF.Sin(c * MathHelper.TwoPi * 2f + time * 0.03f) * 3f,
+                        c => WatchingUtils.WatcherDeep * (0.25f * Projectile.Opacity * (0.7f + MathF.Sin(c * MathHelper.TwoPi + time * 0.04f) * 0.3f)),
+                        ShaderLoader.WatchingPhantomAura,
+                        smoothing: true, maxPoints: 120);
+                    WatchingPrimitiveRenderer.RenderTrail(ringPositions, glowSettings);
+
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch
+                {
+                    try { sb.End(); } catch { }
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
+
+            // === Stage 2: Shader overlay — procedural watching eyes ===
+            {
+                Texture2D shBloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
+                EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.WatchingPhantomAura,
+                    shBloom, drawPos, shBloom.Size() / 2f, 1.8f,
+                    WatchingUtils.GazeGreen.ToVector3(), WatchingUtils.RefrainPurple.ToVector3(),
+                    opacity: 0.5f * Projectile.Opacity, intensity: 1.0f,
+                    noiseTexture: ShaderLoader.GetNoiseTexture("PerlinNoise"),
+                    techniqueName: "WatchingPhantomGhost");
+            }
+
+            // === Stage 3: 6-layer bloom stack (Additive) ===
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
+            Texture2D bloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
+            Vector2 bOrigin = bloom.Size() / 2f;
+            float pulse = 0.85f + MathF.Sin(time * 0.05f) * 0.15f;
+            float op = Projectile.Opacity;
+
+            sb.Draw(bloom, drawPos, null, WatchingUtils.PhantomBlack * 0.20f * pulse * op, 0f, bOrigin, 0.70f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.WatcherDeep * 0.30f * pulse * op, 0f, bOrigin, 0.52f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.RefrainPurple * 0.40f * pulse * op, 0f, bOrigin, 0.38f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.GazeGreen * 0.50f * pulse * op, 0f, bOrigin, 0.25f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.SpectralMint * 0.35f * pulse * op, 0f, bOrigin, 0.14f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.PhantomWhite * 0.45f * pulse * op, 0f, bOrigin, 0.07f, SpriteEffects.None, 0f);
+
+            // === Stage 4: EN Star Flare — dual counter-rotating phantom flares ===
+            {
+                Texture2D sfTex = EnigmaThemeTextures.ENStarFlare.Value;
+                Vector2 sfOrigin = sfTex.Size() / 2f;
+                float sfRotA = time * 0.025f;
+                float sfRotB = -time * 0.018f;
+                float sfScale = 0.20f + MathF.Sin(time * 0.04f) * 0.04f;
+                sb.Draw(sfTex, drawPos, null, WatchingUtils.GazeGreen * 0.35f * op, sfRotA, sfOrigin, sfScale, SpriteEffects.None, 0f);
+                sb.Draw(sfTex, drawPos, null, WatchingUtils.RefrainPurple * 0.25f * op, sfRotB, sfOrigin, sfScale * 0.85f, SpriteEffects.None, 0f);
+            }
+
+            // === Stage 5: EN Power Effect Ring — phantom containment ring ===
+            {
+                Texture2D ringTex = EnigmaThemeTextures.ENPowerEffectRing.Value;
+                Vector2 prOrigin = ringTex.Size() / 2f;
+                float prRot = time * 0.015f;
+                sb.Draw(ringTex, drawPos, null, WatchingUtils.RefrainPurple * 0.22f * op, prRot, prOrigin, 0.18f, SpriteEffects.None, 0f);
+                sb.Draw(ringTex, drawPos, null, WatchingUtils.GazeGreen * 0.15f * op, -prRot * 0.7f, prOrigin, 0.24f, SpriteEffects.None, 0f);
+            }
+
+            // === Stage 6: EN Enigma Eye — the watcher's ever-present gaze ===
+            {
+                Texture2D eyeTex = EnigmaThemeTextures.ENEnigmaEye.Value;
+                Vector2 eyeOrigin = eyeTex.Size() / 2f;
+                float eyePulse = 0.6f + MathF.Sin(time * 0.03f) * 0.4f;
+                sb.Draw(eyeTex, drawPos, null, WatchingUtils.PhantomWhite * 0.35f * eyePulse * op, 0f, eyeOrigin, 0.10f, SpriteEffects.None, 0f);
+            }
+
+            // === Stage 7: Minion glyph sprite ===
+            {
+                Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
+                Vector2 texOrigin = tex.Size() / 2f;
+                sb.Draw(tex, drawPos, null, WatchingUtils.RefrainPurple * (0.55f * op), Projectile.rotation, texOrigin, Projectile.scale, SpriteEffects.None, 0f);
+            }
+
+            // === Pulsing light accent ===
+            EnigmaVFXLibrary.AddPulsingLight(Projectile.Center, WatchingUtils.RefrainPurple, 0.7f, 0.35f);
+            }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
             return false;
         }
         
@@ -371,46 +458,102 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
         
         private List<int> hitEnemies = new List<int>();
+        private List<Vector2> _trailPositions = new List<Vector2>(30);
         
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MusicNote";
         
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
-            Texture2D bloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
-            Vector2 bloomOrigin = bloom.Size() / 2f;
-            
+            float time = (float)Main.GameUpdateCount;
+
+            // === Stage 1: GPU Primitive Trail via WatchingPrimitiveRenderer ===
+            if (_trailPositions.Count >= 2)
+            {
+                try
+                {
+                    sb.End();
+                    // Pass 1: Body trail — RefrainPurple fading to GazeGreen
+                    var bodySettings = new WatchingPrimitiveSettings(
+                        completion => MathHelper.Lerp(12f, 2f, completion),
+                        completion => Color.Lerp(WatchingUtils.RefrainPurple, WatchingUtils.GazeGreen, completion) * (1f - completion * 0.7f),
+                        ShaderLoader.WatchingPhantomAura,
+                        smoothing: true, maxPoints: 100);
+                    WatchingPrimitiveRenderer.RenderTrail(_trailPositions, bodySettings);
+
+                    // Pass 2: Outer glow — WatcherDeep ambient
+                    var glowSettings = new WatchingPrimitiveSettings(
+                        completion => MathHelper.Lerp(20f, 4f, completion),
+                        completion => WatchingUtils.WatcherDeep * (0.30f * (1f - completion)),
+                        ShaderLoader.WatchingPhantomAura,
+                        smoothing: true, maxPoints: 100);
+                    WatchingPrimitiveRenderer.RenderTrail(_trailPositions, glowSettings);
+
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch
+                {
+                    try { sb.End(); } catch { }
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
+
+            // === Stage 2: 6-layer bloom stack (Additive) ===
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            // Velocity-stretched trail — MagicPixel bar
-            float rot = Projectile.velocity.ToRotation();
-            Vector2 trailScale = new Vector2(18f / pixel.Width, 6f / pixel.Height);
-            sb.Draw(pixel, drawPos, null, WatchingUtils.RefrainPurple * 0.7f, rot, pixel.Size() / 2f, trailScale, SpriteEffects.None, 0f);
-            
-            // Bloom core — GazeGreen
-            sb.Draw(bloom, drawPos, null, WatchingUtils.GazeGreen * 0.6f, 0f, bloomOrigin, 0.25f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.SpectralMint * 0.3f, 0f, bloomOrigin, 0.1f, SpriteEffects.None, 0f);
-            
-            // Draw glyph on top with additive glow
-            Texture2D glyphTex = TextureAssets.Projectile[Projectile.type].Value;
-            Vector2 glyphOrigin = glyphTex.Size() / 2f;
-            sb.Draw(glyphTex, drawPos, null, WatchingUtils.PhantomWhite * 0.8f, Projectile.rotation, glyphOrigin, Projectile.scale * 0.8f, SpriteEffects.None, 0f);
-            
-            // === Layer 4: EN Star Flare — dual-rotating spectral starburst ===
-            Texture2D starFlareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
-            float sfRot1 = (float)Main.timeForVisualEffects * 0.05f;
-            float sfRot2 = -(float)Main.timeForVisualEffects * 0.04f;
-            Color sfColor = Color.Lerp(WatchingUtils.GazeGreen, WatchingUtils.SpectralMint, 0.5f + 0.5f * (float)Math.Sin(Main.timeForVisualEffects * 0.08));
-            sb.Draw(starFlareTex, drawPos, null, sfColor * 0.4f, sfRot1,
-                starFlareTex.Size() / 2f, 0.25f, SpriteEffects.None, 0f);
-            sb.Draw(starFlareTex, drawPos, null, WatchingUtils.RefrainPurple * 0.25f, sfRot2,
-                starFlareTex.Size() / 2f, 0.18f, SpriteEffects.None, 0f);
-            
-            WatchingUtils.ExitShaderRegion(sb);
+
+            Texture2D bloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
+            Vector2 bOrigin = bloom.Size() / 2f;
+            float pulse = 0.85f + MathF.Sin(time * 0.08f) * 0.15f;
+
+            sb.Draw(bloom, drawPos, null, WatchingUtils.PhantomBlack * 0.18f * pulse, 0f, bOrigin, 0.50f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.WatcherDeep * 0.28f * pulse, 0f, bOrigin, 0.36f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.RefrainPurple * 0.45f * pulse, 0f, bOrigin, 0.25f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.GazeGreen * 0.50f * pulse, 0f, bOrigin, 0.16f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.SpectralMint * 0.35f * pulse, 0f, bOrigin, 0.09f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.PhantomWhite * 0.50f * pulse, 0f, bOrigin, 0.04f, SpriteEffects.None, 0f);
+
+            // === Stage 3: EN Star Flare — dual-rotating spectral burst ===
+            {
+                Texture2D sfTex = EnigmaThemeTextures.ENStarFlare.Value;
+                Vector2 sfOrigin = sfTex.Size() / 2f;
+                float sfRotA = time * 0.05f;
+                float sfRotB = -time * 0.035f;
+                float sfScale = 0.16f + MathF.Sin(time * 0.07f) * 0.03f;
+                sb.Draw(sfTex, drawPos, null, WatchingUtils.GazeGreen * 0.35f, sfRotA, sfOrigin, sfScale, SpriteEffects.None, 0f);
+                sb.Draw(sfTex, drawPos, null, WatchingUtils.RefrainPurple * 0.22f, sfRotB, sfOrigin, sfScale * 0.85f, SpriteEffects.None, 0f);
+            }
+
+            // === Stage 4: EN Power Effect Ring ===
+            {
+                Texture2D ringTex = EnigmaThemeTextures.ENPowerEffectRing.Value;
+                Vector2 prOrigin = ringTex.Size() / 2f;
+                float prRot = time * 0.025f;
+                sb.Draw(ringTex, drawPos, null, WatchingUtils.RefrainPurple * 0.18f, prRot, prOrigin, 0.10f, SpriteEffects.None, 0f);
+            }
+
+            // === Stage 5: Glyph sprite overlay ===
+            {
+                Texture2D glyphTex = TextureAssets.Projectile[Projectile.type].Value;
+                Vector2 glyphOrigin = glyphTex.Size() / 2f;
+                sb.Draw(glyphTex, drawPos, null, WatchingUtils.PhantomWhite * 0.65f, Projectile.rotation, glyphOrigin, Projectile.scale * 0.7f, SpriteEffects.None, 0f);
+            }
+
+            // === Pulsing light accent ===
+            EnigmaVFXLibrary.AddPulsingLight(Projectile.Center, WatchingUtils.GazeGreen, 0.5f, 0.3f);
+            }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
             return false;
         }
         
@@ -429,6 +572,10 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
         public override void AI()
         {
             Projectile.rotation = Projectile.velocity.ToRotation();
+
+            // Record trail positions for GPU primitive rendering
+            _trailPositions.Insert(0, Projectile.Center);
+            if (_trailPositions.Count > 25) _trailPositions.RemoveAt(_trailPositions.Count - 1);
             
             Lighting.AddLight(Projectile.Center, EnigmaPurple.ToVector3() * 0.2f);
             
@@ -551,54 +698,115 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Texture2D bloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
-            Texture2D pixel = MagnumTextureRegistry.GetPointBloom();
-            Vector2 bloomOrigin = bloom.Size() / 2f;
-            
+            float time = (float)Main.GameUpdateCount;
+            float op = Projectile.Opacity;
+
+            // === Stage 1: GPU Primitive Rift Ring ===
+            {
+                try
+                {
+                    sb.End();
+                    int ringPoints = 28;
+                    var ringPositions = new List<Vector2>(ringPoints + 1);
+                    float riftRadius = 22f + MathF.Sin(time * 0.08f) * 4f;
+                    for (int i = 0; i <= ringPoints; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / ringPoints;
+                        float wobble = MathF.Sin(angle * 4f + time * 0.1f) * 4f;
+                        ringPositions.Add(Projectile.Center + new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * (riftRadius + wobble));
+                    }
+
+                    // Pass 1: Body ring — GazeGreen to RefrainPurple
+                    var bodySettings = new WatchingPrimitiveSettings(
+                        c => 5f + MathF.Sin(c * MathHelper.TwoPi * 3f + time * 0.08f) * 2f,
+                        c => Color.Lerp(WatchingUtils.GazeGreen, WatchingUtils.RefrainPurple, c) * (0.55f * op),
+                        ShaderLoader.WatchingPhantomAura,
+                        smoothing: true, maxPoints: 100);
+                    WatchingPrimitiveRenderer.RenderTrail(ringPositions, bodySettings);
+
+                    // Pass 2: Outer glow — PhantomBlack ethereal
+                    var glowSettings = new WatchingPrimitiveSettings(
+                        c => 10f + MathF.Sin(c * MathHelper.TwoPi * 3f + time * 0.06f) * 3f,
+                        c => WatchingUtils.PhantomBlack * (0.20f * op),
+                        ShaderLoader.WatchingPhantomAura,
+                        smoothing: true, maxPoints: 100);
+                    WatchingPrimitiveRenderer.RenderTrail(ringPositions, glowSettings);
+
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch
+                {
+                    try { sb.End(); } catch { }
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
+
+            // === Stage 2: 6-layer bloom stack (Additive) ===
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            float time = Main.GlobalTimeWrappedHourly;
-            float pulse = 0.8f + 0.2f * (float)Math.Sin(time * 4f);
-            float antiPulse = 0.8f + 0.2f * (float)Math.Sin(time * 4f + MathHelper.Pi);
-            
-            // Outer swirling glow — RefrainPurple, pulsing
-            sb.Draw(bloom, drawPos, null, WatchingUtils.RefrainPurple * (0.35f * pulse * Projectile.Opacity), time * 0.5f, bloomOrigin, 0.8f * pulse, SpriteEffects.None, 0f);
-            
-            // Inner rift core — GazeGreen, opposite phase
-            sb.Draw(bloom, drawPos, null, WatchingUtils.GazeGreen * (0.5f * antiPulse * Projectile.Opacity), -time * 0.3f, bloomOrigin, 0.4f * antiPulse, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.SpectralMint * (0.2f * Projectile.Opacity), 0f, bloomOrigin, 0.2f, SpriteEffects.None, 0f);
-            
-            // Cross-beams — rotating "tear in space" effect
-            float beamRot = time * 0.8f;
-            Vector2 beamScale1 = new Vector2(40f / pixel.Width, 2f / pixel.Height);
-            Vector2 beamScale2 = new Vector2(40f / pixel.Width, 2f / pixel.Height);
-            sb.Draw(pixel, drawPos, null, WatchingUtils.PhantomWhite * (0.4f * Projectile.Opacity), beamRot, pixel.Size() / 2f, beamScale1, SpriteEffects.None, 0f);
-            sb.Draw(pixel, drawPos, null, WatchingUtils.PhantomWhite * (0.4f * Projectile.Opacity), beamRot + MathHelper.PiOver2, pixel.Size() / 2f, beamScale2, SpriteEffects.None, 0f);
-            
-            // Draw rift texture with additive blend
-            Texture2D riftTex = TextureAssets.Projectile[Projectile.type].Value;
-            Vector2 riftOrigin = riftTex.Size() / 2f;
-            sb.Draw(riftTex, drawPos, null, WatchingUtils.RefrainPurple * (0.5f * Projectile.Opacity), time * 0.4f, riftOrigin, Projectile.scale * 0.6f, SpriteEffects.None, 0f);
-            
-            // === Layer 5: EN Star Flare — dual-rotating rift starburst ===
-            Texture2D riftStarFlare = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
-            float riftSfRot1 = time * 1.2f;
-            float riftSfRot2 = -time * 0.9f;
-            sb.Draw(riftStarFlare, drawPos, null, WatchingUtils.GazeGreen * (0.35f * Projectile.Opacity), riftSfRot1,
-                riftStarFlare.Size() / 2f, 0.4f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(riftStarFlare, drawPos, null, WatchingUtils.RefrainPurple * (0.25f * Projectile.Opacity), riftSfRot2,
-                riftStarFlare.Size() / 2f, 0.3f * antiPulse, SpriteEffects.None, 0f);
-            
-            // === Layer 6: EN Power Effect Ring — expanding rift ring ===
-            Texture2D riftPowerRing = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Power Effect Ring", AssetRequestMode.ImmediateLoad).Value;
-            float riftRingPulse = 0.35f + 0.1f * (float)Math.Sin(time * 5f);
-            sb.Draw(riftPowerRing, drawPos, null, WatchingUtils.GazeGreen * (0.2f * Projectile.Opacity), time * 0.6f,
-                riftPowerRing.Size() / 2f, riftRingPulse, SpriteEffects.None, 0f);
-            
-            WatchingUtils.ExitShaderRegion(sb);
+
+            Texture2D bloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
+            Vector2 bOrigin = bloom.Size() / 2f;
+            float pulse = 0.80f + MathF.Sin(time * 0.06f) * 0.20f;
+            float antiPulse = 0.80f + MathF.Sin(time * 0.06f + MathHelper.Pi) * 0.20f;
+
+            sb.Draw(bloom, drawPos, null, WatchingUtils.PhantomBlack * 0.22f * pulse * op, time * 0.008f, bOrigin, 0.65f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.WatcherDeep * 0.30f * antiPulse * op, -time * 0.005f, bOrigin, 0.48f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.RefrainPurple * 0.40f * pulse * op, 0f, bOrigin, 0.35f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.GazeGreen * 0.50f * antiPulse * op, 0f, bOrigin, 0.22f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.SpectralMint * 0.35f * pulse * op, 0f, bOrigin, 0.12f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.PhantomWhite * 0.45f * op, 0f, bOrigin, 0.06f, SpriteEffects.None, 0f);
+
+            // === Stage 3: EN Star Flare — dual-rotating rift starburst ===
+            {
+                Texture2D sfTex = EnigmaThemeTextures.ENStarFlare.Value;
+                Vector2 sfOrigin = sfTex.Size() / 2f;
+                float sfRotA = time * 0.02f;
+                float sfRotB = -time * 0.015f;
+                float sfScale = 0.30f + MathF.Sin(time * 0.05f) * 0.06f;
+                sb.Draw(sfTex, drawPos, null, WatchingUtils.GazeGreen * 0.35f * op, sfRotA, sfOrigin, sfScale * pulse, SpriteEffects.None, 0f);
+                sb.Draw(sfTex, drawPos, null, WatchingUtils.RefrainPurple * 0.25f * op, sfRotB, sfOrigin, sfScale * 0.8f * antiPulse, SpriteEffects.None, 0f);
+            }
+
+            // === Stage 4: EN Power Effect Ring — dual concentric rift rings ===
+            {
+                Texture2D ringTex = EnigmaThemeTextures.ENPowerEffectRing.Value;
+                Vector2 prOrigin = ringTex.Size() / 2f;
+                float prRot = time * 0.01f;
+                sb.Draw(ringTex, drawPos, null, WatchingUtils.GazeGreen * 0.22f * op, prRot, prOrigin, 0.25f + MathF.Sin(time * 0.07f) * 0.04f, SpriteEffects.None, 0f);
+                sb.Draw(ringTex, drawPos, null, WatchingUtils.RefrainPurple * 0.15f * op, -prRot * 0.6f, prOrigin, 0.35f + MathF.Sin(time * 0.05f) * 0.05f, SpriteEffects.None, 0f);
+            }
+
+            // === Stage 5: EN Enigma Eye — rift gaze ===
+            {
+                Texture2D eyeTex = EnigmaThemeTextures.ENEnigmaEye.Value;
+                Vector2 eyeOrigin = eyeTex.Size() / 2f;
+                float eyePulse = 0.5f + MathF.Sin(time * 0.04f) * 0.5f;
+                sb.Draw(eyeTex, drawPos, null, WatchingUtils.PhantomWhite * 0.35f * eyePulse * op, 0f, eyeOrigin, 0.10f, SpriteEffects.None, 0f);
+            }
+
+            // === Stage 6: Rift star sprite ===
+            {
+                Texture2D riftTex = TextureAssets.Projectile[Projectile.type].Value;
+                Vector2 riftOrigin = riftTex.Size() / 2f;
+                sb.Draw(riftTex, drawPos, null, WatchingUtils.RefrainPurple * 0.45f * op, time * 0.007f, riftOrigin, Projectile.scale * 0.55f, SpriteEffects.None, 0f);
+            }
+
+            // === Pulsing light accent ===
+            EnigmaVFXLibrary.AddPulsingLight(Projectile.Center, WatchingUtils.GazeGreen, 0.6f * op, 0.35f);
+            }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
             return false;
         }
         
@@ -719,48 +927,118 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Texture2D bloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
-            Vector2 bloomOrigin = bloom.Size() / 2f;
-            
-            // === Shader overlay: Panopticon surveillance grid ===
+            try
             {
-                float lifeFadeShader = MathHelper.Clamp(Projectile.timeLeft / 60f, 0f, 1f);
-                float zoneScaleShader = Projectile.width / 64f;
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            float time = (float)Main.GameUpdateCount;
+            float lifeFade = MathHelper.Clamp(Projectile.timeLeft / 60f, 0f, 1f);
+            float zoneScale = Projectile.width / 64f;
+
+            // === Stage 1: GPU Primitive Boundary Ring ===
+            {
+                try
+                {
+                    sb.End();
+                    int ringPoints = 48;
+                    var ringPositions = new List<Vector2>(ringPoints + 1);
+                    float boundaryRadius = Projectile.width * 0.48f;
+                    for (int i = 0; i <= ringPoints; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / ringPoints;
+                        float wobble = MathF.Sin(angle * 5f + time * 0.04f) * 5f;
+                        ringPositions.Add(Projectile.Center + new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * (boundaryRadius + wobble));
+                    }
+
+                    // Pass 1: Body ring — RefrainPurple to GazeGreen boundary
+                    var bodySettings = new WatchingPrimitiveSettings(
+                        c => 4f + MathF.Sin(c * MathHelper.TwoPi * 4f + time * 0.05f) * 2f,
+                        c => Color.Lerp(WatchingUtils.RefrainPurple, WatchingUtils.GazeGreen, c) * (0.35f * lifeFade),
+                        ShaderLoader.WatchingMysteryZone,
+                        smoothing: true, maxPoints: 150);
+                    WatchingPrimitiveRenderer.RenderTrail(ringPositions, bodySettings);
+
+                    // Pass 2: Outer glow — WatcherDeep atmospheric haze
+                    var glowSettings = new WatchingPrimitiveSettings(
+                        c => 8f + MathF.Sin(c * MathHelper.TwoPi * 4f + time * 0.03f) * 3f,
+                        c => WatchingUtils.WatcherDeep * (0.18f * lifeFade),
+                        ShaderLoader.WatchingMysteryZone,
+                        smoothing: true, maxPoints: 150);
+                    WatchingPrimitiveRenderer.RenderTrail(ringPositions, glowSettings);
+
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch
+                {
+                    try { sb.End(); } catch { }
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
+
+            // === Stage 2: Shader overlay — panopticon surveillance grid ===
+            {
+                Texture2D shBloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
                 EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.WatchingMysteryZone,
-                    bloom, drawPos, bloomOrigin, zoneScaleShader * 2.5f,
+                    shBloom, drawPos, shBloom.Size() / 2f, zoneScale * 2.5f,
                     WatchingUtils.GazeGreen.ToVector3(), WatchingUtils.RefrainPurple.ToVector3(),
-                    opacity: 0.4f * lifeFadeShader, intensity: 1.0f,
+                    opacity: 0.4f * lifeFade, intensity: 1.0f,
                     noiseTexture: ShaderLoader.GetNoiseTexture("VoronoiNoise"),
                     techniqueName: "WatchingMysteryField");
             }
-            
+
+            // === Stage 3: 6-layer bloom stack (Additive) ===
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            float time = Main.GlobalTimeWrappedHourly;
-            float zoneScale = Projectile.width / 64f; // scale bloom to match zone hitbox
-            float lifeFade = MathHelper.Clamp(Projectile.timeLeft / 60f, 0f, 1f); // fade out in last second
-            
-            // Large soft mist circle — RefrainPurple, low opacity
-            float slowRot = time * 0.5f;
-            sb.Draw(bloom, drawPos, null, WatchingUtils.RefrainPurple * (0.18f * lifeFade), slowRot, bloomOrigin, zoneScale * 1.8f, SpriteEffects.None, 0f);
-            
-            // Concentric inner ring — GazeGreen, slightly brighter
-            float innerPulse = 0.9f + 0.1f * (float)Math.Sin(time * 3f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.GazeGreen * (0.25f * lifeFade * innerPulse), -slowRot * 0.7f, bloomOrigin, zoneScale * 1.2f, SpriteEffects.None, 0f);
-            
-            // Subtle core highlight
-            sb.Draw(bloom, drawPos, null, WatchingUtils.SpectralMint * (0.12f * lifeFade), 0f, bloomOrigin, zoneScale * 0.5f, SpriteEffects.None, 0f);
-            
-            // === Layer 4: EN Power Effect Ring — mystery zone boundary ring ===
-            Texture2D zonePowerRing = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Power Effect Ring", AssetRequestMode.ImmediateLoad).Value;
-            float zoneRingPulse = zoneScale * (1.4f + 0.15f * (float)Math.Sin(time * 2.5f));
-            sb.Draw(zonePowerRing, drawPos, null, WatchingUtils.RefrainPurple * (0.15f * lifeFade), slowRot * 0.3f,
-                zonePowerRing.Size() / 2f, zoneRingPulse, SpriteEffects.None, 0f);
-            
-            WatchingUtils.ExitShaderRegion(sb);
+
+            Texture2D bloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
+            Vector2 bOrigin = bloom.Size() / 2f;
+            float pulse = 0.85f + MathF.Sin(time * 0.04f) * 0.15f;
+            float slowRot = time * 0.008f;
+
+            sb.Draw(bloom, drawPos, null, WatchingUtils.PhantomBlack * 0.15f * lifeFade * pulse, slowRot, bOrigin, zoneScale * 2.0f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.WatcherDeep * 0.20f * lifeFade * pulse, -slowRot * 0.7f, bOrigin, zoneScale * 1.6f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.RefrainPurple * 0.25f * lifeFade * pulse, 0f, bOrigin, zoneScale * 1.3f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.GazeGreen * 0.30f * lifeFade * pulse, 0f, bOrigin, zoneScale * 0.9f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.SpectralMint * 0.18f * lifeFade * pulse, 0f, bOrigin, zoneScale * 0.5f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.PhantomWhite * 0.12f * lifeFade, 0f, bOrigin, zoneScale * 0.25f, SpriteEffects.None, 0f);
+
+            // === Stage 4: EN Power Effect Ring — dual concentric zone boundaries ===
+            {
+                Texture2D ringTex = EnigmaThemeTextures.ENPowerEffectRing.Value;
+                Vector2 prOrigin = ringTex.Size() / 2f;
+                float prRot = time * 0.005f;
+                float ringPulse = zoneScale * (1.4f + MathF.Sin(time * 0.04f) * 0.15f);
+                sb.Draw(ringTex, drawPos, null, WatchingUtils.RefrainPurple * 0.18f * lifeFade, prRot, prOrigin, ringPulse, SpriteEffects.None, 0f);
+                sb.Draw(ringTex, drawPos, null, WatchingUtils.GazeGreen * 0.12f * lifeFade, -prRot * 0.6f, prOrigin, ringPulse * 0.7f, SpriteEffects.None, 0f);
+            }
+
+            // === Stage 5: EN Star Flare — zone center flare ===
+            {
+                Texture2D sfTex = EnigmaThemeTextures.ENStarFlare.Value;
+                Vector2 sfOrigin = sfTex.Size() / 2f;
+                float sfRot = time * 0.012f;
+                sb.Draw(sfTex, drawPos, null, WatchingUtils.GazeGreen * 0.20f * lifeFade, sfRot, sfOrigin, 0.25f, SpriteEffects.None, 0f);
+            }
+
+            // === Stage 6: EN Enigma Eye — zone surveillance eye ===
+            {
+                Texture2D eyeTex = EnigmaThemeTextures.ENEnigmaEye.Value;
+                Vector2 eyeOrigin = eyeTex.Size() / 2f;
+                float eyePulse = 0.5f + MathF.Sin(time * 0.035f) * 0.5f;
+                sb.Draw(eyeTex, drawPos, null, WatchingUtils.PhantomWhite * 0.25f * eyePulse * lifeFade, 0f, eyeOrigin, 0.14f, SpriteEffects.None, 0f);
+            }
+
+            // === Pulsing light accent ===
+            EnigmaVFXLibrary.AddPulsingLight(Projectile.Center, WatchingUtils.RefrainPurple, 0.5f * lifeFade, 0.25f);
+            }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
             return false;
         }
         

@@ -28,7 +28,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         public static void EnterShaderRegion(SpriteBatch sb)
         {
             sb.End();
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
@@ -88,7 +88,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             Vector2 origin = bloomTex.Size() / 2f;
 
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             try
             {

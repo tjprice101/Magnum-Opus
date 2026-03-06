@@ -246,7 +246,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
             float distProgress = Math.Min(1f, distanceTraveled / MaxDistanceBonus);
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             Color mainColor = Color.Lerp(TwilightPurple, TwilightOrange, distProgress);
             

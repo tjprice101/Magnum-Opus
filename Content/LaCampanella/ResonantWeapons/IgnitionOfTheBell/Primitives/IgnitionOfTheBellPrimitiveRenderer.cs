@@ -188,10 +188,10 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Prim
                 _device.Indices = _indexBuffer;
 
                 _device.RasterizerState = RasterizerState.CullNone;
-                _device.BlendState = BlendState.Additive;
+                _device.BlendState = MagnumBlendStates.TrueAdditive;
                 _device.DepthStencilState = DepthStencilState.None;
 
-                if (settings.Shader != null)
+                if (settings.Shader != null && settings.Shader.Shader != null)
                 {
                     Matrix view = Matrix.CreateLookAt(Vector3.Zero, Vector3.UnitZ, Vector3.Up);
                     Matrix projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1);
@@ -201,16 +201,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Prim
                 }
                 else
                 {
-                    // Fallback: BasicEffect so GPU has a valid shader pipeline
-                    var basicEffect = new BasicEffect(_device)
-                    {
-                        VertexColorEnabled = true,
-                        TextureEnabled = false,
-                        World = Matrix.Identity,
-                        View = Matrix.CreateLookAt(Vector3.Zero, Vector3.UnitZ, Vector3.Up),
-                        Projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1)
-                    };
-                    basicEffect.CurrentTechnique.Passes[0].Apply();
+                    return;
                 }
 
                 _device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertCount, 0, triCount);

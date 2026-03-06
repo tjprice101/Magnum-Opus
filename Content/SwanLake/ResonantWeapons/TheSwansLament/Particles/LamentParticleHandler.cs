@@ -35,7 +35,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Particles
 
             // Pass 1: Additive blend
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             foreach (var p in Particles)

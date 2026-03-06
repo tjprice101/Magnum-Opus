@@ -1,4 +1,4 @@
-﻿using MagnumOpus.Common;
+using MagnumOpus.Common;
 using MagnumOpus.Content.DiesIrae;
 using MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract.Particles;
 using MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract.Utilities;
@@ -427,7 +427,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract.Projectiles
         {
             SpriteBatch sb = Main.spriteBatch;
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
 
             float timer = (float)Main.timeForVisualEffects;
@@ -534,11 +534,41 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract.Projectiles
 
             Vector2 pos = Projectile.Center - Main.screenPosition;
             Vector2 origin = glow.Size() / 2f;
+            float time = (float)Main.GameUpdateCount;
+            float pulse = 0.85f + 0.15f * MathF.Sin(time * 0.12f);
 
-            // Outer ember glow
-            sb.Draw(glow, pos, null, DiesIraePalette.EmberOrange * 0.4f, 0f, origin, 0.06f, SpriteEffects.None, 0f);
-            // Core
-            sb.Draw(glow, pos, null, DiesIraePalette.WrathWhite * 0.5f, 0f, origin, 0.025f, SpriteEffects.None, 0f);
+            // ── Switch to Additive for all glow layers ──
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                SamplerState.LinearClamp, DepthStencilState.None,
+                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Layer 1: Wide infernal halo
+            sb.Draw(glow, pos, null, DiesIraePalette.BloodRed * 0.2f * pulse, 0f, origin, 0.12f, SpriteEffects.None, 0f);
+
+            // Layer 2: Mid ember glow
+            sb.Draw(glow, pos, null, DiesIraePalette.EmberOrange * 0.45f * pulse, 0f, origin, 0.07f, SpriteEffects.None, 0f);
+
+            // Layer 3: Inner infernal bloom
+            sb.Draw(glow, pos, null, DiesIraePalette.InfernalRed * 0.6f, 0f, origin, 0.04f, SpriteEffects.None, 0f);
+
+            // Layer 4: White-hot core
+            sb.Draw(glow, pos, null, DiesIraePalette.WrathWhite * 0.75f, 0f, origin, 0.02f, SpriteEffects.None, 0f);
+
+            // Layer 5: Star flare accent (if available)
+            Texture2D starFlare = DemonTextures.DIStarFlare ?? DemonTextures.StarFlare;
+            if (starFlare != null)
+            {
+                Vector2 starOrigin = starFlare.Size() / 2f;
+                float rot = time * 0.04f;
+                sb.Draw(starFlare, pos, null, DiesIraePalette.JudgmentGold * 0.35f * pulse, rot, starOrigin, 0.04f, SpriteEffects.None, 0f);
+            }
+
+            // ── Restore default SpriteBatch ──
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                SamplerState.PointClamp, DepthStencilState.None,
+                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             return false;
         }

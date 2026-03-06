@@ -71,7 +71,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
                 Projectile.NewProjectile(
                     Projectile.GetSource_FromThis(), _targetPos, Vector2.Zero,
                     ModContent.ProjectileType<RippleEffectProjectile>(),
-                    0, 0f, Projectile.owner);
+                    0, 0f, Projectile.owner, ai0: 1f);
             }
 
             // Position at target for collision
@@ -224,7 +224,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
             try { sb.End(); } catch { }
             try
             {
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             sb.Draw(bloomTex, screenPos, null,

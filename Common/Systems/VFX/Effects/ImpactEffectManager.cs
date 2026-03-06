@@ -406,11 +406,11 @@ namespace MagnumOpus.Common.Systems.VFX.Effects
             DrawParticleList(spriteBatch, debris, particleTexture, origin, BlendState.AlphaBlend);
 
             // Draw sparks (additive)
-            DrawParticleList(spriteBatch, sparks, particleTexture, origin, BlendState.Additive);
+            DrawParticleList(spriteBatch, sparks, particleTexture, origin, MagnumBlendStates.TrueAdditive);
 
             // Draw flash and shockwave (additive)
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
 
@@ -436,7 +436,7 @@ namespace MagnumOpus.Common.Systems.VFX.Effects
             foreach (var p in particles)
             {
                 Color drawColor = p.Color * p.Alpha;
-                if (blendState == BlendState.Additive)
+                if (blendState == MagnumBlendStates.TrueAdditive)
                     drawColor = drawColor with { A = 0 };
 
                 spriteBatch.Draw(

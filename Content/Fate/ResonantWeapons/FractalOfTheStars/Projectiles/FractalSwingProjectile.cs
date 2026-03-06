@@ -18,12 +18,12 @@ using MagnumOpus.Content.Fate.Debuffs;
 namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
 {
     /// <summary>
-    /// Fractal of the Stars — Main held swing projectile.
+    /// Fractal of the Stars  EMain held swing projectile.
     ///
     /// 3-PHASE COMBO:
-    ///   Phase 0 (Horizontal Sweep):  Wide horizontal sweep across — constellation sparks scatter
-    ///   Phase 1 (Rising Uppercut):   Fast upward diagonal slash — star particles rise upward
-    ///   Phase 2 (Gravity Slam):      Overhead slam downward — Star Fracture explosion on hit
+    ///   Phase 0 (Horizontal Sweep):  Wide horizontal sweep across  Econstellation sparks scatter
+    ///   Phase 1 (Rising Uppercut):   Fast upward diagonal slash  Estar particles rise upward
+    ///   Phase 2 (Gravity Slam):      Overhead slam downward  EStar Fracture explosion on hit
     ///
     /// 5-LAYER RENDERING:
     ///   Layer 1: Wide stellar glow underlayer (FractalSwingGlow shader)
@@ -39,7 +39,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
         // Swing arc parameters per phase
         // Phase 0: Horizontal Sweep (wide, moderate speed)
         // Phase 1: Rising Uppercut (narrow, fast)
-        // Phase 2: Gravity Slam (narrow vertical, slow windup → fast slam)
+        // Phase 2: Gravity Slam (narrow vertical, slow windup ↁEfast slam)
         private static readonly float[] ArcAngles = { 170f, 130f, 120f };        // Degrees
         private static readonly float[] SwingDurations = { 22f, 16f, 24f };      // Frames
         private static readonly float[] DamageMultipliers = { 1f, 0.95f, 1.4f }; // Slam hits hardest
@@ -56,6 +56,18 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
         private static Asset<Texture2D> _noiseTex;
         private static Asset<Texture2D> _glowTex;
         private static Asset<Texture2D> _flareTex;
+
+        // SmearDistort overlay textures (Foundation-tier: 3-sublayer shader-driven arc distortion)
+        private static Asset<Texture2D> _smearArcTexture;
+        private static Asset<Texture2D> _smearNoiseTex;
+        private static Asset<Texture2D> _smearGradientTex;
+        private Effect _smearDistortShader;
+        private bool _smearShaderLoaded;
+
+        // Crescent bloom textures (6-layer graduated bloom at blade tip)
+        private static Asset<Texture2D> _bloomCircle;
+        private static Asset<Texture2D> _softRadialBloom;
+        private static Asset<Texture2D> _starFlareTex;
 
         // Properties
         private Player Owner => Main.player[Projectile.owner];
@@ -145,7 +157,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
                 case 1: // Rising Uppercut: fast explosive start
                     easedProgress = FractalUtils.QuadOut(progress);
                     break;
-                case 2: // Gravity Slam: slow windup → explosive slam
+                case 2: // Gravity Slam: slow windup ↁEexplosive slam
                     easedProgress = FractalUtils.ExpIn(progress);
                     break;
                 default:
@@ -294,45 +306,77 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
             var fp = Owner.Fractal();
             float intensity = 0.6f + fp.ComboIntensity * 0.4f;
 
-            // Central bloom flash
-            FractalParticleHandler.SpawnParticle(new FractalBloomFlare(
-                pos, FractalUtils.SupernovaFlash, 0.6f * intensity, 15));
-            FractalParticleHandler.SpawnParticle(new FractalBloomFlare(
-                pos, FractalUtils.StarGold, 0.45f * intensity, 12));
+            // NOTE: SpriteBatch bloom draws removed — SpawnImpactVFX is called from
+            // OnHitNPC (Update phase) where no SpriteBatch is active.
+            // Impact visuals handled by particles below.
 
-            // Radial star spark burst
-            int sparkCount = 8 + (int)(fp.ComboIntensity * 4);
+            // Central particle bloom flash
+            FractalParticleHandler.SpawnParticle(new FractalBloomFlare(
+                pos, FractalUtils.SupernovaFlash, 0.7f * intensity, 15));
+            FractalParticleHandler.SpawnParticle(new FractalBloomFlare(
+                pos, FractalUtils.StarGold, 0.5f * intensity, 12));
+
+            // Radial star spark burst (increased count for more impact)
+            int sparkCount = 12 + (int)(fp.ComboIntensity * 6);
             for (int i = 0; i < sparkCount; i++)
             {
                 float angle = MathHelper.TwoPi * i / sparkCount + Main.rand.NextFloat(-0.1f, 0.1f);
-                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f) * intensity;
+                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 10f) * intensity;
                 Color sparkCol = FractalUtils.GetStellarGradient((float)i / sparkCount);
                 FractalParticleHandler.SpawnParticle(new FractalSpark(
-                    pos, sparkVel, sparkCol, 0.3f * intensity, 16));
+                    pos, sparkVel, sparkCol, 0.35f * intensity, 18));
             }
 
-            // Glyph accents
-            int glyphCount = 2 + (int)(fp.ComboIntensity * 3);
+            // Directional slash mark particle burst (perpendicular to swing)
+            Vector2 slashDir = (_currentAngle + MathHelper.PiOver2 * _direction).ToRotationVector2();
+            for (int i = 0; i < 6; i++)
+            {
+                float spread = Main.rand.NextFloat(-0.3f, 0.3f);
+                Vector2 markVel = slashDir.RotatedBy(spread) * Main.rand.NextFloat(5f, 12f);
+                Color markCol = Color.Lerp(FractalUtils.StarGold, FractalUtils.ConstellationWhite, Main.rand.NextFloat());
+                FractalParticleHandler.SpawnParticle(new FractalSpark(
+                    pos, markVel, markCol, 0.25f * intensity, 14));
+            }
+
+            // Glyph accents (more dramatic)
+            int glyphCount = 3 + (int)(fp.ComboIntensity * 4);
             for (int i = 0; i < glyphCount; i++)
             {
-                Vector2 glyphPos = pos + Main.rand.NextVector2Circular(20f, 20f);
+                Vector2 glyphPos = pos + Main.rand.NextVector2Circular(25f, 25f);
                 Color glyphCol = FractalUtils.PaletteLerp(Main.rand.NextFloat());
                 FractalParticleHandler.SpawnParticle(new FractalGlyph(
-                    glyphPos, glyphCol, 0.28f * intensity, 25));
+                    glyphPos, glyphCol, 0.32f * intensity, 28));
             }
 
-            // Star particles on impact
-            for (int i = 0; i < 3; i++)
+            // Star particles cascading upward from impact
+            for (int i = 0; i < 5; i++)
             {
-                Vector2 starVel = Main.rand.NextVector2Circular(3f, 3f);
-                starVel.Y -= 2f;
+                Vector2 starVel = new Vector2(Main.rand.NextFloat(-2f, 2f), -Main.rand.NextFloat(3f, 6f));
                 Color starCol = FractalUtils.GetStarShimmer((float)Main.timeForVisualEffects * 0.03f + i);
                 FractalParticleHandler.SpawnParticle(new FractalStarParticle(
                     pos + Main.rand.NextVector2Circular(10f, 10f), starVel,
-                    starCol, 0.25f, 28));
+                    starCol, 0.3f, 32));
             }
 
-            Lighting.AddLight(pos, FractalUtils.StarGold.ToVector3() * 1.0f * intensity);
+            // Music notes on higher combo
+            if (fp.ComboIntensity > 0.3f)
+            {
+                int noteCount = 2 + (int)(fp.ComboIntensity * 3);
+                for (int i = 0; i < noteCount; i++)
+                {
+                    float noteAngle = MathHelper.TwoPi * i / noteCount + Main.rand.NextFloat(-0.3f, 0.3f);
+                    Vector2 noteVel = noteAngle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
+                    noteVel.Y -= 1.5f; // Float upward
+                    Color noteCol = Color.Lerp(FractalUtils.StarGold, FractalUtils.CelestialLavender, Main.rand.NextFloat());
+                    FractalParticleHandler.SpawnParticle(new FractalMote(
+                        pos + Main.rand.NextVector2Circular(15f, 15f), noteVel,
+                        noteCol, 0.2f, 35));
+                }
+            }
+
+            // Screen-space flash light burst
+            Lighting.AddLight(pos, FractalUtils.StarGold.ToVector3() * 1.2f * intensity);
+            Lighting.AddLight(pos, FractalUtils.SupernovaFlash.ToVector3() * 0.8f * intensity);
         }
 
         private void SpawnStarFractureVFX(Vector2 pos)
@@ -397,7 +441,243 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
             return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), start, end, 30f, ref _);
         }
 
-        // ======================== 5-LAYER RENDERING ========================
+        // ======================== SMEAR DISTORT OVERLAY (FOUNDATION-TIER) ========================
+
+        /// <summary>
+        /// Layer 0: SmearDistortShader overlay from SwordSmearFoundation.
+        /// Renders the SwordArcSmear texture with fluid distortion shader in 3 sub-layers
+        /// (outer glow ↁEmain body ↁEbright core), using Fate StarFractal gradient.
+        /// Distortion and flow scale with combo intensity.
+        /// </summary>
+        private void DrawSmearOverlay()
+        {
+            float progress = SwingProgress;
+            if (progress < 0.15f || progress > 0.95f) return;
+
+            // Lazy-load SmearDistortShader
+            if (!_smearShaderLoaded)
+            {
+                _smearShaderLoaded = true;
+                try
+                {
+                    _smearDistortShader = ModContent.Request<Effect>(
+                        "MagnumOpus/Content/FoundationWeapons/SwordSmearFoundation/Shaders/SmearDistortShader",
+                        AssetRequestMode.ImmediateLoad).Value;
+                }
+                catch { _smearDistortShader = null; }
+            }
+
+            _smearArcTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/SlashArcs/SwordArcSmear");
+            _smearNoiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/TileableFBMNoise");
+            _smearGradientTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/ColorGradients/FateGradientLUTandRAMP");
+
+            if (_smearArcTexture?.Value == null) return;
+
+            Texture2D smearTex = _smearArcTexture.Value;
+            Vector2 smearOrigin = smearTex.Size() / 2f;
+            SpriteBatch sb = Main.spriteBatch;
+            Vector2 drawOrigin = Owner.MountedCenter - Main.screenPosition;
+
+            // Scale smear to match blade reach
+            float reach = _phase == 2 ? 100f : 82f;
+            float maxDim = MathF.Max(smearTex.Width, smearTex.Height);
+            float smearScale = (reach * 2.2f) / maxDim;
+
+            // Rotation follows the current swing angle
+            float smearRotation = _currentAngle + (_direction < 0 ? MathHelper.Pi : 0f);
+
+            // Fade envelope: smooth in at 0.15, sustain, fade at 0.85
+            float smearAlpha;
+            if (progress < 0.25f)
+                smearAlpha = (progress - 0.15f) / 0.10f;
+            else if (progress > 0.85f)
+                smearAlpha = (0.95f - progress) / 0.10f;
+            else
+                smearAlpha = 1f;
+            smearAlpha = MathHelper.Clamp(smearAlpha, 0f, 1f);
+
+            var fp = Owner.Fractal();
+            float comboScale = fp.ComboIntensity;
+            smearAlpha *= (0.6f + comboScale * 0.4f);
+
+            // Combo-scaling: distort and flow intensify with combo
+            float baseDistort = MathHelper.Lerp(0.06f, 0.14f, comboScale);
+            float flowSpeed = MathHelper.Lerp(0.5f, 1.0f, comboScale);
+
+            if (_smearDistortShader != null)
+            {
+                // === SHADER PATH: fluid distortion + Fate gradient coloring ===
+                sb.End();
+                sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+                    SamplerState.LinearWrap, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.EffectMatrix);
+
+                float time = (float)Main.gameTimeCache.TotalGameTime.TotalSeconds;
+
+                _smearDistortShader.Parameters["uTime"]?.SetValue(time);
+                _smearDistortShader.Parameters["fadeAlpha"]?.SetValue(smearAlpha);
+                _smearDistortShader.Parameters["flowSpeed"]?.SetValue(flowSpeed);
+                _smearDistortShader.Parameters["noiseScale"]?.SetValue(2.5f);
+                if (_smearNoiseTex?.Value != null)
+                    _smearDistortShader.Parameters["noiseTex"]?.SetValue(_smearNoiseTex.Value);
+                if (_smearGradientTex?.Value != null)
+                    _smearDistortShader.Parameters["gradientTex"]?.SetValue(_smearGradientTex.Value);
+
+                // Sub-layer A: Wide outer stellar glow (strong distortion, cosmic turbulence)
+                _smearDistortShader.Parameters["distortStrength"]?.SetValue(baseDistort);
+                _smearDistortShader.CurrentTechnique.Passes[0].Apply();
+                sb.Draw(smearTex, drawOrigin, null,
+                    Color.White * smearAlpha * 0.45f,
+                    smearRotation, smearOrigin,
+                    smearScale * 1.18f, SpriteEffects.None, 0f);
+
+                // Sub-layer B: Main smear body (medium distortion)
+                _smearDistortShader.Parameters["distortStrength"]?.SetValue(baseDistort * 0.6f);
+                _smearDistortShader.CurrentTechnique.Passes[0].Apply();
+                sb.Draw(smearTex, drawOrigin, null,
+                    Color.White * smearAlpha * 0.75f,
+                    smearRotation, smearOrigin,
+                    smearScale, SpriteEffects.None, 0f);
+
+                // Sub-layer C: Bright stellar core (subtle distortion, sharp detail)
+                _smearDistortShader.Parameters["distortStrength"]?.SetValue(baseDistort * 0.3f);
+                _smearDistortShader.CurrentTechnique.Passes[0].Apply();
+                sb.Draw(smearTex, drawOrigin, null,
+                    Color.White * smearAlpha * 0.6f,
+                    smearRotation, smearOrigin,
+                    smearScale * 0.82f, SpriteEffects.None, 0f);
+
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            else
+            {
+                // === FALLBACK: static colored layers (no shader available) ===
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.EffectMatrix);
+
+                sb.Draw(smearTex, drawOrigin, null,
+                    FractalUtils.FractalPurple * smearAlpha * 0.35f,
+                    smearRotation, smearOrigin,
+                    smearScale * 1.18f, SpriteEffects.None, 0f);
+
+                sb.Draw(smearTex, drawOrigin, null,
+                    FractalUtils.StarGold * smearAlpha * 0.65f,
+                    smearRotation, smearOrigin,
+                    smearScale, SpriteEffects.None, 0f);
+
+                sb.Draw(smearTex, drawOrigin, null,
+                    FractalUtils.SupernovaFlash * smearAlpha * 0.5f,
+                    smearRotation, smearOrigin,
+                    smearScale * 0.82f, SpriteEffects.None, 0f);
+
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+        }
+
+        // ======================== CRESCENT BLOOM (6-LAYER MOONLIGHT-TIER) ========================
+
+        /// <summary>
+        /// Layer 6: Multi-layer crescent bloom overlay at blade tip.
+        /// Uses SoftRadialBloom for gentle outer halos and PointBloom for sharp inner core,
+        /// with palette-driven color interpolation for richer stellar gradients.
+        /// Scales with combo intensity  Ebarely visible at combo 0, dramatic at max.
+        /// </summary>
+        private void DrawCrescentBloom()
+        {
+            float progress = SwingProgress;
+            if (progress < 0.2f || progress > 0.9f) return;
+
+            _bloomCircle ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
+            _softRadialBloom ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom");
+            _starFlareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/StarFlare");
+
+            if (_bloomCircle?.Value == null || _softRadialBloom?.Value == null) return;
+
+            Texture2D sharpBloom = _bloomCircle.Value;
+            Texture2D softBloom = _softRadialBloom.Value;
+            SpriteBatch sb = Main.spriteBatch;
+
+            float reach = _phase == 2 ? 100f : 82f;
+            Vector2 tipPos = Owner.MountedCenter + _currentAngle.ToRotationVector2() * reach - Main.screenPosition;
+
+            var fp = Owner.Fractal();
+            float comboIntensity = fp.ComboIntensity;
+            float crescentScale = 0.35f + 0.3f * comboIntensity;
+
+            // Fade in/out envelope
+            float bloomProgress = (progress - 0.2f) / 0.7f; // 0ↁE over 0.2ↁE.9
+            float crescentOpacity = MathF.Sin(bloomProgress * MathHelper.Pi) * 0.6f * (0.5f + comboIntensity * 0.5f);
+
+            // Phase-specific color shift: purple at sweep start ↁEgold at peak ↁEwhite at slam
+            float paletteT = 0.15f + progress * 0.7f + _phase * 0.1f;
+            Color outerColor = FractalUtils.GetStellarGradient(paletteT - 0.15f);
+            Color innerColor = FractalUtils.GetStellarGradient(paletteT + 0.15f);
+
+            try
+            {
+                FractalUtils.BeginAdditive(sb);
+
+                // Layer 1: Wide soft radial halo (SoftRadialBloom)
+                outerColor.A = 0;
+                sb.Draw(softBloom, tipPos, null, outerColor * crescentOpacity * 0.25f,
+                    0f, softBloom.Size() / 2f, crescentScale * 2.0f, SpriteEffects.None, 0f);
+
+                // Layer 2: Mid-range stellar glow (SoftRadialBloom)  Epurple body
+                Color midColor = FractalUtils.FractalPurple with { A = 0 };
+                sb.Draw(softBloom, tipPos, null, midColor * crescentOpacity * 0.35f,
+                    _currentAngle * 0.5f, softBloom.Size() / 2f, crescentScale * 1.3f, SpriteEffects.None, 0f);
+
+                // Layer 3: Inner crescent core (PointBloom)  Ebright gold
+                innerColor.A = 0;
+                sb.Draw(sharpBloom, tipPos, null, innerColor * crescentOpacity * 0.8f,
+                    _currentAngle, sharpBloom.Size() / 2f, crescentScale * 0.6f, SpriteEffects.None, 0f);
+
+                // Layer 4: White-hot supernova center (PointBloom)
+                Color coreWhite = FractalUtils.SupernovaFlash with { A = 0 };
+                sb.Draw(sharpBloom, tipPos, null, coreWhite * crescentOpacity * 0.5f,
+                    _currentAngle, sharpBloom.Size() / 2f, crescentScale * 0.25f, SpriteEffects.None, 0f);
+
+                // Layer 5: Cross star flare at blade tip
+                if (_starFlareTex?.Value != null)
+                {
+                    Texture2D starFlare = _starFlareTex.Value;
+                    float flarePulse = 0.85f + 0.15f * MathF.Sin((float)Main.timeForVisualEffects * 0.06f);
+                    Color flareColor = innerColor with { A = 0 };
+                    // Vertical flare
+                    sb.Draw(starFlare, tipPos, null, flareColor * crescentOpacity * 0.5f * flarePulse,
+                        MathHelper.PiOver2, starFlare.Size() / 2f,
+                        new Vector2(crescentScale * 0.3f, crescentScale * 0.8f) * flarePulse, SpriteEffects.None, 0f);
+                    // Horizontal flare (perpendicular cross)
+                    sb.Draw(starFlare, tipPos, null, flareColor * crescentOpacity * 0.35f * flarePulse,
+                        0f, starFlare.Size() / 2f,
+                        new Vector2(crescentScale * 0.25f, crescentScale * 0.6f) * flarePulse, SpriteEffects.None, 0f);
+                }
+
+                // Layer 6: Nebula glow orb overlay (pulsing, behind crescent)
+                float orbPulse = 0.85f + 0.15f * MathF.Sin(progress * MathHelper.Pi * 3f);
+                Color orbColor = FractalUtils.NebulaPink with { A = 0 };
+                sb.Draw(softBloom, tipPos, null, orbColor * crescentOpacity * 0.2f * orbPulse,
+                    0f, softBloom.Size() / 2f, crescentScale * 1.6f * orbPulse, SpriteEffects.None, 0f);
+
+                FractalUtils.EndAdditive(sb);
+            }
+            catch
+            {
+                try { FractalUtils.EndAdditive(sb); } catch { }
+            }
+        }
+
+        // ======================== 7-LAYER RENDERING ========================
 
         public override bool PreDraw(ref Color lightColor)
         {
@@ -414,21 +694,29 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
 
             try
             {
+                // === Layer 0: SmearDistort overlay (Foundation-tier fluid distortion arc) ===
+                DrawSmearOverlay();
+
                 // End SpriteBatch before GPU primitive trail draws
                 sb.End();
 
-                // GPU primitive layers (trail renderers use DrawUserIndexedPrimitives)
+                // === Layer 1: Wide stellar glow underlayer (GPU primitives) ===
                 DrawLayer1_StellarGlow(sb, comboIntensity);
+                // === Layer 2: Core constellation trail arc (GPU primitives) ===
                 DrawLayer2_CoreTrail(sb, comboIntensity);
 
                 // Restart SpriteBatch for sprite-based layers
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
-                // Sprite-based layers (manage their own additive state changes)
+                // === Layer 3: Constellation star sparks along arc ===
                 DrawLayer3_StarSparks(sb, progress, comboIntensity);
+                // === Layer 4: UV-rotated weapon sprite + tip flare ===
                 DrawLayer4_WeaponSprite(sb, lightColor);
+                // === Layer 5: Combo aura (stellar rings when combo >= 2) ===
                 DrawLayer5_ComboAura(sb, comboIntensity);
+                // === Layer 6: Multi-layer crescent bloom at blade tip ===
+                DrawCrescentBloom();
             }
             catch
             {
@@ -444,7 +732,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
             try
             {
                 sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
                 FractalUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.4f);
                 sb.End();
@@ -632,7 +920,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
             }
         }
 
-        /// <summary>Layer 5: Combo aura — rotating hexagonal constellation orbit when combo high.</summary>
+        /// <summary>Layer 5: Combo aura  Erotating hexagonal constellation orbit when combo high.</summary>
         private void DrawLayer5_ComboAura(SpriteBatch sb, float combo)
         {
             if (combo < 0.4f) return;
@@ -640,7 +928,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
 
             try
             {
-                float auraAlpha = (combo - 0.4f) / 0.6f; // 0→1 over 0.4→1.0
+                float auraAlpha = (combo - 0.4f) / 0.6f; // 0ↁE over 0.4ↁE.0
                 float time = (float)Main.timeForVisualEffects;
 
                 FractalUtils.BeginAdditive(sb);

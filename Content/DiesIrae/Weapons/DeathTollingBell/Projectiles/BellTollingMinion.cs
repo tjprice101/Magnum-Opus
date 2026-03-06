@@ -1,4 +1,4 @@
-﻿using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Buffs;
 using MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Particles;
 using MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Utilities;
@@ -237,7 +237,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Projectiles
             catch { }
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
 
             // Draw harmonic standing wave tether to player

@@ -71,8 +71,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight
 
         public override void SetDefaults()
         {
-            Item.width = 60;
-            Item.height = 60;
+            Item.width = 80;
+            Item.height = 80;
             Item.damage = 280;
             Item.DamageType = DamageClass.MeleeNoSpeed;
             Item.useTime = 12;

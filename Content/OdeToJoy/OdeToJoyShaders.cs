@@ -192,7 +192,7 @@ namespace MagnumOpus.Content.OdeToJoy
                 shader.CurrentTechnique = shader.Techniques[technique];
 
             sb.End();
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -208,7 +208,7 @@ namespace MagnumOpus.Content.OdeToJoy
                 shader.CurrentTechnique = shader.Techniques[technique];
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, shader,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -232,7 +232,7 @@ namespace MagnumOpus.Content.OdeToJoy
         public static void BeginAdditiveBatch(SpriteBatch sb)
         {
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);

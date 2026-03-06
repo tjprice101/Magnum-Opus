@@ -101,7 +101,7 @@ namespace MagnumOpus.Common.Systems.VFX
             try
             {
                 // Begin additive blending for bloom
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
                 
                 foreach (Projectile proj in Main.ActiveProjectiles)
@@ -178,7 +178,7 @@ namespace MagnumOpus.Common.Systems.VFX
             
             try
             {
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
                 
                 foreach (Projectile proj in Main.ActiveProjectiles)

@@ -130,7 +130,7 @@ namespace MagnumOpus.Common.Systems.VFX
                     // Begin with additive blending for blooms
                     spriteBatch.Begin(
                         SpriteSortMode.Deferred,
-                        BlendState.Additive,
+                        MagnumBlendStates.TrueAdditive,
                         SamplerState.LinearClamp,
                         DepthStencilState.None,
                         RasterizerState.CullNone,

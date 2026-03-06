@@ -5,10 +5,14 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Graphics.Shaders;
+using ReLogic.Content;
 using MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Utilities;
+using MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Shaders;
 using MagnumOpus.Content.SwanLake.Debuffs;
 using MagnumOpus.Content.SwanLake;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Projectiles
 {
@@ -128,14 +132,21 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Projecti
             target.AddBuff(ModContent.BuffType<SwansMark>(), 480);
         }
 
-        #region Rendering (Foundation Pattern)
+        #region Rendering (Shader-Driven Spectral Explosion — AriaExplosion.fx Pipeline)
 
+        /// <summary>
+        /// OVERHAULED RENDERING PIPELINE:
+        /// Pass 1: AriaExplosionMain — Full spectral radial with prismatic ROYGBIV bands
+        /// Pass 2: AriaExplosionRing — Expanding rainbow ring shockwave
+        /// Pass 3: Bloom stacking — white-hot core flash + spectral star accents
+        /// </summary>
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
             float lifetime = IsOpusDetonation ? 30f : 20f;
             float progress = (float)_ticksAlive / lifetime;
             float alpha = (1f - progress) * (1f - progress);
+            if (alpha <= 0.01f) return false;
 
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float baseScale = MathHelper.Lerp(0.3f, MaxRadius / 80f, progress);
@@ -144,79 +155,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Projecti
             Color midColor = ChromaticSwanPlayer.GetScaleColor(scalePos);
             Color outerColor = ChromaticSwanPlayer.GetComplementaryColor(scalePos);
 
-            Texture2D radial = MagnumTextureRegistry.GetRadialBloom();
-            Texture2D point = MagnumTextureRegistry.GetPointBloom();
-            Texture2D star = MagnumTextureRegistry.GetStarThin();
-
             try
             {
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                // ===== SHADER-DRIVEN SPECTRAL EXPLOSION =====
+                DrawShaderExplosion(sb, drawPos, baseScale, progress, alpha, midColor);
 
-                if (radial != null)
-                {
-                    Vector2 srOrigin = radial.Size() * 0.5f;
-
-                    if (IsOpusDetonation)
-                    {
-                        // All 7 chromatic rings as stacked bloom layers
-                        for (int note = 0; note < 7; note++)
-                        {
-                            Color noteCol = ChromaticSwanPlayer.GetScaleColor(note);
-                            float ringScale = baseScale * (0.4f + note * 0.1f);
-                            float ringAlpha = alpha * (0.35f - note * 0.03f);
-                            sb.Draw(radial, drawPos, null,
-                                new Color(noteCol.R, noteCol.G, noteCol.B, 0) * ringAlpha,
-                                0f, srOrigin, ringScale, SpriteEffects.None, 0f);
-                        }
-                    }
-                    else
-                    {
-                        // 3 distinct ring layers
-                        sb.Draw(radial, drawPos, null,
-                            new Color(outerColor.R, outerColor.G, outerColor.B, 0) * alpha * 0.35f,
-                            0f, srOrigin, baseScale * 1.2f, SpriteEffects.None, 0f);
-
-                        sb.Draw(radial, drawPos, null,
-                            new Color(midColor.R, midColor.G, midColor.B, 0) * alpha * 0.4f,
-                            0f, srOrigin, baseScale * 0.7f, SpriteEffects.None, 0f);
-
-                        sb.Draw(radial, drawPos, null,
-                            new Color(255, 255, 255, 0) * alpha * 0.5f,
-                            0f, srOrigin, baseScale * 0.35f, SpriteEffects.None, 0f);
-                    }
-                }
-
-                // White-hot core flash
-                if (point != null)
-                {
-                    Vector2 pbOrigin = point.Size() * 0.5f;
-                    float coreScale = IsOpusDetonation ? 0.35f : 0.25f;
-                    sb.Draw(point, drawPos, null, new Color(255, 255, 255, 0) * alpha * 0.7f,
-                        0f, pbOrigin, baseScale * coreScale, SpriteEffects.None, 0f);
-                }
-
-                // Radiating star at detonation apex
-                if (star != null && progress < 0.5f)
-                {
-                    Vector2 starOrigin = star.Size() * 0.5f;
-                    float starAlpha = 1f - progress * 2f;
-                    float starBaseScale = IsOpusDetonation ? 0.6f : (IsHarmonicRelease ? 0.5f : 0.3f);
-
-                    sb.Draw(star, drawPos, null,
-                        new Color(midColor.R, midColor.G, midColor.B, 0) * starAlpha * 0.6f,
-                        progress * MathHelper.TwoPi, starOrigin,
-                        starBaseScale * (1f + progress), SpriteEffects.None, 0f);
-
-                    sb.Draw(star, drawPos, null,
-                        new Color(255, 255, 255, 0) * starAlpha * 0.4f,
-                        progress * MathHelper.TwoPi + MathHelper.PiOver4, starOrigin,
-                        (starBaseScale - 0.05f) * (1f + progress), SpriteEffects.None, 0f);
-                }
+                // ===== BLOOM STACKING (core flash + star accents) =====
+                DrawExplosionBloomStack(sb, drawPos, baseScale, progress, alpha, midColor, outerColor);
             }
-            catch { }
-            finally
+            catch
             {
                 try { sb.End(); } catch { }
                 try
@@ -228,6 +175,175 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Projecti
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Shader-driven explosion using AriaExplosion.fx.
+        /// Pass 1: AriaExplosionMain — spectral radial (draws on circular mask texture)
+        /// Pass 2: AriaExplosionRing — expanding rainbow ring shockwave
+        /// Both apply via SpriteSortMode.Immediate.
+        /// </summary>
+        private void DrawShaderExplosion(SpriteBatch sb, Vector2 drawPos, float baseScale,
+            float progress, float alpha, Color midColor)
+        {
+            Texture2D radialTex = MagnumTextureRegistry.SoftRadialBloom?.Value
+                ?? MagnumTextureRegistry.SoftGlow?.Value;
+            if (radialTex == null) return;
+
+            float time = Main.GlobalTimeWrappedHourly;
+
+            MiscShaderData ariaShader = null;
+            if (ChromaticShaderLoader.HasAriaExplosionShader)
+                ariaShader = GameShaders.Misc["MagnumOpus:AriaExplosion"];
+            Effect effect = ariaShader?.Shader;
+
+            sb.End();
+
+            if (effect != null)
+            {
+                sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+
+                // Configure shared uniforms
+                effect.Parameters["uColor"]?.SetValue(new Vector4(1f, 1f, 1f, 1f));           // White-hot center
+                effect.Parameters["uSecondaryColor"]?.SetValue(new Vector4(0.05f, 0.05f, 0.08f, 1f)); // Obsidian outer frame
+                effect.Parameters["uTime"]?.SetValue(time * 2f);
+                effect.Parameters["uPhase"]?.SetValue(progress); // Explosion age 0→1
+                effect.Parameters["uIntensity"]?.SetValue(IsOpusDetonation ? 1.5f : (IsHarmonicRelease ? 1.2f : 0.9f));
+                effect.Parameters["uOverbrightMult"]?.SetValue(1.3f);
+                effect.Parameters["uScrollSpeed"]?.SetValue(0.5f);
+                effect.Parameters["uNoiseScale"]?.SetValue(2.0f);
+                effect.Parameters["uDistortionAmt"]?.SetValue(0.08f);
+                effect.Parameters["uSecondaryTexScale"]?.SetValue(1.5f);
+                effect.Parameters["uSecondaryTexScroll"]?.SetValue(0.6f);
+                effect.Parameters["uOpacity"]?.SetValue(alpha);
+
+                // Bind noise texture
+                if (MagnumTextureRegistry.PerlinNoise != null)
+                {
+                    ariaShader.UseImage2(MagnumTextureRegistry.PerlinNoise);
+                    effect.Parameters["uHasSecondaryTex"]?.SetValue(true);
+                }
+
+                Vector2 radialOrigin = radialTex.Size() * 0.5f;
+                float drawScale = baseScale * 1.3f;
+
+                // === PASS 1: AriaExplosionMain — Full spectral radial ===
+                effect.CurrentTechnique = effect.Techniques["AriaExplosionMain"];
+                effect.CurrentTechnique.Passes["P0"].Apply();
+                sb.Draw(radialTex, drawPos, null, Color.White * alpha,
+                    0f, radialOrigin, drawScale, SpriteEffects.None, 0f);
+
+                // Opus: additional enlarged bloom layer for more impact
+                if (IsOpusDetonation)
+                {
+                    effect.Parameters["uIntensity"]?.SetValue(0.7f);
+                    effect.CurrentTechnique.Passes["P0"].Apply();
+                    sb.Draw(radialTex, drawPos, null, Color.White * alpha * 0.5f,
+                        0f, radialOrigin, drawScale * 1.5f, SpriteEffects.None, 0f);
+                }
+
+                // === PASS 2: AriaExplosionRing — Expanding rainbow ring ===
+                effect.CurrentTechnique = effect.Techniques["AriaExplosionRing"];
+                effect.Parameters["uIntensity"]?.SetValue(IsOpusDetonation ? 1.8f : 1.2f);
+                effect.CurrentTechnique.Passes["P0"].Apply();
+                sb.Draw(radialTex, drawPos, null, Color.White * alpha * 0.8f,
+                    0f, radialOrigin, drawScale * 1.2f, SpriteEffects.None, 0f);
+
+                sb.End();
+            }
+            else
+            {
+                // Shader unavailable fallback — basic radial bloom
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 radialOrigin = radialTex.Size() * 0.5f;
+                sb.Draw(radialTex, drawPos, null,
+                    new Color(midColor.R, midColor.G, midColor.B, 0) * alpha * 0.5f,
+                    0f, radialOrigin, baseScale * 1.2f, SpriteEffects.None, 0f);
+                sb.Draw(radialTex, drawPos, null,
+                    new Color(255, 255, 255, 0) * alpha * 0.4f,
+                    0f, radialOrigin, baseScale * 0.5f, SpriteEffects.None, 0f);
+
+                sb.End();
+            }
+
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                DepthStencilState.None, Main.Rasterizer, null,
+                Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        /// <summary>
+        /// Bloom stacking — white-hot core flash + spectral star accents + ring bloom.
+        /// Layered on top of the shader explosion for extra visual depth.
+        /// </summary>
+        private void DrawExplosionBloomStack(SpriteBatch sb, Vector2 drawPos, float baseScale,
+            float progress, float alpha, Color midColor, Color outerColor)
+        {
+            Texture2D pointBloom = MagnumTextureRegistry.PointBloom?.Value;
+            Texture2D bloom = MagnumTextureRegistry.SoftGlow?.Value;
+            Texture2D star = MagnumTextureRegistry.GetStarThin();
+            if (bloom == null && pointBloom == null) return;
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null,
+                Main.GameViewMatrix.TransformationMatrix);
+
+            // White-hot core flash (strongest at early progress)
+            if (pointBloom != null)
+            {
+                Vector2 pbOrigin = pointBloom.Size() * 0.5f;
+                float coreIntensity = Math.Max(0f, 1f - progress * 2.5f);
+                float coreScale = IsOpusDetonation ? 0.4f : 0.25f;
+                sb.Draw(pointBloom, drawPos, null, new Color(255, 255, 255, 0) * alpha * 0.8f * coreIntensity,
+                    0f, pbOrigin, baseScale * coreScale, SpriteEffects.None, 0f);
+            }
+
+            // Spectral star accents (rotating, visible in first half)
+            if (star != null && progress < 0.5f)
+            {
+                Vector2 starOrigin = star.Size() * 0.5f;
+                float starAlpha = 1f - progress * 2f;
+                float starBaseScale = IsOpusDetonation ? 0.65f : (IsHarmonicRelease ? 0.5f : 0.3f);
+
+                // Primary star (note-colored)
+                sb.Draw(star, drawPos, null,
+                    new Color(midColor.R, midColor.G, midColor.B, 0) * starAlpha * 0.6f * alpha,
+                    progress * MathHelper.TwoPi, starOrigin,
+                    starBaseScale * (1f + progress), SpriteEffects.None, 0f);
+
+                // Counter-rotating white secondary star
+                sb.Draw(star, drawPos, null,
+                    new Color(255, 255, 255, 0) * starAlpha * 0.4f * alpha,
+                    progress * MathHelper.TwoPi + MathHelper.PiOver4, starOrigin,
+                    (starBaseScale - 0.05f) * (1f + progress), SpriteEffects.None, 0f);
+            }
+
+            // Opus: 7 chromatic orbiting bloom dots
+            if (IsOpusDetonation && bloom != null && progress < 0.7f)
+            {
+                Vector2 bloomOrigin = bloom.Size() * 0.5f;
+                float orbFade = 1f - progress / 0.7f;
+                float orbitRadius = baseScale * 50f;
+                for (int n = 0; n < 7; n++)
+                {
+                    Color c = ChromaticSwanPlayer.GetScaleColor(n);
+                    float angle = MathHelper.TwoPi * n / 7f + progress * MathHelper.TwoPi * 2f;
+                    Vector2 offset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * orbitRadius;
+                    sb.Draw(bloom, drawPos + offset, null,
+                        new Color(c.R, c.G, c.B, 0) * 0.35f * orbFade * alpha,
+                        0f, bloomOrigin, 0.12f * baseScale, SpriteEffects.None, 0f);
+                }
+            }
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                DepthStencilState.None, Main.Rasterizer, null,
+                Main.GameViewMatrix.TransformationMatrix);
         }
 
         #endregion

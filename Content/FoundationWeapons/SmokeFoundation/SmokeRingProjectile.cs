@@ -255,7 +255,7 @@ namespace MagnumOpus.Content.FoundationWeapons.SmokeFoundation
             // Black pixels in the smoke spritesheet add nothing to the scene,
             // while bright smoke areas glow naturally.
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -264,7 +264,7 @@ namespace MagnumOpus.Content.FoundationWeapons.SmokeFoundation
 
             // ---- ADDITIVE PASS (center flash + glow accents) ----
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);

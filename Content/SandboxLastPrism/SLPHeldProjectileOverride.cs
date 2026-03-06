@@ -304,7 +304,7 @@ namespace MagnumOpus.Content.SandboxLastPrism
             Vector2 sigilScale2 = sigilScale1 * (1.75f + (0.25f * sin1)) * 1f;
 
             Main.spriteBatch.End();
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullCounterClockwise, myEffect, Main.GameViewMatrix.EffectMatrix);
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullCounterClockwise, myEffect, Main.GameViewMatrix.EffectMatrix);
 
             //Main sigil
             Main.spriteBatch.Draw(sigil, drawPos, null, Color.White, rot, sigil.Size() / 2, sigilScale1, 0, 0f);

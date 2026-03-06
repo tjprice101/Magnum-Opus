@@ -128,7 +128,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 RenderTargetPool.RestoreBackBuffer();
                 
                 // Draw pixelated result to screen with nearest-neighbor sampling
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                     SamplerState.PointClamp, // Nearest-neighbor for pixelated look
                     DepthStencilState.None, RasterizerState.CullNone,
                     null, Main.GameViewMatrix.TransformationMatrix);
@@ -387,7 +387,7 @@ namespace MagnumOpus.Common.Systems.VFX
             var prevSampler = device.SamplerStates[0];
             
             // Set up rendering states
-            device.BlendState = BlendState.Additive;
+            device.BlendState = MagnumBlendStates.TrueAdditive;
             device.RasterizerState = RasterizerState.CullNone;
             device.DepthStencilState = DepthStencilState.None;
             device.SamplerStates[0] = SamplerState.LinearClamp;

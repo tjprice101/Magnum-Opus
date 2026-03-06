@@ -36,6 +36,15 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DamnationsCannon
 
         public override Vector2? HoldoutOffset() => new Vector2(-14f, 2f);
 
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        {
+            // Always spawn our custom VFX projectile, not the ammo's vanilla rocket type
+            Projectile.NewProjectile(source, position, velocity,
+                ModContent.ProjectileType<Projectiles.IgnitedWrathBallProjectile>(),
+                damage, knockback, player.whoAmI);
+            return false;
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()

@@ -212,7 +212,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.OrreryOfDreams.Projectiles
 
             _celestialOrbitShader.CurrentTechnique = _celestialOrbitShader.Techniques["CelestialOrbitCore"];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _celestialOrbitShader, matrix);
 
@@ -223,7 +223,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.OrreryOfDreams.Projectiles
                 sphereSize / sc.Width, SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }
@@ -273,7 +273,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.OrreryOfDreams.Projectiles
 
                 _pearlShimmerShader.CurrentTechnique = _pearlShimmerShader.Techniques["PearlShimmer"];
 
-                sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+                sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                     SamplerState.LinearWrap, DepthStencilState.None,
                     RasterizerState.CullCounterClockwise, _pearlShimmerShader, matrix);
             }

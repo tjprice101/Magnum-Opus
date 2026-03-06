@@ -169,7 +169,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Projectiles
 
             // Begin additive
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
 
             // Draw line segments between arc points

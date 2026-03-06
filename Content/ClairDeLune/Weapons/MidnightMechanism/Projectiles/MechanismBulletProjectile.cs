@@ -179,7 +179,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.MidnightMechanism.Projectiles
                 Main.pixelShader.CurrentTechnique.Passes[0].Apply();
             }
 
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }
@@ -206,7 +206,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.MidnightMechanism.Projectiles
 
             _gatlingBlurShader.CurrentTechnique = _gatlingBlurShader.Techniques["GatlingMuzzle"];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _gatlingBlurShader, matrix);
 
@@ -217,7 +217,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.MidnightMechanism.Projectiles
                 new Vector2(bulletScale * 2f, bulletScale), SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }

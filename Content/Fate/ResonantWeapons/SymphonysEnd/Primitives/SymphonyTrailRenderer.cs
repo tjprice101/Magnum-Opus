@@ -77,7 +77,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
             }
 
             GraphicsDevice gd = Main.graphics.GraphicsDevice;
-            gd.BlendState        = BlendState.Additive;
+            gd.BlendState        = MagnumBlendStates.TrueAdditive;
             gd.DepthStencilState = DepthStencilState.None;
             gd.RasterizerState   = RasterizerState.CullNone;
 
@@ -104,7 +104,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
             Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
             if (pixel == null) return;
 
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
 

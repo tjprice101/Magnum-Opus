@@ -6,6 +6,7 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using ReLogic.Content;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Trails;
 using MagnumOpus.Common.Systems.Particles;
@@ -119,11 +120,47 @@ namespace MagnumOpus.Common.BaseClasses
         /// <summary>Secondary dust type for contrast sparkles. -1 = none.</summary>
         protected virtual int GetSecondaryDustType() => -1;
 
+        /// <summary>
+        /// Path to theme-specific gradient LUT texture for SmearDistortShader.
+        /// Override to enable shader-driven smear coloring (EternalMoon-style).
+        /// Return null to use the fallback static colored layers.
+        /// </summary>
+        protected virtual string GetSmearGradientPath() => null;
+
         #endregion
 
         #region Constants
 
         protected const int TrailLength = 60;
+
+        #endregion
+
+        #region SmearDistortShader Cache (static — shared across all MeleeSwingBase instances)
+
+        private static bool _smearShaderLoadAttempted;
+        private static Effect _smearDistortShader;
+        private static Texture2D _smearNoiseTex;
+
+        /// <summary>Lazy-loads SmearDistortShader and TileableFBMNoise on first use.</summary>
+        private static void EnsureSmearShaderLoaded()
+        {
+            if (_smearShaderLoadAttempted) return;
+            _smearShaderLoadAttempted = true;
+            try
+            {
+                _smearDistortShader = ModContent.Request<Effect>(
+                    "MagnumOpus/Content/FoundationWeapons/SwordSmearFoundation/Shaders/SmearDistortShader",
+                    AssetRequestMode.ImmediateLoad).Value;
+            }
+            catch { _smearDistortShader = null; }
+            try
+            {
+                _smearNoiseTex = ModContent.Request<Texture2D>(
+                    "MagnumOpus/Assets/VFX Asset Library/NoiseTextures/TileableFBMNoise",
+                    AssetRequestMode.ImmediateLoad).Value;
+            }
+            catch { _smearNoiseTex = null; }
+        }
 
         #endregion
 
@@ -144,6 +181,10 @@ namespace MagnumOpus.Common.BaseClasses
         private Texture2D _cachedBladeTex;
         private Texture2D _cachedSmearTex;
         private int _cachedSmearComboStep = -1;
+
+        // Per-instance gradient LUT cache for SmearDistortShader
+        private Texture2D _cachedSmearGradientTex;
+        private string _cachedSmearGradientPath;
 
         #endregion
 
@@ -506,7 +547,15 @@ namespace MagnumOpus.Common.BaseClasses
             if (_cachedSmearComboStep != ComboStep)
             {
                 string smearPath = GetSmearTexturePath(ComboStep);
-                _cachedSmearTex = string.IsNullOrEmpty(smearPath) ? null : ModContent.Request<Texture2D>(smearPath).Value;
+                try
+                {
+                    _cachedSmearTex = string.IsNullOrEmpty(smearPath) ? null
+                        : (ModContent.HasAsset(smearPath) ? ModContent.Request<Texture2D>(smearPath).Value : null);
+                }
+                catch
+                {
+                    _cachedSmearTex = null;
+                }
                 _cachedSmearComboStep = ComboStep;
             }
             if (_cachedSmearTex == null) return;
@@ -517,34 +566,102 @@ namespace MagnumOpus.Common.BaseClasses
 
             float maxDim = Math.Max(smearTex.Width, smearTex.Height);
             float baseScale = (CurrentPhase.BladeLength * 2.2f) / maxDim;
-            float midSwingAngle = SwordRotation;
+            float smearRotation = SwordRotation + (Direction == -1 ? MathHelper.Pi : 0f);
 
             float swingWindow = MathHelper.Clamp((Progression - 0.10f) / 0.15f, 0f, 1f);
             float fadeOut = MathHelper.Clamp((0.92f - Progression) / 0.15f, 0f, 1f);
             float smearAlpha = swingWindow * fadeOut;
             float intensityMult = 0.55f + ComboStep * 0.12f;
 
-            SpriteEffects smearFlip = Direction == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+            // --- Try shader path: SmearDistortShader + theme gradient (EternalMoon-style) ---
+            EnsureSmearShaderLoaded();
+            string gradPath = GetSmearGradientPath();
 
+            if (_smearDistortShader != null && _smearNoiseTex != null && !string.IsNullOrEmpty(gradPath))
+            {
+                // Cache gradient LUT per-instance (invalidates if path changes, e.g. FourSeasonsBlade)
+                if (_cachedSmearGradientPath != gradPath)
+                {
+                    try { _cachedSmearGradientTex = ModContent.Request<Texture2D>(gradPath, AssetRequestMode.ImmediateLoad).Value; }
+                    catch { _cachedSmearGradientTex = null; }
+                    _cachedSmearGradientPath = gradPath;
+                }
+
+                if (_cachedSmearGradientTex != null)
+                {
+                    // SHADER PATH: fluid noise distortion + gradient LUT coloring (3 sub-layers)
+                    // Uses BlendState.Additive (SourceAlpha) — NOT TrueAdditive — because
+                    // SwordArcSmear uses alpha transparency to define its arc shape.
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+                        SamplerState.LinearWrap, DepthStencilState.None,
+                        RasterizerState.CullCounterClockwise, null,
+                        Main.GameViewMatrix.EffectMatrix);
+
+                    float time = (float)Main.gameTimeCache.TotalGameTime.TotalSeconds;
+                    float baseDistort = MathHelper.Lerp(0.08f, 0.12f, intensityMult);
+                    float flowSpeed = MathHelper.Lerp(0.4f, 0.7f, intensityMult);
+
+                    _smearDistortShader.Parameters["uTime"]?.SetValue(time);
+                    _smearDistortShader.Parameters["fadeAlpha"]?.SetValue(smearAlpha);
+                    _smearDistortShader.Parameters["flowSpeed"]?.SetValue(flowSpeed);
+                    _smearDistortShader.Parameters["noiseScale"]?.SetValue(2.5f);
+                    _smearDistortShader.Parameters["noiseTex"]?.SetValue(_smearNoiseTex);
+                    _smearDistortShader.Parameters["gradientTex"]?.SetValue(_cachedSmearGradientTex);
+
+                    // Sub-layer A: Wide outer glow (strongest distortion)
+                    _smearDistortShader.Parameters["distortStrength"]?.SetValue(baseDistort);
+                    _smearDistortShader.CurrentTechnique.Passes[0].Apply();
+                    sb.Draw(smearTex, drawPos, null,
+                        Color.White * smearAlpha * 0.45f,
+                        smearRotation, smearOrigin,
+                        baseScale * 1.15f, SpriteEffects.None, 0f);
+
+                    // Sub-layer B: Main smear body (medium distortion)
+                    _smearDistortShader.Parameters["distortStrength"]?.SetValue(baseDistort * 0.625f);
+                    _smearDistortShader.CurrentTechnique.Passes[0].Apply();
+                    sb.Draw(smearTex, drawPos, null,
+                        Color.White * smearAlpha * 0.75f,
+                        smearRotation, smearOrigin,
+                        baseScale, SpriteEffects.None, 0f);
+
+                    // Sub-layer C: Bright core (subtle distortion, sharper detail)
+                    _smearDistortShader.Parameters["distortStrength"]?.SetValue(baseDistort * 0.3125f);
+                    _smearDistortShader.CurrentTechnique.Passes[0].Apply();
+                    sb.Draw(smearTex, drawPos, null,
+                        Color.White * smearAlpha * 0.6f,
+                        smearRotation, smearOrigin,
+                        baseScale * 0.85f, SpriteEffects.None, 0f);
+
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                        Main.DefaultSamplerState, DepthStencilState.None,
+                        Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
+                    return; // Shader path complete
+                }
+            }
+
+            // --- FALLBACK: static colored layers (no shader or gradient unavailable) ---
             SwingShaderSystem.BeginAdditive(sb);
 
             // Layer 1: Outer glow
             Color outerColor = GetElementColor(0.25f + Progression * 0.4f);
             outerColor.A = 0;
             sb.Draw(smearTex, drawPos, null, outerColor * smearAlpha * intensityMult * 0.35f,
-                midSwingAngle, smearOrigin, baseScale * 1.1f, smearFlip, 0f);
+                smearRotation, smearOrigin, baseScale * 1.1f, SpriteEffects.None, 0f);
 
             // Layer 2: Main
             Color mainColor = GetElementColor(0.45f + Progression * 0.3f);
             mainColor.A = 0;
             sb.Draw(smearTex, drawPos, null, mainColor * smearAlpha * intensityMult * 0.65f,
-                midSwingAngle, smearOrigin, baseScale, smearFlip, 0f);
+                smearRotation, smearOrigin, baseScale, SpriteEffects.None, 0f);
 
             // Layer 3: Core
             Color coreColor = GetElementColor(0.75f + Progression * 0.15f);
             coreColor.A = 0;
             sb.Draw(smearTex, drawPos, null, coreColor * smearAlpha * intensityMult * 0.45f,
-                midSwingAngle, smearOrigin, baseScale * 0.9f, smearFlip, 0f);
+                smearRotation, smearOrigin, baseScale * 0.9f, SpriteEffects.None, 0f);
 
             SwingShaderSystem.RestoreSpriteBatch(sb);
         }

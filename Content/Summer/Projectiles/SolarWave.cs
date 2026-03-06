@@ -301,7 +301,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
             SpriteBatch spriteBatch = Main.spriteBatch;
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Intense trail
             for (int i = 0; i < Projectile.oldPos.Length; i++)

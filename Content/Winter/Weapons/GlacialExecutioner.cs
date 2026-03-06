@@ -114,7 +114,7 @@ namespace MagnumOpus.Content.Winter.Weapons
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.045f) * 0.1f + 1f;
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             spriteBatch.Draw(texture, position, null, IceBlue * 0.35f, rotation, origin, scale * pulse * 1.3f, SpriteEffects.None, 0f);

@@ -141,7 +141,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Projectiles
             float fadeMult = Projectile.timeLeft < 20 ? Projectile.timeLeft / 20f : 1f;
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
 
@@ -234,7 +234,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Projectiles
             float alpha = lifeFrac > 0.6f ? 1f : lifeFrac / 0.6f;
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
 

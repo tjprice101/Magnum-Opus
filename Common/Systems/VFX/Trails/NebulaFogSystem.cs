@@ -832,7 +832,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 // Begin with additive blending for HDR-style glow
                 spriteBatch.Begin(
                     SpriteSortMode.Deferred,
-                    BlendState.Additive,
+                    MagnumBlendStates.TrueAdditive,
                     SamplerState.LinearWrap,
                     DepthStencilState.None,
                     RasterizerState.CullNone,
@@ -860,7 +860,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 // Draw again at larger scale with lower opacity for bloom
                 spriteBatch.Begin(
                     SpriteSortMode.Deferred,
-                    BlendState.Additive,
+                    MagnumBlendStates.TrueAdditive,
                     SamplerState.LinearClamp,
                     DepthStencilState.None,
                     RasterizerState.CullNone,

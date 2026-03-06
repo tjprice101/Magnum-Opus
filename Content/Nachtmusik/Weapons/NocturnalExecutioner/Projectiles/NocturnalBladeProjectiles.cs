@@ -140,7 +140,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Projectiles
                 Vector2 origin = tex.Size() / 2f;
 
                 Main.spriteBatch.End();
-                Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
                 Main.EntitySpriteDraw(tex, pos, null, CosmicBlue with { A = 0 } * 0.6f,
@@ -315,7 +315,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Projectiles
             // Core additive glow
             Vector2 pos = Projectile.Center - Main.screenPosition;
             Main.spriteBatch.End();
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.1f;

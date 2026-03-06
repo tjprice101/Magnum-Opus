@@ -52,7 +52,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Particl
             {
                 // Pass 1: Additive particles (glows, sparks, fire)
                 spriteBatch.End();
-                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
                 foreach (var p in _particles)

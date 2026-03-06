@@ -261,12 +261,12 @@ namespace MagnumOpus.Common.Systems.VFX
             float gameTime = Main.GameUpdateCount * 0.015f;
             
             // === RENDER IN THREE PASSES FOR LAYERED DEPTH ===
-            // CRITICAL: All passes use BlendState.Additive to avoid black blob artifacts!
+            // CRITICAL: All passes use MagnumBlendStates.TrueAdditive to avoid black blob artifacts!
             // NonPremultiplied causes black areas with noise textures.
             
             // PASS 1: BACKGROUND LAYER (large, slow, low opacity) - ADDITIVE
             try { spriteBatch.End(); } catch { }
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             foreach (var cloud in _activeClouds)
@@ -339,7 +339,7 @@ namespace MagnumOpus.Common.Systems.VFX
             
             // PASS 3: FOREGROUND GLOW LAYER (additive blending for bright highlights)
             try { spriteBatch.End(); } catch { }
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             foreach (var cloud in _activeClouds)

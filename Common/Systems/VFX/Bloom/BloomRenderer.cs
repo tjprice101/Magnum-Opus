@@ -387,13 +387,17 @@ namespace MagnumOpus.Common.Systems.VFX
         {
             SpriteBatch sb = Main.spriteBatch;
             
+            // Track whether we need to restore state afterwards
+            bool wasActive = sb.HasBeginBeenCalled();
+            
             // End whatever state the SpriteBatch is in
-            try { sb.End(); } catch { }
+            if (wasActive)
+                try { sb.End(); } catch { }
             
             // Begin with additive blending
             sb.Begin(
                 Microsoft.Xna.Framework.Graphics.SpriteSortMode.Deferred,
-                BlendState.Additive,
+                MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp,
                 DepthStencilState.None,
                 RasterizerState.CullNone,
@@ -404,17 +408,22 @@ namespace MagnumOpus.Common.Systems.VFX
             // Draw the bloom
             DrawBloomStack(sb, worldPosition, primaryColor, scale, opacity);
             
-            // Restore standard state
+            // End our additive batch
             sb.End();
-            sb.Begin(
-                Microsoft.Xna.Framework.Graphics.SpriteSortMode.Deferred,
-                BlendState.AlphaBlend,
-                SamplerState.LinearClamp,
-                DepthStencilState.None,
-                RasterizerState.CullNone,
-                null,
-                Main.GameViewMatrix.TransformationMatrix
-            );
+            
+            // Only restore to AlphaBlend if SpriteBatch was active when we entered
+            if (wasActive)
+            {
+                sb.Begin(
+                    Microsoft.Xna.Framework.Graphics.SpriteSortMode.Deferred,
+                    BlendState.AlphaBlend,
+                    SamplerState.LinearClamp,
+                    DepthStencilState.None,
+                    RasterizerState.CullNone,
+                    null,
+                    Main.GameViewMatrix.TransformationMatrix
+                );
+            }
         }
         
         /// <summary>
@@ -426,11 +435,14 @@ namespace MagnumOpus.Common.Systems.VFX
         {
             SpriteBatch sb = Main.spriteBatch;
             
-            try { sb.End(); } catch { }
+            bool wasActive = sb.HasBeginBeenCalled();
+            
+            if (wasActive)
+                try { sb.End(); } catch { }
             
             sb.Begin(
                 Microsoft.Xna.Framework.Graphics.SpriteSortMode.Deferred,
-                BlendState.Additive,
+                MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp,
                 DepthStencilState.None,
                 RasterizerState.CullNone,
@@ -441,15 +453,19 @@ namespace MagnumOpus.Common.Systems.VFX
             DrawBloomStack(sb, worldPosition, outerColor, innerColor, scale, opacity);
             
             sb.End();
-            sb.Begin(
-                Microsoft.Xna.Framework.Graphics.SpriteSortMode.Deferred,
-                BlendState.AlphaBlend,
-                SamplerState.LinearClamp,
-                DepthStencilState.None,
-                RasterizerState.CullNone,
-                null,
-                Main.GameViewMatrix.TransformationMatrix
-            );
+            
+            if (wasActive)
+            {
+                sb.Begin(
+                    Microsoft.Xna.Framework.Graphics.SpriteSortMode.Deferred,
+                    BlendState.AlphaBlend,
+                    SamplerState.LinearClamp,
+                    DepthStencilState.None,
+                    RasterizerState.CullNone,
+                    null,
+                    Main.GameViewMatrix.TransformationMatrix
+                );
+            }
         }
         
         /// <summary>
@@ -461,11 +477,14 @@ namespace MagnumOpus.Common.Systems.VFX
         {
             SpriteBatch sb = Main.spriteBatch;
             
-            try { sb.End(); } catch { }
+            bool wasActive = sb.HasBeginBeenCalled();
+            
+            if (wasActive)
+                try { sb.End(); } catch { }
             
             sb.Begin(
                 Microsoft.Xna.Framework.Graphics.SpriteSortMode.Deferred,
-                BlendState.Additive,
+                MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp,
                 DepthStencilState.None,
                 RasterizerState.CullNone,
@@ -476,15 +495,19 @@ namespace MagnumOpus.Common.Systems.VFX
             DrawImpactBloom(sb, worldPosition, color, progress, baseScale);
             
             sb.End();
-            sb.Begin(
-                Microsoft.Xna.Framework.Graphics.SpriteSortMode.Deferred,
-                BlendState.AlphaBlend,
-                SamplerState.LinearClamp,
-                DepthStencilState.None,
-                RasterizerState.CullNone,
-                null,
-                Main.GameViewMatrix.TransformationMatrix
-            );
+            
+            if (wasActive)
+            {
+                sb.Begin(
+                    Microsoft.Xna.Framework.Graphics.SpriteSortMode.Deferred,
+                    BlendState.AlphaBlend,
+                    SamplerState.LinearClamp,
+                    DepthStencilState.None,
+                    RasterizerState.CullNone,
+                    null,
+                    Main.GameViewMatrix.TransformationMatrix
+                );
+            }
         }
         
         /// <summary>
@@ -496,11 +519,14 @@ namespace MagnumOpus.Common.Systems.VFX
         {
             SpriteBatch sb = Main.spriteBatch;
             
-            try { sb.End(); } catch { }
+            bool wasActive = sb.HasBeginBeenCalled();
+            
+            if (wasActive)
+                try { sb.End(); } catch { }
             
             sb.Begin(
                 Microsoft.Xna.Framework.Graphics.SpriteSortMode.Deferred,
-                BlendState.Additive,
+                MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp,
                 DepthStencilState.None,
                 RasterizerState.CullNone,
@@ -511,15 +537,19 @@ namespace MagnumOpus.Common.Systems.VFX
             DrawShineFlare(sb, worldPosition, color, scale, rotation, opacity);
             
             sb.End();
-            sb.Begin(
-                Microsoft.Xna.Framework.Graphics.SpriteSortMode.Deferred,
-                BlendState.AlphaBlend,
-                SamplerState.LinearClamp,
-                DepthStencilState.None,
-                RasterizerState.CullNone,
-                null,
-                Main.GameViewMatrix.TransformationMatrix
-            );
+            
+            if (wasActive)
+            {
+                sb.Begin(
+                    Microsoft.Xna.Framework.Graphics.SpriteSortMode.Deferred,
+                    BlendState.AlphaBlend,
+                    SamplerState.LinearClamp,
+                    DepthStencilState.None,
+                    RasterizerState.CullNone,
+                    null,
+                    Main.GameViewMatrix.TransformationMatrix
+                );
+            }
         }
         
         #endregion

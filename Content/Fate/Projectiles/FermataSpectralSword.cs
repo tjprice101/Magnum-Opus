@@ -552,7 +552,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             
             // Glow layers (additive)
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.15f + OrbitIndex) * 0.12f + 1f;

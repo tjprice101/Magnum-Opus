@@ -1,4 +1,4 @@
-﻿using MagnumOpus.Common;
+using MagnumOpus.Common;
 using MagnumOpus.Content.DiesIrae;
 using MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement.Particles;
 using MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement.Utilities;
@@ -347,7 +347,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement.Projectiles
         {
             SpriteBatch sb = Main.spriteBatch;
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
 
             float timer = (float)Main.timeForVisualEffects;

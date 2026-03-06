@@ -295,7 +295,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             Projectile.NewProjectile(
                 Projectile.GetSource_FromThis(), target.Center, Vector2.Zero,
                 ModContent.ProjectileType<RippleEffectProjectile>(),
-                0, 0f, Projectile.owner);
+                0, 0f, Projectile.owner, ai0: 1f);
 
             // Phase 0 (Ignition Strike): Spawn ground geyser at target + ExplosionParticles at geyser tip
             if (Phase == ThrustPhase.IgnitionStrike && Projectile.owner == Main.myPlayer)
@@ -372,7 +372,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
 
                 // Theme texture accents
                 try { sb.End(); } catch { }
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
                 IgnitionOfTheBellUtils.DrawThemeAccents(sb, Projectile.Center - Main.screenPosition, Projectile.scale);
                 try { sb.End(); } catch { }
@@ -493,7 +493,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             try { sb.End(); } catch { }
             try
             {
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
                 float pulse = 0.8f + 0.2f * (float)Math.Sin(Timer * 0.3f);
@@ -574,7 +574,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
                 try { sb.End(); } catch { }
                 try
                 {
-                    sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                         DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
                     Color fireOverlay = Additive(GetMagmaFlicker(), 0.3f * extension);

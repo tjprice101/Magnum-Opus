@@ -248,7 +248,7 @@ namespace MagnumOpus.Common.Systems.VFX.Bloom
             spriteBatch.End();
             
             // Add bloom (additive blend, upscaled)
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, null, null);
             spriteBatch.Draw(blurV_RT, 
                 new Rectangle(0, 0, sceneWidth, sceneHeight),
@@ -333,7 +333,7 @@ namespace MagnumOpus.Common.Systems.VFX.Bloom
             spriteBatch.Draw(sceneRT, Vector2.Zero, Color.White);
             spriteBatch.End();
             
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, null, null);
             spriteBatch.Draw(blurV_RT,
                 new Rectangle(0, 0, sceneWidth, sceneHeight),

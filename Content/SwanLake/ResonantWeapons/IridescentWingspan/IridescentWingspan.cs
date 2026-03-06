@@ -132,7 +132,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan
             float chargeRatio = wsp.WingCharge / 100f;
             if (chargeRatio > 0)
             {
-                Color chargeCol = Color.Lerp(WingspanUtils.SpectralBlue, WingspanUtils.WingGold, chargeRatio);
+                Color chargeCol = Color.Lerp(WingspanUtils.SpectralBlue, WingspanUtils.WingPrismatic, chargeRatio);
                 Lighting.AddLight(player.Center, chargeCol.ToVector3() * 0.3f * chargeRatio);
 
                 if (wsp.IsFullyCharged && Main.rand.NextBool(4))
@@ -141,7 +141,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan
                     mote.Initialize(
                         player.Center + Main.rand.NextVector2Circular(30f, 30f),
                         Main.rand.NextVector2Circular(1f, 1f) + new Vector2(0, -0.5f),
-                        WingspanUtils.WingGold,
+                        WingspanUtils.WingPrismatic,
                         Main.rand.NextFloat(0.4f, 0.8f)
                     );
                     WingspanParticleHandler.Spawn(mote);

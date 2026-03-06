@@ -150,18 +150,20 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
             _glyphTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Fate/Particles/FA Celestial Glyph");
 
             var sb = Main.spriteBatch;
+            try
+            {
             float opacity = 1f - Projectile.alpha / 255f;
             float pulse = 0.85f + 0.15f * MathF.Sin(_pulsePhase);
             float lifeProgress = 1f - (float)Projectile.timeLeft / LIFETIME;
 
             // Switch to Additive for all glow/bloom layers (black backgrounds invisible in additive)
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Layer 1: Wide soft glow underlayer
-            if (_glowTex.IsLoaded)
+            if (_glowTex?.IsLoaded == true)
             {
                 var glowOrigin = _glowTex.Value.Size() * 0.5f;
                 sb.Draw(_glowTex.Value, Projectile.Center - Main.screenPosition, null,
@@ -173,7 +175,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
             }
 
             // Layer 2: Celestial glyph rotating slowly
-            if (_glyphTex.IsLoaded)
+            if (_glyphTex?.IsLoaded == true)
             {
                 var glyphOrigin = _glyphTex.Value.Size() * 0.5f;
                 float glyphRot = (float)Main.timeForVisualEffects * 0.015f;
@@ -198,7 +200,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
             }
 
             // Layer 4: Supernova core hotspot
-            if (_supernovaTex.IsLoaded)
+            if (_supernovaTex?.IsLoaded == true)
             {
                 var superOrigin = _supernovaTex.Value.Size() * 0.5f;
                 float superPulse = 0.7f + 0.3f * MathF.Sin(_pulsePhase * 1.5f);
@@ -207,12 +209,14 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
                     0.35f * superPulse, SpriteEffects.None, 0f);
             }
 
-            // Restore to AlphaBlend
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                Main.DefaultSamplerState, DepthStencilState.None,
-                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-
+            }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
             return false;
         }
     }

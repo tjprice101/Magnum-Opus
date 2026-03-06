@@ -287,7 +287,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture.Projectiles
             try
             {
                 sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
                 LightUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
                 sb.End();

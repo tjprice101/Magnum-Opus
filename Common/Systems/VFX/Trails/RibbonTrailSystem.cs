@@ -95,7 +95,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 MaxPoints = Math.Min(maxPoints, MaxPositionHistory);
                 Points = new RibbonPoint[MaxPoints];
                 PointCount = 0;
-                BlendMode = BlendState.Additive;
+                BlendMode = MagnumBlendStates.TrueAdditive;
             }
             
             /// <summary>
@@ -445,7 +445,7 @@ namespace MagnumOpus.Common.Systems.VFX
             var oldSamplerState = device.SamplerStates[0];
             
             // Set up for additive blending
-            device.BlendState = BlendState.Additive;
+            device.BlendState = MagnumBlendStates.TrueAdditive;
             device.RasterizerState = RasterizerState.CullNone;
             device.SamplerStates[0] = SamplerState.LinearWrap;
             

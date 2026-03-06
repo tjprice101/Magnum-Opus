@@ -8,10 +8,12 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.Particles;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.Primitives;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.Shaders;
 using MagnumOpus.Content.LaCampanella;
 using MagnumOpus.Content.LaCampanella.Debuffs;
 using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
 using MagnumOpus.Content.FoundationWeapons.ExplosionParticlesFoundation;
+using Terraria.Graphics.Shaders;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.Projectiles
 {
@@ -105,13 +107,22 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
             }
             if (_lightningCooldown > 0) _lightningCooldown--;
 
-            // Particle trail
+            // Particle trail — sparks + musical bell notes
             if (Main.rand.NextBool(3))
             {
                 Vector2 dustVel = Main.rand.NextVector2Circular(1f, 1f);
                 FangOfTheInfiniteBellParticleHandler.SpawnParticle(
                     new EmpoweredSparkParticle(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
                         dustVel, 10, IsCrescendo ? 0.4f : 0.25f));
+            }
+
+            // Musical bell notes drifting from the orb — reinforces bell identity
+            if (Main.rand.NextBool(IsCrescendo ? 6 : 10))
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloatDirection() * 0.8f, -Main.rand.NextFloat(0.3f, 0.8f));
+                FangOfTheInfiniteBellParticleHandler.SpawnParticle(
+                    new MusicalBellNoteParticle(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f),
+                        noteVel, Main.rand.Next(25, 45), IsCrescendo ? 0.35f : 0.25f, IsCrescendo));
             }
 
             // Gentle light
@@ -256,11 +267,21 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
             FangOfTheInfiniteBellParticleHandler.SpawnParticle(
                 new ArcaneFlashParticle(position, 10, 1.2f, false));
 
+            // Musical bell notes cascade on bounce — 3-5 notes scatter upward
+            int noteCount = Main.rand.Next(3, 6);
+            for (int i = 0; i < noteCount; i++)
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloatDirection() * 2f, -Main.rand.NextFloat(1f, 2.5f));
+                FangOfTheInfiniteBellParticleHandler.SpawnParticle(
+                    new MusicalBellNoteParticle(position + Main.rand.NextVector2Circular(10f, 10f),
+                        noteVel, Main.rand.Next(30, 55), Main.rand.NextFloat(0.3f, 0.5f), IsCrescendo));
+            }
+
             // === FOUNDATION: RippleEffectProjectile — Bell chime ring on bounce impact ===
             Projectile.NewProjectile(
                 Projectile.GetSource_FromThis(), position, Vector2.Zero,
                 ModContent.ProjectileType<RippleEffectProjectile>(),
-                0, 0f, Projectile.owner);
+                0, 0f, Projectile.owner, ai0: 1f);
         }
 
         private void SpawnExplosion()
@@ -297,7 +318,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
             Projectile.NewProjectile(
                 Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero,
                 ModContent.ProjectileType<RippleEffectProjectile>(),
-                0, 0f, Projectile.owner);
+                0, 0f, Projectile.owner, ai0: 1f);
 
             // === FOUNDATION: SparkExplosionProjectile — Orb detonation spark burst ===
             Projectile.NewProjectile(
@@ -307,11 +328,22 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
                 ai0: (float)SparkMode.RadialScatter);
         }
 
+        private static int _lastParticleDrawFrame;
+
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
             try
             {
+                // Draw particles (dedup across all orbs per frame)
+                int currentFrame = (int)Main.GameUpdateCount;
+                if (_lastParticleDrawFrame != currentFrame)
+                {
+                    _lastParticleDrawFrame = currentFrame;
+                    FangOfTheInfiniteBellParticleHandler handler = ModContent.GetInstance<FangOfTheInfiniteBellParticleHandler>();
+                    handler?.DrawAllParticles(sb);
+                }
+
                 // Draw trail
                 DrawOrbTrail(sb);
 
@@ -320,7 +352,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
 
                 // Theme texture accents
                 try { sb.End(); } catch { }
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
                 FangOfTheInfiniteBellUtils.DrawThemeAccents(sb, Projectile.Center - Main.screenPosition, Projectile.scale);
                 try { sb.End(); } catch { }
@@ -354,19 +386,94 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
             }
             if (trail.Length < 2) return;
 
-            float baseWidth = IsCrescendo ? 16f : 10f;
-            var settings = new FangOfTheInfiniteBellPrimitiveRenderer.FangTrailSettings(
-                width: t => MathHelper.Lerp(baseWidth, 2f, t),
+            // === SHADER-DRIVEN ARCANE ORB TRAIL ===
+            MiscShaderData orbShader = FangOfTheInfiniteBellShaderLoader.GetOrbShader();
+            if (orbShader != null)
+            {
+                Color arcaneAmber = FangOfTheInfiniteBellUtils.GetArcaneGradient(0.5f);
+                Color brightGold = FangOfTheInfiniteBellUtils.GetArcaneGradient(0.85f);
+                orbShader.UseColor(arcaneAmber);
+                orbShader.UseSecondaryColor(brightGold);
+                orbShader.UseOpacity(IsCrescendo ? 0.9f : 0.7f);
+                try
+                {
+                    orbShader.Shader.Parameters["uTime"]?.SetValue(Main.GameUpdateCount * 0.025f);
+                    orbShader.Shader.Parameters["uIntensity"]?.SetValue(IsCrescendo ? 1.4f : 1.0f);
+                    orbShader.Shader.Parameters["uOverbrightMult"]?.SetValue(IsCrescendo ? 1.6f : 1.2f);
+                    orbShader.Shader.Parameters["uScrollSpeed"]?.SetValue(1.5f);
+                    orbShader.Shader.Parameters["uNoiseScale"]?.SetValue(3.0f);
+                    orbShader.Shader.Parameters["uHasSecondaryTex"]?.SetValue(0f);
+                }
+                catch { }
+
+                // Bind FBM noise on sampler 1 for extra detail
+                try
+                {
+                    var noiseTexture = ModContent.Request<Texture2D>(
+                        "MagnumOpus/Assets/VFX Asset Library/NoiseTextures/TileableFBMNoise",
+                        ReLogic.Content.AssetRequestMode.ImmediateLoad);
+                    if (noiseTexture?.Value != null)
+                    {
+                        Main.graphics.GraphicsDevice.Textures[1] = noiseTexture.Value;
+                        Main.graphics.GraphicsDevice.SamplerStates[1] = SamplerState.LinearWrap;
+                        orbShader.Shader.Parameters["uHasSecondaryTex"]?.SetValue(1f);
+                        orbShader.Shader.Parameters["uSecondaryTexScale"]?.SetValue(2.5f);
+                        orbShader.Shader.Parameters["uSecondaryTexScroll"]?.SetValue(0.8f);
+                    }
+                }
+                catch { }
+            }
+
+            float baseWidth = IsCrescendo ? 20f : 12f;
+            var mainSettings = new FangOfTheInfiniteBellPrimitiveRenderer.FangTrailSettings(
+                width: t =>
+                {
+                    float w = MathHelper.Lerp(baseWidth, 2f, t);
+                    // Pulsing width for mystical feel
+                    float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.12f + t * 4f) * 0.08f;
+                    return w * pulse;
+                },
                 color: t =>
                 {
                     Color c = FangOfTheInfiniteBellUtils.GetArcaneGradient(t * 0.6f + 0.2f);
-                    return FangOfTheInfiniteBellUtils.Additive(c, (1f - t) * 0.6f);
+                    float alpha = (1f - t * 0.7f) * 0.7f;
+                    // Heartbeat pulse brightens the core
+                    float heartbeat = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.1f + 0.9f;
+                    return FangOfTheInfiniteBellUtils.Additive(c, alpha * heartbeat);
                 },
-                shader: null,
+                shader: orbShader,
                 smoothen: true);
 
             try { sb.End(); } catch { }
-            _trailRenderer.RenderTrail(trail, settings, trail.Length);
+
+            // Main arcane energy trail
+            _trailRenderer.RenderTrail(trail, mainSettings, trail.Length);
+
+            // Second pass: wider outer glow trail for depth
+            if (orbShader != null)
+            {
+                try
+                {
+                    Color outerGlow = FangOfTheInfiniteBellUtils.GetArcaneGradient(0.25f);
+                    orbShader.UseColor(outerGlow);
+                    orbShader.UseOpacity(0.25f);
+                    orbShader.Shader.Parameters["uIntensity"]?.SetValue(0.6f);
+                }
+                catch { }
+            }
+
+            var glowSettings = new FangOfTheInfiniteBellPrimitiveRenderer.FangTrailSettings(
+                width: t => MathHelper.Lerp(baseWidth * 1.8f, 4f, t),
+                color: t =>
+                {
+                    Color c = FangOfTheInfiniteBellUtils.GetArcaneGradient(0.15f + t * 0.3f);
+                    return FangOfTheInfiniteBellUtils.Additive(c, (1f - t) * 0.2f);
+                },
+                shader: orbShader,
+                smoothen: true);
+
+            _trailRenderer.RenderTrail(trail, glowSettings, trail.Length);
+
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
@@ -392,7 +499,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
                 try { sb.End(); } catch { }
                 try
                 {
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
                 // Outer glow
@@ -446,13 +553,34 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
         {
             _trailRenderer?.Dispose();
 
-            // Death particles
-            for (int i = 0; i < 6; i++)
+            // Death flash — arcane flash at death point
+            FangOfTheInfiniteBellParticleHandler.SpawnParticle(
+                new ArcaneFlashParticle(Projectile.Center, 12, IsCrescendo ? 1.0f : 0.7f, false));
+
+            // Death sparks — radial burst
+            int sparkCount = IsCrescendo ? 12 : 8;
+            for (int i = 0; i < sparkCount; i++)
             {
-                Vector2 vel = Main.rand.NextVector2Circular(3f, 3f);
+                Vector2 vel = Main.rand.NextVector2CircularEdge(4f, 4f) * Main.rand.NextFloat(0.4f, 1f);
                 FangOfTheInfiniteBellParticleHandler.SpawnParticle(
-                    new EmpoweredSparkParticle(Projectile.Center, vel, 12, 0.2f));
+                    new EmpoweredSparkParticle(Projectile.Center, vel, 15, 0.25f));
             }
+
+            // Musical bell notes scatter on death — the bell echoes
+            int noteCount = IsCrescendo ? 5 : 3;
+            for (int i = 0; i < noteCount; i++)
+            {
+                Vector2 noteVel = Main.rand.NextVector2Circular(2f, 2f) + new Vector2(0, -Main.rand.NextFloat(0.5f, 1.5f));
+                FangOfTheInfiniteBellParticleHandler.SpawnParticle(
+                    new MusicalBellNoteParticle(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f),
+                        noteVel, Main.rand.Next(30, 50), Main.rand.NextFloat(0.25f, 0.4f), IsCrescendo));
+            }
+
+            // Foundation ripple — bell chime shockwave on death
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero,
+                ModContent.ProjectileType<RippleEffectProjectile>(),
+                0, 0f, Projectile.owner, ai0: 1f);
         }
     }
 }

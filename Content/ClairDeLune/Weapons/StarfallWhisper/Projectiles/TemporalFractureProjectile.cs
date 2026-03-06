@@ -213,7 +213,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.StarfallWhisper.Projectiles
 
             _starfallShader.CurrentTechnique = _starfallShader.Techniques["StarfallBolt"];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _starfallShader, matrix);
 
@@ -223,7 +223,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.StarfallWhisper.Projectiles
             sb.Draw(sc, drawPos, null, Color.White, 0f, sc.Size() * 0.5f, crackScale, SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }
@@ -250,7 +250,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.StarfallWhisper.Projectiles
 
             _pearlGlowShader.CurrentTechnique = _pearlGlowShader.Techniques["PearlShimmer"];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _pearlGlowShader, matrix);
 
@@ -259,7 +259,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.StarfallWhisper.Projectiles
             sb.Draw(sc, drawPos, null, Color.White, 0f, sc.Size() * 0.5f, 50f / sc.Width, SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }

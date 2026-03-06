@@ -103,7 +103,7 @@ namespace MagnumOpus.Common.Systems.VFX.Optimization
         /// </summary>
         public void Flush(SpriteBatch spriteBatch)
         {
-            FlushWithBlend(spriteBatch, BlendState.Additive);
+            FlushWithBlend(spriteBatch, MagnumBlendStates.TrueAdditive);
         }
 
         /// <summary>

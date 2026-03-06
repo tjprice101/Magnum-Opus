@@ -154,33 +154,27 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Primiti
             var oldSampler0 = device.SamplerStates[0];
 
             device.RasterizerState = RasterizerState.CullNone;
-            device.BlendState = BlendState.Additive;
+            device.BlendState = MagnumBlendStates.TrueAdditive;
             device.DepthStencilState = DepthStencilState.None;
             device.SamplerStates[0] = SamplerState.LinearWrap;
 
             Matrix view = Matrix.CreateLookAt(Vector3.Zero, Vector3.UnitZ, Vector3.Up);
-            Matrix projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1);
+            var zoom = Main.GameViewMatrix.Zoom;
+            Matrix projection = Matrix.CreateOrthographicOffCenter(
+                0, Main.screenWidth / zoom.X, Main.screenHeight / zoom.Y, 0, -1, 1);
             Matrix transform = view * projection;
 
             try
             {
-                if (settings.Shader != null)
+                if (settings.Shader != null && settings.Shader.Shader != null)
                 {
                     settings.Shader.Shader.Parameters["uWorldViewProjection"]?.SetValue(transform);
                     settings.Shader.Apply();
                 }
                 else
                 {
-                    // Fallback: use a BasicEffect so the GPU has a valid shader pipeline
-                    var basicEffect = new BasicEffect(device)
-                    {
-                        VertexColorEnabled = true,
-                        TextureEnabled = false,
-                        World = Matrix.Identity,
-                        View = view,
-                        Projection = projection
-                    };
-                    basicEffect.CurrentTechnique.Passes[0].Apply();
+                    // No shader available — skip rendering (BasicEffect is incompatible with custom vertex format)
+                    return;
                 }
 
                 _vertexBuffer.SetData(_vertices, 0, vertexCount, SetDataOptions.Discard);

@@ -10,35 +10,46 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Primitives
     /// GPU primitive trail renderer for Fractal of the Stars.
     /// Self-contained — builds indexed triangle strips from point arrays
     /// with CatmullRom smoothing, parallel-transport normals, and
-    /// orthographic projection.
+    /// orthographic projection. Follows LunarTrailRenderer pattern.
     /// </summary>
     [Autoload(Side = ModSide.Client)]
     public class FractalTrailRenderer : ModSystem
     {
-        private static BasicEffect _basicEffect;
         private static GraphicsDevice _device;
+        private static bool _initialized;
 
-        /// <summary>
-        /// Lazily initializes the BasicEffect on the main thread (during rendering).
-        /// Cannot be done in PostSetupContent because FNA3D requires main-thread calls.
-        /// </summary>
         private static void EnsureInitialized()
         {
-            if (_basicEffect != null) return;
+            if (_initialized) return;
             _device = Main.graphics.GraphicsDevice;
-            _basicEffect = new BasicEffect(_device)
-            {
-                VertexColorEnabled = true,
-                TextureEnabled = false,
-                LightingEnabled = false,
-            };
+            _initialized = _device != null;
         }
 
         public override void OnModUnload()
         {
-            _basicEffect?.Dispose();
-            _basicEffect = null;
             _device = null;
+            _initialized = false;
+        }
+
+        /// <summary>
+        /// Calculates orthographic projection matrices respecting the game's zoom and gravity flip.
+        /// Matches LunarTrailRenderer pattern.
+        /// </summary>
+        private static Matrix CalculateWVP()
+        {
+            Matrix world = Matrix.Identity;
+            Matrix view = Matrix.Identity;
+
+            Vector2 zoom = Main.GameViewMatrix.Zoom;
+            int width = Main.screenWidth;
+            int height = Main.screenHeight;
+
+            Matrix projection = Matrix.CreateOrthographicOffCenter(0, width / zoom.X, height / zoom.Y, 0, -1, 1);
+
+            if (Main.LocalPlayer.gravDir == -1f)
+                view = Matrix.CreateScale(1f, -1f, 1f) * Matrix.CreateTranslation(0f, height, 0f);
+
+            return world * view * projection;
         }
 
         /// <summary>
@@ -49,7 +60,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Primitives
         public static void RenderTrail(Vector2[] points, FractalTrailSettings settings, int pointCount, int smoothing = 2)
         {
             EnsureInitialized();
-            if (_device == null || _basicEffect == null || pointCount < 2) return;
+            if (_device == null || pointCount < 2) return;
+
+            // Shader is REQUIRED — no BasicEffect fallback (incompatible vertex format)
+            if (settings.Shader == null) return;
 
             // Count valid (non-zero) points
             int validCount = 0;
@@ -132,29 +146,23 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Primitives
                 indices[bi + 5] = (short)(vi + 2);
             }
 
-            // Set up orthographic projection
-            Viewport vp = _device.Viewport;
-            _basicEffect.World = Matrix.Identity;
-            _basicEffect.View = Matrix.Identity;
-            _basicEffect.Projection = Matrix.CreateOrthographicOffCenter(0, vp.Width, vp.Height, 0, -1, 1);
+            // Set WVP matrix on the shader (LunarTrailRenderer pattern)
+            Effect effect = settings.Shader.Shader;
+            if (effect != null)
+                effect.Parameters["uWorldViewProjection"]?.SetValue(CalculateWVP());
 
-            // Apply shader if available
-            if (settings.Shader != null)
-            {
-                settings.Shader.Apply();
-            }
-            else
-            {
-                foreach (var pass in _basicEffect.CurrentTechnique.Passes)
-                {
-                    pass.Apply();
-                }
-            }
+            // Save and restore RasterizerState (prevent backface culling on trail)
+            var prevRasterizer = _device.RasterizerState;
+            _device.RasterizerState = RasterizerState.CullNone;
+
+            settings.Shader.Apply();
 
             _device.DrawUserIndexedPrimitives(
                 PrimitiveType.TriangleList,
                 vertices, 0, vertexCount,
                 indices, 0, indexCount / 3);
+
+            _device.RasterizerState = prevRasterizer;
         }
     }
 }

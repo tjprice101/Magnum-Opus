@@ -334,7 +334,7 @@ namespace MagnumOpus.Common.Systems.VFX
             if (shader != null)
             {
                 try { spriteBatch.End(); } catch { }
-                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                spriteBatch.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, shader, Main.GameViewMatrix.TransformationMatrix);
             }
 

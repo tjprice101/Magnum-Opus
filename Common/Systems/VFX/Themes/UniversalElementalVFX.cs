@@ -106,7 +106,7 @@ namespace MagnumOpus.Common.Systems.VFX
             
             // Use BloomRenderer for the central bloom
             try { Main.spriteBatch.End(); } catch { }
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             BloomRenderer.DrawBloomStack(Main.spriteBatch, position, innerColor, outerColor, scale * 1.5f);
@@ -151,7 +151,7 @@ namespace MagnumOpus.Common.Systems.VFX
             float time = Main.GlobalTimeWrappedHourly * 3f + partialTicks * 0.05f;
             
             try { Main.spriteBatch.End(); } catch { }
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Draw orbiting flame points using BloomRenderer
@@ -289,7 +289,7 @@ namespace MagnumOpus.Common.Systems.VFX
             if (positions == null || positions.Length < 2) return;
             
             try { Main.spriteBatch.End(); } catch { }
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             for (int i = 0; i < positions.Length - 1; i++)
@@ -391,7 +391,7 @@ namespace MagnumOpus.Common.Systems.VFX
             
             // Central bloom
             try { Main.spriteBatch.End(); } catch { }
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             BloomRenderer.DrawBloomStack(Main.spriteBatch, position, colors[0], scale);
@@ -453,7 +453,7 @@ namespace MagnumOpus.Common.Systems.VFX
             float rotation = time * rotationSpeed * 60f;
             
             Main.spriteBatch.End();
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             for (int i = 0; i < petalCount; i++)
@@ -513,7 +513,7 @@ namespace MagnumOpus.Common.Systems.VFX
             float spread = MathHelper.PiOver4;
             
             Main.spriteBatch.End();
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             for (int i = 0; i < rayCount; i++)
@@ -598,7 +598,7 @@ namespace MagnumOpus.Common.Systems.VFX
             
             // Central bloom
             Main.spriteBatch.End();
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             BloomRenderer.DrawBloomStack(Main.spriteBatch, position, color, Color.White, scale * 0.8f);
@@ -653,7 +653,7 @@ namespace MagnumOpus.Common.Systems.VFX
             float time = Main.GlobalTimeWrappedHourly;
             
             Main.spriteBatch.End();
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Slow-orbiting ice crystals
@@ -705,7 +705,7 @@ namespace MagnumOpus.Common.Systems.VFX
             
             // Dark core with bright edge
             Main.spriteBatch.End();
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             BloomRenderer.DrawBloomStack(Main.spriteBatch, position, 
@@ -740,7 +740,7 @@ namespace MagnumOpus.Common.Systems.VFX
             float time = Main.GlobalTimeWrappedHourly;
             
             Main.spriteBatch.End();
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Use seeded random for consistent star positions
@@ -775,7 +775,7 @@ namespace MagnumOpus.Common.Systems.VFX
             float scale = 1f)
         {
             Main.spriteBatch.End();
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Multiple overlapping clouds for nebula effect
@@ -807,7 +807,7 @@ namespace MagnumOpus.Common.Systems.VFX
             
             // Central bloom with pulse
             Main.spriteBatch.End();
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             BloomRenderer.DrawPulsingBloom(Main.spriteBatch, position, color, scale * 0.6f, 2f);

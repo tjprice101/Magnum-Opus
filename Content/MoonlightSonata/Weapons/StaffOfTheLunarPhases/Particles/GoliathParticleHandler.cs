@@ -78,7 +78,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
             SpriteBatch sb = Main.spriteBatch;
 
             // Pass 1: Additive blend (blooms, glows, beam sparks, rift motes)
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.PointClamp, DepthStencilState.None,
                 Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             foreach (var p in _active)

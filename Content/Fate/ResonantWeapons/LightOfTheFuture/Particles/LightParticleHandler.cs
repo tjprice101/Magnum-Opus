@@ -52,7 +52,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture.Particles
             SpriteBatch sb = Main.spriteBatch;
 
             // Pass 1: Additive glow particles
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
             for (int i = 0; i < _particles.Count; i++)

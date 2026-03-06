@@ -330,7 +330,7 @@ namespace MagnumOpus.Content.FoundationWeapons.ExplosionParticlesFoundation
 
             // ---- ADDITIVE PASS (all spark rendering) ----
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);

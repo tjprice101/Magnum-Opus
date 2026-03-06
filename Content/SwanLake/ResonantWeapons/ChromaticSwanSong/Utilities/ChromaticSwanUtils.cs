@@ -18,15 +18,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Utilitie
         public static readonly Color DarkContrast = new Color(20, 18, 30);
         public static readonly Color LoreColor = new Color(240, 240, 255);
 
-        // Chromatic spectrum — shifts through these for rainbow edge effects
+        // Chromatic spectrum — desaturated pastel rainbow for prismatic edge effects
         public static readonly Color[] SpectrumPalette = new Color[]
         {
-            new Color(255, 100, 130), // Rose
-            new Color(255, 180, 80),  // Amber
-            new Color(255, 255, 120), // Lemon
-            new Color(120, 255, 160), // Mint
-            new Color(100, 180, 255), // Azure
-            new Color(180, 120, 255), // Violet
+            new Color(245, 195, 205), // Pastel Rose
+            new Color(245, 225, 180), // Pastel Amber
+            new Color(245, 245, 200), // Pastel Lemon
+            new Color(200, 245, 215), // Pastel Mint
+            new Color(195, 220, 245), // Pastel Azure
+            new Color(220, 200, 245), // Pastel Violet
         };
 
         public static Color GetSpectrumColor(float t)
@@ -54,7 +54,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Utilitie
         public static void BeginAdditive(SpriteBatch sb)
         {
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 

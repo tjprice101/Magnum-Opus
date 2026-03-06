@@ -1,0 +1,766 @@
+﻿STATEFUL SCAN: A=0 draws inside BlendState.Additive batches
+Files with bugs: 112
+Total bug instances: 537
+======================================================================
+=== Autumn\Projectiles\TwilightBolt.cs === (5 hits)
+  BUG L254 (additive@L249 via BlendState.Additive): spriteBatch.Draw(texture, drawPos, null, mainColor with { A = 0 } * 0.35f, 0f, origin, 0.65f * pulse * (1f + distProgress * 0.4f), SpriteEff...
+  BUG L256 (additive@L249 via BlendState.Additive): spriteBatch.Draw(texture, drawPos, null, mainColor with { A = 0 } * 0.55f, 0f, origin, 0.45f * pulse, SpriteEffects.None, 0f);
+  BUG L258 (additive@L249 via BlendState.Additive): spriteBatch.Draw(texture, drawPos, null, mainColor with { A = 0 } * 0.75f, 0f, origin, 0.28f * pulse, SpriteEffects.None, 0f);
+  BUG L260 (additive@L249 via BlendState.Additive): spriteBatch.Draw(texture, drawPos, null, Color.White with { A = 0 } * 0.85f, 0f, origin, 0.15f * pulse, SpriteEffects.None, 0f);
+  BUG L268 (additive@L249 via BlendState.Additive): spriteBatch.Draw(texture, sparkPos, null, TwilightOrange with { A = 0 } * 0.6f, 0f, origin, 0.12f * pulse, SpriteEffects.None, 0f);
+
+=== ClairDeLune\Weapons\AutomatonsTuningFork\Projectiles\AutomatonMinionProjectile.cs === (8 hits)
+  BUG L354 (additive@L334 via BlendState.Additive): sb.Draw(pb, leftProng, null, freqColor with { A = 0 } * 0.35f * pulse,
+  BUG L356 (additive@L334 via BlendState.Additive): sb.Draw(pb, rightProng, null, freqColor with { A = 0 } * 0.35f * pulse,
+  BUG L368 (additive@L334 via BlendState.Additive): sb.Draw(sf, dotPos, null, dotColor with { A = 0 } * dotAlpha,
+  BUG L373 (additive@L334 via BlendState.Additive): sb.Draw(srb, drawPos, null, freqColor with { A = 0 } * 0.15f * pulse,
+  BUG L377 (additive@L334 via BlendState.Additive): sb.Draw(pb, drawPos, null, ClairDeLunePalette.PearlWhite with { A = 0 } * 0.4f,
+  BUG L387 (additive@L334 via BlendState.Additive): sb.Draw(srb, drawPos, null, ClairDeLunePalette.WhiteHot with { A = 0 } * 0.2f * urgency * urgencyPulse,
+  BUG L391 (additive@L334 via BlendState.Additive): sb.Draw(sf, leftProng, null, ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.25f * urgency,
+  BUG L393 (additive@L334 via BlendState.Additive): sb.Draw(sf, rightProng, null, ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.25f * urgency,
+
+=== ClairDeLune\Weapons\AutomatonsTuningFork\Projectiles\ConductorFinalNoteProjectile.cs === (4 hits)
+  BUG L293 (additive@L271 via BlendState.Additive): sb.Draw(srb, drawPos, null, FreqColors[p] with { A = 0 } * ringAlpha,
+  BUG L308 (additive@L271 via BlendState.Additive): sb.Draw(sf, rotPos, null, FreqColors[f] with { A = 0 } * finaleAlpha,
+  BUG L315 (additive@L271 via BlendState.Additive): sb.Draw(srb, drawPos, null, ClairDeLunePalette.PearlWhite with { A = 0 } * 0.15f * centerIntensity * fadeOut,
+  BUG L317 (additive@L271 via BlendState.Additive): sb.Draw(pb, drawPos, null, ClairDeLunePalette.WhiteHot with { A = 0 } * 0.3f * centerIntensity * fadeOut,
+
+=== ClairDeLune\Weapons\AutomatonsTuningFork\Projectiles\FrequencyZoneProjectile.cs === (4 hits)
+  BUG L317 (additive@L288 via BlendState.Additive): sb.Draw(pb, dotPos, null, freqColor with { A = 0 } * nodeAlpha * nodeWave,
+  BUG L323 (additive@L288 via BlendState.Additive): sb.Draw(srb, drawPos, null, freqColor with { A = 0 } * 0.08f * alpha * wavePulse,
+  BUG L327 (additive@L288 via BlendState.Additive): sb.Draw(srb, drawPos, null, freqColor with { A = 0 } * 0.12f * alpha,
+  BUG L331 (additive@L288 via BlendState.Additive): sb.Draw(pb, drawPos, null, ClairDeLunePalette.PearlWhite with { A = 0 } * 0.2f * alpha,
+
+=== ClairDeLune\Weapons\AutomatonsTuningFork\Projectiles\PerfectResonanceProjectile.cs === (4 hits)
+  BUG L245 (additive@L224 via BlendState.Additive): sb.Draw(srb, pos, null, color with { A = 0 } * ringAlpha,
+  BUG L259 (additive@L224 via BlendState.Additive): sb.Draw(pb, facetPos, null, facetColor with { A = 0 } * 0.1f * fadeOut,
+  BUG L265 (additive@L224 via BlendState.Additive): ClairDeLunePalette.WhiteHot with { A = 0 } * 0.25f * fadeOut,
+  BUG L273 (additive@L224 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * flareAlpha,
+
+=== ClairDeLune\Weapons\Chronologicality\Projectiles\ChronologicalitySwing.cs === (14 hits)
+  BUG L418 (additive@L393 via BlendState.Additive): sb.Draw(smearTex, drawOrigin, null, colors[0] with { A = 0 } * alpha * 0.4f,
+  BUG L424 (additive@L393 via BlendState.Additive): sb.Draw(smearTex, drawOrigin, null, colors[1] with { A = 0 } * alpha * 0.7f,
+  BUG L430 (additive@L393 via BlendState.Additive): sb.Draw(smearTex, drawOrigin, null, colors[2] with { A = 0 } * alpha * 0.55f,
+  BUG L444 (additive@L439 via BlendState.Additive): sb.Draw(smearTex, drawOrigin, null, colors[0] with { A = 0 } * alpha * 0.4f,
+  BUG L446 (additive@L439 via BlendState.Additive): sb.Draw(smearTex, drawOrigin, null, colors[1] with { A = 0 } * alpha * 0.7f,
+  BUG L448 (additive@L439 via BlendState.Additive): sb.Draw(smearTex, drawOrigin, null, colors[2] with { A = 0 } * alpha * 0.55f,
+  BUG L488 (additive@L468 via BlendState.Additive): Color outerCol = ClairDeLunePalette.NightMist with { A = 0 } * fade * 0.35f;
+  BUG L493 (additive@L468 via BlendState.Additive): Color midCol = ClairDeLunePalette.SoftBlue with { A = 0 } * fade * 0.4f;
+  BUG L498 (additive@L468 via BlendState.Additive): Color coreCol = ClairDeLunePalette.PearlBlue with { A = 0 } * fade * 0.5f;
+  BUG L528 (additive@L517 via BlendState.Additive): ClairDeLunePalette.NightMist with { A = 0 } * 0.3f * alpha, 0f, origin,
+  BUG L531 (additive@L517 via BlendState.Additive): ClairDeLunePalette.SoftBlue with { A = 0 } * 0.4f * alpha, 0f, origin,
+  BUG L534 (additive@L517 via BlendState.Additive): ClairDeLunePalette.PearlWhite with { A = 0 } * 0.5f * alpha, 0f, origin,
+  BUG L537 (additive@L517 via BlendState.Additive): ClairDeLunePalette.WhiteHot with { A = 0 } * 0.3f * alpha, 0f, origin,
+  BUG L544 (additive@L517 via BlendState.Additive): ClairDeLunePalette.ClockworkBrass with { A = 0 } * 0.25f * alpha, 0f, origin,
+
+=== ClairDeLune\Weapons\Chronologicality\Projectiles\ClockworkOverflowProjectile.cs === (8 hits)
+  BUG L376 (additive@L358 via BlendState.Additive): ClairDeLunePalette.ClockworkBrass with { A = 0 } * 0.35f * t, 0f, srb.Size() * 0.5f,
+  BUG L379 (additive@L358 via BlendState.Additive): ClairDeLunePalette.PearlWhite with { A = 0 } * 0.2f * t, 0f, srb.Size() * 0.5f,
+  BUG L388 (additive@L358 via BlendState.Additive): ClairDeLunePalette.PearlFrost with { A = 0 } * 0.12f * pulse, 0f, srb.Size() * 0.5f,
+  BUG L391 (additive@L358 via BlendState.Additive): ClairDeLunePalette.PearlWhite with { A = 0 } * 0.3f * pulse, 0f, srb.Size() * 0.5f,
+  BUG L411 (additive@L358 via BlendState.Additive): ringColor with { A = 0 } * (0.35f * fadeOut / (r + 1)), 0f, srb.Size() * 0.5f,
+  BUG L415 (additive@L358 via BlendState.Additive): ClairDeLunePalette.ClockworkBrass with { A = 0 } * 0.5f * fadeOut * fadeOut, 0f,
+  BUG L418 (additive@L358 via BlendState.Additive): ClairDeLunePalette.PearlWhite with { A = 0 } * 0.3f * fadeOut,
+  BUG L427 (additive@L358 via BlendState.Additive): ClairDeLunePalette.NightMist with { A = 0 } * 0.15f * fadeOut, 0f, srb.Size() * 0.5f,
+
+=== ClairDeLune\Weapons\Chronologicality\Projectiles\TemporalEchoProjectile.cs === (4 hits)
+  BUG L217 (additive@L201 via BlendState.Additive): ClairDeLunePalette.NightMist with { A = 0 } * ghostAlpha * 0.3f, 0f, srb.Size() * 0.5f,
+  BUG L222 (additive@L201 via BlendState.Additive): ClairDeLunePalette.PearlFrost with { A = 0 } * ghostAlpha * 0.25f, 0f, srb.Size() * 0.5f,
+  BUG L227 (additive@L201 via BlendState.Additive): ClairDeLunePalette.SoftBlue with { A = 0 } * ghostAlpha * 0.3f, 0f, pb.Size() * 0.5f,
+  BUG L247 (additive@L201 via BlendState.Additive): ClairDeLunePalette.PearlFrost with { A = 0 } * ringAlpha, 0f, pb.Size() * 0.5f,
+
+=== ClairDeLune\Weapons\Chronologicality\Projectiles\TimeSlowFieldProjectile.cs === (3 hits)
+  BUG L194 (additive@L180 via BlendState.Additive): ClairDeLunePalette.NightMist with { A = 0 } * 0.15f * alpha, rotation, srb.Size() * 0.5f,
+  BUG L199 (additive@L180 via BlendState.Additive): ClairDeLunePalette.SoftBlue with { A = 0 } * 0.12f * alpha, -rotation * 0.7f, srb.Size() * 0.5f,
+  BUG L204 (additive@L180 via BlendState.Additive): ClairDeLunePalette.PearlBlue with { A = 0 } * 0.08f * alpha, 0f, srb.Size() * 0.5f,
+
+=== ClairDeLune\Weapons\ClockworkGrimoire\Projectiles\HourBeamProjectile.cs === (10 hits)
+  BUG L258 (additive@L233 via BlendState.Additive): sb.Draw(srb, originDraw, null, ClairDeLunePalette.NightMist with { A = 0 } * 0.2f * intensityMult,
+  BUG L261 (additive@L233 via BlendState.Additive): sb.Draw(srb, originDraw, null, ClairDeLunePalette.SoftBlue with { A = 0 } * 0.35f * intensityMult,
+  BUG L264 (additive@L233 via BlendState.Additive): sb.Draw(pb, originDraw, null, ClairDeLunePalette.PearlWhite with { A = 0 } * 0.5f * intensityMult,
+  BUG L267 (additive@L233 via BlendState.Additive): sb.Draw(sf, originDraw, null, ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.3f * intensityMult,
+  BUG L273 (additive@L233 via BlendState.Additive): sb.Draw(srb, endDraw, null, ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.3f * intensityMult * endPulse,
+  BUG L276 (additive@L233 via BlendState.Additive): sb.Draw(srb, endDraw, null, ClairDeLunePalette.PearlFrost with { A = 0 } * 0.4f * intensityMult,
+  BUG L279 (additive@L233 via BlendState.Additive): sb.Draw(pb, endDraw, null, ClairDeLunePalette.WhiteHot with { A = 0 } * 0.6f * intensityMult,
+  BUG L282 (additive@L233 via BlendState.Additive): sb.Draw(sf, endDraw, null, ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.35f * intensityMult,
+  BUG L284 (additive@L233 via BlendState.Additive): sb.Draw(sf, endDraw, null, ClairDeLunePalette.SoftBlue with { A = 0 } * 0.2f * intensityMult,
+  BUG L287 (additive@L233 via BlendState.Additive): sb.Draw(lf, endDraw, null, ClairDeLunePalette.PearlWhite with { A = 0 } * 0.15f * intensityMult * endPulse,
+
+=== ClairDeLune\Weapons\ClockworkGrimoire\Projectiles\MinuteOrbProjectile.cs === (5 hits)
+  BUG L253 (additive@L235 via BlendState.Additive): ClairDeLunePalette.NightMist with { A = 0 } * 0.12f, 0f, srb.Size() * 0.5f,
+  BUG L258 (additive@L235 via BlendState.Additive): ClairDeLunePalette.SoftBlue with { A = 0 } * (0.2f + tickProgress * 0.2f), 0f, srb.Size() * 0.5f,
+  BUG L263 (additive@L235 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * (0.15f + tickProgress * 0.25f), 0f, pb.Size() * 0.5f,
+  BUG L277 (additive@L235 via BlendState.Additive): facetCol with { A = 0 } * 0.12f, 0f, pb.Size() * 0.5f,
+  BUG L286 (additive@L235 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.15f * tickProgress,
+
+=== ClairDeLune\Weapons\ClockworkGrimoire\Projectiles\PendulumZoneProjectile.cs === (6 hits)
+  BUG L226 (additive@L206 via BlendState.Additive): sb.Draw(pb, armPos, null, ClairDeLunePalette.ClockworkBrass with { A = 0 } * armAlpha,
+  BUG L235 (additive@L206 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.25f * extremeAlpha * fade,
+  BUG L242 (additive@L206 via BlendState.Additive): ClairDeLunePalette.NightMist with { A = 0 } * 0.08f * fade * pulse,
+  BUG L247 (additive@L206 via BlendState.Additive): ClairDeLunePalette.ClockworkBrass with { A = 0 } * 0.12f * fade,
+  BUG L252 (additive@L206 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.2f * fade * MathF.Abs(swing),
+  BUG L257 (additive@L206 via BlendState.Additive): ClairDeLunePalette.ClockworkBrass with { A = 0 } * 0.15f * fade,
+
+=== ClairDeLune\Weapons\ClockworkGrimoire\Projectiles\SecondBoltProjectile.cs === (3 hits)
+  BUG L134 (additive@L114 via BlendState.Additive): (float)i / TrailLen) with { A = 0 } * fade * 0.2f;
+  BUG L145 (additive@L114 via BlendState.Additive): ClairDeLunePalette.SoftBlue with { A = 0 } * 0.2f, Projectile.rotation, srbOrigin,
+  BUG L150 (additive@L114 via BlendState.Additive): ClairDeLunePalette.PearlFrost with { A = 0 } * 0.3f, Projectile.rotation, pbOrigin,
+
+=== ClairDeLune\Weapons\ClockworkHarmony\Projectiles\DriveGearProjectile.cs === (5 hits)
+  BUG L187 (additive@L172 via BlendState.Additive): ClairDeLunePalette.NightMist with { A = 0 } * 0.15f, 0f, srb.Size() * 0.5f,
+  BUG L192 (additive@L172 via BlendState.Additive): ClairDeLunePalette.ClockworkBrass with { A = 0 } * 0.25f, 0f, srb.Size() * 0.5f,
+  BUG L197 (additive@L172 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.2f, 0f, pb.Size() * 0.5f,
+  BUG L208 (additive@L172 via BlendState.Additive): ClairDeLunePalette.ClockworkBrass with { A = 0 } * 0.15f * toothPulse, toothAngle, pb.Size() * 0.5f,
+  BUG L215 (additive@L172 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.12f, flareRot, sf.Size() * 0.5f,
+
+=== ClairDeLune\Weapons\ClockworkHarmony\Projectiles\GearMeshZoneProjectile.cs === (6 hits)
+  BUG L233 (additive@L218 via BlendState.Additive): ClairDeLunePalette.NightMist with { A = 0 } * 0.1f * fadeAlpha,
+  BUG L238 (additive@L218 via BlendState.Additive): ClairDeLunePalette.SoftBlue with { A = 0 } * 0.15f * fadeAlpha,
+  BUG L243 (additive@L218 via BlendState.Additive): ClairDeLunePalette.ClockworkBrass with { A = 0 } * 0.35f * fadeAlpha * corePulse,
+  BUG L255 (additive@L218 via BlendState.Additive): ClairDeLunePalette.ClockworkBrass with { A = 0 } * 0.2f * fadeAlpha,
+  BUG L263 (additive@L218 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.12f * fadeAlpha,
+  BUG L272 (additive@L218 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.1f * fadeAlpha,
+
+=== ClairDeLune\Weapons\ClockworkHarmony\Projectiles\MediumGearProjectile.cs === (4 hits)
+  BUG L203 (additive@L189 via BlendState.Additive): ClairDeLunePalette.NightMist with { A = 0 } * 0.12f, 0f, srb.Size() * 0.5f,
+  BUG L208 (additive@L189 via BlendState.Additive): ClairDeLunePalette.SoftBlue with { A = 0 } * 0.2f, 0f, srb.Size() * 0.5f,
+  BUG L213 (additive@L189 via BlendState.Additive): ClairDeLunePalette.PearlFrost with { A = 0 } * 0.15f, 0f, pb.Size() * 0.5f,
+  BUG L223 (additive@L189 via BlendState.Additive): ClairDeLunePalette.SoftBlue with { A = 0 } * 0.12f, toothAngle, pb.Size() * 0.5f,
+
+=== ClairDeLune\Weapons\ClockworkHarmony\Projectiles\SmallGearProjectile.cs === (5 hits)
+  BUG L240 (additive@L225 via BlendState.Additive): ClairDeLunePalette.NightMist with { A = 0 } * 0.1f * meshBoost, 0f, srb.Size() * 0.5f,
+  BUG L245 (additive@L225 via BlendState.Additive): ClairDeLunePalette.PearlFrost with { A = 0 } * 0.15f * meshBoost, 0f, srb.Size() * 0.5f,
+  BUG L250 (additive@L225 via BlendState.Additive): ClairDeLunePalette.SoftBlue with { A = 0 } * 0.12f * meshBoost, 0f, pb.Size() * 0.5f,
+  BUG L260 (additive@L225 via BlendState.Additive): ClairDeLunePalette.PearlFrost with { A = 0 } * 0.1f * meshBoost, toothAngle, pb.Size() * 0.5f,
+  BUG L268 (additive@L225 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.1f, 0f, srb.Size() * 0.5f,
+
+=== ClairDeLune\Weapons\CogAndHammer\Projectiles\ClockworkBombProjectile.cs === (4 hits)
+  BUG L304 (additive@L287 via BlendState.Additive): ClairDeLunePalette.NightMist with { A = 0 } * 0.15f, 0f, srb.Size() * 0.5f,
+  BUG L309 (additive@L287 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * intensity, 0f, srb.Size() * 0.5f,
+  BUG L314 (additive@L287 via BlendState.Additive): ClairDeLunePalette.PearlFrost with { A = 0 } * intensity * 0.5f, 0f, srb.Size() * 0.5f,
+  BUG L322 (additive@L287 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.2f * tickProgress,
+
+=== ClairDeLune\Weapons\CogAndHammer\Projectiles\GearShrapnelProjectile.cs === (3 hits)
+  BUG L140 (additive@L119 via BlendState.Additive): ClairDeLunePalette.ClockworkBrass with { A = 0 } * 0.3f * life, 0f,
+  BUG L146 (additive@L119 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.15f * life, 0f,
+  BUG L151 (additive@L119 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.35f * life, 0f,
+
+=== ClairDeLune\Weapons\CogAndHammer\Projectiles\MasterMechanismBombProjectile.cs === (6 hits)
+  BUG L274 (additive@L253 via BlendState.Additive): ClairDeLunePalette.ClockworkBrass with { A = 0 } * 0.25f, 0f, srb.Size() * 0.5f,
+  BUG L280 (additive@L253 via BlendState.Additive): ClairDeLunePalette.NightMist with { A = 0 } * 0.12f, 0f, srb.Size() * 0.5f,
+  BUG L285 (additive@L253 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * intensity * 0.6f, 0f, srb.Size() * 0.5f,
+  BUG L290 (additive@L253 via BlendState.Additive): ClairDeLunePalette.PearlFrost with { A = 0 } * intensity * 0.4f, 0f, srb.Size() * 0.5f,
+  BUG L295 (additive@L253 via BlendState.Additive): ClairDeLunePalette.PearlWhite with { A = 0 } * intensity * 0.3f, 0f, srb.Size() * 0.5f,
+  BUG L303 (additive@L253 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.25f * tickProgress,
+
+=== ClairDeLune\Weapons\CogAndHammer\Projectiles\StickyBombProjectile.cs === (5 hits)
+  BUG L343 (additive@L326 via BlendState.Additive): ClairDeLunePalette.NightMist with { A = 0 } * 0.12f, 0f, srb.Size() * 0.5f,
+  BUG L348 (additive@L326 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * (0.2f + tickProgress * 0.3f), 0f, srb.Size() * 0.5f,
+  BUG L353 (additive@L326 via BlendState.Additive): ClairDeLunePalette.PearlFrost with { A = 0 } * (0.15f + tickProgress * 0.2f), 0f, pb.Size() * 0.5f,
+  BUG L366 (additive@L326 via BlendState.Additive): ClairDeLunePalette.ClockworkBrass with { A = 0 } * 0.15f, 0f, pb.Size() * 0.5f,
+  BUG L376 (additive@L326 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.18f * tickProgress,
+
+=== ClairDeLune\Weapons\GearDrivenArbiter\Projectiles\ArbiterGearProjectile.cs === (5 hits)
+  BUG L236 (additive@L220 via BlendState.Additive): ClairDeLunePalette.NightMist with { A = 0 } * 0.12f * enhanceMult, 0f, srb.Size() * 0.5f,
+  BUG L241 (additive@L220 via BlendState.Additive): ClairDeLunePalette.ClockworkBrass with { A = 0 } * 0.2f * enhanceMult, 0f, srb.Size() * 0.5f,
+  BUG L246 (additive@L220 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.15f * enhanceMult, 0f, pb.Size() * 0.5f,
+  BUG L256 (additive@L220 via BlendState.Additive): ClairDeLunePalette.ClockworkBrass with { A = 0 } * 0.12f * enhanceMult, toothAngle, pb.Size() * 0.5f,
+  BUG L265 (additive@L220 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.12f, flareRot, sf.Size() * 0.5f,
+
+=== ClairDeLune\Weapons\GearDrivenArbiter\Projectiles\ArbiterMinionProjectile.cs === (4 hits)
+  BUG L285 (additive@L267 via BlendState.Additive): ClairDeLunePalette.ClockworkBrass with { A = 0 } * 0.25f, 0f, srb.Size() * 0.5f,
+  BUG L291 (additive@L267 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.2f, 0f, srb.Size() * 0.5f,
+  BUG L296 (additive@L267 via BlendState.Additive): ClairDeLunePalette.ClockworkBrass with { A = 0 } * 0.3f, 0f, srb.Size() * 0.5f,
+  BUG L301 (additive@L267 via BlendState.Additive): ClairDeLunePalette.PearlWhite with { A = 0 } * 0.35f, 0f, srb.Size() * 0.5f,
+
+=== ClairDeLune\Weapons\GearDrivenArbiter\Projectiles\ArbiterVerdictProjectile.cs === (7 hits)
+  BUG L263 (additive@L247 via BlendState.Additive): ClairDeLunePalette.NightMist with { A = 0 } * 0.1f * baseIntensity, 0f, srb.Size() * 0.5f,
+  BUG L268 (additive@L247 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.3f * baseIntensity, 0f, srb.Size() * 0.5f,
+  BUG L273 (additive@L247 via BlendState.Additive): ClairDeLunePalette.SilverLining with { A = 0 } * 0.2f * baseIntensity, 0f, srb.Size() * 0.5f,
+  BUG L282 (additive@L247 via BlendState.Additive): Color.White with { A = 0 } * 0.5f * flashMul, 0f, srb.Size() * 0.5f,
+  BUG L288 (additive@L247 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.4f * flashMul,
+  BUG L291 (additive@L247 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.3f * flashMul,
+  BUG L305 (additive@L247 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.3f, 0f, srb.Size() * 0.5f,
+
+=== ClairDeLune\Weapons\LunarPhylactery\Projectiles\MoonlightBeamProjectile.cs === (4 hits)
+  BUG L264 (additive@L251 via BlendState.Additive): sb.Draw(sc, pos, null, ClairDeLunePalette.PearlBlue with { A = 0 } * 0.3f * fade,
+  BUG L284 (additive@L269 via BlendState.Additive): sb.Draw(srb, drawPos, null, ClairDeLunePalette.NightMist with { A = 0 } * 0.15f * pulse,
+  BUG L287 (additive@L269 via BlendState.Additive): sb.Draw(srb, drawPos, null, ClairDeLunePalette.PearlBlue with { A = 0 } * 0.35f,
+  BUG L290 (additive@L269 via BlendState.Additive): sb.Draw(pb, drawPos, null, ClairDeLunePalette.WhiteHot with { A = 0 } * 0.6f,
+
+=== ClairDeLune\Weapons\LunarPhylactery\Projectiles\MoonlightSentinelProjectile.cs === (4 hits)
+  BUG L293 (additive@L275 via BlendState.Additive): hpColor with { A = 0 } * 0.15f * pulse, 0f, srb.Size() * 0.5f,
+  BUG L298 (additive@L275 via BlendState.Additive): ClairDeLunePalette.PearlBlue with { A = 0 } * 0.2f, 0f, srb.Size() * 0.5f,
+  BUG L303 (additive@L275 via BlendState.Additive): ClairDeLunePalette.PearlWhite with { A = 0 } * 0.4f, 0f, srb.Size() * 0.5f,
+  BUG L312 (additive@L275 via BlendState.Additive): ClairDeLunePalette.WhiteHot with { A = 0 } * 0.2f, 0f, srb.Size() * 0.5f,
+
+=== ClairDeLune\Weapons\MidnightMechanism\Projectiles\MechanismBulletProjectile.cs === (4 hits)
+  BUG L236 (additive@L220 via BlendState.Additive): sb.Draw(pb, pos, null, ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.5f,
+  BUG L242 (additive@L220 via BlendState.Additive): sb.Draw(srb, pos, null, ClairDeLunePalette.PearlFrost with { A = 0 } * 0.3f,
+  BUG L247 (additive@L220 via BlendState.Additive): sb.Draw(srb, pos, null, ClairDeLunePalette.SoftBlue with { A = 0 } * 0.2f,
+  BUG L252 (additive@L220 via BlendState.Additive): sb.Draw(pb, pos, null, ClairDeLunePalette.PearlWhite with { A = 0 } * 0.4f,
+
+=== ClairDeLune\Weapons\MidnightMechanism\Projectiles\MechanismEjectGearProjectile.cs === (3 hits)
+  BUG L207 (additive@L186 via BlendState.Additive): ClairDeLunePalette.ClockworkBrass with { A = 0 } * 0.3f * life, 0f,
+  BUG L213 (additive@L186 via BlendState.Additive): ClairDeLunePalette.NightMist with { A = 0 } * 0.12f * life, 0f,
+  BUG L218 (additive@L186 via BlendState.Additive): ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.4f * life, 0f,
+
+=== ClairDeLune\Weapons\MidnightMechanism\Projectiles\MidnightStrikeShotProjectile.cs === (5 hits)
+  BUG L290 (additive@L274 via BlendState.Additive): sb.Draw(srb, pos, null, ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.3f,
+  BUG L294 (additive@L274 via BlendState.Additive): sb.Draw(srb, pos, null, ClairDeLunePalette.PearlFrost with { A = 0 } * 0.4f,
+  BUG L298 (additive@L274 via BlendState.Additive): sb.Draw(pb, pos, null, ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.5f,
+  BUG L303 (additive@L274 via BlendState.Additive): sb.Draw(pb, pos, null, ClairDeLunePalette.PearlWhite with { A = 0 } * 0.7f,
+  BUG L309 (additive@L274 via BlendState.Additive): sb.Draw(sf, pos, null, ClairDeLunePalette.PearlWhite with { A = 0 } * 0.3f,
+
+=== ClairDeLune\Weapons\OrreryOfDreams\Projectiles\DreamAlignmentProjectile.cs === (4 hits)
+  BUG L192 (additive@L187 via BlendState.Additive): ClairDeLunePalette.PearlBlue with { A = 0 } * 0.4f * pulse, 0f, srb.Size() * 0.5f,
+  BUG L195 (additive@L187 via BlendState.Additive): ClairDeLunePalette.WhiteHot with { A = 0 } * 0.5f, 0f, srb.Size() * 0.5f,
+  BUG L304 (additive@L281 via BlendState.Additive): ClairDeLunePalette.WhiteHot with { A = 0 } * 0.4f * centerPulse, 0f, srb.Size() * 0.5f,
+  BUG L310 (additive@L281 via BlendState.Additive): ClairDeLunePalette.PearlBlue with { A = 0 } * 0.2f,
+
+=== ClairDeLune\Weapons\OrreryOfDreams\Projectiles\DreamSphereProjectile.cs === (5 hits)
+  BUG L240 (additive@L226 via BlendState.Additive): sb.Draw(srb, drawPos, null, glowColor with { A = 0 } * 0.2f * pulse,
+  BUG L243 (additive@L226 via BlendState.Additive): sb.Draw(srb, drawPos, null, coreColor with { A = 0 } * 0.4f * pulse,
+  BUG L246 (additive@L226 via BlendState.Additive): sb.Draw(pb, drawPos, null, ClairDeLunePalette.WhiteHot with { A = 0 } * 0.6f * pulse,
+  BUG L249 (additive@L226 via BlendState.Additive): sb.Draw(sf, drawPos, null, coreColor with { A = 0 } * 0.15f * pulse,
+  BUG L288 (additive@L276 via BlendState.Additive): sb.Draw(pb, ringPt, null, glowColor with { A = 0 } * 0.06f,
+
+=== ClairDeLune\Weapons\OrreryOfDreams\Projectiles\InnerSphereBoltProjectile.cs === (4 hits)
+  BUG L196 (additive@L173 via BlendState.Additive): Color trailColor = Color.Lerp(ClairDeLunePalette.PearlWhite, ClairDeLunePalette.SoftBlue, progress) with { A = 0 };
+  BUG L205 (additive@L173 via BlendState.Additive): ClairDeLunePalette.NightMist with { A = 0 } * 0.15f, 0f, srbOrigin,
+  BUG L210 (additive@L173 via BlendState.Additive): ClairDeLunePalette.PearlBlue with { A = 0 } * 0.25f, 0f, srbOrigin,
+  BUG L215 (additive@L173 via BlendState.Additive): ClairDeLunePalette.WhiteHot with { A = 0 } * 0.3f, 0f, pbOrigin,
+
+=== ClairDeLune\Weapons\OrreryOfDreams\Projectiles\MiddleSphereOrbProjectile.cs === (3 hits)
+  BUG L237 (additive@L222 via BlendState.Additive): ClairDeLunePalette.NightMist with { A = 0 } * 0.15f * dreamPulse, 0f, srb.Size() * 0.5f,
+  BUG L242 (additive@L222 via BlendState.Additive): ClairDeLunePalette.SoftBlue with { A = 0 } * 0.2f * dreamPulse, 0f, srb.Size() * 0.5f,
+  BUG L247 (additive@L222 via BlendState.Additive): ClairDeLunePalette.PearlFrost with { A = 0 } * 0.2f, 0f, pb.Size() * 0.5f,
+
+=== ClairDeLune\Weapons\OrreryOfDreams\Projectiles\OuterSphereBombProjectile.cs === (5 hits)
+  BUG L231 (additive@L215 via BlendState.Additive): ClairDeLunePalette.NightMist with { A = 0 } * (0.1f + life * 0.15f), 0f, srb.Size() * 0.5f,
+  BUG L236 (additive@L215 via BlendState.Additive): ClairDeLunePalette.MidnightBlue with { A = 0 } * (0.15f + life * 0.2f), 0f, srb.Size() * 0.5f,
+  BUG L241 (additive@L215 via BlendState.Additive): ClairDeLunePalette.PearlFrost with { A = 0 } * (0.12f + life * 0.2f), 0f, pb.Size() * 0.5f,
+  BUG L304 (additive@L288 via BlendState.Additive): ClairDeLunePalette.NightMist with { A = 0 } * 0.2f * fadeAlpha, 0f, srb.Size() * 0.5f,
+  BUG L310 (additive@L288 via BlendState.Additive): ClairDeLunePalette.WhiteHot with { A = 0 } * coreAlpha, 0f, pb.Size() * 0.5f,
+
+=== ClairDeLune\Weapons\RequiemOfTime\Projectiles\ForwardFieldProjectile.cs === (4 hits)
+  BUG L251 (additive@L230 via BlendState.Additive): sb.Draw(sf, arrowPos, null, ClairDeLunePalette.PearlWhite with { A = 0 } * 0.2f * alpha,
+  BUG L266 (additive@L230 via BlendState.Additive): sb.Draw(srb, drawPos, null, ClairDeLunePalette.SoftBlue with { A = 0 } * 0.12f * alpha * pulse,
+  BUG L269 (additive@L230 via BlendState.Additive): sb.Draw(srb, drawPos, null, ClairDeLunePalette.PearlBlue with { A = 0 } * 0.2f * alpha,
+  BUG L272 (additive@L230 via BlendState.Additive): sb.Draw(pb, drawPos, null, ClairDeLunePalette.PearlWhite with { A = 0 } * 0.35f * alpha,
+
+=== ClairDeLune\Weapons\RequiemOfTime\Projectiles\ReverseFieldProjectile.cs === (5 hits)
+  BUG L232 (additive@L212 via BlendState.Additive): sb.Draw(sf, arrowPos, null, ClairDeLunePalette.NightMist with { A = 0 } * 0.2f * alpha,
+  BUG L247 (additive@L212 via BlendState.Additive): sb.Draw(srb, drawPos, null, ClairDeLunePalette.MidnightBlue with { A = 0 } * 0.1f * alpha * pulse,
+  BUG L250 (additive@L212 via BlendState.Additive): sb.Draw(srb, drawPos, null, ClairDeLunePalette.NightMist with { A = 0 } * 0.18f * alpha,
+  BUG L253 (additive@L212 via BlendState.Additive): sb.Draw(pb, drawPos, null, ClairDeLunePalette.TemporalCrimson with { A = 0 } * 0.15f * alpha,
+  BUG L256 (additive@L212 via BlendState.Additive): sb.Draw(pb, drawPos, null, ClairDeLunePalette.NightMist with { A = 0 } * 0.25f * alpha,
+
+=== ClairDeLune\Weapons\RequiemOfTime\Projectiles\TemporalParadoxProjectile.cs === (7 hits)
+  BUG L317 (additive@L296 via BlendState.Additive): sb.Draw(srb, drawPos, null, ClairDeLunePalette.PearlWhite with { A = 0 } * a1 * fadeOut,
+  BUG L326 (additive@L296 via BlendState.Additive): sb.Draw(srb, drawPos, null, ClairDeLunePalette.SoftBlue with { A = 0 } * a2 * fadeOut,
+  BUG L335 (additive@L296 via BlendState.Additive): sb.Draw(srb, drawPos, null, ClairDeLunePalette.NightMist with { A = 0 } * a3 * fadeOut,
+  BUG L341 (additive@L296 via BlendState.Additive): sb.Draw(srb, drawPos, null, ClairDeLunePalette.SoftBlue with { A = 0 } * 0.3f * flicker * fadeOut,
+  BUG L343 (additive@L296 via BlendState.Additive): sb.Draw(srb, drawPos, null, ClairDeLunePalette.NightMist with { A = 0 } * 0.3f * (1f - flicker) * fadeOut,
+  BUG L347 (additive@L296 via BlendState.Additive): sb.Draw(srb, drawPos, null, ClairDeLunePalette.WhiteHot with { A = 0 } * 0.5f * fadeOut,
+  BUG L352 (additive@L296 via BlendState.Additive): sb.Draw(sf, drawPos, null, ClairDeLunePalette.PearlWhite with { A = 0 } * 0.25f * fadeOut,
+
+=== ClairDeLune\Weapons\StarfallWhisper\Projectiles\TemporalArrowProjectile.cs === (9 hits)
+  BUG L223 (additive@L198 via BlendState.Additive): Color outerCol = Color.Lerp(ClairDeLunePalette.NightMist, ClairDeLunePalette.SoftBlue, t) with { A = 0 };
+  BUG L229 (additive@L198 via BlendState.Additive): Color bodyCol = Color.Lerp(ClairDeLunePalette.PearlFrost, ClairDeLunePalette.SoftBlue, t) with { A = 0 };
+  BUG L237 (additive@L198 via BlendState.Additive): Color coreCol = ClairDeLunePalette.WhiteHot with { A = 0 };
+  BUG L266 (additive@L253 via BlendState.Additive): sb.Draw(srb, drawPos, null, ClairDeLunePalette.NightMist with { A = 0 } * 0.2f * pulse,
+  BUG L269 (additive@L253 via BlendState.Additive): sb.Draw(srb, drawPos, null, ClairDeLunePalette.SoftBlue with { A = 0 } * 0.4f * pulse,
+  BUG L272 (additive@L253 via BlendState.Additive): sb.Draw(pb, drawPos, null, ClairDeLunePalette.PearlFrost with { A = 0 } * 0.55f,
+  BUG L275 (additive@L253 via BlendState.Additive): sb.Draw(pb, drawPos, null, ClairDeLunePalette.WhiteHot with { A = 0 } * 0.7f,
+  BUG L353 (additive@L332 via BlendState.Additive): Color sparkleCol = Color.Lerp(ClairDeLunePalette.SoftBlue, ClairDeLunePalette.PearlWhite, flash) with { A = 0 };
+  BUG L364 (additive@L332 via BlendState.Additive): sb.Draw(sfTex, drawPos, null, ClairDeLunePalette.PearlFrost with { A = 0 } * 0.4f * centralFlash,
+
+=== ClairDeLune\Weapons\StarfallWhisper\Projectiles\TemporalFractureProjectile.cs === (5 hits)
+  BUG L278 (additive@L262 via BlendState.Additive): ClairDeLunePalette.NightMist with { A = 0 } * 0.2f * fade, 0f, srb.Size() * 0.5f,
+  BUG L283 (additive@L262 via BlendState.Additive): ClairDeLunePalette.PearlFrost with { A = 0 } * 0.4f * fade * (intensity / 3f), 0f, srb.Size() * 0.5f,
+  BUG L288 (additive@L262 via BlendState.Additive): ClairDeLunePalette.PearlWhite with { A = 0 } * 0.3f * fade, 0f, srb.Size() * 0.5f,
+  BUG L298 (additive@L262 via BlendState.Additive): ClairDeLunePalette.PearlFrost with { A = 0 } * 0.25f * fade, 0f, srb.Size() * 0.5f,
+  BUG L307 (additive@L262 via BlendState.Additive): ClairDeLunePalette.PearlFrost with { A = 0 } * 0.3f * fade,
+
+=== ClairDeLune\Weapons\TemporalPiercer\Projectiles\FrozenMomentProjectile.cs === (6 hits)
+  BUG L242 (additive@L225 via BlendState.Additive): ClairDeLunePalette.NightMist with { A = 0 } * 0.2f * fadeOut, 0f, srb.Size() * 0.5f,
+  BUG L247 (additive@L225 via BlendState.Additive): ClairDeLunePalette.SoftBlue with { A = 0 } * 0.3f * fadeOut, 0f, srb.Size() * 0.5f,
+  BUG L252 (additive@L225 via BlendState.Additive): ClairDeLunePalette.PearlFrost with { A = 0 } * 0.45f * fadeOut, 0f, srb.Size() * 0.5f,
+  BUG L257 (additive@L225 via BlendState.Additive): ClairDeLunePalette.PearlWhite with { A = 0 } * 0.6f * fadeOut * fadeOut, 0f, srb.Size() * 0.5f,
+  BUG L263 (additive@L225 via BlendState.Additive): ClairDeLunePalette.ClockworkBrass with { A = 0 } * 0.25f * ringPhase, 0f, srb.Size() * 0.5f,
+  BUG L270 (additive@L225 via BlendState.Additive): sb.Draw(sf, drawPos, null, ClairDeLunePalette.PearlWhite with { A = 0 } * 0.4f * flareAlpha,
+
+=== ClairDeLune\Weapons\TemporalPiercer\Projectiles\TemporalThrustProjectile.cs === (4 hits)
+  BUG L292 (additive@L276 via BlendState.Additive): sb.Draw(srb, tipDraw, null, ClairDeLunePalette.NightMist with { A = 0 } * 0.3f * thrustNorm,
+  BUG L295 (additive@L276 via BlendState.Additive): sb.Draw(srb, tipDraw, null, ClairDeLunePalette.SoftBlue with { A = 0 } * 0.45f * thrustNorm,
+  BUG L298 (additive@L276 via BlendState.Additive): sb.Draw(pb, tipDraw, null, ClairDeLunePalette.PearlWhite with { A = 0 } * 0.6f * thrustNorm,
+  BUG L302 (additive@L276 via BlendState.Additive): sb.Draw(sf, tipDraw, null, ClairDeLunePalette.ClockworkBrass with { A = 0 } * 0.25f * thrustNorm * goldPulse,
+
+=== ClairDeLune\Weapons\TemporalPiercer\Projectiles\TimePierceBoomerangProjectile.cs === (3 hits)
+  BUG L272 (additive@L258 via BlendState.Additive): ClairDeLunePalette.NightMist with { A = 0 } * 0.2f, 0f, srb.Size() * 0.5f,
+  BUG L277 (additive@L258 via BlendState.Additive): ClairDeLunePalette.SoftBlue with { A = 0 } * 0.3f, 0f, srb.Size() * 0.5f,
+  BUG L282 (additive@L258 via BlendState.Additive): ClairDeLunePalette.PearlFrost with { A = 0 } * 0.2f, 0f, pb.Size() * 0.5f,
+
+=== DiesIrae\Weapons\ExecutionersVerdict\Projectiles\ExecutionersVerdictSwing.cs === (1 hits)
+  BUG L270 (additive@L254 via BlendState.Additive): rootColor.A = 0;
+
+=== DiesIrae\Weapons\ExecutionersVerdict\Projectiles\VerdictBolt.cs === (5 hits)
+  BUG L150 (additive@L144 via BlendState.Additive): outerColor.A = 0;
+  BUG L155 (additive@L144 via BlendState.Additive): midColor.A = 0;
+  BUG L160 (additive@L144 via BlendState.Additive): coreColor.A = 0;
+  BUG L244 (additive@L237 via BlendState.Additive): slashColor.A = 0;
+  BUG L250 (additive@L237 via BlendState.Additive): goldColor.A = 0;
+
+=== DiesIrae\Weapons\WrathsCleaver\Projectiles\WrathCrystallizedFlame.cs === (6 hits)
+  BUG L182 (additive@L171 via BlendState.Additive): outerColor.A = 0;
+  BUG L187 (additive@L171 via BlendState.Additive): midColor.A = 0;
+  BUG L192 (additive@L171 via BlendState.Additive): coreColor.A = 0;
+  BUG L202 (additive@L171 via BlendState.Additive): outerColor.A = 0;
+  BUG L207 (additive@L171 via BlendState.Additive): innerColor.A = 0;
+  BUG L212 (additive@L171 via BlendState.Additive): coreColor.A = 0;
+
+=== DiesIrae\Weapons\WrathsCleaver\Projectiles\WrathsCleaverSwing.cs === (1 hits)
+  BUG L295 (additive@L276 via BlendState.Additive): rootColor.A = 0;
+
+=== EnigmaVariations\Bosses\EnigmaBossProjectiles.cs === (7 hits)
+  BUG L90 (additive@L85 via BlendState.Additive): sb.Draw(glow, pos, null, (EnigmaGreen with { A = 0 }), 0f, glow.Size() / 2, 0.5f, SpriteEffects.None, 0f);
+  BUG L91 (additive@L85 via BlendState.Additive): sb.Draw(glow, pos, null, (EnigmaPurple with { A = 0 }) * 0.6f, 0f, glow.Size() / 2, 0.7f, SpriteEffects.None, 0f);
+  BUG L92 (additive@L85 via BlendState.Additive): sb.Draw(glow, pos, null, Color.White with { A = 0 } * 0.4f, 0f, glow.Size() / 2, 0.3f, SpriteEffects.None, 0f);
+  BUG L168 (additive@L164 via BlendState.Additive): sb.Draw(glow, pos, null, (EnigmaPurple with { A = 0 }) * alpha, Projectile.rotation, glow.Size() / 2, 0.6f, SpriteEffects.None, 0f);
+  BUG L169 (additive@L164 via BlendState.Additive): sb.Draw(glow, pos, null, (EnigmaGreen with { A = 0 }) * alpha * 0.5f, Projectile.rotation * 0.5f, glow.Size() / 2, 0.8f, SpriteEffects.None,...
+  BUG L388 (additive@L384 via BlendState.Additive): sb.Draw(glow, pos, null, (EnigmaPurple with { A = 0 }) * alpha, 0f, glow.Size() / 2, new Vector2(0.5f, 0.6f), SpriteEffects.None, 0f);
+  BUG L389 (additive@L384 via BlendState.Additive): sb.Draw(glow, pos, null, (EnigmaGreen with { A = 0 }) * alpha * 0.6f, 0f, glow.Size() / 2, new Vector2(0.35f, 0.45f), SpriteEffects.None, 0f...
+
+=== Eroica\Minions\SakuraFlameProjectile.cs === (2 hits)
+  BUG L308 (additive@L275 via BlendState.Additive): Color bodyColor = Color.Lerp(FinalityUtils.AbyssalCrimson, FinalityUtils.FateViolet, progress * 0.4f) with { A = 0 };
+  BUG L315 (additive@L275 via BlendState.Additive): Color hotColor = FinalityUtils.EmberGold with { A = 0 };
+
+=== Eroica\Minions\SakuraOfFate.cs === (6 hits)
+  BUG L494 (additive@L489 via BlendState.Additive): Color outerColor = FinalityUtils.FateViolet with { A = 0 };
+  BUG L498 (additive@L489 via BlendState.Additive): Color midColor = FinalityUtils.AbyssalCrimson with { A = 0 };
+  BUG L502 (additive@L489 via BlendState.Additive): Color innerColor = FinalityUtils.EmberGold with { A = 0 };
+  BUG L668 (additive@L620 via BeginShaderAdditive(): drawColor.A = 0;
+  BUG L685 (additive@L620 via BeginShaderAdditive(): coreGlow.A = 0;
+  BUG L760 (additive@L745 via BeginShaderAdditive(): bloomColor.A = 0;
+
+=== Eroica\Projectiles\BlossomOfTheSakuraBulletProjectile.cs === (6 hits)
+  BUG L492 (additive@L468 via BeginAdditive(): Color bodyColor = Color.Lerp(BlossomUtils.CoolPetal, heatColor, progress * 0.6f) with { A = 0 };
+  BUG L612 (additive@L556 via BeginShaderAdditive(): drawColor.A = 0;
+  BUG L632 (additive@L556 via BeginShaderAdditive(): coreColor.A = 0;
+  BUG L649 (additive@L556 via BeginShaderAdditive(): bloomColor.A = 0;
+  BUG L682 (additive@L659 via BeginShaderAdditive(): Color ringColor = EroicaVFXLibrary.GetPaletteColor(0.3f + HeatProgress * 0.3f) with { A = 0 };
+  BUG L695 (additive@L659 via BeginShaderAdditive(): Color starColor = EroicaPalette.Gold with { A = 0 };
+
+=== Eroica\Projectiles\BlossomVFXHelpers.cs === (1 hits)
+  BUG L112 (additive@L101 via BlendState.Additive): color.A = 0;
+
+=== Eroica\Projectiles\EroicaSplittingOrb.cs === (2 hits)
+  BUG L241 (additive@L236 via BlendState.Additive): Color crystalCol = EroicaPalette.Gold with { A = 0 };
+  BUG L249 (additive@L236 via BlendState.Additive): Color flareCol = Color.White with { A = 0 };
+
+=== Eroica\Projectiles\FractalVFXHelpers.cs === (1 hits)
+  BUG L96 (additive@L82 via BlendState.Additive): col.A = 0;
+
+=== Eroica\Projectiles\FuneralPrayerBeam.cs === (6 hits)
+  BUG L498 (additive@L470 via BeginAdditive(): Color bodyColor = Color.Lerp(FuneralUtils.DeepCrimson, FuneralUtils.RequiemViolet, 1f - progress) with { A = 0 };
+  BUG L610 (additive@L561 via BeginShaderAdditive(): drawColor.A = 0;
+  BUG L626 (additive@L561 via BeginShaderAdditive(): coreGlow.A = 0;
+  BUG L653 (additive@L638 via BeginShaderAdditive(): bloomColor.A = 0;
+  BUG L665 (additive@L638 via BeginShaderAdditive(): Color ringCol = FuneralUtils.SmolderingAmber with { A = 0 };
+  BUG L675 (additive@L638 via BeginShaderAdditive(): Color waveCol = Color.Lerp(FuneralUtils.SmolderingAmber, FuneralUtils.PrayerFlame, wavePulse) with { A = 0 };
+
+=== Eroica\Projectiles\FuneralPrayerProjectile.cs === (6 hits)
+  BUG L402 (additive@L374 via BeginAdditive(): Color bodyColor = Color.Lerp(FuneralUtils.SmolderingAmber, FuneralUtils.DeepCrimson, progress) with { A = 0 };
+  BUG L470 (additive@L420 via BeginShaderAdditive(): drawColor.A = 0;
+  BUG L487 (additive@L420 via BeginShaderAdditive(): coreGlow.A = 0;
+  BUG L544 (additive@L518 via BeginShaderAdditive(): bloomColor.A = 0;
+  BUG L573 (additive@L550 via BeginShaderAdditive(): Color emberColor = EroicaVFXLibrary.GetPaletteColor(0.25f) with { A = 0 };
+  BUG L584 (additive@L550 via BeginShaderAdditive(): Color waveColor = Color.Lerp(EroicaVFXLibrary.Scarlet, EroicaVFXLibrary.Gold, 0.3f) with { A = 0 };
+
+=== Eroica\Projectiles\FuneralPrayerRicochetBeam.cs === (7 hits)
+  BUG L498 (additive@L470 via BeginAdditive(): Color bodyColor = Color.Lerp(FuneralUtils.DeepCrimson, EroicaPalette.Gold, progress * 0.4f) with { A = 0 };
+  BUG L611 (additive@L561 via BeginShaderAdditive(): drawColor.A = 0;
+  BUG L634 (additive@L561 via BeginShaderAdditive(): coreGlow.A = 0;
+  BUG L661 (additive@L646 via BeginShaderAdditive(): bloomColor.A = 0;
+  BUG L674 (additive@L646 via BeginShaderAdditive(): Color shatterCol = FuneralUtils.PrayerFlame with { A = 0 };
+  BUG L685 (additive@L646 via BeginShaderAdditive(): Color ringCol = Color.Lerp(FuneralUtils.PrayerFlame, FuneralUtils.SmolderingAmber, ringPulse) with { A = 0 };
+  BUG L697 (additive@L646 via BeginShaderAdditive(): deathColor.A = 0;
+
+=== Eroica\Projectiles\FuneralVFXHelpers.cs === (1 hits)
+  BUG L102 (additive@L91 via BlendState.Additive): color.A = 0;
+
+=== Eroica\Projectiles\PiercingLightOfTheSakuraProjectile.cs === (9 hits)
+  BUG L488 (additive@L463 via BeginAdditive(): Color bodyColor = Color.Lerp(PiercingUtils.BrilliantWhite, PiercingUtils.LightGold, progress) with { A = 0 };
+  BUG L560 (additive@L506 via BeginShaderAdditive(): drawColor.A = 0;
+  BUG L575 (additive@L506 via BeginShaderAdditive(): coreGlow.A = 0;
+  BUG L646 (additive@L639 via BeginAdditive(): Color bodyColor = PiercingUtils.LightGold with { A = 0 };
+  BUG L653 (additive@L639 via BeginAdditive(): Color overlayColor = PiercingUtils.CrescendoPink with { A = 0 };
+  BUG L660 (additive@L639 via BeginAdditive(): Color flareColor = PiercingUtils.BrilliantWhite with { A = 0 };
+  BUG L679 (additive@L639 via BeginAdditive(): bloomColor.A = 0;
+  BUG L711 (additive@L688 via BeginShaderAdditive(): Color burstColor = Color.Lerp(EroicaVFXLibrary.Gold, EroicaVFXLibrary.Sakura, 0.3f) with { A = 0 };
+  BUG L720 (additive@L688 via BeginShaderAdditive(): Color petalColor = EroicaVFXLibrary.Sakura with { A = 0 };
+
+=== Eroica\Projectiles\PiercingVFXHelpers.cs === (1 hits)
+  BUG L101 (additive@L90 via BlendState.Additive): color.A = 0;
+
+=== Eroica\Projectiles\SakuraLightning.cs === (3 hits)
+  BUG L200 (additive@L188 via BlendState.Additive): Color outerColor = PiercingUtils.LightGold with { A = 0 };
+  BUG L205 (additive@L188 via BlendState.Additive): Color midColor = Color.Lerp(PiercingUtils.LightGold, PiercingUtils.CrescendoPink, 0.3f) with { A = 0 };
+  BUG L210 (additive@L188 via BlendState.Additive): Color hotColor = PiercingUtils.BrilliantWhite with { A = 0 };
+
+=== Eroica\Projectiles\SakurasBlossomSpectral.cs === (6 hits)
+  BUG L258 (additive@L233 via BlendState.Additive): Color outerColor = EroicaPalette.Sakura with { A = 0 } * (fade * 0.25f);
+  BUG L263 (additive@L233 via BlendState.Additive): Color bodyColor = Color.Lerp(Color.White, EroicaPalette.Sakura, progress * 0.7f) with { A = 0 } * (fade * 0.35f);
+  BUG L268 (additive@L233 via BlendState.Additive): Color coreColor = Color.White with { A = 0 } * (fade * 0.25f * headStrength);
+  BUG L314 (additive@L292 via BlendState.Additive): Color afterColor = Color.Lerp(EroicaPalette.Sakura, EroicaPalette.Gold, progress * 0.3f) with { A = 0 } * (fadeFactor * 0.2f);
+  BUG L355 (additive@L343 via BlendState.Additive): Color bodyColor = EroicaPalette.Sakura with { A = 0 };
+  BUG L362 (additive@L343 via BlendState.Additive): Color flareColor = Color.White with { A = 0 };
+
+=== Eroica\Projectiles\TriumphantFractalProjectile.cs === (10 hits)
+  BUG L484 (additive@L461 via BeginAdditive(): Color bodyColor = Color.Lerp(FractalUtils.FractalGold, FractalUtils.FractalViolet, (1f - progress) * 0.6f) with { A = 0 };
+  BUG L509 (additive@L461 via BeginAdditive(): arcColor.A = 0;
+  BUG L599 (additive@L549 via BeginShaderAdditive(): drawColor.A = 0;
+  BUG L616 (additive@L549 via BeginShaderAdditive(): coreGlow.A = 0;
+  BUG L695 (additive@L687 via BeginAdditive(): Color bodyCol = FractalUtils.FractalGold with { A = 0 };
+  BUG L703 (additive@L687 via BeginAdditive(): Color overlayCol = FractalUtils.FractalViolet with { A = 0 };
+  BUG L712 (additive@L687 via BeginAdditive(): Color flareCol = FractalUtils.CrystalWhite with { A = 0 };
+  BUG L732 (additive@L687 via BeginAdditive(): bloomColor.A = 0;
+  BUG L762 (additive@L739 via BeginShaderAdditive(): Color orbColor = EroicaVFXLibrary.Gold with { A = 0 };
+  BUG L772 (additive@L739 via BeginShaderAdditive(): Color ringColor = EroicaVFXLibrary.GetPaletteColor(0.4f) with { A = 0 };
+
+=== Eroica\Weapons\CelestialValor\CelestialValorProjectile.cs === (3 hits)
+  BUG L171 (additive@L148 via BlendState.Additive): Color outerColor = EroicaPalette.Scarlet with { A = 0 } * (fade * 0.3f);
+  BUG L175 (additive@L148 via BlendState.Additive): Color bodyColor = Color.Lerp(Color.White, EroicaPalette.Gold, progress) with { A = 0 } * (fade * 0.45f);
+  BUG L179 (additive@L148 via BlendState.Additive): Color coreColor = Color.White with { A = 0 } * (fade * 0.35f * headStrength);
+
+=== Eroica\Weapons\CelestialValor\CelestialValorSwing.cs === (11 hits)
+  BUG L523 (additive@L520 via BeginAdditive(): Color outerCol = EroicaPalette.DeepScarlet with { A = 0 };
+  BUG L524 (additive@L520 via BeginAdditive(): Color mainCol = Color.Lerp(EroicaPalette.Scarlet, EroicaPalette.Gold, 0.3f) with { A = 0 };
+  BUG L525 (additive@L520 via BeginAdditive(): Color coreCol = EroicaPalette.HotCore with { A = 0 };
+  BUG L670 (additive@L647 via BeginAdditive(): Color bodyColor = Color.Lerp(EroicaPalette.Crimson, EroicaPalette.Gold, progress) with { A = 0 };
+  BUG L700 (additive@L685 via BeginAdditive(): Color glowColor = Color.Lerp(EroicaPalette.DeepScarlet, EroicaPalette.Gold, progress) with { A = 0 };
+  BUG L768 (additive@L724 via BeginShaderAdditive(): col.A = 0;
+  BUG L829 (additive@L805 via BeginShaderAdditive(): Color starCol = Color.Lerp(EroicaPalette.Scarlet, EroicaPalette.Gold, intensity) with { A = 0 };
+  BUG L842 (additive@L805 via BeginShaderAdditive(): Color ringCol = EroicaPalette.Gold with { A = 0 };
+  BUG L906 (additive@L874 via BeginShaderAdditive(): Color glowCol = Color.Lerp(EroicaPalette.Scarlet, EroicaPalette.Gold, ratio) with { A = 0 };
+  BUG L914 (additive@L874 via BeginShaderAdditive(): Color ringCol = EroicaPalette.Gold with { A = 0 };
+  BUG L957 (additive@L938 via BeginShaderAdditive(): Color sakuraGlow = EroicaPalette.Sakura with { A = 0 };
+
+=== Eroica\Weapons\CelestialValor\Projectiles\ValorBeam.cs === (2 hits)
+  BUG L145 (additive@L137 via BlendState.Additive): Color bodyColor = EroicaPalette.Gold with { A = 0 };
+  BUG L154 (additive@L137 via BlendState.Additive): Color flareColor = EroicaPalette.HotCore with { A = 0 };
+
+=== Eroica\Weapons\CelestialValor\Projectiles\ValorBoom.cs === (3 hits)
+  BUG L165 (additive@L154 via BlendState.Additive): Color hazeColor = EroicaPalette.Scarlet with { A = 0 };
+  BUG L175 (additive@L154 via BlendState.Additive): Color flareColor = EroicaPalette.HotCore with { A = 0 };
+  BUG L180 (additive@L154 via BlendState.Additive): Color crossColor = EroicaPalette.Gold with { A = 0 };
+
+=== Eroica\Weapons\CelestialValor\Projectiles\ValorSlash.cs === (2 hits)
+  BUG L131 (additive@L125 via BlendState.Additive): Color flareColor = EroicaPalette.Gold with { A = 0 };
+  BUG L136 (additive@L125 via BlendState.Additive): Color hotColor = EroicaPalette.HotCore with { A = 0 };
+
+=== Eroica\Weapons\SakurasBlossom\SakurasBlossomSwing.cs === (11 hits)
+  BUG L464 (additive@L461 via BeginAdditive(): Color outerCol = EroicaPalette.Sakura with { A = 0 };
+  BUG L465 (additive@L461 via BeginAdditive(): Color mainCol = Color.Lerp(EroicaPalette.Sakura, Color.White, 0.3f) with { A = 0 };
+  BUG L466 (additive@L461 via BeginAdditive(): Color coreCol = Color.Lerp(Color.White, EroicaPalette.Sakura, 0.15f) with { A = 0 };
+  BUG L621 (additive@L594 via BeginAdditive(): Color bodyColor = Color.Lerp(EroicaPalette.Sakura, Color.White, progress * 0.5f) with { A = 0 };
+  BUG L646 (additive@L636 via BeginAdditive(): Color bloomCol = EroicaPalette.Sakura with { A = 0 };
+  BUG L712 (additive@L670 via BeginShaderAdditive(): col.A = 0;
+  BUG L764 (additive@L739 via BeginShaderAdditive(): Color petalCol = EroicaPalette.Sakura with { A = 0 };
+  BUG L811 (additive@L785 via BeginShaderAdditive(): Color meditColor = EroicaPalette.Sakura with { A = 0 };
+  BUG L814 (additive@L785 via BeginShaderAdditive(): Color innerColor = EroicaPalette.PollenGold with { A = 0 };
+  BUG L826 (additive@L785 via BeginShaderAdditive(): Color ringCol = Color.Lerp(EroicaPalette.Sakura, EroicaPalette.PollenGold, ringPulse) with { A = 0 };
+  BUG L863 (additive@L845 via BeginShaderAdditive(): Color sakuraGlow = EroicaPalette.Sakura with { A = 0 };
+
+=== Fate\ResonantWeapons\FractalOfTheStars\Projectiles\FractalSwingProjectile.cs === (6 hits)
+  BUG L663 (additive@L660 via BeginAdditive(): outerColor.A = 0;
+  BUG L668 (additive@L660 via BeginAdditive(): Color midColor = FractalUtils.FractalPurple with { A = 0 };
+  BUG L673 (additive@L660 via BeginAdditive(): innerColor.A = 0;
+  BUG L678 (additive@L660 via BeginAdditive(): Color coreWhite = FractalUtils.SupernovaFlash with { A = 0 };
+  BUG L687 (additive@L660 via BeginAdditive(): Color flareColor = innerColor with { A = 0 };
+  BUG L700 (additive@L660 via BeginAdditive(): Color orbColor = FractalUtils.NebulaPink with { A = 0 };
+
+=== Fate\ResonantWeapons\LightOfTheFuture\Projectiles\LightAcceleratingBullet.cs === (2 hits)
+  BUG L471 (additive@L410 via BlendState.Additive): sb.Draw(_glowTex.Value, drawPos, null, coreCol with { A = 0 },
+  BUG L476 (additive@L410 via BlendState.Additive): sb.Draw(_glowTex.Value, drawPos, null, bloomCol with { A = 0 },
+
+=== Fate\ResonantWeapons\RequiemOfReality\Projectiles\RequiemRealityTear.cs === (6 hits)
+  BUG L168 (additive@L159 via BlendState.Additive): (RequiemUtils.DarkPink with { A = 0 }) * 0.3f * opacity * pulse, 0f, glowOrigin,
+  BUG L171 (additive@L159 via BlendState.Additive): (RequiemUtils.BrightCrimson with { A = 0 }) * 0.2f * opacity, 0f, glowOrigin,
+  BUG L181 (additive@L159 via BlendState.Additive): (RequiemUtils.FatePurple with { A = 0 }) * 0.5f * opacity, glyphRot, glyphOrigin,
+  BUG L192 (additive@L159 via BlendState.Additive): (RequiemUtils.BrightCrimson with { A = 0 }) * 0.7f * opacity * pulse, riftRot, origin,
+  BUG L196 (additive@L159 via BlendState.Additive): (RequiemUtils.SupernovaWhite with { A = 0 }) * 0.4f * opacity, riftRot + 0.5f, origin,
+  BUG L206 (additive@L159 via BlendState.Additive): (RequiemUtils.SupernovaWhite with { A = 0 }) * 0.5f * opacity * superPulse, 0f, superOrigin,
+
+=== LaCampanella\ResonantWeapons\GrandioseChime\Projectiles\BellfireNoteProj.cs === (1 hits)
+  BUG L88 (additive@L84 via BlendState.Additive): (GrandioseChimeUtils.BarragePalette[1] with { A = 0 }) * 0.2f, 0f, bloomTex.Size() / 2f, 0.2f, SpriteEffects.None, 0f);
+
+=== LaCampanella\ResonantWeapons\GrandioseChime\Projectiles\KillEchoProj.cs === (2 hits)
+  BUG L150 (additive@L145 via BlendState.Additive): Color echoColor = (GrandioseChimeUtils.EchoPalette[1] with { A = 0 }) * fade * 0.5f;
+  BUG L155 (additive@L145 via BlendState.Additive): Color glow = (GrandioseChimeUtils.EchoPalette[0] with { A = 0 }) * fade * 0.3f;
+
+=== MoonlightSonata\Weapons\EternalMoon\Projectiles\EternalMoonGhost.cs === (2 hits)
+  BUG L149 (additive@L143 via BlendState.Additive): Color outerGlow = EternalMoonUtils.DarkPurple with { A = 0 };
+  BUG L159 (additive@L143 via BlendState.Additive): Color glowColor = EternalMoonUtils.IceBlue with { A = 0 };
+
+=== MoonlightSonata\Weapons\EternalMoon\Projectiles\EternalMoonTidalDetonation.cs === (2 hits)
+  BUG L265 (additive@L247 via BlendState.Additive): ringColor.A = 0;
+  BUG L274 (additive@L247 via BlendState.Additive): EternalMoonUtils.IceBlue with { A = 0 } * coreAlpha,
+
+=== MoonlightSonata\Weapons\EternalMoon\Projectiles\EternalMoonWave.cs === (2 hits)
+  BUG L208 (additive@L182 via BlendState.Additive): outerColor.A = 0;
+  BUG L231 (additive@L182 via BlendState.Additive): c.A = 0;
+
+=== MoonlightSonata\Weapons\IncisorOfMoonlight\Projectiles\CrescentMoonProj.cs === (4 hits)
+  BUG L133 (additive@L127 via BlendState.Additive): Color glowColor = new Color(100, 140, 220) with { A = 0 };
+  BUG L139 (additive@L127 via BlendState.Additive): MathF.Sin(Projectile.ai[1] * 0.05f) * 0.5f + 0.5f) with { A = 0 };
+  BUG L145 (additive@L127 via BlendState.Additive): Main.spriteBatch.Draw(crescentTex, drawPos, null, Color.White with { A = 0 } * 0.6f,
+  BUG L158 (additive@L127 via BlendState.Additive): Color ribbonColor = Color.Lerp(new Color(135, 206, 250), new Color(170, 140, 255), i / 12f) with { A = 0 };
+
+=== MoonlightSonata\Weapons\IncisorOfMoonlight\Projectiles\CrescentWaveProj.cs === (4 hits)
+  BUG L137 (additive@L131 via BlendState.Additive): Color ambientColor = new Color(90, 50, 160) with { A = 0 };
+  BUG L142 (additive@L131 via BlendState.Additive): Color ringColor = Color.Lerp(new Color(135, 206, 250), new Color(170, 140, 255), progress) with { A = 0 };
+  BUG L147 (additive@L131 via BlendState.Additive): Color innerColor = Color.Lerp(new Color(220, 230, 255), Color.White, progress * 0.5f) with { A = 0 };
+  BUG L155 (additive@L131 via BlendState.Additive): Main.spriteBatch.Draw(bloomTex, drawPos, null, Color.White with { A = 0 } * flashFade * 0.5f,
+
+=== MoonlightSonata\Weapons\IncisorOfMoonlight\Projectiles\LunarBeamProj.cs === (3 hits)
+  BUG L132 (additive@L109 via BlendState.Additive): beamColor.A = 0;
+  BUG L154 (additive@L109 via BlendState.Additive): coreColor.A = 0;
+  BUG L166 (additive@L109 via BlendState.Additive): headColor.A = 0;
+
+=== MoonlightSonata\Weapons\IncisorOfMoonlight\Projectiles\LunarNova.cs === (2 hits)
+  BUG L103 (additive@L96 via BlendState.Additive): pulseColor.A = 0;
+  BUG L110 (additive@L96 via BlendState.Additive): ringColor.A = 0;
+
+=== MoonlightSonata\Weapons\MoonlightsCalling\Projectiles\SerenadeBeam.cs === (4 hits)
+  BUG L478 (additive@L473 via BlendState.Additive): Color haloColor = GetBeamGradient(SpectralPhase * 0.3f) with { A = 0 };
+  BUG L485 (additive@L473 via BlendState.Additive): Color spectralRing = GetBeamGradient(SpectralPhase * 0.7f) with { A = 0 };
+  BUG L492 (additive@L473 via BlendState.Additive): Color coreColor = GetBeamGradient(SpectralPhase * 0.5f) with { A = 0 };
+  BUG L500 (additive@L473 via BlendState.Additive): (MoonWhite with { A = 0 }) * 0.7f * bounceIntensity,
+
+=== MoonlightSonata\Weapons\MoonlightsCalling\Projectiles\SerenadeHoldout.cs === (3 hits)
+  BUG L593 (additive@L588 via BlendState.Additive): Color outerCol = Color.Lerp(PrismViolet, resColor, 0.4f) with { A = 0 };
+  BUG L597 (additive@L588 via BlendState.Additive): Color midCol = Color.Lerp(RefractedBlue, resColor, 0.3f) with { A = 0 };
+  BUG L601 (additive@L588 via BlendState.Additive): Color coreCol = MoonWhite with { A = 0 };
+
+=== MoonlightSonata\Weapons\ResurrectionOfTheMoon\Projectiles\CometCore.cs === (5 hits)
+  BUG L306 (additive@L300 via BlendState.Additive): sb.Draw(bloom, drawPos, null, lunarTint with { A = 0 } * 0.5f, 0f, origin, 0.6f, SpriteEffects.None, 0f);
+  BUG L309 (additive@L300 via BlendState.Additive): sb.Draw(bloom, drawPos, null, CometUtils.CometCoreColor with { A = 0 } * 0.3f, 0f, origin, 0.4f, SpriteEffects.None, 0f);
+  BUG L312 (additive@L300 via BlendState.Additive): sb.Draw(bloom, drawPos, null, CometUtils.FrigidImpact with { A = 0 } * 0.7f, 0f, origin, 0.3f, SpriteEffects.None, 0f);
+  BUG L320 (additive@L300 via BlendState.Additive): sb.Draw(softGlow, drawPos, null, new Color(120, 190, 255) with { A = 0 } * (0.12f * pulse),
+  BUG L324 (additive@L300 via BlendState.Additive): sb.Draw(softGlow, drawPos, null, CometUtils.ImpactCrater with { A = 0 } * (0.08f * pulse),
+
+=== MoonlightSonata\Weapons\ResurrectionOfTheMoon\Projectiles\ResurrectionProjectile.cs === (4 hits)
+  BUG L410 (additive@L405 via BlendState.Additive): Color ellipseColor = CometUtils.GetCometGradient(CometPhase * 0.8f) with { A = 0 };
+  BUG L417 (additive@L405 via BlendState.Additive): Color outerColor = CometUtils.GetCometGradient(CometPhase) with { A = 0 };
+  BUG L423 (additive@L405 via BlendState.Additive): Color midColor = CometUtils.GetCometGradient(CometPhase * 0.5f) with { A = 0 };
+  BUG L428 (additive@L405 via BlendState.Additive): Color coreColor = CometUtils.FrigidImpact with { A = 0 };
+
+=== MoonlightSonata\Weapons\ResurrectionOfTheMoon\Projectiles\SupernovaShell.cs === (3 hits)
+  BUG L628 (additive@L621 via BlendState.Additive): sb.Draw(bloom, drawPos, null, lunarTint with { A = 0 } * 0.4f * pulse, 0f, origin, 0.5f, SpriteEffects.None, 0f);
+  BUG L631 (additive@L621 via BlendState.Additive): sb.Draw(bloom, drawPos, null, CometUtils.SupernovaColor with { A = 0 } * 0.2f, 0f, origin, 0.35f, SpriteEffects.None, 0f);
+  BUG L634 (additive@L621 via BlendState.Additive): sb.Draw(bloom, drawPos, null, CometUtils.CometCoreWhite with { A = 0 } * 0.4f, 0f, origin, 0.25f, SpriteEffects.None, 0f);
+
+=== MoonlightSonata\Weapons\StaffOfTheLunarPhases\Projectiles\GoliathDevastatingBeam.cs === (3 hits)
+  BUG L352 (additive@L347 via BlendState.Additive): Color outerColor = GoliathUtils.WaxingGibbous with { A = 0 };
+  BUG L357 (additive@L347 via BlendState.Additive): Color midColor = GoliathUtils.FullMoonIceBlue with { A = 0 };
+  BUG L362 (additive@L347 via BlendState.Additive): Color coreColor = GoliathUtils.SupermoonWhite with { A = 0 };
+
+=== MoonlightSonata\Weapons\StaffOfTheLunarPhases\Projectiles\GoliathMoonlightBeam.cs === (4 hits)
+  BUG L338 (additive@L333 via BlendState.Additive): Color outerColor = GoliathUtils.NebulaPurple with { A = 0 };
+  BUG L344 (additive@L333 via BlendState.Additive): Color midColor = GoliathUtils.IceBlueBrilliance with { A = 0 };
+  BUG L353 (additive@L333 via BlendState.Additive): 0.6f + BeamIntensity * 0.3f) with { A = 0 };
+  BUG L366 (additive@L333 via BlendState.Additive): Color coreColor = GoliathUtils.StarCore with { A = 0 };
+
+=== Nachtmusik\Weapons\CelestialChorusBaton\Projectiles\NocturnalGuardianMinion.cs === (4 hits)
+  BUG L154 (additive@L148 via BeginShaderAdditive(): NachtmusikPalette.CosmicPurple with { A = 0 } * auraIntensity * 0.4f,
+  BUG L169 (additive@L148 via BeginShaderAdditive(): sb.Draw(glow, drawPos, null, NachtmusikPalette.CosmicPurple with { A = 0 } * 0.35f * attackBoost,
+  BUG L171 (additive@L148 via BeginShaderAdditive(): sb.Draw(glow, drawPos, null, NachtmusikPalette.Violet with { A = 0 } * 0.25f * attackBoost,
+  BUG L173 (additive@L148 via BeginShaderAdditive(): sb.Draw(glow, drawPos, null, NachtmusikPalette.StarWhite with { A = 0 } * 0.1f * attackBoost,
+
+=== Nachtmusik\Weapons\ConductorOfConstellations\Projectiles\StellarConductorMinion.cs === (6 hits)
+  BUG L141 (additive@L135 via BeginShaderAdditive(): NachtmusikPalette.CosmicPurple with { A = 0 } * 0.3f,
+  BUG L157 (additive@L135 via BeginShaderAdditive(): sb.Draw(glow, drawPos, null, NachtmusikPalette.CosmicPurple with { A = 0 } * 0.4f,
+  BUG L160 (additive@L135 via BeginShaderAdditive(): sb.Draw(glow, drawPos, null, NachtmusikPalette.RadianceGold with { A = 0 } * 0.35f,
+  BUG L163 (additive@L135 via BeginShaderAdditive(): sb.Draw(glow, drawPos, null, NachtmusikPalette.Violet with { A = 0 } * 0.25f,
+  BUG L166 (additive@L135 via BeginShaderAdditive(): sb.Draw(glow, drawPos, null, NachtmusikPalette.StarWhite with { A = 0 } * 0.12f,
+  BUG L175 (additive@L135 via BeginShaderAdditive(): NachtmusikPalette.RadianceGold with { A = 0 } * 0.12f,
+
+=== Nachtmusik\Weapons\ConstellationPiercer\ConstellationPiercer.cs === (3 hits)
+  BUG L116 (additive@L112 via BlendState.Additive): spriteBatch.Draw(tex, pos, null, NachtmusikPalette.ConstellationBlue with { A = 0 } * 0.35f,
+  BUG L121 (additive@L112 via BlendState.Additive): spriteBatch.Draw(tex, pos, null, NachtmusikPalette.StarGold with { A = 0 } * 0.25f * crosshairPulse,
+  BUG L125 (additive@L112 via BlendState.Additive): spriteBatch.Draw(tex, pos, null, NachtmusikPalette.StarWhite with { A = 0 } * 0.2f,
+
+=== Nachtmusik\Weapons\ConstellationPiercer\Projectiles\ConstellationBoltProjectile.cs === (5 hits)
+  BUG L250 (additive@L246 via BeginAdditive(): NachtmusikPalette.ConstellationBlue with { A = 0 } * 0.5f,
+  BUG L255 (additive@L246 via BeginAdditive(): NachtmusikPalette.StarWhite with { A = 0 } * 0.45f,
+  BUG L260 (additive@L246 via BeginAdditive(): NachtmusikPalette.StarlightCore with { A = 0 } * 0.4f,
+  BUG L269 (additive@L246 via BeginAdditive(): NachtmusikPalette.ConstellationBlue with { A = 0 } * 0.2f,
+  BUG L278 (additive@L246 via BeginAdditive(): NachtmusikPalette.StarGold with { A = 0 } * 0.15f,
+
+=== Nachtmusik\Weapons\GalacticOverture\Projectiles\CelestialMuseMinion.cs === (4 hits)
+  BUG L121 (additive@L116 via BeginShaderAdditive(): NachtmusikPalette.RadianceGold with { A = 0 } * 0.25f,
+  BUG L136 (additive@L116 via BeginShaderAdditive(): sb.Draw(glow, drawPos, null, NachtmusikPalette.RadianceGold with { A = 0 } * 0.3f,
+  BUG L139 (additive@L116 via BeginShaderAdditive(): sb.Draw(glow, drawPos, null, NachtmusikPalette.Violet with { A = 0 } * 0.2f,
+  BUG L142 (additive@L116 via BeginShaderAdditive(): sb.Draw(glow, drawPos, null, NachtmusikPalette.StarWhite with { A = 0 } * 0.1f,
+
+=== Nachtmusik\Weapons\MidnightsCrescendo\MidnightsCrescendo.cs === (3 hits)
+  BUG L152 (additive@L148 via BlendState.Additive): Color outerColor = Color.Lerp(new Color(40, 30, 100), new Color(60, 80, 180), stackProgress) with { A = 0 };
+  BUG L158 (additive@L148 via BlendState.Additive): Color midColor = Color.Lerp(new Color(60, 80, 180), new Color(180, 200, 230), stackProgress) with { A = 0 };
+  BUG L165 (additive@L148 via BlendState.Additive): Color coreColor = new Color(240, 245, 255) with { A = 0 };
+
+=== Nachtmusik\Weapons\MidnightsCrescendo\Projectiles\CrescendoWaveProjectile.cs === (8 hits)
+  BUG L219 (additive@L215 via BlendState.Additive): Color outerColor = Color.Lerp(NightVoid, DeepIndigo, 0.5f + StackIntensity * 0.3f) with { A = 0 };
+  BUG L224 (additive@L215 via BlendState.Additive): Color midColor = Color.Lerp(DeepIndigo, CosmicBlue, StackIntensity) with { A = 0 };
+  BUG L229 (additive@L215 via BlendState.Additive): Color coreColor = Color.Lerp(StarlightSilver, StellarWhite, StackIntensity) with { A = 0 };
+  BUG L237 (additive@L215 via BlendState.Additive): Color nucleusColor = StellarWhite with { A = 0 };
+  BUG L253 (additive@L215 via BlendState.Additive): sb.Draw(bloomTex, drawPos, null, (bloomPrimary with { A = 0 }) * bloomOpacity * 0.4f,
+  BUG L255 (additive@L215 via BlendState.Additive): sb.Draw(bloomTex, drawPos, null, (bloomSecondary with { A = 0 }) * bloomOpacity * 0.6f,
+  BUG L257 (additive@L215 via BlendState.Additive): sb.Draw(bloomTex, drawPos, null, (StellarWhite with { A = 0 }) * bloomOpacity * 0.5f,
+  BUG L269 (additive@L215 via BlendState.Additive): Color trailColor = Color.Lerp(CosmicBlue, StarlightSilver, trailProgress * StackIntensity) with { A = 0 };
+
+=== Nachtmusik\Weapons\MidnightsCrescendo\Projectiles\MidnightsCrescendoSwing.cs === (7 hits)
+  BUG L387 (additive@L382 via BeginShaderAdditive(): Color auraColor = Color.Lerp(DeepIndigo, StarlightSilver, stackProgress) with { A = 0 } * auraOpacity * 0.5f;
+  BUG L395 (additive@L382 via BeginShaderAdditive(): Color midAura = CosmicBlue with { A = 0 } * auraOpacity * 0.3f * (stackProgress - 0.5f) * 2f;
+  BUG L493 (additive@L490 via BeginAdditive(): Color outerColor = Color.Lerp(NightVoid, DeepIndigo, stackProgress) with { A = 0 };
+  BUG L498 (additive@L490 via BeginAdditive(): Color midColor = Color.Lerp(DeepIndigo, CosmicBlue, stackProgress) with { A = 0 };
+  BUG L503 (additive@L490 via BeginAdditive(): Color innerColor = Color.Lerp(CosmicBlue, StarlightSilver, stackProgress) with { A = 0 };
+  BUG L508 (additive@L490 via BeginAdditive(): Color coreColor = Color.Lerp(StarlightSilver, StellarWhite, stackProgress) with { A = 0 };
+  BUG L522 (additive@L490 via BeginAdditive(): Color.Lerp(CosmicBlue, StarlightSilver, stackProgress) with { A = 0 } * bloomOpacity * flareAlpha * 0.3f,
+
+=== Nachtmusik\Weapons\NebulasWhisper\NebulasWhisper.cs === (3 hits)
+  BUG L126 (additive@L122 via BlendState.Additive): spriteBatch.Draw(tex, pos, null, NachtmusikPalette.CosmicPurple with { A = 0 } * 0.3f,
+  BUG L131 (additive@L122 via BlendState.Additive): spriteBatch.Draw(tex, pos, null, NachtmusikPalette.Violet with { A = 0 } * 0.28f * nebulaShift,
+  BUG L135 (additive@L122 via BlendState.Additive): spriteBatch.Draw(tex, pos, null, NachtmusikPalette.StarWhite with { A = 0 } * 0.22f,
+
+=== Nachtmusik\Weapons\NebulasWhisper\Projectiles\NebulaWhisperShot.cs === (7 hits)
+  BUG L209 (additive@L203 via BeginShaderAdditive(): NachtmusikPalette.CosmicPurple with { A = 0 } * baseOpacity * 0.4f,
+  BUG L216 (additive@L203 via BeginShaderAdditive(): NachtmusikPalette.Violet with { A = 0 } * 0.25f,
+  BUG L230 (additive@L203 via BeginShaderAdditive(): NachtmusikPalette.CosmicPurple with { A = 0 } * baseOpacity * 0.6f,
+  BUG L236 (additive@L203 via BeginShaderAdditive(): NachtmusikPalette.Violet with { A = 0 } * baseOpacity * 0.5f * violetShift,
+  BUG L241 (additive@L203 via BeginShaderAdditive(): NachtmusikPalette.DeepBlue with { A = 0 } * baseOpacity * 0.45f,
+  BUG L247 (additive@L203 via BeginShaderAdditive(): NachtmusikPalette.StarWhite with { A = 0 } * baseOpacity * 0.35f * corePulse,
+  BUG L258 (additive@L256 via BeginAdditive(): NachtmusikPalette.Violet with { A = 0 } * 0.2f,
+
+=== Nachtmusik\Weapons\NocturnalExecutioner\NocturnalExecutioner.cs === (3 hits)
+  BUG L184 (additive@L180 via BlendState.Additive): Color outerColor = Color.Lerp(NachtmusikPalette.DeepBlue, NachtmusikPalette.StarlitBlue, chargeProgress) with { A = 0 };
+  BUG L189 (additive@L180 via BlendState.Additive): Color midColor = NachtmusikPalette.StarlitBlue with { A = 0 };
+  BUG L196 (additive@L180 via BlendState.Additive): Color coreColor = NachtmusikPalette.StarWhite with { A = 0 };
+
+=== Nachtmusik\Weapons\NocturnalExecutioner\Projectiles\NocturnalBladeProjectiles.cs === (5 hits)
+  BUG L146 (additive@L143 via BlendState.Additive): Main.EntitySpriteDraw(tex, pos, null, CosmicBlue with { A = 0 } * 0.6f,
+  BUG L148 (additive@L143 via BlendState.Additive): Main.EntitySpriteDraw(tex, pos, null, StarlightSilver with { A = 0 } * 0.3f,
+  BUG L308 (additive@L157 via BeginAdditive(): trailColor.A = 0;
+  BUG L322 (additive@L318 via BlendState.Additive): Main.EntitySpriteDraw(tex, pos, null, StarlightSilver with { A = 0 } * 0.5f,
+  BUG L324 (additive@L318 via BlendState.Additive): Main.EntitySpriteDraw(tex, pos, null, CosmicBlue with { A = 0 } * 0.3f,
+
+=== Nachtmusik\Weapons\NocturnalExecutioner\Projectiles\NocturnalExecutionerSwing.cs === (9 hits)
+  BUG L332 (additive@L328 via BeginShaderAdditive(): Color auraColor = NachtmusikPalette.CosmicVoid with { A = 0 } * auraOpacity * 0.5f;
+  BUG L338 (additive@L328 via BeginShaderAdditive(): Color tipAura = NachtmusikPalette.Violet with { A = 0 } * auraOpacity * 0.7f;
+  BUG L402 (additive@L399 via BeginAdditive(): sb.Draw(bloomTex, tipScreen, null, NachtmusikPalette.CosmicVoid with { A = 0 } * bloomOpacity * 0.2f,
+  BUG L406 (additive@L399 via BeginAdditive(): sb.Draw(bloomTex, tipScreen, null, NachtmusikPalette.CosmicPurple with { A = 0 } * bloomOpacity * 0.3f,
+  BUG L410 (additive@L399 via BeginAdditive(): sb.Draw(bloomTex, tipScreen, null, DeepIndigo with { A = 0 } * bloomOpacity * 0.45f,
+  BUG L414 (additive@L399 via BeginAdditive(): sb.Draw(bloomTex, tipScreen, null, StarlightSilver with { A = 0 } * bloomOpacity * 0.5f,
+  BUG L418 (additive@L399 via BeginAdditive(): sb.Draw(bloomTex, tipScreen, null, StellarWhite with { A = 0 } * bloomOpacity * 0.25f,
+  BUG L427 (additive@L399 via BeginAdditive(): sb.Draw(flareTex, tipScreen, null, NachtmusikPalette.Violet with { A = 0 } * bloomOpacity * 0.35f,
+  BUG L429 (additive@L399 via BeginAdditive(): sb.Draw(flareTex, tipScreen, null, StellarWhite with { A = 0 } * bloomOpacity * 0.15f,
+
+=== Nachtmusik\Weapons\RequiemOfTheCosmos\Projectiles\CosmicRequiemOrbProjectile.cs === (8 hits)
+  BUG L200 (additive@L194 via BeginShaderAdditive(): NachtmusikPalette.CosmicPurple with { A = 0 } * 0.35f,
+  BUG L219 (additive@L212 via BlendState.Additive): spriteBatch.Draw(texture, drawPos, null, NachtmusikPalette.CosmicVoid with { A = 0 } * 0.7f * pulse,
+  BUG L222 (additive@L212 via BlendState.Additive): spriteBatch.Draw(texture, drawPos, null, NachtmusikPalette.DeepBlue with { A = 0 } * 0.6f * pulse,
+  BUG L225 (additive@L212 via BlendState.Additive): spriteBatch.Draw(texture, drawPos, null, NachtmusikPalette.ConstellationBlue with { A = 0 } * 0.7f * pulse,
+  BUG L228 (additive@L212 via BlendState.Additive): spriteBatch.Draw(texture, drawPos, null, NachtmusikPalette.StarWhite with { A = 0 } * 0.8f,
+  BUG L235 (additive@L212 via BlendState.Additive): spriteBatch.Draw(texture, drawPos, null, NachtmusikPalette.ConstellationBlue with { A = 0 } * 0.3f * ringPulse,
+  BUG L243 (additive@L212 via BlendState.Additive): NachtmusikPalette.CosmicPurple with { A = 0 } * 0.2f * ringPulse,
+  BUG L252 (additive@L212 via BlendState.Additive): NachtmusikPalette.Violet with { A = 0 } * 0.15f,
+
+=== Nachtmusik\Weapons\SerenadeOfDistantStars\SerenadeOfDistantStars.cs === (3 hits)
+  BUG L116 (additive@L112 via BlendState.Additive): spriteBatch.Draw(tex, pos, null, NachtmusikPalette.DeepBlue with { A = 0 } * 0.3f,
+  BUG L121 (additive@L112 via BlendState.Additive): spriteBatch.Draw(tex, pos, null, NachtmusikPalette.StarGold with { A = 0 } * 0.3f * warmPulse,
+  BUG L125 (additive@L112 via BlendState.Additive): spriteBatch.Draw(tex, pos, null, NachtmusikPalette.MoonlitSilver with { A = 0 } * 0.2f,
+
+=== Nachtmusik\Weapons\SerenadeOfDistantStars\Projectiles\SerenadeStarProjectile.cs === (7 hits)
+  BUG L266 (additive@L260 via BeginShaderAdditive(): NachtmusikPalette.StarGold with { A = 0 } * 0.35f,
+  BUG L280 (additive@L276 via BeginAdditive(): NachtmusikPalette.StarGold with { A = 0 } * 0.5f,
+  BUG L285 (additive@L276 via BeginAdditive(): NachtmusikPalette.StarlitBlue with { A = 0 } * 0.4f,
+  BUG L290 (additive@L276 via BeginAdditive(): NachtmusikPalette.StarWhite with { A = 0 } * 0.4f,
+  BUG L300 (additive@L276 via BeginAdditive(): NachtmusikPalette.StarGold with { A = 0 } * 0.25f,
+  BUG L313 (additive@L276 via BeginAdditive(): NachtmusikPalette.RadianceGold with { A = 0 } * 0.25f,
+  BUG L322 (additive@L276 via BeginAdditive(): NachtmusikPalette.StarGold with { A = 0 } * 0.2f,
+
+=== Nachtmusik\Weapons\StarweaversGrimoire\Projectiles\StarweaverOrbProjectile.cs === (6 hits)
+  BUG L166 (additive@L160 via BeginShaderAdditive(): NachtmusikPalette.DeepBlue with { A = 0 } * 0.3f,
+  BUG L186 (additive@L178 via BlendState.Additive): spriteBatch.Draw(texture, drawPos, null, NachtmusikPalette.DeepBlue with { A = 0 } * 0.5f * pulse,
+  BUG L189 (additive@L178 via BlendState.Additive): spriteBatch.Draw(texture, drawPos, null, NachtmusikPalette.ConstellationBlue with { A = 0 } * 0.6f * pulse,
+  BUG L192 (additive@L178 via BlendState.Additive): spriteBatch.Draw(texture, drawPos, null, NachtmusikPalette.Silver with { A = 0 } * 0.8f,
+  BUG L195 (additive@L178 via BlendState.Additive): spriteBatch.Draw(texture, drawPos, null, NachtmusikPalette.StarWhite with { A = 0 } * 0.5f,
+  BUG L202 (additive@L178 via BlendState.Additive): spriteBatch.Draw(bloomTex, drawPos, null, NachtmusikPalette.Violet with { A = 0 } * 0.2f,
+
+=== Nachtmusik\Weapons\TwilightSeverance\TwilightSeverance.cs === (3 hits)
+  BUG L189 (additive@L185 via BlendState.Additive): Color outerColor = Color.Lerp(DeepIndigo, CosmicBlue, chargeProgress) with { A = 0 };
+  BUG L194 (additive@L185 via BlendState.Additive): Color midColor = StarlightSilver with { A = 0 };
+  BUG L201 (additive@L185 via BlendState.Additive): Color coreColor = StellarWhite with { A = 0 };
+
+=== Nachtmusik\Weapons\TwilightSeverance\Projectiles\TwilightSeveranceSwing.cs === (7 hits)
+  BUG L292 (additive@L287 via BeginShaderAdditive(): Color auraColor = NachtmusikPalette.DuskViolet with { A = 0 } * auraOpacity * 0.6f;
+  BUG L356 (additive@L353 via BeginAdditive(): sb.Draw(bloomTex, tipScreen, null, NachtmusikPalette.DuskViolet with { A = 0 } * bloomOpacity * 0.2f,
+  BUG L360 (additive@L353 via BeginAdditive(): sb.Draw(bloomTex, tipScreen, null, CosmicBlue with { A = 0 } * bloomOpacity * 0.35f,
+  BUG L364 (additive@L353 via BeginAdditive(): sb.Draw(bloomTex, tipScreen, null, StarlightSilver with { A = 0 } * bloomOpacity * 0.5f,
+  BUG L368 (additive@L353 via BeginAdditive(): sb.Draw(bloomTex, tipScreen, null, StellarWhite with { A = 0 } * bloomOpacity * 0.3f,
+  BUG L377 (additive@L353 via BeginAdditive(): sb.Draw(flareTex, tipScreen, null, MoonPearl with { A = 0 } * bloomOpacity * 0.3f,
+  BUG L379 (additive@L353 via BeginAdditive(): sb.Draw(flareTex, tipScreen, null, StellarWhite with { A = 0 } * bloomOpacity * 0.15f,
+
+=== Nachtmusik\Weapons\TwilightSeverance\Projectiles\TwilightSlashProjectile.cs === (5 hits)
+  BUG L214 (additive@L208 via BlendState.Additive): Main.EntitySpriteDraw(tex, pos, null, CosmicBlue with { A = 0 } * 0.7f,
+  BUG L216 (additive@L208 via BlendState.Additive): Main.EntitySpriteDraw(tex, pos, null, StarlightSilver with { A = 0 } * 0.45f,
+  BUG L218 (additive@L208 via BlendState.Additive): Main.EntitySpriteDraw(tex, pos, null, MoonPearl with { A = 0 } * 0.25f,
+  BUG L224 (additive@L208 via BlendState.Additive): Main.EntitySpriteDraw(tex, pos, null, CosmicBlue with { A = 0 } * 0.5f,
+  BUG L226 (additive@L208 via BlendState.Additive): Main.EntitySpriteDraw(tex, pos, null, StarlightSilver with { A = 0 } * 0.25f,
+
+=== Seasons\Projectiles\VivaldiSeasonalWave.cs === (5 hits)
+  BUG L331 (additive@L318 via BlendState.Additive): Color trailGradient = Main.hslToRgb(trailHue, 0.85f, 0.7f) with { A = 0 };
+  BUG L350 (additive@L318 via BlendState.Additive): Color layer2Color = Main.hslToRgb(hue2, 0.88f, 0.72f) with { A = 0 };
+  BUG L355 (additive@L318 via BlendState.Additive): Color layer3Color = Main.hslToRgb(hue3, 0.85f, 0.68f) with { A = 0 };
+  BUG L360 (additive@L318 via BlendState.Additive): Color layer4Color = Main.hslToRgb(hue4, 0.9f, 0.75f) with { A = 0 };
+  BUG L393 (additive@L318 via BlendState.Additive): Color sparkColor = Main.hslToRgb(sparkHue, 0.88f, 0.78f) with { A = 0 };
+
+=== Seasons\Projectiles\VivaldiSpiritMinions.cs === (6 hits)
+  BUG L277 (additive@L274 via BlendState.Additive): Color springGlow = SpringPink with { A = 0 };
+  BUG L279 (additive@L274 via BlendState.Additive): spriteBatch.Draw(glowTexture, drawPos, null, SpringGreen with { A = 0 } * 0.2f * coordinatedBoost, 0f, glowOrigin, 0.8f * pulse, SpriteEffec...
+  BUG L924 (additive@L921 via BlendState.Additive): Color autumnGlow = AutumnOrange with { A = 0 };
+  BUG L929 (additive@L921 via BlendState.Additive): spriteBatch.Draw(glowTexture, drawPos, null, AutumnBrown with { A = 0 } * 0.3f * coordinatedBoost, 0f, glowOrigin, 0.55f * pulse, SpriteEffe...
+  BUG L1216 (additive@L1213 via BlendState.Additive): Color winterGlow = WinterBlue with { A = 0 };
+  BUG L1220 (additive@L1213 via BlendState.Additive): spriteBatch.Draw(glowTexture, drawPos, null, WinterPurple with { A = 0 } * 0.25f * coordinatedBoost, 0f, glowOrigin, 0.55f * pulse, SpriteEf...
+
+=== Seasons\Weapons\FourSeasonsBlade.cs === (5 hits)
+  BUG L234 (additive@L229 via BlendState.Additive): Color springGlow = SpringPink with { A = 0 } * 0.3f * pulse;
+  BUG L235 (additive@L229 via BlendState.Additive): Color summerGlow = SummerGold with { A = 0 } * 0.25f * pulse;
+  BUG L236 (additive@L229 via BlendState.Additive): Color autumnGlow = AutumnOrange with { A = 0 } * 0.25f * pulse;
+  BUG L237 (additive@L229 via BlendState.Additive): Color winterGlow = WinterBlue with { A = 0 } * 0.3f * pulse;
+  BUG L238 (additive@L229 via BlendState.Additive): Color primaryGlow = GetCurrentSeasonColor() with { A = 0 } * 0.4f * pulse;
+
+=== Spring\Projectiles\BloomArrow.cs === (12 hits)
+  BUG L264 (additive@L255 via BlendState.Additive): sb.Draw(petalTex, petalPos, null, (petalColor * 0.7f) with { A = 0 }, orbitAngles[i], petalOrigin, 0.12f, SpriteEffects.None, 0f);
+  BUG L268 (additive@L255 via BlendState.Additive): sb.Draw(glowTex, drawPos, null, (SpringPink * 0.4f) with { A = 0 }, 0f, glowOrigin, 0.35f * pulse, SpriteEffects.None, 0f);
+  BUG L271 (additive@L255 via BlendState.Additive): sb.Draw(coreTex, drawPos, null, (SpringPink * 0.7f) with { A = 0 }, Projectile.rotation, coreOrigin, new Vector2(0.25f, 0.45f) * pulse, Spri...
+  BUG L272 (additive@L255 via BlendState.Additive): sb.Draw(coreTex, drawPos, null, (SpringWhite * 0.5f) with { A = 0 }, Projectile.rotation, coreOrigin, new Vector2(0.15f, 0.3f) * pulse, Spri...
+  BUG L482 (additive@L474 via BlendState.Additive): sb.Draw(glowTex, trailPos, null, trailColor with { A = 0 }, 0f, glowOrigin, 0.15f * (1f - trailProgress * 0.5f), SpriteEffects.None, 0f);
+  BUG L486 (additive@L474 via BlendState.Additive): sb.Draw(glowTex, drawPos, null, (drawColor * 0.4f) with { A = 0 }, 0f, glowOrigin, 0.25f * pulse, SpriteEffects.None, 0f);
+  BUG L493 (additive@L474 via BlendState.Additive): sb.Draw(petalTex, drawPos, null, (layerColor * 0.65f) with { A = 0 }, layerRot, petalOrigin, 0.22f * pulse, SpriteEffects.None, 0f);
+  BUG L497 (additive@L474 via BlendState.Additive): sb.Draw(petalTex, drawPos, null, (SpringWhite * 0.5f) with { A = 0 }, -petalSpin * 0.5f, petalOrigin, 0.12f, SpriteEffects.None, 0f);
+  BUG L611 (additive@L602 via BlendState.Additive): sb.Draw(petalTex, petalPos, null, (petalColor * 0.6f * alpha) with { A = 0 }, petalAngles[i], petalOrigin, 0.15f * pulse, SpriteEffects.None...
+  BUG L615 (additive@L602 via BlendState.Additive): sb.Draw(haloTex, drawPos, null, (SpringGreen * 0.35f * alpha) with { A = 0 }, flowerRotation, haloOrigin, 0.4f * pulse, SpriteEffects.None, ...
+  BUG L618 (additive@L602 via BlendState.Additive): sb.Draw(haloTex, drawPos, null, (SpringPink * 0.5f * alpha) with { A = 0 }, -flowerRotation * 0.5f, haloOrigin, 0.25f * pulse, SpriteEffects...
+  BUG L621 (additive@L602 via BlendState.Additive): sb.Draw(glowTex, drawPos, null, (Color.White * 0.4f * alpha) with { A = 0 }, 0f, glowOrigin, 0.18f * pulse, SpriteEffects.None, 0f);
+
+=== SwanLake\Accessories\DualFeatherQuiver.cs === (6 hits)
+  BUG L680 (additive@L667 via BlendState.Additive): Color trailColor = (Main.hslToRgb(hue, 1f, 0.7f) with { A = 0 }) * fade * 0.6f;
+  BUG L690 (additive@L667 via BlendState.Additive): Color glowColor = (Main.hslToRgb(currentHue, 1f, 0.7f) with { A = 0 }) * 0.7f;
+  BUG L919 (additive@L913 via BlendState.Additive): (Color.White with { A = 0 }) * 0.4f * glowPulse,
+  BUG L924 (additive@L913 via BlendState.Additive): (new Color(255, 245, 200) with { A = 0 }) * 0.2f * glowPulse,
+  BUG L929 (additive@L913 via BlendState.Additive): Color iridescentColor = (Main.hslToRgb(hue, 0.5f, 0.9f) with { A = 0 }) * 0.15f;
+  BUG L936 (additive@L913 via BlendState.Additive): (Color.White with { A = 0 }) * 0.2f * glowPulse,
+
+

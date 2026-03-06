@@ -18,15 +18,15 @@ using MagnumOpus.Content.Fate.Debuffs;
 namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation.Projectiles
 {
     /// <summary>
-    /// The Conductor's Last Constellation — Main held swing projectile.
+    /// The Conductor's Last Constellation  EMain held swing projectile.
     ///
-    /// Each swing is a different orchestral gesture — the sword IS the baton:
+    /// Each swing is a different orchestral gesture  Ethe sword IS the baton:
     ///
     /// 3-PHASE COMBO (Orchestral Movements):
-    ///   Phase 0 (Downbeat):   Powerful downward sweep — spawns 3 descending beam columns
-    ///   Phase 1 (Crescendo):  Rising sweep — beams intensify and widen
+    ///   Phase 0 (Downbeat):   Powerful downward sweep  Espawns 3 descending beam columns
+    ///   Phase 1 (Crescendo):  Rising sweep  Ebeams intensify and widen
     ///   Phase 2 (Forte):      Wide horizontal sweep with lightning cascade
-    ///                          On 3rd combo: Convergence — all beams converge on cursor
+    ///                          On 3rd combo: Convergence  Eall beams converge on cursor
     ///
     /// 5-LAYER RENDERING:
     ///   Layer 1: Wide electric glow underlayer (ConductorSwingGlow shader)
@@ -40,9 +40,9 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
         public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/TheConductorsLastConstellation";
 
         // Swing arc parameters per phase
-        // Phase 0: Downbeat (moderate arc, moderate speed — authoritative downstroke)
-        // Phase 1: Crescendo (upward arc, fast — building energy)
-        // Phase 2: Forte (wide horizontal, slow windup → explosive)
+        // Phase 0: Downbeat (moderate arc, moderate speed  Eauthoritative downstroke)
+        // Phase 1: Crescendo (upward arc, fast  Ebuilding energy)
+        // Phase 2: Forte (wide horizontal, slow windup ↁEexplosive)
         private static readonly float[] ArcAngles = { 150f, 130f, 180f };
         private static readonly float[] SwingDurations = { 22f, 18f, 26f };
         private static readonly float[] DamageMultipliers = { 1f, 0.95f, 1.35f };
@@ -60,6 +60,17 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
         private static Asset<Texture2D> _noiseTex;
         private static Asset<Texture2D> _glowTex;
         private static Asset<Texture2D> _flareTex;
+
+        // SmearDistort overlay textures
+        private static Asset<Texture2D> _smearArcTexture;
+        private static Asset<Texture2D> _smearNoiseTex;
+        private static Asset<Texture2D> _smearGradientTex;
+        private Effect _smearDistortShader;
+        private bool _smearShaderLoaded;
+        // CrescentBloom textures
+        private static Asset<Texture2D> _bloomCircle;
+        private static Asset<Texture2D> _softRadialBloom;
+        private static Asset<Texture2D> _starFlareTex;
 
         // Properties
         private Player Owner => Main.player[Projectile.owner];
@@ -148,7 +159,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
                 case 1: // Crescendo: smooth building sweep
                     easedProgress = ConductorUtils.SineInOut(progress);
                     break;
-                case 2: // Forte: slow windup → explosive horizontal sweep
+                case 2: // Forte: slow windup ↁEexplosive horizontal sweep
                     easedProgress = ConductorUtils.ExpIn(progress);
                     break;
                 default:
@@ -230,7 +241,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
             var cp = Owner.Conductor();
             float intensity = 0.5f + cp.ComboIntensity * 0.5f;
 
-            // Lightning sparks at blade tip — zigzag motion!
+            // Lightning sparks at blade tip  Ezigzag motion!
             if (Main.rand.NextBool(2))
             {
                 Vector2 sparkVel = (_currentAngle + MathHelper.PiOver2 * _direction).ToRotationVector2() * Main.rand.NextFloat(3f, 7f);
@@ -337,34 +348,65 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
             var cp = Owner.Conductor();
             float intensity = 0.6f + cp.ComboIntensity * 0.4f;
 
-            // Central bloom flash
-            ConductorParticleHandler.SpawnParticle(new ConductorBloomFlare(
-                pos, ConductorUtils.CelestialWhite, 0.6f * intensity, 15));
-            ConductorParticleHandler.SpawnParticle(new ConductorBloomFlare(
-                pos, ConductorUtils.ConductorCyan, 0.45f * intensity, 12));
+            // NOTE: SpriteBatch bloom draws removed — SpawnImpactVFX is called from
+            // OnHitNPC (Update phase) where no SpriteBatch is active.
+            // Impact visuals handled by particles below.
 
-            // Radial lightning spark burst (zigzag!)
-            int sparkCount = 8 + (int)(cp.ComboIntensity * 4);
+            // Central bloom flash particles
+            ConductorParticleHandler.SpawnParticle(new ConductorBloomFlare(
+                pos, ConductorUtils.CelestialWhite, 0.7f * intensity, 15));
+            ConductorParticleHandler.SpawnParticle(new ConductorBloomFlare(
+                pos, ConductorUtils.ConductorCyan, 0.5f * intensity, 12));
+
+            // Radial lightning spark burst (increased, zigzag)
+            int sparkCount = 12 + (int)(cp.ComboIntensity * 6);
             for (int i = 0; i < sparkCount; i++)
             {
                 float angle = MathHelper.TwoPi * i / sparkCount + Main.rand.NextFloat(-0.1f, 0.1f);
-                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f) * intensity;
+                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 10f) * intensity;
                 Color sparkCol = ConductorUtils.GetLightningGradient((float)i / sparkCount);
                 ConductorParticleHandler.SpawnParticle(new LightningSpark(
-                    pos, sparkVel, sparkCol, 0.3f * intensity, 18, 3f, 0.4f));
+                    pos, sparkVel, sparkCol, 0.35f * intensity, 20, 4f, 0.5f));
             }
 
-            // Glyph accents
-            int glyphCount = 2 + (int)(cp.ComboIntensity * 3);
+            // Directional electric slash
+            Vector2 slashDir = (_currentAngle + MathHelper.PiOver2 * _direction).ToRotationVector2();
+            for (int i = 0; i < 6; i++)
+            {
+                float spread = Main.rand.NextFloat(-0.3f, 0.3f);
+                Vector2 markVel = slashDir.RotatedBy(spread) * Main.rand.NextFloat(5f, 12f);
+                Color markCol = Color.Lerp(ConductorUtils.LightningGold, ConductorUtils.CelestialWhite, Main.rand.NextFloat());
+                ConductorParticleHandler.SpawnParticle(new ConductorSpark(
+                    pos, markVel, markCol, 0.25f * intensity, 14));
+            }
+
+            // Glyph accents (more dramatic)
+            int glyphCount = 3 + (int)(cp.ComboIntensity * 4);
             for (int i = 0; i < glyphCount; i++)
             {
-                Vector2 glyphPos = pos + Main.rand.NextVector2Circular(20f, 20f);
+                Vector2 glyphPos = pos + Main.rand.NextVector2Circular(25f, 25f);
                 Color glyphCol = ConductorUtils.PaletteLerp(Main.rand.NextFloat());
                 ConductorParticleHandler.SpawnParticle(new ConductorGlyph(
-                    glyphPos, glyphCol, 0.28f * intensity, 25));
+                    glyphPos, glyphCol, 0.32f * intensity, 28));
             }
 
-            Lighting.AddLight(pos, ConductorUtils.LightningGold.ToVector3() * 1.0f * intensity);
+            // Nebula wisps on higher combo
+            if (cp.ComboIntensity > 0.3f)
+            {
+                int wispCount = 3 + (int)(cp.ComboIntensity * 3);
+                for (int i = 0; i < wispCount; i++)
+                {
+                    Vector2 wispVel = Main.rand.NextVector2Circular(2f, 2f);
+                    wispVel.Y -= 1f;
+                    Color wispCol = Color.Lerp(ConductorUtils.BatonPurple, ConductorUtils.ElectricBlue, Main.rand.NextFloat());
+                    ConductorParticleHandler.SpawnParticle(new ConductorNebulaWisp(
+                        pos + Main.rand.NextVector2Circular(15f, 15f), wispVel,
+                        wispCol, 0.2f, 35));
+                }
+            }
+
+            Lighting.AddLight(pos, ConductorUtils.LightningGold.ToVector3() * 1.2f * intensity);
+            Lighting.AddLight(pos, ConductorUtils.ConductorCyan.ToVector3() * 0.8f * intensity);
         }
 
         private void SpawnLightningStrikeVFX(Vector2 pos, float intensity)
@@ -452,7 +494,179 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
             return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), start, end, 30f, ref _);
         }
 
-        // ======================== 5-LAYER RENDERING ========================
+        // ======================== SMEAR DISTORT OVERLAY ========================
+
+        /// <summary>
+        /// Foundation-tier SmearDistort overlay: 3 sub-layers with shader distortion.
+        /// Conductor identity: electric cyan/purple baton lightning trail.
+        /// </summary>
+        private void DrawSmearOverlay(SpriteBatch sb, float progress)
+        {
+            _smearArcTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/SlashArcs/SwordArcSmear");
+            _smearNoiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/TileableFBMNoise");
+            _smearGradientTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/ColorGradients/FateGradientLUTandRAMP");
+
+            if (_smearArcTexture?.Value == null) return;
+
+            if (!_smearShaderLoaded)
+            {
+                _smearShaderLoaded = true;
+                try
+                {
+                    _smearDistortShader = ModContent.Request<Effect>(
+                        "MagnumOpus/Content/FoundationWeapons/SwordSmearFoundation/Shaders/SmearDistortShader",
+                        AssetRequestMode.ImmediateLoad).Value;
+                }
+                catch { _smearDistortShader = null; }
+            }
+
+            var cp = Owner.Conductor();
+            float comboIntensity = cp.ComboIntensity;
+            float reach = _phase == 2 ? 100f : 85f;
+            Vector2 center = Owner.MountedCenter - Main.screenPosition;
+            float swingRotation = _currentAngle + MathHelper.PiOver4;
+            Texture2D smearTex = _smearArcTexture.Value;
+            Vector2 smearOrigin = smearTex.Size() / 2f;
+            float baseScale = reach / (smearTex.Width * 0.45f);
+            float time = (float)Main.timeForVisualEffects * 0.01f;
+
+            // Conductor identity: electric cyan glow with purple undertone
+            Color outerColor = ConductorUtils.Additive(ConductorUtils.BatonPurple, 0.22f + comboIntensity * 0.1f);
+            Color mainColor = ConductorUtils.Additive(ConductorUtils.ConductorCyan, 0.55f + comboIntensity * 0.2f);
+            Color coreColor = ConductorUtils.Additive(ConductorUtils.LightningGold, 0.65f + comboIntensity * 0.15f);
+            SpriteEffects fx = _direction < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+
+            try
+            {
+                if (_smearDistortShader != null)
+                {
+                    sb.End();
+                    var shaderParams = _smearDistortShader.Parameters;
+                    shaderParams["uTime"]?.SetValue(time);
+                    if (_smearNoiseTex?.Value != null)
+                    {
+                        Main.graphics.GraphicsDevice.Textures[1] = _smearNoiseTex.Value;
+                        Main.graphics.GraphicsDevice.SamplerStates[1] = SamplerState.LinearWrap;
+                    }
+                    if (_smearGradientTex?.Value != null)
+                    {
+                        Main.graphics.GraphicsDevice.Textures[2] = _smearGradientTex.Value;
+                        Main.graphics.GraphicsDevice.SamplerStates[2] = SamplerState.LinearClamp;
+                    }
+
+                    shaderParams["distortStrength"]?.SetValue(0.07f + comboIntensity * 0.03f);
+                    sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
+                        DepthStencilState.None, RasterizerState.CullNone, _smearDistortShader, Main.GameViewMatrix.TransformationMatrix);
+                    sb.Draw(smearTex, center, null, outerColor, swingRotation, smearOrigin, baseScale * 1.18f, fx, 0f);
+                    sb.End();
+
+                    shaderParams["distortStrength"]?.SetValue(0.045f + comboIntensity * 0.02f);
+                    sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
+                        DepthStencilState.None, RasterizerState.CullNone, _smearDistortShader, Main.GameViewMatrix.TransformationMatrix);
+                    sb.Draw(smearTex, center, null, mainColor, swingRotation, smearOrigin, baseScale, fx, 0f);
+                    sb.End();
+
+                    shaderParams["distortStrength"]?.SetValue(0.025f + comboIntensity * 0.01f);
+                    sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
+                        DepthStencilState.None, RasterizerState.CullNone, _smearDistortShader, Main.GameViewMatrix.TransformationMatrix);
+                    sb.Draw(smearTex, center, null, coreColor, swingRotation, smearOrigin, baseScale * 0.82f, fx, 0f);
+                    sb.End();
+
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                else
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                    sb.Draw(smearTex, center, null, outerColor, swingRotation, smearOrigin, baseScale * 1.18f, fx, 0f);
+                    sb.Draw(smearTex, center, null, mainColor, swingRotation, smearOrigin, baseScale, fx, 0f);
+                    sb.Draw(smearTex, center, null, coreColor, swingRotation, smearOrigin, baseScale * 0.82f, fx, 0f);
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
+            catch
+            {
+                try { sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix); } catch { }
+            }
+        }
+
+        // ======================== CRESCENT BLOOM ========================
+
+        /// <summary>
+        /// Foundation-tier 6-layer graduated bloom at blade tip.
+        /// Conductor identity: electric cyan/gold lightning bloom.
+        /// </summary>
+        private void DrawCrescentBloom(SpriteBatch sb)
+        {
+            _bloomCircle ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
+            _softRadialBloom ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom");
+            _starFlareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/StarFlare");
+
+            if (_bloomCircle?.Value == null || _softRadialBloom?.Value == null) return;
+
+            var cp = Owner.Conductor();
+            float comboIntensity = cp.ComboIntensity;
+            float reach = _phase == 2 ? 100f : 85f;
+            Vector2 tipWorld = Owner.MountedCenter + _currentAngle.ToRotationVector2() * reach;
+            Vector2 tipDraw = tipWorld - Main.screenPosition;
+            float breath = 0.85f + MathF.Sin((float)Main.timeForVisualEffects * 0.06f) * 0.15f;
+            float intensity = (0.7f + comboIntensity * 0.3f) * breath;
+
+            try
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Texture2D bloom = _softRadialBloom.Value;
+                Texture2D point = _bloomCircle.Value;
+                Vector2 bloomOrigin = bloom.Size() / 2f;
+                Vector2 pointOrigin = point.Size() / 2f;
+
+                // Layer 1: Wide outer indigo haze
+                sb.Draw(bloom, tipDraw, null, ConductorUtils.Additive(ConductorUtils.DeepIndigo, 0.15f * intensity),
+                    0f, bloomOrigin, 1.6f * intensity, SpriteEffects.None, 0f);
+                // Layer 2: Electric cyan glow
+                sb.Draw(bloom, tipDraw, null, ConductorUtils.Additive(ConductorUtils.ConductorCyan, 0.3f * intensity),
+                    0f, bloomOrigin, 1.1f * intensity, SpriteEffects.None, 0f);
+                // Layer 3: Lightning gold mid
+                sb.Draw(bloom, tipDraw, null, ConductorUtils.Additive(ConductorUtils.LightningGold, 0.35f * intensity),
+                    0f, bloomOrigin, 0.65f * intensity, SpriteEffects.None, 0f);
+                // Layer 4: Silver highlight
+                sb.Draw(point, tipDraw, null, ConductorUtils.Additive(ConductorUtils.StarSilver, 0.45f * intensity),
+                    0f, pointOrigin, 0.35f * intensity, SpriteEffects.None, 0f);
+                // Layer 5: White core
+                sb.Draw(point, tipDraw, null, ConductorUtils.Additive(ConductorUtils.CelestialWhite, 0.55f * intensity),
+                    0f, pointOrigin, 0.18f * intensity, SpriteEffects.None, 0f);
+                // Layer 6: Rotating star flare
+                if (_starFlareTex?.Value != null)
+                {
+                    float starRot = (float)Main.timeForVisualEffects * 0.025f;
+                    Texture2D starTex = _starFlareTex.Value;
+                    Vector2 starOrigin = starTex.Size() / 2f;
+                    sb.Draw(starTex, tipDraw, null, ConductorUtils.Additive(ConductorUtils.ConductorCyan, 0.3f * intensity),
+                        starRot, starOrigin, 0.4f * intensity, SpriteEffects.None, 0f);
+                    sb.Draw(starTex, tipDraw, null, ConductorUtils.Additive(ConductorUtils.LightningGold, 0.2f * intensity),
+                        -starRot * 0.7f, starOrigin, 0.25f * intensity, SpriteEffects.None, 0f);
+                }
+
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch
+            {
+                try { sb.End(); sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix); } catch { }
+            }
+        }
+
+        // ======================== 7-LAYER RENDERING ========================
 
         public override bool PreDraw(ref Color lightColor)
         {
@@ -469,10 +683,12 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
 
             try
             {
+                // === Layer 0: SmearDistort Overlay (Foundation-tier) ===
+                DrawSmearOverlay(sb, progress);
+
                 // End SpriteBatch before GPU primitive trail draws
                 sb.End();
 
-                // GPU primitive layers (trail renderers use DrawUserIndexedPrimitives)
                 DrawLayer1_ElectricGlow(sb, comboIntensity);
                 DrawLayer2_CoreTrail(sb, comboIntensity);
 
@@ -480,10 +696,12 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
-                // Sprite-based layers (manage their own additive state changes)
                 DrawLayer3_LightningSparks(sb, progress, comboIntensity);
                 DrawLayer4_WeaponSprite(sb, lightColor);
                 DrawLayer5_ComboAura(sb, comboIntensity);
+
+                // === Layer 6: CrescentBloom at blade tip ===
+                DrawCrescentBloom(sb);
             }
             catch
             {
@@ -500,7 +718,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
             try
             {
                 sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
                 ConductorUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.4f);
                 sb.End();
@@ -577,7 +795,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
             catch { }
         }
 
-        /// <summary>Layer 3: Lightning bolt forks — zigzag sparks with forking branches and arc nodes.</summary>
+        /// <summary>Layer 3: Lightning bolt forks  Ezigzag sparks with forking branches and arc nodes.</summary>
         private void DrawLayer3_LightningSparks(SpriteBatch sb, float progress, float combo)
         {
             if (_flareTex?.Value == null || _trailCount < 3) return;
@@ -621,7 +839,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
                     sb.Draw(tex, drawPos, null, ConductorUtils.Additive(ConductorUtils.CelestialWhite, sparkAlpha * 0.4f),
                         0f, origin, sparkScale * 0.3f, SpriteEffects.None, 0f);
 
-                    // === Forking branch bolts — spawn 1-2 short forks from brighter nodes ===
+                    // === Forking branch bolts  Espawn 1-2 short forks from brighter nodes ===
                     if (sparkAlpha > 0.15f && i < _trailCount - 3)
                     {
                         int forkCount = sparkAlpha > 0.25f ? 2 : 1;
@@ -720,7 +938,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
             }
         }
 
-        /// <summary>Layer 5: Combo aura — expanding electric pulse waves that radiate outward.</summary>
+        /// <summary>Layer 5: Combo aura  Eexpanding electric pulse waves that radiate outward.</summary>
         private void DrawLayer5_ComboAura(SpriteBatch sb, float combo)
         {
             if (combo < 0.4f) return;

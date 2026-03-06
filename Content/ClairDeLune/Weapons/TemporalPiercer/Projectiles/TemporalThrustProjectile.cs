@@ -234,7 +234,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer.Projectiles
                 Main.pixelShader.CurrentTechnique.Passes[0].Apply();
             }
 
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }
@@ -259,7 +259,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer.Projectiles
 
             _crystalLanceShader.CurrentTechnique = _crystalLanceShader.Techniques["CrystalLanceThrust"];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _crystalLanceShader, matrix);
 
@@ -273,7 +273,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer.Projectiles
                 new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }

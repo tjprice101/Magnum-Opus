@@ -126,6 +126,8 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Projectiles
             _ => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/WideSoftEllipse"
         };
 
+        protected override string GetSmearGradientPath() => "MagnumOpus/Assets/VFX Asset Library/ColorGradients/NachtmusikGradientLUTandRAMP";
+
         #endregion
 
         #region Virtual Overrides

@@ -191,8 +191,10 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 }
             }
 
-            // Normal bolt
-            Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
+            // Normal bolt — always use custom VFX type, not ammo's vanilla type
+            Projectile.NewProjectile(source, position, velocity,
+                ModContent.ProjectileType<TwilightBolt>(),
+                damage, knockback, player.whoAmI);
 
             return false;
         }
@@ -206,7 +208,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.08f + 1f;
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             spriteBatch.Draw(texture, position, null, TwilightPurple * 0.25f, rotation, origin, scale * pulse * 1.2f, SpriteEffects.None, 0f);
             spriteBatch.Draw(texture, position, null, TwilightOrange * 0.2f, rotation, origin, scale * 1.1f, SpriteEffects.None, 0f);

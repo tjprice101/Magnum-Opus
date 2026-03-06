@@ -110,7 +110,7 @@ namespace MagnumOpus.Content.SandboxLastPrism.Systems
 
                 // Reset the render target.
                 screenTarget1.SwapToRenderTarget();
-                Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive);
+                Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive);
 
                 Color drawColor = new(1f, 1f, 1f, MathHelper.Clamp(MathHelper.Lerp(0.5f, 1f, (1f - flashProgress) * FlashIntensity), 0f, 1f));
 
@@ -154,7 +154,7 @@ namespace MagnumOpus.Content.SandboxLastPrism.Systems
                 //Reset
                 screenTarget1.SwapToRenderTarget();
 
-                Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive);
+                Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive);
 
                 //White Base color
                 Color drawColor = new(1f, 1f, 1f, MathHelper.Clamp(MathHelper.Lerp(0.5f, 1f, (1f - flashProgress) * FlashIntensity), 0f, 1f));

@@ -134,9 +134,9 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire.Projectiles
         {
             _beamAlphaMask ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/BeamTextures/ThinLinearGlow", AssetRequestMode.ImmediateLoad);
             _gradientLUT ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/ColorGradients/ClairDeLuneGradientLUTandRAMP", AssetRequestMode.ImmediateLoad);
-            _detailTex1 ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/BeamTextures/EnergyMotion", AssetRequestMode.ImmediateLoad);
-            _detailTex2 ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/BeamTextures/Oscillating Frequency Wave Beam", AssetRequestMode.ImmediateLoad);
-            _detailTex3 ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/BeamTextures/SoundWaveBeam", AssetRequestMode.ImmediateLoad);
+            _detailTex1 ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Clair de Lune/Beam Textures/CL Energy Motion Beam", AssetRequestMode.ImmediateLoad);
+            _detailTex2 ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Clair de Lune/Beam Textures/CL Energy Surge Beam", AssetRequestMode.ImmediateLoad);
+            _detailTex3 ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Clair de Lune/Beam Textures/CL Braided Energy Helix Beam", AssetRequestMode.ImmediateLoad);
             _detailTex4 ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/BeamTextures/ThinLinearGlow", AssetRequestMode.ImmediateLoad);
             _softGlow ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow", AssetRequestMode.ImmediateLoad);
             _softRadialBloom ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
@@ -230,7 +230,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire.Projectiles
                 Main.pixelShader.CurrentTechnique.Passes[0].Apply(); // Reset pixel shader
             }
 
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }

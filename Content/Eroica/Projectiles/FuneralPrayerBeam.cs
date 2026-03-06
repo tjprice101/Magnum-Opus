@@ -9,6 +9,7 @@ using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using MagnumOpus.Content.Eroica;
 using MagnumOpus.Content.Eroica.Weapons.FuneralPrayer;
 using MagnumOpus.Content.FoundationWeapons.RibbonFoundation;
+using MagnumOpus.Common.Systems.Shaders;
 using System;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
@@ -238,7 +239,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 if (!hasHitEnemy && shotId >= 0)
                 {
                     hasHitEnemy = true;
-                    FuneralPrayer.RegisterBeamHit(shotId, beamIndex);
+                    // RegisterBeamHit removed — Funeral Prayer is now a channeled beam weapon
                 }
 
                 CreateSecondaryArc(target);
@@ -295,21 +296,25 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = tex.Size() / 2f;
+            float time = (float)Main.gameTimeCache.TotalGameTime.TotalSeconds;
 
-            // ── Layer 1: GPU Funeral Flame Trail ──
+            // Layer 1: GPU Funeral Flame Trail
             DrawFlameTrail(sb);
 
-            // ── Layer 1b: Convergence Beam Body (LaserFoundation pattern) ──
-            DrawConvergenceBeamBody(sb);
+            // Layer 2: Shader Funeral Beam Strip (replaces Foundation beam body)
+            DrawShaderBeamBody(sb, time);
 
-            // ── Layer 2: Afterimage chain ──
-            DrawAfterimages(sb, tex, origin);
+            // Layer 3: Shader RequiemBeam pass
+            DrawShaderRequiemOverlay(sb, time);
 
-            // ── Layer 3: Core beam sprite with crimson glow ──
+            // Layer 4: Shader Afterimages
+            DrawShaderAfterimages(sb, tex, origin, time);
+
+            // Layer 5: Core beam sprite
             DrawBeamCore(sb, tex, origin);
 
-            // ── Layer 4: Additive bloom ──
-            DrawBloomOverlay(sb, origin);
+            // Layer 6: Shader Bloom overlay
+            DrawShaderBloomOverlay(sb, origin, time);
 
             // Eroica theme accent
             EroicaVFXLibrary.BeginEroicaAdditive(sb);
@@ -317,92 +322,6 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             EroicaVFXLibrary.EndEroicaAdditive(sb);
 
             return false;
-        }
-
-        /// <summary>
-        /// LaserFoundation-style convergence beam body rendered as a texture strip
-        /// along trail positions. Uses EnergySurgeBeam for funeral fire texture.
-        /// BaseBeamWidth = 40f per doc spec.
-        /// </summary>
-        private void DrawConvergenceBeamBody(SpriteBatch sb)
-        {
-            if (ageTimer < 2) return;
-
-            int validCount = 0;
-            for (int i = 0; i < TrailLength; i++)
-            {
-                if (trailPositions[i] != Vector2.Zero)
-                    validCount++;
-                else
-                    break;
-            }
-            if (validCount < 3) return;
-
-            Texture2D stripTex = RBFTextures.EnergySurgeBeam.Value;
-            if (stripTex == null) return;
-
-            int texW = stripTex.Width;
-            int texH = stripTex.Height;
-            float time = (float)Main.timeForVisualEffects * 0.007f;
-            const float BaseBeamWidth = 40f;
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
-                SamplerState.LinearWrap, DepthStencilState.None,
-                RasterizerState.CullCounterClockwise, null,
-                Main.GameViewMatrix.TransformationMatrix);
-            try
-            {
-
-            int srcWidth = Math.Max(1, texW / validCount);
-
-            for (int i = 0; i < validCount - 1; i++)
-            {
-                float progress = 1f - (float)i / validCount; // 1 = head, 0 = tail
-                float fade = progress * progress;
-                if (fade < 0.01f) continue;
-
-                float width = BaseBeamWidth * (0.3f + 0.7f * progress);
-
-                Vector2 segDir = trailPositions[i] - trailPositions[i + 1];
-                float segLength = segDir.Length();
-                if (segLength < 0.5f) continue;
-                float segAngle = segDir.ToRotation();
-
-                float uStart = ((float)i / validCount + time * 3f) % 1f;
-                int srcX = (int)(uStart * texW) % texW;
-                Rectangle srcRect = new Rectangle(srcX, 0, srcWidth, texH);
-
-                float scaleX = segLength / (float)srcWidth;
-                float scaleY = width / (float)texH;
-
-                Vector2 pos = trailPositions[i] - Main.screenPosition;
-                Vector2 origin = new Vector2(0, texH / 2f);
-
-                // Crimson → Violet gradient for funeral beam
-                Color bodyColor = Color.Lerp(FuneralUtils.DeepCrimson, FuneralUtils.RequiemViolet, 1f - progress) with { A = 0 };
-                sb.Draw(stripTex, pos, srcRect, bodyColor * (fade * 0.5f), segAngle, origin,
-                    new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
-
-                // Ember core at high intensity
-                if (progress > 0.4f)
-                {
-                    float coreFade = (progress - 0.4f) / 0.6f;
-                    Color coreColor = FuneralUtils.SmolderingAmber with { A = 0 };
-                    sb.Draw(stripTex, pos, srcRect, coreColor * (fade * coreFade * 0.3f), segAngle, origin,
-                        new Vector2(scaleX * 0.4f, scaleY * 0.4f), SpriteEffects.None, 0f);
-                }
-            }
-
-            }
-            finally
-            {
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                    Main.DefaultSamplerState, DepthStencilState.None,
-                    RasterizerState.CullCounterClockwise, null,
-                    Main.GameViewMatrix.TransformationMatrix);
-            }
         }
 
         private void DrawFlameTrail(SpriteBatch sb)
@@ -446,33 +365,254 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             }
         }
 
-        private void DrawAfterimages(SpriteBatch sb, Texture2D tex, Vector2 origin)
+        private void DrawShaderBeamBody(SpriteBatch sb, float time)
+        {
+            if (ageTimer < 2) return;
+
+            int validCount = 0;
+            for (int i = 0; i < TrailLength; i++)
+            {
+                if (trailPositions[i] != Vector2.Zero)
+                    validCount++;
+                else
+                    break;
+            }
+            if (validCount < 3) return;
+
+            Texture2D stripTex = EroicaTextures.EmberScatter?.Value ?? EroicaTextures.EnergyTrailUV?.Value;
+            if (stripTex == null) return;
+
+            int texW = stripTex.Width;
+            int texH = stripTex.Height;
+            float scrollTime = (float)Main.timeForVisualEffects * 0.007f;
+            const float BaseBeamWidth = 40f;
+            int srcWidth = Math.Max(1, texW / validCount);
+
+            bool hasShader = EroicaShaderManager.HasFuneralTrail;
+
+            if (hasShader)
+            {
+                // PASS 1: FuneralTrail body
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                try
+                {
+                    EroicaShaderManager.ApplyFuneralPrayerBeamTrail(time, glowPass: false);
+
+                    for (int i = 0; i < validCount - 1; i++)
+                    {
+                        float progress = 1f - (float)i / validCount;
+                        float fade = progress * progress;
+                        if (fade < 0.01f) continue;
+
+                        float width = BaseBeamWidth * (0.3f + 0.7f * progress);
+                        Vector2 segDir = trailPositions[i] - trailPositions[i + 1];
+                        float segLength = segDir.Length();
+                        if (segLength < 0.5f) continue;
+                        float segAngle = segDir.ToRotation();
+
+                        float uStart = ((float)i / validCount + scrollTime * 3f) % 1f;
+                        int srcX = (int)(uStart * texW) % texW;
+                        Rectangle srcRect = new Rectangle(srcX, 0, srcWidth, texH);
+
+                        float scaleX = segLength / (float)srcWidth;
+                        float scaleY = width / (float)texH;
+                        Vector2 pos = trailPositions[i] - Main.screenPosition;
+                        Vector2 drawOrigin = new Vector2(0, texH / 2f);
+
+                        sb.Draw(stripTex, pos, srcRect, Color.White * (fade * 0.5f), segAngle, drawOrigin,
+                            new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
+                    }
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
+
+                // PASS 2: FuneralTrail glow — wider smolder
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                try
+                {
+                    EroicaShaderManager.ApplyFuneralPrayerBeamTrail(time, glowPass: true);
+
+                    for (int i = 0; i < validCount - 1; i++)
+                    {
+                        float progress = 1f - (float)i / validCount;
+                        float fade = progress * progress;
+                        if (fade < 0.02f) continue;
+
+                        float width = BaseBeamWidth * (0.3f + 0.7f * progress) * 1.5f;
+                        Vector2 segDir = trailPositions[i] - trailPositions[i + 1];
+                        float segLength = segDir.Length();
+                        if (segLength < 0.5f) continue;
+                        float segAngle = segDir.ToRotation();
+
+                        float uStart = ((float)i / validCount + scrollTime * 3f) % 1f;
+                        int srcX = (int)(uStart * texW) % texW;
+                        Rectangle srcRect = new Rectangle(srcX, 0, srcWidth, texH);
+
+                        float scaleX = segLength / (float)srcWidth;
+                        float scaleY = width / (float)texH;
+                        Vector2 pos = trailPositions[i] - Main.screenPosition;
+                        Vector2 drawOrigin = new Vector2(0, texH / 2f);
+
+                        sb.Draw(stripTex, pos, srcRect, Color.White * (fade * 0.2f), segAngle, drawOrigin,
+                            new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
+                    }
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
+            }
+            else
+            {
+                // Fallback: palette-colored ribbon
+                EroicaShaderManager.BeginAdditive(sb);
+                try
+                {
+                    Texture2D fallbackTex = RBFTextures.EnergySurgeBeam?.Value ?? stripTex;
+                    int ftW = fallbackTex.Width;
+                    int ftH = fallbackTex.Height;
+                    int fSrcWidth = Math.Max(1, ftW / validCount);
+
+                    for (int i = 0; i < validCount - 1; i++)
+                    {
+                        float progress = 1f - (float)i / validCount;
+                        float fade = progress * progress;
+                        if (fade < 0.01f) continue;
+
+                        float width = BaseBeamWidth * (0.3f + 0.7f * progress);
+                        Vector2 segDir = trailPositions[i] - trailPositions[i + 1];
+                        float segLength = segDir.Length();
+                        if (segLength < 0.5f) continue;
+                        float segAngle = segDir.ToRotation();
+
+                        float uStart = ((float)i / validCount + scrollTime * 3f) % 1f;
+                        int srcX = (int)(uStart * ftW) % ftW;
+                        Rectangle srcRect = new Rectangle(srcX, 0, fSrcWidth, ftH);
+                        float scaleX = segLength / (float)fSrcWidth;
+                        float scaleY = width / (float)ftH;
+                        Vector2 pos = trailPositions[i] - Main.screenPosition;
+                        Vector2 drawOrigin = new Vector2(0, ftH / 2f);
+
+                        Color bodyColor = Color.Lerp(FuneralUtils.DeepCrimson, FuneralUtils.RequiemViolet, 1f - progress) with { A = 0 };
+                        sb.Draw(fallbackTex, pos, srcRect, bodyColor * (fade * 0.5f), segAngle, drawOrigin,
+                            new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
+                    }
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
+            }
+        }
+
+        private void DrawShaderRequiemOverlay(SpriteBatch sb, float time)
+        {
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+
+            if (EroicaShaderManager.HasRequiemBeam)
+            {
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                try
+                {
+                    EroicaShaderManager.ApplyFuneralPrayerRequiemBeam(time, glowPass: false);
+
+                    Texture2D ringTex = EroicaTextures.HaloRing?.Value ?? EroicaTextures.CircularMask?.Value;
+                    if (ringTex != null)
+                    {
+                        float pulse = 0.8f + 0.2f * (float)Math.Sin(ageTimer * 0.18f);
+                        float ringScale = 0.5f * pulse;
+                        sb.Draw(ringTex, drawPos, null, Color.White * 0.35f,
+                            time * 0.4f, ringTex.Size() * 0.5f, ringScale, SpriteEffects.None, 0f);
+                    }
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
+
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                try
+                {
+                    EroicaShaderManager.ApplyFuneralPrayerRequiemBeam(time, glowPass: true);
+
+                    Texture2D bloomTex = EroicaTextures.BloomOrb?.Value ?? EroicaTextures.SoftGlow?.Value;
+                    if (bloomTex != null)
+                    {
+                        float glowScale = 0.45f;
+                        sb.Draw(bloomTex, drawPos, null, Color.White * 0.2f,
+                            0f, bloomTex.Size() * 0.5f, glowScale, SpriteEffects.None, 0f);
+                    }
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
+            }
+        }
+
+        private void DrawShaderAfterimages(SpriteBatch sb, Texture2D tex, Vector2 origin, float time)
         {
             int imageCount = 6;
-            FuneralUtils.EnterShaderRegion(sb);
 
-            for (int i = imageCount - 1; i >= 0; i--)
+            if (EroicaShaderManager.HasFuneralTrail)
             {
-                float progress = (float)i / imageCount;
-                float trailIndex = progress * (TrailLength - 1);
-                int idx = (int)trailIndex;
-                float lerp = trailIndex - idx;
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                try
+                {
+                    for (int i = imageCount - 1; i >= 0; i--)
+                    {
+                        float progress = (float)i / imageCount;
+                        float trailIndex = progress * (TrailLength - 1);
+                        int idx = (int)trailIndex;
+                        float lerp = trailIndex - idx;
 
-                if (idx + 1 >= TrailLength) continue;
-                if (trailPositions[idx] == Vector2.Zero || trailPositions[idx + 1] == Vector2.Zero) continue;
+                        if (idx + 1 >= TrailLength) continue;
+                        if (trailPositions[idx] == Vector2.Zero || trailPositions[idx + 1] == Vector2.Zero) continue;
 
-                Vector2 pos = Vector2.Lerp(trailPositions[idx], trailPositions[idx + 1], lerp) - Main.screenPosition;
-                float rot = MathHelper.Lerp(trailRotations[idx], trailRotations[idx + 1], lerp);
+                        Vector2 pos = Vector2.Lerp(trailPositions[idx], trailPositions[idx + 1], lerp) - Main.screenPosition;
+                        float rot = MathHelper.Lerp(trailRotations[idx], trailRotations[idx + 1], lerp);
 
-                float fadeFactor = (1f - progress);
-                fadeFactor = fadeFactor * fadeFactor;
-                Color drawColor = Color.Lerp(FuneralUtils.PrayerFlame, FuneralUtils.DeepCrimson, progress) * (fadeFactor * 0.35f);
-                drawColor.A = 0;
+                        float fadeFactor = (1f - progress);
+                        fadeFactor = fadeFactor * fadeFactor;
+                        float alpha = fadeFactor * 0.35f;
 
-                sb.Draw(tex, pos, null, drawColor, rot, origin, 1f - progress * 0.2f, SpriteEffects.None, 0f);
+                        EroicaShaderManager.ApplyFuneralPrayerBeamTrail(time + i * 0.05f, glowPass: true);
+
+                        sb.Draw(tex, pos, null, Color.White * alpha, rot, origin, 1f - progress * 0.2f, SpriteEffects.None, 0f);
+                    }
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
             }
+            else
+            {
+                FuneralUtils.EnterShaderRegion(sb);
+                for (int i = imageCount - 1; i >= 0; i--)
+                {
+                    float progress = (float)i / imageCount;
+                    float trailIndex = progress * (TrailLength - 1);
+                    int idx = (int)trailIndex;
+                    float lerp = trailIndex - idx;
 
-            FuneralUtils.ExitShaderRegion(sb);
+                    if (idx + 1 >= TrailLength) continue;
+                    if (trailPositions[idx] == Vector2.Zero || trailPositions[idx + 1] == Vector2.Zero) continue;
+
+                    Vector2 pos = Vector2.Lerp(trailPositions[idx], trailPositions[idx + 1], lerp) - Main.screenPosition;
+                    float rot = MathHelper.Lerp(trailRotations[idx], trailRotations[idx + 1], lerp);
+
+                    float fadeFactor = (1f - progress);
+                    fadeFactor = fadeFactor * fadeFactor;
+                    Color drawColor = Color.Lerp(FuneralUtils.PrayerFlame, FuneralUtils.DeepCrimson, progress) * (fadeFactor * 0.35f);
+                    drawColor.A = 0;
+
+                    sb.Draw(tex, pos, null, drawColor, rot, origin, 1f - progress * 0.2f, SpriteEffects.None, 0f);
+                }
+                FuneralUtils.ExitShaderRegion(sb);
+            }
         }
 
         private void DrawBeamCore(SpriteBatch sb, Texture2D tex, Vector2 origin)
@@ -482,26 +622,41 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             sb.Draw(tex, drawPos, null, coreTint, Projectile.rotation, origin, 1f, SpriteEffects.None, 0f);
 
-            // Bright inner core
             Color coreGlow = FuneralUtils.SoulWhite;
             coreGlow.A = 0;
             sb.Draw(tex, drawPos, null, coreGlow * 0.4f, Projectile.rotation, origin, 0.8f, SpriteEffects.None, 0f);
         }
 
-        private void DrawBloomOverlay(SpriteBatch sb, Vector2 origin)
+        private void DrawShaderBloomOverlay(SpriteBatch sb, Vector2 origin, float time)
         {
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            Color bloomColor = FuneralUtils.SmolderingAmber;
-            bloomColor.A = 0;
             float pulse = (float)Math.Sin(ageTimer * 0.2f) * 0.1f;
 
-            FuneralUtils.EnterShaderRegion(sb);
-            sb.Draw(tex, drawPos, null, bloomColor * 0.35f, Projectile.rotation, origin, 1.5f + pulse, SpriteEffects.None, 0f);
-            FuneralUtils.ExitShaderRegion(sb);
+            if (EroicaShaderManager.HasFuneralTrail)
+            {
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                try
+                {
+                    EroicaShaderManager.ApplyFuneralPrayerBeamTrail(time, glowPass: true);
+                    sb.Draw(tex, drawPos, null, Color.White * 0.35f, Projectile.rotation, origin,
+                        1.5f + pulse, SpriteEffects.None, 0f);
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
+            }
+            else
+            {
+                Color bloomColor = FuneralUtils.SmolderingAmber;
+                bloomColor.A = 0;
+                FuneralUtils.EnterShaderRegion(sb);
+                sb.Draw(tex, drawPos, null, bloomColor * 0.35f, Projectile.rotation, origin,
+                    1.5f + pulse, SpriteEffects.None, 0f);
+                FuneralUtils.ExitShaderRegion(sb);
+            }
 
-            // --- ER Infernal Beam Ring overlay — fiery halo around the beam ---
             Texture2D ringTex = EroicaThemeTextures.ERInfernalBeamRing;
             if (ringTex != null)
             {
@@ -512,7 +667,6 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     0.35f + pulse * 0.1f, SpriteEffects.None, 0f);
             }
 
-            // --- ER Harmonic Resonance Wave — pulsing wave behind the beam ---
             Texture2D waveTex = EroicaThemeTextures.ERHarmonicImpact;
             if (waveTex != null)
             {

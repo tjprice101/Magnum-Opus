@@ -211,6 +211,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             var origin = tex.Size() * 0.5f;
 
+            // Switch to additive blending for glow VFX (black-background textures)
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
             // Outer ring glow
             Main.spriteBatch.Draw(tex, drawPos, null, ringColor * 0.4f, 0f, origin, scale * 1.3f, SpriteEffects.None, 0f);
 
@@ -220,6 +224,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
             // White core flash (fades quickly)
             float coreAlpha = MathF.Max(0f, 1f - t * 4f);
             Main.spriteBatch.Draw(tex, drawPos, null, MoonWhite * coreAlpha, 0f, origin, scale * 0.3f, SpriteEffects.None, 0f);
+
+            // Restore default blend state
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
         }
     }
 }

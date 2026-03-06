@@ -5,9 +5,11 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Graphics.Shaders;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Particles;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Primitives;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Shaders;
 using MagnumOpus.Content.LaCampanella.Debuffs;
 using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
 using ReLogic.Content;
@@ -68,7 +70,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
             Projectile.NewProjectile(
                 Projectile.GetSource_FromThis(), target.Center, Vector2.Zero,
                 ModContent.ProjectileType<RippleEffectProjectile>(),
-                0, 0f, Projectile.owner);
+                0, 0f, Projectile.owner, ai0: 1f);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -83,12 +85,36 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
                 try
                 {
                     trailRenderer ??= new PiercingBellsPrimitiveRenderer();
+
+                    // === SHADER: BulletTrailShader — supersonic compression-wave trail ===
+                    var bulletShader = PiercingBellsResonanceShaderLoader.GetBulletTrailShader();
+                    if (bulletShader != null)
+                    {
+                        try
+                        {
+                            bulletShader.UseColor(PiercingBellsResonanceUtils.StaccatoPalette[2]);
+                            bulletShader.UseSecondaryColor(PiercingBellsResonanceUtils.StaccatoPalette[0]);
+                            bulletShader.UseOpacity(0.8f);
+                            bulletShader.UseSaturation(0.9f); // uIntensity
+                            var fx = bulletShader.Shader;
+                            if (fx != null)
+                            {
+                                fx.Parameters["uTime"]?.SetValue((float)Main.GameUpdateCount * 0.03f);
+                                fx.Parameters["uOverbrightMult"]?.SetValue(1.3f);
+                                fx.Parameters["uScrollSpeed"]?.SetValue(2.5f);
+                                fx.Parameters["uNoiseScale"]?.SetValue(4f);
+                            }
+                        }
+                        catch { }
+                    }
+
                     var settings = new BulletTrailSettings
                     {
                         ColorStart = PiercingBellsResonanceUtils.StaccatoPalette[2] * 0.7f,
                         ColorEnd = PiercingBellsResonanceUtils.StaccatoPalette[0] * 0.2f,
                         Width = 4f,
-                        BloomIntensity = 0.2f
+                        BloomIntensity = 0.2f,
+                        Shader = bulletShader
                     };
                     trailRenderer.DrawTrail(sb, trailPositions, settings, Main.screenPosition);
                 }
@@ -103,7 +129,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
 
             // Theme texture accents
             try { sb.End(); } catch { }
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             PiercingBellsResonanceUtils.DrawThemeAccents(sb, Projectile.Center - Main.screenPosition, Projectile.scale);
             try { sb.End(); } catch { }

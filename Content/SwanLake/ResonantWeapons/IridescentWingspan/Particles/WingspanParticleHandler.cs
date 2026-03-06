@@ -35,7 +35,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Particl
         {
             if (_particles.Count == 0) return;
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             foreach (var p in _particles) if (p.Active && p.UseAdditiveBlend) p.Draw(sb);
             sb.End();

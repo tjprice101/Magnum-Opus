@@ -5,6 +5,8 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
+using Terraria.Graphics;
+using ReLogic.Content;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
@@ -325,6 +327,18 @@ namespace MagnumOpus.Content.Summer.Projectiles
         private const float HueMin = 0.06f;
         private const float HueMax = 0.12f;
 
+        // --- InfernalBeamFoundation scaffolding: shader + texture caching ---
+        private static Effect _sunbeamShader;
+        private static Asset<Texture2D> _sunbeamAlphaMask;
+        private static Asset<Texture2D> _sunbeamGradientLUT;
+        private static Asset<Texture2D> _sunbeamBodyTex;
+        private static Asset<Texture2D> _sunbeamDetail1;
+        private static Asset<Texture2D> _sunbeamDetail2;
+        private static Asset<Texture2D> _sunbeamNoise;
+        private static Asset<Texture2D> _sunbeamSoftGlow;
+        private static Asset<Texture2D> _sunbeamPointBloom;
+        private VertexStrip _sunbeamStrip;
+
         public override void SetStaticDefaults()
         {
             ProjectileID.Sets.TrailCacheLength[Projectile.type] = 20;
@@ -585,10 +599,125 @@ namespace MagnumOpus.Content.Summer.Projectiles
             Lighting.AddLight(Projectile.Center, SunGold.ToVector3() * 1.8f);
         }
 
+        private void LoadSunbeamTextures()
+        {
+            const string Beams = "MagnumOpus/Assets/VFX Asset Library/BeamTextures/";
+            const string Trails = "MagnumOpus/Assets/VFX Asset Library/TrailsAndRibbons/";
+            const string Bloom = "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/";
+            const string Noise = "MagnumOpus/Assets/VFX Asset Library/NoiseTextures/";
+            const string Gradients = "MagnumOpus/Assets/VFX Asset Library/ColorGradients/";
+
+            _sunbeamAlphaMask ??= ModContent.Request<Texture2D>(Trails + "BasicTrail", AssetRequestMode.ImmediateLoad);
+            _sunbeamGradientLUT ??= ModContent.Request<Texture2D>(Gradients + "OdeToJoyGradientLUTandRAMP", AssetRequestMode.ImmediateLoad);
+            _sunbeamBodyTex ??= ModContent.Request<Texture2D>(Beams + "SoundWaveBeam", AssetRequestMode.ImmediateLoad);
+            _sunbeamDetail1 ??= ModContent.Request<Texture2D>(Beams + "EnergyMotion", AssetRequestMode.ImmediateLoad);
+            _sunbeamDetail2 ??= ModContent.Request<Texture2D>(Beams + "EnergySurgeBeam", AssetRequestMode.ImmediateLoad);
+            _sunbeamNoise ??= ModContent.Request<Texture2D>(Noise + "TileableFBMNoise", AssetRequestMode.ImmediateLoad);
+            _sunbeamSoftGlow ??= ModContent.Request<Texture2D>(Bloom + "SoftGlow", AssetRequestMode.ImmediateLoad);
+            _sunbeamPointBloom ??= ModContent.Request<Texture2D>(Bloom + "PointBloom", AssetRequestMode.ImmediateLoad);
+        }
+
         public override bool PreDraw(ref Color lightColor)
         {
-            // Procedural Summer beam with trail rendering - no PNG textures
-            ProceduralProjectileVFX.DrawSummerProjectile(Main.spriteBatch, Projectile, 0.7f);
+            if (Main.dedServ) return false;
+
+            SpriteBatch sb = Main.spriteBatch;
+            LoadSunbeamTextures();
+
+            // Build VertexStrip from trail cache (oldPos[0] = newest/head)
+            int count = 0;
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            {
+                if (Projectile.oldPos[i] == Vector2.Zero) break;
+                count++;
+            }
+
+            sb.End(); // End current SpriteBatch for raw vertex drawing
+
+            // === LAYER 1: Shader-driven beam body via VertexStrip (InfernalBeamFoundation) ===
+            if (count >= 2)
+            {
+                Vector2[] positions = new Vector2[count];
+                float[] rotations = new float[count];
+                float totalLength = 0f;
+
+                for (int i = 0; i < count; i++)
+                {
+                    positions[i] = Projectile.oldPos[i] + Projectile.Size / 2f;
+                    rotations[i] = Projectile.oldRot[i];
+                    if (i > 0) totalLength += Vector2.Distance(positions[i - 1], positions[i]);
+                }
+
+                _sunbeamStrip ??= new VertexStrip();
+                _sunbeamStrip.PrepareStrip(positions, rotations,
+                    (float progress) => Color.White * (1f - progress * 0.75f),
+                    (float progress) => MathHelper.Lerp(36f, 4f, progress),
+                    -Main.screenPosition, includeBacksides: true);
+
+                _sunbeamShader ??= ModContent.Request<Effect>(
+                    "MagnumOpus/Content/FoundationWeapons/InfernalBeamFoundation/Shaders/InfernalBeamBodyShader",
+                    AssetRequestMode.ImmediateLoad).Value;
+
+                if (_sunbeamShader != null)
+                {
+                    float repVal = MathHelper.Max(totalLength / 600f, 0.3f);
+                    float time = (float)Main.timeForVisualEffects * -0.03f;
+
+                    _sunbeamShader.Parameters["WorldViewProjection"].SetValue(
+                        Main.GameViewMatrix.NormalizedTransformationmatrix);
+                    _sunbeamShader.Parameters["onTex"].SetValue(_sunbeamAlphaMask.Value);
+                    _sunbeamShader.Parameters["gradientTex"].SetValue(_sunbeamGradientLUT.Value);
+                    _sunbeamShader.Parameters["bodyTex"].SetValue(_sunbeamBodyTex.Value);
+                    _sunbeamShader.Parameters["detailTex1"].SetValue(_sunbeamDetail1.Value);
+                    _sunbeamShader.Parameters["detailTex2"].SetValue(_sunbeamDetail2.Value);
+                    _sunbeamShader.Parameters["noiseTex"].SetValue(_sunbeamNoise.Value);
+
+                    _sunbeamShader.Parameters["bodyReps"].SetValue(2.0f * repVal);
+                    _sunbeamShader.Parameters["detail1Reps"].SetValue(2.5f * repVal);
+                    _sunbeamShader.Parameters["detail2Reps"].SetValue(1.5f * repVal);
+                    _sunbeamShader.Parameters["gradientReps"].SetValue(1.0f * repVal);
+                    _sunbeamShader.Parameters["bodyScrollSpeed"].SetValue(1.2f);
+                    _sunbeamShader.Parameters["detail1ScrollSpeed"].SetValue(1.6f);
+                    _sunbeamShader.Parameters["detail2ScrollSpeed"].SetValue(-0.8f);
+                    _sunbeamShader.Parameters["noiseDistortion"].SetValue(0.04f);
+                    _sunbeamShader.Parameters["totalMult"].SetValue(1.5f);
+                    _sunbeamShader.Parameters["uTime"].SetValue(time);
+
+                    _sunbeamShader.CurrentTechnique.Passes["MainPS"].Apply();
+                    _sunbeamStrip.DrawTrail();
+                    Main.pixelShader.CurrentTechnique.Passes[0].Apply();
+                }
+            }
+
+            // === LAYER 2: Multi-layer bloom head (Summer solar palette) ===
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                SamplerState.LinearClamp, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
+
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            Texture2D glowTex = _sunbeamSoftGlow?.Value;
+            Texture2D bloomTex = _sunbeamPointBloom?.Value;
+
+            if (glowTex != null && bloomTex != null)
+            {
+                float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.15f + 1f;
+                // Wide solar outer glow
+                sb.Draw(glowTex, drawPos, null, SunOrange * 0.4f, 0f,
+                    glowTex.Size() / 2f, 0.4f * pulse, SpriteEffects.None, 0f);
+                // Mid golden bloom
+                sb.Draw(bloomTex, drawPos, null, SunGold * 0.55f, 0f,
+                    bloomTex.Size() / 2f, 0.2f * pulse, SpriteEffects.None, 0f);
+                // White-hot center
+                sb.Draw(bloomTex, drawPos, null, SunWhite * 0.7f, 0f,
+                    bloomTex.Size() / 2f, 0.08f * pulse, SpriteEffects.None, 0f);
+            }
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
             return false;
         }
     }

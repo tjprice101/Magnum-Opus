@@ -207,5 +207,14 @@ namespace MagnumOpus.Content.EnigmaVariations
             float pulse = (float)Math.Sin(time * 0.07f) * 0.15f + 0.85f;
             Lighting.AddLight(worldPos, lightColor.ToVector3() * pulse * intensity);
         }
+
+        /// <summary>
+        /// Add pulsing light at a world position with a custom color.
+        /// </summary>
+        public static void AddPulsingLight(Vector2 worldPos, Color color, float time, float intensity = 0.5f)
+        {
+            float pulse = (float)Math.Sin(time * 0.07f) * 0.15f + 0.85f;
+            Lighting.AddLight(worldPos, color.ToVector3() * pulse * intensity);
+        }
     }
 }

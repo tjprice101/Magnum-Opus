@@ -109,7 +109,7 @@ namespace MagnumOpus.Content.FoundationWeapons.AttackAnimationFoundation
 
             // ---- LAYER 1: DIRECTIONAL SLASH BLOOM ----
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);

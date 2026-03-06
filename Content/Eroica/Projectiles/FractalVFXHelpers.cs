@@ -15,8 +15,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
     /// </summary>
     public static class FractalUtils
     {
-        public static readonly Color FractalGold = new Color(255, 200, 50);
-        public static readonly Color FractalViolet = new Color(140, 60, 180);
+        public static readonly Color FractalGold = new Color(200, 50, 50);
+        public static readonly Color FractalViolet = new Color(220, 120, 140);
         public static readonly Color LightningBlue = new Color(120, 180, 255);
         public static readonly Color CrystalWhite = new Color(255, 245, 235);
         public static readonly Color GeometryPink = new Color(255, 140, 180);
@@ -24,7 +24,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         public static void EnterShaderRegion(SpriteBatch sb)
         {
             sb.End();
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
@@ -79,7 +79,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             if (positions == null || positions.Length < 2) return;
 
             SpriteBatch sb = Main.spriteBatch;
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             try
             {

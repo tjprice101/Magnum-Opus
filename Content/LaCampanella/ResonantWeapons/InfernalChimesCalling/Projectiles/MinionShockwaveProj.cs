@@ -5,8 +5,10 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Graphics.Shaders;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.Particles;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.Shaders;
 using MagnumOpus.Content.LaCampanella.Debuffs;
 using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
 using MagnumOpus.Content.FoundationWeapons.ExplosionParticlesFoundation;
@@ -128,7 +130,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
             Projectile.NewProjectile(
                 Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero,
                 ModContent.ProjectileType<RippleEffectProjectile>(),
-                0, 0f, Projectile.owner);
+                0, 0f, Projectile.owner, ai0: 1f);
 
             // === FOUNDATION: Sacrifice-specific effects ===
             if (IsSacrifice)
@@ -221,7 +223,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
             try { sb.End(); } catch { }
             try
             {
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Core blast
@@ -250,6 +252,55 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
                 Color sacColor = InfernalChimesCallingUtils.Additive(
                     InfernalChimesCallingUtils.ShockwavePalette[5], sacFlash * 0.6f);
                 sb.Draw(tex, drawPos, null, sacColor, 0f, origin, ringScale * 0.6f, SpriteEffects.None, 0f);
+            }
+
+            // === SHADER: MusicalShockwave overlay ===
+            var shockShader = InfernalChimesCallingShaderLoader.GetShockwaveShader();
+            if (shockShader != null)
+            {
+                try
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                    shockShader.UseColor(InfernalChimesCallingUtils.ShockwavePalette[2]);
+                    shockShader.UseSecondaryColor(InfernalChimesCallingUtils.ShockwavePalette[4]);
+                    shockShader.UseOpacity(fade * 0.6f);
+                    shockShader.UseSaturation(fade); // uIntensity
+                    var shockFx = shockShader.Shader;
+                    if (shockFx != null)
+                    {
+                        shockFx.Parameters["uTime"]?.SetValue((float)Main.GameUpdateCount * 0.02f);
+                        shockFx.Parameters["uOverbrightMult"]?.SetValue(IsSacrifice ? 1.6f : IsCrescendo ? 1.4f : 1.2f);
+                        shockFx.Parameters["uPhase"]?.SetValue(progress);
+                        shockFx.Parameters["uScrollSpeed"]?.SetValue(1.5f);
+                        shockFx.Parameters["uNoiseScale"]?.SetValue(3f);
+                    }
+                    shockShader.Apply();
+
+                    // Draw the shockwave ring at full scale with shader-driven wavefront
+                    Color shaderCol = Color.White * fade * 0.5f;
+                    sb.Draw(tex, drawPos, null, shaderCol, 0f, origin, ringScale * 1.1f, SpriteEffects.None, 0f);
+
+                    // Secondary inner ring for depth
+                    Color innerShader = Color.White * fade * 0.3f;
+                    sb.Draw(tex, drawPos, null, innerShader, 0f, origin, ringScale * 0.65f, SpriteEffects.None, 0f);
+
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch
+                {
+                    try
+                    {
+                        sb.End();
+                        sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                            DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                    }
+                    catch { }
+                }
             }
             }
             catch { }

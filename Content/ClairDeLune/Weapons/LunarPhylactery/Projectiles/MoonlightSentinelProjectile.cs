@@ -218,7 +218,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
 
             _soulBeamShader.CurrentTechnique = _soulBeamShader.Techniques["SoulBeamAura"];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _soulBeamShader, matrix);
 
@@ -229,7 +229,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
             sb.Draw(sc, drawPos, null, Color.White, bodyRot, sc.Size() * 0.5f, bodyScale, SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }
@@ -254,7 +254,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
 
             _pearlGlowShader.CurrentTechnique = _pearlGlowShader.Techniques["PearlShimmer"];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _pearlGlowShader, matrix);
 
@@ -272,7 +272,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
             }
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }

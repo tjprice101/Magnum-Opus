@@ -369,7 +369,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
             float zenithMult = inZenithFormation ? 1.3f : 1f;
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Outer corona
             spriteBatch.Draw(texture, drawPos, null, SunOrange * 0.25f * zenithMult, 0f, origin, 0.65f * pulse * zenithMult, SpriteEffects.None, 0f);

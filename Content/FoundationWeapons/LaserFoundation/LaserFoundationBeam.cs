@@ -405,7 +405,7 @@ namespace MagnumOpus.Content.FoundationWeapons.LaserFoundation
             // The shader is passed as the Effect parameter of SpriteBatch.Begin,
             // so every Draw call in this batch gets the rainbow pixel shader applied.
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, flareShader,
                 Main.GameViewMatrix.EffectMatrix);

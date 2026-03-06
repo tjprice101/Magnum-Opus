@@ -583,7 +583,7 @@ namespace MagnumOpus.Common.Systems.VFX
             
             // Draw fog layers with theme-specific blend
             try { spriteBatch.End(); } catch { }
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearWrap, 
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearWrap, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Outer glow layer

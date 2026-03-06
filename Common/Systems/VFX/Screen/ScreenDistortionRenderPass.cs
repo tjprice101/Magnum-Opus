@@ -49,7 +49,7 @@ namespace MagnumOpus.Common.Systems.VFX
         /// <summary>Master opacity multiplier (0–1).</summary>
         public float MasterOpacity { get; set; } = 1f;
 
-        public DistortionScreenShaderData(Ref<Effect> shader, string techniqueName)
+        public DistortionScreenShaderData(Asset<Effect> shader, string techniqueName)
             : base(shader, "P0")
         {
             _techniqueName = techniqueName;
@@ -135,21 +135,18 @@ namespace MagnumOpus.Common.Systems.VFX
                     return;
                 }
 
-                Effect effect = asset.Value;
-                var effectRef  = new Ref<Effect>(effect);
-
                 // Register one filter per technique.
                 // EffectPriority.Medium sits below sky / weather shaders.
                 Filters.Scene[RippleKey] = new Filter(
-                    new DistortionScreenShaderData(effectRef, "RippleTechnique"),
+                    new DistortionScreenShaderData(asset, "RippleTechnique"),
                     EffectPriority.Medium);
 
                 Filters.Scene[HeatHazeKey] = new Filter(
-                    new DistortionScreenShaderData(effectRef, "HeatHazeTechnique"),
+                    new DistortionScreenShaderData(asset, "HeatHazeTechnique"),
                     EffectPriority.Medium);
 
                 Filters.Scene[ChromaticKey] = new Filter(
-                    new DistortionScreenShaderData(effectRef, "ChromaticTechnique"),
+                    new DistortionScreenShaderData(asset, "ChromaticTechnique"),
                     EffectPriority.Medium);
 
                 _registered = true;

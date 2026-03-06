@@ -67,7 +67,7 @@ namespace MagnumOpus.Common.Systems.VFX
             
             // Begin additive blend mode
             try { spriteBatch.End(); } catch { }
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             // === TRAIL RENDERING ===
@@ -257,7 +257,7 @@ namespace MagnumOpus.Common.Systems.VFX
             Color secondaryColor = hasTarget ? iceBlue : stormPurple;
             
             try { spriteBatch.End(); } catch { }
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Trail with gradient
@@ -313,7 +313,7 @@ namespace MagnumOpus.Common.Systems.VFX
             
             // Add extra twinkling stars
             try { spriteBatch.End(); } catch { }
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Random twinkling around projectile
@@ -375,7 +375,7 @@ namespace MagnumOpus.Common.Systems.VFX
             float pulse = 1f + (float)Math.Sin(time * 2f) * 0.12f;
             
             try { spriteBatch.End(); } catch { }
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Trail with rainbow gradient
@@ -444,7 +444,7 @@ namespace MagnumOpus.Common.Systems.VFX
             float pulse = 1f + (float)Math.Sin(time * 2f) * 0.12f;
             
             try { spriteBatch.End(); } catch { }
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Trail
@@ -507,7 +507,7 @@ namespace MagnumOpus.Common.Systems.VFX
             
             // More radiant than standard projectile for solar feel
             try { spriteBatch.End(); } catch { }
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             DrawProceduralTrail(spriteBatch, projectile, sunGold, sunOrange, scale);

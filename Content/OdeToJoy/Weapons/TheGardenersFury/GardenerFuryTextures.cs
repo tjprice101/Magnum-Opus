@@ -70,7 +70,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury
         public static readonly Asset<Texture2D> OJRosePetal =
             ModContent.Request<Texture2D>(ThemeOJ + "Projectiles/OJ Rose Petal", AssetRequestMode.ImmediateLoad);
         public static readonly Asset<Texture2D> OJPetalNoise =
-            ModContent.Request<Texture2D>(ThemeOJ + "Noise/OJ Unique Theme Noise -- Petal Scatter Pattern", AssetRequestMode.ImmediateLoad);
+            ModContent.Request<Texture2D>(ThemeOJ + "Noise/OJ Unique Theme Noise \u2014 Petal Scatter Pattern", AssetRequestMode.ImmediateLoad);
 
         // ---- SMEAR SHADER (SwordSmearFoundation) ----
         private static Effect _smearShader;

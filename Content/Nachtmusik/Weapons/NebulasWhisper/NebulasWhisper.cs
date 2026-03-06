@@ -119,7 +119,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NebulasWhisper
             float breathe = 1f + (float)Math.Sin(time * 1.3f) * 0.12f;
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Cosmic purple nebula haze — wide, soft outer
@@ -150,7 +150,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NebulasWhisper
             float breathe = 1f + (float)Math.Sin(time * 1.5f) * 0.08f;
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
 
             float cycle = (float)Math.Sin(time * 0.6f) * 0.5f + 0.5f;

@@ -5,9 +5,13 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFlock.Utilities;
+using MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFlock.Primitives;
 using MagnumOpus.Content.SwanLake.Debuffs;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
+using Terraria.Graphics.Shaders;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFlock.Projectiles
 {
@@ -24,6 +28,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
 
         private const int TrailLength = 10;
         private Vector2[] oldPos = new Vector2[TrailLength];
+        private FlockPrimitiveRenderer _trailRenderer;
 
         public override void SetStaticDefaults() { ProjectileID.Sets.TrailCacheLength[Projectile.type] = TrailLength; }
 
@@ -108,6 +113,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
 
         public override void OnKill(int timeLeft)
         {
+            _trailRenderer?.Dispose();
+            _trailRenderer = null;
+
             for (int i = 0; i < 4; i++)
             {
                 Color c = FlockUtils.GetIridescent(i / 4f + Timer * 0.01f);
@@ -125,43 +133,97 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
             try
             {
                 sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
                 Texture2D bloom = MagnumTextureRegistry.GetSoftGlow();
                 Texture2D point = MagnumTextureRegistry.GetPointBloom();
+                Texture2D star = MagnumTextureRegistry.GetStar4Soft();
 
-                // --- Iridescent bloom trail ---
-                if (bloom != null)
-                {
-                    Vector2 bOrigin = bloom.Size() * 0.5f;
-                    for (int i = TrailLength - 1; i >= 1; i--)
-                    {
-                        if (oldPos[i] == Vector2.Zero) continue;
-                        float progress = 1f - i / (float)TrailLength;
-                        Color trailColor = FlockUtils.GetIridescent(
-                            i / (float)TrailLength + (float)Main.timeForVisualEffects * 0.01f);
-                        sb.Draw(bloom, oldPos[i] - screenPos, null, trailColor * (progress * 0.25f),
-                            0f, bOrigin, 0.08f + progress * 0.06f, SpriteEffects.None, 0f);
-                    }
-                }
-
-                // --- Core bloom (2 layers) ---
                 Vector2 drawPos = Projectile.Center - screenPos;
+                float life = MathHelper.Clamp(Timer / 120f, 0f, 1f);
+                float shardHue = Timer * 0.03f; // shifting hue over lifetime
 
-                // Outer iridescent glow
+                // ========================================================
+                // GPU SHADER TRAIL — CrystalOrbitTrail (3-pass faceted shard trail)
+                // ========================================================
+                if (oldPos[1] != Vector2.Zero && GameShaders.Misc.ContainsKey("MagnumOpus:CrystalOrbitTrail"))
+                {
+                    // End SpriteBatch before GPU primitive rendering
+                    sb.End();
+
+                    _trailRenderer ??= new FlockPrimitiveRenderer();
+
+                    var trailShader = GameShaders.Misc["MagnumOpus:CrystalOrbitTrail"];
+                    var effect = trailShader.Shader;
+
+                    float trailWidth = 8f + 4f * (1f - life); // wider when fresh, narrows as it ages
+
+                    // Set shared shader params
+                    effect.Parameters["uPhase"]?.SetValue(shardHue);
+                    effect.Parameters["uOpacity"]?.SetValue(0.6f);
+                    effect.Parameters["uIntensity"]?.SetValue(1.0f);
+                    effect.Parameters["uOverbrightMult"]?.SetValue(0.15f);
+                    trailShader.UseImage1(MagnumTextureRegistry.PerlinNoise);
+
+                    // Pass 1: CrystalOrbitGlow @ 2.5x width (prismatic bloom underlay)
+                    effect.CurrentTechnique = effect.Techniques["CrystalOrbitGlow"];
+                    var glowSettings = new FlockTrailSettings(
+                        t => trailWidth * 2.5f * (1f - t * 0.75f),
+                        t => FlockUtils.GetIridescent(t + shardHue) * (0.2f * (1f - t)));
+                    glowSettings = new FlockTrailSettings(glowSettings.Width, glowSettings.TrailColor, trailShader);
+                    _trailRenderer.RenderTrail(oldPos, glowSettings);
+
+                    // Pass 2: CrystalOrbitMain @ 1x width (sharp facets)
+                    effect.CurrentTechnique = effect.Techniques["CrystalOrbitMain"];
+                    var mainSettings = new FlockTrailSettings(
+                        t => trailWidth * (1f - t * 0.65f),
+                        t => Color.Lerp(Color.White, FlockUtils.GetIridescent(t * 0.4f + shardHue), t * 0.6f) * (0.7f * (1f - t * 0.4f)));
+                    mainSettings = new FlockTrailSettings(mainSettings.Width, mainSettings.TrailColor, trailShader);
+                    _trailRenderer.RenderTrail(oldPos, mainSettings);
+
+                    // Pass 3: CrystalOrbitGlow @ 1.3x width (overbright halo)
+                    effect.CurrentTechnique = effect.Techniques["CrystalOrbitGlow"];
+                    effect.Parameters["uOverbrightMult"]?.SetValue(0.25f);
+                    var haloSettings = new FlockTrailSettings(
+                        t => trailWidth * 1.3f * (1f - t * 0.8f),
+                        t => Color.Lerp(Color.White, FlockUtils.GetIridescent(shardHue + 0.1f), t) * (0.2f * (1f - t)));
+                    haloSettings = new FlockTrailSettings(haloSettings.Width, haloSettings.TrailColor, trailShader);
+                    _trailRenderer.RenderTrail(oldPos, haloSettings);
+
+                    // Restart sprite batch after GPU primitives
+                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+
+                // ========================================================
+                // LAYER 1: Outer iridescent glow
+                // ========================================================
                 if (bloom != null)
                 {
                     Vector2 bOrigin = bloom.Size() * 0.5f;
-                    Color outerColor = FlockUtils.GetIridescent(Timer * 0.02f);
-                    sb.Draw(bloom, drawPos, null, outerColor * 0.3f, 0f, bOrigin, 0.15f, SpriteEffects.None, 0f);
+                    Color outerColor = FlockUtils.GetIridescent(shardHue);
+                    sb.Draw(bloom, drawPos, null, outerColor * 0.3f, 0f, bOrigin, 0.18f, SpriteEffects.None, 0f);
                 }
 
-                // White core
+                // ========================================================
+                // LAYER 2: White-hot core
+                // ========================================================
                 if (point != null)
                 {
                     Vector2 pOrigin = point.Size() * 0.5f;
-                    sb.Draw(point, drawPos, null, Color.White * 0.6f, 0f, pOrigin, 0.08f, SpriteEffects.None, 0f);
+                    sb.Draw(point, drawPos, null, Color.White * 0.7f, 0f, pOrigin, 0.1f, SpriteEffects.None, 0f);
+                }
+
+                // ========================================================
+                // LAYER 3: Tiny star sparkle
+                // ========================================================
+                if (star != null)
+                {
+                    Vector2 sOrigin = star.Size() * 0.5f;
+                    float starRot = (float)Main.timeForVisualEffects * 0.05f;
+                    Color starC = FlockUtils.GetIridescent(shardHue + 0.25f);
+                    sb.Draw(star, drawPos, null, starC * 0.2f, starRot, sOrigin, 0.1f, SpriteEffects.None, 0f);
                 }
 
                 // --- Draw shard sprite ---

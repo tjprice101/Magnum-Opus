@@ -298,7 +298,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 // This is the Calamity-proven pattern for FancyLighting compatibility
                 using (var scope = Main.spriteBatch.Scope())
                 {
-                    Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, 
+                    Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, 
                         SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, 
                         null, Main.GameViewMatrix.TransformationMatrix);
                     

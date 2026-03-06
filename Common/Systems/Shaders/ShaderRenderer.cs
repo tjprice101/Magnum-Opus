@@ -63,7 +63,7 @@ namespace MagnumOpus.Common.Systems.Shaders
             ConfigureShader(shader, type, color, intensity, secondaryColor, targetPosition);
 
             // Determine blend state based on shader type
-            BlendState blendState = IsAdditiveType(type) ? BlendState.Additive : BlendState.AlphaBlend;
+            BlendState blendState = IsAdditiveType(type) ? MagnumBlendStates.TrueAdditive : BlendState.AlphaBlend;
 
             // End current spritebatch and restart with shader
             spriteBatch.End();

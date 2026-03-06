@@ -742,7 +742,7 @@ namespace MagnumOpus.Common.Systems.VFX
             var prevDepth = device.DepthStencilState;
             
             // Set state
-            device.BlendState = additive ? BlendState.Additive : BlendState.AlphaBlend;
+            device.BlendState = additive ? MagnumBlendStates.TrueAdditive : BlendState.AlphaBlend;
             device.RasterizerState = RasterizerState.CullNone;
             device.DepthStencilState = DepthStencilState.None;
             

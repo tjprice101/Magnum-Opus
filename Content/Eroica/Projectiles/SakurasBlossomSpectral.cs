@@ -5,7 +5,6 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
-using Terraria.GameContent;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Content.Eroica;
 using MagnumOpus.Content.FoundationWeapons.SparkleProjectileFoundation;
@@ -44,8 +43,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void SetDefaults()
         {
-            Projectile.width = 60;
-            Projectile.height = 60;
+            Projectile.width = 30;
+            Projectile.height = 30;
             Projectile.friendly = true;
             Projectile.hostile = false;
             Projectile.DamageType = DamageClass.Melee;
@@ -177,23 +176,16 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
-            Vector2 origin = tex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
             // ── Layer 1: Pure Bloom Ribbon trail (RibbonFoundation Mode 1) ──
             DrawPureBloomTrail(sb);
 
-            // ── Layer 2: Spectral afterimages ──
-            DrawSpectralAfterimages(sb, tex, origin);
+            // ── Layer 2: Bloom afterimages along trail ──
+            DrawBloomAfterimages(sb);
 
-            // ── Layer 3: Ghostly core sprite ──
-            Color ghostTint = Color.Lerp(lightColor, EroicaPalette.Sakura, 0.5f) * 0.7f;
-            sb.Draw(tex, drawPos, null, ghostTint, Projectile.rotation, origin, Projectile.scale, SpriteEffects.None, 0f);
-
-            // Inner sakura glow
-            Color innerGlow = EroicaPalette.Sakura with { A = 0 };
-            sb.Draw(tex, drawPos, null, innerGlow * 0.3f, Projectile.rotation, origin, Projectile.scale * 1.05f, SpriteEffects.None, 0f);
+            // ── Layer 3: Noise-masked circular bloom core ──
+            DrawNoiseMaskedCore(sb, drawPos);
 
             // ── Layer 4: Crystal shimmer overlay (SparkleProjectileFoundation) ──
             DrawCrystalShimmer(sb, drawPos);
@@ -230,7 +222,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Vector2 coreOrigin = coreTex.Size() / 2f;
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullNone, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -282,14 +274,22 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         }
 
         /// <summary>
-        /// Spectral afterimages — ghostly translucent copies along trail.
+        /// Bloom afterimages — soft bloom orbs along trail instead of sword copies.
+        /// Noise-tinted for organic sakura petal feel.
         /// </summary>
-        private void DrawSpectralAfterimages(SpriteBatch sb, Texture2D tex, Vector2 origin)
+        private void DrawBloomAfterimages(SpriteBatch sb)
         {
             int imageCount = 5;
+            Texture2D bloomTex = RBFTextures.SoftGlow.Value;
+            Texture2D noiseTex = RBFTextures.FBMNoise.Value;
+            if (bloomTex == null) return;
+
+            Vector2 bloomOrigin = bloomTex.Size() / 2f;
+            Vector2 noiseOrigin = noiseTex != null ? noiseTex.Size() / 2f : Vector2.Zero;
+            float baseScale = 0.18f * Projectile.scale;
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullNone, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -307,15 +307,80 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 if (trailPositions[idx] == Vector2.Zero || trailPositions[idx + 1] == Vector2.Zero) continue;
 
                 Vector2 pos = Vector2.Lerp(trailPositions[idx], trailPositions[idx + 1], frac) - Main.screenPosition;
-                float rot = Projectile.rotation;
 
                 float fadeFactor = (1f - progress);
                 fadeFactor *= fadeFactor;
-                Color afterColor = Color.Lerp(EroicaPalette.Sakura, EroicaPalette.Gold, progress * 0.3f) with { A = 0 } * (fadeFactor * 0.2f);
+                float afterScale = baseScale * (1f - progress * 0.3f);
 
-                float afterScale = Projectile.scale * (1f - progress * 0.2f);
-                sb.Draw(tex, pos, null, afterColor, rot, origin, afterScale, SpriteEffects.None, 0f);
+                // Noise blob — organic petal shape
+                if (noiseTex != null)
+                {
+                    Color noiseColor = EroicaPalette.Sakura with { A = 0 } * (fadeFactor * 0.2f);
+                    sb.Draw(noiseTex, pos, null, noiseColor,
+                        progress * 2.5f + AgeTimer * 0.02f, noiseOrigin, afterScale * 0.5f, SpriteEffects.None, 0f);
+                }
+
+                // Soft bloom orb
+                Color afterColor = Color.Lerp(EroicaPalette.Sakura, EroicaPalette.Gold, progress * 0.3f) with { A = 0 } * (fadeFactor * 0.25f);
+                sb.Draw(bloomTex, pos, null, afterColor, 0f, bloomOrigin, afterScale, SpriteEffects.None, 0f);
             }
+
+            }
+            finally
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+            }
+        }
+
+        /// <summary>
+        /// Noise-masked circular bloom as the projectile core.
+        /// FBM noise texture provides organic sakura petal edges,
+        /// overlaid with a bright bloom core and hot white center.
+        /// </summary>
+        private void DrawNoiseMaskedCore(SpriteBatch sb, Vector2 drawPos)
+        {
+            Texture2D bloomTex = RBFTextures.SoftGlowBright.Value;
+            Texture2D noiseTex = RBFTextures.FBMNoise.Value;
+            if (bloomTex == null || noiseTex == null) return;
+
+            Vector2 bloomOrigin = bloomTex.Size() / 2f;
+            Vector2 noiseOrigin = noiseTex.Size() / 2f;
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                SamplerState.LinearClamp, DepthStencilState.None,
+                RasterizerState.CullNone, null,
+                Main.GameViewMatrix.TransformationMatrix);
+            try
+            {
+
+            float pulse = 0.85f + 0.15f * (float)Math.Sin(AgeTimer * 0.1f);
+            float bloomScale = 0.22f * Projectile.scale;
+            float time = AgeTimer * 0.03f;
+
+            // Outer noise layer — FBM noise gives organic sakura petal-like edges
+            Color noiseColor = EroicaPalette.Sakura with { A = 0 };
+            sb.Draw(noiseTex, drawPos, null, noiseColor * 0.35f * pulse,
+                time, noiseOrigin, bloomScale * 0.55f, SpriteEffects.None, 0f);
+
+            // Second noise layer — rotated for richer detail
+            Color noise2Color = Color.Lerp(EroicaPalette.Sakura, EroicaPalette.Gold, 0.25f) with { A = 0 };
+            sb.Draw(noiseTex, drawPos, null, noise2Color * 0.2f * pulse,
+                -time * 0.7f, noiseOrigin, bloomScale * 0.45f, SpriteEffects.None, 0f);
+
+            // Middle bloom body — soft sakura-white glow
+            Color bodyColor = Color.Lerp(EroicaPalette.Sakura, Color.White, 0.35f) with { A = 0 };
+            sb.Draw(bloomTex, drawPos, null, bodyColor * 0.4f * pulse,
+                0f, bloomOrigin, bloomScale * 0.4f, SpriteEffects.None, 0f);
+
+            // Hot white core
+            Color coreColor = Color.White with { A = 0 };
+            sb.Draw(bloomTex, drawPos, null, coreColor * 0.25f * pulse,
+                0f, bloomOrigin, bloomScale * 0.15f, SpriteEffects.None, 0f);
 
             }
             finally
@@ -340,7 +405,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             float time = (float)Main.timeForVisualEffects * 0.025f;
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullNone, null,
                 Main.GameViewMatrix.TransformationMatrix);

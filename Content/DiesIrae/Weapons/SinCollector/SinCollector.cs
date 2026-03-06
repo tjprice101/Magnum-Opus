@@ -88,8 +88,11 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.SinCollector
                 return false; // we handled the projectile spawn
             }
 
-            // Normal fire: Sin Bullet
-            return true;
+            // Normal fire: Sin Bullet — always use custom VFX type, not ammo's vanilla type
+            Projectile.NewProjectile(source, position, velocity,
+                ModContent.ProjectileType<Projectiles.SinBulletProjectile>(),
+                damage, knockback, player.whoAmI);
+            return false;
         }
 
         public override Vector2? HoldoutOffset() => new Vector2(-10f, 0f);

@@ -70,8 +70,21 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
         {
             var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
             float fade = 1f - LifetimeCompletion;
-            sb.Draw(tex, Position - Main.screenPosition, null,
-                DrawColor * (fade * 0.5f), 0f, tex.Size() / 2f, Scale * 0.4f, SpriteEffects.None, 0f);
+            float fadeSq = fade * fade;
+            Vector2 origin = tex.Size() / 2f;
+            Vector2 drawPos = Position - Main.screenPosition;
+
+            // Outer fire shell — dark orange, wide, soft
+            Color outerColor = SymphonicBellfireUtils.RocketPalette[0] * (fadeSq * 0.35f);
+            sb.Draw(tex, drawPos, null, outerColor, 0f, origin, Scale * 0.55f, SpriteEffects.None, 0f);
+
+            // Mid body — fire orange
+            Color midColor = DrawColor * (fadeSq * 0.5f);
+            sb.Draw(tex, drawPos, null, midColor, 0f, origin, Scale * 0.4f, SpriteEffects.None, 0f);
+
+            // White-hot core — bright center
+            Color coreColor = new Color(255, 240, 200) * (fadeSq * 0.7f);
+            sb.Draw(tex, drawPos, null, coreColor, 0f, origin, Scale * 0.18f, SpriteEffects.None, 0f);
         }
     }
 

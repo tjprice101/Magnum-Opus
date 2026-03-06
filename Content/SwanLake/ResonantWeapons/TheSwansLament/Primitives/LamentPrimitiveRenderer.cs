@@ -117,6 +117,14 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Primitives
             _device.SetVertexBuffer(_vertexBuffer);
             _device.Indices = _indexBuffer;
 
+            // Set render states for GPU primitive drawing
+            var prevBlend = _device.BlendState;
+            var prevDepth = _device.DepthStencilState;
+            var prevRaster = _device.RasterizerState;
+            _device.BlendState = BlendState.Additive;
+            _device.DepthStencilState = DepthStencilState.None;
+            _device.RasterizerState = RasterizerState.CullNone;
+
             // Apply shader if specified
             if (!string.IsNullOrEmpty(settings.ShaderKey) && GameShaders.Misc.ContainsKey(settings.ShaderKey))
             {
@@ -128,6 +136,12 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Primitives
             }
 
             _device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertCount, 0, segCount * 2);
+
+            _device.SetVertexBuffer(null);
+            _device.Indices = null;
+            _device.BlendState = prevBlend;
+            _device.DepthStencilState = prevDepth;
+            _device.RasterizerState = prevRaster;
         }
 
         private void EnsureBuffers(int vertCount, int indexCount)
@@ -149,9 +163,10 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Primitives
         private static Matrix GetViewProjectionMatrix()
         {
             var viewport = Main.graphics.GraphicsDevice.Viewport;
-            Matrix view = Matrix.CreateLookAt(Vector3.Backward, Vector3.Zero, Vector3.Up);
-            Matrix projection = Matrix.CreateOrthographicOffCenter(0, viewport.Width, viewport.Height, 0, -1, 1);
-            return view * projection;
+            var zoom = Main.GameViewMatrix.Zoom;
+            Matrix projection = Matrix.CreateOrthographicOffCenter(
+                0, viewport.Width / zoom.X, viewport.Height / zoom.Y, 0, -1, 1);
+            return projection;
         }
 
         private static List<Vector2> CatmullRomSmooth(List<Vector2> points, int subdivisions)

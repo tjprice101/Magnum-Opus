@@ -374,7 +374,7 @@ namespace MagnumOpus.Common.Systems.VFX
             
             // End current batch and start additive for glow
             try { spriteBatch.End(); } catch { }
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             // === PASS 1: BLOOM LAYER (wider, dimmer) ===

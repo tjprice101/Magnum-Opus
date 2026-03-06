@@ -196,8 +196,9 @@ namespace MagnumOpus.Content.Summer.Weapons
             // CONTRASTING WHITE-HOT SPARKLE
             CustomParticles.PrismaticSparkle(position, SunWhite, 0.4f);
 
-            // Fire stream projectile
-            Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
+            // Fire stream projectile — always use custom VFX type, not ammo's vanilla type
+            int flameType = ModContent.ProjectileType<SolarFlameStream>();
+            Projectile.NewProjectile(source, position, velocity, flameType, damage, knockback, player.whoAmI);
 
             // Heatwave: Every 2 seconds
             if (heatwaveTimer >= 120)
@@ -261,7 +262,7 @@ namespace MagnumOpus.Content.Summer.Weapons
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.1f + 1f;
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             spriteBatch.Draw(texture, position, null, SunOrange * 0.35f, rotation, origin, scale * pulse * 1.3f, SpriteEffects.None, 0f);
             spriteBatch.Draw(texture, position, null, SunRed * 0.28f, rotation, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);

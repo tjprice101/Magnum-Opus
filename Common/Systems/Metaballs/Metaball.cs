@@ -107,7 +107,7 @@ namespace MagnumOpus.Common.Systems.Metaballs
 
         /// <summary>
         /// Optional: Prepare the SpriteBatch before drawing instances (custom blend states, etc).
-        /// Override to use BlendState.Additive for fire/plasma effects.
+        /// Override to use MagnumBlendStates.TrueAdditive for fire/plasma effects.
         /// </summary>
         public virtual void PrepareSpriteBatch(SpriteBatch spriteBatch)
         {

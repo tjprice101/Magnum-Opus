@@ -200,7 +200,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.CogAndHammer.Projectiles
 
             _singularityShader.CurrentTechnique = _singularityShader.Techniques["SingularityVortex"];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _singularityShader, matrix);
 
@@ -210,7 +210,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.CogAndHammer.Projectiles
             sb.Draw(sc, drawPos, null, Color.White, Projectile.rotation, sc.Size() * 0.5f, bodyScale, SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }
@@ -240,7 +240,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.CogAndHammer.Projectiles
 
             _pearlGlowShader.CurrentTechnique = _pearlGlowShader.Techniques["PearlBloom"];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _pearlGlowShader, matrix);
 
@@ -250,7 +250,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.CogAndHammer.Projectiles
             sb.Draw(sc, drawPos, null, Color.White, 0f, sc.Size() * 0.5f, overlayScale, SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }

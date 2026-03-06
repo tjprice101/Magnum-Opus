@@ -71,26 +71,50 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            var tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
-            float pulse = 0.9f + (float)Math.Sin(Main.GameUpdateCount * 0.2f + Projectile.whoAmI) * 0.1f;
-            Color noteColor = GrandioseChimeUtils.BarragePalette[Main.rand.Next(3)] * pulse;
+            try
+            {
+                var tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad)?.Value;
+                if (tex == null) return false;
+                float pulse = 0.9f + (float)Math.Sin(Main.GameUpdateCount * 0.2f + Projectile.whoAmI) * 0.1f;
+                Color noteColor = GrandioseChimeUtils.BarragePalette[Main.rand.Next(3)] * pulse;
 
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
-                noteColor, Projectile.rotation, tex.Size() / 2f, 0.55f, SpriteEffects.None, 0f);
+                sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
+                    noteColor, Projectile.rotation, tex.Size() / 2f, 0.55f, SpriteEffects.None, 0f);
 
-            // Fire glow behind (additive so black background disappears)
-            var bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
-                Main.DefaultSamplerState, DepthStencilState.None,
-                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-            sb.Draw(bloomTex, Projectile.Center - Main.screenPosition, null,
-                (GrandioseChimeUtils.BarragePalette[1] with { A = 0 }) * 0.2f, 0f, bloomTex.Size() / 2f, 0.2f, SpriteEffects.None, 0f);
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                Main.DefaultSamplerState, DepthStencilState.None,
-                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-
+                // Fire glow behind (additive so black background disappears)
+                var bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow", AssetRequestMode.ImmediateLoad)?.Value;
+                if (bloomTex != null)
+                {
+                    try { sb.End(); } catch { }
+                    try
+                    {
+                        sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                            Main.DefaultSamplerState, DepthStencilState.None,
+                            Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                        sb.Draw(bloomTex, Projectile.Center - Main.screenPosition, null,
+                            (GrandioseChimeUtils.BarragePalette[1] with { A = 0 }) * 0.2f, 0f, bloomTex.Size() / 2f, 0.2f, SpriteEffects.None, 0f);
+                    }
+                    catch { }
+                    finally
+                    {
+                        try { sb.End(); } catch { }
+                        sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                            Main.DefaultSamplerState, DepthStencilState.None,
+                            Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                    }
+                }
+            }
+            catch
+            {
+                try
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                        Main.DefaultSamplerState, DepthStencilState.None,
+                        Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
             return false;
         }
     }

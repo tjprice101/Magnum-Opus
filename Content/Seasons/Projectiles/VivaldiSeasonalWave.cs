@@ -315,7 +315,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             Color whiteBloom = Color.White with { A = 0 };
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // === BRILLIANT TRAIL WITH GRADIENT (TRUE_VFX_STANDARDS) ===
             for (int i = 0; i < Projectile.oldPos.Length; i++)

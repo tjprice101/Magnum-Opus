@@ -9,6 +9,11 @@ using MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Utilities;
 using MagnumOpus.Content.SwanLake.Debuffs;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Primitives;
+using MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Shaders;
+using Terraria.Graphics.Shaders;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Projectiles
 {
@@ -29,6 +34,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Project
         private const int TrailLength = 16;
         private Vector2[] oldPos = new Vector2[TrailLength];
         private float[] oldRot = new float[TrailLength];
+        private WingspanPrimitiveRenderer _trailRenderer;
 
         private Player Owner => Main.player[Projectile.owner];
         private bool IsEmpowered => BoltIndex == -1f;
@@ -107,7 +113,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Project
             if (IsEmpowered && Timer % 3 == 0)
             {
                 Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.WhiteTorch,
-                    Main.rand.NextVector2Circular(3, 3), 0, WingspanUtils.WingGold, 0.7f);
+                    Main.rand.NextVector2Circular(3, 3), 0, WingspanUtils.WingPrismatic, 0.7f);
                 d.noGravity = true;
             }
 
@@ -166,7 +172,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Project
             for (int i = 0; i < 8; i++)
             {
                 Dust d = Dust.NewDustPerfect(pos, DustID.WhiteTorch,
-                    Main.rand.NextVector2Circular(6, 6), 0, WingspanUtils.WingGold, 1.2f);
+                    Main.rand.NextVector2Circular(6, 6), 0, WingspanUtils.WingPrismatic, 1.2f);
                 d.noGravity = true;
             }
 
@@ -176,6 +182,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Project
 
         public override void OnKill(int timeLeft)
         {
+            _trailRenderer?.Dispose();
+
             for (int i = 0; i < 6; i++)
             {
                 Color c = WingspanUtils.GetPrismaticEdge(i / 6f);
@@ -195,7 +203,101 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Project
             try
             {
                 sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+
+                // ============ GPU SHADER TRAIL (3-pass feather-dissolve) ============
+                if (WingspanShaderLoader.HasWingspanFlareTrailShader)
+                {
+                    _trailRenderer ??= new WingspanPrimitiveRenderer();
+                    var shaderData = GameShaders.Misc["MagnumOpus:WingspanFlareTrail"];
+                    var effect = shaderData.Shader;
+
+                    // Common shader uniforms
+                    float huePhase = IsEmpowered ? 0.5f : MathHelper.Clamp(BoltIndex / 5f, 0f, 1f);
+                    effect.Parameters["uTime"]?.SetValue((float)Main.timeForVisualEffects * 0.02f);
+                    effect.Parameters["uOpacity"]?.SetValue(0.9f);
+                    effect.Parameters["uScrollSpeed"]?.SetValue(0.8f);
+                    effect.Parameters["uNoiseScale"]?.SetValue(3f);
+                    effect.Parameters["uPhase"]?.SetValue(huePhase);
+
+                    if (MagnumTextureRegistry.PerlinNoise != null)
+                    {
+                        shaderData.UseImage1(MagnumTextureRegistry.PerlinNoise);
+                        effect.Parameters["uHasSecondaryTex"]?.SetValue(1f);
+                        effect.Parameters["uSecondaryTexScale"]?.SetValue(2f);
+                        effect.Parameters["uSecondaryTexScroll"]?.SetValue(0.5f);
+                    }
+
+                    float baseWidth = IsEmpowered ? 16f : 10f;
+                    float taperWidth = IsEmpowered ? 30f : 22f;
+
+                    // Pass 1: Wide pearlescent bloom (WingspanFlareGlow @ 2.5x)
+                    effect.Parameters["uColor"]?.SetValue(WingspanUtils.EtherealWhite.ToVector3());
+                    Color secondaryGlow = WingspanUtils.GetPrismaticEdge(huePhase);
+                    effect.Parameters["uSecondaryColor"]?.SetValue(secondaryGlow.ToVector3());
+                    effect.Parameters["uIntensity"]?.SetValue(0.4f);
+                    effect.Parameters["uOverbrightMult"]?.SetValue(0f);
+                    effect.Parameters["uDistortionAmt"]?.SetValue(0.02f);
+                    effect.CurrentTechnique = effect.Techniques["WingspanFlareGlow"];
+
+                    var glowSettings = new WingspanTrailSettings(
+                        t => (baseWidth + taperWidth * (1f - t)) * 2.5f,
+                        t => Color.Lerp(secondaryGlow, WingspanUtils.EtherealWhite, 0.5f) * (0.3f * (1f - t)),
+                        shaderData
+                    );
+                    _trailRenderer.RenderTrail(oldPos, glowSettings, TrailLength);
+
+                    // Pass 2: Core feather-dissolve trail (WingspanFlareMain @ 1x)
+                    effect.Parameters["uColor"]?.SetValue(Color.White.ToVector3());
+                    effect.Parameters["uSecondaryColor"]?.SetValue(secondaryGlow.ToVector3());
+                    effect.Parameters["uIntensity"]?.SetValue(1.2f);
+                    effect.Parameters["uOverbrightMult"]?.SetValue(0.15f);
+                    effect.Parameters["uDistortionAmt"]?.SetValue(0.06f);
+                    effect.CurrentTechnique = effect.Techniques["WingspanFlareMain"];
+
+                    var mainSettings = new WingspanTrailSettings(
+                        t => baseWidth + taperWidth * (1f - t),
+                        t => Color.Lerp(Color.White, secondaryGlow, t * 0.4f) * (0.85f * (1f - t)),
+                        shaderData
+                    );
+                    _trailRenderer.RenderTrail(oldPos, mainSettings, TrailLength);
+
+                    // Pass 3: Overbright inner halo (WingspanFlareGlow @ 1.5x)
+                    effect.Parameters["uColor"]?.SetValue(Color.White.ToVector3());
+                    effect.Parameters["uSecondaryColor"]?.SetValue(WingspanUtils.EtherealWhite.ToVector3());
+                    effect.Parameters["uIntensity"]?.SetValue(1.8f);
+                    effect.Parameters["uOverbrightMult"]?.SetValue(0.5f);
+                    effect.Parameters["uDistortionAmt"]?.SetValue(0.03f);
+                    effect.CurrentTechnique = effect.Techniques["WingspanFlareGlow"];
+
+                    var innerSettings = new WingspanTrailSettings(
+                        t => (baseWidth + taperWidth * (1f - t)) * 1.5f,
+                        t => Color.White * (0.35f * (1f - t)),
+                        shaderData
+                    );
+                    _trailRenderer.RenderTrail(oldPos, innerSettings, TrailLength);
+                }
+                else
+                {
+                    // Fallback: basic bloom trail
+                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                    Texture2D fb = MagnumTextureRegistry.GetSoftGlow();
+                    if (fb != null)
+                    {
+                        Vector2 fbO = fb.Size() * 0.5f;
+                        for (int i = TrailLength - 1; i >= 1; i--)
+                        {
+                            if (oldPos[i] == Vector2.Zero) continue;
+                            float p = 1f - i / (float)TrailLength;
+                            Color c = WingspanUtils.GetPrismaticEdge(i / (float)TrailLength + (float)Main.timeForVisualEffects * 0.008f);
+                            sb.Draw(fb, oldPos[i] - screenPos, null, c * (p * 0.4f), oldRot[i], fbO, 0.2f + p * 0.15f, SpriteEffects.None, 0f);
+                        }
+                    }
+                    sb.End();
+                }
+
+                // ============ BLOOM CORE (5-layer prismatic) ============
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
                 Texture2D bloom = MagnumTextureRegistry.GetSoftGlow();
@@ -203,74 +305,52 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Project
                 Texture2D star = MagnumTextureRegistry.GetStar4Soft();
 
                 float boltScale = IsEmpowered ? 1.5f : 1f;
-
-                // --- Prismatic bloom trail ---
-                if (bloom != null)
-                {
-                    Vector2 bOrigin = bloom.Size() * 0.5f;
-                    for (int i = TrailLength - 1; i >= 1; i--)
-                    {
-                        if (oldPos[i] == Vector2.Zero) continue;
-                        float progress = 1f - i / (float)TrailLength;
-                        float trailAlpha = progress * 0.5f;
-                        float trailScale = (0.2f + progress * 0.2f) * boltScale;
-
-                        // Prismatic color cycling along trail
-                        Color trailColor = WingspanUtils.GetPrismaticEdge(
-                            i / (float)TrailLength + (float)Main.timeForVisualEffects * 0.008f + BoltIndex * 0.15f);
-                        // Blend with ethereal white for brightness
-                        trailColor = Color.Lerp(trailColor, WingspanUtils.EtherealWhite, 0.3f);
-
-                        sb.Draw(bloom, oldPos[i] - screenPos, null, trailColor * trailAlpha,
-                            oldRot[i], bOrigin, trailScale, SpriteEffects.None, 0f);
-                    }
-                }
-
-                // --- Bolt core bloom ---
                 Vector2 drawPos = Projectile.Center - screenPos;
                 float pulse = 0.9f + 0.1f * MathF.Sin((float)Main.timeForVisualEffects * 0.09f + BoltIndex);
 
-                // Outer spectral glow
+                // Layer 1: Outer spectral glow
                 if (bloom != null)
                 {
                     Vector2 bOrigin = bloom.Size() * 0.5f;
-                    Color outerColor = WingspanUtils.GetPrismaticEdge(Timer * 0.02f);
-                    sb.Draw(bloom, drawPos, null, outerColor * 0.3f * pulse, 0f, bOrigin, 0.35f * boltScale * pulse, SpriteEffects.None, 0f);
+                    Color outerColor = WingspanUtils.GetPrismaticEdge(Timer * 0.02f + BoltIndex * 0.2f);
+                    sb.Draw(bloom, drawPos, null, outerColor * 0.35f * pulse, 0f, bOrigin, 0.4f * boltScale * pulse, SpriteEffects.None, 0f);
                 }
 
-                // Mid glow (ethereal white)
+                // Layer 2: Ethereal white mid glow
                 if (bloom != null)
                 {
                     Vector2 bOrigin = bloom.Size() * 0.5f;
-                    sb.Draw(bloom, drawPos, null, WingspanUtils.EtherealWhite * 0.4f * pulse, 0f, bOrigin, 0.22f * boltScale * pulse, SpriteEffects.None, 0f);
+                    sb.Draw(bloom, drawPos, null, WingspanUtils.EtherealWhite * 0.45f * pulse, 0f, bOrigin, 0.25f * boltScale * pulse, SpriteEffects.None, 0f);
                 }
 
-                // Hot white core
+                // Layer 3: Hot white core
                 if (point != null)
                 {
                     Vector2 pOrigin = point.Size() * 0.5f;
-                    sb.Draw(point, drawPos, null, Color.White * 0.8f, 0f, pOrigin, 0.15f * boltScale * pulse, SpriteEffects.None, 0f);
+                    sb.Draw(point, drawPos, null, Color.White * 0.85f, 0f, pOrigin, 0.16f * boltScale * pulse, SpriteEffects.None, 0f);
                 }
 
-                // Star sparkle accent (rotating)
+                // Layer 4: Star sparkle accent (rotating)
                 if (star != null)
                 {
                     Vector2 sOrigin = star.Size() * 0.5f;
                     float starRot = (float)Main.timeForVisualEffects * 0.04f + BoltIndex;
                     Color starColor = WingspanUtils.GetPrismaticEdge(Timer * 0.015f + 0.5f);
-                    sb.Draw(star, drawPos, null, starColor * 0.3f * pulse, starRot, sOrigin, 0.18f * boltScale, SpriteEffects.None, 0f);
+                    sb.Draw(star, drawPos, null, starColor * 0.3f * pulse, starRot, sOrigin, 0.2f * boltScale, SpriteEffects.None, 0f);
                 }
 
-                // Empowered: wing-like prismatic accents on sides
+                // Layer 5: Empowered wing-like prismatic side accents
                 if (IsEmpowered && bloom != null)
                 {
                     Vector2 bOrigin = bloom.Size() * 0.5f;
                     for (int side = -1; side <= 1; side += 2)
                     {
-                        Vector2 wingOffset = Projectile.velocity.SafeNormalize(Vector2.UnitY).RotatedBy(MathHelper.PiOver2 * side) * 12f;
+                        Vector2 wingOffset = Projectile.velocity.SafeNormalize(Vector2.UnitY).RotatedBy(MathHelper.PiOver2 * side) * 14f;
                         Color wingColor = WingspanUtils.GetPrismaticEdge(Timer * 0.02f + side * 0.33f);
-                        sb.Draw(bloom, drawPos + wingOffset, null, wingColor * 0.2f, 0f, bOrigin, 0.18f, SpriteEffects.None, 0f);
+                        sb.Draw(bloom, drawPos + wingOffset, null, wingColor * 0.25f, 0f, bOrigin, 0.22f, SpriteEffects.None, 0f);
                     }
+                    // Additional gold feather accent
+                    sb.Draw(bloom, drawPos, null, WingspanUtils.WingPrismatic * 0.15f, 0f, bloom.Size() * 0.5f, 0.5f * pulse, SpriteEffects.None, 0f);
                 }
             }
             catch { }
@@ -282,11 +362,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Project
             }
 
             // Theme accents (additive)
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
-            WingspanUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
+            try
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                WingspanUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
 
             return false;
         }

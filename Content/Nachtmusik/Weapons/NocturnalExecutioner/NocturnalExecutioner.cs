@@ -177,7 +177,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner
             float pulse = 1f + (float)Math.Sin(time * 1.8f) * 0.06f * (1f + chargeProgress);
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Night void outer aura — scales with charge

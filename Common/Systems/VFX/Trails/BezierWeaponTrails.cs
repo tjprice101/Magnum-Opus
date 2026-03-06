@@ -358,7 +358,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 var prevBlendState = Main.instance.GraphicsDevice.BlendState;
                 
                 spriteBatch.End();
-                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
                 
                 // Get pixel texture for trail rendering

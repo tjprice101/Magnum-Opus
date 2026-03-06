@@ -116,7 +116,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Primi
             settings.Shader?.Apply(null);
 
             _device.RasterizerState = RasterizerState.CullNone;
-            _device.BlendState = BlendState.Additive;
+            _device.BlendState = MagnumBlendStates.TrueAdditive;
             _device.SamplerStates[0] = SamplerState.LinearWrap;
 
             _device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertCount, 0, idxCount / 3);

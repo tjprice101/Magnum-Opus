@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
@@ -8,6 +8,7 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using MagnumOpus.Content.FoundationWeapons.SparkleProjectileFoundation;
 using MagnumOpus.Content.FoundationWeapons.RibbonFoundation;
+using MagnumOpus.Common.Systems.Shaders;
 using ReLogic.Content;
 
 namespace MagnumOpus.Content.Eroica.Minions
@@ -75,6 +76,7 @@ namespace MagnumOpus.Content.Eroica.Minions
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
             Projectile.minionSlots = 1f;
+            Projectile.scale = 0.35f;
         }
 
         public override bool? CanCutTiles() => false;
@@ -347,8 +349,9 @@ namespace MagnumOpus.Content.Eroica.Minions
         {
             SpriteBatch sb = Main.spriteBatch;
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
+            float time = (float)Main.gameTimeCache.TotalGameTime.TotalSeconds;
 
-            // Calculate 6ﾃ・ frame rect
+            // Calculate 6x6 frame rect
             int frameW = tex.Width / FrameColumns;
             int frameH = tex.Height / FrameRows;
             int col = currentFrame % FrameColumns;
@@ -357,20 +360,26 @@ namespace MagnumOpus.Content.Eroica.Minions
             Vector2 origin = new Vector2(frameW / 2f, frameH / 2f);
             SpriteEffects flipEffect = Projectile.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 
-            // ── Layer 1: Dark flame aura trail ──
+            // Layer 1: GPU Dark flame aura trail
             DrawAuraTrail(sb);
 
-            // ── Layer 1b: Dark Flame Aura Bloom (MaskFoundation-style) ──
-            DrawDarkFlameAura(sb);
+            // Layer 2: Shader Dark Flame Aura
+            DrawShaderDarkFlameAura(sb, time);
 
-            // ── Layer 2: Afterimages ──
-            DrawAfterimages(sb, tex, frameRect, origin, flipEffect);
+            // Layer 3: Shader Dark Funeral Trail Strip
+            DrawShaderDarkFuneralStrip(sb, time);
 
-            // ── Layer 3: Core sprite ──
+            // Layer 4: Shader Afterimages
+            DrawShaderAfterimages(sb, tex, frameRect, origin, flipEffect, time);
+
+            // Layer 5: Core sprite
             DrawCore(sb, tex, frameRect, origin, flipEffect, lightColor);
 
-            // ── Layer 4: Additive bloom overlay ──
-            DrawBloomOverlay(sb, tex, frameRect, origin, flipEffect);
+            // Layer 6: Shader Summon Circle (subtle ambient)
+            DrawShaderSummonCircle(sb, time);
+
+            // Layer 7: Shader Bloom overlay
+            DrawShaderBloomOverlay(sb, tex, frameRect, origin, flipEffect, time);
 
             // Eroica theme accent
             EroicaVFXLibrary.BeginEroicaAdditive(sb);
@@ -417,82 +426,253 @@ namespace MagnumOpus.Content.Eroica.Minions
             catch { }
         }
 
-        /// <summary>
-        /// MaskFoundation-style dark flame aura — multi-scale bloom ring around the minion.
-        /// Uses SPFTextures.SoftGlow for gentle dark crimson-violet ambient presence.
-        /// Pulsates slowly like a breathing dark flame aura.
-        /// </summary>
-        private void DrawDarkFlameAura(SpriteBatch sb)
+        private void DrawShaderDarkFlameAura(SpriteBatch sb, float time)
         {
-            Texture2D softGlow = SPFTextures.SoftGlow.Value;
-            if (softGlow == null) return;
-
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 glowOrigin = softGlow.Size() * 0.5f;
-
             float pulse = 0.85f + 0.15f * (float)Math.Sin(Timer * 0.05f);
             float attackFlare = State == AIState.Attacking ? 1.2f : 1f;
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
-                SamplerState.LinearClamp, DepthStencilState.None,
-                RasterizerState.CullNone, null,
-                Main.GameViewMatrix.TransformationMatrix);
-
-            try
+            if (EroicaShaderManager.HasDarkFlameAura)
             {
-                // Outer dark violet haze — wide, faint
-                Color outerColor = FinalityUtils.FateViolet with { A = 0 };
-                sb.Draw(softGlow, drawPos, null, outerColor * (0.12f * pulse * attackFlare),
-                    0f, glowOrigin, 0.6f * Projectile.scale * attackFlare, SpriteEffects.None, 0f);
+                // PASS 1: Dark flame body — inner crimson fire
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                try
+                {
+                    EroicaShaderManager.ApplyFinalityDarkFlameAura(time, glowPass: false);
 
-                // Mid abyssal crimson ring
-                Color midColor = FinalityUtils.AbyssalCrimson with { A = 0 };
-                sb.Draw(softGlow, drawPos, null, midColor * (0.18f * pulse * attackFlare),
-                    0f, glowOrigin, 0.35f * Projectile.scale * attackFlare, SpriteEffects.None, 0f);
+                    Texture2D softGlow = EroicaTextures.SoftGlow?.Value ?? SPFTextures.SoftGlow?.Value;
+                    if (softGlow != null)
+                    {
+                        Vector2 glowOrigin = softGlow.Size() * 0.5f;
 
-                // Inner ember-gold hot core
-                Color innerColor = FinalityUtils.EmberGold with { A = 0 };
-                sb.Draw(softGlow, drawPos, null, innerColor * (0.1f * pulse),
-                    0f, glowOrigin, 0.15f * Projectile.scale, SpriteEffects.None, 0f);
+                        // Mid abyssal crimson ring
+                        sb.Draw(softGlow, drawPos, null, Color.White * (0.22f * pulse * attackFlare),
+                            0f, glowOrigin, 0.35f * Projectile.scale * attackFlare, SpriteEffects.None, 0f);
+
+                        // Inner ember core
+                        sb.Draw(softGlow, drawPos, null, Color.White * (0.15f * pulse),
+                            0f, glowOrigin, 0.15f * Projectile.scale, SpriteEffects.None, 0f);
+                    }
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
+
+                // PASS 2: Dark flame glow — wider violet haze
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                try
+                {
+                    EroicaShaderManager.ApplyFinalityDarkFlameAura(time, glowPass: true);
+
+                    Texture2D softGlow = EroicaTextures.SoftGlow?.Value ?? SPFTextures.SoftGlow?.Value;
+                    if (softGlow != null)
+                    {
+                        Vector2 glowOrigin = softGlow.Size() * 0.5f;
+                        sb.Draw(softGlow, drawPos, null, Color.White * (0.12f * pulse * attackFlare),
+                            0f, glowOrigin, 0.6f * Projectile.scale * attackFlare, SpriteEffects.None, 0f);
+                    }
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
             }
-            finally
+            else
             {
+                // Fallback: simple additive multi-scale bloom
+                Texture2D softGlow = SPFTextures.SoftGlow.Value;
+                if (softGlow == null) return;
+
+                Vector2 glowOrigin = softGlow.Size() * 0.5f;
+
                 sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                    Main.DefaultSamplerState, DepthStencilState.None,
-                    RasterizerState.CullCounterClockwise, null,
-                    Main.GameViewMatrix.TransformationMatrix);
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                try
+                {
+                    Color outerColor = FinalityUtils.FateViolet with { A = 0 };
+                    sb.Draw(softGlow, drawPos, null, outerColor * (0.12f * pulse * attackFlare),
+                        0f, glowOrigin, 0.6f * Projectile.scale * attackFlare, SpriteEffects.None, 0f);
+
+                    Color midColor = FinalityUtils.AbyssalCrimson with { A = 0 };
+                    sb.Draw(softGlow, drawPos, null, midColor * (0.18f * pulse * attackFlare),
+                        0f, glowOrigin, 0.35f * Projectile.scale * attackFlare, SpriteEffects.None, 0f);
+
+                    Color innerColor = FinalityUtils.EmberGold with { A = 0 };
+                    sb.Draw(softGlow, drawPos, null, innerColor * (0.1f * pulse),
+                        0f, glowOrigin, 0.15f * Projectile.scale, SpriteEffects.None, 0f);
+                }
+                finally
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                        Main.DefaultSamplerState, DepthStencilState.None,
+                        RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
+                }
             }
         }
 
-        private void DrawAfterimages(SpriteBatch sb, Texture2D tex, Rectangle frameRect, Vector2 origin, SpriteEffects flip)
+        private void DrawShaderDarkFuneralStrip(SpriteBatch sb, float time)
+        {
+            if (Timer < 5) return;
+
+            int validCount = 0;
+            for (int i = 0; i < TrailLength; i++)
+            {
+                if (trailPositions[i] != Vector2.Zero) validCount++;
+                else break;
+            }
+            if (validCount < 3) return;
+
+            Texture2D stripTex = EroicaTextures.EmberScatter?.Value ?? EroicaTextures.EnergyTrailUV?.Value;
+            if (stripTex == null) return;
+
+            int texW = stripTex.Width;
+            int texH = stripTex.Height;
+            float scrollTime = (float)Main.timeForVisualEffects * 0.005f;
+            int srcWidth = Math.Max(1, texW / validCount);
+
+            if (EroicaShaderManager.HasFuneralTrail)
+            {
+                // PASS 1: DarkFuneralTrail body — dark crimson stream
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                try
+                {
+                    EroicaShaderManager.ApplyFinalityDarkFuneralTrail(time, glowPass: false);
+
+                    for (int i = 0; i < validCount - 1; i++)
+                    {
+                        float progress = (float)i / validCount;
+                        float fade = (1f - progress);
+                        fade = fade * fade;
+                        if (fade < 0.01f) continue;
+
+                        float width = MathHelper.Lerp(2f, 12f, 1f - progress);
+                        Vector2 segDir = trailPositions[i] - trailPositions[i + 1];
+                        float segLength = segDir.Length();
+                        if (segLength < 0.5f) continue;
+                        float segAngle = segDir.ToRotation();
+
+                        float uStart = (progress + scrollTime * 2.5f) % 1f;
+                        int srcX = (int)(uStart * texW) % texW;
+                        Rectangle srcRect = new Rectangle(srcX, 0, srcWidth, texH);
+
+                        float scaleX = segLength / (float)srcWidth;
+                        float scaleY = width / (float)texH;
+                        Vector2 pos = trailPositions[i] - Main.screenPosition;
+                        Vector2 drawOrigin = new Vector2(0, texH / 2f);
+
+                        sb.Draw(stripTex, pos, srcRect, Color.White * (fade * 0.45f), segAngle, drawOrigin,
+                            new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
+                    }
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
+
+                // PASS 2: DarkFuneralTrail glow — wider smolder haze
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                try
+                {
+                    EroicaShaderManager.ApplyFinalityDarkFuneralTrail(time, glowPass: true);
+
+                    for (int i = 0; i < validCount - 1; i++)
+                    {
+                        float progress = (float)i / validCount;
+                        float fade = (1f - progress);
+                        fade = fade * fade;
+                        if (fade < 0.02f) continue;
+
+                        float width = MathHelper.Lerp(2f, 12f, 1f - progress) * 1.6f;
+                        Vector2 segDir = trailPositions[i] - trailPositions[i + 1];
+                        float segLength = segDir.Length();
+                        if (segLength < 0.5f) continue;
+                        float segAngle = segDir.ToRotation();
+
+                        float uStart = (progress + scrollTime * 2.5f) % 1f;
+                        int srcX = (int)(uStart * texW) % texW;
+                        Rectangle srcRect = new Rectangle(srcX, 0, srcWidth, texH);
+
+                        float scaleX = segLength / (float)srcWidth;
+                        float scaleY = width / (float)texH;
+                        Vector2 pos = trailPositions[i] - Main.screenPosition;
+                        Vector2 drawOrigin = new Vector2(0, texH / 2f);
+
+                        sb.Draw(stripTex, pos, srcRect, Color.White * (fade * 0.18f), segAngle, drawOrigin,
+                            new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
+                    }
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
+            }
+        }
+
+        private void DrawShaderAfterimages(SpriteBatch sb, Texture2D tex, Rectangle frameRect, Vector2 origin, SpriteEffects flip, float time)
         {
             int imageCount = 6;
-            FinalityUtils.EnterShaderRegion(sb);
 
-            for (int i = imageCount - 1; i >= 0; i--)
+            if (EroicaShaderManager.HasDarkFlameAura)
             {
-                float progress = (float)i / imageCount;
-                float trailIndex = progress * (TrailLength - 1);
-                int idx = (int)trailIndex;
-                float frac = trailIndex - idx;
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                try
+                {
+                    for (int i = imageCount - 1; i >= 0; i--)
+                    {
+                        float progress = (float)i / imageCount;
+                        float trailIndex = progress * (TrailLength - 1);
+                        int idx = (int)trailIndex;
+                        float frac = trailIndex - idx;
 
-                if (idx + 1 >= TrailLength) continue;
-                if (trailPositions[idx] == Vector2.Zero || trailPositions[idx + 1] == Vector2.Zero) continue;
+                        if (idx + 1 >= TrailLength) continue;
+                        if (trailPositions[idx] == Vector2.Zero || trailPositions[idx + 1] == Vector2.Zero) continue;
 
-                Vector2 pos = Vector2.Lerp(trailPositions[idx], trailPositions[idx + 1], frac) - Main.screenPosition;
+                        Vector2 pos = Vector2.Lerp(trailPositions[idx], trailPositions[idx + 1], frac) - Main.screenPosition;
 
-                float fadeFactor = (1f - progress);
-                fadeFactor *= fadeFactor;
-                Color drawColor = Color.Lerp(FinalityUtils.AbyssalCrimson, FinalityUtils.FateViolet, progress * 0.5f) * (fadeFactor * 0.25f);
-                drawColor.A = 0;
+                        float fadeFactor = (1f - progress);
+                        fadeFactor *= fadeFactor;
+                        float alpha = fadeFactor * 0.25f;
+                        float scale = Projectile.scale * (1f - progress * 0.15f);
 
-                float scale = Projectile.scale * (1f - progress * 0.15f);
-                sb.Draw(tex, pos, frameRect, drawColor, Projectile.rotation, origin, scale, flip, 0f);
+                        EroicaShaderManager.ApplyFinalityDarkFlameAura(time + i * 0.04f, glowPass: true);
+
+                        sb.Draw(tex, pos, frameRect, Color.White * alpha, Projectile.rotation, origin, scale, flip, 0f);
+                    }
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
             }
+            else
+            {
+                FinalityUtils.EnterShaderRegion(sb);
+                for (int i = imageCount - 1; i >= 0; i--)
+                {
+                    float progress = (float)i / imageCount;
+                    float trailIndex = progress * (TrailLength - 1);
+                    int idx = (int)trailIndex;
+                    float frac = trailIndex - idx;
 
-            FinalityUtils.ExitShaderRegion(sb);
+                    if (idx + 1 >= TrailLength) continue;
+                    if (trailPositions[idx] == Vector2.Zero || trailPositions[idx + 1] == Vector2.Zero) continue;
+
+                    Vector2 pos = Vector2.Lerp(trailPositions[idx], trailPositions[idx + 1], frac) - Main.screenPosition;
+
+                    float fadeFactor = (1f - progress);
+                    fadeFactor *= fadeFactor;
+                    Color drawColor = Color.Lerp(FinalityUtils.AbyssalCrimson, FinalityUtils.FateViolet, progress * 0.5f) * (fadeFactor * 0.25f);
+                    drawColor.A = 0;
+
+                    float scale = Projectile.scale * (1f - progress * 0.15f);
+                    sb.Draw(tex, pos, frameRect, drawColor, Projectile.rotation, origin, scale, flip, 0f);
+                }
+                FinalityUtils.ExitShaderRegion(sb);
+            }
         }
 
         private void DrawCore(SpriteBatch sb, Texture2D tex, Rectangle frameRect, Vector2 origin, SpriteEffects flip, Color lightColor)
@@ -500,28 +680,89 @@ namespace MagnumOpus.Content.Eroica.Minions
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Color coreTint = Color.Lerp(lightColor, FinalityUtils.SakuraFlame, 0.3f);
 
-            // Base sprite
             sb.Draw(tex, drawPos, frameRect, coreTint, Projectile.rotation, origin, Projectile.scale, flip, 0f);
 
-            // Inner warm glow
             Color coreGlow = FinalityUtils.EmberGold;
             coreGlow.A = 0;
             sb.Draw(tex, drawPos, frameRect, coreGlow * 0.25f, Projectile.rotation, origin,
                 Projectile.scale * 0.95f, flip, 0f);
         }
 
-        private void DrawBloomOverlay(SpriteBatch sb, Texture2D tex, Rectangle frameRect, Vector2 origin, SpriteEffects flip)
+        private void DrawShaderSummonCircle(SpriteBatch sb, float time)
+        {
+            if (!EroicaShaderManager.HasFateSummonCircle) return;
+
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            float ritualPhase = Math.Clamp(Timer / 30f, 0f, 1f);
+            float pulse = 0.9f + 0.1f * (float)Math.Sin(Timer * 0.06f);
+
+            // Summon circle body — slowly rotating sigil beneath the minion
+            EroicaShaderManager.BeginShaderAdditive(sb);
+            try
+            {
+                EroicaShaderManager.ApplyFinalitySummonCircle(time, ritualPhase, glowPass: false);
+
+                Texture2D ringTex = EroicaTextures.HaloRing?.Value ?? EroicaTextures.CircularMask?.Value;
+                if (ringTex != null)
+                {
+                    float ringScale = Projectile.scale * 0.4f * pulse;
+                    sb.Draw(ringTex, drawPos + new Vector2(0, 4f), null, Color.White * 0.2f,
+                        time * 0.2f, ringTex.Size() * 0.5f, ringScale, SpriteEffects.None, 0f);
+                }
+            }
+            finally
+            {
+                EroicaShaderManager.RestoreSpriteBatch(sb);
+            }
+
+            // Summon circle glow — subtle ambient glow
+            EroicaShaderManager.BeginShaderAdditive(sb);
+            try
+            {
+                EroicaShaderManager.ApplyFinalitySummonCircle(time, ritualPhase, glowPass: true);
+
+                Texture2D bloomTex = EroicaTextures.BloomOrb?.Value ?? EroicaTextures.SoftGlow?.Value;
+                if (bloomTex != null)
+                {
+                    float glowScale = Projectile.scale * 0.35f * pulse;
+                    sb.Draw(bloomTex, drawPos + new Vector2(0, 4f), null, Color.White * 0.12f,
+                        0f, bloomTex.Size() * 0.5f, glowScale, SpriteEffects.None, 0f);
+                }
+            }
+            finally
+            {
+                EroicaShaderManager.RestoreSpriteBatch(sb);
+            }
+        }
+
+        private void DrawShaderBloomOverlay(SpriteBatch sb, Texture2D tex, Rectangle frameRect, Vector2 origin, SpriteEffects flip, float time)
         {
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            Color bloomColor = FinalityUtils.AbyssalCrimson;
-            bloomColor.A = 0;
             float pulse = (float)Math.Sin(Timer * 0.08f) * 0.08f;
             float bloomScale = Projectile.scale * 1.25f + pulse;
 
-            FinalityUtils.EnterShaderRegion(sb);
-            sb.Draw(tex, drawPos, frameRect, bloomColor * 0.3f, Projectile.rotation, origin, bloomScale, flip, 0f);
-            FinalityUtils.ExitShaderRegion(sb);
+            if (EroicaShaderManager.HasDarkFlameAura)
+            {
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                try
+                {
+                    EroicaShaderManager.ApplyFinalityDarkFlameAura(time, glowPass: true);
+                    sb.Draw(tex, drawPos, frameRect, Color.White * 0.3f, Projectile.rotation, origin,
+                        bloomScale, flip, 0f);
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
+            }
+            else
+            {
+                Color bloomColor = FinalityUtils.AbyssalCrimson;
+                bloomColor.A = 0;
+                FinalityUtils.EnterShaderRegion(sb);
+                sb.Draw(tex, drawPos, frameRect, bloomColor * 0.3f, Projectile.rotation, origin, bloomScale, flip, 0f);
+                FinalityUtils.ExitShaderRegion(sb);
+            }
         }
 
         #endregion

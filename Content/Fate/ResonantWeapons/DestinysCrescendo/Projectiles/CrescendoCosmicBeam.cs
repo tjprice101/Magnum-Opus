@@ -4,6 +4,7 @@ using System;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
+using Terraria.Graphics;
 using Terraria.ModLoader;
 using MagnumOpus.Content.Fate.Debuffs;
 using ReLogic.Content;
@@ -23,6 +24,18 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard";
 
         private float pulsePhase = 0f;
+
+        // --- InfernalBeamFoundation scaffolding: shader + texture caching ---
+        private static Effect _beamShader;
+        private static Asset<Texture2D> _beamAlphaMask;
+        private static Asset<Texture2D> _gradientLUT;
+        private static Asset<Texture2D> _bodyTex;
+        private static Asset<Texture2D> _detailTex1;
+        private static Asset<Texture2D> _detailTex2;
+        private static Asset<Texture2D> _noiseTex;
+        private static Asset<Texture2D> _softGlow;
+        private static Asset<Texture2D> _pointBloom;
+        private VertexStrip _strip;
 
         /// <summary>Escalation Phase (0-3) passed from CrescendoDeityMinion via ai[0].</summary>
         private int Phase => (int)Projectile.ai[0];
@@ -141,7 +154,28 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
             SoundEngine.PlaySound(SoundID.Item10 with { Pitch = 0.5f, Volume = 0.5f }, Projectile.Center);
         }
 
-        // 隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨翫・PREDRAW 遯ｶ繝ｻGRADIENT TRAIL + MULTI-LAYER BLOOM 隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨翫・
+        private void LoadBeamTextures()
+        {
+            const string ThemeBeams = "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Fate/Beam Textures/";
+            const string Beams = "MagnumOpus/Assets/VFX Asset Library/BeamTextures/";
+            const string Trails = "MagnumOpus/Assets/VFX Asset Library/TrailsAndRibbons/";
+            const string Bloom = "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/";
+            const string Noise = "MagnumOpus/Assets/VFX Asset Library/NoiseTextures/";
+            const string Gradients = "MagnumOpus/Assets/VFX Asset Library/ColorGradients/";
+
+            _beamAlphaMask ??= ModContent.Request<Texture2D>(Trails + "BasicTrail", AssetRequestMode.ImmediateLoad);
+            _gradientLUT ??= ModContent.Request<Texture2D>(Gradients + "FateGradientLUTandRAMP", AssetRequestMode.ImmediateLoad);
+            _bodyTex ??= ModContent.Request<Texture2D>(Beams + "SoundWaveBeam", AssetRequestMode.ImmediateLoad);
+            _detailTex1 ??= ModContent.Request<Texture2D>(Beams + "EnergyMotion", AssetRequestMode.ImmediateLoad);
+            _detailTex2 ??= ModContent.Request<Texture2D>(ThemeBeams + "FA Energy Surge Beam", AssetRequestMode.ImmediateLoad);
+            _noiseTex ??= ModContent.Request<Texture2D>(Noise + "TileableFBMNoise", AssetRequestMode.ImmediateLoad);
+            _softGlow ??= ModContent.Request<Texture2D>(Bloom + "SoftGlow", AssetRequestMode.ImmediateLoad);
+            _pointBloom ??= ModContent.Request<Texture2D>(Bloom + "PointBloom", AssetRequestMode.ImmediateLoad);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        //  PREDRAW — INFERNAL BEAM FOUNDATION SHADER TRAIL + MULTI-LAYER BLOOM
+        // ═══════════════════════════════════════════════════════════════════
 
         public override bool PreDraw(ref Color lightColor)
         {
@@ -149,42 +183,108 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
 
             try
             {
-                Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard", AssetRequestMode.ImmediateLoad).Value;
-                Vector2 origin = tex.Size() / 2f;
+                LoadBeamTextures();
 
                 float pulse = 1f + MathF.Sin(pulsePhase) * 0.15f;
-                float phaseScale = 1f + Phase * 0.2f; // Beams visually larger at higher phases
-                float phaseGlow = 1f + Phase * 0.15f; // Brighter glow at higher phases
+                float phaseScale = 1f + Phase * 0.2f;
+                float phaseGlow = 1f + Phase * 0.15f;
+                float beamWidth = MathHelper.Lerp(20f, 35f, Phase / 3f) * pulse;
 
-                // === PASS 1: Gradient trail from oldPos ===
+                // Build VertexStrip from trail cache (oldPos[0] = newest/head)
+                int count = 0;
                 for (int i = 0; i < Projectile.oldPos.Length; i++)
                 {
-                    if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                    float progress = (float)i / Projectile.oldPos.Length;
-                    Color trailColor = CrescendoUtils.GetCrescendoGradient(0.2f + progress * 0.6f) * (1f - progress) * 0.6f * phaseGlow;
-                    Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                    float trailScale = (1f - progress * 0.4f) * 0.7f * pulse * phaseScale;
-                    spriteBatch.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
+                    if (Projectile.oldPos[i] == Vector2.Zero) break;
+                    count++;
                 }
 
-                // === PASS 2: Multi-layer additive bloom (phase-scaled) ===
-                CrescendoUtils.BeginAdditive(spriteBatch);
+                spriteBatch.End();
+
+                // === LAYER 1: Shader-driven beam body via VertexStrip (InfernalBeamFoundation) ===
+                if (count >= 2)
+                {
+                    Vector2[] positions = new Vector2[count];
+                    float[] rotations = new float[count];
+                    float totalLength = 0f;
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        positions[i] = Projectile.oldPos[i] + Projectile.Size / 2f;
+                        rotations[i] = Projectile.oldRot[i];
+                        if (i > 0) totalLength += Vector2.Distance(positions[i - 1], positions[i]);
+                    }
+
+                    _strip ??= new VertexStrip();
+                    _strip.PrepareStrip(positions, rotations,
+                        (float progress) => Color.White * (1f - progress * 0.8f) * phaseGlow,
+                        (float progress) => MathHelper.Lerp(beamWidth, 3f, progress),
+                        -Main.screenPosition, includeBacksides: true);
+
+                    _beamShader ??= ModContent.Request<Effect>(
+                        "MagnumOpus/Content/FoundationWeapons/InfernalBeamFoundation/Shaders/InfernalBeamBodyShader",
+                        AssetRequestMode.ImmediateLoad).Value;
+
+                    if (_beamShader != null)
+                    {
+                        float repVal = MathHelper.Max(totalLength / 600f, 0.3f);
+                        float time = (float)Main.timeForVisualEffects * -0.028f;
+
+                        _beamShader.Parameters["WorldViewProjection"].SetValue(
+                            Main.GameViewMatrix.NormalizedTransformationmatrix);
+                        _beamShader.Parameters["onTex"].SetValue(_beamAlphaMask.Value);
+                        _beamShader.Parameters["gradientTex"].SetValue(_gradientLUT.Value);
+                        _beamShader.Parameters["bodyTex"].SetValue(_bodyTex.Value);
+                        _beamShader.Parameters["detailTex1"].SetValue(_detailTex1.Value);
+                        _beamShader.Parameters["detailTex2"].SetValue(_detailTex2.Value);
+                        _beamShader.Parameters["noiseTex"].SetValue(_noiseTex.Value);
+
+                        _beamShader.Parameters["bodyReps"].SetValue(1.8f * repVal);
+                        _beamShader.Parameters["detail1Reps"].SetValue(2.2f * repVal);
+                        _beamShader.Parameters["detail2Reps"].SetValue(1.4f * repVal);
+                        _beamShader.Parameters["gradientReps"].SetValue(0.9f * repVal);
+                        _beamShader.Parameters["bodyScrollSpeed"].SetValue(1.0f);
+                        _beamShader.Parameters["detail1ScrollSpeed"].SetValue(1.4f);
+                        _beamShader.Parameters["detail2ScrollSpeed"].SetValue(-0.7f);
+                        _beamShader.Parameters["noiseDistortion"].SetValue(0.04f);
+                        _beamShader.Parameters["totalMult"].SetValue(1.2f + Phase * 0.2f);
+                        _beamShader.Parameters["uTime"].SetValue(time);
+
+                        _beamShader.CurrentTechnique.Passes["MainPS"].Apply();
+                        _strip.DrawTrail();
+                        Main.pixelShader.CurrentTechnique.Passes[0].Apply();
+                    }
+                }
+
+                // === LAYER 2: Multi-layer additive bloom (Fate palette, phase-scaled) ===
+                spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.TransformationMatrix);
 
                 Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glowTex = _softGlow?.Value;
+                Texture2D bloomTex = _pointBloom?.Value;
 
-                // Layer 1: Deity purple outer glow
-                spriteBatch.Draw(tex, drawPos, null, CrescendoUtils.DeityPurple * (0.4f * phaseGlow), Projectile.rotation, origin, 1.2f * pulse * phaseScale, SpriteEffects.None, 0f);
+                if (glowTex != null && bloomTex != null)
+                {
+                    // Layer 1: Deity purple outer glow
+                    spriteBatch.Draw(glowTex, drawPos, null, CrescendoUtils.DeityPurple * (0.35f * phaseGlow),
+                        0f, glowTex.Size() / 2f, 0.4f * phaseScale, SpriteEffects.None, 0f);
+                    // Layer 2: Divine crimson mid bloom
+                    spriteBatch.Draw(bloomTex, drawPos, null, CrescendoUtils.DivineCrimson * (0.45f * phaseGlow),
+                        0f, bloomTex.Size() / 2f, 0.2f * phaseScale, SpriteEffects.None, 0f);
+                    // Layer 3: Crescendo pink inner
+                    spriteBatch.Draw(bloomTex, drawPos, null, CrescendoUtils.CrescendoPink * (0.55f * phaseGlow),
+                        0f, bloomTex.Size() / 2f, 0.12f * phaseScale, SpriteEffects.None, 0f);
+                    // Layer 4: Celestial white hot core
+                    spriteBatch.Draw(bloomTex, drawPos, null, CrescendoUtils.CelestialWhite * (0.8f * phaseGlow),
+                        0f, bloomTex.Size() / 2f, 0.06f * phaseScale, SpriteEffects.None, 0f);
+                }
 
-                // Layer 2: Divine crimson mid
-                spriteBatch.Draw(tex, drawPos, null, CrescendoUtils.DivineCrimson * (0.5f * phaseGlow), Projectile.rotation, origin, 0.9f * pulse * phaseScale, SpriteEffects.None, 0f);
-
-                // Layer 3: Crescendo pink inner
-                spriteBatch.Draw(tex, drawPos, null, CrescendoUtils.CrescendoPink * (0.6f * phaseGlow), Projectile.rotation, origin, 0.6f * pulse * phaseScale, SpriteEffects.None, 0f);
-
-                // Layer 4: Celestial white hot core
-                spriteBatch.Draw(tex, drawPos, null, CrescendoUtils.CelestialWhite * (0.85f * phaseGlow), Projectile.rotation, origin, 0.35f * pulse * phaseScale, SpriteEffects.None, 0f);
-
-                CrescendoUtils.BeginAlpha(spriteBatch);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
             catch
             {

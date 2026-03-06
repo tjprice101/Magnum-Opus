@@ -468,7 +468,7 @@ namespace MagnumOpus.Common.Systems.VFX
             
             // Switch to additive blending
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Outer ethereal glow
@@ -509,7 +509,7 @@ namespace MagnumOpus.Common.Systems.VFX
             Color secondaryColor = SecondaryColor ?? VFXUtilities.PaletteLerp(ThemePalette, 0.6f);
             
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             for (int i = 0; i < smoothTrail.Length; i++)
@@ -540,7 +540,7 @@ namespace MagnumOpus.Common.Systems.VFX
             Color secondaryColor = SecondaryColor ?? VFXUtilities.PaletteLerp(ThemePalette, 0.6f);
             
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             for (int i = 0; i < Projectile.oldPos.Length; i++)
@@ -574,7 +574,7 @@ namespace MagnumOpus.Common.Systems.VFX
             Color primaryColor = PrimaryColor ?? VFXUtilities.PaletteLerp(ThemePalette, 0.3f);
             
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             for (int i = 0; i < OrbitCount; i++)

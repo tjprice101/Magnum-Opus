@@ -6,9 +6,13 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFlock.Utilities;
+using MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFlock.Primitives;
 using MagnumOpus.Content.SwanLake.Debuffs;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
+using Terraria.Graphics.Shaders;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFlock.Projectiles
 {
@@ -40,6 +44,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
         private Vector2[] oldPos = new Vector2[TrailLength];
         private float idleRotation = 0f;
         private int volleyShots = 0;
+        private FlockPrimitiveRenderer _trailRenderer;
 
         private Player Owner => Main.player[Projectile.owner];
 
@@ -135,6 +140,12 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
                 Projectile.timeLeft = 2;
 
             return true;
+        }
+
+        public override void OnKill(int timeLeft)
+        {
+            _trailRenderer?.Dispose();
+            _trailRenderer = null;
         }
 
         // ================================================================
@@ -370,85 +381,198 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
             try
             {
                 sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
                 Texture2D bloom = MagnumTextureRegistry.GetSoftGlow();
                 Texture2D point = MagnumTextureRegistry.GetPointBloom();
                 Texture2D radial = MagnumTextureRegistry.GetRadialBloom();
                 Texture2D star = MagnumTextureRegistry.GetStar4Soft();
+                Texture2D haloRing = MagnumTextureRegistry.GetHaloRing();
 
                 Vector2 drawPos = Projectile.Center - screenPos;
                 float pulse = 0.85f + 0.15f * MathF.Sin((float)Main.timeForVisualEffects * 0.06f + CrystalIndex * 1.5f);
+                float crystalHue = CrystalIndex / 3f; // 0.0 / 0.33 / 0.66 for 3 crystals
+                bool isDiving = CurrentState == CrystalState.DiveAttack;
+                bool isMovingFast = Projectile.velocity.Length() > 3f;
+                float stateIntensity = isDiving ? 1.4f : (CurrentState == CrystalState.ShardVolley ? 1.1f : 0.85f);
 
                 // --- Formation lines to nearby crystals ---
                 DrawFormationLines(sb, screenPos, point);
 
-                // --- Soft bloom trail for movement ---
-                if (bloom != null && (CurrentState == CrystalState.DiveAttack || Projectile.velocity.Length() > 4f))
+                // ========================================================
+                // GPU SHADER TRAIL — CrystalOrbitTrail (3-pass faceted prismatic)
+                // Only render when moving or diving for visual clarity
+                // ========================================================
+                if ((isDiving || isMovingFast) && oldPos[1] != Vector2.Zero && GameShaders.Misc.ContainsKey("MagnumOpus:CrystalOrbitTrail"))
                 {
-                    Vector2 bOrigin = bloom.Size() * 0.5f;
-                    for (int i = TrailLength - 1; i >= 1; i--)
-                    {
-                        if (oldPos[i] == Vector2.Zero) continue;
-                        float progress = 1f - i / (float)TrailLength;
-                        Color c = FlockUtils.GetIridescent(i / (float)TrailLength + Timer * 0.008f);
-                        sb.Draw(bloom, oldPos[i] - screenPos, null, c * (progress * 0.3f),
-                            0f, bOrigin, 0.15f + progress * 0.1f, SpriteEffects.None, 0f);
-                    }
+                    // End SpriteBatch before GPU primitive rendering
+                    sb.End();
+
+                    _trailRenderer ??= new FlockPrimitiveRenderer();
+
+                    var trailShader = GameShaders.Misc["MagnumOpus:CrystalOrbitTrail"];
+                    var effect = trailShader.Shader;
+
+                    float trailWidth = isDiving ? 24f : 14f;
+                    float diveProgress = isDiving ? MathHelper.Clamp((StateTimer - 20f) / 40f, 0f, 1f) : 0f;
+                    float trailOpacity = isDiving ? 0.7f + 0.3f * diveProgress : 0.5f;
+
+                    // Set shared shader params
+                    effect.Parameters["uPhase"]?.SetValue(crystalHue);
+                    effect.Parameters["uOpacity"]?.SetValue(trailOpacity);
+                    effect.Parameters["uIntensity"]?.SetValue(1.2f * stateIntensity);
+                    effect.Parameters["uOverbrightMult"]?.SetValue(isDiving ? 0.5f : 0.2f);
+                    trailShader.UseImage1(MagnumTextureRegistry.PerlinNoise);
+
+                    // Pass 1: CrystalOrbitGlow @ 3x width (prismatic bloom underlay)
+                    effect.CurrentTechnique = effect.Techniques["CrystalOrbitGlow"];
+                    var glowSettings = new FlockTrailSettings(
+                        t => trailWidth * 3f * (1f - t * 0.7f),
+                        t => FlockUtils.GetIridescent(t + crystalHue + Timer * 0.008f) * (0.25f * (1f - t)));
+                    glowSettings = new FlockTrailSettings(glowSettings.Width, glowSettings.TrailColor, trailShader);
+                    _trailRenderer.RenderTrail(oldPos, glowSettings);
+
+                    // Pass 2: CrystalOrbitMain @ 1x width (sharp crystal facets)
+                    effect.CurrentTechnique = effect.Techniques["CrystalOrbitMain"];
+                    var mainSettings = new FlockTrailSettings(
+                        t => trailWidth * (1f - t * 0.6f),
+                        t => Color.Lerp(Color.White, FlockUtils.GetIridescent(t * 0.5f + crystalHue), t * 0.7f) * (0.8f * (1f - t * 0.5f)));
+                    mainSettings = new FlockTrailSettings(mainSettings.Width, mainSettings.TrailColor, trailShader);
+                    _trailRenderer.RenderTrail(oldPos, mainSettings);
+
+                    // Pass 3: CrystalOrbitGlow @ 1.5x width (overbright halo)
+                    effect.CurrentTechnique = effect.Techniques["CrystalOrbitGlow"];
+                    effect.Parameters["uOverbrightMult"]?.SetValue(isDiving ? 0.8f : 0.35f);
+                    var haloSettings = new FlockTrailSettings(
+                        t => trailWidth * 1.5f * (1f - t * 0.8f),
+                        t => Color.Lerp(Color.White, FlockUtils.GetIridescent(crystalHue + 0.15f), t) * (0.3f * (1f - t)));
+                    haloSettings = new FlockTrailSettings(haloSettings.Width, haloSettings.TrailColor, trailShader);
+                    _trailRenderer.RenderTrail(oldPos, haloSettings);
+
+                    // Restart sprite batch after GPU primitives
+                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
                 }
 
-                // --- Outer oil-sheen glow ---
+                // ========================================================
+                // LAYER 1: Atmospheric radial backdrop
+                // ========================================================
                 if (radial != null)
                 {
                     Vector2 rOrigin = radial.Size() * 0.5f;
                     Color oilColor = FlockUtils.GetOilSheen(idleRotation, (float)Main.timeForVisualEffects * 0.01f);
-                    sb.Draw(radial, drawPos, null, oilColor * 0.15f * pulse, 0f, rOrigin, 0.35f * pulse, SpriteEffects.None, 0f);
+                    float radialScale = (0.4f + 0.08f * stateIntensity) * pulse;
+                    sb.Draw(radial, drawPos, null, oilColor * 0.2f * pulse, idleRotation * 0.3f, rOrigin, radialScale, SpriteEffects.None, 0f);
                 }
 
-                // --- Iridescent glow ring (6 dots orbiting) ---
+                // ========================================================
+                // LAYER 2: Outer prismatic orbit ring (8 faceted dots)
+                // ========================================================
                 if (bloom != null)
                 {
                     Vector2 bOrigin = bloom.Size() * 0.5f;
-                    for (int i = 0; i < 6; i++)
+                    float orbitRadius = 18f + 4f * MathF.Sin(Timer * 0.025f);
+                    for (int i = 0; i < 8; i++)
                     {
-                        float angle = MathHelper.TwoPi / 6f * i + idleRotation;
-                        Vector2 orbitPos = drawPos + angle.ToRotationVector2() * 14f;
-                        Color c = FlockUtils.GetIridescent(i / 6f + Timer * 0.005f);
-                        sb.Draw(bloom, orbitPos, null, c * 0.2f * pulse, 0f, bOrigin, 0.08f, SpriteEffects.None, 0f);
+                        float angle = MathHelper.TwoPi / 8f * i + idleRotation * 1.3f;
+                        Vector2 orbitPos = drawPos + angle.ToRotationVector2() * orbitRadius;
+                        Color c = FlockUtils.GetIridescent(i / 8f + crystalHue + Timer * 0.006f);
+                        float dotPulse = 0.9f + 0.1f * MathF.Sin(Timer * 0.08f + i * 0.8f);
+                        sb.Draw(bloom, orbitPos, null, c * 0.25f * pulse * dotPulse, 0f, bOrigin, 0.07f * dotPulse, SpriteEffects.None, 0f);
                     }
                 }
 
-                // --- Core bloom (crystal center) ---
+                // ========================================================
+                // LAYER 3: Halo ring (oil-sheen iridescent)
+                // ========================================================
+                if (haloRing != null)
+                {
+                    Vector2 hOrigin = haloRing.Size() * 0.5f;
+                    Color haloC = FlockUtils.GetOilSheen(idleRotation * 0.7f, Timer * 0.005f);
+                    float haloScale = 0.18f * pulse * stateIntensity;
+                    sb.Draw(haloRing, drawPos, null, haloC * 0.15f * pulse, -idleRotation * 0.5f, hOrigin, haloScale, SpriteEffects.None, 0f);
+                }
+
+                // ========================================================
+                // LAYER 4: Core iridescent bloom
+                // ========================================================
                 if (bloom != null)
                 {
                     Vector2 bOrigin = bloom.Size() * 0.5f;
-                    Color coreColor = Color.Lerp(FlockUtils.PetalLavender, FlockUtils.CrystalAqua, 
-                        0.5f + 0.5f * MathF.Sin(Timer * 0.03f));
-                    sb.Draw(bloom, drawPos, null, coreColor * 0.35f * pulse, 0f, bOrigin, 0.25f * pulse, SpriteEffects.None, 0f);
+                    Color coreColor = Color.Lerp(FlockUtils.PetalLavender, FlockUtils.CrystalAqua,
+                        0.5f + 0.5f * MathF.Sin(Timer * 0.03f + CrystalIndex * 2.1f));
+                    sb.Draw(bloom, drawPos, null, coreColor * 0.4f * pulse * stateIntensity, 0f, bOrigin, 0.3f * pulse, SpriteEffects.None, 0f);
                 }
 
-                // White hot center
+                // ========================================================
+                // LAYER 5: White-hot center point
+                // ========================================================
                 if (point != null)
                 {
                     Vector2 pOrigin = point.Size() * 0.5f;
-                    sb.Draw(point, drawPos, null, Color.White * 0.7f, 0f, pOrigin, 0.12f * pulse, SpriteEffects.None, 0f);
+                    sb.Draw(point, drawPos, null, Color.White * 0.8f * stateIntensity, 0f, pOrigin, 0.14f * pulse, SpriteEffects.None, 0f);
                 }
 
-                // Star sparkle
+                // ========================================================
+                // LAYER 6: Star sparkle (per-crystal rotation)
+                // ========================================================
                 if (star != null)
                 {
                     Vector2 sOrigin = star.Size() * 0.5f;
-                    float starRot = (float)Main.timeForVisualEffects * 0.03f + CrystalIndex;
-                    Color starColor = FlockUtils.GetIridescent(Timer * 0.01f);
-                    sb.Draw(star, drawPos, null, starColor * 0.25f * pulse, starRot, sOrigin, 0.15f, SpriteEffects.None, 0f);
+                    float starRot = (float)Main.timeForVisualEffects * 0.035f + CrystalIndex * 2.094f;
+                    Color starColor = FlockUtils.GetIridescent(Timer * 0.012f + crystalHue);
+                    sb.Draw(star, drawPos, null, starColor * 0.3f * pulse, starRot, sOrigin, 0.18f * stateIntensity, SpriteEffects.None, 0f);
+                    // Counter-rotating faint second star
+                    sb.Draw(star, drawPos, null, starColor * 0.12f * pulse, -starRot * 0.7f, sOrigin, 0.25f, SpriteEffects.None, 0f);
                 }
 
-                // --- Dive attack: stronger glow ---
-                if (CurrentState == CrystalState.DiveAttack && bloom != null)
+                // ========================================================
+                // STATE ACCENTS — Dive attack: streaking afterglow
+                // ========================================================
+                if (isDiving && bloom != null && StateTimer >= 20)
                 {
                     Vector2 bOrigin = bloom.Size() * 0.5f;
-                    sb.Draw(bloom, drawPos, null, Color.White * 0.4f, 0f, bOrigin, 0.4f, SpriteEffects.None, 0f);
+                    // Intense dive bloom
+                    sb.Draw(bloom, drawPos, null, Color.White * 0.5f, 0f, bOrigin, 0.45f, SpriteEffects.None, 0f);
+                    // Speed streaks along velocity
+                    Vector2 velDir = Projectile.velocity.SafeNormalize(Vector2.UnitX);
+                    for (int i = 1; i <= 4; i++)
+                    {
+                        Vector2 streakPos = drawPos - velDir * (i * 12f);
+                        float fade = 1f - i / 5f;
+                        Color sc = FlockUtils.GetIridescent(i / 4f + crystalHue) * (fade * 0.35f);
+                        sb.Draw(bloom, streakPos, null, sc, 0f, bOrigin, 0.2f * fade, SpriteEffects.None, 0f);
+                    }
+                }
+
+                // ========================================================
+                // STATE ACCENTS — Shard Volley: charging pulse ring
+                // ========================================================
+                if (CurrentState == CrystalState.ShardVolley && bloom != null)
+                {
+                    Vector2 bOrigin = bloom.Size() * 0.5f;
+                    float chargePulse = 0.6f + 0.4f * MathF.Sin(StateTimer * 0.15f);
+                    Color chargeC = FlockUtils.GetIridescent(StateTimer * 0.02f + crystalHue);
+                    sb.Draw(bloom, drawPos, null, chargeC * 0.3f * chargePulse, 0f, bOrigin, 0.35f * chargePulse, SpriteEffects.None, 0f);
+                    // Charging ring dots
+                    for (int i = 0; i < 5; i++)
+                    {
+                        float a = MathHelper.TwoPi / 5f * i + StateTimer * 0.12f;
+                        Vector2 cPos = drawPos + a.ToRotationVector2() * (10f + 6f * chargePulse);
+                        sb.Draw(point, cPos, null, chargeC * 0.2f, 0f, (point?.Size() ?? Vector2.One) * 0.5f, 0.05f, SpriteEffects.None, 0f);
+                    }
+                }
+
+                // ========================================================
+                // STATE ACCENTS — Resonance glow (4+ crystals active)
+                // ========================================================
+                if (CountActiveCrystals() >= 4 && bloom != null)
+                {
+                    Vector2 bOrigin = bloom.Size() * 0.5f;
+                    float resPulse = 0.5f + 0.5f * MathF.Sin(Timer * 0.04f);
+                    Color resColor = Color.Lerp(new Color(240, 240, 255), FlockUtils.GetIridescent(Timer * 0.007f), 0.5f);
+                    sb.Draw(bloom, drawPos, null, resColor * 0.15f * resPulse, 0f, bOrigin, 0.5f * resPulse, SpriteEffects.None, 0f);
                 }
 
                 // --- Draw crystal sprite ---
@@ -463,11 +587,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
             }
 
             // Theme accents (additive)
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
-            FlockUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
+            try
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                FlockUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
 
             return false;
         }
@@ -519,7 +647,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
 
             // Back to additive for caller's remaining draws
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
     }

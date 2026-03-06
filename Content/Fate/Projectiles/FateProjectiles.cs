@@ -12,7 +12,9 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Fate.Debuffs;
+using MagnumOpus.Content.FoundationWeapons.LaserFoundation;
 using ReLogic.Content;
+using Terraria.Graphics;
 
 namespace MagnumOpus.Content.Fate.Projectiles
 {
@@ -197,7 +199,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
             // === MULTI-LAYER BLOOM STACK FOR CELESTIAL GLOW ===
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -393,7 +395,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             }
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -518,7 +520,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             Vector2 origin = tex.Size() / 2f;
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -549,6 +551,16 @@ namespace MagnumOpus.Content.Fate.Projectiles
         private float chargeIntensity = 0f;
         private const float MaxCharge = 2f;
         private float pulsePhase = 0f;
+
+        // Beam geometry — computed in AI(), drawn in PreDraw()
+        private Vector2 beamStart;
+        private Vector2 beamEnd;
+        private float beamWidth;
+
+        // ConvergenceBeamShader + FlareRainbowShader (LaserFoundation pipeline)
+        private Effect beamShader;
+        private Effect flareShader;
+        private float flareRotation;
 
         public override void SetDefaults()
         {
@@ -588,9 +600,12 @@ namespace MagnumOpus.Content.Fate.Projectiles
             // Fire beam from sword tip
             Vector2 beamStart = Projectile.Center + aimDir * 30f;
             Vector2 beamEnd = beamStart + aimDir * (400f + chargeIntensity * 200f);
+            this.beamStart = beamStart;
+            this.beamEnd = beamEnd;
 
             // Check for enemies in beam path and deal damage
             float beamWidth = 20f + chargeIntensity * 15f;
+            this.beamWidth = beamWidth;
             for (int i = 0; i < Main.maxNPCs; i++)
             {
                 NPC npc = Main.npc[i];
@@ -657,6 +672,9 @@ namespace MagnumOpus.Content.Fate.Projectiles
             float tipGlow = chargeIntensity / MaxCharge;
             Lighting.AddLight(beamStart, FatePalette.WhiteCelestial.ToVector3() * tipGlow * 1.5f);
             Lighting.AddLight(Projectile.Center, FatePalette.DarkPink.ToVector3() * tipGlow * 0.8f);
+
+            // Flare spin
+            flareRotation += 1.15f;
         }
 
         private float DistanceToLine(Vector2 point, Vector2 lineStart, Vector2 lineEnd)
@@ -682,9 +700,14 @@ namespace MagnumOpus.Content.Fate.Projectiles
             float glowIntensity = chargeIntensity / MaxCharge;
             float pulse = 1f + (float)Math.Sin(pulsePhase) * 0.08f * glowIntensity;
 
+            // ═══════════════════════════════════════════
+            //  COSMIC BEAM LINE — the core channeled beam
+            // ═══════════════════════════════════════════
+            DrawCosmicBeamLine(spriteBatch, glowIntensity, pulse);
+
             // === MULTI-LAYER BLOOM STACK - INTENSIFIES WITH CHARGE ===
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Outer cosmic nebula - grows with charge
@@ -719,6 +742,138 @@ namespace MagnumOpus.Content.Fate.Projectiles
             spriteBatch.Draw(tex, drawPos, null, Color.White, Projectile.rotation, origin, pulse, SpriteEffects.None, 0f);
 
             return false;
+        }
+
+        /// <summary>
+        /// Draws the channeled cosmic beam using VertexStrip + ConvergenceBeamShader
+        /// (LaserFoundation pipeline) with Fate theme gradient LUT + FlareRainbowShader flares.
+        /// </summary>
+        private void DrawCosmicBeamLine(SpriteBatch sb, float glowIntensity, float pulse)
+        {
+            if (glowIntensity < 0.05f) return;
+
+            Vector2 dir = beamEnd - beamStart;
+            float dist = dir.Length();
+            if (dist < 1f) return;
+            float rot = dir.ToRotation();
+
+            // ── BUILD VERTEX STRIP ──
+            Vector2[] positions = { beamStart, beamEnd };
+            float[] rotations = { rot, rot };
+            float stripWidth = 100f * (0.5f + glowIntensity * 0.5f);
+
+            VertexStrip strip = new VertexStrip();
+            strip.PrepareStrip(positions, rotations,
+                (float p) => Color.White,
+                (float p) => stripWidth,
+                -Main.screenPosition, includeBacksides: true);
+
+            // ── LOAD & CONFIGURE CONVERGENCE BEAM SHADER ──
+            if (beamShader == null)
+            {
+                beamShader = ModContent.Request<Effect>(
+                    "MagnumOpus/Content/FoundationWeapons/LaserFoundation/Shaders/ConvergenceBeamShader",
+                    AssetRequestMode.ImmediateLoad).Value;
+            }
+
+            beamShader.Parameters["WorldViewProjection"].SetValue(
+                Main.GameViewMatrix.NormalizedTransformationmatrix);
+            beamShader.Parameters["onTex"].SetValue(LFTextures.BeamAlphaMask.Value);
+            beamShader.Parameters["gradientTex"].SetValue(LFTextures.GradFate.Value);
+            beamShader.Parameters["baseColor"].SetValue(Color.White.ToVector3());
+            beamShader.Parameters["satPower"].SetValue(0.8f);
+
+            beamShader.Parameters["sampleTexture1"].SetValue(LFTextures.DetailThinGlowLine.Value);
+            beamShader.Parameters["sampleTexture2"].SetValue(LFTextures.DetailSpark.Value);
+            beamShader.Parameters["sampleTexture3"].SetValue(LFTextures.DetailExtra.Value);
+            beamShader.Parameters["sampleTexture4"].SetValue(LFTextures.DetailTrailLoop.Value);
+
+            beamShader.Parameters["grad1Speed"].SetValue(0.66f);
+            beamShader.Parameters["grad2Speed"].SetValue(0.66f);
+            beamShader.Parameters["grad3Speed"].SetValue(1.03f);
+            beamShader.Parameters["grad4Speed"].SetValue(0.77f);
+
+            beamShader.Parameters["tex1Mult"].SetValue(1.25f);
+            beamShader.Parameters["tex2Mult"].SetValue(1.5f);
+            beamShader.Parameters["tex3Mult"].SetValue(1.15f);
+            beamShader.Parameters["tex4Mult"].SetValue(2.5f);
+            beamShader.Parameters["totalMult"].SetValue(glowIntensity);
+
+            float repVal = dist / 2000f;
+            beamShader.Parameters["gradientReps"].SetValue(0.75f * repVal);
+            beamShader.Parameters["tex1reps"].SetValue(1.15f * repVal);
+            beamShader.Parameters["tex2reps"].SetValue(1.15f * repVal);
+            beamShader.Parameters["tex3reps"].SetValue(1.15f * repVal);
+            beamShader.Parameters["tex4reps"].SetValue(1.15f * repVal);
+
+            beamShader.Parameters["uTime"].SetValue((float)Main.timeForVisualEffects * -0.024f);
+
+            // ── DRAW BEAM BODY ──
+            beamShader.CurrentTechnique.Passes["MainPS"].Apply();
+            strip.DrawTrail();
+            Main.pixelShader.CurrentTechnique.Passes[0].Apply();
+
+            // ── ENDPOINT FLARES (FlareRainbowShader) ──
+            if (flareShader == null)
+            {
+                flareShader = ModContent.Request<Effect>(
+                    "MagnumOpus/Content/FoundationWeapons/LaserFoundation/Shaders/FlareRainbowShader",
+                    AssetRequestMode.ImmediateLoad).Value;
+            }
+
+            flareShader.Parameters["rotation"].SetValue(flareRotation * 0.075f);
+            flareShader.Parameters["rainbowRotation"].SetValue(flareRotation * 0.025f);
+            flareShader.Parameters["intensity"].SetValue(glowIntensity);
+            flareShader.Parameters["fadeStrength"].SetValue(1f);
+
+            Vector2 drawStart = beamStart - Main.screenPosition;
+            Vector2 drawEnd = beamEnd - Main.screenPosition;
+            float sinPulse = MathF.Sin((float)Main.timeForVisualEffects * 0.04f);
+
+            Texture2D lensFlare = LFTextures.LensFlare.Value;
+            Texture2D starFlare = LFTextures.StarFlare.Value;
+            Texture2D glowOrb = LFTextures.GlowOrb.Value;
+            Texture2D softGlow = LFTextures.SoftGlow.Value;
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, flareShader,
+                Main.GameViewMatrix.EffectMatrix);
+
+            // Source flares — sigil-style stretched flare
+            Vector2 sigilScale = new Vector2(0.2f, 1f) * 0.55f * glowIntensity;
+            sb.Draw(softGlow, drawStart, null, Color.White, rot,
+                softGlow.Size() / 2f, sigilScale, SpriteEffects.None, 0f);
+            sb.Draw(softGlow, drawStart, null, Color.White, rot,
+                softGlow.Size() / 2f, sigilScale, SpriteEffects.None, 0f);
+
+            Vector2 sigilScalePulse = sigilScale * (1.75f + 0.25f * sinPulse);
+            float sinOffset = -MathF.Cos(((float)Main.timeForVisualEffects * 0.08f) / 2f) + 1f;
+            sb.Draw(lensFlare, drawStart + new Vector2(1f, 0f).RotatedBy(rot) * (15f * sinOffset),
+                null, Color.White, rot, lensFlare.Size() / 2f, sigilScalePulse, SpriteEffects.None, 0f);
+
+            sb.Draw(starFlare, drawStart, null, Color.White, rot,
+                starFlare.Size() / 2f, sigilScale, SpriteEffects.None, 0f);
+            sb.Draw(starFlare, drawStart, null, Color.White, rot,
+                starFlare.Size() / 2f, sigilScale, SpriteEffects.None, 0f);
+
+            // Endpoint flares — glow orb + lens + star stack
+            sb.Draw(glowOrb, drawEnd, null, Color.White, flareRotation * 0.1f,
+                glowOrb.Size() / 2f, 0.5f * glowIntensity, SpriteEffects.None, 0f);
+
+            float endScale = 0.7f * glowIntensity;
+            sb.Draw(lensFlare, drawEnd, null, Color.White, flareRotation * 0.02f,
+                lensFlare.Size() / 2f, endScale * 0.45f, SpriteEffects.None, 0f);
+            sb.Draw(starFlare, drawEnd, null, Color.White, flareRotation * 0.05f,
+                starFlare.Size() / 2f, endScale * 0.6f, SpriteEffects.None, 0f);
+            sb.Draw(starFlare, drawEnd, null, Color.White, flareRotation * 0.077f,
+                starFlare.Size() / 2f, endScale * 0.35f, SpriteEffects.None, 0f);
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                DepthStencilState.None, RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
         }
     }
 
@@ -918,7 +1073,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
             // === MULTI-LAYER BLOOM STACK FOR CELESTIAL GLOW ===
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Outermost cosmic nebula glow - purple/crimson
@@ -1036,7 +1191,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             Color prismaticColor = Main.hslToRgb(hue, 0.9f, 0.7f);
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -1207,7 +1362,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
             Color noteColor = FatePalette.GetCosmicGradient((colorCycle % 1f));
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             Vector2 drawPos = Projectile.Center - Main.screenPosition;

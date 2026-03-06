@@ -26,25 +26,25 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
         {
             if (Main.dedServ) return;
 
-            HasBulletTrailShader = TryLoadShader(ShaderBasePath + "BulletTrailShader", "PiercingBellsBulletTrail", FallbackTrail);
-            HasResonantBlastShader = TryLoadShader(ShaderBasePath + "ResonantBlastShader", "PiercingBellsResonantBlast", FallbackBlast);
-            HasCrystalGlowShader = TryLoadShader(ShaderBasePath + "CrystalGlowShader", "PiercingBellsCrystalGlow", FallbackGlow);
+            HasBulletTrailShader = TryLoadShader(ShaderBasePath + "BulletTrailShader", "PiercingBellsBulletTrail", "P0", FallbackTrail, "Pass0");
+            HasResonantBlastShader = TryLoadShader(ShaderBasePath + "ResonantBlastShader", "PiercingBellsResonantBlast", "P0", FallbackBlast, "DefaultPass");
+            HasCrystalGlowShader = TryLoadShader(ShaderBasePath + "CrystalGlowShader", "PiercingBellsCrystalGlow", "P0", FallbackGlow, "DefaultPass");
         }
 
-        private bool TryLoadShader(string path, string key, string fallbackPath)
+        private bool TryLoadShader(string path, string key, string technique, string fallbackPath, string fallbackTechnique)
         {
             try
             {
-                var effect = ModContent.Request<Microsoft.Xna.Framework.Graphics.Effect>(path, AssetRequestMode.ImmediateLoad).Value;
-                GameShaders.Misc[key] = new MiscShaderData(new Terraria.Ref<Microsoft.Xna.Framework.Graphics.Effect>(effect), "P0");
+                var effect = ModContent.Request<Microsoft.Xna.Framework.Graphics.Effect>(path, AssetRequestMode.ImmediateLoad);
+                GameShaders.Misc[key] = new MiscShaderData(effect, technique);
                 return true;
             }
             catch
             {
                 try
                 {
-                    var fallback = ModContent.Request<Microsoft.Xna.Framework.Graphics.Effect>(fallbackPath, AssetRequestMode.ImmediateLoad).Value;
-                    GameShaders.Misc[key] = new MiscShaderData(new Terraria.Ref<Microsoft.Xna.Framework.Graphics.Effect>(fallback), "P0");
+                    var fallback = ModContent.Request<Microsoft.Xna.Framework.Graphics.Effect>(fallbackPath, AssetRequestMode.ImmediateLoad);
+                    GameShaders.Misc[key] = new MiscShaderData(fallback, fallbackTechnique);
                     return true;
                 }
                 catch { }

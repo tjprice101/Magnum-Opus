@@ -18,12 +18,12 @@ using MagnumOpus.Content.Fate.Debuffs;
 namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
 {
     /// <summary>
-    /// Opus Ultima — Main swing projectile.
+    /// Opus Ultima  EMain swing projectile.
     ///
     /// ATTACK SYSTEM: 3-movement combo cycle (musical movements)
-    ///   Movement I   (Exposition):     Standard sweep — fires single energy ball
-    ///   Movement II  (Development):    Faster cross-slash — fires twin energy balls at angles
-    ///   Movement III (Recapitulation): Wide arc — fires massive energy ball (1.5x size, 1.5x damage)
+    ///   Movement I   (Exposition):     Standard sweep  Efires single energy ball
+    ///   Movement II  (Development):    Faster cross-slash  Efires twin energy balls at angles
+    ///   Movement III (Recapitulation): Wide arc  Efires massive energy ball (1.5x size, 1.5x damage)
     ///
     /// 5-LAYER RENDERING:
     ///   Layer 1: Wide cosmic glow underlayer (OpusSwingGlow shader)
@@ -56,6 +56,17 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
         private static Asset<Texture2D> _noiseTex;
         private static Asset<Texture2D> _glowTex;
         private static Asset<Texture2D> _flareTex;
+
+        // SmearDistort overlay textures
+        private static Asset<Texture2D> _smearArcTexture;
+        private static Asset<Texture2D> _smearNoiseTex;
+        private static Asset<Texture2D> _smearGradientTex;
+        private Effect _smearDistortShader;
+        private bool _smearShaderLoaded;
+        // CrescentBloom textures
+        private static Asset<Texture2D> _bloomCircle;
+        private static Asset<Texture2D> _softRadialBloom;
+        private static Asset<Texture2D> _starFlareTex;
 
         // Properties
         private Player Owner => Main.player[Projectile.owner];
@@ -342,45 +353,75 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
             var op = Owner.Opus();
             float intensity = 0.6f + op.ComboIntensity * 0.4f;
 
-            // Central bloom flash
-            OpusParticleHandler.SpawnParticle(new OpusBloomFlare(
-                pos, OpusUtils.OpusWhite, 0.6f * intensity, 15));
-            OpusParticleHandler.SpawnParticle(new OpusBloomFlare(
-                pos, OpusUtils.OpusCrimson, 0.45f * intensity, 12));
+            // NOTE: SpriteBatch bloom draws removed — SpawnImpactVFX is called from
+            // OnHitNPC (Update phase) where no SpriteBatch is active.
+            // Impact visuals handled by particles below.
 
-            // Radial spark burst
-            int sparkCount = 8 + (int)(op.ComboIntensity * 4);
+            // Central bloom flash particles
+            OpusParticleHandler.SpawnParticle(new OpusBloomFlare(
+                pos, OpusUtils.OpusWhite, 0.7f * intensity, 15));
+            OpusParticleHandler.SpawnParticle(new OpusBloomFlare(
+                pos, OpusUtils.GloryGold, 0.5f * intensity, 12));
+
+            // Radial spark burst (increased count)
+            int sparkCount = 12 + (int)(op.ComboIntensity * 6);
             for (int i = 0; i < sparkCount; i++)
             {
                 float angle = MathHelper.TwoPi * i / sparkCount + Main.rand.NextFloat(-0.1f, 0.1f);
-                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f) * intensity;
+                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 10f) * intensity;
                 Color sparkCol = OpusUtils.GetCosmicGradient((float)i / sparkCount);
                 OpusParticleHandler.SpawnParticle(new OpusSpark(
-                    pos, sparkVel, sparkCol, 0.3f * intensity, 16));
+                    pos, sparkVel, sparkCol, 0.35f * intensity, 18));
             }
 
-            // Glyph accents
-            int glyphCount = 2 + (int)(op.ComboIntensity * 3);
+            // Directional golden slash mark
+            Vector2 slashDir = (_currentAngle + MathHelper.PiOver2 * _direction).ToRotationVector2();
+            for (int i = 0; i < 6; i++)
+            {
+                float spread = Main.rand.NextFloat(-0.3f, 0.3f);
+                Vector2 markVel = slashDir.RotatedBy(spread) * Main.rand.NextFloat(5f, 12f);
+                Color markCol = Color.Lerp(OpusUtils.GloryGold, OpusUtils.OpusWhite, Main.rand.NextFloat());
+                OpusParticleHandler.SpawnParticle(new OpusSpark(
+                    pos, markVel, markCol, 0.25f * intensity, 14));
+            }
+
+            // Glyph accents (more dramatic)
+            int glyphCount = 3 + (int)(op.ComboIntensity * 4);
             for (int i = 0; i < glyphCount; i++)
             {
-                Vector2 glyphPos = pos + Main.rand.NextVector2Circular(20f, 20f);
+                Vector2 glyphPos = pos + Main.rand.NextVector2Circular(25f, 25f);
                 Color glyphCol = OpusUtils.PaletteLerp(Main.rand.NextFloat());
                 OpusParticleHandler.SpawnParticle(new OpusGlyph(
-                    glyphPos, glyphCol, 0.28f * intensity, 25));
+                    glyphPos, glyphCol, 0.32f * intensity, 28));
             }
 
-            // Music notes on impact
-            for (int i = 0; i < 3; i++)
+            // Music notes cascading upward
+            for (int i = 0; i < 5; i++)
             {
-                Vector2 noteVel = Main.rand.NextVector2Circular(3f, 3f);
-                noteVel.Y -= 2f;
+                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-2f, 2f), -Main.rand.NextFloat(2f, 5f));
                 Color noteCol = OpusUtils.PaletteLerp(Main.rand.NextFloat(0.3f, 0.8f));
                 OpusParticleHandler.SpawnParticle(new OpusNoteParticle(
                     pos + Main.rand.NextVector2Circular(10f, 10f), noteVel,
-                    noteCol, 0.35f, 28));
+                    noteCol, 0.4f, 32));
             }
 
-            Lighting.AddLight(pos, OpusUtils.GloryGold.ToVector3() * 1.0f * intensity);
+            // Nebula wisps on higher combo
+            if (op.ComboIntensity > 0.3f)
+            {
+                int wispCount = 3 + (int)(op.ComboIntensity * 3);
+                for (int i = 0; i < wispCount; i++)
+                {
+                    Vector2 wispVel = Main.rand.NextVector2Circular(2f, 2f);
+                    wispVel.Y -= 1f;
+                    Color wispCol = Color.Lerp(OpusUtils.CosmicRose, OpusUtils.RoyalPurple, Main.rand.NextFloat());
+                    OpusParticleHandler.SpawnParticle(new OpusNebulaWisp(
+                        pos + Main.rand.NextVector2Circular(15f, 15f), wispVel,
+                        wispCol, 0.2f, 35));
+                }
+            }
+
+            Lighting.AddLight(pos, OpusUtils.GloryGold.ToVector3() * 1.2f * intensity);
+            Lighting.AddLight(pos, OpusUtils.OpusWhite.ToVector3() * 0.8f * intensity);
         }
 
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
@@ -392,7 +433,179 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
             return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), start, end, 30f, ref _);
         }
 
-        // ======================== 5-LAYER RENDERING ========================
+        // ======================== SMEAR DISTORT OVERLAY ========================
+
+        /// <summary>
+        /// Foundation-tier SmearDistort overlay: 3 sub-layers with shader distortion.
+        /// Opus identity: prismatic crimson/gold glorious radiance.
+        /// </summary>
+        private void DrawSmearOverlay(SpriteBatch sb, float progress)
+        {
+            _smearArcTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/SlashArcs/SwordArcSmear");
+            _smearNoiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/TileableFBMNoise");
+            _smearGradientTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/ColorGradients/FateGradientLUTandRAMP");
+
+            if (_smearArcTexture?.Value == null) return;
+
+            if (!_smearShaderLoaded)
+            {
+                _smearShaderLoaded = true;
+                try
+                {
+                    _smearDistortShader = ModContent.Request<Effect>(
+                        "MagnumOpus/Content/FoundationWeapons/SwordSmearFoundation/Shaders/SmearDistortShader",
+                        AssetRequestMode.ImmediateLoad).Value;
+                }
+                catch { _smearDistortShader = null; }
+            }
+
+            var op = Owner.Opus();
+            float comboIntensity = op.ComboIntensity;
+            float reach = _movement == 2 ? 95f : 78f;
+            Vector2 center = Owner.MountedCenter - Main.screenPosition;
+            float swingRotation = _currentAngle + MathHelper.PiOver4;
+            Texture2D smearTex = _smearArcTexture.Value;
+            Vector2 smearOrigin = smearTex.Size() / 2f;
+            float baseScale = reach / (smearTex.Width * 0.45f);
+            float time = (float)Main.timeForVisualEffects * 0.01f;
+
+            // Opus identity: glorious golden radiance with crimson undertone
+            Color outerColor = OpusUtils.Additive(OpusUtils.RoyalPurple, 0.2f + comboIntensity * 0.1f);
+            Color mainColor = OpusUtils.Additive(OpusUtils.GloryGold, 0.55f + comboIntensity * 0.2f);
+            Color coreColor = OpusUtils.Additive(OpusUtils.OpusCrimson, 0.65f + comboIntensity * 0.15f);
+            SpriteEffects fx = _direction < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+
+            try
+            {
+                if (_smearDistortShader != null)
+                {
+                    sb.End();
+                    var shaderParams = _smearDistortShader.Parameters;
+                    shaderParams["uTime"]?.SetValue(time);
+                    if (_smearNoiseTex?.Value != null)
+                    {
+                        Main.graphics.GraphicsDevice.Textures[1] = _smearNoiseTex.Value;
+                        Main.graphics.GraphicsDevice.SamplerStates[1] = SamplerState.LinearWrap;
+                    }
+                    if (_smearGradientTex?.Value != null)
+                    {
+                        Main.graphics.GraphicsDevice.Textures[2] = _smearGradientTex.Value;
+                        Main.graphics.GraphicsDevice.SamplerStates[2] = SamplerState.LinearClamp;
+                    }
+
+                    shaderParams["distortStrength"]?.SetValue(0.06f + comboIntensity * 0.03f);
+                    sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
+                        DepthStencilState.None, RasterizerState.CullNone, _smearDistortShader, Main.GameViewMatrix.TransformationMatrix);
+                    sb.Draw(smearTex, center, null, outerColor, swingRotation, smearOrigin, baseScale * 1.18f, fx, 0f);
+                    sb.End();
+
+                    shaderParams["distortStrength"]?.SetValue(0.04f + comboIntensity * 0.02f);
+                    sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
+                        DepthStencilState.None, RasterizerState.CullNone, _smearDistortShader, Main.GameViewMatrix.TransformationMatrix);
+                    sb.Draw(smearTex, center, null, mainColor, swingRotation, smearOrigin, baseScale, fx, 0f);
+                    sb.End();
+
+                    shaderParams["distortStrength"]?.SetValue(0.02f + comboIntensity * 0.01f);
+                    sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
+                        DepthStencilState.None, RasterizerState.CullNone, _smearDistortShader, Main.GameViewMatrix.TransformationMatrix);
+                    sb.Draw(smearTex, center, null, coreColor, swingRotation, smearOrigin, baseScale * 0.82f, fx, 0f);
+                    sb.End();
+
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                else
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                    sb.Draw(smearTex, center, null, outerColor, swingRotation, smearOrigin, baseScale * 1.18f, fx, 0f);
+                    sb.Draw(smearTex, center, null, mainColor, swingRotation, smearOrigin, baseScale, fx, 0f);
+                    sb.Draw(smearTex, center, null, coreColor, swingRotation, smearOrigin, baseScale * 0.82f, fx, 0f);
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
+            catch
+            {
+                try { sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix); } catch { }
+            }
+        }
+
+        // ======================== CRESCENT BLOOM ========================
+
+        /// <summary>
+        /// Foundation-tier 6-layer graduated bloom at blade tip.
+        /// Opus identity: golden glorious radiance with prismatic shimmer.
+        /// </summary>
+        private void DrawCrescentBloom(SpriteBatch sb)
+        {
+            _bloomCircle ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
+            _softRadialBloom ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom");
+            _starFlareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/StarFlare");
+
+            if (_bloomCircle?.Value == null || _softRadialBloom?.Value == null) return;
+
+            var op = Owner.Opus();
+            float comboIntensity = op.ComboIntensity;
+            float reach = _movement == 2 ? 95f : 78f;
+            Vector2 tipWorld = Owner.MountedCenter + _currentAngle.ToRotationVector2() * reach;
+            Vector2 tipDraw = tipWorld - Main.screenPosition;
+            float breath = 0.85f + MathF.Sin((float)Main.timeForVisualEffects * 0.06f) * 0.15f;
+            float intensity = (0.7f + comboIntensity * 0.3f) * breath;
+
+            try
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Texture2D bloom = _softRadialBloom.Value;
+                Texture2D point = _bloomCircle.Value;
+                Vector2 bloomOrigin = bloom.Size() / 2f;
+                Vector2 pointOrigin = point.Size() / 2f;
+
+                // Layer 1: Wide outer purple haze
+                sb.Draw(bloom, tipDraw, null, OpusUtils.Additive(OpusUtils.RoyalPurple, 0.15f * intensity),
+                    0f, bloomOrigin, 1.6f * intensity, SpriteEffects.None, 0f);
+                // Layer 2: Golden glow
+                sb.Draw(bloom, tipDraw, null, OpusUtils.Additive(OpusUtils.GloryGold, 0.3f * intensity),
+                    0f, bloomOrigin, 1.1f * intensity, SpriteEffects.None, 0f);
+                // Layer 3: Crimson mid
+                sb.Draw(bloom, tipDraw, null, OpusUtils.Additive(OpusUtils.OpusCrimson, 0.35f * intensity),
+                    0f, bloomOrigin, 0.65f * intensity, SpriteEffects.None, 0f);
+                // Layer 4: Silver highlight
+                sb.Draw(point, tipDraw, null, OpusUtils.Additive(OpusUtils.StarSilver, 0.45f * intensity),
+                    0f, pointOrigin, 0.35f * intensity, SpriteEffects.None, 0f);
+                // Layer 5: White core
+                sb.Draw(point, tipDraw, null, OpusUtils.Additive(OpusUtils.OpusWhite, 0.55f * intensity),
+                    0f, pointOrigin, 0.18f * intensity, SpriteEffects.None, 0f);
+                // Layer 6: Rotating star flare
+                if (_starFlareTex?.Value != null)
+                {
+                    float starRot = (float)Main.timeForVisualEffects * 0.02f;
+                    Texture2D starTex = _starFlareTex.Value;
+                    Vector2 starOrigin = starTex.Size() / 2f;
+                    sb.Draw(starTex, tipDraw, null, OpusUtils.Additive(OpusUtils.GloryGold, 0.3f * intensity),
+                        starRot, starOrigin, 0.4f * intensity, SpriteEffects.None, 0f);
+                    sb.Draw(starTex, tipDraw, null, OpusUtils.Additive(OpusUtils.OpusWhite, 0.2f * intensity),
+                        -starRot * 0.7f, starOrigin, 0.25f * intensity, SpriteEffects.None, 0f);
+                }
+
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch
+            {
+                try { sb.End(); sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix); } catch { }
+            }
+        }
+
+        // ======================== 7-LAYER RENDERING ========================
 
         public override bool PreDraw(ref Color lightColor)
         {
@@ -409,10 +622,12 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
 
             try
             {
+                // === Layer 0: SmearDistort Overlay (Foundation-tier) ===
+                DrawSmearOverlay(sb, progress);
+
                 // End SpriteBatch before GPU primitive trail draws
                 sb.End();
 
-                // GPU primitive layers (trail renderers use DrawUserIndexedPrimitives)
                 DrawLayer1_CosmicGlow(sb, comboIntensity);
                 DrawLayer2_CoreTrail(sb, comboIntensity);
 
@@ -420,10 +635,12 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
-                // Sprite-based layers (manage their own additive state changes)
                 DrawLayer3_GoldenSparks(sb, progress, comboIntensity);
                 DrawLayer4_WeaponSprite(sb, lightColor);
                 DrawLayer5_ComboAura(sb, comboIntensity);
+
+                // === Layer 6: CrescentBloom at blade tip ===
+                DrawCrescentBloom(sb);
             }
             catch
             {
@@ -439,7 +656,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
             try
             {
                 sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
                 OpusUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.4f);
                 sb.End();
@@ -515,7 +732,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
             catch { }
         }
 
-        /// <summary>Layer 3: Prismatic chromatic cycling sparks — each spark shifts through the full Fate spectrum.</summary>
+        /// <summary>Layer 3: Prismatic chromatic cycling sparks  Eeach spark shifts through the full Fate spectrum.</summary>
         private void DrawLayer3_GoldenSparks(SpriteBatch sb, float progress, float combo)
         {
             if (_flareTex?.Value == null || _trailCount < 3) return;
@@ -611,7 +828,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
             }
         }
 
-        /// <summary>Layer 5: Combo aura — rotating dual-ring prismatic mandala with chromatic bloom.</summary>
+        /// <summary>Layer 5: Combo aura  Erotating dual-ring prismatic mandala with chromatic bloom.</summary>
         private void DrawLayer5_ComboAura(SpriteBatch sb, float combo)
         {
             if (combo < 0.3f) return;

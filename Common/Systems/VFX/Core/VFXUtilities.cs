@@ -466,7 +466,7 @@ namespace MagnumOpus.Common.Systems.VFX
             try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(
                 SpriteSortMode.Immediate, 
-                blendState ?? BlendState.Additive, 
+                blendState ?? MagnumBlendStates.TrueAdditive, 
                 SamplerState.LinearClamp, 
                 DepthStencilState.None, 
                 RasterizerState.CullNone, 
@@ -497,7 +497,7 @@ namespace MagnumOpus.Common.Systems.VFX
         {
             spriteBatch.Begin(
                 SpriteSortMode.Deferred, 
-                BlendState.Additive, 
+                MagnumBlendStates.TrueAdditive, 
                 SamplerState.LinearClamp, 
                 DepthStencilState.None, 
                 RasterizerState.CullNone, 

@@ -16,7 +16,9 @@ using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Particles;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Dusts;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Primitives;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Utilities;
+using MagnumOpus.Content.EnigmaVariations;
 
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
 {
@@ -127,87 +129,251 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
             Player owner = Main.player[Projectile.owner];
             SpriteBatch sb = Main.spriteBatch;
             
-            Vector2 start = owner.Center - Main.screenPosition;
-            Vector2 end = currentBeamEnd - Main.screenPosition;
-            Vector2 beamDir = (currentBeamEnd - owner.Center).SafeNormalize(Vector2.UnitX);
+            Vector2 beamStart = owner.Center;
+            Vector2 beamEnd = currentBeamEnd;
+            Vector2 beamDir = (beamEnd - beamStart).SafeNormalize(Vector2.UnitX);
             float rotation = beamDir.ToRotation();
             float length = currentBeamLength;
             
-            // Pulsing factor
+            // Pulsing factor and channel intensity
             float pulse = 1f + 0.15f * (float)Math.Sin(Main.GameUpdateCount * 0.1f);
             float channelFactor = Math.Min(channelTime / 60f, 1f);
+            float deepChannel = Math.Min(channelTime / 120f, 1f); // 0→1 over 2 seconds
             
             // Width scales with channel time — 35f base → 60f at full ramp
-            float baseWidth = 35f + channelFactor * 25f; // 35 → 60px
-            
-            // Pixel texture for line drawing
-            Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
-            if (pixel == null) return false;
-            
-            // === Shader overlay: Digital data-stream cipher beam ===
-            {
-                Texture2D shBloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
-                EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.CipherBeamTrail,
-                    shBloom, start + (end - start) * 0.5f, shBloom.Size() / 2f,
-                    MathHelper.Clamp(length / 64f, 1f, 12f),
-                    CipherUtils.ArcaneViolet.ToVector3(), CipherUtils.UnravelGreen.ToVector3(),
-                    opacity: 0.55f * channelFactor, intensity: 1.2f, rotation: rotation,
-                    noiseTexture: ShaderLoader.GetNoiseTexture("VoronoiNoise"),
-                    techniqueName: "CipherBeamFlow");
-            }
-            
-            CipherUtils.EnterAdditiveShaderRegion(sb);
-            
-            // Layer 1: Wide soft purple outer glow
-            float outerWidth = baseWidth * 3f * pulse;
-            sb.Draw(pixel, start + (end - start) * 0.5f, new Rectangle(0, 0, 1, 1), CipherUtils.ArcaneViolet * 0.25f * channelFactor,
-                rotation, new Vector2(0.5f, 0.5f), new Vector2(length, outerWidth), SpriteEffects.None, 0f);
-            
-            // Layer 2: Medium green core glow
-            float midWidth = baseWidth * 1.5f * pulse;
-            sb.Draw(pixel, start + (end - start) * 0.5f, new Rectangle(0, 0, 1, 1), CipherUtils.UnravelGreen * 0.5f * channelFactor,
-                rotation, new Vector2(0.5f, 0.5f), new Vector2(length, midWidth), SpriteEffects.None, 0f);
-            
-            // Layer 3: Narrow bright white center
-            float innerWidth = baseWidth * 0.5f * pulse;
-            sb.Draw(pixel, start + (end - start) * 0.5f, new Rectangle(0, 0, 1, 1), CipherUtils.WhiteRevelation * 0.7f * channelFactor,
-                rotation, new Vector2(0.5f, 0.5f), new Vector2(length, innerWidth), SpriteEffects.None, 0f);
-            
-            // Layer 4: Bloom sprite at beam end
-            Texture2D bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
-            float bloomScale = (0.3f + channelFactor * 0.5f) * pulse;
-            sb.Draw(bloomTex, end, null, CipherUtils.UnravelGreen * 0.6f * channelFactor, 0f,
-                bloomTex.Size() / 2f, bloomScale, SpriteEffects.None, 0f);
-            sb.Draw(bloomTex, end, null, CipherUtils.CipherBright * 0.3f * channelFactor, 0f,
-                bloomTex.Size() / 2f, bloomScale * 0.5f, SpriteEffects.None, 0f);
-            
-            // Layer 5: Bloom at beam origin
-            sb.Draw(bloomTex, start, null, CipherUtils.ArcaneViolet * 0.4f * channelFactor, 0f,
-                bloomTex.Size() / 2f, bloomScale * 0.6f, SpriteEffects.None, 0f);
+            float baseWidth = 35f + channelFactor * 25f;
 
-            // Layer 6: EN Star Flare at beam endpoint — dual-rotating spectral cipher flare
+            // Screen positions
+            Vector2 startScreen = beamStart - Main.screenPosition;
+            Vector2 endScreen = beamEnd - Main.screenPosition;
+            Vector2 midScreen = startScreen + (endScreen - startScreen) * 0.5f;
+
+            // ═══════════════════════════════════════════════════════
+            // LAYER 1: GPU PRIMITIVE BEAM — CipherBeamTrail shader-driven
+            // Build beam point strip and render 3 passes:
+            // Body (CipherBeamFlow), Glow (CipherBeamGlow), Deep channel shimmer
+            // ═══════════════════════════════════════════════════════
             {
-                Texture2D starFlareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
+                // Generate evenly spaced points along the beam
+                int pointCount = Math.Max(2, (int)(length / 16f));
+                List<Vector2> beamPoints = new(pointCount);
+                for (int i = 0; i < pointCount; i++)
+                {
+                    float t = (float)i / (pointCount - 1);
+                    beamPoints.Add(beamStart + beamDir * length * t);
+                }
+
+                Effect cipherShader = ShaderLoader.CipherBeamTrail;
+                if (cipherShader != null && beamPoints.Count >= 2)
+                {
+                    sb.End();
+
+                    var device = Main.graphics.GraphicsDevice;
+                    var prevBlend = device.BlendState;
+                    device.BlendState = MagnumBlendStates.TrueAdditive;
+
+                    // Bind noise texture for cipher data-stream patterns
+                    Texture2D noiseTex = ShaderLoader.GetNoiseTexture("VoronoiNoise");
+                    if (noiseTex != null)
+                        device.Textures[1] = noiseTex;
+
+                    float timeVal = (float)Main.GameUpdateCount * 0.04f;
+                    cipherShader.Parameters["uTime"]?.SetValue(timeVal);
+                    cipherShader.Parameters["uColor"]?.SetValue(CipherUtils.ArcaneViolet.ToVector3());
+                    cipherShader.Parameters["uSecondaryColor"]?.SetValue(CipherUtils.UnravelGreen.ToVector3());
+
+                    // PASS A: Body beam (CipherBeamFlow) — primary cipher data-stream
+                    cipherShader.Parameters["uOpacity"]?.SetValue(0.85f + channelFactor * 0.15f);
+                    cipherShader.Parameters["uIntensity"]?.SetValue(1.0f + deepChannel * 0.5f);
+                    cipherShader.CurrentTechnique = cipherShader.Techniques["CipherBeamFlow"];
+
+                    CipherPrimitiveRenderer.RenderTrail(beamPoints, new CipherPrimitiveSettings(
+                        completion =>
+                        {
+                            // Beam body width: thick center, tapered edges
+                            float taper = 1f - Math.Abs(completion - 0.5f) * 0.4f;
+                            return baseWidth * 0.8f * taper * pulse;
+                        },
+                        completion =>
+                        {
+                            Color c = Color.Lerp(CipherUtils.ArcaneViolet, CipherUtils.UnravelGreen, 
+                                completion * 0.6f + MathF.Sin(completion * 6f + timeVal) * 0.15f);
+                            return c * (0.8f + channelFactor * 0.2f);
+                        },
+                        cipherShader,
+                        smoothing: false
+                    ));
+
+                    // PASS B: Glow beam (CipherBeamGlow) — soft bloom haze around beam
+                    cipherShader.Parameters["uOpacity"]?.SetValue(0.3f + channelFactor * 0.2f);
+                    cipherShader.Parameters["uIntensity"]?.SetValue(0.6f + deepChannel * 0.4f);
+                    cipherShader.CurrentTechnique = cipherShader.Techniques["CipherBeamGlow"];
+
+                    CipherPrimitiveRenderer.RenderTrail(beamPoints, new CipherPrimitiveSettings(
+                        completion =>
+                        {
+                            float taper = 1f - Math.Abs(completion - 0.5f) * 0.3f;
+                            return baseWidth * 2.0f * taper * pulse;
+                        },
+                        completion =>
+                        {
+                            Color c = Color.Lerp(CipherUtils.DeepEnigma, CipherUtils.ArcaneViolet, completion);
+                            return c * 0.4f * channelFactor;
+                        },
+                        cipherShader,
+                        smoothing: false
+                    ));
+
+                    // PASS C: Deep channel shimmer — white-hot core at high channel time
+                    if (deepChannel > 0.3f)
+                    {
+                        cipherShader.Parameters["uOpacity"]?.SetValue(deepChannel * 0.6f);
+                        cipherShader.Parameters["uIntensity"]?.SetValue(1.8f);
+                        cipherShader.Parameters["uColor"]?.SetValue(CipherUtils.CipherBright.ToVector3());
+                        cipherShader.CurrentTechnique = cipherShader.Techniques["CipherBeamFlow"];
+
+                        CipherPrimitiveRenderer.RenderTrail(beamPoints, new CipherPrimitiveSettings(
+                            completion =>
+                            {
+                                float taper = 1f - Math.Abs(completion - 0.5f) * 0.5f;
+                                return baseWidth * 0.3f * taper * pulse * deepChannel;
+                            },
+                            completion =>
+                            {
+                                Color c = Color.Lerp(CipherUtils.CipherBright, CipherUtils.WhiteRevelation, completion * 0.4f);
+                                return c * deepChannel * 0.7f;
+                            },
+                            cipherShader,
+                            smoothing: false
+                        ));
+                    }
+
+                    device.Textures[1] = null;
+                    device.BlendState = prevBlend;
+
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
+
+            // ═══════════════════════════════════════════════════════
+            // LAYER 2: SHADER OVERLAY — Digital data-stream cipher aura
+            // CipherBeamTrail shader as screen-space overlay at beam center
+            // ═══════════════════════════════════════════════════════
+            {
+                Texture2D shBloom = MagnumTextureRegistry.GetSoftGlow();
+                if (shBloom != null)
+                {
+                    EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.CipherBeamTrail,
+                        shBloom, midScreen, shBloom.Size() / 2f,
+                        MathHelper.Clamp(length / 64f, 1f, 12f),
+                        CipherUtils.ArcaneViolet.ToVector3(), CipherUtils.UnravelGreen.ToVector3(),
+                        opacity: 0.4f * channelFactor, intensity: 1.2f + deepChannel * 0.3f,
+                        rotation: rotation,
+                        noiseTexture: ShaderLoader.GetNoiseTexture("VoronoiNoise"),
+                        techniqueName: "CipherBeamFlow");
+                }
+            }
+
+            // ═══════════════════════════════════════════════════════
+            // LAYER 3: 6-LAYER BLOOM STACK at beam endpoint
+            // Abyss Black -> Deep Enigma -> Arcane Violet -> Unravel Green
+            // -> Cipher Bright -> White Revelation
+            // ═══════════════════════════════════════════════════════
+            CipherUtils.EnterAdditiveShaderRegion(sb);
+
+            Texture2D bloomTex = MagnumTextureRegistry.GetSoftGlow();
+            if (bloomTex != null)
+            {
+                Vector2 bOrigin = bloomTex.Size() / 2f;
+                float bloomBase = (0.3f + channelFactor * 0.5f) * pulse;
+
+                // === Beam endpoint bloom hub ===
+                // A: Wide outer abyss glow
+                sb.Draw(bloomTex, endScreen, null, CipherUtils.AbyssBlack * 0.2f * channelFactor, 0f, bOrigin,
+                    bloomBase * 3.0f, SpriteEffects.None, 0f);
+                // B: Deep enigma haze
+                sb.Draw(bloomTex, endScreen, null, CipherUtils.DeepEnigma * 0.35f * channelFactor, 0f, bOrigin,
+                    bloomBase * 2.0f, SpriteEffects.None, 0f);
+                // C: Arcane violet core
+                sb.Draw(bloomTex, endScreen, null, CipherUtils.ArcaneViolet * 0.5f * channelFactor, 0f, bOrigin,
+                    bloomBase * 1.2f, SpriteEffects.None, 0f);
+                // D: Unravel green transitional
+                sb.Draw(bloomTex, endScreen, null, CipherUtils.UnravelGreen * 0.5f * channelFactor, 0f, bOrigin,
+                    bloomBase * 0.65f, SpriteEffects.None, 0f);
+                // E: Cipher bright flash
+                sb.Draw(bloomTex, endScreen, null, CipherUtils.CipherBright * 0.45f * channelFactor, 0f, bOrigin,
+                    bloomBase * 0.3f, SpriteEffects.None, 0f);
+                // F: White revelation pinpoint
+                sb.Draw(bloomTex, endScreen, null, CipherUtils.WhiteRevelation * 0.6f * channelFactor, 0f, bOrigin,
+                    bloomBase * 0.1f, SpriteEffects.None, 0f);
+
+                // === Beam origin bloom hub (smaller) ===
+                sb.Draw(bloomTex, startScreen, null, CipherUtils.ArcaneViolet * 0.35f * channelFactor, 0f, bOrigin,
+                    bloomBase * 0.8f, SpriteEffects.None, 0f);
+                sb.Draw(bloomTex, startScreen, null, CipherUtils.DeepEnigma * 0.2f * channelFactor, 0f, bOrigin,
+                    bloomBase * 1.5f, SpriteEffects.None, 0f);
+            }
+
+            // EN Star Flare — dual counter-rotating spectral cipher flares at beam endpoint
+            Texture2D starFlareTex = EnigmaThemeTextures.ENStarFlare?.Value;
+            if (starFlareTex != null)
+            {
                 Vector2 sfOrigin = starFlareTex.Size() / 2f;
                 float sfRotA = (float)Main.GameUpdateCount * 0.03f;
                 float sfRotB = -(float)Main.GameUpdateCount * 0.02f;
-                float sfScale = (0.2f + channelFactor * 0.15f) * pulse;
-                sb.Draw(starFlareTex, end, null, CipherUtils.UnravelGreen * 0.5f * channelFactor, sfRotA, sfOrigin, sfScale, SpriteEffects.None, 0f);
-                sb.Draw(starFlareTex, end, null, CipherUtils.ArcaneViolet * 0.35f * channelFactor, sfRotB, sfOrigin, sfScale * 0.85f, SpriteEffects.None, 0f);
+                float sfScale = (0.2f + channelFactor * 0.2f) * pulse;
+                sb.Draw(starFlareTex, endScreen, null, CipherUtils.UnravelGreen * 0.55f * channelFactor,
+                    sfRotA, sfOrigin, sfScale, SpriteEffects.None, 0f);
+                sb.Draw(starFlareTex, endScreen, null, CipherUtils.ArcaneViolet * 0.4f * channelFactor,
+                    sfRotB, sfOrigin, sfScale * 0.85f, SpriteEffects.None, 0f);
             }
 
-            // Layer 7: EN Power Effect Ring at beam endpoint — concentric cipher rings
+            // EN Power Effect Ring — concentric cipher rings at beam endpoint
+            Texture2D powerRingTex = EnigmaThemeTextures.ENPowerEffectRing?.Value;
+            if (powerRingTex != null)
             {
-                Texture2D powerRingTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Power Effect Ring", AssetRequestMode.ImmediateLoad).Value;
                 Vector2 prOrigin = powerRingTex.Size() / 2f;
                 float prRot = (float)Main.GameUpdateCount * 0.025f;
-                float prScale = (0.18f + channelFactor * 0.12f) * pulse;
-                sb.Draw(powerRingTex, end, null, CipherUtils.CipherBright * 0.35f * channelFactor, prRot, prOrigin, prScale, SpriteEffects.None, 0f);
-                sb.Draw(powerRingTex, end, null, CipherUtils.ArcaneViolet * 0.25f * channelFactor, -prRot * 0.7f, prOrigin, prScale * 1.4f, SpriteEffects.None, 0f);
+                float prScale = (0.2f + channelFactor * 0.15f) * pulse;
+                sb.Draw(powerRingTex, endScreen, null, CipherUtils.CipherBright * 0.35f * channelFactor,
+                    prRot, prOrigin, prScale, SpriteEffects.None, 0f);
+                sb.Draw(powerRingTex, endScreen, null, CipherUtils.ArcaneViolet * 0.25f * channelFactor,
+                    -prRot * 0.7f, prOrigin, prScale * 1.4f, SpriteEffects.None, 0f);
             }
 
-            // Theme texture accents
-            CipherUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
+            // EN Enigma Eye — the cipher's gaze manifests at deep channel
+            if (deepChannel > 0.5f)
+            {
+                Texture2D eyeTex = EnigmaThemeTextures.ENEnigmaEye?.Value;
+                if (eyeTex != null)
+                {
+                    float eyePulse = MathF.Sin(Main.GameUpdateCount * 0.08f) * 0.15f + 0.85f;
+                    float eyeAlpha = (deepChannel - 0.5f) * 2f * eyePulse;
+                    float eyeScale = (0.15f + deepChannel * 0.15f) * pulse;
+                    sb.Draw(eyeTex, endScreen, null, CipherUtils.UnravelGreen * eyeAlpha * 0.5f,
+                        0f, eyeTex.Size() / 2f, eyeScale, SpriteEffects.None, 0f);
+                }
+            }
+
+            // Unravel point markers — glowing cipher glyphs at stored detonation nodes
+            if (unravelPoints.Count > 0 && bloomTex != null)
+            {
+                Vector2 bOrigin2 = bloomTex.Size() / 2f;
+                for (int i = 0; i < unravelPoints.Count; i++)
+                {
+                    Vector2 upScreen = unravelPoints[i] - Main.screenPosition;
+                    float nodePulse = 0.7f + 0.3f * MathF.Sin(Main.GameUpdateCount * 0.15f + i * 1.5f);
+                    float nodeScale = 0.12f + channelFactor * 0.08f;
+                    sb.Draw(bloomTex, upScreen, null, CipherUtils.CipherBright * 0.4f * nodePulse * channelFactor,
+                        0f, bOrigin2, nodeScale, SpriteEffects.None, 0f);
+                    sb.Draw(bloomTex, upScreen, null, CipherUtils.UnravelGreen * 0.25f * nodePulse * channelFactor,
+                        0f, bOrigin2, nodeScale * 2f, SpriteEffects.None, 0f);
+                }
+            }
+
+            // Theme accents
+            CipherUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f * channelFactor);
             
             CipherUtils.ExitShaderRegion(sb);
             

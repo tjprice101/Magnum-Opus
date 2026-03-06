@@ -185,7 +185,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.GearDrivenArbiter.Projectiles
             string technique = _verdictDelivered ? "JudgmentMarkDetonate" : "JudgmentMarkSigil";
             _judgmentShader.CurrentTechnique = _judgmentShader.Techniques[technique];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _judgmentShader, matrix);
 
@@ -199,7 +199,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.GearDrivenArbiter.Projectiles
             sb.Draw(sc, drawPos, null, Color.White, sigilRot, sc.Size() * 0.5f, sigilScale, SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }
@@ -231,7 +231,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.GearDrivenArbiter.Projectiles
             Main.graphics.GraphicsDevice.Textures[1] = _noiseTex.Value;
             _radialNoiseShader.CurrentTechnique = _radialNoiseShader.Techniques["Technique1"];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _radialNoiseShader, matrix);
 
@@ -244,7 +244,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.GearDrivenArbiter.Projectiles
             sb.Draw(sc, drawPos, null, Color.White * opacity, 0f, sc.Size() * 0.5f, zoneScale, SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }

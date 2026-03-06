@@ -1037,7 +1037,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             {
                 EnemyShaderManager.ApplyAuraParams(auraShader, NPC, new Color(140, 100, 200), new Color(100, 170, 255), auraIntensity);
                 spriteBatch.End();
-                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, auraShader, Main.GameViewMatrix.TransformationMatrix);
+                spriteBatch.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp, default, default, auraShader, Main.GameViewMatrix.TransformationMatrix);
                 spriteBatch.Draw(texture, drawPos, sourceRect, Color.White, NPC.rotation, origin, drawScale * 1.15f, effects, 0f);
                 spriteBatch.End();
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, default, default, null, Main.GameViewMatrix.TransformationMatrix);
@@ -1051,7 +1051,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
                 {
                     EnemyShaderManager.ApplyTrailParams(trailShader, NPC, new Color(140, 100, 200), new Color(100, 170, 255), NPC.velocity.Length() / 12f);
                     spriteBatch.End();
-                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, trailShader, Main.GameViewMatrix.TransformationMatrix);
+                    spriteBatch.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp, default, default, trailShader, Main.GameViewMatrix.TransformationMatrix);
                     for (int t = 1; t <= 3; t++)
                     {
                         Vector2 trailPos = drawPos - NPC.velocity * t * 2f;

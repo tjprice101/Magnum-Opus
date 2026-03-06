@@ -6,22 +6,30 @@ using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
+using Terraria.Graphics.Shaders;
+using ReLogic.Content;
 using MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Utilities;
+using MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Primitives;
+using MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Shaders;
 using MagnumOpus.Content.SwanLake.Debuffs;
 using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Projectiles
 {
     /// <summary>
-    /// Call of the Black Swan — Main held swing projectile.
+    /// Call of the Black Swan  EMain held swing projectile (OVERHAULED).
     /// Exoblade-style state machine handling 3-phase ballet combo.
     /// Phase 0 "Entrechat": Quick diagonal slash, spawns feather projectiles
     /// Phase 1 "Fouetté": Spinning horizontal slash, spawns flare AoE
     /// Phase 2 "Grand Jeté": Overhead slam, swan shockwave + feather rain
     ///
-    /// Foundation-pattern rendering: safe SpriteBatch management, bloom stacking,
-    /// SpriteBatch-based trail, no custom particle handlers in PreDraw.
-    /// Color identity: black/white gradient with rainbow accent highlights.
+    /// RENDERING PIPELINE (6 layers, Moonlight Sonata tier):
+    /// Layer 0: SmearDistort overlay (Foundation shader, 3 sub-layers)
+    /// Layer 1: GPU shader trail GLOW pass (DualPolaritySwing  EDualPolarityGlow technique)
+    /// Layer 2: GPU shader trail CORE pass (DualPolaritySwing  EDualPolarityFlow technique)
+    /// Layer 3: Blade sprite with energy afterimages
+    /// Layer 4: 6-sub-layer tip bloom stack (Swan Lake polarity)
+    /// Layer 5: Theme accent particles + prismatic flare
     /// </summary>
     public class BlackSwanSwingProj : ModProjectile
     {
@@ -129,6 +137,21 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
 
         // Trail positions for rendering
         private Vector2[] _trailPositions;
+
+        // GPU primitive trail renderer (Moonlight Sonata pattern)
+        private BlackSwanPrimitiveRenderer _trailRenderer;
+
+        // Smear overlay shader (Foundation SwordSmear pattern)
+        private static Effect _smearShader;
+        private static bool _smearShaderLoaded;
+
+        // Phase intensity (escalates with combo, drives shader params)
+        private float _phaseIntensity => ComboPhase switch
+        {
+            0 => 0.5f,
+            1 => 0.75f,
+            _ => 1.0f
+        };
 
         #endregion
 
@@ -351,7 +374,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
 
             switch (ComboPhase)
             {
-                case 0: // Entrechat — 3 feather projectiles in fan arc
+                case 0: // Entrechat  E3 feather projectiles in fan arc
                 {
                     float spreadAngle = MathHelper.ToRadians(35f);
                     for (int i = 0; i < 3; i++)
@@ -374,7 +397,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                     }
                     break;
                 }
-                case 1: // Fouetté — radial flare AoE
+                case 1: // Fouetté  Eradial flare AoE
                 {
                     bool empowered = bsp?.IsEmpowered ?? false;
                     int count = empowered ? 8 : 5;
@@ -418,7 +441,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                     }
                     break;
                 }
-                case 2: // Grand Jeté — swan shockwave + feather rain
+                case 2: // Grand Jeté  Eswan shockwave + feather rain
                 {
                     Projectile.NewProjectile(Projectile.GetSource_FromThis(), tipPos, swordDir * 6f,
                         ModContent.ProjectileType<BlackSwanFlareProj>(),
@@ -437,7 +460,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                             Projectile.owner, ai0: 0f);
                     }
 
-                    // Shockwave dust burst — alternating black/white with rainbow accents
+                    // Shockwave dust burst  Ealternating black/white with rainbow accents
                     for (int i = 0; i < 16; i++)
                     {
                         Vector2 burstVel = Main.rand.NextVector2CircularEdge(8f, 8f);
@@ -546,7 +569,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
             // Phase-specific hit VFX
             switch (ComboPhase)
             {
-                case 0: // Entrechat — feather fan from blade tip
+                case 0: // Entrechat  Efeather fan from blade tip
                 {
                     Vector2 swordDir = Projectile.rotation.ToRotationVector2();
                     Vector2 tipPos = Projectile.Center + swordDir * BladeLength * Projectile.scale;
@@ -563,7 +586,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                     }
                     break;
                 }
-                case 1: // Fouetté — radial flare
+                case 1: // Fouetté  Eradial flare
                 {
                     try { SwanLakeVFXLibrary.SpawnPrismaticSparkles(hitPos, 6, 25f); } catch { }
                     for (int i = 0; i < 6; i++)
@@ -595,7 +618,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                     }
                     break;
                 }
-                case 2: // Grand Jeté — shockwave
+                case 2: // Grand Jeté  Eshockwave
                 {
                     for (int i = 0; i < 12; i++)
                     {
@@ -646,112 +669,362 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
 
         #endregion
 
-        #region Rendering (Foundation Pattern — Safe SpriteBatch)
+        #region Rendering (6-Layer Shader Pipeline  EMoonlight Sonata Tier)
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
 
+            if (Progression <= 0.05f)
+                return false;
+
             try
             {
-                // Layer 1: Swing arc trail (additive bloom along trail positions)
-                if (Progression > 0.20f && _trailPositions != null)
-                    DrawSwingTrail(sb);
+                // Layer 0: Smear distort overlay (Foundation SwordSmear pattern  E3 sub-layers)
+                if (Progression > 0.12f && Progression < 0.92f)
+                    DrawSmearOverlay(sb);
 
-                // Layer 2: Bloom at blade tip (additive)
-                DrawTipBloom(sb);
+                // Layer 1: GPU shader trail GLOW pass (wide soft underlay)
+                if (Progression > 0.15f && _trailPositions != null)
+                    DrawShaderTrailGlow(sb);
+
+                // Layer 2: GPU shader trail CORE pass (sharp primary arc)
+                if (Progression > 0.15f && _trailPositions != null)
+                    DrawShaderTrailCore(sb);
             }
             catch { }
 
-            // Layer 3: Blade sprite (alpha blend — always executes)
+            // Layer 3: Blade sprite with energy afterimages
             try
             {
                 DrawBlade(sb, lightColor);
             }
             catch { }
 
-            // Theme accents (additive)
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
-            BlackSwanUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
+            // Layer 4: 6-sub-layer tip bloom stack
+            try
+            {
+                DrawTipBloomStack(sb);
+            }
+            catch { }
+
+            // Layer 5: Theme accent particles + prismatic flare
+            try
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+                BlackSwanUtils.DrawThemeAccents(sb, Projectile.Center, _phaseIntensity, 0.6f);
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch
+            {
+                try
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                        DepthStencilState.None, Main.Rasterizer, null,
+                        Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
 
             return false;
         }
 
-        private void DrawSwingTrail(SpriteBatch sb)
+        /// <summary>
+        /// Layer 0: SmearDistort overlay  Ethree sub-layers with decreasing distortion.
+        /// Uses the Foundation SwordSmear shader pattern with Swan Lake monochrome + prismatic colors.
+        /// </summary>
+        private void DrawSmearOverlay(SpriteBatch sb)
         {
-            // Get bloom texture from registry
-            Texture2D bloom = MagnumTextureRegistry.SoftGlow?.Value;
-            if (bloom == null) return;
+            // Lazy-load smear shader (Foundation pattern)
+            if (!_smearShaderLoaded)
+            {
+                _smearShaderLoaded = true;
+                try
+                {
+                    _smearShader = ModContent.Request<Effect>(
+                        "MagnumOpus/Content/FoundationWeapons/SwordSmearFoundation/Shaders/SmearDistortShader",
+                        AssetRequestMode.ImmediateLoad).Value;
+                }
+                catch { _smearShader = null; }
+            }
 
-            float trailOpacity = MathHelper.Clamp((Progression - 0.20f) / 0.15f, 0f, 1f);
+            Texture2D smearTex;
+            try
+            {
+                smearTex = ModContent.Request<Texture2D>(
+                    "MagnumOpus/Assets/VFX Asset Library/SlashArcs/SwordArcSmear",
+                    AssetRequestMode.ImmediateLoad).Value;
+            }
+            catch { return; }
+            if (smearTex == null) return;
+
+            float currentAngle = Projectile.rotation;
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            float rot = currentAngle + MathHelper.PiOver4;
+            SpriteEffects effects = Direction < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+            Vector2 origin = new Vector2(smearTex.Width * 0.5f, smearTex.Height * 0.85f);
+
+            float fadeAlpha = 1f;
+            if (Progression < 0.20f)
+                fadeAlpha = (Progression - 0.12f) / 0.08f;
+            else if (Progression > 0.82f)
+                fadeAlpha = (0.92f - Progression) / 0.10f;
+            fadeAlpha = MathHelper.Clamp(fadeAlpha, 0f, 1f);
+
+            float time = Main.GlobalTimeWrappedHourly;
+            bool isBlackPhase = ComboPhase % 2 == 0;
+
+            // Load noise + gradient from VFX asset library
+            Texture2D noiseTex;
+            try
+            {
+                noiseTex = ModContent.Request<Texture2D>(
+                    "MagnumOpus/Assets/VFX Asset Library/NoiseTextures/TileableFBMNoise",
+                    AssetRequestMode.ImmediateLoad).Value;
+            }
+            catch { noiseTex = null; }
+            Texture2D gradientTex = MagnumTextureRegistry.GetGradient("swanlake") ?? MagnumTextureRegistry.SoftGlow?.Value;
+
+            sb.End();
+
+            if (_smearShader != null && noiseTex != null && gradientTex != null)
+            {
+                // Shader path: SpriteSortMode.Immediate for per-draw shader params
+                sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
+                    DepthStencilState.None, RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+
+                // Sub-layer 1: Wide outer glow (high distortion, large scale)
+                _smearShader.Parameters["uTime"]?.SetValue(time * 0.7f);
+                _smearShader.Parameters["fadeAlpha"]?.SetValue(fadeAlpha * 0.35f * _phaseIntensity);
+                _smearShader.Parameters["distortStrength"]?.SetValue(0.09f * _phaseIntensity);
+                _smearShader.Parameters["flowSpeed"]?.SetValue(0.6f);
+                _smearShader.Parameters["noiseScale"]?.SetValue(1.2f);
+                _smearShader.Parameters["noiseTex"]?.SetValue(noiseTex);
+                _smearShader.Parameters["gradientTex"]?.SetValue(gradientTex);
+                _smearShader.CurrentTechnique.Passes[0].Apply();
+                sb.Draw(smearTex, drawPos, null, (isBlackPhase ? new Color(40, 40, 55) : new Color(200, 200, 220)) * fadeAlpha * 0.35f,
+                    rot, origin, Projectile.scale * 1.2f, effects, 0f);
+
+                // Sub-layer 2: Mid body (medium distortion)
+                _smearShader.Parameters["fadeAlpha"]?.SetValue(fadeAlpha * 0.55f * _phaseIntensity);
+                _smearShader.Parameters["distortStrength"]?.SetValue(0.055f * _phaseIntensity);
+                _smearShader.Parameters["flowSpeed"]?.SetValue(0.9f);
+                _smearShader.CurrentTechnique.Passes[0].Apply();
+                sb.Draw(smearTex, drawPos, null, new Color(180, 180, 200) * fadeAlpha * 0.5f,
+                    rot, origin, Projectile.scale * 1.0f, effects, 0f);
+
+                // Sub-layer 3: Tight core (low distortion, bright)
+                _smearShader.Parameters["fadeAlpha"]?.SetValue(fadeAlpha * 0.75f * _phaseIntensity);
+                _smearShader.Parameters["distortStrength"]?.SetValue(0.025f * _phaseIntensity);
+                _smearShader.Parameters["flowSpeed"]?.SetValue(1.4f);
+                _smearShader.CurrentTechnique.Passes[0].Apply();
+                sb.Draw(smearTex, drawPos, null, new Color(255, 255, 255) * fadeAlpha * 0.6f,
+                    rot, origin, Projectile.scale * 0.85f, effects, 0f);
+            }
+            else
+            {
+                // Fallback: static colored layers when shader unavailable
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+
+                Color outerCol = isBlackPhase ? new Color(40, 40, 55, 0) : new Color(200, 200, 220, 0);
+                sb.Draw(smearTex, drawPos, null, outerCol * fadeAlpha * 0.3f, rot, origin, Projectile.scale * 1.15f, effects, 0f);
+                sb.Draw(smearTex, drawPos, null, new Color(180, 180, 200, 0) * fadeAlpha * 0.45f, rot, origin, Projectile.scale, effects, 0f);
+                sb.Draw(smearTex, drawPos, null, new Color(255, 255, 255, 0) * fadeAlpha * 0.55f, rot, origin, Projectile.scale * 0.85f, effects, 0f);
+            }
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                DepthStencilState.None, Main.Rasterizer, null,
+                Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        /// <summary>
+        /// Layer 1: GPU shader trail GLOW pass  Ewide soft bloom underlay using DualPolarityGlow technique.
+        /// Uses BlackSwanPrimitiveRenderer with registered DualPolaritySwing shader.
+        /// </summary>
+        private void DrawShaderTrailGlow(SpriteBatch sb)
+        {
+            _trailRenderer ??= new BlackSwanPrimitiveRenderer();
+
+            float trailOpacity = MathHelper.Clamp((Progression - 0.15f) / 0.12f, 0f, 1f);
             if (Progression > 0.85f)
                 trailOpacity *= 1f - (Progression - 0.85f) / 0.15f;
-
             if (trailOpacity <= 0f) return;
 
-            // Get prismatic intensity from player state
+            bool isBlackPhase = ComboPhase % 2 == 0;
             float prismatic = 0f;
             try { prismatic = Owner.GetModPlayer<BlackSwanPlayer>().PrismaticIntensity; } catch { }
 
-            bool isBlackPhase = ComboPhase % 2 == 0;
-
-            // Switch to additive
+            // End SpriteBatch  Ewe're going to raw GPU rendering
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            Vector2 origin = bloom.Size() * 0.5f;
-
-            // Draw bloom circles along the trail arc
-            int step = Math.Max(1, TrailPointCount / 20);
-            for (int i = 0; i < TrailPointCount; i += step)
-            {
-                float t = (float)i / (TrailPointCount - 1);
-                Vector2 drawPos = _trailPositions[i] - Main.screenPosition;
-
-                // Size tapers toward the start of the trail
-                float size = MathHelper.Lerp(0.04f, 0.22f, t) * Projectile.scale * _squishFactor;
-
-                // Dual-polarity: outer halo alternates black/white
-                float localOpacity = trailOpacity * MathHelper.Lerp(0.2f, 0.8f, t);
-                Color outerCol = isBlackPhase
-                    ? new Color(50, 50, 65, 0)
-                    : new Color(220, 225, 240, 0);
-
-                // Outer halo
-                sb.Draw(bloom, drawPos, null, outerCol * localOpacity * 0.4f, 0f, origin, size * 2.5f, SpriteEffects.None, 0f);
-
-                // Mid white-silver glow
-                Color midCol = new Color(200, 200, 215, 0);
-                sb.Draw(bloom, drawPos, null, midCol * localOpacity * 0.5f, 0f, origin, size * 1.5f, SpriteEffects.None, 0f);
-
-                // White core
-                sb.Draw(bloom, drawPos, null, new Color(255, 255, 255, 0) * localOpacity * 0.6f, 0f, origin, size * 0.8f, SpriteEffects.None, 0f);
-
-                // Rainbow accent edge (subtle, grows with Grace stacks)
-                if (prismatic > 0f || i % 3 == 0)
+            // Configure glow trail settings (wide, soft, dim)
+            var glowSettings = new BlackSwanTrailSettings(
+                completionRatio =>
                 {
-                    float hue = (t * 0.5f + Main.GameUpdateCount * 0.01f) % 1f;
-                    Color rainbow = Main.hslToRgb(hue, 0.85f, 0.8f);
-                    float rainbowOpacity = MathHelper.Lerp(0.08f, 0.35f, prismatic);
-                    sb.Draw(bloom, drawPos, null, new Color(rainbow.R, rainbow.G, rainbow.B, 0) * localOpacity * rainbowOpacity,
-                        0f, origin, size * 3.0f, SpriteEffects.None, 0f);
-                }
-            }
+                    // Wide glow tapering from 8px at tail to 50px at tip
+                    float baseWidth = MathHelper.Lerp(8f, 50f, completionRatio) * Projectile.scale;
+                    return baseWidth * 1.8f * _phaseIntensity;
+                },
+                completionRatio =>
+                {
+                    // Dual-polarity: dark edge vs white edge, with prismatic bleeding
+                    float fade = trailOpacity * MathHelper.Lerp(0.15f, 0.5f, completionRatio);
+                    Color baseCol = isBlackPhase
+                        ? Color.Lerp(new Color(20, 20, 35), new Color(100, 100, 130), completionRatio)
+                        : Color.Lerp(new Color(130, 130, 160), new Color(220, 225, 240), completionRatio);
 
-            // Restore SpriteBatch to alpha blend
-            sb.End();
+                    if (prismatic > 0.3f)
+                    {
+                        float hue = (completionRatio * 0.5f + Main.GlobalTimeWrappedHourly * 0.3f) % 1f;
+                        Color rainbow = Main.hslToRgb(hue, 0.7f, 0.7f);
+                        baseCol = Color.Lerp(baseCol, rainbow, prismatic * 0.4f);
+                    }
+                    return baseCol * fade;
+                },
+                shader: null, // We apply the shader manually below
+                smoothen: true
+            );
+
+            // Get and apply glow shader
+            try
+            {
+                MiscShaderData glowShader = null;
+                if (BlackSwanShaderLoader.HasSlashShader)
+                {
+                    glowShader = GameShaders.Misc["MagnumOpus:BlackSwanSlash"];
+
+                    // Set shader uniforms for glow pass (UseImage takes Asset<Texture2D>)
+                    if (MagnumTextureRegistry.PerlinNoise != null)
+                        glowShader.UseImage1(MagnumTextureRegistry.PerlinNoise);
+                    if (MagnumTextureRegistry.SwanLakeGradient != null)
+                        glowShader.UseImage2(MagnumTextureRegistry.SwanLakeGradient);
+
+                    glowShader.UseColor(isBlackPhase ? new Color(30, 30, 50) : new Color(200, 200, 230));
+                    glowShader.UseSecondaryColor(new Color(240, 240, 255));
+                    glowShader.Shader.Parameters["uTime"]?.SetValue(Main.GlobalTimeWrappedHourly * 1.5f);
+                    glowShader.Shader.Parameters["uIntensity"]?.SetValue(_phaseIntensity * 0.6f);
+                    glowShader.Shader.Parameters["uOpacity"]?.SetValue(trailOpacity * 0.5f);
+                    glowShader.Shader.Parameters["uPhase"]?.SetValue((float)ComboPhase / 2f);
+
+                    // Override the settings to carry shader
+                    glowSettings = new BlackSwanTrailSettings(
+                        glowSettings.Width, glowSettings.TrailColor,
+                        shader: glowShader, smoothen: true
+                    );
+                }
+
+                _trailRenderer.RenderTrail(_trailPositions, glowSettings, TrailPointCount);
+            }
+            catch { }
+
+            // Restore SpriteBatch
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                DepthStencilState.None, Main.Rasterizer, null,
+                Main.GameViewMatrix.TransformationMatrix);
         }
 
-        private void DrawTipBloom(SpriteBatch sb)
+        /// <summary>
+        /// Layer 2: GPU shader trail CORE pass  Esharp, bright primary swing arc.
+        /// Uses DualPolarityFlow technique for the crisp center trail.
+        /// </summary>
+        private void DrawShaderTrailCore(SpriteBatch sb)
+        {
+            _trailRenderer ??= new BlackSwanPrimitiveRenderer();
+
+            float trailOpacity = MathHelper.Clamp((Progression - 0.15f) / 0.12f, 0f, 1f);
+            if (Progression > 0.85f)
+                trailOpacity *= 1f - (Progression - 0.85f) / 0.15f;
+            if (trailOpacity <= 0f) return;
+
+            bool isBlackPhase = ComboPhase % 2 == 0;
+            float prismatic = 0f;
+            try { prismatic = Owner.GetModPlayer<BlackSwanPlayer>().PrismaticIntensity; } catch { }
+
+            sb.End();
+
+            // Configure core trail settings (narrower, brighter, sharper)
+            var coreSettings = new BlackSwanTrailSettings(
+                completionRatio =>
+                {
+                    float baseWidth = MathHelper.Lerp(4f, 30f, completionRatio) * Projectile.scale;
+                    return baseWidth * _phaseIntensity;
+                },
+                completionRatio =>
+                {
+                    float fade = trailOpacity * MathHelper.Lerp(0.4f, 1.0f, completionRatio);
+                    // Core is always bright white-silver with polarity tint
+                    Color coreCol = isBlackPhase
+                        ? Color.Lerp(new Color(80, 80, 100), new Color(200, 200, 220), completionRatio)
+                        : Color.Lerp(new Color(180, 180, 200), new Color(255, 255, 255), completionRatio);
+
+                    if (prismatic > 0.3f)
+                    {
+                        float hue = (completionRatio * 0.7f + Main.GlobalTimeWrappedHourly * 0.5f) % 1f;
+                        Color rainbow = Main.hslToRgb(hue, 0.85f, 0.85f);
+                        coreCol = Color.Lerp(coreCol, rainbow, prismatic * 0.6f);
+                    }
+                    return coreCol * fade;
+                },
+                shader: null,
+                smoothen: true
+            );
+
+            try
+            {
+                MiscShaderData coreShader = null;
+                if (BlackSwanShaderLoader.HasSlashShader)
+                {
+                    coreShader = GameShaders.Misc["MagnumOpus:BlackSwanSlash"];
+
+                    if (MagnumTextureRegistry.PerlinNoise != null)
+                        coreShader.UseImage1(MagnumTextureRegistry.PerlinNoise);
+                    if (MagnumTextureRegistry.SwanLakeGradient != null)
+                        coreShader.UseImage2(MagnumTextureRegistry.SwanLakeGradient);
+
+                    coreShader.UseColor(new Color(220, 220, 240));
+                    coreShader.UseSecondaryColor(isBlackPhase ? new Color(10, 10, 20) : new Color(255, 255, 255));
+                    coreShader.Shader.Parameters["uTime"]?.SetValue(Main.GlobalTimeWrappedHourly * 2.2f);
+                    coreShader.Shader.Parameters["uIntensity"]?.SetValue(_phaseIntensity);
+                    coreShader.Shader.Parameters["uOpacity"]?.SetValue(trailOpacity);
+                    coreShader.Shader.Parameters["uPhase"]?.SetValue((float)ComboPhase / 2f);
+
+                    coreSettings = new BlackSwanTrailSettings(
+                        coreSettings.Width, coreSettings.TrailColor,
+                        shader: coreShader, smoothen: true
+                    );
+                }
+
+                _trailRenderer.RenderTrail(_trailPositions, coreSettings, TrailPointCount);
+            }
+            catch { }
+
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                DepthStencilState.None, Main.Rasterizer, null,
+                Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        /// <summary>
+        /// Layer 4: 6-sub-layer tip bloom stack (Swan Lake polarity pattern).
+        /// Mirrors Eternal Moon's crescent bloom approach with dual black/white identity.
+        /// </summary>
+        private void DrawTipBloomStack(SpriteBatch sb)
         {
             Texture2D bloom = MagnumTextureRegistry.SoftGlow?.Value;
+            Texture2D softRadial = MagnumTextureRegistry.SoftRadialBloom?.Value;
             Texture2D pointBloom = MagnumTextureRegistry.PointBloom?.Value;
+            Texture2D star = MagnumTextureRegistry.GetStar4Soft();
+            Texture2D glowOrb = MagnumTextureRegistry.BloomCircle?.Value;
             if (bloom == null && pointBloom == null) return;
 
             float currentAngle = Projectile.rotation;
@@ -759,60 +1032,116 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
             Vector2 tipPos = Projectile.Center + swordDir * BladeLength * Projectile.scale - Main.screenPosition;
 
             float bloomPulse = 0.8f + 0.2f * (float)Math.Sin(Main.GameUpdateCount * 0.15f);
+            // Waltz-time pulse (3/4 rhythm for Swan Lake ballet identity)
+            float waltzPulse = 0.85f + 0.15f * (float)Math.Sin(Main.GameUpdateCount * 0.1047f); // ~3/4 time at 60fps
             bool isBlackPhase = ComboPhase % 2 == 0;
+            float prismatic = 0f;
+            try { prismatic = Owner.GetModPlayer<BlackSwanPlayer>().PrismaticIntensity; } catch { }
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null,
+                Main.GameViewMatrix.TransformationMatrix);
 
-            // Layer 1: Wide polarity halo
+            // Sub-layer 1: Wide atmospheric outer halo (polarity-colored)
+            Texture2D wideBloom = softRadial ?? bloom;
+            if (wideBloom != null)
+            {
+                Vector2 origin = wideBloom.Size() * 0.5f;
+                Color outerColor = isBlackPhase ? new Color(25, 25, 45, 0) : new Color(200, 205, 225, 0);
+                sb.Draw(wideBloom, tipPos, null, outerColor * 0.22f * waltzPulse * _phaseIntensity,
+                    0f, origin, 0.7f * Projectile.scale, SpriteEffects.None, 0f);
+            }
+
+            // Sub-layer 2: Mid polarity glow
             if (bloom != null)
             {
                 Vector2 origin = bloom.Size() * 0.5f;
-                Color outerBloom = isBlackPhase ? new Color(30, 30, 50, 0) : new Color(200, 200, 220, 0);
-                sb.Draw(bloom, tipPos, null, outerBloom * 0.25f * bloomPulse, 0f, origin, 0.6f * Projectile.scale, SpriteEffects.None, 0f);
-
-                // Layer 2: Silver mid glow
-                Color midBloom = new Color(180, 185, 210, 0);
-                sb.Draw(bloom, tipPos, null, midBloom * 0.40f * bloomPulse, 0f, origin, 0.35f * Projectile.scale, SpriteEffects.None, 0f);
+                Color midColor = isBlackPhase ? new Color(60, 60, 85, 0) : new Color(210, 215, 235, 0);
+                sb.Draw(bloom, tipPos, null, midColor * 0.38f * bloomPulse * _phaseIntensity,
+                    0f, origin, 0.42f * Projectile.scale, SpriteEffects.None, 0f);
             }
 
-            // Layer 3: White-hot core
+            // Sub-layer 3: Silver core bloom
+            if (bloom != null)
+            {
+                Vector2 origin = bloom.Size() * 0.5f;
+                sb.Draw(bloom, tipPos, null, new Color(200, 200, 220, 0) * 0.55f * bloomPulse * _phaseIntensity,
+                    0f, origin, 0.25f * Projectile.scale, SpriteEffects.None, 0f);
+            }
+
+            // Sub-layer 4: White-hot core
             if (pointBloom != null)
             {
                 Vector2 pbOrigin = pointBloom.Size() * 0.5f;
-                sb.Draw(pointBloom, tipPos, null, new Color(255, 255, 255, 0) * 0.55f * bloomPulse, 0f, pbOrigin, 0.15f * Projectile.scale, SpriteEffects.None, 0f);
+                sb.Draw(pointBloom, tipPos, null, new Color(255, 255, 255, 0) * 0.65f * waltzPulse * _phaseIntensity,
+                    0f, pbOrigin, 0.18f * Projectile.scale, SpriteEffects.None, 0f);
             }
 
-            // Layer 4: Rainbow accent shimmer (rotating star)
-            Texture2D star = MagnumTextureRegistry.GetStar4Soft();
+            // Sub-layer 5: 4-pointed star flare (rotating, polarity-tinted)
             if (star != null)
             {
                 Vector2 starOrigin = star.Size() * 0.5f;
-                float hue = (Progression * 0.5f + Main.GameUpdateCount * 0.012f) % 1f;
-                Color rainbowStar = Main.hslToRgb(hue, 0.85f, 0.8f);
-                float starRot = Main.GameUpdateCount * 0.08f;
-                sb.Draw(star, tipPos, null, new Color(rainbowStar.R, rainbowStar.G, rainbowStar.B, 0) * 0.3f * bloomPulse,
-                    starRot, starOrigin, 0.12f * Projectile.scale, SpriteEffects.None, 0f);
+                float starRot = Main.GameUpdateCount * 0.06f;
+                Color starColor = isBlackPhase ? new Color(140, 140, 170, 0) : new Color(240, 240, 255, 0);
+
+                // Add prismatic shifting at higher grace
+                if (prismatic > 0.3f)
+                {
+                    float hue = (Progression * 0.5f + Main.GameUpdateCount * 0.015f) % 1f;
+                    Color rainbow = Main.hslToRgb(hue, 0.85f, 0.85f);
+                    starColor = Color.Lerp(starColor, new Color(rainbow.R, rainbow.G, rainbow.B, 0), prismatic * 0.6f);
+                }
+
+                sb.Draw(star, tipPos, null, starColor * 0.4f * bloomPulse * _phaseIntensity,
+                    starRot, starOrigin, 0.18f * Projectile.scale, SpriteEffects.None, 0f);
             }
 
-            // Empowered prismatic outer halo
+            // Sub-layer 6: Ethereal glow orb (pulsing with waltz rhythm)
+            if (glowOrb != null)
+            {
+                Vector2 orbOrigin = glowOrb.Size() * 0.5f;
+                Color orbColor = isBlackPhase ? new Color(60, 60, 90, 0) : new Color(220, 225, 245, 0);
+
+                if (prismatic > 0.5f)
+                {
+                    float hue = (Main.GameUpdateCount * 0.018f) % 1f;
+                    Color rainbow = Main.hslToRgb(hue, 0.9f, 0.85f);
+                    orbColor = Color.Lerp(orbColor, new Color(rainbow.R, rainbow.G, rainbow.B, 0), prismatic * 0.5f);
+                }
+
+                sb.Draw(glowOrb, tipPos, null, orbColor * 0.25f * waltzPulse * _phaseIntensity,
+                    0f, orbOrigin, 0.55f * Projectile.scale, SpriteEffects.None, 0f);
+            }
+
+            // Empowered prismatic mega-halo on Grand Jeté
             bool isEmpowered = false;
             try { isEmpowered = Owner.GetModPlayer<BlackSwanPlayer>().IsEmpowered; } catch { }
             if (isEmpowered && ComboPhase == 2 && bloom != null)
             {
                 Vector2 origin = bloom.Size() * 0.5f;
-                float hue = (Progression + Main.GameUpdateCount * 0.02f) % 1f;
+                float hue = (Progression + Main.GameUpdateCount * 0.022f) % 1f;
                 Color rainbow = Main.hslToRgb(hue, 0.9f, 0.85f);
-                sb.Draw(bloom, tipPos, null, new Color(rainbow.R, rainbow.G, rainbow.B, 0) * 0.30f, 0f, origin, 0.8f * Projectile.scale, SpriteEffects.None, 0f);
+                sb.Draw(bloom, tipPos, null, new Color(rainbow.R, rainbow.G, rainbow.B, 0) * 0.35f * waltzPulse,
+                    0f, origin, 0.9f * Projectile.scale, SpriteEffects.None, 0f);
+
+                // Second rainbow layer offset for depth
+                float hue2 = (hue + 0.33f) % 1f;
+                Color rainbow2 = Main.hslToRgb(hue2, 0.85f, 0.8f);
+                sb.Draw(bloom, tipPos, null, new Color(rainbow2.R, rainbow2.G, rainbow2.B, 0) * 0.2f,
+                    0f, origin, 1.2f * Projectile.scale, SpriteEffects.None, 0f);
             }
 
-            // Restore
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                DepthStencilState.None, Main.Rasterizer, null,
+                Main.GameViewMatrix.TransformationMatrix);
         }
 
+        /// <summary>
+        /// Layer 3: Blade sprite with energy afterimages.
+        /// Draws multiple trailing afterimages before the main blade for motion depth.
+        /// </summary>
         private void DrawBlade(SpriteBatch sb, Color lightColor)
         {
             Texture2D bladeTex = TextureAssets.Projectile[Type].Value;
@@ -820,12 +1149,43 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
 
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = new Vector2(bladeTex.Width * 0.5f, bladeTex.Height);
-
             float rot = Projectile.rotation + MathHelper.PiOver4;
             SpriteEffects effects = Direction < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 
             float squish = MathHelper.Lerp(_squishFactor, 1f, Progression);
             Vector2 squishScale = new Vector2(1f + (1f - squish) * 0.5f, squish) * Projectile.scale;
+            bool isBlackPhase = ComboPhase % 2 == 0;
+
+            // Energy afterimages (3 trailing copies at previous animation states)
+            if (Progression > 0.20f && Progression < 0.90f)
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+
+                for (int a = 3; a >= 1; a--)
+                {
+                    float pastT = Math.Max(0f, Progression - a * 0.04f);
+                    float pastAnim = BlackSwanUtils.PiecewiseAnimation(pastT, CurrentAnimation);
+                    int flipSign = IsFlipped ? -1 : 1;
+                    float pastAngle = BaseRotation + pastAnim * MaxAngle * Direction * flipSign;
+                    float pastRot = pastAngle + MathHelper.PiOver4;
+
+                    float afterOpacity = (0.25f - a * 0.06f) * _phaseIntensity;
+                    Color afterCol = isBlackPhase
+                        ? new Color(50, 50, 70, 0)
+                        : new Color(210, 215, 235, 0);
+
+                    sb.Draw(bladeTex, drawPos, null, afterCol * afterOpacity,
+                        pastRot, origin, squishScale * (1f + a * 0.02f), effects, 0f);
+                }
+
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+            }
 
             // Shadow
             sb.Draw(bladeTex, drawPos + new Vector2(-1, 1), null,
@@ -834,11 +1194,21 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
             // Main blade
             sb.Draw(bladeTex, drawPos, null, lightColor, rot, origin, squishScale, effects, 0f);
 
-            // Polarity overlay glow
-            bool isBlackPhase = ComboPhase % 2 == 0;
+            // Polarity overlay glow  Epulsing
             Color glowColor = isBlackPhase ? new Color(30, 30, 45, 0) : new Color(240, 240, 255, 0);
-            float glowIntensity = 0.15f + 0.1f * (float)Math.Sin(Main.GameUpdateCount * 0.1f);
+            float glowIntensity = (0.18f + 0.12f * (float)Math.Sin(Main.GameUpdateCount * 0.12f)) * _phaseIntensity;
             sb.Draw(bladeTex, drawPos, null, glowColor * glowIntensity, rot, origin, squishScale * 1.01f, effects, 0f);
+
+            // Prismatic edge glow at higher Grace
+            float prismatic = 0f;
+            try { prismatic = Owner.GetModPlayer<BlackSwanPlayer>().PrismaticIntensity; } catch { }
+            if (prismatic > 0.3f)
+            {
+                float hue = (Main.GameUpdateCount * 0.02f + Progression) % 1f;
+                Color rainbow = Main.hslToRgb(hue, 0.9f, 0.85f);
+                sb.Draw(bladeTex, drawPos, null, new Color(rainbow.R, rainbow.G, rainbow.B, 0) * prismatic * 0.25f,
+                    rot, origin, squishScale * 1.03f, effects, 0f);
+            }
         }
 
         #endregion
@@ -846,6 +1216,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
         public override void OnKill(int timeLeft)
         {
             try { Owner.GetModPlayer<BlackSwanPlayer>().IsSwinging = false; } catch { }
+            _trailRenderer?.Dispose();
+            _trailRenderer = null;
         }
     }
 }

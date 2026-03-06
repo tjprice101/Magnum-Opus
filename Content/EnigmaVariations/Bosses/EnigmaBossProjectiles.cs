@@ -82,7 +82,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             
             var sb = Main.spriteBatch;
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -161,7 +161,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             
             var sb = Main.spriteBatch;
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -381,7 +381,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             
             var sb = Main.spriteBatch;
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -504,6 +504,10 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             float intensity = 1f - fadeProgress;
             
             Vector2 beamDir = BeamAngle.ToRotationVector2();
+
+            // Switch to additive blending for glow VFX (black-background textures)
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Draw beam as series of overlapping glows
             for (float t = 0; t < BeamLength; t += 20f)
@@ -512,7 +516,6 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 
                 float tProgress = t / BeamLength;
                 Color beamColor = Color.Lerp(EnigmaPurple, EnigmaGreen, tProgress);
-                beamColor.A = 0; // Additive blending
                 
                 // Multi-layer bloom
                 spriteBatch.Draw(glow, drawPos, null, beamColor * 0.3f * intensity, BeamAngle, glow.Size() / 2f, 
@@ -527,6 +530,10 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             Vector2 sourcePos = Projectile.Center - Main.screenPosition;
             spriteBatch.Draw(glow, sourcePos, null, EnigmaGreen * intensity, 0f, glow.Size() / 2f, 0.6f, SpriteEffects.None, 0f);
             spriteBatch.Draw(glow, sourcePos, null, EnigmaPurple * 0.5f * intensity, 0f, glow.Size() / 2f, 0.8f, SpriteEffects.None, 0f);
+
+            // Restore default blend state
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }
@@ -635,6 +642,10 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             float intensity = 1f - fadeProgress;
             
             Vector2 wallDir = WallAngle.ToRotationVector2();
+
+            // Switch to additive blending for glow VFX (black-background textures)
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Draw wall as connected glowing segments
             for (float t = 0; t <= WallLength; t += 15f)
@@ -643,7 +654,6 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 
                 float tProgress = t / WallLength;
                 Color wallColor = Color.Lerp(EnigmaPurple, EnigmaGreen, tProgress);
-                wallColor.A = 0;
                 
                 // Multi-layer bloom for wall segment
                 spriteBatch.Draw(glow, drawPos, null, wallColor * 0.4f * intensity, WallAngle + MathHelper.PiOver2, 
@@ -658,6 +668,10 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             
             spriteBatch.Draw(glow, startPos, null, EnigmaPurple * intensity, 0f, glow.Size() / 2f, 0.3f, SpriteEffects.None, 0f);
             spriteBatch.Draw(glow, endPos, null, EnigmaGreen * intensity, 0f, glow.Size() / 2f, 0.3f, SpriteEffects.None, 0f);
+
+            // Restore default blend state
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }

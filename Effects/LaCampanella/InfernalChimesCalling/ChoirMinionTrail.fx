@@ -21,6 +21,30 @@ float uNoiseScale;
 float uHasSecondaryTex;
 float uSecondaryTexScale;
 float uSecondaryTexScroll;
+matrix uWorldViewProjection;
+
+struct VertexShaderInput
+{
+    float4 Position : POSITION0;
+    float4 Color : COLOR0;
+    float3 TextureCoordinates : TEXCOORD0;
+};
+
+struct VertexShaderOutput
+{
+    float4 Position : SV_POSITION;
+    float4 Color : COLOR0;
+    float3 TextureCoordinates : TEXCOORD0;
+};
+
+VertexShaderOutput TrailVS(in VertexShaderInput input)
+{
+    VertexShaderOutput output = (VertexShaderOutput)0;
+    output.Position = mul(input.Position, uWorldViewProjection);
+    output.Color = input.Color;
+    output.TextureCoordinates = input.TextureCoordinates;
+    return output;
+}
 
 float4 ApplyOverbright(float3 c, float a) { return float4(c * uOverbrightMult, a); }
 float HashNoise(float2 p) { return frac(sin(dot(p, float2(12.9898, 78.233))) * 43758.5453); }
@@ -122,6 +146,7 @@ technique TrailPass
 {
     pass P0
     {
+        VertexShader = compile vs_3_0 TrailVS();
         PixelShader = compile ps_3_0 ChoirMinionTrailPS();
     }
 }

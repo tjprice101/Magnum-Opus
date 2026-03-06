@@ -90,7 +90,7 @@ namespace MagnumOpus.Common.Systems.VFX
         /// </summary>
         public static SpriteBatchSnapshot Additive => new SpriteBatchSnapshot(
             SpriteSortMode.Deferred,
-            BlendState.Additive,
+            MagnumBlendStates.TrueAdditive,
             SamplerState.PointClamp,
             DepthStencilState.None,
             RasterizerState.CullNone,

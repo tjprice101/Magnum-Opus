@@ -92,6 +92,10 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = new Vector2(texture.Width / 2, texture.Height / 2);
             
+            // Switch to additive blending for glow VFX (black-background textures)
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
             // Trail
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
@@ -109,6 +113,10 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             Color mainColor = Color.Lerp(ThemedParticles.CampanellaOrange, Color.White, 0.3f);
             Main.EntitySpriteDraw(texture, Projectile.Center - Main.screenPosition, null, mainColor, 
                 Projectile.rotation, origin, Projectile.scale * 1.2f, SpriteEffects.None, 0);
+
+            // Restore default blend state
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }
@@ -215,6 +223,10 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = new Vector2(texture.Width / 2, texture.Height / 2);
             
+            // Switch to additive blending for glow VFX (black-background textures)
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
             // Glow effect
             float pulse = (float)Math.Sin(Projectile.ai[0] * 0.15f) * 0.3f + 0.7f;
             Color glowColor = ThemedParticles.CampanellaOrange * 0.5f * pulse;
@@ -225,6 +237,10 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 Main.EntitySpriteDraw(texture, Projectile.Center + offset - Main.screenPosition, null, glowColor, 
                     Projectile.rotation, origin, Projectile.scale * 1.1f, SpriteEffects.None, 0);
             }
+
+            // Restore default blend state for main sprite draw
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Main bell
             Main.EntitySpriteDraw(texture, Projectile.Center - Main.screenPosition, null, 
@@ -325,6 +341,10 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             Vector2 origin = glowTex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             
+            // Switch to additive blending for glow VFX (black-background textures)
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
             // Draw layered glows for fire effect
             for (int layer = 0; layer < 4; layer++)
             {
@@ -334,6 +354,10 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 
                 Main.spriteBatch.Draw(glowTex, drawPos + new Vector2(0, -layer * 8f), null, color, 0f, origin, scale, SpriteEffects.None, 0f);
             }
+
+            // Restore default blend state
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }
@@ -452,6 +476,10 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare", AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = glowTex.Size() / 2f;
             
+            // Switch to additive blending for glow VFX (black-background textures)
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
             for (int layer = 0; layer < 5; layer++)
             {
                 float layerProgress = layer / 5f;
@@ -473,6 +501,10 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     Main.spriteBatch.Draw(glowTex, drawPos, null, color * (0.5f - layer * 0.06f), 0f, origin, yScale, SpriteEffects.None, 0f);
                 }
             }
+
+            // Restore default blend state
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }
@@ -598,6 +630,10 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             Vector2 direction = Projectile.velocity.SafeNormalize(Vector2.UnitX);
             float rotation = direction.ToRotation();
             
+            // Switch to additive blending for glow VFX (black-background textures)
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
             // Draw beam as chain of glow sprites
             int segments = (int)(currentLength / 30f);
             for (int seg = 0; seg <= segments; seg++)
@@ -630,6 +666,10 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             float endScale = beamWidth / 20f;
             Main.spriteBatch.Draw(glowTex, endPos, null, ThemedParticles.CampanellaYellow * 0.7f, 0f, origin, endScale * 1.5f, SpriteEffects.None, 0f);
             Main.spriteBatch.Draw(glowTex, endPos, null, Color.White * 0.5f, 0f, origin, endScale, SpriteEffects.None, 0f);
+
+            // Restore default blend state
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }

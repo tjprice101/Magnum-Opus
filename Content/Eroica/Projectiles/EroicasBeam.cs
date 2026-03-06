@@ -80,36 +80,172 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            // Draw a custom beam effect using primitives
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = MagnumTextureRegistry.GetSoftGlow();
-            if (texture == null) return false;
-            
-            // Main beam
-            Rectangle beamRect = new Rectangle((int)(Projectile.position.X - Main.screenPosition.X), 
-                                               (int)(Projectile.position.Y - Main.screenPosition.Y), 
-                                               Projectile.width, Projectile.height);
-            
-            // Core (bright pink)
-            Color coreColor = new Color(255, 100, 180, 200);
-            spriteBatch.Draw(texture, beamRect, coreColor);
-            
-            // Inner glow (lighter pink)
-            Rectangle innerRect = new Rectangle(beamRect.X - 5, beamRect.Y, beamRect.Width + 10, beamRect.Height);
-            Color innerColor = new Color(255, 150, 200, 100);
-            spriteBatch.Draw(texture, innerRect, innerColor);
-            
-            // Outer glow (faint pink)
-            Rectangle outerRect = new Rectangle(beamRect.X - 15, beamRect.Y, beamRect.Width + 30, beamRect.Height);
-            Color outerColor = new Color(255, 180, 220, 50);
-            spriteBatch.Draw(texture, outerRect, outerColor);
+            SpriteBatch sb = Main.spriteBatch;
+            float time = (float)Main.timeForVisualEffects * 0.015f;
+
+            // Beam geometry
+            Vector2 beamTop = Projectile.position - Main.screenPosition;
+            float beamHeight = Projectile.height;
+            float beamCenterX = beamTop.X + Projectile.width / 2f;
+            float fadeIn = Math.Min(1f, (60 - Projectile.timeLeft) / 8f);
+            float fadeOut = Math.Min(1f, Projectile.timeLeft / 10f);
+            float lifeAlpha = fadeIn * fadeOut;
+
+            Texture2D beamTex = MagnumTextureRegistry.GetBeamStreak();
+            Texture2D bloomTex = MagnumTextureRegistry.GetSoftGlow();
+            if (beamTex == null) return false;
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // ═══ LAYER 1: Shader RequiemBeam body (if available) ═══
+            DrawShaderBeamBody(sb, time, lifeAlpha, beamCenterX, beamTop.Y, beamHeight, Projectile.width, beamTex);
+
+            // ═══ LAYER 2: Multi-layer stretched beam glow ═══
+            {
+                Vector2 drawPos = new Vector2(beamCenterX, beamTop.Y);
+                Vector2 stretchOrigin = new Vector2(beamTex.Width / 2f, 0);
+                float stretchY = beamHeight / beamTex.Height;
+
+                float outerW = (Projectile.width * 4f) / beamTex.Width;
+                sb.Draw(beamTex, drawPos, null, EroicaPalette.Scarlet with { A = 0 } * (0.12f * lifeAlpha),
+                    0f, stretchOrigin, new Vector2(outerW, stretchY), SpriteEffects.None, 0f);
+
+                float midW = (Projectile.width * 2.5f) / beamTex.Width;
+                sb.Draw(beamTex, drawPos, null, EroicaPalette.Crimson with { A = 0 } * (0.25f * lifeAlpha),
+                    0f, stretchOrigin, new Vector2(midW, stretchY), SpriteEffects.None, 0f);
+
+                float innerW = (Projectile.width * 1.5f) / beamTex.Width;
+                Color innerColor = Color.Lerp(EroicaPalette.Gold, new Color(255, 100, 180), 0.5f) with { A = 0 };
+                sb.Draw(beamTex, drawPos, null, innerColor * (0.4f * lifeAlpha),
+                    0f, stretchOrigin, new Vector2(innerW, stretchY), SpriteEffects.None, 0f);
+
+                float coreW = (Projectile.width * 0.6f) / beamTex.Width;
+                sb.Draw(beamTex, drawPos, null, Color.White with { A = 0 } * (0.5f * lifeAlpha),
+                    0f, stretchOrigin, new Vector2(coreW, stretchY), SpriteEffects.None, 0f);
+
+                float shimmerPulse = 0.6f + 0.4f * (float)Math.Sin(time * 4f);
+                float shimmerW = (Projectile.width * 2f) / beamTex.Width;
+                sb.Draw(beamTex, drawPos, null, EroicaPalette.Gold with { A = 0 } * (0.08f * lifeAlpha * shimmerPulse),
+                    0f, stretchOrigin, new Vector2(shimmerW, stretchY), SpriteEffects.None, 0f);
+            }
+
+            // ═══ LAYER 3: Endpoint bloom flares ═══
+            if (bloomTex != null)
+            {
+                Vector2 bloomOrigin = bloomTex.Size() / 2f;
+
+                Vector2 topPos = new Vector2(beamCenterX, beamTop.Y);
+                sb.Draw(bloomTex, topPos, null, EroicaPalette.Scarlet with { A = 0 } * (0.4f * lifeAlpha),
+                    0f, bloomOrigin, 0.6f, SpriteEffects.None, 0f);
+                sb.Draw(bloomTex, topPos, null, Color.White with { A = 0 } * (0.2f * lifeAlpha),
+                    0f, bloomOrigin, 0.25f, SpriteEffects.None, 0f);
+
+                Vector2 botPos = new Vector2(beamCenterX, beamTop.Y + beamHeight);
+                float endPulse = 0.8f + 0.2f * (float)Math.Sin(time * 6f);
+                sb.Draw(bloomTex, botPos, null, EroicaPalette.Gold with { A = 0 } * (0.5f * lifeAlpha * endPulse),
+                    0f, bloomOrigin, 0.8f, SpriteEffects.None, 0f);
+                sb.Draw(bloomTex, botPos, null, Color.White with { A = 0 } * (0.3f * lifeAlpha),
+                    0f, bloomOrigin, 0.35f, SpriteEffects.None, 0f);
+
+                Texture2D flareTex = MagnumTextureRegistry.GetFlare();
+                if (flareTex != null)
+                {
+                    Vector2 flareOrigin = flareTex.Size() / 2f;
+                    sb.Draw(flareTex, topPos, null, EroicaPalette.Gold with { A = 0 } * (0.35f * lifeAlpha),
+                        time * 0.3f, flareOrigin, 0.4f, SpriteEffects.None, 0f);
+                }
+            }
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Eroica theme accent
-            EroicaVFXLibrary.BeginEroicaAdditive(spriteBatch);
-            EroicaVFXLibrary.DrawThemeSakuraAccent(spriteBatch, Projectile.Center, 1f, 0.5f);
-            EroicaVFXLibrary.EndEroicaAdditive(spriteBatch);
+            EroicaVFXLibrary.BeginEroicaAdditive(sb);
+            EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.5f);
+            EroicaVFXLibrary.EndEroicaAdditive(sb);
 
-            return false; // Don't draw the default sprite
+            return false;
+        }
+
+        /// <summary>
+        /// Draws beam body using RequiemBeam shader if available.
+        /// </summary>
+        private void DrawShaderBeamBody(SpriteBatch sb, float time, float lifeAlpha,
+            float centerX, float topY, float height, float baseWidth, Texture2D beamTex)
+        {
+            if (!EroicaShaderManager.HasRequiemBeam) return;
+
+            Texture2D stripTex = EroicaTextures.EmberScatter?.Value ?? EroicaTextures.EnergyTrailUV?.Value;
+            if (stripTex == null) return;
+
+            int segments = 12;
+            float segHeight = height / segments;
+            int texW = stripTex.Width;
+            int texH = stripTex.Height;
+            float scrollTime = (float)Main.timeForVisualEffects * 0.005f;
+
+            EroicaShaderManager.BeginShaderAdditive(sb);
+            try
+            {
+                EroicaShaderManager.ApplyRequiemBeam(time, EroicaPalette.Scarlet, EroicaPalette.Gold,
+                    glowPass: false, scrollSpeed: 1.0f, overbrightMult: 3f, arcFrequency: 6f, arcAmplitude: 0.05f);
+
+                for (int i = 0; i < segments; i++)
+                {
+                    float segY = topY + i * segHeight;
+                    float uStart = ((float)i / segments + scrollTime * 2f) % 1f;
+                    int srcX = (int)(uStart * texW) % texW;
+                    int srcWidth = Math.Max(1, texW / segments);
+                    Rectangle srcRect = new Rectangle(srcX, 0, srcWidth, texH);
+
+                    float scaleX = (baseWidth * 2f) / srcWidth;
+                    float scaleY = segHeight / texH;
+                    Vector2 pos = new Vector2(centerX, segY);
+                    Vector2 drawOrigin = new Vector2(srcWidth / 2f, 0);
+
+                    sb.Draw(stripTex, pos, srcRect, Color.White * (0.5f * lifeAlpha), 0f, drawOrigin,
+                        new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
+                }
+            }
+            finally
+            {
+                EroicaShaderManager.RestoreSpriteBatch(sb);
+            }
+
+            EroicaShaderManager.BeginShaderAdditive(sb);
+            try
+            {
+                EroicaShaderManager.ApplyRequiemBeam(time, EroicaPalette.Crimson, EroicaPalette.Scarlet,
+                    glowPass: true, scrollSpeed: 0.8f, overbrightMult: 2f, arcFrequency: 4f, arcAmplitude: 0.03f);
+
+                for (int i = 0; i < segments; i++)
+                {
+                    float segY = topY + i * segHeight;
+                    float uStart = ((float)i / segments + scrollTime * 2f) % 1f;
+                    int srcX = (int)(uStart * texW) % texW;
+                    int srcWidth = Math.Max(1, texW / segments);
+                    Rectangle srcRect = new Rectangle(srcX, 0, srcWidth, texH);
+
+                    float scaleX = (baseWidth * 3.5f) / srcWidth;
+                    float scaleY = segHeight / texH;
+                    Vector2 pos = new Vector2(centerX, segY);
+                    Vector2 drawOrigin = new Vector2(srcWidth / 2f, 0);
+
+                    sb.Draw(stripTex, pos, srcRect, Color.White * (0.2f * lifeAlpha), 0f, drawOrigin,
+                        new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
+                }
+            }
+            finally
+            {
+                EroicaShaderManager.RestoreSpriteBatch(sb);
+            }
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)

@@ -316,22 +316,23 @@ namespace MagnumOpus.Content.SwanLake
         /// <summary>
         /// Get a cycling rainbow color for prismatic/iridescent effects.
         /// Swan Lake's signature: light refracting through feathers.
+        /// Desaturated pastel — prismatic shimmer, not vivid neon.
         /// </summary>
         public static Color GetRainbow(float offset = 0f)
         {
             float hue = (Main.GlobalTimeWrappedHourly * 0.3f + offset) % 1f;
-            Color rainbow = Main.hslToRgb(hue, 0.85f, 0.8f);
-            return Color.Lerp(Color.White, rainbow, 0.6f);
+            Color rainbow = Main.hslToRgb(hue, 0.45f, 0.88f);
+            return Color.Lerp(Color.White, rainbow, 0.55f);
         }
 
         /// <summary>
-        /// Get a vivid rainbow color (higher saturation, no white blend).
-        /// For intense prismatic effects like explosions and finishers.
+        /// Get a vivid rainbow color for intense prismatic effects (explosions, finishers).
+        /// Still desaturated vs fully vivid — Swan Lake stays elegant.
         /// </summary>
         public static Color GetVividRainbow(float offset = 0f)
         {
             float hue = (Main.GlobalTimeWrappedHourly * 0.3f + offset) % 1f;
-            return Main.hslToRgb(hue, 1f, 0.75f);
+            return Main.hslToRgb(hue, 0.65f, 0.82f);
         }
 
         /// <summary>

@@ -351,7 +351,7 @@ namespace MagnumOpus.Common.Systems.Metaballs
                 // Without shaders, the render targets contain white circles.
                 // Drawing them with EdgeColor (which is typically dark) makes them invisible.
                 // Instead, draw with a bright version of the EdgeColor for visibility.
-                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
                 begun = true;
 
@@ -394,7 +394,7 @@ namespace MagnumOpus.Common.Systems.Metaballs
             try
             {
                 // Use ADDITIVE blending so overlapping circles merge together and glow
-                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
                 begun = true;
 
@@ -440,7 +440,7 @@ namespace MagnumOpus.Common.Systems.Metaballs
                 try
                 {
                     // Draw with additive blending at low opacity
-                    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearWrap,
+                    spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearWrap,
                         DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
                     begun = true;
 

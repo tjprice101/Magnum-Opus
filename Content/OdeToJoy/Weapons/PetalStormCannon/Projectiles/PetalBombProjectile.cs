@@ -85,7 +85,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
 
             // Theme blossom sparkle accent
             Main.spriteBatch.End();
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState,
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, Main.DefaultSamplerState,
                 DepthStencilState.None, RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
             OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(Main.spriteBatch, Projectile.Center, 1f, 0.5f);

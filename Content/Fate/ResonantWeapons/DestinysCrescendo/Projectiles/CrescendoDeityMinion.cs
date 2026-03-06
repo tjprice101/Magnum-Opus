@@ -34,6 +34,13 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
         private const int BeamCooldownBase = 120;
         private int lastPhase = -1; // Track phase for transition VFX
 
+        // === Foundation Bloom Textures ===
+        private static Asset<Texture2D> _pointBloomTex;
+        private static Asset<Texture2D> _softRadialBloomTex;
+        private static Asset<Texture2D> _starFlareTex;
+
+        private static Color Additive(Color c, float opacity) => c * opacity;
+
         /// <summary>Beam cooldown scales with Escalation Phase: Pianissimo=120, Piano=100, Forte=80, Fortissimo=60.</summary>
         private int BeamCooldownMax
         {
@@ -380,12 +387,116 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
         {
             target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 120);
 
-            // Cosmic impact burst
-            CrescendoParticleHandler.SpawnBurst(target.Center, 8, 5f, 0.18f, CrescendoUtils.CrescendoPink, CrescendoParticleType.DivineSpark, 14);
-            CrescendoParticleFactory.SpawnCosmicNotes(target.Center, 3, 15f);
+            if (Main.dedServ) return;
 
-            // Impact flash
-            CrescendoParticleHandler.Spawn(CrescendoParticleFactory.BeamFlare(target.Center, Vector2.Zero, CrescendoUtils.CelestialWhite * 0.7f, 0.4f, 10));
+            Vector2 hitPos = target.Center;
+            int phase = Main.player[Projectile.owner].Crescendo().EscalationPhase;
+
+            // ═══ MULTI-LAYER SPRITEBATCH BLOOM FLASH ═══
+            try
+            {
+                _pointBloomTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
+                _softRadialBloomTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom");
+                _starFlareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/StarFlare");
+
+                SpriteBatch sb = Main.spriteBatch;
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 screenPos = hitPos - Main.screenPosition;
+                float time = (float)Main.timeForVisualEffects;
+                float phaseGlow = 1f + phase * 0.2f;
+
+                // Layer 1: Deity purple outer haze (scales with phase)
+                if (_softRadialBloomTex?.IsLoaded == true)
+                {
+                    var radTex = _softRadialBloomTex.Value;
+                    sb.Draw(radTex, screenPos, null,
+                        CrescendoUtils.Additive(CrescendoUtils.DeityPurple, 0.35f * phaseGlow),
+                        0f, radTex.Size() * 0.5f, (1.4f + phase * 0.2f), SpriteEffects.None, 0f);
+                }
+
+                // Layer 2: Crescendo pink mid glow
+                if (_softRadialBloomTex?.IsLoaded == true)
+                {
+                    var radTex = _softRadialBloomTex.Value;
+                    sb.Draw(radTex, screenPos, null,
+                        CrescendoUtils.Additive(CrescendoUtils.CrescendoPink, 0.4f * phaseGlow),
+                        0f, radTex.Size() * 0.5f, (1.0f + phase * 0.15f), SpriteEffects.None, 0f);
+                }
+
+                // Layer 3: Divine crimson inner
+                if (_pointBloomTex?.IsLoaded == true)
+                {
+                    var ptTex = _pointBloomTex.Value;
+                    sb.Draw(ptTex, screenPos, null,
+                        CrescendoUtils.Additive(CrescendoUtils.DivineCrimson, 0.5f * phaseGlow),
+                        0f, ptTex.Size() * 0.5f, (0.6f + phase * 0.1f), SpriteEffects.None, 0f);
+                }
+
+                // Layer 4: Star gold hot core
+                if (_pointBloomTex?.IsLoaded == true)
+                {
+                    var ptTex = _pointBloomTex.Value;
+                    sb.Draw(ptTex, screenPos, null,
+                        CrescendoUtils.Additive(CrescendoUtils.StarGold, 0.6f * phaseGlow),
+                        0f, ptTex.Size() * 0.5f, (0.35f + phase * 0.08f), SpriteEffects.None, 0f);
+                }
+
+                // Layer 5: StarFlare divine cross
+                if (_starFlareTex?.IsLoaded == true)
+                {
+                    var starTex = _starFlareTex.Value;
+                    sb.Draw(starTex, screenPos, null,
+                        CrescendoUtils.Additive(CrescendoUtils.DivineCrimson, 0.35f * phaseGlow),
+                        time * 0.1f, starTex.Size() * 0.5f, (0.4f + phase * 0.08f), SpriteEffects.None, 0f);
+                    sb.Draw(starTex, screenPos, null,
+                        CrescendoUtils.Additive(CrescendoUtils.StarGold, 0.25f * phaseGlow),
+                        -time * 0.07f, starTex.Size() * 0.5f, (0.28f + phase * 0.05f), SpriteEffects.None, 0f);
+                }
+
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullNone,
+                    null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch
+            {
+                try
+                {
+                    Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                        Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullNone,
+                        null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
+
+            // ═══ ENHANCED PARTICLE BURST ═══
+            // Cosmic impact burst (original, enhanced count)
+            CrescendoParticleHandler.SpawnBurst(hitPos, 12 + phase * 2, 6f + phase, 0.22f + phase * 0.04f,
+                CrescendoUtils.CrescendoPink, CrescendoParticleType.DivineSpark, 16);
+            CrescendoParticleFactory.SpawnCosmicNotes(hitPos, 4 + phase, 18f);
+
+            // 8 directional slash sparks
+            Vector2 hitDir = (hitPos - Projectile.Center).SafeNormalize(Vector2.UnitX);
+            Vector2 hitPerp = new Vector2(-hitDir.Y, hitDir.X);
+            for (int i = 0; i < 8; i++)
+            {
+                float spread = (i - 3.5f) / 3.5f;
+                Vector2 slashVel = (hitDir * 5f + hitPerp * spread * 6f) * Main.rand.NextFloat(0.8f, 1.2f);
+                Color slashCol = CrescendoUtils.GetCrescendoGradient(MathF.Abs(spread));
+                CrescendoParticleHandler.Spawn(CrescendoParticleFactory.DivineSpark(
+                    hitPos, slashVel, slashCol * 0.7f, 0.12f, 14));
+            }
+
+            // Impact flash (original enhanced)
+            CrescendoParticleHandler.Spawn(CrescendoParticleFactory.BeamFlare(
+                hitPos, Vector2.Zero, CrescendoUtils.CelestialWhite * 0.8f, 0.5f + phase * 0.1f, 12));
+
+            // Dual lighting
+            Lighting.AddLight(hitPos, CrescendoUtils.DivineCrimson.ToVector3() * (0.8f + phase * 0.2f));
+            Lighting.AddLight(hitPos + hitDir * 16f, CrescendoUtils.StarGold.ToVector3() * 0.5f);
         }
 
         // 隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨翫・PREDRAW 遯ｶ繝ｻMULTI-LAYER BLOOM 隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨顔ｵｶ豁ｦ隨翫・
@@ -398,10 +509,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
             {
                 // Load textures
                 Texture2D deityTex = ModContent.Request<Texture2D>("MagnumOpus/Content/Fate/Projectiles/CosmicDeityMinion", AssetRequestMode.ImmediateLoad).Value;
-                Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/QuarterNote", AssetRequestMode.ImmediateLoad).Value;
+                _pointBloomTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
+                _softRadialBloomTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom");
+                _starFlareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/StarFlare");
 
                 Vector2 deityOrigin = deityTex.Size() / 2f;
-                Vector2 glowOrigin = glowTex.Size() / 2f;
                 Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
                 float time = (float)Main.timeForVisualEffects;
@@ -416,17 +528,45 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
                 // === PASS 1: Outer cosmic aura glow (additive, behind sprite) ===
                 CrescendoUtils.BeginAdditive(spriteBatch);
 
-                // Layer 1: Vast void purple — the cosmic shadow
-                spriteBatch.Draw(glowTex, drawPos, null, CrescendoUtils.VoidBlack * (0.35f * phaseGlow), 0f, glowOrigin, 2.8f * breathe * pScale, SpriteEffects.None, 0f);
+                // Layer 1: Vast void nebula haze (SoftRadialBloom)
+                if (_softRadialBloomTex?.IsLoaded == true)
+                {
+                    var radTex = _softRadialBloomTex.Value;
+                    var radOrigin = radTex.Size() * 0.5f;
+                    spriteBatch.Draw(radTex, drawPos, null,
+                        CrescendoUtils.Additive(CrescendoUtils.VoidBlack, 0.25f * phaseGlow),
+                        0f, radOrigin, 3.5f * breathe * pScale, SpriteEffects.None, 0f);
+                }
 
-                // Layer 2: Deep deity purple — the entity's resonance field
-                spriteBatch.Draw(glowTex, drawPos, null, CrescendoUtils.DeityPurple * (0.45f * phaseGlow), 0f, glowOrigin, 2.0f * pulse * pScale, SpriteEffects.None, 0f);
+                // Layer 2: Deep deity purple resonance field (SoftRadialBloom)
+                if (_softRadialBloomTex?.IsLoaded == true)
+                {
+                    var radTex = _softRadialBloomTex.Value;
+                    var radOrigin = radTex.Size() * 0.5f;
+                    spriteBatch.Draw(radTex, drawPos, null,
+                        CrescendoUtils.Additive(CrescendoUtils.DeityPurple, 0.4f * phaseGlow),
+                        0f, radOrigin, 2.4f * pulse * pScale, SpriteEffects.None, 0f);
+                }
 
-                // Layer 3: Crescendo pink — fate's heartbeat
-                spriteBatch.Draw(glowTex, drawPos, null, CrescendoUtils.CrescendoPink * (0.55f * phaseGlow), 0f, glowOrigin, 1.4f * pulse * pScale, SpriteEffects.None, 0f);
+                // Layer 3: Crescendo pink heartbeat (SoftRadialBloom)
+                if (_softRadialBloomTex?.IsLoaded == true)
+                {
+                    var radTex = _softRadialBloomTex.Value;
+                    var radOrigin = radTex.Size() * 0.5f;
+                    spriteBatch.Draw(radTex, drawPos, null,
+                        CrescendoUtils.Additive(CrescendoUtils.CrescendoPink, 0.45f * phaseGlow),
+                        0f, radOrigin, 1.6f * pulse * pScale, SpriteEffects.None, 0f);
+                }
 
-                // Layer 4: Divine crimson — the deity's inner fire
-                spriteBatch.Draw(glowTex, drawPos, null, CrescendoUtils.DivineCrimson * (0.4f * phaseGlow), 0f, glowOrigin, 0.9f * pulse * pScale, SpriteEffects.None, 0f);
+                // Layer 4: Divine crimson inner fire (PointBloom)
+                if (_pointBloomTex?.IsLoaded == true)
+                {
+                    var ptTex = _pointBloomTex.Value;
+                    var ptOrigin = ptTex.Size() * 0.5f;
+                    spriteBatch.Draw(ptTex, drawPos, null,
+                        CrescendoUtils.Additive(CrescendoUtils.DivineCrimson, 0.4f * phaseGlow),
+                        0f, ptOrigin, 1.0f * pulse * pScale, SpriteEffects.None, 0f);
+                }
 
                 CrescendoUtils.BeginAlpha(spriteBatch);
 
@@ -436,11 +576,38 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
                 // === PASS 3: Inner bright glow on top (additive) ===
                 CrescendoUtils.BeginAdditive(spriteBatch);
 
-                // Star gold divine radiance
-                spriteBatch.Draw(glowTex, drawPos, null, CrescendoUtils.StarGold * (0.25f * phaseGlow), 0f, glowOrigin, 0.7f * pulse * pScale, SpriteEffects.None, 0f);
+                // Layer 5: Star gold divine radiance (PointBloom)
+                if (_pointBloomTex?.IsLoaded == true)
+                {
+                    var ptTex = _pointBloomTex.Value;
+                    var ptOrigin = ptTex.Size() * 0.5f;
+                    spriteBatch.Draw(ptTex, drawPos, null,
+                        CrescendoUtils.Additive(CrescendoUtils.StarGold, 0.3f * phaseGlow),
+                        0f, ptOrigin, 0.7f * pulse * pScale, SpriteEffects.None, 0f);
+                }
 
-                // Celestial white core
-                spriteBatch.Draw(glowTex, drawPos, null, CrescendoUtils.CelestialWhite * (0.3f * phaseGlow), 0f, glowOrigin, 0.4f * pulse * pScale, SpriteEffects.None, 0f);
+                // Layer 6: Celestial white core (PointBloom)
+                if (_pointBloomTex?.IsLoaded == true)
+                {
+                    var ptTex = _pointBloomTex.Value;
+                    var ptOrigin = ptTex.Size() * 0.5f;
+                    spriteBatch.Draw(ptTex, drawPos, null,
+                        CrescendoUtils.Additive(CrescendoUtils.CelestialWhite, 0.35f * phaseGlow),
+                        0f, ptOrigin, 0.4f * pulse * pScale, SpriteEffects.None, 0f);
+                }
+
+                // Layer 7: StarFlare rotating divine cross — the deity's signature radiance
+                if (_starFlareTex?.IsLoaded == true)
+                {
+                    var starTex = _starFlareTex.Value;
+                    var starOrigin = starTex.Size() * 0.5f;
+                    spriteBatch.Draw(starTex, drawPos, null,
+                        CrescendoUtils.Additive(CrescendoUtils.DivineCrimson, 0.2f * phaseGlow),
+                        time * 0.025f, starOrigin, 0.55f * pulse * pScale, SpriteEffects.None, 0f);
+                    spriteBatch.Draw(starTex, drawPos, null,
+                        CrescendoUtils.Additive(CrescendoUtils.StarGold, 0.15f * phaseGlow),
+                        -time * 0.018f, starOrigin, 0.38f * pulse * pScale, SpriteEffects.None, 0f);
+                }
 
                 CrescendoUtils.BeginAlpha(spriteBatch);
             }
@@ -458,7 +625,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
             try
             {
                 spriteBatch.End();
-                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
                 CrescendoUtils.DrawThemeAccents(spriteBatch, Projectile.Center, 1f, 0.6f);
                 spriteBatch.End();

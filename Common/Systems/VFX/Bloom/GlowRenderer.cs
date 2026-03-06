@@ -44,7 +44,7 @@ namespace MagnumOpus.Common.Systems.VFX.Bloom
                 Alpha = alpha;
                 Tint = tint;
                 RotationSpeed = rotationSpeed;
-                BlendMode = blendMode ?? BlendState.Additive;
+                BlendMode = blendMode ?? MagnumBlendStates.TrueAdditive;
             }
         }
 
@@ -199,7 +199,7 @@ namespace MagnumOpus.Common.Systems.VFX.Bloom
             GlowLayer[] layers, Color baseColor, float intensity = 1f, string id = null)
         {
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
 

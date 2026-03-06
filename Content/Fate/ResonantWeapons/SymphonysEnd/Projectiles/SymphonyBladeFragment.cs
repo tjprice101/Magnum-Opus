@@ -99,6 +99,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
 
             // End default batch
             sb.End();
@@ -118,7 +120,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
                 shader);
 
             // Additive blade sprite
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
 
@@ -137,11 +139,14 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
 
             sb.End();
 
-            // Restart normal batch
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullNone,
-                null, Main.GameViewMatrix.TransformationMatrix);
-
+            }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+            }
             return false;
         }
     }

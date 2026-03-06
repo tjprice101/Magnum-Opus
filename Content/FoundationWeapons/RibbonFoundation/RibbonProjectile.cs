@@ -141,7 +141,7 @@ namespace MagnumOpus.Content.FoundationWeapons.RibbonFoundation
 
             // ---- DRAW RIBBON (switch into additive) ----
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);

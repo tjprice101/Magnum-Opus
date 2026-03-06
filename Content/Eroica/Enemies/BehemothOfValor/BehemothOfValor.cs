@@ -576,7 +576,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.BehemothOfValor
             {
                 EnemyShaderManager.ApplyAuraParams(auraShader, NPC, new Color(180, 30, 30), new Color(255, 160, 50), pulse);
                 spriteBatch.End();
-                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, auraShader, Main.GameViewMatrix.TransformationMatrix);
+                spriteBatch.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp, default, default, auraShader, Main.GameViewMatrix.TransformationMatrix);
                 try
                 {
                     spriteBatch.Draw(texture, drawPos, sourceRect, Color.White, NPC.rotation, origin, drawScale * 1.15f, effects, 0f);
@@ -596,7 +596,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.BehemothOfValor
                 {
                     EnemyShaderManager.ApplyTrailParams(trailShader, NPC, new Color(180, 30, 30), new Color(255, 160, 50), NPC.velocity.Length() / 12f);
                     spriteBatch.End();
-                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, trailShader, Main.GameViewMatrix.TransformationMatrix);
+                    spriteBatch.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp, default, default, trailShader, Main.GameViewMatrix.TransformationMatrix);
                     try
                     {
                         for (int t = 1; t <= 3; t++)

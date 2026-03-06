@@ -200,7 +200,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.MidnightMechanism.Projectiles
                 Main.pixelShader.CurrentTechnique.Passes[0].Apply();
             }
 
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }
@@ -225,7 +225,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.MidnightMechanism.Projectiles
 
             _gatlingBlurShader.CurrentTechnique = _gatlingBlurShader.Techniques["GatlingMuzzle"];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _gatlingBlurShader, matrix);
 
@@ -236,7 +236,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.MidnightMechanism.Projectiles
                 new Vector2(bodyScale * 2.5f, bodyScale), SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }
@@ -261,7 +261,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.MidnightMechanism.Projectiles
 
             _pearlGlowShader.CurrentTechnique = _pearlGlowShader.Techniques["PearlBloom"];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _pearlGlowShader, matrix);
 
@@ -271,7 +271,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.MidnightMechanism.Projectiles
             sb.Draw(sc, drawPos, null, Color.White, 0f, sc.Size() * 0.5f, haloScale, SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }

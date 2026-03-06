@@ -11,26 +11,28 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.U
     /// </summary>
     public static class PearlescentUtils
     {
-        public static readonly Color PearlWhite = new Color(245, 240, 250);
-        public static readonly Color LakeSilver = new Color(180, 195, 220);
-        public static readonly Color DeepLake = new Color(40, 50, 80);
-        public static readonly Color MistBlue = new Color(160, 180, 210);
+        public static readonly Color PearlWhite = new Color(245, 245, 252);
+        public static readonly Color LakeSilver = new Color(190, 192, 205);
+        public static readonly Color DeepLake = new Color(25, 25, 35);
+        public static readonly Color MistBlue = new Color(180, 185, 200);
         public static readonly Color LoreColor = new Color(240, 240, 255);
 
+        /// <summary>Ripple palette — neutral monochrome ramp with very subtle cool tint. No blue dominance.</summary>
         public static readonly Color[] RipplePalette = new Color[]
         {
-            new Color(20, 25, 45),
-            new Color(80, 100, 150),
-            new Color(160, 180, 220),
-            new Color(220, 230, 250),
-            new Color(245, 240, 255),
+            new Color(20, 20, 28),
+            new Color(75, 78, 92),
+            new Color(155, 160, 178),
+            new Color(215, 220, 235),
+            new Color(242, 242, 252),
             new Color(255, 255, 255),
         };
 
         public static Color GetRainbow(float offset = 0f)
         {
             float hue = (Main.GameUpdateCount * 0.012f + offset) % 1f;
-            return Main.hslToRgb(hue, 0.85f, 0.8f);
+            // Desaturated pastel rainbow — Swan Lake prismatic shimmer
+            return Main.hslToRgb(hue, 0.4f, 0.88f);
         }
 
         public static Color MulticolorLerp(float t, params Color[] colors)

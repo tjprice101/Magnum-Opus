@@ -38,7 +38,7 @@ namespace MagnumOpus.Common.Systems.Bosses
 
             // Save blend state, apply additive
             sb.End();
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             BossShaderManager.ApplyAuraParams(shader, npc.Center - screenPos, baseRadius, intensity,
@@ -95,7 +95,7 @@ namespace MagnumOpus.Common.Systems.Bosses
             if (shader != null)
             {
                 sb.End();
-                sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+                sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
                 BossShaderManager.ApplyTrailParams(shader, trailColor, width, 0.85f, time);
@@ -178,7 +178,7 @@ namespace MagnumOpus.Common.Systems.Bosses
             Effect shader = BossShaderManager.GetShader(shaderKey);
             
             sb.End();
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             if (shader != null)
@@ -253,7 +253,7 @@ namespace MagnumOpus.Common.Systems.Bosses
             Vector2 drawPos = position - screenPos;
             
             sb.End();
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             if (shader != null)

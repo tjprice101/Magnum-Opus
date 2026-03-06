@@ -220,6 +220,10 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             
             float pulse = 1f + (float)Math.Sin(Projectile.ai[1] * 0.1f) * 0.15f;
             float progress = Math.Min(Projectile.ai[1] / SplitDelay, 1f);
+
+            // Switch to additive blending for glow VFX (black-background textures)
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Outer crimson glow
             Color outerColor = EroicaPalette.Scarlet * 0.4f;
@@ -235,6 +239,10 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             
             // Central white hot core
             spriteBatch.Draw(glowTex, drawPos, null, Color.White * 0.8f, 0f, origin, 0.35f * pulse, SpriteEffects.None, 0f);
+
+            // Restore default blend state
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Eroica theme accent
             EroicaVFXLibrary.BeginEroicaAdditive(spriteBatch);

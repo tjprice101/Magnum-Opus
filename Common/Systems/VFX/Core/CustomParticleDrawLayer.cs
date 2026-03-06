@@ -89,7 +89,7 @@ namespace MagnumOpus.Common.Systems
             
             // End the current UI spritebatch before starting our own
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
             
             // Red channel offset left
             spriteBatch.Draw(pixel, new Rectangle((int)-offset.X, 0, Main.screenWidth, Main.screenHeight), 
@@ -111,7 +111,7 @@ namespace MagnumOpus.Common.Systems
             
             // End the current UI spritebatch before starting our own
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
             
             spriteBatch.Draw(pixel, new Rectangle(0, 0, Main.screenWidth, Main.screenHeight), 
                 Color.White * intensity);

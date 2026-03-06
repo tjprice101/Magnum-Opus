@@ -274,7 +274,7 @@ namespace MagnumOpus.Common.Systems.VFX.Trails
             try
             {
                 // Set render states
-                device.BlendState = BlendState.Additive;
+                device.BlendState = MagnumBlendStates.TrueAdditive;
                 device.DepthStencilState = DepthStencilState.None;
                 device.RasterizerState = RasterizerState.CullNone;
                 device.SamplerStates[0] = SamplerState.LinearWrap;
@@ -1061,7 +1061,7 @@ namespace MagnumOpus.Common.Systems.VFX.Trails
             try
             {
                 // Set render states
-                device.BlendState = BlendState.Additive;
+                device.BlendState = MagnumBlendStates.TrueAdditive;
                 device.DepthStencilState = DepthStencilState.None;
                 device.RasterizerState = RasterizerState.CullNone;
                 device.SamplerStates[0] = SamplerState.LinearWrap;

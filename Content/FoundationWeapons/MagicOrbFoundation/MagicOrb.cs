@@ -252,7 +252,7 @@ namespace MagnumOpus.Content.FoundationWeapons.MagicOrbFoundation
 
             // ---- LAYER 1: BLOOM HALO ----
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -264,7 +264,7 @@ namespace MagnumOpus.Content.FoundationWeapons.MagicOrbFoundation
 
             // ---- LAYER 3: CORE BLOOM ----
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -329,7 +329,7 @@ namespace MagnumOpus.Content.FoundationWeapons.MagicOrbFoundation
             orbShader.Parameters["gradientTex"]?.SetValue(MOFTextures.GetGradientForStyle(CurrentStyle));
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, orbShader,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -341,7 +341,7 @@ namespace MagnumOpus.Content.FoundationWeapons.MagicOrbFoundation
                 orbOrigin, OrbDrawScale, SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);

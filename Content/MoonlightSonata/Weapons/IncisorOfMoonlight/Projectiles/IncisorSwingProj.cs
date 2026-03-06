@@ -525,7 +525,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
 
             // Additive bloom glow pass behind the slash arc
             Main.spriteBatch.End();
-            Main.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            Main.spriteBatch.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer,
                 null, Main.GameViewMatrix.TransformationMatrix);
 
@@ -623,7 +623,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
 
                 Main.EntitySpriteDraw(texture, Owner.MountedCenter - Main.screenPosition, null,
                     Color.White, BaseRotation, texture.Size() / 2f,
-                    SquishVector * 2.2f * Projectile.scale, dir, 0);
+                    SquishVector * 3.5f * Projectile.scale, dir, 0);
 
                 Main.spriteBatch.End();
                 Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,

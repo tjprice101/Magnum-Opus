@@ -50,7 +50,7 @@ namespace MagnumOpus.Common.Systems.Shaders
                         shader.CurrentTechnique = technique;
                 }
 
-                sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
+                sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearWrap,
                     DepthStencilState.None, Main.Rasterizer, shader,
                     Main.GameViewMatrix.TransformationMatrix);
 

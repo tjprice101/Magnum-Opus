@@ -225,7 +225,7 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
             float pulse = 1f + (float)Math.Sin(time * 2f) * 0.08f;
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             spriteBatch.Draw(texture, position, null, OdeToJoyPalette.VerdantGreen * 0.3f, rotation, origin, scale * pulse * 1.25f, SpriteEffects.None, 0f);
@@ -352,7 +352,7 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
             float pulse = 1f + (float)Math.Sin(time * 2f) * 0.1f;
             
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, 
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             spriteBatch.Draw(texture, position, null, OdeToJoyPalette.RosePink * 0.35f, rotation, origin, scale * pulse * 1.3f, SpriteEffects.None, 0f);

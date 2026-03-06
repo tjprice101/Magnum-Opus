@@ -91,7 +91,7 @@ namespace MagnumOpus.Content.Fate
         public static void BeginFateAdditive(SpriteBatch sb)
         {
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
         }
@@ -113,7 +113,7 @@ namespace MagnumOpus.Content.Fate
         public static void BeginShaderAdditive(SpriteBatch sb)
         {
             sb.End();
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 Main.Rasterizer, null,
                 Main.GameViewMatrix.TransformationMatrix);

@@ -12,7 +12,9 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
+using MagnumOpus.Content.FoundationWeapons.LaserFoundation;
 using Terraria.GameContent;
+using Terraria.Graphics;
 using ReLogic.Content;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoid.Particles;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoid.Dusts;
@@ -35,42 +37,64 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
         private float[] beamLengths = new float[BeamCount];
         private int channelTime = 0;
         private Dictionary<int, int> targetHitTimes = new Dictionary<int, int>();
+
+        // ConvergenceBeamShader pipeline (LaserFoundation pattern)
+        private Effect beamShader;
+        private Effect flareShader;
+        private float flareRotation;
         
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MusicNote";
         
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Player owner = Main.player[Projectile.owner];
             Vector2 toCursorDraw = Projectile.velocity.SafeNormalize(Vector2.UnitX);
             float baseAngle = toCursorDraw.ToRotation();
             float convergenceProgress = Math.Min(channelTime / 120f, 1f);
             float startConeAngle = MathHelper.ToRadians(30f);
             float currentConeAngle = startConeAngle * (1f - convergenceProgress);
-
-            Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
-            Texture2D bloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
-
-            // === Shader overlay: Tri-stream chromatic convergence beam ===
-            {
-                Vector2 beamCenter = owner.Center + toCursorDraw * Math.Min(beamLengths[0], MaxBeamLength) * 0.5f - Main.screenPosition;
-                EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.VoidBeam,
-                    bloom, beamCenter, bloom.Size() / 2f,
-                    MathHelper.Clamp(beamLengths[0] / 80f, 1f, 8f),
-                    VoidVariationUtils.VariationViolet.ToVector3(), VoidVariationUtils.RiftTeal.ToVector3(),
-                    opacity: 0.5f * MathHelper.Clamp(channelTime / 20f, 0f, 1f), intensity: 1.0f + convergenceProgress * 0.5f,
-                    rotation: baseAngle,
-                    noiseTexture: ShaderLoader.GetNoiseTexture("CosmicEnergyVortex"),
-                    techniqueName: "VoidVariationBeamFlow");
-            }
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-
-            float pulse = 1f + 0.1f * MathF.Sin(Main.GameUpdateCount * 0.15f);
             float intensityRamp = MathHelper.Clamp(channelTime / 20f, 0f, 1f);
 
+            // ── LOAD & CONFIGURE CONVERGENCE BEAM SHADER ──
+            if (beamShader == null)
+            {
+                beamShader = ModContent.Request<Effect>(
+                    "MagnumOpus/Content/FoundationWeapons/LaserFoundation/Shaders/ConvergenceBeamShader",
+                    AssetRequestMode.ImmediateLoad).Value;
+            }
+
+            beamShader.Parameters["WorldViewProjection"].SetValue(
+                Main.GameViewMatrix.NormalizedTransformationmatrix);
+            beamShader.Parameters["onTex"].SetValue(LFTextures.BeamAlphaMask.Value);
+            beamShader.Parameters["gradientTex"].SetValue(LFTextures.GradEnigma.Value);
+            beamShader.Parameters["baseColor"].SetValue(Color.White.ToVector3());
+            beamShader.Parameters["satPower"].SetValue(0.8f);
+
+            beamShader.Parameters["sampleTexture1"].SetValue(LFTextures.DetailThinGlowLine.Value);
+            beamShader.Parameters["sampleTexture2"].SetValue(LFTextures.DetailSpark.Value);
+            beamShader.Parameters["sampleTexture3"].SetValue(LFTextures.DetailExtra.Value);
+            beamShader.Parameters["sampleTexture4"].SetValue(LFTextures.DetailTrailLoop.Value);
+
+            beamShader.Parameters["grad1Speed"].SetValue(0.66f);
+            beamShader.Parameters["grad2Speed"].SetValue(0.66f);
+            beamShader.Parameters["grad3Speed"].SetValue(1.03f);
+            beamShader.Parameters["grad4Speed"].SetValue(0.77f);
+
+            beamShader.Parameters["tex1Mult"].SetValue(1.25f);
+            beamShader.Parameters["tex2Mult"].SetValue(1.5f);
+            beamShader.Parameters["tex3Mult"].SetValue(1.15f);
+            beamShader.Parameters["tex4Mult"].SetValue(2.5f);
+            beamShader.Parameters["totalMult"].SetValue(intensityRamp);
+
+            beamShader.Parameters["uTime"].SetValue((float)Main.timeForVisualEffects * -0.024f);
+
+            // ── END SPRITEBATCH FOR RAW GPU DRAWS ──
+            sb.End();
+
+            // ── DRAW EACH BEAM BODY WITH VERTEXSTRIP ──
             for (int b = 0; b < BeamCount; b++)
             {
                 float offset = (b - (BeamCount - 1) / 2f) * currentConeAngle / Math.Max(BeamCount - 1, 1);
@@ -79,60 +103,104 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
                 Vector2 beamDir = new Vector2((float)Math.Cos(beamAngle), (float)Math.Sin(beamAngle));
                 Vector2 beamStart = owner.Center;
                 Vector2 beamEnd = beamStart + beamDir * beamLen;
-                Vector2 beamMid = (beamStart + beamEnd) * 0.5f - Main.screenPosition;
 
-                // Outer beam body — AbyssPurple/VariationViolet, ~8px wide
-                Color bodyColor = Color.Lerp(VoidVariationUtils.AbyssPurple, VoidVariationUtils.VariationViolet,
-                    MathF.Sin(Main.GameUpdateCount * 0.1f + b) * 0.5f + 0.5f);
-                sb.Draw(pixel, beamMid, new Rectangle(0, 0, 1, 1), bodyColor * 0.7f * intensityRamp,
-                    beamAngle, new Vector2(0.5f, 0.5f), new Vector2(beamLen, 8f), SpriteEffects.None, 0f);
+                float dist = beamLen;
+                float repVal = dist / 2000f;
+                beamShader.Parameters["gradientReps"].SetValue(0.75f * repVal);
+                beamShader.Parameters["tex1reps"].SetValue(1.15f * repVal);
+                beamShader.Parameters["tex2reps"].SetValue(1.15f * repVal);
+                beamShader.Parameters["tex3reps"].SetValue(1.15f * repVal);
+                beamShader.Parameters["tex4reps"].SetValue(1.15f * repVal);
 
-                // Inner beam — narrower, RiftTeal, ~4px
-                sb.Draw(pixel, beamMid, new Rectangle(0, 0, 1, 1), VoidVariationUtils.RiftTeal * 0.5f * intensityRamp,
-                    beamAngle, new Vector2(0.5f, 0.5f), new Vector2(beamLen * 0.95f, 4f), SpriteEffects.None, 0f);
+                Vector2[] positions = { beamStart, beamEnd };
+                float[] rotations = { beamAngle, beamAngle };
+                float stripWidth = 80f * intensityRamp;
 
-                // Bloom at beam tip — VoidSurge
-                Vector2 tipDraw = beamEnd - Main.screenPosition;
-                sb.Draw(bloom, tipDraw, null, VoidVariationUtils.VoidSurge * 0.5f * intensityRamp, 0f,
-                    bloom.Size() / 2f, 0.3f * pulse, SpriteEffects.None, 0f);
+                VertexStrip strip = new VertexStrip();
+                strip.PrepareStrip(positions, rotations,
+                    (float p) => Color.White,
+                    (float p) => stripWidth,
+                    -Main.screenPosition, includeBacksides: true);
 
-                // Bloom at beam base — VariationViolet
-                Vector2 baseDraw = beamStart - Main.screenPosition;
-                sb.Draw(bloom, baseDraw, null, VoidVariationUtils.VariationViolet * 0.3f * intensityRamp, 0f,
-                    bloom.Size() / 2f, 0.2f * pulse, SpriteEffects.None, 0f);
+                beamShader.CurrentTechnique.Passes["MainPS"].Apply();
+                strip.DrawTrail();
             }
 
-            // Convergence point glow when nearly aligned — EN Star Flare + EN Power Effect Ring
+            Main.pixelShader.CurrentTechnique.Passes[0].Apply();
+
+            // ── ENDPOINT FLARES (FlareRainbowShader) ──
+            if (flareShader == null)
+            {
+                flareShader = ModContent.Request<Effect>(
+                    "MagnumOpus/Content/FoundationWeapons/LaserFoundation/Shaders/FlareRainbowShader",
+                    AssetRequestMode.ImmediateLoad).Value;
+            }
+
+            flareRotation += 1.15f;
+            flareShader.Parameters["rotation"].SetValue(flareRotation * 0.075f);
+            flareShader.Parameters["rainbowRotation"].SetValue(flareRotation * 0.025f);
+            flareShader.Parameters["intensity"].SetValue(intensityRamp);
+            flareShader.Parameters["fadeStrength"].SetValue(1f);
+
+            Texture2D lensFlare = LFTextures.LensFlare.Value;
+            Texture2D starFlare = LFTextures.StarFlare.Value;
+            Texture2D glowOrb = LFTextures.GlowOrb.Value;
+            Texture2D softGlow = LFTextures.SoftGlow.Value;
+
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, flareShader,
+                Main.GameViewMatrix.EffectMatrix);
+
+            float pulse = 1f + 0.1f * MathF.Sin(Main.GameUpdateCount * 0.15f);
+
+            // Per-beam tip flares
+            for (int b = 0; b < BeamCount; b++)
+            {
+                float bOffset = (b - (BeamCount - 1) / 2f) * currentConeAngle / Math.Max(BeamCount - 1, 1);
+                float bAngle = baseAngle + bOffset;
+                Vector2 bDir = new Vector2((float)Math.Cos(bAngle), (float)Math.Sin(bAngle));
+                Vector2 tipDraw = owner.Center + bDir * beamLengths[b] - Main.screenPosition;
+
+                sb.Draw(glowOrb, tipDraw, null, Color.White, flareRotation * 0.1f,
+                    glowOrb.Size() / 2f, 0.4f * intensityRamp * pulse, SpriteEffects.None, 0f);
+                sb.Draw(starFlare, tipDraw, null, Color.White, flareRotation * 0.05f,
+                    starFlare.Size() / 2f, 0.35f * intensityRamp, SpriteEffects.None, 0f);
+            }
+
+            // Base flare at player origin
+            Vector2 baseDraw = owner.Center - Main.screenPosition;
+            Vector2 sigilScale = new Vector2(0.2f, 1f) * 0.5f * intensityRamp;
+            sb.Draw(softGlow, baseDraw, null, Color.White, baseAngle,
+                softGlow.Size() / 2f, sigilScale, SpriteEffects.None, 0f);
+            sb.Draw(starFlare, baseDraw, null, Color.White, baseAngle,
+                starFlare.Size() / 2f, sigilScale, SpriteEffects.None, 0f);
+
+            // Convergence point glow when nearly aligned (>70%)
             if (convergenceProgress > 0.7f)
             {
-                Texture2D starFlare = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
-                Texture2D powerRing = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Power Effect Ring", AssetRequestMode.ImmediateLoad).Value;
                 Vector2 convergePt = owner.Center + toCursorDraw * Math.Min(beamLengths[0], MaxBeamLength) - Main.screenPosition;
                 float convergeIntensity = (convergenceProgress - 0.7f) / 0.3f;
 
-                // EN Power Effect Ring — rotating convergence boundary
-                float ringRot = Main.GameUpdateCount * 0.02f;
-                sb.Draw(powerRing, convergePt, null, VoidVariationUtils.RiftTeal * 0.4f * convergeIntensity, ringRot,
-                    powerRing.Size() / 2f, 0.35f * pulse, SpriteEffects.None, 0f);
-                sb.Draw(powerRing, convergePt, null, VoidVariationUtils.VariationViolet * 0.25f * convergeIntensity, -ringRot * 0.7f,
-                    powerRing.Size() / 2f, 0.25f * pulse, SpriteEffects.None, 0f);
-
-                // EN Star Flare — spinning convergence starburst
-                float starRot = Main.GameUpdateCount * 0.03f;
-                sb.Draw(starFlare, convergePt, null, VoidVariationUtils.VoidSurge * 0.5f * convergeIntensity, starRot,
-                    starFlare.Size() / 2f, 0.3f * pulse, SpriteEffects.None, 0f);
-
-                // Soft radial bloom behind everything
-                sb.Draw(bloom, convergePt, null, VoidVariationUtils.SunderingWhite * 0.4f * convergeIntensity, 0f,
-                    bloom.Size() / 2f, 0.5f * pulse, SpriteEffects.None, 0f);
+                sb.Draw(glowOrb, convergePt, null, Color.White, flareRotation * 0.1f,
+                    glowOrb.Size() / 2f, 0.6f * convergeIntensity * pulse, SpriteEffects.None, 0f);
+                sb.Draw(lensFlare, convergePt, null, Color.White, flareRotation * 0.02f,
+                    lensFlare.Size() / 2f, 0.5f * convergeIntensity, SpriteEffects.None, 0f);
+                sb.Draw(starFlare, convergePt, null, Color.White, flareRotation * 0.05f,
+                    starFlare.Size() / 2f, 0.5f * convergeIntensity * pulse, SpriteEffects.None, 0f);
+                sb.Draw(softGlow, convergePt, null, Color.White, 0f,
+                    softGlow.Size() / 2f, 0.7f * convergeIntensity, SpriteEffects.None, 0f);
             }
 
             // Theme texture accents
             VoidVariationUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -372,6 +440,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float lifeProgress = 1f - (Projectile.timeLeft / 30f);
             float intensity = (float)Math.Sin(lifeProgress * MathHelper.Pi);
@@ -389,7 +459,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
                 techniqueName: "VoidVariationSwingGlow");
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Layer 1: Large outer blast glow — VariationViolet, fading
@@ -438,10 +508,13 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
                 sb.Draw(pixel, drawPos, new Rectangle(0, 0, 1, 1), VoidVariationUtils.SunderingWhite * 0.25f * intensity,
                     armAngle, new Vector2(0.5f, 0.5f), new Vector2(beamLength * 0.8f, beamWidth * 0.4f), SpriteEffects.None, 0f);
             }
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

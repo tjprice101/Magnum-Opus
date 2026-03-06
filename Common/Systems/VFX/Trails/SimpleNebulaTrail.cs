@@ -180,7 +180,7 @@ namespace MagnumOpus.Common.Systems.VFX
             try
             {
                 // Begin a fresh additive spritebatch (don't End first - we're in a hook where it's already ended)
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             foreach (var trail in _trails)

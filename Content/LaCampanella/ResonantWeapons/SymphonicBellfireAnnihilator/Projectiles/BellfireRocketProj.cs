@@ -6,9 +6,11 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Graphics.Shaders;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator.Particles;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator.Primitives;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator.Shaders;
 using MagnumOpus.Content.LaCampanella;
 using MagnumOpus.Content.LaCampanella.Debuffs;
 using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
@@ -89,9 +91,16 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
             trailRenderer?.Dispose();
             trailRenderer = null;
 
-            // Explosion VFX
+            // Explosion VFX — multi-layer bloom stack
+            // Outer fire shell
             SymphonicBellfireParticleHandler.SpawnParticle(new ExplosionFireballParticle(
-                Projectile.Center, 2f, 15));
+                Projectile.Center, 3.5f, 18));
+            // Mid orange ring
+            SymphonicBellfireParticleHandler.SpawnParticle(new ExplosionFireballParticle(
+                Projectile.Center, 2.0f, 14));
+            // White-hot core
+            SymphonicBellfireParticleHandler.SpawnParticle(new ExplosionFireballParticle(
+                Projectile.Center, 1.0f, 10));
 
             // Shrapnel embers
             for (int i = 0; i < 8; i++)
@@ -126,7 +135,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
             Projectile.NewProjectile(
                 Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero,
                 ModContent.ProjectileType<RippleEffectProjectile>(),
-                0, 0f, Projectile.owner);
+                0, 0f, Projectile.owner, ai0: 1f);
 
             // === FOUNDATION: SparkExplosionProjectile — Rocket detonation spark burst ===
             Projectile.NewProjectile(
@@ -138,28 +147,52 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
 
         private void SpawnFirePatch()
         {
-            // Create lingering fire visual (vanilla dust-based, 1.5s)
             Vector2 patchCenter = Projectile.Center;
-            int patchDustCount = 12;
-            for (int i = 0; i < patchDustCount; i++)
+
+            // Custom infernal fire particles — multi-layer rising embers + heat shimmer
+            int fireCount = 16;
+            for (int i = 0; i < fireCount; i++)
             {
-                Vector2 offset = Main.rand.NextVector2Circular(30f, 10f);
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -Main.rand.NextFloat(0.5f, 1.5f));
-                Dust d = Dust.NewDustPerfect(patchCenter + offset, DustID.Torch, vel, 0,
-                    SymphonicBellfireUtils.GetRocketFlicker(Main.rand.NextFloat()),
-                    Main.rand.NextFloat(1f, 1.8f));
-                d.noGravity = true;
-                d.fadeIn = 1.5f;
+                Vector2 offset = Main.rand.NextVector2Circular(35f, 12f);
+                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(0.8f, 2.5f));
+                float stretch = Main.rand.NextFloat(2.5f, 5f);
+                SymphonicBellfireParticleHandler.SpawnParticle(new RocketExhaustParticle(
+                    patchCenter + offset, vel, stretch, Main.rand.Next(25, 50)));
             }
 
-            // Smoke puffs
-            for (int i = 0; i < 4; i++)
+            // Secondary ember layer — smaller, faster rising sparks
+            for (int i = 0; i < 8; i++)
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(20f, 8f);
+                Vector2 vel = new Vector2(Main.rand.NextFloatDirection() * 1.5f, -Main.rand.NextFloat(1.5f, 4f));
+                SymphonicBellfireParticleHandler.SpawnParticle(new RocketExhaustParticle(
+                    patchCenter + offset, vel, Main.rand.NextFloat(1f, 2f), Main.rand.Next(15, 30)));
+            }
+
+            // Smoke puffs — thick dark smoke rising
+            for (int i = 0; i < 6; i++)
             {
                 Vector2 smokeVel = new Vector2(Main.rand.NextFloat(-1f, 1f), -Main.rand.NextFloat(1f, 3f));
-                Dust d = Dust.NewDustPerfect(patchCenter + Main.rand.NextVector2Circular(20f, 5f),
-                    DustID.Smoke, smokeVel, 100, new Color(30, 20, 15), 2f);
+                Dust d = Dust.NewDustPerfect(patchCenter + Main.rand.NextVector2Circular(25f, 8f),
+                    DustID.Smoke, smokeVel, 120, new Color(30, 20, 15), Main.rand.NextFloat(2f, 3f));
                 d.noGravity = true;
             }
+
+            // Musical notes rising from the flames — the bell's infernal song
+            for (int i = 0; i < 3; i++)
+            {
+                Vector2 noteVel = new Vector2(Main.rand.NextFloatDirection() * 1f, -Main.rand.NextFloat(1f, 2f));
+                SymphonicBellfireParticleHandler.SpawnParticle(new SymphonicNoteParticle(
+                    patchCenter + Main.rand.NextVector2Circular(20f, 8f),
+                    noteVel, Main.rand.Next(35, 55)));
+            }
+
+            // === FOUNDATION: DamageZoneProjectile — Lingering fire damage zone ===
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), patchCenter, Vector2.Zero,
+                ModContent.ProjectileType<DamageZoneProjectile>(),
+                (int)(Projectile.damage * 0.15f), 0f, Projectile.owner,
+                ai0: 90f, ai1: 40f); // 1.5s duration, 40px radius
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -181,12 +214,36 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
                 try
                 {
                     trailRenderer ??= new SymphonicBellfirePrimitiveRenderer();
+
+                    // === SHADER: RocketTrailShader — turbulent exhaust plume ===
+                    var rocketShader = SymphonicBellfireShaderLoader.GetRocketTrailShader();
+                    if (rocketShader != null)
+                    {
+                        try
+                        {
+                            rocketShader.UseColor(SymphonicBellfireUtils.RocketPalette[2]);
+                            rocketShader.UseSecondaryColor(SymphonicBellfireUtils.RocketPalette[0]);
+                            rocketShader.UseOpacity(0.85f);
+                            rocketShader.UseSaturation(0.9f); // uIntensity
+                            var fx = rocketShader.Shader;
+                            if (fx != null)
+                            {
+                                fx.Parameters["uTime"]?.SetValue((float)Main.GameUpdateCount * 0.025f);
+                                fx.Parameters["uOverbrightMult"]?.SetValue(1.4f);
+                                fx.Parameters["uScrollSpeed"]?.SetValue(1.8f);
+                                fx.Parameters["uNoiseScale"]?.SetValue(4.5f);
+                            }
+                        }
+                        catch { }
+                    }
+
                     var settings = new RocketTrailSettings
                     {
                         ColorStart = SymphonicBellfireUtils.RocketPalette[2],
                         ColorEnd = SymphonicBellfireUtils.RocketPalette[0] * 0.3f,
                         Width = 10f,
-                        BloomIntensity = 0.3f
+                        BloomIntensity = 0.3f,
+                        Shader = rocketShader
                     };
                     trailRenderer.DrawTrail(sb, trailPositions, settings, Main.screenPosition);
                 }
@@ -208,7 +265,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
             try { sb.End(); } catch { }
             try
             {
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             Texture2D bloomTex = null;

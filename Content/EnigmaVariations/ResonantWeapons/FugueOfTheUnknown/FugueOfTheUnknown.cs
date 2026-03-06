@@ -17,6 +17,8 @@ using MagnumOpus.Content.EnigmaVariations.Debuffs;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown.Particles;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown.Dusts;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown.Utilities;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown.Primitives;
+using MagnumOpus.Content.EnigmaVariations;
 
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
 {
@@ -162,6 +164,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
     {
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
+        private readonly List<Vector2> _trailPositions = new(30);
         
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MusicNote";
         
@@ -169,7 +172,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
         {
             SpriteBatch sb = Main.spriteBatch;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            float pulse = MathF.Sin((float)Main.GameUpdateCount * 0.08f + Projectile.ai[1]) * 0.5f + 0.5f; // 0..1
+            float pulse = MathF.Sin((float)Main.GameUpdateCount * 0.08f + Projectile.ai[1]) * 0.5f + 0.5f;
 
             var bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             var glyphTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MusicNote", AssetRequestMode.ImmediateLoad).Value;
@@ -180,94 +183,187 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
             Vector2 starFlareOrigin = starFlareTex.Size() / 2f;
             Vector2 powerRingOrigin = powerRingTex.Size() / 2f;
 
-            // === Shader overlay: Polyphonic voice spectrum / standing wave interference ===
+            // ═══════════════════════════════════════════════════════
+            //  LAYER 1: GPU PRIMITIVE — orbit aura ring or release trail
+            // ═══════════════════════════════════════════════════════
+            if (Projectile.ai[0] == 0f)
+            {
+                // ORBITING STATE: Small undulating spectral ring around voice
+                try
+                {
+                    sb.End();
+                    int ringPts = 20;
+                    float auraRadius = 14f + pulse * 4f;
+                    var voiceRing = new List<Vector2>(ringPts + 1);
+                    for (int i = 0; i <= ringPts; i++)
+                    {
+                        float a = (float)i / ringPts * MathHelper.TwoPi;
+                        float wobble = 1f + 0.12f * MathF.Sin(a * 4f + Main.GameUpdateCount * 0.07f + Projectile.ai[1] * 2f);
+                        voiceRing.Add(Projectile.Center + new Vector2(MathF.Cos(a), MathF.Sin(a)) * auraRadius * wobble);
+                    }
+
+                    if (ShaderLoader.FugueVoiceTrail != null)
+                    {
+                        var bodySettings = new FuguePrimitiveSettings(
+                            widthFunction: c => (6f + 3f * MathF.Sin(c * MathHelper.TwoPi * 3f + Main.GameUpdateCount * 0.04f)) * (0.7f + pulse * 0.3f),
+                            colorFunction: c => Color.Lerp(FugueUtils.VoicePurple, FugueUtils.EchoTeal, c) * (0.5f + pulse * 0.2f),
+                            shader: ShaderLoader.FugueVoiceTrail);
+                        FuguePrimitiveRenderer.RenderTrail(voiceRing, bodySettings);
+                    }
+
+                    if (ShaderLoader.FugueVoiceTrail != null)
+                    {
+                        var glowSettings = new FuguePrimitiveSettings(
+                            widthFunction: c => (12f + pulse * 4f) * (0.5f + 0.5f * MathF.Sin(c * MathHelper.TwoPi * 2f)),
+                            colorFunction: c => FugueUtils.DeepChorus * 0.3f,
+                            shader: ShaderLoader.FugueVoiceTrail);
+                        FuguePrimitiveRenderer.RenderTrail(voiceRing, glowSettings);
+                    }
+
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch
+                {
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
+            else
+            {
+                // RELEASED STATE: GPU primitive trail from recorded positions
+                if (_trailPositions.Count > 2)
+                {
+                    try
+                    {
+                        sb.End();
+
+                        if (ShaderLoader.FugueConvergence != null)
+                        {
+                            var bodySettings = new FuguePrimitiveSettings(
+                                widthFunction: c => MathHelper.Lerp(12f, 2f, c),
+                                colorFunction: c => Color.Lerp(FugueUtils.FugueCyan, FugueUtils.VoicePurple, c) * (0.7f - c * 0.4f),
+                                shader: ShaderLoader.FugueConvergence);
+                            FuguePrimitiveRenderer.RenderTrail(_trailPositions, bodySettings);
+                        }
+
+                        if (ShaderLoader.FugueConvergence != null)
+                        {
+                            var glowSettings = new FuguePrimitiveSettings(
+                                widthFunction: c => MathHelper.Lerp(22f, 5f, c),
+                                colorFunction: c => FugueUtils.DeepChorus * (0.3f - c * 0.2f),
+                                shader: ShaderLoader.FugueConvergence);
+                            FuguePrimitiveRenderer.RenderTrail(_trailPositions, glowSettings);
+                        }
+
+                        if (ShaderLoader.FugueConvergence != null)
+                        {
+                            var coreSettings = new FuguePrimitiveSettings(
+                                widthFunction: c => MathHelper.Lerp(4f, 1f, c),
+                                colorFunction: c => Color.Lerp(FugueUtils.HarmonicWhite, FugueUtils.FugueCyan, c) * (0.6f - c * 0.4f),
+                                shader: ShaderLoader.FugueConvergence);
+                            FuguePrimitiveRenderer.RenderTrail(_trailPositions, coreSettings);
+                        }
+
+                        sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                            DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                    }
+                    catch
+                    {
+                        sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                            DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                    }
+                }
+            }
+
+            // ═══════════════════════════════════════════════════════
+            //  LAYER 2: SHADER OVERLAY — polyphonic voice spectrum
+            // ═══════════════════════════════════════════════════════
             {
                 Effect voiceShader = Projectile.ai[0] == 0f ? ShaderLoader.FugueVoiceTrail : ShaderLoader.FugueConvergence;
                 string technique = Projectile.ai[0] == 0f ? "FugueVoiceFlow" : "FugueConvergenceWave";
                 EnigmaShaderHelper.DrawShaderOverlay(sb, voiceShader,
                     bloomTex, drawPos, bloomOrigin, 1.2f + pulse * 0.3f,
                     FugueUtils.VoicePurple.ToVector3(), FugueUtils.EchoTeal.ToVector3(),
-                    opacity: 0.45f, intensity: 1.0f,
+                    opacity: 0.5f, intensity: 1.1f,
                     noiseTexture: ShaderLoader.GetNoiseTexture("MusicalWavePattern"),
                     techniqueName: technique);
             }
 
-            if (Projectile.ai[0] == 0f)
+            // ═══════════════════════════════════════════════════════
+            //  LAYER 3: 6-LAYER BLOOM STACK — polyphonic radiance
+            // ═══════════════════════════════════════════════════════
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
+            float scaleBase = Projectile.ai[0] == 0f ? 0.5f : 0.7f;
+            float bloomPulse = scaleBase + pulse * 0.15f;
+
+            // [0] ShadowVoid — outermost haze
+            sb.Draw(bloomTex, drawPos, null, FugueUtils.ShadowVoid * 0.15f, 0f,
+                bloomOrigin, bloomPulse * 3f, SpriteEffects.None, 0f);
+            // [1] DeepChorus — deep purple glow
+            sb.Draw(bloomTex, drawPos, null, FugueUtils.DeepChorus * 0.25f, 0f,
+                bloomOrigin, bloomPulse * 2.2f, SpriteEffects.None, 0f);
+            // [2] VoicePurple — the melodic line
+            sb.Draw(bloomTex, drawPos, null, FugueUtils.VoicePurple * (0.35f + pulse * 0.15f), 0f,
+                bloomOrigin, bloomPulse * 1.5f, SpriteEffects.None, 0f);
+            // [3] EchoTeal — the answer phrase
+            sb.Draw(bloomTex, drawPos, null, FugueUtils.EchoTeal * 0.45f, 0f,
+                bloomOrigin, bloomPulse * 1f, SpriteEffects.None, 0f);
+            // [4] FugueCyan — voices converging
+            sb.Draw(bloomTex, drawPos, null, FugueUtils.FugueCyan * (0.25f + pulse * 0.15f), 0f,
+                bloomOrigin, bloomPulse * 0.55f, SpriteEffects.None, 0f);
+            // [5] HarmonicWhite — pure harmonic core
+            sb.Draw(bloomTex, drawPos, null, FugueUtils.HarmonicWhite * (0.4f + pulse * 0.2f), 0f,
+                bloomOrigin, bloomPulse * 0.25f, SpriteEffects.None, 0f);
+
+            // ═══════════════════════════════════════════════════════
+            //  LAYER 4: THEME TEXTURES — Enigma identity
+            // ═══════════════════════════════════════════════════════
+            // EN Star Flare — dual counter-rotating
+            float flareRotA = (float)Main.GameUpdateCount * 0.02f + Projectile.ai[1] * 1.5f;
+            float flareRotB = -(float)Main.GameUpdateCount * 0.015f + Projectile.ai[1] * 2.1f;
+            float flareScale = (Projectile.ai[0] == 0f ? 0.2f : 0.3f) + pulse * 0.08f;
+            sb.Draw(starFlareTex, drawPos, null, FugueUtils.VoicePurple * (0.4f + pulse * 0.15f), flareRotA,
+                starFlareOrigin, flareScale, SpriteEffects.None, 0f);
+            sb.Draw(starFlareTex, drawPos, null, FugueUtils.EchoTeal * (0.3f + pulse * 0.1f), flareRotB,
+                starFlareOrigin, flareScale * 0.8f, SpriteEffects.None, 0f);
+
+            // EN Power Effect Ring — concentric spectral ring
+            float ringRot = (float)Main.GameUpdateCount * 0.035f;
+            float ringScale = (Projectile.ai[0] == 0f ? 0.15f : 0.25f) + pulse * 0.06f;
+            sb.Draw(powerRingTex, drawPos, null, FugueUtils.EchoTeal * (0.25f + pulse * 0.12f), ringRot,
+                powerRingOrigin, ringScale, SpriteEffects.None, 0f);
+            sb.Draw(powerRingTex, drawPos, null, FugueUtils.DeepChorus * 0.18f, -ringRot * 0.7f,
+                powerRingOrigin, ringScale * 1.4f, SpriteEffects.None, 0f);
+
+            // EN Enigma Eye — materializes in released state when voices are converging
+            if (Projectile.ai[0] != 0f)
             {
-                // === ORBITING STATE — ghostly eye/glyph with pulsing bloom ===
-
-                // Outer bloom: Voice Purple, pulsing scale
-                float outerScale = 0.5f + pulse * 0.15f;
-                Color outerColor = FugueUtils.VoicePurple * (0.35f + pulse * 0.15f);
-                sb.Draw(bloomTex, drawPos, null, outerColor, 0f, bloomOrigin, outerScale, SpriteEffects.None, 0f);
-
-                // Inner bloom: Echo Teal, smaller
-                float innerScale = 0.25f + pulse * 0.08f;
-                Color innerColor = FugueUtils.EchoTeal * (0.4f + pulse * 0.2f);
-                sb.Draw(bloomTex, drawPos, null, innerColor, 0f, bloomOrigin, innerScale, SpriteEffects.None, 0f);
-
-                // Core glyph sprite with sin-wave pulsing opacity (0.5 - 1.0)
-                float glyphAlpha = 0.5f + pulse * 0.5f;
-                sb.Draw(glyphTex, drawPos, null, Color.White * glyphAlpha, Projectile.rotation, glyphOrigin, 0.6f, SpriteEffects.None, 0f);
-
-                // Layer 4: EN Star Flare — dual-rotating spectral flare
-                float flareRotA = (float)Main.GameUpdateCount * 0.02f + Projectile.ai[1] * 1.5f;
-                float flareRotB = -(float)Main.GameUpdateCount * 0.015f + Projectile.ai[1] * 2.1f;
-                float flareScale = 0.18f + pulse * 0.06f;
-                sb.Draw(starFlareTex, drawPos, null, FugueUtils.VoicePurple * (0.35f + pulse * 0.15f), flareRotA, starFlareOrigin, flareScale, SpriteEffects.None, 0f);
-                sb.Draw(starFlareTex, drawPos, null, FugueUtils.EchoTeal * (0.25f + pulse * 0.1f), flareRotB, starFlareOrigin, flareScale * 0.8f, SpriteEffects.None, 0f);
-            }
-            else
-            {
-                // === RELEASED STATE — motion trail stretched in velocity direction ===
-                float speed = Projectile.velocity.Length();
-                float velAngle = Projectile.velocity.ToRotation();
-
-                // Stretched MagicPixel "motion trail" behind the voice
-                var pixel = MagnumTextureRegistry.GetSoftGlow();
-                if (pixel == null) return false;
-                float trailLength = MathHelper.Clamp(speed * 3f, 20f, 80f);
-                Rectangle trailRect = new Rectangle(0, 0, (int)trailLength, 6);
-                Vector2 trailOrigin = new Vector2(trailLength, 3f); // anchor at right-center so it trails behind
-                Color trailColor = FugueUtils.EchoTeal * 0.6f;
-                sb.Draw(pixel, drawPos, trailRect, trailColor, velAngle, trailOrigin, 1f, SpriteEffects.None, 0f);
-
-                // Brighter wider inner trail
-                Rectangle trailRect2 = new Rectangle(0, 0, (int)(trailLength * 0.6f), 3);
-                Vector2 trailOrigin2 = new Vector2(trailLength * 0.6f, 1.5f);
-                sb.Draw(pixel, drawPos, trailRect2, FugueUtils.FugueCyan * 0.8f, velAngle, trailOrigin2, 1f, SpriteEffects.None, 0f);
-
-                // Bloom core — larger, more intense
-                float coreScale = 0.4f + pulse * 0.1f;
-                sb.Draw(bloomTex, drawPos, null, FugueUtils.VoicePurple * 0.7f, 0f, bloomOrigin, coreScale, SpriteEffects.None, 0f);
-                sb.Draw(bloomTex, drawPos, null, FugueUtils.HarmonicWhite * 0.4f, 0f, bloomOrigin, coreScale * 0.35f, SpriteEffects.None, 0f);
-
-                // Glyph sprite at full intensity
-                sb.Draw(glyphTex, drawPos, null, Color.White * 0.9f, Projectile.rotation, glyphOrigin, 0.7f, SpriteEffects.None, 0f);
-
-                // Layer 5: EN Power Effect Ring — rotating ring behind released voice
-                float ringRot = (float)Main.GameUpdateCount * 0.04f;
-                float ringScale = 0.22f + pulse * 0.08f;
-                sb.Draw(powerRingTex, drawPos, null, FugueUtils.EchoTeal * (0.3f + pulse * 0.15f), ringRot, powerRingOrigin, ringScale, SpriteEffects.None, 0f);
-                sb.Draw(powerRingTex, drawPos, null, FugueUtils.VoicePurple * (0.2f + pulse * 0.1f), -ringRot * 0.7f, powerRingOrigin, ringScale * 1.3f, SpriteEffects.None, 0f);
-
-                // Layer 6: EN Star Flare — streaking behind released voice
-                float relFlareRot = velAngle + MathF.Sin((float)Main.GameUpdateCount * 0.1f) * 0.3f;
-                sb.Draw(starFlareTex, drawPos, null, FugueUtils.FugueCyan * (0.35f + pulse * 0.15f), relFlareRot, starFlareOrigin, 0.2f + pulse * 0.05f, SpriteEffects.None, 0f);
+                Texture2D enigmaEye = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Particles/EN Enigma Eye", AssetRequestMode.ImmediateLoad).Value;
+                float eyePulse = 0.7f + 0.3f * MathF.Sin(Main.GameUpdateCount * 0.06f);
+                sb.Draw(enigmaEye, drawPos, null, FugueUtils.HarmonicWhite * eyePulse * 0.4f, 0f,
+                    enigmaEye.Size() / 2f, flareScale * 0.6f * eyePulse, SpriteEffects.None, 0f);
             }
 
-            // Theme texture accents (additive pass)
-            try
-            {
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-                FugueUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-            }
-            catch { }
+            // Glyph sprite — the voice's musical identity
+            Color glyphColor = Projectile.ai[0] == 0f
+                ? Color.Lerp(FugueUtils.VoicePurple, FugueUtils.HarmonicWhite, pulse * 0.5f) * (0.5f + pulse * 0.5f)
+                : Color.White * 0.9f;
+            sb.Draw(glyphTex, drawPos, null, glyphColor, Projectile.rotation, glyphOrigin,
+                Projectile.ai[0] == 0f ? 0.6f : 0.7f, SpriteEffects.None, 0f);
+
+            // ═══════════════════════════════════════════════════════
+            //  LAYER 5: THEME ACCENTS — ambient pulsing light
+            // ═══════════════════════════════════════════════════════
+            EnigmaVFXLibrary.AddPulsingLight(Projectile.Center, FugueUtils.VoicePurple, 0.4f, 0.3f + pulse * 0.3f);
+            EnigmaVFXLibrary.AddPulsingLight(Projectile.Center, FugueUtils.EchoTeal, 0.3f, 0.2f + pulse * 0.2f);
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
             return false;
         }
@@ -335,6 +431,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
             else
             {
                 // RELEASED STATE - fly toward enemies with homing
+                // Record position for GPU primitive trail
+                _trailPositions.Add(Projectile.Center);
+                if (_trailPositions.Count > 25)
+                    _trailPositions.RemoveAt(0);
+
                 float homingRange = 500f;
                 float bestDist = homingRange;
                 NPC bestTarget = null;
@@ -464,27 +565,36 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
             }
 
             // ======= HARMONIC CONVERGENCE VFX =======
+            // NOTE: This runs during OnHitNPC (update phase), NOT draw phase.
+            // All VFX must use particle spawns — Main.spriteBatch.Draw() would crash here.
 
-            // EN Power Effect Ring — expanding concentric rings at convergence point
-            {
-                var convRingTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Power Effect Ring", AssetRequestMode.ImmediateLoad).Value;
-                Vector2 convRingOrigin = convRingTex.Size() / 2f;
-                Vector2 convDrawPos = target.Center - Main.screenPosition;
-                float convRot1 = Main.rand.NextFloat(MathHelper.TwoPi);
-                float convRot2 = convRot1 + MathHelper.PiOver4;
-                Main.spriteBatch.Draw(convRingTex, convDrawPos, null, FugueUtils.VoicePurple * 0.6f, convRot1, convRingOrigin, 0.5f, SpriteEffects.None, 0f);
-                Main.spriteBatch.Draw(convRingTex, convDrawPos, null, FugueUtils.EchoTeal * 0.45f, convRot2, convRingOrigin, 0.7f, SpriteEffects.None, 0f);
-            }
+            // Convergence ring flash particles (replacing direct spriteBatch draws)
+            FugueParticleHandler.Spawn(new ConvergenceFlashParticle(
+                target.Center,
+                FugueUtils.VoicePurple,
+                Main.rand.NextFloat(1.5f, 2.0f),
+                30
+            ));
+            FugueParticleHandler.Spawn(new ConvergenceFlashParticle(
+                target.Center,
+                FugueUtils.EchoTeal,
+                Main.rand.NextFloat(2.0f, 2.5f),
+                35
+            ));
 
-            // EN Star Flare — brilliant convergence flash flare
-            {
-                var convFlareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
-                Vector2 convFlareOrigin = convFlareTex.Size() / 2f;
-                Vector2 convDrawPos = target.Center - Main.screenPosition;
-                float convFlareRot = Main.rand.NextFloat(MathHelper.TwoPi);
-                Main.spriteBatch.Draw(convFlareTex, convDrawPos, null, FugueUtils.HarmonicWhite * 0.7f, convFlareRot, convFlareOrigin, 0.4f, SpriteEffects.None, 0f);
-                Main.spriteBatch.Draw(convFlareTex, convDrawPos, null, FugueUtils.FugueCyan * 0.5f, convFlareRot + MathHelper.PiOver2, convFlareOrigin, 0.35f, SpriteEffects.None, 0f);
-            }
+            // Convergence star flare particles (replacing direct spriteBatch draws)
+            FugueParticleHandler.Spawn(new ConvergenceFlashParticle(
+                target.Center,
+                FugueUtils.HarmonicWhite,
+                Main.rand.NextFloat(1.2f, 1.6f),
+                25
+            ));
+            FugueParticleHandler.Spawn(new ConvergenceFlashParticle(
+                target.Center,
+                FugueUtils.FugueCyan,
+                Main.rand.NextFloat(1.0f, 1.4f),
+                25
+            ));
 
             // Large flash at primary target — all voices resolving in unison
             FugueParticleHandler.Spawn(new ConvergenceFlashParticle(

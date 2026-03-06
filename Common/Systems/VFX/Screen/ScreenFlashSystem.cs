@@ -178,7 +178,7 @@ namespace MagnumOpus.Common.Systems.VFX.Screen
                 return;
 
             // Draw screen-wide overlay
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
 
             Texture2D pixel = GetPixelTexture();
@@ -201,7 +201,7 @@ namespace MagnumOpus.Common.Systems.VFX.Screen
             float caProgress = caMoveInward ? (1f - progress) : progress;
             float offset = caIntensity * caDistanceMult * caProgress * 15f;
 
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
 
             Texture2D pixel = GetPixelTexture();

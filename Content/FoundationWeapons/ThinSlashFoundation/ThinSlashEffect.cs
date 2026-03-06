@@ -117,7 +117,7 @@ namespace MagnumOpus.Content.FoundationWeapons.ThinSlashFoundation
 
             // ---- LAYER 2: DIRECTIONAL BLOOM ALONG SLASH ----
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -167,7 +167,7 @@ namespace MagnumOpus.Content.FoundationWeapons.ThinSlashFoundation
 
             // ---- DRAW WITH SHADER ----
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, thinSlashShader,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -180,7 +180,7 @@ namespace MagnumOpus.Content.FoundationWeapons.ThinSlashFoundation
 
             // End shader batch
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);

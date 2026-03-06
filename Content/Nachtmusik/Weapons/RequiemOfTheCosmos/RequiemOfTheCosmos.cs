@@ -75,7 +75,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.RequiemOfTheCosmos
             Vector2 position = Item.Center - Main.screenPosition;
             
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
             
             float pulse = 0.8f + 0.2f * (float)Math.Sin(Main.GameUpdateCount * 0.03f);
             // Void outer glow

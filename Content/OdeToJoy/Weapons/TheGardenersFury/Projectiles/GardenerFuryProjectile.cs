@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
@@ -141,6 +141,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
             float phaseScale = GetPhaseScale();
 
             sb.End();
+            // NOTE: BlendState.Additive (SourceAlpha) for alpha-transparent arc textures.
+            // TrueAdditive ignores alpha → full rectangle drawn as bright square.
             sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
@@ -209,7 +211,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
             if (shader != null)
             {
                 sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                     Main.DefaultSamplerState, DepthStencilState.None,
                     RasterizerState.CullCounterClockwise, null,
                     Main.GameViewMatrix.TransformationMatrix);
@@ -220,7 +222,14 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
             if (verdantShader != null)
             {
                 OdeToJoyShaders.SetSlashParams(verdantShader, (float)Main.gameTimeCache.TotalGameTime.TotalSeconds, mainCol, outerCol, alpha * 0.35f, 0.7f * phaseScale, (float)ComboPhase / 2f);
-                OdeToJoyShaders.BeginShaderBatch(sb, verdantShader, "VerdantSlashTechnique");
+                // Inline BeginShaderBatch with BlendState.Additive for alpha-transparent arc texture
+                if (verdantShader.Techniques["VerdantSlashTechnique"] != null)
+                    verdantShader.CurrentTechnique = verdantShader.Techniques["VerdantSlashTechnique"];
+                sb.End();
+                sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+                    SamplerState.LinearWrap, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.TransformationMatrix);
 
                 sb.Draw(arcTex, drawPos, null, mainCol * alpha * 0.3f,
                     Projectile.rotation + 0.04f, arcOrigin, phaseScale * 1.08f, flip, 0f);
@@ -376,7 +385,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
             else
             {
                 sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                     Main.DefaultSamplerState, DepthStencilState.None,
                     RasterizerState.CullCounterClockwise, null,
                     Main.GameViewMatrix.TransformationMatrix);
@@ -514,7 +523,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
             else
             {
                 sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                     Main.DefaultSamplerState, DepthStencilState.None,
                     RasterizerState.CullCounterClockwise, null,
                     Main.GameViewMatrix.TransformationMatrix);

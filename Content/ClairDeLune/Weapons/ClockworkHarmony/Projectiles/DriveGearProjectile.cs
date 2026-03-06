@@ -124,7 +124,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Projectiles
 
             _gearSwingShader.CurrentTechnique = _gearSwingShader.Techniques["GearSwingArc"];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _gearSwingShader, matrix);
 
@@ -134,7 +134,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Projectiles
             sb.Draw(sc, drawPos, null, Color.White, Projectile.rotation, sc.Size() * 0.5f, bodyScale, SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }
@@ -159,7 +159,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Projectiles
 
             _moonlitShader.CurrentTechnique = _moonlitShader.Techniques["MoonlitGlow"];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _moonlitShader, matrix);
 
@@ -169,7 +169,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Projectiles
             sb.Draw(sc, drawPos, null, Color.White, 0f, sc.Size() * 0.5f, auraScale, SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }

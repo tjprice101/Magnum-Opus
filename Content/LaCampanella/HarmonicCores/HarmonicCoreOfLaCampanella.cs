@@ -93,7 +93,7 @@ namespace MagnumOpus.Content.LaCampanella.HarmonicCores
             
             // Draw glow layers (additive blending for glow)
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Outer golden glow
             spriteBatch.Draw(worldTexture, drawPosition, null, glowColor, rotation, origin, scale * 1.15f * pulse, SpriteEffects.None, 0f);

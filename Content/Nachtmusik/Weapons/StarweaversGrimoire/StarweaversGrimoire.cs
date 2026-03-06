@@ -108,7 +108,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.StarweaversGrimoire
             Vector2 position = Item.Center - Main.screenPosition;
             
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Arcane outer glow
             float pulse = 0.85f + 0.15f * (float)Math.Sin(Main.GameUpdateCount * 0.04f);

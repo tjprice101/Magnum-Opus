@@ -333,7 +333,7 @@ namespace MagnumOpus.Common.Systems.VFX
             
             sb.Begin(
                 SpriteSortMode.Immediate,
-                BlendState.Additive,
+                MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap,
                 DepthStencilState.None,
                 RasterizerState.CullNone,

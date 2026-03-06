@@ -301,7 +301,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles
 
             _radialMaskShader.CurrentTechnique.Passes["RadialNoiseMaskPass"].Apply();
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _radialMaskShader, matrix);
 
@@ -311,7 +311,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles
             sb.Draw(sc, drawPos, null, Color.White, 0f, sc.Size() * 0.5f, zoneScale, SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }
@@ -345,7 +345,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles
             string technique = isDetonating ? "TemporalDrillBore" : "TemporalDrillGlow";
             _temporalDrillShader.CurrentTechnique = _temporalDrillShader.Techniques[technique];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _temporalDrillShader, matrix);
 
@@ -355,7 +355,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles
             sb.Draw(sc, drawPos, null, Color.White, 0f, sc.Size() * 0.5f, overlayScale, SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }

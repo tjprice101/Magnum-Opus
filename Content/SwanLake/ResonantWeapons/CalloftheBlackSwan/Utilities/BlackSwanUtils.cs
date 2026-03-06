@@ -26,14 +26,14 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Utiliti
             new Color(245, 245, 255), // Pristine White
         };
 
-        /// <summary>Empowered palette with prismatic edge.</summary>
+        /// <summary>Empowered palette — white-core with prismatic rainbow shimmer at edges.</summary>
         public static readonly Color[] EmpoweredPalette = new Color[]
         {
-            new Color(40, 10, 60),    // Deep Violet
-            new Color(80, 30, 120),   // Royal Purple
-            new Color(160, 100, 220), // Amethyst Glow
-            new Color(220, 180, 255), // Lavender Light
-            new Color(255, 220, 240), // Rose Pearl
+            new Color(40, 40, 50),    // Deep Shadow
+            new Color(100, 100, 110), // Steel Grey
+            new Color(180, 180, 190), // Silver Mist
+            new Color(220, 225, 235), // Swan Silver
+            new Color(245, 245, 255), // Pristine White
             new Color(255, 255, 255), // Pure Flash
         };
 
@@ -46,11 +46,11 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Utiliti
         /// <summary>Lore tooltip color.</summary>
         public static readonly Color LoreColor = new Color(240, 240, 255);
 
-        /// <summary>Get a cycling rainbow color.</summary>
+        /// <summary>Get a cycling prismatic color — desaturated pastel rainbow over white.</summary>
         public static Color GetRainbow(float offset = 0f)
         {
             float hue = (Main.GameUpdateCount * 0.012f + offset) % 1f;
-            return Main.hslToRgb(hue, 0.85f, 0.8f);
+            return Main.hslToRgb(hue, 0.4f, 0.88f);
         }
 
         /// <summary>Smoothly interpolate through a color array.</summary>
@@ -200,7 +200,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Utiliti
         public static void BeginAdditive(this SpriteBatch sb)
         {
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
@@ -208,7 +208,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Utiliti
         public static void BeginShaderAdditive(this SpriteBatch sb)
         {
             sb.End();
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 

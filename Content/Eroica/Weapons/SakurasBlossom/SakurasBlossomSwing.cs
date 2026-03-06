@@ -2,6 +2,7 @@
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Bloom;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Content.Eroica;
 using MagnumOpus.Content.Eroica.Projectiles;
 using MagnumOpus.Content.Eroica.Weapons.SakurasBlossom.Buffs;
@@ -310,32 +311,80 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
             SpriteEffects flip = swingDirection > 0 ? SpriteEffects.None : SpriteEffects.FlipVertically;
 
             int phase = (int)MathHelper.Clamp(ComboPhase, 0, 2);
+            float progress = MathHelper.Clamp(PhaseTimer / (float)PhaseDuration[phase], 0f, 1f);
+            float comboNorm = phase / 2f;
+            float time = (float)Main.gameTimeCache.TotalGameTime.TotalSeconds;
             Vector2 playerDraw = player.Center - Main.screenPosition;
             float drawBaseRot = swingRotation + (swingDirection > 0 ? -MathHelper.PiOver4 : MathHelper.PiOver4 + MathHelper.Pi);
 
-            // ── Layer 1: SmearDistort arc overlay (SwordSmearFoundation) ──
-            DrawSmearArc(sb, phase, playerDraw, drawBaseRot, bladeScale, flip);
+            // ═══════════════════════════════════════════════════════════════════
+            //  LAYER 1: SAKURA SWING TRAIL SMEAR — SakuraSwingTrail.fx
+            //  Uses SakuraTrailFlow / SakuraTrailGlow for petal-shimmer distortion
+            //  instead of generic SmearDistortShader. Gentle, graceful, katana-like.
+            // ═══════════════════════════════════════════════════════════════════
+            DrawSakuraSmearArc(sb, phase, progress, time, playerDraw, drawBaseRot, bladeScale, flip);
 
-            // ── Layer 2: Harmonic Wave ribbon trail (RibbonFoundation Mode 4) ──
-            DrawHarmonicRibbon(sb, phase);
+            // ═══════════════════════════════════════════════════════════════════
+            //  LAYER 2: SHADER-DRIVEN PETAL RIBBON — SakuraSwingTrail.fx on strip
+            //  Dual pass: SakuraTrailFlow (petal shimmer body) + SakuraTrailGlow.
+            // ═══════════════════════════════════════════════════════════════════
+            DrawShaderPetalRibbon(sb, phase, time);
 
-            // ── Layer 3: Sakura petal afterimage trail ──
-            DrawAfterimages(sb, bladeTex, bladeOrigin, bladeScale, flip, playerDraw, phase);
+            // ═══════════════════════════════════════════════════════════════════
+            //  LAYER 3: SHADER AFTERIMAGES — SakuraTrailGlow pass
+            // ═══════════════════════════════════════════════════════════════════
+            DrawShaderAfterimages(sb, bladeTex, bladeOrigin, bladeScale, flip, playerDraw, phase, drawBaseRot, time);
 
-            // ── Layer 4: Main blade sprite + inner glow ──
+            // ═══════════════════════════════════════════════════════════════════
+            //  LAYER 4: MAIN BLADE + SAKURA GLOW
+            // ═══════════════════════════════════════════════════════════════════
             float paletteT = 0.4f + phase * 0.1f;
             Color bladeTint = Color.Lerp(lightColor, EroicaPalette.PaletteLerp(EroicaPalette.SakurasBlossomBlade, paletteT), 0.3f);
             sb.Draw(bladeTex, playerDraw, null, bladeTint, drawBaseRot, bladeOrigin, bladeScale, flip, 0f);
 
+            // Glow overlays need additive blend (A=0 colors are invisible under AlphaBlend)
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
             Color bladeGlow = EroicaPalette.Sakura with { A = 0 };
             sb.Draw(bladeTex, playerDraw, null, bladeGlow * 0.25f, drawBaseRot, bladeOrigin, bladeScale * 1.03f, flip, 0f);
 
-            // ── Layer 5: Bloom at blade tip ──
-            DrawBladeTipBloom(sb, player, phase);
+            // Petal edge glow on phase 2 (Final Bloom)
+            if (phase >= 2)
+            {
+                Color petalEdge = EroicaPalette.PollenGold with { A = 0 };
+                sb.Draw(bladeTex, playerDraw, null, petalEdge * 0.12f, drawBaseRot, bladeOrigin, bladeScale * 1.06f, flip, 0f);
+            }
 
-            // ── Layer 6: Meditation aura ──
+            // Meditation charge overlay
             if (meditationCharged)
-                DrawMeditationGlow(sb, player);
+            {
+                Color meditGlow = EroicaPalette.PollenGold with { A = 0 };
+                float meditPulse = 0.7f + MathF.Sin(time * 4f) * 0.3f;
+                sb.Draw(bladeTex, playerDraw, null, meditGlow * (0.15f * meditPulse), drawBaseRot, bladeOrigin, bladeScale * 1.05f, flip, 0f);
+            }
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // ═══════════════════════════════════════════════════════════════════
+            //  LAYER 5: BLADE TIP BLOOM + SakuraBloom shader overlay
+            // ═══════════════════════════════════════════════════════════════════
+            DrawShaderBladeTipBloom(sb, player, phase, time);
+
+            // ═══════════════════════════════════════════════════════════════════
+            //  LAYER 6: MEDITATION AURA — PetalDissolve.fx for mystic petal glow
+            // ═══════════════════════════════════════════════════════════════════
+            if (meditationCharged)
+                DrawShaderMeditationGlow(sb, player, time);
+
+            // ═══════════════════════════════════════════════════════════════════
+            //  LAYER 7: SAKURA BLOOM HALO — SakuraBloom.fx on Final Bloom phase
+            // ═══════════════════════════════════════════════════════════════════
+            if (phase == 2)
+                DrawSakuraBloomOverlay(sb, player, progress, time);
 
             // Eroica theme accent
             EroicaVFXLibrary.BeginEroicaAdditive(sb);
@@ -345,301 +394,501 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
             return false;
         }
 
-        // ═══════════════════════════════════════════════════════════════════
-        // LAYER 1: SmearDistort shader arc (gentler than Valor — katana grace)
-        // ═══════════════════════════════════════════════════════════════════
-
-        private void DrawSmearArc(SpriteBatch sb, int phase, Vector2 playerDraw, float drawBaseRot,
-            float bladeScale, SpriteEffects flip)
+        // ═══════════════════════════════════════════════════════════════════════
+        //  LAYER 1: Sakura Smear Arc — SakuraSwingTrail.fx dual-pass
+        //  Pass 1: SakuraTrailFlow (petal shimmer body with dual-frequency petal)
+        //  Pass 2: SakuraTrailGlow (bright overbright sakura halo)
+        // ═══════════════════════════════════════════════════════════════════════
+        private void DrawSakuraSmearArc(SpriteBatch sb, int phase, float progress, float time,
+            Vector2 playerDraw, float drawBaseRot, float bladeScale, SpriteEffects flip)
         {
-            // Use FlamingSwordArc from SwordSmearFoundation (fiery arc for katana)
-            Texture2D smearTex = SMFTextures.FlamingSwordArc.Value;
+            // Use the curved sword slash for graceful katana arcs
+            Texture2D smearTex = EroicaTextures.CurvedSwordSlash?.Value;
+            if (smearTex == null)
+                smearTex = EroicaTextures.SimpleArcSwordSlash?.Value;
             if (smearTex == null) return;
 
             Vector2 smearOrigin = new Vector2(0, smearTex.Height * 0.5f);
-            float baseDistort = SmearDistortPerPhase[phase];
-            float baseFlow = SmearFlowPerPhase[phase];
-            float time = (float)Main.timeForVisualEffects * 0.008f;
+            float comboNorm = phase / 2f;
 
-            // Try shader path
-            Effect smearShader = SMFTextures.SmearDistortShader;
-            Texture2D noiseTex = SMFTextures.FBMNoise.Value;
-            Texture2D gradientTex = EroicaThemeTextures.ERGradientLUT;
+            // Smear fade: ramp in → hold → ramp out
+            float smearAlpha;
+            if (progress < 0.1f)
+                smearAlpha = progress / 0.1f;
+            else if (progress > 0.85f)
+                smearAlpha = (1f - progress) / 0.15f;
+            else
+                smearAlpha = 1f;
 
-            if (smearShader != null && noiseTex != null && gradientTex != null)
+            // ── SHADER PATH: SakuraSwingTrail.fx ──
+            if (EroicaShaderManager.HasSakuraSwingTrail)
             {
-                sb.End();
-
-                // Sub-layer A: Outer sakura haze (very gentle distortion)
-                sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
-                    DepthStencilState.None, RasterizerState.CullCounterClockwise, null,
-                    Main.GameViewMatrix.TransformationMatrix);
+                EroicaShaderManager.BeginShaderAdditive(sb);
                 try
                 {
-                smearShader.Parameters["uTime"]?.SetValue(time);
-                smearShader.Parameters["fadeAlpha"]?.SetValue(0.2f);
-                smearShader.Parameters["distortStrength"]?.SetValue(baseDistort * 1.2f);
-                smearShader.Parameters["flowSpeed"]?.SetValue(baseFlow * 0.8f);
-                smearShader.Parameters["noiseScale"]?.SetValue(1.8f);
-                smearShader.GraphicsDevice.Textures[1] = noiseTex;
-                smearShader.GraphicsDevice.SamplerStates[1] = SamplerState.LinearWrap;
-                smearShader.GraphicsDevice.Textures[2] = gradientTex;
-                smearShader.GraphicsDevice.SamplerStates[2] = SamplerState.LinearClamp;
-                smearShader.CurrentTechnique.Passes[0].Apply();
+                    // Sub-layer A: Wide outer sakura haze — SakuraTrailGlow pass
+                    EroicaShaderManager.ApplySakurasBlossomSwingTrail(time, comboNorm, glowPass: true);
+                    sb.Draw(smearTex, playerDraw, null,
+                        Color.White * smearAlpha * 0.35f, drawBaseRot, smearOrigin,
+                        bladeScale * 1.15f, flip, 0f);
 
-                Color outerCol = EroicaPalette.Sakura with { A = 0 };
-                sb.Draw(smearTex, playerDraw, null, outerCol * 0.25f, drawBaseRot, smearOrigin,
-                    bladeScale * 1.12f, flip, 0f);
-                sb.End();
+                    // Sub-layer B: Main sakura petal body — SakuraTrailFlow pass
+                    EroicaShaderManager.ApplySakurasBlossomSwingTrail(time, comboNorm, glowPass: false);
+                    sb.Draw(smearTex, playerDraw, null,
+                        Color.White * smearAlpha * 0.6f, drawBaseRot, smearOrigin,
+                        bladeScale * 1.04f, flip, 0f);
 
-                // Sub-layer B: Main sakura smear
-                sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
-                    DepthStencilState.None, RasterizerState.CullCounterClockwise, null,
-                    Main.GameViewMatrix.TransformationMatrix);
+                    // Sub-layer C: Bright petal-white core
+                    EroicaShaderManager.ApplySakuraSwingTrail(time,
+                        Color.White, EroicaPalette.PollenGold,
+                        glowPass: false,
+                        scrollSpeed: 1.5f + comboNorm * 0.3f,
+                        distortionAmt: 0.03f,
+                        overbrightMult: 3.5f + comboNorm * 1.0f,
+                        phase: comboNorm);
+                    sb.Draw(smearTex, playerDraw, null,
+                        Color.White * smearAlpha * 0.35f, drawBaseRot, smearOrigin,
+                        bladeScale * 0.92f, flip, 0f);
 
-                smearShader.Parameters["fadeAlpha"]?.SetValue(0.5f);
-                smearShader.Parameters["distortStrength"]?.SetValue(baseDistort);
-                smearShader.Parameters["flowSpeed"]?.SetValue(baseFlow);
-                smearShader.Parameters["noiseScale"]?.SetValue(2.2f);
-                smearShader.CurrentTechnique.Passes[0].Apply();
-
-                Color mainCol = Color.Lerp(EroicaPalette.Sakura, Color.White, 0.3f) with { A = 0 };
-                sb.Draw(smearTex, playerDraw, null, mainCol * 0.45f, drawBaseRot, smearOrigin,
-                    bladeScale * 1.04f, flip, 0f);
-                sb.End();
-
-                // Sub-layer C: Bright petal-white core (very subtle)
-                sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
-                    DepthStencilState.None, RasterizerState.CullCounterClockwise, null,
-                    Main.GameViewMatrix.TransformationMatrix);
-
-                smearShader.Parameters["fadeAlpha"]?.SetValue(0.35f);
-                smearShader.Parameters["distortStrength"]?.SetValue(baseDistort * 0.4f);
-                smearShader.Parameters["flowSpeed"]?.SetValue(baseFlow * 1.2f);
-                smearShader.Parameters["noiseScale"]?.SetValue(2.8f);
-                smearShader.CurrentTechnique.Passes[0].Apply();
-
-                Color coreCol = Color.Lerp(Color.White, EroicaPalette.Sakura, 0.15f) with { A = 0 };
-                sb.Draw(smearTex, playerDraw, null, coreCol * 0.3f, drawBaseRot, smearOrigin,
-                    bladeScale * 0.96f, flip, 0f);
+                    // Sub-layer D: Meditation-charged extra glow
+                    if (meditationCharged)
+                    {
+                        EroicaShaderManager.ApplySakurasBlossomSwingTrail(time, 1f, glowPass: true);
+                        sb.Draw(smearTex, playerDraw, null,
+                            Color.White * smearAlpha * 0.25f, drawBaseRot, smearOrigin,
+                            bladeScale * 1.2f, flip, 0f);
+                    }
                 }
                 finally
                 {
-                    sb.End();
-                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                        Main.DefaultSamplerState, DepthStencilState.None,
-                        RasterizerState.CullCounterClockwise, null,
-                        Main.GameViewMatrix.TransformationMatrix);
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
                 }
             }
             else
             {
-                // Fallback: static sakura-tinted smear layers
-                Color fallbackOuter = EroicaPalette.Sakura with { A = 0 };
-                Color fallbackCore = Color.Lerp(EroicaPalette.Sakura, Color.White, 0.5f) with { A = 0 };
+                // ── FALLBACK: Static sakura-tinted layers ──
+                EroicaShaderManager.BeginAdditive(sb);
+                try
+                {
+                    Color outerCol = EroicaPalette.Sakura with { A = 0 };
+                    Color mainCol = Color.Lerp(EroicaPalette.Sakura, Color.White, 0.3f) with { A = 0 };
+                    Color coreCol = Color.Lerp(Color.White, EroicaPalette.Sakura, 0.15f) with { A = 0 };
 
-                sb.Draw(smearTex, playerDraw, null, fallbackOuter * 0.2f, drawBaseRot, smearOrigin,
-                    bladeScale * 1.10f, flip, 0f);
-                sb.Draw(smearTex, playerDraw, null, fallbackCore * 0.35f, drawBaseRot, smearOrigin,
-                    bladeScale * 1.02f, flip, 0f);
+                    sb.Draw(smearTex, playerDraw, null, outerCol * smearAlpha * 0.25f, drawBaseRot, smearOrigin, bladeScale * 1.12f, flip, 0f);
+                    sb.Draw(smearTex, playerDraw, null, mainCol * smearAlpha * 0.45f, drawBaseRot, smearOrigin, bladeScale * 1.04f, flip, 0f);
+                    sb.Draw(smearTex, playerDraw, null, coreCol * smearAlpha * 0.3f, drawBaseRot, smearOrigin, bladeScale * 0.96f, flip, 0f);
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
             }
         }
 
-        // ═══════════════════════════════════════════════════════════════════
-        // LAYER 2: Harmonic Wave ribbon trail (RibbonFoundation Mode 4)
-        // ═══════════════════════════════════════════════════════════════════
-
-        private void DrawHarmonicRibbon(SpriteBatch sb, int phase)
+        // ═══════════════════════════════════════════════════════════════════════
+        //  LAYER 2: Shader Petal Ribbon — SakuraSwingTrail.fx on blade tip strip
+        //  Dual pass: petal shimmer body + sakura glow halo with standing wave modulation.
+        // ═══════════════════════════════════════════════════════════════════════
+        private void DrawShaderPetalRibbon(SpriteBatch sb, int phase, float time)
         {
             if (ribbonCount < 3) return;
 
-            // Build ordered position array from ring buffer (oldest → newest)
             int drawCount = Math.Min(ribbonCount, RibbonTrailLength);
-            Vector2[] orderedPositions = new Vector2[drawCount];
-            float[] orderedRotations = new float[drawCount];
+            Vector2[] positions = new Vector2[drawCount];
             for (int i = 0; i < drawCount; i++)
             {
                 int idx = (ribbonIndex - drawCount + i + RibbonTrailLength) % RibbonTrailLength;
-                orderedPositions[i] = ribbonPositions[idx];
-                orderedRotations[i] = ribbonRotations[idx];
+                positions[i] = ribbonPositions[idx];
             }
 
-            // Use HarmonicWaveRibbon texture for standing wave pattern
-            Texture2D stripTex = RBFTextures.HarmonicWaveRibbon.Value;
+            Texture2D stripTex = EroicaTextures.EnergyTrailUV?.Value ?? EroicaTextures.SparkleField?.Value;
             if (stripTex == null) return;
 
             int texW = stripTex.Width;
             int texH = stripTex.Height;
-            float time = (float)Main.timeForVisualEffects * 0.005f;
-            float widthScale = RibbonWidthScale[phase];
-
-            // Switch to additive for glowing ribbon
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
-                SamplerState.LinearWrap, DepthStencilState.None,
-                RasterizerState.CullCounterClockwise, null,
-                Main.GameViewMatrix.TransformationMatrix);
-            try
-            {
+            float scrollTime = (float)Main.timeForVisualEffects * 0.005f;
             int srcWidth = Math.Max(1, texW / drawCount);
+            float widthScale = RibbonWidthScale[phase];
+            float comboNorm = phase / 2f;
 
-            for (int i = 0; i < drawCount - 1; i++)
+            bool hasShader = EroicaShaderManager.HasSakuraSwingTrail;
+
+            if (hasShader)
             {
-                float progress = (float)i / drawCount; // 0 = oldest (tail), 1 = newest (head)
-                float fade = progress * progress; // Cubic-ish — brighter near head
-                if (fade < 0.01f) continue;
-
-                // Width: narrow tail → wider head, scaled by phase
-                float width = MathHelper.Lerp(RibbonWidthTail, RibbonWidthHead, progress) * widthScale;
-
-                // Standing wave modulation (Mode 4 signature)
-                float waveFreq = 4f + phase;
-                float wave = 0.6f + 0.4f * MathF.Sin(progress * waveFreq * MathHelper.Pi + time * 3f);
-                width *= wave;
-
-                // Segment geometry
-                Vector2 segDir = orderedPositions[i + 1] - orderedPositions[i];
-                float segLength = segDir.Length();
-                if (segLength < 0.5f) continue;
-                float segAngle = segDir.ToRotation();
-
-                // UV scrolling
-                float uStart = (progress + time * 2f) % 1f;
-                int srcX = (int)(uStart * texW) % texW;
-                Rectangle srcRect = new Rectangle(srcX, 0, srcWidth, texH);
-
-                float scaleX = segLength / (float)srcWidth;
-                float scaleY = width / (float)texH;
-
-                Vector2 pos = orderedPositions[i] - Main.screenPosition;
-                Vector2 origin = new Vector2(0, texH / 2f);
-
-                // Pink → white body color gradient
-                Color bodyColor = Color.Lerp(EroicaPalette.Sakura, Color.White, progress * 0.5f) with { A = 0 };
-                sb.Draw(stripTex, pos, srcRect, bodyColor * (fade * 0.7f), segAngle, origin,
-                    new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
-
-                // Bright inner core near head
-                if (progress > 0.4f)
+                // ── PASS 1: Petal shimmer body (SakuraTrailFlow) ──
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                try
                 {
-                    float coreFade = (progress - 0.4f) / 0.6f;
-                    Color coreColor = Color.Lerp(Color.White, EroicaPalette.PollenGold, 0.2f) with { A = 0 };
-                    sb.Draw(stripTex, pos, srcRect, coreColor * (fade * coreFade * 0.35f), segAngle, origin,
-                        new Vector2(scaleX * 0.5f, scaleY * 0.5f), SpriteEffects.None, 0f);
+                    EroicaShaderManager.ApplySakurasBlossomSwingTrail(time, comboNorm, glowPass: false);
+
+                    for (int i = 0; i < drawCount - 1; i++)
+                    {
+                        float progress = (float)i / drawCount;
+                        float fade = progress * progress;
+                        if (fade < 0.01f) continue;
+
+                        // Smooth tip fade-in/out to prevent hard trail endpoints
+                        float tipFade = MathHelper.Clamp(progress * 6f, 0f, 1f) * MathHelper.Clamp((1f - progress) * 4f, 0f, 1f);
+
+                        float width = MathHelper.Lerp(RibbonWidthTail, RibbonWidthHead, progress) * widthScale;
+
+                        // Gentler standing wave modulation to reduce seam visibility
+                        float waveFreq = 4f + phase;
+                        float wave = 0.8f + 0.2f * MathF.Sin(progress * waveFreq * MathHelper.Pi + time * 3f);
+                        width *= wave;
+
+                        Vector2 segDir = positions[i + 1] - positions[i];
+                        float segLength = segDir.Length();
+                        if (segLength < 0.5f) continue;
+                        float segAngle = segDir.ToRotation();
+
+                        float uStart = (progress + scrollTime * 2f) % 1f;
+                        int srcX = (int)(uStart * texW) % texW;
+                        Rectangle srcRect = new Rectangle(srcX, 0, srcWidth, texH);
+
+                        float scaleX = segLength / (float)srcWidth;
+                        float scaleY = width / (float)texH;
+                        Vector2 pos = positions[i] - Main.screenPosition;
+                        Vector2 origin = new Vector2(0, texH / 2f);
+
+                        sb.Draw(stripTex, pos, srcRect, Color.White * (fade * tipFade * 0.55f), segAngle, origin,
+                            new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
+                    }
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
+
+                // ── PASS 2: Sakura glow halo (SakuraTrailGlow) — wider, softer ──
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                try
+                {
+                    EroicaShaderManager.ApplySakurasBlossomSwingTrail(time, comboNorm, glowPass: true);
+
+                    for (int i = 0; i < drawCount - 1; i++)
+                    {
+                        float progress = (float)i / drawCount;
+                        float fade = progress * progress;
+                        if (fade < 0.02f) continue;
+
+                        // Smooth tip fade-in/out
+                        float tipFade = MathHelper.Clamp(progress * 6f, 0f, 1f) * MathHelper.Clamp((1f - progress) * 4f, 0f, 1f);
+
+                        float width = MathHelper.Lerp(RibbonWidthTail, RibbonWidthHead, progress) * widthScale * 1.5f;
+                        float waveFreq = 4f + phase;
+                        float wave = 0.8f + 0.2f * MathF.Sin(progress * waveFreq * MathHelper.Pi + time * 3f);
+                        width *= wave;
+
+                        Vector2 segDir = positions[i + 1] - positions[i];
+                        float segLength = segDir.Length();
+                        if (segLength < 0.5f) continue;
+                        float segAngle = segDir.ToRotation();
+
+                        float uStart = (progress + scrollTime * 2f) % 1f;
+                        int srcX = (int)(uStart * texW) % texW;
+                        Rectangle srcRect = new Rectangle(srcX, 0, srcWidth, texH);
+
+                        float scaleX = segLength / (float)srcWidth;
+                        float scaleY = width / (float)texH;
+                        Vector2 pos = positions[i] - Main.screenPosition;
+                        Vector2 origin = new Vector2(0, texH / 2f);
+
+                        sb.Draw(stripTex, pos, srcRect, Color.White * (fade * tipFade * 0.3f), segAngle, origin,
+                            new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
+                    }
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
+            }
+            else
+            {
+                // Fallback: basic additive sakura strip
+                EroicaShaderManager.BeginAdditive(sb);
+                try
+                {
+                    for (int i = 0; i < drawCount - 1; i++)
+                    {
+                        float progress = (float)i / drawCount;
+                        float fade = progress * progress;
+                        if (fade < 0.01f) continue;
+
+                        // Smooth tip fade-in/out
+                        float tipFade = MathHelper.Clamp(progress * 6f, 0f, 1f) * MathHelper.Clamp((1f - progress) * 4f, 0f, 1f);
+
+                        float width = MathHelper.Lerp(RibbonWidthTail, RibbonWidthHead, progress) * widthScale;
+                        float waveFreq = 4f + phase;
+                        float wave = 0.8f + 0.2f * MathF.Sin(progress * waveFreq * MathHelper.Pi + scrollTime * 3f);
+                        width *= wave;
+
+                        Vector2 segDir = positions[i + 1] - positions[i];
+                        float segLength = segDir.Length();
+                        if (segLength < 0.5f) continue;
+                        float segAngle = segDir.ToRotation();
+
+                        float uStart = (progress + scrollTime * 2f) % 1f;
+                        int srcX = (int)(uStart * texW) % texW;
+                        Rectangle srcRect = new Rectangle(srcX, 0, srcWidth, texH);
+                        float scaleX = segLength / (float)srcWidth;
+                        float scaleY = width / (float)texH;
+                        Vector2 pos = positions[i] - Main.screenPosition;
+                        Vector2 origin = new Vector2(0, texH / 2f);
+
+                        Color bodyColor = Color.Lerp(EroicaPalette.Sakura, Color.White, progress * 0.5f) with { A = 0 };
+                        sb.Draw(stripTex, pos, srcRect, bodyColor * (fade * tipFade * 0.55f), segAngle, origin,
+                            new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
+                    }
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
                 }
             }
 
-            // Bloom overlay along trail
+            // ── Bloom points along trail ──
             Texture2D bloomTex = MagnumTextureRegistry.GetBloom();
             if (bloomTex != null)
             {
-                Vector2 bloomOrigin = bloomTex.Size() * 0.5f;
-                int bloomStep = Math.Max(1, drawCount / 8);
-                for (int i = 0; i < drawCount; i += bloomStep)
+                EroicaShaderManager.BeginAdditive(sb);
+                try
                 {
-                    float progress = (float)i / drawCount;
-                    if (progress < 0.2f) continue;
-                    float bloomFade = progress * progress * 0.2f;
-                    Color bloomCol = EroicaPalette.Sakura with { A = 0 };
-                    float bloomScale = MathHelper.Lerp(0.08f, 0.2f, progress) * widthScale;
-                    sb.Draw(bloomTex, orderedPositions[i] - Main.screenPosition, null,
-                        bloomCol * bloomFade, 0f, bloomOrigin, bloomScale, SpriteEffects.None, 0f);
+                    Vector2 bloomOrigin = bloomTex.Size() * 0.5f;
+                    int bloomStep = Math.Max(1, drawCount / 8);
+                    for (int i = 0; i < drawCount; i += bloomStep)
+                    {
+                        float progress = (float)i / drawCount;
+                        if (progress < 0.2f) continue;
+                        float bloomFade = progress * progress * 0.25f;
+                        Color bloomCol = EroicaPalette.Sakura with { A = 0 };
+                        float bloomScale = MathHelper.Lerp(0.08f, 0.22f, progress) * widthScale;
+                        sb.Draw(bloomTex, positions[i] - Main.screenPosition, null,
+                            bloomCol * bloomFade, 0f, bloomOrigin, bloomScale, SpriteEffects.None, 0f);
+                    }
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
                 }
             }
-            }
-            finally
-            {
-                // Restore
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                    Main.DefaultSamplerState, DepthStencilState.None,
-                    RasterizerState.CullCounterClockwise, null,
-                    Main.GameViewMatrix.TransformationMatrix);
-            }
         }
 
-        // ═══════════════════════════════════════════════════════════════════
-        // LAYER 3: Afterimage trail (sakura petal ghost)
-        // ═══════════════════════════════════════════════════════════════════
-
-        private void DrawAfterimages(SpriteBatch sb, Texture2D tex, Vector2 origin, float scale,
-            SpriteEffects flip, Vector2 playerDraw, int phase)
+        // ═══════════════════════════════════════════════════════════════════════
+        //  LAYER 3: Shader Afterimages — SakuraTrailGlow pass on blade sprites
+        // ═══════════════════════════════════════════════════════════════════════
+        private void DrawShaderAfterimages(SpriteBatch sb, Texture2D tex, Vector2 origin, float scale,
+            SpriteEffects flip, Vector2 playerDraw, int phase, float drawBaseRot, float time)
         {
             int count = 5 + phase;
+            float comboNorm = phase / 2f;
 
-            for (int i = 0; i < count && i < MaxAfterimages; i++)
+            if (EroicaShaderManager.HasSakuraSwingTrail)
             {
-                int idx = (afterimageHead - 2 - i + MaxAfterimages) % MaxAfterimages;
-                float rot = afterimageRotations[idx];
-                float drawRot = rot + (swingDirection > 0 ? -MathHelper.PiOver4 : MathHelper.PiOver4 + MathHelper.Pi);
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                try
+                {
+                    for (int i = 0; i < count && i < MaxAfterimages; i++)
+                    {
+                        int idx = (afterimageHead - 2 - i + MaxAfterimages) % MaxAfterimages;
+                        float rot = afterimageRotations[idx];
+                        float afterDrawRot = rot + (swingDirection > 0 ? -MathHelper.PiOver4 : MathHelper.PiOver4 + MathHelper.Pi);
 
-                float fade = 1f - (float)(i + 1) / (count + 1);
-                fade *= fade;
+                        float fade = 1f - (float)(i + 1) / (count + 1);
+                        fade *= fade;
 
-                Color col = Color.Lerp(EroicaPalette.Sakura, EroicaPalette.PollenGold, (float)i / count) * (fade * 0.3f);
-                col.A = 0;
+                        EroicaShaderManager.ApplySakuraSwingTrail(
+                            time + i * 0.08f,
+                            EroicaPalette.Sakura, EroicaPalette.PollenGold,
+                            glowPass: true,
+                            scrollSpeed: 0.8f + comboNorm * 0.3f,
+                            distortionAmt: 0.02f + i * 0.008f,
+                            overbrightMult: 2.0f * fade,
+                            phase: comboNorm);
 
-                sb.Draw(tex, playerDraw, null, col, drawRot, origin, scale * (1f - i * 0.02f), flip, 0f);
+                        float afterScale = scale * (1f - i * 0.02f);
+                        sb.Draw(tex, playerDraw, null, Color.White * (fade * 0.3f), afterDrawRot, origin, afterScale, flip, 0f);
+                    }
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < count && i < MaxAfterimages; i++)
+                {
+                    int idx = (afterimageHead - 2 - i + MaxAfterimages) % MaxAfterimages;
+                    float rot = afterimageRotations[idx];
+                    float afterDrawRot = rot + (swingDirection > 0 ? -MathHelper.PiOver4 : MathHelper.PiOver4 + MathHelper.Pi);
+
+                    float fade = 1f - (float)(i + 1) / (count + 1);
+                    fade *= fade;
+
+                    Color col = Color.Lerp(EroicaPalette.Sakura, EroicaPalette.PollenGold, (float)i / count) * (fade * 0.3f);
+                    col.A = 0;
+
+                    sb.Draw(tex, playerDraw, null, col, afterDrawRot, origin, scale * (1f - i * 0.02f), flip, 0f);
+                }
             }
         }
 
-        // ═══════════════════════════════════════════════════════════════════
-        // LAYER 5: Blade tip bloom
-        // ═══════════════════════════════════════════════════════════════════
-
-        private void DrawBladeTipBloom(SpriteBatch sb, Player player, int phase)
+        // ═══════════════════════════════════════════════════════════════════════
+        //  LAYER 5: Shader Blade Tip Bloom — SakuraBloom.fx petal bloom at tip
+        // ═══════════════════════════════════════════════════════════════════════
+        private void DrawShaderBladeTipBloom(SpriteBatch sb, Player player, int phase, float time)
         {
             Vector2 tipPos = player.Center + swingRotation.ToRotationVector2() * BladeLength;
+            float comboNorm = phase / 2f;
 
+            // Standard bloom stack
             EroicaVFXLibrary.DrawEroicaBloomStack(sb, tipPos,
                 EroicaPalette.Sakura, EroicaPalette.PollenGold,
                 0.25f + phase * 0.06f, 0.7f + phase * 0.1f);
 
-            // ER Sakura Petal accent — floating sakura halo on blade tip
+            // ── SakuraBloom shader petal halo at blade tip ──
+            Texture2D bloom = MagnumTextureRegistry.GetBloom();
+            if (bloom != null && EroicaShaderManager.HasSakuraBloom)
+            {
+                Vector2 bloomOrigin = bloom.Size() * 0.5f;
+                Vector2 bloomDrawPos = tipPos - Main.screenPosition;
+
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                try
+                {
+                    EroicaShaderManager.ApplySakurasBlossomPetalBurst(time, comboNorm, glowPass: false);
+                    sb.Draw(bloom, bloomDrawPos, null, Color.White * (0.2f + comboNorm * 0.1f),
+                        0f, bloomOrigin, 0.3f + phase * 0.05f, SpriteEffects.None, 0f);
+
+                    EroicaShaderManager.ApplySakurasBlossomPetalBurst(time, comboNorm, glowPass: true);
+                    sb.Draw(bloom, bloomDrawPos, null, Color.White * (0.15f + comboNorm * 0.08f),
+                        time * 0.5f, bloomOrigin, 0.45f + phase * 0.07f, SpriteEffects.None, 0f);
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
+            }
+
+            // Sakura petal accent at tip
             Texture2D petalTex = EroicaThemeTextures.ERSakuraPetal;
             if (petalTex != null)
             {
                 Vector2 petalOrigin = petalTex.Size() * 0.5f;
                 Vector2 petalDrawPos = tipPos - Main.screenPosition;
-                float petalRot = (float)Main.GameUpdateCount * 0.03f;
-                float petalPulse = 0.7f + MathF.Sin((float)Main.GameUpdateCount * 0.07f) * 0.3f;
+                float petalRot = time * 1.5f;
+                float petalPulse = 0.7f + MathF.Sin(time * 3.5f) * 0.3f;
                 Color petalCol = EroicaPalette.Sakura with { A = 0 };
                 sb.Draw(petalTex, petalDrawPos, null, petalCol * (0.25f * petalPulse), petalRot, petalOrigin,
                     0.22f + phase * 0.04f, SpriteEffects.None, 0f);
             }
         }
 
-        // ═══════════════════════════════════════════════════════════════════
-        // LAYER 6: Meditation aura
-        // ═══════════════════════════════════════════════════════════════════
+        // ═══════════════════════════════════════════════════════════════════════
+        //  LAYER 6: Shader Meditation Glow — PetalDissolve.fx mystic petal aura
+        // ═══════════════════════════════════════════════════════════════════════
+        private void DrawShaderMeditationGlow(SpriteBatch sb, Player player, float time)
+        {
+            Vector2 drawPos = player.Center - Main.screenPosition;
+            float pulse = 0.8f + MathF.Sin(time * 3f) * 0.2f;
 
-        private void DrawMeditationGlow(SpriteBatch sb, Player player)
+            if (EroicaShaderManager.HasPetalDissolve)
+            {
+                Texture2D bloom = MagnumTextureRegistry.GetBloom();
+                if (bloom != null)
+                {
+                    Vector2 bloomOrigin = bloom.Size() * 0.5f;
+
+                    EroicaShaderManager.BeginShaderAdditive(sb);
+                    try
+                    {
+                        // Inner dissolve aura — solid petal ring
+                        EroicaShaderManager.ApplySakurasBlossomDissolve(time, 0.3f, glowPass: false);
+                        sb.Draw(bloom, drawPos, null, Color.White * (0.2f * pulse),
+                            0f, bloomOrigin, 0.5f, SpriteEffects.None, 0f);
+
+                        // Outer dissolve haze — partially dissolved petals
+                        EroicaShaderManager.ApplySakurasBlossomDissolve(time, 0.6f, glowPass: true);
+                        sb.Draw(bloom, drawPos, null, Color.White * (0.12f * pulse),
+                            time * 0.2f, bloomOrigin, 0.9f, SpriteEffects.None, 0f);
+                    }
+                    finally
+                    {
+                        EroicaShaderManager.RestoreSpriteBatch(sb);
+                    }
+                }
+            }
+            else
+            {
+                // Fallback
+                Texture2D bloom = MagnumTextureRegistry.GetBloom();
+                if (bloom != null)
+                {
+                    Vector2 bloomOrigin = bloom.Size() * 0.5f;
+                    Color meditColor = EroicaPalette.Sakura with { A = 0 };
+                    sb.Draw(bloom, drawPos, null, meditColor * (0.18f * pulse), 0f, bloomOrigin, 0.7f, SpriteEffects.None, 0f);
+
+                    Color innerColor = EroicaPalette.PollenGold with { A = 0 };
+                    sb.Draw(bloom, drawPos, null, innerColor * (0.12f * pulse), 0f, bloomOrigin, 0.4f, SpriteEffects.None, 0f);
+                }
+            }
+
+            // Meditation ring overlay
+            Texture2D ringTex = EroicaThemeTextures.ERPowerEffectRing;
+            if (ringTex != null)
+            {
+                Vector2 ringOrigin = ringTex.Size() * 0.5f;
+                float ringRot = time * 0.7f;
+                float ringPulse = 0.6f + MathF.Sin(time * 2.5f) * 0.4f;
+                Color ringCol = Color.Lerp(EroicaPalette.Sakura, EroicaPalette.PollenGold, ringPulse) with { A = 0 };
+                sb.Draw(ringTex, drawPos, null, ringCol * (0.12f * ringPulse), ringRot, ringOrigin,
+                    0.4f, SpriteEffects.None, 0f);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        //  LAYER 7: Sakura Bloom Overlay — SakuraBloom.fx on Final Bloom phase
+        // ═══════════════════════════════════════════════════════════════════════
+        private void DrawSakuraBloomOverlay(SpriteBatch sb, Player player, float progress, float time)
         {
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
             Vector2 drawPos = player.Center - Main.screenPosition;
             Vector2 bloomOrigin = bloom.Size() * 0.5f;
-            float pulse = 0.8f + MathF.Sin((float)Main.GameUpdateCount * 0.06f) * 0.2f;
 
-            Color meditColor = EroicaPalette.Sakura with { A = 0 };
-            sb.Draw(bloom, drawPos, null, meditColor * (0.18f * pulse), 0f, bloomOrigin,
-                1.5f, SpriteEffects.None, 0f);
-
-            Color innerColor = EroicaPalette.PollenGold with { A = 0 };
-            sb.Draw(bloom, drawPos, null, innerColor * (0.12f * pulse), 0f, bloomOrigin,
-                0.8f, SpriteEffects.None, 0f);
-
-            // ER Power Effect Ring — concentric ring around meditation glow
-            Texture2D ringTex = EroicaThemeTextures.ERPowerEffectRing;
-            if (ringTex != null)
+            if (EroicaShaderManager.HasSakuraBloom)
             {
-                Vector2 ringOrigin = ringTex.Size() * 0.5f;
-                float ringRot = (float)Main.GameUpdateCount * 0.015f;
-                float ringPulse = 0.6f + MathF.Sin((float)Main.GameUpdateCount * 0.05f) * 0.4f;
-                Color ringCol = Color.Lerp(EroicaPalette.Sakura, EroicaPalette.PollenGold, ringPulse) with { A = 0 };
-                sb.Draw(ringTex, drawPos, null, ringCol * (0.12f * ringPulse), ringRot, ringOrigin,
-                    0.4f, SpriteEffects.None, 0f);
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                try
+                {
+                    EroicaShaderManager.ApplySakurasBlossomPetalBurst(time, progress, glowPass: false);
+                    sb.Draw(bloom, drawPos, null, Color.White * (0.25f * progress),
+                        0f, bloomOrigin, 1.2f * progress, SpriteEffects.None, 0f);
+
+                    EroicaShaderManager.ApplySakurasBlossomPetalBurst(time, progress, glowPass: true);
+                    sb.Draw(bloom, drawPos, null, Color.White * (0.15f * progress),
+                        time * 0.3f, bloomOrigin, 1.8f * progress, SpriteEffects.None, 0f);
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
+            }
+            else
+            {
+                Color sakuraGlow = EroicaPalette.Sakura with { A = 0 };
+                EroicaShaderManager.BeginAdditive(sb);
+                try
+                {
+                    sb.Draw(bloom, drawPos, null, sakuraGlow * (0.2f * progress), 0f, bloomOrigin,
+                        1.2f * progress, SpriteEffects.None, 0f);
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
             }
         }
 

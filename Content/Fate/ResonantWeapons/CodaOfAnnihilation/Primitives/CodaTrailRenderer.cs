@@ -198,17 +198,37 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Primitives
                 device.SetVertexBuffer(_vertexBuffer);
                 device.Indices = _indexBuffer;
 
+                // Set render states for GPU primitive drawing
+                var prevBlend = device.BlendState;
+                var prevDepth = device.DepthStencilState;
+                var prevRaster = device.RasterizerState;
+                device.BlendState = BlendState.Additive;
+                device.DepthStencilState = DepthStencilState.None;
+                device.RasterizerState = RasterizerState.CullNone;
+
                 if (settings.Shader != null)
                 {
+                    // Set WVP matrix with zoom compensation on the underlying Effect
+                    var zoom = Main.GameViewMatrix.Zoom;
+                    Matrix projection = Matrix.CreateOrthographicOffCenter(
+                        0, Main.screenWidth / zoom.X, Main.screenHeight / zoom.Y, 0, -1, 1);
+                    settings.Shader.Shader?.Parameters["uWorldViewProjection"]?.SetValue(projection);
+
                     settings.Shader.Apply();
                 }
 
                 device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertexCount, 0, indexCount / 3);
+
+                device.SetVertexBuffer(null);
+                device.Indices = null;
+                device.BlendState = prevBlend;
+                device.DepthStencilState = prevDepth;
+                device.RasterizerState = prevRaster;
             }
             catch
             {
-                // Fallback: simple line draw
-                DrawLineFallback(sampled, settings, completionRatios);
+                // Fallback: simple line draw (wrapped in try/catch — SpriteBatch may not be active)
+                try { DrawLineFallback(sampled, settings, completionRatios); } catch { }
             }
         }
 

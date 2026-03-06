@@ -132,7 +132,7 @@ namespace MagnumOpus.Content.Winter.Weapons
             3 => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/WideSoftEllipse",
             _ => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse",
         };
-
+        protected override string GetSmearGradientPath() => "MagnumOpus/Assets/VFX Asset Library/ColorGradients/ClairDeLuneGradientLUTandRAMP";
         #endregion
 
         #region 隨渉隨渉 Virtual Overrides 隨渉隨渉

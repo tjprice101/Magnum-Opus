@@ -182,7 +182,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance
             float pulse = 1f + (float)Math.Sin(time * 2.2f) * 0.04f * (1f + chargeProgress);
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Indigo outer shimmer — scales with charge

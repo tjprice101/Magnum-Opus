@@ -330,7 +330,7 @@ namespace MagnumOpus.Common.Systems.VFX
             try { spriteBatch.End(); } catch { }
             
             // Draw the "other dimension" visible through the tear
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearWrap,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearWrap,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Calculate UV offset for scrolling dimension texture (ensure positive modulo)
@@ -370,7 +370,7 @@ namespace MagnumOpus.Common.Systems.VFX
             try { spriteBatch.End(); } catch { }
             
             // Draw edge glow
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Edge bloom layers

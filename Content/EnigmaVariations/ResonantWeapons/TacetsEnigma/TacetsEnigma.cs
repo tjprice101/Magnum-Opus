@@ -17,6 +17,8 @@ using MagnumOpus.Content.EnigmaVariations.Debuffs;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma.Particles;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma.Dusts;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma.Utilities;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma.Primitives;
+using MagnumOpus.Content.EnigmaVariations;
 
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
 {
@@ -164,47 +166,106 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
     {
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
+        private readonly List<Vector2> _trailPositions = new(30);
         
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MusicNote";
         
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
             Texture2D bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
-            Texture2D glyphTex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
-            
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float rotation = Projectile.velocity.ToRotation();
-            
-            // === Shader overlay: Crystalline fracture shard trail ===
+
+            // ═══════════════════════════════════════════════════════
+            //  LAYER 1: GPU PRIMITIVE TRAIL — silent bullet path
+            // ═══════════════════════════════════════════════════════
+            if (_trailPositions.Count > 2)
+            {
+                try
+                {
+                    sb.End();
+
+                    if (ShaderLoader.TacetBulletTrail != null)
+                    {
+                        var bodySettings = new TacetPrimitiveSettings(
+                            widthFunction: c => MathHelper.Lerp(7f, 1.5f, c),
+                            colorFunction: c => Color.Lerp(TacetUtils.TacetPurple, TacetUtils.ParadoxGreen, c * 0.5f) * (0.6f - c * 0.35f),
+                            shader: ShaderLoader.TacetBulletTrail);
+                        TacetPrimitiveRenderer.RenderTrail(_trailPositions, bodySettings);
+                    }
+
+                    if (ShaderLoader.TacetBulletTrail != null)
+                    {
+                        var glowSettings = new TacetPrimitiveSettings(
+                            widthFunction: c => MathHelper.Lerp(14f, 3f, c),
+                            colorFunction: c => TacetUtils.MutedAbyss * (0.25f - c * 0.15f),
+                            shader: ShaderLoader.TacetBulletTrail);
+                        TacetPrimitiveRenderer.RenderTrail(_trailPositions, glowSettings);
+                    }
+
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch
+                {
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
+
+            // ═══════════════════════════════════════════════════════
+            //  LAYER 2: SHADER OVERLAY — crystalline fracture shard
+            // ═══════════════════════════════════════════════════════
             EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.TacetBulletTrail,
-                bloomTex, drawPos, bloomTex.Size() / 2f, 0.8f,
+                bloomTex, drawPos, bloomTex.Size() / 2f, 0.9f,
                 TacetUtils.TacetPurple.ToVector3(), TacetUtils.ParadoxGreen.ToVector3(),
-                opacity: 0.5f, intensity: 1.0f, rotation: rotation,
+                opacity: 0.5f, intensity: 1.1f, rotation: rotation,
                 noiseTexture: ShaderLoader.GetNoiseTexture("VoronoiNoise"),
                 techniqueName: "TacetBulletFlow");
-            
-            TacetUtils.EnterAdditiveShaderRegion(sb);
-            
-            // Glow trail — narrow MagicPixel bar behind the projectile
-            sb.Draw(pixel, drawPos, new Rectangle(0, 0, 1, 1), TacetUtils.TacetPurple * 0.6f,
-                rotation, new Vector2(0.5f, 0.5f), new Vector2(20f, 6f), SpriteEffects.None, 0f);
-            
-            // Bloom core at center
-            Color coreColor = Color.Lerp(TacetUtils.TacetPurple, TacetUtils.ParadoxGreen, 0.25f);
-            sb.Draw(bloomTex, drawPos, null, coreColor * 0.7f, 0f,
-                bloomTex.Size() / 2f, 0.2f, SpriteEffects.None, 0f);
-            
-            // Glyph sprite faintly on top
-            sb.Draw(glyphTex, drawPos, null, TacetUtils.TacetPurple * 0.35f, rotation,
-                glyphTex.Size() / 2f, 0.5f, SpriteEffects.None, 0f);
 
-            // Theme texture accents
-            TacetUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
-            
-            TacetUtils.ExitShaderRegion(sb);
-            
+            // ═══════════════════════════════════════════════════════
+            //  LAYER 3: 6-LAYER BLOOM STACK — silence bullet radiance
+            // ═══════════════════════════════════════════════════════
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // [0] DeadSilence — outer void halo
+            sb.Draw(bloomTex, drawPos, null, TacetUtils.DeadSilence * 0.12f, 0f,
+                bloomTex.Size() / 2f, 1.4f, SpriteEffects.None, 0f);
+            // [1] MutedAbyss — deep glow
+            sb.Draw(bloomTex, drawPos, null, TacetUtils.MutedAbyss * 0.2f, 0f,
+                bloomTex.Size() / 2f, 0.9f, SpriteEffects.None, 0f);
+            // [2] TacetPurple — bullet aura
+            sb.Draw(bloomTex, drawPos, null, TacetUtils.TacetPurple * 0.4f, 0f,
+                bloomTex.Size() / 2f, 0.55f, SpriteEffects.None, 0f);
+            // [3] ParadoxGreen — paradox hint
+            sb.Draw(bloomTex, drawPos, null, TacetUtils.ParadoxGreen * 0.35f, 0f,
+                bloomTex.Size() / 2f, 0.3f, SpriteEffects.None, 0f);
+            // [4] UnstableLime — hot edge
+            sb.Draw(bloomTex, drawPos, null, TacetUtils.UnstableLime * 0.2f, 0f,
+                bloomTex.Size() / 2f, 0.18f, SpriteEffects.None, 0f);
+            // [5] FlashWhite — core
+            sb.Draw(bloomTex, drawPos, null, TacetUtils.FlashWhite * 0.35f, 0f,
+                bloomTex.Size() / 2f, 0.1f, SpriteEffects.None, 0f);
+
+            // ═══════════════════════════════════════════════════════
+            //  LAYER 4: THEME TEXTURES + ACCENTS
+            // ═══════════════════════════════════════════════════════
+            Texture2D starFlare = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
+            float starRot = Main.GameUpdateCount * 0.04f;
+            sb.Draw(starFlare, drawPos, null, TacetUtils.TacetPurple * 0.3f, starRot,
+                starFlare.Size() / 2f, 0.18f, SpriteEffects.None, 0f);
+            sb.Draw(starFlare, drawPos, null, TacetUtils.ParadoxGreen * 0.2f, -starRot * 0.7f,
+                starFlare.Size() / 2f, 0.14f, SpriteEffects.None, 0f);
+
+            EnigmaVFXLibrary.AddPulsingLight(Projectile.Center, TacetUtils.TacetPurple, 0.3f, 0.4f);
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
             return false;
         }
         
@@ -223,6 +284,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
         
         public override void AI()
         {
+            // Record position for GPU primitive trail
+            _trailPositions.Add(Projectile.Center);
+            if (_trailPositions.Count > 25)
+                _trailPositions.RemoveAt(0);
+
             Projectile.rotation = Projectile.velocity.ToRotation();
             
             Lighting.AddLight(Projectile.Center, EnigmaPurple.ToVector3() * 0.3f);
@@ -336,6 +402,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
     {
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
+        private readonly List<Vector2> _trailPositions = new(30);
         
         private List<int> hitEnemies = new List<int>();
         
@@ -344,60 +411,140 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D pixel = MagnumTextureRegistry.GetSoftGlow();
             Texture2D bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             Texture2D glyphTex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
-            
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float rotation = Projectile.velocity.ToRotation();
-            float spinRotation = Projectile.rotation; // spinning glyph
-            
-            // === Shader overlay: Multi-ring moiré paradox cascade ===
+            float spinRotation = Projectile.rotation;
+
+            // ═══════════════════════════════════════════════════════
+            //  LAYER 1: GPU PRIMITIVE TRAIL — paradox bolt wake
+            // ═══════════════════════════════════════════════════════
+            if (_trailPositions.Count > 2)
+            {
+                try
+                {
+                    sb.End();
+
+                    // Pass 1: Body — ParadoxGreen → TacetPurple gradient
+                    if (ShaderLoader.TacetBulletTrail != null)
+                    {
+                        var bodySettings = new TacetPrimitiveSettings(
+                            widthFunction: c => MathHelper.Lerp(14f, 3f, c),
+                            colorFunction: c => Color.Lerp(TacetUtils.ParadoxGreen, TacetUtils.TacetPurple, c) * (0.7f - c * 0.4f),
+                            shader: ShaderLoader.TacetBulletTrail);
+                        TacetPrimitiveRenderer.RenderTrail(_trailPositions, bodySettings);
+                    }
+
+                    // Pass 2: Glow — wider, softer muted haze
+                    if (ShaderLoader.TacetBulletTrail != null)
+                    {
+                        var glowSettings = new TacetPrimitiveSettings(
+                            widthFunction: c => MathHelper.Lerp(26f, 6f, c),
+                            colorFunction: c => TacetUtils.MutedAbyss * (0.3f - c * 0.2f),
+                            shader: ShaderLoader.TacetBulletTrail);
+                        TacetPrimitiveRenderer.RenderTrail(_trailPositions, glowSettings);
+                    }
+
+                    // Pass 3: Hot core filament — unstable lime thread
+                    if (ShaderLoader.TacetBulletTrail != null)
+                    {
+                        var coreSettings = new TacetPrimitiveSettings(
+                            widthFunction: c => MathHelper.Lerp(5f, 1f, c),
+                            colorFunction: c => Color.Lerp(TacetUtils.FlashWhite, TacetUtils.UnstableLime, c) * (0.6f - c * 0.4f),
+                            shader: ShaderLoader.TacetBulletTrail);
+                        TacetPrimitiveRenderer.RenderTrail(_trailPositions, coreSettings);
+                    }
+
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch
+                {
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
+
+            // ═══════════════════════════════════════════════════════
+            //  LAYER 2: SHADER OVERLAY — multi-ring moiré paradox cascade
+            // ═══════════════════════════════════════════════════════
             EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.TacetParadoxExplosion,
                 bloomTex, drawPos, bloomTex.Size() / 2f, 1.5f,
                 TacetUtils.TacetPurple.ToVector3(), TacetUtils.UnstableLime.ToVector3(),
                 opacity: 0.55f, intensity: 1.2f,
                 noiseTexture: ShaderLoader.GetNoiseTexture("TileableFBMNoise"),
                 techniqueName: "TacetParadoxBlast");
-            
-            TacetUtils.EnterAdditiveShaderRegion(sb);
-            
-            // Wide glow trail — MagicPixel bar, green-purple gradient
-            Color trailColor = Color.Lerp(TacetUtils.ParadoxGreen, TacetUtils.TacetPurple, 0.4f);
-            sb.Draw(pixel, drawPos, new Rectangle(0, 0, 1, 1), trailColor * 0.7f,
-                rotation, new Vector2(0.5f, 0.5f), new Vector2(30f, 12f), SpriteEffects.None, 0f);
-            
-            // Secondary outer glow — large, low opacity, purple
-            sb.Draw(bloomTex, drawPos, null, TacetUtils.TacetPurple * 0.2f, 0f,
-                bloomTex.Size() / 2f, 0.7f, SpriteEffects.None, 0f);
-            
-            // Large bloom core — bright unstable lime/green
-            Color coreColor = Color.Lerp(TacetUtils.UnstableLime, TacetUtils.ParadoxGreen, 0.5f);
-            sb.Draw(bloomTex, drawPos, null, coreColor * 0.8f, 0f,
-                bloomTex.Size() / 2f, 0.4f, SpriteEffects.None, 0f);
-            
-            // Spinning glyph on top
-            sb.Draw(glyphTex, drawPos, null, TacetUtils.ParadoxGreen * 0.5f, spinRotation,
-                glyphTex.Size() / 2f, 0.7f, SpriteEffects.None, 0f);
-            
-            TacetUtils.ExitShaderRegion(sb);
-            
-            // === Layer 5: EN Star Flare — dual-rotating paradox starburst ===
+
+            // ═══════════════════════════════════════════════════════
+            //  LAYER 3: 6-LAYER BLOOM STACK — paradox bolt radiance
+            // ═══════════════════════════════════════════════════════
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
+            float corePulse = 0.35f + 0.08f * MathF.Sin(Main.GameUpdateCount * 0.12f);
+
+            // [0] DeadSilence — outer void halo
+            sb.Draw(bloomTex, drawPos, null, TacetUtils.DeadSilence * 0.18f, 0f,
+                bloomTex.Size() / 2f, 2.2f, SpriteEffects.None, 0f);
+            // [1] MutedAbyss — deep glow
+            sb.Draw(bloomTex, drawPos, null, TacetUtils.MutedAbyss * 0.28f, 0f,
+                bloomTex.Size() / 2f, 1.5f, SpriteEffects.None, 0f);
+            // [2] TacetPurple — paradox aura
+            sb.Draw(bloomTex, drawPos, null, TacetUtils.TacetPurple * 0.45f, 0f,
+                bloomTex.Size() / 2f, 0.9f, SpriteEffects.None, 0f);
+            // [3] ParadoxGreen — paradox core
+            sb.Draw(bloomTex, drawPos, null, TacetUtils.ParadoxGreen * 0.55f, 0f,
+                bloomTex.Size() / 2f, corePulse * 1.6f, SpriteEffects.None, 0f);
+            // [4] UnstableLime — overload flash
+            sb.Draw(bloomTex, drawPos, null, TacetUtils.UnstableLime * 0.35f, 0f,
+                bloomTex.Size() / 2f, corePulse * 0.9f, SpriteEffects.None, 0f);
+            // [5] FlashWhite — paradox detonation core
+            sb.Draw(bloomTex, drawPos, null, TacetUtils.FlashWhite * 0.5f, 0f,
+                bloomTex.Size() / 2f, corePulse * 0.4f, SpriteEffects.None, 0f);
+
+            // ═══════════════════════════════════════════════════════
+            //  LAYER 4: THEME TEXTURES — Enigma identity
+            // ═══════════════════════════════════════════════════════
+            // EN Star Flare — dual-rotating paradox starburst
             Texture2D starFlareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
-            float starFlareRot1 = (float)Main.timeForVisualEffects * 0.04f;
-            float starFlareRot2 = -(float)Main.timeForVisualEffects * 0.03f;
-            Color starFlareColor = Color.Lerp(TacetUtils.ParadoxGreen, TacetUtils.UnstableLime, 0.5f + 0.5f * (float)Math.Sin(Main.timeForVisualEffects * 0.1));
-            sb.Draw(starFlareTex, drawPos, null, starFlareColor * 0.45f, starFlareRot1,
-                starFlareTex.Size() / 2f, 0.35f, SpriteEffects.None, 0f);
-            sb.Draw(starFlareTex, drawPos, null, TacetUtils.TacetPurple * 0.3f, starFlareRot2,
-                starFlareTex.Size() / 2f, 0.25f, SpriteEffects.None, 0f);
-            
-            // === Layer 6: EN Power Effect Ring — expanding paradox ring ===
+            float starFlareRot1 = Main.GameUpdateCount * 0.04f;
+            float starFlareRot2 = -Main.GameUpdateCount * 0.03f;
+            Color starFlareColor = Color.Lerp(TacetUtils.ParadoxGreen, TacetUtils.UnstableLime, 0.5f + 0.5f * MathF.Sin(Main.GameUpdateCount * 0.1f));
+            sb.Draw(starFlareTex, drawPos, null, starFlareColor * 0.5f, starFlareRot1,
+                starFlareTex.Size() / 2f, 0.4f, SpriteEffects.None, 0f);
+            sb.Draw(starFlareTex, drawPos, null, TacetUtils.TacetPurple * 0.35f, starFlareRot2,
+                starFlareTex.Size() / 2f, 0.3f, SpriteEffects.None, 0f);
+
+            // EN Power Effect Ring — concentric paradox rings
             Texture2D powerRingTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Power Effect Ring", AssetRequestMode.ImmediateLoad).Value;
-            float ringPulse = 0.3f + 0.08f * (float)Math.Sin(Main.timeForVisualEffects * 0.12);
-            sb.Draw(powerRingTex, drawPos, null, TacetUtils.ParadoxGreen * 0.25f, spinRotation * 0.5f,
+            float ringPulse = corePulse + 0.05f * MathF.Sin(Main.GameUpdateCount * 0.15f);
+            sb.Draw(powerRingTex, drawPos, null, TacetUtils.ParadoxGreen * 0.3f, spinRotation * 0.5f,
                 powerRingTex.Size() / 2f, ringPulse, SpriteEffects.None, 0f);
-            
+            sb.Draw(powerRingTex, drawPos, null, TacetUtils.MutedAbyss * 0.2f, -spinRotation * 0.3f,
+                powerRingTex.Size() / 2f, ringPulse * 1.3f, SpriteEffects.None, 0f);
+
+            // EN Enigma Eye — the paradox watches
+            Texture2D enigmaEye = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Particles/EN Enigma Eye", AssetRequestMode.ImmediateLoad).Value;
+            float eyePulse = 0.7f + 0.3f * MathF.Sin(Main.GameUpdateCount * 0.06f);
+            sb.Draw(enigmaEye, drawPos, null, TacetUtils.FlashWhite * eyePulse * 0.35f, 0f,
+                enigmaEye.Size() / 2f, corePulse * 0.5f * eyePulse, SpriteEffects.None, 0f);
+
+            // Spinning glyph — the paradox sigil
+            sb.Draw(glyphTex, drawPos, null, TacetUtils.ParadoxGreen * 0.55f, spinRotation,
+                glyphTex.Size() / 2f, 0.7f, SpriteEffects.None, 0f);
+
+            // ═══════════════════════════════════════════════════════
+            //  LAYER 5: THEME ACCENTS — ambient pulsing light
+            // ═══════════════════════════════════════════════════════
+            EnigmaVFXLibrary.AddPulsingLight(Projectile.Center, TacetUtils.ParadoxGreen, 0.5f, 0.6f);
+            EnigmaVFXLibrary.AddPulsingLight(Projectile.Center, TacetUtils.TacetPurple, 0.4f, 0.4f);
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
             return false;
         }
         
@@ -416,6 +563,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
         
         public override void AI()
         {
+            // Record position for GPU primitive trail
+            _trailPositions.Add(Projectile.Center);
+            if (_trailPositions.Count > 25)
+                _trailPositions.RemoveAt(0);
+
             Projectile.rotation += 0.15f;
             
             Lighting.AddLight(Projectile.Center, EnigmaGreen.ToVector3() * 0.5f);

@@ -13,19 +13,20 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
     public static class FlockUtils
     {
         public static readonly Color OilBlack = new Color(15, 12, 20);
-        public static readonly Color ShellPink = new Color(255, 180, 200);
-        public static readonly Color PetalLavender = new Color(200, 170, 240);
-        public static readonly Color CrystalAqua = new Color(120, 220, 240);
+        public static readonly Color ShellPink = new Color(240, 210, 220);
+        public static readonly Color PetalLavender = new Color(220, 210, 240);
+        public static readonly Color CrystalAqua = new Color(195, 230, 240);
         public static readonly Color LoreColor = new Color(240, 240, 255);
 
+        /// <summary>Iridescent palette — desaturated pastel rainbow for oil-sheen. Bright but not vivid.</summary>
         public static readonly Color[] IridescentPalette = new Color[]
         {
-            new Color(255, 120, 160), // Pink
-            new Color(255, 200, 100), // Gold
-            new Color(120, 255, 180), // Seafoam
-            new Color(100, 180, 255), // Sky
-            new Color(200, 120, 255), // Violet
-            new Color(255, 100, 200), // Fuchsia
+            new Color(245, 195, 210), // Pastel rose
+            new Color(245, 225, 185), // Pastel gold
+            new Color(195, 240, 210), // Pastel seafoam
+            new Color(185, 215, 245), // Pastel sky
+            new Color(220, 200, 245), // Pastel violet
+            new Color(240, 190, 225), // Pastel fuchsia
         };
 
         public static Color GetIridescent(float t)
@@ -53,7 +54,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
         public static void BeginAdditive(SpriteBatch sb)
         {
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 

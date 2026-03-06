@@ -7,7 +7,9 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using Terraria.GameContent;
+using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Content.Eroica;
 using MagnumOpus.Content.FoundationWeapons.RibbonFoundation;
 
@@ -320,21 +322,33 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = tex.Size() / 2f;
+            float time = (float)Main.gameTimeCache.TotalGameTime.TotalSeconds;
 
-            // ── Layer 1: GPU Tracer Trail ──
+            // ═══════════════════════════════════════════════════════════════════
+            //  LAYER 1: GPU TRACER TRAIL — BlossomTracerTrail bloom strip
+            // ═══════════════════════════════════════════════════════════════════
             DrawTracerTrail(sb);
 
-            // ── Layer 1b: Basic Trail Strip overlay (RibbonFoundation Mode 3) ──
-            DrawBasicTrailStrip(sb);
+            // ═══════════════════════════════════════════════════════════════════
+            //  LAYER 2: SHADER TRACER TRAIL — TracerTrail.fx heat-reactive ribbon
+            //  Uses ApplyBlossomTracerTrail for GPU-driven heat-reactive coloring.
+            // ═══════════════════════════════════════════════════════════════════
+            DrawShaderTracerStrip(sb, time);
 
-            // ── Layer 2: Afterimage chain ──
-            DrawAfterimages(sb, tex, origin);
+            // ═══════════════════════════════════════════════════════════════════
+            //  LAYER 3: SHADER AFTERIMAGE CHAIN — TracerTrailGlow pass on sprites
+            // ═══════════════════════════════════════════════════════════════════
+            DrawShaderAfterimages(sb, tex, origin, time);
 
-            // ── Layer 3: Core bullet sprite with heat glow ──
+            // ═══════════════════════════════════════════════════════════════════
+            //  LAYER 4: CORE BULLET SPRITE + heat glow
+            // ═══════════════════════════════════════════════════════════════════
             DrawBulletCore(sb, tex, origin, lightColor);
 
-            // ── Layer 4: Additive bloom overlay ──
-            DrawBloomOverlay(sb, origin);
+            // ═══════════════════════════════════════════════════════════════════
+            //  LAYER 5: BLOOM + HEAT SHIMMER OVERLAY — HeatDistortion.fx
+            // ═══════════════════════════════════════════════════════════════════
+            DrawShaderBloomOverlay(sb, origin, time);
 
             // Eroica theme accent
             EroicaVFXLibrary.BeginEroicaAdditive(sb);
@@ -344,11 +358,12 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             return false;
         }
 
-        /// <summary>
-        /// RibbonFoundation Mode 3 (Basic Trail Strip) — heat-reactive bullet tracer ribbon.
-        /// Width 8→1, color interpolates from SakuraPink→WhiteHot based on heatProgress.
-        /// </summary>
-        private void DrawBasicTrailStrip(SpriteBatch sb)
+        // ═══════════════════════════════════════════════════════════════════════
+        //  LAYER 2: Shader Tracer Strip — TracerTrail.fx on trail positions
+        //  Heat-reactive coloring shifts from cool sakura → white-hot gold.
+        //  Dual pass: TracerTrailMain body + TracerTrailGlow overlay.
+        // ═══════════════════════════════════════════════════════════════════════
+        private void DrawShaderTracerStrip(SpriteBatch sb, float time)
         {
             if (AgeTimer < 3) return;
 
@@ -362,63 +377,128 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             }
             if (validCount < 3) return;
 
-            Texture2D stripTex = RBFTextures.BasicTrail.Value;
+            Texture2D stripTex = EroicaTextures.EmberScatter?.Value ?? EroicaTextures.EnergyTrailUV?.Value;
             if (stripTex == null) return;
 
             int texW = stripTex.Width;
             int texH = stripTex.Height;
-            float time = (float)Main.timeForVisualEffects * 0.006f;
+            float scrollTime = (float)Main.timeForVisualEffects * 0.006f;
+            int srcWidth = Math.Max(1, texW / validCount);
             const float WidthHead = 8f;
             const float WidthTail = 1f;
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
-                SamplerState.LinearWrap, DepthStencilState.None,
-                RasterizerState.CullCounterClockwise, null,
-                Main.GameViewMatrix.TransformationMatrix);
-            try
+            bool hasShader = EroicaShaderManager.HasTracerTrail;
+
+            if (hasShader)
             {
+                // ── PASS 1: TracerTrailMain body ──
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                try
+                {
+                    EroicaShaderManager.ApplyBlossomTracerTrail(time, HeatProgress, glowPass: false);
 
-            int srcWidth = Math.Max(1, texW / validCount);
-            Color heatColor = BlossomUtils.GetHeatGradient(HeatProgress);
+                    for (int i = 0; i < validCount - 1; i++)
+                    {
+                        float progress = 1f - (float)i / validCount;
+                        float fade = progress * progress;
+                        if (fade < 0.01f) continue;
 
-            for (int i = 0; i < validCount - 1; i++)
-            {
-                float progress = 1f - (float)i / validCount; // 1 = head, 0 = tail
-                float fade = progress * progress;
-                if (fade < 0.01f) continue;
+                        float width = MathHelper.Lerp(WidthTail, WidthHead, progress);
+                        Vector2 segDir = trailPositions[i] - trailPositions[i + 1];
+                        float segLength = segDir.Length();
+                        if (segLength < 0.5f) continue;
+                        float segAngle = segDir.ToRotation();
 
-                float width = MathHelper.Lerp(WidthTail, WidthHead, progress);
+                        float uStart = ((float)i / validCount + scrollTime * 3f) % 1f;
+                        int srcX = (int)(uStart * texW) % texW;
+                        Rectangle srcRect = new Rectangle(srcX, 0, srcWidth, texH);
 
-                Vector2 segDir = trailPositions[i] - trailPositions[i + 1];
-                float segLength = segDir.Length();
-                if (segLength < 0.5f) continue;
-                float segAngle = segDir.ToRotation();
+                        float scaleX = segLength / (float)srcWidth;
+                        float scaleY = width / (float)texH;
+                        Vector2 pos = trailPositions[i] - Main.screenPosition;
+                        Vector2 drawOrigin = new Vector2(0, texH / 2f);
 
-                float uStart = ((float)i / validCount + time * 3f) % 1f;
-                int srcX = (int)(uStart * texW) % texW;
-                Rectangle srcRect = new Rectangle(srcX, 0, srcWidth, texH);
+                        sb.Draw(stripTex, pos, srcRect, Color.White * (fade * 0.6f), segAngle, drawOrigin,
+                            new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
+                    }
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
 
-                float scaleX = segLength / (float)srcWidth;
-                float scaleY = width / (float)texH;
+                // ── PASS 2: TracerTrailGlow overlay — wider, brighter ──
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                try
+                {
+                    EroicaShaderManager.ApplyBlossomTracerTrail(time, HeatProgress, glowPass: true);
 
-                Vector2 pos = trailPositions[i] - Main.screenPosition;
-                Vector2 drawOrigin = new Vector2(0, texH / 2f);
+                    for (int i = 0; i < validCount - 1; i++)
+                    {
+                        float progress = 1f - (float)i / validCount;
+                        float fade = progress * progress;
+                        if (fade < 0.02f) continue;
 
-                // Heat-reactive: cool pink → hot white
-                Color bodyColor = Color.Lerp(BlossomUtils.CoolPetal, heatColor, progress * 0.6f) with { A = 0 };
-                sb.Draw(stripTex, pos, srcRect, bodyColor * (fade * 0.5f), segAngle, drawOrigin,
-                    new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
+                        float width = MathHelper.Lerp(WidthTail, WidthHead, progress) * 1.5f;
+                        Vector2 segDir = trailPositions[i] - trailPositions[i + 1];
+                        float segLength = segDir.Length();
+                        if (segLength < 0.5f) continue;
+                        float segAngle = segDir.ToRotation();
+
+                        float uStart = ((float)i / validCount + scrollTime * 3f) % 1f;
+                        int srcX = (int)(uStart * texW) % texW;
+                        Rectangle srcRect = new Rectangle(srcX, 0, srcWidth, texH);
+
+                        float scaleX = segLength / (float)srcWidth;
+                        float scaleY = width / (float)texH;
+                        Vector2 pos = trailPositions[i] - Main.screenPosition;
+                        Vector2 drawOrigin = new Vector2(0, texH / 2f);
+
+                        sb.Draw(stripTex, pos, srcRect, Color.White * (fade * 0.3f), segAngle, drawOrigin,
+                            new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
+                    }
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
             }
-
-            }
-            finally
+            else
             {
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                    Main.DefaultSamplerState, DepthStencilState.None,
-                    RasterizerState.CullCounterClockwise, null,
-                    Main.GameViewMatrix.TransformationMatrix);
+                // Fallback: basic additive strip with heat gradient
+                EroicaShaderManager.BeginAdditive(sb);
+                try
+                {
+                    Color heatColor = BlossomUtils.GetHeatGradient(HeatProgress);
+                    for (int i = 0; i < validCount - 1; i++)
+                    {
+                        float progress = 1f - (float)i / validCount;
+                        float fade = progress * progress;
+                        if (fade < 0.01f) continue;
+
+                        float width = MathHelper.Lerp(WidthTail, WidthHead, progress);
+                        Vector2 segDir = trailPositions[i] - trailPositions[i + 1];
+                        float segLength = segDir.Length();
+                        if (segLength < 0.5f) continue;
+                        float segAngle = segDir.ToRotation();
+
+                        float uStart = ((float)i / validCount + scrollTime * 3f) % 1f;
+                        int srcX = (int)(uStart * texW) % texW;
+                        Rectangle srcRect = new Rectangle(srcX, 0, srcWidth, texH);
+                        float scaleX = segLength / (float)srcWidth;
+                        float scaleY = width / (float)texH;
+                        Vector2 pos = trailPositions[i] - Main.screenPosition;
+                        Vector2 drawOrigin = new Vector2(0, texH / 2f);
+
+                        Color bodyColor = Color.Lerp(BlossomUtils.CoolPetal, heatColor, progress * 0.6f) with { A = 0 };
+                        sb.Draw(stripTex, pos, srcRect, bodyColor * (fade * 0.5f), segAngle, drawOrigin,
+                            new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
+                    }
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
             }
         }
 
@@ -426,7 +506,6 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         {
             if (AgeTimer < 3) return;
 
-            // Count valid trail positions
             int validCount = 0;
             for (int i = 0; i < TrailLength; i++)
             {
@@ -466,38 +545,81 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             }
         }
 
-        private void DrawAfterimages(SpriteBatch sb, Texture2D tex, Vector2 origin)
+        // ═══════════════════════════════════════════════════════════════════════
+        //  LAYER 3: Shader Afterimages — TracerTrailGlow on bullet sprites
+        // ═══════════════════════════════════════════════════════════════════════
+        private void DrawShaderAfterimages(SpriteBatch sb, Texture2D tex, Vector2 origin, float time)
         {
             int imageCount = 6 + (int)(HeatProgress * 4);
-            Color afterColor = BlossomUtils.GetHeatGradient(HeatProgress);
 
-            BlossomUtils.EnterShaderRegion(sb);
-
-            for (int i = imageCount - 1; i >= 0; i--)
+            if (EroicaShaderManager.HasTracerTrail)
             {
-                float progress = (float)i / imageCount;
-                float trailIndex = progress * (TrailLength - 1);
-                int idx = (int)trailIndex;
-                float lerp = trailIndex - idx;
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                try
+                {
+                    for (int i = imageCount - 1; i >= 0; i--)
+                    {
+                        float progress = (float)i / imageCount;
+                        float trailIndex = progress * (TrailLength - 1);
+                        int idx = (int)trailIndex;
+                        float lerp = trailIndex - idx;
 
-                if (idx + 1 >= TrailLength) continue;
-                if (trailPositions[idx] == Vector2.Zero || trailPositions[idx + 1] == Vector2.Zero) continue;
+                        if (idx + 1 >= TrailLength) continue;
+                        if (trailPositions[idx] == Vector2.Zero || trailPositions[idx + 1] == Vector2.Zero) continue;
 
-                Vector2 pos = Vector2.Lerp(trailPositions[idx], trailPositions[idx + 1], lerp) - Main.screenPosition;
-                float rot = MathHelper.Lerp(trailRotations[idx], trailRotations[idx + 1], lerp);
+                        Vector2 pos = Vector2.Lerp(trailPositions[idx], trailPositions[idx + 1], lerp) - Main.screenPosition;
+                        float rot = MathHelper.Lerp(trailRotations[idx], trailRotations[idx + 1], lerp);
 
-                float fadeFactor = (1f - progress);
-                fadeFactor = fadeFactor * fadeFactor;
-                float alpha = fadeFactor * (0.35f + HeatProgress * 0.2f);
-                float scale = Projectile.scale * (1f - progress * 0.3f);
+                        float fadeFactor = (1f - progress);
+                        fadeFactor = fadeFactor * fadeFactor;
+                        float alpha = fadeFactor * (0.35f + HeatProgress * 0.2f);
+                        float scale = Projectile.scale * (1f - progress * 0.3f);
 
-                Color drawColor = afterColor * alpha;
-                drawColor.A = 0; // Additive-ish via premultiplied
+                        // Apply TracerTrail glow pass with per-afterimage time offset
+                        EroicaShaderManager.ApplyBlossomTracerTrail(time + i * 0.05f, HeatProgress, glowPass: true);
 
-                sb.Draw(tex, pos, null, drawColor, rot, origin, scale, SpriteEffects.None, 0f);
+                        sb.Draw(tex, pos, null, Color.White * alpha, rot, origin, scale, SpriteEffects.None, 0f);
+                    }
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
             }
+            else
+            {
+                // Fallback: palette-colored afterimages — use TrueAdditive for A=0 colors
+                Color afterColor = BlossomUtils.GetHeatGradient(HeatProgress);
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                for (int i = imageCount - 1; i >= 0; i--)
+                {
+                    float progress = (float)i / imageCount;
+                    float trailIndex = progress * (TrailLength - 1);
+                    int idx = (int)trailIndex;
+                    float lerp = trailIndex - idx;
 
-            BlossomUtils.ExitShaderRegion(sb);
+                    if (idx + 1 >= TrailLength) continue;
+                    if (trailPositions[idx] == Vector2.Zero || trailPositions[idx + 1] == Vector2.Zero) continue;
+
+                    Vector2 pos = Vector2.Lerp(trailPositions[idx], trailPositions[idx + 1], lerp) - Main.screenPosition;
+                    float rot = MathHelper.Lerp(trailRotations[idx], trailRotations[idx + 1], lerp);
+
+                    float fadeFactor = (1f - progress);
+                    fadeFactor = fadeFactor * fadeFactor;
+                    float alpha = fadeFactor * (0.35f + HeatProgress * 0.2f);
+                    float scale = Projectile.scale * (1f - progress * 0.3f);
+
+                    Color drawColor = afterColor * alpha;
+                    drawColor.A = 0;
+
+                    sb.Draw(tex, pos, null, drawColor, rot, origin, scale, SpriteEffects.None, 0f);
+                }
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
+            }
         }
 
         private void DrawBulletCore(SpriteBatch sb, Texture2D tex, Vector2 origin, Color lightColor)
@@ -508,20 +630,32 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Base bullet sprite
             sb.Draw(tex, drawPos, null, heatTint, Projectile.rotation, origin, Projectile.scale, SpriteEffects.None, 0f);
 
-            // Bright core overlay for high heat
+            // Bright core overlay for high heat — drawn in TrueAdditive so A=0 colors glow
             if (HeatProgress > 0.2f)
             {
                 Color coreColor = BlossomUtils.GetHeatGradient(Math.Min(HeatProgress + 0.2f, 1f));
                 coreColor.A = 0;
                 float coreAlpha = (HeatProgress - 0.2f) * 0.8f;
+
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
                 sb.Draw(tex, drawPos, null, coreColor * coreAlpha, Projectile.rotation, origin,
                     Projectile.scale * 1.05f, SpriteEffects.None, 0f);
+
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
             }
         }
 
-        private void DrawBloomOverlay(SpriteBatch sb, Vector2 origin)
+        // ═══════════════════════════════════════════════════════════════════════
+        //  LAYER 5: Shader Bloom Overlay — HeatDistortion.fx shimmer + bloom
+        //  Uses ApplyBlossomHeatShimmer for GPU-driven heat haze on hot bullets.
+        // ═══════════════════════════════════════════════════════════════════════
+        private void DrawShaderBloomOverlay(SpriteBatch sb, Vector2 origin, float time)
         {
-            // Soft glow halo around bullet
             Texture2D bloomTex = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -530,16 +664,33 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             float bloomAlpha = 0.25f + HeatProgress * 0.35f;
             float bloomScale = Projectile.scale * (1.6f + HeatProgress * 0.8f);
 
-            // Pulsating bloom
             float pulse = (float)Math.Sin(AgeTimer * 0.2f) * 0.1f;
             bloomScale += pulse;
 
-            BlossomUtils.EnterShaderRegion(sb);
+            // ── HeatDistortion shader overlay when hot ──
+            if (HeatProgress > 0.3f && EroicaShaderManager.HasHeatDistortion)
+            {
+                EroicaShaderManager.BeginShaderAdditive(sb);
+                try
+                {
+                    EroicaShaderManager.ApplyBlossomHeatShimmer(time, HeatProgress);
+                    sb.Draw(bloomTex, drawPos, null, Color.White * bloomAlpha, Projectile.rotation, origin,
+                        bloomScale * 1.2f, SpriteEffects.None, 0f);
+                }
+                finally
+                {
+                    EroicaShaderManager.RestoreSpriteBatch(sb);
+                }
+            }
+
+            // Standard bloom glow (always drawn) — use TrueAdditive for A=0 premultiplied colors
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             sb.Draw(bloomTex, drawPos, null, bloomColor * bloomAlpha, Projectile.rotation, origin,
                 bloomScale, SpriteEffects.None, 0f);
-            BlossomUtils.ExitShaderRegion(sb);
 
-            // === THEME-SPECIFIC: ER Power Effect Ring pulsing behind the projectile ===
+            // ER Power Effect Ring — drawn in TrueAdditive for A=0 colors
             Texture2D ringTex = EroicaThemeTextures.ERPowerEffectRing;
             if (ringTex != null)
             {
@@ -549,18 +700,21 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     AgeTimer * 0.02f, ringTex.Size() * 0.5f, Projectile.scale * 0.5f * ringPulse, SpriteEffects.None, 0f);
             }
 
-            // === THEME-SPECIFIC: ER Radial Slash Star overlay on hot bullets ===
+            // ER Radial Slash Star on hot bullets — drawn in additive
             if (HeatProgress > 0.5f)
             {
                 Texture2D starTex = EroicaThemeTextures.ERRadialSlashStar;
                 if (starTex != null)
                 {
                     float starOpacity = (HeatProgress - 0.5f) * 2f * 0.3f;
-                    Color starColor = EroicaVFXLibrary.Gold with { A = 0 };
+                    Color starColor = EroicaPalette.Gold with { A = 0 };
                     sb.Draw(starTex, drawPos, null, starColor * starOpacity,
                         AgeTimer * 0.03f, starTex.Size() * 0.5f, Projectile.scale * 0.4f, SpriteEffects.None, 0f);
                 }
             }
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
         #endregion

@@ -199,7 +199,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Utilities
 
             // Draw with shader
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearWrap,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearWrap,
                 DepthStencilState.None, RasterizerState.CullNone, shader,
                 Main.GameViewMatrix.ZoomMatrix);
 
@@ -213,7 +213,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Utilities
 
             // End shader batch, return to additive
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null,
                 Main.GameViewMatrix.ZoomMatrix);
         }

@@ -1,4 +1,4 @@
-﻿using MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Buffs;
+using MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Buffs;
 using MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Particles;
 using MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Utilities;
 using Microsoft.Xna.Framework;
@@ -165,7 +165,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Projectiles
 
             // ── LAYER 1: Initial impact flash ──
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null,
                 Main.GameViewMatrix.ZoomMatrix);
 

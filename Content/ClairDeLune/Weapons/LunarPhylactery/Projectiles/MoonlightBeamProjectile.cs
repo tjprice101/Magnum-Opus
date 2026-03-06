@@ -222,7 +222,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
                 Main.pixelShader.CurrentTechnique.Passes[0].Apply();
             }
 
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }
@@ -248,7 +248,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
 
             _soulBeamShader.CurrentTechnique = _soulBeamShader.Techniques["SoulBeamTether"];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _soulBeamShader, matrix);
 
@@ -266,7 +266,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
             }
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }

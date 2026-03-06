@@ -1,10 +1,14 @@
-﻿using Microsoft.Xna.Framework;
-using Terraria.ID;
-using Terraria.ModLoader;
+using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.ModLoader;
 
 namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
 {
+    /// <summary>
+    /// Vestigial slash creator - kept for backwards compatibility / localization.
+    /// The new ValorBeam spawns ValorSlash directly on hit; this type is no longer used.
+    /// Immediately kills itself on first tick.
+    /// </summary>
     public class ValorSlashCreator : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
@@ -13,21 +17,15 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
         {
             Projectile.width = 2;
             Projectile.height = 2;
-            Projectile.ignoreWater = false;
             Projectile.tileCollide = false;
             Projectile.penetrate = -1;
-            Projectile.timeLeft = 40;
-            Projectile.MaxUpdates = 2;
-            Projectile.noEnchantmentVisuals = true;
             Projectile.timeLeft = 2;
+            Projectile.noEnchantmentVisuals = true;
         }
 
         public override void AI()
         {
-            Projectile.timeLeft = 2;
-            Player player = Main.player[Projectile.owner];
-            Projectile.Center = player.Center;
-            Projectile.rotation += 0.3f * Projectile.direction;
+            Projectile.Kill();
         }
 
         public override bool PreDraw(ref Color lightColor) => false;

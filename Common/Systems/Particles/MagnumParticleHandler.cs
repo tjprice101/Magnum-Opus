@@ -351,7 +351,7 @@ namespace MagnumOpus.Common.Systems.Particles
                 // Draw additive blend particles (most important for glows!)
                 if (batchedAdditiveBlendParticles.Count > 0)
                 {
-                    sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp,
+                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.PointClamp,
                         DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
                     foreach (Particle particle in batchedAdditiveBlendParticles)
@@ -442,7 +442,7 @@ namespace MagnumOpus.Common.Systems.Particles
                 Main.instance.GraphicsDevice.RasterizerState.ScissorTestEnable = true;
                 Main.instance.GraphicsDevice.ScissorRectangle = new Rectangle(0, 0, Main.screenWidth, Main.screenHeight);
 
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.PointClamp,
                     DepthStencilState.Default, rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
                 foreach (Particle particle in batchedAdditiveBlendParticles)

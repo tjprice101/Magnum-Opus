@@ -704,6 +704,15 @@ namespace MagnumOpus.Common.Systems.Shaders
         {
             try
             {
+                // Check existence BEFORE requesting to avoid tModLoader's
+                // internal error log on missing assets (same pattern as LoadShader).
+                if (!ModContent.HasAsset(assetPath))
+                {
+                    ModContent.GetInstance<MagnumOpus>()?.Logger.Info(
+                        $"ShaderLoader: Texture '{key}' not found at '{assetPath}' — skipping.");
+                    return false;
+                }
+
                 var tex = ModContent.Request<Texture2D>(assetPath, AssetRequestMode.ImmediateLoad).Value;
                 if (tex != null)
                 {

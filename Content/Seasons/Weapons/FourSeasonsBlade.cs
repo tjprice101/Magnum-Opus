@@ -226,7 +226,7 @@ namespace MagnumOpus.Content.Seasons.Weapons
             Vector2 origin = texture.Size() / 2f;
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             float pulse = 0.8f + MathF.Sin(Main.GameUpdateCount * 0.05f) * 0.2f;

@@ -54,11 +54,12 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Utilitie
         /// </summary>
         public static float GetScaleHue(int position) => (position % 7) / 7f;
 
-        /// <summary>Returns the color for a given chromatic scale position.</summary>
-        public static Color GetScaleColor(int position) => Main.hslToRgb(GetScaleHue(position), 0.9f, 0.6f);
+        /// <summary>Returns the color for a given chromatic scale position.
+        /// Desaturated pastel rainbow over white base — Swan Lake prismatic identity.</summary>
+        public static Color GetScaleColor(int position) => Main.hslToRgb(GetScaleHue(position), 0.5f, 0.82f);
 
         /// <summary>Returns the complementary color for a given scale position.</summary>
-        public static Color GetComplementaryColor(int position) => Main.hslToRgb((GetScaleHue(position) + 0.5f) % 1f, 0.9f, 0.6f);
+        public static Color GetComplementaryColor(int position) => Main.hslToRgb((GetScaleHue(position) + 0.5f) % 1f, 0.5f, 0.82f);
 
         /// <summary>Scale note names for display.</summary>
         public static readonly string[] NoteNames = { "C", "D", "E", "F", "G", "A", "B" };

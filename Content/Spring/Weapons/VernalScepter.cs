@@ -214,7 +214,7 @@ namespace MagnumOpus.Content.Spring.Weapons
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.045f) * 0.12f + 1f;
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             spriteBatch.Draw(texture, position, null, SpringLavender * 0.4f, rotation, origin, scale * pulse * 1.35f, SpriteEffects.None, 0f);
             spriteBatch.Draw(texture, position, null, SpringPink * 0.3f, rotation, origin, scale * pulse * 1.18f, SpriteEffects.None, 0f);

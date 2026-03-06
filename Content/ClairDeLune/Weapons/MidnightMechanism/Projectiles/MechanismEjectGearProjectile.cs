@@ -134,7 +134,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.MidnightMechanism.Projectiles
 
             _gatlingBlurShader.CurrentTechnique = _gatlingBlurShader.Techniques["GatlingBarrelBlur"];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _gatlingBlurShader, matrix);
 
@@ -145,7 +145,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.MidnightMechanism.Projectiles
                 sc.Size() * 0.5f, blurScale, SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }
@@ -172,7 +172,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.MidnightMechanism.Projectiles
 
             _pearlGlowShader.CurrentTechnique = _pearlGlowShader.Techniques["PearlShimmer"];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _pearlGlowShader, matrix);
 
@@ -183,7 +183,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.MidnightMechanism.Projectiles
                 sc.Size() * 0.5f, flashScale, SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }

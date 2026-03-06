@@ -25,7 +25,7 @@ namespace MagnumOpus.Common.Systems.VFX
             SpriteBatch spriteBatch = Main.spriteBatch;
             
             // Begin with default game matrix
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             try

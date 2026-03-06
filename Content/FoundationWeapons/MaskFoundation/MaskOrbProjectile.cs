@@ -178,7 +178,7 @@ namespace MagnumOpus.Content.FoundationWeapons.MaskFoundation
 
             // ---- LAYER 1: BLOOM HALO (behind the orb) ----
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -190,7 +190,7 @@ namespace MagnumOpus.Content.FoundationWeapons.MaskFoundation
 
             // ---- LAYER 3: BRIGHT CORE BLOOM (on top) ----
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -274,7 +274,7 @@ namespace MagnumOpus.Content.FoundationWeapons.MaskFoundation
 
             // ---- DRAW WITH SHADER ----
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, orbShader,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -290,7 +290,7 @@ namespace MagnumOpus.Content.FoundationWeapons.MaskFoundation
             sb.End();
 
             // Restart in additive (no shader) for subsequent layers
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);

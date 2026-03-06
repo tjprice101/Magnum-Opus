@@ -50,7 +50,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
             if (glow == null || pixel == null) return;
 
             // Pass 1: Bloom underlayer (larger, softer, lower opacity)
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
 
@@ -73,7 +73,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
             sb.End();
 
             // Pass 2: Detail layer (actual particle shape)
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
 

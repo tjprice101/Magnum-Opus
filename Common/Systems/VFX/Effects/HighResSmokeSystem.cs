@@ -219,7 +219,7 @@ namespace MagnumOpus.Common.Systems.VFX.Effects
             SpriteBatch sb = Main.spriteBatch;
 
             // Draw glow underlayers first (additive)
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             foreach (var smoke in activeSmoke)

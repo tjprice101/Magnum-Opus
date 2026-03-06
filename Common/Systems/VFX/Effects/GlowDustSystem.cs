@@ -217,7 +217,7 @@ namespace MagnumOpus.Common.Systems.VFX.Effects
             SpriteBatch sb = Main.spriteBatch;
 
             // Draw with additive blending
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Draw circle pulses first (behind dusts)

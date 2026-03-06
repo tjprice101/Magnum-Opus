@@ -1,11 +1,13 @@
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.DiesIrae;
 using MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement.Particles;
+using MagnumOpus.Content.FoundationWeapons.LaserFoundation;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using System;
 using Terraria;
+using Terraria.Graphics;
 using Terraria.ModLoader;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement.Utilities
@@ -36,6 +38,11 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement.Utilities
         private static Effect _thinBeamShader;
         private static Effect _rippleShader;
         private static Effect _xSlashShader;
+
+        // ConvergenceBeamShader pipeline (LaserFoundation pattern)
+        private static Effect _convergenceBeamShader;
+        private static Effect _flareRainbowShader;
+        private static Asset<Texture2D> _diesIraeGradientLUT;
 
         // Textures loaded lazily
         private static Asset<Texture2D> _diGradient;
@@ -177,7 +184,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement.Utilities
             if (shader != null && voronoi != null && softCircle != null)
             {
                 sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearWrap,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearWrap,
                     DepthStencilState.None, RasterizerState.CullNone, shader, Main.GameViewMatrix.ZoomMatrix);
 
                 float time = (float)Main.timeForVisualEffects * 0.015f + seed;
@@ -202,7 +209,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement.Utilities
                 // Secondary StarField layer at 40% intensity
                 if (starField != null)
                 {
-                    sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearWrap,
+                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearWrap,
                         DepthStencilState.None, RasterizerState.CullNone, shader, Main.GameViewMatrix.ZoomMatrix);
 
                     shader.Parameters["intensity"]?.SetValue(intensity * 0.4f);
@@ -214,7 +221,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement.Utilities
                     sb.End();
                 }
 
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
             }
 
@@ -261,49 +268,147 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement.Utilities
         // ═══════════════════════════════════════════════════════
 
         /// <summary>
-        /// Draws a judgment beam from source to target using ThinBeamShader.
-        /// Width and color shift based on phase.
+        /// Draws a judgment beam from source to target with multi-layer rendering.
+        /// Width, color, and intensity shift based on phase.
+        /// VertexStrip + ConvergenceBeamShader (LaserFoundation pipeline) with DiesIrae gradient LUT.
+        /// FlareRainbowShader endpoint flares.
         /// </summary>
         public static void DrawJudgmentBeam(SpriteBatch sb, Vector2 start, Vector2 end,
             SigilPhase phase, float beamAlpha = 1f)
         {
-            Texture2D softGlow = MagnumTextureRegistry.GetSoftGlow();
-            Texture2D beamTex = SigilTextures.BeamStreak ?? SigilTextures.ThinGlow;
-
-            if (beamTex == null) return;
-
-            Vector2 drawStart = start - Main.screenPosition;
-            Vector2 drawEnd = end - Main.screenPosition;
-            Vector2 dir = drawEnd - drawStart;
+            Vector2 dir = end - start;
             float dist = dir.Length();
             if (dist < 1f) return;
-            float angle = dir.ToRotation();
+            float rot = dir.ToRotation();
 
-            // Phase-driven beam params
+            // Phase-driven beam width
             float width;
             Color beamColor;
             GetBeamParams(phase, out width, out beamColor);
+            float stripWidth = width * 10f + 40f; // maps 4→80, 6→100, 10→140
 
-            // Draw beam strip as stretched texture
-            Vector2 beamOrigin = new Vector2(0, beamTex.Height / 2f);
-            Vector2 scale = new Vector2(dist / beamTex.Width, width / beamTex.Height);
+            // ── BUILD VERTEX STRIP ──
+            Vector2[] positions = { start, end };
+            float[] rotations = { rot, rot };
 
-            sb.Draw(beamTex, drawStart, null, beamColor * beamAlpha * 0.7f,
-                angle, beamOrigin, scale, SpriteEffects.None, 0f);
+            VertexStrip strip = new VertexStrip();
+            strip.PrepareStrip(positions, rotations,
+                (float p) => Color.White,
+                (float p) => stripWidth,
+                -Main.screenPosition, includeBacksides: true);
 
-            // Inner core beam (brighter, thinner)
-            Vector2 coreScale = new Vector2(dist / beamTex.Width, width * 0.5f / beamTex.Height);
-            sb.Draw(beamTex, drawStart, null, Color.Lerp(beamColor, ExecuteWhite, 0.5f) * beamAlpha * 0.5f,
-                angle, beamOrigin, coreScale, SpriteEffects.None, 0f);
+            // ── LOAD & CONFIGURE CONVERGENCE BEAM SHADER ──
+            if (_convergenceBeamShader == null)
+            {
+                _convergenceBeamShader = ModContent.Request<Effect>(
+                    "MagnumOpus/Content/FoundationWeapons/LaserFoundation/Shaders/ConvergenceBeamShader",
+                    AssetRequestMode.ImmediateLoad).Value;
+            }
+            if (_diesIraeGradientLUT == null)
+            {
+                _diesIraeGradientLUT = ModContent.Request<Texture2D>(
+                    "MagnumOpus/Assets/VFX Asset Library/ColorGradients/DiesIraeGradientLUTandRAMP",
+                    AssetRequestMode.ImmediateLoad);
+            }
+
+            Effect shader = _convergenceBeamShader;
+            shader.Parameters["WorldViewProjection"].SetValue(
+                Main.GameViewMatrix.NormalizedTransformationmatrix);
+            shader.Parameters["onTex"].SetValue(LFTextures.BeamAlphaMask.Value);
+            shader.Parameters["gradientTex"].SetValue(_diesIraeGradientLUT.Value);
+            shader.Parameters["baseColor"].SetValue(Color.White.ToVector3());
+            shader.Parameters["satPower"].SetValue(0.8f);
+
+            shader.Parameters["sampleTexture1"].SetValue(LFTextures.DetailThinGlowLine.Value);
+            shader.Parameters["sampleTexture2"].SetValue(LFTextures.DetailSpark.Value);
+            shader.Parameters["sampleTexture3"].SetValue(LFTextures.DetailExtra.Value);
+            shader.Parameters["sampleTexture4"].SetValue(LFTextures.DetailTrailLoop.Value);
+
+            shader.Parameters["grad1Speed"].SetValue(0.66f);
+            shader.Parameters["grad2Speed"].SetValue(0.66f);
+            shader.Parameters["grad3Speed"].SetValue(1.03f);
+            shader.Parameters["grad4Speed"].SetValue(0.77f);
+
+            shader.Parameters["tex1Mult"].SetValue(1.25f);
+            shader.Parameters["tex2Mult"].SetValue(1.5f);
+            shader.Parameters["tex3Mult"].SetValue(1.15f);
+            shader.Parameters["tex4Mult"].SetValue(2.5f);
+            shader.Parameters["totalMult"].SetValue(beamAlpha);
+
+            float repVal = dist / 2000f;
+            shader.Parameters["gradientReps"].SetValue(0.75f * repVal);
+            shader.Parameters["tex1reps"].SetValue(1.15f * repVal);
+            shader.Parameters["tex2reps"].SetValue(1.15f * repVal);
+            shader.Parameters["tex3reps"].SetValue(1.15f * repVal);
+            shader.Parameters["tex4reps"].SetValue(1.15f * repVal);
+
+            shader.Parameters["uTime"].SetValue((float)Main.timeForVisualEffects * -0.024f);
+
+            // ── END CALLER'S SPRITEBATCH, DRAW BEAM BODY ──
+            sb.End();
+            shader.CurrentTechnique.Passes["MainPS"].Apply();
+            strip.DrawTrail();
+            Main.pixelShader.CurrentTechnique.Passes[0].Apply();
+
+            // ── ENDPOINT FLARES (FlareRainbowShader) ──
+            if (_flareRainbowShader == null)
+            {
+                _flareRainbowShader = ModContent.Request<Effect>(
+                    "MagnumOpus/Content/FoundationWeapons/LaserFoundation/Shaders/FlareRainbowShader",
+                    AssetRequestMode.ImmediateLoad).Value;
+            }
+
+            float flareRot = (float)Main.timeForVisualEffects * 0.115f;
+            _flareRainbowShader.Parameters["rotation"].SetValue(flareRot * 0.075f);
+            _flareRainbowShader.Parameters["rainbowRotation"].SetValue(flareRot * 0.025f);
+            _flareRainbowShader.Parameters["intensity"].SetValue(beamAlpha);
+            _flareRainbowShader.Parameters["fadeStrength"].SetValue(1f);
+
+            Vector2 drawStart = start - Main.screenPosition;
+            Vector2 drawEnd = end - Main.screenPosition;
+            float sinPulse = MathF.Sin((float)Main.timeForVisualEffects * 0.04f);
+
+            Texture2D lensFlare = LFTextures.LensFlare.Value;
+            Texture2D starFlare = LFTextures.StarFlare.Value;
+            Texture2D glowOrb = LFTextures.GlowOrb.Value;
+            Texture2D softGlow = LFTextures.SoftGlow.Value;
+
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, _flareRainbowShader,
+                Main.GameViewMatrix.EffectMatrix);
+
+            // Source flares
+            Vector2 sigilScale = new Vector2(0.2f, 1f) * 0.55f * beamAlpha;
+            sb.Draw(softGlow, drawStart, null, Color.White, rot,
+                softGlow.Size() / 2f, sigilScale, SpriteEffects.None, 0f);
+            sb.Draw(softGlow, drawStart, null, Color.White, rot,
+                softGlow.Size() / 2f, sigilScale, SpriteEffects.None, 0f);
+
+            Vector2 sigilScalePulse = sigilScale * (1.75f + 0.25f * sinPulse);
+            float sinOffset = -MathF.Cos(((float)Main.timeForVisualEffects * 0.08f) / 2f) + 1f;
+            sb.Draw(lensFlare, drawStart + new Vector2(1f, 0f).RotatedBy(rot) * (15f * sinOffset),
+                null, Color.White, rot, lensFlare.Size() / 2f, sigilScalePulse, SpriteEffects.None, 0f);
+
+            sb.Draw(starFlare, drawStart, null, Color.White, rot,
+                starFlare.Size() / 2f, sigilScale, SpriteEffects.None, 0f);
 
             // Endpoint flares
-            if (softGlow != null)
-            {
-                Vector2 flareOrigin = softGlow.Size() / 2f;
-                float flareScale = width * 0.005f;
-                sb.Draw(softGlow, drawStart, null, beamColor * beamAlpha * 0.4f, 0f, flareOrigin, flareScale, SpriteEffects.None, 0f);
-                sb.Draw(softGlow, drawEnd, null, beamColor * beamAlpha * 0.6f, 0f, flareOrigin, flareScale * 1.3f, SpriteEffects.None, 0f);
-            }
+            sb.Draw(glowOrb, drawEnd, null, Color.White, flareRot * 0.1f,
+                glowOrb.Size() / 2f, 0.5f * beamAlpha, SpriteEffects.None, 0f);
+
+            float endScale = 0.7f * beamAlpha;
+            sb.Draw(lensFlare, drawEnd, null, Color.White, flareRot * 0.02f,
+                lensFlare.Size() / 2f, endScale * 0.45f, SpriteEffects.None, 0f);
+            sb.Draw(starFlare, drawEnd, null, Color.White, flareRot * 0.05f,
+                starFlare.Size() / 2f, endScale * 0.6f, SpriteEffects.None, 0f);
+            sb.Draw(starFlare, drawEnd, null, Color.White, flareRot * 0.077f,
+                starFlare.Size() / 2f, endScale * 0.35f, SpriteEffects.None, 0f);
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                DepthStencilState.None, RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
 
             // Beam sparkle particles
             if (Main.rand.NextBool(3))

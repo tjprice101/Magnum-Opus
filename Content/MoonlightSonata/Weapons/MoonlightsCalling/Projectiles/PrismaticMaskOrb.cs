@@ -147,11 +147,16 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
             float alpha = GetAlpha();
             float scale = GetScale();
 
+            // Ensure textures are loaded (may not have run AI yet on first frame)
+            EnsureTextures();
+            if (_softGlow == null || !_softGlow.IsLoaded || _softGlow.Value == null)
+                return false;
+
             GetPrismaticColors(out Color edgeColor, out Color midColor, out Color coreColor);
 
             // Switch to additive for all layers
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -182,7 +187,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
         private void DrawBloomHalo(SpriteBatch sb, Vector2 drawPos,
             Color edge, Color mid, Color core, float alpha, float scale)
         {
-            Texture2D softGlow = _softGlow.Value;
+            Texture2D softGlow = _softGlow?.Value;
+            if (softGlow == null) return;
             Vector2 origin = softGlow.Size() / 2f;
             float pulse = 0.9f + 0.1f * MathF.Sin((float)Main.timeForVisualEffects * 0.06f + seed);
 
@@ -233,7 +239,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
 
             // Begin shader batch
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, orbShader,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -246,7 +252,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
 
             // End shader batch, return to additive (no shader)
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -259,7 +265,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
         private void DrawCoreBloom(SpriteBatch sb, Vector2 drawPos,
             Color mid, Color core, float alpha, float scale)
         {
-            Texture2D glowOrb = _glowOrb.Value;
+            Texture2D glowOrb = _glowOrb?.Value;
+            if (glowOrb == null) return;
             Vector2 origin = glowOrb.Size() / 2f;
             float pulse = 0.92f + 0.08f * MathF.Sin((float)Main.timeForVisualEffects * 0.1f + seed * 2f);
 

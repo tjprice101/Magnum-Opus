@@ -254,7 +254,7 @@ namespace MagnumOpus.Common.Systems.VFX
             
             // Switch to additive blending
             try { spriteBatch.End(); } catch { }
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
             
@@ -670,7 +670,7 @@ namespace MagnumOpus.Common.Systems.VFX
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
             // Use Additive blending for proper light ray glow effect
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
             

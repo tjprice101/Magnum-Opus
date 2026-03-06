@@ -1,4 +1,4 @@
-﻿using MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory.Utilities;
+using MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -210,7 +210,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory.Projectiles
             }
 
             // ── LAYER 1: Additive bloom overlays ──
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
 

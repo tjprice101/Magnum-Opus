@@ -124,7 +124,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 
                 // Begin additive batch with shader
                 spriteBatch.End();
-                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+                spriteBatch.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                     SamplerState.LinearClamp, DepthStencilState.None,
                     RasterizerState.CullNone, bloomShader,
                     Main.GameViewMatrix.TransformationMatrix);
@@ -229,7 +229,7 @@ namespace MagnumOpus.Common.Systems.VFX
             try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(
                 SpriteSortMode.Deferred,
-                BlendState.Additive,
+                MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp,
                 DepthStencilState.None,
                 RasterizerState.CullNone,
@@ -328,7 +328,7 @@ namespace MagnumOpus.Common.Systems.VFX
             try { spriteBatch.End(); } catch { }
             spriteBatch.Begin(
                 SpriteSortMode.Deferred,
-                BlendState.Additive,
+                MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp,
                 DepthStencilState.None,
                 RasterizerState.CullNone,

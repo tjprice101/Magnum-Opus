@@ -3274,7 +3274,7 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             
             // Draw glow layers (additive)
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             // Rainbow pearlescent glow - brighter during death
             float glowIntensity = isDying ? 0.4f + (deathTimer / (float)DeathAnimationDuration) * 0.6f : 0.4f;

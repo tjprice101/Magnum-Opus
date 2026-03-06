@@ -136,24 +136,20 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
                 _indexBuffer.SetData(indices, 0, (positions.Length - 1) * 6, SetDataOptions.Discard);
                 _device.SetVertexBuffer(_vertexBuffer);
                 _device.Indices = _indexBuffer;
-                _device.BlendState = BlendState.Additive;
+                _device.BlendState = MagnumBlendStates.TrueAdditive;
                 _device.DepthStencilState = DepthStencilState.None;
                 _device.RasterizerState = RasterizerState.CullNone;
-                if (settings.Shader != null)
+                if (settings.Shader != null && settings.Shader.Shader != null)
                 {
+                    Matrix view = Matrix.CreateLookAt(Vector3.Zero, Vector3.UnitZ, Vector3.Up);
+                    Matrix projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1);
+                    Matrix wvp = view * projection;
+                    settings.Shader.Shader.Parameters["uWorldViewProjection"]?.SetValue(wvp);
                     try { settings.Shader.Apply(); } catch { }
                 }
                 else
                 {
-                    var basicEffect = new BasicEffect(_device)
-                    {
-                        VertexColorEnabled = true,
-                        TextureEnabled = false,
-                        World = Matrix.Identity,
-                        View = Matrix.Identity,
-                        Projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1)
-                    };
-                    foreach (var pass in basicEffect.CurrentTechnique.Passes) pass.Apply();
+                    return;
                 }
                 _device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertCount, 0, (positions.Length - 1) * 2);
             }

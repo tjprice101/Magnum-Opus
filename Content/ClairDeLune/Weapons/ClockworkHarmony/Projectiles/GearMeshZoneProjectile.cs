@@ -171,7 +171,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Projectiles
 
             _gearSwingShader.CurrentTechnique = _gearSwingShader.Techniques["GearSwingArc"];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _gearSwingShader, matrix);
 
@@ -181,7 +181,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Projectiles
                 diam / sc.Width, SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }
@@ -205,7 +205,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Projectiles
 
             _moonlitShader.CurrentTechnique = _moonlitShader.Techniques["MoonlitGlow"];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _moonlitShader, matrix);
 
@@ -215,7 +215,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Projectiles
                 ambientDiam / sc.Width, SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }

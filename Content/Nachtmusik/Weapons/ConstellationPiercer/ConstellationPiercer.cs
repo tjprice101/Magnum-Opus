@@ -109,7 +109,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer
             float pulse = 1f + (float)Math.Sin(time * 2.2f) * 0.08f;
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Constellation blue precision outer ring
@@ -140,7 +140,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer
             float pulse = 1f + (float)Math.Sin(time * 2f) * 0.06f;
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
 
             Color glowColor = NachtmusikPalette.GetStarfieldGradient((float)Math.Sin(time * 0.8f) * 0.5f + 0.5f) * 0.25f;

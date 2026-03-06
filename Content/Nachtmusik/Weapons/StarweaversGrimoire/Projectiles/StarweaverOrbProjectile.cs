@@ -175,7 +175,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.StarweaversGrimoire.Projectiles
             // ═══════════════════════════════════════════════════════════════
             {
                 spriteBatch.End();
-                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
 
                 Vector2 drawPos = Projectile.Center - Main.screenPosition;

@@ -109,7 +109,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars
                 + (float)Math.Sin(time * 4.1f) * 0.03f;
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Deep blue stellar foundation
@@ -140,7 +140,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars
             float twinkle = 1f + (float)Math.Sin(time * 2.3f) * 0.07f;
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
 
             float cycle = (float)Math.Sin(time * 0.7f) * 0.5f + 0.5f;

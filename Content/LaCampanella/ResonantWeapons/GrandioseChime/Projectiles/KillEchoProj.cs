@@ -110,7 +110,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
             Projectile.NewProjectile(
                 Projectile.GetSource_FromThis(), target.Center, Vector2.Zero,
                 ModContent.ProjectileType<RippleEffectProjectile>(),
-                0, 0f, Projectile.owner);
+                0, 0f, Projectile.owner, ai0: 1f);
 
             // If this kill echo killed the target, chain further
             if (target.life <= 0 && ChainDepth < 2)
@@ -138,29 +138,49 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            var tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
-            float fade = (float)Projectile.timeLeft / 30f;
+            try
+            {
+                var tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad)?.Value;
+                if (tex == null) return false;
+                float fade = (float)Projectile.timeLeft / 30f;
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
-                Main.DefaultSamplerState, DepthStencilState.None,
-                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                try { sb.End(); } catch { }
+                try
+                {
+                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                        Main.DefaultSamplerState, DepthStencilState.None,
+                        Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Echo orb
-            Color echoColor = (GrandioseChimeUtils.EchoPalette[1] with { A = 0 }) * fade * 0.5f;
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
-                echoColor, 0f, tex.Size() / 2f, 0.2f, SpriteEffects.None, 0f);
+                    // Echo orb
+                    Color echoColor = (GrandioseChimeUtils.EchoPalette[1] with { A = 0 }) * fade * 0.5f;
+                    sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
+                        echoColor, 0f, tex.Size() / 2f, 0.2f, SpriteEffects.None, 0f);
 
-            // Outer glow
-            Color glow = (GrandioseChimeUtils.EchoPalette[0] with { A = 0 }) * fade * 0.3f;
-            sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
-                glow, 0f, tex.Size() / 2f, 0.4f, SpriteEffects.None, 0f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                Main.DefaultSamplerState, DepthStencilState.None,
-                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-
+                    // Outer glow
+                    Color glow = (GrandioseChimeUtils.EchoPalette[0] with { A = 0 }) * fade * 0.3f;
+                    sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
+                        glow, 0f, tex.Size() / 2f, 0.4f, SpriteEffects.None, 0f);
+                }
+                catch { }
+                finally
+                {
+                    try { sb.End(); } catch { }
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                        Main.DefaultSamplerState, DepthStencilState.None,
+                        Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
+            catch
+            {
+                try
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                        Main.DefaultSamplerState, DepthStencilState.None,
+                        Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
             return false;
         }
     }

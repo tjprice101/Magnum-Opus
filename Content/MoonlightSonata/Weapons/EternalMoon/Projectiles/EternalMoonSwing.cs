@@ -810,6 +810,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             if (_smearDistortShader != null)
             {
                 // --- SHADER PATH: fluid distortion + gradient coloring (Moonlight palette) ---
+                // NOTE: Uses BlendState.Additive (SourceAlpha) here, NOT TrueAdditive,
+                // because the SwordArcSmear texture uses alpha transparency to define
+                // its arc shape. TrueAdditive ignores alpha → full rectangle drawn.
                 sb.End();
                 sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
                     SamplerState.LinearWrap, DepthStencilState.None,
@@ -857,6 +860,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             else
             {
                 // --- FALLBACK: static colored layers (no shader available) ---
+                // NOTE: Same as shader path — must use SourceAlpha additive for alpha-masked arc textures.
                 sb.End();
                 sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
                     Main.DefaultSamplerState, DepthStencilState.None,
@@ -891,7 +895,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             if (State != SwingState.Swinging || Progression < 0.4f)
                 return;
 
-            Main.spriteBatch.EnterShaderRegion(BlendState.Additive);
+            Main.spriteBatch.EnterShaderRegion(MagnumBlendStates.TrueAdditive);
 
             var shader = GameShaders.Misc["MagnumOpus:EternalMoonTidalGlow"];
             _noiseTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/MusicalWavePattern");
@@ -903,8 +907,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             shader.UseSecondaryColor(IceBlue);
             shader.Shader.Parameters["uTime"]?.SetValue(Main.GlobalTimeWrappedHourly * 1.5f);
             shader.Shader.Parameters["uIntensity"]?.SetValue(_phaseIntensity);
-            shader.Shader.Parameters["uOpacity"]?.SetValue(0.6f * _phaseIntensity);
-            shader.Shader.Parameters["uOverbrightMult"]?.SetValue(2.0f + _phaseIntensity);
+            shader.Shader.Parameters["uOpacity"]?.SetValue(0.35f * _phaseIntensity);
+            shader.Shader.Parameters["uOverbrightMult"]?.SetValue(1.2f + _phaseIntensity * 0.5f);
             shader.Shader.Parameters["uScrollSpeed"]?.SetValue(1.0f);
             shader.Shader.Parameters["uDistortionAmt"]?.SetValue(0.06f * _phaseIntensity);
             shader.Shader.Parameters["uHasSecondaryTex"]?.SetValue(1.0f);
@@ -962,7 +966,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             if (State != SwingState.LunarSurge)
                 return;
 
-            Main.spriteBatch.EnterShaderRegion(BlendState.Additive);
+            Main.spriteBatch.EnterShaderRegion(MagnumBlendStates.TrueAdditive);
 
             var shader = GameShaders.Misc["MagnumOpus:EternalMoonSurgeTrail"];
             _noiseTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/MusicalWavePattern");
@@ -1095,7 +1099,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             Vector2 tipPos = Owner.MountedCenter + DirectionAtProgressSmoothed(Progression) * Projectile.scale * BladeLength - Main.screenPosition;
 
             float crescentScale = 0.4f + 0.3f * _phaseIntensity;
-            float crescentOpacity = (float)Math.Sin(MathHelper.Pi * (Progression - 0.3f) / 0.55f) * 0.5f * _phaseIntensity;
+            float crescentOpacity = (float)Math.Sin(MathHelper.Pi * (Progression - 0.3f) / 0.55f) * 0.3f * _phaseIntensity;
 
             // Palette-driven tidal color: shifts from deep purple at swing start to ice blue at peak
             float paletteT = 0.2f + Progression * 0.6f;
@@ -1104,12 +1108,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 
             // Layer 1: Wide soft radial halo (SoftRadialBloom) — the moon's atmospheric glow
             tidalOuter.A = 0;
-            Main.spriteBatch.Draw(softBloom, tipPos, null, tidalOuter * crescentOpacity * 0.25f,
+            Main.spriteBatch.Draw(softBloom, tipPos, null, tidalOuter * crescentOpacity * 0.15f,
                 0f, softBloom.Size() / 2f, crescentScale * 1.8f * Projectile.scale, SpriteEffects.None, 0f);
 
             // Layer 2: Mid-range soft glow (SoftRadialBloom) — violet body
             Color midColor = Violet with { A = 0 };
-            Main.spriteBatch.Draw(softBloom, tipPos, null, midColor * crescentOpacity * 0.35f,
+            Main.spriteBatch.Draw(softBloom, tipPos, null, midColor * crescentOpacity * 0.2f,
                 SwordRotation * 0.5f, softBloom.Size() / 2f, crescentScale * 1.2f * Projectile.scale, SpriteEffects.None, 0f);
 
             // Layer 3: Inner crescent core (PointBloom) — bright ice blue

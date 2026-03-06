@@ -171,7 +171,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
             float lifeProgress = 1f - (float)Projectile.timeLeft / 90f;
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Crescent shape - draw stretched
             float stretch = 2.5f;

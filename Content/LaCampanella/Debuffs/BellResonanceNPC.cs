@@ -137,7 +137,7 @@ namespace MagnumOpus.Content.LaCampanella.Debuffs
             Projectile.NewProjectile(
                 player.GetSource_FromThis(), center, Vector2.Zero,
                 ModContent.ProjectileType<RippleEffectProjectile>(),
-                0, 0f, playerOwner);
+                0, 0f, playerOwner, ai0: 1f);
 
             // Legacy VFX: expanding fire shockwave rings (layered on top of Foundation)
             for (int ring = 0; ring < 3; ring++)

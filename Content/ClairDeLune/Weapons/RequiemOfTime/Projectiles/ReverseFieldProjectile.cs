@@ -162,7 +162,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles
 
             _radialNoiseShader.CurrentTechnique = _radialNoiseShader.Techniques["Technique1"];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _radialNoiseShader, matrix);
 
@@ -173,7 +173,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles
                 fieldDiam / sc.Width, SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }
@@ -198,7 +198,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles
 
             _timeFreezeShader.CurrentTechnique = _timeFreezeShader.Techniques["TimeFreezeCrack"];
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, _timeFreezeShader, matrix);
 
@@ -209,7 +209,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles
                 fieldDiam / sc.Width, SpriteEffects.None, 0f);
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }

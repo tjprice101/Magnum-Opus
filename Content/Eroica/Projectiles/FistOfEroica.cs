@@ -383,7 +383,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             {
                 // Ensure SpriteBatch is restored to default state on any exception
                 try { spriteBatch.End(); } catch { }
-                spriteBatch.Begin(default, default, default, default, default, default, Main.GameViewMatrix.TransformationMatrix);
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
             // Eroica theme accent

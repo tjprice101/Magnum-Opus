@@ -468,7 +468,7 @@ namespace MagnumOpus.Common.Systems.VFX
                         alphaMult: 0.6f * fadeAlpha,
                         scrollOffset: trail.ScrollOffset1,
                         colorMode: ColorMode.Gradient,
-                        blendState: BlendState.Additive,
+                        blendState: MagnumBlendStates.TrueAdditive,
                         distortionOffset: trail.DistortionOffset,
                         distortionStrength: 0.02f,
                         distortionTexture: marble);
@@ -485,7 +485,7 @@ namespace MagnumOpus.Common.Systems.VFX
                         alphaMult: 0.4f * fadeAlpha,
                         scrollOffset: trail.ScrollOffset2,
                         colorMode: ColorMode.Secondary,
-                        blendState: BlendState.Additive,
+                        blendState: MagnumBlendStates.TrueAdditive,
                         distortionOffset: trail.DistortionOffset * 0.7f,
                         distortionStrength: 0.015f,
                         distortionTexture: marble);
@@ -502,7 +502,7 @@ namespace MagnumOpus.Common.Systems.VFX
                         alphaMult: 0.7f * fadeAlpha,
                         scrollOffset: 0f, // No scroll - locked to geometry
                         colorMode: ColorMode.Hot,
-                        blendState: BlendState.Additive,
+                        blendState: MagnumBlendStates.TrueAdditive,
                         distortionOffset: 0f,
                         distortionStrength: 0f,
                         distortionTexture: null);
@@ -519,7 +519,7 @@ namespace MagnumOpus.Common.Systems.VFX
                         alphaMult: 0.25f * fadeAlpha,
                         scrollOffset: trail.SparkleOffset,
                         colorMode: ColorMode.Accent,
-                        blendState: BlendState.Additive,
+                        blendState: MagnumBlendStates.TrueAdditive,
                         distortionOffset: 0f,
                         distortionStrength: 0f,
                         distortionTexture: null,
@@ -538,7 +538,7 @@ namespace MagnumOpus.Common.Systems.VFX
                         alphaMult: 0.8f * fadeAlpha,
                         scrollOffset: 0f,
                         colorMode: ColorMode.White,
-                        blendState: BlendState.Additive,
+                        blendState: MagnumBlendStates.TrueAdditive,
                         distortionOffset: 0f,
                         distortionStrength: 0f,
                         distortionTexture: null);
@@ -601,7 +601,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 Color finalColor = baseColor * alpha;
                 
                 // Remove alpha channel for additive blending
-                if (blendState == BlendState.Additive)
+                if (blendState == MagnumBlendStates.TrueAdditive)
                     finalColor = finalColor with { A = 0 };
                 
                 Vector2 screenPos = seg.Position - Main.screenPosition;

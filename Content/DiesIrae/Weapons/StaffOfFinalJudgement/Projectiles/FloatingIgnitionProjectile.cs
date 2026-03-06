@@ -1,4 +1,4 @@
-﻿using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Common.Systems.VFX.Core;
 using MagnumOpus.Content.DiesIrae;
 using MagnumOpus.Content.DiesIrae.Weapons.StaffOfFinalJudgement.Utilities;
 using Microsoft.Xna.Framework;
@@ -226,7 +226,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.StaffOfFinalJudgement.Projectiles
         {
             SpriteBatch sb = Main.spriteBatch;
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Draw purgatory field connections to other mines

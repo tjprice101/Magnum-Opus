@@ -35,7 +35,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Particl
             try
             {
                 try { sb.End(); } catch { }
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.PointClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
                 foreach (var p in Particles) if (p.UseAdditiveBlend) p.Draw(sb);
 

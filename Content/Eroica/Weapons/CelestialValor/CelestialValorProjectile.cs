@@ -1,8 +1,9 @@
-ï»¿using MagnumOpus.Common.Systems;
+using MagnumOpus.Common;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
-using MagnumOpus.Content.FoundationWeapons.RibbonFoundation;
-using ReLogic.Content;
+using MagnumOpus.Content.Eroica;
+using MagnumOpus.Content.FoundationWeapons.SwordSmearFoundation;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -13,8 +14,13 @@ using Terraria.ModLoader;
 namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 {
     /// <summary>
-    /// Heroic flame projectile â€” thrown melee projectile with flame trail,
+    /// Heroic flame projectile - thrown melee projectile with flame trail,
     /// afterimage chain, and crimson-gold bloom overlay.
+    /// 
+    /// ARCHITECTURE: Built on Foundation rendering (SMFTextures).
+    /// - Trail: Afterimage chain using position buffer + SoftGlow/PointBloom bloom per point
+    /// - Body: Multi-scale bloom stack (outer haze, main glow, hot core)
+    /// - Accent: StarFlare rotating flare at head
     /// </summary>
     public class CelestialValorProjectile : ModProjectile
     {
@@ -82,113 +88,85 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
         {
             SpriteBatch sb = Main.spriteBatch;
 
-            // â”€â”€ Layer 1: Trail afterimage chain â”€â”€
-            for (int i = TrailLength - 1; i > 0; i--)
-            {
-                float fade = 1f - (float)i / TrailLength;
-                fade *= fade;
-                Vector2 drawPos = trailPositions[i] - Main.screenPosition;
+            // Foundation textures
+            Texture2D softGlow = SMFTextures.SoftGlow.Value;
+            Texture2D pointBloom = SMFTextures.PointBloom.Value;
+            Texture2D starFlare = SMFTextures.StarFlare.Value;
 
-                Texture2D bloom = MagnumTextureRegistry.GetBloom();
-                if (bloom == null) continue;
-                Vector2 origin = bloom.Size() * 0.5f;
-
-                Color trailColor = Color.Lerp(EroicaPalette.Gold, EroicaPalette.DeepScarlet, (float)i / TrailLength) with { A = 0 };
-                sb.Draw(bloom, drawPos, null, trailColor * (fade * 0.35f), 0f, origin, 0.25f * fade + 0.1f, SpriteEffects.None, 0f);
-            }
-
-            // â”€â”€ Layer 1b: Pure Bloom Ribbon (RibbonFoundation Mode 1) â”€â”€
-            DrawPureBloomRibbon(sb);
-
-            // â”€â”€ Layer 2: Core bloom at projectile center â”€â”€
-            EroicaVFXLibrary.DrawEroicaBloomStack(sb, Projectile.Center,
-                EroicaPalette.Scarlet, EroicaPalette.Gold, 0.3f, 0.85f);
-
-            // â”€â”€ Layer 3: Rotating flare â”€â”€
-            Texture2D flare = MagnumTextureRegistry.GetFlare();
-            if (flare != null)
-            {
-                Vector2 flarePos = Projectile.Center - Main.screenPosition;
-                Vector2 flareOrigin = flare.Size() * 0.5f;
-                float rot = (float)Main.GameUpdateCount * 0.08f;
-                Color flareCol = EroicaPalette.Gold with { A = 0 };
-                sb.Draw(flare, flarePos, null, flareCol * 0.4f, rot, flareOrigin, 0.25f, SpriteEffects.None, 0f);
-            }
-
-            // Eroica theme accent
-            EroicaVFXLibrary.BeginEroicaAdditive(sb);
-            EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.5f);
-            EroicaVFXLibrary.EndEroicaAdditive(sb);
-
-            return false;
-        }
-
-        /// <summary>
-        /// RibbonFoundation Mode 1 (Pure Bloom) â€” velocity-stretched bloom sprites along trail.
-        /// Gold â†’ crimson gradient, 3-layer per point (outer haze, body, hot core).
-        /// </summary>
-        private void DrawPureBloomRibbon(SpriteBatch sb)
-        {
-            int validCount = 0;
-            for (int i = 0; i < TrailLength; i++)
-            {
-                if (trailPositions[i] != Vector2.Zero) validCount++;
-                else break;
-            }
-            if (validCount < 3) return;
-
-            Texture2D bloomTex = RBFTextures.SoftGlowBright.Value;
-            Texture2D coreTex = RBFTextures.PointBloom.Value;
-            if (bloomTex == null || coreTex == null) return;
-
-            Vector2 bloomOrigin = bloomTex.Size() / 2f;
-            Vector2 coreOrigin = coreTex.Size() / 2f;
+            Vector2 glowOrigin = softGlow.Size() / 2f;
+            Vector2 pointOrigin = pointBloom.Size() / 2f;
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
-            try
+
+            // „Ÿ„Ÿ LAYER 1: Trail afterimage bloom chain (Foundation pattern) „Ÿ„Ÿ
+            for (int i = TrailLength - 1; i > 0; i--)
             {
-            for (int i = 0; i < validCount; i++)
-            {
-                float progress = (float)i / validCount;
+                float progress = (float)i / TrailLength;
                 float headStrength = 1f - progress;
                 float fade = headStrength * headStrength;
-                if (fade < 0.01f) continue;
+                if (fade < 0.02f) continue;
 
-                float width = MathHelper.Lerp(2f, 10f, headStrength);
-                float scale = width / bloomTex.Width;
+                Vector2 drawPos = trailPositions[i] - Main.screenPosition;
 
-                Vector2 vel = i + 1 < validCount ? trailPositions[i] - trailPositions[i + 1] : Projectile.velocity;
+                // Velocity-aligned stretch
+                Vector2 vel = i + 1 < TrailLength ?
+                    trailPositions[i] - trailPositions[i + 1] : Projectile.velocity;
                 float rot = vel.ToRotation() + MathHelper.PiOver2;
-
-                Vector2 pos = trailPositions[i] - Main.screenPosition;
+                float scale = MathHelper.Lerp(2f, 10f, headStrength) / softGlow.Width;
                 float stretchX = scale;
                 float stretchY = scale * 2.2f;
 
-                Color outerColor = EroicaPalette.Scarlet with { A = 0 } * (fade * 0.3f);
-                sb.Draw(bloomTex, pos, null, outerColor, rot, bloomOrigin,
+                // Outer scarlet haze
+                Color outerCol = (EroicaPalette.Scarlet with { A = 0 }) * (fade * 0.3f);
+                sb.Draw(softGlow, drawPos, null, outerCol, rot, glowOrigin,
                     new Vector2(stretchX * 1.6f, stretchY * 1.3f), SpriteEffects.None, 0f);
 
-                Color bodyColor = Color.Lerp(Color.White, EroicaPalette.Gold, progress) with { A = 0 } * (fade * 0.45f);
-                sb.Draw(bloomTex, pos, null, bodyColor, rot, bloomOrigin,
+                // Body gold glow
+                Color bodyCol = Color.Lerp(Color.White, EroicaPalette.Gold, progress) with { A = 0 };
+                sb.Draw(softGlow, drawPos, null, bodyCol * (fade * 0.45f), rot, glowOrigin,
                     new Vector2(stretchX, stretchY), SpriteEffects.None, 0f);
 
-                Color coreColor = Color.White with { A = 0 } * (fade * 0.35f * headStrength);
-                sb.Draw(coreTex, pos, null, coreColor, rot, coreOrigin,
+                // Hot core
+                Color coreCol = (Color.White with { A = 0 }) * (fade * 0.35f * headStrength);
+                sb.Draw(pointBloom, drawPos, null, coreCol, rot, pointOrigin,
                     new Vector2(stretchX * 0.4f, stretchY * 0.6f), SpriteEffects.None, 0f);
             }
-            }
-            finally
-            {
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                    Main.DefaultSamplerState, DepthStencilState.None,
-                    RasterizerState.CullCounterClockwise, null,
-                    Main.GameViewMatrix.TransformationMatrix);
-            }
+
+            // „Ÿ„Ÿ LAYER 2: Head bloom stack „Ÿ„Ÿ
+            Vector2 headPos = Projectile.Center - Main.screenPosition;
+
+            // Wide ambient
+            sb.Draw(softGlow, headPos, null,
+                (EroicaPalette.Scarlet with { A = 0 }) * 0.25f, 0f,
+                glowOrigin, 0.35f, SpriteEffects.None, 0f);
+
+            // Main body
+            sb.Draw(softGlow, headPos, null,
+                (EroicaPalette.Gold with { A = 0 }) * 0.5f, 0f,
+                glowOrigin, 0.18f, SpriteEffects.None, 0f);
+
+            // Hot core
+            sb.Draw(pointBloom, headPos, null,
+                (EroicaPalette.HotCore with { A = 0 }) * 0.4f, 0f,
+                pointOrigin, 0.08f, SpriteEffects.None, 0f);
+
+            // „Ÿ„Ÿ LAYER 3: Rotating flare „Ÿ„Ÿ
+            float flareRot = (float)Main.GameUpdateCount * 0.08f;
+            sb.Draw(starFlare, headPos, null,
+                (EroicaPalette.Gold with { A = 0 }) * 0.4f, flareRot,
+                starFlare.Size() / 2f, 0.18f, SpriteEffects.None, 0f);
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
+
+            return false;
         }
     }
 }

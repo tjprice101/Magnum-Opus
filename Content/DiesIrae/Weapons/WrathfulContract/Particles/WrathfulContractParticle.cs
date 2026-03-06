@@ -70,7 +70,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract.Particles
 
             SpriteBatch sb = Main.spriteBatch;
 
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
 
             for (int i = _particles.Count - 1; i >= 0; i--)

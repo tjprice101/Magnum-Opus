@@ -5,9 +5,14 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.GameContent;
+using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
 using MagnumOpus.Content.Fate.Debuffs;
+using MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Primitives;
+using MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Shaders;
 using MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Utilities;
 using MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Particles;
 
@@ -43,6 +48,9 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
         private float homingStrength = 0f;
         private float rotationSpeed = 0f;
 
+        // GPU trail renderer
+        private CodaTrailRenderer _trailRenderer;
+
         public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/CodaOfAnnihilation";
 
         public override void SetStaticDefaults()
@@ -76,6 +84,9 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
                 trailPositions[i] = Projectile.Center;
                 trailRotations[i] = Projectile.rotation;
             }
+
+            // Initialize GPU trail renderer
+            _trailRenderer ??= new CodaTrailRenderer();
 
             // Random rotation speed (0.06 to 0.12) with random direction
             rotationSpeed = Main.rand.NextFloat(0.06f, 0.12f) * (Main.rand.NextBool() ? 1 : -1);
@@ -318,6 +329,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
 
         public override void OnKill(int timeLeft)
         {
+            // Dispose GPU trail resources
+            _trailRenderer?.Dispose();
+            _trailRenderer = null;
+
             Color weaponColor = CodaUtils.GetWeaponColor(WeaponIndex);
 
             // Fade out VFX
@@ -346,7 +361,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
+            SpriteBatch sb = Main.spriteBatch;
             Color weaponColor = CodaUtils.GetWeaponColor(WeaponIndex);
 
             Texture2D weaponTex = CodaUtils.GetWeaponTexture(WeaponIndex);
@@ -357,33 +372,167 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
             Vector2 origin = weaponTex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
-            // === Layer 1: Trail afterimages ===
+            try
+            {
+            // ════════════════════════════════════════════════════════
+            // PASS 1: GPU PRIMITIVE TRAIL (shader-driven ribbon mesh)
+            // ════════════════════════════════════════════════════════
+
+            // Build ordered trail array (newest→oldest for renderer)
+            Vector2[] orderedTrail = new Vector2[trailPositions.Length];
             for (int i = 0; i < trailPositions.Length; i++)
             {
-                int actualIndex = (trailIndex - i + trailPositions.Length) % trailPositions.Length;
-                Vector2 trailPos = trailPositions[actualIndex] - Main.screenPosition;
-                float trailRot = trailRotations[actualIndex];
-
-                float progress = (float)i / trailPositions.Length;
-                float trailAlpha = (1f - progress) * 0.5f;
-                float trailScale = 1f - progress * 0.3f;
-
-                Color trailColor = Color.Lerp(weaponColor, CodaUtils.AnnihilationWhite, progress * 0.3f) * trailAlpha;
-                trailColor.A = 0; // Additive
-
-                spriteBatch.Draw(weaponTex, trailPos, null, trailColor, trailRot, origin, trailScale, SpriteEffects.None, 0f);
+                int idx = (trailIndex - i + trailPositions.Length) % trailPositions.Length;
+                orderedTrail[i] = trailPositions[idx];
             }
 
-            // === Layer 2: Outer glow ===
-            Color outerGlow = weaponColor with { A = 0 } * 0.3f;
-            spriteBatch.Draw(weaponTex, drawPos, null, outerGlow, Projectile.rotation, origin, 1.15f, SpriteEffects.None, 0f);
+            _trailRenderer ??= new CodaTrailRenderer();
 
-            // === Layer 3: Main weapon sprite ===
-            spriteBatch.Draw(weaponTex, drawPos, null, Color.White, Projectile.rotation, origin, 1f, SpriteEffects.None, 0f);
+            // End the default SpriteBatch so we can use raw GPU primitives
+            sb.End();
 
-            // === Layer 4: Inner glow bloom ===
-            Color innerGlow = Color.Lerp(weaponColor, Color.White, 0.5f) with { A = 0 } * 0.4f;
-            spriteBatch.Draw(weaponTex, drawPos, null, innerGlow, Projectile.rotation, origin, 0.9f, SpriteEffects.None, 0f);
+            // Get zenith trail shader if available
+            MiscShaderData zenithShader = CodaShaderLoader.HasZenithTrail
+                ? GameShaders.Misc["MagnumOpus:CodaZenithTrail"]
+                : null;
+            MiscShaderData glowShader = CodaShaderLoader.HasZenithGlow
+                ? GameShaders.Misc["MagnumOpus:CodaZenithGlow"]
+                : null;
+
+            // Pass A: Wide outer glow trail
+            var glowSettings = new CodaTrailSettings(
+                completionRatio =>
+                {
+                    float head = 1f - MathF.Pow(completionRatio, 0.5f);
+                    return MathHelper.Lerp(4f, 28f, head);
+                },
+                completionRatio =>
+                {
+                    float fade = 1f - MathF.Pow(completionRatio, 1.1f);
+                    Color c = Color.Lerp(weaponColor, CodaUtils.VoidBlack, completionRatio * 0.4f);
+                    return CodaUtils.Additive(c, fade * 0.35f);
+                },
+                shader: glowShader,
+                smoothen: true
+            );
+            _trailRenderer.RenderTrail(orderedTrail, glowSettings);
+
+            // Pass B: Core trail (ZenithTrail preset)
+            var coreSettings = CodaTrailSettings.ZenithTrail(weaponColor, zenithShader);
+            _trailRenderer.RenderTrail(orderedTrail, coreSettings);
+
+            // Pass C: Inner bright trail (narrower, whiter)
+            var innerSettings = new CodaTrailSettings(
+                completionRatio =>
+                {
+                    float head = 1f - MathF.Pow(completionRatio, 0.7f);
+                    return MathHelper.Lerp(1f, 10f, head);
+                },
+                completionRatio =>
+                {
+                    float fade = 1f - MathF.Pow(completionRatio, 1.5f);
+                    Color c = Color.Lerp(CodaUtils.AnnihilationWhite, weaponColor, completionRatio * 0.5f);
+                    return CodaUtils.Additive(c, fade * 0.6f);
+                },
+                shader: glowShader,
+                smoothen: true
+            );
+            _trailRenderer.RenderTrail(orderedTrail, innerSettings);
+
+            // ════════════════════════════════════════════════════════
+            // PASS 2: BLOOM STACK (multi-layer glow at proj center)
+            // Uses A=0 premultiplied trick under AlphaBlend for true additive glow
+            // ════════════════════════════════════════════════════════
+
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                SamplerState.LinearClamp, DepthStencilState.None,
+                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            float time = (float)Main.GameUpdateCount;
+            float pulse = 0.85f + 0.15f * MathF.Sin(time * 0.08f);
+
+            // Layer 1: Wide ambient halo (RadialBloom)
+            Texture2D radialBloom = MagnumTextureRegistry.GetRadialBloom();
+            if (radialBloom != null)
+            {
+                Vector2 rOrigin = radialBloom.Size() * 0.5f;
+                Color haloColor = CodaUtils.Additive(weaponColor, 0.2f * pulse);
+                sb.Draw(radialBloom, drawPos, null, haloColor, 0f, rOrigin, 1.8f * pulse, SpriteEffects.None, 0f);
+            }
+
+            // Layer 2: Mid glow (SoftGlow)
+            Texture2D softGlow = MagnumTextureRegistry.GetSoftGlow();
+            if (softGlow != null)
+            {
+                Vector2 sOrigin = softGlow.Size() * 0.5f;
+                Color midColor = CodaUtils.Additive(
+                    Color.Lerp(weaponColor, CodaUtils.CodaCrimson, 0.3f), 0.4f * pulse);
+                sb.Draw(softGlow, drawPos, null, midColor, 0f, sOrigin, 1.2f, SpriteEffects.None, 0f);
+            }
+
+            // Layer 3: Inner bloom (PointBloom)
+            Texture2D pointBloom = MagnumTextureRegistry.GetPointBloom();
+            if (pointBloom != null)
+            {
+                Vector2 pOrigin = pointBloom.Size() * 0.5f;
+                Color innerColor = CodaUtils.Additive(
+                    Color.Lerp(weaponColor, CodaUtils.AnnihilationWhite, 0.4f), 0.65f);
+                sb.Draw(pointBloom, drawPos, null, innerColor, 0f, pOrigin, 0.7f, SpriteEffects.None, 0f);
+            }
+
+            // Layer 4: White-hot core
+            if (softGlow != null)
+            {
+                Vector2 sOrigin = softGlow.Size() * 0.5f;
+                Color coreColor = CodaUtils.Additive(CodaUtils.AnnihilationWhite, 0.8f);
+                sb.Draw(softGlow, drawPos, null, coreColor, 0f, sOrigin, 0.35f, SpriteEffects.None, 0f);
+            }
+
+            // Layer 5: Counter-rotating star flares (cosmic Fate identity)
+            Texture2D star4 = MagnumTextureRegistry.GetStar4Soft();
+            if (star4 != null)
+            {
+                Vector2 starOrigin = star4.Size() * 0.5f;
+                float rot1 = time * 0.03f;
+                float rot2 = -time * 0.02f;
+                Color flareColor1 = CodaUtils.Additive(CodaUtils.CodaCrimson, 0.5f * pulse);
+                Color flareColor2 = CodaUtils.Additive(CodaUtils.StarGold, 0.35f * pulse);
+                sb.Draw(star4, drawPos, null, flareColor1, rot1, starOrigin, 0.8f, SpriteEffects.None, 0f);
+                sb.Draw(star4, drawPos, null, flareColor2, rot2, starOrigin, 0.6f, SpriteEffects.None, 0f);
+            }
+
+            // Layer 6: Thin tall star accent
+            Texture2D starThin = MagnumTextureRegistry.GetStarThin();
+            if (starThin != null)
+            {
+                Vector2 thinOrigin = starThin.Size() * 0.5f;
+                float thinRot = Projectile.velocity.ToRotation();
+                Color thinColor = CodaUtils.Additive(CodaUtils.CodaPink, 0.45f * pulse);
+                sb.Draw(starThin, drawPos, null, thinColor, thinRot, thinOrigin, 0.55f, SpriteEffects.None, 0f);
+            }
+
+            // ════════════════════════════════════════════════════════
+            // PASS 3: WEAPON SPRITE (same AlphaBlend batch — no restart needed)
+            // ════════════════════════════════════════════════════════
+
+            // Draw weapon sprite
+            sb.Draw(weaponTex, drawPos, null, Color.White, Projectile.rotation, origin, 1f, SpriteEffects.None, 0f);
+
+            // Additive weapon glow overlay (A=0 trick under AlphaBlend = pure additive)
+            Color weaponGlow = CodaUtils.Additive(weaponColor, 0.25f);
+            sb.Draw(weaponTex, drawPos, null, weaponGlow, Projectile.rotation, origin, 1.05f, SpriteEffects.None, 0f);
+
+            }
+            catch
+            {
+                // Ensure SpriteBatch is restored to a valid state for subsequent draws
+                try
+                {
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
 
             return false;
         }

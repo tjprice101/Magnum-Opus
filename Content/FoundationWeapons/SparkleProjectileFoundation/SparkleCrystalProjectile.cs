@@ -248,7 +248,7 @@ namespace MagnumOpus.Content.FoundationWeapons.SparkleProjectileFoundation
 
             // ---- LAYER 2: BLOOM TRAIL (Photoviscerator-style shrinking blooms) ----
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -263,7 +263,7 @@ namespace MagnumOpus.Content.FoundationWeapons.SparkleProjectileFoundation
 
             // ---- LAYER 5: SPARKLE ACCENTS (additive sprites, no shader) ----
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -580,7 +580,7 @@ namespace MagnumOpus.Content.FoundationWeapons.SparkleProjectileFoundation
                 SPFTextures.GetGradientForTheme(CurrentTheme));
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, crystalShader,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -594,7 +594,7 @@ namespace MagnumOpus.Content.FoundationWeapons.SparkleProjectileFoundation
             sb.End();
 
             // Restart in additive without shader for subsequent layers
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);

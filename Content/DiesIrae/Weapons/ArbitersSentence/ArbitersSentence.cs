@@ -52,7 +52,11 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ArbitersSentence
                     (int)(damage * 0.3f), knockback * 0.2f, player.whoAmI);
             }
 
-            return true;
+            // Always spawn our custom VFX flame, not the ammo's vanilla type
+            Projectile.NewProjectile(source, position, velocity,
+                ModContent.ProjectileType<JudgmentFlameProjectile>(),
+                damage, knockback, player.whoAmI);
+            return false;
         }
 
         public override void AddRecipes()

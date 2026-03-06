@@ -34,6 +34,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture.Projectiles
 
         private static Asset<Texture2D> _glowTex;
 
+        // ─── Bloom Textures (Foundation-tier) ─────────────────────
+        private static Asset<Texture2D> _pointBloomTex;
+        private static Asset<Texture2D> _softRadialBloomTex;
+        private static Asset<Texture2D> _starFlareTex;
+
         public override void SetStaticDefaults()
         {
             ProjectileID.Sets.TrailCacheLength[Projectile.type] = TrailLength;
@@ -219,31 +224,54 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture.Projectiles
 
         private void SpawnImpactVFX(Vector2 pos)
         {
-            // Central bloom flare
-            LightParticleHandler.SpawnParticle(new LightBloomFlare(pos, LightUtils.LaserCyan, 0.6f, 16));
-            LightParticleHandler.SpawnParticle(new LightBloomFlare(pos, LightUtils.PlasmaWhite, 0.35f, 12));
+            float speedRatio = MathHelper.Clamp((_currentSpeed - 6f) / (MaxSpeed - 6f), 0f, 1f);
 
-            // Spark burst
-            for (int i = 0; i < 8; i++)
+            // NOTE: SpriteBatch bloom draws removed — SpawnImpactVFX is called from
+            // OnHitNPC/OnKill (Update phase) where no SpriteBatch is active.
+            // Impact visuals are handled by particles and dust below, which are
+            // queued and rendered properly during the Draw phase.
+
+            // ═══ ENHANCED PARTICLES ═══
+            // Central bloom flares (original, enhanced)
+            LightParticleHandler.SpawnParticle(new LightBloomFlare(pos, LightUtils.LaserCyan, 0.7f, 18));
+            LightParticleHandler.SpawnParticle(new LightBloomFlare(pos, LightUtils.PlasmaWhite, 0.4f, 14));
+            LightParticleHandler.SpawnParticle(new LightBloomFlare(pos, LightUtils.ImpactCrimson, 0.3f, 12));
+
+            // 14 radial spark burst (up from 8)
+            for (int i = 0; i < 14; i++)
             {
-                Vector2 sparkVel = Main.rand.NextVector2Circular(5f, 5f);
-                Color sparkCol = Color.Lerp(LightUtils.LaserCyan, LightUtils.ImpactCrimson, Main.rand.NextFloat());
-                LightParticleHandler.SpawnParticle(new LightSpark(pos, sparkVel, sparkCol * 0.7f, 0.18f, 12));
+                float angle = MathHelper.TwoPi * i / 14f + Main.rand.NextFloat(-0.15f, 0.15f);
+                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f + speedRatio * 4f);
+                Color sparkCol = LightUtils.BulletGradient(speedRatio * ((float)i / 14f * 0.5f + 0.5f));
+                LightParticleHandler.SpawnParticle(new LightSpark(pos, sparkVel, sparkCol * 0.8f, 0.2f, 14));
             }
 
-            // Dust ring
-            for (int i = 0; i < 10; i++)
+            // 6 directional velocity-aligned sparks
+            Vector2 hitDir = Projectile.velocity.SafeNormalize(Vector2.UnitX);
+            Vector2 hitPerp = new Vector2(-hitDir.Y, hitDir.X);
+            for (int i = 0; i < 6; i++)
             {
-                float angle = MathHelper.TwoPi * i / 10f;
-                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
-                Dust d = Dust.NewDustPerfect(pos, DustID.BlueTorch, vel, 0, LightUtils.LaserCyan, 1.1f);
+                float spread = (i - 2.5f) / 2.5f;
+                Vector2 dirVel = (hitDir * 5f + hitPerp * spread * 6f) * Main.rand.NextFloat(0.8f, 1.2f);
+                Color col = Color.Lerp(LightUtils.LaserCyan, LightUtils.PlasmaWhite, MathF.Abs(spread));
+                LightParticleHandler.SpawnParticle(new LightSpark(pos, dirVel, col * 0.7f, 0.15f, 12));
+            }
+
+            // Dust ring (original, enhanced count)
+            for (int i = 0; i < 14; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 14f;
+                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 7f);
+                Dust d = Dust.NewDustPerfect(pos, DustID.BlueTorch, vel, 0, LightUtils.LaserCyan, 1.2f);
                 d.noGravity = true;
             }
 
-            // Glyph accent
-            LightParticleHandler.SpawnParticle(new LightGlyph(pos, LightUtils.TrailViolet * 0.6f, 0.2f, 20));
+            // Glyph accent (original)
+            LightParticleHandler.SpawnParticle(new LightGlyph(pos, LightUtils.TrailViolet * 0.6f, 0.25f, 22));
 
-            Lighting.AddLight(pos, LightUtils.LaserCyan.ToVector3() * 0.8f);
+            // Dual lighting
+            Lighting.AddLight(pos, LightUtils.LaserCyan.ToVector3() * 1.0f);
+            Lighting.AddLight(pos + hitDir * 16f, LightUtils.ImpactCrimson.ToVector3() * 0.6f);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -292,18 +320,108 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture.Projectiles
 
                 // Draw bullet core sprite
                 _glowTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow");
+                _pointBloomTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
+                _softRadialBloomTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom");
+                _starFlareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/StarFlare");
+
                 float sr = MathHelper.Clamp((_currentSpeed - 6f) / (MaxSpeed - 6f), 0f, 1f);
-                Color coreCol = Color.Lerp(LightUtils.LaserCyan, LightUtils.PlasmaWhite, sr) * 0.9f;
-                float coreScale = 0.15f + sr * 0.12f;
                 Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                float time = (float)Main.timeForVisualEffects;
+                float pulse = 1f + MathF.Sin(time * 0.1f) * 0.1f;
+                float speedGlow = 1f + sr * 0.5f;
 
-                sb.Draw(_glowTex.Value, drawPos, null, coreCol with { A = 0 },
-                    Projectile.rotation, _glowTex.Value.Size() / 2f, coreScale, SpriteEffects.None, 0f);
+                // ═══ FOUNDATION-TIER GRADUATED BLOOM BODY ═══
+                // Switch to additive for bloom layers
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
-                // Outer bloom layer
-                Color bloomCol = LightUtils.TrailViolet * 0.4f;
-                sb.Draw(_glowTex.Value, drawPos, null, bloomCol with { A = 0 },
-                    0f, _glowTex.Value.Size() / 2f, coreScale * 2.5f, SpriteEffects.None, 0f);
+                // Layer 1: Outer void-violet haze (SoftRadialBloom)
+                if (_softRadialBloomTex?.IsLoaded == true)
+                {
+                    var radTex = _softRadialBloomTex.Value;
+                    var radOrigin = radTex.Size() * 0.5f;
+                    sb.Draw(radTex, drawPos, null,
+                        LightUtils.Additive(LightUtils.DeepViolet, 0.2f * speedGlow),
+                        0f, radOrigin, (0.5f + sr * 0.3f) * pulse, SpriteEffects.None, 0f);
+                }
+
+                // Layer 2: Trail violet resonance field (SoftRadialBloom)
+                if (_softRadialBloomTex?.IsLoaded == true)
+                {
+                    var radTex = _softRadialBloomTex.Value;
+                    var radOrigin = radTex.Size() * 0.5f;
+                    sb.Draw(radTex, drawPos, null,
+                        LightUtils.Additive(LightUtils.TrailViolet, 0.3f * speedGlow),
+                        0f, radOrigin, (0.35f + sr * 0.2f) * pulse, SpriteEffects.None, 0f);
+                }
+
+                // Layer 3: Cyan laser core (PointBloom)
+                if (_pointBloomTex?.IsLoaded == true)
+                {
+                    var ptTex = _pointBloomTex.Value;
+                    var ptOrigin = ptTex.Size() * 0.5f;
+                    sb.Draw(ptTex, drawPos, null,
+                        LightUtils.Additive(LightUtils.LaserCyan, 0.4f * speedGlow),
+                        0f, ptOrigin, (0.2f + sr * 0.12f) * pulse, SpriteEffects.None, 0f);
+                }
+
+                // Layer 4: Plasma white hot center (PointBloom)
+                if (_pointBloomTex?.IsLoaded == true)
+                {
+                    var ptTex = _pointBloomTex.Value;
+                    var ptOrigin = ptTex.Size() * 0.5f;
+                    sb.Draw(ptTex, drawPos, null,
+                        LightUtils.Additive(LightUtils.PlasmaWhite, 0.5f * speedGlow),
+                        0f, ptOrigin, (0.1f + sr * 0.08f) * pulse, SpriteEffects.None, 0f);
+                }
+
+                // Layer 5: StarFlare at bullet head (visible at higher speeds)
+                if (sr > 0.3f && _starFlareTex?.IsLoaded == true)
+                {
+                    var starTex = _starFlareTex.Value;
+                    var starOrigin = starTex.Size() * 0.5f;
+                    sb.Draw(starTex, drawPos, null,
+                        LightUtils.Additive(LightUtils.LaserCyan, 0.15f * sr),
+                        time * 0.05f, starOrigin, (0.12f + sr * 0.1f) * pulse, SpriteEffects.None, 0f);
+                    sb.Draw(starTex, drawPos, null,
+                        LightUtils.Additive(LightUtils.MuzzleGold, 0.1f * sr),
+                        -time * 0.035f, starOrigin, (0.08f + sr * 0.06f) * pulse, SpriteEffects.None, 0f);
+                }
+
+                // Original soft glow on top
+                if (_glowTex?.IsLoaded == true)
+                {
+                    Color coreCol = Color.Lerp(LightUtils.LaserCyan, LightUtils.PlasmaWhite, sr) * 0.9f;
+                    float coreScale = 0.15f + sr * 0.12f;
+                    sb.Draw(_glowTex.Value, drawPos, null, coreCol with { A = 0 },
+                        Projectile.rotation, _glowTex.Value.Size() / 2f, coreScale, SpriteEffects.None, 0f);
+
+                    // Outer bloom layer
+                    Color bloomCol = LightUtils.TrailViolet * 0.4f;
+                    sb.Draw(_glowTex.Value, drawPos, null, bloomCol with { A = 0 },
+                        0f, _glowTex.Value.Size() / 2f, coreScale * 2.5f, SpriteEffects.None, 0f);
+                }
+
+                // ═══ LEADING-EDGE BLOOM ═══
+                Vector2 leadDir = Projectile.velocity.SafeNormalize(Vector2.UnitX);
+                Vector2 tipPos = drawPos + leadDir * 8f;
+                float leadPulse = 1f + MathF.Sin(time * 0.15f) * 0.12f;
+
+                if (_pointBloomTex?.IsLoaded == true)
+                {
+                    var ptTex = _pointBloomTex.Value;
+                    sb.Draw(ptTex, tipPos, null,
+                        LightUtils.Additive(LightUtils.LaserCyan, 0.3f * speedGlow),
+                        0f, ptTex.Size() * 0.5f, (0.12f + sr * 0.08f) * leadPulse, SpriteEffects.None, 0f);
+                    sb.Draw(ptTex, tipPos, null,
+                        LightUtils.Additive(LightUtils.PlasmaWhite, 0.4f * speedGlow),
+                        0f, ptTex.Size() * 0.5f, (0.06f + sr * 0.04f) * leadPulse, SpriteEffects.None, 0f);
+                }
+
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
             catch
             {

@@ -46,6 +46,31 @@ float FBM(float2 p)
     return v / 0.9375;
 }
 
+matrix uWorldViewProjection;
+
+struct VertexShaderInput
+{
+    float4 Position : POSITION0;
+    float4 Color : COLOR0;
+    float3 TextureCoordinates : TEXCOORD0;
+};
+
+struct VertexShaderOutput
+{
+    float4 Position : SV_POSITION;
+    float4 Color : COLOR0;
+    float3 TextureCoordinates : TEXCOORD0;
+};
+
+VertexShaderOutput TrailVS(in VertexShaderInput input)
+{
+    VertexShaderOutput output = (VertexShaderOutput)0;
+    output.Position = mul(input.Position, uWorldViewProjection);
+    output.Color = input.Color;
+    output.TextureCoordinates = input.TextureCoordinates;
+    return output;
+}
+
 float4 ExplosionPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
 {
     float4 baseTex = tex2D(uImage0, coords);
@@ -125,6 +150,7 @@ technique AutoPass
 {
     pass P0
     {
+        VertexShader = compile vs_3_0 TrailVS();
         PixelShader = compile ps_3_0 ExplosionPS();
     }
 }

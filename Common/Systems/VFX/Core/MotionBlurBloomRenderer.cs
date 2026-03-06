@@ -357,7 +357,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 // Calculate screen position offset (RT center maps to the draw position)
                 Vector2 screenPos = position - rtCenter;
 
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null,
                     Main.GameViewMatrix.TransformationMatrix);
                 sb.Draw(blurRT, screenPos, null, Color.White * config.Opacity, 0f,
@@ -453,7 +453,7 @@ namespace MagnumOpus.Common.Systems.VFX
             // Use scope to safely manage SpriteBatch state
             using var scope = sb.Scope();
 
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null,
                 Main.GameViewMatrix.TransformationMatrix);
 
@@ -499,7 +499,7 @@ namespace MagnumOpus.Common.Systems.VFX
 
             using var scope = sb.Scope();
 
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null,
                 Main.GameViewMatrix.TransformationMatrix);
 

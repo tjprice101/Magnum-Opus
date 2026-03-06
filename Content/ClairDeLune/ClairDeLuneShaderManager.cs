@@ -690,7 +690,7 @@ namespace MagnumOpus.Content.ClairDeLune
             sb.End();
             sb.Begin(
                 SpriteSortMode.Immediate,
-                BlendState.Additive,
+                MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearClamp,
                 DepthStencilState.None,
                 Main.Rasterizer,
@@ -722,7 +722,7 @@ namespace MagnumOpus.Content.ClairDeLune
             sb.End();
             sb.Begin(
                 SpriteSortMode.Deferred,
-                BlendState.Additive,
+                MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp,
                 DepthStencilState.None,
                 Main.Rasterizer,

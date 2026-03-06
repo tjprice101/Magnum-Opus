@@ -195,7 +195,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.StarfallWhisper.Projectiles
             _strip.DrawTrail();
             Main.pixelShader.CurrentTechnique.Passes[0].Apply(); // Reset pixel shader
 
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
         }
@@ -250,7 +250,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.StarfallWhisper.Projectiles
         private void DrawBloomHalo(SpriteBatch sb, Matrix matrix)
         {
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
 
@@ -301,7 +301,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.StarfallWhisper.Projectiles
             if (_crystalShimmerShader != null && _softCircle != null)
             {
                 sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                     SamplerState.LinearWrap, DepthStencilState.None,
                     RasterizerState.CullCounterClockwise, _crystalShimmerShader, matrix);
 
@@ -329,7 +329,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.StarfallWhisper.Projectiles
         private void DrawSparkleAccents(SpriteBatch sb, Matrix matrix)
         {
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null, matrix);
 

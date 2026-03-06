@@ -687,7 +687,7 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
                 float auraIntensity = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.3f + 0.7f;
                 EnemyShaderManager.ApplyAuraParams(auraShader, NPC, new Color(255, 140, 40), new Color(30, 20, 15), auraIntensity);
                 spriteBatch.End();
-                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, auraShader, Main.GameViewMatrix.TransformationMatrix);
+                spriteBatch.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp, default, default, auraShader, Main.GameViewMatrix.TransformationMatrix);
                 spriteBatch.Draw(texture, drawPos, sourceRect, Color.White, NPC.rotation, origin, NPC.scale * 1.15f, effects, 0f);
                 spriteBatch.End();
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, default, default, null, Main.GameViewMatrix.TransformationMatrix);
@@ -701,7 +701,7 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
                 {
                     EnemyShaderManager.ApplyTrailParams(trailShader, NPC, new Color(255, 140, 40), new Color(30, 20, 15), NPC.velocity.Length() / 12f);
                     spriteBatch.End();
-                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, trailShader, Main.GameViewMatrix.TransformationMatrix);
+                    spriteBatch.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp, default, default, trailShader, Main.GameViewMatrix.TransformationMatrix);
                     for (int t = 1; t <= 3; t++)
                     {
                         Vector2 trailPos = drawPos - NPC.velocity * t * 2f;
@@ -779,8 +779,16 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
             Vector2 pos = Projectile.Center - Main.screenPosition;
             float alpha = 1f - Projectile.alpha / 255f;
 
+            // Switch to additive blending for glow VFX (black-background textures)
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
             Main.spriteBatch.Draw(glow, pos, null, CampanellaOrange * alpha, 0f, glow.Size() / 2, 0.5f, SpriteEffects.None, 0f);
             Main.spriteBatch.Draw(glow, pos, null, Color.White * alpha * 0.5f, 0f, glow.Size() / 2, 0.25f, SpriteEffects.None, 0f);
+
+            // Restore default blend state
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
             return false;
         }
@@ -826,7 +834,15 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
             Vector2 pos = Projectile.Center - Main.screenPosition;
             float alpha = 1f - Projectile.alpha / 255f;
 
+            // Switch to additive blending for glow VFX (black-background textures)
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
             Main.spriteBatch.Draw(glow, pos, null, CampanellaOrange * alpha * 0.6f, 0f, glow.Size() / 2, 0.8f, SpriteEffects.None, 0f);
+
+            // Restore default blend state
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
             return false;
         }
@@ -930,7 +946,15 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
             Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
 
+            // Switch to additive blending for glow VFX (black-background textures)
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
             Main.spriteBatch.Draw(glow, pos, null, CampanellaOrange, Projectile.rotation, glow.Size() / 2, 0.3f, SpriteEffects.None, 0f);
+
+            // Restore default blend state
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
             return false;
         }
@@ -1006,6 +1030,10 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
             Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad).Value;
             float alpha = 1f - Projectile.alpha / 255f;
 
+            // Switch to additive blending for glow VFX (black-background textures)
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
             // Draw pillar as stretched glow
             for (int i = 0; i < 10; i++)
             {
@@ -1013,6 +1041,10 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
                 Color col = Color.Lerp(CampanellaOrange, CampanellaYellow, i / 10f) * alpha;
                 Main.spriteBatch.Draw(glow, pos, null, col * 0.8f, 0f, glow.Size() / 2, new Vector2(0.6f, 0.4f), SpriteEffects.None, 0f);
             }
+
+            // Restore default blend state
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
             return false;
         }
@@ -1071,8 +1103,16 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
             Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
 
+            // Switch to additive blending for glow VFX (black-background textures)
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
             Main.spriteBatch.Draw(glow, pos, null, CampanellaOrange, Projectile.rotation, glow.Size() / 2, 0.5f, SpriteEffects.None, 0f);
             Main.spriteBatch.Draw(glow, pos, null, CampanellaYellow * 0.5f, Projectile.rotation, glow.Size() / 2, 0.3f, SpriteEffects.None, 0f);
+
+            // Restore default blend state
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
             return false;
         }

@@ -233,7 +233,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     spriteBatch.End();
                     try
                     {
-                        spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                        spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                             Main.DefaultSamplerState, DepthStencilState.None,
                             RasterizerState.CullCounterClockwise, null,
                             Main.GameViewMatrix.TransformationMatrix);

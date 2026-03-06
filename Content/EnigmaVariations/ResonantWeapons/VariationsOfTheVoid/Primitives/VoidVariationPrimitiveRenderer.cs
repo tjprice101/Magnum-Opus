@@ -120,13 +120,21 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
             device.SetVertexBuffer(_vertexBuffer);
             device.Indices = _indexBuffer;
 
-            // Set world-view-projection matrix on shader
+            // Set render states for GPU primitive drawing
+            var prevBlend = device.BlendState;
+            var prevDepth = device.DepthStencilState;
+            var prevRaster = device.RasterizerState;
+            device.BlendState = BlendState.Additive;
+            device.DepthStencilState = DepthStencilState.None;
+            device.RasterizerState = RasterizerState.CullNone;
+
+            // Set world-view-projection matrix on shader with zoom compensation
             if (settings.Shader != null)
             {
-                Matrix world = Matrix.Identity;
-                Matrix view = Matrix.Identity;
-                Matrix projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1);
-                Matrix wvp = world * view * projection;
+                var zoom = Main.GameViewMatrix.Zoom;
+                Matrix projection = Matrix.CreateOrthographicOffCenter(
+                    0, Main.screenWidth / zoom.X, Main.screenHeight / zoom.Y, 0, -1, 1);
+                Matrix wvp = projection;
 
                 var wvpParam = settings.Shader.Parameters["uWorldViewProjection"];
                 wvpParam?.SetValue(wvp);
@@ -140,6 +148,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
 
             device.SetVertexBuffer(null);
             device.Indices = null;
+            device.BlendState = prevBlend;
+            device.DepthStencilState = prevDepth;
+            device.RasterizerState = prevRaster;
         }
 
         private static float[] ComputeCompletions(List<Vector2> points)

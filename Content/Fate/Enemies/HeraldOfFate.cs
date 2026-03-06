@@ -1145,7 +1145,7 @@ namespace MagnumOpus.Content.Fate.Enemies
             {
                 EnemyShaderManager.ApplyAuraParams(auraShader, NPC, new Color(180, 40, 80), new Color(255, 220, 240), cosmicGlow);
                 spriteBatch.End();
-                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, auraShader, Main.GameViewMatrix.TransformationMatrix);
+                spriteBatch.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp, default, default, auraShader, Main.GameViewMatrix.TransformationMatrix);
                 spriteBatch.Draw(texture, drawPos, frame, Color.White, NPC.rotation, origin, NPC.scale * 1.15f, effects, 0f);
                 spriteBatch.End();
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, default, default, null, Main.GameViewMatrix.TransformationMatrix);
@@ -1159,7 +1159,7 @@ namespace MagnumOpus.Content.Fate.Enemies
                 {
                     EnemyShaderManager.ApplyTrailParams(trailShader, NPC, new Color(180, 40, 80), new Color(255, 220, 240), NPC.velocity.Length() / 12f);
                     spriteBatch.End();
-                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearClamp, default, default, trailShader, Main.GameViewMatrix.TransformationMatrix);
+                    spriteBatch.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp, default, default, trailShader, Main.GameViewMatrix.TransformationMatrix);
                     for (int t = 1; t <= 3; t++)
                     {
                         Vector2 trailPos = drawPos - NPC.velocity * t * 2f;
@@ -1182,7 +1182,7 @@ namespace MagnumOpus.Content.Fate.Enemies
             
             // Additive glow layer
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             float pulse = 0.9f + (float)Math.Sin(auraPulse * 2f) * 0.1f;
@@ -1307,7 +1307,7 @@ namespace MagnumOpus.Content.Fate.Enemies
             Vector2 origin = tex.Size() / 2f;
             
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             
             float pulse = 0.9f + (float)Math.Sin(Main.GameUpdateCount * 0.2f) * 0.1f;

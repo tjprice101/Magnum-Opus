@@ -420,7 +420,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 var device = Main.instance.GraphicsDevice;
                 var prevBlend = device.BlendState;
                 
-                device.BlendState = BlendState.Additive;
+                device.BlendState = MagnumBlendStates.TrueAdditive;
                 device.RasterizerState = RasterizerState.CullNone;
                 device.DepthStencilState = DepthStencilState.None;
                 

@@ -1,14 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Graphics.Shaders;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.Particles;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.Primitives;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.Shaders;
 using MagnumOpus.Content.LaCampanella;
 using MagnumOpus.Content.LaCampanella.Debuffs;
 using ReLogic.Content;
@@ -413,6 +416,70 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
                 }
             }
 
+            // === SHADER-DRIVEN TRAIL RENDERING ===
+            // The trail positions are collected in AI() but were never drawn!
+            if (_trailPositions.Count >= 2)
+            {
+                _trailRenderer ??= new InfernalChimesPrimitiveRenderer();
+                float trailIntensity = CurrentState switch
+                {
+                    BellState.CrescendoCharge => 0.8f + 0.2f * (float)Math.Sin(StateTimer * 0.15f),
+                    BellState.CrescendoFire => 0.9f,
+                    BellState.Firing => 0.6f,
+                    BellState.AttackReady => 0.5f,
+                    _ => 0.35f
+                };
+                float heartbeat = 0.85f + 0.15f * (float)Math.Sin(Main.GameUpdateCount * 0.08f + _bellIndex * 1.7f);
+
+                // Pass 1: Main choir trail with shader
+                var choirShader = InfernalChimesCallingShaderLoader.GetMinionTrailShader();
+                if (choirShader != null)
+                {
+                    try
+                    {
+                        choirShader.UseColor(InfernalChimesCallingUtils.ChoirPalette[2]);
+                        choirShader.UseSecondaryColor(InfernalChimesCallingUtils.ChoirPalette[4]);
+                        choirShader.UseOpacity(trailIntensity);
+                        choirShader.UseSaturation(trailIntensity); // uIntensity
+                        var choirFx = choirShader.Shader;
+                        if (choirFx != null)
+                        {
+                            choirFx.Parameters["uTime"]?.SetValue((float)Main.GameUpdateCount * 0.02f);
+                            choirFx.Parameters["uOverbrightMult"]?.SetValue(1.3f * heartbeat);
+                            choirFx.Parameters["uScrollSpeed"]?.SetValue(0.8f);
+                            choirFx.Parameters["uNoiseScale"]?.SetValue(3.5f);
+                        }
+                    }
+                    catch { }
+                }
+
+                var mainSettings = new InfernalChimesPrimitiveRenderer.ChimesTrailSettings(
+                    w: t => MathHelper.Lerp(14f, 2f, t) * heartbeat * trailIntensity,
+                    c: t =>
+                    {
+                        Color warm = Color.Lerp(InfernalChimesCallingUtils.ChoirPalette[2],
+                            InfernalChimesCallingUtils.ChoirPalette[4], t);
+                        return warm * (1f - t * 0.7f) * trailIntensity;
+                    },
+                    s: choirShader,
+                    smooth: true
+                );
+                _trailRenderer.RenderTrail(_trailPositions.ToArray(), mainSettings, MaxTrailPoints * 2);
+
+                // Pass 2: Wider outer glow trail (no shader, just vertex color)
+                var glowSettings = new InfernalChimesPrimitiveRenderer.ChimesTrailSettings(
+                    w: t => MathHelper.Lerp(24f, 4f, t) * heartbeat * trailIntensity,
+                    c: t =>
+                    {
+                        Color outer = InfernalChimesCallingUtils.ChoirPalette[1];
+                        return outer * (0.15f * (1f - t) * trailIntensity);
+                    },
+                    s: null,
+                    smooth: true
+                );
+                _trailRenderer.RenderTrail(_trailPositions.ToArray(), glowSettings, MaxTrailPoints * 2);
+            }
+
             // Draw minion sprite
             var tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -448,7 +515,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
                 try { sb.End(); } catch { }
                 try
                 {
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
                 Color bloomCol = InfernalChimesCallingUtils.Additive(
@@ -464,19 +531,64 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
                     sb.Draw(bloomTex, drawPos, null, chargeColor, 0f, bloomTex.Size() / 2f,
                         0.2f + chargeGlow * 0.3f, SpriteEffects.None, 0f);
 
-                    // --- LC Power Effect Ring 遯ｶ繝ｻbuilding concentric ring during crescendo charge ---
+                    // --- LC Power Effect Ring — building concentric ring during crescendo charge ---
                     float ringRot = (float)Main.GameUpdateCount * 0.03f + _bellIndex * MathHelper.PiOver4;
                     LaCampanellaVFXLibrary.DrawPowerEffectRing(sb, drawPos,
                         0.25f + chargeGlow * 0.2f, ringRot,
                         0.2f * chargeGlow, LaCampanellaPalette.InfernalOrange);
 
-                    // --- LC Bright Star 遯ｶ繝ｻbuilding star at crescendo peak ---
+                    // --- LC Bright Star — building star at crescendo peak ---
                     if (chargeGlow > 0.5f)
                     {
                         float starIntensity = (chargeGlow - 0.5f) * 2f;
                         LaCampanellaVFXLibrary.DrawBrightStar(sb, drawPos,
                             0.12f + starIntensity * 0.1f, -ringRot * 1.5f,
                             0.3f * starIntensity, LaCampanellaPalette.BellGold);
+                    }
+
+                    // === SHADER: ChoirFlameAura overlay during crescendo charge ===
+                    var auraShader = InfernalChimesCallingShaderLoader.GetFlameAuraShader();
+                    if (auraShader != null && chargeGlow > 0.15f)
+                    {
+                        try
+                        {
+                            sb.End();
+                            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
+                                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                            auraShader.UseColor(InfernalChimesCallingUtils.ChoirPalette[3]);
+                            auraShader.UseSecondaryColor(InfernalChimesCallingUtils.ChoirPalette[5]);
+                            auraShader.UseOpacity(chargeGlow * 0.6f);
+                            auraShader.UseSaturation(chargeGlow); // uIntensity
+                            var auraFx = auraShader.Shader;
+                            if (auraFx != null)
+                            {
+                                auraFx.Parameters["uTime"]?.SetValue((float)Main.GameUpdateCount * 0.015f);
+                                auraFx.Parameters["uOverbrightMult"]?.SetValue(1.4f);
+                                auraFx.Parameters["uPhase"]?.SetValue(chargeGlow);
+                                auraFx.Parameters["uNoiseScale"]?.SetValue(4f);
+                            }
+                            auraShader.Apply();
+
+                            float auraScale = 0.4f + chargeGlow * 0.4f;
+                            Color auraCol = Color.White * chargeGlow * 0.5f;
+                            sb.Draw(bloomTex, drawPos, null, auraCol, ringRot * 0.5f,
+                                bloomTex.Size() / 2f, auraScale, SpriteEffects.None, 0f);
+
+                            sb.End();
+                            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                        }
+                        catch
+                        {
+                            try
+                            {
+                                sb.End();
+                                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                            }
+                            catch { }
+                        }
                     }
                 }
                 }
@@ -491,7 +603,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
 
             // Theme texture accents
             try { sb.End(); } catch { }
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             InfernalChimesCallingUtils.DrawThemeAccents(sb, Projectile.Center - Main.screenPosition, Projectile.scale);
             try { sb.End(); } catch { }

@@ -138,7 +138,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Projectiles
 
             // Pass 2: Corona (Additive)
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Trail corona glow
@@ -229,7 +229,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Projectiles
         {
             SpriteBatch sb = Main.spriteBatch;
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             float life = (float)Projectile.timeLeft / MaxLifetime;

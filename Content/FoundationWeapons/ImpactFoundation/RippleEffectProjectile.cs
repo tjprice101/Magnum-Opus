@@ -18,6 +18,11 @@ namespace MagnumOpus.Content.FoundationWeapons.ImpactFoundation
     /// 2. BLOOM STACKING — Multi-layer additive bloom for impact flash and ambient glow.
     /// 3. DUST — Scattered ring-shaped sparkle particles.
     /// 
+    /// COLOR THEMES (via Projectile.ai[0]):
+    ///   0 = Default blue/cyan/white (foundation)
+    ///   1 = La Campanella infernal orange/gold/warm-white
+    ///   2 = Eroica scarlet/gold/white
+    /// 
     /// Behaviour:
     /// - Spawns at impact position, does NOT move
     /// - Purely visual (0 damage)
@@ -26,6 +31,10 @@ namespace MagnumOpus.Content.FoundationWeapons.ImpactFoundation
     /// </summary>
     public class RippleEffectProjectile : ModProjectile
     {
+        /// <summary>Color theme constants for ai[0].</summary>
+        public const float ThemeDefault = 0f;
+        public const float ThemeLaCampanella = 1f;
+        public const float ThemeEroica = 2f;
         public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.RainbowCrystalExplosion;
 
         private const int MaxLifetime = 60;
@@ -35,6 +44,20 @@ namespace MagnumOpus.Content.FoundationWeapons.ImpactFoundation
         private int timer;
         private float seed;
         private Effect rippleShader;
+
+        /// <summary>
+        /// Returns themed color array based on Projectile.ai[0].
+        /// Index 0 = primary, 1 = secondary, 2 = core/highlight.
+        /// </summary>
+        private Color[] GetThemedColors()
+        {
+            float theme = Projectile.ai[0];
+            if (theme >= 0.9f && theme <= 1.1f) // La Campanella
+                return new[] { new Color(255, 110, 15), new Color(255, 185, 50), new Color(255, 250, 220) };
+            if (theme >= 1.9f && theme <= 2.1f) // Eroica
+                return new[] { new Color(200, 50, 50), new Color(255, 160, 60), new Color(255, 240, 200) };
+            return IFTextures.GetModeColors(ImpactMode.Ripple); // Default blue
+        }
 
         public override void SetStaticDefaults()
         {
@@ -64,7 +87,7 @@ namespace MagnumOpus.Content.FoundationWeapons.ImpactFoundation
             // Lighting
             float progress = timer / (float)MaxLifetime;
             float brightness = 1f - progress;
-            Color[] colors = IFTextures.GetModeColors(ImpactMode.Ripple);
+            Color[] colors = GetThemedColors();
             Lighting.AddLight(Projectile.Center, colors[0].ToVector3() * brightness * 0.8f);
 
             // Ring-shaped dust emission — particles spread outward in a circle
@@ -88,7 +111,7 @@ namespace MagnumOpus.Content.FoundationWeapons.ImpactFoundation
         {
             SpriteBatch sb = Main.spriteBatch;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Color[] colors = IFTextures.GetModeColors(ImpactMode.Ripple);
+            Color[] colors = GetThemedColors();
 
             float progress = timer / (float)MaxLifetime;
             float fadeAlpha = timer > (MaxLifetime - FadeOutFrames)
@@ -99,7 +122,7 @@ namespace MagnumOpus.Content.FoundationWeapons.ImpactFoundation
 
             // ---- LAYER 1: INITIAL IMPACT FLASH ----
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -125,7 +148,7 @@ namespace MagnumOpus.Content.FoundationWeapons.ImpactFoundation
 
             // ---- LAYER 3: SOFT OUTER BLOOM ----
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -178,7 +201,7 @@ namespace MagnumOpus.Content.FoundationWeapons.ImpactFoundation
 
             // ---- DRAW WITH SHADER ----
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, rippleShader,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -191,7 +214,7 @@ namespace MagnumOpus.Content.FoundationWeapons.ImpactFoundation
 
             // End shader batch
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);

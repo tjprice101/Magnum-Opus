@@ -438,7 +438,7 @@ namespace MagnumOpus.Common.Systems.VFX
             var prevDepth = device.DepthStencilState;
             var prevSampler = device.SamplerStates[0];
             
-            device.BlendState = BlendState.Additive;
+            device.BlendState = MagnumBlendStates.TrueAdditive;
             device.RasterizerState = RasterizerState.CullNone;
             device.DepthStencilState = DepthStencilState.None;
             device.SamplerStates[0] = SamplerState.LinearClamp;

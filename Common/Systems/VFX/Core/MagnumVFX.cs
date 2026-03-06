@@ -31,7 +31,7 @@ namespace MagnumOpus.Common.Systems
         public static void BeginAdditiveBlend(SpriteBatch spriteBatch)
         {
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, 
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, 
                 SamplerState.LinearClamp, DepthStencilState.None, 
                 RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }

@@ -9,6 +9,10 @@ using MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Utilities;
 using MagnumOpus.Content.SwanLake.Debuffs;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Shaders;
+using Terraria.Graphics.Shaders;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Projectiles
 {
@@ -83,7 +87,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Projectiles
                 float angle = Main.rand.NextFloat(MathHelper.TwoPi);
                 Vector2 ringPos = Projectile.Center + angle.ToRotationVector2() * radius;
                 Dust d = Dust.NewDustPerfect(ringPos, DustID.WhiteTorch,
-                    angle.ToRotationVector2() * 0.5f, 0, LamentUtils.RevelationGold, 0.5f);
+                    angle.ToRotationVector2() * 0.5f, 0, LamentUtils.RevelationWhite, 0.5f);
                 d.noGravity = true;
             }
 
@@ -143,78 +147,141 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Projectiles
             try
             {
                 sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
                 Texture2D radial = MagnumTextureRegistry.GetRadialBloom();
                 Texture2D bloom = MagnumTextureRegistry.GetSoftGlow();
                 Texture2D point = MagnumTextureRegistry.GetPointBloom();
                 Texture2D halo = MagnumTextureRegistry.GetHaloRing();
+                Texture2D star = MagnumTextureRegistry.GetStar4Soft();
 
-                // --- Soft radial bloom backdrop (the "halo glow") ---
-                if (radial != null)
+                // ============ SHADER PASS: DestructionRevelation prismatic blast ============
+                if (LamentShaderLoader.HasDestructionRevelationShader && radial != null)
                 {
+                    sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                    var shaderData = GameShaders.Misc["MagnumOpus:DestructionRevelation"];
+                    var effect = shaderData.Shader;
+
+                    // Common uniforms
+                    effect.Parameters["uTime"]?.SetValue((float)Main.timeForVisualEffects * 0.015f);
+                    effect.Parameters["uOpacity"]?.SetValue(opacity);
+                    effect.Parameters["uPhase"]?.SetValue(lifeProgress);
+                    effect.Parameters["uNoiseScale"]?.SetValue(3f);
+                    effect.Parameters["uScrollSpeed"]?.SetValue(0.8f);
+
+                    if (MagnumTextureRegistry.PerlinNoise != null)
+                    {
+                        shaderData.UseImage1(MagnumTextureRegistry.PerlinNoise);
+                        effect.Parameters["uHasSecondaryTex"]?.SetValue(true);
+                        effect.Parameters["uSecondaryTexScale"]?.SetValue(2.5f);
+                        effect.Parameters["uSecondaryTexScroll"]?.SetValue(0.4f);
+                    }
+
+                    // Pass 1: RevelationBlastMain — monochrome-to-rainbow radial
+                    effect.Parameters["uColor"]?.SetValue(LamentUtils.GriefGrey.ToVector4());
+                    effect.Parameters["uSecondaryColor"]?.SetValue(LamentUtils.CatharsisWhite.ToVector4());
+                    effect.Parameters["uIntensity"]?.SetValue(0.9f);
+                    effect.Parameters["uOverbrightMult"]?.SetValue(0.15f);
+                    effect.Parameters["uDistortionAmt"]?.SetValue(0.06f);
+                    effect.CurrentTechnique = effect.Techniques["RevelationBlastMain"];
+                    effect.CurrentTechnique.Passes["P0"].Apply();
+
                     Vector2 rOrigin = radial.Size() * 0.5f;
-                    float backdropScale = (radius + 30f) / (radial.Width * 0.5f);
-                    Color backdropColor = Color.Lerp(LamentUtils.GriefGrey, LamentUtils.CatharsisWhite, 0.3f);
-                    sb.Draw(radial, drawPos, null, backdropColor * 0.12f * opacity, 0f, rOrigin, backdropScale, SpriteEffects.None, 0f);
+                    float blastScale = (radius * 1.15f) / (radial.Width * 0.5f);
+                    sb.Draw(radial, drawPos, null, LamentUtils.CatharsisWhite * 0.3f * opacity,
+                        0f, rOrigin, blastScale, SpriteEffects.None, 0f);
+
+                    // Pass 2: RevelationBlastRing — expanding prismatic shockwave ring
+                    if (bloom != null)
+                    {
+                        effect.Parameters["uIntensity"]?.SetValue(1.5f);
+                        effect.Parameters["uOverbrightMult"]?.SetValue(0.35f);
+                        effect.CurrentTechnique = effect.Techniques["RevelationBlastRing"];
+                        effect.CurrentTechnique.Passes["P0"].Apply();
+
+                        Vector2 bOrigin = bloom.Size() * 0.5f;
+                        float ringScale = (radius * 2.3f) / bloom.Width;
+                        sb.Draw(bloom, drawPos, null, Color.White * 0.35f * opacity,
+                            (float)Main.timeForVisualEffects * 0.012f, bOrigin, ringScale, SpriteEffects.None, 0f);
+                    }
+
+                    sb.End();
                 }
 
-                // --- Halo ring texture if available ---
+                // ============ BLOOM LAYERS (enhanced halo rendering) ============
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                // Layer 1: Soft radial bloom backdrop
+                if (radial != null)
+                {
+                    Vector2 rOrigin2 = radial.Size() * 0.5f;
+                    float backdropScale = (radius + 30f) / (radial.Width * 0.5f);
+                    Color backdropColor = Color.Lerp(LamentUtils.GriefGrey, LamentUtils.CatharsisWhite, 0.3f);
+                    sb.Draw(radial, drawPos, null, backdropColor * 0.12f * opacity, 0f, rOrigin2, backdropScale, SpriteEffects.None, 0f);
+                }
+
+                // Layer 2: Halo ring texture or constructed ring
                 if (halo != null)
                 {
                     Vector2 hOrigin = halo.Size() * 0.5f;
                     float haloScale = (radius * 2f) / halo.Width;
                     float spin = (float)Main.timeForVisualEffects * 0.01f;
                     sb.Draw(halo, drawPos, null, LamentUtils.CatharsisWhite * 0.5f * opacity, spin, hOrigin, haloScale, SpriteEffects.None, 0f);
-                    // Gold accent layer
-                    sb.Draw(halo, drawPos, null, LamentUtils.RevelationGold * 0.15f * opacity, -spin * 0.7f, hOrigin, haloScale * 1.05f, SpriteEffects.None, 0f);
+                    sb.Draw(halo, drawPos, null, LamentUtils.RevelationWhite * 0.18f * opacity, -spin * 0.7f, hOrigin, haloScale * 1.05f, SpriteEffects.None, 0f);
                 }
                 else if (bloom != null)
                 {
-                    // Fallback: construct ring from bloom dots
                     Vector2 bOrigin = bloom.Size() * 0.5f;
-                    int ringSegments = 32;
+                    int ringSegments = 36;
                     for (int i = 0; i < ringSegments; i++)
                     {
                         float angle = MathHelper.TwoPi / ringSegments * i;
                         Vector2 ringPos = drawPos + angle.ToRotationVector2() * radius;
                         Color c = Color.Lerp(LamentUtils.CatharsisWhite, LamentUtils.GriefGrey, 0.2f);
-                        // Outer ring
-                        sb.Draw(bloom, ringPos, null, c * 0.35f * opacity, 0f, bOrigin, 0.18f, SpriteEffects.None, 0f);
-                    }
-                    // Inner ring (slightly smaller, darker) to create ring effect
-                    float innerRadius = radius * 0.85f;
-                    for (int i = 0; i < ringSegments; i++)
-                    {
-                        float angle = MathHelper.TwoPi / ringSegments * i + 0.05f;
-                        Vector2 ringPos = drawPos + angle.ToRotationVector2() * innerRadius;
-                        sb.Draw(bloom, ringPos, null, LamentUtils.GriefGrey * 0.2f * opacity, 0f, bOrigin, 0.12f, SpriteEffects.None, 0f);
+                        sb.Draw(bloom, ringPos, null, c * 0.35f * opacity, 0f, bOrigin, 0.16f, SpriteEffects.None, 0f);
                     }
                 }
 
-                // --- Bright point accents at cardinal positions (rotating) ---
+                // Layer 3: Center grief-to-catharsis glow
+                if (bloom != null)
+                {
+                    Vector2 bOrigin = bloom.Size() * 0.5f;
+                    Color centerColor = Color.Lerp(LamentUtils.GriefGrey, LamentUtils.CatharsisWhite, lifeProgress);
+                    sb.Draw(bloom, drawPos, null, centerColor * 0.2f * opacity, 0f, bOrigin, 0.3f, SpriteEffects.None, 0f);
+                }
+
+                // Layer 4: Star sparkle at center (rotating)
+                if (star != null)
+                {
+                    Vector2 sOrigin = star.Size() * 0.5f;
+                    float starRot = (float)Main.timeForVisualEffects * 0.02f;
+                    sb.Draw(star, drawPos, null, LamentUtils.RevelationWhite * 0.2f * opacity, starRot, sOrigin, 0.2f, SpriteEffects.None, 0f);
+                }
+
+                // Layer 5: Bright point accents at cardinal positions (rotating)
                 if (point != null)
                 {
                     Vector2 pOrigin = point.Size() * 0.5f;
                     float rotOffset = (float)Main.timeForVisualEffects * 0.025f;
-                    for (int i = 0; i < 4; i++)
+                    for (int i = 0; i < 6; i++)
                     {
-                        float angle = MathHelper.PiOver2 * i + rotOffset;
+                        float angle = MathHelper.TwoPi / 6f * i + rotOffset;
                         Vector2 accentPos = drawPos + angle.ToRotationVector2() * radius;
-                        sb.Draw(point, accentPos, null, Color.White * 0.6f * opacity, 0f, pOrigin, 0.15f, SpriteEffects.None, 0f);
+                        sb.Draw(point, accentPos, null, Color.White * 0.55f * opacity, 0f, pOrigin, 0.13f, SpriteEffects.None, 0f);
                     }
                 }
 
-                // --- Gold shimmer trailing the expansion ---
+                // Layer 6: Gold revelation shimmer trailing expansion
                 if (bloom != null && lifeProgress < 0.6f)
                 {
                     Vector2 bOrigin = bloom.Size() * 0.5f;
-                    for (int i = 0; i < 6; i++)
+                    for (int i = 0; i < 8; i++)
                     {
-                        float angle = MathHelper.TwoPi / 6f * i + Timer * 0.08f;
+                        float angle = MathHelper.TwoPi / 8f * i + Timer * 0.08f;
                         Vector2 shimmerPos = drawPos + angle.ToRotationVector2() * (radius * 0.95f);
-                        sb.Draw(bloom, shimmerPos, null, LamentUtils.RevelationGold * 0.2f * opacity, 0f, bOrigin, 0.1f, SpriteEffects.None, 0f);
+                        sb.Draw(bloom, shimmerPos, null, LamentUtils.RevelationWhite * 0.2f * opacity, 0f, bOrigin, 0.1f, SpriteEffects.None, 0f);
                     }
                 }
             }

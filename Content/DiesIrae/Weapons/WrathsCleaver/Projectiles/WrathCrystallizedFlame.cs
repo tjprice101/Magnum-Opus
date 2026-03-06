@@ -168,7 +168,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Projectiles
             float fadeMult = Projectile.timeLeft < 30 ? Projectile.timeLeft / 30f : 1f;
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
 

@@ -333,7 +333,7 @@ namespace MagnumOpus.Common.Systems
             // This is the Calamity-proven pattern for FancyLighting compatibility
             using (var scope = spriteBatch.Scope())
             {
-                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, 
+                spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, 
                     SamplerState.LinearClamp, DepthStencilState.None, 
                     RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
                 

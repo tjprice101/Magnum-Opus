@@ -196,7 +196,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
             Color craterColor = CometUtils.GetCometGradient(phase);
 
             // Crater bloom 窶・size escalates with bounces
-            float bloomScale = 1.0f + phase * 1.5f;
+            float bloomScale = 0.7f + phase * 0.8f;
             CometParticleHandler.Spawn(new CraterBloomParticle(
                 Projectile.Center, craterColor, bloomScale, 20 + (int)(phase * 15)));
 
@@ -402,7 +402,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
 
             // Switch to Additive for bloom rendering
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -448,7 +448,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
 
             // Final death burst
             CometParticleHandler.Spawn(new CraterBloomParticle(
-                Projectile.Center, CometUtils.FrigidImpact, 1.5f + CometPhase, 25));
+                Projectile.Center, CometUtils.FrigidImpact, 0.8f + CometPhase * 0.5f, 25));
 
             for (int i = 0; i < 12; i++)
             {

@@ -353,7 +353,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             float flapOffset = (float)Math.Sin(wingFlap) * 4f;
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Ethereal glow
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f + spriteIndex) * 0.12f + 1f;

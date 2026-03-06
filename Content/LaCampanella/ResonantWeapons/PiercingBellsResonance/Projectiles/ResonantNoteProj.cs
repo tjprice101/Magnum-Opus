@@ -3,8 +3,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
+using Terraria.Graphics.Shaders;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Particles;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Shaders;
 using MagnumOpus.Content.LaCampanella.Debuffs;
 using ReLogic.Content;
 
@@ -97,16 +99,68 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
             {
                 Color aura = (PiercingBellsResonanceUtils.ResonancePalette[1] with { A = 0 }) * 0.15f * fade;
                 float auraScale = DamageRadius / (bloomTex.Width * 0.5f);
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                try { sb.End(); } catch { }
+                try
+                {
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                     Main.DefaultSamplerState, DepthStencilState.None,
                     Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
                 sb.Draw(bloomTex, Projectile.Center - Main.screenPosition, null,
                     aura, 0f, bloomTex.Size() / 2f, auraScale, SpriteEffects.None, 0f);
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                    Main.DefaultSamplerState, DepthStencilState.None,
-                    Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
+                // === SHADER: CrystalGlowShader — warm musical note glow overlay ===
+                var noteShader = PiercingBellsResonanceShaderLoader.GetCrystalGlowShader();
+                if (noteShader != null)
+                {
+                    try
+                    {
+                        sb.End();
+                        sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
+                            DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                        noteShader.UseColor(PiercingBellsResonanceUtils.ResonancePalette[2]);
+                        noteShader.UseSecondaryColor(PiercingBellsResonanceUtils.ResonancePalette[3]);
+                        noteShader.UseOpacity(pulse * 0.3f * fade);
+                        noteShader.UseSaturation(pulse * fade); // uIntensity
+                        var noteFx = noteShader.Shader;
+                        if (noteFx != null)
+                        {
+                            noteFx.Parameters["uTime"]?.SetValue((float)Main.GameUpdateCount * 0.015f);
+                            noteFx.Parameters["uOverbrightMult"]?.SetValue(1.2f);
+                            noteFx.Parameters["uNoiseScale"]?.SetValue(2.5f);
+                        }
+                        noteShader.Apply();
+
+                        Color shaderNote = Color.White * pulse * 0.25f * fade;
+                        sb.Draw(bloomTex, Projectile.Center - Main.screenPosition, null,
+                            shaderNote, Projectile.rotation, bloomTex.Size() / 2f, auraScale * 0.8f, SpriteEffects.None, 0f);
+
+                        sb.End();
+                        sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                            Main.DefaultSamplerState, DepthStencilState.None,
+                            Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                    }
+                    catch
+                    {
+                        try
+                        {
+                            sb.End();
+                            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                                Main.DefaultSamplerState, DepthStencilState.None,
+                                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                        }
+                        catch { }
+                    }
+                }
+                }
+                catch { }
+                finally
+                {
+                    try { sb.End(); } catch { }
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                        Main.DefaultSamplerState, DepthStencilState.None,
+                        Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
             }
 
             return false;

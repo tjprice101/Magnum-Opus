@@ -691,7 +691,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
 
             // Pass 1: Gravitational rift shader glow (under the sprite) — Additive
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -707,7 +707,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
 
             // Pass 3: Additive glow overlay
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -734,24 +734,24 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
             Color phaseColor = gp.CurrentPhaseColor;
 
             // Ambient rift glow 遯ｶ繝ｻgentle pulse, tinted by lunar phase
-            float pulse = 0.4f + 0.15f * MathF.Sin(AliveTime * 0.05f);
+            float pulse = 0.15f + 0.06f * MathF.Sin(AliveTime * 0.05f);
 
             // Charge state intensifies glow
             if (CurrentState == GoliathState.BeamAttack || CurrentState == GoliathState.DevastatingBeam)
             {
                 float chargeProgress = ChargeTimer / (float)ChargeUpDuration;
-                pulse += chargeProgress * 0.4f;
+                pulse += chargeProgress * 0.15f;
             }
 
             // Full Moon phase = brighter glow
             if (gp.IsFullMoon)
-                pulse *= 1.3f;
+                pulse *= 1.1f;
 
             Color riftColor = Color.Lerp(GoliathUtils.GravityWell, phaseColor, 0.3f) with { A = 0 } * pulse;
-            sb.Draw(bloom, drawPos, null, riftColor, 0f, origin, 1.2f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, riftColor, 0f, origin, 0.8f, SpriteEffects.None, 0f);
 
-            Color innerRift = Color.Lerp(GoliathUtils.NebulaPurple, phaseColor, 0.2f) with { A = 0 } * (pulse * 0.6f);
-            sb.Draw(bloom, drawPos, null, innerRift, 0f, origin, 0.7f, SpriteEffects.None, 0f);
+            Color innerRift = Color.Lerp(GoliathUtils.NebulaPurple, phaseColor, 0.2f) with { A = 0 } * (pulse * 0.4f);
+            sb.Draw(bloom, drawPos, null, innerRift, 0f, origin, 0.5f, SpriteEffects.None, 0f);
 
             // Phase-specific accent glow
             Color accentColor = phaseColor with { A = 0 } * (pulse * 0.25f);

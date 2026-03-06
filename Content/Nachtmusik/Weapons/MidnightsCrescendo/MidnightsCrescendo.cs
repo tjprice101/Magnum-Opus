@@ -145,7 +145,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.MidnightsCrescendo
             float pulse = 1f + (float)Math.Sin(time * 2f) * 0.05f * (1f + stackProgress * 2f);
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Glow intensity scales with stacks — from subtle indigo to brilliant stellar white

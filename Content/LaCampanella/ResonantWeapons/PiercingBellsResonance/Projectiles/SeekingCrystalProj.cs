@@ -3,10 +3,11 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
+using Terraria.Graphics.Shaders;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Particles;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Shaders;
 using MagnumOpus.Content.LaCampanella.Debuffs;
-using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Utilities;
 using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
 using ReLogic.Content;
 
@@ -109,7 +110,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
             Projectile.NewProjectile(
                 Projectile.GetSource_FromThis(), target.Center, Vector2.Zero,
                 ModContent.ProjectileType<RippleEffectProjectile>(),
-                0, 0f, Projectile.owner);
+                0, 0f, Projectile.owner, ai0: 1f);
         }
 
         public override void OnKill(int timeLeft)
@@ -138,18 +139,74 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
                 crystalColor * pulse, crystalRotation, tex.Size() / 2f, 0.5f * pulse, SpriteEffects.None, 0f);
 
             // Crystal aura glow (additive so black background disappears)
-            var bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D bloomTex = null;
+            try { bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow", AssetRequestMode.ImmediateLoad)?.Value; } catch { }
+            if (bloomTex != null)
+            {
             Color auraColor = (PiercingBellsResonanceUtils.CrystalPalette[2] with { A = 0 }) * 0.2f;
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            try { sb.End(); } catch { }
+            try
+            {
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             sb.Draw(bloomTex, Projectile.Center - Main.screenPosition, null,
                 auraColor, 0f, bloomTex.Size() / 2f, 0.25f, SpriteEffects.None, 0f);
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                Main.DefaultSamplerState, DepthStencilState.None,
-                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // === SHADER: CrystalGlowShader — prismatic faceted crystal overlay ===
+            var crystalShader = PiercingBellsResonanceShaderLoader.GetCrystalGlowShader();
+            if (crystalShader != null)
+            {
+                try
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                    crystalShader.UseColor(PiercingBellsResonanceUtils.CrystalPalette[1]);
+                    crystalShader.UseSecondaryColor(PiercingBellsResonanceUtils.CrystalPalette[2]);
+                    crystalShader.UseOpacity(pulse * 0.5f);
+                    crystalShader.UseSaturation(pulse); // uIntensity
+                    var crystalFx = crystalShader.Shader;
+                    if (crystalFx != null)
+                    {
+                        crystalFx.Parameters["uTime"]?.SetValue((float)Main.GameUpdateCount * 0.02f);
+                        crystalFx.Parameters["uOverbrightMult"]?.SetValue(1.4f);
+                        crystalFx.Parameters["uNoiseScale"]?.SetValue(3f);
+                    }
+                    crystalShader.Apply();
+
+                    Color shaderCrystal = Color.White * pulse * 0.35f;
+                    sb.Draw(bloomTex, Projectile.Center - Main.screenPosition, null,
+                        shaderCrystal, crystalRotation * 0.5f, bloomTex.Size() / 2f, 0.3f * pulse, SpriteEffects.None, 0f);
+
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                        Main.DefaultSamplerState, DepthStencilState.None,
+                        Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch
+                {
+                    try
+                    {
+                        sb.End();
+                        sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                            Main.DefaultSamplerState, DepthStencilState.None,
+                            Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                    }
+                    catch { }
+                }
+            }
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            }
 
             return false;
         }

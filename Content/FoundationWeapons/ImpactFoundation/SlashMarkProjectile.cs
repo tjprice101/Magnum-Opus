@@ -110,7 +110,7 @@ namespace MagnumOpus.Content.FoundationWeapons.ImpactFoundation
 
             // ---- LAYER 1: DIRECTIONAL BLOOM ----
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -122,7 +122,7 @@ namespace MagnumOpus.Content.FoundationWeapons.ImpactFoundation
 
             // ---- LAYER 3: CENTER FLASH ----
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -190,7 +190,7 @@ namespace MagnumOpus.Content.FoundationWeapons.ImpactFoundation
 
             // ---- DRAW WITH SHADER ----
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, slashShader,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -203,7 +203,7 @@ namespace MagnumOpus.Content.FoundationWeapons.ImpactFoundation
 
             // End shader batch
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);

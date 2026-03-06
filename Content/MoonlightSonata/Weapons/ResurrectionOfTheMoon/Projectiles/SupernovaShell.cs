@@ -288,14 +288,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
             {
                 float layerPhase = layer / 4f;
                 Color layerColor = Color.Lerp(CometUtils.GetCometGradient(layerPhase), lunarTint, 0.25f);
-                float layerScale = (2f + layer * 0.8f) * lunarMult;
+                float layerScale = (0.8f + layer * 0.3f) * lunarMult;
                 int layerLife = 25 + layer * 5;
                 CometParticleHandler.Spawn(new CraterBloomParticle(
                     Projectile.Center, layerColor, layerScale, layerLife));
             }
 
             // Core flash (— brilliant white on Full Moon)
-            float coreScale = lunarMult > 1.2f ? 4.5f : 3f;
+            float coreScale = lunarMult > 1.2f ? 1.8f : 1.2f;
             CometParticleHandler.Spawn(new CraterBloomParticle(
                 Projectile.Center, CometUtils.FrigidImpact, coreScale, 15));
 
@@ -484,7 +484,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
 
             SpriteBatch sb = Main.spriteBatch;
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -618,7 +618,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
 
             // Switch to Additive for bloom rendering
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);

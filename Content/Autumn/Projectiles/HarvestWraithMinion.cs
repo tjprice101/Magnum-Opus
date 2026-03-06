@@ -342,7 +342,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
             float tollProgress = 1f - (float)tollCooldown / TollInterval;
 
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Outer spectral layer
             spriteBatch.Draw(texture, drawPos, null, DecayPurple * 0.25f, 0f, origin, 0.55f * pulse, SpriteEffects.None, 0f);

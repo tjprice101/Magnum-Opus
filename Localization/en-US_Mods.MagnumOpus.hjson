@@ -8555,4 +8555,5 @@ Projectiles: {
 	BloomThornProjectile.DisplayName: Bloom Thorn Projectile
 	CrystallineThornProjectile.DisplayName: Crystalline Thorn Projectile
 	ThornDetonationProjectile.DisplayName: Thorn Detonation Projectile
+	FuneralPrayerChanneledBeam.DisplayName: Funeral Prayer Channeled Beam
 }

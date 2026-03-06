@@ -8,6 +8,7 @@ using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.Fate.Debuffs;
+using ReLogic.Content;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
 {
@@ -35,6 +36,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
 
         // ─── State ────────────────────────────────────────────────
         private float helixAngle;
+
+        // ─── Bloom Textures (Foundation-tier) ─────────────────────
+        private static Asset<Texture2D> _pointBloomTex;
+        private static Asset<Texture2D> _softRadialBloomTex;
+        private static Asset<Texture2D> _starFlareTex;
 
         private Vector2 TargetPos => new Vector2(Projectile.ai[0], Projectile.ai[1]);
         private float Age => 1f - (float)Projectile.timeLeft / MaxLifetime;
@@ -139,12 +145,143 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
         {
             target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 180);
 
-            // Impact VFX
-            if (!Main.dedServ)
+            if (Main.dedServ) return;
+
+            float age = Age;
+            Vector2 hitPos = target.Center;
+
+            // ═══ MULTI-LAYER SPRITEBATCH BLOOM FLASH ═══
+            try
             {
-                SymphonyParticleFactory.SpawnShatterBurst(Projectile.Center, 8);
-                SoundEngine.PlaySound(SoundID.Item27 with { Pitch = 0.3f, Volume = 0.6f }, Projectile.Center);
+                _pointBloomTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
+                _softRadialBloomTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom");
+                _starFlareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/StarFlare");
+
+                SpriteBatch sb = Main.spriteBatch;
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 screenPos = hitPos - Main.screenPosition;
+                float flashTime = (float)Main.timeForVisualEffects;
+
+                // Layer 1: Vast violet outer haze
+                if (_softRadialBloomTex?.IsLoaded == true)
+                {
+                    var radTex = _softRadialBloomTex.Value;
+                    sb.Draw(radTex, screenPos, null,
+                        SymphonyUtils.Additive(SymphonyUtils.SymphonyViolet, 0.35f + age * 0.1f),
+                        0f, radTex.Size() * 0.5f, 1.6f, SpriteEffects.None, 0f);
+                }
+
+                // Layer 2: Pink mid glow
+                if (_softRadialBloomTex?.IsLoaded == true)
+                {
+                    var radTex = _softRadialBloomTex.Value;
+                    sb.Draw(radTex, screenPos, null,
+                        SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, 0.45f + age * 0.1f),
+                        0f, radTex.Size() * 0.5f, 1.1f, SpriteEffects.None, 0f);
+                }
+
+                // Layer 3: Harmony blue inner
+                if (_pointBloomTex?.IsLoaded == true)
+                {
+                    var ptTex = _pointBloomTex.Value;
+                    sb.Draw(ptTex, screenPos, null,
+                        SymphonyUtils.Additive(SymphonyUtils.HarmonyBlue, 0.5f + age * 0.15f),
+                        0f, ptTex.Size() * 0.5f, 0.7f, SpriteEffects.None, 0f);
+                }
+
+                // Layer 4: White-hot core
+                if (_pointBloomTex?.IsLoaded == true)
+                {
+                    var ptTex = _pointBloomTex.Value;
+                    sb.Draw(ptTex, screenPos, null,
+                        SymphonyUtils.Additive(SymphonyUtils.FinalWhite, 0.65f + age * 0.2f),
+                        0f, ptTex.Size() * 0.5f, 0.4f, SpriteEffects.None, 0f);
+                }
+
+                // Layer 5: StarFlare cross — rotating chromatic flash
+                if (_starFlareTex?.IsLoaded == true)
+                {
+                    var starTex = _starFlareTex.Value;
+                    sb.Draw(starTex, screenPos, null,
+                        SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, 0.4f),
+                        flashTime * 0.12f, starTex.Size() * 0.5f, 0.5f, SpriteEffects.None, 0f);
+                    sb.Draw(starTex, screenPos, null,
+                        SymphonyUtils.Additive(SymphonyUtils.HarmonyBlue, 0.3f),
+                        -flashTime * 0.08f, starTex.Size() * 0.5f, 0.35f, SpriteEffects.None, 0f);
+                }
+
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullNone,
+                    null, Main.GameViewMatrix.TransformationMatrix);
             }
+            catch
+            {
+                try
+                {
+                    Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                        Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullNone,
+                        null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
+
+            // ═══ ENHANCED PARTICLE BURST ═══
+            // 14 radial sparks with chromatic gradient
+            for (int i = 0; i < 14; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 14f + Main.rand.NextFloat(-0.15f, 0.15f);
+                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 9f);
+                Color sparkCol = SymphonyUtils.GetSymphonyGradient((float)i / 14f);
+                SymphonyParticleHandler.Spawn(SymphonyParticleFactory.Spark(
+                    hitPos, sparkVel, sparkCol * 0.8f, 0.12f, 14));
+            }
+
+            // 6 directional slash marks along velocity
+            Vector2 hitDir = Projectile.velocity.SafeNormalize(Vector2.UnitX);
+            Vector2 hitPerp = new Vector2(-hitDir.Y, hitDir.X);
+            for (int i = 0; i < 6; i++)
+            {
+                float spread = (i - 2.5f) / 2.5f;
+                Vector2 slashVel = (hitDir * 4f + hitPerp * spread * 6f) * Main.rand.NextFloat(0.8f, 1.2f);
+                Color slashCol = Color.Lerp(SymphonyUtils.SymphonyViolet, SymphonyUtils.FinalWhite, MathF.Abs(spread));
+                SymphonyParticleHandler.Spawn(SymphonyParticleFactory.Spark(
+                    hitPos, slashVel, slashCol * 0.7f, 0.1f, 12));
+            }
+
+            // Shatter burst (original)
+            SymphonyParticleFactory.SpawnShatterBurst(hitPos, 12);
+
+            // 5 cascading music notes — the impact chord
+            for (int i = 0; i < 5; i++)
+            {
+                float noteAngle = MathHelper.TwoPi * i / 5f + Main.rand.NextFloat(-0.3f, 0.3f);
+                Vector2 noteVel = noteAngle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f);
+                Color noteCol = i % 2 == 0 ? SymphonyUtils.SymphonyViolet : SymphonyUtils.SymphonyPink;
+                SymphonyParticleHandler.Spawn(SymphonyParticleFactory.Note(
+                    hitPos + Main.rand.NextVector2Circular(8f, 8f), noteVel, noteCol * 0.7f, 0.18f, 22));
+            }
+
+            // Harmony blue wisps at high age
+            if (age > 0.4f)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    Vector2 wispVel = Main.rand.NextVector2Circular(2f, 2f);
+                    SymphonyParticleHandler.Spawn(SymphonyParticleFactory.Glow(
+                        hitPos + Main.rand.NextVector2Circular(12f, 12f), wispVel,
+                        SymphonyUtils.HarmonyBlue * 0.5f, 0.15f, 20));
+                }
+            }
+
+            // Dual lighting for bloom visibility
+            Lighting.AddLight(hitPos, SymphonyUtils.SymphonyViolet.ToVector3() * 0.9f);
+            Lighting.AddLight(hitPos + hitDir * 16f, SymphonyUtils.SymphonyPink.ToVector3() * 0.6f);
+
+            SoundEngine.PlaySound(SoundID.Item27 with { Pitch = 0.3f, Volume = 0.6f }, hitPos);
         }
 
         // ─── Death → Shatter ──────────────────────────────────────
@@ -180,6 +317,82 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
         {
             if (Main.dedServ) return;
 
+            // ═══ MASSIVE MULTI-LAYER BLOOM FLASH — THE FINAL CHORD ═══
+            try
+            {
+                _pointBloomTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
+                _softRadialBloomTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom");
+                _starFlareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/StarFlare");
+
+                SpriteBatch sb = Main.spriteBatch;
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 screenPos = Projectile.Center - Main.screenPosition;
+                float flashTime = (float)Main.timeForVisualEffects;
+
+                // Layer 1: Massive void-purple outer haze
+                if (_softRadialBloomTex?.IsLoaded == true)
+                {
+                    var radTex = _softRadialBloomTex.Value;
+                    sb.Draw(radTex, screenPos, null,
+                        SymphonyUtils.Additive(SymphonyUtils.SymphonyViolet, 0.5f),
+                        0f, radTex.Size() * 0.5f, 3.0f, SpriteEffects.None, 0f);
+                    sb.Draw(radTex, screenPos, null,
+                        SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, 0.45f),
+                        0f, radTex.Size() * 0.5f, 2.2f, SpriteEffects.None, 0f);
+                }
+
+                // Layer 2: Harmony blue expanding ring
+                if (_pointBloomTex?.IsLoaded == true)
+                {
+                    var ptTex = _pointBloomTex.Value;
+                    sb.Draw(ptTex, screenPos, null,
+                        SymphonyUtils.Additive(SymphonyUtils.HarmonyBlue, 0.6f),
+                        0f, ptTex.Size() * 0.5f, 1.5f, SpriteEffects.None, 0f);
+                }
+
+                // Layer 3: Blinding white core
+                if (_pointBloomTex?.IsLoaded == true)
+                {
+                    var ptTex = _pointBloomTex.Value;
+                    sb.Draw(ptTex, screenPos, null,
+                        SymphonyUtils.Additive(SymphonyUtils.FinalWhite, 0.85f),
+                        0f, ptTex.Size() * 0.5f, 0.8f, SpriteEffects.None, 0f);
+                }
+
+                // Layer 4: Double StarFlare cross — the grand finale flash
+                if (_starFlareTex?.IsLoaded == true)
+                {
+                    var starTex = _starFlareTex.Value;
+                    sb.Draw(starTex, screenPos, null,
+                        SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, 0.6f),
+                        flashTime * 0.15f, starTex.Size() * 0.5f, 1.0f, SpriteEffects.None, 0f);
+                    sb.Draw(starTex, screenPos, null,
+                        SymphonyUtils.Additive(SymphonyUtils.HarmonyBlue, 0.5f),
+                        -flashTime * 0.1f, starTex.Size() * 0.5f, 0.7f, SpriteEffects.None, 0f);
+                    sb.Draw(starTex, screenPos, null,
+                        SymphonyUtils.Additive(SymphonyUtils.FinalWhite, 0.4f),
+                        flashTime * 0.06f, starTex.Size() * 0.5f, 0.45f, SpriteEffects.None, 0f);
+                }
+
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullNone,
+                    null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch
+            {
+                try
+                {
+                    Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                        Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullNone,
+                        null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
+
             // Massive multi-layer particle burst
             SymphonyParticleHandler.SpawnBurst(Projectile.Center, 20, 12f, 0.5f,
                 SymphonyUtils.SymphonyViolet, SymphonyParticleType.Spark, 22);
@@ -191,6 +404,15 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
             // Music note burst — the final chord
             SymphonyParticleHandler.SpawnBurst(Projectile.Center, 8, 6f, 0.3f,
                 SymphonyUtils.SymphonyViolet, SymphonyParticleType.Note, 24);
+
+            // Additional harmony blue note cascade
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f + Main.rand.NextFloat(-0.3f, 0.3f);
+                Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 7f);
+                SymphonyParticleHandler.Spawn(SymphonyParticleFactory.Note(
+                    Projectile.Center, noteVel, SymphonyUtils.HarmonyBlue * 0.7f, 0.25f, 26));
+            }
 
             // Shatter burst for dramatic fragment scattering
             SymphonyParticleFactory.SpawnShatterBurst(Projectile.Center, 18);
@@ -207,6 +429,18 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
                 SymphonyParticleHandler.Spawn(SymphonyParticleFactory.Ring(
                     Projectile.Center, ringCol, 0.4f + r * 0.15f, 26 + r * 4));
             }
+
+            // Discord red dissonance accents — the breaking strings
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 discVel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 10f);
+                SymphonyParticleHandler.Spawn(SymphonyParticleFactory.Spark(
+                    Projectile.Center, discVel, SymphonyUtils.DiscordRed * 0.6f, 0.15f, 16));
+            }
+
+            Lighting.AddLight(Projectile.Center, SymphonyUtils.FinalWhite.ToVector3() * 2.5f);
+            Lighting.AddLight(Projectile.Center, SymphonyUtils.SymphonyPink.ToVector3() * 1.5f);
 
             SoundEngine.PlaySound(Terraria.ID.SoundID.Item14 with { Pitch = -0.3f, Volume = 1.2f }, Projectile.Center);
         }
@@ -253,15 +487,29 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
                 // 2. Draw trail (shader-driven GPU primitives)
                 DrawTrail();
 
-                // 3. Chromatic afterimage echoes + blade sprite (additive)
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                // 3. Graduated bloom aura around the blade body (behind sprite)
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
+                    null, Main.GameViewMatrix.TransformationMatrix);
+                DrawProjectileBloom(sb);
+                sb.End();
+
+                // 4. Chromatic afterimage echoes + blade sprite (additive)
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                     SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
                     null, Main.GameViewMatrix.TransformationMatrix);
                 DrawAfterimages(sb);
                 DrawBlade(sb);
                 sb.End();
 
-                // 4. Restart normal SpriteBatch
+                // 5. Leading-edge CrescentBloom at the velocity tip
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
+                    null, Main.GameViewMatrix.TransformationMatrix);
+                DrawLeadingBloom(sb);
+                sb.End();
+
+                // 6. Restart normal SpriteBatch
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
                     Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullNone,
                     null, Main.GameViewMatrix.TransformationMatrix);
@@ -282,7 +530,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
             try
             {
                 sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
                 SymphonyUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
                 sb.End();
@@ -292,6 +540,135 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
             catch { }
 
             return false;
+        }
+
+        /// <summary>6-layer graduated bloom aura rendered behind the blade sprite.</summary>
+        private void DrawProjectileBloom(SpriteBatch sb)
+        {
+            _pointBloomTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
+            _softRadialBloomTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom");
+            _starFlareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/StarFlare");
+
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            float age = Age;
+            float time = (float)Main.timeForVisualEffects;
+            float pulse = 1f + MathF.Sin(time * 0.08f) * 0.12f;
+            float breathe = 1f + MathF.Sin(time * 0.04f) * 0.06f;
+
+            // Layer 1: Outer void-violet nebula haze (SoftRadialBloom)
+            if (_softRadialBloomTex?.IsLoaded == true)
+            {
+                var radTex = _softRadialBloomTex.Value;
+                var radOrigin = radTex.Size() * 0.5f;
+                sb.Draw(radTex, drawPos, null,
+                    SymphonyUtils.Additive(SymphonyUtils.VoidBlack, 0.2f + age * 0.1f),
+                    0f, radOrigin, 1.8f * breathe, SpriteEffects.None, 0f);
+            }
+
+            // Layer 2: Violet resonance field (SoftRadialBloom)
+            if (_softRadialBloomTex?.IsLoaded == true)
+            {
+                var radTex = _softRadialBloomTex.Value;
+                var radOrigin = radTex.Size() * 0.5f;
+                sb.Draw(radTex, drawPos, null,
+                    SymphonyUtils.Additive(SymphonyUtils.SymphonyViolet, 0.3f + age * 0.1f),
+                    0f, radOrigin, 1.3f * pulse, SpriteEffects.None, 0f);
+            }
+
+            // Layer 3: Pink harmonic mid-glow (SoftRadialBloom)
+            if (_softRadialBloomTex?.IsLoaded == true)
+            {
+                var radTex = _softRadialBloomTex.Value;
+                var radOrigin = radTex.Size() * 0.5f;
+                sb.Draw(radTex, drawPos, null,
+                    SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, 0.35f + age * 0.1f),
+                    0f, radOrigin, 0.9f * pulse, SpriteEffects.None, 0f);
+            }
+
+            // Layer 4: Harmony blue inner glow (PointBloom)
+            if (_pointBloomTex?.IsLoaded == true)
+            {
+                var ptTex = _pointBloomTex.Value;
+                var ptOrigin = ptTex.Size() * 0.5f;
+                sb.Draw(ptTex, drawPos, null,
+                    SymphonyUtils.Additive(SymphonyUtils.HarmonyBlue, 0.3f + age * 0.12f),
+                    0f, ptOrigin, 0.55f * pulse, SpriteEffects.None, 0f);
+            }
+
+            // Layer 5: White core (PointBloom)
+            if (_pointBloomTex?.IsLoaded == true)
+            {
+                var ptTex = _pointBloomTex.Value;
+                var ptOrigin = ptTex.Size() * 0.5f;
+                sb.Draw(ptTex, drawPos, null,
+                    SymphonyUtils.Additive(SymphonyUtils.FinalWhite, 0.4f + age * 0.15f),
+                    0f, ptOrigin, 0.3f * pulse, SpriteEffects.None, 0f);
+            }
+
+            // Layer 6: StarFlare rotating cross — the blade's harmonic radiance
+            if (_starFlareTex?.IsLoaded == true)
+            {
+                var starTex = _starFlareTex.Value;
+                var starOrigin = starTex.Size() * 0.5f;
+                sb.Draw(starTex, drawPos, null,
+                    SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, 0.2f + age * 0.08f),
+                    time * 0.03f, starOrigin, 0.4f * pulse, SpriteEffects.None, 0f);
+                sb.Draw(starTex, drawPos, null,
+                    SymphonyUtils.Additive(SymphonyUtils.HarmonyBlue, 0.15f + age * 0.06f),
+                    -time * 0.02f, starOrigin, 0.28f * pulse, SpriteEffects.None, 0f);
+            }
+        }
+
+        /// <summary>CrescentBloom at the projectile's leading edge (velocity tip).</summary>
+        private void DrawLeadingBloom(SpriteBatch sb)
+        {
+            _pointBloomTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
+            _softRadialBloomTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom");
+            _starFlareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/StarFlare");
+
+            float age = Age;
+            float time = (float)Main.timeForVisualEffects;
+
+            // Leading edge position — offset in velocity direction
+            Vector2 leadDir = Projectile.velocity.SafeNormalize(Vector2.UnitX);
+            Vector2 tipPos = Projectile.Center + leadDir * 16f - Main.screenPosition;
+            float leadPulse = 1f + MathF.Sin(time * 0.12f) * 0.15f;
+
+            // Layer 1: Violet outer crescent
+            if (_softRadialBloomTex?.IsLoaded == true)
+            {
+                var radTex = _softRadialBloomTex.Value;
+                sb.Draw(radTex, tipPos, null,
+                    SymphonyUtils.Additive(SymphonyUtils.SymphonyViolet, 0.25f + age * 0.1f),
+                    Projectile.rotation, radTex.Size() * 0.5f, 0.6f * leadPulse, SpriteEffects.None, 0f);
+            }
+
+            // Layer 2: Pink mid
+            if (_pointBloomTex?.IsLoaded == true)
+            {
+                var ptTex = _pointBloomTex.Value;
+                sb.Draw(ptTex, tipPos, null,
+                    SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, 0.35f + age * 0.12f),
+                    0f, ptTex.Size() * 0.5f, 0.35f * leadPulse, SpriteEffects.None, 0f);
+            }
+
+            // Layer 3: Hot white-blue core
+            if (_pointBloomTex?.IsLoaded == true)
+            {
+                var ptTex = _pointBloomTex.Value;
+                sb.Draw(ptTex, tipPos, null,
+                    SymphonyUtils.Additive(SymphonyUtils.FinalWhite, 0.45f + age * 0.2f),
+                    0f, ptTex.Size() * 0.5f, 0.18f * leadPulse, SpriteEffects.None, 0f);
+            }
+
+            // Layer 4: StarFlare at leading edge — directional flash
+            if (_starFlareTex?.IsLoaded == true)
+            {
+                var starTex = _starFlareTex.Value;
+                sb.Draw(starTex, tipPos, null,
+                    SymphonyUtils.Additive(SymphonyUtils.HarmonyBlue, 0.2f + age * 0.08f),
+                    Projectile.rotation + time * 0.04f, starTex.Size() * 0.5f, 0.22f * leadPulse, SpriteEffects.None, 0f);
+            }
         }
 
         /// <summary>Chromatic-separated afterimage echoes along the spiral path.</summary>

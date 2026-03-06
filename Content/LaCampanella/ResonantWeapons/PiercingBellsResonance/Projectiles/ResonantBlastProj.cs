@@ -5,8 +5,10 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Graphics.Shaders;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Particles;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Shaders;
 using MagnumOpus.Content.LaCampanella;
 using MagnumOpus.Content.LaCampanella.Debuffs;
 using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
@@ -93,7 +95,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
                 Projectile.NewProjectile(
                     Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero,
                     ModContent.ProjectileType<RippleEffectProjectile>(),
-                    0, 0f, Projectile.owner);
+                    0, 0f, Projectile.owner, ai0: 1f);
 
                 // === FOUNDATION: SparkExplosionProjectile — Detonation spark burst (scales with markers) ===
                 Projectile.NewProjectile(
@@ -140,7 +142,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
             try { sb.End(); } catch { }
             try
             {
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             Color ringColor = IsPerfectPitch
@@ -161,6 +163,54 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
             // Outer glow
             Color outerColor = PiercingBellsResonanceUtils.ResonancePalette[1] * fade * 0.2f;
             sb.Draw(tex, screenPos, null, outerColor, 0f, origin, ringScale * 1.2f, SpriteEffects.None, 0f);
+
+            // === SHADER: ResonantBlastShader — concentric bell-shaped wavefronts ===
+            var blastShader = PiercingBellsResonanceShaderLoader.GetResonantBlastShader();
+            if (blastShader != null)
+            {
+                try
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                    blastShader.UseColor(PiercingBellsResonanceUtils.ResonancePalette[2]);
+                    blastShader.UseSecondaryColor(PiercingBellsResonanceUtils.ResonancePalette[4]);
+                    blastShader.UseOpacity(fade * 0.6f);
+                    blastShader.UseSaturation(fade); // uIntensity
+                    var blastFx = blastShader.Shader;
+                    if (blastFx != null)
+                    {
+                        blastFx.Parameters["uTime"]?.SetValue((float)Main.GameUpdateCount * 0.02f);
+                        blastFx.Parameters["uOverbrightMult"]?.SetValue(IsPerfectPitch ? 1.6f : 1.3f);
+                        blastFx.Parameters["uPhase"]?.SetValue(progress);
+                        blastFx.Parameters["uNoiseScale"]?.SetValue(3.5f);
+                    }
+                    blastShader.Apply();
+
+                    // Shader-driven wavefront ring
+                    Color shaderCol = Color.White * fade * 0.5f;
+                    sb.Draw(tex, screenPos, null, shaderCol, 0f, origin, ringScale * 1.05f, SpriteEffects.None, 0f);
+
+                    // Inner harmonic ring
+                    Color innerShader = Color.White * fade * 0.3f;
+                    sb.Draw(tex, screenPos, null, innerShader, 0f, origin, ringScale * 0.55f, SpriteEffects.None, 0f);
+
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch
+                {
+                    try
+                    {
+                        sb.End();
+                        sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                            DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                    }
+                    catch { }
+                }
+            }
             }
             catch { }
             finally

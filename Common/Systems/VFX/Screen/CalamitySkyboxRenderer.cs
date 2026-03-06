@@ -167,7 +167,7 @@ namespace MagnumOpus.Common.Systems.VFX
             // Draw overlay effects
             SpriteBatch spriteBatch = Main.spriteBatch;
             
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive,
+            spriteBatch.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None, RasterizerState.CullNone);
             
             // Draw noise overlay

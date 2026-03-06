@@ -7,6 +7,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Particles;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Primitives;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Shaders;
 using MagnumOpus.Content.LaCampanella;
 using MagnumOpus.Content.LaCampanella.Debuffs;
 using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
@@ -63,7 +64,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
             Projectile.NewProjectile(
                 Projectile.GetSource_FromThis(), target.Center, Vector2.Zero,
                 ModContent.ProjectileType<RippleEffectProjectile>(),
-                0, 0f, Projectile.owner);
+                0, 0f, Projectile.owner, ai0: 1f);
 
             // Kill echo chain on enemy death
             if (target.life <= 0)
@@ -103,15 +104,95 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
                 try
                 {
                     trailRenderer ??= new GrandioseChimePrimitiveRenderer();
-                    float trailWidth = IsGrandiose ? 24f : 8f;
+                    float trailWidth = IsGrandiose ? 28f : 10f;
+
+                    // === SHADER-DRIVEN GRANDIOSE BEAM TRAIL ===
+                    var beamShader = GrandioseChimeShaderLoader.GetBeamShader();
+                    if (beamShader != null)
+                    {
+                        Color beamCore = GrandioseChimeUtils.BeamPalette[3];
+                        Color beamEdge = GrandioseChimeUtils.BeamPalette[1];
+                        beamShader.UseColor(beamCore);
+                        beamShader.UseSecondaryColor(beamEdge);
+                        beamShader.UseOpacity(IsGrandiose ? 0.9f : 0.7f);
+                        try
+                        {
+                            beamShader.Shader.Parameters["uTime"]?.SetValue(Main.GameUpdateCount * 0.03f);
+                            beamShader.Shader.Parameters["uIntensity"]?.SetValue(IsGrandiose ? 1.5f : 1.0f);
+                            beamShader.Shader.Parameters["uOverbrightMult"]?.SetValue(IsGrandiose ? 1.8f : 1.3f);
+                            beamShader.Shader.Parameters["uScrollSpeed"]?.SetValue(2.0f);
+                            beamShader.Shader.Parameters["uNoiseScale"]?.SetValue(3.5f);
+                            beamShader.Shader.Parameters["uPhase"]?.SetValue(IsGrandiose ? 1.0f : 0.6f);
+                            beamShader.Shader.Parameters["uHasSecondaryTex"]?.SetValue(0f);
+                        }
+                        catch { }
+
+                        // Bind FBM noise texture on sampler 1
+                        try
+                        {
+                            var noiseTex = ModContent.Request<Texture2D>(
+                                "MagnumOpus/Assets/VFX Asset Library/NoiseTextures/TileableFBMNoise",
+                                AssetRequestMode.ImmediateLoad);
+                            if (noiseTex?.Value != null)
+                            {
+                                Main.graphics.GraphicsDevice.Textures[1] = noiseTex.Value;
+                                Main.graphics.GraphicsDevice.SamplerStates[1] = SamplerState.LinearWrap;
+                                beamShader.Shader.Parameters["uHasSecondaryTex"]?.SetValue(1f);
+                                beamShader.Shader.Parameters["uSecondaryTexScale"]?.SetValue(2.0f);
+                            }
+                        }
+                        catch { }
+                    }
+
+                    float beamPulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.08f;
                     var settings = new GrandioseBeamTrailSettings
                     {
-                        ColorStart = GrandioseChimeUtils.BeamPalette[2],
-                        ColorEnd = GrandioseChimeUtils.BeamPalette[0] * 0.3f,
+                        ColorStart = GrandioseChimeUtils.BeamPalette[3],
+                        ColorEnd = GrandioseChimeUtils.BeamPalette[0] * 0.4f,
                         Width = trailWidth,
-                        BloomIntensity = IsGrandiose ? 0.6f : 0.3f
+                        BloomIntensity = IsGrandiose ? 0.7f : 0.35f,
+                        Shader = beamShader,
+                        Smoothen = true,
+                        WidthFunc = t =>
+                        {
+                            float w = MathHelper.Lerp(trailWidth, 2f, t);
+                            return w * beamPulse;
+                        },
+                        ColorFunc = t =>
+                        {
+                            Color c = Color.Lerp(GrandioseChimeUtils.BeamPalette[3], GrandioseChimeUtils.BeamPalette[0], t);
+                            float alpha = (1f - t * 0.7f) * 0.85f;
+                            return c * alpha;
+                        }
                     };
                     trailRenderer.DrawTrail(sb, trailPositions, settings, Main.screenPosition);
+
+                    // === Second pass: wider outer glow trail for visual depth ===
+                    if (beamShader != null)
+                    {
+                        try
+                        {
+                            beamShader.UseOpacity(0.25f);
+                            beamShader.Shader.Parameters["uIntensity"]?.SetValue(0.5f);
+                        }
+                        catch { }
+                    }
+                    var outerSettings = new GrandioseBeamTrailSettings
+                    {
+                        ColorStart = GrandioseChimeUtils.BeamPalette[1] * 0.3f,
+                        ColorEnd = Color.Transparent,
+                        Width = trailWidth * 2.2f,
+                        BloomIntensity = 0f,
+                        Shader = beamShader,
+                        Smoothen = true,
+                        WidthFunc = t => MathHelper.Lerp(trailWidth * 2.2f, 4f, t),
+                        ColorFunc = t =>
+                        {
+                            Color c = GrandioseChimeUtils.BeamPalette[1];
+                            return c * ((1f - t) * 0.2f);
+                        }
+                    };
+                    trailRenderer.DrawTrail(sb, trailPositions, outerSettings, Main.screenPosition);
                 }
                 catch { }
             }
@@ -125,7 +206,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
             try { sb.End(); } catch { }
             try
             {
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null,

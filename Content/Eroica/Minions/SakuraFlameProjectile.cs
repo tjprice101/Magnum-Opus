@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
@@ -37,8 +37,9 @@ namespace MagnumOpus.Content.Eroica.Minions
 
         public override void SetDefaults()
         {
-            Projectile.width = 8;
-            Projectile.height = 8;
+            Projectile.width = 3;
+            Projectile.height = 3;
+            Projectile.scale = 0.35f;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Summon;
             Projectile.penetrate = 2;
@@ -101,7 +102,7 @@ namespace MagnumOpus.Content.Eroica.Minions
                     -Projectile.velocity.SafeNormalize(Vector2.Zero) * Main.rand.NextFloat(0.5f, 1.5f)
                         + Main.rand.NextVector2Circular(0.5f, 0.5f),
                     flameColor,
-                    Main.rand.NextFloat(0.15f, 0.3f),
+                    Main.rand.NextFloat(0.05f, 0.1f),
                     Main.rand.Next(6, 14)
                 ));
             }
@@ -111,7 +112,7 @@ namespace MagnumOpus.Content.Eroica.Minions
             {
                 int dust = Dust.NewDust(Projectile.position, Projectile.width, Projectile.height,
                     ModContent.DustType<FinalityDust>(), 0f, 0f, 0,
-                    FinalityUtils.AbyssalCrimson, Main.rand.NextFloat(0.3f, 0.7f));
+                    FinalityUtils.AbyssalCrimson, Main.rand.NextFloat(0.1f, 0.25f));
                 Main.dust[dust].noGravity = true;
             }
         }
@@ -201,7 +202,7 @@ namespace MagnumOpus.Content.Eroica.Minions
 
             // Eroica theme accent
             EroicaVFXLibrary.BeginEroicaAdditive(sb);
-            EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.4f);
+            EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 0.35f, 0.14f);
             EroicaVFXLibrary.EndEroicaAdditive(sb);
 
             return false;
@@ -223,7 +224,7 @@ namespace MagnumOpus.Content.Eroica.Minions
             Array.Copy(trailPositions, positions, validCount);
 
             var settings = new FinalityTrailSettings(
-                completionRatio => MathHelper.Lerp(5f, 0.5f, completionRatio),
+                completionRatio => MathHelper.Lerp(1.75f, 0.2f, completionRatio),
                 completionRatio =>
                 {
                     float fade = (1f - completionRatio);
@@ -267,12 +268,12 @@ namespace MagnumOpus.Content.Eroica.Minions
             int texW = stripTex.Width;
             int texH = stripTex.Height;
             float time = (float)Main.timeForVisualEffects * 0.008f;
-            const float WidthHead = 12f;
-            const float WidthTail = 2f;
+            const float WidthHead = 4.2f;
+            const float WidthTail = 0.7f;
             float lifeAlpha = 1f - fadeProgress;
 
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearWrap, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
@@ -382,7 +383,7 @@ namespace MagnumOpus.Content.Eroica.Minions
             Color bloomColor = FinalityUtils.AbyssalCrimson;
             bloomColor.A = 0;
             float bloomAlpha = (1f - fadeProgress) * 0.3f;
-            float bloomScale = Projectile.scale * 1.6f * (1f - fadeProgress * 0.4f);
+            float bloomScale = Projectile.scale * 0.56f * (1f - fadeProgress * 0.4f);
 
             FinalityUtils.EnterShaderRegion(sb);
             sb.Draw(tex, drawPos, null, bloomColor * bloomAlpha, Projectile.rotation, origin, bloomScale, SpriteEffects.None, 0f);

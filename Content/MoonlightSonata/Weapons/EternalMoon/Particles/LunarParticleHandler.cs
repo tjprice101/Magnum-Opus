@@ -70,7 +70,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Particles
             if (Main.dedServ || _activeParticles == null || _activeParticles.Count == 0) return;
 
             // Pass 1: Additive blend (bloom, glows, flares)
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.PointClamp, DepthStencilState.None,
                 RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 

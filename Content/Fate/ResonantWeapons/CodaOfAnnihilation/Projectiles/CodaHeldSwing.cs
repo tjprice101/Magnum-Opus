@@ -18,7 +18,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
 {
     /// <summary>
     /// The held spinning sword that orbits the player during each Coda swing.
-    /// Orbit radius 65f, ﾂｱ144ﾂｰ arc (0.8ﾏ), swing speed 0.12 rad/frame.
+    /// Orbit radius 65f, �E�ｱ144�E�ｰ arc (0.8�E�), swing speed 0.12 rad/frame.
     /// Deals melee damage via line collision from player center to tip.
     /// Self-contained VFX 窶・uses own particle handler for all effects.
     /// </summary>
@@ -30,7 +30,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
         // Orbit radius around player
         private const float OrbitRadius = 65f;
 
-        // Maximum swing arc: ﾂｱ144ﾂｰ = 0.8ﾏ
+        // Maximum swing arc: �E�ｱ144�E�ｰ = 0.8�E�
         private const float MaxSwingArc = MathHelper.Pi * 0.8f;
 
         // Current swing angle offset
@@ -57,6 +57,17 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
         // Shader-driven trail rendering
         private CodaTrailRenderer _trailRenderer;
         private static Asset<Texture2D> _noiseTex;
+
+        // SmearDistort overlay textures
+        private static Asset<Texture2D> _smearArcTexture;
+        private static Asset<Texture2D> _smearNoiseTex;
+        private static Asset<Texture2D> _smearGradientTex;
+        private Effect _smearDistortShader;
+        private bool _smearShaderLoaded;
+        // CrescentBloom textures
+        private static Asset<Texture2D> _bloomCircle;
+        private static Asset<Texture2D> _softRadialBloom;
+        private static Asset<Texture2D> _starFlareTex;
 
         public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/CodaOfAnnihilation";
 
@@ -111,7 +122,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
             // Keep alive
             Projectile.timeLeft = 2;
 
-            // Advance swing angle 窶・ﾂｱ144ﾂｰ arc
+            // Advance swing angle 窶・�E�ｱ144�E�ｰ arc
             SwingAngle += SwingSpeed * owner.direction;
             SwingAngle = MathHelper.Clamp(SwingAngle, -MaxSwingArc, MaxSwingArc);
 
@@ -217,39 +228,105 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
 
             Vector2 hitPos = target.Center;
 
-            // Annihilation flare
-            CodaParticleHandler.SpawnParticle(new AnnihilationFlareParticle(
-                hitPos, CodaUtils.AnnihilationWhite, 0.7f, 18));
+            // === Multi-layer bloom flash (Foundation-tier) ===
+            _bloomCircle ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
+            _softRadialBloom ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom");
+            if (_softRadialBloom?.Value != null && !Main.dedServ)
+            {
+                SpriteBatch sb = Main.spriteBatch;
+                try
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                    Texture2D softBloom = _softRadialBloom.Value;
+                    Vector2 drawPos = hitPos - Main.screenPosition;
+                    Vector2 bloomOrigin = softBloom.Size() / 2f;
 
-            // Glyph burst
-            for (int i = 0; i < 4; i++)
+                    sb.Draw(softBloom, drawPos, null, CodaUtils.Additive(CodaUtils.VoidBlack, 0.25f),
+                        0f, bloomOrigin, 1.8f, SpriteEffects.None, 0f);
+                    sb.Draw(softBloom, drawPos, null, CodaUtils.Additive(CodaUtils.CodaCrimson, 0.4f),
+                        0f, bloomOrigin, 1.2f, SpriteEffects.None, 0f);
+                    sb.Draw(softBloom, drawPos, null, CodaUtils.Additive(CodaUtils.CodaPink, 0.35f),
+                        0f, bloomOrigin, 0.7f, SpriteEffects.None, 0f);
+                    if (_bloomCircle?.Value != null)
+                    {
+                        sb.Draw(_bloomCircle.Value, drawPos, null, CodaUtils.Additive(CodaUtils.AnnihilationWhite, 0.6f),
+                            0f, _bloomCircle.Value.Size() / 2f, 0.35f, SpriteEffects.None, 0f);
+                    }
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch
+                {
+                    try { sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix); } catch { }
+                }
+            }
+
+            // Annihilation flare (enhanced)
+            CodaParticleHandler.SpawnParticle(new AnnihilationFlareParticle(
+                hitPos, CodaUtils.AnnihilationWhite, 0.9f, 20));
+            CodaParticleHandler.SpawnParticle(new AnnihilationFlareParticle(
+                hitPos, CodaUtils.CodaCrimson, 0.6f, 16));
+
+            // Glyph burst (enhanced count)
+            for (int i = 0; i < 6; i++)
             {
                 CodaParticleHandler.SpawnParticle(new GlyphBurstParticle(
-                    hitPos + Main.rand.NextVector2Circular(15f, 15f),
-                    CodaUtils.CodaPink * 0.7f, 0.35f, 20));
+                    hitPos + Main.rand.NextVector2Circular(20f, 20f),
+                    CodaUtils.CodaPink * 0.8f, 0.4f, 22));
             }
 
-            // Radial spark burst
-            for (int i = 0; i < 8; i++)
+            // Radial spark burst (increased)
+            for (int i = 0; i < 14; i++)
             {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
+                float angle = MathHelper.TwoPi * i / 14f + Main.rand.NextFloat(-0.1f, 0.1f);
+                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 10f);
                 Color c = CodaUtils.GetAnnihilationGradient(Main.rand.NextFloat());
                 CodaParticleHandler.SpawnParticle(new ArcSparkParticle(
-                    hitPos, vel, c * 0.8f, 0.35f, 20));
+                    hitPos, vel, c * 0.9f, 0.4f, 22));
             }
 
-            // Music note burst
-            for (int i = 0; i < 5; i++)
+            // Directional slash sparks
+            Vector2 slashDir = (Projectile.rotation + MathHelper.PiOver2).ToRotationVector2();
+            for (int i = 0; i < 6; i++)
             {
-                float angle = MathHelper.TwoPi * i / 5f + Main.rand.NextFloat(-0.3f, 0.3f);
-                Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
+                float spread = Main.rand.NextFloat(-0.3f, 0.3f);
+                Vector2 markVel = slashDir.RotatedBy(spread) * Main.rand.NextFloat(5f, 12f);
+                Color markCol = Color.Lerp(CodaUtils.StarGold, CodaUtils.AnnihilationWhite, Main.rand.NextFloat());
+                CodaParticleHandler.SpawnParticle(new ArcSparkParticle(
+                    hitPos, markVel, markCol, 0.3f, 16));
+            }
+
+            // Music note burst (enhanced cascade)
+            for (int i = 0; i < 7; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 7f + Main.rand.NextFloat(-0.3f, 0.3f);
+                Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f);
+                noteVel.Y -= 1.5f;
+                Color noteCol = Color.Lerp(CodaUtils.CodaCrimson, CodaUtils.CodaPurple, Main.rand.NextFloat());
                 CodaParticleHandler.SpawnParticle(new ZenithNoteParticle(
-                    hitPos, noteVel, CodaUtils.CodaCrimson, 0.4f, 30));
+                    hitPos, noteVel, noteCol, 0.45f, 35));
+            }
+
+            // Cosmic motes expanding outward
+            for (int i = 0; i < 6; i++)
+            {
+                Vector2 moteVel = Main.rand.NextVector2Circular(3f, 3f);
+                moteVel.Y -= 1f;
+                Color moteCol = Color.Lerp(CodaUtils.CodaPurple, CodaUtils.CodaPink, Main.rand.NextFloat());
+                CodaParticleHandler.SpawnParticle(new CosmicMoteParticle(
+                    hitPos + Main.rand.NextVector2Circular(15f, 15f), moteVel,
+                    moteCol * 0.7f, 0.25f, 28));
             }
 
             // Impact sound
-            SoundEngine.PlaySound(SoundID.Item71 with { Volume = 0.6f, Pitch = 0.2f }, hitPos);
+            SoundEngine.PlaySound(SoundID.Item71 with { Volume = 0.7f, Pitch = 0.2f }, hitPos);
+
+            Lighting.AddLight(hitPos, CodaUtils.CodaCrimson.ToVector3() * 1.2f);
+            Lighting.AddLight(hitPos, CodaUtils.AnnihilationWhite.ToVector3() * 0.8f);
         }
 
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
@@ -262,6 +339,169 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
             Vector2 lineEnd = Projectile.Center + tipOffset;
 
             return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), lineStart, lineEnd, 40f, ref _);
+        }
+
+        // ======================== SMEAR DISTORT OVERLAY ========================
+
+        /// <summary>
+        /// Foundation-tier SmearDistort overlay adapted for orbital swing.
+        /// Coda identity: annihilation void with crimson bleeding through.
+        /// </summary>
+        private void DrawSmearOverlay(SpriteBatch sb)
+        {
+            _smearArcTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/SlashArcs/SwordArcSmear");
+            _smearNoiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/TileableFBMNoise");
+            _smearGradientTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/ColorGradients/FateGradientLUTandRAMP");
+
+            if (_smearArcTexture?.Value == null) return;
+
+            if (!_smearShaderLoaded)
+            {
+                _smearShaderLoaded = true;
+                try
+                {
+                    _smearDistortShader = ModContent.Request<Effect>(
+                        "MagnumOpus/Content/FoundationWeapons/SwordSmearFoundation/Shaders/SmearDistortShader",
+                        AssetRequestMode.ImmediateLoad).Value;
+                }
+                catch { _smearDistortShader = null; }
+            }
+
+            Player owner = Main.player[Projectile.owner];
+            Vector2 center = owner.Center - Main.screenPosition;
+            float swingRotation = (BaseAngle + SwingAngle) + MathHelper.PiOver4;
+            Texture2D smearTex = _smearArcTexture.Value;
+            Vector2 smearOrigin = smearTex.Size() / 2f;
+            float baseScale = OrbitRadius / (smearTex.Width * 0.35f);
+            float time = (float)Main.timeForVisualEffects * 0.01f;
+
+            Color outerColor = CodaUtils.Additive(CodaUtils.VoidBlack, 0.3f);
+            Color mainColor = CodaUtils.Additive(CodaUtils.CodaCrimson, 0.55f);
+            Color coreColor = CodaUtils.Additive(CodaUtils.CodaPink, 0.65f);
+            int dir = owner.direction;
+            SpriteEffects fx = dir < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+
+            try
+            {
+                if (_smearDistortShader != null)
+                {
+                    sb.End();
+                    var shaderParams = _smearDistortShader.Parameters;
+                    shaderParams["uTime"]?.SetValue(time);
+                    if (_smearNoiseTex?.Value != null)
+                    {
+                        Main.graphics.GraphicsDevice.Textures[1] = _smearNoiseTex.Value;
+                        Main.graphics.GraphicsDevice.SamplerStates[1] = SamplerState.LinearWrap;
+                    }
+                    if (_smearGradientTex?.Value != null)
+                    {
+                        Main.graphics.GraphicsDevice.Textures[2] = _smearGradientTex.Value;
+                        Main.graphics.GraphicsDevice.SamplerStates[2] = SamplerState.LinearClamp;
+                    }
+
+                    shaderParams["distortStrength"]?.SetValue(0.07f);
+                    sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
+                        DepthStencilState.None, RasterizerState.CullNone, _smearDistortShader, Main.GameViewMatrix.TransformationMatrix);
+                    sb.Draw(smearTex, center, null, outerColor, swingRotation, smearOrigin, baseScale * 1.18f, fx, 0f);
+                    sb.End();
+
+                    shaderParams["distortStrength"]?.SetValue(0.04f);
+                    sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
+                        DepthStencilState.None, RasterizerState.CullNone, _smearDistortShader, Main.GameViewMatrix.TransformationMatrix);
+                    sb.Draw(smearTex, center, null, mainColor, swingRotation, smearOrigin, baseScale, fx, 0f);
+                    sb.End();
+
+                    shaderParams["distortStrength"]?.SetValue(0.02f);
+                    sb.Begin(SpriteSortMode.Immediate, BlendState.Additive, SamplerState.LinearWrap,
+                        DepthStencilState.None, RasterizerState.CullNone, _smearDistortShader, Main.GameViewMatrix.TransformationMatrix);
+                    sb.Draw(smearTex, center, null, coreColor, swingRotation, smearOrigin, baseScale * 0.82f, fx, 0f);
+                    sb.End();
+
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                else
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                    sb.Draw(smearTex, center, null, outerColor, swingRotation, smearOrigin, baseScale * 1.18f, fx, 0f);
+                    sb.Draw(smearTex, center, null, mainColor, swingRotation, smearOrigin, baseScale, fx, 0f);
+                    sb.Draw(smearTex, center, null, coreColor, swingRotation, smearOrigin, baseScale * 0.82f, fx, 0f);
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
+            catch
+            {
+                try { sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix); } catch { }
+            }
+        }
+
+        // ======================== CRESCENT BLOOM ========================
+
+        /// <summary>
+        /// Foundation-tier 6-layer graduated bloom at blade tip.
+        /// Coda identity: annihilation void with crimson/pink bleeding.
+        /// </summary>
+        private void DrawCrescentBloom(SpriteBatch sb)
+        {
+            _bloomCircle ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
+            _softRadialBloom ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom");
+            _starFlareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/StarFlare");
+
+            if (_bloomCircle?.Value == null || _softRadialBloom?.Value == null) return;
+
+            Vector2 tipOffset = Projectile.rotation.ToRotationVector2() * 45f;
+            Vector2 tipWorld = Projectile.Center + tipOffset;
+            Vector2 tipDraw = tipWorld - Main.screenPosition;
+            float breath = 0.85f + MathF.Sin((float)Main.timeForVisualEffects * 0.06f) * 0.15f;
+            float intensity = 0.8f * breath;
+
+            try
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Texture2D bloom = _softRadialBloom.Value;
+                Texture2D point = _bloomCircle.Value;
+                Vector2 bloomOrigin = bloom.Size() / 2f;
+                Vector2 pointOrigin = point.Size() / 2f;
+
+                sb.Draw(bloom, tipDraw, null, CodaUtils.Additive(CodaUtils.VoidBlack, 0.15f * intensity),
+                    0f, bloomOrigin, 1.6f * intensity, SpriteEffects.None, 0f);
+                sb.Draw(bloom, tipDraw, null, CodaUtils.Additive(CodaUtils.CodaCrimson, 0.3f * intensity),
+                    0f, bloomOrigin, 1.1f * intensity, SpriteEffects.None, 0f);
+                sb.Draw(bloom, tipDraw, null, CodaUtils.Additive(CodaUtils.CodaPink, 0.35f * intensity),
+                    0f, bloomOrigin, 0.65f * intensity, SpriteEffects.None, 0f);
+                sb.Draw(point, tipDraw, null, CodaUtils.Additive(CodaUtils.StarGold, 0.45f * intensity),
+                    0f, pointOrigin, 0.35f * intensity, SpriteEffects.None, 0f);
+                sb.Draw(point, tipDraw, null, CodaUtils.Additive(CodaUtils.AnnihilationWhite, 0.55f * intensity),
+                    0f, pointOrigin, 0.18f * intensity, SpriteEffects.None, 0f);
+
+                if (_starFlareTex?.Value != null)
+                {
+                    float starRot = (float)Main.timeForVisualEffects * 0.02f;
+                    Texture2D starTex = _starFlareTex.Value;
+                    Vector2 starOrigin = starTex.Size() / 2f;
+                    sb.Draw(starTex, tipDraw, null, CodaUtils.Additive(CodaUtils.CodaCrimson, 0.3f * intensity),
+                        starRot, starOrigin, 0.4f * intensity, SpriteEffects.None, 0f);
+                    sb.Draw(starTex, tipDraw, null, CodaUtils.Additive(CodaUtils.AnnihilationWhite, 0.2f * intensity),
+                        -starRot * 0.7f, starOrigin, 0.25f * intensity, SpriteEffects.None, 0f);
+                }
+
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch
+            {
+                try { sb.End(); sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix); } catch { }
+            }
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -278,7 +518,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
 
             try
             {
-                // === Layer 0: Shader-driven swing arc trail (GPU primitives) ===
+                // === Layer 0: SmearDistort Overlay (Foundation-tier, adapted for orbital swing) ===
+                DrawSmearOverlay(spriteBatch);
+
+                // === Layer 0.5: Shader-driven swing arc trail (GPU primitives) ===
                 spriteBatch.End();
                 DrawShaderTrail();
 
@@ -330,6 +573,9 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
                 // === Layer 5: Inner bright glow ===
                 Color innerGlow = Color.Lerp(CodaUtils.CodaCrimson, Color.White, 0.4f) with { A = 0 } * 0.35f;
                 spriteBatch.Draw(weaponTex, drawPos, null, innerGlow, Projectile.rotation, origin, 0.85f, SpriteEffects.None, 0f);
+
+                // === Layer 6: CrescentBloom at blade tip ===
+                DrawCrescentBloom(spriteBatch);
             }
             catch
             {
@@ -345,14 +591,22 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
             try
             {
                 spriteBatch.End();
-                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
                 CodaUtils.DrawThemeAccents(spriteBatch, Projectile.Center, 1f, 0.6f);
                 spriteBatch.End();
-                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-            catch { }
+            catch
+            {
+                try
+                {
+                    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
+            }
 
             return false;
         }

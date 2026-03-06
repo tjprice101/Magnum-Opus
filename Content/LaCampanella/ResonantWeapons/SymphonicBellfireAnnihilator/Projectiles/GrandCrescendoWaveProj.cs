@@ -5,8 +5,10 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Graphics.Shaders;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator.Particles;
+using MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnihilator.Shaders;
 using MagnumOpus.Content.LaCampanella;
 using MagnumOpus.Content.LaCampanella.Debuffs;
 using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
@@ -98,8 +100,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
                     edgePos, edgeVel, Main.rand.NextFloat(1.5f, 3f), Main.rand.Next(10, 18)));
             }
 
-            // Musical notes shedding from wave
-            if (Main.rand.NextBool(6))
+            // Musical notes shedding from wave — generous spawn for "Symphonic" identity
+            if (Main.rand.NextBool(3))
             {
                 Vector2 noteVel = Main.rand.NextVector2Circular(2f, 2f) - Projectile.velocity * 0.05f;
                 SymphonicBellfireParticleHandler.SpawnParticle(new SymphonicNoteParticle(
@@ -124,7 +126,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
             Projectile.NewProjectile(
                 Projectile.GetSource_FromThis(), target.Center, Vector2.Zero,
                 ModContent.ProjectileType<RippleEffectProjectile>(),
-                0, 0f, Projectile.owner);
+                0, 0f, Projectile.owner, ai0: 1f);
 
             _pierceCount++;
 
@@ -191,7 +193,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
             try { sb.End(); } catch { }
             try
             {
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             float pulse = 0.85f + 0.15f * (float)Math.Sin(Main.GameUpdateCount * 0.15f);
@@ -226,6 +228,56 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
                 LaCampanellaVFXLibrary.DrawPowerEffectRing(sb, drawPos,
                     scaleX * 0.35f, (float)Main.GameUpdateCount * 0.02f,
                     0.25f * fade * ringPulse, LaCampanellaPalette.BellGold);
+            }
+
+            // === SHADER: CrescendoShader — musical crescendo energy overlay ===
+            var crescShader = SymphonicBellfireShaderLoader.GetCrescendoShader();
+            if (crescShader != null)
+            {
+                try
+                {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                    crescShader.UseColor(SymphonicBellfireUtils.CrescendoPalette[1]);
+                    crescShader.UseSecondaryColor(SymphonicBellfireUtils.CrescendoPalette[3]);
+                    crescShader.UseOpacity(fade * 0.5f);
+                    crescShader.UseSaturation(fade * pulse); // uIntensity
+                    var crescFx = crescShader.Shader;
+                    if (crescFx != null)
+                    {
+                        crescFx.Parameters["uTime"]?.SetValue((float)Main.GameUpdateCount * 0.02f);
+                        crescFx.Parameters["uOverbrightMult"]?.SetValue(IsSymphonicOverture ? 1.5f : 1.2f);
+                        crescFx.Parameters["uPhase"]?.SetValue(travelProgress);
+                        crescFx.Parameters["uNoiseScale"]?.SetValue(3.5f);
+                    }
+                    crescShader.Apply();
+
+                    // Shader wave body
+                    Color shaderBody = Color.White * fade * 0.4f;
+                    sb.Draw(tex, drawPos, null, shaderBody, Projectile.rotation,
+                        origin, new Vector2(scaleX * 0.9f, scaleY * 0.9f), SpriteEffects.None, 0f);
+
+                    // Shader inner core
+                    Color shaderCore = Color.White * fade * 0.25f;
+                    sb.Draw(tex, drawPos, null, shaderCore, Projectile.rotation,
+                        origin, new Vector2(scaleX * 0.35f, scaleY * 0.35f), SpriteEffects.None, 0f);
+
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch
+                {
+                    try
+                    {
+                        sb.End();
+                        sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                            DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                    }
+                    catch { }
+                }
             }
             }
             catch { }

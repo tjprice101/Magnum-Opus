@@ -45,7 +45,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
             if (Main.dedServ || _pool == null) return;
 
             SpriteBatch sb = Main.spriteBatch;
-            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
 
