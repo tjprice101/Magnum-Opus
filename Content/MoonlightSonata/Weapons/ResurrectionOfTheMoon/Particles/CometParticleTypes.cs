@@ -130,7 +130,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
             float velAngle = Velocity.Length() > 0.5f ? Velocity.ToRotation() : Rotation;
 
             sb.Draw(tex, drawPos, null, DrawColor * (1f - LifetimeCompletion),
-                velAngle, origin, new Vector2(stretch, 1f) * Scale * 0.5f,
+                velAngle, origin, new Vector2(MathHelper.Min(stretch * Scale * 0.5f, 0.139f), MathHelper.Min(Scale * 0.5f, 0.139f)),
                 SpriteEffects.None, 0f);
         }
     }
@@ -176,7 +176,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
 
             float fade = 1f - CometUtils.PolyIn(LifetimeCompletion);
             sb.Draw(tex, drawPos, null, DrawColor * fade * 0.8f,
-                0f, origin, Scale, SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(Scale, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -220,7 +220,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
 
             float fade = 1f - LifetimeCompletion * LifetimeCompletion;
             sb.Draw(tex, drawPos, null, DrawColor * fade * 0.6f,
-                0f, origin, Scale, SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(Scale, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -235,7 +235,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
     public class LunarShardParticle : CometParticle
     {
         public override bool SetLifetime => true;
-        public override bool UseAdditiveBlend => false;
+        public override bool UseAdditiveBlend => true; // 4PointedStarSoft has black bg
         public override bool UseCustomDraw => true;
 
         private readonly float _spinRate;
@@ -314,7 +314,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
 
             float alpha = CometUtils.SineBump(LifetimeCompletion) * 0.35f;
             sb.Draw(tex, drawPos, null, DrawColor * alpha,
-                Rotation, origin, Scale, SpriteEffects.None, 0f);
+                Rotation, origin, MathHelper.Min(Scale, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -377,7 +377,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
 
             float fade = 1f - CometUtils.PolyIn(LifetimeCompletion) * 0.5f;
             sb.Draw(tex, drawPos, null, DrawColor * fade,
-                Rotation, origin, Scale * 0.4f, SpriteEffects.None, 0f);
+                Rotation, origin, MathHelper.Min(Scale * 0.4f, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -421,7 +421,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
 
             float fade = 1f - LifetimeCompletion * LifetimeCompletion;
             sb.Draw(tex, drawPos, null, DrawColor * fade * 0.5f,
-                0f, origin, Scale, SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(Scale, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -436,7 +436,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
     public class SupernovaDebrisParticle : CometParticle
     {
         public override bool SetLifetime => true;
-        public override bool UseAdditiveBlend => false;
+        public override bool UseAdditiveBlend => true; // 4PointedStarSoft has black bg
         public override bool UseCustomDraw => true;
 
         private readonly float _spinRate;
@@ -517,7 +517,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
             color.A = 0;
 
             sb.Draw(tex, drawPos, null, color * opacity,
-                Rotation, origin, Scale * 0.3f * pulse, SpriteEffects.None, 0f);
+                Rotation, origin, MathHelper.Min(Scale * 0.3f * pulse, 0.293f), SpriteEffects.None, 0f);
         }
     }
 
@@ -558,7 +558,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
             color.A = 0;
 
             sb.Draw(tex, drawPos, null, color * opacity * 0.8f,
-                Rotation, origin, Scale * 0.4f, SpriteEffects.None, 0f);
+                Rotation, origin, MathHelper.Min(Scale * 0.4f, 0.293f), SpriteEffects.None, 0f);
         }
     }
 
@@ -647,7 +647,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
             color.A = 0;
 
             sb.Draw(tex, drawPos, null, color * fade,
-                0f, origin, Scale * 0.5f, SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(Scale * 0.5f, 0.293f), SpriteEffects.None, 0f);
         }
     }
 
@@ -692,7 +692,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
             color.A = 0;
 
             sb.Draw(tex, drawPos, null, color * fade,
-                Rotation, origin, Scale * 0.4f, SpriteEffects.None, 0f);
+                Rotation, origin, MathHelper.Min(Scale * 0.4f, 0.293f), SpriteEffects.None, 0f);
         }
     }
 
@@ -734,7 +734,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
             color.A = 0;
 
             sb.Draw(tex, drawPos, null, color * opacity,
-                Rotation, origin, Scale * 0.25f, SpriteEffects.None, 0f);
+                Rotation, origin, MathHelper.Min(Scale * 0.25f, 0.195f), SpriteEffects.None, 0f);
         }
     }
 
@@ -821,7 +821,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
             color.A = 0;
 
             sb.Draw(tex, drawPos, null, color * opacity,
-                0f, origin, Scale * 0.35f * pulse, SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(Scale * 0.35f * pulse, 0.293f), SpriteEffects.None, 0f);
         }
     }
 }

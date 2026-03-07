@@ -13,7 +13,7 @@ using MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Primitives;
 using MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Shaders;
 using MagnumOpus.Content.SwanLake.Debuffs;
 using MagnumOpus.Common.Systems.VFX;
-
+using SwanPalette = MagnumOpus.Content.SwanLake.SwanLakePalette;
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Projectiles
 {
     /// <summary>
@@ -177,6 +177,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
             Projectile.ownerHitCheck = true;
         }
 
+        public override bool ShouldUpdatePosition() => false;
+
         #region AI
 
         public override void AI()
@@ -193,6 +195,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
             // Pin to player
             Projectile.Center = Owner.MountedCenter;
             Owner.heldProj = Projectile.whoAmI;
+            Owner.ChangeDir(Direction);
             Owner.itemTime = 2;
             Owner.itemAnimation = 2;
 
@@ -296,7 +299,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                     bool isBlack = Main.rand.NextBool();
                     int dustType = isBlack ? DustID.Shadowflame : DustID.WhiteTorch;
                     Dust d = Dust.NewDustPerfect(dustPos, dustType, perpVel, 0,
-                        isBlack ? new Color(30, 30, 40) : new Color(240, 240, 250), 1.2f);
+                        isBlack ? SwanPalette.ObsidianBlack : SwanPalette.PureWhite, 1.2f);
                     d.noGravity = true;
                     d.fadeIn = 0.8f;
                 }
@@ -321,7 +324,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                     bool isBlack = Main.rand.NextBool();
                     Dust d = Dust.NewDustPerfect(tipPos + Main.rand.NextVector2Circular(10f, 10f),
                         isBlack ? DustID.Shadowflame : DustID.WhiteTorch, vel, 0,
-                        isBlack ? new Color(30, 30, 40) : new Color(248, 245, 255), 1.4f);
+                        isBlack ? SwanPalette.ObsidianBlack : SwanPalette.FeatherWhite, 1.4f);
                     d.noGravity = true;
                 }
             }
@@ -337,7 +340,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                     Vector2 sparkPos = Projectile.Center + swordDir * BladeLength * bladeT * Projectile.scale;
                     Vector2 sparkVel = Main.rand.NextVector2Circular(4f, 4f);
                     bool isBlack = Main.rand.NextBool();
-                    Color sparkCol = isBlack ? new Color(30, 30, 45) : new Color(240, 240, 255);
+                    Color sparkCol = isBlack ? SwanPalette.ObsidianBlack : SwanPalette.PureWhite;
                     Dust d = Dust.NewDustPerfect(sparkPos, DustID.RainbowTorch, sparkVel, 0, sparkCol, 0.8f);
                     d.noGravity = true;
                 }
@@ -392,7 +395,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                         // Feather dust burst
                         bool isBlack = Main.rand.NextBool();
                         Dust d = Dust.NewDustPerfect(tipPos, isBlack ? DustID.Shadowflame : DustID.WhiteTorch,
-                            flareVel * 0.2f, 0, isBlack ? new Color(30, 30, 40) : new Color(248, 245, 255), 1.0f);
+                            flareVel * 0.2f, 0, isBlack ? SwanPalette.ObsidianBlack : SwanPalette.FeatherWhite, 1.0f);
                         d.noGravity = true;
                     }
                     break;
@@ -422,7 +425,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                         // Spark dust
                         bool isBlack = i % 2 == 0;
                         Dust d = Dust.NewDustPerfect(tipPos, DustID.RainbowTorch, flareVel * 0.3f, 0,
-                            isBlack ? new Color(30, 30, 45) : new Color(240, 240, 255), 0.6f);
+                            isBlack ? SwanPalette.ObsidianBlack : SwanPalette.PureWhite, 0.6f);
                         d.noGravity = true;
                     }
 
@@ -465,7 +468,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                     {
                         Vector2 burstVel = Main.rand.NextVector2CircularEdge(8f, 8f);
                         bool isBlack = i % 2 == 0;
-                        Color col = isBlack ? new Color(30, 30, 45) : new Color(240, 240, 255);
+                        Color col = isBlack ? SwanPalette.ObsidianBlack : SwanPalette.PureWhite;
                         Dust d = Dust.NewDustPerfect(tipPos, DustID.RainbowTorch, burstVel, 0, col, 0.9f);
                         d.noGravity = true;
                     }
@@ -485,7 +488,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                         Vector2 smokeVel = Main.rand.NextVector2Circular(4f, 4f);
                         bool isBlack = i % 2 == 0;
                         Dust d = Dust.NewDustPerfect(tipPos, DustID.Smoke, smokeVel, 150,
-                            isBlack ? new Color(30, 30, 40) : new Color(200, 200, 210), 1.5f);
+                            isBlack ? SwanPalette.ObsidianBlack : SwanPalette.Silver, 1.5f);
                         d.noGravity = true;
                     }
 
@@ -536,7 +539,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
             {
                 Vector2 sparkVel = Main.rand.NextVector2CircularEdge(5f, 5f);
                 bool isBlack = i % 2 == 0;
-                Color col = isBlack ? new Color(30, 30, 45) : new Color(240, 240, 255);
+                Color col = isBlack ? SwanPalette.ObsidianBlack : SwanPalette.PureWhite;
                 Dust d = Dust.NewDustPerfect(hitPos, DustID.RainbowTorch, sparkVel, 0, col, 0.7f);
                 d.noGravity = true;
             }
@@ -548,7 +551,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                 bool isBlack = Main.rand.NextBool();
                 Dust d = Dust.NewDustPerfect(hitPos + Main.rand.NextVector2Circular(15f, 15f),
                     isBlack ? DustID.Shadowflame : DustID.WhiteTorch, featherVel, 0,
-                    isBlack ? new Color(30, 30, 40) : new Color(248, 245, 255), 1.2f);
+                    isBlack ? SwanPalette.ObsidianBlack : SwanPalette.FeatherWhite, 1.2f);
                 d.noGravity = true;
             }
 
@@ -581,7 +584,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                         bool isBlack = Main.rand.NextBool();
                         Dust d = Dust.NewDustPerfect(tipPos + Main.rand.NextVector2Circular(5f, 5f),
                             isBlack ? DustID.Shadowflame : DustID.WhiteTorch, vel, 0,
-                            isBlack ? new Color(30, 30, 40) : new Color(248, 245, 255), 1.1f);
+                            isBlack ? SwanPalette.ObsidianBlack : SwanPalette.FeatherWhite, 1.1f);
                         d.noGravity = true;
                     }
                     break;
@@ -594,7 +597,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                         float angle = MathHelper.TwoPi * i / 6f;
                         Vector2 radialVel = angle.ToRotationVector2() * 3.5f;
                         bool isBlack = i % 2 == 0;
-                        Color col = isBlack ? new Color(30, 30, 45) : new Color(240, 240, 255);
+                        Color col = isBlack ? SwanPalette.ObsidianBlack : SwanPalette.PureWhite;
                         Dust d = Dust.NewDustPerfect(hitPos, DustID.RainbowTorch, radialVel, 0, col, 0.8f);
                         d.noGravity = true;
                     }
@@ -625,7 +628,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                         float angle = MathHelper.TwoPi * i / 12f;
                         Vector2 ringVel = angle.ToRotationVector2() * 6f;
                         bool isBlack = i % 2 == 0;
-                        Color col = isBlack ? new Color(30, 30, 45) : new Color(240, 240, 255);
+                        Color col = isBlack ? SwanPalette.ObsidianBlack : SwanPalette.PureWhite;
                         Dust d = Dust.NewDustPerfect(hitPos, DustID.RainbowTorch, ringVel, 0, col, 0.7f);
                         d.noGravity = true;
                     }
@@ -647,7 +650,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                         Vector2 vel = new Vector2(Main.rand.NextFloat(-1f, 1f), 3f + Main.rand.NextFloat(1.5f));
                         bool isBlack = Main.rand.NextBool();
                         Dust d = Dust.NewDustPerfect(spawnPos, isBlack ? DustID.Shadowflame : DustID.WhiteTorch,
-                            vel, 0, isBlack ? new Color(30, 30, 40) : new Color(248, 245, 255), 1.3f);
+                            vel, 0, isBlack ? SwanPalette.ObsidianBlack : SwanPalette.FeatherWhite, 1.3f);
                         d.noGravity = true;
                     }
 
@@ -656,7 +659,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                     {
                         Vector2 smokeVel = Main.rand.NextVector2Circular(4f, 4f);
                         Dust d = Dust.NewDustPerfect(hitPos, DustID.Smoke, smokeVel, 150,
-                            i % 2 == 0 ? new Color(30, 30, 40) : new Color(200, 200, 210), 1.5f);
+                            i % 2 == 0 ? SwanPalette.ObsidianBlack : SwanPalette.SwanLightGray, 1.5f);
                         d.noGravity = true;
                     }
 
@@ -801,7 +804,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                     DepthStencilState.None, RasterizerState.CullCounterClockwise, null,
                     Main.GameViewMatrix.TransformationMatrix);
 
-                // Sub-layer 1: Wide outer glow (high distortion, large scale)
+                // Sub-layer 1: Wide outer glow (high distortion, fitted scale)
                 _smearShader.Parameters["uTime"]?.SetValue(time * 0.7f);
                 _smearShader.Parameters["fadeAlpha"]?.SetValue(fadeAlpha * 0.35f * _phaseIntensity);
                 _smearShader.Parameters["distortStrength"]?.SetValue(0.09f * _phaseIntensity);
@@ -811,7 +814,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                 _smearShader.Parameters["gradientTex"]?.SetValue(gradientTex);
                 _smearShader.CurrentTechnique.Passes[0].Apply();
                 sb.Draw(smearTex, drawPos, null, (isBlackPhase ? new Color(40, 40, 55) : new Color(200, 200, 220)) * fadeAlpha * 0.35f,
-                    rot, origin, Projectile.scale * 1.2f, effects, 0f);
+                    rot, origin, Projectile.scale * 0.70f, effects, 0f);
 
                 // Sub-layer 2: Mid body (medium distortion)
                 _smearShader.Parameters["fadeAlpha"]?.SetValue(fadeAlpha * 0.55f * _phaseIntensity);
@@ -819,7 +822,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                 _smearShader.Parameters["flowSpeed"]?.SetValue(0.9f);
                 _smearShader.CurrentTechnique.Passes[0].Apply();
                 sb.Draw(smearTex, drawPos, null, new Color(180, 180, 200) * fadeAlpha * 0.5f,
-                    rot, origin, Projectile.scale * 1.0f, effects, 0f);
+                    rot, origin, Projectile.scale * 0.60f, effects, 0f);
 
                 // Sub-layer 3: Tight core (low distortion, bright)
                 _smearShader.Parameters["fadeAlpha"]?.SetValue(fadeAlpha * 0.75f * _phaseIntensity);
@@ -827,7 +830,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                 _smearShader.Parameters["flowSpeed"]?.SetValue(1.4f);
                 _smearShader.CurrentTechnique.Passes[0].Apply();
                 sb.Draw(smearTex, drawPos, null, new Color(255, 255, 255) * fadeAlpha * 0.6f,
-                    rot, origin, Projectile.scale * 0.85f, effects, 0f);
+                    rot, origin, Projectile.scale * 0.50f, effects, 0f);
             }
             else
             {
@@ -837,9 +840,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                     Main.GameViewMatrix.TransformationMatrix);
 
                 Color outerCol = isBlackPhase ? new Color(40, 40, 55, 0) : new Color(200, 200, 220, 0);
-                sb.Draw(smearTex, drawPos, null, outerCol * fadeAlpha * 0.3f, rot, origin, Projectile.scale * 1.15f, effects, 0f);
-                sb.Draw(smearTex, drawPos, null, new Color(180, 180, 200, 0) * fadeAlpha * 0.45f, rot, origin, Projectile.scale, effects, 0f);
-                sb.Draw(smearTex, drawPos, null, new Color(255, 255, 255, 0) * fadeAlpha * 0.55f, rot, origin, Projectile.scale * 0.85f, effects, 0f);
+                sb.Draw(smearTex, drawPos, null, outerCol * fadeAlpha * 0.3f, rot, origin, Projectile.scale * 0.70f, effects, 0f);
+                sb.Draw(smearTex, drawPos, null, new Color(180, 180, 200, 0) * fadeAlpha * 0.45f, rot, origin, Projectile.scale * 0.60f, effects, 0f);
+                sb.Draw(smearTex, drawPos, null, new Color(255, 255, 255, 0) * fadeAlpha * 0.55f, rot, origin, Projectile.scale * 0.50f, effects, 0f);
             }
 
             sb.End();
@@ -879,7 +882,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                 completionRatio =>
                 {
                     // Dual-polarity: dark edge vs white edge, with prismatic bleeding
-                    float fade = trailOpacity * MathHelper.Lerp(0.15f, 0.5f, completionRatio);
+                    float fade = trailOpacity * MathHelper.Lerp(0.25f, 0.65f, completionRatio);
                     Color baseCol = isBlackPhase
                         ? Color.Lerp(new Color(20, 20, 35), new Color(100, 100, 130), completionRatio)
                         : Color.Lerp(new Color(130, 130, 160), new Color(220, 225, 240), completionRatio);
@@ -910,11 +913,11 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                     if (MagnumTextureRegistry.SwanLakeGradient != null)
                         glowShader.UseImage2(MagnumTextureRegistry.SwanLakeGradient);
 
-                    glowShader.UseColor(isBlackPhase ? new Color(30, 30, 50) : new Color(200, 200, 230));
-                    glowShader.UseSecondaryColor(new Color(240, 240, 255));
+                    glowShader.UseColor(isBlackPhase ? SwanPalette.ObsidianBlack : SwanPalette.GracefulArc);
+                    glowShader.UseSecondaryColor(SwanPalette.PureWhite);
                     glowShader.Shader.Parameters["uTime"]?.SetValue(Main.GlobalTimeWrappedHourly * 1.5f);
-                    glowShader.Shader.Parameters["uIntensity"]?.SetValue(_phaseIntensity * 0.6f);
-                    glowShader.Shader.Parameters["uOpacity"]?.SetValue(trailOpacity * 0.5f);
+                    glowShader.Shader.Parameters["uIntensity"]?.SetValue(_phaseIntensity * 0.8f);
+                    glowShader.Shader.Parameters["uOpacity"]?.SetValue(trailOpacity * 0.65f);
                     glowShader.Shader.Parameters["uPhase"]?.SetValue((float)ComboPhase / 2f);
 
                     // Override the settings to carry shader
@@ -962,7 +965,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                 },
                 completionRatio =>
                 {
-                    float fade = trailOpacity * MathHelper.Lerp(0.4f, 1.0f, completionRatio);
+                    float fade = trailOpacity * MathHelper.Lerp(0.55f, 1.0f, completionRatio);
                     // Core is always bright white-silver with polarity tint
                     Color coreCol = isBlackPhase
                         ? Color.Lerp(new Color(80, 80, 100), new Color(200, 200, 220), completionRatio)
@@ -1043,23 +1046,12 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                 DepthStencilState.None, RasterizerState.CullNone, null,
                 Main.GameViewMatrix.TransformationMatrix);
 
-            // Sub-layer 1: Wide atmospheric outer halo (polarity-colored)
-            Texture2D wideBloom = softRadial ?? bloom;
-            if (wideBloom != null)
+            // Sub-layer 1: Prismatic sparkle zone replacing flat bloom (polarity-colored)
             {
-                Vector2 origin = wideBloom.Size() * 0.5f;
-                Color outerColor = isBlackPhase ? new Color(25, 25, 45, 0) : new Color(200, 205, 225, 0);
-                sb.Draw(wideBloom, tipPos, null, outerColor * 0.22f * waltzPulse * _phaseIntensity,
-                    0f, origin, 0.7f * Projectile.scale, SpriteEffects.None, 0f);
-            }
-
-            // Sub-layer 2: Mid polarity glow
-            if (bloom != null)
-            {
-                Vector2 origin = bloom.Size() * 0.5f;
-                Color midColor = isBlackPhase ? new Color(60, 60, 85, 0) : new Color(210, 215, 235, 0);
-                sb.Draw(bloom, tipPos, null, midColor * 0.38f * bloomPulse * _phaseIntensity,
-                    0f, origin, 0.42f * Projectile.scale, SpriteEffects.None, 0f);
+                float noiseRadius = 28f * Projectile.scale * _phaseIntensity * waltzPulse;
+                float noiseTime = (float)Main.timeForVisualEffects;
+                SwanLakeVFXLibrary.DrawPrismaticSparkleImpact(sb, Projectile.Center + swordDir * BladeLength * Projectile.scale,
+                    noiseRadius, noiseTime, 0.6f * _phaseIntensity, 8);
             }
 
             // Sub-layer 3: Silver core bloom
@@ -1070,12 +1062,12 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                     0f, origin, 0.25f * Projectile.scale, SpriteEffects.None, 0f);
             }
 
-            // Sub-layer 4: White-hot core
+            // Sub-layer 4: White-hot core (cap to 300px on 2160px PointBloom)
             if (pointBloom != null)
             {
                 Vector2 pbOrigin = pointBloom.Size() * 0.5f;
                 sb.Draw(pointBloom, tipPos, null, new Color(255, 255, 255, 0) * 0.65f * waltzPulse * _phaseIntensity,
-                    0f, pbOrigin, 0.18f * Projectile.scale, SpriteEffects.None, 0f);
+                    0f, pbOrigin, MathHelper.Min(0.12f * Projectile.scale, 0.139f), SpriteEffects.None, 0f);
             }
 
             // Sub-layer 5: 4-pointed star flare (rotating, polarity-tinted)
@@ -1122,14 +1114,14 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                 Vector2 origin = bloom.Size() * 0.5f;
                 float hue = (Progression + Main.GameUpdateCount * 0.022f) % 1f;
                 Color rainbow = Main.hslToRgb(hue, 0.9f, 0.85f);
-                sb.Draw(bloom, tipPos, null, new Color(rainbow.R, rainbow.G, rainbow.B, 0) * 0.35f * waltzPulse,
-                    0f, origin, 0.9f * Projectile.scale, SpriteEffects.None, 0f);
+                sb.Draw(bloom, tipPos, null, new Color(rainbow.R, rainbow.G, rainbow.B, 0) * 0.18f * waltzPulse,
+                    0f, origin, MathHelper.Min(0.45f * Projectile.scale, 0.586f), SpriteEffects.None, 0f);
 
-                // Second rainbow layer offset for depth
+                // Second rainbow layer offset for depth (cap to 300px on 512px SoftGlow)
                 float hue2 = (hue + 0.33f) % 1f;
                 Color rainbow2 = Main.hslToRgb(hue2, 0.85f, 0.8f);
-                sb.Draw(bloom, tipPos, null, new Color(rainbow2.R, rainbow2.G, rainbow2.B, 0) * 0.2f,
-                    0f, origin, 1.2f * Projectile.scale, SpriteEffects.None, 0f);
+                sb.Draw(bloom, tipPos, null, new Color(rainbow2.R, rainbow2.G, rainbow2.B, 0) * 0.12f,
+                    0f, origin, MathHelper.Min(0.55f * Projectile.scale, 0.586f), SpriteEffects.None, 0f);
             }
 
             sb.End();
@@ -1172,7 +1164,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                     float pastAngle = BaseRotation + pastAnim * MaxAngle * Direction * flipSign;
                     float pastRot = pastAngle + MathHelper.PiOver4;
 
-                    float afterOpacity = (0.25f - a * 0.06f) * _phaseIntensity;
+                    float afterOpacity = (0.35f - a * 0.07f) * _phaseIntensity;
                     Color afterCol = isBlackPhase
                         ? new Color(50, 50, 70, 0)
                         : new Color(210, 215, 235, 0);
@@ -1195,7 +1187,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
             sb.Draw(bladeTex, drawPos, null, lightColor, rot, origin, squishScale, effects, 0f);
 
             // Polarity overlay glow  Epulsing
-            Color glowColor = isBlackPhase ? new Color(30, 30, 45, 0) : new Color(240, 240, 255, 0);
+            Color glowColor = isBlackPhase ? SwanPalette.ObsidianBlack with { A = 0 } : SwanPalette.PureWhite with { A = 0 };
             float glowIntensity = (0.18f + 0.12f * (float)Math.Sin(Main.GameUpdateCount * 0.12f)) * _phaseIntensity;
             sb.Draw(bladeTex, drawPos, null, glowColor * glowIntensity, rot, origin, squishScale * 1.01f, effects, 0f);
 

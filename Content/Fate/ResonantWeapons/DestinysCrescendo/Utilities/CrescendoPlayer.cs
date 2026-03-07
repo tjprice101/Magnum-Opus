@@ -79,6 +79,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
         public override void ResetEffects()
         {
             IsHoldingStaff = false;
+            ActiveDeityCount = 0; // Reset every frame; minion AI will re-set it each tick
 
             // Decay summon intensity when not actively summoning
             if (ActiveDeityCount <= 0)

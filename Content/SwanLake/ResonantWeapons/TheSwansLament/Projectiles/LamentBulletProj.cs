@@ -101,9 +101,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Projectiles
             target.AddBuff(ModContent.BuffType<SwansMark>(), 240);
 
             // Feather shrapnel burst
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < 8; i++)
             {
-                float angle = MathHelper.TwoPi / 6f * i + Main.rand.NextFloat(-0.3f, 0.3f);
+                float angle = MathHelper.TwoPi / 8f * i + Main.rand.NextFloat(-0.3f, 0.3f);
                 Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f);
                 Color c = Color.Lerp(LamentUtils.CatharsisWhite, LamentUtils.GriefGrey, Main.rand.NextFloat());
                 Dust d = Dust.NewDustPerfect(target.Center, DustID.WhiteTorch, vel, 0, c, 0.7f);
@@ -113,7 +113,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Projectiles
             // Gold flash on empowered
             if (IsEmpowered)
             {
-                for (int i = 0; i < 4; i++)
+                for (int i = 0; i < 6; i++)
                 {
                     Dust d = Dust.NewDustPerfect(target.Center, DustID.WhiteTorch,
                         Main.rand.NextVector2Circular(3, 3), 0, LamentUtils.RevelationWhite, 0.9f);
@@ -121,8 +121,17 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Projectiles
                 }
             }
 
-            // VFXLibrary rainbow burst (safe)
-            try { SwanLakeVFXLibrary.SpawnRainbowBurst(target.Center, 4, 3f); } catch { }
+            // VFXLibrary impact burst
+            try
+            {
+                SwanLakeVFXLibrary.SpawnRainbowBurst(target.Center, 6, 4f);
+                SwanLakeVFXLibrary.SpawnPrismaticSparkles(target.Center, 5, 18f);
+                SwanLakeVFXLibrary.SpawnMusicNotes(target.Center, 2, 12f);
+                if (IsEmpowered)
+                {
+                    SwanLakeVFXLibrary.SpawnFeatherBurst(target.Center, 4, 20f);
+                }
+            } catch { }
         }
 
         public override void OnKill(int timeLeft)
@@ -137,8 +146,17 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Projectiles
                 d.noGravity = false;
             }
 
-            // Mourning feather drift
-            try { SwanLakeVFXLibrary.SpawnFeatherDrift(Projectile.Center, 2, 15f); } catch { }
+            // Enhanced death burst
+            try
+            {
+                SwanLakeVFXLibrary.SpawnFeatherDrift(Projectile.Center, 3, 15f);
+                SwanLakeVFXLibrary.SpawnPrismaticSparkles(Projectile.Center, 4, 20f);
+                SwanLakeVFXLibrary.SpawnMusicNotes(Projectile.Center, 2, 15f);
+                if (IsEmpowered)
+                {
+                    SwanLakeVFXLibrary.SpawnRainbowExplosion(Projectile.Center, 0.8f);
+                }
+            } catch { }
 
             // Empowered: spawn Destruction Halo
             if (IsEmpowered && Projectile.owner == Main.myPlayer)
@@ -294,7 +312,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Projectiles
                 {
                     Vector2 pOrigin = point.Size() * 0.5f;
                     sb.Draw(point, drawPos, null, Color.White * 0.85f, 0f, pOrigin,
-                        0.16f * empScale * pulse, SpriteEffects.None, 0f);
+                        0.08f * empScale * pulse, SpriteEffects.None, 0f);
                 }
 
                 // Layer 4: Star accent (subtle, rotating)

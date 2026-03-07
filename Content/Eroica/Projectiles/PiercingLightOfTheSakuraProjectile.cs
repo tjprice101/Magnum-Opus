@@ -93,7 +93,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             // Pulsating scale 窶・intense crescendo projectile
             float scalePulse = (float)Math.Sin(AgeTimer * 0.08f) * 0.015f;
-            Projectile.scale = 0.25f + ChargeProgress * 0.04f + scalePulse;
+            Projectile.scale = 0.75f + ChargeProgress * 0.1f + scalePulse;
 
             // Update sprite sheet animation
             frameCounter++;
@@ -170,7 +170,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 Projectile.Center,
                 Vector2.Zero,
                 flashColor,
-                0.24f,
+                0.16f,
                 10
             ));
 
@@ -213,7 +213,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 Projectile.Center,
                 Vector2.Zero,
                 impactColor,
-                0.2f,
+                0.13f,
                 14
             ));
 
@@ -337,7 +337,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Array.Copy(trailPositions, positions, validCount);
 
             var settings = new PiercingTrailSettings(
-                completionRatio => MathHelper.Lerp(2f, 0.5f, completionRatio),
+                completionRatio => MathHelper.Lerp(10f, 2f, completionRatio),
                 completionRatio =>
                 {
                     float fade = (1f - completionRatio);
@@ -381,8 +381,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             int texH = stripTex.Height;
             float scrollTime = (float)Main.timeForVisualEffects * 0.008f;
             int srcWidth = Math.Max(1, texW / validCount);
-            const float WidthHead = 2.5f;
-            const float WidthTail = 0.5f;
+            const float WidthHead = 10f;
+            const float WidthTail = 2f;
 
             bool hasShader = EroicaShaderManager.HasSakuraLightningTrail;
 
@@ -567,14 +567,14 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         private void DrawProjectileCore(SpriteBatch sb, Texture2D tex, Rectangle sourceRect, Vector2 origin, Color lightColor)
         {
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Color coreTint = Color.Lerp(lightColor, PiercingUtils.LightGold, 0.6f);
+            Color coreTint = Color.Lerp(lightColor, PiercingUtils.LightGold, 0.75f);
 
             sb.Draw(tex, drawPos, sourceRect, coreTint, Projectile.rotation, origin, Projectile.scale, SpriteEffects.None, 0f);
 
             Color coreGlow = PiercingUtils.BrilliantWhite;
             coreGlow.A = 0;
-            sb.Draw(tex, drawPos, sourceRect, coreGlow * 0.5f, Projectile.rotation, origin,
-                Projectile.scale * 1.05f, SpriteEffects.None, 0f);
+            sb.Draw(tex, drawPos, sourceRect, coreGlow * 0.65f, Projectile.rotation, origin,
+                Projectile.scale * 1.08f, SpriteEffects.None, 0f);
         }
 
         private void DrawShaderCrescendoAura(SpriteBatch sb, float time)
@@ -677,11 +677,12 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             Color bloomColor = PiercingUtils.LightGold;
             bloomColor.A = 0;
-            float bloomAlpha = 0.4f;
-            float bloomScale = Projectile.scale * 0.45f;
+            float bloomAlpha = 1.1f;
+            float bloomScale = Projectile.scale * 1.1f;
 
-            float pulse = (float)Math.Sin(AgeTimer * 0.15f) * 0.03f;
-            bloomScale += pulse;
+            float pulse = (float)Math.Sin(AgeTimer * 0.15f) * 0.06f;
+            float dynamicPulse = (float)Math.Sin(AgeTimer * 0.3f) * 0.03f;
+            bloomScale += pulse + dynamicPulse;
 
             if (EroicaShaderManager.HasCrescendoCharge)
             {
@@ -710,16 +711,16 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             {
                 Color burstColor = Color.Lerp(EroicaVFXLibrary.Gold, EroicaVFXLibrary.Sakura, 0.3f) with { A = 0 };
                 float burstPulse = 0.75f + 0.25f * (float)Math.Sin(AgeTimer * 0.12f);
-                sb.Draw(burstTex, drawPos, null, burstColor * 0.15f * burstPulse,
-                    Projectile.rotation, burstTex.Size() * 0.5f, Projectile.scale * 0.5f * burstPulse, SpriteEffects.None, 0f);
+                sb.Draw(burstTex, drawPos, null, burstColor * 0.25f * burstPulse,
+                    Projectile.rotation, burstTex.Size() * 0.5f, Projectile.scale * 0.6f * burstPulse, SpriteEffects.None, 0f);
             }
 
             Texture2D petalTex = EroicaThemeTextures.ERSakuraPetal;
             if (petalTex != null)
             {
                 Color petalColor = EroicaVFXLibrary.Sakura with { A = 0 };
-                sb.Draw(petalTex, drawPos, null, petalColor * 0.12f,
-                    AgeTimer * 0.025f, petalTex.Size() * 0.5f, Projectile.scale * 0.35f, SpriteEffects.None, 0f);
+                sb.Draw(petalTex, drawPos, null, petalColor * 0.2f,
+                    AgeTimer * 0.025f, petalTex.Size() * 0.5f, Projectile.scale * 0.4f, SpriteEffects.None, 0f);
             }
         }
 

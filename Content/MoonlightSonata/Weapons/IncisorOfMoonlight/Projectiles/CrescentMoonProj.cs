@@ -132,7 +132,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
             // Soft bloom underlayer
             Color glowColor = new Color(100, 140, 220) with { A = 0 };
             Main.spriteBatch.Draw(bloomTex, drawPos, null, glowColor * 0.35f * pulse,
-                0f, bloomTex.Size() * 0.5f, 0.5f * Projectile.scale, SpriteEffects.None, 0f);
+                0f, bloomTex.Size() * 0.5f, 0.06f * Projectile.scale, SpriteEffects.None, 0f);
 
             // Crescent body — pale blue
             Color bodyColor = Color.Lerp(new Color(135, 206, 250), new Color(200, 210, 255),
@@ -157,7 +157,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
                 // Bloom trail ribbon
                 Color ribbonColor = Color.Lerp(new Color(135, 206, 250), new Color(170, 140, 255), i / 12f) with { A = 0 };
                 Main.spriteBatch.Draw(bloomTex, oldDrawPos, null, ribbonColor * fade * 0.25f,
-                    0f, bloomTex.Size() * 0.5f, 0.3f * fade * Projectile.scale, SpriteEffects.None, 0f);
+                    0f, bloomTex.Size() * 0.5f, 0.035f * fade * Projectile.scale, SpriteEffects.None, 0f);
 
                 // Crescent afterimage
                 Main.spriteBatch.Draw(crescentTex, oldDrawPos, null, bodyColor * fade * 0.4f,

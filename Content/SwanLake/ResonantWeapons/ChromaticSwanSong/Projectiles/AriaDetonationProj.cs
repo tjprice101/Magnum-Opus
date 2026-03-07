@@ -136,9 +136,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Projecti
 
         /// <summary>
         /// OVERHAULED RENDERING PIPELINE:
-        /// Pass 1: AriaExplosionMain — Full spectral radial with prismatic ROYGBIV bands
-        /// Pass 2: AriaExplosionRing — Expanding rainbow ring shockwave
-        /// Pass 3: Bloom stacking — white-hot core flash + spectral star accents
+        /// Pass 1: Noise UV-scrolled rainbow zone (replaces shader radial)
+        /// Pass 2: Bloom stacking — core flash + spectral star accents
+        /// Visuals scaled down ~65% from original to reduce zone bloat.
         /// </summary>
         public override bool PreDraw(ref Color lightColor)
         {
@@ -149,7 +149,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Projecti
             if (alpha <= 0.01f) return false;
 
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            float baseScale = MathHelper.Lerp(0.3f, MaxRadius / 80f, progress);
+            // Visual radius scaled down by ~65% from original MaxRadius
+            float visualRadius = MaxRadius * 0.35f * MathHelper.Lerp(0.3f, 1f, progress);
 
             int scalePos = ScalePosition;
             Color midColor = ChromaticSwanPlayer.GetScaleColor(scalePos);
@@ -157,11 +158,11 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Projecti
 
             try
             {
-                // ===== SHADER-DRIVEN SPECTRAL EXPLOSION =====
-                DrawShaderExplosion(sb, drawPos, baseScale, progress, alpha, midColor);
+                // ===== NOISE UV-SCROLLED RAINBOW ZONE =====
+                DrawNoiseExplosionZone(sb, visualRadius, progress, alpha, midColor);
 
                 // ===== BLOOM STACKING (core flash + star accents) =====
-                DrawExplosionBloomStack(sb, drawPos, baseScale, progress, alpha, midColor, outerColor);
+                DrawExplosionBloomStack(sb, drawPos, visualRadius, progress, alpha, midColor, outerColor);
             }
             catch
             {
@@ -178,115 +179,51 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Projecti
         }
 
         /// <summary>
-        /// Shader-driven explosion using AriaExplosion.fx.
-        /// Pass 1: AriaExplosionMain — spectral radial (draws on circular mask texture)
-        /// Pass 2: AriaExplosionRing — expanding rainbow ring shockwave
-        /// Both apply via SpriteSortMode.Immediate.
+        /// Prismatic sparkle impact zone replacing the old noise-scrolled approach.
+        /// Uses SwanLakeVFXLibrary.DrawPrismaticSparkleImpact for clean, sparkle-based zones.
         /// </summary>
-        private void DrawShaderExplosion(SpriteBatch sb, Vector2 drawPos, float baseScale,
+        private void DrawNoiseExplosionZone(SpriteBatch sb, float visualRadius,
             float progress, float alpha, Color midColor)
         {
-            Texture2D radialTex = MagnumTextureRegistry.SoftRadialBloom?.Value
-                ?? MagnumTextureRegistry.SoftGlow?.Value;
-            if (radialTex == null) return;
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null,
+                Main.GameViewMatrix.TransformationMatrix);
 
-            float time = Main.GlobalTimeWrappedHourly;
+            float time = (float)Main.timeForVisualEffects;
 
-            MiscShaderData ariaShader = null;
-            if (ChromaticShaderLoader.HasAriaExplosionShader)
-                ariaShader = GameShaders.Misc["MagnumOpus:AriaExplosion"];
-            Effect effect = ariaShader?.Shader;
+            // Primary prismatic sparkle zone (chromatic identity)
+            SwanLakeVFXLibrary.DrawPrismaticSparkleImpact(sb, Projectile.Center, visualRadius,
+                time, alpha * 0.85f, 12);
+
+            // Harmonic/Opus modes: additional overlapping zone at different phase for richer look
+            if (IsHarmonicRelease)
+            {
+                float secondaryRadius = visualRadius * 0.7f;
+                SwanLakeVFXLibrary.DrawPrismaticSparkleImpact(sb, Projectile.Center, secondaryRadius,
+                    time + 100f, alpha * 0.4f, 8);
+            }
 
             sb.End();
-
-            if (effect != null)
-            {
-                sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null,
-                    Main.GameViewMatrix.TransformationMatrix);
-
-                // Configure shared uniforms
-                effect.Parameters["uColor"]?.SetValue(new Vector4(1f, 1f, 1f, 1f));           // White-hot center
-                effect.Parameters["uSecondaryColor"]?.SetValue(new Vector4(0.05f, 0.05f, 0.08f, 1f)); // Obsidian outer frame
-                effect.Parameters["uTime"]?.SetValue(time * 2f);
-                effect.Parameters["uPhase"]?.SetValue(progress); // Explosion age 0→1
-                effect.Parameters["uIntensity"]?.SetValue(IsOpusDetonation ? 1.5f : (IsHarmonicRelease ? 1.2f : 0.9f));
-                effect.Parameters["uOverbrightMult"]?.SetValue(1.3f);
-                effect.Parameters["uScrollSpeed"]?.SetValue(0.5f);
-                effect.Parameters["uNoiseScale"]?.SetValue(2.0f);
-                effect.Parameters["uDistortionAmt"]?.SetValue(0.08f);
-                effect.Parameters["uSecondaryTexScale"]?.SetValue(1.5f);
-                effect.Parameters["uSecondaryTexScroll"]?.SetValue(0.6f);
-                effect.Parameters["uOpacity"]?.SetValue(alpha);
-
-                // Bind noise texture
-                if (MagnumTextureRegistry.PerlinNoise != null)
-                {
-                    ariaShader.UseImage2(MagnumTextureRegistry.PerlinNoise);
-                    effect.Parameters["uHasSecondaryTex"]?.SetValue(true);
-                }
-
-                Vector2 radialOrigin = radialTex.Size() * 0.5f;
-                float drawScale = baseScale * 1.3f;
-
-                // === PASS 1: AriaExplosionMain — Full spectral radial ===
-                effect.CurrentTechnique = effect.Techniques["AriaExplosionMain"];
-                effect.CurrentTechnique.Passes["P0"].Apply();
-                sb.Draw(radialTex, drawPos, null, Color.White * alpha,
-                    0f, radialOrigin, drawScale, SpriteEffects.None, 0f);
-
-                // Opus: additional enlarged bloom layer for more impact
-                if (IsOpusDetonation)
-                {
-                    effect.Parameters["uIntensity"]?.SetValue(0.7f);
-                    effect.CurrentTechnique.Passes["P0"].Apply();
-                    sb.Draw(radialTex, drawPos, null, Color.White * alpha * 0.5f,
-                        0f, radialOrigin, drawScale * 1.5f, SpriteEffects.None, 0f);
-                }
-
-                // === PASS 2: AriaExplosionRing — Expanding rainbow ring ===
-                effect.CurrentTechnique = effect.Techniques["AriaExplosionRing"];
-                effect.Parameters["uIntensity"]?.SetValue(IsOpusDetonation ? 1.8f : 1.2f);
-                effect.CurrentTechnique.Passes["P0"].Apply();
-                sb.Draw(radialTex, drawPos, null, Color.White * alpha * 0.8f,
-                    0f, radialOrigin, drawScale * 1.2f, SpriteEffects.None, 0f);
-
-                sb.End();
-            }
-            else
-            {
-                // Shader unavailable fallback — basic radial bloom
-                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null,
-                    Main.GameViewMatrix.TransformationMatrix);
-
-                Vector2 radialOrigin = radialTex.Size() * 0.5f;
-                sb.Draw(radialTex, drawPos, null,
-                    new Color(midColor.R, midColor.G, midColor.B, 0) * alpha * 0.5f,
-                    0f, radialOrigin, baseScale * 1.2f, SpriteEffects.None, 0f);
-                sb.Draw(radialTex, drawPos, null,
-                    new Color(255, 255, 255, 0) * alpha * 0.4f,
-                    0f, radialOrigin, baseScale * 0.5f, SpriteEffects.None, 0f);
-
-                sb.End();
-            }
-
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                 DepthStencilState.None, Main.Rasterizer, null,
                 Main.GameViewMatrix.TransformationMatrix);
         }
 
         /// <summary>
-        /// Bloom stacking — white-hot core flash + spectral star accents + ring bloom.
-        /// Layered on top of the shader explosion for extra visual depth.
+        /// Bloom stacking — white-hot core flash + spectral star accents + rainbow orbit dots.
+        /// Layered on top of the noise zone for extra visual depth. Uses pixel-radius sizing.
         /// </summary>
-        private void DrawExplosionBloomStack(SpriteBatch sb, Vector2 drawPos, float baseScale,
+        private void DrawExplosionBloomStack(SpriteBatch sb, Vector2 drawPos, float visualRadius,
             float progress, float alpha, Color midColor, Color outerColor)
         {
             Texture2D pointBloom = MagnumTextureRegistry.PointBloom?.Value;
             Texture2D bloom = MagnumTextureRegistry.SoftGlow?.Value;
             Texture2D star = MagnumTextureRegistry.GetStarThin();
             if (bloom == null && pointBloom == null) return;
+
+            // Convert pixel radius to a scale factor for bloom textures
+            float baseScale = bloom != null ? visualRadius / (bloom.Width * 0.5f) : visualRadius / 32f;
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,

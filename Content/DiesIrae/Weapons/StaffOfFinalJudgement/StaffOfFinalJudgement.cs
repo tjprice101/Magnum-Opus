@@ -34,17 +34,6 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.StaffOfFinalJudgement
             Item.crit = 18;
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-            .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.ResonantCoreOfDiesIrae>(), 25)
-            .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.DiesIraeResonantEnergy>(), 20)
-            .AddIngredient(ModContent.ItemType<Content.DiesIrae.HarmonicCores.HarmonicCoreOfDiesIrae>(), 3)
-            .AddIngredient(ItemID.LunarBar, 20)
-            .AddTile(ModContent.TileType<Content.Fate.CraftingStations.FatesCosmicAnvilTile>())
-            .Register();
-        }
-
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Places floating fire mines that auto-arm after 1 second"));

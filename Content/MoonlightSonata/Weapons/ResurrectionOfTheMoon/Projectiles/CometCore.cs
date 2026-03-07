@@ -155,7 +155,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
             {
                 // Burning impact bloom
                 CometParticleHandler.Spawn(new CraterBloomParticle(
-                    target.Center, CometUtils.CometCoreColor, 1.2f, 18));
+                    target.Center, CometUtils.CometCoreColor, 0.6f, 18));
 
                 // Lunar cycle ring at impact
                 Color lunarTint = CometUtils.CometCoreColor;
@@ -303,13 +303,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
                 Main.GameViewMatrix.TransformationMatrix);
 
             // Outer burning glow with lunar tinting
-            sb.Draw(bloom, drawPos, null, lunarTint with { A = 0 } * 0.5f, 0f, origin, 0.6f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, lunarTint with { A = 0 } * 0.3f, 0f, origin, 0.05f, SpriteEffects.None, 0f);
 
             // Mid glow layer
-            sb.Draw(bloom, drawPos, null, CometUtils.CometCoreColor with { A = 0 } * 0.3f, 0f, origin, 0.4f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, CometUtils.CometCoreColor with { A = 0 } * 0.2f, 0f, origin, 0.03f, SpriteEffects.None, 0f);
 
             // White-hot core
-            sb.Draw(bloom, drawPos, null, CometUtils.FrigidImpact with { A = 0 } * 0.7f, 0f, origin, 0.3f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, CometUtils.FrigidImpact with { A = 0 } * 0.45f, 0f, origin, 0.025f, SpriteEffects.None, 0f);
 
             // Foundation-enhanced: additional multi-scale bloom stacking
             Texture2D softGlow = SPFTextures.SoftGlow.Value;
@@ -317,12 +317,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
             float pulse = 0.85f + 0.15f * MathF.Sin(AliveTime * 0.12f);
 
             // Wide ice blue outer halo
-            sb.Draw(softGlow, drawPos, null, new Color(120, 190, 255) with { A = 0 } * (0.12f * pulse),
-                0f, glowOrigin, 0.4f, SpriteEffects.None, 0f);
+            sb.Draw(softGlow, drawPos, null, new Color(120, 190, 255) with { A = 0 } * (0.08f * pulse),
+                0f, glowOrigin, 0.1f, SpriteEffects.None, 0f);
 
             // Tight violet accent
-            sb.Draw(softGlow, drawPos, null, CometUtils.ImpactCrater with { A = 0 } * (0.08f * pulse),
-                0f, glowOrigin, 0.2f, SpriteEffects.None, 0f);
+            sb.Draw(softGlow, drawPos, null, CometUtils.ImpactCrater with { A = 0 } * (0.05f * pulse),
+                0f, glowOrigin, 0.05f, SpriteEffects.None, 0f);
 
             // Restore to AlphaBlend
             sb.End();

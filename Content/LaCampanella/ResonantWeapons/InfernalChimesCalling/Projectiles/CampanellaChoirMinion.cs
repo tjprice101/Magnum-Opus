@@ -85,7 +85,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
         }
 
         public override bool? CanCutTiles() => false;
-        public override bool MinionContactDamage() => false; // Bells attack via shockwaves, not contact
+        public override bool MinionContactDamage() => true; // Bells deal contact damage when near enemies
 
         public override void AI()
         {
@@ -131,19 +131,28 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
                     break;
             }
 
-            // Ambient particles
-            if (Main.rand.NextBool(10))
+            // Ambient particles — more frequent embers and occasional notes
+            if (Main.rand.NextBool(5))
             {
                 InfernalChimesParticleHandler.SpawnParticle(new ChoirEmberParticle(
-                    Projectile.Center, Main.rand.NextFloat(MathHelper.TwoPi),
-                    8f, Main.rand.NextFloat(0.04f, 0.08f), Main.rand.Next(30, 60)));
+                    Projectile.Center + Main.rand.NextVector2Circular(12, 12),
+                    Main.rand.NextFloat(MathHelper.TwoPi),
+                    8f, Main.rand.NextFloat(0.04f, 0.08f), Main.rand.Next(25, 50)));
             }
-            if (Main.rand.NextBool(30))
+            if (Main.rand.NextBool(20))
             {
                 InfernalChimesParticleHandler.SpawnParticle(new MusicalChoirNoteParticle(
                     Projectile.Center + Main.rand.NextVector2Circular(20, 20),
                     new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-1.5f, -0.5f)),
                     Main.rand.Next(50, 80)));
+            }
+            // Extra embers when near a target (combat intensity)
+            if (_targetNPC >= 0 && Main.rand.NextBool(3))
+            {
+                InfernalChimesParticleHandler.SpawnParticle(new ChoirEmberParticle(
+                    Projectile.Center + Main.rand.NextVector2Circular(8, 8),
+                    Main.rand.NextFloat(MathHelper.TwoPi),
+                    12f, Main.rand.NextFloat(0.05f, 0.12f), Main.rand.Next(15, 30)));
             }
 
             // Sprite direction
@@ -254,10 +263,30 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
 
         private void IdleBehavior(Player owner, InfernalChimesCallingPlayer icPlayer)
         {
-            // Hover in formation
-            MoveToward(GetFormationPosition(owner), 0.08f);
-
             _attackCooldownTimer--;
+
+            // If a target exists, aggressively orbit/approach the enemy
+            if (_targetNPC >= 0 && Main.npc[_targetNPC].active)
+            {
+                NPC target = Main.npc[_targetNPC];
+                float distToTarget = Vector2.Distance(Projectile.Center, target.Center);
+
+                // Orbit position: arc around target at medium range, offset per bell
+                float orbitAngle = (float)Main.GameUpdateCount * 0.035f + _bellIndex * (MathHelper.TwoPi / Math.Max(_totalBells, 1));
+                float orbitRadius = 80f + _bellIndex * 15f;
+                Vector2 orbitPos = target.Center + new Vector2(
+                    (float)Math.Cos(orbitAngle) * orbitRadius,
+                    (float)Math.Sin(orbitAngle) * orbitRadius * 0.6f - 40f); // Flattened orbit, biased upward
+
+                // Move aggressively toward orbit position (faster than formation drift)
+                float approachSpeed = distToTarget > 300f ? 0.15f : 0.1f;
+                MoveToward(orbitPos, approachSpeed);
+            }
+            else
+            {
+                // No target — hover in formation above player
+                MoveToward(GetFormationPosition(owner), 0.08f);
+            }
 
             // Check if it's our turn to attack
             if (_targetNPC >= 0 && _attackCooldownTimer <= 0)
@@ -519,8 +548,18 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
                 Color bloomCol = InfernalChimesCallingUtils.Additive(
-                    InfernalChimesCallingUtils.ChoirPalette[2], glowIntensity * 0.35f);
-                sb.Draw(bloomTex, drawPos, null, bloomCol, 0f, bloomTex.Size() / 2f, 0.3f, SpriteEffects.None, 0f);
+                    InfernalChimesCallingUtils.ChoirPalette[2], glowIntensity * 0.4f);
+                sb.Draw(bloomTex, drawPos, null, bloomCol, 0f, bloomTex.Size() / 2f, 0.12f, SpriteEffects.None, 0f);
+
+                // Outer ambient glow layer
+                Color outerBloom = InfernalChimesCallingUtils.Additive(
+                    InfernalChimesCallingUtils.ChoirPalette[0], glowIntensity * 0.15f);
+                sb.Draw(bloomTex, drawPos, null, outerBloom, 0f, bloomTex.Size() / 2f, 0.22f, SpriteEffects.None, 0f);
+
+                // Hot core pinpoint
+                Color coreBloom = InfernalChimesCallingUtils.Additive(
+                    InfernalChimesCallingUtils.ChoirPalette[4], glowIntensity * 0.5f);
+                sb.Draw(bloomTex, drawPos, null, coreBloom, 0f, bloomTex.Size() / 2f, 0.04f, SpriteEffects.None, 0f);
 
                 // Extra glow during Crescendo charge
                 if (CurrentState == BellState.CrescendoCharge)
@@ -529,7 +568,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
                     Color chargeColor = InfernalChimesCallingUtils.Additive(
                         InfernalChimesCallingUtils.ChoirPalette[4], chargeGlow * 0.4f);
                     sb.Draw(bloomTex, drawPos, null, chargeColor, 0f, bloomTex.Size() / 2f,
-                        0.2f + chargeGlow * 0.3f, SpriteEffects.None, 0f);
+                        0.08f + chargeGlow * 0.12f, SpriteEffects.None, 0f);
 
                     // --- LC Power Effect Ring — building concentric ring during crescendo charge ---
                     float ringRot = (float)Main.GameUpdateCount * 0.03f + _bellIndex * MathHelper.PiOver4;
@@ -570,7 +609,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
                             }
                             auraShader.Apply();
 
-                            float auraScale = 0.4f + chargeGlow * 0.4f;
+                            float auraScale = 0.15f + chargeGlow * 0.15f;
                             Color auraCol = Color.White * chargeGlow * 0.5f;
                             sb.Draw(bloomTex, drawPos, null, auraCol, ringRot * 0.5f,
                                 bloomTex.Size() / 2f, auraScale, SpriteEffects.None, 0f);

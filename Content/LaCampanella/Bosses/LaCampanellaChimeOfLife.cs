@@ -171,7 +171,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             NPC.height = 363;
             NPC.damage = BaseDamage;
             NPC.defense = 75;
-            NPC.lifeMax = 400000;
+            NPC.lifeMax = 550000; // Tier 3 - 550K Normal (Expert 1.1M, Master 1.65M via auto-scaling)
             NPC.HitSound = SoundID.NPCHit4;
             NPC.DeathSound = SoundID.NPCDeath14;
             NPC.knockBackResist = 0f;

@@ -321,8 +321,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.OrreryOfDreams.Projectiles
             float currentRadius = radius * progress;
             float fade = 1f - progress * 0.5f;
 
-            // Ring rendered as haze at radius
-            float hazeScale = currentRadius * 2f / srb.Width;
+            // Ring rendered as haze at radius (capped 300px max)
+            float hazeScale = MathHelper.Min(currentRadius * 2f / srb.Width, 0.139f);
             sb.Draw(srb, center, null,
                 color with { A = 0 } * 0.06f * fade, 0f, srb.Size() * 0.5f,
                 hazeScale, SpriteEffects.None, 0f);

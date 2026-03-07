@@ -74,8 +74,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Utilities
             "MagnumOpus/Content/MoonlightSonata/Weapons/EternalMoon/EternalMoon",
             "MagnumOpus/Content/Eroica/Weapons/SakurasBlossom/SakurasBlossom",
             "MagnumOpus/Content/Eroica/Weapons/CelestialValor/CelestialValor",
-            "MagnumOpus/Content/LaCampanella/ResonantWeapons/IgnitionOfTheBell",
-            "MagnumOpus/Content/LaCampanella/ResonantWeapons/DualFatedChime",
+            "MagnumOpus/Content/LaCampanella/ResonantWeapons/IgnitionOfTheBell/IgnitionOfTheBell",
+            "MagnumOpus/Content/LaCampanella/ResonantWeapons/DualFatedChime/DualFatedChime",
             "MagnumOpus/Content/EnigmaVariations/ResonantWeapons/VariationsOfTheVoid/VariationsOfTheVoid",
             "MagnumOpus/Content/EnigmaVariations/ResonantWeapons/TheUnresolvedCadence/TheUnresolvedCadence",
             "MagnumOpus/Content/SwanLake/ResonantWeapons/CalloftheBlackSwan",
@@ -159,6 +159,48 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Utilities
 
         /// <summary>Quadratic bump (0→1→0).</summary>
         public static float QuadBump(float t) => t * (4f - t * 4f);
+
+        // Easing functions for CurveSegment animation
+        public static float SineOut(float t) => MathF.Sin(t * MathHelper.PiOver2);
+        public static float SineInOut(float t) => -(MathF.Cos(MathHelper.Pi * t) - 1f) / 2f;
+        public static float QuadIn(float t) => t * t;
+        public static float QuadOut(float t) => 1f - (1f - t) * (1f - t);
+        public static float CubicIn(float t) => t * t * t;
+        public static float ExpIn(float t) => t <= 0f ? 0f : MathF.Pow(2f, 10f * t - 10f);
+
+        #endregion
+
+        #region CurveSegment Animation
+
+        public struct CurveSegment
+        {
+            public float StartX;
+            public float EndX;
+            public float StartY;
+            public float EndY;
+            public Func<float, float> Easing;
+
+            public CurveSegment(float startX, float endX, float startY, float endY, Func<float, float> easing = null)
+            {
+                StartX = startX; EndX = endX; StartY = startY; EndY = endY;
+                Easing = easing ?? ((t) => t);
+            }
+        }
+
+        /// <summary>Evaluate a piecewise animation curve at time t (0..1).</summary>
+        public static float PiecewiseAnimation(float t, params CurveSegment[] segments)
+        {
+            t = MathHelper.Clamp(t, 0f, 1f);
+            foreach (var seg in segments)
+            {
+                if (t >= seg.StartX && t <= seg.EndX)
+                {
+                    float localT = (t - seg.StartX) / Math.Max(seg.EndX - seg.StartX, 0.0001f);
+                    return MathHelper.Lerp(seg.StartY, seg.EndY, seg.Easing(localT));
+                }
+            }
+            return segments.Length > 0 ? segments[^1].EndY : 0f;
+        }
 
         #endregion
 

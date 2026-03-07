@@ -170,9 +170,9 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             // Hitbox = 80% of visual size (474x554 frame ・・・0.96 scale)
             NPC.width = 364;
             NPC.height = 425;
-            NPC.damage = 170; // Tier 4 damage (Campanella 130, Fate ~220)
-            NPC.defense = 110; // Tier 4 defense (Campanella 70, Fate ~150)
-            NPC.lifeMax = 950000; // 950k HP - Tier 4 (Campanella 650k, Fate ~1.5M)
+            NPC.damage = 170; // Tier 5 damage
+            NPC.defense = 110; // Tier 5 defense
+            NPC.lifeMax = 1100000; // Tier 5 - 1.1M Normal (Expert 2.2M, Master 3.3M via auto-scaling)
             NPC.HitSound = SoundID.NPCHit1;
             NPC.DeathSound = SoundID.NPCDeath14;
             NPC.knockBackResist = 0f;

@@ -283,7 +283,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
                 Effect voiceShader = Projectile.ai[0] == 0f ? ShaderLoader.FugueVoiceTrail : ShaderLoader.FugueConvergence;
                 string technique = Projectile.ai[0] == 0f ? "FugueVoiceFlow" : "FugueConvergenceWave";
                 EnigmaShaderHelper.DrawShaderOverlay(sb, voiceShader,
-                    bloomTex, drawPos, bloomOrigin, 1.2f + pulse * 0.3f,
+                    bloomTex, drawPos, bloomOrigin, 0.139f + pulse * 0.02f,
                     FugueUtils.VoicePurple.ToVector3(), FugueUtils.EchoTeal.ToVector3(),
                     opacity: 0.5f, intensity: 1.1f,
                     noiseTexture: ShaderLoader.GetNoiseTexture("MusicalWavePattern"),
@@ -300,24 +300,21 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
             float scaleBase = Projectile.ai[0] == 0f ? 0.5f : 0.7f;
             float bloomPulse = scaleBase + pulse * 0.15f;
 
-            // [0] ShadowVoid — outermost haze
-            sb.Draw(bloomTex, drawPos, null, FugueUtils.ShadowVoid * 0.15f, 0f,
-                bloomOrigin, bloomPulse * 3f, SpriteEffects.None, 0f);
-            // [1] DeepChorus — deep purple glow
-            sb.Draw(bloomTex, drawPos, null, FugueUtils.DeepChorus * 0.25f, 0f,
-                bloomOrigin, bloomPulse * 2.2f, SpriteEffects.None, 0f);
-            // [2] VoicePurple — the melodic line
-            sb.Draw(bloomTex, drawPos, null, FugueUtils.VoicePurple * (0.35f + pulse * 0.15f), 0f,
-                bloomOrigin, bloomPulse * 1.5f, SpriteEffects.None, 0f);
-            // [3] EchoTeal — the answer phrase
-            sb.Draw(bloomTex, drawPos, null, FugueUtils.EchoTeal * 0.45f, 0f,
-                bloomOrigin, bloomPulse * 1f, SpriteEffects.None, 0f);
+            // [1] DeepChorus — deep purple glow (capped 300px max)
+            sb.Draw(bloomTex, drawPos, null, FugueUtils.DeepChorus * 0.20f, 0f,
+                bloomOrigin, bloomPulse * 0.13f, SpriteEffects.None, 0f);
+            // [2] VoicePurple — the melodic line (capped 300px max)
+            sb.Draw(bloomTex, drawPos, null, FugueUtils.VoicePurple * ((0.35f + pulse * 0.15f) * 0.8f), 0f,
+                bloomOrigin, bloomPulse * 0.10f, SpriteEffects.None, 0f);
+            // [3] EchoTeal — the answer phrase (capped 300px max)
+            sb.Draw(bloomTex, drawPos, null, FugueUtils.EchoTeal * 0.36f, 0f,
+                bloomOrigin, bloomPulse * 0.07f, SpriteEffects.None, 0f);
             // [4] FugueCyan — voices converging
-            sb.Draw(bloomTex, drawPos, null, FugueUtils.FugueCyan * (0.25f + pulse * 0.15f), 0f,
-                bloomOrigin, bloomPulse * 0.55f, SpriteEffects.None, 0f);
+            sb.Draw(bloomTex, drawPos, null, FugueUtils.FugueCyan * ((0.25f + pulse * 0.15f) * 0.8f), 0f,
+                bloomOrigin, bloomPulse * 0.1375f, SpriteEffects.None, 0f);
             // [5] HarmonicWhite — pure harmonic core
-            sb.Draw(bloomTex, drawPos, null, FugueUtils.HarmonicWhite * (0.4f + pulse * 0.2f), 0f,
-                bloomOrigin, bloomPulse * 0.25f, SpriteEffects.None, 0f);
+            sb.Draw(bloomTex, drawPos, null, FugueUtils.HarmonicWhite * ((0.4f + pulse * 0.2f) * 0.8f), 0f,
+                bloomOrigin, bloomPulse * 0.0625f, SpriteEffects.None, 0f);
 
             // ═══════════════════════════════════════════════════════
             //  LAYER 4: THEME TEXTURES — Enigma identity
@@ -325,18 +322,18 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
             // EN Star Flare — dual counter-rotating
             float flareRotA = (float)Main.GameUpdateCount * 0.02f + Projectile.ai[1] * 1.5f;
             float flareRotB = -(float)Main.GameUpdateCount * 0.015f + Projectile.ai[1] * 2.1f;
-            float flareScale = (Projectile.ai[0] == 0f ? 0.2f : 0.3f) + pulse * 0.08f;
-            sb.Draw(starFlareTex, drawPos, null, FugueUtils.VoicePurple * (0.4f + pulse * 0.15f), flareRotA,
+            float flareScale = (Projectile.ai[0] == 0f ? 0.2f : 0.3f) * 0.25f + pulse * 0.02f;
+            sb.Draw(starFlareTex, drawPos, null, FugueUtils.VoicePurple * ((0.4f + pulse * 0.15f) * 0.8f), flareRotA,
                 starFlareOrigin, flareScale, SpriteEffects.None, 0f);
-            sb.Draw(starFlareTex, drawPos, null, FugueUtils.EchoTeal * (0.3f + pulse * 0.1f), flareRotB,
+            sb.Draw(starFlareTex, drawPos, null, FugueUtils.EchoTeal * ((0.3f + pulse * 0.1f) * 0.8f), flareRotB,
                 starFlareOrigin, flareScale * 0.8f, SpriteEffects.None, 0f);
 
             // EN Power Effect Ring — concentric spectral ring
             float ringRot = (float)Main.GameUpdateCount * 0.035f;
-            float ringScale = (Projectile.ai[0] == 0f ? 0.15f : 0.25f) + pulse * 0.06f;
-            sb.Draw(powerRingTex, drawPos, null, FugueUtils.EchoTeal * (0.25f + pulse * 0.12f), ringRot,
+            float ringScale = (Projectile.ai[0] == 0f ? 0.15f : 0.25f) * 0.25f + pulse * 0.015f;
+            sb.Draw(powerRingTex, drawPos, null, FugueUtils.EchoTeal * ((0.25f + pulse * 0.12f) * 0.8f), ringRot,
                 powerRingOrigin, ringScale, SpriteEffects.None, 0f);
-            sb.Draw(powerRingTex, drawPos, null, FugueUtils.DeepChorus * 0.18f, -ringRot * 0.7f,
+            sb.Draw(powerRingTex, drawPos, null, FugueUtils.DeepChorus * 0.144f, -ringRot * 0.7f,
                 powerRingOrigin, ringScale * 1.4f, SpriteEffects.None, 0f);
 
             // EN Enigma Eye — materializes in released state when voices are converging
@@ -344,8 +341,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
             {
                 Texture2D enigmaEye = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Particles/EN Enigma Eye", AssetRequestMode.ImmediateLoad).Value;
                 float eyePulse = 0.7f + 0.3f * MathF.Sin(Main.GameUpdateCount * 0.06f);
-                sb.Draw(enigmaEye, drawPos, null, FugueUtils.HarmonicWhite * eyePulse * 0.4f, 0f,
-                    enigmaEye.Size() / 2f, flareScale * 0.6f * eyePulse, SpriteEffects.None, 0f);
+                sb.Draw(enigmaEye, drawPos, null, FugueUtils.HarmonicWhite * eyePulse * 0.32f, 0f,
+                    enigmaEye.Size() / 2f, flareScale * 0.15f * eyePulse, SpriteEffects.None, 0f);
             }
 
             // Glyph sprite — the voice's musical identity

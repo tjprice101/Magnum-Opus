@@ -24,7 +24,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.StarfallWhisper
             Item.width = 44;
             Item.height = 76;
             Item.DamageType = DamageClass.Ranged;
-            Item.damage = 195;
+            Item.damage = 3100; // Tier 10 (2800-4200 range)
             Item.useTime = 18;
             Item.useAnimation = 18;
             Item.useStyle = ItemUseStyleID.Shoot;

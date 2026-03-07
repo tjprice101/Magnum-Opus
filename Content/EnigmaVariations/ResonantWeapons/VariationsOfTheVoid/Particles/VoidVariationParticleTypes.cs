@@ -54,10 +54,10 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
             var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
-            // Layer 1: Outer dark halo 窶・the void's breath
-            sb.Draw(tex, drawPos, null, Color * alpha * 0.3f, Rotation, tex.Size() / 2f, Scale * 2.2f, SpriteEffects.None, 0f);
-            // Layer 2: Brighter white center 窶・a faint ghost of substance
-            sb.Draw(tex, drawPos, null, VoidVariationUtils.SunderingWhite * alpha * 0.5f, Rotation, tex.Size() / 2f, Scale * 0.4f, SpriteEffects.None, 0f);
+            // Layer 1: Outer dark halo 竜・ the void's breath (capped to 300px on 2160px texture)
+            sb.Draw(tex, drawPos, null, Color * alpha * 0.3f, Rotation, tex.Size() / 2f, MathHelper.Min(Scale * 2.2f, 0.139f), SpriteEffects.None, 0f);
+            // Layer 2: Brighter white center 竜・ a faint ghost of substance
+            sb.Draw(tex, drawPos, null, VoidVariationUtils.SunderingWhite * alpha * 0.5f, Rotation, tex.Size() / 2f, MathHelper.Min(Scale * 0.4f, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -116,7 +116,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
 
                 // Each segment is a small bloom dot along the ring circumference
                 float segmentAlpha = alpha * (0.7f + 0.3f * MathF.Sin(angle * 3f + Time * 0.1f));
-                float segmentScale = Scale * 0.12f;
+                float segmentScale = MathHelper.Min(Scale * 0.12f, 0.139f);
 
                 sb.Draw(tex, ringPos, null, Color * segmentAlpha, 0f, tex.Size() / 2f, segmentScale, SpriteEffects.None, 0f);
             }
@@ -127,7 +127,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
                 float angle = Rotation + MathHelper.TwoPi * i / (RingSegments / 2) + 0.1f;
                 Vector2 ringPos = drawPos + new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * innerRadius;
 
-                float segmentScale = Scale * 0.08f;
+                float segmentScale = MathHelper.Min(Scale * 0.08f, 0.139f);
                 sb.Draw(tex, ringPos, null, VoidVariationUtils.RiftTeal * alpha * 0.4f, 0f, tex.Size() / 2f, segmentScale, SpriteEffects.None, 0f);
             }
         }
@@ -241,12 +241,12 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
             var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
-            // Layer 1: Outermost halo 窶・ambient convergence energy
-            sb.Draw(tex, drawPos, null, VoidVariationUtils.AbyssPurple * alpha * 0.15f, Rotation, tex.Size() / 2f, Scale * 3.5f, SpriteEffects.None, 0f);
-            // Layer 2: Mid bloom 窶・the mote's visible body
-            sb.Draw(tex, drawPos, null, Color * alpha * 0.5f, Rotation * 0.6f, tex.Size() / 2f, Scale * 1.2f, SpriteEffects.None, 0f);
-            // Layer 3: White-hot core 窶・the concentrated beam energy
-            sb.Draw(tex, drawPos, null, VoidVariationUtils.SunderingWhite * alpha * 0.7f, Rotation * 0.3f, tex.Size() / 2f, Scale * 0.3f, SpriteEffects.None, 0f);
+            // Layer 1: Outermost halo 竜・ ambient convergence energy (capped to 300px on 2160px texture)
+            sb.Draw(tex, drawPos, null, VoidVariationUtils.AbyssPurple * alpha * 0.15f, Rotation, tex.Size() / 2f, MathHelper.Min(Scale * 3.5f, 0.139f), SpriteEffects.None, 0f);
+            // Layer 2: Mid bloom 竜・ the mote's visible body
+            sb.Draw(tex, drawPos, null, Color * alpha * 0.5f, Rotation * 0.6f, tex.Size() / 2f, MathHelper.Min(Scale * 1.2f, 0.139f), SpriteEffects.None, 0f);
+            // Layer 3: White-hot core 竜・ the concentrated beam energy
+            sb.Draw(tex, drawPos, null, VoidVariationUtils.SunderingWhite * alpha * 0.7f, Rotation * 0.3f, tex.Size() / 2f, MathHelper.Min(Scale * 0.3f, 0.139f), SpriteEffects.None, 0f);
         }
     }
 }

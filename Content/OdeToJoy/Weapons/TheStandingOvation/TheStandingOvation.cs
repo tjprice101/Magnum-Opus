@@ -87,17 +87,6 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation
             }
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-            .AddIngredient(ModContent.ItemType<ResonantCoreOfOdeToJoy>(), 25)
-            .AddIngredient(ModContent.ItemType<OdeToJoyResonantEnergy>(), 20)
-            .AddIngredient(ModContent.ItemType<HarmonicCoreOfOdeToJoy>(), 3)
-            .AddIngredient(ItemID.LunarBar, 20)
-            .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
-            .Register();
-        }
-
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Summons phantom spectators that attack with applause waves, roses, and charges"));

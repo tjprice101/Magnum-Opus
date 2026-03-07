@@ -193,17 +193,20 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             try
             {
                 Vector2 glowOrigin = softGlow.Size() * 0.5f;
-                float expandScale = 0.3f + lifeProgress * 1.2f;
+                float expandScale = (0.3f + lifeProgress * 1.2f) * 0.12f;
                 float fadeAlpha = alpha * (1f - lifeProgress * 0.5f);
+
+                // Gentle fade-out for the inner ring — accelerates as it expands
+                float ringFade = (1f - lifeProgress) * (1f - lifeProgress);
 
                 // Outer lightning-gold expanding haze
                 Color outerColor = PiercingUtils.LightGold with { A = 0 };
-                sb.Draw(softGlow, drawPos, null, outerColor * fadeAlpha * 0.25f,
+                sb.Draw(softGlow, drawPos, null, outerColor * fadeAlpha * 0.25f * ringFade,
                     0f, glowOrigin, expandScale * 1.6f, SpriteEffects.None, 0f);
 
-                // Mid crimson-gold ring body
+                // Mid crimson-gold ring body — fades gently as it expands
                 Color midColor = Color.Lerp(PiercingUtils.LightGold, PiercingUtils.CrescendoPink, 0.3f) with { A = 0 };
-                sb.Draw(softGlow, drawPos, null, midColor * fadeAlpha * 0.35f,
+                sb.Draw(softGlow, drawPos, null, midColor * fadeAlpha * 0.35f * ringFade,
                     0f, glowOrigin, expandScale, SpriteEffects.None, 0f);
 
                 // Tight white-hot core

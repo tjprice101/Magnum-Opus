@@ -279,7 +279,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
             {
                 Color bloomCol = SymphonicBellfireUtils.RocketPalette[2] * 0.15f;
                 sb.Draw(bloomTex, Projectile.Center - Main.screenPosition, null,
-                    bloomCol, 0f, bloomTex.Size() / 2f, 0.2f, SpriteEffects.None, 0f);
+                    bloomCol, 0f, bloomTex.Size() / 2f, 0.07f, SpriteEffects.None, 0f);
             }
 
             // LC Beam Lens Flare - explosive flare halo behind the rocket

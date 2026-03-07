@@ -39,6 +39,10 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
             float alpha = fade * fade;
             // Draw elongated flash
             Vector2 stretch = new Vector2(length * 0.02f * Scale, Scale * 0.15f);
+            // 1024px SoftGlow → max 300px per axis
+            float muzzleMaxDim = Math.Max(stretch.X, stretch.Y);
+            float muzzleCap = muzzleMaxDim > 0.293f ? 0.293f / muzzleMaxDim : 1f;
+            stretch *= muzzleCap;
             sb.Draw(tex, Position - Main.screenPosition, null,
                 DrawColor * alpha, direction, tex.Size() / 2f, stretch, SpriteEffects.None, 0f);
         }
@@ -95,7 +99,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
             var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
             float fade = 1f - LifetimeCompletion;
             sb.Draw(tex, Position - Main.screenPosition, null,
-                DrawColor * (fade * 0.5f), 0f, tex.Size() / 2f, Scale * 0.4f, SpriteEffects.None, 0f);
+                DrawColor * (fade * 0.5f), 0f, tex.Size() / 2f, MathHelper.Min(Scale * 0.4f, 0.293f), SpriteEffects.None, 0f);
         }
     }
 

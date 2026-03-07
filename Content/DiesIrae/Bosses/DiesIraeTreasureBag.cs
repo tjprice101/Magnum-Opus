@@ -18,6 +18,9 @@ using MagnumOpus.Content.DiesIrae.Weapons.ArbitersSentence;
 using MagnumOpus.Content.DiesIrae.Weapons.StaffOfFinalJudgement;
 using MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath;
 using MagnumOpus.Content.DiesIrae.Weapons.GrimoireOfCondemnation;
+using MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell;
+using MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement;
+using MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract;
 
 namespace MagnumOpus.Content.DiesIrae.Bosses
 {
@@ -56,20 +59,8 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
             itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<DiesIraeResonantEnergy>(), 1, 20, 30));
             itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<HarmonicCoreOfDiesIrae>(), 1, 4, 6));
             
-            // One weapon guaranteed
-            int[] weapons = new int[]
-            {
-                ModContent.ItemType<WrathsCleaver>(),
-                ModContent.ItemType<ChainOfJudgment>(),
-                ModContent.ItemType<ExecutionersVerdict>(),
-                ModContent.ItemType<SinCollector>(),
-                ModContent.ItemType<DamnationsCannon>(),
-                ModContent.ItemType<ArbitersSentence>(),
-                ModContent.ItemType<StaffOfFinalJudgement>(),
-                ModContent.ItemType<EclipseOfWrath>(),
-                ModContent.ItemType<GrimoireOfCondemnation>()
-            };
-            itemLoot.Add(ItemDropRule.OneFromOptions(1, weapons));
+            // 3 random weapons (no duplicates) — custom drop rule
+            itemLoot.Add(new DiesIraeTreasureBagWeaponRule());
             
             // Expert exclusive accessory (one random)
             int[] accessories = new int[]
@@ -93,6 +84,57 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "BagInfo", "Right click to open"));
+        }
+    }
+
+    /// <summary>
+    /// Custom drop rule: drops 3 random weapons without duplicates from the full Dies Irae weapon pool (12 weapons).
+    /// </summary>
+    public class DiesIraeTreasureBagWeaponRule : IItemDropRule
+    {
+        public List<IItemDropRuleChainAttempt> ChainedRules => new List<IItemDropRuleChainAttempt>();
+        public bool CanDrop(DropAttemptInfo info) => true;
+
+        public void ReportDroprates(List<DropRateInfo> drops, DropRateInfoChainFeed ratesInfo)
+        {
+            int[] possibleDrops = GetPossibleDrops();
+            float individualChance = 3f / possibleDrops.Length;
+            foreach (int itemType in possibleDrops)
+                drops.Add(new DropRateInfo(itemType, 1, 1, individualChance, ratesInfo.conditions));
+        }
+
+        public ItemDropAttemptResult TryDroppingItem(DropAttemptInfo info)
+        {
+            int[] possibleDrops = GetPossibleDrops();
+            List<int> shuffled = new List<int>(possibleDrops);
+            for (int i = shuffled.Count - 1; i > 0; i--)
+            {
+                int j = Main.rand.Next(i + 1);
+                (shuffled[i], shuffled[j]) = (shuffled[j], shuffled[i]);
+            }
+            for (int i = 0; i < 3 && i < shuffled.Count; i++)
+                CommonCode.DropItem(info, shuffled[i], 1);
+            
+            return new ItemDropAttemptResult { State = ItemDropAttemptResultState.Success };
+        }
+
+        private int[] GetPossibleDrops()
+        {
+            return new int[]
+            {
+                ModContent.ItemType<WrathsCleaver>(),           // Melee
+                ModContent.ItemType<ChainOfJudgment>(),         // Melee
+                ModContent.ItemType<ExecutionersVerdict>(),      // Melee
+                ModContent.ItemType<SinCollector>(),             // Ranged
+                ModContent.ItemType<DamnationsCannon>(),         // Ranged
+                ModContent.ItemType<ArbitersSentence>(),         // Ranged
+                ModContent.ItemType<StaffOfFinalJudgement>(),    // Magic
+                ModContent.ItemType<EclipseOfWrath>(),           // Magic
+                ModContent.ItemType<GrimoireOfCondemnation>(),   // Magic
+                ModContent.ItemType<DeathTollingBell>(),         // Summon
+                ModContent.ItemType<HarmonyOfJudgement>(),       // Summon
+                ModContent.ItemType<WrathfulContract>()          // Summon
+            };
         }
     }
 }

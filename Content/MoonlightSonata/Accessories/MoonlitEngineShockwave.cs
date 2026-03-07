@@ -67,7 +67,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
                 for (int i = 0; i < 12; i++)
                 {
                     Vector2 vel = Main.rand.NextVector2Circular(6f, 6f);
-                    Dust flash = Dust.NewDustPerfect(Projectile.Center, DustID.SparksMech, vel, 0, Color.White, 2f);
+                    Dust flash = Dust.NewDustPerfect(Projectile.Center, DustID.SparksMech, vel, 0, MagnumThemePalettes.MoonlightMoonWhite, 2f);
                     flash.noGravity = true;
                     flash.fadeIn = 1.3f;
                 }
@@ -104,13 +104,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
                 int dustType = i % 3 == 0 ? DustID.SparksMech : DustID.IceTorch;
                 float scale = 1.2f * (1f - progress * 0.4f);
                 
-                Dust ring = Dust.NewDustPerfect(ringPos, dustType, outwardVel, 0, dustType == DustID.SparksMech ? Color.White : default, scale);
+                Dust ring = Dust.NewDustPerfect(ringPos, dustType, outwardVel, 0, dustType == DustID.SparksMech ? MagnumThemePalettes.MoonlightMoonWhite : default, scale);
                 ring.noGravity = true;
             }
             
-            // === Lighting - subtle ===
+            // Lighting - palette-driven Moonlight Sonata purple
+            Vector3 lightVec = MagnumThemePalettes.MoonlightLavender.ToVector3();
             float lightIntensity = (1f - progress * 0.5f) * 0.5f;
-            Lighting.AddLight(Projectile.Center, 0.4f * lightIntensity, 0.3f * lightIntensity, 0.6f * lightIntensity);
+            Lighting.AddLight(Projectile.Center, lightVec.X * lightIntensity, lightVec.Y * lightIntensity, lightVec.Z * lightIntensity);
             
             // Musical notation - Engine shockwave melody
             if (Projectile.timeLeft % 6 == 0)

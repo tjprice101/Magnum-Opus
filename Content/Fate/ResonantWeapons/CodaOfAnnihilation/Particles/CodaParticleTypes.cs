@@ -51,7 +51,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Particles
             Vector2 origin = new Vector2(_bloomTex.Width / 2f, _bloomTex.Height / 2f);
             Color c = CodaUtils.Additive(DrawColor, _opacity);
 
-            sb.Draw(_bloomTex, screenPos, null, c, 0f, origin, Scale, SpriteEffects.None, 0f);
+            sb.Draw(_bloomTex, screenPos, null, c, 0f, origin, MathHelper.Min(Scale, 0.586f), SpriteEffects.None, 0f);
         }
     }
 
@@ -101,11 +101,17 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Particles
             float rot = (float)Math.Atan2(Velocity.Y, Velocity.X);
             Vector2 squishScale = new Vector2(Scale * squishFactor, Scale / squishFactor);
 
+            // Cap bloom so no dimension exceeds 300px on 512px SoftGlow
+            Vector2 outerScale = squishScale * 2f;
+            outerScale = new Vector2(MathHelper.Min(outerScale.X, 0.586f), MathHelper.Min(outerScale.Y, 0.586f));
+            Vector2 coreScaleV = squishScale * 0.5f;
+            coreScaleV = new Vector2(MathHelper.Min(coreScaleV.X, 0.586f), MathHelper.Min(coreScaleV.Y, 0.586f));
+
             Color outer = CodaUtils.Additive(DrawColor, _opacity * 0.5f);
-            sb.Draw(_bloomTex, screenPos, null, outer, rot, origin, squishScale * 2f, SpriteEffects.None, 0f);
+            sb.Draw(_bloomTex, screenPos, null, outer, rot, origin, outerScale, SpriteEffects.None, 0f);
 
             Color core = CodaUtils.Additive(Color.White, _opacity * 0.7f);
-            sb.Draw(_bloomTex, screenPos, null, core, rot, origin, squishScale * 0.5f, SpriteEffects.None, 0f);
+            sb.Draw(_bloomTex, screenPos, null, core, rot, origin, coreScaleV, SpriteEffects.None, 0f);
         }
     }
 
@@ -264,11 +270,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Particles
 
             // Outer flare
             Color outer = CodaUtils.Additive(DrawColor, _opacity * 0.4f);
-            sb.Draw(_flareTex, screenPos, null, outer, 0f, origin, Scale * 2f, SpriteEffects.None, 0f);
+            sb.Draw(_flareTex, screenPos, null, outer, 0f, origin, MathHelper.Min(Scale * 2f, 0.586f), SpriteEffects.None, 0f);
 
             // Core flare
             Color core = CodaUtils.Additive(Color.White, _opacity * 0.8f);
-            sb.Draw(_flareTex, screenPos, null, core, 0f, origin, Scale * 0.6f, SpriteEffects.None, 0f);
+            sb.Draw(_flareTex, screenPos, null, core, 0f, origin, MathHelper.Min(Scale * 0.6f, 0.586f), SpriteEffects.None, 0f);
         }
     }
 

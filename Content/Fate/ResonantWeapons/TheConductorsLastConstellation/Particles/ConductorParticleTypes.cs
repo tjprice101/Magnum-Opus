@@ -79,7 +79,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
             float rot = Velocity.ToRotation();
             Vector2 drawPos = Position - Main.screenPosition;
             sb.Draw(_tex.Value, drawPos, null, ConductorUtils.Additive(DrawColor, alpha),
-                rot, _tex.Value.Size() / 2f, new Vector2(Scale * stretch, Scale * 0.5f), SpriteEffects.None, 0f);
+                rot, _tex.Value.Size() / 2f, new Vector2(MathHelper.Min(Scale * stretch, 0.293f), MathHelper.Min(Scale * 0.5f, 0.293f)), SpriteEffects.None, 0f);
         }
     }
 
@@ -126,7 +126,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
             float rot = Velocity.ToRotation();
             Vector2 drawPos = Position - Main.screenPosition;
             sb.Draw(_tex.Value, drawPos, null, ConductorUtils.Additive(DrawColor, alpha),
-                rot, _tex.Value.Size() / 2f, new Vector2(Scale * stretch, Scale * 0.4f), SpriteEffects.None, 0f);
+                rot, _tex.Value.Size() / 2f, new Vector2(MathHelper.Min(Scale * stretch, 0.293f), MathHelper.Min(Scale * 0.4f, 0.293f)), SpriteEffects.None, 0f);
         }
     }
 
@@ -188,7 +188,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
             float t = LifetimeCompletion;
             float expand = ConductorUtils.ExpOut(t);
             float alpha = 1f - t * t;
-            float drawScale = Scale * (0.5f + expand * 1.5f);
+            float drawScale = MathHelper.Min(Scale * (0.5f + expand * 1.5f), 0.586f); // SoftGlow is 512px — cap to 300px max
             Vector2 drawPos = Position - Main.screenPosition;
             sb.Draw(_tex.Value, drawPos, null, ConductorUtils.Additive(DrawColor, alpha * 0.8f),
                 0f, _tex.Value.Size() / 2f, drawScale, SpriteEffects.None, 0f);

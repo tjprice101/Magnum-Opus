@@ -168,10 +168,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
                 var glowOrigin = _glowTex.Value.Size() * 0.5f;
                 sb.Draw(_glowTex.Value, Projectile.Center - Main.screenPosition, null,
                     (RequiemUtils.DarkPink with { A = 0 }) * 0.3f * opacity * pulse, 0f, glowOrigin,
-                    1.8f * pulse, SpriteEffects.None, 0f);
+                    0.55f * pulse, SpriteEffects.None, 0f);
                 sb.Draw(_glowTex.Value, Projectile.Center - Main.screenPosition, null,
                     (RequiemUtils.BrightCrimson with { A = 0 }) * 0.2f * opacity, 0f, glowOrigin,
-                    2.4f, SpriteEffects.None, 0f);
+                    0.7f, SpriteEffects.None, 0f);
             }
 
             // Layer 2: Celestial glyph rotating slowly

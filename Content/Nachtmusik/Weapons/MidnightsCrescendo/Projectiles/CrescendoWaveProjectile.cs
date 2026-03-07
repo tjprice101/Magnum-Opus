@@ -251,11 +251,11 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.MidnightsCrescendo.Projectiles
                 {
                     Vector2 bloomOrigin = bloomTex.Size() * 0.5f;
                     sb.Draw(bloomTex, drawPos, null, (bloomPrimary with { A = 0 }) * bloomOpacity * 0.4f,
-                        0f, bloomOrigin, bloomScale * 2f, SpriteEffects.None, 0f);
+                        0f, bloomOrigin, bloomScale * 0.16f, SpriteEffects.None, 0f);
                     sb.Draw(bloomTex, drawPos, null, (bloomSecondary with { A = 0 }) * bloomOpacity * 0.6f,
-                        0f, bloomOrigin, bloomScale * 1.2f, SpriteEffects.None, 0f);
+                        0f, bloomOrigin, bloomScale * 0.1f, SpriteEffects.None, 0f);
                     sb.Draw(bloomTex, drawPos, null, (StellarWhite with { A = 0 }) * bloomOpacity * 0.5f,
-                        0f, bloomOrigin, bloomScale * 0.5f, SpriteEffects.None, 0f);
+                        0f, bloomOrigin, bloomScale * 0.045f, SpriteEffects.None, 0f);
                 }
             }
 

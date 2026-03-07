@@ -101,7 +101,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
             Color pulseColor = IncisorUtils.MulticolorLerp(life,
                 new Color(90, 50, 160), new Color(170, 140, 255), new Color(135, 206, 250));
             pulseColor.A = 0;
-            float pulseScale = MathHelper.Lerp(0.05f, 0.8f, expand);
+            float pulseScale = MathHelper.Lerp(0.01f, 0.13f, expand);
             Main.EntitySpriteDraw(bloomTex, drawPos, null, pulseColor * fade * 0.5f, 0f,
                 bloomOrigin, pulseScale, SpriteEffects.None, 0);
 
@@ -114,7 +114,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
                 ringOrigin, ringScale, SpriteEffects.None, 0);
 
             // Layer 3: White-hot core flash (bright, shrinks as it expands)
-            float coreScale = MathHelper.Lerp(0.15f, 0.04f, expand);
+            float coreScale = MathHelper.Lerp(0.12f, 0.03f, expand);
             float coreFade = life < 0.3f ? 1f : MathHelper.Lerp(1f, 0f, (life - 0.3f) / 0.7f);
             Main.EntitySpriteDraw(bloomTex, drawPos, null, Color.White * coreFade * 0.8f, 0f,
                 bloomOrigin, coreScale, SpriteEffects.None, 0);

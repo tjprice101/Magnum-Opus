@@ -229,10 +229,10 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
 
             sb.Draw(bloomTex, screenPos, null,
                 FangOfTheInfiniteBellUtils.Additive(new Color(255, 220, 50), 0.5f * fade),
-                0f, origin, 1f * fade, SpriteEffects.None, 0f);
+                0f, origin, 0.25f * fade, SpriteEffects.None, 0f);
             sb.Draw(bloomTex, screenPos, null,
                 FangOfTheInfiniteBellUtils.Additive(new Color(255, 255, 200), 0.7f * fade),
-                0f, origin, 0.35f * fade, SpriteEffects.None, 0f);
+                0f, origin, 0.1f * fade, SpriteEffects.None, 0f);
 
             // --- LC Radial Slash Star — sharp impact star at lightning strike point ---
             float starRot = (float)Main.GameUpdateCount * 0.06f;

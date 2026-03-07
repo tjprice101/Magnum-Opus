@@ -357,12 +357,116 @@ namespace MagnumOpus.Content.Seasons.Weapons
 
             Color primary = SeasonPrimary[Season];
             Color secondary = SeasonSecondary[Season];
+            // Per-season shadow color for atmospheric outer halo
+            Color atmosphere = Season switch
+            {
+                0 => new Color(120, 80, 100),   // Spring: rose shadow
+                1 => new Color(120, 50, 10),    // Summer: deep ember
+                2 => new Color(80, 40, 10),     // Autumn: dark bark
+                _ => new Color(20, 40, 80),     // Winter: deep midnight
+            };
+
             Vector2 tipWorld = GetBladeTipPosition();
+            Vector2 tipScreen = tipWorld - Main.screenPosition;
+            Vector2 rootScreen = Owner.MountedCenter - Main.screenPosition;
+            float phaseIntensity = 1f + ComboStep * 0.12f;
             float pulse = 1f + MathF.Sin(Main.GlobalTimeWrappedHourly * 5f) * 0.10f;
-            float tipScale = (0.18f + ComboStep * 0.05f) * pulse;
+            float swingFade = MathHelper.Clamp((Progression - 0.08f) / 0.08f, 0f, 1f)
+                            * MathHelper.Clamp((0.95f - Progression) / 0.08f, 0f, 1f);
 
-            BloomRenderer.DrawBloomStackAdditive(tipWorld, primary, secondary, tipScale, Progression);
+            // ═══ Switch to additive for layered season glow ═══
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                SamplerState.LinearClamp, DepthStencilState.None,
+                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
+            Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
+            Texture2D starTex = MagnumTextureRegistry.GetStar4Soft();
+            if (glowTex != null)
+            {
+                Vector2 glowOrigin = glowTex.Size() / 2f;
+                float baseScale = MathHelper.Min((0.18f + ComboStep * 0.05f) * pulse * phaseIntensity, 0.308f);
+
+                // Layer 1: Wide atmospheric season haze (capped 300px max)
+                sb.Draw(glowTex, tipScreen, null,
+                    atmosphere with { A = 0 } * 0.2f * swingFade, 0f,
+                    glowOrigin, baseScale * 1.9f, SpriteEffects.None, 0f);
+
+                // Layer 2: Primary season color mid glow
+                sb.Draw(glowTex, tipScreen, null,
+                    primary with { A = 0 } * 0.45f * swingFade, 0f,
+                    glowOrigin, baseScale * 1.6f, SpriteEffects.None, 0f);
+
+                // Layer 3: Secondary season color inner glow
+                sb.Draw(glowTex, tipScreen, null,
+                    secondary with { A = 0 } * 0.6f * swingFade, 0f,
+                    glowOrigin, baseScale * 0.9f, SpriteEffects.None, 0f);
+
+                // Layer 4: White-hot core
+                sb.Draw(glowTex, tipScreen, null,
+                    Color.White with { A = 0 } * 0.75f * swingFade, 0f,
+                    glowOrigin, baseScale * 0.3f, SpriteEffects.None, 0f);
+
+                // Layer 5: Root glow — season-colored emanation at sword base
+                float rootPulse = 0.6f + 0.4f * MathF.Sin(Main.GlobalTimeWrappedHourly * 2.5f);
+                sb.Draw(glowTex, rootScreen, null,
+                    secondary with { A = 0 } * 0.22f * swingFade * rootPulse, 0f,
+                    glowOrigin, 0.12f * phaseIntensity, SpriteEffects.None, 0f);
+
+                // Layer 6: Season transition shimmer at 45% blade (blends current+next season)
+                Vector2 midScreen = Vector2.Lerp(rootScreen, tipScreen, 0.45f);
+                int nextSeason = Math.Min(Season + 1, 3);
+                Color transitionColor = Color.Lerp(primary, SeasonPrimary[nextSeason], 0.3f);
+                sb.Draw(glowTex, midScreen, null,
+                    transitionColor with { A = 0 } * 0.15f * swingFade, 0f,
+                    glowOrigin, baseScale * 0.4f, SpriteEffects.None, 0f);
+            }
+
+            // Layer 7: Season star flare at tip
+            if (starTex != null)
+            {
+                Vector2 starOrigin = starTex.Size() / 2f;
+                float starRot = Main.GlobalTimeWrappedHourly * (2.5f + Season * 0.5f);
+                float starScale = (0.07f + ComboStep * 0.02f) * pulse;
+                sb.Draw(starTex, tipScreen, null,
+                    primary with { A = 0 } * 0.6f * swingFade, starRot,
+                    starOrigin, starScale, SpriteEffects.None, 0f);
+                sb.Draw(starTex, tipScreen, null,
+                    Color.White with { A = 0 } * 0.35f * swingFade, -starRot * 0.6f,
+                    starOrigin, starScale * 0.5f, SpriteEffects.None, 0f);
+            }
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                SamplerState.LinearClamp, DepthStencilState.None,
+                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // ═══ Season-specific blade dust ═══
+            if (Progression > 0.12f && Progression < 0.88f)
+            {
+                float t = Main.rand.NextFloat(0.25f, 0.85f);
+                Vector2 dustPos = Vector2.Lerp(Owner.MountedCenter, tipWorld, t);
+                int dustType = Season switch
+                {
+                    0 => DustID.PinkTorch,
+                    1 => DustID.SolarFlare,
+                    2 => DustID.AmberBolt,
+                    _ => DustID.IceTorch,
+                };
+                Vector2 drift = Season switch
+                {
+                    0 => new Vector2(Main.rand.NextFloat(-0.6f, 0.6f), Main.rand.NextFloat(-1f, -0.2f)),
+                    1 => new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-1.8f, -0.5f)),
+                    2 => new Vector2(Main.rand.NextFloat(-0.8f, 0.8f), Main.rand.NextFloat(0.2f, 1.2f)),
+                    _ => new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), Main.rand.NextFloat(-0.8f, 0.3f)),
+                };
+                Dust d = Dust.NewDustPerfect(dustPos, dustType, drift, 0,
+                    Color.Lerp(primary, secondary, Main.rand.NextFloat()), 0.6f);
+                d.noGravity = true;
+                d.fadeIn = 0.4f;
+            }
+
+            // ═══ Music note particles ═══
             if (Main.rand.NextBool(4))
             {
                 float hMin = Season switch { 0 => 0.25f, 1 => 0.04f, 2 => 0.06f, _ => 0.52f };

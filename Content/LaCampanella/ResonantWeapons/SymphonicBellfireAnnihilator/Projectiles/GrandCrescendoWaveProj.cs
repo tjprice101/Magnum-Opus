@@ -187,8 +187,17 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.SymphonicBellfireAnnih
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = new Vector2(tex.Width / 2f, tex.Height / 2f);
 
-            float scaleX = _currentWidth / tex.Width * 2.5f;
-            float scaleY = _currentWidth * 0.5f / tex.Height * 2.5f;
+            float scaleX = _currentWidth / tex.Width * 1.2f;
+            float scaleY = _currentWidth * 0.5f / tex.Height * 1.2f;
+
+            // Cap so outer layer (scaleX*1.3 on 1024px SoftGlow) stays ≤ 300px
+            float maxOuterPx = scaleX * 1.3f * tex.Width;
+            if (maxOuterPx > 300f)
+            {
+                float waveCap = 300f / maxOuterPx;
+                scaleX *= waveCap;
+                scaleY *= waveCap;
+            }
 
             try { sb.End(); } catch { }
             try

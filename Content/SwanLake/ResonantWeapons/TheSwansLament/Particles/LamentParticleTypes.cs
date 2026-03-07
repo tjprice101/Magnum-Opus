@@ -36,7 +36,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Particles
                 ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
             var origin = new Vector2(tex.Width, tex.Height) * 0.5f;
             spriteBatch.Draw(tex, Position - Main.screenPosition, null,
-                DrawColor * Opacity * 0.35f, Rotation, origin, Scale * 0.3f,
+                DrawColor * Opacity * 0.35f, Rotation, origin, MathHelper.Min(Scale * 0.3f, 0.293f),
                 SpriteEffects.None, 0f);
         }
     }
@@ -110,11 +110,11 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Particles
 
             // Draw just the ring (outer circle minus inner)
             spriteBatch.Draw(tex, Position - Main.screenPosition, null,
-                ringColor * Opacity * 0.6f, 0f, origin, Scale,
+                ringColor * Opacity * 0.6f, 0f, origin, MathHelper.Min(Scale, 0.139f),
                 SpriteEffects.None, 0f);
             // Hollow out center
             spriteBatch.Draw(tex, Position - Main.screenPosition, null,
-                Color.Black * Opacity * 0.4f, 0f, origin, Scale * 0.85f,
+                Color.Black * Opacity * 0.4f, 0f, origin, MathHelper.Min(Scale * 0.85f, 0.139f),
                 SpriteEffects.None, 0f);
         }
     }

@@ -46,6 +46,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
         private static Asset<Texture2D> _softCircle;
         private static Asset<Texture2D> _glowOrb;
         private static Asset<Texture2D> _noisePerlin;
+        private static Asset<Texture2D> _gradientLUT;
+
+        private static readonly string GradientLUTPath = "MagnumOpus/Assets/VFX Asset Library/ColorGradients/MoonlightSonataGradientLUTandRAMP";
 
         public override void SetStaticDefaults()
         {
@@ -126,13 +129,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
 
                 // Bright white-hot core
                 sb.Draw(softGlow, drawPos, null, CoreColor * (flashAlpha * 0.85f),
-                    0f, glowOrigin, 0.15f * lunarMult, SpriteEffects.None, 0f);
+                    0f, glowOrigin, 0.06f * lunarMult, SpriteEffects.None, 0f);
                 // Blue mid glow
                 sb.Draw(softGlow, drawPos, null, MidColor * (flashAlpha * 0.5f),
-                    0f, glowOrigin, 0.3f * lunarMult, SpriteEffects.None, 0f);
-                // Wide purple fringe
+                    0f, glowOrigin, 0.12f * lunarMult, SpriteEffects.None, 0f);
+                // Wide purple fringe (SoftGlow 1024px — cap to 300px max)
                 sb.Draw(softGlow, drawPos, null, EdgeColor * (flashAlpha * 0.2f),
-                    0f, glowOrigin, 0.5f * lunarMult, SpriteEffects.None, 0f);
+                    0f, glowOrigin, MathHelper.Min(0.2f * lunarMult, 0.293f), SpriteEffects.None, 0f);
             }
 
             // ---- LAYER 2: SHADER-DRIVEN RIPPLE RINGS ----
@@ -151,7 +154,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
 
             float outerPulse = 0.85f + 0.15f * MathF.Sin(timer * 0.25f);
             sb.Draw(glowOrb, drawPos, null, EdgeColor * (0.15f * fadeAlpha * outerPulse),
-                0f, orbOrigin, expandScale * 0.55f, SpriteEffects.None, 0f);
+                0f, orbOrigin, MathHelper.Min(expandScale * 0.55f, 0.293f), SpriteEffects.None, 0f);
 
             // ---- RESTORE ----
             sb.End();
@@ -189,6 +192,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
 
             _noisePerlin ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/PerlinNoise");
             rippleShader.Parameters["noiseTex"]?.SetValue(_noisePerlin.Value);
+
+            // Bind Moonlight Sonata LUT gradient for theme-consistent ring coloring
+            _gradientLUT ??= ModContent.Request<Texture2D>(GradientLUTPath);
+            rippleShader.Parameters["gradientTex"]?.SetValue(_gradientLUT.Value);
+            rippleShader.Parameters["useGradient"]?.SetValue(1f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,

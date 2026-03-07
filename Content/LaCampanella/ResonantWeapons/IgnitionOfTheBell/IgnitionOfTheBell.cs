@@ -109,7 +109,17 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell
             float pulse = 0.6f + 0.3f * (float)Math.Sin(Main.GameUpdateCount * 0.08f);
             Color glow = IgnitionOfTheBellUtils.Additive(new Color(200, 40, 0), 0.3f * pulse);
 
-            spriteBatch.Draw(bloomTex, drawPos, null, glow, 0f, origin, 0.5f * pulse, SpriteEffects.None, 0f);
+            // Switch to additive — SoftGlow has opaque black background
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            spriteBatch.Draw(bloomTex, drawPos, null, glow, 0f, origin, MathHelper.Min(0.5f * pulse, 0.293f), SpriteEffects.None, 0f);
+
+            // Restore to standard AlphaBlend
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)

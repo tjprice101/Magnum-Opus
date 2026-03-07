@@ -206,8 +206,8 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             NPC.width = 216;
             NPC.height = 216;
             NPC.damage = BaseDamage;
-            NPC.defense = 180; // POST-FATE ULTIMATE defense - 29% above Fate (140)
-            NPC.lifeMax = 4000000; // 4 million HP per phase (8 million total - must defeat twice)
+            NPC.defense = 180; // Tier 7 defense - above Fate (140)
+            NPC.lifeMax = 4000000; // Tier 7 - 4M per phase × 2 = 8M total Normal (Expert 16M, Master 24M via auto-scaling)
             NPC.HitSound = SoundID.NPCHit5;
             NPC.DeathSound = SoundID.NPCDeath7;
             NPC.knockBackResist = 0f;

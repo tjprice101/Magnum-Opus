@@ -501,9 +501,9 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement.Utilities
             float pulse = 0.85f + 0.15f * MathF.Sin(timer * 0.08f);
             float radius = 80f * 0.01f; // 5-tile radius scaled to draw
 
-            // Very faint gold ring
-            sb.Draw(softGlow, drawPos, null, AuraGold * 0.08f * pulse, 0f, origin, radius, SpriteEffects.None, 0f);
-            sb.Draw(softGlow, drawPos, null, JudgeGold * 0.03f, 0f, origin, radius * 1.3f, SpriteEffects.None, 0f);
+            // Very faint gold ring (capped 300px max)
+            sb.Draw(softGlow, drawPos, null, AuraGold * 0.08f * pulse, 0f, origin, 0.55f, SpriteEffects.None, 0f);
+            sb.Draw(softGlow, drawPos, null, JudgeGold * 0.03f, 0f, origin, 0.55f, SpriteEffects.None, 0f);
         }
 
         // ═══════════════════════════════════════════════════════

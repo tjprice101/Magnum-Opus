@@ -183,7 +183,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
             {
                 Texture2D shBloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
                 EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.WatchingPhantomAura,
-                    shBloom, drawPos, shBloom.Size() / 2f, 1.8f,
+                    shBloom, drawPos, shBloom.Size() / 2f, 0.045f,
                     WatchingUtils.GazeGreen.ToVector3(), WatchingUtils.RefrainPurple.ToVector3(),
                     opacity: 0.5f * Projectile.Opacity, intensity: 1.0f,
                     noiseTexture: ShaderLoader.GetNoiseTexture("PerlinNoise"),
@@ -200,12 +200,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
             float pulse = 0.85f + MathF.Sin(time * 0.05f) * 0.15f;
             float op = Projectile.Opacity;
 
-            sb.Draw(bloom, drawPos, null, WatchingUtils.PhantomBlack * 0.20f * pulse * op, 0f, bOrigin, 0.70f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.WatcherDeep * 0.30f * pulse * op, 0f, bOrigin, 0.52f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.RefrainPurple * 0.40f * pulse * op, 0f, bOrigin, 0.38f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.GazeGreen * 0.50f * pulse * op, 0f, bOrigin, 0.25f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.SpectralMint * 0.35f * pulse * op, 0f, bOrigin, 0.14f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.PhantomWhite * 0.45f * pulse * op, 0f, bOrigin, 0.07f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.WatcherDeep * 0.30f * pulse * op, 0f, bOrigin, 0.038f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.RefrainPurple * 0.40f * pulse * op, 0f, bOrigin, 0.028f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.GazeGreen * 0.50f * pulse * op, 0f, bOrigin, 0.018f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.SpectralMint * 0.35f * pulse * op, 0f, bOrigin, 0.01f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.PhantomWhite * 0.45f * pulse * op, 0f, bOrigin, 0.005f, SpriteEffects.None, 0f);
 
             // === Stage 4: EN Star Flare — dual counter-rotating phantom flares ===
             {
@@ -213,7 +212,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
                 Vector2 sfOrigin = sfTex.Size() / 2f;
                 float sfRotA = time * 0.025f;
                 float sfRotB = -time * 0.018f;
-                float sfScale = 0.20f + MathF.Sin(time * 0.04f) * 0.04f;
+                float sfScale = 0.07f + MathF.Sin(time * 0.04f) * 0.014f;
                 sb.Draw(sfTex, drawPos, null, WatchingUtils.GazeGreen * 0.35f * op, sfRotA, sfOrigin, sfScale, SpriteEffects.None, 0f);
                 sb.Draw(sfTex, drawPos, null, WatchingUtils.RefrainPurple * 0.25f * op, sfRotB, sfOrigin, sfScale * 0.85f, SpriteEffects.None, 0f);
             }
@@ -223,8 +222,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
                 Texture2D ringTex = EnigmaThemeTextures.ENPowerEffectRing.Value;
                 Vector2 prOrigin = ringTex.Size() / 2f;
                 float prRot = time * 0.015f;
-                sb.Draw(ringTex, drawPos, null, WatchingUtils.RefrainPurple * 0.22f * op, prRot, prOrigin, 0.18f, SpriteEffects.None, 0f);
-                sb.Draw(ringTex, drawPos, null, WatchingUtils.GazeGreen * 0.15f * op, -prRot * 0.7f, prOrigin, 0.24f, SpriteEffects.None, 0f);
+                sb.Draw(ringTex, drawPos, null, WatchingUtils.RefrainPurple * 0.22f * op, prRot, prOrigin, 0.063f, SpriteEffects.None, 0f);
+                sb.Draw(ringTex, drawPos, null, WatchingUtils.GazeGreen * 0.15f * op, -prRot * 0.7f, prOrigin, 0.084f, SpriteEffects.None, 0f);
             }
 
             // === Stage 6: EN Enigma Eye — the watcher's ever-present gaze ===
@@ -232,7 +231,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
                 Texture2D eyeTex = EnigmaThemeTextures.ENEnigmaEye.Value;
                 Vector2 eyeOrigin = eyeTex.Size() / 2f;
                 float eyePulse = 0.6f + MathF.Sin(time * 0.03f) * 0.4f;
-                sb.Draw(eyeTex, drawPos, null, WatchingUtils.PhantomWhite * 0.35f * eyePulse * op, 0f, eyeOrigin, 0.10f, SpriteEffects.None, 0f);
+                sb.Draw(eyeTex, drawPos, null, WatchingUtils.PhantomWhite * 0.35f * eyePulse * op, 0f, eyeOrigin, 0.035f, SpriteEffects.None, 0f);
             }
 
             // === Stage 7: Minion glyph sprite ===
@@ -512,12 +511,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
             Vector2 bOrigin = bloom.Size() / 2f;
             float pulse = 0.85f + MathF.Sin(time * 0.08f) * 0.15f;
 
-            sb.Draw(bloom, drawPos, null, WatchingUtils.PhantomBlack * 0.18f * pulse, 0f, bOrigin, 0.50f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.WatcherDeep * 0.28f * pulse, 0f, bOrigin, 0.36f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.RefrainPurple * 0.45f * pulse, 0f, bOrigin, 0.25f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.GazeGreen * 0.50f * pulse, 0f, bOrigin, 0.16f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.SpectralMint * 0.35f * pulse, 0f, bOrigin, 0.09f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.PhantomWhite * 0.50f * pulse, 0f, bOrigin, 0.04f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.WatcherDeep * 0.28f * pulse, 0f, bOrigin, 0.026f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.RefrainPurple * 0.45f * pulse, 0f, bOrigin, 0.018f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.GazeGreen * 0.50f * pulse, 0f, bOrigin, 0.012f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.SpectralMint * 0.35f * pulse, 0f, bOrigin, 0.0065f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.PhantomWhite * 0.50f * pulse, 0f, bOrigin, 0.003f, SpriteEffects.None, 0f);
 
             // === Stage 3: EN Star Flare — dual-rotating spectral burst ===
             {
@@ -525,7 +523,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
                 Vector2 sfOrigin = sfTex.Size() / 2f;
                 float sfRotA = time * 0.05f;
                 float sfRotB = -time * 0.035f;
-                float sfScale = 0.16f + MathF.Sin(time * 0.07f) * 0.03f;
+                float sfScale = 0.056f + MathF.Sin(time * 0.07f) * 0.0105f;
                 sb.Draw(sfTex, drawPos, null, WatchingUtils.GazeGreen * 0.35f, sfRotA, sfOrigin, sfScale, SpriteEffects.None, 0f);
                 sb.Draw(sfTex, drawPos, null, WatchingUtils.RefrainPurple * 0.22f, sfRotB, sfOrigin, sfScale * 0.85f, SpriteEffects.None, 0f);
             }
@@ -535,7 +533,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
                 Texture2D ringTex = EnigmaThemeTextures.ENPowerEffectRing.Value;
                 Vector2 prOrigin = ringTex.Size() / 2f;
                 float prRot = time * 0.025f;
-                sb.Draw(ringTex, drawPos, null, WatchingUtils.RefrainPurple * 0.18f, prRot, prOrigin, 0.10f, SpriteEffects.None, 0f);
+                sb.Draw(ringTex, drawPos, null, WatchingUtils.RefrainPurple * 0.18f, prRot, prOrigin, 0.035f, SpriteEffects.None, 0f);
             }
 
             // === Stage 5: Glyph sprite overlay ===
@@ -756,12 +754,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
             float pulse = 0.80f + MathF.Sin(time * 0.06f) * 0.20f;
             float antiPulse = 0.80f + MathF.Sin(time * 0.06f + MathHelper.Pi) * 0.20f;
 
-            sb.Draw(bloom, drawPos, null, WatchingUtils.PhantomBlack * 0.22f * pulse * op, time * 0.008f, bOrigin, 0.65f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.WatcherDeep * 0.30f * antiPulse * op, -time * 0.005f, bOrigin, 0.48f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.RefrainPurple * 0.40f * pulse * op, 0f, bOrigin, 0.35f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.GazeGreen * 0.50f * antiPulse * op, 0f, bOrigin, 0.22f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.SpectralMint * 0.35f * pulse * op, 0f, bOrigin, 0.12f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.PhantomWhite * 0.45f * op, 0f, bOrigin, 0.06f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.WatcherDeep * 0.30f * antiPulse * op, -time * 0.005f, bOrigin, 0.035f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.RefrainPurple * 0.40f * pulse * op, 0f, bOrigin, 0.025f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.GazeGreen * 0.50f * antiPulse * op, 0f, bOrigin, 0.016f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.SpectralMint * 0.35f * pulse * op, 0f, bOrigin, 0.009f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.PhantomWhite * 0.45f * op, 0f, bOrigin, 0.0045f, SpriteEffects.None, 0f);
 
             // === Stage 3: EN Star Flare — dual-rotating rift starburst ===
             {
@@ -769,7 +766,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
                 Vector2 sfOrigin = sfTex.Size() / 2f;
                 float sfRotA = time * 0.02f;
                 float sfRotB = -time * 0.015f;
-                float sfScale = 0.30f + MathF.Sin(time * 0.05f) * 0.06f;
+                float sfScale = 0.105f + MathF.Sin(time * 0.05f) * 0.021f;
                 sb.Draw(sfTex, drawPos, null, WatchingUtils.GazeGreen * 0.35f * op, sfRotA, sfOrigin, sfScale * pulse, SpriteEffects.None, 0f);
                 sb.Draw(sfTex, drawPos, null, WatchingUtils.RefrainPurple * 0.25f * op, sfRotB, sfOrigin, sfScale * 0.8f * antiPulse, SpriteEffects.None, 0f);
             }
@@ -779,8 +776,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
                 Texture2D ringTex = EnigmaThemeTextures.ENPowerEffectRing.Value;
                 Vector2 prOrigin = ringTex.Size() / 2f;
                 float prRot = time * 0.01f;
-                sb.Draw(ringTex, drawPos, null, WatchingUtils.GazeGreen * 0.22f * op, prRot, prOrigin, 0.25f + MathF.Sin(time * 0.07f) * 0.04f, SpriteEffects.None, 0f);
-                sb.Draw(ringTex, drawPos, null, WatchingUtils.RefrainPurple * 0.15f * op, -prRot * 0.6f, prOrigin, 0.35f + MathF.Sin(time * 0.05f) * 0.05f, SpriteEffects.None, 0f);
+                sb.Draw(ringTex, drawPos, null, WatchingUtils.GazeGreen * 0.22f * op, prRot, prOrigin, 0.0875f + MathF.Sin(time * 0.07f) * 0.014f, SpriteEffects.None, 0f);
+                sb.Draw(ringTex, drawPos, null, WatchingUtils.RefrainPurple * 0.15f * op, -prRot * 0.6f, prOrigin, 0.1225f + MathF.Sin(time * 0.05f) * 0.0175f, SpriteEffects.None, 0f);
             }
 
             // === Stage 5: EN Enigma Eye — rift gaze ===
@@ -788,7 +785,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
                 Texture2D eyeTex = EnigmaThemeTextures.ENEnigmaEye.Value;
                 Vector2 eyeOrigin = eyeTex.Size() / 2f;
                 float eyePulse = 0.5f + MathF.Sin(time * 0.04f) * 0.5f;
-                sb.Draw(eyeTex, drawPos, null, WatchingUtils.PhantomWhite * 0.35f * eyePulse * op, 0f, eyeOrigin, 0.10f, SpriteEffects.None, 0f);
+                sb.Draw(eyeTex, drawPos, null, WatchingUtils.PhantomWhite * 0.35f * eyePulse * op, 0f, eyeOrigin, 0.035f, SpriteEffects.None, 0f);
             }
 
             // === Stage 6: Rift star sprite ===
@@ -980,7 +977,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
             {
                 Texture2D shBloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
                 EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.WatchingMysteryZone,
-                    shBloom, drawPos, shBloom.Size() / 2f, zoneScale * 2.5f,
+                    shBloom, drawPos, shBloom.Size() / 2f, MathHelper.Min(zoneScale * 0.14f, 0.139f),
                     WatchingUtils.GazeGreen.ToVector3(), WatchingUtils.RefrainPurple.ToVector3(),
                     opacity: 0.4f * lifeFade, intensity: 1.0f,
                     noiseTexture: ShaderLoader.GetNoiseTexture("VoronoiNoise"),
@@ -997,19 +994,18 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
             float pulse = 0.85f + MathF.Sin(time * 0.04f) * 0.15f;
             float slowRot = time * 0.008f;
 
-            sb.Draw(bloom, drawPos, null, WatchingUtils.PhantomBlack * 0.15f * lifeFade * pulse, slowRot, bOrigin, zoneScale * 2.0f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.WatcherDeep * 0.20f * lifeFade * pulse, -slowRot * 0.7f, bOrigin, zoneScale * 1.6f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.RefrainPurple * 0.25f * lifeFade * pulse, 0f, bOrigin, zoneScale * 1.3f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.GazeGreen * 0.30f * lifeFade * pulse, 0f, bOrigin, zoneScale * 0.9f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.SpectralMint * 0.18f * lifeFade * pulse, 0f, bOrigin, zoneScale * 0.5f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, WatchingUtils.PhantomWhite * 0.12f * lifeFade, 0f, bOrigin, zoneScale * 0.25f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.WatcherDeep * 0.20f * lifeFade * pulse, -slowRot * 0.7f, bOrigin, MathHelper.Min(zoneScale * 0.065f, 0.139f), SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.RefrainPurple * 0.25f * lifeFade * pulse, 0f, bOrigin, MathHelper.Min(zoneScale * 0.052f, 0.139f), SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.GazeGreen * 0.30f * lifeFade * pulse, 0f, bOrigin, MathHelper.Min(zoneScale * 0.037f, 0.139f), SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.SpectralMint * 0.18f * lifeFade * pulse, 0f, bOrigin, MathHelper.Min(zoneScale * 0.021f, 0.139f), SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, WatchingUtils.PhantomWhite * 0.12f * lifeFade, 0f, bOrigin, MathHelper.Min(zoneScale * 0.011f, 0.139f), SpriteEffects.None, 0f);
 
             // === Stage 4: EN Power Effect Ring — dual concentric zone boundaries ===
             {
                 Texture2D ringTex = EnigmaThemeTextures.ENPowerEffectRing.Value;
                 Vector2 prOrigin = ringTex.Size() / 2f;
                 float prRot = time * 0.005f;
-                float ringPulse = zoneScale * (1.4f + MathF.Sin(time * 0.04f) * 0.15f);
+                float ringPulse = zoneScale * (0.49f + MathF.Sin(time * 0.04f) * 0.0525f);
                 sb.Draw(ringTex, drawPos, null, WatchingUtils.RefrainPurple * 0.18f * lifeFade, prRot, prOrigin, ringPulse, SpriteEffects.None, 0f);
                 sb.Draw(ringTex, drawPos, null, WatchingUtils.GazeGreen * 0.12f * lifeFade, -prRot * 0.6f, prOrigin, ringPulse * 0.7f, SpriteEffects.None, 0f);
             }
@@ -1019,7 +1015,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
                 Texture2D sfTex = EnigmaThemeTextures.ENStarFlare.Value;
                 Vector2 sfOrigin = sfTex.Size() / 2f;
                 float sfRot = time * 0.012f;
-                sb.Draw(sfTex, drawPos, null, WatchingUtils.GazeGreen * 0.20f * lifeFade, sfRot, sfOrigin, 0.25f, SpriteEffects.None, 0f);
+                sb.Draw(sfTex, drawPos, null, WatchingUtils.GazeGreen * 0.20f * lifeFade, sfRot, sfOrigin, 0.0875f, SpriteEffects.None, 0f);
             }
 
             // === Stage 6: EN Enigma Eye — zone surveillance eye ===
@@ -1027,7 +1023,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
                 Texture2D eyeTex = EnigmaThemeTextures.ENEnigmaEye.Value;
                 Vector2 eyeOrigin = eyeTex.Size() / 2f;
                 float eyePulse = 0.5f + MathF.Sin(time * 0.035f) * 0.5f;
-                sb.Draw(eyeTex, drawPos, null, WatchingUtils.PhantomWhite * 0.25f * eyePulse * lifeFade, 0f, eyeOrigin, 0.14f, SpriteEffects.None, 0f);
+                sb.Draw(eyeTex, drawPos, null, WatchingUtils.PhantomWhite * 0.25f * eyePulse * lifeFade, 0f, eyeOrigin, 0.049f, SpriteEffects.None, 0f);
             }
 
             // === Pulsing light accent ===

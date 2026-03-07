@@ -38,7 +38,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars
         {
             Item.width = 36;
             Item.height = 70;
-            Item.damage = 950;
+            Item.damage = 1200; // Tier 7 (1200-1800 range)
             Item.DamageType = DamageClass.Ranged;
             Item.useTime = 18;
             Item.useAnimation = 18;

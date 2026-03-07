@@ -193,7 +193,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
 
             // Impact bloom
             GoliathParticleHandler.Spawn(new ImpactBloomParticle(
-                impactPos, GoliathUtils.ImpactFlash, 0.8f + BeamIntensity * 0.4f, 15));
+                impactPos, GoliathUtils.ImpactFlash, 0.4f + BeamIntensity * 0.2f, 15));
 
             // Radial spark burst
             for (int i = 0; i < 8; i++)
@@ -336,14 +336,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
 
             // Layer 1: Wide atmospheric halo — cosmic nebula presence (scaled down)
             Color outerColor = GoliathUtils.NebulaPurple with { A = 0 };
-            float outerScale = 0.35f + BeamIntensity * 0.2f;
-            sb.Draw(bloom, drawPos, null, outerColor * (0.3f + BeamIntensity * 0.2f),
-                0f, bloom.Size() * 0.5f, outerScale * 1.2f, SpriteEffects.None, 0f);
+            float outerScale = 0.12f + BeamIntensity * 0.07f;
+            sb.Draw(bloom, drawPos, null, outerColor * (0.18f + BeamIntensity * 0.12f),
+                0f, bloom.Size() * 0.5f, outerScale * 0.7f, SpriteEffects.None, 0f);
 
             // Layer 2: Mid glow — ice blue cosmic ring
             Color midColor = GoliathUtils.IceBlueBrilliance with { A = 0 };
-            sb.Draw(bloom, drawPos, null, midColor * 0.25f,
-                0f, bloom.Size() * 0.5f, outerScale * 0.6f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, midColor * 0.15f,
+                0f, bloom.Size() * 0.5f, outerScale * 0.35f, SpriteEffects.None, 0f);
 
             // Layer 3: Cross-star flares — counter-rotating 4-pointed star pair
             var starTex = ModContent.Request<Texture2D>(
@@ -353,19 +353,19 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
                 0.6f + BeamIntensity * 0.3f) with { A = 0 };
 
             // Primary star rotation (scaled down)
-            sb.Draw(starTex, drawPos, null, starColor * (0.4f + BeamIntensity * 0.2f),
+            sb.Draw(starTex, drawPos, null, starColor * (0.25f + BeamIntensity * 0.12f),
                 baseRot, starTex.Size() * 0.5f,
-                0.18f + BeamIntensity * 0.1f, SpriteEffects.None, 0f);
+                0.11f + BeamIntensity * 0.06f, SpriteEffects.None, 0f);
 
             // Counter-rotating secondary star (scaled down)
-            sb.Draw(starTex, drawPos, null, starColor * (0.25f + BeamIntensity * 0.15f),
+            sb.Draw(starTex, drawPos, null, starColor * (0.15f + BeamIntensity * 0.09f),
                 -baseRot + MathHelper.PiOver4, starTex.Size() * 0.5f,
-                0.12f + BeamIntensity * 0.08f, SpriteEffects.None, 0f);
+                0.07f + BeamIntensity * 0.05f, SpriteEffects.None, 0f);
 
             // Layer 4: Bright inner core — star core white
             Color coreColor = GoliathUtils.StarCore with { A = 0 };
-            float coreScale = 0.18f + BeamIntensity * 0.1f;
-            sb.Draw(bloom, drawPos, null, coreColor * (0.5f + BeamIntensity * 0.3f),
+            float coreScale = 0.06f + BeamIntensity * 0.04f;
+            sb.Draw(bloom, drawPos, null, coreColor * (0.3f + BeamIntensity * 0.18f),
                 0f, bloom.Size() * 0.5f, coreScale, SpriteEffects.None, 0f);
 
             // Restore to AlphaBlend

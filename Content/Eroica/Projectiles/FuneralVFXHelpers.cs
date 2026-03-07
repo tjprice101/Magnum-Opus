@@ -260,9 +260,10 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Color drawColor = Color;
             drawColor.A = 0;
             float fade = 1f - LifetimeCompletion;
+            float maxScale = 300f / bloomTex.Width;
 
-            spriteBatch.Draw(bloomTex, drawPos, null, drawColor * 0.4f * fade, 0f, origin, Scale * 1.5f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(bloomTex, drawPos, null, Color.White * 0.5f * fade, 0f, origin, Scale * 0.5f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(bloomTex, drawPos, null, drawColor * 0.4f * fade, 0f, origin, MathF.Min(Scale * 1.5f, maxScale), SpriteEffects.None, 0f);
+            spriteBatch.Draw(bloomTex, drawPos, null, Color.White * 0.5f * fade, 0f, origin, MathF.Min(Scale * 0.5f, maxScale), SpriteEffects.None, 0f);
         }
     }
 

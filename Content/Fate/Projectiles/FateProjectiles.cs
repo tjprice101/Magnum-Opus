@@ -390,6 +390,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
                 float progress = (float)i / Projectile.oldPos.Length;
                 Color trailColor = FatePalette.GetCosmicGradient(progress) * (1f - progress) * 0.5f;
+                trailColor.A = 0;
                 Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
                 spriteBatch.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, (1f - progress) * 0.5f, SpriteEffects.None, 0f);
             }
@@ -843,12 +844,14 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
             // Source flares — sigil-style stretched flare
             Vector2 sigilScale = new Vector2(0.2f, 1f) * 0.55f * glowIntensity;
+            sigilScale.Y = MathHelper.Min(sigilScale.Y, 0.293f); // Cap Y to 300px on 1024px
             sb.Draw(softGlow, drawStart, null, Color.White, rot,
                 softGlow.Size() / 2f, sigilScale, SpriteEffects.None, 0f);
             sb.Draw(softGlow, drawStart, null, Color.White, rot,
                 softGlow.Size() / 2f, sigilScale, SpriteEffects.None, 0f);
 
             Vector2 sigilScalePulse = sigilScale * (1.75f + 0.25f * sinPulse);
+            sigilScalePulse.Y = MathHelper.Min(sigilScalePulse.Y, 0.293f); // Cap Y to 300px on 1024px
             float sinOffset = -MathF.Cos(((float)Main.timeForVisualEffects * 0.08f) / 2f) + 1f;
             sb.Draw(lensFlare, drawStart + new Vector2(1f, 0f).RotatedBy(rot) * (15f * sinOffset),
                 null, Color.White, rot, lensFlare.Size() / 2f, sigilScalePulse, SpriteEffects.None, 0f);
@@ -860,13 +863,13 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
             // Endpoint flares — glow orb + lens + star stack
             sb.Draw(glowOrb, drawEnd, null, Color.White, flareRotation * 0.1f,
-                glowOrb.Size() / 2f, 0.5f * glowIntensity, SpriteEffects.None, 0f);
+                glowOrb.Size() / 2f, MathHelper.Min(0.5f * glowIntensity, 0.293f), SpriteEffects.None, 0f);
 
             float endScale = 0.7f * glowIntensity;
             sb.Draw(lensFlare, drawEnd, null, Color.White, flareRotation * 0.02f,
-                lensFlare.Size() / 2f, endScale * 0.45f, SpriteEffects.None, 0f);
+                lensFlare.Size() / 2f, MathHelper.Min(endScale * 0.45f, 0.293f), SpriteEffects.None, 0f);
             sb.Draw(starFlare, drawEnd, null, Color.White, flareRotation * 0.05f,
-                starFlare.Size() / 2f, endScale * 0.6f, SpriteEffects.None, 0f);
+                starFlare.Size() / 2f, MathHelper.Min(endScale * 0.6f, 0.293f), SpriteEffects.None, 0f);
             sb.Draw(starFlare, drawEnd, null, Color.White, flareRotation * 0.077f,
                 starFlare.Size() / 2f, endScale * 0.35f, SpriteEffects.None, 0f);
 

@@ -1099,7 +1099,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             Vector2 tipPos = Owner.MountedCenter + DirectionAtProgressSmoothed(Progression) * Projectile.scale * BladeLength - Main.screenPosition;
 
             float crescentScale = 0.4f + 0.3f * _phaseIntensity;
-            float crescentOpacity = (float)Math.Sin(MathHelper.Pi * (Progression - 0.3f) / 0.55f) * 0.3f * _phaseIntensity;
+            float crescentOpacity = (float)Math.Sin(MathHelper.Pi * (Progression - 0.3f) / 0.55f) * 0.21f * _phaseIntensity;
 
             // Palette-driven tidal color: shifts from deep purple at swing start to ice blue at peak
             float paletteT = 0.2f + Progression * 0.6f;
@@ -1109,22 +1109,22 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             // Layer 1: Wide soft radial halo (SoftRadialBloom) — the moon's atmospheric glow
             tidalOuter.A = 0;
             Main.spriteBatch.Draw(softBloom, tipPos, null, tidalOuter * crescentOpacity * 0.15f,
-                0f, softBloom.Size() / 2f, crescentScale * 1.8f * Projectile.scale, SpriteEffects.None, 0f);
+                0f, softBloom.Size() / 2f, crescentScale * 0.18f * Projectile.scale, SpriteEffects.None, 0f);
 
             // Layer 2: Mid-range soft glow (SoftRadialBloom) — violet body
             Color midColor = Violet with { A = 0 };
             Main.spriteBatch.Draw(softBloom, tipPos, null, midColor * crescentOpacity * 0.2f,
-                SwordRotation * 0.5f, softBloom.Size() / 2f, crescentScale * 1.2f * Projectile.scale, SpriteEffects.None, 0f);
+                SwordRotation * 0.5f, softBloom.Size() / 2f, crescentScale * 0.12f * Projectile.scale, SpriteEffects.None, 0f);
 
             // Layer 3: Inner crescent core (PointBloom) — bright ice blue
             tidalInner.A = 0;
             Main.spriteBatch.Draw(sharpBloom, tipPos, null, tidalInner * crescentOpacity,
-                SwordRotation, sharpBloom.Size() / 2f, crescentScale * 0.5f * Projectile.scale, SpriteEffects.None, 0f);
+                SwordRotation, sharpBloom.Size() / 2f, crescentScale * 0.06f * Projectile.scale, SpriteEffects.None, 0f);
 
             // Layer 4: White-hot center (PointBloom) — moon zenith
             Color coreWhite = MoonWhite with { A = 0 };
             Main.spriteBatch.Draw(sharpBloom, tipPos, null, coreWhite * crescentOpacity * 0.6f,
-                SwordRotation, sharpBloom.Size() / 2f, crescentScale * 0.2f * Projectile.scale, SpriteEffects.None, 0f);
+                SwordRotation, sharpBloom.Size() / 2f, crescentScale * 0.025f * Projectile.scale, SpriteEffects.None, 0f);
 
             // === THEME-SPECIFIC BLOOM LAYERS ===
             // Layer 5: MS Star Flare — sharp 4-pointed flare at blade tip
@@ -1143,7 +1143,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                 float orbPulse = 0.85f + 0.15f * (float)Math.Sin(Progression * MathHelper.Pi * 3f);
                 Color orbColor = tidalOuter with { A = 0 };
                 Main.spriteBatch.Draw(msGlowOrb, tipPos, null, orbColor * crescentOpacity * 0.2f * orbPulse,
-                    0f, msGlowOrb.Size() / 2f, crescentScale * 1.4f * Projectile.scale * orbPulse, SpriteEffects.None, 0f);
+                    0f, msGlowOrb.Size() / 2f, crescentScale * 0.35f * Projectile.scale * orbPulse, SpriteEffects.None, 0f);
             }
         }
 

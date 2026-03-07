@@ -534,7 +534,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 if (softTex != null)
                 {
                     spriteBatch.Draw(softTex, drawPos, null, midColor * (alpha * 0.15f), 0f,
-                        softTex.Size() / 2f, cloud.Scale * 1.5f, SpriteEffects.None, 0f);
+                        softTex.Size() / 2f, MathHelper.Min(cloud.Scale * 1.5f, 0.139f), SpriteEffects.None, 0f);
                 }
             }
             
@@ -638,7 +638,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 if (softTex != null)
                 {
                     spriteBatch.Draw(softTex, drawPos, null, flareColor * (alpha * 0.3f), 0f,
-                        softTex.Size() / 2f, flare.Scale * 1.2f, SpriteEffects.None, 0f);
+                        softTex.Size() / 2f, MathHelper.Min(flare.Scale * 1.2f, 0.139f), SpriteEffects.None, 0f);
                 }
             }
             

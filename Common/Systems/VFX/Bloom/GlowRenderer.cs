@@ -177,6 +177,9 @@ namespace MagnumOpus.Common.Systems.VFX.Bloom
                 layerColor = layerColor with { A = 0 }; // Remove alpha for additive
                 float alpha = layer.Alpha * intensity;
 
+                // 256px procedural glow — cap so draw ≤ 300px
+                float cappedScale = MathHelper.Min(layer.Scale, 1.172f);
+
                 spriteBatch.Draw(
                     _glowTexture,
                     drawPos,
@@ -184,7 +187,7 @@ namespace MagnumOpus.Common.Systems.VFX.Bloom
                     layerColor * alpha,
                     rotation,
                     origin,
-                    layer.Scale,
+                    cappedScale,
                     SpriteEffects.None,
                     0f
                 );

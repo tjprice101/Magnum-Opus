@@ -67,7 +67,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Particles
             color.A = 0; // Additive needs zero alpha channel
 
             spriteBatch.Draw(tex, Position - Main.screenPosition, null,
-                color * opacity, Rotation, tex.Size() / 2f, Scale * 0.15f, SpriteEffects.None, 0f);
+                color * opacity, Rotation, tex.Size() / 2f, MathHelper.Min(Scale * 0.15f, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -112,6 +112,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Particles
             color.A = 0;
 
             Vector2 scaleVec = new Vector2(_lengthScale, 1f) * Scale * 0.4f;
+            scaleVec = new Vector2(MathHelper.Min(scaleVec.X, 0.139f), MathHelper.Min(scaleVec.Y, 0.139f));
             spriteBatch.Draw(tex, Position - Main.screenPosition, null,
                 color * opacity, Rotation, tex.Size() / 2f, scaleVec, SpriteEffects.None, 0f);
         }
@@ -157,7 +158,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Particles
             color.A = 0;
 
             spriteBatch.Draw(tex, Position - Main.screenPosition, null,
-                color * opacity, 0f, tex.Size() / 2f, Scale * 0.5f, SpriteEffects.None, 0f);
+                color * opacity, 0f, tex.Size() / 2f, MathHelper.Min(Scale * 0.5f, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -265,7 +266,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Particles
             color.A = 0;
 
             spriteBatch.Draw(tex, Position - Main.screenPosition, null,
-                color * opacity, Rotation, tex.Size() / 2f, Scale * 0.3f, SpriteEffects.None, 0f);
+                color * opacity, Rotation, tex.Size() / 2f, MathHelper.Min(Scale * 0.3f, 0.293f), SpriteEffects.None, 0f);
         }
     }
 
@@ -358,6 +359,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Particles
             color.A = 0;
 
             Vector2 stretchScale = new Vector2(1f + Velocity.Length() * 0.15f, 1f) * Scale * 0.12f;
+            stretchScale = new Vector2(MathHelper.Min(stretchScale.X, 0.139f), MathHelper.Min(stretchScale.Y, 0.139f));
             spriteBatch.Draw(tex, Position - Main.screenPosition, null,
                 color * opacity, Rotation, tex.Size() / 2f, stretchScale, SpriteEffects.None, 0f);
         }
@@ -499,7 +501,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Particles
             color.A = 0;
 
             spriteBatch.Draw(tex, Position - Main.screenPosition, null,
-                color * opacity, 0f, tex.Size() / 2f, Scale * 0.4f, SpriteEffects.None, 0f);
+                color * opacity, 0f, tex.Size() / 2f, MathHelper.Min(Scale * 0.4f, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -627,7 +629,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Particles
             color.A = 0;
 
             spriteBatch.Draw(tex, drawPos, null, color * opacity,
-                Rotation, origin, Scale * 0.22f, SpriteEffects.None, 0f);
+                Rotation, origin, MathHelper.Min(Scale * 0.22f, 0.195f), SpriteEffects.None, 0f);
         }
     }
 
@@ -671,7 +673,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Particles
             color.A = 0;
 
             spriteBatch.Draw(tex, drawPos, null, color * opacity,
-                Rotation, origin, Scale * 0.3f * pulse, SpriteEffects.None, 0f);
+                Rotation, origin, MathHelper.Min(Scale * 0.3f * pulse, 0.293f), SpriteEffects.None, 0f);
         }
     }
 
@@ -716,7 +718,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Particles
             color.A = 0;
 
             spriteBatch.Draw(tex, drawPos, null, color * fade,
-                Rotation, origin, Scale * 0.4f, SpriteEffects.None, 0f);
+                Rotation, origin, MathHelper.Min(Scale * 0.4f, 0.293f), SpriteEffects.None, 0f);
         }
     }
 
@@ -759,7 +761,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Particles
             color.A = 0;
 
             spriteBatch.Draw(tex, drawPos, null, color * fade,
-                0f, origin, Scale * 0.5f, SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(Scale * 0.5f, 0.293f), SpriteEffects.None, 0f);
         }
     }
 
@@ -804,7 +806,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Particles
             color.A = 0;
 
             spriteBatch.Draw(tex, drawPos, null, color * fade,
-                Rotation, origin, Scale * 0.35f, SpriteEffects.None, 0f);
+                Rotation, origin, MathHelper.Min(Scale * 0.35f, 0.293f), SpriteEffects.None, 0f);
         }
     }
 
@@ -892,7 +894,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Particles
             color.A = 0;
 
             spriteBatch.Draw(tex, drawPos, null, color * opacity * 0.8f,
-                Rotation, origin, Scale * 0.4f, SpriteEffects.None, 0f);
+                Rotation, origin, MathHelper.Min(Scale * 0.4f, 0.293f), SpriteEffects.None, 0f);
         }
     }
 
@@ -932,7 +934,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Particles
             color.A = 0;
 
             spriteBatch.Draw(tex, drawPos, null, color * opacity,
-                0f, origin, Scale * 0.3f * pulse, SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(Scale * 0.3f * pulse, 0.293f), SpriteEffects.None, 0f);
         }
     }
 }

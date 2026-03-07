@@ -18,7 +18,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ArbitersSentence
         {
             Item.width = 64;
             Item.height = 24;
-            Item.damage = 850;
+            Item.damage = 400; // Tier 8 (1600-2400 range), speed-proportional for useTime=3 burst
             Item.DamageType = DamageClass.Ranged;
             Item.useTime = 3;
             Item.useAnimation = 9;
@@ -57,17 +57,6 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ArbitersSentence
                 ModContent.ProjectileType<JudgmentFlameProjectile>(),
                 damage, knockback, player.whoAmI);
             return false;
-        }
-
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-            .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.ResonantCoreOfDiesIrae>(), 20)
-            .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.DiesIraeResonantEnergy>(), 15)
-            .AddIngredient(ModContent.ItemType<Content.DiesIrae.HarmonicCores.HarmonicCoreOfDiesIrae>(), 2)
-            .AddIngredient(ItemID.LunarBar, 15)
-            .AddTile(ModContent.TileType<Content.Fate.CraftingStations.FatesCosmicAnvilTile>())
-            .Register();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)

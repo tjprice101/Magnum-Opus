@@ -364,11 +364,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
 
                 float pulse = 0.4f + MathF.Sin((float)Main.timeForVisualEffects * 0.08f + OrbitAngle) * 0.1f;
 
-                Color innerCol = FractalUtils.Additive(FractalUtils.StarGold, 0.4f * opacity);
-                Color outerCol = FractalUtils.Additive(FractalUtils.FractalPurple, 0.2f * opacity);
+                Color innerCol = FractalUtils.Additive(FractalUtils.StarGold, 0.32f * opacity);
+                Color outerCol = FractalUtils.Additive(FractalUtils.FractalPurple, 0.16f * opacity);
 
-                sb.Draw(tex, drawPos, null, outerCol, 0f, origin, pulse * 1.5f, SpriteEffects.None, 0f);
-                sb.Draw(tex, drawPos, null, innerCol, 0f, origin, pulse, SpriteEffects.None, 0f);
+                sb.Draw(tex, drawPos, null, outerCol, 0f, origin, pulse * 1.2f, SpriteEffects.None, 0f);
+                sb.Draw(tex, drawPos, null, innerCol, 0f, origin, pulse * 0.8f, SpriteEffects.None, 0f);
 
                 FractalUtils.EndAdditive(sb);
             }

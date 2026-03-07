@@ -189,7 +189,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
             // Soft bloom glow
             Color glowColor = new Color(200, 210, 255) with { A = 0 };
             Main.spriteBatch.Draw(bloomTex, drawPos, null, glowColor * 0.3f,
-                0f, bloomTex.Size() * 0.5f, 0.25f * pulse, SpriteEffects.None, 0f);
+                0f, bloomTex.Size() * 0.5f, 0.12f * pulse, SpriteEffects.None, 0f);
 
             // Note body 窶・silver-white
             Color bodyColor = Color.Lerp(Color.White, new Color(200, 210, 255), 0.3f) with { A = 0 };

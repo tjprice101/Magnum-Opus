@@ -76,18 +76,34 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
                     }
                 }
 
-                // VFX burst
-                int burstCount = IsPerfectPitch ? 18 : 10;
+                // VFX burst — dense radial scatter of notes + sparks
+                int burstCount = IsPerfectPitch ? 24 : 14;
                 for (int i = 0; i < burstCount; i++)
                 {
-                    float angle = MathHelper.TwoPi / burstCount * i;
-                    Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(2f, 5f);
+                    float angle = MathHelper.TwoPi / burstCount * i + Main.rand.NextFloat(-0.15f, 0.15f);
+                    Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * Main.rand.NextFloat(2f, 6f);
                     PiercingBellsParticleHandler.SpawnParticle(new ResonantNoteParticle(
                         Projectile.Center + vel * 5f, vel, Main.rand.Next(40, 70)));
                 }
 
+                // Additional fast tracer sparks fanning outward
+                int sparkCount = IsPerfectPitch ? 16 : 10;
+                for (int i = 0; i < sparkCount; i++)
+                {
+                    float angle = MathHelper.TwoPi / sparkCount * i + Main.rand.NextFloat(-0.2f, 0.2f);
+                    float speed = Main.rand.NextFloat(3f, 7f);
+                    PiercingBellsParticleHandler.SpawnParticle(new BulletTracerParticle(
+                        Projectile.Center, angle.ToRotationVector2() * speed,
+                        Main.rand.Next(12, 22))
+                        { Scale = Main.rand.NextFloat(0.25f, 0.45f) });
+                }
+
                 PiercingBellsParticleHandler.SpawnParticle(new ResonantBlastFlashParticle(
-                    Projectile.Center, IsPerfectPitch ? 4f : 2.5f, IsPerfectPitch ? 20 : 15));
+                    Projectile.Center, IsPerfectPitch ? 5f : 3f, IsPerfectPitch ? 22 : 16));
+
+                // Second delayed flash wave for depth
+                PiercingBellsParticleHandler.SpawnParticle(new ResonantBlastFlashParticle(
+                    Projectile.Center, IsPerfectPitch ? 3f : 1.8f, IsPerfectPitch ? 28 : 20));
 
                 SoundEngine.PlaySound(SoundID.Item14 with { Pitch = IsPerfectPitch ? 0.5f : 0.2f, Volume = IsPerfectPitch ? 1.2f : 0.9f }, Projectile.Center);
 
@@ -142,7 +158,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
             try { sb.End(); } catch { }
             try
             {
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             Color ringColor = IsPerfectPitch
@@ -150,19 +166,44 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
                 : PiercingBellsResonanceUtils.ResonancePalette[2] * fade * 0.3f;
             sb.Draw(tex, screenPos, null, ringColor, 0f, origin, ringScale, SpriteEffects.None, 0f);
 
-            // Inner blast core
+            // Secondary expanding ring for multi-wavefront depth
+            float secondRingScale = ringScale * 0.6f;
+            Color secondRingColor = PiercingBellsResonanceUtils.ResonancePalette[1] * fade * 0.2f;
+            sb.Draw(tex, screenPos, null, secondRingColor, 0f, origin, secondRingScale, SpriteEffects.None, 0f);
+
+            // Inner blast core — bright hot center that fades quickly
             if (progress < 0.4f)
             {
                 float coreFade = 1f - progress / 0.4f;
                 Color coreColor = IsPerfectPitch
-                    ? new Color(255, 255, 220) * coreFade * 0.6f
-                    : PiercingBellsResonanceUtils.ResonancePalette[3] * coreFade * 0.5f;
-                sb.Draw(tex, screenPos, null, coreColor, 0f, origin, 0.4f * coreFade, SpriteEffects.None, 0f);
+                    ? new Color(255, 255, 220) * coreFade * 0.7f
+                    : PiercingBellsResonanceUtils.ResonancePalette[3] * coreFade * 0.6f;
+                sb.Draw(tex, screenPos, null, coreColor, 0f, origin, 0.15f * coreFade, SpriteEffects.None, 0f);
+
+                // White-hot pinpoint center
+                sb.Draw(tex, screenPos, null,
+                    Color.White * (coreFade * coreFade * 0.5f), 0f, origin, 0.05f * coreFade, SpriteEffects.None, 0f);
             }
 
-            // Outer glow
+            // Outer glow — wide ambient haze
             Color outerColor = PiercingBellsResonanceUtils.ResonancePalette[1] * fade * 0.2f;
             sb.Draw(tex, screenPos, null, outerColor, 0f, origin, ringScale * 1.2f, SpriteEffects.None, 0f);
+
+            // Extra outermost ambient for Perfect Pitch
+            if (IsPerfectPitch)
+            {
+                sb.Draw(tex, screenPos, null,
+                    PiercingBellsResonanceUtils.ResonancePalette[0] * fade * 0.1f,
+                    0f, origin, ringScale * 1.4f, SpriteEffects.None, 0f);
+            }
+
+            // LC VFX Library — Impact Ellipse ring
+            {
+                float ellipseScale = ringScale * 0.5f * fade;
+                float ellipseRot = progress * MathHelper.Pi;
+                LaCampanellaVFXLibrary.DrawImpactEllipse(sb, screenPos,
+                    ellipseScale, ellipseRot, 0.2f * fade, LaCampanellaPalette.InfernalOrange);
+            }
 
             // === SHADER: ResonantBlastShader — concentric bell-shaped wavefronts ===
             var blastShader = PiercingBellsResonanceShaderLoader.GetResonantBlastShader();
@@ -197,7 +238,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
                     sb.Draw(tex, screenPos, null, innerShader, 0f, origin, ringScale * 0.55f, SpriteEffects.None, 0f);
 
                     sb.End();
-                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                         DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
                 }
                 catch
@@ -205,7 +246,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
                     try
                     {
                         sb.End();
-                        sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                        sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                             DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
                     }
                     catch { }

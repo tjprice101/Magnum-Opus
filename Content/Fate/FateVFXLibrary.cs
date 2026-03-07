@@ -12,7 +12,7 @@ using MagnumOpus.Common.Systems.Particles;
 namespace MagnumOpus.Content.Fate
 {
     /// <summary>
-    /// Shared Fate VFX library — canonical palette, bloom stacking,
+    /// Shared Fate VFX library  Ecanonical palette, bloom stacking,
     /// shader setup, trail helpers, music notes, dust, glyph effects,
     /// constellation patterns, cosmic cloud VFX, and impact/finisher effects
     /// used by ALL Fate weapons, accessories, projectiles, minions, and enemies.
@@ -143,6 +143,9 @@ namespace MagnumOpus.Content.Fate
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.115) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 1.209f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
@@ -151,19 +154,19 @@ namespace MagnumOpus.Content.Fate
 
             // Layer 1: Outer halo (FatePurple-ish)
             sb.Draw(bloom, drawPos, null,
-                (outer with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 2.0f, SpriteEffects.None, 0f);
+                (outer with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 0.115f, SpriteEffects.None, 0f);
 
             // Layer 2: Mid glow (DarkPink)
             sb.Draw(bloom, drawPos, null,
-                (outer with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 1.4f, SpriteEffects.None, 0f);
+                (outer with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.08f, SpriteEffects.None, 0f);
 
             // Layer 3: Inner bloom (BrightCrimson)
             sb.Draw(bloom, drawPos, null,
-                (inner with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f);
+                (inner with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.052f, SpriteEffects.None, 0f);
 
             // Layer 4: White-hot stellar core
             sb.Draw(bloom, drawPos, null,
-                (SupernovaWhite with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
+                (SupernovaWhite with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.023f, SpriteEffects.None, 0f);
         }
 
         /// <summary>
@@ -175,21 +178,24 @@ namespace MagnumOpus.Content.Fate
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.115) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 1.209f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
             sb.Draw(bloom, drawPos, null,
-                (outerColor with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 2.0f, SpriteEffects.None, 0f);
+                (outerColor with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 0.115f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (outerColor with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 1.4f, SpriteEffects.None, 0f);
+                (outerColor with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.08f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (innerColor with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f);
+                (innerColor with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.052f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
+                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.023f, SpriteEffects.None, 0f);
         }
 
         /// <summary>
-        /// Bloom sandwich layer — renders bloom BEHIND a projectile body for depth.
+        /// Bloom sandwich layer  Erenders bloom BEHIND a projectile body for depth.
         /// Call before drawing the projectile sprite, then call again after for front glow.
         /// </summary>
         public static void DrawBloomSandwichLayer(SpriteBatch sb, Vector2 worldPos,
@@ -198,6 +204,9 @@ namespace MagnumOpus.Content.Fate
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.14) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 0.993f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
@@ -205,22 +214,22 @@ namespace MagnumOpus.Content.Fate
             {
                 // Behind layer: larger, softer, FatePurple
                 sb.Draw(bloom, drawPos, null,
-                    (FatePurple with { A = 0 }) * 0.25f * opacity, 0f, origin, scale * 2.5f, SpriteEffects.None, 0f);
+                    (FatePurple with { A = 0 }) * 0.25f * opacity, 0f, origin, scale * 0.14f, SpriteEffects.None, 0f);
                 sb.Draw(bloom, drawPos, null,
-                    (DarkPink with { A = 0 }) * 0.35f * opacity, 0f, origin, scale * 1.6f, SpriteEffects.None, 0f);
+                    (DarkPink with { A = 0 }) * 0.35f * opacity, 0f, origin, scale * 0.09f, SpriteEffects.None, 0f);
             }
             else
             {
                 // Front layer: smaller, brighter, BrightCrimson -> White
                 sb.Draw(bloom, drawPos, null,
-                    (BrightCrimson with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.8f, SpriteEffects.None, 0f);
+                    (BrightCrimson with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.046f, SpriteEffects.None, 0f);
                 sb.Draw(bloom, drawPos, null,
-                    (Color.White with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.35f, SpriteEffects.None, 0f);
+                    (Color.White with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.02f, SpriteEffects.None, 0f);
             }
         }
 
         /// <summary>
-        /// Counter-rotating double flare — two bloom textures spinning in opposite directions.
+        /// Counter-rotating double flare  Etwo bloom textures spinning in opposite directions.
         /// Creates dynamic cosmic energy appearance at projectile centers.
         /// </summary>
         public static void DrawCounterRotatingFlares(SpriteBatch sb, Vector2 worldPos,
@@ -228,6 +237,9 @@ namespace MagnumOpus.Content.Fate
         {
             Texture2D flare = MagnumTextureRegistry.GetFlare();
             if (flare == null) return;
+
+            // 1024px flare — cap so largest layer (scale*0.7) ≤ 0.293 → ≤300px
+            scale = MathHelper.Min(scale, 0.419f);
 
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = flare.Size() * 0.5f;
@@ -246,7 +258,7 @@ namespace MagnumOpus.Content.Fate
         /// <summary>
         /// Standard Fate bloom at a blade tip or projectile centre.
         /// Uses the two-colour overload (FatePurple outer -> BrightCrimson inner).
-        /// Safe to call from PreDraw — handles SpriteBatch state internally.
+        /// Safe to call from PreDraw  Ehandles SpriteBatch state internally.
         /// </summary>
         public static void DrawBloom(Vector2 worldPos, float scale, float opacity = 1f)
         {
@@ -297,7 +309,7 @@ namespace MagnumOpus.Content.Fate
         }
 
         /// <summary>
-        /// Cosmic beam trail width — broader, for ranged projectiles and beams.
+        /// Cosmic beam trail width  Ebroader, for ranged projectiles and beams.
         /// </summary>
         public static float CosmicBeamWidth(float completionRatio, float baseWidth = 14f)
         {
@@ -306,7 +318,7 @@ namespace MagnumOpus.Content.Fate
         }
 
         /// <summary>
-        /// Thick cosmic trail for heavy weapons — nebula cascade.
+        /// Thick cosmic trail for heavy weapons  Enebula cascade.
         /// </summary>
         public static float CosmicTrailWidth(float completionRatio, float baseWidth = 18f)
         {
@@ -408,7 +420,7 @@ namespace MagnumOpus.Content.Fate
         }
 
         /// <summary>
-        /// Fate dual-color swing dust — alternating pink and crimson torches.
+        /// Fate dual-color swing dust  Ealternating pink and crimson torches.
         /// </summary>
         public static void SpawnFateSwingDust(Vector2 pos, Vector2 awayDirection)
         {
@@ -442,7 +454,7 @@ namespace MagnumOpus.Content.Fate
         }
 
         /// <summary>
-        /// Contrasting star gold sparkle dust — call every other frame for dual-colour trail.
+        /// Contrasting star gold sparkle dust  Ecall every other frame for dual-colour trail.
         /// </summary>
         public static void SpawnContrastSparkle(Vector2 pos, Vector2 awayDirection)
         {
@@ -584,7 +596,7 @@ namespace MagnumOpus.Content.Fate
         }
 
         /// <summary>
-        /// Spawn a glyph burst — glyphs exploding outward radially.
+        /// Spawn a glyph burst  Eglyphs exploding outward radially.
         /// </summary>
         public static void SpawnGlyphBurst(Vector2 pos, int count = 12, float speed = 6f)
         {
@@ -673,7 +685,7 @@ namespace MagnumOpus.Content.Fate
         // ─────────── IMPACTS ───────────
 
         /// <summary>
-        /// Full Fate melee impact VFX — bloom flash, halo cascade,
+        /// Full Fate melee impact VFX  Ebloom flash, halo cascade,
         /// radial dust burst, star sparkles, glyph accents, and music note scatter.
         /// Scales with combo step.
         /// </summary>
@@ -703,7 +715,7 @@ namespace MagnumOpus.Content.Fate
         }
 
         /// <summary>
-        /// Projectile death / on-kill VFX — bigger, flashier version of MeleeImpact.
+        /// Projectile death / on-kill VFX  Ebigger, flashier version of MeleeImpact.
         /// Includes constellation burst, glyph circle, cosmic cloud burst, and enhanced bloom.
         /// </summary>
         public static void ProjectileImpact(Vector2 pos, float intensity = 1f)
@@ -744,7 +756,7 @@ namespace MagnumOpus.Content.Fate
         // ─────────── FINISHER EFFECTS ───────────
 
         /// <summary>
-        /// Finisher slam VFX — screen shake, massive bloom, cosmic cloud burst,
+        /// Finisher slam VFX  Escreen shake, massive bloom, cosmic cloud burst,
         /// constellation explosion, glyph cascade, music note scatter.
         /// </summary>
         public static void FinisherSlam(Vector2 pos, float intensity = 1f)
@@ -764,7 +776,7 @@ namespace MagnumOpus.Content.Fate
         }
 
         /// <summary>
-        /// Cosmic supernova explosion — the ultimate Fate VFX.
+        /// Cosmic supernova explosion  Ethe ultimate Fate VFX.
         /// Screen-filling cosmic explosion for endgame-tier kills and phase transitions.
         /// </summary>
         public static void SupernovaExplosion(Vector2 pos, float scale = 1f)

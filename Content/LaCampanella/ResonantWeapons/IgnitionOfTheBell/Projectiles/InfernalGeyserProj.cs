@@ -255,7 +255,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
                 {
                     float t = i / (float)(shaderLayers - 1);
                     Vector2 layerPos = _groundPos - new Vector2(0, currentHeight * t) - Main.screenPosition;
-                    float widthScale = (1f - t * 0.4f) * (IsSmall ? 0.6f : 1.0f);
+                    float widthScale = MathHelper.Min((1f - t * 0.4f) * (IsSmall ? 0.2f : 0.35f), 0.293f);
                     float alphaFade = (1f - t * 0.2f) * heightMult;
 
                     sb.Draw(bloomTex, layerPos, null,
@@ -277,13 +277,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
                 float t = i / (float)(layerCount - 1);
                 Vector2 layerPos = _groundPos - new Vector2(0, currentHeight * t) - Main.screenPosition;
 
-                float widthScale = (1f - t * 0.5f) * (IsSmall ? 0.5f : 0.8f);
+                float widthScale = (1f - t * 0.5f) * (IsSmall ? 0.18f : 0.28f);
                 float alphaFade = (1f - t * 0.3f) * heightMult;
 
                 // Deep ember outer
                 sb.Draw(bloomTex, layerPos, null,
                     IgnitionOfTheBellUtils.Additive(new Color(200, 50, 0), 0.2f * alphaFade * pulse),
-                    0f, origin, widthScale * 1.5f, SpriteEffects.None, 0f);
+                    0f, origin, widthScale * 0.5f, SpriteEffects.None, 0f);
 
                 // Bright orange mid
                 sb.Draw(bloomTex, layerPos, null,
@@ -299,21 +299,21 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
                 float flicker = (float)Math.Sin(_timer * 0.5f + t * 5f) * 0.1f + 0.9f;
                 sb.Draw(bloomTex, layerPos + new Vector2((float)Math.Sin(_timer * 0.3f + t * 3f) * 3f, 0), null,
                     IgnitionOfTheBellUtils.Additive(new Color(255, 200, 100), 0.15f * alphaFade * flicker),
-                    0f, origin, widthScale * 0.6f, SpriteEffects.None, 0f);
+                    0f, origin, widthScale * 0.3f, SpriteEffects.None, 0f);
             }
 
             // Base eruption bloom
             Vector2 basePos = _groundPos - Main.screenPosition;
             sb.Draw(bloomTex, basePos, null,
                 IgnitionOfTheBellUtils.Additive(new Color(255, 100, 0), 0.4f * heightMult * pulse),
-                0f, origin, IsSmall ? 0.8f : 1.5f, SpriteEffects.None, 0f);
+                0f, origin, IsSmall ? 0.12f : 0.18f, SpriteEffects.None, 0f);
 
             // Tip glow at top of geyser
             Vector2 tipPos = _groundPos - new Vector2(0, currentHeight) - Main.screenPosition;
             float tipPulse = 0.7f + 0.3f * (float)Math.Sin(_timer * 0.6f);
             sb.Draw(bloomTex, tipPos, null,
                 IgnitionOfTheBellUtils.Additive(new Color(255, 220, 150), 0.35f * heightMult * tipPulse),
-                0f, origin, (IsSmall ? 0.35f : 0.6f) * tipPulse, SpriteEffects.None, 0f);
+                0f, origin, (IsSmall ? 0.06f : 0.1f) * tipPulse, SpriteEffects.None, 0f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,

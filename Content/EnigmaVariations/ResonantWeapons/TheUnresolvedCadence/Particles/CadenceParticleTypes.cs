@@ -50,10 +50,12 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
             var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
-            // Velocity-squished stretching 窶・afterimage slash fragments
+            // Velocity-squished stretching 竜・ afterimage slash fragments (capped to 300px on 2160px texture)
             float speed = MathHelper.Clamp(Velocity.Length() * 0.15f, 1f, _stretchMultiplier);
             Vector2 outerScale = new(Scale * speed * 2.0f, Scale * 0.6f);
-            Vector2 innerScale = new(Scale * speed, Scale * 0.35f);
+            float cleaveCap = outerScale.X > 0.139f ? 0.139f / outerScale.X : 1f;
+            outerScale *= cleaveCap;
+            Vector2 innerScale = new Vector2(Scale * speed, Scale * 0.35f) * cleaveCap;
 
             // Layer 1: Outer dark violet halo 窶・the void's afterimage
             sb.Draw(tex, drawPos, null, Color * alpha * 0.4f, Rotation, tex.Size() / 2f, outerScale, SpriteEffects.None, 0f);
@@ -73,7 +75,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
         private readonly float _expandRate;
 
         public override bool SetLifetime => true;
-        public override bool UseAdditiveBlend => false;
+        public override bool UseAdditiveBlend => true; // SoftCircle has black bg
         public override bool UseCustomDraw => true;
 
         public ParadoxSlashRipple(Vector2 position, Color color, float scale, int lifetime)
@@ -106,8 +108,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
             var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
-            // The distortion ring 窶・reality bending outward
-            sb.Draw(tex, drawPos, null, Color * alpha, Rotation, tex.Size() / 2f, Scale, SpriteEffects.None, 0f);
+            // The distortion ring 窶・reality bending outward (capped to 300px on 2160px SoftCircle)
+            sb.Draw(tex, drawPos, null, Color * alpha, Rotation, tex.Size() / 2f, MathHelper.Min(Scale, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -181,7 +183,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
         private readonly int _inevitabilityStacks;
 
         public override bool SetLifetime => true;
-        public override bool UseAdditiveBlend => false;
+        public override bool UseAdditiveBlend => true; // SoftRadialBloom halo has black bg
         public override bool UseCustomDraw => true;
 
         public InevitabilityGlyphParticle(Vector2 orbitCenter, float orbitRadius, float startAngle, int stacks, Color color, float scale, int lifetime)
@@ -225,7 +227,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
 
             // Soft glow halo behind the glyph 窶・inevitability's aura
             var glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
-            sb.Draw(glowTex, drawPos, null, Color * alpha * 0.2f, 0f, glowTex.Size() / 2f, Scale * 3.0f, SpriteEffects.None, 0f);
+            sb.Draw(glowTex, drawPos, null, Color * alpha * 0.2f, 0f, glowTex.Size() / 2f, MathHelper.Min(Scale * 3.0f, 0.139f), SpriteEffects.None, 0f);
             // The glyph itself
             sb.Draw(tex, drawPos, null, Color * alpha, Rotation, tex.Size() / 2f, Scale, SpriteEffects.None, 0f);
         }
@@ -275,12 +277,12 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
             var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
-            // Layer 1: Enormous outer bloom 窶・the paradox collapsing outward
-            sb.Draw(tex, drawPos, null, flashColor * alpha * 0.2f, Rotation, tex.Size() / 2f, Scale * 1.0f, SpriteEffects.None, 0f);
-            // Layer 2: Mid bloom 窶・the shockwave
-            sb.Draw(tex, drawPos, null, CadenceUtils.ParadoxWhite * alpha * 0.45f, Rotation * 0.7f, tex.Size() / 2f, Scale * 0.55f, SpriteEffects.None, 0f);
-            // Layer 3: White-hot core 窶・the singularity point
-            sb.Draw(tex, drawPos, null, Color.White * alpha * 0.7f, Rotation * 0.3f, tex.Size() / 2f, Scale * 0.15f, SpriteEffects.None, 0f);
+            // Layer 1: Enormous outer bloom 竜・ the paradox collapsing outward (capped to 300px on 2160px texture)
+            sb.Draw(tex, drawPos, null, flashColor * alpha * 0.2f, Rotation, tex.Size() / 2f, MathHelper.Min(Scale * 1.0f, 0.139f), SpriteEffects.None, 0f);
+            // Layer 2: Mid bloom 竜・ the shockwave
+            sb.Draw(tex, drawPos, null, CadenceUtils.ParadoxWhite * alpha * 0.45f, Rotation * 0.7f, tex.Size() / 2f, MathHelper.Min(Scale * 0.55f, 0.139f), SpriteEffects.None, 0f);
+            // Layer 3: White-hot core 竜・ the singularity point
+            sb.Draw(tex, drawPos, null, Color.White * alpha * 0.7f, Rotation * 0.3f, tex.Size() / 2f, MathHelper.Min(Scale * 0.15f, 0.139f), SpriteEffects.None, 0f);
         }
     }
 }

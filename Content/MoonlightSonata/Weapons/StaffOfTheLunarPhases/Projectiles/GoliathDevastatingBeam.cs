@@ -350,17 +350,17 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
 
             // Outer glow — cast palette (scaled down)
             Color outerColor = GoliathUtils.WaxingGibbous with { A = 0 };
-            float outerScale = 0.5f + IntensityPulse * 0.25f;
+            float outerScale = 0.1f + IntensityPulse * 0.04f;
             sb.Draw(bloom, drawPos, null, outerColor * (0.4f + IntensityPulse * 0.2f), 0f, origin, outerScale, SpriteEffects.None, 0f);
 
             // Middle glow — ice blue
             Color midColor = GoliathUtils.FullMoonIceBlue with { A = 0 };
-            float midScale = 0.3f + IntensityPulse * 0.15f;
+            float midScale = 0.06f + IntensityPulse * 0.03f;
             sb.Draw(bloom, drawPos, null, midColor * (0.4f + IntensityPulse * 0.2f), 0f, origin, midScale, SpriteEffects.None, 0f);
 
             // Inner core — supermoon white
             Color coreColor = GoliathUtils.SupermoonWhite with { A = 0 };
-            float coreScale = 0.18f + IntensityPulse * 0.08f;
+            float coreScale = 0.035f + IntensityPulse * 0.015f;
             sb.Draw(bloom, drawPos, null, coreColor * (0.6f + IntensityPulse * 0.3f), 0f, origin, coreScale, SpriteEffects.None, 0f);
 
             // Restore to AlphaBlend

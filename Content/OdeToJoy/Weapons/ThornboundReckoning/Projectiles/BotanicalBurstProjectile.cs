@@ -173,7 +173,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
                 Texture2D glowTex = ThornboundTextures.SoftGlow.Value;
                 Vector2 glowOrig = glowTex.Size() / 2f;
                 sb.Draw(glowTex, drawPos, null, Color.White * alpha,
-                    0f, glowOrig, auraRadius * 1.5f, SpriteEffects.None, 0f);
+                    0f, glowOrig, Math.Min(auraRadius * 1.5f, 0.293f), SpriteEffects.None, 0f);
                 sb.End();
             }
 
@@ -217,7 +217,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
             // Wide outer glow
             Texture2D softGlow = ThornboundTextures.SoftGlow.Value;
             Vector2 glowOrigin = softGlow.Size() / 2f;
-            float outerGlowScale = expandRadius * 3f / Math.Max(softGlow.Width, softGlow.Height);
+            float outerGlowScale = Math.Min(expandRadius * 3f / Math.Max(softGlow.Width, softGlow.Height), 0.293f);
             sb.Draw(softGlow, drawPos, null,
                 ThornboundTextures.JubilantLight * alpha * 0.25f,
                 0f, glowOrigin, outerGlowScale,

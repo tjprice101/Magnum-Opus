@@ -93,7 +93,12 @@ namespace MagnumOpus.Common.Systems.VFX
             // CRITICAL: Remove alpha for proper additive blending
             Color drawColor = Color.WithoutAlpha();
             
-            spriteBatch.Draw(bloom, drawPos, null, drawColor, 0f, origin, _scaleVector, SpriteEffects.None, 0f);
+            // Cap scale to 300px max on 2160px texture
+            Vector2 cappedScale = _scaleVector;
+            float maxDim = MathF.Max(cappedScale.X, cappedScale.Y);
+            if (maxDim > 0.139f) cappedScale *= 0.139f / maxDim;
+            
+            spriteBatch.Draw(bloom, drawPos, null, drawColor, 0f, origin, cappedScale, SpriteEffects.None, 0f);
         }
     }
     
@@ -156,9 +161,9 @@ namespace MagnumOpus.Common.Systems.VFX
             Vector2 drawPos = Position - Main.screenPosition;
             Vector2 origin = tex.Size() * 0.5f;
             
-            // Draw with alpha removed for additive
+            // Draw with alpha removed for additive (capped to 300px on 2160px texture)
             Color drawColor = Color.WithoutAlpha();
-            spriteBatch.Draw(tex, drawPos, null, drawColor, Rotation, origin, Scale, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, drawColor, Rotation, origin, MathHelper.Min(Scale, 0.139f), SpriteEffects.None, 0f);
         }
     }
     
@@ -210,15 +215,15 @@ namespace MagnumOpus.Common.Systems.VFX
             Vector2 drawPos = Position - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
             
-            // Multi-layer bloom stack for intensity
+            // Multi-layer bloom stack for intensity (capped to 300px on 2160px texture)
             Color colorNoAlpha = Color.WithoutAlpha();
             
             // Outer large glow
-            spriteBatch.Draw(bloom, drawPos, null, colorNoAlpha * 0.5f, 0f, origin, Scale * 1.5f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(bloom, drawPos, null, colorNoAlpha * 0.5f, 0f, origin, MathHelper.Min(Scale * 1.5f, 0.139f), SpriteEffects.None, 0f);
             // Main bloom
-            spriteBatch.Draw(bloom, drawPos, null, colorNoAlpha * 0.8f, 0f, origin, Scale, SpriteEffects.None, 0f);
+            spriteBatch.Draw(bloom, drawPos, null, colorNoAlpha * 0.8f, 0f, origin, MathHelper.Min(Scale, 0.139f), SpriteEffects.None, 0f);
             // White hot core
-            spriteBatch.Draw(bloom, drawPos, null, Color.White.WithoutAlpha() * 0.5f, 0f, origin, Scale * 0.5f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(bloom, drawPos, null, Color.White.WithoutAlpha() * 0.5f, 0f, origin, MathHelper.Min(Scale * 0.5f, 0.139f), SpriteEffects.None, 0f);
         }
     }
     
@@ -265,8 +270,10 @@ namespace MagnumOpus.Common.Systems.VFX
             Vector2 drawPos = Position - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
             
-            // Stretched scale for directional effect
+            // Stretched scale for directional effect (capped to 300px on 2160px texture)
             Vector2 stretchedScale = new Vector2(Scale * StretchFactor, Scale);
+            float dirMax = MathF.Max(stretchedScale.X, stretchedScale.Y);
+            if (dirMax > 0.139f) stretchedScale *= 0.139f / dirMax;
             
             Color colorNoAlpha = Color.WithoutAlpha();
             spriteBatch.Draw(bloom, drawPos, null, colorNoAlpha, Rotation, origin, stretchedScale, SpriteEffects.None, 0f);
@@ -335,6 +342,8 @@ namespace MagnumOpus.Common.Systems.VFX
             // Origin at left-center for line texture
             Vector2 origin = new Vector2(0, lineTex.Height * 0.5f);
             Vector2 lineScale = new Vector2(Scale * 20f, 0.5f); // Stretch horizontally
+            float lineMax = MathF.Max(lineScale.X, lineScale.Y);
+            if (lineMax > 0.139f) lineScale *= 0.139f / lineMax;
             
             Color colorNoAlpha = Color.WithoutAlpha();
             spriteBatch.Draw(lineTex, drawPos, null, colorNoAlpha, Rotation, origin, lineScale, SpriteEffects.None, 0f);
@@ -356,7 +365,7 @@ namespace MagnumOpus.Common.Systems.VFX
         public override string Texture => "";
         public override bool SetLifetime => true;
         public override bool UseCustomDraw => true;
-        public override bool UseAdditiveBlend => false; // Smoke uses alpha blend
+        public override bool UseAdditiveBlend => true; // GetBloom() textures (PointBloom/SoftRadialBloom/SoftGlow) have black bg
         public override bool UseHalfTransparency => true;
         
         public HeavySmokeBloomParticle(Vector2 position, Vector2 velocity, Color color, int lifetime,
@@ -404,8 +413,8 @@ namespace MagnumOpus.Common.Systems.VFX
             Vector2 drawPos = Position - Main.screenPosition;
             Vector2 origin = smokeTex.Size() * 0.5f;
             
-            // Smoke doesn't need alpha removed - uses alpha blend
-            spriteBatch.Draw(smokeTex, drawPos, null, Color, Rotation, origin, Scale, SpriteEffects.None, 0f);
+            // Smoke doesn't need alpha removed - uses alpha blend (capped to 300px on 2160px texture)
+            spriteBatch.Draw(smokeTex, drawPos, null, Color, Rotation, origin, MathHelper.Min(Scale, 0.139f), SpriteEffects.None, 0f);
         }
     }
     
@@ -458,9 +467,9 @@ namespace MagnumOpus.Common.Systems.VFX
             Vector2 bloomOrigin = bloom.Size() * 0.5f;
             Color colorNoAlpha = Color.WithoutAlpha();
             
-            // Background bloom layers
-            spriteBatch.Draw(bloom, drawPos, null, colorNoAlpha * 0.3f, 0f, bloomOrigin, Scale * 1.9f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(bloom, drawPos, null, colorNoAlpha * 0.54f, 0f, bloomOrigin, Scale, SpriteEffects.None, 0f);
+            // Background bloom layers (capped to 300px on 2160px texture)
+            spriteBatch.Draw(bloom, drawPos, null, colorNoAlpha * 0.3f, 0f, bloomOrigin, MathHelper.Min(Scale * 1.9f, 0.139f), SpriteEffects.None, 0f);
+            spriteBatch.Draw(bloom, drawPos, null, colorNoAlpha * 0.54f, 0f, bloomOrigin, MathHelper.Min(Scale, 0.139f), SpriteEffects.None, 0f);
             
             // Cross flare on top
             if (flare != null)

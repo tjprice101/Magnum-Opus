@@ -1,12 +1,15 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using System;
 using Terraria;
 using Terraria.Enums;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.FoundationWeapons.InfernalBeamFoundation;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
@@ -28,15 +31,20 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         private const float BeamStartOffset = 50f;
         private const float MaxBeamLength = 2200f;
         private const float BaseBeamWidth = 70f;
-        private const float AimSpeed = 0.06f;
-        private const int BeamSegments = 40;
+        private const float AimSpeed = 0.14f;
+
+        // Ring rendering (matches InfernalBeam pattern)
+        private const float RingBaseScale = 0.35f;
+        private const float RingSpinSpeed = 0.04f;
 
         // ---- STATE ----
         private float beamLength;
         private float flareRotation;
-        private float convergenceRotation;
+        private float ringRotation;
         private int warmupTimer;
         private const int WarmupFrames = 12;
+
+        private Effect beamShader;
 
         public override void SetStaticDefaults()
         {
@@ -70,6 +78,18 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Projectile.timeLeft = 2;
             warmupTimer = Math.Min(warmupTimer + 1, WarmupFrames);
             float warmupProgress = (float)warmupTimer / WarmupFrames;
+
+            // Per-tick mana drain — channeled beams cost mana over time
+            if (warmupTimer % 15 == 0)
+            {
+                if (owner.statMana < 4)
+                {
+                    Projectile.Kill();
+                    return;
+                }
+                owner.statMana -= 4;
+                owner.manaRegenDelay = (int)owner.maxRegenDelay;
+            }
 
             // ---- AIM TRACKING ----
             Vector2 aimDirection = (Main.MouseWorld - owner.MountedCenter).SafeNormalize(Vector2.UnitX);
@@ -129,8 +149,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             SpawnBeamParticles(beamStart, endPoint, warmupProgress);
 
             // ---- SPIN ----
-            convergenceRotation += 0.03f * (Projectile.velocity.X > 0 ? 1f : -1f);
-            flareRotation += 0.08f;
+            ringRotation += RingSpinSpeed * (Projectile.velocity.X > 0 ? 1f : -1f);
+            flareRotation += 1.15f * (Projectile.velocity.X > 0 ? 1f : -1f);
         }
 
         private void SpawnBeamParticles(Vector2 beamStart, Vector2 endPoint, float warmup)
@@ -212,310 +232,183 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         {
             if (warmupTimer < 2) return false;
 
-            float warmup = (float)warmupTimer / WarmupFrames;
-
-            DrawBeamBody(warmup);
-            DrawOriginConvergence(warmup);
-            DrawEndpointFlares(warmup);
+            DrawBeamBody();
+            DrawOriginRing();
+            DrawEndpointFlares();
 
             return false;
         }
 
         // =====================================================================
-        //  LAYER 1: BEAM BODY — Segment-based strip with funeral trail shader
+        //  LAYER 1: BEAM BODY — VertexStrip + InfernalBeamBodyShader
+        //  (Exact InfernalBeam foundation pattern, Eroica Funeral themed)
         // =====================================================================
-        private void DrawBeamBody(float warmup)
+        private void DrawBeamBody()
         {
-            SpriteBatch sb = Main.spriteBatch;
-            float time = (float)Main.timeForVisualEffects * 0.008f;
-
-            Vector2 beamStart = Projectile.Center + Projectile.velocity * BeamStartOffset;
+            float warmup = (float)warmupTimer / WarmupFrames;
             float rot = Projectile.velocity.ToRotation();
+            Vector2 startPoint = Projectile.Center + Projectile.velocity * BeamStartOffset;
+            Vector2 endPoint = startPoint + Projectile.velocity * beamLength;
 
-            Texture2D stripTex = EroicaTextures.EmberScatter?.Value ?? EroicaTextures.EnergyTrailUV?.Value;
-            if (stripTex == null) return;
+            Vector2[] positions = { startPoint, endPoint };
+            float[] rotations = { rot, rot };
 
-            int texW = stripTex.Width;
-            int texH = stripTex.Height;
-            float scrollOffset = (float)Main.timeForVisualEffects * 0.004f;
-            int segCount = Math.Max(4, (int)(beamLength / 60f));
-            segCount = Math.Min(segCount, BeamSegments);
-            int srcWidth = Math.Max(1, texW / segCount);
-
-            float beamWidthMult = MathHelper.Clamp(warmup * 1.5f, 0f, 1f);
+            float beamWidth = BaseBeamWidth * MathHelper.Clamp(warmup * 1.5f, 0f, 1f);
             float beamAlpha = MathHelper.Clamp(warmup * 2f, 0f, 1f);
 
-            bool hasShader = EroicaShaderManager.HasFuneralTrail;
+            Color StripColor(float progress) => Color.White * beamAlpha;
+            float StripWidth(float progress) => beamWidth;
 
-            if (hasShader)
+            VertexStrip strip = new VertexStrip();
+            strip.PrepareStrip(positions, rotations, StripColor, StripWidth,
+                -Main.screenPosition, includeBacksides: true);
+
+            if (beamShader == null)
             {
-                // PASS 1: Funeral flame body — deep crimson/ember beam
-                EroicaShaderManager.BeginShaderAdditive(sb);
-                try
-                {
-                    EroicaShaderManager.ApplyFuneralPrayerBeamTrail(time, glowPass: false);
-                    DrawBeamSegments(sb, stripTex, beamStart, rot, segCount, srcWidth, texW, texH,
-                        scrollOffset, beamWidthMult, beamAlpha * 0.7f, 1f);
-                }
-                finally
-                {
-                    EroicaShaderManager.RestoreSpriteBatch(sb);
-                }
-
-                // PASS 2: Funeral glow — wider, softer smolder overlay
-                EroicaShaderManager.BeginShaderAdditive(sb);
-                try
-                {
-                    EroicaShaderManager.ApplyFuneralPrayerBeamTrail(time, glowPass: true);
-                    DrawBeamSegments(sb, stripTex, beamStart, rot, segCount, srcWidth, texW, texH,
-                        scrollOffset, beamWidthMult * 1.6f, beamAlpha * 0.3f, 1f);
-                }
-                finally
-                {
-                    EroicaShaderManager.RestoreSpriteBatch(sb);
-                }
+                beamShader = ModContent.Request<Effect>(
+                    "MagnumOpus/Content/FoundationWeapons/InfernalBeamFoundation/Shaders/InfernalBeamBodyShader",
+                    AssetRequestMode.ImmediateLoad).Value;
             }
-            else
-            {
-                // Fallback: palette-colored additive beam
-                EroicaShaderManager.BeginAdditive(sb);
-                try
-                {
-                    DrawBeamSegmentsFallback(sb, stripTex, beamStart, rot, segCount, srcWidth, texW, texH,
-                        scrollOffset, beamWidthMult, beamAlpha * 0.6f);
-                }
-                finally
-                {
-                    EroicaShaderManager.RestoreSpriteBatch(sb);
-                }
-            }
-        }
 
-        private void DrawBeamSegments(SpriteBatch sb, Texture2D stripTex, Vector2 beamStart,
-            float rot, int segCount, int srcWidth, int texW, int texH,
-            float scrollOffset, float widthMult, float alpha, float tipFadeStart)
-        {
-            for (int i = 0; i < segCount; i++)
-            {
-                float progress = (float)i / segCount;
-                float nextProgress = (float)(i + 1) / segCount;
-                float segStartDist = progress * beamLength;
-                float segEndDist = nextProgress * beamLength;
-                float segLength = segEndDist - segStartDist;
+            beamShader.Parameters["WorldViewProjection"].SetValue(
+                Main.GameViewMatrix.NormalizedTransformationmatrix);
 
-                if (segLength < 0.5f) continue;
+            beamShader.Parameters["onTex"].SetValue(IBFTextures.BeamAlphaMask.Value);
+            beamShader.Parameters["gradientTex"].SetValue(IBFTextures.GradEroica.Value);
 
-                // Width: thicker at origin, taper toward tip
-                float widthCurve = 1f - progress * progress * 0.4f;
-                // Smooth tip fade
-                float tipFade = MathHelper.SmoothStep(1f, 0f,
-                    MathHelper.Clamp((progress - 0.8f) / 0.2f, 0f, 1f));
-                // Smooth start fade
-                float startFade = MathHelper.SmoothStep(0f, 1f,
-                    MathHelper.Clamp(progress / 0.08f, 0f, 1f));
+            // SoundWaveBeam as primary body texture
+            beamShader.Parameters["bodyTex"].SetValue(IBFTextures.SoundWaveBeam.Value);
+            // Secondary detail layers
+            beamShader.Parameters["detailTex1"].SetValue(IBFTextures.EnergyMotion.Value);
+            beamShader.Parameters["detailTex2"].SetValue(IBFTextures.EnergySurge.Value);
+            beamShader.Parameters["noiseTex"].SetValue(IBFTextures.NoiseFBM.Value);
 
-                float width = BaseBeamWidth * widthCurve * widthMult;
-                float segAlpha = alpha * tipFade * startFade;
-                if (segAlpha < 0.005f) continue;
+            float dist = (endPoint - startPoint).Length();
+            float repVal = dist / 2000f;
 
-                // UV scrolling
-                float uStart = (progress + scrollOffset) % 1f;
-                int srcX = (int)(uStart * texW) % texW;
-                Rectangle srcRect = new Rectangle(srcX, 0, srcWidth, texH);
+            beamShader.Parameters["bodyReps"].SetValue(1.5f * repVal);
+            beamShader.Parameters["detail1Reps"].SetValue(2.0f * repVal);
+            beamShader.Parameters["detail2Reps"].SetValue(1.2f * repVal);
+            beamShader.Parameters["gradientReps"].SetValue(0.75f * repVal);
+            beamShader.Parameters["bodyScrollSpeed"].SetValue(0.8f);
+            beamShader.Parameters["detail1ScrollSpeed"].SetValue(1.2f);
+            beamShader.Parameters["detail2ScrollSpeed"].SetValue(-0.6f);
+            beamShader.Parameters["noiseDistortion"].SetValue(0.03f);
+            beamShader.Parameters["totalMult"].SetValue(1.2f);
+            beamShader.Parameters["uTime"].SetValue((float)Main.timeForVisualEffects * -0.024f);
 
-                float scaleX = segLength / (float)srcWidth;
-                float scaleY = width / (float)texH;
-                Vector2 pos = beamStart + Projectile.velocity * segStartDist - Main.screenPosition;
-                Vector2 drawOrigin = new Vector2(0, texH / 2f);
+            beamShader.CurrentTechnique.Passes["MainPS"].Apply();
+            strip.DrawTrail();
 
-                sb.Draw(stripTex, pos, srcRect, Color.White * segAlpha, rot, drawOrigin,
-                    new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
-            }
-        }
-
-        private void DrawBeamSegmentsFallback(SpriteBatch sb, Texture2D stripTex, Vector2 beamStart,
-            float rot, int segCount, int srcWidth, int texW, int texH,
-            float scrollOffset, float widthMult, float alpha)
-        {
-            for (int i = 0; i < segCount; i++)
-            {
-                float progress = (float)i / segCount;
-                float nextProgress = (float)(i + 1) / segCount;
-                float segStartDist = progress * beamLength;
-                float segEndDist = nextProgress * beamLength;
-                float segLength = segEndDist - segStartDist;
-
-                if (segLength < 0.5f) continue;
-
-                float widthCurve = 1f - progress * progress * 0.4f;
-                float tipFade = MathHelper.SmoothStep(1f, 0f,
-                    MathHelper.Clamp((progress - 0.8f) / 0.2f, 0f, 1f));
-                float startFade = MathHelper.SmoothStep(0f, 1f,
-                    MathHelper.Clamp(progress / 0.08f, 0f, 1f));
-
-                float width = BaseBeamWidth * widthCurve * widthMult;
-                float segAlpha = alpha * tipFade * startFade;
-                if (segAlpha < 0.005f) continue;
-
-                float uStart = (progress + scrollOffset) % 1f;
-                int srcX = (int)(uStart * texW) % texW;
-                Rectangle srcRect = new Rectangle(srcX, 0, srcWidth, texH);
-
-                float scaleX = segLength / (float)srcWidth;
-                float scaleY = width / (float)texH;
-                Vector2 pos = beamStart + Projectile.velocity * segStartDist - Main.screenPosition;
-                Vector2 drawOrigin = new Vector2(0, texH / 2f);
-
-                // Palette-driven color: ember at origin transitioning to deep crimson at tip
-                Color bodyColor = Color.Lerp(FuneralUtils.EmberCore, FuneralUtils.DeepCrimson, progress) with { A = 0 };
-                sb.Draw(stripTex, pos, srcRect, bodyColor * segAlpha, rot, drawOrigin,
-                    new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
-            }
+            Main.pixelShader.CurrentTechnique.Passes[0].Apply();
         }
 
         // =====================================================================
-        //  LAYER 2: ORIGIN CONVERGENCE — Bloom aura at beam emission point
+        //  LAYER 2: ORIGIN RING — Spinning InfernalBeamRing.png at beam start
+        //  (Exact InfernalBeam foundation pattern, Eroica Funeral tinted)
         // =====================================================================
-        private void DrawOriginConvergence(float warmup)
+        private void DrawOriginRing()
         {
+            float warmup = (float)warmupTimer / WarmupFrames;
+
             SpriteBatch sb = Main.spriteBatch;
             Vector2 drawPos = Projectile.Center - Main.screenPosition + Projectile.velocity * BeamStartOffset;
-            float sinPulse = MathF.Sin((float)Main.timeForVisualEffects * 0.04f);
-            float convergenceScale = 0.35f * warmup;
+
+            Texture2D ringTex = IBFTextures.InfernalBeamRing.Value;
+            Vector2 ringOrigin = ringTex.Size() / 2f;
+
+            float sinPulse = MathF.Sin((float)Main.timeForVisualEffects * 0.05f);
+
+            // Uniform scale with gentle breathing pulse — the ring stays circular
+            float uniformScale = RingBaseScale * (1f + 0.06f * sinPulse) * warmup;
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
-                SamplerState.LinearClamp, DepthStencilState.None,
+                Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
-                Main.GameViewMatrix.TransformationMatrix);
+                Main.GameViewMatrix.EffectMatrix);
 
-            // LAYER 2a: Wide somber glow — deep crimson haze
-            var bloomTex = MagnumTextureRegistry.GetBloom();
-            if (bloomTex != null)
-            {
-                Vector2 bloomOrigin = bloomTex.Size() / 2f;
+            // Eroica funeral theme tint
+            Color ringTint = FuneralUtils.PrayerFlame;
 
-                // Outer funeral haze
-                Color hazeColor = FuneralUtils.DeepCrimson with { A = 0 };
-                sb.Draw(bloomTex, drawPos, null, hazeColor * (0.35f * warmup),
-                    0f, bloomOrigin, convergenceScale * 2.5f + sinPulse * 0.05f,
-                    SpriteEffects.None, 0f);
+            // LAYER 2a: Wide soft glow behind ring (reduced brightness)
+            Texture2D softGlow = IBFTextures.SoftGlow.Value;
+            sb.Draw(softGlow, drawPos, null, ringTint * (0.3f * warmup), 0f,
+                softGlow.Size() / 2f, 0.29f * warmup, SpriteEffects.None, 0f);
 
-                // Mid glow — prayer flame
-                Color midColor = FuneralUtils.PrayerFlame with { A = 0 };
-                sb.Draw(bloomTex, drawPos, null, midColor * (0.5f * warmup),
-                    0f, bloomOrigin, convergenceScale * 1.5f,
-                    SpriteEffects.None, 0f);
+            // LAYER 2b: Main spinning ring — circular rotation (tinted, reduced)
+            sb.Draw(ringTex, drawPos, null, ringTint * (0.4f * warmup), ringRotation,
+                ringOrigin, uniformScale, SpriteEffects.None, 0f);
 
-                // Core — hot ember
-                Color coreColor = FuneralUtils.EmberCore with { A = 0 };
-                sb.Draw(bloomTex, drawPos, null, coreColor * (0.7f * warmup),
-                    0f, bloomOrigin, convergenceScale * 0.8f,
-                    SpriteEffects.None, 0f);
+            // LAYER 2c: Second ring pass, offset rotation for depth (reduced)
+            sb.Draw(ringTex, drawPos, null, ringTint * (0.2f * warmup), ringRotation + 0.4f,
+                ringOrigin, uniformScale * 1.15f, SpriteEffects.None, 0f);
 
-                // White-hot center point
-                Color soulColor = FuneralUtils.SoulWhite with { A = 0 };
-                sb.Draw(bloomTex, drawPos, null, soulColor * (0.6f * warmup),
-                    0f, bloomOrigin, convergenceScale * 0.3f + sinPulse * 0.02f,
-                    SpriteEffects.None, 0f);
-            }
+            // LAYER 2d: Third ring pass — counter-spinning (reduced)
+            sb.Draw(ringTex, drawPos, null, ringTint * (0.15f * warmup), -ringRotation * 0.6f,
+                ringOrigin, uniformScale * 0.9f, SpriteEffects.None, 0f);
 
-            // LAYER 2b: Spinning convergence ring using EnergyFlare
-            if (EroicaTextures.EnergyFlare?.Value is Texture2D flareTex)
-            {
-                Vector2 flareOrigin = flareTex.Size() / 2f;
-                Color ringColor = FuneralUtils.SmolderingAmber with { A = 0 };
-
-                sb.Draw(flareTex, drawPos, null, ringColor * (0.4f * warmup),
-                    convergenceRotation, flareOrigin, convergenceScale * 0.6f,
-                    SpriteEffects.None, 0f);
-
-                // Counter-spinning layer
-                sb.Draw(flareTex, drawPos, null, (FuneralUtils.PrayerFlame with { A = 0 }) * (0.25f * warmup),
-                    -convergenceRotation * 0.7f, flareOrigin, convergenceScale * 0.45f,
-                    SpriteEffects.None, 0f);
-            }
+            // LAYER 2e: Small bright point bloom at ring center (tinted, reduced)
+            Texture2D pointBloom = IBFTextures.PointBloom.Value;
+            sb.Draw(pointBloom, drawPos, null, ringTint * (0.3f * warmup), 0f,
+                pointBloom.Size() / 2f, (0.1f + 0.035f * sinPulse) * warmup, SpriteEffects.None, 0f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
                 Main.DefaultSamplerState, DepthStencilState.None,
-                Main.Rasterizer, null,
+                RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
         }
 
         // =====================================================================
-        //  LAYER 3: ENDPOINT FLARES — Bloom, star, and embers at beam tip
+        //  LAYER 3: ENDPOINT FLARES
+        //  (Exact InfernalBeam foundation pattern, Eroica Funeral tinted)
         // =====================================================================
-        private void DrawEndpointFlares(float warmup)
+        private void DrawEndpointFlares()
         {
             if (beamLength < 50f) return;
+
+            float warmup = (float)warmupTimer / WarmupFrames;
 
             SpriteBatch sb = Main.spriteBatch;
             Vector2 endPoint = Projectile.Center - Main.screenPosition
                 + Projectile.velocity * (BeamStartOffset + beamLength);
 
-            float sinPulse = MathF.Sin((float)Main.timeForVisualEffects * 0.05f);
+            float sinPulse = MathF.Sin((float)Main.timeForVisualEffects * 0.04f);
+            float endAlpha = warmup * MathHelper.Clamp(beamLength / 200f, 0f, 1f);
+
+            Texture2D starFlare = IBFTextures.StarFlare.Value;
+            Texture2D glowOrb = IBFTextures.GlowOrb.Value;
+            Texture2D lensFlare = IBFTextures.LensFlare.Value;
+
+            // Eroica funeral theme tint
+            Color endColor = FuneralUtils.PrayerFlame;
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
-                SamplerState.LinearClamp, DepthStencilState.None,
+                Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
-                Main.GameViewMatrix.TransformationMatrix);
+                Main.GameViewMatrix.EffectMatrix);
 
-            float endAlpha = warmup * MathHelper.Clamp(beamLength / 200f, 0f, 1f);
+            // Wide soft glow
+            sb.Draw(glowOrb, endPoint, null, endColor * (0.5f * endAlpha), flareRotation * 0.1f,
+                glowOrb.Size() / 2f, 0.45f, SpriteEffects.None, 0f);
 
-            // Wide smoldering glow
-            var bloomTex = MagnumTextureRegistry.GetBloom();
-            if (bloomTex != null)
-            {
-                Vector2 bloomOrigin = bloomTex.Size() / 2f;
+            // Star flare — spins slowly
+            float endScale = 0.5f + 0.1f * sinPulse;
+            sb.Draw(starFlare, endPoint, null, Color.White * (0.7f * endAlpha), flareRotation * 0.05f,
+                starFlare.Size() / 2f, endScale * 0.5f, SpriteEffects.None, 0f);
+            sb.Draw(starFlare, endPoint, null, endColor * (0.4f * endAlpha), flareRotation * 0.077f,
+                starFlare.Size() / 2f, endScale * 0.35f, SpriteEffects.None, 0f);
 
-                // Outer ember haze
-                Color hazeColor = FuneralUtils.SmolderingAmber with { A = 0 };
-                sb.Draw(bloomTex, endPoint, null, hazeColor * (0.3f * endAlpha),
-                    0f, bloomOrigin, 0.5f + sinPulse * 0.04f,
-                    SpriteEffects.None, 0f);
-
-                // Mid prayer flame glow
-                Color midColor = FuneralUtils.PrayerFlame with { A = 0 };
-                sb.Draw(bloomTex, endPoint, null, midColor * (0.45f * endAlpha),
-                    0f, bloomOrigin, 0.3f,
-                    SpriteEffects.None, 0f);
-
-                // Bright core flash
-                Color coreColor = FuneralUtils.SoulWhite with { A = 0 };
-                sb.Draw(bloomTex, endPoint, null, coreColor * (0.35f * endAlpha),
-                    0f, bloomOrigin, 0.12f + sinPulse * 0.02f,
-                    SpriteEffects.None, 0f);
-            }
-
-            // Star flare — slowly rotating
-            if (EroicaTextures.Star4Point?.Value is Texture2D starTex)
-            {
-                Vector2 starOrigin = starTex.Size() / 2f;
-                float starScale = (0.25f + 0.05f * sinPulse) * endAlpha;
-
-                sb.Draw(starTex, endPoint, null, (FuneralUtils.EmberCore with { A = 0 }) * (0.5f * endAlpha),
-                    flareRotation * 0.3f, starOrigin, starScale,
-                    SpriteEffects.None, 0f);
-                sb.Draw(starTex, endPoint, null, (FuneralUtils.SoulWhite with { A = 0 }) * (0.3f * endAlpha),
-                    -flareRotation * 0.2f, starOrigin, starScale * 0.7f,
-                    SpriteEffects.None, 0f);
-            }
-
-            // Energy flare at impact
-            if (EroicaTextures.EnergyFlare?.Value is Texture2D flareTex)
-            {
-                Vector2 flareOrigin = flareTex.Size() / 2f;
-                sb.Draw(flareTex, endPoint, null, (FuneralUtils.PrayerFlame with { A = 0 }) * (0.3f * endAlpha),
-                    flareRotation * 0.15f, flareOrigin, 0.2f * endAlpha,
-                    SpriteEffects.None, 0f);
-            }
+            // Small lens flare
+            sb.Draw(lensFlare, endPoint, null, Color.White * (0.5f * endAlpha), flareRotation * 0.02f,
+                lensFlare.Size() / 2f, 0.3f, SpriteEffects.None, 0f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
                 Main.DefaultSamplerState, DepthStencilState.None,
-                Main.Rasterizer, null,
+                RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
         }
 

@@ -322,7 +322,7 @@ namespace MagnumOpus.Common.Systems.VFX
             if (glowTex == null) return;
             
             Vector2 origin = glowTex.Size() * 0.5f;
-            float scale = size / (float)Math.Max(glowTex.Width, glowTex.Height);
+            float scale = Math.Min(size, 300f) / (float)Math.Max(glowTex.Width, glowTex.Height);
             
             // Switch to additive for glow
             try { spriteBatch.End(); } catch { }

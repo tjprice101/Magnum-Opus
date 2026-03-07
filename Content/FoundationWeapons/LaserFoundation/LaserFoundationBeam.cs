@@ -413,7 +413,9 @@ namespace MagnumOpus.Content.FoundationWeapons.LaserFoundation
             // ---- BEAM ORIGIN FLARES ----
             // Sigil-style stretched flare (squished X, full Y) — matches SLP's sigilScale pattern
             Vector2 sigilScale = new Vector2(0.2f, 1f) * 0.55f;
+            sigilScale.Y = MathHelper.Min(sigilScale.Y, 0.293f); // Cap Y to 300px on 1024px
             Vector2 sigilScalePulse = sigilScale * (1.75f + 0.25f * sinPulse);
+            sigilScalePulse.Y = MathHelper.Min(sigilScalePulse.Y, 0.293f); // Cap Y to 300px on 1024px
 
             // Double-draw sigil for extra brightness (additive stacking)
             sb.Draw(softGlow, drawPos, null, Color.White, rot,
@@ -435,14 +437,14 @@ namespace MagnumOpus.Content.FoundationWeapons.LaserFoundation
             // ---- BEAM ENDPOINT FLARES ----
             // Glow orb
             sb.Draw(glowOrb, endPoint, null, Color.White, flareRotation * 0.1f,
-                glowOrb.Size() / 2f, 0.5f, SpriteEffects.None, 0f);
+                glowOrb.Size() / 2f, 0.293f, SpriteEffects.None, 0f);
 
             // Lens flare and star flares at endpoint
             float endScale = 0.7f;
             sb.Draw(lensFlare, endPoint, null, Color.White, flareRotation * 0.02f,
-                lensFlare.Size() / 2f, endScale * 0.45f, SpriteEffects.None, 0f);
+                lensFlare.Size() / 2f, MathHelper.Min(endScale * 0.45f, 0.293f), SpriteEffects.None, 0f);
             sb.Draw(starFlare, endPoint, null, Color.White, flareRotation * 0.05f,
-                starFlare.Size() / 2f, endScale * 0.6f, SpriteEffects.None, 0f);
+                starFlare.Size() / 2f, MathHelper.Min(endScale * 0.6f, 0.293f), SpriteEffects.None, 0f);
             sb.Draw(starFlare, endPoint, null, Color.White, flareRotation * 0.077f,
                 starFlare.Size() / 2f, endScale * 0.35f, SpriteEffects.None, 0f);
 

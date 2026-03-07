@@ -161,7 +161,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
             // Soft outer glow
             Texture2D softGlow = ThornboundTextures.SoftGlow.Value;
             Vector2 glowOrigin = softGlow.Size() / 2f;
-            float glowScale = currentRadius * 2.5f / Math.Max(softGlow.Width, softGlow.Height);
+            float glowScale = Math.Min(currentRadius * 2.5f / Math.Max(softGlow.Width, softGlow.Height), 0.293f);
             Color outerGlow = empowered ? ThornboundTextures.JubilantLight : ThornboundTextures.BloomGold;
             sb.Draw(softGlow, drawPos, null,
                 outerGlow * alpha * 0.2f, 0f, glowOrigin,

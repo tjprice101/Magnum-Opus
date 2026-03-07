@@ -12,12 +12,12 @@ using MagnumOpus.Common.Systems.Particles;
 namespace MagnumOpus.Content.Nachtmusik
 {
     /// <summary>
-    /// Shared Nachtmusik VFX library — canonical palette, bloom stacking,
+    /// Shared Nachtmusik VFX library  Ecanonical palette, bloom stacking,
     /// shader setup, trail helpers, music notes, dust, star spawns,
     /// constellation effects, and impact VFX used by ALL Nachtmusik weapons,
     /// accessories, projectiles, minions, enemies, and bosses.
     ///
-    /// Nachtmusik identity: Mozart's serenade — playful night music, starlit
+    /// Nachtmusik identity: Mozart's serenade  Eplayful night music, starlit
     /// elegance, nocturnal charm, twinkling stars, constellation patterns,
     /// the Queen of Radiance's celestial grace.
     /// </summary>
@@ -153,6 +153,9 @@ namespace MagnumOpus.Content.Nachtmusik
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.115) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 1.209f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
@@ -161,19 +164,19 @@ namespace MagnumOpus.Content.Nachtmusik
 
             // Layer 1: Outer halo (DeepBlue)
             sb.Draw(bloom, drawPos, null,
-                (outer with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 2.0f, SpriteEffects.None, 0f);
+                (outer with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 0.115f, SpriteEffects.None, 0f);
 
             // Layer 2: Mid glow (StarlitBlue)
             sb.Draw(bloom, drawPos, null,
-                (outer with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 1.4f, SpriteEffects.None, 0f);
+                (outer with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.08f, SpriteEffects.None, 0f);
 
             // Layer 3: Inner bloom (StarWhite)
             sb.Draw(bloom, drawPos, null,
-                (inner with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f);
+                (inner with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.052f, SpriteEffects.None, 0f);
 
             // Layer 4: White-hot core
             sb.Draw(bloom, drawPos, null,
-                (TwinklingWhite with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
+                (TwinklingWhite with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.023f, SpriteEffects.None, 0f);
         }
 
         /// <summary>
@@ -185,21 +188,24 @@ namespace MagnumOpus.Content.Nachtmusik
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.115) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 1.209f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
             sb.Draw(bloom, drawPos, null,
-                (outerColor with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 2.0f, SpriteEffects.None, 0f);
+                (outerColor with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 0.115f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (outerColor with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 1.4f, SpriteEffects.None, 0f);
+                (outerColor with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.08f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (innerColor with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f);
+                (innerColor with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.052f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
+                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.023f, SpriteEffects.None, 0f);
         }
 
         /// <summary>
-        /// Counter-rotating constellation flares — twin starlit points spinning in opposite directions.
+        /// Counter-rotating constellation flares  Etwin starlit points spinning in opposite directions.
         /// Creates the signature nocturnal twinkling at projectile centers.
         /// </summary>
         public static void DrawCounterRotatingFlares(SpriteBatch sb, Vector2 worldPos,
@@ -207,6 +213,9 @@ namespace MagnumOpus.Content.Nachtmusik
         {
             Texture2D flare = MagnumTextureRegistry.GetFlare();
             if (flare == null) return;
+
+            // 1024px flare — cap so largest layer (scale*0.7) ≤ 0.293 → ≤300px
+            scale = MathHelper.Min(scale, 0.419f);
 
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = flare.Size() * 0.5f;
@@ -225,7 +234,7 @@ namespace MagnumOpus.Content.Nachtmusik
         /// <summary>
         /// Standard Nachtmusik bloom at a blade tip or projectile centre.
         /// Nocturnal gradient: DeepBlue outer -> StarWhite inner.
-        /// Safe to call from PreDraw — handles SpriteBatch state internally.
+        /// Safe to call from PreDraw  Ehandles SpriteBatch state internally.
         /// </summary>
         public static void DrawBloom(Vector2 worldPos, float scale, float opacity = 1f)
         {
@@ -283,7 +292,7 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         /// <summary>
-        /// Wide sweeping trail for melee weapons — nocturnal arc.
+        /// Wide sweeping trail for melee weapons  Enocturnal arc.
         /// </summary>
         public static float NocturnalTrailWidth(float completionRatio, float baseWidth = 16f)
         {
@@ -383,7 +392,7 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         /// <summary>
-        /// Nachtmusik starlit swing dust — alternating blue torch and starlit shimmer.
+        /// Nachtmusik starlit swing dust  Ealternating blue torch and starlit shimmer.
         /// </summary>
         public static void SpawnStarlitDust(Vector2 pos, Vector2 awayDirection)
         {
@@ -417,7 +426,7 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         /// <summary>
-        /// Golden radiance shimmer dust — the Queen's golden accent.
+        /// Golden radiance shimmer dust  Ethe Queen's golden accent.
         /// </summary>
         public static void SpawnRadianceShimmer(Vector2 pos, Vector2 awayDirection)
         {
@@ -428,7 +437,7 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         /// <summary>
-        /// Radiant gold dust burst — the Queen's radiance explosion.
+        /// Radiant gold dust burst  Ethe Queen's radiance explosion.
         /// </summary>
         public static void SpawnRadianceBurst(Vector2 pos, int count = 10, float speed = 5f)
         {
@@ -447,7 +456,7 @@ namespace MagnumOpus.Content.Nachtmusik
 
         /// <summary>
         /// Spawn twinkling star particles around a position.
-        /// The signature Nachtmusik visual identity — playful starlit sparkles.
+        /// The signature Nachtmusik visual identity  Eplayful starlit sparkles.
         /// </summary>
         public static void SpawnTwinklingStars(Vector2 pos, int count = 3, float radius = 30f)
         {
@@ -495,7 +504,7 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         /// <summary>
-        /// Spawn a constellation circle pattern — connected star points in a ring.
+        /// Spawn a constellation circle pattern  Econnected star points in a ring.
         /// </summary>
         public static void SpawnConstellationCircle(Vector2 center, float radius, int stars, float rotation)
         {
@@ -524,7 +533,7 @@ namespace MagnumOpus.Content.Nachtmusik
         // ─────────── NACHTMUSIK-SPECIFIC VFX: STARBURST ───────────
 
         /// <summary>
-        /// Spawn cascading starburst layers — the signature celestial impact.
+        /// Spawn cascading starburst layers  Ethe signature celestial impact.
         /// </summary>
         public static void SpawnStarburstCascade(Vector2 pos, int layers = 5, float scale = 1f, float opacity = 1f)
         {
@@ -565,7 +574,7 @@ namespace MagnumOpus.Content.Nachtmusik
         // ─────────── GRADIENT HALO RINGS ───────────
 
         /// <summary>
-        /// Cascading gradient halo rings — nocturnal (DeepBlue -> StarWhite).
+        /// Cascading gradient halo rings  Enocturnal (DeepBlue -> StarWhite).
         /// </summary>
         public static void SpawnGradientHaloRings(Vector2 pos, int count = 5, float baseScale = 0.3f)
         {
@@ -578,7 +587,7 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         /// <summary>
-        /// Celestial halo rings — golden radiance ring cascade.
+        /// Celestial halo rings  Egolden radiance ring cascade.
         /// </summary>
         public static void SpawnRadianceHaloRings(Vector2 pos, int count = 5, float baseScale = 0.3f)
         {
@@ -623,7 +632,7 @@ namespace MagnumOpus.Content.Nachtmusik
         // ─────────── IMPACTS ───────────
 
         /// <summary>
-        /// Full Nachtmusik melee impact VFX — starlit bloom flash, halo cascade,
+        /// Full Nachtmusik melee impact VFX  Estarlit bloom flash, halo cascade,
         /// nocturnal dust burst, twinkling stars, constellation sparks, and music note burst.
         /// Scales with combo step.
         /// </summary>
@@ -655,7 +664,7 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         /// <summary>
-        /// Projectile death / on-kill VFX — bigger, flashier version of MeleeImpact.
+        /// Projectile death / on-kill VFX  Ebigger, flashier version of MeleeImpact.
         /// Includes star burst, constellation lines, and enhanced bloom.
         /// </summary>
         public static void ProjectileImpact(Vector2 pos, float intensity = 1f)
@@ -697,7 +706,7 @@ namespace MagnumOpus.Content.Nachtmusik
         // ─────────── FINISHER EFFECTS ───────────
 
         /// <summary>
-        /// Phase-3 / finisher slam VFX — screen shake, massive bloom, constellation cascade,
+        /// Phase-3 / finisher slam VFX  Escreen shake, massive bloom, constellation cascade,
         /// star explosion, radiance burst, music note scatter.
         /// </summary>
         public static void FinisherSlam(Vector2 pos, float intensity = 1f)
@@ -786,7 +795,7 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         /// <summary>
-        /// Add pulsing starlit light — the signature nocturnal twinkle.
+        /// Add pulsing starlit light  Ethe signature nocturnal twinkle.
         /// </summary>
         public static void AddTwinklingLight(Vector2 worldPos, float time, float intensity = 0.6f)
         {
@@ -796,7 +805,7 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         /// <summary>
-        /// Add golden radiance light — the Queen's warm celestial glow.
+        /// Add golden radiance light  Ethe Queen's warm celestial glow.
         /// </summary>
         public static void AddRadianceLight(Vector2 worldPos, float time, float intensity = 0.6f)
         {
@@ -808,7 +817,7 @@ namespace MagnumOpus.Content.Nachtmusik
         // ─────────── MINION AURA ───────────
 
         /// <summary>
-        /// Spawn ambient minion aura particles — starlit shimmer around summons.
+        /// Spawn ambient minion aura particles  Estarlit shimmer around summons.
         /// </summary>
         public static void SpawnMinionAura(Vector2 pos, float scale = 1f)
         {
@@ -821,7 +830,7 @@ namespace MagnumOpus.Content.Nachtmusik
                 MagnumParticleHandler.SpawnParticle(aura);
             }
 
-            // Star dust motes rising — the playful twinkling
+            // Star dust motes rising  Ethe playful twinkling
             if (Main.rand.NextBool(6))
             {
                 Vector2 motePos = pos + new Vector2(Main.rand.NextFloat(-15f, 15f) * scale, 10f * scale);
@@ -834,7 +843,7 @@ namespace MagnumOpus.Content.Nachtmusik
         // ─────────── BOSS-SPECIFIC EFFECTS ───────────
 
         /// <summary>
-        /// Boss phase transition — massive celestial explosion with constellation circle.
+        /// Boss phase transition  Emassive celestial explosion with constellation circle.
         /// </summary>
         public static void SpawnBossPhaseTransition(Vector2 pos, float scale = 1.5f)
         {
@@ -859,7 +868,7 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         /// <summary>
-        /// Boss warning circle with star points — telegraph effect.
+        /// Boss warning circle with star points  Etelegraph effect.
         /// </summary>
         public static void SpawnBossWarningCircle(Vector2 center, float radius, float progress)
         {

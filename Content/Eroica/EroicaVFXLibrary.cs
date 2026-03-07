@@ -16,7 +16,7 @@ using MagnumOpus.Common.Systems.VFX.Bloom;
 namespace MagnumOpus.Content.Eroica
 {
     /// <summary>
-    /// Shared Eroica VFX library — canonical palette, bloom stacking,
+    /// Shared Eroica VFX library  Ecanonical palette, bloom stacking,
     /// shader setup, trail helpers, music notes, dust, and impact VFX used by
     /// ALL Eroica weapons, accessories, projectiles, minions, and enemies.
     ///
@@ -27,7 +27,7 @@ namespace MagnumOpus.Content.Eroica
     public static class EroicaVFXLibrary
     {
         // ─────────── CANONICAL PALETTE (delegates to EroicaPalette) ───────────
-        // 6-colour musical dynamic scale (pianissimo → sforzando)
+        // 6-colour musical dynamic scale (pianissimo ↁEsforzando)
         public static readonly Color Black      = EroicaPalette.Black;       // [0] Pianissimo
         public static readonly Color Scarlet    = EroicaPalette.Scarlet;     // [1] Piano
         public static readonly Color Crimson    = EroicaPalette.Crimson;     // [2] Mezzo
@@ -69,7 +69,7 @@ namespace MagnumOpus.Content.Eroica
         // ─────────── PALETTE INTERPOLATION ───────────
 
         /// <summary>
-        /// Lerp through the 6-colour Eroica palette. t=0 → Black, t=1 → HotCore.
+        /// Lerp through the 6-colour Eroica palette. t=0 ↁEBlack, t=1 ↁEHotCore.
         /// </summary>
         public static Color GetPaletteColor(float t)
         {
@@ -130,6 +130,9 @@ namespace MagnumOpus.Content.Eroica
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.115) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 1.209f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
@@ -138,19 +141,19 @@ namespace MagnumOpus.Content.Eroica
 
             // Layer 1: Outer halo (DeepScarlet-ish)
             sb.Draw(bloom, drawPos, null,
-                (outer with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 2.0f, SpriteEffects.None, 0f);
+                (outer with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 0.115f, SpriteEffects.None, 0f);
 
             // Layer 2: Mid glow (Scarlet)
             sb.Draw(bloom, drawPos, null,
-                (outer with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 1.4f, SpriteEffects.None, 0f);
+                (outer with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.08f, SpriteEffects.None, 0f);
 
             // Layer 3: Inner bloom (Gold)
             sb.Draw(bloom, drawPos, null,
-                (inner with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f);
+                (inner with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.052f, SpriteEffects.None, 0f);
 
             // Layer 4: White-hot core
             sb.Draw(bloom, drawPos, null,
-                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
+                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.023f, SpriteEffects.None, 0f);
         }
 
         /// <summary>
@@ -162,21 +165,24 @@ namespace MagnumOpus.Content.Eroica
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.115) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 1.209f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
             sb.Draw(bloom, drawPos, null,
-                (outerColor with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 2.0f, SpriteEffects.None, 0f);
+                (outerColor with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 0.115f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (outerColor with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 1.4f, SpriteEffects.None, 0f);
+                (outerColor with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.08f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (innerColor with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f);
+                (innerColor with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.052f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
+                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.023f, SpriteEffects.None, 0f);
         }
 
         /// <summary>
-        /// Bloom sandwich layer — renders bloom BEHIND a projectile body for depth.
+        /// Bloom sandwich layer  Erenders bloom BEHIND a projectile body for depth.
         /// Call before drawing the projectile sprite, then call again after for front glow.
         /// </summary>
         public static void DrawBloomSandwichLayer(SpriteBatch sb, Vector2 worldPos,
@@ -185,6 +191,9 @@ namespace MagnumOpus.Content.Eroica
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.14) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 0.993f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
@@ -192,22 +201,22 @@ namespace MagnumOpus.Content.Eroica
             {
                 // Behind layer: larger, softer, DeepScarlet
                 sb.Draw(bloom, drawPos, null,
-                    (DeepScarlet with { A = 0 }) * 0.25f * opacity, 0f, origin, scale * 2.5f, SpriteEffects.None, 0f);
+                    (DeepScarlet with { A = 0 }) * 0.25f * opacity, 0f, origin, scale * 0.14f, SpriteEffects.None, 0f);
                 sb.Draw(bloom, drawPos, null,
-                    (Scarlet with { A = 0 }) * 0.35f * opacity, 0f, origin, scale * 1.6f, SpriteEffects.None, 0f);
+                    (Scarlet with { A = 0 }) * 0.35f * opacity, 0f, origin, scale * 0.09f, SpriteEffects.None, 0f);
             }
             else
             {
-                // Front layer: smaller, brighter, Gold → White
+                // Front layer: smaller, brighter, Gold ↁEWhite
                 sb.Draw(bloom, drawPos, null,
-                    (Gold with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.8f, SpriteEffects.None, 0f);
+                    (Gold with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.046f, SpriteEffects.None, 0f);
                 sb.Draw(bloom, drawPos, null,
-                    (Color.White with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.35f, SpriteEffects.None, 0f);
+                    (Color.White with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.02f, SpriteEffects.None, 0f);
             }
         }
 
         /// <summary>
-        /// Counter-rotating double flare — two bloom textures spinning in opposite directions.
+        /// Counter-rotating double flare  Etwo bloom textures spinning in opposite directions.
         /// Creates dynamic energy appearance at projectile centers.
         /// </summary>
         public static void DrawCounterRotatingFlares(SpriteBatch sb, Vector2 worldPos,
@@ -215,6 +224,9 @@ namespace MagnumOpus.Content.Eroica
         {
             Texture2D flare = MagnumTextureRegistry.GetFlare();
             if (flare == null) return;
+
+            // 1024px flare — cap so largest layer (scale*0.7) ≤ 0.293 → ≤300px
+            scale = MathHelper.Min(scale, 0.419f);
 
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = flare.Size() * 0.5f;
@@ -526,7 +538,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Thin precision trail for piercing weapons — laser-sharp. 6f base.
+        /// Thin precision trail for piercing weapons  Elaser-sharp. 6f base.
         /// </summary>
         public static float PrecisionTrailWidth(float completionRatio, float baseWidth = 6f)
         {
@@ -535,7 +547,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Thick comet trail for heavy slams — wide, impactful. 18f base.
+        /// Thick comet trail for heavy slams  Ewide, impactful. 18f base.
         /// </summary>
         public static float CometTrailWidth(float completionRatio, float baseWidth = 18f)
         {
@@ -544,7 +556,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Heroic trail color: Scarlet → Gold with {A=0} for additive rendering.
+        /// Heroic trail color: Scarlet ↁEGold with {A=0} for additive rendering.
         /// </summary>
         public static Color HeroicTrailColor(float completionRatio, float whitePush = 0.40f)
         {
@@ -556,7 +568,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Sakura trail color: Sakura → PollenGold with {A=0}.
+        /// Sakura trail color: Sakura ↁEPollenGold with {A=0}.
         /// </summary>
         public static Color SakuraTrailColor(float completionRatio, float whitePush = 0.35f)
         {
@@ -567,7 +579,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Funeral trail color: DeepScarlet → OrangeGold with {A=0}. Somber, heavy.
+        /// Funeral trail color: DeepScarlet ↁEOrangeGold with {A=0}. Somber, heavy.
         /// </summary>
         public static Color FuneralTrailColor(float completionRatio, float whitePush = 0.30f)
         {
@@ -579,7 +591,7 @@ namespace MagnumOpus.Content.Eroica
 
         /// <summary>
         /// Returns shader gradient pairs for multi-pass rendering.
-        /// Pass 0: DeepScarlet → Scarlet, Pass 1: Scarlet → Gold, Pass 2: Gold → HotCore
+        /// Pass 0: DeepScarlet ↁEScarlet, Pass 1: Scarlet ↁEGold, Pass 2: Gold ↁEHotCore
         /// </summary>
         public static (Vector3 primary, Vector3 secondary) GetShaderGradient(int passIndex)
         {
@@ -641,7 +653,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Radial burst of music notes — notes fly outward in all directions.
+        /// Radial burst of music notes  Enotes fly outward in all directions.
         /// </summary>
         public static void MusicNoteBurst(Vector2 pos, Color color, int count = 12, float speed = 4f)
         {
@@ -714,7 +726,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Sakura petal dust particles — pink/rose floating petals.
+        /// Sakura petal dust particles  Epink/rose floating petals.
         /// Replaces ThemedParticles.SakuraPetals().
         /// </summary>
         public static void SpawnSakuraPetals(Vector2 pos, int count = 5, float spread = 40f)
@@ -732,7 +744,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Heroic aura — pulsing ring of rising embers and flame dust.
+        /// Heroic aura  Epulsing ring of rising embers and flame dust.
         /// Replaces ThemedParticles.EroicaAura().
         /// </summary>
         public static void SpawnHeroicAura(Vector2 center, float radius = 40f)
@@ -765,7 +777,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Directional ember sparks — fly in a specific direction with spread.
+        /// Directional ember sparks  Efly in a specific direction with spread.
         /// Replaces ThemedParticles.EroicaSparks().
         /// </summary>
         public static void SpawnDirectionalSparks(Vector2 pos, Vector2 direction, int count = 6, float speed = 6f)
@@ -781,7 +793,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Per-frame flame trail dust — single particle following a projectile.
+        /// Per-frame flame trail dust  Esingle particle following a projectile.
         /// Replaces ThemedParticles.EroicaTrail().
         /// </summary>
         public static void SpawnFlameTrailDust(Vector2 pos, Vector2 velocity)
@@ -833,7 +845,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Contrasting gold sparkle dust — call every other frame for dual-colour trail.
+        /// Contrasting gold sparkle dust  Ecall every other frame for dual-colour trail.
         /// </summary>
         public static void SpawnContrastSparkle(Vector2 pos, Vector2 awayDirection)
         {
@@ -846,7 +858,7 @@ namespace MagnumOpus.Content.Eroica
         // ─────────── GRADIENT HALO RINGS ───────────
 
         /// <summary>
-        /// Cascading gradient halo rings (DeepScarlet → Gold).
+        /// Cascading gradient halo rings (DeepScarlet ↁEGold).
         /// </summary>
         public static void SpawnGradientHaloRings(Vector2 pos, int count = 5, float baseScale = 0.3f)
         {
@@ -863,7 +875,7 @@ namespace MagnumOpus.Content.Eroica
         // ─────────── IMPACTS ───────────
 
         /// <summary>
-        /// Full Heroic impact VFX — bloom flash, halo cascade,
+        /// Full Heroic impact VFX  Ebloom flash, halo cascade,
         /// radial dust burst, and music note scatter. Scales with intensity.
         /// Replaces ThemedParticles.EroicaImpact(), UnifiedVFX.Eroica.Impact(),
         /// UnifiedVFXBloom.Eroica.ImpactEnhanced().
@@ -903,7 +915,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Full Eroica melee impact VFX — scales with combo step.
+        /// Full Eroica melee impact VFX  Escales with combo step.
         /// </summary>
         public static void MeleeImpact(Vector2 pos, int comboStep = 0)
         {
@@ -938,7 +950,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Projectile death / on-kill VFX — bigger, flashier version of HeroicImpact.
+        /// Projectile death / on-kill VFX  Ebigger, flashier version of HeroicImpact.
         /// </summary>
         public static void ProjectileImpact(Vector2 pos, float intensity = 1f)
         {
@@ -951,7 +963,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Bloom burst — quick expanding bloom flash.
+        /// Bloom burst  Equick expanding bloom flash.
         /// Replaces ThemedParticles.EroicaBloomBurst() and EnhancedThemedParticles.EroicaBloomBurstEnhanced().
         /// </summary>
         public static void BloomBurst(Vector2 pos, float scale = 1f)
@@ -975,7 +987,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Halo burst — expanding halos with sakura accents.
+        /// Halo burst  Eexpanding halos with sakura accents.
         /// Replaces ThemedParticles.EroicaHaloBurst().
         /// </summary>
         public static void HaloBurst(Vector2 pos, float scale = 1f)
@@ -987,7 +999,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Death heroic flash — massive final bloom + dust + notes on enemy/boss death.
+        /// Death heroic flash  Emassive final bloom + dust + notes on enemy/boss death.
         /// Replaces DynamicParticleEffects.EroicaDeathHeroicFlash().
         /// </summary>
         public static void DeathHeroicFlash(Vector2 pos, float scale = 1f)
@@ -1024,7 +1036,7 @@ namespace MagnumOpus.Content.Eroica
         // ─────────── FINISHER EFFECTS ───────────
 
         /// <summary>
-        /// Phase-3 / finisher slam VFX — screen shake, massive bloom, music note cascade.
+        /// Phase-3 / finisher slam VFX  Escreen shake, massive bloom, music note cascade.
         /// </summary>
         public static void FinisherSlam(Vector2 pos, float intensity = 1f)
         {
@@ -1042,7 +1054,7 @@ namespace MagnumOpus.Content.Eroica
         // ─────────── MISC ───────────
 
         /// <summary>
-        /// Dodge afterimage trail — scarlet/gold trailing dust.
+        /// Dodge afterimage trail  Escarlet/gold trailing dust.
         /// Replaces ThemedParticles.DodgeTrail().
         /// </summary>
         public static void DodgeTrail(Vector2 pos, Vector2 velocity)
@@ -1058,7 +1070,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Teleport arrival burst — radial dust + bloom + notes.
+        /// Teleport arrival burst  Eradial dust + bloom + notes.
         /// Replaces ThemedParticles.TeleportBurst().
         /// </summary>
         public static void TeleportBurst(Vector2 pos)
@@ -1081,19 +1093,31 @@ namespace MagnumOpus.Content.Eroica
 
             Vector2 origin = bloom.Size() * 0.5f;
 
+            Texture2D starTex = MagnumTextureRegistry.GetStar4Soft();
+
             for (int i = 0; i < proj.oldPos.Length; i++)
             {
                 if (proj.oldPos[i] == Vector2.Zero) continue;
 
                 float progress = (float)i / proj.oldPos.Length;
                 float fade = 1f - progress;
-                float scale = 0.3f * fade;
+                float scale = MathHelper.Min(0.3f * fade, 0.139f);
 
                 Vector2 drawPos = proj.oldPos[i] + proj.Size * 0.5f - Main.screenPosition;
                 Color col = Color.Lerp(trailColor, Gold, progress * 0.5f);
 
                 sb.Draw(bloom, drawPos, null,
                     (col with { A = 0 }) * 0.5f * fade, 0f, origin, scale, SpriteEffects.None, 0f);
+
+                // Star4Soft sparkle accent every 3rd trail point
+                if (i % 3 == 0 && starTex != null)
+                {
+                    Vector2 starOrigin = starTex.Size() / 2f;
+                    float starRot = Main.GlobalTimeWrappedHourly * 3f + i * 0.4f;
+                    sb.Draw(starTex, drawPos, null,
+                        (col with { A = 0 }) * 0.35f * fade, starRot,
+                        starOrigin, 0.06f * fade, SpriteEffects.None, 0f);
+                }
             }
         }
 
@@ -1116,9 +1140,9 @@ namespace MagnumOpus.Content.Eroica
             Lighting.AddLight(worldPos, col.ToVector3() * intensity);
         }
 
-        // ═══════════════════════════════════════════════════════════════════
-        // EROICA THEME-SPECIFIC VFX — VFX Library Assets
-        // ═══════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════════╁E
+        // EROICA THEME-SPECIFIC VFX  EVFX Library Assets
+        // ══════════════════════════════════════════════════════════════════╁E
 
         /// <summary>
         /// Draw an Eroica-themed Radial Slash Star Impact at the given position.
@@ -1136,11 +1160,11 @@ namespace MagnumOpus.Content.Eroica
             Color color = GetPaletteColor(paletteT) with { A = 0 };
 
             sb.Draw(tex, drawPos, null, color * opacity,
-                rotation, origin, scale * 0.4f, SpriteEffects.None, 0f);
+                rotation, origin, scale * 0.023f, SpriteEffects.None, 0f);
         }
 
         /// <summary>
-        /// Draw an Eroica Power Effect Ring — concentrated expanding ring burst.
+        /// Draw an Eroica Power Effect Ring  Econcentrated expanding ring burst.
         /// Used at on-hit moments, shockwave centers, and combo transitions.
         /// </summary>
         public static void DrawPowerEffectRing(SpriteBatch sb, Vector2 worldPos,
@@ -1154,11 +1178,11 @@ namespace MagnumOpus.Content.Eroica
             Color color = GetPaletteColor(0.3f) with { A = 0 };
 
             sb.Draw(tex, drawPos, null, color * opacity,
-                rotation, origin, scale * 0.35f, SpriteEffects.None, 0f);
+                rotation, origin, scale * 0.02f, SpriteEffects.None, 0f);
         }
 
         /// <summary>
-        /// Draw the Eroica Harmonic Resonance Wave Impact — concentric expanding waves.
+        /// Draw the Eroica Harmonic Resonance Wave Impact  Econcentric expanding waves.
         /// Used at important impact moments and phase transitions.
         /// </summary>
         public static void DrawHarmonicResonanceWave(SpriteBatch sb, Vector2 worldPos,
@@ -1172,7 +1196,7 @@ namespace MagnumOpus.Content.Eroica
             Color color = Color.Lerp(Scarlet, Gold, 0.4f) with { A = 0 };
 
             sb.Draw(tex, drawPos, null, color * opacity,
-                0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
+                0f, origin, scale * 0.023f, SpriteEffects.None, 0f);
         }
 
         /// <summary>
@@ -1293,7 +1317,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Eroica Radial Burst with Heavy Streaks — dramatic directional burst.
+        /// Eroica Radial Burst with Heavy Streaks  Edramatic directional burst.
         /// Used for finisher slam moments and high-intensity projectile detonations.
         /// </summary>
         public static void DrawRadialBurstHeavyStreaks(SpriteBatch sb, Vector2 worldPos,
@@ -1307,11 +1331,11 @@ namespace MagnumOpus.Content.Eroica
             Color color = Color.Lerp(Scarlet, Gold, 0.3f) with { A = 0 };
 
             sb.Draw(tex, drawPos, null, color * opacity,
-                rotation, origin, scale * 0.4f, SpriteEffects.None, 0f);
+                rotation, origin, scale * 0.023f, SpriteEffects.None, 0f);
         }
 
         /// <summary>
-        /// Draw Eroica-themed Infernal Beam Ring — used for beam weapon impacts and muzzle effects.
+        /// Draw Eroica-themed Infernal Beam Ring  Eused for beam weapon impacts and muzzle effects.
         /// </summary>
         public static void DrawInfernalBeamRing(SpriteBatch sb, Vector2 worldPos,
             float scale, float rotation, float opacity = 0.5f)
@@ -1324,7 +1348,7 @@ namespace MagnumOpus.Content.Eroica
             Color color = Color.Lerp(Scarlet, Flame, 0.5f) with { A = 0 };
 
             sb.Draw(tex, drawPos, null, color * opacity,
-                rotation, origin, scale * 0.35f, SpriteEffects.None, 0f);
+                rotation, origin, scale * 0.02f, SpriteEffects.None, 0f);
         }
 
         // ─────────── THEME TEXTURE VFX ───────────
@@ -1360,7 +1384,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Draws a themed sakura petal overlay — rotating petals as accent.
+        /// Draws a themed sakura petal overlay  Erotating petals as accent.
         /// Must be called in Additive blend mode.
         /// </summary>
         public static void DrawThemeSakuraAccent(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)
@@ -1418,9 +1442,9 @@ namespace MagnumOpus.Content.Eroica
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════
+    // ══════════════════════════════════════════════════════════════════╁E
     // EROICA THEME-SPECIFIC TEXTURE CACHE
-    // ═══════════════════════════════════════════════════════════════════
+    // ══════════════════════════════════════════════════════════════════╁E
 
     /// <summary>
     /// Lazy texture loader for Eroica theme-specific VFX Library assets.

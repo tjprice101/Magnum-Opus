@@ -439,26 +439,26 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
                     Vector2 tipScreen = tipPos - Main.screenPosition;
                     Vector2 bOrigin = bloomTex.Size() / 2f;
                     float pulse = 1f + 0.12f * MathF.Sin(Main.GameUpdateCount * 0.1f + ComboStep);
-                    float bloomBase = (0.3f + ComboStep * 0.1f + swingIntensity * 0.15f) * pulse * 0.65f;
+                    float bloomBase = MathHelper.Min((0.3f + ComboStep * 0.1f + swingIntensity * 0.15f) * pulse * 0.65f, 0.55f);
 
                     // A: Wide outer void glow — the emptiness radiating outward
                     sb.Draw(bloomTex, tipScreen, null, VoidVariationUtils.TrueVoid * 0.2f, 0f, bOrigin,
-                        bloomBase * 3.5f, SpriteEffects.None, 0f);
+                        bloomBase * 0.55f, SpriteEffects.None, 0f);
                     // B: Mid abyss purple haze — the resonance depth
                     sb.Draw(bloomTex, tipScreen, null, VoidVariationUtils.AbyssPurple * 0.35f, 0f, bOrigin,
-                        bloomBase * 2.2f, SpriteEffects.None, 0f);
+                        bloomBase * 0.38f, SpriteEffects.None, 0f);
                     // C: Inner violet core — the shifting variation made visible
                     sb.Draw(bloomTex, tipScreen, null, VoidVariationUtils.VariationViolet * 0.5f, 0f, bOrigin,
-                        bloomBase * 1.3f, SpriteEffects.None, 0f);
+                        bloomBase * 0.24f, SpriteEffects.None, 0f);
                     // D: Rift teal transitional — where reality fractures
                     sb.Draw(bloomTex, tipScreen, null, VoidVariationUtils.RiftTeal * 0.5f, 0f, bOrigin,
-                        bloomBase * 0.7f, SpriteEffects.None, 0f);
+                        bloomBase * 0.14f, SpriteEffects.None, 0f);
                     // E: Void surge flash — abyssal energy breaking free
                     sb.Draw(bloomTex, tipScreen, null, VoidVariationUtils.VoidSurge * 0.45f, 0f, bOrigin,
-                        bloomBase * 0.35f, SpriteEffects.None, 0f);
+                        bloomBase * 0.07f, SpriteEffects.None, 0f);
                     // F: Sundering white-hot pinpoint — the rift torn open
                     sb.Draw(bloomTex, tipScreen, null, VoidVariationUtils.SunderingWhite * 0.6f, 0f, bOrigin,
-                        bloomBase * 0.12f, SpriteEffects.None, 0f);
+                        bloomBase * 0.03f, SpriteEffects.None, 0f);
 
                     // EN Star Flare — dual counter-rotating dimensional rift flares
                     Texture2D starFlareTex = EnigmaThemeTextures.ENStarFlare?.Value;
@@ -487,6 +487,19 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
                             -prRot * 0.6f, prOrigin, prScale * 1.5f, SpriteEffects.None, 0f);
                     }
 
+                    // Star4Soft void sparkle — rift shimmering at blade tip
+                    Texture2D starTex = MagnumTextureRegistry.GetStar4Soft();
+                    if (starTex != null)
+                    {
+                        Vector2 starOrigin = starTex.Size() / 2f;
+                        float starRot = (float)Main.GameUpdateCount * 0.04f;
+                        float starScale = bloomBase * 0.14f * pulse;
+                        sb.Draw(starTex, tipScreen, null, VoidVariationUtils.RiftTeal * 0.5f,
+                            starRot, starOrigin, starScale, SpriteEffects.None, 0f);
+                        sb.Draw(starTex, tipScreen, null, VoidVariationUtils.SunderingWhite * 0.3f,
+                            -starRot * 0.65f, starOrigin, starScale * 0.6f, SpriteEffects.None, 0f);
+                    }
+
                     // EN Enigma Eye — the void watches during the heavy slam finisher
                     if (ComboStep >= 2)
                     {
@@ -503,9 +516,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
                     // Secondary bloom hub at arc center — ambient void resonance
                     Vector2 midScreen = Vector2.Lerp(Owner.MountedCenter, tipPos, 0.4f) - Main.screenPosition;
                     sb.Draw(bloomTex, midScreen, null, VoidVariationUtils.AbyssPurple * 0.15f, 0f, bOrigin,
-                        bloomBase * 1.5f, SpriteEffects.None, 0f);
+                        bloomBase * 0.3f, SpriteEffects.None, 0f);
                     sb.Draw(bloomTex, midScreen, null, VoidVariationUtils.VariationViolet * 0.1f, 0f, bOrigin,
-                        bloomBase * 0.8f, SpriteEffects.None, 0f);
+                        bloomBase * 0.18f, SpriteEffects.None, 0f);
                 }
 
                 VoidVariationUtils.ExitShaderRegion(sb);

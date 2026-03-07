@@ -472,11 +472,107 @@ namespace MagnumOpus.Content.Summer.Weapons
             if (Progression < 0.08f || Progression > 0.95f) return;
 
             Vector2 tipWorld = GetBladeTipPosition();
+            Vector2 tipScreen = tipWorld - Main.screenPosition;
+            Vector2 rootScreen = Owner.MountedCenter - Main.screenPosition;
+            float phaseIntensity = 1f + ComboStep * 0.18f;
             float pulse = 1f + MathF.Sin(Main.GlobalTimeWrappedHourly * 6f) * 0.10f;
-            float tipScale = (0.20f + ComboStep * 0.07f) * pulse;
+            float swingFade = MathHelper.Clamp((Progression - 0.08f) / 0.08f, 0f, 1f)
+                            * MathHelper.Clamp((0.95f - Progression) / 0.08f, 0f, 1f);
 
-            BloomRenderer.DrawBloomStackAdditive(tipWorld, SunGold, SunRed, tipScale, 0.90f);
+            // ═══ Switch to additive for solar glow layers ═══
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                SamplerState.LinearClamp, DepthStencilState.None,
+                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
+            Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
+            Texture2D starTex = MagnumTextureRegistry.GetStar4Soft();
+            if (glowTex != null)
+            {
+                Vector2 glowOrigin = glowTex.Size() / 2f;
+                float baseScale = MathHelper.Min((0.20f + ComboStep * 0.07f) * pulse * phaseIntensity, 0.390f);
+
+                // Layer 1: Wide solar heat haze — scorching corona (capped 300px max)
+                sb.Draw(glowTex, tipScreen, null,
+                    SunRed with { A = 0 } * 0.2f * swingFade, 0f,
+                    glowOrigin, baseScale * 1.5f, SpriteEffects.None, 0f);
+
+                // Layer 2: Solar corona (orange fire ring) (capped 300px max)
+                sb.Draw(glowTex, tipScreen, null,
+                    SunOrange with { A = 0 } * 0.45f * swingFade, 0f,
+                    glowOrigin, baseScale * 1.1f, SpriteEffects.None, 0f);
+
+                // Layer 3: Inner sun gold — the core of the furnace
+                sb.Draw(glowTex, tipScreen, null,
+                    SunGold with { A = 0 } * 0.65f * swingFade, 0f,
+                    glowOrigin, baseScale * 1.0f, SpriteEffects.None, 0f);
+
+                // Layer 4: White-hot solar core
+                sb.Draw(glowTex, tipScreen, null,
+                    SunWhite with { A = 0 } * 0.85f * swingFade, 0f,
+                    glowOrigin, baseScale * 0.35f, SpriteEffects.None, 0f);
+
+                // Layer 5: Root glow — sun-warmed orange at sword base
+                float rootPulse = 0.65f + 0.35f * MathF.Sin(Main.GlobalTimeWrappedHourly * 3.5f);
+                sb.Draw(glowTex, rootScreen, null,
+                    SunOrange with { A = 0 } * 0.3f * swingFade * rootPulse, 0f,
+                    glowOrigin, 0.14f * phaseIntensity, SpriteEffects.None, 0f);
+
+                // Layer 6: Solar furnace at blade midpoint
+                Vector2 midScreen = Vector2.Lerp(rootScreen, tipScreen, 0.5f);
+                sb.Draw(glowTex, midScreen, null,
+                    SunGold with { A = 0 } * 0.2f * swingFade, 0f,
+                    glowOrigin, baseScale * 0.55f, SpriteEffects.None, 0f);
+            }
+
+            // Layer 7: Blazing sun flare — brilliant rotating star at tip
+            if (starTex != null)
+            {
+                Vector2 starOrigin = starTex.Size() / 2f;
+                float starRot = Main.GlobalTimeWrappedHourly * 4f;
+                float starScale = (0.10f + ComboStep * 0.04f) * pulse;
+                sb.Draw(starTex, tipScreen, null,
+                    SunGold with { A = 0 } * 0.75f * swingFade, starRot,
+                    starOrigin, starScale, SpriteEffects.None, 0f);
+                sb.Draw(starTex, tipScreen, null,
+                    SunWhite with { A = 0 } * 0.55f * swingFade, -starRot * 0.8f,
+                    starOrigin, starScale * 0.65f, SpriteEffects.None, 0f);
+            }
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                SamplerState.LinearClamp, DepthStencilState.None,
+                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // ═══ Solar dust trail along blade ═══
+            if (Progression > 0.12f && Progression < 0.88f)
+            {
+                int dustCount = 1 + ComboStep;
+                for (int i = 0; i < dustCount; i++)
+                {
+                    float t = Main.rand.NextFloat(0.2f, 0.9f);
+                    Vector2 dustPos = Vector2.Lerp(Owner.MountedCenter, tipWorld, t);
+                    Vector2 drift = new Vector2(
+                        Main.rand.NextFloat(-0.4f, 0.4f),
+                        Main.rand.NextFloat(-1.8f, -0.5f));
+                    Dust flare = Dust.NewDustPerfect(dustPos, DustID.SolarFlare, drift, 0,
+                        Color.Lerp(SunOrange, SunGold, Main.rand.NextFloat()), 0.7f);
+                    flare.noGravity = true;
+                    flare.fadeIn = 0.5f;
+                }
+            }
+
+            // ═══ Rising heat embers from tip ═══
+            if (Main.rand.NextBool(3))
+            {
+                Vector2 emberVel = new Vector2(
+                    Main.rand.NextFloat(-0.6f, 0.6f),
+                    Main.rand.NextFloat(-2.5f, -1f));
+                Dust ember = Dust.NewDustPerfect(tipWorld, DustID.Torch, emberVel, 0, SunGold, 0.5f);
+                ember.noGravity = true;
+            }
+
+            // ═══ Music note particles ═══
             if (Main.rand.NextBool(4))
             {
                 Vector2 noteVel = -SwordDirection * Main.rand.NextFloat(0.5f, 1.5f);

@@ -1553,7 +1553,7 @@ namespace MagnumOpus.Content.SwanLake.Enemies
                 float hue = (Main.GameUpdateCount * 0.01f + i * (1f / segments)) % 1f;
                 Color segmentColor = Main.hslToRgb(hue, 0.7f, 0.75f) * 0.6f;
                 
-                float scale = 0.3f + (float)Math.Sin(angle * 4f + Main.GameUpdateCount * 0.1f) * 0.1f;
+                float scale = MathHelper.Min(0.3f + (float)Math.Sin(angle * 4f + Main.GameUpdateCount * 0.1f) * 0.1f, 0.139f); // SoftCircle 2160px — cap to 300px max
                 spriteBatch.Draw(texture, pos, null, segmentColor, angle, texture.Size() / 2f, scale, SpriteEffects.None, 0f);
             }
             

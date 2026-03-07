@@ -1,107 +1,145 @@
 ================================================================================
-                    MAGNUM OPUS - MOD PROGRESSION
+                    MAGNUM OPUS — CANONICAL PROGRESSION
+                        SINGLE SOURCE OF TRUTH
 ================================================================================
 
-This document outlines the complete progression system for the Harmony of 
-Synchronicity mod, including implemented features and planned content.
+Last updated: 2026-03-06
+This document is the ONLY authoritative reference for progression order,
+boss stats, weapon damage ranges, crafting flow, and tier numbering.
+All other documentation files defer to this one.
 
 ================================================================================
                               OVERVIEW
 ================================================================================
 
-The mod features 13 classical music themes in a LINEAR PROGRESSION.
-Each boss must be defeated to unlock the next theme's content.
+MagnumOpus features 10 post-Moon Lord themes in a LINEAR PROGRESSION,
+plus 4 seasonal bosses woven into pre-Moon Lord hardmode.
 
-Each theme includes:
-  • Resonant Ores (spawned after previous boss kill)
-  • Harmonic Essence (dropped by theme's boss - REQUIRED for crafting)
-  • Resonant Weapons & Tools
-  • Crafting Station Upgrades (at Fate and Clair de Lune milestones)
+Each post-Moon Lord theme boss drops a Treasure Bag containing 2-3 random
+weapons from that theme's pool + crafting materials.
 
-CRAFTING RULE: You CANNOT craft any theme's equipment without that theme's
-               Harmonic Essence, which only drops from that theme's boss.
+Exception: Moonlight Sonata (Tier 1) weapons are CRAFTED at the Moonlight
+Anvil because vanilla Moon Lord serves as the gate (no custom boss).
+
+CRAFTING STATIONS (2 Tiers):
+  Tier 1 — Moonlight Furnace / Moonlight Anvil (Tiers 1-6)
+  Tier 2 — Fate's Cosmic Furnace / Fate's Cosmic Anvil (Tiers 7-10)
+
+Fate (Tier 6) is a MAJOR MILESTONE — like Wall of Flesh for hardmode.
+Defeating Fate (must be defeated TWICE — True Form) unlocks Tier 2 stations.
+
+Clair de Lune (Tier 10) is the FINAL tier. No Mercury or Mars content.
 
 ================================================================================
                          PROGRESSION CHAIN
 ================================================================================
 
-  MOON LORD ──► MOONLIGHT SONATA ──► EROICA ──► LA CAMPANELLA ──► ENIGMA
-                                                                      │
-       ┌──────────────────────────────────────────────────────────────┘
-       │
-       ▼
-   SWAN LAKE ──► FATE ══════► ODE TO JOY ──► DIES IRAE ──► WINTER ──► NACHTMUSIK
-   (Penultimate   (Major)
-    Boss)         Milestone
-                  Furnace &
-                  Anvil Upgrade
-                                │
-       ┌────────────────────────┘
-       │
-       ▼
-   CLAIR DE LUNE ══════► MERCURY ──► MARS
-   (Final Milestone)
-   Final Furnace &
-   Anvil Upgrade
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │                    PRE-MOON LORD (SEASONAL)                        │
+  │                                                                     │
+  │  Eye of Cthulhu ──► SPRING (Primavera)                             │
+  │  Skeletron ────────► SUMMER (L'Estate)                             │
+  │  Wall of Flesh ────► AUTUMN (Autunno)                              │
+  │  Mech Bosses ──────► WINTER (L'Inverno)                            │
+  │                                                                     │
+  │  Seasonal bosses are optional side content. They are NOT required   │
+  │  for the main post-Moon Lord progression.                           │
+  └─────────────────────────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │                   POST-MOON LORD (MAIN LINE)                       │
+  │                                                                     │
+  │  MOON LORD (vanilla) ──► MOONLIGHT SONATA (Tier 1)                 │
+  │                                │                                    │
+  │       ┌────────────────────────┘                                    │
+  │       ▼                                                             │
+  │  EROICA (Tier 2) ──► LA CAMPANELLA (Tier 3) ──► ENIGMA (Tier 4)   │
+  │                                                       │             │
+  │       ┌───────────────────────────────────────────────┘             │
+  │       ▼                                                             │
+  │  SWAN LAKE (Tier 5) ──► ★ FATE (Tier 6) ★                         │
+  │                          MAJOR MILESTONE                            │
+  │                          Defeat TWICE (True Form)                   │
+  │                          Unlocks Tier 2 Crafting Stations           │
+  │                                │                                    │
+  │       ┌────────────────────────┘                                    │
+  │       ▼                                                             │
+  │  NACHTMUSIK (Tier 7) ──► DIES IRAE (Tier 8) ──► ODE TO JOY (9)   │
+  │                                                       │             │
+  │       ┌───────────────────────────────────────────────┘             │
+  │       ▼                                                             │
+  │  ★ CLAIR DE LUNE (Tier 10) ★                                       │
+  │  FINAL TIER                                                         │
+  └─────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+                    SEASONAL BOSSES (PRE-MOON LORD)
+================================================================================
+
+Optional pre-Moon Lord content from Vivaldi's Four Seasons.
+Each season has 1 boss + 4 weapons (one per class) + accessories.
+All seasonal weapons are crafted at Mythril Anvil.
+
+┌───────────┬─────────────────────────────┬────────┬─────────────────────────┐
+│ Season    │ Boss                        │ HP     │ Available After         │
+├───────────┼─────────────────────────────┼────────┼─────────────────────────┤
+│ Spring    │ Primavera, Herald of Bloom  │ 8,000  │ Eye of Cthulhu         │
+│ Summer    │ L'Estate, Lord of Zenith    │ 15,000 │ Skeletron              │
+│ Autumn    │ Autunno, Withering Maestro  │ 32,000 │ Wall of Flesh          │
+│ Winter    │ L'Inverno, Silent Finale    │ 65,000 │ Mechanical Bosses      │
+└───────────┴─────────────────────────────┴────────┴─────────────────────────┘
+
+Seasonal bosses drop materials directly (no Treasure Bags):
+  • Season Resonant Energy ×3-5
+  • Season-specific material ×15-28
+  • Dormant Season Core (33% chance)
+
+Seasonal Weapon Damage Ranges:
+  Spring:  42-72 damage  │  Summer: 65-115 damage
+  Autumn: 88-145 damage  │  Winter: 115-195 damage
+  Combined (all 4 seasons): 145-285 damage
 
 ================================================================================
 ══════════════════════════════════════════════════════════════════════════════
-                          TIER 1: MOON LORD
+                    TIER 1: MOONLIGHT SONATA
 ══════════════════════════════════════════════════════════════════════════════
 ================================================================================
 
-TRIGGER: Defeat Moon Lord (first kill)
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ "The Moonlight Sonata begins to play..."                    [PURPLE TEXT]   │
-│ → Moonlit Resonance Ore spawns throughout the world                         │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-────────────────────────────────────────────────────────────────────────────────
-                    MOONLIGHT SONATA (Beethoven)
-                         [IMPLEMENTED]
-────────────────────────────────────────────────────────────────────────────────
-
+GATE: Defeat Moon Lord (vanilla) — first kill
+BOSS: None (Moon Lord serves as the gate)
 BIOME: World-wide
-UNLOCK: Moon Lord first kill
-COLOR THEME: Deep Purple / Blue (flashing rarity)
+COLOR THEME: Deep Purple / Blue
+RARITY: MoonlightSonataRarity / MoonlightSonataRainbowRarity
+WEAPON ACQUISITION: CRAFTED at Moonlight Anvil (exception — no custom boss)
+
+APPROVED DAMAGE RANGE: 200-350
+  Exception: Resurrection of the Moon = 1500 (intentionally strong)
 
 CRAFTING STATIONS (Tier 1):
-───────────────────────────
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ Moonlight Furnace                                                           │
-│ Recipe: 30 Remnant of Moonlight's Harmony + Titanium/Adamantite Forge       │
-│ Crafted at: Mythril Anvil                                                   │
-│ Function: Smelts ALL mod materials (Tier 1)                                 │
-└─────────────────────────────────────────────────────────────────────────────┘
+  Moonlight Furnace:
+    Recipe: 30 Remnant of Moonlight's Harmony + Titanium/Adamantite Forge
+    Crafted at: Mythril Anvil
+    Smelts: ALL Tier 1-6 materials
 
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ Moonlight Anvil                                                             │
-│ Recipe: 10 Resonant Core of Moonlight Sonata                                │
-│ Crafted at: Mythril Anvil                                                   │
-│ Function: Forges ALL mod equipment (Tier 1)                                 │
-└─────────────────────────────────────────────────────────────────────────────┘
+  Moonlight Anvil:
+    Recipe: 10 Resonant Core of Moonlight Sonata
+    Crafted at: Mythril Anvil
+    Forges: ALL Tier 1-6 equipment
 
 MATERIALS:
-──────────
-• Remnant of Moonlight's Harmony - Drops from mining Moonlit Resonance Ore
-• Resonant Core of Moonlight Sonata - 5 Remnants at Moonlight Furnace
-• Harmonic Essence of Moonlight Sonata - Drops from Moon Lord (subsequent kills)
-  └─ REQUIRED for all Moonlight Sonata equipment crafting
+  • Remnant of Moonlight's Harmony — Mining Moonlit Resonance Ore
+  • Resonant Core of Moonlight Sonata — 5 Remnants at Moonlight Furnace
+  • Moonlight's Resonant Energy — Moon Lord Treasure Bag (5-10)
+  • Shards of Moonlit Tempo — Theme enemy drops
 
-TOOLS (Crafted at Moonlight Anvil):
-───────────────────────────────────
-• Moonlight's Pickaxe: 20 Cores + 15 Essence | 300% power
-• Moonlight's Axe: 15 Cores + 10 Essence | 225% power  
-• Moonlight's Hammer: 10 Cores + 5 Essence | 125% power
+WEAPONS (5):
+  • Incisor of Moonlight (Melee) ........... 280 damage → target 250-350
+  • Eternal Moon (Melee) ................... 300 damage → target 250-350
+  • Moonlight's Calling (Magic) ............ 200 damage → target 200-250
+  • Staff of the Lunar Phases (Summon) ..... 280 damage → target 200-300
+  • Resurrection of the Moon (Ranged) ...... 1500 damage (INTENTIONAL)
 
-WEAPONS:
-────────
-• Incisor of Moonlight: 10 Luminite + 15 Essence + 20 Cores | 250 damage
-
-BOSS TO UNLOCK NEXT THEME:
-──────────────────────────
-*** DEFEAT BANE OF EROICA TO PROGRESS ***
+NEXT: Defeat Eroica's Retribution to unlock Tier 2
 
 ================================================================================
 ══════════════════════════════════════════════════════════════════════════════
@@ -109,705 +147,514 @@ BOSS TO UNLOCK NEXT THEME:
 ══════════════════════════════════════════════════════════════════════════════
 ================================================================================
 
-TRIGGER: Defeat Bane of Eroica (first kill)
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ "Eroica's Resonance Energy spreads throughout the           [SCARLET TEXT]  │
-│  underground..."                                                            │
-│ → Eroica Resonant Ore spawns in Underground/Cavern                          │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-────────────────────────────────────────────────────────────────────────────────
-                         EROICA (Beethoven's 3rd)
-                        [PARTIALLY IMPLEMENTED]
-────────────────────────────────────────────────────────────────────────────────
-
+GATE: Defeat Eroica's Retribution
+BOSS: Eroica's Retribution
+  HP: 350,000 (Normal) / 700,000 (Expert) / 1,050,000 (Master)
+  Sub-bosses: FlamesOfValor, MovementI, MovementII, MovementIII
 BIOME: Underground / Cavern
-UNLOCK: Bane of Eroica first kill
 COLOR THEME: Scarlet / Heroic Red
+RARITY: EroicaRarity / EroicaRainbowRarity
+WEAPON ACQUISITION: Treasure Bag (2-3 random weapons)
 
-BOSS: Bane of Eroica [IMPLEMENTED]
-  • 75,000 HP
-  • AI: Hover → Charge → Summon minions
-  • Drops: 10-15 Harmonic Essence of Eroica
-  • Summon: Crafted from Moonlight materials (requires Moonlight progression)
+APPROVED DAMAGE RANGE: 300-500
 
-MATERIALS:
-──────────
-• Remnant of Eroica's Triumph - Drops from Eroica Ore [NOT IMPLEMENTED]
-• Resonant Core of Eroica - Smelted at Moonlight Furnace [NOT IMPLEMENTED]
-• Harmonic Essence of Eroica - ONLY from Bane of Eroica [IMPLEMENTED]
-  └─ REQUIRED for all Eroica equipment crafting
+TREASURE BAG CONTAINS:
+  • 2-3 random weapons (no dupes) from pool of 8:
+    BellOfEroica (companion), CelestialValor, SakurasBlossom,
+    BlossomOfTheSakura, PiercingLightOfTheSakura, FuneralPrayer,
+    TriumphantFractal, FinalityOfTheSakura
+  • EroicasResonantEnergy ×20-25
+  • RemnantOfEroicasTriumph ×30-35
+  • ShardOfTriumphsTempo ×10-20
 
-CRAFTING REQUIREMENT:
-─────────────────────
-All Eroica equipment requires Harmonic Essence of Eroica.
-You CANNOT skip the boss and craft Eroica gear!
+WEAPONS (7 + 1 companion):
+  • CelestialValor (Melee) ................. target 400-500
+  • SakurasBlossom (Melee) ................. target 400-500
+  • BlossomOfTheSakura (Ranged) ............ target 300-400
+  • PiercingLightOfTheSakura (Ranged) ...... target 300-400
+  • TriumphantFractal (Magic) .............. target 300-400
+  • FuneralPrayer (Magic) .................. target 300-400
+  • FinalityOfTheSakura (Summon) ........... target 300-400
+  • BellOfEroica (Companion) ............... special item
 
-BOSS TO UNLOCK NEXT THEME:
-──────────────────────────
-*** DEFEAT LA CAMPANELLA BOSS TO PROGRESS ***
+NEXT: Defeat La Campanella, Chime of Life to unlock Tier 3
 
 ================================================================================
 ══════════════════════════════════════════════════════════════════════════════
-                        TIER 3: LA CAMPANELLA
+                      TIER 3: LA CAMPANELLA
 ══════════════════════════════════════════════════════════════════════════════
 ================================================================================
 
-TRIGGER: Defeat La Campanella Boss (first kill)
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ "La Campanella's Resonance Energy spreads throughout        [GOLD TEXT]     │
-│  the dungeon..."                                                            │
-│ → La Campanella Ore spawns in the Dungeon                                   │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-────────────────────────────────────────────────────────────────────────────────
-                      LA CAMPANELLA (Liszt)
-                        [NOT IMPLEMENTED]
-────────────────────────────────────────────────────────────────────────────────
-
+GATE: Defeat La Campanella, Chime of Life
+BOSS: La Campanella, Chime of Life
+  HP: 550,000 (Normal) / 1,100,000 (Expert) / 1,650,000 (Master)
 BIOME: Dungeon
-COLOR THEME: Gold / Bell Bronze
-THEME: Bell-like sounds, virtuosity, technical mastery
+COLOR THEME: Black / Orange Flame / Gold
+RARITY: LaCampanellaRarity / LaCampanellaRainbowRarity
+WEAPON ACQUISITION: Treasure Bag (2-3 random weapons)
 
-ORE MINING REQUIREMENTS:
-────────────────────────
-• Eroica Pickaxe (350% power) can mine La Campanella Ore (MinPick 350)
+APPROVED DAMAGE RANGE: 400-650
 
-BOSS: [NOT IMPLEMENTED]
-  • Drops: Harmonic Essence of La Campanella
-  • Summon: Crafted from Eroica materials
+TREASURE BAG CONTAINS:
+  • 2-3 random weapons (no dupes) from pool of 7:
+    DualFatedChime, IgnitionOfTheBell, FangOfTheInfiniteBell,
+    InfernalChimesCalling, PiercingBellsResonance, GrandioseChime,
+    SymphonicBellfireAnnihilator
+  • LaCampanellaResonantEnergy ×20-25
+  • RemnantOfTheInfernalBell ×30-35
+  • ShardOfTheBurningTempo ×10-20
 
-BOSS TO UNLOCK NEXT THEME:
-──────────────────────────
-*** DEFEAT ENIGMA BOSS TO PROGRESS ***
+WEAPONS (7): Damage values TBD (weapon .cs files not yet implemented)
+  • DualFatedChime (Melee)
+  • IgnitionOfTheBell (Melee)
+  • SymphonicBellfireAnnihilator (Ranged)
+  • PiercingBellsResonance (Ranged)
+  • GrandioseChime (Magic)
+  • FangOfTheInfiniteBell (Summon)
+  • InfernalChimesCalling (Summon)
 
-================================================================================
-══════════════════════════════════════════════════════════════════════════════
-                        TIER 4: ENIGMA VARIATIONS
-══════════════════════════════════════════════════════════════════════════════
-================================================================================
-
-TRIGGER: Defeat Enigma Boss (first kill)
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ "Enigma's Resonance Energy spreads throughout the ???..."   [GREEN TEXT]    │
-│ → Enigma Ore spawns commonly in the Jungle                                  │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-────────────────────────────────────────────────────────────────────────────────
-                    ENIGMA VARIATIONS (Elgar)
-                        [NOT IMPLEMENTED]
-────────────────────────────────────────────────────────────────────────────────
-
-BIOME: Jungle (common spawn)
-COLOR THEME: Mysterious Green
-THEME: Mystery, variation, hidden meanings
-
-ORE MINING REQUIREMENTS:
-────────────────────────
-• La Campanella Pickaxe (400% power) can mine Enigma Ore (MinPick 400)
-
-BOSS: [NOT IMPLEMENTED]
-  • Drops: Harmonic Essence of Enigma
-  • Summon: Crafted from La Campanella materials
-
-BOSS TO UNLOCK NEXT THEME:
-──────────────────────────
-*** DEFEAT SWAN LAKE BOSS TO PROGRESS ***
+NEXT: Defeat Enigma, The Hollow Mystery to unlock Tier 4
 
 ================================================================================
 ══════════════════════════════════════════════════════════════════════════════
-                        TIER 5: SWAN LAKE (PENULTIMATE)
+                    TIER 4: ENIGMA VARIATIONS
 ══════════════════════════════════════════════════════════════════════════════
 ================================================================================
 
-TRIGGER: Defeat Swan Lake Boss (first kill)
+GATE: Defeat Enigma, The Hollow Mystery
+BOSS: Enigma, The Hollow Mystery
+  HP: 800,000 (Normal) / 1,600,000 (Expert) / 2,400,000 (Master)
+BIOME: Jungle
+COLOR THEME: Void Black / Deep Purple / Eerie Green
+RARITY: EnigmaVariationsRarity / EnigmaRainbowRarity
+WEAPON ACQUISITION: Treasure Bag (2-3 random weapons)
 
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ "Swan Lake's Resonance Energy spreads throughout the        [WHITE TEXT]    │
-│  skies and into space..."                                                   │
-│ → Swan Lake Ore spawns in Sky/Space biome                                   │
-└─────────────────────────────────────────────────────────────────────────────┘
+APPROVED DAMAGE RANGE: 550-800
 
-────────────────────────────────────────────────────────────────────────────────
-                      SWAN LAKE (Tchaikovsky)
-                        [IMPLEMENTED]
-────────────────────────────────────────────────────────────────────────────────
+TREASURE BAG CONTAINS (CURRENT — needs standardization):
+  • 1 guaranteed weapon from main pool:
+    VariationsOfTheVoid, TheUnresolvedCadence, DissonanceOfSecrets,
+    CipherNocturne, FugueOfTheUnknown
+  • 50% chance of 2nd weapon from secondary pool:
+    TheWatchingRefrain, TheSilentMeasure, TacetsEnigma
+  → FIX NEEDED: Standardize to 2-3 random from full pool of 8
+  • 1 guaranteed class-specific accessory
+  • EnigmaResonantEnergy ×20-35
+  • HarmonicCoreOfEnigma ×1-2
 
+WEAPONS (8): Damage values TBD (weapon .cs files not yet implemented)
+  • TheUnresolvedCadence (Melee)
+  • VariationsOfTheVoid (Melee)
+  • DissonanceOfSecrets (Ranged)
+  • FugueOfTheUnknown (Ranged)
+  • CipherNocturne (Magic)
+  • TheSilentMeasure (Magic)
+  • TacetsEnigma (Summon)
+  • TheWatchingRefrain (Summon)
+
+NEXT: Defeat Swan Lake, The Monochromatic Fractal to unlock Tier 5
+
+================================================================================
+══════════════════════════════════════════════════════════════════════════════
+                        TIER 5: SWAN LAKE
+══════════════════════════════════════════════════════════════════════════════
+================================================================================
+
+GATE: Defeat Swan Lake, The Monochromatic Fractal
+BOSS: Swan Lake, The Monochromatic Fractal
+  HP: 1,100,000 (Normal) / 2,200,000 (Expert) / 3,300,000 (Master)
 BIOME: Sky / Space
 COLOR THEME: White / Black / Pearlescent Rainbow
-THEME: Grace, elegance, transformation, duality
+RARITY: SwanRarity / SwanRainbowRarity
+WEAPON ACQUISITION: Treasure Bag (2-3 random weapons)
 
-ORE MINING REQUIREMENTS:
-────────────────────────
-• Enigma Pickaxe (450% power) can mine Swan Lake Ore (MinPick 450)
+APPROVED DAMAGE RANGE: 700-1000
 
-BOSS: Swan Lake, the Monochromatic Fractal [IMPLEMENTED]
-  • 1,200,000 HP
-  • Defense: 140
-  • Boss uses 6x6 spritesheet animation
-  • Attacks include black/rainbow lightning (new DrawSwanLakeLightning effect)
-  • Background turns to black void with pearlescent aurora waves, stars, and rainbow flares
-  • Death Message: "The Swan...Conductor of Fate, has been shattered..."
-  • Drops: Harmonic Essence of Swan Lake
-  • RARE DROP: Feather's Call (1% chance) - Transformation item
-  • Summon: Score of Swan Lake (crafted from Enigma materials)
+TREASURE BAG CONTAINS:
+  • 2-3 random weapons (no dupes) from pool of 6:
+    CalloftheBlackSwan, CallofthePearlescentLake, ChromaticSwanSong,
+    FeatheroftheIridescentFlock, IridescentWingspan, TheSwansLament
+  • FeathersCall — Expert-exclusive (5% / 1-in-20 chance)
+  • SwansResonanceEnergy ×20-25
+  • RemnantOfSwansHarmony ×30-35
+  • ShardOfTheFeatheredTempo ×10-20
 
-WEAPONS:
-────────
-• Call of the Black Swan (Melee) - Greatsword with empowered swings
-• Call of the Pearlescent Lake (Ranger) - Assault rifle with tracking rockets
-• Chromatic Swan Song (Magic) - Tracking pistol with triple explosion
-• Feather of the Iridescent Flock (Summoner) - Orbiting crystals with beams
-• The Swan's Lament (Ranger) - Shotgun with lightning
-• Iridescent Wingspan (Magic) - Staff with cone flares
+WEAPONS (7):
+  • CalloftheBlackSwan (Melee) ............. target 800-1000
+  • TheSwansLament (Melee) ................. target 700-900
+  • CallofthePearlescentLake (Ranged) ...... target 700-850
+  • IridescentWingspan (Ranged) ............ target 750-900
+  • ChromaticSwanSong (Magic) .............. target 700-850
+  • FeatheroftheIridescentFlock (Summon) ... target 700-850
+  • FeathersCall (Expert transformation) ... special
 
-TOOLS:
-──────
-• The Swan's Pickaxe: 500% power - CAN MINE FATE ORE (MinPick 500)
-• The Swan's Axe: 300% power
-• The Swan's Hammer: 165% power
-
-ACCESSORIES (Mode-Toggle):
-──────────────────────────
-• Pendant of the Two Swans (Melee)
-• Dual Feather Quiver (Ranger)
-• Crown of the Swan (Mage)
-• Black Wings of the Monochromatic Dawn (Summoner)
-
-RARE DROP - FEATHER'S CALL:
-───────────────────────────
-• 1% drop chance from Swan Lake boss
-• Drains all mana on use
-• Transforms player into smaller version of boss sprite
-• Grants infinite flight while transformed
-• Left Click: Rain tracking pearlescent/black/white flares with explosions
-• Right Click: Unleash tracking black/white lightning with massive AOE
-• Chat message: "<player name> becomes one with the Swan's Melody..."
-
-BOSS TO UNLOCK NEXT THEME:
-──────────────────────────
-*** DEFEAT FATE BOSS TO PROGRESS (MAJOR MILESTONE) ***
+NEXT: Defeat Fate, Warden of Melodies to unlock Tier 6 (MAJOR MILESTONE)
 
 ================================================================================
 ══════════════════════════════════════════════════════════════════════════════
-            ★★★ TIER 6: FATE - MAJOR MILESTONE ★★★
+            ★★★ TIER 6: FATE — MAJOR MILESTONE ★★★
 ══════════════════════════════════════════════════════════════════════════════
 ================================================================================
 
-TRIGGER: Defeat Fate Boss (first kill)
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ "Fate's Resonance Energy spreads throughout the             [DARK RED TEXT] │
-│  corruption/crimson..."                                                     │
-│ → Fate Ore spawns in Corruption OR Crimson biome                            │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ ★ CRAFTING STATION UPGRADE UNLOCKED ★                                      │
-│                                                                             │
-│ Fate's Furnace - Upgraded furnace for Tier 2 materials                      │
-│ Fate's Anvil - Upgraded anvil for Tier 2 equipment                          │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-────────────────────────────────────────────────────────────────────────────────
-                 FATE (Beethoven's 5th Symphony)
-                        [NOT IMPLEMENTED]
-────────────────────────────────────────────────────────────────────────────────
-
+GATE: Defeat Fate, Warden of Melodies (MUST DEFEAT TWICE — True Form)
+BOSS: Fate, Warden of Melodies
+  HP: 1,500,000 per form × 2 = 3,000,000 total
+      (Normal) 3,000,000 / (Expert) 6,000,000 / (Master) 9,000,000
 BIOME: Corruption OR Crimson (world evil)
-COLOR THEME: Dark Red / Ominous
-THEME: Destiny, dramatic tension, the famous "da-da-da-DUM"
+COLOR THEME: Black Void / Dark Pink / Bright Crimson / Celestial White
+RARITY: FateRarity / FateCosmicRarity
+WEAPON ACQUISITION: Treasure Bag (2-3 random weapons)
 
-ORE MINING REQUIREMENTS:
-────────────────────────
-• Swan Lake Pickaxe (500% power) can mine Fate Ore (MinPick 500)
+THIS IS THE MIDPOINT MILESTONE — equivalent to Wall of Flesh for hardmode.
+Defeating Fate unlocks Tier 2 crafting stations.
 
-THIS IS A MAJOR BOSS - SIGNIFICANTLY HARDER THAN PREVIOUS THEMES
+APPROVED DAMAGE RANGE: 900-1350
+  CodaOfAnnihilation = 1350 (Zenith-equivalent, cap of tier)
 
-BOSS: [NOT IMPLEMENTED]
-  • Should be a challenging, multi-phase fight
-  • Drops: Harmonic Essence of Fate
-  • Summon: Crafted from Swan Lake materials
+CRAFTING STATIONS (Tier 2 — unlocked after Fate):
+  Fate's Cosmic Furnace:
+    Recipe: Moonlight Furnace + Fate materials + Essence
+    Smelts: ALL Tier 7-10 materials
 
-CRAFTING STATIONS (Tier 2 - Fate Upgrade):
-──────────────────────────────────────────
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ Fate's Furnace                                                              │
-│ Recipe: Moonlight Furnace + Fate materials + Essence                        │
-│ Function: Smelts Tier 2 materials (Ode to Joy through Nachtmusik)           │
-└─────────────────────────────────────────────────────────────────────────────┘
+  Fate's Cosmic Anvil:
+    Recipe: Moonlight Anvil + Fate materials + Essence
+    Forges: ALL Tier 7-10 equipment
 
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ Fate's Anvil                                                                │
-│ Recipe: Moonlight Anvil + Fate materials + Essence                          │
-│ Function: Forges Tier 2 equipment (Ode to Joy through Nachtmusik)           │
-└─────────────────────────────────────────────────────────────────────────────┘
+TREASURE BAG CONTAINS:
+  • 2-3 random weapons (no dupes) from pool of 10:
+    CodaOfAnnihilation, RequiemOfReality, OpusUltima,
+    FractalOfTheStars, TheConductorsLastConstellation,
+    ResonanceOfABygoneReality, LightOfTheFuture,
+    TheFinalFermata, SymphonysEnd, DestinysCrescendo
+  • FateResonantEnergy ×25-35
+  • RemnantOfTheGalaxysHarmony ×35-45
+  • ShardOfFatesTempo ×15-25
+  • ResonantCoreOfFate (10% chance)
+  • SeedOfUniversalMelodies ×2-3
 
-UPON DEFEAT, DISPLAYS:
-──────────────────────
-"Fate has been shattered...Ode to Joy's Resonance Energy spreads throughout 
- the world..."
+WEAPONS (10):
+  • RequiemOfReality (Melee, 4-movement) ... target 1100-1200
+  • OpusUltima (Melee, 3-movement) ......... target 1050-1150
+  • FractalOfTheStars (Melee, 3-phase) ..... target 1150-1250
+  • TheConductorsLastConstellation (Melee) . target 1100-1200
+  • CodaOfAnnihilation (Melee, ZENITH) ..... 1350 (cap)
+  • ResonanceOfABygoneReality (Ranged) ..... target 900-1000
+  • LightOfTheFuture (Ranged, railgun) ..... target 1000-1100
+  • TheFinalFermata (Magic) ................ target 900-1000
+  • SymphonysEnd (Magic) ................... target 950-1050
+  • DestinysCrescendo (Summon) ............. target 900-1000
 
-BOSS TO UNLOCK NEXT THEME:
-──────────────────────────
-*** DEFEAT ODE TO JOY BOSS TO PROGRESS ***
-
-================================================================================
-══════════════════════════════════════════════════════════════════════════════
-                        TIER 7: ODE TO JOY
-══════════════════════════════════════════════════════════════════════════════
-================================================================================
-
-TRIGGER: Defeat Ode to Joy Boss (first kill)
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ "Fate has been shattered...Ode to Joy's Resonance Energy    [GOLD TEXT]     │
-│  spreads throughout the world..."                                           │
-│ → Ode to Joy Ore spawns in ALL layers                                       │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-────────────────────────────────────────────────────────────────────────────────
-                   ODE TO JOY (Beethoven's 9th)
-                        [NOT IMPLEMENTED]
-────────────────────────────────────────────────────────────────────────────────
-
-BIOME: All layers (Hallow biome connections)
-COLOR THEME: Very Pale Rainbow with White Primary - Light, Hallow-inspired
-             Primary: Pure White / Secondary: Pale pastel rainbow (soft)
-THEME: Triumph, unity, celebration, light, holy/hallow aesthetic
-
-VISUAL STYLE: Bright, radiant, pure light with very soft rainbow tints.
-              Think angelic/divine with subtle prismatic edges.
-              Opposite of Dies Irae's darkness - pure positive energy.
-
-BOSS: [NOT IMPLEMENTED]
-  • Drops: Harmonic Essence of Ode to Joy
-  • Summon: Crafted from Fate materials
-
-BOSS TO UNLOCK NEXT THEME:
-──────────────────────────
-*** DEFEAT DIES IRAE BOSS TO PROGRESS ***
+NEXT: Defeat Nachtmusik, Queen of Radiance to unlock Tier 7
 
 ================================================================================
 ══════════════════════════════════════════════════════════════════════════════
-                        TIER 8: DIES IRAE
+                      TIER 7: NACHTMUSIK
 ══════════════════════════════════════════════════════════════════════════════
 ================================================================================
 
-TRIGGER: Defeat Dies Irae Boss (first kill)
+GATE: Defeat Nachtmusik, Queen of Radiance
+BOSS: Nachtmusik, Queen of Radiance
+  HP: 4,000,000 per phase × 2 = 8,000,000 total
+      (Normal) 8,000,000 / (Expert) 16,000,000 / (Master) 24,000,000
+BIOME: Surface (night-themed)
+COLOR THEME: Deep Indigo / Starlight Silver / Cosmic Blue
+RARITY: NachtmusikRarity
+WEAPON ACQUISITION: Treasure Bag (2-3 random weapons)
 
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ "Fate has been shattered...Dies Irae's Resonance Energy     [DARK RED TEXT] │
-│  spreads throughout the underworld..."                                      │
-│ → Dies Irae Ore spawns in the Underworld/Hell                               │
-└─────────────────────────────────────────────────────────────────────────────┘
+APPROVED DAMAGE RANGE: 1200-1800
 
-────────────────────────────────────────────────────────────────────────────────
-                 DIES IRAE (Day of Wrath)
-                        [NOT IMPLEMENTED]
-────────────────────────────────────────────────────────────────────────────────
+TREASURE BAG CONTAINS:
+  • 2-3 random weapons (no dupes) from pool of 11:
+    NocturnalExecutioner, MidnightsCrescendo, TwilightSeverance,
+    ConstellationPiercer, NebulasWhisper, SerenadeOfDistantStars,
+    StarweaversGrimoire, RequiemOfTheCosmos,
+    CelestialChorusBaton, GalacticOverture, ConductorOfConstellations
+  • RadianceOfTheNightQueen — guaranteed Expert-exclusive accessory
+  • NachtmusikResonantEnergy ×25-35
+  • NachtmusikResonantCore ×12-18
+  • HarmonicCoreOfNachtmusik ×2-3
+  • RemnantOfNachtmusiksHarmony ×50-70
+  • ShardOfNachtmusiksTempo ×18-28
 
-BIOME: Underworld / Hell / Crimson
-COLOR THEME: Black and Reddish Orange - Hell, Crimson, Apocalyptic
-             Primary: Deep Black / Secondary: Reddish-Orange (burnt embers)
-THEME: Death, judgment, apocalyptic, hellfire, damnation
+WEAPONS (11):
+  • NocturnalExecutioner (Melee) ........... target 1700-1800
+  • MidnightsCrescendo (Melee) ............. target 1500-1650
+  • TwilightSeverance (Melee) .............. target 1600-1750
+  • ConstellationPiercer (Ranged) .......... target 1300-1450
+  • NebulasWhisper (Ranged) ................ target 1250-1400
+  • SerenadeOfDistantStars (Ranged) ........ target 1200-1350
+  • StarweaversGrimoire (Magic) ............ target 1300-1450
+  • RequiemOfTheCosmos (Magic) ............. target 1400-1550
+  • CelestialChorusBaton (Summon) .......... target 1250-1400
+  • GalacticOverture (Summon) .............. target 1200-1350
+  • ConductorOfConstellations (Summon) ..... target 1300-1450
 
-VISUAL STYLE: Dark, fiery, oppressive. Black void with reddish-orange flames.
-              Crimson biome connection. Opposite of Ode to Joy's purity -
-              pure wrath and destruction. Volcanic, infernal atmosphere.
-
-BOSS: [NOT IMPLEMENTED]
-  • Drops: Harmonic Essence of Dies Irae
-  • Summon: Crafted from Ode to Joy materials
-
-BOSS TO UNLOCK NEXT THEME:
-──────────────────────────
-*** DEFEAT WINTER BOSS TO PROGRESS ***
-
-================================================================================
-══════════════════════════════════════════════════════════════════════════════
-                        TIER 9: WINTER
-══════════════════════════════════════════════════════════════════════════════
-================================================================================
-
-TRIGGER: Defeat Winter Boss (first kill)
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ "Fate has been shattered...Winter's Resonance Energy        [ICY BLUE TEXT] │
-│  spreads throughout the snow covered fields..."                             │
-│ → Winter Ore spawns in the Snow/Ice biome                                   │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-────────────────────────────────────────────────────────────────────────────────
-                 WINTER (Vivaldi's Four Seasons)
-                        [NOT IMPLEMENTED]
-────────────────────────────────────────────────────────────────────────────────
-
-BIOME: Snow / Ice biome
-COLOR THEME: Icy Blue / Frost White
-THEME: Cold, harshness, survival
-
-BOSS: [NOT IMPLEMENTED]
-  • Drops: Harmonic Essence of Winter
-  • Summon: Crafted from Dies Irae materials
-
-BOSS TO UNLOCK NEXT THEME:
-──────────────────────────
-*** DEFEAT NACHTMUSIK BOSS TO PROGRESS ***
+NEXT: Defeat Dies Irae, Herald of Judgement to unlock Tier 8
 
 ================================================================================
 ══════════════════════════════════════════════════════════════════════════════
-                        TIER 10: NACHTMUSIK
+                      TIER 8: DIES IRAE
 ══════════════════════════════════════════════════════════════════════════════
 ================================================================================
 
-TRIGGER: Defeat Nachtmusik Boss (first kill)
+GATE: Defeat Dies Irae, Herald of Judgement
+BOSS: Dies Irae, Herald of Judgement
+  HP: 10,000,000 (Normal) / 20,000,000 (Expert) / 30,000,000 (Master)
+BIOME: Underworld / Hell
+COLOR THEME: Blood Red / Charred Black / Ember Orange
+RARITY: DiesIraeRarity
+WEAPON ACQUISITION: Treasure Bag (2-3 random weapons)
 
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ "Fate has been shattered...Nachtmusik's Resonance Energy    [SILVER TEXT]   │
-│  spreads throughout the surface under moonlight..."                         │
-│ → Nachtmusik Ore spawns on Surface                                          │
-└─────────────────────────────────────────────────────────────────────────────┘
+APPROVED DAMAGE RANGE: 1600-2400
 
-────────────────────────────────────────────────────────────────────────────────
-              NACHTMUSIK (Mozart's "Eine kleine Nachtmusik")
-                        [NOT IMPLEMENTED]
-────────────────────────────────────────────────────────────────────────────────
+TREASURE BAG CONTAINS (CURRENT — needs standardization):
+  • 1 weapon from pool of 9 → FIX: standardize to 2-3 from full pool of 12
+    Pool should include ALL 12 weapons:
+    WrathsCleaver, ChainOfJudgment, ExecutionersVerdict,
+    SinCollector, DamnationsCannon, ArbitersSentence,
+    StaffOfFinalJudgement, EclipseOfWrath, GrimoireOfCondemnation,
+    DeathTollingBell, HarmonyOfJudgement, WrathfulContract
+  • 1 Expert-exclusive accessory from:
+    EmberOfTheCondemned, SealOfDamnation, ChainOfFinalJudgment,
+    RequiemsShackle
+  • ResonantCoreOfDiesIrae ×30-40
+  • DiesIraeResonantEnergy ×20-30
+  • HarmonicCoreOfDiesIrae ×4-6
+  • Gold ×15-25
 
-BIOME: Surface (night-themed), Corruption
-COLOR THEME: Corruption, Darkness, Night
-             Primary: Deep Purple/Black (corruption tints)
-             Secondary: Sickly Green/Dark Violet accents
-THEME: Night, corruption, serenade in darkness, twisted elegance
+WEAPONS (12):
+  • WrathsCleaver (Melee) .................. target 2200-2400
+  • ExecutionersVerdict (Melee) ............ target 2100-2300
+  • ChainOfJudgment (Melee) ............... target 1900-2100
+  • SinCollector (Ranged) .................. target 1800-2000
+  • DamnationsCannon (Ranged) .............. target 2000-2200
+  • ArbitersSentence (Ranged) .............. target 1600-1800
+  • StaffOfFinalJudgement (Magic) .......... target 1800-2000
+  • EclipseOfWrath (Magic) ................. target 1700-1900
+  • GrimoireOfCondemnation (Magic) ......... target 1600-1800
+  • DeathTollingBell (Summon) .............. target 1600-1800
+  • HarmonyOfJudgement (Summon) ............ target 1600-1800
+  • WrathfulContract (Summon) .............. target 1700-1900
 
-VISUAL STYLE: Dark, corrupted night aesthetic. Mozart's elegant night music
-              twisted into something sinister. Corruption-biome connection.
-              Starless night skies, creeping shadows, darkened beauty.
+  NOTE: Existing DiesIrae weapon crafting recipes must be REMOVED.
+        Weapons come from the Treasure Bag, not crafting.
 
-BOSS: [NOT IMPLEMENTED]
-  • Drops: Harmonic Essence of Nachtmusik
-  • Summon: Crafted from Winter materials
-
-BOSS TO UNLOCK NEXT THEME:
-──────────────────────────
-*** DEFEAT CLAIR DE LUNE BOSS TO PROGRESS (FINAL MILESTONE) ***
-
-================================================================================
-══════════════════════════════════════════════════════════════════════════════
-         ★★★ TIER 11: CLAIR DE LUNE - FINAL MILESTONE ★★★
-══════════════════════════════════════════════════════════════════════════════
-================================================================================
-
-TRIGGER: Defeat Clair de Lune Boss (first kill)
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ "The melody of time has been shattered...the planets all    [SOFT BLUE]     │
-│  shift melodically into a syzygy. Clair de Lune's Resonance                 │
-│  Energy spreads throughout the world..."                                    │
-│ → Clair de Lune Ore spawns throughout the world                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ ★ FINAL CRAFTING STATION UPGRADE UNLOCKED ★                                 │
-│                                                                             │
-│ Celestial Furnace - Final furnace for Tier 3 (Planetary) materials          │
-│ Celestial Anvil - Final anvil for Tier 3 (Planetary) equipment              │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-────────────────────────────────────────────────────────────────────────────────
-                    CLAIR DE LUNE (Debussy)
-                        [NOT IMPLEMENTED]
-────────────────────────────────────────────────────────────────────────────────
-
-BIOME: World-wide (Skies, Heaven, Space)
-COLOR THEME: White, Dark Gray, and Red Flames - Skies, Heaven, Time
-             Primary: Pure White / Secondary: Dark Gray / Accent: Red Flames
-THEME: Moonlight (impressionistic), dreams, skies, heaven, time itself
-
-VISUAL STYLE: Ethereal heavenly aesthetic. White clouds, dark gray voids,
-              and red flame accents representing time's passage. Think
-              celestial realms beyond mortal comprehension. Time-warping
-              visual effects, clock motifs, transcendent beauty.
-
-THIS IS THE FINAL MILESTONE BOSS - EXTREMELY CHALLENGING
-
-BOSS: [NOT IMPLEMENTED]
-  • Multi-phase, time-manipulation themed fight
-  • Drops: Harmonic Essence of Clair de Lune
-  • Summon: Crafted from Nachtmusik materials
-
-CRAFTING STATIONS (Tier 3 - Celestial/Final):
-─────────────────────────────────────────────
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ Celestial Furnace                                                           │
-│ Recipe: Fate's Furnace + Clair de Lune materials + Essence                  │
-│ Function: Smelts Tier 3 Planetary materials (Mercury, Mars)                 │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ Celestial Anvil                                                             │
-│ Recipe: Fate's Anvil + Clair de Lune materials + Essence                    │
-│ Function: Forges Tier 3 Planetary equipment (Mercury, Mars)                 │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-BOSS TO UNLOCK NEXT THEME:
-──────────────────────────
-*** DEFEAT MERCURY BOSS TO PROGRESS ***
+NEXT: Defeat Ode to Joy, Chromatic Rose Conductor to unlock Tier 9
 
 ================================================================================
 ══════════════════════════════════════════════════════════════════════════════
-                        TIER 12: MERCURY
+                      TIER 9: ODE TO JOY
 ══════════════════════════════════════════════════════════════════════════════
 ================================================================================
 
-TRIGGER: Defeat Mercury Boss (first kill)
+GATE: Defeat Ode to Joy, Chromatic Rose Conductor
+BOSS: Ode to Joy, Chromatic Rose Conductor
+  HP: 14,000,000 (Normal) / 28,000,000 (Expert) / 42,000,000 (Master)
+BIOME: Surface / Hallow
+COLOR THEME: Warm Gold / Radiant Amber / Jubilant Light
+RARITY: OdeToJoyRarity
+WEAPON ACQUISITION: Treasure Bag (2-3 random weapons)
+  → NOTE: Treasure Bag .cs file NEEDS TO BE CREATED
 
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ "The melody of time has been shattered...the planets all    [QUICKSILVER]   │
-│  shift melodically into a syzygy. The first of the planets                  │
-│  awakens...Mercury's Resonance Energy spreads throughout                    │
-│  the world...should you dare seek it..."                                    │
-│ → Mercury Ore spawns throughout the world                                   │
-└─────────────────────────────────────────────────────────────────────────────┘
+APPROVED DAMAGE RANGE: 2100-3200
 
-────────────────────────────────────────────────────────────────────────────────
-                 MERCURY (Holst's "The Planets")
-                        [NOT IMPLEMENTED]
-────────────────────────────────────────────────────────────────────────────────
+TREASURE BAG CONTENTS (to be implemented):
+  • 2-3 random weapons (no dupes) from pool of 12:
+    ThornboundReckoning, TheGardenersFury, RoseThornChainsaw,
+    ThornSprayRepeater, ThePollinator, PetalStormCannon,
+    AnthemOfGlory, HymnOfTheVictorious, ElysianVerdict,
+    TriumphantChorus, TheStandingOvation, FountainOfJoyousHarmony
+  • OdeToJoyResonantEnergy + materials
 
-BIOME: World-wide
-COLOR THEME: Quicksilver / Metallic
-THEME: Speed, the winged messenger, quicksilver
+WEAPONS (12):
+  • ThornboundReckoning (Melee) ............ target 2900-3200
+  • TheGardenersFury (Melee) ............... target 2700-3000
+  • RoseThornChainsaw (Melee) .............. target 2800-3100
+  • ThornSprayRepeater (Ranged) ............ target 2300-2600
+  • ThePollinator (Ranged) ................. target 2500-2800
+  • PetalStormCannon (Ranged) .............. target 2700-3000
+  • AnthemOfGlory (Magic) .................. target 2300-2600
+  • HymnOfTheVictorious (Magic) ............ target 2500-2800
+  • ElysianVerdict (Magic) ................. target 2400-2700
+  • TriumphantChorus (Summon) .............. target 2300-2600
+  • TheStandingOvation (Summon) ............ target 2200-2500
+  • FountainOfJoyousHarmony (Summon) ....... target 2100-2400
 
-BOSS: [NOT IMPLEMENTED]
-  • Extremely fast, hit-and-run tactics
-  • Drops: Harmonic Essence of Mercury
-  • Summon: Crafted from Clair de Lune materials
+  NOTE: Existing OdeToJoy weapon crafting recipes must be REMOVED.
+        Weapons come from the Treasure Bag, not crafting.
 
-BOSS TO UNLOCK FINAL THEME:
-───────────────────────────
-*** DEFEAT MARS BOSS - THE BRINGER OF WAR ***
+NEXT: Clair de Lune (Tier 10) — FINAL TIER
 
 ================================================================================
 ══════════════════════════════════════════════════════════════════════════════
-             ★★★ TIER 13: MARS - THE FINAL BOSS ★★★
+          ★★★ TIER 10: CLAIR DE LUNE — FINAL TIER ★★★
 ══════════════════════════════════════════════════════════════════════════════
 ================================================================================
 
-TRIGGER: Defeat Mars Boss (first kill)
+GATE: Defeat Clair de Lune boss (PLANNED — not yet implemented)
+BOSS: TBD (planned)
+  HP: 20,000,000 (Normal) / 40,000,000 (Expert) / 60,000,000 (Master)
+BIOME: World-wide (skies, heaven, space)
+COLOR THEME: Night Mist Blue / Soft Blue / Pearl White
+RARITY: ClairDeLuneRarity
+WEAPON ACQUISITION: Treasure Bag (2-3 random weapons) — planned
 
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ "The melody of time has been shattered...the planets all    [BLOOD RED]     │
-│  shift melodically into a syzygy. The bringer of war                        │
-│  stirs...Mars' Resonance Energy spreads throughout                          │
-│  the world...prepare for battle..."                                         │
-│ → Mars Ore spawns throughout the world                                      │
-└─────────────────────────────────────────────────────────────────────────────┘
+APPROVED DAMAGE RANGE: 2800-4200
 
-────────────────────────────────────────────────────────────────────────────────
-                  MARS (Holst's "The Planets")
-                      THE BRINGER OF WAR
-                        [NOT IMPLEMENTED]
-────────────────────────────────────────────────────────────────────────────────
-
-BIOME: World-wide
-COLOR THEME: Blood Red / Martial
-THEME: War, aggression, martial power, "The Bringer of War"
-
-THIS IS THE FINAL BOSS OF THE MOD - THE ULTIMATE CHALLENGE
-
-BOSS: [NOT IMPLEMENTED]
-  • The most difficult boss in the mod
-  • Multi-phase, war-themed devastating attacks
-  • Drops: Harmonic Essence of Mars
-  • Summon: Crafted from Mercury materials
-
-FINAL EQUIPMENT:
-────────────────
-Mars equipment represents the pinnacle of power in the mod.
+WEAPONS (12):
+  • Chronologicality (Melee) ............... target 3800-4200
+  • TemporalPiercer (Melee) ................ target 3500-3900
+  • ClockworkHarmony (Ranged) .............. target 3200-3600
+  • StarfallWhisper (Ranged) ............... target 3100-3500
+  • MidnightMechanism (Ranged) ............. target 3000-3400
+  • CogAndHammer (Ranged) .................. target 2900-3300
+  • ClockworkGrimoire (Magic) .............. target 3000-3400
+  • OrreryOfDreams (Magic) ................. target 2900-3300
+  • RequiemOfTime (Magic) .................. target 2800-3200
+  • LunarPhylactery (Summon) ............... target 2800-3200
+  • GearDrivenArbiter (Summon) ............. target 2800-3200
+  • AutomatonsTuningFork (Summon) .......... target 2800-3200
 
 ================================================================================
-                    CRAFTING STATION TIERS SUMMARY
+                    CRAFTING STATION SUMMARY
 ================================================================================
 
-TIER 1 - MOONLIGHT (After Moon Lord):
-─────────────────────────────────────
-• Moonlight Furnace - Smelts: Moonlight, Eroica, Swan Lake, La Campanella, 
-                              Enigma materials
-• Moonlight Anvil - Forges: Moonlight, Eroica, Swan Lake, La Campanella, 
-                            Enigma equipment
+TIER 1 — MOONLIGHT STATIONS (After Moon Lord):
+  • Moonlight Furnace — Smelts Tiers 1-6 materials
+  • Moonlight Anvil — Forges Tiers 1-6 equipment & accessories
 
-TIER 2 - FATE (After Fate Boss):
-────────────────────────────────
-• Fate's Furnace - Smelts: Fate, Ode to Joy, Dies Irae, Winter, Nachtmusik 
-                           materials
-• Fate's Anvil - Forges: Fate, Ode to Joy, Dies Irae, Winter, Nachtmusik 
-                         equipment
+TIER 2 — FATE'S COSMIC STATIONS (After defeating Fate):
+  • Fate's Cosmic Furnace — Smelts Tiers 7-10 materials
+  • Fate's Cosmic Anvil — Forges Tiers 7-10 equipment & accessories
 
-TIER 3 - CELESTIAL (After Clair de Lune Boss):
-──────────────────────────────────────────────
-• Celestial Furnace - Smelts: Clair de Lune, Mercury, Mars materials
-• Celestial Anvil - Forges: Clair de Lune, Mercury, Mars equipment
+Moonlight Sonata weapons: CRAFTED at Moonlight Anvil (special case)
+All other theme weapons: DROPPED from boss Treasure Bags
+Accessories: CRAFTED at Moonlight Anvil (Tiers 1-6) or Fate's Cosmic
+             Anvil (Tiers 7-10)
 
 ================================================================================
-                         BOSS ORDER SUMMARY
+                      BOSS ORDER SUMMARY
 ================================================================================
 
-  1.  Moon Lord (vanilla) ──────► Unlocks Moonlight Sonata
-  2.  Bane of Eroica ───────────► Unlocks Eroica
-  3.  [Swan Lake Boss] ─────────► Unlocks Swan Lake
-  4.  [La Campanella Boss] ─────► Unlocks La Campanella
-  5.  [Enigma Boss] ────────────► Unlocks Enigma
-  6.  [FATE BOSS] ★ ────────────► Unlocks Fate + Tier 2 Stations
-  7.  [Ode to Joy Boss] ────────► Unlocks Ode to Joy
-  8.  [Dies Irae Boss] ─────────► Unlocks Dies Irae
-  9.  [Winter Boss] ────────────► Unlocks Winter
-  10. [Nachtmusik Boss] ────────► Unlocks Nachtmusik
-  11. [CLAIR DE LUNE BOSS] ★ ───► Unlocks Clair de Lune + Tier 3 Stations
-  12. [Mercury Boss] ───────────► Unlocks Mercury
-  13. [MARS BOSS] ★★★ ──────────► FINAL BOSS - Unlocks Mars (End Game)
+                     PRE-MOON LORD (SEASONAL — OPTIONAL)
+  S1. Primavera, Herald of Bloom ──────────► Post-Eye of Cthulhu
+  S2. L'Estate, Lord of the Zenith ────────► Post-Skeletron
+  S3. Autunno, the Withering Maestro ──────► Post-Wall of Flesh
+  S4. L'Inverno, the Silent Finale ────────► Post-Mechanical Bosses
+
+                     POST-MOON LORD (MAIN PROGRESSION)
+   1. Moon Lord (vanilla) ─────────────────► Unlocks Moonlight Sonata
+   2. Eroica's Retribution ────────────────► Unlocks Eroica
+   3. La Campanella, Chime of Life ────────► Unlocks La Campanella
+   4. Enigma, The Hollow Mystery ──────────► Unlocks Enigma Variations
+   5. Swan Lake, The Monochromatic Fractal ► Unlocks Swan Lake
+   6. Fate, Warden of Melodies ★ ──────────► Unlocks Fate + Tier 2 Stations
+   7. Nachtmusik, Queen of Radiance ───────► Unlocks Nachtmusik
+   8. Dies Irae, Herald of Judgement ──────► Unlocks Dies Irae
+   9. Ode to Joy, Chromatic Rose Conductor ► Unlocks Ode to Joy
+  10. Clair de Lune boss (PLANNED) ★ ──────► Unlocks Clair de Lune (FINAL)
 
 ================================================================================
-                         IMPLEMENTATION STATUS
+                       BOSS HP SUMMARY
 ================================================================================
 
-TIER 1 (Moonlight Stations):
-────────────────────────────
-[████████░░] 80% - MOONLIGHT SONATA
-  ✓ Ore & Tile
-  ✓ Crafting Stations (Furnace, Anvil)
-  ✓ Materials (Remnant, Core, Harmonic Energy)
-  ✓ Tools (Pickaxe, Axe, Hammer)
-  ✓ Weapon (Incisor of Moonlight)
-  ✗ Armor Set
-  ✗ Accessories
-
-[██░░░░░░░░] 20% - EROICA (Boss implemented, no ore/gear)
-[░░░░░░░░░░] 0% - SWAN LAKE
-[░░░░░░░░░░] 0% - LA CAMPANELLA
-[░░░░░░░░░░] 0% - ENIGMA VARIATIONS
-
-TIER 2 (Fate Stations) - Not Implemented:
-─────────────────────────────────────────
-[░░░░░░░░░░] 0% - FATE ★ (Major Milestone)
-[░░░░░░░░░░] 0% - ODE TO JOY
-[░░░░░░░░░░] 0% - DIES IRAE
-[░░░░░░░░░░] 0% - WINTER
-[░░░░░░░░░░] 0% - NACHTMUSIK
-
-TIER 3 (Celestial Stations) - Not Implemented:
-──────────────────────────────────────────────
-[░░░░░░░░░░] 0% - CLAIR DE LUNE ★ (Final Milestone)
-[░░░░░░░░░░] 0% - MERCURY
+┌──────┬─────────────────────────────────────┬────────────┬────────────┬────────────┐
+│ Tier │ Boss                                │ Normal HP  │ Expert HP  │ Master HP  │
+├──────┼─────────────────────────────────────┼────────────┼────────────┼────────────┤
+│ S1   │ Primavera                           │ 8,000      │ 16,000     │ 24,000     │
+│ S2   │ L'Estate                            │ 15,000     │ 30,000     │ 45,000     │
+│ S3   │ Autunno                             │ 32,000     │ 64,000     │ 96,000     │
+│ S4   │ L'Inverno                           │ 65,000     │ 130,000    │ 195,000    │
+├──────┼─────────────────────────────────────┼────────────┼────────────┼────────────┤
+│ 2    │ Eroica's Retribution                │ 350,000    │ 700,000    │ 1,050,000  │
+│ 3    │ La Campanella, Chime of Life        │ 550,000    │ 1,100,000  │ 1,650,000  │
+│ 4    │ Enigma, The Hollow Mystery          │ 800,000    │ 1,600,000  │ 2,400,000  │
+│ 5    │ Swan Lake, Monochromatic Fractal    │ 1,100,000  │ 2,200,000  │ 3,300,000  │
+│ 6★   │ Fate, Warden of Melodies (×2)      │ 3,000,000  │ 6,000,000  │ 9,000,000  │
+│ 7    │ Nachtmusik, Queen of Radiance (×2)  │ 8,000,000  │ 16,000,000 │ 24,000,000 │
+│ 8    │ Dies Irae, Herald of Judgement      │ 10,000,000 │ 20,000,000 │ 30,000,000 │
+│ 9    │ Ode to Joy, Chromatic Rose Cond.    │ 14,000,000 │ 28,000,000 │ 42,000,000 │
+│ 10★  │ Clair de Lune (PLANNED)             │ 20,000,000 │ 40,000,000 │ 60,000,000 │
+└──────┴─────────────────────────────────────┴────────────┴────────────┴────────────┘
 
 ================================================================================
-                  FOUR SEASONS BOSS INTEGRATION PROPOSAL
+                   WEAPON DAMAGE RANGE SUMMARY
 ================================================================================
 
-The Four Seasons (Vivaldi) could be integrated as a PRE-MOON LORD PROGRESSION
-in normal mode to hardmode, providing content before the main MagnumOpus themes.
-
-SUGGESTED PLACEMENT - Normal Mode to Hardmode (Before Moon Lord):
-─────────────────────────────────────────────────────────────────
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│              FOUR SEASONS - VANILLA PROGRESSION INSERT                      │
-│                                                                             │
-│  Wall of Flesh ──► SPRING ──► Mech Bosses ──► SUMMER ──► Plantera          │
-│                                                                             │
-│  Plantera ──► AUTUMN ──► Golem ──► WINTER ──► Cultist ──► Moon Lord        │
-│                                                                             │
-│  Moon Lord ──► [MagnumOpus Main Progression Begins]                         │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-INDIVIDUAL BOSS PLACEMENT SUGGESTIONS:
-
-1. SPRING (La Primavera) - Post-Wall of Flesh / Early Hardmode
-───────────────────────────────────────────────────────────────
-   TIMING: After Wall of Flesh, before Mechanical Bosses
-   DIFFICULTY: Comparable to early hardmode bosses
-   BIOME: Forest / Jungle (rebirth, new growth)
-   COLOR THEME: Vibrant Greens, Pink Blossoms, Soft Yellow (sunshine)
-   THEME: Rebirth, awakening, hope, new beginnings
-   
-   LORE: "The world awakens from its slumber..."
-   SUMMON: Crafted from early hardmode materials
-   DROPS: Spring Essence - helps with Mech Boss progression
-
-2. SUMMER (L'estate) - Post-Mechanical Bosses / Mid-Hardmode
-────────────────────────────────────────────────────────────
-   TIMING: After all 3 Mechanical Bosses, before Plantera
-   DIFFICULTY: Bridge between Mechs and Plantera
-   BIOME: Desert / Ocean (heat, intensity)
-   COLOR THEME: Bright Oranges, Intense Yellows, Solar Gold
-   THEME: Heat, intensity, peak power, blazing fury
-   
-   LORE: "The heat of Summer scorches the land..."
-   SUMMON: Requires Hallowed Bars + Summer-specific drops
-   DROPS: Summer Essence - prepares for Plantera
-
-3. AUTUMN (L'autunno) - Post-Plantera / Late-Mid Hardmode
-────────────────────────────────────────────────────────
-   TIMING: After Plantera, before Golem
-   DIFFICULTY: Between Plantera and Golem
-   BIOME: Surface Forest (changing leaves, decay)
-   COLOR THEME: Deep Oranges, Crimson Reds, Brown Gold (harvest)
-   THEME: Harvest, change, preparation for cold, melancholy
-   
-   LORE: "The leaves fall as Autumn approaches..."
-   SUMMON: Requires Chlorophyte + Autumn-specific drops
-   DROPS: Autumn Essence - temple/golem preparation
-
-4. WINTER (L'inverno) - Post-Golem / Pre-Cultist
-────────────────────────────────────────────────
-   TIMING: After Golem, before Lunatic Cultist
-   DIFFICULTY: Final preparation for Lunar Events
-   BIOME: Snow / Ice (cold, survival)
-   COLOR THEME: Icy Blues, Pure White, Silver Frost
-   THEME: Cold, harshness, endurance, stillness before the storm
-   
-   LORE: "Winter's chill descends upon the world..."
-   SUMMON: Requires Beetle materials + Winter-specific drops
-   DROPS: Winter Essence - Lunar event preparation
-   
-   NOTE: This is SEPARATE from the post-Fate "Winter" theme (Tier 9).
-         The Four Seasons Winter is a hardmode progression boss.
-         Consider renaming post-Fate Winter to something else to avoid
-         confusion, or make them connected (Winter returns stronger).
-
-ALTERNATIVE: SEASONAL CYCLE BOSS (Single Boss, Four Phases)
-──────────────────────────────────────────────────────────
-Instead of 4 separate bosses, consider ONE boss that cycles through
-all four seasons as phases:
-   
-   • Phase 1 - Spring (100-75% HP): Rebirth attacks, healing
-   • Phase 2 - Summer (75-50% HP): Fire attacks, intensity ramps
-   • Phase 3 - Autumn (50-25% HP): Decay attacks, area denial
-   • Phase 4 - Winter (25-0% HP): Ice attacks, slowing, final push
-   
-   TIMING: Single boss post-Golem, pre-Cultist
-   DIFFICULTY: Multi-phase challenge preparing for Moon Lord
-   DROPS: All four seasonal essences at once
-[░░░░░░░░░░] 0% - MARS ★★★ (Final Boss)
+┌──────┬──────────────────┬─────────────────┐
+│ Tier │ Theme            │ Damage Range    │
+├──────┼──────────────────┼─────────────────┤
+│ S1   │ Spring           │ 42-72           │
+│ S2   │ Summer           │ 65-115          │
+│ S3   │ Autumn           │ 88-145          │
+│ S4   │ Winter           │ 115-195         │
+│ SC   │ Seasons Combined │ 145-285         │
+├──────┼──────────────────┼─────────────────┤
+│ 1    │ Moonlight Sonata │ 200-350 (+1500) │
+│ 2    │ Eroica           │ 300-500         │
+│ 3    │ La Campanella    │ 400-650         │
+│ 4    │ Enigma           │ 550-800         │
+│ 5    │ Swan Lake        │ 700-1000        │
+│ 6★   │ Fate             │ 900-1350        │
+│ 7    │ Nachtmusik       │ 1200-1800       │
+│ 8    │ Dies Irae        │ 1600-2400       │
+│ 9    │ Ode to Joy       │ 2100-3200       │
+│ 10★  │ Clair de Lune    │ 2800-4200       │
+└──────┴──────────────────┴─────────────────┘
 
 ================================================================================
-                              TOTAL PROGRESS
+                    MATERIAL FLOW SUMMARY
 ================================================================================
 
-                    [██░░░░░░░░░░░░░░░░░░] ~8%
+Each post-Moon Lord theme has:
+  • Resonance Ore — spawns in world after previous boss defeated
+  • Remnant — drops from mining the ore
+  • Resonant Core — smelted from remnants at furnace
+  • Harmonic Core — crafted from cores at anvil
+  • Resonant Energy — boss treasure bag drop
+  • Theme Shards — dropped by theme-specific enemies
+  • Theme Essence — 2% from theme enemies
+
+MOONLIGHT SONATA WEAPONS use: Energy + Cores + Shards (crafted)
+ALL OTHER WEAPONS come from: Boss Treasure Bags (2-3 per bag)
+ACCESSORIES are: Crafted at Moonlight Anvil (T1-6) or Fate's Cosmic Anvil (T7-10)
 
 ================================================================================
-                           VERSION HISTORY
+                    ACCESSORY PROGRESSION
 ================================================================================
 
-v0.1.0 (Current)
-  • Moonlight Sonata theme mostly complete
-  • Bane of Eroica boss implemented
-  • Linear progression system designed
-  • Custom rarity system
+6 PROGRESSIVE CHAINS (one per playstyle):
+  Defense, Melee, Ranger, Mage, Mobility, Summoner
+  Each chain has items for every tier, crafted at the appropriate anvil.
+
+THEME-SPECIFIC ACCESSORIES:
+  Each theme has 2-6 unique accessories + wings (where applicable).
+  Crafted at the tier-appropriate anvil.
+
+COMBINATION ACCESSORIES:
+  Two-theme combos (6), Three-theme combos (4), Grand combos (5),
+  Ultimate: Coda of Absolute Harmony
+
+SEASONAL ACCESSORIES (16):
+  3 per season + 4 combination items
+  Crafted at Mythril Anvil
+
+================================================================================
+                    KNOWN ISSUES TO FIX
+================================================================================
+
+  [ ] IncisorOfMoonlight uses EroicaRainbowRarity (should be Moonlight)
+  [ ] Enigma bag drops 1+50% instead of 2-3 standardized
+  [ ] DiesIrae bag drops only 1 weapon instead of 2-3
+  [ ] OdeToJoy treasure bag .cs needs to be created
+  [ ] OdeToJoy/DiesIrae weapon crafting recipes need removal
+  [ ] CodaOfAnnihilation lore color: 220,60,90 → 180,40,80
+  [ ] FeathersCall lore color: 220,225,235 → 240,240,255
+  [ ] 5 missing buff textures (crash risk): ResonantToll,
+      CampanellaChoirBuff, BellfireCrescendoBuff,
+      GrandCrescendoBuff, InfernoWaltzBuff
+  [ ] No Expert/Master Mode HP scaling on any boss
+  [ ] Weapon damage values need rebalancing per approved ranges
 
 ================================================================================
                          END OF DOCUMENT

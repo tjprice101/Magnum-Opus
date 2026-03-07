@@ -51,12 +51,12 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Par
             Vector2 drawPos = Position - Main.screenPosition;
             Color drawColor = Color * alpha;
 
-            // Layer 1: Outer halo bloom
-            sb.Draw(tex, drawPos, null, drawColor * 0.3f, Rotation, tex.Size() / 2f, Scale * 2f, SpriteEffects.None, 0f);
+            // Layer 1: Outer halo bloom (capped to 300px on 2160px texture)
+            sb.Draw(tex, drawPos, null, drawColor * 0.3f, Rotation, tex.Size() / 2f, MathHelper.Min(Scale * 2f, 0.139f), SpriteEffects.None, 0f);
             // Layer 2: Colored core
-            sb.Draw(tex, drawPos, null, drawColor * 0.7f, Rotation, tex.Size() / 2f, Scale, SpriteEffects.None, 0f);
+            sb.Draw(tex, drawPos, null, drawColor * 0.7f, Rotation, tex.Size() / 2f, MathHelper.Min(Scale, 0.139f), SpriteEffects.None, 0f);
             // Layer 3: White-hot center
-            sb.Draw(tex, drawPos, null, Color.White * alpha * 0.4f, Rotation, tex.Size() / 2f, Scale * 0.4f, SpriteEffects.None, 0f);
+            sb.Draw(tex, drawPos, null, Color.White * alpha * 0.4f, Rotation, tex.Size() / 2f, MathHelper.Min(Scale * 0.4f, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -78,7 +78,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Par
         private readonly float _orbitSpeed;
 
         public override bool SetLifetime => true;
-        public override bool UseAdditiveBlend => false;
+        public override bool UseAdditiveBlend => true; // SoftRadialBloom halo has black bg
         public override bool UseCustomDraw => true;
 
         public CipherGlyphParticle(Vector2 orbitCenter, float orbitRadius, float startAngle, Color color, float scale, int lifetime)
@@ -112,7 +112,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Par
 
             // Glyph with soft glow behind
             var glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
-            sb.Draw(glowTex, drawPos, null, Color * alpha * 0.3f, 0f, glowTex.Size() / 2f, Scale * 3f, SpriteEffects.None, 0f);
+            sb.Draw(glowTex, drawPos, null, Color * alpha * 0.3f, 0f, glowTex.Size() / 2f, MathHelper.Min(Scale * 3f, 0.139f), SpriteEffects.None, 0f);
             sb.Draw(tex, drawPos, null, Color * alpha, Rotation, tex.Size() / 2f, Scale, SpriteEffects.None, 0f);
         }
     }
@@ -196,8 +196,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Par
             var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
-            sb.Draw(tex, drawPos, null, Color * alpha * 0.6f, 0f, tex.Size() / 2f, Scale, SpriteEffects.None, 0f);
-            sb.Draw(tex, drawPos, null, Color.White * alpha * 0.2f, 0f, tex.Size() / 2f, Scale * 0.7f, SpriteEffects.None, 0f);
+            sb.Draw(tex, drawPos, null, Color * alpha * 0.6f, 0f, tex.Size() / 2f, MathHelper.Min(Scale, 0.139f), SpriteEffects.None, 0f);
+            sb.Draw(tex, drawPos, null, Color.White * alpha * 0.2f, 0f, tex.Size() / 2f, MathHelper.Min(Scale * 0.7f, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -236,9 +236,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Par
             var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
-            sb.Draw(tex, drawPos, null, Color * alpha * 0.4f, 0f, tex.Size() / 2f, Scale * 3f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(tex, drawPos, null, Color * alpha * 0.8f, 0f, tex.Size() / 2f, Scale * pulse, SpriteEffects.None, 0f);
-            sb.Draw(tex, drawPos, null, CipherUtils.WhiteRevelation * alpha * 0.5f, 0f, tex.Size() / 2f, Scale * 0.5f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(tex, drawPos, null, Color * alpha * 0.4f, 0f, tex.Size() / 2f, MathHelper.Min(Scale * 3f * pulse, 0.139f), SpriteEffects.None, 0f);
+            sb.Draw(tex, drawPos, null, Color * alpha * 0.8f, 0f, tex.Size() / 2f, MathHelper.Min(Scale * pulse, 0.139f), SpriteEffects.None, 0f);
+            sb.Draw(tex, drawPos, null, CipherUtils.WhiteRevelation * alpha * 0.5f, 0f, tex.Size() / 2f, MathHelper.Min(Scale * 0.5f * pulse, 0.139f), SpriteEffects.None, 0f);
         }
     }
 }

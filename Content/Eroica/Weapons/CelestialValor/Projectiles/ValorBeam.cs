@@ -5,6 +5,7 @@ using MagnumOpus.Content.Eroica.Weapons.CelestialValor.Buffs;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using MagnumOpus.Content.FoundationWeapons.SwordSmearFoundation;
 using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
+using MagnumOpus.Common.Systems.VFX;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -182,6 +183,14 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
                 (time * 1.5f + Projectile.whoAmI * 0.15f) % 1f,
                 EroicaPalette.Scarlet, EroicaPalette.Flame, EroicaPalette.Gold, EroicaPalette.HotCore);
 
+            // === GPU Primitive Ribbon Trail (EnhancedTrailRenderer) ===
+            EnhancedTrailRenderer.RenderProjectileTrail(
+                Projectile,
+                startColor: EroicaPalette.Gold with { A = 0 },
+                endColor: EroicaPalette.DeepScarlet with { A = 0 } * 0.1f,
+                width: 22f * scale,
+                multiPass: true);
+
             // ���� LAYER 1: Afterimage trail chain (Foundation bloom-per-point) ����
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
@@ -218,12 +227,12 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
             // Wide ambient haze
             sb.Draw(softGlow, headPos, null,
                 (EroicaPalette.Scarlet with { A = 0 }) * 0.12f, 0f, glowOrigin,
-                1.1f * scale, SpriteEffects.None, 0f);
+                0.28f * scale, SpriteEffects.None, 0f);
 
             // Main body glow
             sb.Draw(softGlow, headPos, null,
                 (mainColor with { A = 0 }) * 0.5f, 0f, glowOrigin,
-                0.3f * scale, SpriteEffects.None, 0f);
+                0.28f * scale, SpriteEffects.None, 0f);
 
             // Hot white core
             sb.Draw(pointBloom, headPos, null,

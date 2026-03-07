@@ -1,4 +1,5 @@
 ﻿using MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Buffs;
+using MagnumOpus.Common.Systems.VFX;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -293,14 +294,27 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Projectiles
             // Floral burst
             sb.Draw(floral, pos, null, primary * fade * 0.3f, _timer * 0.02f, floralO,
                 (0.25f + expand * 0.5f), SpriteEffects.None, 0f);
-            // Core flash (3-tier bloom)
+            // Core flash (3-tier bloom — capped for visual sanity)
             float flashFade = MathHelper.Clamp(1f - _timer / 12f, 0f, 1f);
-            sb.Draw(glow, pos, null, primary * flashFade * 0.4f, 0f, glowO, 1.6f,
+            sb.Draw(glow, pos, null, primary * flashFade * 0.4f, 0f, glowO, 0.8f,
                 SpriteEffects.None, 0f);
-            sb.Draw(glow, pos, null, ElysianTextures.PureJoyWhite * flashFade * 0.6f, 0f, glowO, 1.0f,
+            sb.Draw(glow, pos, null, ElysianTextures.PureJoyWhite * flashFade * 0.6f, 0f, glowO, 0.5f,
                 SpriteEffects.None, 0f);
-            sb.Draw(glow, pos, null, bright * flashFade * 0.45f, 0f, glowO, 0.4f,
+            sb.Draw(glow, pos, null, bright * flashFade * 0.45f, 0f, glowO, 0.25f,
                 SpriteEffects.None, 0f);
+
+            // Star4Soft sparkle ring — celebratory 4-point star accents
+            Texture2D starTex = MagnumTextureRegistry.GetStar4Soft();
+            if (starTex != null && flashFade > 0.05f)
+            {
+                Vector2 starOrigin = starTex.Size() / 2f;
+                float starRot = _timer * 0.15f;
+                float starScale = 0.14f * flashFade;
+                sb.Draw(starTex, pos, null, primary * flashFade * 0.55f, starRot,
+                    starOrigin, starScale, SpriteEffects.None, 0f);
+                sb.Draw(starTex, pos, null, ElysianTextures.PureJoyWhite * flashFade * 0.35f, -starRot * 0.7f,
+                    starOrigin, starScale * 0.65f, SpriteEffects.None, 0f);
+            }
 
             // Theme blossom sparkle accent
             OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);

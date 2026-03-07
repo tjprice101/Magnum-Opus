@@ -92,7 +92,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
                     PetalStormTextures.BloomGold, fade * 0.5f, 1.6f, 0.3f);
                 OdeToJoyShaders.BeginDeferredShaderBatch(sb, pollenShader, "PollenTrailTechnique");
                 sb.Draw(glowTex, drawPos, null, Color.White * fade, Projectile.rotation, glowOrigin,
-                    0.35f, SpriteEffects.None, 0f);
+                    0.28f, SpriteEffects.None, 0f);
                 sb.End();
             }
 
@@ -104,7 +104,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
                 0.7f, SpriteEffects.None, 0f);
             // Glow
             sb.Draw(glowTex, drawPos, null, PetalStormTextures.BloomGold * fade * 0.35f, 0f, glowOrigin,
-                0.4f, SpriteEffects.None, 0f);
+                0.28f, SpriteEffects.None, 0f);
             // Core
             sb.Draw(glowTex, drawPos, null, PetalStormTextures.JubilantLight * fade * 0.4f, 0f, glowOrigin,
                 0.12f, SpriteEffects.None, 0f);
@@ -245,7 +245,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
                 OdeToJoyShaders.BeginShaderBatch(sb, auraShader, "CelebrationAuraTechnique");
                 auraShader.CurrentTechnique.Passes["P0"].Apply();
                 sb.Draw(glowTex, drawPos, null, Color.White * fade, spin, glowOrigin,
-                    scale * 1.3f, SpriteEffects.None, 0f);
+                    Math.Min(scale * 1.3f, 0.293f), SpriteEffects.None, 0f);
                 sb.End();
             }
 
@@ -258,7 +258,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
                 bloomShader.Parameters["uPulseSpeed"]?.SetValue(0.8f);
                 OdeToJoyShaders.BeginDeferredShaderBatch(sb, bloomShader, "JubilantPulseTechnique");
                 sb.Draw(glowTex, drawPos, null, Color.White * fade, 0f, glowOrigin,
-                    scale * 0.7f, SpriteEffects.None, 0f);
+                    Math.Min(scale * 0.7f, 0.293f), SpriteEffects.None, 0f);
                 sb.End();
             }
 
@@ -276,10 +276,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
                 scale * 0.6f, SpriteEffects.None, 0f);
             // Soft outer glow
             sb.Draw(glowTex, drawPos, null, PetalStormTextures.BloomGold * fade * 0.15f, 0f, glowOrigin,
-                scale * 1.5f, SpriteEffects.None, 0f);
+                Math.Min(scale * 1.5f, 0.293f), SpriteEffects.None, 0f);
             // Inner bright core
             sb.Draw(glowTex, drawPos, null, PetalStormTextures.JubilantLight * fade * 0.25f, 0f, glowOrigin,
-                scale * 0.3f, SpriteEffects.None, 0f);
+                Math.Min(scale * 0.3f, 0.293f), SpriteEffects.None, 0f);
 
             // Theme blossom sparkle accent
             OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
@@ -428,7 +428,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
                 OdeToJoyShaders.BeginDeferredShaderBatch(sb, pollenShader, "BloomDetonationTechnique");
                 Vector2 drawPos = Projectile.Center - Main.screenPosition;
                 sb.Draw(glowTex, drawPos, null, Color.White * fade, _timer * 0.06f, glowOrigin,
-                    0.7f, SpriteEffects.None, 0f);
+                    0.28f, SpriteEffects.None, 0f);
                 sb.End();
             }
 

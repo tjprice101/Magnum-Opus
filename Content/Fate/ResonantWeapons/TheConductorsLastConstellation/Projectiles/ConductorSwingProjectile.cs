@@ -9,6 +9,7 @@ using Terraria.GameContent;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation.Utilities;
 using MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation.Particles;
 using MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation.Primitives;
@@ -40,12 +41,38 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
         public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/TheConductorsLastConstellation";
 
         // Swing arc parameters per phase
-        // Phase 0: Downbeat (moderate arc, moderate speed  Eauthoritative downstroke)
-        // Phase 1: Crescendo (upward arc, fast  Ebuilding energy)
-        // Phase 2: Forte (wide horizontal, slow windup ↁEexplosive)
+        // Phase 0: Downbeat (moderate arc, moderate speed — authoritative downstroke)
+        // Phase 1: Crescendo (upward arc, fast — building energy)
+        // Phase 2: Forte (wide horizontal, slow windup → explosive)
         private static readonly float[] ArcAngles = { 150f, 130f, 180f };
         private static readonly float[] SwingDurations = { 22f, 18f, 26f };
         private static readonly float[] DamageMultipliers = { 1f, 0.95f, 1.35f };
+
+        // Incisor-style 3-segment piecewise curves (windup → swing → settle)
+        private static readonly ConductorUtils.CurveSegment[][] PhaseCurves = new[]
+        {
+            // Phase 0 (Downbeat): authoritative, standard Incisor timing
+            new ConductorUtils.CurveSegment[]
+            {
+                new(0f, 0.25f, 0f, 0.14f, ConductorUtils.QuadOut),
+                new(0.25f, 0.83f, 0.14f, 0.92f, ConductorUtils.QuadIn),
+                new(0.83f, 1.0f, 0.92f, 1.0f, ConductorUtils.QuadOut),
+            },
+            // Phase 1 (Crescendo): snappier anticipation, aggressive acceleration
+            new ConductorUtils.CurveSegment[]
+            {
+                new(0f, 0.18f, 0f, 0.10f, ConductorUtils.SineOut),
+                new(0.18f, 0.78f, 0.10f, 0.94f, ConductorUtils.CubicIn),
+                new(0.78f, 1.0f, 0.94f, 1.0f, ConductorUtils.SineOut),
+            },
+            // Phase 2 (Forte): extended dramatic windup → explosive strike
+            new ConductorUtils.CurveSegment[]
+            {
+                new(0f, 0.32f, 0f, 0.12f, ConductorUtils.SineOut),
+                new(0.32f, 0.88f, 0.12f, 0.95f, ConductorUtils.ExpIn),
+                new(0.88f, 1.0f, 0.95f, 1.0f, ConductorUtils.QuadOut),
+            },
+        };
 
         // Trail system
         private Vector2[] _trailPoints = new Vector2[24];
@@ -149,23 +176,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
 
             float progress = Projectile.ai[1] / duration;
 
-            // Swing easing per phase
-            float easedProgress;
-            switch (_phase)
-            {
-                case 0: // Downbeat: powerful accelerating downstroke
-                    easedProgress = ConductorUtils.QuadIn(progress);
-                    break;
-                case 1: // Crescendo: smooth building sweep
-                    easedProgress = ConductorUtils.SineInOut(progress);
-                    break;
-                case 2: // Forte: slow windup ↁEexplosive horizontal sweep
-                    easedProgress = ConductorUtils.ExpIn(progress);
-                    break;
-                default:
-                    easedProgress = progress;
-                    break;
-            }
+            // 3-segment piecewise swing: windup → accelerating sweep → settle
+            float easedProgress = ConductorUtils.PiecewiseAnimation(progress, PhaseCurves[_phase]);
 
             _currentAngle = _startAngle + ArcRadians * easedProgress * _direction;
 
@@ -628,21 +640,21 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
                 Vector2 bloomOrigin = bloom.Size() / 2f;
                 Vector2 pointOrigin = point.Size() / 2f;
 
-                // Layer 1: Wide outer indigo haze
+                // Layer 1: Wide outer indigo haze (capped 300px on 2160px SoftRadialBloom)
                 sb.Draw(bloom, tipDraw, null, ConductorUtils.Additive(ConductorUtils.DeepIndigo, 0.15f * intensity),
-                    0f, bloomOrigin, 1.6f * intensity, SpriteEffects.None, 0f);
+                    0f, bloomOrigin, MathHelper.Min(0.16f * intensity, 0.139f), SpriteEffects.None, 0f);
                 // Layer 2: Electric cyan glow
                 sb.Draw(bloom, tipDraw, null, ConductorUtils.Additive(ConductorUtils.ConductorCyan, 0.3f * intensity),
-                    0f, bloomOrigin, 1.1f * intensity, SpriteEffects.None, 0f);
+                    0f, bloomOrigin, 0.11f * intensity, SpriteEffects.None, 0f);
                 // Layer 3: Lightning gold mid
                 sb.Draw(bloom, tipDraw, null, ConductorUtils.Additive(ConductorUtils.LightningGold, 0.35f * intensity),
-                    0f, bloomOrigin, 0.65f * intensity, SpriteEffects.None, 0f);
+                    0f, bloomOrigin, 0.065f * intensity, SpriteEffects.None, 0f);
                 // Layer 4: Silver highlight
                 sb.Draw(point, tipDraw, null, ConductorUtils.Additive(ConductorUtils.StarSilver, 0.45f * intensity),
-                    0f, pointOrigin, 0.35f * intensity, SpriteEffects.None, 0f);
+                    0f, pointOrigin, 0.04f * intensity, SpriteEffects.None, 0f);
                 // Layer 5: White core
                 sb.Draw(point, tipDraw, null, ConductorUtils.Additive(ConductorUtils.CelestialWhite, 0.55f * intensity),
-                    0f, pointOrigin, 0.18f * intensity, SpriteEffects.None, 0f);
+                    0f, pointOrigin, 0.025f * intensity, SpriteEffects.None, 0f);
                 // Layer 6: Rotating star flare
                 if (_starFlareTex?.Value != null)
                 {
@@ -650,9 +662,9 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
                     Texture2D starTex = _starFlareTex.Value;
                     Vector2 starOrigin = starTex.Size() / 2f;
                     sb.Draw(starTex, tipDraw, null, ConductorUtils.Additive(ConductorUtils.ConductorCyan, 0.3f * intensity),
-                        starRot, starOrigin, 0.4f * intensity, SpriteEffects.None, 0f);
+                        starRot, starOrigin, 0.14f * intensity, SpriteEffects.None, 0f);
                     sb.Draw(starTex, tipDraw, null, ConductorUtils.Additive(ConductorUtils.LightningGold, 0.2f * intensity),
-                        -starRot * 0.7f, starOrigin, 0.25f * intensity, SpriteEffects.None, 0f);
+                        -starRot * 0.7f, starOrigin, 0.09f * intensity, SpriteEffects.None, 0f);
                 }
 
                 sb.End();
@@ -929,6 +941,18 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
                         0f, _glowTex.Value.Size() / 2f, 0.35f * flarePulse, SpriteEffects.None, 0f);
                     sb.Draw(_glowTex.Value, tipPos, null, ConductorUtils.Additive(ConductorUtils.CelestialWhite, 0.3f * flarePulse),
                         0f, _glowTex.Value.Size() / 2f, 0.18f * flarePulse, SpriteEffects.None, 0f);
+
+                    // Star4Soft sparkle accent — conductor's baton point
+                    Texture2D starTex = MagnumTextureRegistry.GetStar4Soft();
+                    if (starTex != null)
+                    {
+                        Vector2 starOrigin = starTex.Size() / 2f;
+                        float starRot = (float)Main.timeForVisualEffects * 0.05f;
+                        sb.Draw(starTex, tipPos, null, ConductorUtils.Additive(ConductorUtils.ConductorCyan, 0.4f * flarePulse),
+                            starRot, starOrigin, 0.10f * flarePulse, SpriteEffects.None, 0f);
+                        sb.Draw(starTex, tipPos, null, ConductorUtils.Additive(ConductorUtils.CelestialWhite, 0.25f * flarePulse),
+                            -starRot * 0.7f, starOrigin, 0.06f * flarePulse, SpriteEffects.None, 0f);
+                    }
                     ConductorUtils.EndAdditive(sb);
                 }
             }

@@ -150,7 +150,10 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
             }
 
             // VFXLibrary integration (safe)
-            try { SwanLakeVFXLibrary.SpawnRainbowBurst(target.Center, 6, 4f); } catch { }
+            try { SwanLakeVFXLibrary.SpawnRainbowBurst(target.Center, 8, 5f); } catch { }
+            try { SwanLakeVFXLibrary.SpawnPrismaticSparkles(target.Center, 6, 20f); } catch { }
+            try { SwanLakeVFXLibrary.SpawnMusicNotes(target.Center, 2, 15f, 0.6f, 0.9f, 22); } catch { }
+            try { SwanLakeVFXLibrary.SpawnFeatherDrift(target.Center, 2, 15f); } catch { }
         }
 
         public override void OnKill(int timeLeft)
@@ -181,8 +184,11 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
                 }
             }
 
-            // Feather drift
+            // Feather drift + enhanced VFX
             try { SwanLakeVFXLibrary.SpawnFeatherDrift(Projectile.Center, 4, 25f); } catch { }
+            try { SwanLakeVFXLibrary.SpawnRainbowExplosion(Projectile.Center, 1f); } catch { }
+            try { SwanLakeVFXLibrary.SpawnPrismaticSparkles(Projectile.Center, 8, 30f); } catch { }
+            try { SwanLakeVFXLibrary.SpawnMusicNotes(Projectile.Center, 4, 20f, 0.7f, 1.0f, 28); } catch { }
 
             // Screen impact
             for (int i = 0; i < 12; i++)
@@ -312,7 +318,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
                     Vector2 rOrigin = radial.Size() * 0.5f;
                     Color hazeColor = Color.Lerp(PearlescentUtils.MistBlue, PearlescentUtils.LakeSilver, 0.4f);
                     sb.Draw(radial, drawPos, null, hazeColor * 0.15f * pulse, 0f, rOrigin,
-                        0.8f * variantScale * pulse, SpriteEffects.None, 0f);
+                        0.1f * variantScale * pulse, SpriteEffects.None, 0f);
                 }
 
                 // Layer 2: Pearlescent outer glow
@@ -337,7 +343,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
                 {
                     Vector2 pOrigin = point.Size() * 0.5f;
                     sb.Draw(point, drawPos, null, Color.White * 0.85f, 0f, pOrigin,
-                        0.22f * variantScale * pulse, SpriteEffects.None, 0f);
+                        0.08f * variantScale * pulse, SpriteEffects.None, 0f);
                 }
 
                 // Layer 5: Star sparkle accent (rotating)

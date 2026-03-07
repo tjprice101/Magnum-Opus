@@ -246,12 +246,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
 
             // Wide ice blue glow
             sb.Draw(softGlow, center, null, LunarSmokeBody * (flashAlpha * 0.5f),
-                0f, glowOrigin, 0.35f * (1f + flashProgress * 0.3f),
+                0f, glowOrigin, 0.14f * (1f + flashProgress * 0.3f),
                 SpriteEffects.None, 0f);
 
             // Tight purple core
             sb.Draw(softGlow, center, null, LunarSmokeCore * (flashAlpha * 0.3f),
-                0f, glowOrigin, 0.15f, SpriteEffects.None, 0f);
+                0f, glowOrigin, 0.06f, SpriteEffects.None, 0f);
         }
 
         private void DrawPuffGlowAccents(SpriteBatch sb)

@@ -97,12 +97,12 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
             try { bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow", ReLogic.Content.AssetRequestMode.ImmediateLoad)?.Value; } catch { }
             if (bloomTex != null)
             {
-                Color aura = (PiercingBellsResonanceUtils.ResonancePalette[1] with { A = 0 }) * 0.15f * fade;
+                Color aura = (PiercingBellsResonanceUtils.ResonancePalette[1] with { A = 0 }) * 0.25f * fade;
                 float auraScale = DamageRadius / (bloomTex.Width * 0.5f);
                 try { sb.End(); } catch { }
                 try
                 {
-                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
                     Main.DefaultSamplerState, DepthStencilState.None,
                     Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
                 sb.Draw(bloomTex, Projectile.Center - Main.screenPosition, null,
@@ -136,7 +136,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
                             shaderNote, Projectile.rotation, bloomTex.Size() / 2f, auraScale * 0.8f, SpriteEffects.None, 0f);
 
                         sb.End();
-                        sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                        sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
                             Main.DefaultSamplerState, DepthStencilState.None,
                             Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
                     }
@@ -145,7 +145,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
                         try
                         {
                             sb.End();
-                            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
                                 Main.DefaultSamplerState, DepthStencilState.None,
                                 Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
                         }

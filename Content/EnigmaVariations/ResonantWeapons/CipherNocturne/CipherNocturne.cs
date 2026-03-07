@@ -266,7 +266,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
                 {
                     EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.CipherBeamTrail,
                         shBloom, midScreen, shBloom.Size() / 2f,
-                        MathHelper.Clamp(length / 64f, 1f, 12f),
+                        MathHelper.Clamp(length / 64f, 0.15f, 0.58f),
                         CipherUtils.ArcaneViolet.ToVector3(), CipherUtils.UnravelGreen.ToVector3(),
                         opacity: 0.4f * channelFactor, intensity: 1.2f + deepChannel * 0.3f,
                         rotation: rotation,
@@ -280,39 +280,38 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
             // Abyss Black -> Deep Enigma -> Arcane Violet -> Unravel Green
             // -> Cipher Bright -> White Revelation
             // ═══════════════════════════════════════════════════════
-            CipherUtils.EnterAdditiveShaderRegion(sb);
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
             Texture2D bloomTex = MagnumTextureRegistry.GetSoftGlow();
             if (bloomTex != null)
             {
                 Vector2 bOrigin = bloomTex.Size() / 2f;
-                float bloomBase = (0.3f + channelFactor * 0.5f) * pulse;
+                float bloomBase = (0.3f + channelFactor * 0.5f) * pulse * 0.25f;
 
                 // === Beam endpoint bloom hub ===
-                // A: Wide outer abyss glow
-                sb.Draw(bloomTex, endScreen, null, CipherUtils.AbyssBlack * 0.2f * channelFactor, 0f, bOrigin,
-                    bloomBase * 3.0f, SpriteEffects.None, 0f);
                 // B: Deep enigma haze
                 sb.Draw(bloomTex, endScreen, null, CipherUtils.DeepEnigma * 0.35f * channelFactor, 0f, bOrigin,
-                    bloomBase * 2.0f, SpriteEffects.None, 0f);
+                    bloomBase * 1.0f, SpriteEffects.None, 0f);
                 // C: Arcane violet core
                 sb.Draw(bloomTex, endScreen, null, CipherUtils.ArcaneViolet * 0.5f * channelFactor, 0f, bOrigin,
-                    bloomBase * 1.2f, SpriteEffects.None, 0f);
+                    bloomBase * 0.6f, SpriteEffects.None, 0f);
                 // D: Unravel green transitional
                 sb.Draw(bloomTex, endScreen, null, CipherUtils.UnravelGreen * 0.5f * channelFactor, 0f, bOrigin,
-                    bloomBase * 0.65f, SpriteEffects.None, 0f);
+                    bloomBase * 0.35f, SpriteEffects.None, 0f);
                 // E: Cipher bright flash
                 sb.Draw(bloomTex, endScreen, null, CipherUtils.CipherBright * 0.45f * channelFactor, 0f, bOrigin,
-                    bloomBase * 0.3f, SpriteEffects.None, 0f);
+                    bloomBase * 0.16f, SpriteEffects.None, 0f);
                 // F: White revelation pinpoint
                 sb.Draw(bloomTex, endScreen, null, CipherUtils.WhiteRevelation * 0.6f * channelFactor, 0f, bOrigin,
-                    bloomBase * 0.1f, SpriteEffects.None, 0f);
+                    bloomBase * 0.05f, SpriteEffects.None, 0f);
 
                 // === Beam origin bloom hub (smaller) ===
                 sb.Draw(bloomTex, startScreen, null, CipherUtils.ArcaneViolet * 0.35f * channelFactor, 0f, bOrigin,
-                    bloomBase * 0.8f, SpriteEffects.None, 0f);
+                    bloomBase * 0.45f, SpriteEffects.None, 0f);
                 sb.Draw(bloomTex, startScreen, null, CipherUtils.DeepEnigma * 0.2f * channelFactor, 0f, bOrigin,
-                    bloomBase * 1.5f, SpriteEffects.None, 0f);
+                    bloomBase * 0.75f, SpriteEffects.None, 0f);
             }
 
             // EN Star Flare — dual counter-rotating spectral cipher flares at beam endpoint
@@ -322,7 +321,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
                 Vector2 sfOrigin = starFlareTex.Size() / 2f;
                 float sfRotA = (float)Main.GameUpdateCount * 0.03f;
                 float sfRotB = -(float)Main.GameUpdateCount * 0.02f;
-                float sfScale = (0.2f + channelFactor * 0.2f) * pulse;
+                float sfScale = (0.2f + channelFactor * 0.2f) * pulse * 0.25f;
                 sb.Draw(starFlareTex, endScreen, null, CipherUtils.UnravelGreen * 0.55f * channelFactor,
                     sfRotA, sfOrigin, sfScale, SpriteEffects.None, 0f);
                 sb.Draw(starFlareTex, endScreen, null, CipherUtils.ArcaneViolet * 0.4f * channelFactor,
@@ -335,7 +334,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
             {
                 Vector2 prOrigin = powerRingTex.Size() / 2f;
                 float prRot = (float)Main.GameUpdateCount * 0.025f;
-                float prScale = (0.2f + channelFactor * 0.15f) * pulse;
+                float prScale = (0.2f + channelFactor * 0.15f) * pulse * 0.25f;
                 sb.Draw(powerRingTex, endScreen, null, CipherUtils.CipherBright * 0.35f * channelFactor,
                     prRot, prOrigin, prScale, SpriteEffects.None, 0f);
                 sb.Draw(powerRingTex, endScreen, null, CipherUtils.ArcaneViolet * 0.25f * channelFactor,
@@ -350,7 +349,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
                 {
                     float eyePulse = MathF.Sin(Main.GameUpdateCount * 0.08f) * 0.15f + 0.85f;
                     float eyeAlpha = (deepChannel - 0.5f) * 2f * eyePulse;
-                    float eyeScale = (0.15f + deepChannel * 0.15f) * pulse;
+                    float eyeScale = (0.15f + deepChannel * 0.15f) * pulse * 0.25f;
                     sb.Draw(eyeTex, endScreen, null, CipherUtils.UnravelGreen * eyeAlpha * 0.5f,
                         0f, eyeTex.Size() / 2f, eyeScale, SpriteEffects.None, 0f);
                 }
@@ -373,9 +372,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
             }
 
             // Theme accents
-            CipherUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f * channelFactor);
+            CipherUtils.DrawThemeAccents(sb, Projectile.Center, 0.25f, 0.6f * channelFactor);
             
-            CipherUtils.ExitShaderRegion(sb);
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }
@@ -607,16 +608,18 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
             
             // === Shader overlay: Clock-face sector starburst ===
             EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.CipherSnapBack,
-                bloomTex, drawPos, origin, 1.5f + (1f - progress) * 2f,
+                bloomTex, drawPos, origin, 0.06f + (1f - progress) * 0.079f,
                 CipherUtils.ArcaneViolet.ToVector3(), CipherUtils.CipherBright.ToVector3(),
                 opacity: progress * 0.7f, intensity: 1.5f,
                 noiseTexture: ShaderLoader.GetNoiseTexture("SparklyNoiseTexture"),
                 techniqueName: "CipherSnapBackMain");
             
-            CipherUtils.EnterAdditiveShaderRegion(sb);
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
-            // Expanding ring (starts small, grows, fades)
-            float ringScale = (1f - progress) * 2.5f + 0.3f;
+            // Expanding ring (starts small, grows, fades) — cap accounts for 1.3x outer layer
+            float ringScale = MathHelper.Min(((1f - progress) * 2.5f + 0.3f) * 0.25f, 0.107f);
             float ringAlpha = progress * 0.8f;
             sb.Draw(bloomTex, drawPos, null, CipherUtils.ArcaneViolet * ringAlpha * 0.5f, 0f,
                 origin, ringScale, SpriteEffects.None, 0f);
@@ -624,7 +627,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
                 origin, ringScale * 1.3f, SpriteEffects.None, 0f);
             
             // Shrinking bright core flash
-            float coreScale = progress * 1.2f;
+            float coreScale = MathHelper.Min(progress * 1.2f * 0.25f, 0.139f);
             float coreAlpha = progress;
             sb.Draw(bloomTex, drawPos, null, CipherUtils.WhiteRevelation * coreAlpha * 0.9f, 0f,
                 origin, coreScale * 0.4f, SpriteEffects.None, 0f);
@@ -637,7 +640,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
                 Vector2 snapFlareOrigin = snapFlareTex.Size() / 2f;
                 float snapFlareRotA = (float)Main.GameUpdateCount * 0.06f;
                 float snapFlareRotB = -(float)Main.GameUpdateCount * 0.04f;
-                float snapFlareScale = (0.25f + (1f - progress) * 0.3f) * progress;
+                float snapFlareScale = (0.25f + (1f - progress) * 0.3f) * progress * 0.25f;
                 sb.Draw(snapFlareTex, drawPos, null, CipherUtils.UnravelGreen * coreAlpha * 0.6f, snapFlareRotA, snapFlareOrigin, snapFlareScale, SpriteEffects.None, 0f);
                 sb.Draw(snapFlareTex, drawPos, null, CipherUtils.WhiteRevelation * coreAlpha * 0.4f, snapFlareRotB, snapFlareOrigin, snapFlareScale * 0.8f, SpriteEffects.None, 0f);
             }
@@ -652,7 +655,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
                 sb.Draw(snapRingTex, drawPos, null, CipherUtils.CipherBright * ringAlpha * 0.25f, -snapRingRot * 0.6f, snapRingOrigin, snapRingScale * 1.3f, SpriteEffects.None, 0f);
             }
             
-            CipherUtils.ExitShaderRegion(sb);
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
             return false;
         }

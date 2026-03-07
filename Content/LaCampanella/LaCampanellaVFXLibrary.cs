@@ -14,7 +14,7 @@ using MagnumOpus.Common.Systems.Particles;
 namespace MagnumOpus.Content.LaCampanella
 {
     /// <summary>
-    /// Shared La Campanella VFX library — canonical palette, bloom stacking,
+    /// Shared La Campanella VFX library  Ecanonical palette, bloom stacking,
     /// shader setup, trail helpers, music notes, dust, smoke, bell chime,
     /// and impact VFX used by ALL La Campanella weapons, accessories,
     /// projectiles, minions, and enemies.
@@ -22,7 +22,7 @@ namespace MagnumOpus.Content.LaCampanella
     public static class LaCampanellaVFXLibrary
     {
         // ─────────── CANONICAL PALETTE (delegates to LaCampanellaPalette) ───────────
-        // 6-colour musical dynamic scale (pianissimo → sforzando)
+        // 6-colour musical dynamic scale (pianissimo ↁEsforzando)
         public static readonly Color SootBlack       = LaCampanellaPalette.SootBlack;       // [0] Pianissimo
         public static readonly Color DeepEmber       = LaCampanellaPalette.DeepEmber;       // [1] Piano
         public static readonly Color InfernalOrange  = LaCampanellaPalette.InfernalOrange;  // [2] Mezzo
@@ -62,7 +62,7 @@ namespace MagnumOpus.Content.LaCampanella
         // ─────────── PALETTE INTERPOLATION ───────────
 
         /// <summary>
-        /// Lerp through the 6-colour La Campanella palette. t=0 → SootBlack, t=1 → WhiteHot.
+        /// Lerp through the 6-colour La Campanella palette. t=0 ↁESootBlack, t=1 ↁEWhiteHot.
         /// </summary>
         public static Color GetPaletteColor(float t)
         {
@@ -123,6 +123,9 @@ namespace MagnumOpus.Content.LaCampanella
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.115) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 1.209f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
@@ -131,19 +134,19 @@ namespace MagnumOpus.Content.LaCampanella
 
             // Layer 1: Outer halo (DeepEmber-ish)
             sb.Draw(bloom, drawPos, null,
-                (outer with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 2.0f, SpriteEffects.None, 0f);
+                (outer with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 0.115f, SpriteEffects.None, 0f);
 
             // Layer 2: Mid glow (InfernalOrange)
             sb.Draw(bloom, drawPos, null,
-                (outer with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 1.4f, SpriteEffects.None, 0f);
+                (outer with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.08f, SpriteEffects.None, 0f);
 
             // Layer 3: Inner bloom (FlameYellow/BellGold)
             sb.Draw(bloom, drawPos, null,
-                (inner with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f);
+                (inner with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.052f, SpriteEffects.None, 0f);
 
             // Layer 4: White-hot core
             sb.Draw(bloom, drawPos, null,
-                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
+                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.023f, SpriteEffects.None, 0f);
         }
 
         /// <summary>
@@ -155,21 +158,24 @@ namespace MagnumOpus.Content.LaCampanella
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.115) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 1.209f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
             sb.Draw(bloom, drawPos, null,
-                (outerColor with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 2.0f, SpriteEffects.None, 0f);
+                (outerColor with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 0.115f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (outerColor with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 1.4f, SpriteEffects.None, 0f);
+                (outerColor with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.08f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (innerColor with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f);
+                (innerColor with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.052f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
+                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.023f, SpriteEffects.None, 0f);
         }
 
         /// <summary>
-        /// Bloom sandwich layer — renders bloom BEHIND a projectile body for depth.
+        /// Bloom sandwich layer  Erenders bloom BEHIND a projectile body for depth.
         /// Call before drawing the projectile sprite, then call again after for front glow.
         /// </summary>
         public static void DrawBloomSandwichLayer(SpriteBatch sb, Vector2 worldPos,
@@ -178,6 +184,9 @@ namespace MagnumOpus.Content.LaCampanella
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.14) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 0.993f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
@@ -185,22 +194,22 @@ namespace MagnumOpus.Content.LaCampanella
             {
                 // Behind layer: larger, softer, DeepEmber
                 sb.Draw(bloom, drawPos, null,
-                    (DeepEmber with { A = 0 }) * 0.25f * opacity, 0f, origin, scale * 2.5f, SpriteEffects.None, 0f);
+                    (DeepEmber with { A = 0 }) * 0.25f * opacity, 0f, origin, scale * 0.14f, SpriteEffects.None, 0f);
                 sb.Draw(bloom, drawPos, null,
-                    (InfernalOrange with { A = 0 }) * 0.35f * opacity, 0f, origin, scale * 1.6f, SpriteEffects.None, 0f);
+                    (InfernalOrange with { A = 0 }) * 0.35f * opacity, 0f, origin, scale * 0.09f, SpriteEffects.None, 0f);
             }
             else
             {
-                // Front layer: smaller, brighter, BellGold → White
+                // Front layer: smaller, brighter, BellGold ↁEWhite
                 sb.Draw(bloom, drawPos, null,
-                    (BellGold with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.8f, SpriteEffects.None, 0f);
+                    (BellGold with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.046f, SpriteEffects.None, 0f);
                 sb.Draw(bloom, drawPos, null,
-                    (Color.White with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.35f, SpriteEffects.None, 0f);
+                    (Color.White with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.02f, SpriteEffects.None, 0f);
             }
         }
 
         /// <summary>
-        /// Counter-rotating double flare — two bloom textures spinning in opposite directions.
+        /// Counter-rotating double flare  Etwo bloom textures spinning in opposite directions.
         /// Creates dynamic bell-fire energy appearance at projectile centers.
         /// </summary>
         public static void DrawCounterRotatingFlares(SpriteBatch sb, Vector2 worldPos,
@@ -208,6 +217,9 @@ namespace MagnumOpus.Content.LaCampanella
         {
             Texture2D flare = MagnumTextureRegistry.GetFlare();
             if (flare == null) return;
+
+            // 1024px flare — cap so largest layer (scale*0.7) ≤ 0.293 → ≤300px
+            scale = MathHelper.Min(scale, 0.419f);
 
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = flare.Size() * 0.5f;
@@ -225,8 +237,8 @@ namespace MagnumOpus.Content.LaCampanella
 
         /// <summary>
         /// Standard La Campanella bloom at a blade tip or projectile centre.
-        /// Uses the two-colour overload (DeepEmber outer → BellGold inner).
-        /// Safe to call from PreDraw — handles SpriteBatch state internally.
+        /// Uses the two-colour overload (DeepEmber outer ↁEBellGold inner).
+        /// Safe to call from PreDraw  Ehandles SpriteBatch state internally.
         /// </summary>
         public static void DrawBloom(Vector2 worldPos, float scale, float opacity = 1f)
         {
@@ -382,7 +394,7 @@ namespace MagnumOpus.Content.LaCampanella
         }
 
         /// <summary>
-        /// Sharp fang trail for FangOfTheInfiniteBell — precise bell-metal cut.
+        /// Sharp fang trail for FangOfTheInfiniteBell  Eprecise bell-metal cut.
         /// </summary>
         public static float FangTrailWidth(float completionRatio, float baseWidth = 10f)
         {
@@ -391,7 +403,7 @@ namespace MagnumOpus.Content.LaCampanella
         }
 
         /// <summary>
-        /// Thick fire comet trail for ranger weapons — heavy, smoky.
+        /// Thick fire comet trail for ranger weapons  Eheavy, smoky.
         /// </summary>
         public static float CometTrailWidth(float completionRatio, float baseWidth = 16f)
         {
@@ -414,7 +426,7 @@ namespace MagnumOpus.Content.LaCampanella
         /// <summary>
         /// Returns a pair of Vector3 colours for shader gradient uniforms.
         /// passIndex selects which pair from the palette to use for multi-pass rendering.
-        /// Pass 0: DeepEmber → InfernalOrange, Pass 1: FlameYellow → BellGold, Pass 2: BellGold → WhiteHot
+        /// Pass 0: DeepEmber ↁEInfernalOrange, Pass 1: FlameYellow ↁEBellGold, Pass 2: BellGold ↁEWhiteHot
         /// </summary>
         public static (Vector3 primary, Vector3 secondary) GetShaderGradient(int passIndex)
         {
@@ -510,7 +522,7 @@ namespace MagnumOpus.Content.LaCampanella
         }
 
         /// <summary>
-        /// Ember scatter dust — small fiery particles drifting from impacts and swings.
+        /// Ember scatter dust  Esmall fiery particles drifting from impacts and swings.
         /// </summary>
         public static void SpawnEmberScatter(Vector2 pos, int count = 5, float speed = 2f)
         {
@@ -525,7 +537,7 @@ namespace MagnumOpus.Content.LaCampanella
         }
 
         /// <summary>
-        /// Contrasting bronze sparkle dust — call every other frame for dual-colour trail.
+        /// Contrasting bronze sparkle dust  Ecall every other frame for dual-colour trail.
         /// </summary>
         public static void SpawnContrastSparkle(Vector2 pos, Vector2 awayDirection)
         {
@@ -582,7 +594,7 @@ namespace MagnumOpus.Content.LaCampanella
         // ─────────── GRADIENT HALO RINGS ───────────
 
         /// <summary>
-        /// Cascading gradient halo rings (DeepEmber → BellGold).
+        /// Cascading gradient halo rings (DeepEmber ↁEBellGold).
         /// Creates bell ring shockwave visual.
         /// </summary>
         public static void SpawnGradientHaloRings(Vector2 pos, int count = 5, float baseScale = 0.3f)
@@ -596,7 +608,7 @@ namespace MagnumOpus.Content.LaCampanella
         }
 
         /// <summary>
-        /// Bell chime ring burst — concentric expanding golden rings.
+        /// Bell chime ring burst  Econcentric expanding golden rings.
         /// The signature La Campanella impact motif.
         /// </summary>
         public static void SpawnBellChimeRings(Vector2 pos, int ringCount = 3, float baseScale = 0.3f)
@@ -612,7 +624,7 @@ namespace MagnumOpus.Content.LaCampanella
         // ─────────── IMPACTS ───────────
 
         /// <summary>
-        /// Full La Campanella melee impact VFX — bloom flash, bell chime ring,
+        /// Full La Campanella melee impact VFX  Ebloom flash, bell chime ring,
         /// radial dust burst, ember scatter, and music note scatter. Scales with combo step.
         /// </summary>
         public static void MeleeImpact(Vector2 pos, int comboStep = 0)
@@ -636,7 +648,7 @@ namespace MagnumOpus.Content.LaCampanella
         }
 
         /// <summary>
-        /// Projectile death / on-kill VFX — bigger, flashier version of MeleeImpact.
+        /// Projectile death / on-kill VFX  Ebigger, flashier version of MeleeImpact.
         /// </summary>
         public static void ProjectileImpact(Vector2 pos, float intensity = 1f)
         {
@@ -650,7 +662,7 @@ namespace MagnumOpus.Content.LaCampanella
         }
 
         /// <summary>
-        /// Bell shockwave impact — concentric ring burst with heavy bloom.
+        /// Bell shockwave impact  Econcentric ring burst with heavy bloom.
         /// Use for major impacts and bell-themed weapon specials.
         /// </summary>
         public static void BellShockwaveImpact(Vector2 pos, float intensity = 1f)
@@ -694,7 +706,7 @@ namespace MagnumOpus.Content.LaCampanella
         // ─────────── FINISHER EFFECTS ───────────
 
         /// <summary>
-        /// Finisher slam VFX — screen shake, massive bloom, bell shockwave,
+        /// Finisher slam VFX  Escreen shake, massive bloom, bell shockwave,
         /// music note cascade, heavy smoke burst.
         /// </summary>
         public static void FinisherSlam(Vector2 pos, float intensity = 1f)
@@ -709,7 +721,7 @@ namespace MagnumOpus.Content.LaCampanella
         }
 
         /// <summary>
-        /// Infernal eruption — volcanic burst for special attacks and boss VFX.
+        /// Infernal eruption  Evolcanic burst for special attacks and boss VFX.
         /// </summary>
         public static void InfernalEruption(Vector2 pos, float intensity = 1f)
         {
@@ -866,7 +878,7 @@ namespace MagnumOpus.Content.LaCampanella
         }
 
         /// <summary>
-        /// Draws a themed radial star flare using LC Radial Slash Star — dual rotating layers.
+        /// Draws a themed radial star flare using LC Radial Slash Star  Edual rotating layers.
         /// Must be called in Additive blend mode.
         /// </summary>
         public static void DrawThemeStarFlare(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)

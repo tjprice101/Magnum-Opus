@@ -671,7 +671,7 @@ namespace MagnumOpus.Common.Systems.VFX
                     Color coreColor = burst.Style.CoreColor * alpha;
                     coreColor.A = 0;
                     spriteBatch.Draw(beamTex, basePos, null, coreColor * 0.8f, 0f,
-                        beamTex.Size() / 2f, 0.4f * burst.Scale * shimmer, SpriteEffects.None, 0f);
+                        beamTex.Size() / 2f, MathHelper.Min(0.4f * burst.Scale * shimmer, 0.586f), SpriteEffects.None, 0f);
                 }
             }
         }
@@ -729,6 +729,8 @@ namespace MagnumOpus.Common.Systems.VFX
             {
                 float layerProgress = layer / style.GlowLayers;
                 float layerScale = style.CoreScale * (1.5f - layerProgress * 0.5f) * pulse;
+                // 512px GetSoftGlow → max 300px
+                layerScale = MathHelper.Min(layerScale, 0.586f);
                 float layerAlpha = 0.3f + layerProgress * 0.2f;
                 
                 Color layerColor = Color.Lerp(style.OuterGlow, style.CoreGlow, layerProgress);
@@ -742,7 +744,7 @@ namespace MagnumOpus.Common.Systems.VFX
             Color coreColor = Color.White;
             coreColor.A = 0;
             spriteBatch.Draw(glowTex, drawPos, null, coreColor * 0.8f, rotation,
-                glowTex.Size() / 2f, style.CoreScale * 0.4f * pulse, SpriteEffects.None, 0f);
+                glowTex.Size() / 2f, MathHelper.Min(style.CoreScale * 0.4f * pulse, 0.586f), SpriteEffects.None, 0f);
             
             // === ORBITING ELEMENTS ===
             if (style.HasOrbitingElements && flareTex != null)

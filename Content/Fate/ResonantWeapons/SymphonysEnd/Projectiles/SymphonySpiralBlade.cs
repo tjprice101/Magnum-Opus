@@ -165,31 +165,31 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
                 Vector2 screenPos = hitPos - Main.screenPosition;
                 float flashTime = (float)Main.timeForVisualEffects;
 
-                // Layer 1: Vast violet outer haze
+                // Layer 1: Vast violet outer haze (capped 300px max)
                 if (_softRadialBloomTex?.IsLoaded == true)
                 {
                     var radTex = _softRadialBloomTex.Value;
                     sb.Draw(radTex, screenPos, null,
-                        SymphonyUtils.Additive(SymphonyUtils.SymphonyViolet, 0.35f + age * 0.1f),
-                        0f, radTex.Size() * 0.5f, 1.6f, SpriteEffects.None, 0f);
+                        SymphonyUtils.Additive(SymphonyUtils.SymphonyViolet, 0.1f + age * 0.03f),
+                        0f, radTex.Size() * 0.5f, 0.139f, SpriteEffects.None, 0f);
                 }
 
-                // Layer 2: Pink mid glow
+                // Layer 2: Pink mid glow (capped 300px max)
                 if (_softRadialBloomTex?.IsLoaded == true)
                 {
                     var radTex = _softRadialBloomTex.Value;
                     sb.Draw(radTex, screenPos, null,
-                        SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, 0.45f + age * 0.1f),
-                        0f, radTex.Size() * 0.5f, 1.1f, SpriteEffects.None, 0f);
+                        SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, 0.14f + age * 0.03f),
+                        0f, radTex.Size() * 0.5f, 0.10f, SpriteEffects.None, 0f);
                 }
 
-                // Layer 3: Harmony blue inner
+                // Layer 3: Harmony blue inner (capped 300px max)
                 if (_pointBloomTex?.IsLoaded == true)
                 {
                     var ptTex = _pointBloomTex.Value;
                     sb.Draw(ptTex, screenPos, null,
-                        SymphonyUtils.Additive(SymphonyUtils.HarmonyBlue, 0.5f + age * 0.15f),
-                        0f, ptTex.Size() * 0.5f, 0.7f, SpriteEffects.None, 0f);
+                        SymphonyUtils.Additive(SymphonyUtils.HarmonyBlue, 0.15f + age * 0.05f),
+                        0f, ptTex.Size() * 0.5f, 0.08f, SpriteEffects.None, 0f);
                 }
 
                 // Layer 4: White-hot core
@@ -197,8 +197,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
                 {
                     var ptTex = _pointBloomTex.Value;
                     sb.Draw(ptTex, screenPos, null,
-                        SymphonyUtils.Additive(SymphonyUtils.FinalWhite, 0.65f + age * 0.2f),
-                        0f, ptTex.Size() * 0.5f, 0.4f, SpriteEffects.None, 0f);
+                        SymphonyUtils.Additive(SymphonyUtils.FinalWhite, 0.2f + age * 0.06f),
+                        0f, ptTex.Size() * 0.5f, 0.12f, SpriteEffects.None, 0f);
                 }
 
                 // Layer 5: StarFlare cross — rotating chromatic flash
@@ -206,11 +206,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
                 {
                     var starTex = _starFlareTex.Value;
                     sb.Draw(starTex, screenPos, null,
-                        SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, 0.4f),
-                        flashTime * 0.12f, starTex.Size() * 0.5f, 0.5f, SpriteEffects.None, 0f);
+                        SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, 0.12f),
+                        flashTime * 0.12f, starTex.Size() * 0.5f, 0.15f, SpriteEffects.None, 0f);
                     sb.Draw(starTex, screenPos, null,
-                        SymphonyUtils.Additive(SymphonyUtils.HarmonyBlue, 0.3f),
-                        -flashTime * 0.08f, starTex.Size() * 0.5f, 0.35f, SpriteEffects.None, 0f);
+                        SymphonyUtils.Additive(SymphonyUtils.HarmonyBlue, 0.09f),
+                        -flashTime * 0.08f, starTex.Size() * 0.5f, 0.1f, SpriteEffects.None, 0f);
                 }
 
                 sb.End();
@@ -332,34 +332,34 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
                 Vector2 screenPos = Projectile.Center - Main.screenPosition;
                 float flashTime = (float)Main.timeForVisualEffects;
 
-                // Layer 1: Massive void-purple outer haze
+                // Layer 1: Massive void-purple outer haze (capped 300px max)
                 if (_softRadialBloomTex?.IsLoaded == true)
                 {
                     var radTex = _softRadialBloomTex.Value;
                     sb.Draw(radTex, screenPos, null,
-                        SymphonyUtils.Additive(SymphonyUtils.SymphonyViolet, 0.5f),
-                        0f, radTex.Size() * 0.5f, 3.0f, SpriteEffects.None, 0f);
+                        SymphonyUtils.Additive(SymphonyUtils.SymphonyViolet, 0.15f),
+                        0f, radTex.Size() * 0.5f, 0.139f, SpriteEffects.None, 0f);
                     sb.Draw(radTex, screenPos, null,
-                        SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, 0.45f),
-                        0f, radTex.Size() * 0.5f, 2.2f, SpriteEffects.None, 0f);
+                        SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, 0.14f),
+                        0f, radTex.Size() * 0.5f, 0.10f, SpriteEffects.None, 0f);
                 }
 
-                // Layer 2: Harmony blue expanding ring
+                // Layer 2: Harmony blue expanding ring (capped 300px max)
                 if (_pointBloomTex?.IsLoaded == true)
                 {
                     var ptTex = _pointBloomTex.Value;
                     sb.Draw(ptTex, screenPos, null,
-                        SymphonyUtils.Additive(SymphonyUtils.HarmonyBlue, 0.6f),
-                        0f, ptTex.Size() * 0.5f, 1.5f, SpriteEffects.None, 0f);
+                        SymphonyUtils.Additive(SymphonyUtils.HarmonyBlue, 0.18f),
+                        0f, ptTex.Size() * 0.5f, 0.10f, SpriteEffects.None, 0f);
                 }
 
-                // Layer 3: Blinding white core
+                // Layer 3: Blinding white core (capped 300px max)
                 if (_pointBloomTex?.IsLoaded == true)
                 {
                     var ptTex = _pointBloomTex.Value;
                     sb.Draw(ptTex, screenPos, null,
-                        SymphonyUtils.Additive(SymphonyUtils.FinalWhite, 0.85f),
-                        0f, ptTex.Size() * 0.5f, 0.8f, SpriteEffects.None, 0f);
+                        SymphonyUtils.Additive(SymphonyUtils.FinalWhite, 0.25f),
+                        0f, ptTex.Size() * 0.5f, 0.06f, SpriteEffects.None, 0f);
                 }
 
                 // Layer 4: Double StarFlare cross — the grand finale flash
@@ -367,14 +367,14 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
                 {
                     var starTex = _starFlareTex.Value;
                     sb.Draw(starTex, screenPos, null,
-                        SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, 0.6f),
-                        flashTime * 0.15f, starTex.Size() * 0.5f, 1.0f, SpriteEffects.None, 0f);
+                        SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, 0.18f),
+                        flashTime * 0.15f, starTex.Size() * 0.5f, 0.3f, SpriteEffects.None, 0f);
                     sb.Draw(starTex, screenPos, null,
-                        SymphonyUtils.Additive(SymphonyUtils.HarmonyBlue, 0.5f),
-                        -flashTime * 0.1f, starTex.Size() * 0.5f, 0.7f, SpriteEffects.None, 0f);
+                        SymphonyUtils.Additive(SymphonyUtils.HarmonyBlue, 0.15f),
+                        -flashTime * 0.1f, starTex.Size() * 0.5f, 0.21f, SpriteEffects.None, 0f);
                     sb.Draw(starTex, screenPos, null,
-                        SymphonyUtils.Additive(SymphonyUtils.FinalWhite, 0.4f),
-                        flashTime * 0.06f, starTex.Size() * 0.5f, 0.45f, SpriteEffects.None, 0f);
+                        SymphonyUtils.Additive(SymphonyUtils.FinalWhite, 0.12f),
+                        flashTime * 0.06f, starTex.Size() * 0.5f, 0.14f, SpriteEffects.None, 0f);
                 }
 
                 sb.End();
@@ -555,44 +555,44 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
             float pulse = 1f + MathF.Sin(time * 0.08f) * 0.12f;
             float breathe = 1f + MathF.Sin(time * 0.04f) * 0.06f;
 
-            // Layer 1: Outer void-violet nebula haze (SoftRadialBloom)
+            // Layer 1: Outer void-violet nebula haze (SoftRadialBloom) (capped 300px max)
             if (_softRadialBloomTex?.IsLoaded == true)
             {
                 var radTex = _softRadialBloomTex.Value;
                 var radOrigin = radTex.Size() * 0.5f;
                 sb.Draw(radTex, drawPos, null,
-                    SymphonyUtils.Additive(SymphonyUtils.VoidBlack, 0.2f + age * 0.1f),
-                    0f, radOrigin, 1.8f * breathe, SpriteEffects.None, 0f);
+                    SymphonyUtils.Additive(SymphonyUtils.VoidBlack, 0.06f + age * 0.03f),
+                    0f, radOrigin, 0.13f * breathe, SpriteEffects.None, 0f);
             }
 
-            // Layer 2: Violet resonance field (SoftRadialBloom)
+            // Layer 2: Violet resonance field (SoftRadialBloom) (capped 300px max)
             if (_softRadialBloomTex?.IsLoaded == true)
             {
                 var radTex = _softRadialBloomTex.Value;
                 var radOrigin = radTex.Size() * 0.5f;
                 sb.Draw(radTex, drawPos, null,
-                    SymphonyUtils.Additive(SymphonyUtils.SymphonyViolet, 0.3f + age * 0.1f),
-                    0f, radOrigin, 1.3f * pulse, SpriteEffects.None, 0f);
+                    SymphonyUtils.Additive(SymphonyUtils.SymphonyViolet, 0.09f + age * 0.03f),
+                    0f, radOrigin, 0.10f * pulse, SpriteEffects.None, 0f);
             }
 
-            // Layer 3: Pink harmonic mid-glow (SoftRadialBloom)
+            // Layer 3: Pink harmonic mid-glow (SoftRadialBloom) (capped 300px max)
             if (_softRadialBloomTex?.IsLoaded == true)
             {
                 var radTex = _softRadialBloomTex.Value;
                 var radOrigin = radTex.Size() * 0.5f;
                 sb.Draw(radTex, drawPos, null,
-                    SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, 0.35f + age * 0.1f),
-                    0f, radOrigin, 0.9f * pulse, SpriteEffects.None, 0f);
+                    SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, 0.1f + age * 0.03f),
+                    0f, radOrigin, 0.06f * pulse, SpriteEffects.None, 0f);
             }
 
-            // Layer 4: Harmony blue inner glow (PointBloom)
+            // Layer 4: Harmony blue inner glow (PointBloom) (capped 300px max)
             if (_pointBloomTex?.IsLoaded == true)
             {
                 var ptTex = _pointBloomTex.Value;
                 var ptOrigin = ptTex.Size() * 0.5f;
                 sb.Draw(ptTex, drawPos, null,
-                    SymphonyUtils.Additive(SymphonyUtils.HarmonyBlue, 0.3f + age * 0.12f),
-                    0f, ptOrigin, 0.55f * pulse, SpriteEffects.None, 0f);
+                    SymphonyUtils.Additive(SymphonyUtils.HarmonyBlue, 0.09f + age * 0.04f),
+                    0f, ptOrigin, 0.05f * pulse, SpriteEffects.None, 0f);
             }
 
             // Layer 5: White core (PointBloom)
@@ -601,8 +601,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
                 var ptTex = _pointBloomTex.Value;
                 var ptOrigin = ptTex.Size() * 0.5f;
                 sb.Draw(ptTex, drawPos, null,
-                    SymphonyUtils.Additive(SymphonyUtils.FinalWhite, 0.4f + age * 0.15f),
-                    0f, ptOrigin, 0.3f * pulse, SpriteEffects.None, 0f);
+                    SymphonyUtils.Additive(SymphonyUtils.FinalWhite, 0.12f + age * 0.05f),
+                    0f, ptOrigin, 0.09f * pulse, SpriteEffects.None, 0f);
             }
 
             // Layer 6: StarFlare rotating cross — the blade's harmonic radiance
@@ -611,11 +611,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
                 var starTex = _starFlareTex.Value;
                 var starOrigin = starTex.Size() * 0.5f;
                 sb.Draw(starTex, drawPos, null,
-                    SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, 0.2f + age * 0.08f),
-                    time * 0.03f, starOrigin, 0.4f * pulse, SpriteEffects.None, 0f);
+                    SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, 0.06f + age * 0.02f),
+                    time * 0.03f, starOrigin, 0.12f * pulse, SpriteEffects.None, 0f);
                 sb.Draw(starTex, drawPos, null,
-                    SymphonyUtils.Additive(SymphonyUtils.HarmonyBlue, 0.15f + age * 0.06f),
-                    -time * 0.02f, starOrigin, 0.28f * pulse, SpriteEffects.None, 0f);
+                    SymphonyUtils.Additive(SymphonyUtils.HarmonyBlue, 0.05f + age * 0.02f),
+                    -time * 0.02f, starOrigin, 0.08f * pulse, SpriteEffects.None, 0f);
             }
         }
 
@@ -634,13 +634,13 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
             Vector2 tipPos = Projectile.Center + leadDir * 16f - Main.screenPosition;
             float leadPulse = 1f + MathF.Sin(time * 0.12f) * 0.15f;
 
-            // Layer 1: Violet outer crescent
+            // Layer 1: Violet outer crescent (capped 300px max)
             if (_softRadialBloomTex?.IsLoaded == true)
             {
                 var radTex = _softRadialBloomTex.Value;
                 sb.Draw(radTex, tipPos, null,
-                    SymphonyUtils.Additive(SymphonyUtils.SymphonyViolet, 0.25f + age * 0.1f),
-                    Projectile.rotation, radTex.Size() * 0.5f, 0.6f * leadPulse, SpriteEffects.None, 0f);
+                    SymphonyUtils.Additive(SymphonyUtils.SymphonyViolet, 0.08f + age * 0.03f),
+                    Projectile.rotation, radTex.Size() * 0.5f, 0.12f * leadPulse, SpriteEffects.None, 0f);
             }
 
             // Layer 2: Pink mid
@@ -648,8 +648,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
             {
                 var ptTex = _pointBloomTex.Value;
                 sb.Draw(ptTex, tipPos, null,
-                    SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, 0.35f + age * 0.12f),
-                    0f, ptTex.Size() * 0.5f, 0.35f * leadPulse, SpriteEffects.None, 0f);
+                    SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, 0.1f + age * 0.04f),
+                    0f, ptTex.Size() * 0.5f, 0.1f * leadPulse, SpriteEffects.None, 0f);
             }
 
             // Layer 3: Hot white-blue core
@@ -657,8 +657,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
             {
                 var ptTex = _pointBloomTex.Value;
                 sb.Draw(ptTex, tipPos, null,
-                    SymphonyUtils.Additive(SymphonyUtils.FinalWhite, 0.45f + age * 0.2f),
-                    0f, ptTex.Size() * 0.5f, 0.18f * leadPulse, SpriteEffects.None, 0f);
+                    SymphonyUtils.Additive(SymphonyUtils.FinalWhite, 0.14f + age * 0.06f),
+                    0f, ptTex.Size() * 0.5f, 0.05f * leadPulse, SpriteEffects.None, 0f);
             }
 
             // Layer 4: StarFlare at leading edge — directional flash
@@ -666,8 +666,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
             {
                 var starTex = _starFlareTex.Value;
                 sb.Draw(starTex, tipPos, null,
-                    SymphonyUtils.Additive(SymphonyUtils.HarmonyBlue, 0.2f + age * 0.08f),
-                    Projectile.rotation + time * 0.04f, starTex.Size() * 0.5f, 0.22f * leadPulse, SpriteEffects.None, 0f);
+                    SymphonyUtils.Additive(SymphonyUtils.HarmonyBlue, 0.06f + age * 0.02f),
+                    Projectile.rotation + time * 0.04f, starTex.Size() * 0.5f, 0.07f * leadPulse, SpriteEffects.None, 0f);
             }
         }
 

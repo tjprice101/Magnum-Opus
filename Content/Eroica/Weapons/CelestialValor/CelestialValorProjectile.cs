@@ -88,6 +88,16 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
         {
             SpriteBatch sb = Main.spriteBatch;
 
+            // === GPU Primitive Ribbon Trail (EnhancedTrailRenderer) ===
+            EnhancedTrailRenderer.RenderMultiPassTrail(
+                trailPositions,
+                EnhancedTrailRenderer.LinearTaper(20f),
+                EnhancedTrailRenderer.GradientColor(
+                    EroicaPalette.Gold with { A = 0 },
+                    EroicaPalette.Scarlet with { A = 0 } * 0.15f,
+                    0.8f),
+                bloomMultiplier: 2.5f, coreMultiplier: 0.4f);
+
             // Foundation textures
             Texture2D softGlow = SMFTextures.SoftGlow.Value;
             Texture2D pointBloom = SMFTextures.PointBloom.Value;
@@ -102,7 +112,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
 
-            // „Ÿ„Ÿ LAYER 1: Trail afterimage bloom chain (Foundation pattern) „Ÿ„Ÿ
+            // ï¿½ï¿½ï¿½ï¿½ LAYER 1: Trail afterimage bloom chain (Foundation pattern) ï¿½ï¿½ï¿½ï¿½
             for (int i = TrailLength - 1; i > 0; i--)
             {
                 float progress = (float)i / TrailLength;
@@ -136,13 +146,13 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
                     new Vector2(stretchX * 0.4f, stretchY * 0.6f), SpriteEffects.None, 0f);
             }
 
-            // „Ÿ„Ÿ LAYER 2: Head bloom stack „Ÿ„Ÿ
+            // ï¿½ï¿½ï¿½ï¿½ LAYER 2: Head bloom stack ï¿½ï¿½ï¿½ï¿½
             Vector2 headPos = Projectile.Center - Main.screenPosition;
 
             // Wide ambient
             sb.Draw(softGlow, headPos, null,
                 (EroicaPalette.Scarlet with { A = 0 }) * 0.25f, 0f,
-                glowOrigin, 0.35f, SpriteEffects.None, 0f);
+                glowOrigin, 0.29f, SpriteEffects.None, 0f);
 
             // Main body
             sb.Draw(softGlow, headPos, null,
@@ -154,7 +164,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
                 (EroicaPalette.HotCore with { A = 0 }) * 0.4f, 0f,
                 pointOrigin, 0.08f, SpriteEffects.None, 0f);
 
-            // „Ÿ„Ÿ LAYER 3: Rotating flare „Ÿ„Ÿ
+            // ï¿½ï¿½ï¿½ï¿½ LAYER 3: Rotating flare ï¿½ï¿½ï¿½ï¿½
             float flareRot = (float)Main.GameUpdateCount * 0.08f;
             sb.Draw(starFlare, headPos, null,
                 (EroicaPalette.Gold with { A = 0 }) * 0.4f, flareRot,

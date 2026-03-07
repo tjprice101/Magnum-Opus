@@ -9,6 +9,7 @@ using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Par
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Shaders;
 using MagnumOpus.Content.LaCampanella.Debuffs;
 using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
+using MagnumOpus.Common.Systems.VFX;
 using ReLogic.Content;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Projectiles
@@ -143,15 +144,26 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
             try { bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow", AssetRequestMode.ImmediateLoad)?.Value; } catch { }
             if (bloomTex != null)
             {
-            Color auraColor = (PiercingBellsResonanceUtils.CrystalPalette[2] with { A = 0 }) * 0.2f;
+            Color auraColor = (PiercingBellsResonanceUtils.CrystalPalette[2] with { A = 0 }) * 0.35f;
             try { sb.End(); } catch { }
             try
             {
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             sb.Draw(bloomTex, Projectile.Center - Main.screenPosition, null,
-                auraColor, 0f, bloomTex.Size() / 2f, 0.25f, SpriteEffects.None, 0f);
+                auraColor, 0f, bloomTex.Size() / 2f, 0.15f, SpriteEffects.None, 0f);
+
+            // Star sparkle accent for crystal shine
+            Texture2D starTex = null;
+            try { starTex = MagnumTextureRegistry.GetStar4Soft(); } catch { }
+            if (starTex != null)
+            {
+                float starRot = Main.GameUpdateCount * 0.1f + Projectile.whoAmI;
+                sb.Draw(starTex, Projectile.Center - Main.screenPosition, null,
+                    PiercingBellsResonanceUtils.CrystalPalette[1] * (0.5f * pulse),
+                    starRot, starTex.Size() / 2f, 0.35f * pulse, SpriteEffects.None, 0f);
+            }
 
             // === SHADER: CrystalGlowShader — prismatic faceted crystal overlay ===
             var crystalShader = PiercingBellsResonanceShaderLoader.GetCrystalGlowShader();
@@ -178,10 +190,10 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
 
                     Color shaderCrystal = Color.White * pulse * 0.35f;
                     sb.Draw(bloomTex, Projectile.Center - Main.screenPosition, null,
-                        shaderCrystal, crystalRotation * 0.5f, bloomTex.Size() / 2f, 0.3f * pulse, SpriteEffects.None, 0f);
+                        shaderCrystal, crystalRotation * 0.5f, bloomTex.Size() / 2f, 0.1f * pulse, SpriteEffects.None, 0f);
 
                     sb.End();
-                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
                         Main.DefaultSamplerState, DepthStencilState.None,
                         Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
                 }
@@ -190,7 +202,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
                     try
                     {
                         sb.End();
-                        sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                        sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
                             Main.DefaultSamplerState, DepthStencilState.None,
                             Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
                     }

@@ -897,7 +897,7 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
             Vector2 pos = Projectile.Center - Main.screenPosition;
             float alpha = 1f - Projectile.alpha / 255f;
 
-            Main.spriteBatch.Draw(glow, pos, null, CampanellaBlack * alpha * 0.8f, 0f, glow.Size() / 2, 1.2f, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(glow, pos, null, CampanellaBlack * alpha * 0.8f, 0f, glow.Size() / 2, 0.29f, SpriteEffects.None, 0f);
 
             return false;
         }

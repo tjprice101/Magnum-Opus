@@ -27,7 +27,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.OrreryOfDreams
         {
             Item.width = 32;
             Item.height = 32;
-            Item.damage = 155;
+            Item.damage = 3200; // Tier 10 (2800-4200 range)
             Item.DamageType = DamageClass.Magic;
             Item.mana = 12;
             Item.useTime = 20;

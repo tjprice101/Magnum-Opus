@@ -63,15 +63,19 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
             float squish = 1f + MathHelper.Clamp(speed * 0.3f, 0f, 0.6f);
             float rot = speed > 0.01f ? Velocity.ToRotation() : Rotation;
 
+            // Cap bloom so no dimension exceeds 300px on 2160px texture
+            float outerDim = Scale * 2.5f * squish;
+            float bloomCap = outerDim > 0.139f ? 0.139f / outerDim : 1f;
+
             // Layer 1: Wide outer halo
             sb.Draw(tex, drawPos, null, Color * alpha * 0.2f, rot, tex.Size() / 2f,
-                new Vector2(Scale * 2.5f * squish, Scale * 2.5f / squish), SpriteEffects.None, 0f);
+                new Vector2(Scale * 2.5f * squish, Scale * 2.5f / squish) * bloomCap, SpriteEffects.None, 0f);
             // Layer 2: Colored mid glow
             sb.Draw(tex, drawPos, null, Color * alpha * 0.5f, rot, tex.Size() / 2f,
-                new Vector2(Scale * 1.2f * squish, Scale * 1.2f / squish), SpriteEffects.None, 0f);
+                new Vector2(Scale * 1.2f * squish, Scale * 1.2f / squish) * bloomCap, SpriteEffects.None, 0f);
             // Layer 3: White-hot core
             sb.Draw(tex, drawPos, null, WatchingUtils.PhantomWhite * alpha * 0.3f, rot, tex.Size() / 2f,
-                new Vector2(Scale * 0.4f * squish, Scale * 0.4f / squish), SpriteEffects.None, 0f);
+                new Vector2(Scale * 0.4f * squish, Scale * 0.4f / squish) * bloomCap, SpriteEffects.None, 0f);
         }
     }
 
@@ -92,7 +96,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
         private readonly int _glyphIndex;
 
         public override bool SetLifetime => true;
-        public override bool UseAdditiveBlend => false;
+        public override bool UseAdditiveBlend => true; // SoftRadialBloom halo has black bg
         public override bool UseCustomDraw => true;
 
         public WatchingEyeParticle(Vector2 position, Vector2 velocity, Color color, float scale, int lifetime)
@@ -129,7 +133,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
             // Soft glow behind the eye glyph
             var glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             sb.Draw(glowTex, drawPos, null, WatchingUtils.GazeGreen * alpha * 0.25f, 0f,
-                glowTex.Size() / 2f, Scale * 3f, SpriteEffects.None, 0f);
+                glowTex.Size() / 2f, MathHelper.Min(Scale * 3f, 0.139f), SpriteEffects.None, 0f);
 
             // Glyph with Y-squish blink
             sb.Draw(tex, drawPos, null, Color * alpha, Rotation, tex.Size() / 2f,
@@ -189,7 +193,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
                     float angle = MathHelper.TwoPi * s / segments;
                     Vector2 offset = new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * radius;
                     sb.Draw(tex, drawPos + offset, null, ringColor, 0f, tex.Size() / 2f,
-                        0.15f + ring * 0.05f, SpriteEffects.None, 0f);
+                        MathHelper.Min(0.15f + ring * 0.05f, 0.139f), SpriteEffects.None, 0f);
                 }
             }
         }

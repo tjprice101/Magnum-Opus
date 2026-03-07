@@ -58,7 +58,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
             if (glow != null)
             {
                 spriteBatch.Draw(glow, Position - Main.screenPosition, null, DrawColor * alpha * 0.3f * Scale,
-                    0f, glow.Size() * 0.5f, radius / 40f, SpriteEffects.None, 0f);
+                    0f, glow.Size() * 0.5f, MathHelper.Min(radius / 40f, 0.586f), SpriteEffects.None, 0f);
             }
         }
     }
@@ -91,11 +91,11 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
             Vector2 origin = tex.Size() * 0.5f;
 
             spriteBatch.Draw(tex, drawPos, null, DrawColor * alpha * 0.4f, Rotation,
-                origin, Scale * 0.5f, SpriteEffects.None, 0f);
+                origin, MathHelper.Min(Scale * 0.5f, 0.586f), SpriteEffects.None, 0f);
 
             // Additive bloom overlay — larger, softer
             spriteBatch.Draw(tex, drawPos, null, DrawColor * alpha * 0.2f, Rotation,
-                origin, Scale * 0.8f, SpriteEffects.None, 0f);
+                origin, MathHelper.Min(Scale * 0.8f, 0.586f), SpriteEffects.None, 0f);
         }
     }
 
@@ -124,10 +124,10 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
 
             // Bright white core
             spriteBatch.Draw(tex, drawPos, null, Color.White * alpha, 0f,
-                origin, Scale * 0.15f, SpriteEffects.None, 0f);
+                origin, MathHelper.Min(Scale * 0.15f, 0.139f), SpriteEffects.None, 0f);
             // Pearlescent halo
             spriteBatch.Draw(tex, drawPos, null, DrawColor * alpha * 0.5f, 0f,
-                origin, Scale * 0.35f, SpriteEffects.None, 0f);
+                origin, MathHelper.Min(Scale * 0.35f, 0.139f), SpriteEffects.None, 0f);
 
             // Additive bloom overlay
             Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
@@ -143,7 +143,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
     public class PrismaticFeatherParticle : PearlescentParticle
     {
         private float _rotationSpeed;
-        public override bool UseAdditiveBlend => false;
+        public override bool UseAdditiveBlend => true; // WideSoftEllipse + SoftGlow have black bg
         protected override int SetLifetime() => 50 + Main.rand.Next(30);
 
         public void Setup()
@@ -170,7 +170,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
             Vector2 origin = tex.Size() * 0.5f;
 
             // Stretched to look feather-like
-            Vector2 scale = new Vector2(Scale * 0.6f, Scale * 0.15f);
+            Vector2 scale = new Vector2(MathHelper.Min(Scale * 0.6f, 0.139f), MathHelper.Min(Scale * 0.15f, 0.139f));
 
             // Rainbow edge shimmer
             float hue = (Progress + (float)Main.GameUpdateCount * 0.005f) % 1f;
@@ -184,7 +184,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
             Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
             if (glow != null)
                 spriteBatch.Draw(glow, drawPos, null, final_color * alpha * 0.35f, Rotation,
-                    glow.Size() * 0.5f, new Vector2(Scale * 0.9f, Scale * 0.22f), SpriteEffects.None, 0f);
+                    glow.Size() * 0.5f, new Vector2(MathHelper.Min(Scale * 0.9f, 0.586f), MathHelper.Min(Scale * 0.22f, 0.586f)), SpriteEffects.None, 0f);
         }
     }
 }

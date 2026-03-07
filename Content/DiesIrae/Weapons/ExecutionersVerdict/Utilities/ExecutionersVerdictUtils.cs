@@ -114,13 +114,13 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Utilities
             float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.10f;
             float stepScale = 0.035f + comboStep * 0.012f;
 
-            // Outer radial  Ecrimson judgment
+            // Outer radial — crimson judgment (capped 300px max)
             if (radial != null)
             {
                 Vector2 radOrigin = radial.Size() * 0.5f;
                 Color radColor = CrimsonRed * (0.4f * intensity);
                 radColor.A = 0;
-                sb.Draw(radial, tipScreen, null, radColor, 0f, radOrigin, stepScale * 2.2f * pulse, SpriteEffects.None, 0f);
+                sb.Draw(radial, tipScreen, null, radColor, 0f, radOrigin, stepScale * 1.8f * pulse, SpriteEffects.None, 0f);
             }
 
             // Mid  Egold judgment

@@ -114,20 +114,20 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma.Parti
                 float afterAlpha = alpha * (1f - (float)i / _afterimagePositions.Length) * 0.3f;
                 float afterScale = Scale * (0.6f + 0.4f * (1f - (float)i / _afterimagePositions.Length));
 
-                sb.Draw(softBloom, afterPos, null, Color * afterAlpha, 0f, softBloom.Size() / 2f, afterScale * 1.5f, SpriteEffects.None, 0f);
+                sb.Draw(softBloom, afterPos, null, Color * afterAlpha, 0f, softBloom.Size() / 2f, MathHelper.Min(afterScale * 1.5f, 0.139f), SpriteEffects.None, 0f);
             }
 
             Vector2 drawPos = Position - Main.screenPosition;
 
-            // Layer 1: Outer soft bloom (large, dim)
-            sb.Draw(softBloom, drawPos, null, Color * alpha * 0.35f, 0f, softBloom.Size() / 2f, Scale * 2.5f, SpriteEffects.None, 0f);
+            // Layer 1: Outer soft bloom (large, dim) (capped to 300px on 2160px texture)
+            sb.Draw(softBloom, drawPos, null, Color * alpha * 0.35f, 0f, softBloom.Size() / 2f, MathHelper.Min(Scale * 2.5f, 0.139f), SpriteEffects.None, 0f);
 
-            // Layer 2: Halo middle (medium, paradox green tint)
+            // Layer 2: Halo middle (medium, paradox green tint) — capped to 300px on 2160px SoftCircle
             Color haloColor = Color.Lerp(Color, TacetUtils.ParadoxGreen, 0.4f);
-            sb.Draw(haloTex, drawPos, null, haloColor * alpha * 0.6f, Time * 0.02f, haloTex.Size() / 2f, Scale * 1.2f, SpriteEffects.None, 0f);
+            sb.Draw(haloTex, drawPos, null, haloColor * alpha * 0.6f, Time * 0.02f, haloTex.Size() / 2f, MathHelper.Min(Scale * 1.2f, 0.139f), SpriteEffects.None, 0f);
 
             // Layer 3: White-hot center
-            sb.Draw(softBloom, drawPos, null, Color.White * alpha * 0.7f, 0f, softBloom.Size() / 2f, Scale * 0.4f, SpriteEffects.None, 0f);
+            sb.Draw(softBloom, drawPos, null, Color.White * alpha * 0.7f, 0f, softBloom.Size() / 2f, MathHelper.Min(Scale * 0.4f, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -150,7 +150,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma.Parti
         private readonly int _glyphIndex;
 
         public override bool SetLifetime => true;
-        public override bool UseAdditiveBlend => false;
+        public override bool UseAdditiveBlend => true; // SoftRadialBloom halo has black bg
         public override bool UseCustomDraw => true;
 
         public ParadoxStackParticle(Vector2 orbitCenter, float orbitRadius, float startAngle, Color color, float scale, int lifetime)
@@ -191,7 +191,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma.Parti
 
             // Glow behind the glyph
             var glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
-            sb.Draw(glowTex, drawPos, null, Color * alpha * 0.25f, 0f, glowTex.Size() / 2f, pulseScale * 3f, SpriteEffects.None, 0f);
+            sb.Draw(glowTex, drawPos, null, Color * alpha * 0.25f, 0f, glowTex.Size() / 2f, MathHelper.Min(pulseScale * 3f, 0.139f), SpriteEffects.None, 0f);
 
             // Glyph itself
             sb.Draw(tex, drawPos, null, Color * alpha, Rotation, tex.Size() / 2f, pulseScale, SpriteEffects.None, 0f);
@@ -239,10 +239,10 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma.Parti
             Vector2 drawPos = Position - Main.screenPosition;
 
             // Layer 1: Colored glow
-            sb.Draw(tex, drawPos, null, Color * alpha * 0.6f, 0f, tex.Size() / 2f, Scale * 1.5f, SpriteEffects.None, 0f);
+            sb.Draw(tex, drawPos, null, Color * alpha * 0.6f, 0f, tex.Size() / 2f, MathHelper.Min(Scale * 1.5f, 0.139f), SpriteEffects.None, 0f);
 
             // Layer 2: White-hot center
-            sb.Draw(tex, drawPos, null, Color.White * alpha * 0.8f, 0f, tex.Size() / 2f, Scale * 0.4f, SpriteEffects.None, 0f);
+            sb.Draw(tex, drawPos, null, Color.White * alpha * 0.8f, 0f, tex.Size() / 2f, MathHelper.Min(Scale * 0.4f, 0.139f), SpriteEffects.None, 0f);
         }
     }
 }

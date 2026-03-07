@@ -59,6 +59,10 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Part
 
             // Stretched along velocity direction
             Vector2 stretch = new Vector2(Scale * 1.8f, Scale * 0.5f);
+            // 1024px SoftGlow → max 300px per axis
+            float jetMaxDim = Math.Max(stretch.X, stretch.Y);
+            float jetCap = jetMaxDim > 0.293f ? 0.293f / jetMaxDim : 1f;
+            stretch *= jetCap;
             sb.Draw(tex, screenPos, null, col, Rotation, origin, stretch, SpriteEffects.None, 0f);
         }
     }
@@ -185,7 +189,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Part
             float alpha = (float)Math.Sin(LifetimeCompletion * Math.PI);
             Color col = IgnitionOfTheBellUtils.Additive(DrawColor, alpha * 0.6f);
 
-            sb.Draw(tex, screenPos, null, col, _angle, origin, Scale, SpriteEffects.None, 0f);
+            sb.Draw(tex, screenPos, null, col, _angle, origin, MathHelper.Min(Scale, 0.293f), SpriteEffects.None, 0f);
         }
     }
 
@@ -235,17 +239,20 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Part
             float alpha = 1f - LifetimeCompletion;
             alpha *= alpha;
 
+            // 1024px SoftGlow → max 300px; cap proportionally
+            float flashCap = Scale * 1.5f > 0.293f ? 0.293f / (Scale * 1.5f) : 1f;
+
             // Crimson outer
             Color outer = IgnitionOfTheBellUtils.Additive(new Color(200, 40, 0), alpha * 0.4f);
-            sb.Draw(tex, screenPos, null, outer, 0f, origin, Scale * 1.5f, SpriteEffects.None, 0f);
+            sb.Draw(tex, screenPos, null, outer, 0f, origin, Scale * 1.5f * flashCap, SpriteEffects.None, 0f);
 
             // Gold mid
             Color mid = IgnitionOfTheBellUtils.Additive(new Color(255, 160, 40), alpha * 0.6f);
-            sb.Draw(tex, screenPos, null, mid, 0f, origin, Scale, SpriteEffects.None, 0f);
+            sb.Draw(tex, screenPos, null, mid, 0f, origin, Scale * flashCap, SpriteEffects.None, 0f);
 
             // White core
             Color core = IgnitionOfTheBellUtils.Additive(new Color(255, 240, 210), alpha * 0.8f);
-            sb.Draw(tex, screenPos, null, core, 0f, origin, Scale * 0.4f, SpriteEffects.None, 0f);
+            sb.Draw(tex, screenPos, null, core, 0f, origin, Scale * 0.4f * flashCap, SpriteEffects.None, 0f);
         }
     }
 

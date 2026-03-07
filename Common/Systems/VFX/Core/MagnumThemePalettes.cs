@@ -224,6 +224,10 @@ namespace MagnumOpus.Common.Systems.VFX
         /// <summary>Gets a Clair de Lune gradient color</summary>
         public static Color GetClairDeLune(float progress) => VFXUtilities.PaletteLerp(ClairDeLune, progress);
         
+        // Shield / accessory convenience colors
+        public static Color ClairBrass => new Color(200, 170, 100);
+        public static Color ClairCrimson => new Color(180, 80, 100);
+        
         #endregion
         
         #region Dies Irae - Infernal Wrath (Dark Crimson ↁEHellfire)
@@ -246,6 +250,10 @@ namespace MagnumOpus.Common.Systems.VFX
         
         /// <summary>Gets a Dies Irae gradient color</summary>
         public static Color GetDiesIrae(float progress) => VFXUtilities.PaletteLerp(DiesIrae, progress);
+        
+        // Shield / accessory convenience colors
+        public static Color DiesCrimson => new Color(200, 50, 50);
+        public static Color DiesFlameOrange => new Color(255, 120, 40);
         
         #endregion
         
@@ -386,6 +394,33 @@ namespace MagnumOpus.Common.Systems.VFX
         /// <summary>Gets an Ode to Joy gradient color</summary>
         public static Color GetOdeToJoy(float progress) => VFXUtilities.PaletteLerp(OdeToJoy, progress);
         
+        // Shield / accessory convenience colors
+        public static Color OdeWhite => Color.White;
+        public static Color OdeIridescent => new Color(220, 200, 255);
+        
+        #endregion
+        
+        #region Nachtmusik - Nocturnal Serenade (Deep Indigo → Starlight Silver → Gold)
+        
+        /// <summary>Nachtmusik gradient palette — nocturnal, stellar, serene</summary>
+        public static readonly Color[] Nachtmusik = new Color[]
+        {
+            new Color(20, 15, 40),     // Deep night void
+            new Color(60, 50, 100),    // Dark indigo
+            new Color(100, 80, 180),   // Night purple
+            new Color(180, 170, 220),  // Starlight lavender
+            new Color(255, 215, 140),  // Golden starlight
+        };
+        
+        public static Color NachtDeepNight => new Color(20, 15, 40);
+        public static Color NachtIndigo => new Color(100, 80, 180);
+        public static Color NachtStarlight => new Color(180, 170, 220);
+        public static Color NachtGold => new Color(255, 215, 140);
+        public static Color NachtSilver => new Color(200, 210, 230);
+        
+        /// <summary>Gets a Nachtmusik gradient color</summary>
+        public static Color GetNachtmusik(float progress) => VFXUtilities.PaletteLerp(Nachtmusik, progress);
+        
         #endregion
 
         #region TerraBlade - Nature's Wrath (DarkGreen -> EnergyGreen -> BrightCyan -> WhiteHot)
@@ -441,6 +476,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 "autumn" or "fall" => Autumn,
                 "winter" => Winter,
                 "odetojoy" or "ode" or "joy" => OdeToJoy,
+                "nachtmusik" or "nacht" => Nachtmusik,
                 "terrablade" or "terra" => TerraBlade,
                 _ => new Color[] { Color.White, Color.Gray }
             };
@@ -466,6 +502,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 "autumn" or "fall" => GetAutumn(progress),
                 "winter" => GetWinter(progress),
                 "odetojoy" or "ode" or "joy" => GetOdeToJoy(progress),
+                "nachtmusik" or "nacht" => GetNachtmusik(progress),
                 "terrablade" or "terra" => GetTerraBlade(progress),
                 _ => Color.White
             };
@@ -491,6 +528,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 "autumn" or "fall" => AutumnAmber,
                 "winter" => WinterBlue,
                 "odetojoy" or "ode" or "joy" => OdeBrightGold,
+                "nachtmusik" or "nacht" => NachtIndigo,
                 "terrablade" or "terra" => TerraBladeEnergyGreen,
                 _ => Color.White
             };
@@ -516,6 +554,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 "autumn" or "fall" => AutumnGold,
                 "winter" => WinterCrystal,
                 "odetojoy" or "ode" or "joy" => OdeSunlight,
+                "nachtmusik" or "nacht" => NachtGold,
                 "terrablade" or "terra" => TerraBladeBrightCyan,
                 _ => Color.White
             };

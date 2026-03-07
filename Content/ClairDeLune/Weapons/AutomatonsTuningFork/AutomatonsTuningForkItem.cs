@@ -25,7 +25,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.AutomatonsTuningFork
         {
             Item.width = 36;
             Item.height = 36;
-            Item.damage = 130;
+            Item.damage = 3400; // Tier 10 (2800-4200 range)
             Item.DamageType = DamageClass.Summon;
             Item.mana = 20;
             Item.useTime = 30;

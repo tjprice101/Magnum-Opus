@@ -219,7 +219,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
             // Orbit glow halo
             Color haloColor = MulticolorLerp((orbitTimer * 0.01f) % 1f, IncisorPalette) with { A = 0 };
             Main.spriteBatch.Draw(bloomTex, drawPos, null, haloColor * 0.3f,
-                0f, bloomTex.Size() * 0.5f, 0.35f, SpriteEffects.None, 0f);
+                0f, bloomTex.Size() * 0.5f, 0.12f, SpriteEffects.None, 0f);
 
             // Star body
             Color starColor = Color.Lerp(new Color(200, 180, 255), Color.White, pulse * 0.3f) with { A = 0 };

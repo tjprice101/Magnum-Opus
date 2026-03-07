@@ -447,7 +447,7 @@ namespace MagnumOpus.Content.Eroica.Minions
 
                         // Mid abyssal crimson ring
                         sb.Draw(softGlow, drawPos, null, Color.White * (0.22f * pulse * attackFlare),
-                            0f, glowOrigin, 0.35f * Projectile.scale * attackFlare, SpriteEffects.None, 0f);
+                            0f, glowOrigin, 0.24f * Projectile.scale * attackFlare, SpriteEffects.None, 0f);
 
                         // Inner ember core
                         sb.Draw(softGlow, drawPos, null, Color.White * (0.15f * pulse),
@@ -470,7 +470,7 @@ namespace MagnumOpus.Content.Eroica.Minions
                     {
                         Vector2 glowOrigin = softGlow.Size() * 0.5f;
                         sb.Draw(softGlow, drawPos, null, Color.White * (0.12f * pulse * attackFlare),
-                            0f, glowOrigin, 0.6f * Projectile.scale * attackFlare, SpriteEffects.None, 0f);
+                            0f, glowOrigin, 0.24f * Projectile.scale * attackFlare, SpriteEffects.None, 0f);
                     }
                 }
                 finally
@@ -494,11 +494,11 @@ namespace MagnumOpus.Content.Eroica.Minions
                 {
                     Color outerColor = FinalityUtils.FateViolet with { A = 0 };
                     sb.Draw(softGlow, drawPos, null, outerColor * (0.12f * pulse * attackFlare),
-                        0f, glowOrigin, 0.6f * Projectile.scale * attackFlare, SpriteEffects.None, 0f);
+                        0f, glowOrigin, 0.24f * Projectile.scale * attackFlare, SpriteEffects.None, 0f);
 
                     Color midColor = FinalityUtils.AbyssalCrimson with { A = 0 };
                     sb.Draw(softGlow, drawPos, null, midColor * (0.18f * pulse * attackFlare),
-                        0f, glowOrigin, 0.35f * Projectile.scale * attackFlare, SpriteEffects.None, 0f);
+                        0f, glowOrigin, 0.15f * Projectile.scale * attackFlare, SpriteEffects.None, 0f);
 
                     Color innerColor = FinalityUtils.EmberGold with { A = 0 };
                     sb.Draw(softGlow, drawPos, null, innerColor * (0.1f * pulse),

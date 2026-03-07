@@ -32,7 +32,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
         public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.RainbowCrystalExplosion;
 
         private const int MaxLifetime = 55;
-        private const float OrbDrawScale = 0.85f;
+        private const float OrbDrawScale = 0.47f;
 
         // Texture paths — sourced from VFX Asset Library
         private static readonly string BloomPath = "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/";
@@ -194,15 +194,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
 
             // Outer ambient — wide, dim, prismatic edge color
             sb.Draw(softGlow, drawPos, null, edge * (0.22f * alpha * pulse), 0f,
-                origin, 0.65f * scale * pulse, SpriteEffects.None, 0f);
+                origin, 0.36f * scale * pulse, SpriteEffects.None, 0f);
 
             // Mid glow — brighter, mid gradient
             sb.Draw(softGlow, drawPos, null, mid * (0.3f * alpha * pulse), 0f,
-                origin, 0.4f * scale * pulse, SpriteEffects.None, 0f);
+                origin, 0.22f * scale * pulse, SpriteEffects.None, 0f);
 
             // Inner glow — intense, warm core
             sb.Draw(softGlow, drawPos, null, core * (0.4f * alpha * pulse), 0f,
-                origin, 0.2f * scale * pulse, SpriteEffects.None, 0f);
+                origin, 0.11f * scale * pulse, SpriteEffects.None, 0f);
         }
 
         // =================================================================
@@ -272,11 +272,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
 
             // Bright prismatic core
             sb.Draw(glowOrb, drawPos, null, mid * (0.35f * alpha * pulse), 0f,
-                origin, 0.18f * scale * pulse, SpriteEffects.None, 0f);
+                origin, 0.10f * scale * pulse, SpriteEffects.None, 0f);
 
             // White-hot pinpoint
             sb.Draw(glowOrb, drawPos, null, core * (0.5f * alpha * pulse), 0f,
-                origin, 0.1f * scale * pulse, SpriteEffects.None, 0f);
+                origin, 0.055f * scale * pulse, SpriteEffects.None, 0f);
         }
 
         public override Color? GetAlpha(Color lightColor) => Color.White;

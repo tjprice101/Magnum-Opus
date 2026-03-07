@@ -195,7 +195,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.RequiemOfTheCosmos.Projectiles
                     NachtmusikShaderManager.ApplySerenade(time, NachtmusikPalette.CosmicVoid,
                         NachtmusikPalette.ConstellationBlue, phase: phase);
 
-                    float auraScale = (0.3f * modeScale) * (0.85f + 0.15f * MathF.Sin(Timer * 0.08f));
+                    float auraScale = (0.15f * modeScale) * (0.85f + 0.15f * MathF.Sin(Timer * 0.08f));
                     spriteBatch.Draw(glowTex, drawPos, null,
                         NachtmusikPalette.CosmicPurple with { A = 0 } * 0.35f,
                         Timer * 0.01f, glowTex.Size() / 2f, auraScale, SpriteEffects.None, 0f);
@@ -241,7 +241,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.RequiemOfTheCosmos.Projectiles
                     {
                         spriteBatch.Draw(bloomTex, drawPos, null,
                             NachtmusikPalette.CosmicPurple with { A = 0 } * 0.2f * ringPulse,
-                            0f, bloomTex.Size() / 2f, modeScale * 0.8f, SpriteEffects.None, 0f);
+                            0f, bloomTex.Size() / 2f, modeScale * 0.05f, SpriteEffects.None, 0f);
                     }
 
                     // Star flare for Event Horizon gravity well
@@ -250,7 +250,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.RequiemOfTheCosmos.Projectiles
                     {
                         spriteBatch.Draw(flareTex, drawPos, null,
                             NachtmusikPalette.Violet with { A = 0 } * 0.15f,
-                            time * 0.2f, flareTex.Size() / 2f, modeScale * 0.5f * ringPulse, SpriteEffects.None, 0f);
+                            time * 0.2f, flareTex.Size() / 2f, modeScale * 0.04f * ringPulse, SpriteEffects.None, 0f);
                     }
                 }
 

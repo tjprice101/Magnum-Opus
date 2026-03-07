@@ -13,27 +13,28 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
     /// cyan lightning, deep void, and celestial starlight.
     ///
     /// Musical dynamics palette:
+    /// Musical dynamics palette (Fate LUT ramp with rainbow shimmer):
     ///   [0] Pianissimo = VoidBlack (deep void darkness)
     ///   [1] Piano      = BatonPurple (conductor's baton purple)
-    ///   [2] Mezzo      = ConductorCyan (electric conductor blue)
-    ///   [3] Forte      = LightningGold (golden lightning flash)
+    ///   [2] Mezzo      = ConductorCrimson (Fate crimson-pink)
+    ///   [3] Forte      = LightningGold (warm cosmic gold)
     ///   [4] Fortissimo = StarSilver (constellation silver)
     ///   [5] Sforzando  = CelestialWhite (pure celestial flash)
     /// </summary>
     public static class ConductorUtils
     {
-        // ======================== COLOR PALETTE ========================
+        // ======================== COLOR PALETTE (Fate LUT Ramp) ========================
 
         public static readonly Color VoidBlack = new Color(8, 5, 15);
         public static readonly Color BatonPurple = new Color(130, 50, 180);
-        public static readonly Color ConductorCyan = new Color(40, 200, 220);
-        public static readonly Color LightningGold = new Color(255, 220, 80);
-        public static readonly Color StarSilver = new Color(190, 200, 230);
+        public static readonly Color ConductorCyan = new Color(200, 50, 120);    // Fate crimson-pink (was cyan)
+        public static readonly Color LightningGold = new Color(255, 180, 60);    // Warm cosmic gold (was yellow-gold)
+        public static readonly Color StarSilver = new Color(200, 190, 220);
         public static readonly Color CelestialWhite = new Color(240, 245, 255);
-        public static readonly Color DeepIndigo = new Color(20, 10, 60);
-        public static readonly Color ElectricBlue = new Color(80, 160, 255);
+        public static readonly Color DeepIndigo = new Color(25, 10, 50);
+        public static readonly Color ElectricBlue = new Color(140, 80, 200);     // Now violet-leaning (was blue)
         public static readonly Color CosmicPink = new Color(200, 80, 160);
-        public static readonly Color ThunderAmber = new Color(255, 180, 40);
+        public static readonly Color ThunderAmber = new Color(255, 160, 60);
 
         /// <summary>Ordered palette from darkest (pp) to brightest (sfz).</summary>
         public static readonly Color[] ConductorPalette = new Color[]
@@ -57,7 +58,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
             return Color.Lerp(ConductorPalette[lo], ConductorPalette[hi], frac);
         }
 
-        /// <summary>Lightning gradient: void → purple → cyan → gold → white</summary>
+        /// <summary>Lightning gradient: void → purple → crimson-pink → cosmic gold → white (Fate LUT ramp)</summary>
         public static Color GetLightningGradient(float t)
         {
             t = MathHelper.Clamp(t, 0f, 1f);
@@ -70,7 +71,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
             return Color.Lerp(LightningGold, CelestialWhite, (t - 0.75f) / 0.25f);
         }
 
-        /// <summary>Conductor baton gradient: deep indigo → electric blue → silver</summary>
+        /// <summary>Conductor baton gradient: deep indigo → violet → silver</summary>
         public static Color GetBatonGradient(float t)
         {
             t = MathHelper.Clamp(t, 0f, 1f);
@@ -83,9 +84,9 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
         public static Color WithWhitePush(Color c, float amount)
             => Color.Lerp(c, Color.White, MathHelper.Clamp(amount, 0f, 1f));
 
-        /// <summary>Additive-safe color (premultiplied alpha).</summary>
+        /// <summary>Additive-safe color (premultiplied alpha, A=0).</summary>
         public static Color Additive(Color c, float opacity = 1f)
-            => new Color(c.R, c.G, c.B) * opacity;
+            => new Color(c.R, c.G, c.B, 0) * opacity;
 
         // ======================== EASING FUNCTIONS ========================
 
@@ -258,15 +259,22 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
             sb.Draw(tex, pos, null, Additive(LightningGold, 0.12f), rotation, origin, scale * 1.04f, SpriteEffects.None, 0f);
         }
 
-        /// <summary>Get a lightning-like shimmer color that cycles through cyan → gold → white → purple.</summary>
+        /// <summary>Get a rainbow-tinted shimmer that cycles through the Fate palette with HSL rainbow accents.</summary>
         public static Color GetConductorShimmer(float time, float speed = 1f)
         {
             float t = (MathF.Sin(time * speed) + 1f) * 0.5f;
+            // Base: cycle through Fate LUT ramp
+            Color baseColor;
             if (t < 0.33f)
-                return Color.Lerp(ConductorCyan, LightningGold, t / 0.33f);
-            if (t < 0.66f)
-                return Color.Lerp(LightningGold, CelestialWhite, (t - 0.33f) / 0.33f);
-            return Color.Lerp(CelestialWhite, ConductorCyan, (t - 0.66f) / 0.34f);
+                baseColor = Color.Lerp(ConductorCyan, LightningGold, t / 0.33f);
+            else if (t < 0.66f)
+                baseColor = Color.Lerp(LightningGold, CelestialWhite, (t - 0.33f) / 0.33f);
+            else
+                baseColor = Color.Lerp(CelestialWhite, ConductorCyan, (t - 0.66f) / 0.34f);
+            // Rainbow accent: blend in HSL-cycling hue for prismatic shimmer
+            float hue = (time * 0.12f * speed) % 1f;
+            Color rainbow = Main.hslToRgb(hue, 0.75f, 0.7f);
+            return Color.Lerp(baseColor, rainbow, 0.25f);
         }
 
         // ─────────── THEME TEXTURE ACCENTS ───────────

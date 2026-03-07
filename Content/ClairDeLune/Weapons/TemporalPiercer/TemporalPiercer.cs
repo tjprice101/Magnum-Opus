@@ -23,7 +23,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer
             Item.width = 84;
             Item.height = 84;
             Item.DamageType = DamageClass.Melee;
-            Item.damage = 250;
+            Item.damage = 3600; // Tier 10 (2800-4200 range)
             Item.useTime = 16;
             Item.useAnimation = 16;
             Item.useStyle = ItemUseStyleID.Shoot;

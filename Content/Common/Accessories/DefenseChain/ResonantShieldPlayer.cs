@@ -8,6 +8,8 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
+using MagnumOpus.Common.Systems.VFX;
+
 namespace MagnumOpus.Content.Common.Accessories.DefenseChain
 {
     /// <summary>
@@ -81,29 +83,29 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
         private int shieldPulseTimer;
         private int ambientParticleTimer;
         
-        // Theme colors
-        private static readonly Color ShieldBlue = new Color(100, 180, 255);
-        private static readonly Color SpringPink = new Color(255, 180, 200);
-        private static readonly Color SolarOrange = new Color(255, 140, 50);
-        private static readonly Color HarvestAmber = new Color(200, 150, 80);
-        private static readonly Color FrostBlue = new Color(150, 200, 255);
-        private static readonly Color SeasonalGreen = new Color(150, 220, 150);
-        private static readonly Color MoonlitPurple = new Color(150, 120, 200);
-        private static readonly Color HeroicScarlet = new Color(200, 80, 80);
-        private static readonly Color InfernalOrange = new Color(255, 100, 30);
-        private static readonly Color EnigmaPurple = new Color(140, 60, 200);
-        private static readonly Color SwanWhite = new Color(240, 245, 255);
-        private static readonly Color FateCrimson = new Color(180, 40, 80);
+        // Theme colors — sourced from MagnumThemePalettes (single source of truth)
+        private static Color ShieldBlue => new Color(100, 180, 255); // Generic shield, not theme-specific
+        private static Color SpringPink => MagnumThemePalettes.SpringBlossom;
+        private static Color SolarOrange => MagnumThemePalettes.SummerOrange;
+        private static Color HarvestAmber => MagnumThemePalettes.AutumnAmber;
+        private static Color FrostBlue => MagnumThemePalettes.WinterIceBlue;
+        private static Color SeasonalGreen => MagnumThemePalettes.SpringVibrant;
+        private static Color MoonlitPurple => MagnumThemePalettes.MoonlightLavender;
+        private static Color HeroicScarlet => MagnumThemePalettes.EroicaCrimson;
+        private static Color InfernalOrange => MagnumThemePalettes.InfernalOrange;
+        private static Color EnigmaPurple => MagnumThemePalettes.EnigmaPurple;
+        private static Color SwanWhite => MagnumThemePalettes.SwanWhite;
+        private static Color FateCrimson => MagnumThemePalettes.FateDarkPink;
         
-        // Post-Fate Theme Colors
-        private static readonly Color NachtmusikPurple = new Color(100, 80, 180);
-        private static readonly Color NachtmusikGold = new Color(255, 215, 140);
-        private static readonly Color DiesIraeCrimson = new Color(200, 50, 50);
-        private static readonly Color DiesIraeOrange = new Color(255, 120, 40);
-        private static readonly Color OdeToJoyWhite = new Color(255, 255, 255);
-        private static readonly Color OdeToJoyIridescent = new Color(220, 200, 255);
-        private static readonly Color ClairDeLuneBrass = new Color(200, 170, 100);
-        private static readonly Color ClairDeLuneCrimson = new Color(180, 80, 100);
+        // Post-Fate Theme Colors — sourced from MagnumThemePalettes
+        private static Color NachtmusikPurple => MagnumThemePalettes.NachtIndigo;
+        private static Color NachtmusikGold => MagnumThemePalettes.NachtGold;
+        private static Color DiesIraeCrimson => MagnumThemePalettes.DiesCrimson;
+        private static Color DiesIraeOrange => MagnumThemePalettes.DiesFlameOrange;
+        private static Color OdeToJoyWhite => MagnumThemePalettes.OdeWhite;
+        private static Color OdeToJoyIridescent => MagnumThemePalettes.OdeIridescent;
+        private static Color ClairDeLuneBrass => MagnumThemePalettes.ClairBrass;
+        private static Color ClairDeLuneCrimson => MagnumThemePalettes.ClairCrimson;
         
         public override void ResetEffects()
         {

@@ -502,14 +502,14 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
                 sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-                // Outer glow
-                float outerScale = (IsCrescendo ? 0.6f : 0.35f) * pulse;
+                // Outer glow (capped to 300px on 1024px SoftGlow)
+                float outerScale = MathHelper.Min((IsCrescendo ? 0.6f : 0.35f) * pulse, 0.293f);
                 Color outerColor = FangOfTheInfiniteBellUtils.Additive(
                     FangOfTheInfiniteBellUtils.GetArcaneGradient(0.4f), 0.3f);
                 sb.Draw(bloomTex, screenPos, null, outerColor, 0f, bloomOrigin, outerScale, SpriteEffects.None, 0f);
 
-                // Core glow
-                float coreScale = (IsCrescendo ? 0.3f : 0.18f) * pulse;
+                // Core glow (capped to 300px on 1024px SoftGlow)
+                float coreScale = MathHelper.Min((IsCrescendo ? 0.3f : 0.18f) * pulse, 0.293f);
                 Color coreColor = FangOfTheInfiniteBellUtils.Additive(
                     FangOfTheInfiniteBellUtils.GetArcaneGradient(0.85f), 0.6f);
                 sb.Draw(bloomTex, screenPos, null, coreColor, 0f, bloomOrigin, coreScale, SpriteEffects.None, 0f);

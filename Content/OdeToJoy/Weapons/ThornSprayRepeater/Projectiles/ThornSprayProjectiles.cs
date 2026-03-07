@@ -133,7 +133,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
             // Ambient shimmer
             float shimmer = 0.85f + 0.15f * (float)Math.Sin(Projectile.ai[0]++ * 0.15f);
             sb.Draw(glowTex, pos, null, ThornSprayTextures.BloomGold * fade * 0.25f * shimmer, Projectile.rotation,
-                glowOrigin, 0.35f, SpriteEffects.None, 0f);
+                glowOrigin, 0.28f, SpriteEffects.None, 0f);
             // Inner glow
             sb.Draw(glowTex, pos, null, ThornSprayTextures.RadiantAmber * fade * 0.5f, 0f, glowOrigin,
                 0.2f, SpriteEffects.None, 0f);
@@ -269,7 +269,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
             // Bright golden shimmer
             float shimmer = 0.8f + 0.2f * (float)Math.Sin(Projectile.ai[0]++ * 0.12f);
             sb.Draw(glowTex, pos, null, ThornSprayTextures.BloomGold * fade * 0.4f * shimmer, 0f, glowOrigin,
-                0.45f, SpriteEffects.None, 0f);
+                0.28f, SpriteEffects.None, 0f);
             // Bloom inner glow
             sb.Draw(glowTex, pos, null, ThornSprayTextures.JubilantLight * fade * 0.6f, 0f, glowOrigin,
                 0.25f, SpriteEffects.None, 0f);
@@ -378,7 +378,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
                 OdeToJoyShaders.BeginShaderBatch(sb, auraShader, "CelebrationAuraTechnique");
                 auraShader.CurrentTechnique.Passes["P0"].Apply();
                 sb.Draw(glowTex, drawPos, null, Color.White * fadeOut, progress * 2f, glowOrigin,
-                    expand * 0.5f, SpriteEffects.None, 0f);
+                    Math.Min(expand * 0.5f, 0.293f), SpriteEffects.None, 0f);
                 sb.End();
             }
 
@@ -390,7 +390,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
                     ThornSprayTextures.BloomGold, fadeOut * 0.4f, 2.0f, expand * 0.3f);
                 OdeToJoyShaders.BeginDeferredShaderBatch(sb, pollenShader, "BloomDetonationTechnique");
                 sb.Draw(glowTex, drawPos, null, Color.White * fadeOut, 0f, glowOrigin,
-                    expand * 0.7f, SpriteEffects.None, 0f);
+                    Math.Min(expand * 0.7f, 0.293f), SpriteEffects.None, 0f);
                 sb.End();
             }
 
@@ -405,10 +405,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
                 surgeOrigin, expand * 0.6f, SpriteEffects.None, 0f);
             // Outer glow
             sb.Draw(glowTex, drawPos, null, ThornSprayTextures.PetalPink * fadeOut * 0.3f, 0f, glowOrigin,
-                expand * 1.2f, SpriteEffects.None, 0f);
+                Math.Min(expand * 1.2f, 0.293f), SpriteEffects.None, 0f);
             // Hot core
             sb.Draw(glowTex, drawPos, null, ThornSprayTextures.JubilantLight * fadeOut * 0.55f, 0f, glowOrigin,
-                expand * 0.25f, SpriteEffects.None, 0f);
+                Math.Min(expand * 0.25f, 0.293f), SpriteEffects.None, 0f);
 
             // Theme blossom sparkle accent
             OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);

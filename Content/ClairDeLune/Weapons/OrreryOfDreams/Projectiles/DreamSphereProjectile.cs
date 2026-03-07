@@ -236,19 +236,19 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.OrreryOfDreams.Projectiles
             Texture2D pb = _pointBloom.Value;
             Texture2D sf = _starFlare.Value;
 
-            // Outer haze
+            // Outer haze (capped 300px max)
             sb.Draw(srb, drawPos, null, glowColor with { A = 0 } * 0.2f * pulse,
-                0f, srb.Size() * 0.5f, baseScale * 2.5f * (srb.Width / 64f), SpriteEffects.None, 0f);
+                0f, srb.Size() * 0.5f, baseScale * 2.5f * (64f / srb.Width), SpriteEffects.None, 0f);
             // Mid glow
             sb.Draw(srb, drawPos, null, coreColor with { A = 0 } * 0.4f * pulse,
-                0f, srb.Size() * 0.5f, baseScale * 1.5f * (srb.Width / 64f), SpriteEffects.None, 0f);
+                0f, srb.Size() * 0.5f, baseScale * 1.5f * (64f / srb.Width), SpriteEffects.None, 0f);
             // Hot core
             sb.Draw(pb, drawPos, null, ClairDeLunePalette.WhiteHot with { A = 0 } * 0.6f * pulse,
-                0f, pb.Size() * 0.5f, baseScale * 0.8f * (pb.Width / 64f), SpriteEffects.None, 0f);
+                0f, pb.Size() * 0.5f, baseScale * 0.8f * (64f / pb.Width), SpriteEffects.None, 0f);
             // Star flare accent
             sb.Draw(sf, drawPos, null, coreColor with { A = 0 } * 0.15f * pulse,
                 Main.GlobalTimeWrappedHourly * (1f + SphereType * 0.5f), sf.Size() * 0.5f,
-                baseScale * 1.2f * (sf.Width / 64f), SpriteEffects.None, 0f);
+                baseScale * 1.2f * (64f / sf.Width), SpriteEffects.None, 0f);
         }
 
         // ---- PASS 3: Orbit ring trail with PearlShimmer overlay ----

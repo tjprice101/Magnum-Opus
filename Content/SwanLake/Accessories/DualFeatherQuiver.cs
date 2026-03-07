@@ -907,7 +907,7 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             // === GLOW BACKDROP (Additive) ===
             Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
             if (glowTex == null) return false;
-            float glowScale = 0.6f + glowPulse * 0.15f;
+            float glowScale = MathHelper.Min(0.6f + glowPulse * 0.15f, 0.488f);
             
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,

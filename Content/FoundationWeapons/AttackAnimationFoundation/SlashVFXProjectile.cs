@@ -220,17 +220,17 @@ namespace MagnumOpus.Content.FoundationWeapons.AttackAnimationFoundation
             Texture2D softRadial = AAFTextures.SoftRadialBloom.Value;
             Vector2 radialOrigin = softRadial.Size() / 2f;
 
-            // Large expanding radial bloom
+            // Large expanding radial bloom (capped to 300px on 2160px texture)
             float expand = 1f + (timer / (float)MaxLifetime) * 2f;
             float radialAlpha = alpha * (1f - timer / (float)MaxLifetime);
 
             sb.Draw(softRadial, drawPos, null,
                 Color.White * (radialAlpha * 0.5f),
-                0f, radialOrigin, 0.3f * expand, SpriteEffects.None, 0f);
+                0f, radialOrigin, MathHelper.Min(0.3f * expand, 0.139f), SpriteEffects.None, 0f);
 
             sb.Draw(softRadial, drawPos, null,
                 AAFTextures.SlashColors[0] * (radialAlpha * 0.4f),
-                0f, radialOrigin, 0.5f * expand, SpriteEffects.None, 0f);
+                0f, radialOrigin, MathHelper.Min(0.5f * expand, 0.139f), SpriteEffects.None, 0f);
 
             // Lens flare for maximum impact
             Texture2D lensFlare = AAFTextures.LensFlare.Value;

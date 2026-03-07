@@ -733,8 +733,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
             GoliathPlayer gp = owner.Goliath();
             Color phaseColor = gp.CurrentPhaseColor;
 
-            // Ambient rift glow 遯ｶ繝ｻgentle pulse, tinted by lunar phase
-            float pulse = 0.15f + 0.06f * MathF.Sin(AliveTime * 0.05f);
+            // Ambient rift glow — static, tinted by lunar phase
+            float pulse = 0.15f;
 
             // Charge state intensifies glow
             if (CurrentState == GoliathState.BeamAttack || CurrentState == GoliathState.DevastatingBeam)
@@ -747,15 +747,16 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
             if (gp.IsFullMoon)
                 pulse *= 1.1f;
 
-            Color riftColor = Color.Lerp(GoliathUtils.GravityWell, phaseColor, 0.3f) with { A = 0 } * pulse;
-            sb.Draw(bloom, drawPos, null, riftColor, 0f, origin, 0.8f, SpriteEffects.None, 0f);
+            // Reduced by 80% per user feedback — Goliath bloom was obscuring the summon
+            Color riftColor = Color.Lerp(GoliathUtils.GravityWell, phaseColor, 0.3f) with { A = 0 } * (pulse * 0.2f);
+            sb.Draw(bloom, drawPos, null, riftColor, 0f, origin, 0.03f, SpriteEffects.None, 0f);
 
-            Color innerRift = Color.Lerp(GoliathUtils.NebulaPurple, phaseColor, 0.2f) with { A = 0 } * (pulse * 0.4f);
-            sb.Draw(bloom, drawPos, null, innerRift, 0f, origin, 0.5f, SpriteEffects.None, 0f);
+            Color innerRift = Color.Lerp(GoliathUtils.NebulaPurple, phaseColor, 0.2f) with { A = 0 } * (pulse * 0.08f);
+            sb.Draw(bloom, drawPos, null, innerRift, 0f, origin, 0.02f, SpriteEffects.None, 0f);
 
-            // Phase-specific accent glow
-            Color accentColor = phaseColor with { A = 0 } * (pulse * 0.25f);
-            sb.Draw(bloom, drawPos, null, accentColor, 0f, origin, 1.6f, SpriteEffects.None, 0f);
+            // Phase-specific accent glow — reduced
+            Color accentColor = phaseColor with { A = 0 } * (pulse * 0.05f);
+            sb.Draw(bloom, drawPos, null, accentColor, 0f, origin, 0.04f, SpriteEffects.None, 0f);
         }
 
         private void DrawGoliathSprite(SpriteBatch sb, Color lightColor)
@@ -786,33 +787,34 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
             GoliathPlayer gp = owner.Goliath();
             Color phaseColor = gp.CurrentPhaseColor;
 
-            // Eye / core glow 遯ｶ繝ｻtinted by lunar phase
-            float eyePulse = 0.3f + 0.1f * MathF.Sin(AliveTime * 0.08f);
+            // Eye / core glow — tinted by lunar phase (reduced 80% per feedback)
+            float eyePulse = 0.06f;
             Color eyeColor = Color.Lerp(GoliathUtils.IceBlueBrilliance, phaseColor, 0.25f) with { A = 0 } * eyePulse;
-            sb.Draw(bloom, drawPos, null, eyeColor, 0f, origin, 0.3f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, eyeColor, 0f, origin, 0.025f, SpriteEffects.None, 0f);
 
             // During beam charge: intensified glow with phase tint
+            // Beam charge — reduced 80%
             if (CurrentState == GoliathState.BeamAttack || CurrentState == GoliathState.DevastatingBeam)
             {
                 float chargeProgress = ChargeTimer / (float)ChargeUpDuration;
-                Color chargeColor = Color.Lerp(GoliathUtils.StarCore, phaseColor, 0.3f) with { A = 0 } * (chargeProgress * 0.5f);
-                sb.Draw(bloom, drawPos, null, chargeColor, 0f, origin, 0.4f + chargeProgress * 0.3f, SpriteEffects.None, 0f);
+                Color chargeColor = Color.Lerp(GoliathUtils.StarCore, phaseColor, 0.3f) with { A = 0 } * (chargeProgress * 0.1f);
+                sb.Draw(bloom, drawPos, null, chargeColor, 0f, origin, 0.03f + chargeProgress * 0.02f, SpriteEffects.None, 0f);
             }
 
-            // Full Moon phase: extra radiance
+            // Full Moon phase: extra radiance — reduced 80%
             if (gp.IsFullMoon)
             {
-                float fullPulse = 0.15f + 0.05f * MathF.Sin(AliveTime * 0.06f);
+                float fullPulse = 0.03f;
                 Color fullColor = GoliathUtils.SupermoonWhite with { A = 0 } * fullPulse;
-                sb.Draw(bloom, drawPos, null, fullColor, 0f, origin, 0.5f, SpriteEffects.None, 0f);
+                sb.Draw(bloom, drawPos, null, fullColor, 0f, origin, 0.035f, SpriteEffects.None, 0f);
             }
 
-            // Conductor Mode: additional outer ring glow
+            // Conductor Mode: additional outer ring glow — reduced 80%
             if (gp.ConductorMode)
             {
                 float conductorPulse = gp.ConductorPulse;
-                Color conductorColor = GoliathUtils.ConductorHighlight with { A = 0 } * (0.15f + 0.1f * MathF.Sin(conductorPulse * MathHelper.TwoPi));
-                sb.Draw(bloom, drawPos, null, conductorColor, 0f, origin, 1.0f, SpriteEffects.None, 0f);
+                Color conductorColor = GoliathUtils.ConductorHighlight with { A = 0 } * (0.03f + 0.02f * MathF.Sin(conductorPulse * MathHelper.TwoPi));
+                sb.Draw(bloom, drawPos, null, conductorColor, 0f, origin, 0.04f, SpriteEffects.None, 0f);
             }
         }
     }

@@ -501,12 +501,12 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
                 // Crimson outer bloom
                 sb.Draw(bloomTex, tipPos, null,
                     Additive(new Color(200, 40, 0), 0.25f * extension * pulse),
-                    0f, origin, 1.0f, SpriteEffects.None, 0f);
+                    0f, origin, 0.25f, SpriteEffects.None, 0f);
 
                 // Magma mid bloom
                 sb.Draw(bloomTex, tipPos, null,
                     Additive(new Color(255, 120, 20), 0.35f * extension * pulse),
-                    0f, origin, 0.55f, SpriteEffects.None, 0f);
+                    0f, origin, 0.14f, SpriteEffects.None, 0f);
 
                 // White-hot core
                 sb.Draw(bloomTex, tipPos, null,

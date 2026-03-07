@@ -172,40 +172,40 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Projectiles
                 Vector2 screenPos = hitPos - Main.screenPosition;
                 float time = (float)Main.timeForVisualEffects;
 
-                // Layer 1: Crimson outer haze
+                // Layer 1: Crimson outer haze (capped 300px max)
                 if (_softRadialBloomTex?.IsLoaded == true)
                 {
                     var radTex = _softRadialBloomTex.Value;
                     sb.Draw(radTex, screenPos, null,
                         Additive(FermataUtils.FermataCrimson, 0.4f),
-                        0f, radTex.Size() * 0.5f, 1.5f, SpriteEffects.None, 0f);
+                        0f, radTex.Size() * 0.5f, 0.139f, SpriteEffects.None, 0f);
                 }
 
-                // Layer 2: Time gold mid glow
+                // Layer 2: Time gold mid glow (capped 300px max)
                 if (_softRadialBloomTex?.IsLoaded == true)
                 {
                     var radTex = _softRadialBloomTex.Value;
                     sb.Draw(radTex, screenPos, null,
                         Additive(FermataUtils.TimeGold, 0.45f),
-                        0f, radTex.Size() * 0.5f, 1.0f, SpriteEffects.None, 0f);
+                        0f, radTex.Size() * 0.5f, 0.10f, SpriteEffects.None, 0f);
                 }
 
-                // Layer 3: Purple inner
+                // Layer 3: Purple inner (capped 300px max)
                 if (_pointBloomTex?.IsLoaded == true)
                 {
                     var ptTex = _pointBloomTex.Value;
                     sb.Draw(ptTex, screenPos, null,
                         Additive(FermataUtils.FermataPurple, 0.5f),
-                        0f, ptTex.Size() * 0.5f, 0.65f, SpriteEffects.None, 0f);
+                        0f, ptTex.Size() * 0.5f, 0.08f, SpriteEffects.None, 0f);
                 }
 
-                // Layer 4: White-hot core
+                // Layer 4: White-hot core (capped 300px max)
                 if (_pointBloomTex?.IsLoaded == true)
                 {
                     var ptTex = _pointBloomTex.Value;
                     sb.Draw(ptTex, screenPos, null,
                         Additive(FermataUtils.FlashWhite, 0.7f),
-                        0f, ptTex.Size() * 0.5f, 0.35f, SpriteEffects.None, 0f);
+                        0f, ptTex.Size() * 0.5f, 0.05f, SpriteEffects.None, 0f);
                 }
 
                 // Layer 5: StarFlare cross — temporal slash flash
@@ -315,44 +315,44 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Projectiles
             _softRadialBloomTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom");
             _starFlareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/StarFlare");
 
-            // Layer 1: Outer temporal void haze (SoftRadialBloom)
+            // Layer 1: Outer temporal void haze (SoftRadialBloom) (capped 300px max)
             if (_softRadialBloomTex?.IsLoaded == true)
             {
                 var radTex = _softRadialBloomTex.Value;
                 var radOrigin = radTex.Size() * 0.5f;
                 sb.Draw(radTex, drawPos, null,
                     Additive(FermataUtils.FermataPurple, 0.2f * alpha),
-                    0f, radOrigin, 1.6f * breathe, SpriteEffects.None, 0f);
+                    0f, radOrigin, 0.13f * breathe, SpriteEffects.None, 0f);
             }
 
-            // Layer 2: Crimson slash energy (SoftRadialBloom)
+            // Layer 2: Crimson slash energy (SoftRadialBloom) (capped 300px max)
             if (_softRadialBloomTex?.IsLoaded == true)
             {
                 var radTex = _softRadialBloomTex.Value;
                 var radOrigin = radTex.Size() * 0.5f;
                 sb.Draw(radTex, drawPos, null,
                     Additive(FermataUtils.FermataCrimson, 0.35f * alpha),
-                    0f, radOrigin, 1.1f * pulse, SpriteEffects.None, 0f);
+                    0f, radOrigin, 0.10f * pulse, SpriteEffects.None, 0f);
             }
 
-            // Layer 3: Time gold inner glow (PointBloom)
+            // Layer 3: Time gold inner glow (PointBloom) (capped 300px max)
             if (_pointBloomTex?.IsLoaded == true)
             {
                 var ptTex = _pointBloomTex.Value;
                 var ptOrigin = ptTex.Size() * 0.5f;
                 sb.Draw(ptTex, drawPos, null,
                     Additive(FermataUtils.TimeGold, 0.4f * alpha),
-                    0f, ptOrigin, 0.6f * pulse, SpriteEffects.None, 0f);
+                    0f, ptOrigin, 0.06f * pulse, SpriteEffects.None, 0f);
             }
 
-            // Layer 4: Flash white core (PointBloom)
+            // Layer 4: Flash white core (PointBloom) (capped 300px max)
             if (_pointBloomTex?.IsLoaded == true)
             {
                 var ptTex = _pointBloomTex.Value;
                 var ptOrigin = ptTex.Size() * 0.5f;
                 sb.Draw(ptTex, drawPos, null,
                     Additive(FermataUtils.FlashWhite, 0.5f * alpha),
-                    0f, ptOrigin, 0.3f * pulse, SpriteEffects.None, 0f);
+                    0f, ptOrigin, 0.04f * pulse, SpriteEffects.None, 0f);
             }
 
             // Layer 5: StarFlare rotating cross — the fermata's temporal signature
@@ -362,7 +362,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Projectiles
                 var starOrigin = starTex.Size() * 0.5f;
                 sb.Draw(starTex, drawPos, null,
                     Additive(FermataUtils.TimeGold, 0.2f * alpha),
-                    time * 0.04f, starOrigin, 0.35f * pulse, SpriteEffects.None, 0f);
+                    time * 0.04f, starOrigin, MathHelper.Min(0.35f * pulse, 0.293f), SpriteEffects.None, 0f);
                 sb.Draw(starTex, drawPos, null,
                     Additive(FermataUtils.FermataCrimson, 0.15f * alpha),
                     -time * 0.025f, starOrigin, 0.22f * pulse, SpriteEffects.None, 0f);
@@ -386,14 +386,14 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Projectiles
                 var radTex = _softRadialBloomTex.Value;
                 sb.Draw(radTex, tipPos, null,
                     Additive(FermataUtils.FermataCrimson, 0.3f * alpha),
-                    Projectile.rotation, radTex.Size() * 0.5f, 0.5f * leadPulse, SpriteEffects.None, 0f);
+                    Projectile.rotation, radTex.Size() * 0.5f, 0.12f * leadPulse, SpriteEffects.None, 0f);
             }
             if (_pointBloomTex?.IsLoaded == true)
             {
                 var ptTex = _pointBloomTex.Value;
                 sb.Draw(ptTex, tipPos, null,
                     Additive(FermataUtils.TimeGold, 0.4f * alpha),
-                    0f, ptTex.Size() * 0.5f, 0.25f * leadPulse, SpriteEffects.None, 0f);
+                    0f, ptTex.Size() * 0.5f, 0.10f * leadPulse, SpriteEffects.None, 0f);
                 sb.Draw(ptTex, tipPos, null,
                     Additive(FermataUtils.FlashWhite, 0.45f * alpha),
                     0f, ptTex.Size() * 0.5f, 0.12f * leadPulse, SpriteEffects.None, 0f);

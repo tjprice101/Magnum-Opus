@@ -461,9 +461,9 @@ namespace MagnumOpus.Content.FoundationWeapons.ThinLaserFoundation
                 float bounceAlpha = alphaMultiplier * (1f - i * 0.12f);
                 Color bounceColor = themeColors[i % themeColors.Length] * bounceAlpha;
 
-                // Glow orb at bounce point
+                // Glow orb at bounce point (capped to 300px on 1024px)
                 sb.Draw(glowOrb, pos, null, bounceColor * 0.8f, 0f,
-                    glowOrb.Size() / 2f, 0.3f * pulse, SpriteEffects.None, 0f);
+                    glowOrb.Size() / 2f, MathHelper.Min(0.3f * pulse, 0.293f), SpriteEffects.None, 0f);
 
                 // Spinning star flare — alternates direction per bounce
                 float starRot = time * 0.05f * (i % 2 == 0 ? 1f : -1f);

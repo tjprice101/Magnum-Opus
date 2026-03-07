@@ -62,6 +62,13 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown.
 
             Color drawColor = Color * alpha;
 
+            // Cap so largest layer (squishScale * 2.8f) doesn't exceed 300px on 2160px SoftCircle
+            Vector2 largestLayer = squishScale * 2.8f;
+            float voiceCap = 1f;
+            if (largestLayer.X > 0.139f) voiceCap = MathHelper.Min(voiceCap, 0.139f / largestLayer.X);
+            if (largestLayer.Y > 0.139f) voiceCap = MathHelper.Min(voiceCap, 0.139f / largestLayer.Y);
+            squishScale *= voiceCap;
+
             // Layer 1: Outer spectral halo 窶・the voice's echo
             sb.Draw(tex, drawPos, null, drawColor * 0.2f, Rotation, tex.Size() / 2f, squishScale * 2.8f, SpriteEffects.None, 0f);
             // Layer 2: Mid glow 窶・the voice itself
@@ -92,7 +99,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown.
         private readonly int _stackCount;
 
         public override bool SetLifetime => true;
-        public override bool UseAdditiveBlend => false;
+        public override bool UseAdditiveBlend => true; // SoftRadialBloom halo has black bg
         public override bool UseCustomDraw => true;
 
         public EchoMarkParticle(Vector2 orbitCenter, float orbitRadius, float startAngle, Color color, float scale, int lifetime, int stackCount)
@@ -136,7 +143,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown.
             // Soft teal glow halo behind the glyph 窶・echo resonance
             var glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             Color glowColor = FugueUtils.EchoTeal * alpha * 0.3f;
-            sb.Draw(glowTex, drawPos, null, glowColor, 0f, glowTex.Size() / 2f, Scale * 3f, SpriteEffects.None, 0f);
+            sb.Draw(glowTex, drawPos, null, glowColor, 0f, glowTex.Size() / 2f, MathHelper.Min(Scale * 3f, 0.139f), SpriteEffects.None, 0f);
             // The glyph mark itself
             sb.Draw(tex, drawPos, null, Color * alpha, Rotation, tex.Size() / 2f, Scale, SpriteEffects.None, 0f);
         }
@@ -181,18 +188,18 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown.
 
             Vector2 drawPos = Position - Main.screenPosition;
 
-            // Center flare 窶・the convergence point
+            // Center flare 竜・ the convergence point (capped to 300px on 2160px texture)
             var flareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             float flareScale = Scale * (0.5f + progress * 0.5f);
-            sb.Draw(flareTex, drawPos, null, Color * alpha * 0.8f, Rotation, flareTex.Size() / 2f, flareScale, SpriteEffects.None, 0f);
+            sb.Draw(flareTex, drawPos, null, Color * alpha * 0.8f, Rotation, flareTex.Size() / 2f, MathHelper.Min(flareScale, 0.139f), SpriteEffects.None, 0f);
             // White-hot core
-            sb.Draw(flareTex, drawPos, null, Color.White * alpha * 0.6f, Rotation, flareTex.Size() / 2f, flareScale * 0.3f, SpriteEffects.None, 0f);
+            sb.Draw(flareTex, drawPos, null, Color.White * alpha * 0.6f, Rotation, flareTex.Size() / 2f, MathHelper.Min(flareScale * 0.3f, 0.139f), SpriteEffects.None, 0f);
 
             // Expanding ring 窶・the resonance wave
             var ringTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad).Value;
             float ringRadius = FugueUtils.SineOut(progress) * _maxRingRadius;
             float ringAlpha = alpha * 0.7f * (1f - progress);
-            float ringScale = ringRadius / (ringTex.Width * 0.5f);
+            float ringScale = MathHelper.Min(ringRadius / (ringTex.Width * 0.5f), 0.139f);
             sb.Draw(ringTex, drawPos, null, FugueUtils.FugueCyan * ringAlpha, 0f, ringTex.Size() / 2f, ringScale, SpriteEffects.None, 0f);
         }
     }

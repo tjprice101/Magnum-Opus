@@ -58,12 +58,12 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
             Vector2 drawPos = Position - Main.screenPosition;
             Color drawColor = Color * alpha;
 
-            // Layer 1: Outer halo bloom 窶・the secret's aura
-            sb.Draw(tex, drawPos, null, drawColor * 0.25f, Rotation, tex.Size() / 2f, Scale * 2.5f, SpriteEffects.None, 0f);
-            // Layer 2: Colored core 窶・the riddle itself
-            sb.Draw(tex, drawPos, null, drawColor * 0.65f, Rotation, tex.Size() / 2f, Scale, SpriteEffects.None, 0f);
-            // Layer 3: White-hot center 窶・a flicker of truth
-            sb.Draw(tex, drawPos, null, Color.White * alpha * 0.35f, Rotation, tex.Size() / 2f, Scale * 0.35f, SpriteEffects.None, 0f);
+            // Layer 1: Outer halo bloom 竜・ the secret's aura (capped to 300px on 2160px texture)
+            sb.Draw(tex, drawPos, null, drawColor * 0.25f, Rotation, tex.Size() / 2f, MathHelper.Min(Scale * 2.5f, 0.139f), SpriteEffects.None, 0f);
+            // Layer 2: Colored core 竜・ the riddle itself
+            sb.Draw(tex, drawPos, null, drawColor * 0.65f, Rotation, tex.Size() / 2f, MathHelper.Min(Scale, 0.139f), SpriteEffects.None, 0f);
+            // Layer 3: White-hot center 竜・ a flicker of truth
+            sb.Draw(tex, drawPos, null, Color.White * alpha * 0.35f, Rotation, tex.Size() / 2f, MathHelper.Min(Scale * 0.35f, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -86,7 +86,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
         private readonly int _glyphVariant;
 
         public override bool SetLifetime => true;
-        public override bool UseAdditiveBlend => false;
+        public override bool UseAdditiveBlend => true; // SoftRadialBloom halo has black bg
         public override bool UseCustomDraw => true;
 
         public SecretGlyphParticle(Vector2 orbitCenter, float orbitRadius, float startAngle, Color color, float scale, int lifetime)
@@ -123,7 +123,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
 
             // Soft glow halo behind the glyph
             var glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
-            sb.Draw(glowTex, drawPos, null, Color * alpha * 0.25f, 0f, glowTex.Size() / 2f, Scale * 3.5f, SpriteEffects.None, 0f);
+            sb.Draw(glowTex, drawPos, null, Color * alpha * 0.25f, 0f, glowTex.Size() / 2f, MathHelper.Min(Scale * 3.5f, 0.139f), SpriteEffects.None, 0f);
             // The glyph itself
             sb.Draw(tex, drawPos, null, Color * alpha, Rotation, tex.Size() / 2f, Scale, SpriteEffects.None, 0f);
         }
@@ -217,9 +217,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
             Vector2 drawPos = Position - Main.screenPosition;
 
             // Layer 1: Soft glow
-            sb.Draw(tex, drawPos, null, Color * alpha * 0.5f, Rotation, tex.Size() / 2f, Scale * 1.5f, SpriteEffects.None, 0f);
+            sb.Draw(tex, drawPos, null, Color * alpha * 0.5f, Rotation, tex.Size() / 2f, MathHelper.Min(Scale * 1.5f, 0.139f), SpriteEffects.None, 0f);
             // Layer 2: Bright core
-            sb.Draw(tex, drawPos, null, Color * alpha * 0.9f, Rotation, tex.Size() / 2f, Scale * 0.5f, SpriteEffects.None, 0f);
+            sb.Draw(tex, drawPos, null, Color * alpha * 0.9f, Rotation, tex.Size() / 2f, MathHelper.Min(Scale * 0.5f, 0.139f), SpriteEffects.None, 0f);
         }
     }
 }

@@ -325,7 +325,7 @@ namespace MagnumOpus.Content.Eroica.Accessories.SakurasBurningWill
                 if (pos == Vector2.Zero) continue; // Skip uninitialized positions
                 
                 float alpha = (1f - (float)i / AfterimageCount) * 0.4f;
-                float scale = 0.8f - i * 0.05f;
+                float scale = 0.55f - i * 0.035f;
                 
                 // Scarlet ghostly afterimage
                 Color afterimageColor = new Color(255, 80, 100) * alpha;
@@ -351,12 +351,12 @@ namespace MagnumOpus.Content.Eroica.Accessories.SakurasBurningWill
             float fadeAlpha = Projectile.timeLeft < 60 ? Projectile.timeLeft / 60f : 1f;
             
             // Outer scarlet aura
-            float outerScale = 1.2f * pulse;
+            float outerScale = 0.5f * pulse;
             spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null,
                 new Color(255, 50, 70) * 0.6f * fadeAlpha, 0f, glowTex.Size() / 2f, outerScale, SpriteEffects.None, 0f);
             
             // Middle pink glow
-            float midScale = 0.9f * pulse;
+            float midScale = 0.4f * pulse;
             spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null,
                 new Color(255, 120, 150) * 0.7f * fadeAlpha, 0f, glowTex.Size() / 2f, midScale, SpriteEffects.None, 0f);
             
@@ -470,7 +470,7 @@ namespace MagnumOpus.Content.Eroica.Accessories.SakurasBurningWill
                 Vector2 drawPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
                 float progress = (float)i / Projectile.oldPos.Length;
                 float alpha = (1f - progress) * 0.6f;
-                float scale = (1f - progress) * 0.5f + 0.2f;
+                float scale = (1f - progress) * 0.06f + 0.06f;
                 
                 // Scarlet trail
                 Color trailColor = new Color(255, 80, 100) * alpha;
@@ -484,13 +484,13 @@ namespace MagnumOpus.Content.Eroica.Accessories.SakurasBurningWill
                 }
             }
             
-            // Draw main projectile glow
+            // Draw main projectile glow (capped 300px on 2160px RadialBloom)
             spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null,
-                new Color(255, 100, 120) * 0.8f, Projectile.rotation, glowTex.Size() / 2f, 0.6f, SpriteEffects.None, 0f);
+                new Color(255, 100, 120) * 0.8f, Projectile.rotation, glowTex.Size() / 2f, 0.139f, SpriteEffects.None, 0f);
             spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null,
-                new Color(255, 200, 150) * 0.6f, Projectile.rotation, glowTex.Size() / 2f, 0.35f, SpriteEffects.None, 0f);
+                new Color(255, 200, 150) * 0.6f, Projectile.rotation, glowTex.Size() / 2f, 0.10f, SpriteEffects.None, 0f);
             spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null,
-                Color.White * 0.4f, Projectile.rotation, glowTex.Size() / 2f, 0.2f, SpriteEffects.None, 0f);
+                Color.White * 0.4f, Projectile.rotation, glowTex.Size() / 2f, 0.06f, SpriteEffects.None, 0f);
             }
             finally
             {

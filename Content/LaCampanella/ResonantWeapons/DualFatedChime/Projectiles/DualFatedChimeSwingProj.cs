@@ -156,6 +156,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             Projectile.ownerHitCheck = true;
         }
 
+        public override bool ShouldUpdatePosition() => false;
+
         public override void AI()
         {
             if (!_initialized)
@@ -163,6 +165,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
 
             Projectile.Center = Owner.MountedCenter;
             Owner.heldProj = Projectile.whoAmI;
+            Owner.ChangeDir(Direction);
             Owner.itemTime = 2;
             Owner.itemAnimation = 2;
 
@@ -206,11 +209,11 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
                 _soundPlayed = true;
             }
 
-            // Shrink toward end
-            if (Progression > 0.75f)
+            // Gentle fade toward end — less aggressive than before
+            if (Progression > 0.82f)
             {
-                float shrinkProgress = (Progression - 0.75f) / 0.25f;
-                Projectile.scale = MathHelper.Lerp(1f, 0.3f, shrinkProgress);
+                float shrinkProgress = (Progression - 0.82f) / 0.18f;
+                Projectile.scale = MathHelper.Lerp(1f, 0.65f, shrinkProgress * shrinkProgress);
             }
             else
             {
@@ -759,23 +762,23 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             float bloomPulse = 0.8f + 0.2f * (float)Math.Sin(Main.GameUpdateCount * 0.15f);
             float phaseScale = 1f + ComboPhase * 0.1f;
 
-            // Outer flame glow — orange
+            // Outer flame glow — orange (capped 300px max)
             Color outerBloom = DualFatedChimeUtils.Additive(new Color(255, 100, 0), 0.2f * bloomPulse);
-            sb.Draw(bloomTex, tipPos, null, outerBloom, 0f, bloomOrigin, 1.4f * Projectile.scale * phaseScale, SpriteEffects.None, 0f);
+            sb.Draw(bloomTex, tipPos, null, outerBloom, 0f, bloomOrigin, 0.20f * Projectile.scale * phaseScale, SpriteEffects.None, 0f);
 
             // Mid bloom — gold
             Color midBloom = DualFatedChimeUtils.Additive(new Color(255, 200, 50), 0.3f * bloomPulse);
-            sb.Draw(bloomTex, tipPos, null, midBloom, 0f, bloomOrigin, 0.7f * Projectile.scale * phaseScale, SpriteEffects.None, 0f);
+            sb.Draw(bloomTex, tipPos, null, midBloom, 0f, bloomOrigin, 0.18f * Projectile.scale * phaseScale, SpriteEffects.None, 0f);
 
             // White-hot core
             Color coreBloom = DualFatedChimeUtils.Additive(new Color(255, 240, 200), 0.5f * bloomPulse);
-            sb.Draw(bloomTex, tipPos, null, coreBloom, 0f, bloomOrigin, 0.3f * Projectile.scale * phaseScale, SpriteEffects.None, 0f);
+            sb.Draw(bloomTex, tipPos, null, coreBloom, 0f, bloomOrigin, 0.1f * Projectile.scale * phaseScale, SpriteEffects.None, 0f);
 
             // Extra bloom for phases 3 and 4
             if (ComboPhase >= 3)
             {
                 Color phaseBloom = DualFatedChimeUtils.Additive(new Color(255, 60, 0), 0.12f * bloomPulse * (ComboPhase - 2));
-                sb.Draw(bloomTex, tipPos, null, phaseBloom, 0f, bloomOrigin, 2.0f * Projectile.scale * phaseScale, SpriteEffects.None, 0f);
+                sb.Draw(bloomTex, tipPos, null, phaseBloom, 0f, bloomOrigin, 0.10f * Projectile.scale * phaseScale, SpriteEffects.None, 0f);
             }
 
             // --- LC Radial Slash Star Impact — sharp infernal star flare on blade tip ---
@@ -808,10 +811,15 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             Vector2 origin = new Vector2(bladeTex.Width * 0.5f, bladeTex.Height);
 
             float rot = Projectile.rotation + MathHelper.PiOver4;
-            SpriteEffects effects = Direction < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+            // Flip the blade sprite to match the swing direction for both Direction AND IsFlipped phases
+            bool visuallyFlipped = (Direction < 0) ^ IsFlipped;
+            SpriteEffects effects = visuallyFlipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+            // When visually flipped, adjust the rotation so the blade edge matches the arc
+            if (IsFlipped)
+                rot = Projectile.rotation - MathHelper.PiOver4 + MathHelper.Pi;
 
             float squish = MathHelper.Lerp(_squishFactor, 1f, Progression);
-            Vector2 squishScale = new Vector2(1f + (1f - squish) * 0.5f, squish) * Projectile.scale;
+            Vector2 squishScale = new Vector2(1f + (1f - squish) * 0.3f, squish) * Projectile.scale;
 
             // Shadow
             sb.Draw(bladeTex, drawPos + new Vector2(-1, 1), null,

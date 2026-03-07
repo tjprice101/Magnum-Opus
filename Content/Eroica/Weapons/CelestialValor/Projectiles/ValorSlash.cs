@@ -80,7 +80,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
 
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
-            // „Ÿ„Ÿ Foundation rendering: SMFTextures „Ÿ„Ÿ
+            // ï¿½ï¿½ï¿½ï¿½ Foundation rendering: SMFTextures ï¿½ï¿½ï¿½ï¿½
             Texture2D smearTex = SMFTextures.SwordArcSmear.Value;
             Texture2D softGlow = SMFTextures.SoftGlow.Value;
             Texture2D starFlare = SMFTextures.StarFlare.Value;
@@ -114,7 +114,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
             // Layer 4: Center bloom (Foundation SoftGlow)
             sb.Draw(softGlow, drawPos, null,
                 (EroicaPalette.Scarlet with { A = 0 }) * (fade * 0.2f), 0f,
-                softGlow.Size() / 2f, 0.3f, SpriteEffects.None, 0f);
+                softGlow.Size() / 2f, 0.29f, SpriteEffects.None, 0f);
 
             sb.Draw(softGlow, drawPos, null,
                 (EroicaPalette.Gold with { A = 0 }) * (fade * 0.4f), 0f,

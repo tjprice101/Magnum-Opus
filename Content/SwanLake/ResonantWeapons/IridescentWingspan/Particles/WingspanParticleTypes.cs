@@ -70,7 +70,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Particl
             Vector2 drawPos = Position - Main.screenPosition;
 
             sb.Draw(tex, drawPos, null, DrawColor * alpha, 0f,
-                tex.Size() * 0.5f, Scale * 0.1f, SpriteEffects.None, 0f);
+                tex.Size() * 0.5f, MathHelper.Min(Scale * 0.1f, 0.139f), SpriteEffects.None, 0f);
 
             // Additive bloom overlay
             Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
@@ -102,15 +102,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Particl
             Vector2 drawPos = Position - Main.screenPosition;
             Color col = Color.Lerp(Color.White, WingspanUtils.WingPrismatic, Progress);
 
-            // Wing shape: stretched horizontally
+            // Wing shape: stretched horizontally (cap each axis to 300px on 2160px texture)
             sb.Draw(tex, drawPos, null, col * alpha * 0.6f, Rotation,
-                tex.Size() * 0.5f, new Vector2(Scale * 1.2f, Scale * 0.3f), SpriteEffects.None, 0f);
+                tex.Size() * 0.5f, new Vector2(Math.Min(Scale * 1.2f, 0.139f), Math.Min(Scale * 0.3f, 0.139f)), SpriteEffects.None, 0f);
 
-            // Additive bloom overlay
+            // Additive bloom overlay (cap each axis to 300px on 512px texture)
             Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
             if (glow != null)
                 sb.Draw(glow, drawPos, null, col * alpha * 0.3f, Rotation,
-                    glow.Size() * 0.5f, new Vector2(Scale * 1.8f, Scale * 0.45f), SpriteEffects.None, 0f);
+                    glow.Size() * 0.5f, new Vector2(Math.Min(Scale * 1.8f, 0.586f), Math.Min(Scale * 0.45f, 0.586f)), SpriteEffects.None, 0f);
         }
     }
 

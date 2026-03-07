@@ -32,7 +32,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning
         {
             Item.width = 70;
             Item.height = 70;
-            Item.damage = 4200;
+            Item.damage = 3100; // Tier 9 (2100-3200 range)
             Item.DamageType = DamageClass.Melee;
             Item.useTime = 22;
             Item.useAnimation = 22;
@@ -144,17 +144,6 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning
 
             tbp.AdvanceCombo();
             return false;
-        }
-
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient(ModContent.ItemType<ResonantCoreOfOdeToJoy>(), 20)
-                .AddIngredient(ModContent.ItemType<OdeToJoyResonantEnergy>(), 15)
-                .AddIngredient(ModContent.ItemType<HarmonicCoreOfOdeToJoy>(), 2)
-                .AddIngredient(ItemID.LunarBar, 15)
-                .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
-                .Register();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)

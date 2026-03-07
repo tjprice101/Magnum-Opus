@@ -588,6 +588,8 @@ namespace MagnumOpus.Common.Systems.VFX
                 for (int layer = 0; layer < 4; layer++)
                 {
                     float scale = (1.5f + layer * 0.5f) * pulse * aura.Intensity;
+                    // 2160px GetBloom → max 300px
+                    scale = MathHelper.Min(scale, 0.139f);
                     float alpha = 0.15f / (layer + 1);
                     Color color = Color.Lerp(aura.PrimaryColor, aura.SecondaryColor, layer / 4f);
                     
@@ -603,7 +605,7 @@ namespace MagnumOpus.Common.Systems.VFX
                     
                     Color orbiterColor = Color.Lerp(aura.PrimaryColor, aura.SecondaryColor, Main.rand.NextFloat());
                     Main.spriteBatch.Draw(glowTex, orbiterPos, null, orbiterColor * 0.7f, 0f,
-                        glowTex.Size() / 2f, orbiter.Size * 0.3f, SpriteEffects.None, 0f);
+                        glowTex.Size() / 2f, MathHelper.Min(orbiter.Size * 0.3f, 0.139f), SpriteEffects.None, 0f);
                 }
             }
         }
@@ -622,12 +624,12 @@ namespace MagnumOpus.Common.Systems.VFX
                 float coreAlpha = 0.4f + progress * 0.3f;
                 
                 Main.spriteBatch.Draw(glowTex, drawPos, null, telegraph.Color * coreAlpha, 0f,
-                    glowTex.Size() / 2f, coreScale, SpriteEffects.None, 0f);
+                    glowTex.Size() / 2f, MathHelper.Min(coreScale, 0.139f), SpriteEffects.None, 0f);
                 
                 // Pulsing outer ring
                 float ringScale = telegraph.Scale * 1.5f * (1f + (float)Math.Sin(Main.GameUpdateCount * 0.2f) * 0.2f);
                 Main.spriteBatch.Draw(glowTex, drawPos, null, telegraph.Color * 0.2f, 0f,
-                    glowTex.Size() / 2f, ringScale, SpriteEffects.None, 0f);
+                    glowTex.Size() / 2f, MathHelper.Min(ringScale, 0.139f), SpriteEffects.None, 0f);
             }
         }
         
@@ -653,6 +655,8 @@ namespace MagnumOpus.Common.Systems.VFX
                 for (int layer = 0; layer < 5; layer++)
                 {
                     float scale = (2f + layer) * intensity * death.Intensity;
+                    // 2160px GetBloom → max 300px
+                    scale = MathHelper.Min(scale, 0.139f);
                     float alpha = 0.2f / (layer + 1);
                     Color color = Color.Lerp(style.Fog.PrimaryColor, style.Fog.SecondaryColor, layer / 5f);
                     

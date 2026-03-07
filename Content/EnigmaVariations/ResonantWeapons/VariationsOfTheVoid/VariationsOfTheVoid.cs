@@ -154,7 +154,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
 
             float pulse = 1f + 0.1f * MathF.Sin(Main.GameUpdateCount * 0.15f);
 
-            // Per-beam tip flares
+            // Per-beam tip flares (capped to 300px on 1024px textures)
             for (int b = 0; b < BeamCount; b++)
             {
                 float bOffset = (b - (BeamCount - 1) / 2f) * currentConeAngle / Math.Max(BeamCount - 1, 1);
@@ -163,14 +163,21 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
                 Vector2 tipDraw = owner.Center + bDir * beamLengths[b] - Main.screenPosition;
 
                 sb.Draw(glowOrb, tipDraw, null, Color.White, flareRotation * 0.1f,
-                    glowOrb.Size() / 2f, 0.4f * intensityRamp * pulse, SpriteEffects.None, 0f);
+                    glowOrb.Size() / 2f, MathHelper.Min(0.4f * intensityRamp * pulse, 0.293f), SpriteEffects.None, 0f);
                 sb.Draw(starFlare, tipDraw, null, Color.White, flareRotation * 0.05f,
-                    starFlare.Size() / 2f, 0.35f * intensityRamp, SpriteEffects.None, 0f);
+                    starFlare.Size() / 2f, MathHelper.Min(0.35f * intensityRamp, 0.293f), SpriteEffects.None, 0f);
             }
 
             // Base flare at player origin
             Vector2 baseDraw = owner.Center - Main.screenPosition;
             Vector2 sigilScale = new Vector2(0.2f, 1f) * 0.5f * intensityRamp;
+            // Cap sigilScale max dimension to 300px on 1024px textures
+            float sigilMax = Math.Max(sigilScale.X, sigilScale.Y);
+            if (sigilMax > 0.293f)
+            {
+                float sigilCap = 0.293f / sigilMax;
+                sigilScale *= sigilCap;
+            }
             sb.Draw(softGlow, baseDraw, null, Color.White, baseAngle,
                 softGlow.Size() / 2f, sigilScale, SpriteEffects.None, 0f);
             sb.Draw(starFlare, baseDraw, null, Color.White, baseAngle,
@@ -183,13 +190,13 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
                 float convergeIntensity = (convergenceProgress - 0.7f) / 0.3f;
 
                 sb.Draw(glowOrb, convergePt, null, Color.White, flareRotation * 0.1f,
-                    glowOrb.Size() / 2f, 0.6f * convergeIntensity * pulse, SpriteEffects.None, 0f);
+                    glowOrb.Size() / 2f, MathHelper.Min(0.6f * convergeIntensity * pulse, 0.293f), SpriteEffects.None, 0f);
                 sb.Draw(lensFlare, convergePt, null, Color.White, flareRotation * 0.02f,
-                    lensFlare.Size() / 2f, 0.5f * convergeIntensity, SpriteEffects.None, 0f);
+                    lensFlare.Size() / 2f, MathHelper.Min(0.5f * convergeIntensity, 0.293f), SpriteEffects.None, 0f);
                 sb.Draw(starFlare, convergePt, null, Color.White, flareRotation * 0.05f,
-                    starFlare.Size() / 2f, 0.5f * convergeIntensity * pulse, SpriteEffects.None, 0f);
+                    starFlare.Size() / 2f, MathHelper.Min(0.5f * convergeIntensity * pulse, 0.293f), SpriteEffects.None, 0f);
                 sb.Draw(softGlow, convergePt, null, Color.White, 0f,
-                    softGlow.Size() / 2f, 0.7f * convergeIntensity, SpriteEffects.None, 0f);
+                    softGlow.Size() / 2f, MathHelper.Min(0.7f * convergeIntensity, 0.293f), SpriteEffects.None, 0f);
             }
 
             // Theme texture accents
@@ -452,7 +459,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
 
             // === Shader overlay: Voronoi cell fracture explosion ===
             EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.VoidSwingTrail,
-                bloom, drawPos, bloom.Size() / 2f, 2.0f * intensity + 0.5f,
+                bloom, drawPos, bloom.Size() / 2f, 0.10f * intensity + 0.03f,
                 VoidVariationUtils.VariationViolet.ToVector3(), VoidVariationUtils.VoidSurge.ToVector3(),
                 opacity: 0.6f * intensity, intensity: 1.3f,
                 noiseTexture: ShaderLoader.GetNoiseTexture("VoronoiNoise"),
@@ -463,7 +470,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
                 DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Layer 1: Large outer blast glow — VariationViolet, fading
-            float outerScale = (1.0f + 0.5f * lifeProgress) * pulse;
+            float outerScale = (0.065f + 0.025f * lifeProgress) * pulse;
             float outerAlpha = intensity * 0.3f;
             sb.Draw(bloom, drawPos, null, VoidVariationUtils.VariationViolet * outerAlpha, 0f,
                 bloom.Size() / 2f, outerScale, SpriteEffects.None, 0f);

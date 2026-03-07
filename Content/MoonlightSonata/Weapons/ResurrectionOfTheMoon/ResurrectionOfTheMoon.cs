@@ -215,7 +215,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon
             // Muzzle bloom — blended with lunar phase color
             Color blendedFlash = Color.Lerp(flashColor, lunarColor, 0.35f);
             Particles.CometParticleHandler.Spawn(new Particles.CraterBloomParticle(
-                position, blendedFlash, 0.8f, 10));
+                position, blendedFlash, 0.45f, 10));
 
             // Lunar phase indicator ring — shows which phase the shot was in
             Particles.CometParticleHandler.Spawn(new Particles.LunarCycleRingParticle(
@@ -227,7 +227,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon
                 Particles.CometParticleHandler.Spawn(new Particles.LunarCycleRingParticle(
                     position, CometUtils.FrigidImpact, 1.8f, 25));
                 Particles.CometParticleHandler.Spawn(new Particles.CraterBloomParticle(
-                    position, CometUtils.FrigidImpact, 1.5f, 15));
+                    position, CometUtils.FrigidImpact, 0.8f, 15));
             }
 
             // Muzzle sparks — count and intensity vary by lunar phase

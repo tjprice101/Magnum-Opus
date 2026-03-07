@@ -326,7 +326,9 @@ namespace MagnumOpus.Common.BaseClasses
 
         public override void AI()
         {
-            if (Timer == 0)
+            // Use SwingTime == 0 to detect first frame — Timer would be negative
+            // because timeLeft starts at 9999 from SetDefaults while SwingTime (localAI[0]) starts at 0.
+            if (SwingTime == 0)
                 InitializeSwing();
 
             DoBehavior_Swinging();
@@ -676,7 +678,7 @@ namespace MagnumOpus.Common.BaseClasses
             Vector2 flareOrigin = flareTex.Size() * 0.5f;
 
             float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.15f;
-            float baseScale = (0.25f + ComboStep * 0.08f) * pulse;
+            float baseScale = (0.035f + ComboStep * 0.012f) * pulse;
 
             Color flareColor = GetElementColor(0.6f + Progression * 0.3f);
             flareColor.A = 0;

@@ -12,14 +12,14 @@ using MagnumOpus.Common.Systems.Particles;
 namespace MagnumOpus.Content.MoonlightSonata
 {
     /// <summary>
-    /// Shared Moonlight Sonata VFX library — canonical palette, bloom stacking,
+    /// Shared Moonlight Sonata VFX library  Ecanonical palette, bloom stacking,
     /// shader setup, trail helpers, music notes, dust, and impact VFX used by
     /// ALL Moonlight weapons, accessories, projectiles, minions, and enemies.
     /// </summary>
     public static class MoonlightVFXLibrary
     {
         // ─────────── CANONICAL PALETTE ───────────
-        // 6-colour piano dynamic scale (pianissimo → sforzando)
+        // 6-colour piano dynamic scale (pianissimo ↁEsforzando)
         public static readonly Color NightPurple    = new Color(40, 10, 60);     // [0] Pianissimo
         public static readonly Color DarkPurple     = new Color(75, 0, 130);     // [1] Piano
         public static readonly Color Violet         = new Color(138, 43, 226);   // [2] Mezzo
@@ -52,7 +52,7 @@ namespace MagnumOpus.Content.MoonlightSonata
         // ─────────── PALETTE INTERPOLATION ───────────
 
         /// <summary>
-        /// Lerp through the 6-colour Moonlight palette.  t=0 → NightPurple, t=1 → MoonWhite.
+        /// Lerp through the 6-colour Moonlight palette.  t=0 ↁENightPurple, t=1 ↁEMoonWhite.
         /// </summary>
         public static Color GetPaletteColor(float t)
         {
@@ -66,7 +66,7 @@ namespace MagnumOpus.Content.MoonlightSonata
         /// <summary>
         /// Palette colour with Calamity-style white push for perceived brilliance.
         /// push=0 returns pure palette, push=1 returns full white.
-        /// Typical usage: push 0.35–0.55 for trail/bloom cores.
+        /// Typical usage: push 0.35 E.55 for trail/bloom cores.
         /// </summary>
         public static Color GetPaletteColorWithWhitePush(float t, float push)
         {
@@ -112,6 +112,9 @@ namespace MagnumOpus.Content.MoonlightSonata
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.115) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 1.209f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
@@ -120,19 +123,19 @@ namespace MagnumOpus.Content.MoonlightSonata
 
             // Layer 1: Outer halo (DarkPurple-ish)
             sb.Draw(bloom, drawPos, null,
-                (outer with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 2.0f, SpriteEffects.None, 0f);
+                (outer with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 0.115f, SpriteEffects.None, 0f);
 
             // Layer 2: Mid glow (Violet)
             sb.Draw(bloom, drawPos, null,
-                (outer with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 1.4f, SpriteEffects.None, 0f);
+                (outer with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.08f, SpriteEffects.None, 0f);
 
             // Layer 3: Inner bloom (IceBlue)
             sb.Draw(bloom, drawPos, null,
-                (inner with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f);
+                (inner with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.052f, SpriteEffects.None, 0f);
 
             // Layer 4: White-hot core
             sb.Draw(bloom, drawPos, null,
-                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
+                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.023f, SpriteEffects.None, 0f);
         }
 
         /// <summary>
@@ -144,21 +147,24 @@ namespace MagnumOpus.Content.MoonlightSonata
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.115) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 1.209f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
             sb.Draw(bloom, drawPos, null,
-                (outerColor with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 2.0f, SpriteEffects.None, 0f);
+                (outerColor with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 0.115f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (outerColor with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 1.4f, SpriteEffects.None, 0f);
+                (outerColor with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.08f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (innerColor with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f);
+                (innerColor with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.052f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
+                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.023f, SpriteEffects.None, 0f);
         }
 
         /// <summary>
-        /// Bloom sandwich layer — renders bloom BEHIND a projectile body for depth.
+        /// Bloom sandwich layer  Erenders bloom BEHIND a projectile body for depth.
         /// Call before drawing the projectile sprite, then call again after for front glow.
         /// </summary>
         public static void DrawBloomSandwichLayer(SpriteBatch sb, Vector2 worldPos,
@@ -167,6 +173,9 @@ namespace MagnumOpus.Content.MoonlightSonata
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.14) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 0.993f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
@@ -174,22 +183,22 @@ namespace MagnumOpus.Content.MoonlightSonata
             {
                 // Behind layer: larger, softer, DarkPurple
                 sb.Draw(bloom, drawPos, null,
-                    (DarkPurple with { A = 0 }) * 0.25f * opacity, 0f, origin, scale * 2.5f, SpriteEffects.None, 0f);
+                    (DarkPurple with { A = 0 }) * 0.25f * opacity, 0f, origin, scale * 0.14f, SpriteEffects.None, 0f);
                 sb.Draw(bloom, drawPos, null,
-                    (Violet with { A = 0 }) * 0.35f * opacity, 0f, origin, scale * 1.6f, SpriteEffects.None, 0f);
+                    (Violet with { A = 0 }) * 0.35f * opacity, 0f, origin, scale * 0.09f, SpriteEffects.None, 0f);
             }
             else
             {
-                // Front layer: smaller, brighter, IceBlue → White
+                // Front layer: smaller, brighter, IceBlue ↁEWhite
                 sb.Draw(bloom, drawPos, null,
-                    (IceBlue with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.8f, SpriteEffects.None, 0f);
+                    (IceBlue with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.046f, SpriteEffects.None, 0f);
                 sb.Draw(bloom, drawPos, null,
-                    (Color.White with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.35f, SpriteEffects.None, 0f);
+                    (Color.White with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.02f, SpriteEffects.None, 0f);
             }
         }
 
         /// <summary>
-        /// Counter-rotating double flare — two bloom textures spinning in opposite directions.
+        /// Counter-rotating double flare  Etwo bloom textures spinning in opposite directions.
         /// Creates dynamic energy appearance at projectile centers.
         /// </summary>
         public static void DrawCounterRotatingFlares(SpriteBatch sb, Vector2 worldPos,
@@ -197,6 +206,9 @@ namespace MagnumOpus.Content.MoonlightSonata
         {
             Texture2D flare = MagnumTextureRegistry.GetFlare();
             if (flare == null) return;
+
+            // 1024px flare — cap so largest layer (scale*0.7) ≤ 0.293 → ≤300px
+            scale = MathHelper.Min(scale, 0.419f);
 
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = flare.Size() * 0.5f;
@@ -214,8 +226,8 @@ namespace MagnumOpus.Content.MoonlightSonata
 
         /// <summary>
         /// Standard Moonlight bloom at a blade tip or projectile centre.
-        /// Uses the two-colour overload (DarkPurple outer → IceBlue inner).
-        /// Safe to call from PreDraw — handles SpriteBatch state internally.
+        /// Uses the two-colour overload (DarkPurple outer ↁEIceBlue inner).
+        /// Safe to call from PreDraw  Ehandles SpriteBatch state internally.
         /// </summary>
         public static void DrawBloom(Vector2 worldPos, float scale, float opacity = 1f)
         {
@@ -376,7 +388,7 @@ namespace MagnumOpus.Content.MoonlightSonata
         }
 
         /// <summary>
-        /// Thin precision trail for Incisor of Moonlight — laser-sharp.
+        /// Thin precision trail for Incisor of Moonlight  Elaser-sharp.
         /// </summary>
         public static float PrecisionTrailWidth(float completionRatio, float baseWidth = 6f)
         {
@@ -385,7 +397,7 @@ namespace MagnumOpus.Content.MoonlightSonata
         }
 
         /// <summary>
-        /// Thick comet trail for Resurrection — heavy, impactful.
+        /// Thick comet trail for Resurrection  Eheavy, impactful.
         /// </summary>
         public static float CometTrailWidth(float completionRatio, float baseWidth = 16f)
         {
@@ -408,7 +420,7 @@ namespace MagnumOpus.Content.MoonlightSonata
         /// <summary>
         /// Returns a pair of Vector3 colours for shader gradient uniforms.
         /// passIndex selects which pair from the palette to use for multi-pass rendering.
-        /// Pass 0: DarkPurple → Violet, Pass 1: Lavender → IceBlue, Pass 2: IceBlue → MoonWhite
+        /// Pass 0: DarkPurple ↁEViolet, Pass 1: Lavender ↁEIceBlue, Pass 2: IceBlue ↁEMoonWhite
         /// </summary>
         public static (Vector3 primary, Vector3 secondary) GetShaderGradient(int passIndex)
         {
@@ -504,7 +516,7 @@ namespace MagnumOpus.Content.MoonlightSonata
         }
 
         /// <summary>
-        /// Contrasting silver sparkle dust — call every other frame for dual-colour trail.
+        /// Contrasting silver sparkle dust  Ecall every other frame for dual-colour trail.
         /// </summary>
         public static void SpawnContrastSparkle(Vector2 pos, Vector2 awayDirection)
         {
@@ -517,7 +529,7 @@ namespace MagnumOpus.Content.MoonlightSonata
         // ─────────── GRADIENT HALO RINGS ───────────
 
         /// <summary>
-        /// Cascading gradient halo rings (DarkPurple → IceBlue).
+        /// Cascading gradient halo rings (DarkPurple ↁEIceBlue).
         /// </summary>
         public static void SpawnGradientHaloRings(Vector2 pos, int count = 5, float baseScale = 0.3f)
         {
@@ -532,7 +544,7 @@ namespace MagnumOpus.Content.MoonlightSonata
         // ─────────── IMPACTS ───────────
 
         /// <summary>
-        /// Full Moonlight melee impact VFX — bloom flash, halo cascade,
+        /// Full Moonlight melee impact VFX  Ebloom flash, halo cascade,
         /// radial dust burst, and music note scatter.  Scales with combo step.
         /// </summary>
         public static void MeleeImpact(Vector2 pos, int comboStep = 0)
@@ -555,7 +567,7 @@ namespace MagnumOpus.Content.MoonlightSonata
         }
 
         /// <summary>
-        /// Projectile death / on-kill VFX — bigger, flashier version of MeleeImpact.
+        /// Projectile death / on-kill VFX  Ebigger, flashier version of MeleeImpact.
         /// </summary>
         public static void ProjectileImpact(Vector2 pos, float intensity = 1f)
         {
@@ -588,7 +600,7 @@ namespace MagnumOpus.Content.MoonlightSonata
         // ─────────── FINISHER EFFECTS ───────────
 
         /// <summary>
-        /// Phase-3 / finisher slam VFX — screen shake, massive bloom, music note cascade.
+        /// Phase-3 / finisher slam VFX  Escreen shake, massive bloom, music note cascade.
         /// </summary>
         public static void FinisherSlam(Vector2 pos, float intensity = 1f)
         {

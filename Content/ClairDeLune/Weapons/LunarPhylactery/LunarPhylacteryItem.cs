@@ -24,7 +24,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery
         {
             Item.width = 40;
             Item.height = 40;
-            Item.damage = 140;
+            Item.damage = 3100; // Tier 10 (2800-4200 range)
             Item.DamageType = DamageClass.Summon;
             Item.mana = 18;
             Item.useTime = 28;

@@ -24,7 +24,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton
         {
             Item.width = 44;
             Item.height = 44;
-            Item.damage = 1100;
+            Item.damage = 1250; // Tier 7 (1200-1800 range)
             Item.DamageType = DamageClass.Summon;
             Item.mana = 20;
             Item.useTime = 30;

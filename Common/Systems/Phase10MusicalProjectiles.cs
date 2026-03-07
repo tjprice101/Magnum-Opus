@@ -239,7 +239,7 @@ namespace MagnumOpus.Common.Systems
             
             // Glow base
             Main.spriteBatch.Draw(glowTex, drawPos, null, (_primaryColor with { A = 0 }) * 0.4f, 
-                0f, glowOrigin, 0.8f * pulse, SpriteEffects.None, 0f);
+                0f, glowOrigin, MathHelper.Min(0.8f * pulse, 0.293f), SpriteEffects.None, 0f);
             
             // Spinning treble clef (represented by tall note)
             Main.spriteBatch.Draw(tex, drawPos, null, _primaryColor, 
@@ -531,7 +531,7 @@ namespace MagnumOpus.Common.Systems
             
             // Growing glow
             Main.spriteBatch.Draw(tex, drawPos, null, (_baseColor with { A = 0 }) * (0.3f + growthProgress * 0.4f),
-                0f, origin, Projectile.scale * 2f * pulse, SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(Projectile.scale * 2f * pulse, 0.293f), SpriteEffects.None, 0f);
             
             // Core note that grows
             Main.spriteBatch.Draw(noteTex, drawPos, null, SecondaryColor,
@@ -833,7 +833,7 @@ namespace MagnumOpus.Common.Systems
             
             // Baton glow
             Main.spriteBatch.Draw(glowTex, drawPos, null, (Color.Gold with { A = 0 }) * 0.5f,
-                0f, glowOrigin, 0.7f * coreScale, SpriteEffects.None, 0f);
+                0f, glowOrigin, MathHelper.Min(0.7f * coreScale, 0.293f), SpriteEffects.None, 0f);
             
             // Baton tip
             Main.spriteBatch.Draw(tex, drawPos, null, (Color.White with { A = 0 }) * 0.8f,
@@ -847,7 +847,7 @@ namespace MagnumOpus.Common.Systems
                 
                 // Instrument glow
                 Main.spriteBatch.Draw(glowTex, instPos, null, instColor * 0.6f,
-                    0f, glowOrigin, 0.3f, SpriteEffects.None, 0f);
+                    0f, glowOrigin, MathHelper.Min(0.3f, 0.293f), SpriteEffects.None, 0f);
                 
                 // Instrument core
                 Main.spriteBatch.Draw(tex, instPos, null, instColor * 0.9f,

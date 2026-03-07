@@ -50,7 +50,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
             {
                 Texture2D shBloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
                 EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.CadenceSwingTrail,
-                    shBloom, drawPos, shBloom.Size() / 2f, 1.5f,
+                    shBloom, drawPos, shBloom.Size() / 2f, 0.139f,
                     CadenceUtils.CadenceViolet.ToVector3(), CadenceUtils.DimensionalGreen.ToVector3(),
                     opacity: 0.6f * alpha, intensity: 1.2f, rotation: Projectile.velocity.ToRotation(),
                     noiseTexture: ShaderLoader.GetNoiseTexture("RealityCrackPattern"),
@@ -80,13 +80,13 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
             
             // Layer 1: Wide DimensionalGreen ambient glow
             sb.Draw(bloom, drawPos, null, CadenceUtils.DimensionalGreen * alpha * 0.35f, 0f,
-                bloom.Size() / 2f, 0.4f * pulse, SpriteEffects.None, 0f);
+                bloom.Size() / 2f, 0.04f * pulse, SpriteEffects.None, 0f);
             // Layer 2: Medium CadenceViolet glow
             sb.Draw(bloom, drawPos, null, CadenceUtils.CadenceViolet * alpha * 0.3f, 0f,
-                bloom.Size() / 2f, 0.25f * pulse, SpriteEffects.None, 0f);
+                bloom.Size() / 2f, 0.025f * pulse, SpriteEffects.None, 0f);
             // Layer 3: Tight ParadoxWhite hot core
             sb.Draw(bloom, drawPos, null, CadenceUtils.ParadoxWhite * alpha * 0.25f, 0f,
-                bloom.Size() / 2f, 0.12f * pulse, SpriteEffects.None, 0f);
+                bloom.Size() / 2f, 0.012f * pulse, SpriteEffects.None, 0f);
             // Layer 4: Star flare overlay — rotating Enigma identity burst
             float starRot = Main.GameUpdateCount * 0.03f;
             sb.Draw(starFlare, drawPos, null, CadenceUtils.DimensionalGreen * alpha * 0.4f, starRot,
@@ -245,14 +245,14 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
             float intensity = (float)Math.Sin(lifeProgress * MathHelper.Pi);
 
             // Phase sizing: grows then shrinks with the collapse
-            float outerScale = 2.5f * intensity;
+            float outerScale = 0.125f * intensity;
             float pulse = 1f + 0.1f * MathF.Sin(Main.GameUpdateCount * 0.2f);
 
             // === Shader overlay: Geometric mandala implosion ===
             {
                 Texture2D shBloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
                 EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.CadenceCollapse,
-                    shBloom, drawPos, shBloom.Size() / 2f, 3.0f * intensity,
+                    shBloom, drawPos, shBloom.Size() / 2f, 0.139f * intensity,
                     CadenceUtils.CadenceViolet.ToVector3(), CadenceUtils.SeveranceLime.ToVector3(),
                     opacity: 0.6f * intensity, intensity: 1.5f,
                     noiseTexture: ShaderLoader.GetNoiseTexture("CosmicNebulaClouds"),

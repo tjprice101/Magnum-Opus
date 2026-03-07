@@ -25,7 +25,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.GearDrivenArbiter
         {
             Item.width = 36;
             Item.height = 36;
-            Item.damage = 120;
+            Item.damage = 2900; // Tier 10 (2800-4200 range)
             Item.DamageType = DamageClass.Summon;
             Item.mana = 16;
             Item.useTime = 30;

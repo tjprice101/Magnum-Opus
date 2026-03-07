@@ -24,8 +24,17 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
     /// </summary>
     public class CodaHeldSwing : ModProjectile
     {
-        // Swing speed in radians per frame
-        private const float SwingSpeed = 0.12f;
+        // Piecewise swing curves: windup → accelerating sweep → firm settle
+        private static readonly CodaUtils.CurveSegment[] SwingCurves = new[]
+        {
+            new CodaUtils.CurveSegment(0f, 0.25f, 0f, 0.10f, CodaUtils.SineOut),
+            new CodaUtils.CurveSegment(0.25f, 0.83f, 0.10f, 0.94f, CodaUtils.QuadIn),
+            new CodaUtils.CurveSegment(0.83f, 1.0f, 0.94f, 1.0f, CodaUtils.SineOut),
+        };
+
+        // Duration-based swing tracking
+        private float _swingDuration;
+        private int _swingDirection;
 
         // Orbit radius around player
         private const float OrbitRadius = 65f;
@@ -110,6 +119,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
                 Vector2 toCursor = Main.MouseWorld - owner.Center;
                 BaseAngle = toCursor.ToRotation();
                 SwingAngle = 0f;
+                _swingDuration = Math.Max(owner.itemAnimation, 1f);
+                _swingDirection = owner.direction;
 
                 // Initialize trail
                 for (int i = 0; i < trailPositions.Length; i++)
@@ -123,8 +134,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
             Projectile.timeLeft = 2;
 
             // Advance swing angle 窶・�E�ｱ144�E�ｰ arc
-            SwingAngle += SwingSpeed * owner.direction;
-            SwingAngle = MathHelper.Clamp(SwingAngle, -MaxSwingArc, MaxSwingArc);
+            // Advance swing via piecewise curve
+            float progress = 1f - (float)owner.itemAnimation / _swingDuration;
+            progress = MathHelper.Clamp(progress, 0f, 1f);
+            float easedProgress = CodaUtils.PiecewiseAnimation(progress, SwingCurves);
+            SwingAngle = MaxSwingArc * easedProgress * _swingDirection;
 
             float actualAngle = BaseAngle + SwingAngle;
 
@@ -244,15 +258,15 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
                     Vector2 bloomOrigin = softBloom.Size() / 2f;
 
                     sb.Draw(softBloom, drawPos, null, CodaUtils.Additive(CodaUtils.VoidBlack, 0.25f),
-                        0f, bloomOrigin, 1.8f, SpriteEffects.None, 0f);
+                        0f, bloomOrigin, 0.18f, SpriteEffects.None, 0f);
                     sb.Draw(softBloom, drawPos, null, CodaUtils.Additive(CodaUtils.CodaCrimson, 0.4f),
-                        0f, bloomOrigin, 1.2f, SpriteEffects.None, 0f);
+                        0f, bloomOrigin, 0.12f, SpriteEffects.None, 0f);
                     sb.Draw(softBloom, drawPos, null, CodaUtils.Additive(CodaUtils.CodaPink, 0.35f),
-                        0f, bloomOrigin, 0.7f, SpriteEffects.None, 0f);
+                        0f, bloomOrigin, 0.07f, SpriteEffects.None, 0f);
                     if (_bloomCircle?.Value != null)
                     {
                         sb.Draw(_bloomCircle.Value, drawPos, null, CodaUtils.Additive(CodaUtils.AnnihilationWhite, 0.6f),
-                            0f, _bloomCircle.Value.Size() / 2f, 0.35f, SpriteEffects.None, 0f);
+                            0f, _bloomCircle.Value.Size() / 2f, 0.04f, SpriteEffects.None, 0f);
                     }
                     sb.End();
                     sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
@@ -472,15 +486,15 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
                 Vector2 pointOrigin = point.Size() / 2f;
 
                 sb.Draw(bloom, tipDraw, null, CodaUtils.Additive(CodaUtils.VoidBlack, 0.15f * intensity),
-                    0f, bloomOrigin, 1.6f * intensity, SpriteEffects.None, 0f);
+                    0f, bloomOrigin, 0.16f * intensity, SpriteEffects.None, 0f);
                 sb.Draw(bloom, tipDraw, null, CodaUtils.Additive(CodaUtils.CodaCrimson, 0.3f * intensity),
-                    0f, bloomOrigin, 1.1f * intensity, SpriteEffects.None, 0f);
+                    0f, bloomOrigin, 0.11f * intensity, SpriteEffects.None, 0f);
                 sb.Draw(bloom, tipDraw, null, CodaUtils.Additive(CodaUtils.CodaPink, 0.35f * intensity),
-                    0f, bloomOrigin, 0.65f * intensity, SpriteEffects.None, 0f);
+                    0f, bloomOrigin, 0.065f * intensity, SpriteEffects.None, 0f);
                 sb.Draw(point, tipDraw, null, CodaUtils.Additive(CodaUtils.StarGold, 0.45f * intensity),
-                    0f, pointOrigin, 0.35f * intensity, SpriteEffects.None, 0f);
+                    0f, pointOrigin, 0.04f * intensity, SpriteEffects.None, 0f);
                 sb.Draw(point, tipDraw, null, CodaUtils.Additive(CodaUtils.AnnihilationWhite, 0.55f * intensity),
-                    0f, pointOrigin, 0.18f * intensity, SpriteEffects.None, 0f);
+                    0f, pointOrigin, 0.025f * intensity, SpriteEffects.None, 0f);
 
                 if (_starFlareTex?.Value != null)
                 {
@@ -488,9 +502,9 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
                     Texture2D starTex = _starFlareTex.Value;
                     Vector2 starOrigin = starTex.Size() / 2f;
                     sb.Draw(starTex, tipDraw, null, CodaUtils.Additive(CodaUtils.CodaCrimson, 0.3f * intensity),
-                        starRot, starOrigin, 0.4f * intensity, SpriteEffects.None, 0f);
+                        starRot, starOrigin, 0.14f * intensity, SpriteEffects.None, 0f);
                     sb.Draw(starTex, tipDraw, null, CodaUtils.Additive(CodaUtils.AnnihilationWhite, 0.2f * intensity),
-                        -starRot * 0.7f, starOrigin, 0.25f * intensity, SpriteEffects.None, 0f);
+                        -starRot * 0.7f, starOrigin, 0.09f * intensity, SpriteEffects.None, 0f);
                 }
 
                 sb.End();
@@ -504,18 +518,45 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
             }
         }
 
+        /// <summary>
+        /// Safely restart the SpriteBatch into AlphaBlend regardless of its current state.
+        /// Tries End then Begin; if End fails (already ended), just Begin.
+        /// </summary>
+        private static void SafeRestoreSpriteBatch(SpriteBatch sb)
+        {
+            try { sb.End(); } catch { }
+            try
+            {
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
+        }
+
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D weaponTex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
 
+            Texture2D weaponTex = null;
+            try
+            {
+                weaponTex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad)?.Value;
+            }
+            catch { }
+
+            if (weaponTex == null)
+            {
+                // Fallback: use vanilla projectile texture
+                try { weaponTex = Terraria.GameContent.TextureAssets.Projectile[Projectile.type]?.Value; } catch { }
+            }
             if (weaponTex == null) return false;
 
-            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/VoronoiNoise");
+            try { _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/VoronoiNoise"); } catch { }
 
             Vector2 origin = weaponTex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
+            // === MAIN VFX RENDERING ===
             try
             {
                 // === Layer 0: SmearDistort Overlay (Foundation-tier, adapted for orbital swing) ===
@@ -579,12 +620,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
             }
             catch
             {
-                try
-                {
-                    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-                }
-                catch { }
+                SafeRestoreSpriteBatch(spriteBatch);
             }
 
             // Theme accents (additive pass)
@@ -600,12 +636,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
             }
             catch
             {
-                try
-                {
-                    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-                }
-                catch { }
+                SafeRestoreSpriteBatch(spriteBatch);
             }
 
             return false;

@@ -26,7 +26,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.MidnightMechanism
         {
             Item.width = 72;
             Item.height = 36;
-            Item.damage = 165;
+            Item.damage = 2900; // Tier 10 (2800-4200 range)
             Item.DamageType = DamageClass.Ranged;
             Item.useAnimation = 20;
             Item.useTime = 20;

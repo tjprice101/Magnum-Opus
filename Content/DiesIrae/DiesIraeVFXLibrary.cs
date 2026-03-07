@@ -12,7 +12,7 @@ using MagnumOpus.Common.Systems.Particles;
 namespace MagnumOpus.Content.DiesIrae
 {
     /// <summary>
-    /// Shared Dies Irae VFX library — canonical palette, bloom stacking,
+    /// Shared Dies Irae VFX library  Ecanonical palette, bloom stacking,
     /// shader setup, trail helpers, music notes, dust, bone ash, hellfire,
     /// judgment beams, and impact VFX used by ALL Dies Irae weapons, accessories,
     /// projectiles, minions, and enemies.
@@ -20,7 +20,7 @@ namespace MagnumOpus.Content.DiesIrae
     public static class DiesIraeVFXLibrary
     {
         // ─────────── CANONICAL PALETTE (delegates to DiesIraePalette) ───────────
-        // 6-colour musical dynamic scale (pianissimo → sforzando)
+        // 6-colour musical dynamic scale (pianissimo ↁEsforzando)
         public static readonly Color CharcoalBlack  = DiesIraePalette.CharcoalBlack;  // [0] Pianissimo
         public static readonly Color BloodRed       = DiesIraePalette.BloodRed;       // [1] Piano
         public static readonly Color InfernalRed    = DiesIraePalette.InfernalRed;    // [2] Mezzo
@@ -60,7 +60,7 @@ namespace MagnumOpus.Content.DiesIrae
         // ─────────── PALETTE INTERPOLATION ───────────
 
         /// <summary>
-        /// Lerp through the 6-colour Dies Irae palette. t=0 → CharcoalBlack, t=1 → WrathWhite.
+        /// Lerp through the 6-colour Dies Irae palette. t=0 ↁECharcoalBlack, t=1 ↁEWrathWhite.
         /// </summary>
         public static Color GetPaletteColor(float t)
         {
@@ -121,6 +121,9 @@ namespace MagnumOpus.Content.DiesIrae
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.115) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 1.209f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
@@ -129,19 +132,19 @@ namespace MagnumOpus.Content.DiesIrae
 
             // Layer 1: Outer halo (BloodRed-ish)
             sb.Draw(bloom, drawPos, null,
-                (outer with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 2.0f, SpriteEffects.None, 0f);
+                (outer with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 0.115f, SpriteEffects.None, 0f);
 
             // Layer 2: Mid glow (InfernalRed)
             sb.Draw(bloom, drawPos, null,
-                (outer with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 1.4f, SpriteEffects.None, 0f);
+                (outer with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.08f, SpriteEffects.None, 0f);
 
             // Layer 3: Inner bloom (JudgmentGold)
             sb.Draw(bloom, drawPos, null,
-                (inner with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f);
+                (inner with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.052f, SpriteEffects.None, 0f);
 
             // Layer 4: White-hot core
             sb.Draw(bloom, drawPos, null,
-                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
+                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.023f, SpriteEffects.None, 0f);
         }
 
         /// <summary>
@@ -153,21 +156,24 @@ namespace MagnumOpus.Content.DiesIrae
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.115) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 1.209f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
             sb.Draw(bloom, drawPos, null,
-                (outerColor with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 2.0f, SpriteEffects.None, 0f);
+                (outerColor with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 0.115f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (outerColor with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 1.4f, SpriteEffects.None, 0f);
+                (outerColor with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.08f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (innerColor with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f);
+                (innerColor with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.052f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
+                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.023f, SpriteEffects.None, 0f);
         }
 
         /// <summary>
-        /// Bloom sandwich layer — renders bloom BEHIND a projectile body for depth.
+        /// Bloom sandwich layer  Erenders bloom BEHIND a projectile body for depth.
         /// Call before drawing the projectile sprite, then call again after for front glow.
         /// </summary>
         public static void DrawBloomSandwichLayer(SpriteBatch sb, Vector2 worldPos,
@@ -176,6 +182,9 @@ namespace MagnumOpus.Content.DiesIrae
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.14) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 0.993f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
@@ -183,22 +192,22 @@ namespace MagnumOpus.Content.DiesIrae
             {
                 // Behind layer: larger, softer, BloodRed
                 sb.Draw(bloom, drawPos, null,
-                    (BloodRed with { A = 0 }) * 0.25f * opacity, 0f, origin, scale * 2.5f, SpriteEffects.None, 0f);
+                    (BloodRed with { A = 0 }) * 0.25f * opacity, 0f, origin, scale * 0.14f, SpriteEffects.None, 0f);
                 sb.Draw(bloom, drawPos, null,
-                    (InfernalRed with { A = 0 }) * 0.35f * opacity, 0f, origin, scale * 1.6f, SpriteEffects.None, 0f);
+                    (InfernalRed with { A = 0 }) * 0.35f * opacity, 0f, origin, scale * 0.09f, SpriteEffects.None, 0f);
             }
             else
             {
-                // Front layer: smaller, brighter, JudgmentGold → White
+                // Front layer: smaller, brighter, JudgmentGold ↁEWhite
                 sb.Draw(bloom, drawPos, null,
-                    (JudgmentGold with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.8f, SpriteEffects.None, 0f);
+                    (JudgmentGold with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.046f, SpriteEffects.None, 0f);
                 sb.Draw(bloom, drawPos, null,
-                    (Color.White with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.35f, SpriteEffects.None, 0f);
+                    (Color.White with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.02f, SpriteEffects.None, 0f);
             }
         }
 
         /// <summary>
-        /// Counter-rotating double flare — two bloom textures spinning in opposite directions.
+        /// Counter-rotating double flare  Etwo bloom textures spinning in opposite directions.
         /// Creates dynamic hellfire energy appearance at projectile centers.
         /// </summary>
         public static void DrawCounterRotatingFlares(SpriteBatch sb, Vector2 worldPos,
@@ -206,6 +215,9 @@ namespace MagnumOpus.Content.DiesIrae
         {
             Texture2D flare = MagnumTextureRegistry.GetFlare();
             if (flare == null) return;
+
+            // 1024px flare — cap so largest layer (scale*0.7) ≤ 0.293 → ≤300px
+            scale = MathHelper.Min(scale, 0.419f);
 
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = flare.Size() * 0.5f;
@@ -223,8 +235,8 @@ namespace MagnumOpus.Content.DiesIrae
 
         /// <summary>
         /// Standard Dies Irae bloom at a blade tip or projectile centre.
-        /// Uses the two-colour overload (BloodRed outer → JudgmentGold inner).
-        /// Safe to call from PreDraw — handles SpriteBatch state internally.
+        /// Uses the two-colour overload (BloodRed outer ↁEJudgmentGold inner).
+        /// Safe to call from PreDraw  Ehandles SpriteBatch state internally.
         /// </summary>
         public static void DrawBloom(Vector2 worldPos, float scale, float opacity = 1f)
         {
@@ -380,7 +392,7 @@ namespace MagnumOpus.Content.DiesIrae
         }
 
         /// <summary>
-        /// Sharp blade trail for melee weapons — precise judgment cut.
+        /// Sharp blade trail for melee weapons  Eprecise judgment cut.
         /// </summary>
         public static float BladeTrailWidth(float completionRatio, float baseWidth = 12f)
         {
@@ -389,7 +401,7 @@ namespace MagnumOpus.Content.DiesIrae
         }
 
         /// <summary>
-        /// Thick wrath trail for heavy attacks — devastating, smoky.
+        /// Thick wrath trail for heavy attacks  Edevastating, smoky.
         /// </summary>
         public static float WrathTrailWidth(float completionRatio, float baseWidth = 20f)
         {
@@ -412,7 +424,7 @@ namespace MagnumOpus.Content.DiesIrae
         /// <summary>
         /// Returns a pair of Vector3 colours for shader gradient uniforms.
         /// passIndex selects which pair from the palette to use for multi-pass rendering.
-        /// Pass 0: BloodRed → InfernalRed, Pass 1: InfernalRed → JudgmentGold, Pass 2: JudgmentGold → WrathWhite
+        /// Pass 0: BloodRed ↁEInfernalRed, Pass 1: InfernalRed ↁEJudgmentGold, Pass 2: JudgmentGold ↁEWrathWhite
         /// </summary>
         public static (Vector3 primary, Vector3 secondary) GetShaderGradient(int passIndex)
         {
@@ -508,7 +520,7 @@ namespace MagnumOpus.Content.DiesIrae
         }
 
         /// <summary>
-        /// Ember scatter dust — fiery particles drifting from impacts and swings.
+        /// Ember scatter dust  Efiery particles drifting from impacts and swings.
         /// </summary>
         public static void SpawnEmberScatter(Vector2 pos, int count = 5, float speed = 2f)
         {
@@ -523,7 +535,7 @@ namespace MagnumOpus.Content.DiesIrae
         }
 
         /// <summary>
-        /// Bone ash scatter — pale off-white drifting particles, the signature of Dies Irae.
+        /// Bone ash scatter  Epale off-white drifting particles, the signature of Dies Irae.
         /// Crumbling stone and bleached bone debris floating upward.
         /// </summary>
         public static void SpawnBoneAshScatter(Vector2 pos, int count = 4, float speed = 1.5f)
@@ -540,7 +552,7 @@ namespace MagnumOpus.Content.DiesIrae
         }
 
         /// <summary>
-        /// Contrasting judgment gold sparkle dust — call every other frame for dual-colour trail.
+        /// Contrasting judgment gold sparkle dust  Ecall every other frame for dual-colour trail.
         /// </summary>
         public static void SpawnContrastSparkle(Vector2 pos, Vector2 awayDirection)
         {
@@ -597,8 +609,8 @@ namespace MagnumOpus.Content.DiesIrae
         // ─────────── WRATH PULSE RINGS ───────────
 
         /// <summary>
-        /// Cascading wrath pulse rings (BloodRed → JudgmentGold).
-        /// Creates judgment shockwave visual — the Dies Irae signature motif.
+        /// Cascading wrath pulse rings (BloodRed ↁEJudgmentGold).
+        /// Creates judgment shockwave visual  Ethe Dies Irae signature motif.
         /// </summary>
         public static void SpawnWrathPulseRings(Vector2 pos, int count = 5, float baseScale = 0.3f)
         {
@@ -609,7 +621,7 @@ namespace MagnumOpus.Content.DiesIrae
         }
 
         /// <summary>
-        /// Judgment burst ring — concentric expanding blood-gold rings.
+        /// Judgment burst ring  Econcentric expanding blood-gold rings.
         /// The signature Dies Irae impact motif.
         /// </summary>
         public static void SpawnJudgmentRings(Vector2 pos, int ringCount = 3, float baseScale = 0.3f)
@@ -623,7 +635,7 @@ namespace MagnumOpus.Content.DiesIrae
         // ─────────── IMPACTS ───────────
 
         /// <summary>
-        /// Full Dies Irae melee impact VFX — bloom flash, wrath pulse ring,
+        /// Full Dies Irae melee impact VFX  Ebloom flash, wrath pulse ring,
         /// radial dust burst, ember scatter, bone ash, and music note scatter.
         /// Scales with combo step.
         /// </summary>
@@ -649,7 +661,7 @@ namespace MagnumOpus.Content.DiesIrae
         }
 
         /// <summary>
-        /// Projectile death / on-kill VFX — bigger, flashier version of MeleeImpact.
+        /// Projectile death / on-kill VFX  Ebigger, flashier version of MeleeImpact.
         /// </summary>
         public static void ProjectileImpact(Vector2 pos, float intensity = 1f)
         {
@@ -664,7 +676,7 @@ namespace MagnumOpus.Content.DiesIrae
         }
 
         /// <summary>
-        /// Wrath shockwave impact — concentric ring burst with heavy bloom.
+        /// Wrath shockwave impact  Econcentric ring burst with heavy bloom.
         /// Use for major impacts and wrath-themed weapon specials.
         /// </summary>
         public static void WrathShockwaveImpact(Vector2 pos, float intensity = 1f)
@@ -713,7 +725,7 @@ namespace MagnumOpus.Content.DiesIrae
         // ─────────── FINISHER EFFECTS ───────────
 
         /// <summary>
-        /// Finisher slam VFX — screen shake, massive bloom, wrath shockwave,
+        /// Finisher slam VFX  Escreen shake, massive bloom, wrath shockwave,
         /// music note cascade, bone ash burst, heavy smoke burst.
         /// </summary>
         public static void FinisherSlam(Vector2 pos, float intensity = 1f)
@@ -729,7 +741,7 @@ namespace MagnumOpus.Content.DiesIrae
         }
 
         /// <summary>
-        /// Hellfire eruption — volcanic wrath burst for special attacks and boss VFX.
+        /// Hellfire eruption  Evolcanic wrath burst for special attacks and boss VFX.
         /// The most intense VFX in the Dies Irae library.
         /// </summary>
         public static void HellfireEruption(Vector2 pos, float intensity = 1f)
@@ -755,7 +767,7 @@ namespace MagnumOpus.Content.DiesIrae
         }
 
         /// <summary>
-        /// Judgment beam VFX — vertical column of divine wrath light.
+        /// Judgment beam VFX  Evertical column of divine wrath light.
         /// </summary>
         public static void JudgmentBeam(Vector2 basePos, float height = 200f, float intensity = 1f)
         {
@@ -814,7 +826,7 @@ namespace MagnumOpus.Content.DiesIrae
         {
             Vector2 drawPos = worldPos - Main.screenPosition;
 
-            // Layer 1: Power Effect Ring — expanding concentric wrath ring
+            // Layer 1: Power Effect Ring  Eexpanding concentric wrath ring
             Texture2D ring = DiesIraeThemeTextures.DIPowerEffectRing?.Value;
             if (ring != null)
             {
@@ -827,7 +839,7 @@ namespace MagnumOpus.Content.DiesIrae
                     scale * 0.10f, SpriteEffects.None, 0f);
             }
 
-            // Layer 2: Harmonic Impact — shockwave overlay
+            // Layer 2: Harmonic Impact  Eshockwave overlay
             Texture2D impact = DiesIraeThemeTextures.DIHarmonicImpact?.Value;
             if (impact != null)
             {

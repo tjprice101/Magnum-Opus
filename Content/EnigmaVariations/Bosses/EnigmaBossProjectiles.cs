@@ -10,6 +10,7 @@ using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
 using ReLogic.Content;
+using static MagnumOpus.Common.Systems.VFX.MagnumThemePalettes;
 
 namespace MagnumOpus.Content.EnigmaVariations.Bosses
 {
@@ -20,8 +21,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
     {
         public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/whiteFireEyeA";
         
-        private static readonly Color EnigmaPurple = new Color(140, 60, 200);
-        private static readonly Color EnigmaGreen = new Color(50, 220, 100);
+        private static Color EnigmaPurple => MagnumThemePalettes.EnigmaPurple;
+        private static Color EnigmaGreen => EnigmaGreenFlame;
         
         public override void SetDefaults()
         {
@@ -107,8 +108,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
     {
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MusicNoteWithSlashes";
         
-        private static readonly Color EnigmaPurple = new Color(140, 60, 200);
-        private static readonly Color EnigmaGreen = new Color(50, 220, 100);
+        private static Color EnigmaPurple => MagnumThemePalettes.EnigmaPurple;
+        private static Color EnigmaGreen => EnigmaGreenFlame;
         
         public override void SetDefaults()
         {
@@ -184,7 +185,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
     {
         public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/whiteFireEyeA";
         
-        private static readonly Color EnigmaGreen = new Color(50, 220, 100);
+        private static Color EnigmaGreen => EnigmaGreenFlame;
         
         private int TargetWhoAmI => (int)Projectile.ai[0];
         
@@ -254,8 +255,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
     {
         public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
         
-        private static readonly Color EnigmaPurple = new Color(140, 60, 200);
-        private static readonly Color EnigmaGreen = new Color(50, 220, 100);
+        private static Color EnigmaPurple => MagnumThemePalettes.EnigmaPurple;
+        private static Color EnigmaGreen => EnigmaGreenFlame;
         
         private float Angle => Projectile.ai[0];
         private float MaxRadius => Projectile.ai[1];
@@ -314,8 +315,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
     {
         public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
         
-        private static readonly Color EnigmaPurple = new Color(140, 60, 200);
-        private static readonly Color EnigmaGreen = new Color(50, 220, 100);
+        private static Color EnigmaPurple => MagnumThemePalettes.EnigmaPurple;
+        private static Color EnigmaGreen => EnigmaGreenFlame;
         
         private int DelayFrames => (int)Projectile.ai[0];
         
@@ -407,8 +408,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
     {
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/TallMusicNote";
         
-        private static readonly Color EnigmaPurple = new Color(140, 60, 200);
-        private static readonly Color EnigmaGreen = new Color(50, 220, 100);
+        private static Color EnigmaPurple => MagnumThemePalettes.EnigmaPurple;
+        private static Color EnigmaGreen => EnigmaGreenFlame;
         
         private float BeamAngle => Projectile.ai[0];
         private int BeamDuration => (int)Projectile.ai[1];
@@ -547,8 +548,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
     {
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/QuarterNote";
         
-        private static readonly Color EnigmaPurple = new Color(140, 60, 200);
-        private static readonly Color EnigmaGreen = new Color(50, 220, 100);
+        private static Color EnigmaPurple => MagnumThemePalettes.EnigmaPurple;
+        private static Color EnigmaGreen => EnigmaGreenFlame;
         
         private float WallAngle => Projectile.ai[0];
         private int WallDuration => (int)Projectile.ai[1];

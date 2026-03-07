@@ -26,7 +26,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
         private static Asset<Texture2D> _softRadialBloomTex;
         private static Asset<Texture2D> _starFlareTex;
 
-        private static Color Additive(Color c, float opacity) => c * opacity;
+        private static Color Additive(Color c, float opacity) => new Color(c.R, c.G, c.B, 0) * opacity;
 
         public override void SetStaticDefaults()
         {
@@ -185,15 +185,15 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
                         DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
                     // Layer 1: Outer nebula mist haze
-                    sb.Draw(softBloom, drawPos, null, Additive(ResonanceUtils.NebulaMist, 0.35f), 0f, softOrigin, 0.8f, SpriteEffects.None, 0f);
+                    sb.Draw(softBloom, drawPos, null, Additive(ResonanceUtils.NebulaMist, 0.35f), 0f, softOrigin, 0.08f, SpriteEffects.None, 0f);
                     // Layer 2: Nebula purple glow
-                    sb.Draw(softBloom, drawPos, null, Additive(ResonanceUtils.NebulaPurple, 0.5f), 0f, softOrigin, 0.5f, SpriteEffects.None, 0f);
+                    sb.Draw(softBloom, drawPos, null, Additive(ResonanceUtils.NebulaPurple, 0.5f), 0f, softOrigin, 0.05f, SpriteEffects.None, 0f);
                     // Layer 3: Cosmic rose mid
-                    sb.Draw(pointBloom, drawPos, null, Additive(ResonanceUtils.CosmicRose, 0.7f), 0f, pointOrigin, 0.4f, SpriteEffects.None, 0f);
+                    sb.Draw(pointBloom, drawPos, null, Additive(ResonanceUtils.CosmicRose, 0.7f), 0f, pointOrigin, 0.04f, SpriteEffects.None, 0f);
                     // Layer 4: Star gold hot core
-                    sb.Draw(pointBloom, drawPos, null, Additive(ResonanceUtils.StarGold, 0.8f), 0f, pointOrigin, 0.22f, SpriteEffects.None, 0f);
+                    sb.Draw(pointBloom, drawPos, null, Additive(ResonanceUtils.StarGold, 0.8f), 0f, pointOrigin, 0.025f, SpriteEffects.None, 0f);
                     // Layer 5: StarFlare cross burst
-                    sb.Draw(starFlare, drawPos, null, Additive(ResonanceUtils.ConstellationSilver, 0.6f), time * 2.1f, starOrigin, 0.3f, SpriteEffects.None, 0f);
+                    sb.Draw(starFlare, drawPos, null, Additive(ResonanceUtils.ConstellationSilver, 0.6f), time * 2.1f, starOrigin, 0.293f, SpriteEffects.None, 0f);
                     sb.Draw(starFlare, drawPos, null, Additive(ResonanceUtils.CosmicRose, 0.4f), -time * 1.7f, starOrigin, 0.2f, SpriteEffects.None, 0f);
 
                     sb.End();
@@ -281,19 +281,19 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
                         DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
                     // Layer 1: Massive bygone crimson outer haze
-                    sb.Draw(softBloom, drawPos, null, Additive(ResonanceUtils.BygoneCrimson, 0.4f), 0f, softOrigin, 1.4f, SpriteEffects.None, 0f);
+                    sb.Draw(softBloom, drawPos, null, Additive(ResonanceUtils.BygoneCrimson, 0.4f), 0f, softOrigin, 0.139f, SpriteEffects.None, 0f);
                     // Layer 2: Nebula purple wide glow
-                    sb.Draw(softBloom, drawPos, null, Additive(ResonanceUtils.NebulaPurple, 0.55f), 0f, softOrigin, 0.9f, SpriteEffects.None, 0f);
+                    sb.Draw(softBloom, drawPos, null, Additive(ResonanceUtils.NebulaPurple, 0.55f), 0f, softOrigin, 0.09f, SpriteEffects.None, 0f);
                     // Layer 3: Cosmic rose mid bloom
-                    sb.Draw(softBloom, drawPos, null, Additive(ResonanceUtils.CosmicRose, 0.65f), 0f, softOrigin, 0.6f, SpriteEffects.None, 0f);
+                    sb.Draw(softBloom, drawPos, null, Additive(ResonanceUtils.CosmicRose, 0.65f), 0f, softOrigin, 0.06f, SpriteEffects.None, 0f);
                     // Layer 4: Star gold intensity
-                    sb.Draw(pointBloom, drawPos, null, Additive(ResonanceUtils.StarGold, 0.8f), 0f, pointOrigin, 0.45f, SpriteEffects.None, 0f);
+                    sb.Draw(pointBloom, drawPos, null, Additive(ResonanceUtils.StarGold, 0.8f), 0f, pointOrigin, 0.05f, SpriteEffects.None, 0f);
                     // Layer 5: Constellation silver white-hot core
-                    sb.Draw(pointBloom, drawPos, null, Additive(ResonanceUtils.ConstellationSilver, 0.9f), 0f, pointOrigin, 0.25f, SpriteEffects.None, 0f);
+                    sb.Draw(pointBloom, drawPos, null, Additive(ResonanceUtils.ConstellationSilver, 0.9f), 0f, pointOrigin, 0.03f, SpriteEffects.None, 0f);
                     // Layer 6: Triple StarFlare divine cross — the blade is being born
-                    sb.Draw(starFlare, drawPos, null, Additive(ResonanceUtils.StarGold, 0.7f), time * 1.8f, starOrigin, 0.55f, SpriteEffects.None, 0f);
-                    sb.Draw(starFlare, drawPos, null, Additive(ResonanceUtils.ConstellationSilver, 0.5f), -time * 2.3f, starOrigin, 0.4f, SpriteEffects.None, 0f);
-                    sb.Draw(starFlare, drawPos, null, Additive(ResonanceUtils.CosmicRose, 0.35f), time * 3.1f, starOrigin, 0.65f, SpriteEffects.None, 0f);
+                    sb.Draw(starFlare, drawPos, null, Additive(ResonanceUtils.StarGold, 0.7f), time * 1.8f, starOrigin, 0.15f, SpriteEffects.None, 0f);
+                    sb.Draw(starFlare, drawPos, null, Additive(ResonanceUtils.ConstellationSilver, 0.5f), -time * 2.3f, starOrigin, 0.12f, SpriteEffects.None, 0f);
+                    sb.Draw(starFlare, drawPos, null, Additive(ResonanceUtils.CosmicRose, 0.35f), time * 3.1f, starOrigin, 0.18f, SpriteEffects.None, 0f);
 
                     sb.End();
                     sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
@@ -400,7 +400,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
 
                         // Nebula bloom trail — fading nebula mist halos along the path
                         Color nebulaTrail = Color.Lerp(ResonanceUtils.CosmicRose, ResonanceUtils.NebulaPurple, progress);
-                        float trailBloomScale = (0.35f - progress * 0.2f) * pulse;
+                        float trailBloomScale = (0.04f - progress * 0.025f) * pulse;
                         sb.Draw(softBloom, trailPos, null, Additive(nebulaTrail, 0.3f * fade), 0f, softOrigin, trailBloomScale, SpriteEffects.None, 0f);
 
                         // Sharp star trail on top
@@ -440,32 +440,32 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
                     Vector2 starOrigin = starFlare.Size() / 2f;
 
                     // Layer 1: Outer void-nebula haze — the bygone reality bleeds through
-                    sb.Draw(softBloom, drawPos, null, Additive(ResonanceUtils.VoidBlack, 0.2f), 0f, softOrigin, 0.55f * pulse, SpriteEffects.None, 0f);
+                    sb.Draw(softBloom, drawPos, null, Additive(ResonanceUtils.VoidBlack, 0.2f), 0f, softOrigin, 0.06f * pulse, SpriteEffects.None, 0f);
                     // Layer 2: Nebula mist atmosphere
-                    sb.Draw(softBloom, drawPos, null, Additive(ResonanceUtils.NebulaMist, 0.3f), 0f, softOrigin, 0.45f * pulse, SpriteEffects.None, 0f);
+                    sb.Draw(softBloom, drawPos, null, Additive(ResonanceUtils.NebulaMist, 0.22f), 0f, softOrigin, 0.04f * pulse, SpriteEffects.None, 0f);
                     // Layer 3: Nebula purple glow
-                    sb.Draw(softBloom, drawPos, null, Additive(ResonanceUtils.NebulaPurple, 0.5f), 0f, softOrigin, 0.35f * pulse, SpriteEffects.None, 0f);
+                    sb.Draw(softBloom, drawPos, null, Additive(ResonanceUtils.NebulaPurple, 0.35f), 0f, softOrigin, 0.03f * pulse, SpriteEffects.None, 0f);
                     // Layer 4: Cosmic rose intensity
-                    sb.Draw(pointBloom, drawPos, null, Additive(ResonanceUtils.CosmicRose, 0.65f), 0f, pointOrigin, 0.28f * pulse, SpriteEffects.None, 0f);
+                    sb.Draw(pointBloom, drawPos, null, Additive(ResonanceUtils.CosmicRose, 0.5f), 0f, pointOrigin, 0.025f * pulse, SpriteEffects.None, 0f);
                     // Layer 5: Star gold hot inner
-                    sb.Draw(pointBloom, drawPos, null, Additive(ResonanceUtils.StarGold, 0.6f), 0f, pointOrigin, 0.16f * pulse, SpriteEffects.None, 0f);
+                    sb.Draw(pointBloom, drawPos, null, Additive(ResonanceUtils.StarGold, 0.45f), 0f, pointOrigin, 0.015f * pulse, SpriteEffects.None, 0f);
                     // Layer 6: Constellation silver white core
-                    sb.Draw(pointBloom, drawPos, null, Additive(ResonanceUtils.ConstellationSilver, 0.75f), 0f, pointOrigin, 0.1f * pulse, SpriteEffects.None, 0f);
+                    sb.Draw(pointBloom, drawPos, null, Additive(ResonanceUtils.ConstellationSilver, 0.55f), 0f, pointOrigin, 0.08f * pulse, SpriteEffects.None, 0f);
                     // Layer 7: StarFlare rotating cross — cosmic signature
-                    sb.Draw(starFlare, drawPos, null, Additive(ResonanceUtils.CosmicRose, 0.35f), time * 1.4f + pulsePhase, starOrigin, 0.2f * pulse, SpriteEffects.None, 0f);
-                    sb.Draw(starFlare, drawPos, null, Additive(ResonanceUtils.ConstellationSilver, 0.25f), -time * 1.9f, starOrigin, 0.15f * pulse, SpriteEffects.None, 0f);
+                    sb.Draw(starFlare, drawPos, null, Additive(ResonanceUtils.CosmicRose, 0.22f), time * 1.4f + pulsePhase, starOrigin, 0.15f * pulse, SpriteEffects.None, 0f);
+                    sb.Draw(starFlare, drawPos, null, Additive(ResonanceUtils.ConstellationSilver, 0.16f), -time * 1.9f, starOrigin, 0.11f * pulse, SpriteEffects.None, 0f);
 
                     // === STEP 3: ORIGINAL STAR SPRITE AS SHARP CORE ===
-                    sb.Draw(tex, drawPos, null, Additive(ResonanceUtils.CosmicRose, 0.7f), Projectile.rotation, origin, 0.22f * pulse, SpriteEffects.None, 0f);
-                    sb.Draw(tex, drawPos, null, Additive(ResonanceUtils.ConstellationSilver, 0.9f), Projectile.rotation, origin, 0.12f * pulse, SpriteEffects.None, 0f);
+                    sb.Draw(tex, drawPos, null, Additive(ResonanceUtils.CosmicRose, 0.5f), Projectile.rotation, origin, 0.18f * pulse, SpriteEffects.None, 0f);
+                    sb.Draw(tex, drawPos, null, Additive(ResonanceUtils.ConstellationSilver, 0.65f), Projectile.rotation, origin, 0.1f * pulse, SpriteEffects.None, 0f);
 
                     // === STEP 4: LEADING-EDGE BLOOM AT VELOCITY TIP ===
                     Vector2 velDir = Projectile.velocity.SafeNormalize(Vector2.UnitX);
                     Vector2 leadPos = drawPos + velDir * 6f;
 
-                    sb.Draw(softBloom, leadPos, null, Additive(ResonanceUtils.NebulaPurple, 0.35f), 0f, softOrigin, 0.2f * pulse, SpriteEffects.None, 0f);
-                    sb.Draw(pointBloom, leadPos, null, Additive(ResonanceUtils.CosmicRose, 0.5f), 0f, pointOrigin, 0.12f * pulse, SpriteEffects.None, 0f);
-                    sb.Draw(pointBloom, leadPos, null, Additive(ResonanceUtils.ConstellationSilver, 0.7f), 0f, pointOrigin, 0.06f * pulse, SpriteEffects.None, 0f);
+                    sb.Draw(softBloom, leadPos, null, Additive(ResonanceUtils.NebulaPurple, 0.22f), 0f, softOrigin, MathHelper.Min(0.15f * pulse, 0.139f), SpriteEffects.None, 0f);
+                    sb.Draw(pointBloom, leadPos, null, Additive(ResonanceUtils.CosmicRose, 0.35f), 0f, pointOrigin, 0.09f * pulse, SpriteEffects.None, 0f);
+                    sb.Draw(pointBloom, leadPos, null, Additive(ResonanceUtils.ConstellationSilver, 0.5f), 0f, pointOrigin, 0.045f * pulse, SpriteEffects.None, 0f);
                 }
                 else
                 {

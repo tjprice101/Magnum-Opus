@@ -39,7 +39,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
         private static Asset<Texture2D> _softRadialBloomTex;
         private static Asset<Texture2D> _starFlareTex;
 
-        private static Color Additive(Color c, float opacity) => c * opacity;
+        private static Color Additive(Color c, float opacity) => new Color(c.R, c.G, c.B, 0) * opacity;
 
         /// <summary>Beam cooldown scales with Escalation Phase: Pianissimo=120, Piano=100, Forte=80, Fortissimo=60.</summary>
         private int BeamCooldownMax
@@ -413,8 +413,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
                 {
                     var radTex = _softRadialBloomTex.Value;
                     sb.Draw(radTex, screenPos, null,
-                        CrescendoUtils.Additive(CrescendoUtils.DeityPurple, 0.35f * phaseGlow),
-                        0f, radTex.Size() * 0.5f, (1.4f + phase * 0.2f), SpriteEffects.None, 0f);
+                        CrescendoUtils.Additive(CrescendoUtils.DeityPurple, 0.12f * phaseGlow),
+                        0f, radTex.Size() * 0.5f, MathHelper.Min(0.49f + phase * 0.07f, 0.139f), SpriteEffects.None, 0f);
                 }
 
                 // Layer 2: Crescendo pink mid glow
@@ -422,8 +422,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
                 {
                     var radTex = _softRadialBloomTex.Value;
                     sb.Draw(radTex, screenPos, null,
-                        CrescendoUtils.Additive(CrescendoUtils.CrescendoPink, 0.4f * phaseGlow),
-                        0f, radTex.Size() * 0.5f, (1.0f + phase * 0.15f), SpriteEffects.None, 0f);
+                        CrescendoUtils.Additive(CrescendoUtils.CrescendoPink, 0.14f * phaseGlow),
+                        0f, radTex.Size() * 0.5f, MathHelper.Min(0.35f + phase * 0.05f, 0.139f), SpriteEffects.None, 0f);
                 }
 
                 // Layer 3: Divine crimson inner
@@ -431,8 +431,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
                 {
                     var ptTex = _pointBloomTex.Value;
                     sb.Draw(ptTex, screenPos, null,
-                        CrescendoUtils.Additive(CrescendoUtils.DivineCrimson, 0.5f * phaseGlow),
-                        0f, ptTex.Size() * 0.5f, (0.6f + phase * 0.1f), SpriteEffects.None, 0f);
+                        CrescendoUtils.Additive(CrescendoUtils.DivineCrimson, 0.18f * phaseGlow),
+                        0f, ptTex.Size() * 0.5f, MathHelper.Min(0.21f + phase * 0.04f, 0.139f), SpriteEffects.None, 0f);
                 }
 
                 // Layer 4: Star gold hot core
@@ -440,8 +440,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
                 {
                     var ptTex = _pointBloomTex.Value;
                     sb.Draw(ptTex, screenPos, null,
-                        CrescendoUtils.Additive(CrescendoUtils.StarGold, 0.6f * phaseGlow),
-                        0f, ptTex.Size() * 0.5f, (0.35f + phase * 0.08f), SpriteEffects.None, 0f);
+                        CrescendoUtils.Additive(CrescendoUtils.StarGold, 0.21f * phaseGlow),
+                        0f, ptTex.Size() * 0.5f, (0.12f + phase * 0.03f), SpriteEffects.None, 0f);
                 }
 
                 // Layer 5: StarFlare divine cross
@@ -449,11 +449,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
                 {
                     var starTex = _starFlareTex.Value;
                     sb.Draw(starTex, screenPos, null,
-                        CrescendoUtils.Additive(CrescendoUtils.DivineCrimson, 0.35f * phaseGlow),
-                        time * 0.1f, starTex.Size() * 0.5f, (0.4f + phase * 0.08f), SpriteEffects.None, 0f);
+                        CrescendoUtils.Additive(CrescendoUtils.DivineCrimson, 0.12f * phaseGlow),
+                        time * 0.1f, starTex.Size() * 0.5f, (0.14f + phase * 0.03f), SpriteEffects.None, 0f);
                     sb.Draw(starTex, screenPos, null,
-                        CrescendoUtils.Additive(CrescendoUtils.StarGold, 0.25f * phaseGlow),
-                        -time * 0.07f, starTex.Size() * 0.5f, (0.28f + phase * 0.05f), SpriteEffects.None, 0f);
+                        CrescendoUtils.Additive(CrescendoUtils.StarGold, 0.09f * phaseGlow),
+                        -time * 0.07f, starTex.Size() * 0.5f, (0.1f + phase * 0.02f), SpriteEffects.None, 0f);
                 }
 
                 sb.End();
@@ -534,8 +534,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
                     var radTex = _softRadialBloomTex.Value;
                     var radOrigin = radTex.Size() * 0.5f;
                     spriteBatch.Draw(radTex, drawPos, null,
-                        CrescendoUtils.Additive(CrescendoUtils.VoidBlack, 0.25f * phaseGlow),
-                        0f, radOrigin, 3.5f * breathe * pScale, SpriteEffects.None, 0f);
+                        CrescendoUtils.Additive(CrescendoUtils.VoidBlack, 0.09f * phaseGlow),
+                        0f, radOrigin, MathHelper.Min(1.23f * breathe * pScale, 0.139f), SpriteEffects.None, 0f);
                 }
 
                 // Layer 2: Deep deity purple resonance field (SoftRadialBloom)
@@ -544,8 +544,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
                     var radTex = _softRadialBloomTex.Value;
                     var radOrigin = radTex.Size() * 0.5f;
                     spriteBatch.Draw(radTex, drawPos, null,
-                        CrescendoUtils.Additive(CrescendoUtils.DeityPurple, 0.4f * phaseGlow),
-                        0f, radOrigin, 2.4f * pulse * pScale, SpriteEffects.None, 0f);
+                        CrescendoUtils.Additive(CrescendoUtils.DeityPurple, 0.14f * phaseGlow),
+                        0f, radOrigin, MathHelper.Min(0.84f * pulse * pScale, 0.139f), SpriteEffects.None, 0f);
                 }
 
                 // Layer 3: Crescendo pink heartbeat (SoftRadialBloom)
@@ -554,8 +554,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
                     var radTex = _softRadialBloomTex.Value;
                     var radOrigin = radTex.Size() * 0.5f;
                     spriteBatch.Draw(radTex, drawPos, null,
-                        CrescendoUtils.Additive(CrescendoUtils.CrescendoPink, 0.45f * phaseGlow),
-                        0f, radOrigin, 1.6f * pulse * pScale, SpriteEffects.None, 0f);
+                        CrescendoUtils.Additive(CrescendoUtils.CrescendoPink, 0.16f * phaseGlow),
+                        0f, radOrigin, MathHelper.Min(0.56f * pulse * pScale, 0.139f), SpriteEffects.None, 0f);
                 }
 
                 // Layer 4: Divine crimson inner fire (PointBloom)
@@ -564,8 +564,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
                     var ptTex = _pointBloomTex.Value;
                     var ptOrigin = ptTex.Size() * 0.5f;
                     spriteBatch.Draw(ptTex, drawPos, null,
-                        CrescendoUtils.Additive(CrescendoUtils.DivineCrimson, 0.4f * phaseGlow),
-                        0f, ptOrigin, 1.0f * pulse * pScale, SpriteEffects.None, 0f);
+                        CrescendoUtils.Additive(CrescendoUtils.DivineCrimson, 0.14f * phaseGlow),
+                        0f, ptOrigin, MathHelper.Min(0.35f * pulse * pScale, 0.139f), SpriteEffects.None, 0f);
                 }
 
                 CrescendoUtils.BeginAlpha(spriteBatch);
@@ -582,8 +582,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
                     var ptTex = _pointBloomTex.Value;
                     var ptOrigin = ptTex.Size() * 0.5f;
                     spriteBatch.Draw(ptTex, drawPos, null,
-                        CrescendoUtils.Additive(CrescendoUtils.StarGold, 0.3f * phaseGlow),
-                        0f, ptOrigin, 0.7f * pulse * pScale, SpriteEffects.None, 0f);
+                        CrescendoUtils.Additive(CrescendoUtils.StarGold, 0.1f * phaseGlow),
+                        0f, ptOrigin, MathHelper.Min(0.25f * pulse * pScale, 0.139f), SpriteEffects.None, 0f);
                 }
 
                 // Layer 6: Celestial white core (PointBloom)
@@ -592,8 +592,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
                     var ptTex = _pointBloomTex.Value;
                     var ptOrigin = ptTex.Size() * 0.5f;
                     spriteBatch.Draw(ptTex, drawPos, null,
-                        CrescendoUtils.Additive(CrescendoUtils.CelestialWhite, 0.35f * phaseGlow),
-                        0f, ptOrigin, 0.4f * pulse * pScale, SpriteEffects.None, 0f);
+                        CrescendoUtils.Additive(CrescendoUtils.CelestialWhite, 0.12f * phaseGlow),
+                        0f, ptOrigin, MathHelper.Min(0.14f * pulse * pScale, 0.139f), SpriteEffects.None, 0f);
                 }
 
                 // Layer 7: StarFlare rotating divine cross — the deity's signature radiance
@@ -602,11 +602,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
                     var starTex = _starFlareTex.Value;
                     var starOrigin = starTex.Size() * 0.5f;
                     spriteBatch.Draw(starTex, drawPos, null,
-                        CrescendoUtils.Additive(CrescendoUtils.DivineCrimson, 0.2f * phaseGlow),
-                        time * 0.025f, starOrigin, 0.55f * pulse * pScale, SpriteEffects.None, 0f);
+                        CrescendoUtils.Additive(CrescendoUtils.DivineCrimson, 0.07f * phaseGlow),
+                        time * 0.025f, starOrigin, MathHelper.Min(0.19f * pulse * pScale, 0.293f), SpriteEffects.None, 0f);
                     spriteBatch.Draw(starTex, drawPos, null,
-                        CrescendoUtils.Additive(CrescendoUtils.StarGold, 0.15f * phaseGlow),
-                        -time * 0.018f, starOrigin, 0.38f * pulse * pScale, SpriteEffects.None, 0f);
+                        CrescendoUtils.Additive(CrescendoUtils.StarGold, 0.05f * phaseGlow),
+                        -time * 0.018f, starOrigin, 0.13f * pulse * pScale, SpriteEffects.None, 0f);
                 }
 
                 CrescendoUtils.BeginAlpha(spriteBatch);

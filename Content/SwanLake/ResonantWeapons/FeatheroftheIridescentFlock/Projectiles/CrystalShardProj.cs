@@ -102,13 +102,20 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
         {
             target.AddBuff(ModContent.BuffType<SwansMark>(), 180);
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 6; i++)
             {
-                Color c = FlockUtils.GetIridescent(i / 4f);
+                Color c = FlockUtils.GetIridescent(i / 6f);
                 Dust d = Dust.NewDustPerfect(target.Center, DustID.WhiteTorch,
-                    Main.rand.NextVector2Circular(3, 3), 0, c, 0.6f);
+                    Main.rand.NextVector2Circular(4, 4), 0, c, 0.7f);
                 d.noGravity = true;
             }
+
+            try
+            {
+                SwanLakeVFXLibrary.SpawnRainbowBurst(target.Center, 4, 3f);
+                SwanLakeVFXLibrary.SpawnPrismaticSparkles(target.Center, 4, 15f);
+                SwanLakeVFXLibrary.SpawnMusicNotes(target.Center, 1, 10f);
+            } catch { }
         }
 
         public override void OnKill(int timeLeft)
@@ -116,13 +123,19 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
             _trailRenderer?.Dispose();
             _trailRenderer = null;
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 6; i++)
             {
-                Color c = FlockUtils.GetIridescent(i / 4f + Timer * 0.01f);
+                Color c = FlockUtils.GetIridescent(i / 6f + Timer * 0.01f);
                 Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.WhiteTorch,
-                    Main.rand.NextVector2Circular(2, 2), 0, c, 0.4f);
+                    Main.rand.NextVector2Circular(3, 3), 0, c, 0.5f);
                 d.noGravity = true;
             }
+
+            try
+            {
+                SwanLakeVFXLibrary.SpawnPrismaticSparkles(Projectile.Center, 3, 12f);
+                SwanLakeVFXLibrary.SpawnFeatherDrift(Projectile.Center, 2, 10f);
+            } catch { }
         }
 
         public override bool PreDraw(ref Color lightColor)

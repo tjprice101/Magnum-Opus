@@ -456,8 +456,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
             if (radialBloom != null)
             {
                 Vector2 rOrigin = radialBloom.Size() * 0.5f;
-                Color haloColor = CodaUtils.Additive(weaponColor, 0.2f * pulse);
-                sb.Draw(radialBloom, drawPos, null, haloColor, 0f, rOrigin, 1.8f * pulse, SpriteEffects.None, 0f);
+                Color haloColor = CodaUtils.Additive(weaponColor, 0.12f * pulse);
+                sb.Draw(radialBloom, drawPos, null, haloColor, 0f, rOrigin, MathHelper.Min(0.14f * pulse, 0.139f), SpriteEffects.None, 0f);
             }
 
             // Layer 2: Mid glow (SoftGlow)
@@ -466,8 +466,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
             {
                 Vector2 sOrigin = softGlow.Size() * 0.5f;
                 Color midColor = CodaUtils.Additive(
-                    Color.Lerp(weaponColor, CodaUtils.CodaCrimson, 0.3f), 0.4f * pulse);
-                sb.Draw(softGlow, drawPos, null, midColor, 0f, sOrigin, 1.2f, SpriteEffects.None, 0f);
+                    Color.Lerp(weaponColor, CodaUtils.CodaCrimson, 0.3f), 0.24f * pulse);
+                sb.Draw(softGlow, drawPos, null, midColor, 0f, sOrigin, 0.45f, SpriteEffects.None, 0f);
             }
 
             // Layer 3: Inner bloom (PointBloom)
@@ -476,16 +476,16 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
             {
                 Vector2 pOrigin = pointBloom.Size() * 0.5f;
                 Color innerColor = CodaUtils.Additive(
-                    Color.Lerp(weaponColor, CodaUtils.AnnihilationWhite, 0.4f), 0.65f);
-                sb.Draw(pointBloom, drawPos, null, innerColor, 0f, pOrigin, 0.7f, SpriteEffects.None, 0f);
+                    Color.Lerp(weaponColor, CodaUtils.AnnihilationWhite, 0.4f), 0.39f);
+                sb.Draw(pointBloom, drawPos, null, innerColor, 0f, pOrigin, 0.06f, SpriteEffects.None, 0f);
             }
 
             // Layer 4: White-hot core
             if (softGlow != null)
             {
                 Vector2 sOrigin = softGlow.Size() * 0.5f;
-                Color coreColor = CodaUtils.Additive(CodaUtils.AnnihilationWhite, 0.8f);
-                sb.Draw(softGlow, drawPos, null, coreColor, 0f, sOrigin, 0.35f, SpriteEffects.None, 0f);
+                Color coreColor = CodaUtils.Additive(CodaUtils.AnnihilationWhite, 0.48f);
+                sb.Draw(softGlow, drawPos, null, coreColor, 0f, sOrigin, 0.28f, SpriteEffects.None, 0f);
             }
 
             // Layer 5: Counter-rotating star flares (cosmic Fate identity)
@@ -495,10 +495,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
                 Vector2 starOrigin = star4.Size() * 0.5f;
                 float rot1 = time * 0.03f;
                 float rot2 = -time * 0.02f;
-                Color flareColor1 = CodaUtils.Additive(CodaUtils.CodaCrimson, 0.5f * pulse);
-                Color flareColor2 = CodaUtils.Additive(CodaUtils.StarGold, 0.35f * pulse);
-                sb.Draw(star4, drawPos, null, flareColor1, rot1, starOrigin, 0.8f, SpriteEffects.None, 0f);
-                sb.Draw(star4, drawPos, null, flareColor2, rot2, starOrigin, 0.6f, SpriteEffects.None, 0f);
+                Color flareColor1 = CodaUtils.Additive(CodaUtils.CodaCrimson, 0.3f * pulse);
+                Color flareColor2 = CodaUtils.Additive(CodaUtils.StarGold, 0.21f * pulse);
+                sb.Draw(star4, drawPos, null, flareColor1, rot1, starOrigin, 0.64f, SpriteEffects.None, 0f);
+                sb.Draw(star4, drawPos, null, flareColor2, rot2, starOrigin, 0.48f, SpriteEffects.None, 0f);
             }
 
             // Layer 6: Thin tall star accent
@@ -507,8 +507,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
             {
                 Vector2 thinOrigin = starThin.Size() * 0.5f;
                 float thinRot = Projectile.velocity.ToRotation();
-                Color thinColor = CodaUtils.Additive(CodaUtils.CodaPink, 0.45f * pulse);
-                sb.Draw(starThin, drawPos, null, thinColor, thinRot, thinOrigin, 0.55f, SpriteEffects.None, 0f);
+                Color thinColor = CodaUtils.Additive(CodaUtils.CodaPink, 0.27f * pulse);
+                sb.Draw(starThin, drawPos, null, thinColor, thinRot, thinOrigin, 0.44f, SpriteEffects.None, 0f);
             }
 
             // ════════════════════════════════════════════════════════
@@ -519,13 +519,14 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
             sb.Draw(weaponTex, drawPos, null, Color.White, Projectile.rotation, origin, 1f, SpriteEffects.None, 0f);
 
             // Additive weapon glow overlay (A=0 trick under AlphaBlend = pure additive)
-            Color weaponGlow = CodaUtils.Additive(weaponColor, 0.25f);
-            sb.Draw(weaponTex, drawPos, null, weaponGlow, Projectile.rotation, origin, 1.05f, SpriteEffects.None, 0f);
+            Color weaponGlow = CodaUtils.Additive(weaponColor, 0.15f);
+            sb.Draw(weaponTex, drawPos, null, weaponGlow, Projectile.rotation, origin, 0.84f, SpriteEffects.None, 0f);
 
             }
             catch
             {
                 // Ensure SpriteBatch is restored to a valid state for subsequent draws
+                try { sb.End(); } catch { }
                 try
                 {
                     sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,

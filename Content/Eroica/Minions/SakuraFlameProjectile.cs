@@ -137,7 +137,21 @@ namespace MagnumOpus.Content.Eroica.Minions
             Color bloom = FinalityUtils.SakuraFlame;
             bloom.A = 0;
             FinalityParticleHandler.SpawnParticle(new DarkBloomParticle(
-                Projectile.Center, Vector2.Zero, bloom, 0.25f, 8
+                Projectile.Center, Vector2.Zero, bloom, 0.4f, 10
+            ));
+
+            // Additional wider crimson bloom for richer explosion
+            Color outerBloom = FinalityUtils.AbyssalCrimson;
+            outerBloom.A = 0;
+            FinalityParticleHandler.SpawnParticle(new DarkBloomParticle(
+                Projectile.Center, Vector2.Zero, outerBloom, 0.55f, 12
+            ));
+
+            // White-hot core flash
+            Color coreFlash = FinalityUtils.CoreWhite;
+            coreFlash.A = 0;
+            FinalityParticleHandler.SpawnParticle(new DarkBloomParticle(
+                Projectile.Center, Vector2.Zero, coreFlash, 0.2f, 6
             ));
         }
 
@@ -380,13 +394,26 @@ namespace MagnumOpus.Content.Eroica.Minions
         {
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
-            Color bloomColor = FinalityUtils.AbyssalCrimson;
-            bloomColor.A = 0;
-            float bloomAlpha = (1f - fadeProgress) * 0.3f;
-            float bloomScale = Projectile.scale * 0.56f * (1f - fadeProgress * 0.4f);
+            float bloomAlpha = (1f - fadeProgress) * 0.45f;
+            float bloomScale = Projectile.scale * 0.7f * (1f - fadeProgress * 0.4f);
 
             FinalityUtils.EnterShaderRegion(sb);
+
+            // Outer crimson bloom haze
+            Color outerColor = FinalityUtils.AbyssalCrimson;
+            outerColor.A = 0;
+            sb.Draw(tex, drawPos, null, outerColor * bloomAlpha * 0.6f, Projectile.rotation, origin, bloomScale * 1.4f, SpriteEffects.None, 0f);
+
+            // Main sakura flame bloom
+            Color bloomColor = FinalityUtils.SakuraFlame;
+            bloomColor.A = 0;
             sb.Draw(tex, drawPos, null, bloomColor * bloomAlpha, Projectile.rotation, origin, bloomScale, SpriteEffects.None, 0f);
+
+            // Ember-gold hot core
+            Color coreColor = FinalityUtils.EmberGold;
+            coreColor.A = 0;
+            sb.Draw(tex, drawPos, null, coreColor * bloomAlpha * 0.5f, Projectile.rotation, origin, bloomScale * 0.5f, SpriteEffects.None, 0f);
+
             FinalityUtils.ExitShaderRegion(sb);
         }
 

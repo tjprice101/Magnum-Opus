@@ -1,5 +1,7 @@
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
+using System;
 using Terraria;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems.Particles;
@@ -386,6 +388,88 @@ namespace MagnumOpus.Common.Systems.VFX
                 _pixelTexture.SetData(new[] { Microsoft.Xna.Framework.Color.White });
             }
             return _pixelTexture;
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        // SHARED SPARKLE IMPACT UTILITY
+        // Theme-agnostic Star4Soft sparkle impact — use instead of
+        // large bloom circles for clean, crisp impact effects.
+        // Expects SpriteBatch already in Additive blend mode.
+        // ══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Draws a themed Star4Soft sparkle impact at the given world position.
+        /// Replaces oversized bloom circles with crisp four-pointed star sparkles
+        /// arranged in a ring around a small clamped glow core.
+        /// Call from PreDraw with SpriteBatch in Additive blend state.
+        /// </summary>
+        /// <param name="sb">Active SpriteBatch in additive blend mode.</param>
+        /// <param name="worldPos">World-space center position (will subtract screenPosition).</param>
+        /// <param name="radius">Visual radius of the sparkle ring in pixels.</param>
+        /// <param name="time">Animation time (typically Main.GameUpdateCount).</param>
+        /// <param name="themeColor">Primary theme color for the sparkles.</param>
+        /// <param name="accentColor">Secondary/accent color for alternating sparkles.</param>
+        /// <param name="opacity">Overall opacity multiplier (0-1).</param>
+        /// <param name="sparkleCount">Number of sparkles in the ring (default 8).</param>
+        public static void DrawThemedSparkleImpact(Microsoft.Xna.Framework.Graphics.SpriteBatch sb,
+            Vector2 worldPos, float radius, float time,
+            Microsoft.Xna.Framework.Color themeColor, Microsoft.Xna.Framework.Color accentColor,
+            float opacity = 1f, int sparkleCount = 8)
+        {
+            Vector2 screenPos = worldPos - Main.screenPosition;
+
+            // Layer 1: Small clamped bloom core
+            Texture2D bloom = GetSoftGlow();
+            if (bloom != null)
+            {
+                float bloomScale = MathHelper.Min(radius * 0.3f / bloom.Width, 0.156f);
+                Microsoft.Xna.Framework.Color coreColor = (themeColor with { A = 0 }) * 0.35f * opacity;
+                sb.Draw(bloom, screenPos, null, coreColor, 0f,
+                    new Vector2(bloom.Width, bloom.Height) * 0.5f, bloomScale,
+                    Microsoft.Xna.Framework.Graphics.SpriteEffects.None, 0f);
+            }
+
+            // Layer 2: Star4Soft sparkle ring
+            Texture2D star = GetStar4Soft();
+            if (star != null)
+            {
+                Vector2 starOrigin = new Vector2(star.Width, star.Height) * 0.5f;
+                for (int i = 0; i < sparkleCount; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / sparkleCount + time * 0.015f;
+                    float dist = radius * (0.5f + 0.2f * (float)Math.Sin(i * 1.7f + time * 0.03f));
+                    Vector2 offset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * dist;
+
+                    float rot = time * (0.02f + i * 0.005f) + i * 0.8f;
+                    float pulse = 0.15f + 0.25f * (float)Math.Sin(time * 0.04f + i * MathHelper.TwoPi / sparkleCount);
+                    float scale = MathHelper.Clamp(pulse, 0.1f, 0.4f);
+
+                    // Alternate between theme and accent colors
+                    Microsoft.Xna.Framework.Color sparkleColor = (i % 2 == 0 ? themeColor : accentColor) with { A = 0 };
+                    sparkleColor *= 0.35f * opacity;
+
+                    sb.Draw(star, screenPos + offset, null, sparkleColor, rot, starOrigin, scale,
+                        Microsoft.Xna.Framework.Graphics.SpriteEffects.None, 0f);
+                }
+
+                // Center star (brighter, larger)
+                float centerRot = time * 0.01f;
+                Microsoft.Xna.Framework.Color centerColor = (themeColor with { A = 0 }) * 0.45f * opacity;
+                sb.Draw(star, screenPos, null, centerColor, centerRot, starOrigin, 0.35f,
+                    Microsoft.Xna.Framework.Graphics.SpriteEffects.None, 0f);
+            }
+
+            // Layer 3: Halo ring edge
+            Texture2D ring = GetHaloRing();
+            if (ring != null)
+            {
+                float ringScale = radius * 2f / ring.Width;
+                Microsoft.Xna.Framework.Color ringColor = (accentColor with { A = 0 }) * 0.2f * opacity;
+                float ringRot = time * 0.004f;
+                sb.Draw(ring, screenPos, null, ringColor, ringRot,
+                    new Vector2(ring.Width, ring.Height) * 0.5f, ringScale,
+                    Microsoft.Xna.Framework.Graphics.SpriteEffects.None, 0f);
+            }
         }
     }
 }

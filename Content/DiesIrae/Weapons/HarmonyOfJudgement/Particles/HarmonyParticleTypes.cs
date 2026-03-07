@@ -82,7 +82,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement.Particles
             Vector2 origin = tex.Size() / 2f;
             Vector2 pos = Position - Main.screenPosition;
             float alpha = MathF.Sin(Progress * MathF.PI) * 0.5f;
-            sb.Draw(tex, pos, null, DrawColor * alpha, Rotation + Time * _rotSpeed, origin, Scale, SpriteEffects.None, 0f);
+            sb.Draw(tex, pos, null, DrawColor * alpha, Rotation + Time * _rotSpeed, origin, MathHelper.Min(Scale, 0.586f), SpriteEffects.None, 0f);
         }
     }
 
@@ -112,7 +112,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement.Particles
             Vector2 pos = Position - Main.screenPosition;
 
             float t = Progress;
-            float scale = MathHelper.Lerp(_startScale, _endScale, 1f - MathF.Pow(1f - t, 3f));
+            float scale = MathHelper.Min(MathHelper.Lerp(_startScale, _endScale, 1f - MathF.Pow(1f - t, 3f)), 0.293f);
             float alpha = t < 0.15f ? t / 0.15f : MathF.Pow(1f - (t - 0.15f) / 0.85f, 2f);
 
             sb.Draw(tex, pos, null, DrawColor * alpha * 0.6f, 0f, origin, scale, SpriteEffects.None, 0f);
@@ -147,8 +147,8 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement.Particles
             Vector2 origin = tex.Size() / 2f;
             Vector2 pos = Position - Main.screenPosition;
             float alpha = (1f - Progress) * 0.7f;
-            sb.Draw(tex, pos, null, DrawColor * alpha, 0f, origin, Scale, SpriteEffects.None, 0f);
-            sb.Draw(tex, pos, null, DiesIraePalette.WrathWhite * alpha * 0.3f, 0f, origin, Scale * 0.4f, SpriteEffects.None, 0f);
+            sb.Draw(tex, pos, null, DrawColor * alpha, 0f, origin, MathHelper.Min(Scale, 0.139f), SpriteEffects.None, 0f);
+            sb.Draw(tex, pos, null, DiesIraePalette.WrathWhite * alpha * 0.3f, 0f, origin, MathHelper.Min(Scale * 0.4f, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -177,11 +177,11 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement.Particles
             float scale = Scale * (0.5f + 0.5f * MathF.Sin(t * MathF.PI * 0.5f));
 
             // Gold X
-            sb.Draw(tex, pos, null, DiesIraePalette.JudgmentGold * alpha * 0.7f, MathHelper.PiOver4, origin, scale, SpriteEffects.None, 0f);
+            sb.Draw(tex, pos, null, DiesIraePalette.JudgmentGold * alpha * 0.7f, MathHelper.PiOver4, origin, MathHelper.Min(scale, 0.293f), SpriteEffects.None, 0f);
             // White core X
-            sb.Draw(tex, pos, null, DiesIraePalette.WrathWhite * alpha * 0.4f, MathHelper.PiOver4, origin, scale * 0.6f, SpriteEffects.None, 0f);
+            sb.Draw(tex, pos, null, DiesIraePalette.WrathWhite * alpha * 0.4f, MathHelper.PiOver4, origin, MathHelper.Min(scale * 0.6f, 0.293f), SpriteEffects.None, 0f);
             // Crimson outer X
-            sb.Draw(tex, pos, null, DiesIraePalette.BloodRed * alpha * 0.3f, MathHelper.PiOver4, origin, scale * 1.3f, SpriteEffects.None, 0f);
+            sb.Draw(tex, pos, null, DiesIraePalette.BloodRed * alpha * 0.3f, MathHelper.PiOver4, origin, MathHelper.Min(scale * 1.3f, 0.293f), SpriteEffects.None, 0f);
         }
     }
 }

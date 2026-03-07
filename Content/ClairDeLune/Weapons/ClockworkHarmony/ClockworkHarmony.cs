@@ -24,7 +24,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony
             Item.width = 88;
             Item.height = 88;
             Item.DamageType = DamageClass.Ranged;
-            Item.damage = 220;
+            Item.damage = 3400; // Tier 10 (2800-4200 range)
             Item.useTime = 20;
             Item.useAnimation = 20;
             Item.useStyle = ItemUseStyleID.Shoot;

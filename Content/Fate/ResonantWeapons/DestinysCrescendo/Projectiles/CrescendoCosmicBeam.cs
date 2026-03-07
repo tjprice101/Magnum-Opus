@@ -269,13 +269,13 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.DestinysCrescendo
                 {
                     // Layer 1: Deity purple outer glow
                     spriteBatch.Draw(glowTex, drawPos, null, CrescendoUtils.DeityPurple * (0.35f * phaseGlow),
-                        0f, glowTex.Size() / 2f, 0.4f * phaseScale, SpriteEffects.None, 0f);
+                        0f, glowTex.Size() / 2f, MathHelper.Min(0.4f * phaseScale, 0.293f), SpriteEffects.None, 0f);
                     // Layer 2: Divine crimson mid bloom
                     spriteBatch.Draw(bloomTex, drawPos, null, CrescendoUtils.DivineCrimson * (0.45f * phaseGlow),
-                        0f, bloomTex.Size() / 2f, 0.2f * phaseScale, SpriteEffects.None, 0f);
+                        0f, bloomTex.Size() / 2f, MathHelper.Min(0.2f * phaseScale, 0.139f), SpriteEffects.None, 0f);
                     // Layer 3: Crescendo pink inner
                     spriteBatch.Draw(bloomTex, drawPos, null, CrescendoUtils.CrescendoPink * (0.55f * phaseGlow),
-                        0f, bloomTex.Size() / 2f, 0.12f * phaseScale, SpriteEffects.None, 0f);
+                        0f, bloomTex.Size() / 2f, MathHelper.Min(0.12f * phaseScale, 0.139f), SpriteEffects.None, 0f);
                     // Layer 4: Celestial white hot core
                     spriteBatch.Draw(bloomTex, drawPos, null, CrescendoUtils.CelestialWhite * (0.8f * phaseGlow),
                         0f, bloomTex.Size() / 2f, 0.06f * phaseScale, SpriteEffects.None, 0f);

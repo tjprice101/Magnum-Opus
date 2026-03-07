@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DamnationsCannon
         {
             Item.width = 80;
             Item.height = 36;
-            Item.damage = 3500;
+            Item.damage = 2350; // Tier 8 (1600-2400 range), slow cannon
             Item.DamageType = DamageClass.Ranged;
             Item.useTime = 45;
             Item.useAnimation = 45;
@@ -43,17 +43,6 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DamnationsCannon
                 ModContent.ProjectileType<Projectiles.IgnitedWrathBallProjectile>(),
                 damage, knockback, player.whoAmI);
             return false;
-        }
-
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-            .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.ResonantCoreOfDiesIrae>(), 25)
-            .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.DiesIraeResonantEnergy>(), 20)
-            .AddIngredient(ModContent.ItemType<Content.DiesIrae.HarmonicCores.HarmonicCoreOfDiesIrae>(), 3)
-            .AddIngredient(ItemID.LunarBar, 20)
-            .AddTile(ModContent.TileType<Content.Fate.CraftingStations.FatesCosmicAnvilTile>())
-            .Register();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)

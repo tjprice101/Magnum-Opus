@@ -218,7 +218,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
             //  LAYER 2: SHADER OVERLAY — crystalline fracture shard
             // ═══════════════════════════════════════════════════════
             EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.TacetBulletTrail,
-                bloomTex, drawPos, bloomTex.Size() / 2f, 0.9f,
+                bloomTex, drawPos, bloomTex.Size() / 2f, 0.139f,
                 TacetUtils.TacetPurple.ToVector3(), TacetUtils.ParadoxGreen.ToVector3(),
                 opacity: 0.5f, intensity: 1.1f, rotation: rotation,
                 noiseTexture: ShaderLoader.GetNoiseTexture("VoronoiNoise"),
@@ -231,24 +231,21 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // [0] DeadSilence — outer void halo
-            sb.Draw(bloomTex, drawPos, null, TacetUtils.DeadSilence * 0.12f, 0f,
-                bloomTex.Size() / 2f, 1.4f, SpriteEffects.None, 0f);
             // [1] MutedAbyss — deep glow
             sb.Draw(bloomTex, drawPos, null, TacetUtils.MutedAbyss * 0.2f, 0f,
-                bloomTex.Size() / 2f, 0.9f, SpriteEffects.None, 0f);
+                bloomTex.Size() / 2f, 0.04f, SpriteEffects.None, 0f);
             // [2] TacetPurple — bullet aura
             sb.Draw(bloomTex, drawPos, null, TacetUtils.TacetPurple * 0.4f, 0f,
-                bloomTex.Size() / 2f, 0.55f, SpriteEffects.None, 0f);
+                bloomTex.Size() / 2f, 0.025f, SpriteEffects.None, 0f);
             // [3] ParadoxGreen — paradox hint
             sb.Draw(bloomTex, drawPos, null, TacetUtils.ParadoxGreen * 0.35f, 0f,
-                bloomTex.Size() / 2f, 0.3f, SpriteEffects.None, 0f);
+                bloomTex.Size() / 2f, 0.014f, SpriteEffects.None, 0f);
             // [4] UnstableLime — hot edge
             sb.Draw(bloomTex, drawPos, null, TacetUtils.UnstableLime * 0.2f, 0f,
-                bloomTex.Size() / 2f, 0.18f, SpriteEffects.None, 0f);
+                bloomTex.Size() / 2f, 0.008f, SpriteEffects.None, 0f);
             // [5] FlashWhite — core
             sb.Draw(bloomTex, drawPos, null, TacetUtils.FlashWhite * 0.35f, 0f,
-                bloomTex.Size() / 2f, 0.1f, SpriteEffects.None, 0f);
+                bloomTex.Size() / 2f, 0.004f, SpriteEffects.None, 0f);
 
             // ═══════════════════════════════════════════════════════
             //  LAYER 4: THEME TEXTURES + ACCENTS
@@ -256,9 +253,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
             Texture2D starFlare = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
             float starRot = Main.GameUpdateCount * 0.04f;
             sb.Draw(starFlare, drawPos, null, TacetUtils.TacetPurple * 0.3f, starRot,
-                starFlare.Size() / 2f, 0.18f, SpriteEffects.None, 0f);
+                starFlare.Size() / 2f, 0.144f, SpriteEffects.None, 0f);
             sb.Draw(starFlare, drawPos, null, TacetUtils.ParadoxGreen * 0.2f, -starRot * 0.7f,
-                starFlare.Size() / 2f, 0.14f, SpriteEffects.None, 0f);
+                starFlare.Size() / 2f, 0.112f, SpriteEffects.None, 0f);
 
             EnigmaVFXLibrary.AddPulsingLight(Projectile.Center, TacetUtils.TacetPurple, 0.3f, 0.4f);
 
@@ -470,7 +467,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
             //  LAYER 2: SHADER OVERLAY — multi-ring moiré paradox cascade
             // ═══════════════════════════════════════════════════════
             EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.TacetParadoxExplosion,
-                bloomTex, drawPos, bloomTex.Size() / 2f, 1.5f,
+                bloomTex, drawPos, bloomTex.Size() / 2f, 0.139f,
                 TacetUtils.TacetPurple.ToVector3(), TacetUtils.UnstableLime.ToVector3(),
                 opacity: 0.55f, intensity: 1.2f,
                 noiseTexture: ShaderLoader.GetNoiseTexture("TileableFBMNoise"),
@@ -485,24 +482,21 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
 
             float corePulse = 0.35f + 0.08f * MathF.Sin(Main.GameUpdateCount * 0.12f);
 
-            // [0] DeadSilence — outer void halo
-            sb.Draw(bloomTex, drawPos, null, TacetUtils.DeadSilence * 0.18f, 0f,
-                bloomTex.Size() / 2f, 2.2f, SpriteEffects.None, 0f);
             // [1] MutedAbyss — deep glow
             sb.Draw(bloomTex, drawPos, null, TacetUtils.MutedAbyss * 0.28f, 0f,
-                bloomTex.Size() / 2f, 1.5f, SpriteEffects.None, 0f);
+                bloomTex.Size() / 2f, 0.055f, SpriteEffects.None, 0f);
             // [2] TacetPurple — paradox aura
             sb.Draw(bloomTex, drawPos, null, TacetUtils.TacetPurple * 0.45f, 0f,
-                bloomTex.Size() / 2f, 0.9f, SpriteEffects.None, 0f);
+                bloomTex.Size() / 2f, 0.035f, SpriteEffects.None, 0f);
             // [3] ParadoxGreen — paradox core
             sb.Draw(bloomTex, drawPos, null, TacetUtils.ParadoxGreen * 0.55f, 0f,
-                bloomTex.Size() / 2f, corePulse * 1.6f, SpriteEffects.None, 0f);
+                bloomTex.Size() / 2f, corePulse * 0.06f, SpriteEffects.None, 0f);
             // [4] UnstableLime — overload flash
             sb.Draw(bloomTex, drawPos, null, TacetUtils.UnstableLime * 0.35f, 0f,
-                bloomTex.Size() / 2f, corePulse * 0.9f, SpriteEffects.None, 0f);
+                bloomTex.Size() / 2f, corePulse * 0.035f, SpriteEffects.None, 0f);
             // [5] FlashWhite — paradox detonation core
             sb.Draw(bloomTex, drawPos, null, TacetUtils.FlashWhite * 0.5f, 0f,
-                bloomTex.Size() / 2f, corePulse * 0.4f, SpriteEffects.None, 0f);
+                bloomTex.Size() / 2f, corePulse * 0.015f, SpriteEffects.None, 0f);
 
             // ═══════════════════════════════════════════════════════
             //  LAYER 4: THEME TEXTURES — Enigma identity
@@ -513,27 +507,27 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
             float starFlareRot2 = -Main.GameUpdateCount * 0.03f;
             Color starFlareColor = Color.Lerp(TacetUtils.ParadoxGreen, TacetUtils.UnstableLime, 0.5f + 0.5f * MathF.Sin(Main.GameUpdateCount * 0.1f));
             sb.Draw(starFlareTex, drawPos, null, starFlareColor * 0.5f, starFlareRot1,
-                starFlareTex.Size() / 2f, 0.4f, SpriteEffects.None, 0f);
+                starFlareTex.Size() / 2f, 0.28f, SpriteEffects.None, 0f);
             sb.Draw(starFlareTex, drawPos, null, TacetUtils.TacetPurple * 0.35f, starFlareRot2,
-                starFlareTex.Size() / 2f, 0.3f, SpriteEffects.None, 0f);
+                starFlareTex.Size() / 2f, 0.21f, SpriteEffects.None, 0f);
 
             // EN Power Effect Ring — concentric paradox rings
             Texture2D powerRingTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Power Effect Ring", AssetRequestMode.ImmediateLoad).Value;
             float ringPulse = corePulse + 0.05f * MathF.Sin(Main.GameUpdateCount * 0.15f);
             sb.Draw(powerRingTex, drawPos, null, TacetUtils.ParadoxGreen * 0.3f, spinRotation * 0.5f,
-                powerRingTex.Size() / 2f, ringPulse, SpriteEffects.None, 0f);
+                powerRingTex.Size() / 2f, ringPulse * 0.7f, SpriteEffects.None, 0f);
             sb.Draw(powerRingTex, drawPos, null, TacetUtils.MutedAbyss * 0.2f, -spinRotation * 0.3f,
-                powerRingTex.Size() / 2f, ringPulse * 1.3f, SpriteEffects.None, 0f);
+                powerRingTex.Size() / 2f, ringPulse * 0.91f, SpriteEffects.None, 0f);
 
             // EN Enigma Eye — the paradox watches
             Texture2D enigmaEye = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Particles/EN Enigma Eye", AssetRequestMode.ImmediateLoad).Value;
             float eyePulse = 0.7f + 0.3f * MathF.Sin(Main.GameUpdateCount * 0.06f);
             sb.Draw(enigmaEye, drawPos, null, TacetUtils.FlashWhite * eyePulse * 0.35f, 0f,
-                enigmaEye.Size() / 2f, corePulse * 0.5f * eyePulse, SpriteEffects.None, 0f);
+                enigmaEye.Size() / 2f, corePulse * 0.35f * eyePulse, SpriteEffects.None, 0f);
 
             // Spinning glyph — the paradox sigil
             sb.Draw(glyphTex, drawPos, null, TacetUtils.ParadoxGreen * 0.55f, spinRotation,
-                glyphTex.Size() / 2f, 0.7f, SpriteEffects.None, 0f);
+                glyphTex.Size() / 2f, 0.49f, SpriteEffects.None, 0f);
 
             // ═══════════════════════════════════════════════════════
             //  LAYER 5: THEME ACCENTS — ambient pulsing light

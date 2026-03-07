@@ -246,19 +246,19 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Outer fire ring (large, orange)
-            float outerScale = MathHelper.Lerp(3f, 4.5f, progress) * pulse;
+            float outerScale = MathHelper.Lerp(0.17f, 0.29f, progress) * pulse;
             sb.Draw(bloomTex, screenPos, null,
                 DualFatedChimeUtils.Additive(new Color(200, 80, 0), 0.15f * pulse),
                 _spinAngle, origin, outerScale, SpriteEffects.None, 0f);
 
             // Mid ring (gold)
-            float midScale = MathHelper.Lerp(2f, 3f, progress) * pulse;
+            float midScale = MathHelper.Lerp(0.12f, 0.19f, progress) * pulse;
             sb.Draw(bloomTex, screenPos, null,
                 DualFatedChimeUtils.Additive(new Color(255, 180, 40), 0.2f * pulse),
                 -_spinAngle * 0.7f, origin, midScale, SpriteEffects.None, 0f);
 
             // Core (white-hot)
-            float coreScale = MathHelper.Lerp(1f, 1.5f, progress) * pulse;
+            float coreScale = MathHelper.Lerp(0.06f, 0.10f, progress) * pulse;
             sb.Draw(bloomTex, screenPos, null,
                 DualFatedChimeUtils.Additive(new Color(255, 240, 200), 0.35f),
                 0f, origin, coreScale, SpriteEffects.None, 0f);

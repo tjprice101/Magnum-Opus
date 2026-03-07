@@ -31,7 +31,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Particle
             Color shifting = ChromaticSwanUtils.GetChromatic(Progress);
 
             spriteBatch.Draw(tex, drawPos, null, shifting * alpha, 0f,
-                tex.Size() * 0.5f, Scale * 0.12f, SpriteEffects.None, 0f);
+                tex.Size() * 0.5f, MathHelper.Min(Scale * 0.12f, 0.139f), SpriteEffects.None, 0f);
 
             // Additive bloom overlay
             Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
@@ -47,7 +47,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Particle
     public class HarmonicNoteParticle : ChromaticParticle
     {
         private float _swayPhase;
-        public override bool UseAdditiveBlend => false;
+        public override bool UseAdditiveBlend => true; // PointBloom + SoftGlow have black bg
         protected override int SetLifetime() => 45 + Main.rand.Next(25);
 
         public override void Update()
@@ -70,7 +70,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Particle
             // Note body — white with chromatic tint
             Color noteColor = Color.Lerp(Color.White, ChromaticSwanUtils.GetChromatic(Progress * 2f), 0.4f);
             spriteBatch.Draw(tex, drawPos, null, noteColor * alpha, Rotation,
-                tex.Size() * 0.5f, new Vector2(Scale * 0.08f, Scale * 0.15f), SpriteEffects.None, 0f);
+                tex.Size() * 0.5f, new Vector2(MathHelper.Min(Scale * 0.08f, 0.139f), MathHelper.Min(Scale * 0.15f, 0.139f)), SpriteEffects.None, 0f);
 
             // Additive bloom overlay
             Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
@@ -123,7 +123,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Particle
             {
                 Color bloomCol = ChromaticSwanUtils.GetSpectrumColor(t * 0.5f);
                 spriteBatch.Draw(glow, Position - Main.screenPosition, null, bloomCol * alpha * 0.3f * Scale,
-                    0f, glow.Size() * 0.5f, radius / 40f, SpriteEffects.None, 0f);
+                    0f, glow.Size() * 0.5f, MathHelper.Min(radius / 40f, 0.586f), SpriteEffects.None, 0f);
             }
         }
     }
@@ -155,7 +155,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Particle
 
             // Elongated shard shape
             spriteBatch.Draw(tex, drawPos, null, col * alpha, Rotation,
-                tex.Size() * 0.5f, new Vector2(Scale * 0.05f, Scale * 0.2f), SpriteEffects.None, 0f);
+                tex.Size() * 0.5f, new Vector2(MathHelper.Min(Scale * 0.05f, 0.139f), MathHelper.Min(Scale * 0.2f, 0.139f)), SpriteEffects.None, 0f);
 
             // Additive bloom overlay
             Texture2D glow = MagnumTextureRegistry.GetSoftGlow();

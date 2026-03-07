@@ -91,19 +91,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             // Extra Harmonic Core in expert (1-2)
             itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<HarmonicCoreOfEnigma>(), 1, 1, 2));
             
-            // First weapon guaranteed (one from each damage type category)
-            itemLoot.Add(ItemDropRule.OneFromOptions(1,
-                ModContent.ItemType<VariationsOfTheVoidItem>(),      // Melee Sword
-                ModContent.ItemType<TheUnresolvedCadenceItem>(),     // Melee Broadsword
-                ModContent.ItemType<DissonanceOfSecrets>(),      // Magic Staff
-                ModContent.ItemType<CipherNocturne>(),           // Magic Beam
-                ModContent.ItemType<FugueOfTheUnknown>()));      // Magic Tome
-            
-            // Second weapon 50% chance (remaining types)
-            itemLoot.Add(ItemDropRule.OneFromOptions(2,
-                ModContent.ItemType<TheWatchingRefrain>(),       // Summon
-                ModContent.ItemType<TheSilentMeasure>(),         // Ranged Gun
-                ModContent.ItemType<TacetsEnigma>()));
+            // 3 random weapons (no duplicates) — custom drop rule
+            itemLoot.Add(new EnigmaTreasureBagWeaponRule());
             
             // Class-specific accessory (one random drop)
             itemLoot.Add(ItemDropRule.OneFromOptions(1,
@@ -118,6 +107,53 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             // Enigma mystical shimmer
             float pulse = (float)System.Math.Sin(Main.GameUpdateCount * 0.05f) * 0.15f + 0.85f;
             return new Color((int)(220 * pulse), (int)(180 * pulse), (int)(255 * pulse), 255);
+        }
+    }
+
+    /// <summary>
+    /// Custom drop rule: drops 3 random weapons without duplicates from the full Enigma weapon pool.
+    /// </summary>
+    public class EnigmaTreasureBagWeaponRule : IItemDropRule
+    {
+        public List<IItemDropRuleChainAttempt> ChainedRules => new List<IItemDropRuleChainAttempt>();
+        public bool CanDrop(DropAttemptInfo info) => true;
+
+        public void ReportDroprates(List<DropRateInfo> drops, DropRateInfoChainFeed ratesInfo)
+        {
+            int[] possibleDrops = GetPossibleDrops();
+            float individualChance = 3f / possibleDrops.Length;
+            foreach (int itemType in possibleDrops)
+                drops.Add(new DropRateInfo(itemType, 1, 1, individualChance, ratesInfo.conditions));
+        }
+
+        public ItemDropAttemptResult TryDroppingItem(DropAttemptInfo info)
+        {
+            int[] possibleDrops = GetPossibleDrops();
+            List<int> shuffled = new List<int>(possibleDrops);
+            for (int i = shuffled.Count - 1; i > 0; i--)
+            {
+                int j = Main.rand.Next(i + 1);
+                (shuffled[i], shuffled[j]) = (shuffled[j], shuffled[i]);
+            }
+            for (int i = 0; i < 3 && i < shuffled.Count; i++)
+                CommonCode.DropItem(info, shuffled[i], 1);
+            
+            return new ItemDropAttemptResult { State = ItemDropAttemptResultState.Success };
+        }
+
+        private int[] GetPossibleDrops()
+        {
+            return new int[]
+            {
+                ModContent.ItemType<VariationsOfTheVoidItem>(),      // Melee Sword
+                ModContent.ItemType<TheUnresolvedCadenceItem>(),     // Melee Broadsword
+                ModContent.ItemType<DissonanceOfSecrets>(),          // Magic Staff
+                ModContent.ItemType<CipherNocturne>(),               // Magic Beam
+                ModContent.ItemType<FugueOfTheUnknown>(),            // Magic Tome
+                ModContent.ItemType<TheWatchingRefrain>(),           // Summon
+                ModContent.ItemType<TheSilentMeasure>(),             // Ranged Gun
+                ModContent.ItemType<TacetsEnigma>()                  // Ranged
+            };
         }
     }
 }

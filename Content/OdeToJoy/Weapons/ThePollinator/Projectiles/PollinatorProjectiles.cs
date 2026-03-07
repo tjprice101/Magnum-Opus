@@ -85,7 +85,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator.Projectiles
                     PollinatorTextures.RadiantAmber, fade * 0.5f * pulse, 1.8f, 0.25f);
                 OdeToJoyShaders.BeginDeferredShaderBatch(sb, pollenShader, "PollenTrailTechnique");
                 sb.Draw(glowTex, drawPos, null, Color.White * fade * pulse, Projectile.rotation,
-                    glowOrigin, 0.4f, SpriteEffects.None, 0f);
+                    glowOrigin, 0.28f, SpriteEffects.None, 0f);
                 sb.End();
             }
 
@@ -93,7 +93,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator.Projectiles
             OdeToJoyShaders.BeginAdditiveBatch(sb);
 
             sb.Draw(glowTex, drawPos, null, PollinatorTextures.BloomGold * fade * 0.35f * pulse, 0f,
-                glowOrigin, 0.45f, SpriteEffects.None, 0f);
+                glowOrigin, 0.28f, SpriteEffects.None, 0f);
             sb.Draw(glowTex, drawPos, null, PollinatorTextures.RadiantAmber * fade * 0.5f, 0f,
                 glowOrigin, 0.22f, SpriteEffects.None, 0f);
             sb.Draw(sparkleTex, drawPos, null, PollinatorTextures.JubilantLight * fade * 0.7f,
@@ -210,7 +210,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator.Projectiles
                     PollinatorTextures.PetalPink, fadeOut * 0.5f, 2.2f, expand * 0.25f);
                 OdeToJoyShaders.BeginDeferredShaderBatch(sb, pollenShader, "BloomDetonationTechnique");
                 sb.Draw(glowTex, drawPos, null, Color.White * fadeOut, progress * 2f, glowOrigin,
-                    expand * 0.6f, SpriteEffects.None, 0f);
+                    Math.Min(expand * 0.6f, 0.293f), SpriteEffects.None, 0f);
                 sb.End();
             }
 
@@ -222,9 +222,9 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator.Projectiles
             sb.Draw(floralTex, drawPos, null, PollinatorTextures.PetalPink * fadeOut * 0.4f, -progress,
                 floralOrigin, expand * 0.5f, SpriteEffects.None, 0f);
             sb.Draw(glowTex, drawPos, null, PollinatorTextures.BloomGold * fadeOut * 0.25f, 0f, glowOrigin,
-                expand * 1.0f, SpriteEffects.None, 0f);
+                Math.Min(expand * 1.0f, 0.293f), SpriteEffects.None, 0f);
             sb.Draw(glowTex, drawPos, null, PollinatorTextures.JubilantLight * fadeOut * 0.5f, 0f, glowOrigin,
-                expand * 0.2f, SpriteEffects.None, 0f);
+                Math.Min(expand * 0.2f, 0.293f), SpriteEffects.None, 0f);
 
             // Theme blossom sparkle accent
             OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
@@ -416,7 +416,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator.Projectiles
                 auraShader.Parameters["uRotation"]?.SetValue(_timer * 0.005f);
                 OdeToJoyShaders.BeginDeferredShaderBatch(sb, auraShader, "FloralSigilTechnique");
                 sb.Draw(glowTex, drawPos, null, Color.White * fade * pulse, 0f, glowOrigin,
-                    0.7f, SpriteEffects.None, 0f);
+                    0.28f, SpriteEffects.None, 0f);
                 sb.End();
             }
 
@@ -426,7 +426,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator.Projectiles
             sb.Draw(maskTex, drawPos, null, PollinatorTextures.BloomGold * fade * 0.15f * pulse,
                 _timer * 0.005f, maskOrigin, 0.6f, SpriteEffects.None, 0f);
             sb.Draw(glowTex, drawPos, null, PollinatorTextures.JubilantLight * fade * 0.25f * pulse,
-                0f, glowOrigin, 0.7f, SpriteEffects.None, 0f);
+                0f, glowOrigin, 0.28f, SpriteEffects.None, 0f);
             sb.Draw(glowTex, drawPos, null, PollinatorTextures.PureJoyWhite * fade * 0.15f, 0f, glowOrigin,
                 0.25f, SpriteEffects.None, 0f);
 

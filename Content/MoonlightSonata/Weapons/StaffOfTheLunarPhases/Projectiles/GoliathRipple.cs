@@ -48,6 +48,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
         private static Asset<Texture2D> _glowOrb;
         private static Asset<Texture2D> _softCircle;
         private static Asset<Texture2D> _noisePerlin;
+        private static Asset<Texture2D> _gradientLUT;
+
+        private static readonly string GradientLUTPath = "MagnumOpus/Assets/VFX Asset Library/ColorGradients/MoonlightSonataGradientLUTandRAMP";
 
         private int LunarPhase => (int)Projectile.ai[0];
         private bool IsDevastating => Projectile.ai[1] >= 0.5f;
@@ -159,17 +162,17 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
             Color phaseColor = GetPhaseColor(0.8f);
             Color coreColor = GoliathUtils.StarCore;
 
-            // Core flash — white-hot
+            // Core flash — white-hot (SoftGlow 1024px — cap to 300px max)
             sb.Draw(glow, drawPos, null, coreColor * (0.7f * flashAlpha * devMult), 0f,
-                origin, 0.3f * devMult, SpriteEffects.None, 0f);
+                origin, MathHelper.Min(0.3f * devMult, 0.293f), SpriteEffects.None, 0f);
 
             // Mid flash — ice blue
             sb.Draw(glow, drawPos, null, GoliathUtils.IceBlueBrilliance * (0.5f * flashAlpha * devMult), 0f,
-                origin, 0.5f * devMult, SpriteEffects.None, 0f);
+                origin, MathHelper.Min(0.5f * devMult, 0.293f), SpriteEffects.None, 0f);
 
             // Outer flash — phase-tinted
             sb.Draw(glow, drawPos, null, phaseColor * (0.3f * flashAlpha * devMult), 0f,
-                origin, 0.7f * devMult, SpriteEffects.None, 0f);
+                origin, MathHelper.Min(0.7f * devMult, 0.293f), SpriteEffects.None, 0f);
         }
 
         private void DrawRippleShader(SpriteBatch sb, Vector2 drawPos, float t,
@@ -191,16 +194,21 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
             Color midColor = GetPhaseColor(0.6f);
             Color coreColor = GoliathUtils.StarCore;
 
-            // Configure shader
+            // Configure shader — using correct parameter names matching RippleShader.fx
             rippleShader.Parameters["uTime"]?.SetValue((float)Main.timeForVisualEffects * 0.03f + seed);
+            rippleShader.Parameters["progress"]?.SetValue(expansion);
             rippleShader.Parameters["ringCount"]?.SetValue((float)ringCount);
             rippleShader.Parameters["ringThickness"]?.SetValue(0.035f);
-            rippleShader.Parameters["expansionProgress"]?.SetValue(expansion);
-            rippleShader.Parameters["noiseStrength"]?.SetValue(0.06f + t * 0.08f);
-            rippleShader.Parameters["edgeColor"]?.SetValue(edgeColor.ToVector3());
-            rippleShader.Parameters["midColor"]?.SetValue(midColor.ToVector3());
+            rippleShader.Parameters["primaryColor"]?.SetValue(edgeColor.ToVector3());
+            rippleShader.Parameters["secondaryColor"]?.SetValue(midColor.ToVector3());
             rippleShader.Parameters["coreColor"]?.SetValue(coreColor.ToVector3());
+            rippleShader.Parameters["fadeAlpha"]?.SetValue(alpha);
             rippleShader.Parameters["noiseTex"]?.SetValue(_noisePerlin.Value);
+
+            // Bind Moonlight Sonata LUT gradient for theme-consistent ring coloring
+            _gradientLUT ??= ModContent.Request<Texture2D>(GradientLUTPath);
+            rippleShader.Parameters["gradientTex"]?.SetValue(_gradientLUT.Value);
+            rippleShader.Parameters["useGradient"]?.SetValue(1f);
 
             // Shader batch
             sb.End();
@@ -228,7 +236,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
             Vector2 origin = glowOrb.Size() / 2f;
 
             Color phaseOuter = GetPhaseColor(0.4f);
-            float bloomScale = (0.15f + expansion * 0.25f) * devMult;
+            float bloomScale = MathHelper.Min((0.15f + expansion * 0.25f) * devMult, 0.293f); // GlowOrb 1024px — cap to 300px max
             float bloomAlpha = alpha * 0.3f * devMult;
 
             sb.Draw(glowOrb, drawPos, null, phaseOuter * bloomAlpha, 0f,

@@ -302,13 +302,6 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            // Draw particles once per frame (guard)
-            if (_lastDrawFrame != Main.GameUpdateCount)
-            {
-                _lastDrawFrame = Main.GameUpdateCount;
-                FermataParticleHandler.DrawAll(Main.spriteBatch);
-            }
-
             SpriteBatch sb = Main.spriteBatch;
             Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -316,6 +309,13 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Projectiles
 
             try
             {
+                // Draw particles once per frame (guard)
+                if (_lastDrawFrame != Main.GameUpdateCount)
+                {
+                    _lastDrawFrame = Main.GameUpdateCount;
+                    FermataParticleHandler.DrawAll(sb);
+                }
+
                 // Draw trail (SpriteBatch-based, handles its own additive state)
                 _trail?.Draw(sb, _spectralAlpha);
 

@@ -167,8 +167,8 @@ namespace MagnumOpus.Content.Fate.Bosses
             NPC.width = 480;
             NPC.height = 268;
             NPC.damage = BaseDamage;
-            NPC.defense = 140;      // ENDGAME defense - higher than Swan Lake (110)
-            NPC.lifeMax = 3000000;   // ENDGAME BOSS - 3 million HP (must defeat TWICE due to True Form)
+            NPC.defense = 140;      // Tier 6 MILESTONE defense - higher than Swan Lake (110)
+            NPC.lifeMax = 3000000;   // Tier 6 MILESTONE - 3M Normal (1.5M per form × 2, Expert 6M, Master 9M via auto-scaling)
             NPC.HitSound = SoundID.NPCHit14;
             NPC.DeathSound = SoundID.NPCDeath14;
             NPC.knockBackResist = 0f;

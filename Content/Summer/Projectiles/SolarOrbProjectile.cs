@@ -702,12 +702,12 @@ namespace MagnumOpus.Content.Summer.Projectiles
             if (glowTex != null && bloomTex != null)
             {
                 float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.15f + 1f;
-                // Wide solar outer glow
+                // Wide solar outer glow (capped 300px max)
                 sb.Draw(glowTex, drawPos, null, SunOrange * 0.4f, 0f,
-                    glowTex.Size() / 2f, 0.4f * pulse, SpriteEffects.None, 0f);
-                // Mid golden bloom
+                    glowTex.Size() / 2f, 0.25f * pulse, SpriteEffects.None, 0f);
+                // Mid golden bloom (capped 300px max)
                 sb.Draw(bloomTex, drawPos, null, SunGold * 0.55f, 0f,
-                    bloomTex.Size() / 2f, 0.2f * pulse, SpriteEffects.None, 0f);
+                    bloomTex.Size() / 2f, 0.12f * pulse, SpriteEffects.None, 0f);
                 // White-hot center
                 sb.Draw(bloomTex, drawPos, null, SunWhite * 0.7f, 0f,
                     bloomTex.Size() / 2f, 0.08f * pulse, SpriteEffects.None, 0f);

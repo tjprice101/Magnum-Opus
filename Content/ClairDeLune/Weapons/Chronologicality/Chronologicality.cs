@@ -23,7 +23,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality
         public override void SetDefaults()
         {
             Item.DamageType = DamageClass.MeleeNoSpeed;
-            Item.damage = 285;
+            Item.damage = 450; // Tier 10 (2800-4200 range), speed-proportional for useTime=1 chainsaw
             Item.width = 58;
             Item.height = 28;
             Item.useTime = 1;

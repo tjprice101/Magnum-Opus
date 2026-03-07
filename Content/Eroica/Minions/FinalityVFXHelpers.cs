@@ -102,7 +102,7 @@ namespace MagnumOpus.Content.Eroica.Minions
                 Color col = settings.ColorFunction(completion);
                 col.A = 0;
 
-                float scale = width / 32f;
+                float scale = width / (float)bloom.Width;
                 Vector2 drawPos = positions[i] - Main.screenPosition;
                 sb.Draw(bloom, drawPos, null, col, 0f, origin, scale, SpriteEffects.None, 0f);
             }
@@ -144,8 +144,9 @@ namespace MagnumOpus.Content.Eroica.Minions
             if (tex == null) return;
             Vector2 drawPos = Position - Main.screenPosition;
             Vector2 origin = tex.Size() * 0.5f;
+            float maxScale = 300f / tex.Width;
             Color drawColor = Color with { A = 0 } * (1f - LifetimeCompletion);
-            spriteBatch.Draw(tex, drawPos, null, drawColor, 0f, origin, Scale, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, drawColor, 0f, origin, MathF.Min(Scale, maxScale), SpriteEffects.None, 0f);
         }
     }
 
@@ -274,9 +275,10 @@ namespace MagnumOpus.Content.Eroica.Minions
             if (tex == null) return;
             Vector2 drawPos = Position - Main.screenPosition;
             Vector2 origin = tex.Size() * 0.5f;
+            float maxScale = 300f / tex.Width;
             float fade = 1f - LifetimeCompletion;
             Color drawColor = Color with { A = 0 } * fade;
-            spriteBatch.Draw(tex, drawPos, null, drawColor, 0f, origin, Scale * 0.3f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, drawColor, 0f, origin, MathF.Min(Scale * 0.3f, maxScale), SpriteEffects.None, 0f);
         }
     }
 

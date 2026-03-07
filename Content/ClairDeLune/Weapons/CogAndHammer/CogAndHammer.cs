@@ -26,7 +26,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.CogAndHammer
         {
             Item.width = 64;
             Item.height = 32;
-            Item.damage = 200;
+            Item.damage = 3500; // Tier 10 (2800-4200 range), slow ranged
             Item.DamageType = DamageClass.Ranged;
             Item.useTime = 35;
             Item.useAnimation = 35;

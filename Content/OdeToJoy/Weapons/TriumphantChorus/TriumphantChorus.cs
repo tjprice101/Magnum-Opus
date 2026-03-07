@@ -24,7 +24,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus
         {
             Item.width = 46;
             Item.height = 46;
-            Item.damage = 3400;
+            Item.damage = 3000; // Tier 9 (2100-3200 range)
             Item.DamageType = DamageClass.Summon;
             Item.mana = 35;
             Item.useTime = 35;
@@ -63,17 +63,6 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus
             }
 
             return false;
-        }
-
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-            .AddIngredient(ModContent.ItemType<ResonantCoreOfOdeToJoy>(), 30)
-            .AddIngredient(ModContent.ItemType<OdeToJoyResonantEnergy>(), 25)
-            .AddIngredient(ModContent.ItemType<HarmonicCoreOfOdeToJoy>(), 4)
-            .AddIngredient(ItemID.LunarBar, 25)
-            .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
-            .Register();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)

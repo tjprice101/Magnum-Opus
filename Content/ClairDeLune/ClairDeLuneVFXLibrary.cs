@@ -12,14 +12,14 @@ using MagnumOpus.Common.Systems.Particles;
 namespace MagnumOpus.Content.ClairDeLune
 {
     /// <summary>
-    /// Shared Clair de Lune VFX library — canonical palette, bloom stacking,
+    /// Shared Clair de Lune VFX library  Ecanonical palette, bloom stacking,
     /// shader setup, trail helpers, music notes, dust, pearl shimmer, moonlit mist,
     /// and impact VFX used by ALL Clair de Lune weapons, accessories, projectiles,
     /// minions, and enemies.
     ///
     /// Theme identity: Debussy's moonlit reverie meeting clockwork temporal power.
     /// Dreamy blue-pearl shimmer, gentle moonlit mist, starlit sparkles,
-    /// impressionistic haze — the supreme final boss tier.
+    /// impressionistic haze  Ethe supreme final boss tier.
     /// </summary>
     public static class ClairDeLuneVFXLibrary
     {
@@ -148,6 +148,9 @@ namespace MagnumOpus.Content.ClairDeLune
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.115) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 1.209f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
@@ -156,19 +159,19 @@ namespace MagnumOpus.Content.ClairDeLune
 
             // Layer 1: Outer midnight blue halo
             sb.Draw(bloom, drawPos, null,
-                (outer with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 2.0f, SpriteEffects.None, 0f);
+                (outer with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 0.115f, SpriteEffects.None, 0f);
 
             // Layer 2: Mid soft blue glow
             sb.Draw(bloom, drawPos, null,
-                (outer with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 1.4f, SpriteEffects.None, 0f);
+                (outer with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.08f, SpriteEffects.None, 0f);
 
             // Layer 3: Inner pearl blue bloom
             sb.Draw(bloom, drawPos, null,
-                (inner with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f);
+                (inner with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.052f, SpriteEffects.None, 0f);
 
             // Layer 4: Pearl white-hot core
             sb.Draw(bloom, drawPos, null,
-                (WhiteHot with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
+                (WhiteHot with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.023f, SpriteEffects.None, 0f);
         }
 
         /// <summary>
@@ -180,21 +183,24 @@ namespace MagnumOpus.Content.ClairDeLune
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.115) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 1.209f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
             sb.Draw(bloom, drawPos, null,
-                (outerColor with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 2.0f, SpriteEffects.None, 0f);
+                (outerColor with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 0.115f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (outerColor with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 1.4f, SpriteEffects.None, 0f);
+                (outerColor with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.08f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (innerColor with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f);
+                (innerColor with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.052f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
+                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.023f, SpriteEffects.None, 0f);
         }
 
         /// <summary>
-        /// Bloom sandwich layer — renders bloom BEHIND a projectile body for depth.
+        /// Bloom sandwich layer  Erenders bloom BEHIND a projectile body for depth.
         /// Call before drawing the projectile sprite, then call again after for front glow.
         /// </summary>
         public static void DrawBloomSandwichLayer(SpriteBatch sb, Vector2 worldPos,
@@ -203,6 +209,9 @@ namespace MagnumOpus.Content.ClairDeLune
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.14) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 0.993f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
@@ -210,22 +219,22 @@ namespace MagnumOpus.Content.ClairDeLune
             {
                 // Behind layer: larger, softer, midnight blue
                 sb.Draw(bloom, drawPos, null,
-                    (MidnightBlue with { A = 0 }) * 0.25f * opacity, 0f, origin, scale * 2.5f, SpriteEffects.None, 0f);
+                    (MidnightBlue with { A = 0 }) * 0.25f * opacity, 0f, origin, scale * 0.14f, SpriteEffects.None, 0f);
                 sb.Draw(bloom, drawPos, null,
-                    (SoftBlue with { A = 0 }) * 0.35f * opacity, 0f, origin, scale * 1.6f, SpriteEffects.None, 0f);
+                    (SoftBlue with { A = 0 }) * 0.35f * opacity, 0f, origin, scale * 0.09f, SpriteEffects.None, 0f);
             }
             else
             {
                 // Front layer: smaller, brighter, pearl -> white
                 sb.Draw(bloom, drawPos, null,
-                    (PearlBlue with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.8f, SpriteEffects.None, 0f);
+                    (PearlBlue with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.046f, SpriteEffects.None, 0f);
                 sb.Draw(bloom, drawPos, null,
-                    (Color.White with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.35f, SpriteEffects.None, 0f);
+                    (Color.White with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.02f, SpriteEffects.None, 0f);
             }
         }
 
         /// <summary>
-        /// Counter-rotating double flare — two bloom textures spinning in opposite directions.
+        /// Counter-rotating double flare  Etwo bloom textures spinning in opposite directions.
         /// Creates dreamy moonlit energy appearance at projectile centers.
         /// </summary>
         public static void DrawCounterRotatingFlares(SpriteBatch sb, Vector2 worldPos,
@@ -233,6 +242,9 @@ namespace MagnumOpus.Content.ClairDeLune
         {
             Texture2D flare = MagnumTextureRegistry.GetFlare();
             if (flare == null) return;
+
+            // 1024px flare — cap so largest layer (scale*0.7) ≤ 0.293 → ≤300px
+            scale = MathHelper.Min(scale, 0.419f);
 
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = flare.Size() * 0.5f;
@@ -251,7 +263,7 @@ namespace MagnumOpus.Content.ClairDeLune
         /// <summary>
         /// Standard Clair de Lune bloom at a blade tip or projectile centre.
         /// Uses the two-colour overload (MidnightBlue outer -> PearlBlue inner).
-        /// Safe to call from PreDraw — handles SpriteBatch state internally.
+        /// Safe to call from PreDraw  Ehandles SpriteBatch state internally.
         /// </summary>
         public static void DrawBloom(Vector2 worldPos, float scale, float opacity = 1f)
         {
@@ -304,7 +316,7 @@ namespace MagnumOpus.Content.ClairDeLune
         }
 
         /// <summary>
-        /// Thin precision trail for clockwork weapons — surgical temporal cut.
+        /// Thin precision trail for clockwork weapons  Esurgical temporal cut.
         /// </summary>
         public static float PrecisionTrailWidth(float completionRatio, float baseWidth = 6f)
         {
@@ -313,7 +325,7 @@ namespace MagnumOpus.Content.ClairDeLune
         }
 
         /// <summary>
-        /// Thick dreamy trail for heavy weapons — cascading moonlit sweep.
+        /// Thick dreamy trail for heavy weapons  Ecascading moonlit sweep.
         /// </summary>
         public static float DreamyTrailWidth(float completionRatio, float baseWidth = 16f)
         {
@@ -415,7 +427,7 @@ namespace MagnumOpus.Content.ClairDeLune
         }
 
         /// <summary>
-        /// Clair de Lune dual-color swing dust — alternating blue and white shimmer.
+        /// Clair de Lune dual-color swing dust  Ealternating blue and white shimmer.
         /// </summary>
         public static void SpawnMoonlitSwingDust(Vector2 pos, Vector2 awayDirection)
         {
@@ -449,7 +461,7 @@ namespace MagnumOpus.Content.ClairDeLune
         }
 
         /// <summary>
-        /// Pearl shimmer sparkle dust — call every other frame for dreamy trail.
+        /// Pearl shimmer sparkle dust  Ecall every other frame for dreamy trail.
         /// </summary>
         public static void SpawnPearlSparkle(Vector2 pos, Vector2 awayDirection)
         {
@@ -463,7 +475,7 @@ namespace MagnumOpus.Content.ClairDeLune
 
         /// <summary>
         /// Spawn pearl shimmer particles around a position.
-        /// The signature Clair de Lune ambient sparkle — soft, dreamy, luminous.
+        /// The signature Clair de Lune ambient sparkle  Esoft, dreamy, luminous.
         /// </summary>
         public static void SpawnPearlShimmer(Vector2 pos, int count = 3, float radius = 40f, float scale = 0.25f)
         {
@@ -549,7 +561,7 @@ namespace MagnumOpus.Content.ClairDeLune
         // ─────────── CLAIR DE LUNE SPECIFIC VFX: STARLIT SPARKLE ───────────
 
         /// <summary>
-        /// Spawn starlit sparkle particles — tiny twinkling points of light.
+        /// Spawn starlit sparkle particles  Etiny twinkling points of light.
         /// Creates the starlit cloud effect above moonlit water.
         /// </summary>
         public static void SpawnStarlitSparkles(Vector2 pos, int count = 5, float radius = 35f, float scale = 0.2f)
@@ -588,7 +600,7 @@ namespace MagnumOpus.Content.ClairDeLune
         // ─────────── IMPACTS ───────────
 
         /// <summary>
-        /// Full Clair de Lune melee impact VFX — bloom flash, halo cascade,
+        /// Full Clair de Lune melee impact VFX  Ebloom flash, halo cascade,
         /// radial dust burst, pearl shimmer, and music note scatter.
         /// Scales with combo step. Dreamy yet powerful for the supreme final boss tier.
         /// </summary>
@@ -619,7 +631,7 @@ namespace MagnumOpus.Content.ClairDeLune
         }
 
         /// <summary>
-        /// Projectile death / on-kill VFX — bigger, flashier version of MeleeImpact.
+        /// Projectile death / on-kill VFX  Ebigger, flashier version of MeleeImpact.
         /// Includes pearl burst, converging mist, and enhanced bloom.
         /// </summary>
         public static void ProjectileImpact(Vector2 pos, float intensity = 1f)
@@ -659,7 +671,7 @@ namespace MagnumOpus.Content.ClairDeLune
         // ─────────── FINISHER EFFECTS ───────────
 
         /// <summary>
-        /// Phase-3 / finisher slam VFX — screen shake, massive bloom, moonlit cascade,
+        /// Phase-3 / finisher slam VFX  Escreen shake, massive bloom, moonlit cascade,
         /// pearl burst, star scatter, music note shower.
         /// The ultimate Clair de Lune impact for the supreme final boss tier.
         /// </summary>
@@ -710,7 +722,7 @@ namespace MagnumOpus.Content.ClairDeLune
         // ─────────── AMBIENT VFX (for accessories, idle effects) ───────────
 
         /// <summary>
-        /// Ambient dreamy aura — call every few frames for gentle passive VFX.
+        /// Ambient dreamy aura  Ecall every few frames for gentle passive VFX.
         /// Spawns sparse mist and occasional pearl sparkle around the player/entity.
         /// </summary>
         public static void AmbientDreamyAura(Vector2 center, float time, float radius = 40f)
@@ -728,7 +740,7 @@ namespace MagnumOpus.Content.ClairDeLune
         }
 
         /// <summary>
-        /// Clockwork ambient aura — call for gear-themed accessories and weapons.
+        /// Clockwork ambient aura  Ecall for gear-themed accessories and weapons.
         /// Adds subtle brass-gold shimmer to the dreamy base effect.
         /// </summary>
         public static void AmbientClockworkAura(Vector2 center, float time, float radius = 35f)
@@ -816,7 +828,7 @@ namespace MagnumOpus.Content.ClairDeLune
         }
 
         /// <summary>
-        /// Draws a themed clock face shard — large, ethereal clockwork accent.
+        /// Draws a themed clock face shard  Elarge, ethereal clockwork accent.
         /// Best used as a background layer during special attacks.
         /// </summary>
         public static void DrawThemeClockFaceShard(SpriteBatch sb, Vector2 worldPos,
@@ -849,7 +861,7 @@ namespace MagnumOpus.Content.ClairDeLune
 
         /// <summary>
         /// Draws a subtle layered theme accent (radial star + impact ring + clockwork gear)
-        /// around a projectile. Manages SpriteBatch state internally — safe to call from
+        /// around a projectile. Manages SpriteBatch state internally  Esafe to call from
         /// PreDraw at any blend-state point.
         /// </summary>
         public static void DrawThemeAccents(SpriteBatch sb, Vector2 worldPos,

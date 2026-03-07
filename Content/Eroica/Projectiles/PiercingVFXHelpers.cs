@@ -190,11 +190,12 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Vector2 drawPos = Position - Main.screenPosition;
             Color drawColor = Color;
             drawColor.A = 0;
+            float maxScale = 300f / bloomTex.Width;
 
             // Outer glow
-            spriteBatch.Draw(bloomTex, drawPos, null, drawColor * 0.4f, 0f, origin, Scale * 1.5f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(bloomTex, drawPos, null, drawColor * 0.4f, 0f, origin, MathF.Min(Scale * 1.5f, maxScale), SpriteEffects.None, 0f);
             // Hot core
-            spriteBatch.Draw(bloomTex, drawPos, null, Color.White * 0.6f * (1f - LifetimeCompletion), 0f, origin, Scale * 0.6f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(bloomTex, drawPos, null, Color.White * 0.6f * (1f - LifetimeCompletion), 0f, origin, MathF.Min(Scale * 0.6f, maxScale), SpriteEffects.None, 0f);
         }
     }
 
@@ -319,16 +320,17 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Color drawColor = Color;
             drawColor.A = 0;
             float fade = 1f - LifetimeCompletion;
+            float maxScale = 300f / bloomTex.Width;
 
             // Multi-layer star burst
             // Outer glow sphere
-            spriteBatch.Draw(bloomTex, drawPos, null, drawColor * 0.3f * fade, 0f, origin, Scale * 2f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(bloomTex, drawPos, null, drawColor * 0.3f * fade, 0f, origin, MathF.Min(Scale * 2f, maxScale), SpriteEffects.None, 0f);
             // Mid layer
-            spriteBatch.Draw(bloomTex, drawPos, null, drawColor * 0.5f * fade, 0f, origin, Scale * 1.2f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(bloomTex, drawPos, null, drawColor * 0.5f * fade, 0f, origin, MathF.Min(Scale * 1.2f, maxScale), SpriteEffects.None, 0f);
             // Core
             Color coreColor = Color.White;
             coreColor.A = 0;
-            spriteBatch.Draw(bloomTex, drawPos, null, coreColor * 0.7f * fade, 0f, origin, Scale * 0.5f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(bloomTex, drawPos, null, coreColor * 0.7f * fade, 0f, origin, MathF.Min(Scale * 0.5f, maxScale), SpriteEffects.None, 0f);
         }
     }
 

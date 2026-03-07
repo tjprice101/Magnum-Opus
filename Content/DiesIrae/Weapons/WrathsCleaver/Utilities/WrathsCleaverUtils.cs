@@ -124,13 +124,13 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Utilities
             float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.15f;
             float stepScale = 0.04f + comboStep * 0.015f;
 
-            // Outer radial bloom
+            // Outer radial bloom (capped 300px max)
             if (radial != null)
             {
                 Vector2 radOrigin = radial.Size() * 0.5f;
                 Color radColor = EmberOrange * (0.5f * intensity);
                 radColor.A = 0;
-                sb.Draw(radial, tipScreen, null, radColor, 0f, radOrigin, stepScale * 2.5f * pulse, SpriteEffects.None, 0f);
+                sb.Draw(radial, tipScreen, null, radColor, 0f, radOrigin, MathHelper.Min(stepScale * 1.8f * pulse, 0.139f), SpriteEffects.None, 0f);
             }
 
             // Mid glow

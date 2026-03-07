@@ -237,31 +237,34 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer.Projectiles
             float fadeOut = 1f - progress;
             float expandMult = 0.3f + progress * 3f;
 
+            // Cap all SoftRadialBloom draws to 300px max (0.139 on 2160px)
+            float maxSrbScale = 0.139f;
+
             // Outer NightMist haze
             sb.Draw(srb, drawPos, null,
                 ClairDeLunePalette.NightMist with { A = 0 } * 0.2f * fadeOut, 0f, srb.Size() * 0.5f,
-                expandMult * ExpansionRadius * 2f / srb.Width, SpriteEffects.None, 0f);
+                MathHelper.Min(expandMult * ExpansionRadius * 2f / srb.Width, maxSrbScale), SpriteEffects.None, 0f);
 
             // Mid SoftBlue
             sb.Draw(srb, drawPos, null,
                 ClairDeLunePalette.SoftBlue with { A = 0 } * 0.3f * fadeOut, 0f, srb.Size() * 0.5f,
-                expandMult * ExpansionRadius * 1.2f / srb.Width, SpriteEffects.None, 0f);
+                MathHelper.Min(expandMult * ExpansionRadius * 1.2f / srb.Width, maxSrbScale), SpriteEffects.None, 0f);
 
             // Inner PearlFrost
             sb.Draw(srb, drawPos, null,
                 ClairDeLunePalette.PearlFrost with { A = 0 } * 0.45f * fadeOut, 0f, srb.Size() * 0.5f,
-                expandMult * ExpansionRadius * 0.6f / srb.Width, SpriteEffects.None, 0f);
+                MathHelper.Min(expandMult * ExpansionRadius * 0.6f / srb.Width, maxSrbScale), SpriteEffects.None, 0f);
 
             // Hot core
             sb.Draw(srb, drawPos, null,
                 ClairDeLunePalette.PearlWhite with { A = 0 } * 0.6f * fadeOut * fadeOut, 0f, srb.Size() * 0.5f,
-                expandMult * 20f / srb.Width, SpriteEffects.None, 0f);
+                MathHelper.Min(expandMult * 20f / srb.Width, maxSrbScale), SpriteEffects.None, 0f);
 
             // Brass accent ring
             float ringPhase = MathF.Sin(progress * MathHelper.Pi);
             sb.Draw(srb, drawPos, null,
                 ClairDeLunePalette.ClockworkBrass with { A = 0 } * 0.25f * ringPhase, 0f, srb.Size() * 0.5f,
-                expandMult * ExpansionRadius * 1.5f / srb.Width, SpriteEffects.None, 0f);
+                MathHelper.Min(expandMult * ExpansionRadius * 1.5f / srb.Width, maxSrbScale), SpriteEffects.None, 0f);
 
             // Star flare at center
             if (_timer < 10)

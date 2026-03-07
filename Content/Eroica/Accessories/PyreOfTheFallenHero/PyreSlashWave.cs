@@ -251,7 +251,7 @@ namespace MagnumOpus.Content.Eroica.Accessories.PyreOfTheFallenHero
             Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
             if (glowTex == null) return;
             
-            float glowScale = (currentRadius / MaxRadius) * 2f + 1f;
+            float glowScale = (currentRadius / MaxRadius) * 0.29f + 0.29f;
             float glowAlpha = 1f - (currentRadius / MaxRadius) * 0.7f;
             
             // Scarlet glow

@@ -170,9 +170,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             _bloomTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
             _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/SoftCircularCaustics");
 
-            // Bloom circle underlayer
+            // Bloom circle underlayer (PointBloom 2160px — cap to 300px max)
             Texture2D bloom = _bloomTex.Value;
-            float bloomScale = 0.3f * Projectile.scale;
+            float bloomScale = MathHelper.Min(0.1f * Projectile.scale, 0.139f);
             Color innerColor = EternalMoonUtils.CrescentGlow;
             innerColor.A = 0;
             Main.spriteBatch.Draw(bloom, Projectile.Center - Main.screenPosition, null,

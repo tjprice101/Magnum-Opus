@@ -168,7 +168,7 @@ namespace MagnumOpus.Common.Systems.Shaders
             Vector2 origin = texture.Size() * 0.5f;
 
             // Layer scales and opacities (from FargosSoulsDLC pattern)
-            float[] scales = { 2.0f, 1.4f, 0.9f, 0.4f };
+            float[] scales = { 0.115f, 0.08f, 0.052f, 0.023f };
             float[] opacities = { 0.3f, 0.5f, 0.7f, 0.85f };
 
             using (BeginShaderScope(spriteBatch, ShaderType.Bloom, color, intensity))

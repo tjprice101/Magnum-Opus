@@ -296,10 +296,10 @@ namespace MagnumOpus.Content.FoundationWeapons.InfernalBeamFoundation
             Color[] themeColors = IBFTextures.GetDustColorsForTheme(CurrentTheme);
             Color ringTint = themeColors[0];
 
-            // LAYER 2a: Wide soft glow behind ring
+            // LAYER 2a: Wide soft glow behind ring (capped to 300px on 1024px)
             Texture2D softGlow = IBFTextures.SoftGlow.Value;
             sb.Draw(softGlow, drawPos, null, ringTint * 0.6f, 0f,
-                softGlow.Size() / 2f, 0.45f, SpriteEffects.None, 0f);
+                softGlow.Size() / 2f, 0.293f, SpriteEffects.None, 0f);
 
             // LAYER 2b: Main spinning ring — circular rotation, the ring PNG spins freely
             sb.Draw(ringTex, drawPos, null, Color.White * 0.9f, ringRotation,
@@ -313,10 +313,10 @@ namespace MagnumOpus.Content.FoundationWeapons.InfernalBeamFoundation
             sb.Draw(ringTex, drawPos, null, ringTint * 0.35f, -ringRotation * 0.6f,
                 ringOrigin, uniformScale * 0.9f, SpriteEffects.None, 0f);
 
-            // LAYER 2e: Small bright point bloom at ring center
+            // LAYER 2e: Small bright point bloom at ring center (capped to 300px on 2160px)
             Texture2D pointBloom = IBFTextures.PointBloom.Value;
             sb.Draw(pointBloom, drawPos, null, Color.White * 0.8f, 0f,
-                pointBloom.Size() / 2f, 0.15f + 0.03f * sinPulse, SpriteEffects.None, 0f);
+                pointBloom.Size() / 2f, MathHelper.Min(0.15f + 0.03f * sinPulse, 0.139f), SpriteEffects.None, 0f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
@@ -349,20 +349,20 @@ namespace MagnumOpus.Content.FoundationWeapons.InfernalBeamFoundation
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.EffectMatrix);
 
-            // Wide soft glow
+            // Wide soft glow (capped to 300px on 1024px)
             sb.Draw(glowOrb, endPoint, null, endColor * 0.5f, flareRotation * 0.1f,
-                glowOrb.Size() / 2f, 0.45f, SpriteEffects.None, 0f);
+                glowOrb.Size() / 2f, 0.293f, SpriteEffects.None, 0f);
 
-            // Star flare — spins slowly
+            // Star flare — spins slowly (capped to 300px on 1024px)
             float endScale = 0.5f + 0.1f * sinPulse;
             sb.Draw(starFlare, endPoint, null, Color.White * 0.7f, flareRotation * 0.05f,
-                starFlare.Size() / 2f, endScale * 0.5f, SpriteEffects.None, 0f);
+                starFlare.Size() / 2f, MathHelper.Min(endScale * 0.5f, 0.293f), SpriteEffects.None, 0f);
             sb.Draw(starFlare, endPoint, null, endColor * 0.4f, flareRotation * 0.077f,
                 starFlare.Size() / 2f, endScale * 0.35f, SpriteEffects.None, 0f);
 
-            // Small lens flare
+            // Small lens flare (capped to 300px on 1024px)
             sb.Draw(lensFlare, endPoint, null, Color.White * 0.5f, flareRotation * 0.02f,
-                lensFlare.Size() / 2f, 0.3f, SpriteEffects.None, 0f);
+                lensFlare.Size() / 2f, 0.293f, SpriteEffects.None, 0f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,

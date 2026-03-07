@@ -21,7 +21,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Particl
         private float _opacity;
 
         public override bool SetLifetime => true;
-        public override bool UseAdditiveBlend => false;
+        public override bool UseAdditiveBlend => true; // Trail5Loop has black bg
 
         public FeatherDriftParticle(Vector2 position, Vector2 velocity, bool isBlack, int lifetime = 60, float scale = 0.7f)
         {
@@ -127,13 +127,17 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Particl
 
             Vector2 squishScale = new Vector2(Scale * squish, Scale / squish);
 
-            // Outer glow
+            // Outer glow (SoftGlow=512px, cap to 300px)
+            Vector2 outerScale = squishScale * 2f;
+            outerScale = new Vector2(MathHelper.Min(outerScale.X, 0.586f), MathHelper.Min(outerScale.Y, 0.586f));
             Color glowColor = DrawColor * _opacity * 0.4f;
-            spriteBatch.Draw(_bloomTexture, screenPos, null, glowColor, rot, origin, squishScale * 2f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(_bloomTexture, screenPos, null, glowColor, rot, origin, outerScale, SpriteEffects.None, 0f);
 
             // Core
+            Vector2 coreScale = squishScale * 0.5f;
+            coreScale = new Vector2(MathHelper.Min(coreScale.X, 0.586f), MathHelper.Min(coreScale.Y, 0.586f));
             Color coreColor = Color.White * _opacity * 0.8f;
-            spriteBatch.Draw(_bloomTexture, screenPos, null, coreColor, rot, origin, squishScale * 0.5f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(_bloomTexture, screenPos, null, coreColor, rot, origin, coreScale, SpriteEffects.None, 0f);
         }
     }
 
@@ -149,7 +153,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Particl
         private readonly bool _isBlack;
 
         public override bool SetLifetime => true;
-        public override bool UseAdditiveBlend => false;
+        public override bool UseAdditiveBlend => true; // SoftGlow has black bg
 
         public MonochromaticSmokeParticle(Vector2 position, Vector2 velocity, bool isBlack, int lifetime = 45, float scale = 1f, float opacity = 0.6f)
         {

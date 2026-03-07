@@ -416,7 +416,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
                         Vector2 midArc = Vector2.Lerp(Owner.MountedCenter, tipPos, 0.55f);
                         Vector2 screenMid = midArc - Main.screenPosition;
                         float arcAngle = SwordDirection.ToRotation();
-                        float overlayScale = (CurrentPhase.BladeLength / 100f) * (0.6f + ComboStep * 0.12f);
+                        float overlayScale = MathHelper.Min((CurrentPhase.BladeLength / 100f) * (0.6f + ComboStep * 0.12f), 0.58f);
 
                         EnigmaShaderHelper.DrawShaderOverlay(sb, cadenceShader,
                             overlayTex, screenMid, overlayTex.Size() / 2f, overlayScale,
@@ -445,26 +445,26 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
                     Vector2 tipScreen = tipPos - Main.screenPosition;
                     Vector2 bOrigin = bloomTex.Size() / 2f;
                     float pulse = 1f + 0.12f * MathF.Sin(Main.GameUpdateCount * 0.12f + ComboStep);
-                    float bloomBase = (0.3f + ComboStep * 0.1f + stackIntensity * 0.15f) * pulse * 0.65f;
+                    float bloomBase = MathHelper.Min((0.3f + ComboStep * 0.1f + stackIntensity * 0.15f) * pulse * 0.65f, 0.39f);
 
                     // A: Wide outer void glow
                     sb.Draw(bloomTex, tipScreen, null, CadenceUtils.VoidCore * 0.2f, 0f, bOrigin,
-                        bloomBase * 3.5f, SpriteEffects.None, 0f);
+                        bloomBase * 0.55f, SpriteEffects.None, 0f);
                     // B: Mid purple haze
                     sb.Draw(bloomTex, tipScreen, null, CadenceUtils.RiftDeep * 0.35f, 0f, bOrigin,
-                        bloomBase * 2.2f, SpriteEffects.None, 0f);
+                        bloomBase * 0.38f, SpriteEffects.None, 0f);
                     // C: Inner violet core
                     sb.Draw(bloomTex, tipScreen, null, CadenceUtils.CadenceViolet * 0.5f, 0f, bOrigin,
-                        bloomBase * 1.3f, SpriteEffects.None, 0f);
+                        bloomBase * 0.24f, SpriteEffects.None, 0f);
                     // D: Green-hot transitional
                     sb.Draw(bloomTex, tipScreen, null, CadenceUtils.DimensionalGreen * 0.5f, 0f, bOrigin,
-                        bloomBase * 0.7f, SpriteEffects.None, 0f);
+                        bloomBase * 0.14f, SpriteEffects.None, 0f);
                     // E: Bright lime flash
                     sb.Draw(bloomTex, tipScreen, null, CadenceUtils.SeveranceLime * 0.45f, 0f, bOrigin,
-                        bloomBase * 0.35f, SpriteEffects.None, 0f);
+                        bloomBase * 0.07f, SpriteEffects.None, 0f);
                     // F: White-hot pinpoint
                     sb.Draw(bloomTex, tipScreen, null, CadenceUtils.ParadoxWhite * 0.6f, 0f, bOrigin,
-                        bloomBase * 0.12f, SpriteEffects.None, 0f);
+                        bloomBase * 0.03f, SpriteEffects.None, 0f);
 
                     // EN Star Flare — dual counter-rotating spectral flares
                     Texture2D starFlareTex = EnigmaThemeTextures.ENStarFlare?.Value;

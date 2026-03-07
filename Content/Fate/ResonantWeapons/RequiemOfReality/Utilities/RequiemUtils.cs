@@ -71,9 +71,9 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Utilities
         public static Color WithWhitePush(Color c, float amount)
             => Color.Lerp(c, Color.White, MathHelper.Clamp(amount, 0f, 1f));
 
-        /// <summary>Additive-safe color (premultiplied alpha).</summary>
+        /// <summary>Additive-safe color (premultiplied alpha, A=0).</summary>
         public static Color Additive(Color c, float opacity = 1f)
-            => new Color(c.R, c.G, c.B) * opacity;
+            => new Color(c.R, c.G, c.B, 0) * opacity;
 
         // ======================== EASING FUNCTIONS ========================
 

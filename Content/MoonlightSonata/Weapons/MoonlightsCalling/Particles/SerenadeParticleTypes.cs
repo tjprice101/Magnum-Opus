@@ -54,7 +54,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Particles
             float stretch = 1f + Velocity.Length() * 0.04f;
 
             spriteBatch.Draw(tex, Position - Main.screenPosition, null, color,
-                Rotation, origin, new Vector2(Scale * stretch, Scale * 0.5f), SpriteEffects.None, 0f);
+                Rotation, origin, new Vector2(MathHelper.Min(Scale * stretch, 0.139f), MathHelper.Min(Scale * 0.5f, 0.139f)), SpriteEffects.None, 0f);
         }
     }
 
@@ -96,7 +96,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Particles
             var origin = tex.Size() * 0.5f;
 
             spriteBatch.Draw(tex, Position - Main.screenPosition, null, color,
-                0f, origin, Scale, SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(Scale, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -199,7 +199,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Particles
     public class SerenadeMistParticle : SerenadeParticle
     {
         public override bool SetLifetime => true;
-        public override bool UseAdditiveBlend => false;
+        public override bool UseAdditiveBlend => true; // SoftRadialBloom has black bg
         public override bool UseCustomDraw => true;
 
         public SerenadeMistParticle(Vector2 pos, Vector2 vel, Color color, float scale, int lifetime)
@@ -230,7 +230,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Particles
             var origin = tex.Size() * 0.5f;
 
             spriteBatch.Draw(tex, Position - Main.screenPosition, null, color,
-                Rotation, origin, Scale, SpriteEffects.None, 0f);
+                Rotation, origin, MathHelper.Min(Scale, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -325,11 +325,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Particles
 
             // Outer ring
             spriteBatch.Draw(tex, Position - Main.screenPosition, null, color,
-                0f, origin, Scale, SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(Scale, 0.139f), SpriteEffects.None, 0f);
 
             // Inner ring (slightly smaller, brighter)
             spriteBatch.Draw(tex, Position - Main.screenPosition, null, color * 0.6f,
-                0f, origin, Scale * 0.7f, SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(Scale * 0.7f, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -503,7 +503,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Particles
             color.A = 0;
 
             spriteBatch.Draw(tex, Position - Main.screenPosition, null, color * opacity * pulse,
-                Rotation, origin, Scale * 0.3f * pulse, SpriteEffects.None, 0f);
+                Rotation, origin, MathHelper.Min(Scale * 0.3f * pulse, 0.293f), SpriteEffects.None, 0f);
         }
     }
 
@@ -540,7 +540,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Particles
             color.A = 0;
 
             spriteBatch.Draw(tex, Position - Main.screenPosition, null, color * opacity,
-                0f, origin, Scale * 0.35f * pulse, SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(Scale * 0.35f * pulse, 0.293f), SpriteEffects.None, 0f);
         }
     }
 
@@ -583,7 +583,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Particles
             color.A = 0;
 
             spriteBatch.Draw(tex, Position - Main.screenPosition, null, color * fade,
-                0f, origin, Scale * 0.4f, SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(Scale * 0.4f, 0.293f), SpriteEffects.None, 0f);
         }
     }
 

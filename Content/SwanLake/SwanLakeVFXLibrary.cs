@@ -12,7 +12,7 @@ using MagnumOpus.Common.Systems.Particles;
 namespace MagnumOpus.Content.SwanLake
 {
     /// <summary>
-    /// Shared Swan Lake VFX library — canonical palette, bloom stacking,
+    /// Shared Swan Lake VFX library  Ecanonical palette, bloom stacking,
     /// shader setup, trail helpers, music notes, dust, feather spawns,
     /// prismatic effects, and impact VFX used by ALL Swan Lake weapons,
     /// accessories, projectiles, minions, enemies, and bosses.
@@ -158,6 +158,9 @@ namespace MagnumOpus.Content.SwanLake
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.115) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 1.209f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
@@ -166,19 +169,19 @@ namespace MagnumOpus.Content.SwanLake
 
             // Layer 1: Outer halo (DarkSilver)
             sb.Draw(bloom, drawPos, null,
-                (outer with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 2.0f, SpriteEffects.None, 0f);
+                (outer with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 0.115f, SpriteEffects.None, 0f);
 
             // Layer 2: Mid glow (Silver)
             sb.Draw(bloom, drawPos, null,
-                (outer with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 1.4f, SpriteEffects.None, 0f);
+                (outer with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.08f, SpriteEffects.None, 0f);
 
             // Layer 3: Inner bloom (PureWhite)
             sb.Draw(bloom, drawPos, null,
-                (inner with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f);
+                (inner with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.052f, SpriteEffects.None, 0f);
 
             // Layer 4: White-hot core
             sb.Draw(bloom, drawPos, null,
-                (RainbowFlash with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
+                (RainbowFlash with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.023f, SpriteEffects.None, 0f);
         }
 
         /// <summary>
@@ -190,21 +193,24 @@ namespace MagnumOpus.Content.SwanLake
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.115) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 1.209f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
             sb.Draw(bloom, drawPos, null,
-                (outerColor with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 2.0f, SpriteEffects.None, 0f);
+                (outerColor with { A = 0 }) * 0.3f * opacity, 0f, origin, scale * 0.115f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (outerColor with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 1.4f, SpriteEffects.None, 0f);
+                (outerColor with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.08f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (innerColor with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f);
+                (innerColor with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.052f, SpriteEffects.None, 0f);
             sb.Draw(bloom, drawPos, null,
-                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
+                (Color.White with { A = 0 }) * 0.85f * opacity, 0f, origin, scale * 0.023f, SpriteEffects.None, 0f);
         }
 
         /// <summary>
-        /// Bloom sandwich layer — renders bloom BEHIND a projectile body for depth.
+        /// Bloom sandwich layer  Erenders bloom BEHIND a projectile body for depth.
         /// Dual-polarity: dark behind, bright in front.
         /// </summary>
         public static void DrawBloomSandwichLayer(SpriteBatch sb, Vector2 worldPos,
@@ -213,6 +219,9 @@ namespace MagnumOpus.Content.SwanLake
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.14) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 0.993f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
@@ -220,22 +229,22 @@ namespace MagnumOpus.Content.SwanLake
             {
                 // Behind layer: larger, softer, dark
                 sb.Draw(bloom, drawPos, null,
-                    (ObsidianBlack with { A = 0 }) * 0.25f * opacity, 0f, origin, scale * 2.5f, SpriteEffects.None, 0f);
+                    (ObsidianBlack with { A = 0 }) * 0.25f * opacity, 0f, origin, scale * 0.14f, SpriteEffects.None, 0f);
                 sb.Draw(bloom, drawPos, null,
-                    (DarkSilver with { A = 0 }) * 0.35f * opacity, 0f, origin, scale * 1.6f, SpriteEffects.None, 0f);
+                    (DarkSilver with { A = 0 }) * 0.35f * opacity, 0f, origin, scale * 0.09f, SpriteEffects.None, 0f);
             }
             else
             {
                 // Front layer: smaller, brighter, white
                 sb.Draw(bloom, drawPos, null,
-                    (PureWhite with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.8f, SpriteEffects.None, 0f);
+                    (PureWhite with { A = 0 }) * 0.5f * opacity, 0f, origin, scale * 0.046f, SpriteEffects.None, 0f);
                 sb.Draw(bloom, drawPos, null,
-                    (Color.White with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.35f, SpriteEffects.None, 0f);
+                    (Color.White with { A = 0 }) * 0.7f * opacity, 0f, origin, scale * 0.02f, SpriteEffects.None, 0f);
             }
         }
 
         /// <summary>
-        /// Counter-rotating double flare — dual-polarity black and white spinning in opposite directions.
+        /// Counter-rotating double flare  Edual-polarity black and white spinning in opposite directions.
         /// Creates the signature graceful dual-energy at projectile centers.
         /// </summary>
         public static void DrawCounterRotatingFlares(SpriteBatch sb, Vector2 worldPos,
@@ -243,6 +252,9 @@ namespace MagnumOpus.Content.SwanLake
         {
             Texture2D flare = MagnumTextureRegistry.GetFlare();
             if (flare == null) return;
+
+            // 1024px flare — cap so largest layer (scale*0.7) ≤ 0.293 → ≤300px
+            scale = MathHelper.Min(scale, 0.419f);
 
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = flare.Size() * 0.5f;
@@ -261,7 +273,7 @@ namespace MagnumOpus.Content.SwanLake
         /// <summary>
         /// Standard Swan Lake bloom at a blade tip or projectile centre.
         /// Dual-polarity: ObsidianBlack outer -> PureWhite inner.
-        /// Safe to call from PreDraw — handles SpriteBatch state internally.
+        /// Safe to call from PreDraw  Ehandles SpriteBatch state internally.
         /// </summary>
         public static void DrawBloom(Vector2 worldPos, float scale, float opacity = 1f)
         {
@@ -310,7 +322,7 @@ namespace MagnumOpus.Content.SwanLake
         }
 
         /// <summary>
-        /// Thin precision trail for elegant ranged weapons — pearlescent shot.
+        /// Thin precision trail for elegant ranged weapons  Epearlescent shot.
         /// </summary>
         public static float PrecisionTrailWidth(float completionRatio, float baseWidth = 6f)
         {
@@ -319,7 +331,7 @@ namespace MagnumOpus.Content.SwanLake
         }
 
         /// <summary>
-        /// Wide graceful trail for melee weapons — sweeping arc.
+        /// Wide graceful trail for melee weapons  Esweeping arc.
         /// </summary>
         public static float GracefulTrailWidth(float completionRatio, float baseWidth = 16f)
         {
@@ -419,7 +431,7 @@ namespace MagnumOpus.Content.SwanLake
         }
 
         /// <summary>
-        /// Swan Lake dual-polarity swing dust — alternating white and shadowflame.
+        /// Swan Lake dual-polarity swing dust  Ealternating white and shadowflame.
         /// </summary>
         public static void SpawnDualPolarityDust(Vector2 pos, Vector2 awayDirection)
         {
@@ -456,7 +468,7 @@ namespace MagnumOpus.Content.SwanLake
         }
 
         /// <summary>
-        /// Rainbow shimmer dust — prismatic sparkle trail.
+        /// Rainbow shimmer dust  Eprismatic sparkle trail.
         /// </summary>
         public static void SpawnRainbowShimmer(Vector2 pos, Vector2 awayDirection)
         {
@@ -469,7 +481,7 @@ namespace MagnumOpus.Content.SwanLake
         }
 
         /// <summary>
-        /// Rainbow radial dust burst — prismatic explosion ring.
+        /// Rainbow radial dust burst  Eprismatic explosion ring.
         /// </summary>
         public static void SpawnRainbowBurst(Vector2 pos, int count = 10, float speed = 5f)
         {
@@ -488,7 +500,7 @@ namespace MagnumOpus.Content.SwanLake
 
         /// <summary>
         /// Spawn drifting swan feather particles around a position.
-        /// The signature Swan Lake visual identity — graceful floating feathers.
+        /// The signature Swan Lake visual identity  Egraceful floating feathers.
         /// </summary>
         public static void SpawnFeatherDrift(Vector2 pos, int count = 3, float radius = 30f, float scale = 0.25f)
         {
@@ -508,7 +520,7 @@ namespace MagnumOpus.Content.SwanLake
         }
 
         /// <summary>
-        /// Spawn dual-polarity feathers — black and white intertwined.
+        /// Spawn dual-polarity feathers  Eblack and white intertwined.
         /// </summary>
         public static void SpawnFeatherDuality(Vector2 pos, int count = 3, float scale = 0.3f)
         {
@@ -518,7 +530,7 @@ namespace MagnumOpus.Content.SwanLake
         // ─────────── SWAN LAKE-SPECIFIC VFX: PRISMATIC ───────────
 
         /// <summary>
-        /// Spawn prismatic sparkle particles — rainbow-cycling points of light.
+        /// Spawn prismatic sparkle particles  Erainbow-cycling points of light.
         /// Creates the iridescent effect at the boundary of black and white.
         /// </summary>
         public static void SpawnPrismaticSparkles(Vector2 pos, int count = 6, float radius = 25f)
@@ -538,7 +550,7 @@ namespace MagnumOpus.Content.SwanLake
         }
 
         /// <summary>
-        /// Spawn a prismatic rainbow explosion — full spectrum detonation.
+        /// Spawn a prismatic rainbow explosion  Efull spectrum detonation.
         /// </summary>
         public static void SpawnRainbowExplosion(Vector2 pos, float intensity = 1f)
         {
@@ -569,7 +581,7 @@ namespace MagnumOpus.Content.SwanLake
         // ─────────── GRADIENT HALO RINGS ───────────
 
         /// <summary>
-        /// Cascading gradient halo rings — dual-polarity (ObsidianBlack -> PureWhite).
+        /// Cascading gradient halo rings  Edual-polarity (ObsidianBlack -> PureWhite).
         /// </summary>
         public static void SpawnGradientHaloRings(Vector2 pos, int count = 5, float baseScale = 0.3f)
         {
@@ -582,7 +594,7 @@ namespace MagnumOpus.Content.SwanLake
         }
 
         /// <summary>
-        /// Rainbow halo rings — prismatic ring cascade.
+        /// Rainbow halo rings  Eprismatic ring cascade.
         /// </summary>
         public static void SpawnRainbowHaloRings(Vector2 pos, int count = 5, float baseScale = 0.3f)
         {
@@ -597,7 +609,7 @@ namespace MagnumOpus.Content.SwanLake
         // ─────────── IMPACTS ───────────
 
         /// <summary>
-        /// Full Swan Lake melee impact VFX — dual-polarity bloom flash, halo cascade,
+        /// Full Swan Lake melee impact VFX  Edual-polarity bloom flash, halo cascade,
         /// monochrome dust burst, prismatic sparkles, feather scatter, and music note burst.
         /// Scales with combo step.
         /// </summary>
@@ -637,7 +649,7 @@ namespace MagnumOpus.Content.SwanLake
         }
 
         /// <summary>
-        /// Projectile death / on-kill VFX — bigger, flashier version of MeleeImpact.
+        /// Projectile death / on-kill VFX  Ebigger, flashier version of MeleeImpact.
         /// Includes feather burst, rainbow explosion, and enhanced bloom.
         /// </summary>
         public static void ProjectileImpact(Vector2 pos, float intensity = 1f)
@@ -678,7 +690,7 @@ namespace MagnumOpus.Content.SwanLake
         // ─────────── FINISHER EFFECTS ───────────
 
         /// <summary>
-        /// Phase-3 / finisher slam VFX — screen shake, massive bloom, monochrome cascade,
+        /// Phase-3 / finisher slam VFX  Escreen shake, massive bloom, monochrome cascade,
         /// feather explosion, rainbow detonation, music note scatter.
         /// </summary>
         public static void FinisherSlam(Vector2 pos, float intensity = 1f)
@@ -729,13 +741,175 @@ namespace MagnumOpus.Content.SwanLake
         }
 
         /// <summary>
-        /// Add dual-polarity flickering light — oscillates between warm white and cold black-blue.
+        /// Add dual-polarity flickering light  Eoscillates between warm white and cold black-blue.
         /// </summary>
         public static void AddDualPolarityLight(Vector2 worldPos, float time, float intensity = 0.6f)
         {
             float shift = (float)Math.Sin(time * 0.06f) * 0.5f + 0.5f;
             Color lightColor = Color.Lerp(DarkSilver, PureWhite, shift);
             Lighting.AddLight(worldPos, lightColor.ToVector3() * intensity);
+        }
+
+        // ─────────── PRISMATIC SPARKLE IMPACT (REPLACES NOISE ZONES) ───────────
+
+        /// <summary>
+        /// Draws a prismatic sparkle impact burst — multiple rotating Star4Soft sparkles
+        /// with rainbow cycling, a small clamped bloom core, and optional HaloRing edge.
+        /// This replaces the old DrawNoiseScrolledZone for impact effects.
+        /// Must be called with an active SpriteBatch (TrueAdditive blend recommended).
+        /// </summary>
+        public static void DrawPrismaticSparkleImpact(SpriteBatch sb, Vector2 worldPos, float radius,
+            float time, float opacity = 1f, int sparkleCount = 8)
+        {
+            Vector2 drawPos = worldPos - Main.screenPosition;
+
+            // Small clamped bloom core (max ~80px rendered using 512px SoftGlow)
+            Texture2D bloom = MagnumTextureRegistry.GetSoftGlow();
+            if (bloom != null)
+            {
+                Vector2 bOrigin = bloom.Size() * 0.5f;
+                float coreScale = MathHelper.Min(radius * 0.3f / bloom.Width, 0.156f); // cap at ~80px
+                Color coreColor = Color.Lerp(Color.White, Main.hslToRgb((time * 0.03f) % 1f, 0.4f, 0.85f), 0.3f);
+                sb.Draw(bloom, drawPos, null, (coreColor with { A = 0 }) * 0.35f * opacity,
+                    0f, bOrigin, coreScale, SpriteEffects.None, 0f);
+            }
+
+            // Star4Soft sparkle ring — scattered at varied angles/distances
+            Texture2D star = MagnumTextureRegistry.GetStar4Soft();
+            if (star != null)
+            {
+                Vector2 sOrigin = star.Size() * 0.5f;
+                for (int i = 0; i < sparkleCount; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / sparkleCount + time * 0.015f;
+                    float dist = radius * (0.4f + 0.5f * MathF.Sin(i * 1.7f + time * 0.03f));
+                    Vector2 offset = new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * dist;
+                    float starRot = time * (0.02f + i * 0.005f) + i * 0.8f;
+                    float starScale = MathHelper.Lerp(0.15f, 0.4f, (MathF.Sin(i * 2.1f + time * 0.04f) + 1f) * 0.5f);
+                    Color starColor = Main.hslToRgb((time * 0.02f + i / (float)sparkleCount) % 1f, 0.85f, 0.7f);
+                    sb.Draw(star, drawPos + offset, null, (starColor with { A = 0 }) * 0.3f * opacity,
+                        starRot, sOrigin, starScale, SpriteEffects.None, 0f);
+                }
+                // Center star — brighter, larger
+                float centerRot = time * 0.035f;
+                Color centerColor = Main.hslToRgb((time * 0.025f) % 1f, 0.6f, 0.8f);
+                sb.Draw(star, drawPos, null, (centerColor with { A = 0 }) * 0.45f * opacity,
+                    centerRot, sOrigin, 0.35f, SpriteEffects.None, 0f);
+            }
+
+            // Prismatic edge ring
+            Texture2D ring = MagnumTextureRegistry.GetHaloRing();
+            if (ring != null)
+            {
+                Vector2 rOrigin = ring.Size() * 0.5f;
+                float rScale = radius * 2f / ring.Width;
+                Color rc = Main.hslToRgb((time * 0.035f) % 1f, 0.85f, 0.65f);
+                sb.Draw(ring, drawPos, null, (rc with { A = 0 }) * 0.2f * opacity,
+                    time * 0.02f, rOrigin, rScale, SpriteEffects.None, 0f);
+            }
+        }
+
+        // ─────────── NOISE UV-SCROLLED EXPLOSION ZONES (LEGACY) ───────────
+
+        /// <summary>
+        /// [LEGACY] Draws a noise-detailed, UV-scrolled explosion/impact zone with optional rainbow cycling.
+        /// Prefer DrawPrismaticSparkleImpact for new code.
+        /// </summary>
+        /// <param name="sb">Active SpriteBatch in additive mode.</param>
+        /// <param name="worldPos">World-space center of the zone.</param>
+        /// <param name="radius">Visual radius in pixels.</param>
+        /// <param name="time">Animation time (use Main.timeForVisualEffects or a timer).</param>
+        /// <param name="opacity">Master opacity multiplier (0-1).</param>
+        /// <param name="rainbow">If true, cycles through rainbow hues. If false, uses Swan Lake monochrome palette.</param>
+        public static void DrawNoiseScrolledZone(SpriteBatch sb, Vector2 worldPos, float radius,
+            float time, float opacity = 1f, bool rainbow = true)
+        {
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Texture2D noise = MagnumTextureRegistry.GetFBMNoise() ?? MagnumTextureRegistry.GetPerlinNoise();
+            Texture2D bloom = MagnumTextureRegistry.GetSoftGlow();
+            if (noise == null || bloom == null) return;
+
+            Vector2 bloomOrigin = bloom.Size() * 0.5f;
+            float bloomScale = radius * 2f / bloom.Width;
+
+            // --- Layer 1: Outer soft glow (circular shape + edge fade) ---
+            Color bgColor = rainbow
+                ? Main.hslToRgb((time * 0.02f) % 1f, 0.55f, 0.45f)
+                : Silver;
+            sb.Draw(bloom, drawPos, null, (bgColor with { A = 0 }) * 0.22f * opacity,
+                0f, bloomOrigin, bloomScale * 1.35f, SpriteEffects.None, 0f);
+
+            // --- Layer 2: Primary noise (slow rotation for internal movement) ---
+            Vector2 noiseOrigin = noise.Size() * 0.5f;
+            float noiseScale = radius * 2f / noise.Width * 0.85f;
+            float rot1 = time * 0.012f;
+            Color c1 = rainbow
+                ? Main.hslToRgb((time * 0.022f + 0.3f) % 1f, 0.8f, 0.6f)
+                : PureWhite;
+            sb.Draw(noise, drawPos, null, (c1 with { A = 0 }) * 0.32f * opacity,
+                rot1, noiseOrigin, noiseScale, SpriteEffects.None, 0f);
+
+            // --- Layer 3: Secondary noise (counter-rotating, smaller, adds depth) ---
+            float rot2 = -time * 0.018f;
+            Color c2 = rainbow
+                ? Main.hslToRgb((time * 0.022f + 0.66f) % 1f, 0.75f, 0.55f)
+                : DarkSilver;
+            sb.Draw(noise, drawPos, null, (c2 with { A = 0 }) * 0.22f * opacity,
+                rot2, noiseOrigin, noiseScale * 0.7f, SpriteEffects.None, 0f);
+
+            // --- Layer 4: Core bloom (bright center point) ---
+            Color coreColor = rainbow
+                ? Color.Lerp(Color.White, Main.hslToRgb((time * 0.03f) % 1f, 0.4f, 0.85f), 0.3f)
+                : Color.White;
+            sb.Draw(bloom, drawPos, null, (coreColor with { A = 0 }) * 0.45f * opacity,
+                0f, bloomOrigin, bloomScale * 0.023f, SpriteEffects.None, 0f);
+
+            // --- Layer 5: Prismatic edge ring (rainbow mode only) ---
+            if (rainbow)
+            {
+                Texture2D ring = MagnumTextureRegistry.GetHaloRing();
+                if (ring != null)
+                {
+                    Vector2 rOrigin = ring.Size() * 0.5f;
+                    float rScale = radius * 2f / ring.Width;
+                    Color rc = Main.hslToRgb((time * 0.035f) % 1f, 0.85f, 0.65f);
+                    sb.Draw(ring, drawPos, null, (rc with { A = 0 }) * 0.28f * opacity,
+                        time * 0.02f, rOrigin, rScale, SpriteEffects.None, 0f);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Overload accepting explicit inner/outer colors for non-rainbow themed zones.
+        /// </summary>
+        public static void DrawNoiseScrolledZone(SpriteBatch sb, Vector2 worldPos, float radius,
+            float time, Color outerColor, Color innerColor, float opacity = 1f)
+        {
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Texture2D noise = MagnumTextureRegistry.GetFBMNoise() ?? MagnumTextureRegistry.GetPerlinNoise();
+            Texture2D bloom = MagnumTextureRegistry.GetSoftGlow();
+            if (noise == null || bloom == null) return;
+
+            Vector2 bloomOrigin = bloom.Size() * 0.5f;
+            float bloomScale = radius * 2f / bloom.Width;
+
+            // Outer backdrop
+            sb.Draw(bloom, drawPos, null, (outerColor with { A = 0 }) * 0.22f * opacity,
+                0f, bloomOrigin, bloomScale * 1.35f, SpriteEffects.None, 0f);
+
+            // Primary noise
+            Vector2 noiseOrigin = noise.Size() * 0.5f;
+            float noiseScale = radius * 2f / noise.Width * 0.85f;
+            sb.Draw(noise, drawPos, null, (outerColor with { A = 0 }) * 0.32f * opacity,
+                time * 0.012f, noiseOrigin, noiseScale, SpriteEffects.None, 0f);
+
+            // Secondary noise
+            sb.Draw(noise, drawPos, null, (innerColor with { A = 0 }) * 0.22f * opacity,
+                -time * 0.018f, noiseOrigin, noiseScale * 0.7f, SpriteEffects.None, 0f);
+
+            // Core bloom
+            sb.Draw(bloom, drawPos, null, (innerColor with { A = 0 }) * 0.45f * opacity,
+                0f, bloomOrigin, bloomScale * 0.023f, SpriteEffects.None, 0f);
         }
 
         // ─────────── THEME TEXTURE VFX ───────────

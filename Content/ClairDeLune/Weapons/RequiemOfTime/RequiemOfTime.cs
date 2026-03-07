@@ -25,7 +25,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime
         {
             Item.width = 32;
             Item.height = 32;
-            Item.damage = 200;
+            Item.damage = 4000; // Tier 10 (2800-4200 range), very slow heavy magic
             Item.DamageType = DamageClass.Magic;
             Item.mana = 25;
             Item.useTime = 50;

@@ -34,25 +34,28 @@ namespace MagnumOpus.Common.Systems.VFX
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
             
+            // 2160px bloom — cap so largest layer (scale*0.115) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 1.209f);
+            
             Vector2 drawPos = worldPosition - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
             Color colorNoAlpha = primaryColor.WithoutAlpha();
             
             // Layer 1: Outer soft glow (largest, most transparent)
             spriteBatch.Draw(bloom, drawPos, null, 
-                colorNoAlpha * 0.3f * opacity, 0f, origin, scale * 2.0f, SpriteEffects.None, 0f);
+                colorNoAlpha * 0.3f * opacity, 0f, origin, scale * 0.115f, SpriteEffects.None, 0f);
             
             // Layer 2: Middle glow
             spriteBatch.Draw(bloom, drawPos, null, 
-                colorNoAlpha * 0.5f * opacity, 0f, origin, scale * 1.4f, SpriteEffects.None, 0f);
+                colorNoAlpha * 0.5f * opacity, 0f, origin, scale * 0.08f, SpriteEffects.None, 0f);
             
             // Layer 3: Inner bloom
             spriteBatch.Draw(bloom, drawPos, null, 
-                colorNoAlpha * 0.7f * opacity, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f);
+                colorNoAlpha * 0.7f * opacity, 0f, origin, scale * 0.052f, SpriteEffects.None, 0f);
             
             // Layer 4: Bright white core
             spriteBatch.Draw(bloom, drawPos, null, 
-                Color.White.WithoutAlpha() * 0.85f * opacity, 0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
+                Color.White.WithoutAlpha() * 0.85f * opacity, 0f, origin, scale * 0.023f, SpriteEffects.None, 0f);
         }
         
         /// <summary>
@@ -64,20 +67,23 @@ namespace MagnumOpus.Common.Systems.VFX
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
             
+            // 2160px bloom — cap so largest layer (scale*0.115) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 1.209f);
+            
             Vector2 drawPos = worldPosition - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
             
             // Outer layers
             spriteBatch.Draw(bloom, drawPos, null, 
-                outerColor.WithoutAlpha() * 0.3f * opacity, 0f, origin, scale * 2.0f, SpriteEffects.None, 0f);
+                outerColor.WithoutAlpha() * 0.3f * opacity, 0f, origin, scale * 0.115f, SpriteEffects.None, 0f);
             spriteBatch.Draw(bloom, drawPos, null, 
-                outerColor.WithoutAlpha() * 0.5f * opacity, 0f, origin, scale * 1.4f, SpriteEffects.None, 0f);
+                outerColor.WithoutAlpha() * 0.5f * opacity, 0f, origin, scale * 0.08f, SpriteEffects.None, 0f);
             
             // Inner layers
             spriteBatch.Draw(bloom, drawPos, null, 
-                innerColor.WithoutAlpha() * 0.7f * opacity, 0f, origin, scale * 0.9f, SpriteEffects.None, 0f);
+                innerColor.WithoutAlpha() * 0.7f * opacity, 0f, origin, scale * 0.052f, SpriteEffects.None, 0f);
             spriteBatch.Draw(bloom, drawPos, null, 
-                Color.White.WithoutAlpha() * 0.85f * opacity, 0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
+                Color.White.WithoutAlpha() * 0.85f * opacity, 0f, origin, scale * 0.023f, SpriteEffects.None, 0f);
         }
         
         /// <summary>
@@ -88,6 +94,9 @@ namespace MagnumOpus.Common.Systems.VFX
         {
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
+            
+            // 2160px bloom — cap at 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 0.139f);
             
             Vector2 drawPos = worldPosition - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
@@ -180,9 +189,9 @@ namespace MagnumOpus.Common.Systems.VFX
             {
                 Vector2 bloomOrigin = bloom.Size() * 0.5f;
                 
-                // Background bloom
+                // Background bloom — 2160px bloom, cap at 0.139
                 spriteBatch.Draw(bloom, drawPos, null, 
-                    colorNoAlpha * 0.4f * opacity, 0f, bloomOrigin, scale * 1.5f, SpriteEffects.None, 0f);
+                    colorNoAlpha * 0.4f * opacity, 0f, bloomOrigin, MathHelper.Min(scale * 1.5f, 0.139f), SpriteEffects.None, 0f);
             }
             
             if (flare != null)
@@ -302,22 +311,22 @@ namespace MagnumOpus.Common.Systems.VFX
             // Outer cosmic void
             spriteBatch.Draw(bloom, drawPos, null,
                 MagnumThemePalettes.FateBlack.WithoutAlpha() * 0.4f * intensity, 
-                0f, origin, scale * 2.2f, SpriteEffects.None, 0f);
+                0f, origin, scale * 0.125f, SpriteEffects.None, 0f);
             
             // Dark pink layer
             spriteBatch.Draw(bloom, drawPos, null,
                 MagnumThemePalettes.FateDarkPink.WithoutAlpha() * 0.5f * intensity,
-                0f, origin, scale * 1.5f, SpriteEffects.None, 0f);
+                0f, origin, scale * 0.085f, SpriteEffects.None, 0f);
             
             // Bright red layer
             spriteBatch.Draw(bloom, drawPos, null,
                 MagnumThemePalettes.FateBrightRed.WithoutAlpha() * 0.7f * intensity,
-                0f, origin, scale * 1.0f, SpriteEffects.None, 0f);
+                0f, origin, scale * 0.057f, SpriteEffects.None, 0f);
             
             // White star core
             spriteBatch.Draw(bloom, drawPos, null,
                 Color.White.WithoutAlpha() * 0.9f * intensity,
-                0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
+                0f, origin, scale * 0.023f, SpriteEffects.None, 0f);
         }
         
         #endregion

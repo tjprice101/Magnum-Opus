@@ -37,10 +37,10 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Ranged;
             Projectile.penetrate = 2;
-            Projectile.timeLeft = 80;
+            Projectile.timeLeft = 160;
             Projectile.tileCollide = true;
             Projectile.ignoreWater = true;
-            Projectile.extraUpdates = 3;
+            Projectile.extraUpdates = 1;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = 8;
         }
@@ -54,6 +54,26 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
             Projectile.rotation = Projectile.velocity.ToRotation();
             float intensity = IsGrandiose ? 0.8f : 0.5f;
             Lighting.AddLight(Projectile.Center, GrandioseChimeUtils.BeamPalette[2].ToVector3() * intensity);
+
+            // === Ember trail particles — fiery motes scattering from the beam ===
+            if (Main.GameUpdateCount % (IsGrandiose ? 1 : 2) == 0)
+            {
+                Vector2 perpendicular = Projectile.velocity.SafeNormalize(Vector2.Zero).RotatedBy(MathHelper.PiOver2);
+                Vector2 offset = perpendicular * Main.rand.NextFloat(-6f, 6f);
+                Vector2 emberVel = -Projectile.velocity.SafeNormalize(Vector2.Zero) * Main.rand.NextFloat(0.5f, 2f)
+                    + perpendicular * Main.rand.NextFloat(-1.5f, 1.5f);
+                GrandioseChimeParticleHandler.SpawnParticle(
+                    new BeamEmberParticle(Projectile.Center + offset, emberVel, Main.rand.Next(12, 22)));
+            }
+
+            // Occasional brighter spark
+            if (Main.rand.NextBool(IsGrandiose ? 4 : 8))
+            {
+                Vector2 sparkVel = Main.rand.NextVector2Circular(2.5f, 2.5f);
+                GrandioseChimeParticleHandler.SpawnParticle(
+                    new BeamEmberParticle(Projectile.Center, sparkVel, Main.rand.Next(8, 16))
+                    { Scale = Main.rand.NextFloat(0.15f, 0.3f) });
+            }
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
@@ -209,8 +229,24 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
+            // Outer ambient glow — wide soft spread
+            sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
+                GrandioseChimeUtils.BeamPalette[0] * (0.12f * pulse), 0f, tex.Size() / 2f,
+                coreScale * 4.5f, SpriteEffects.None, 0f);
+
+            // Mid glow layer — warm orange haze
+            sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
+                GrandioseChimeUtils.BeamPalette[1] * (0.25f * pulse), 0f, tex.Size() / 2f,
+                coreScale * 2.5f, SpriteEffects.None, 0f);
+
+            // Bright gold core
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
                 coreColor, 0f, tex.Size() / 2f, coreScale, SpriteEffects.None, 0f);
+
+            // Hot white center pinpoint
+            sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
+                Color.White * (0.6f * pulse * pulse), 0f, tex.Size() / 2f,
+                coreScale * 0.4f, SpriteEffects.None, 0f);
 
             // LC Infernal Beam Ring - fiery halo around beam core
             {
@@ -251,6 +287,30 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
         {
             trailRenderer?.Dispose();
             trailRenderer = null;
+
+            // === Death VFX — fiery impact burst ===
+            Vector2 deathPos = Projectile.Center;
+
+            // Radial ember burst (8-14 particles)
+            int burstCount = IsGrandiose ? 14 : 8;
+            for (int i = 0; i < burstCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / burstCount + Main.rand.NextFloat(-0.2f, 0.2f);
+                float speed = Main.rand.NextFloat(1.5f, 4f) * (IsGrandiose ? 1.5f : 1f);
+                Vector2 vel = angle.ToRotationVector2() * speed;
+                GrandioseChimeParticleHandler.SpawnParticle(
+                    new BeamImpactBurstParticle(deathPos, vel, Main.rand.NextFloat(0.12f, 0.25f), Main.rand.Next(15, 25)));
+            }
+
+            // Central flash ember
+            GrandioseChimeParticleHandler.SpawnParticle(
+                new BeamEmberParticle(deathPos, Vector2.Zero, 12) { Scale = IsGrandiose ? 0.5f : 0.3f });
+
+            // Spawn foundation impact ripple
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), deathPos, Vector2.Zero,
+                ModContent.ProjectileType<RippleEffectProjectile>(),
+                0, 0f, Projectile.owner, ai0: 1f);
         }
     }
 }

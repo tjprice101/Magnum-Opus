@@ -265,12 +265,12 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture.Projectiles
 
                 // Crimson core
                 sb.Draw(_glowTex.Value, drawPos, null,
-                    LightUtils.Additive(LightUtils.ImpactCrimson, 0.7f),
+                    LightUtils.Additive(LightUtils.ImpactCrimson, 0.7f) with { A = 0 },
                     Projectile.rotation, _glowTex.Value.Size() / 2f, 0.12f * pulse, SpriteEffects.None, 0f);
 
                 // Gold outer glow
                 sb.Draw(_glowTex.Value, drawPos, null,
-                    LightUtils.Additive(LightUtils.MuzzleGold, 0.35f),
+                    LightUtils.Additive(LightUtils.MuzzleGold, 0.35f) with { A = 0 },
                     0f, _glowTex.Value.Size() / 2f, 0.25f * pulse, SpriteEffects.None, 0f);
             }
             catch

@@ -7318,52 +7318,52 @@ Items: {
 	}
 
 	CodaOfAnnihilationItem: {
-		DisplayName: Coda Of Annihilation Item
+		DisplayName: Coda of Annihilation
 		Tooltip: ""
 	}
 
 	DestinysCrescendoItem: {
-		DisplayName: Destinys Crescendo Item
+		DisplayName: Destiny's Crescendo
 		Tooltip: ""
 	}
 
 	FractalOfTheStarsItem: {
-		DisplayName: Fractal Of The Stars Item
+		DisplayName: Fractal of the Stars
 		Tooltip: ""
 	}
 
 	LightOfTheFutureItem: {
-		DisplayName: Light Of The Future Item
+		DisplayName: Light of the Future
 		Tooltip: ""
 	}
 
 	OpusUltimaItem: {
-		DisplayName: Opus Ultima Item
+		DisplayName: Opus Ultima
 		Tooltip: ""
 	}
 
 	RequiemOfRealityItem: {
-		DisplayName: Requiem Of Reality Item
+		DisplayName: Requiem of Reality
 		Tooltip: ""
 	}
 
 	ResonanceOfABygoneRealityItem: {
-		DisplayName: Resonance Of A Bygone Reality Item
+		DisplayName: Resonance of a Bygone Reality
 		Tooltip: ""
 	}
 
 	SymphonysEndItem: {
-		DisplayName: Symphonys End Item
+		DisplayName: Symphony's End
 		Tooltip: ""
 	}
 
 	TheConductorsLastConstellationItem: {
-		DisplayName: The Conductors Last Constellation Item
+		DisplayName: The Conductor's Last Constellation
 		Tooltip: ""
 	}
 
 	TheFinalFermataItem: {
-		DisplayName: The Final Fermata Item
+		DisplayName: The Final Fermata
 		Tooltip: ""
 	}
 
@@ -7429,6 +7429,11 @@ Items: {
 
 	SwordSmearFoundation: {
 		DisplayName: Sword Smear Foundation
+		Tooltip: ""
+	}
+
+	Foundation4PointSparkle: {
+		DisplayName: Foundation 4-Point Sparkle
 		Tooltip: ""
 	}
 
@@ -7635,6 +7640,11 @@ Items: {
 	LunarPhylacteryItem: {
 		DisplayName: Lunar Phylactery Item
 		Tooltip: ""
+	}
+
+	OdeToJoyTreasureBag: {
+		Tooltip: ""
+		DisplayName: Ode To Joy Treasure Bag
 	}
 }
 
@@ -8287,6 +8297,8 @@ Projectiles: {
 	RangerShotProjectile.DisplayName: Ranger Shot Projectile
 	SparkCarrierProjectile.DisplayName: Spark Carrier Projectile
 	SparkExplosionProjectile.DisplayName: Spark Explosion Projectile
+	SparkleStarProjectile.DisplayName: Sparkle Star Projectile
+	SparkleStarExplosion.DisplayName: Sparkle Star Explosion
 	InfernalBeam.DisplayName: Infernal Beam
 	SmokeSwingProjectile.DisplayName: Smoke Swing Projectile
 	SmearSwingProjectile.DisplayName: Smear Swing Projectile

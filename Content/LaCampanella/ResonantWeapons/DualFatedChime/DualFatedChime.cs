@@ -169,12 +169,22 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime
             Vector2 drawPos = Item.position - Main.screenPosition + new Vector2(Item.width / 2f, Item.height);
             Vector2 origin = new Vector2(tex.Width / 2f, tex.Height);
 
+            // Switch to additive blending so A=0 color pattern renders correctly
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
             // Fiery underglow
             spriteBatch.Draw(tex, drawPos + new Vector2(-1, -1), null,
                 new Color(255, 100, 0, 0) * pulse, rotation, origin, scale, SpriteEffects.None, 0f);
             // Gold overglow
             spriteBatch.Draw(tex, drawPos + new Vector2(1, 1), null,
                 new Color(255, 200, 50, 0) * pulse * 0.5f, rotation, origin, scale, SpriteEffects.None, 0f);
+
+            // Restore to standard AlphaBlend for subsequent draws
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
     }
 }

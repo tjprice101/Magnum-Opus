@@ -33,7 +33,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict
         {
             Item.width = 80;
             Item.height = 80;
-            Item.damage = 4200;
+            Item.damage = 2400; // Tier 8 (1600-2400 range), slow heavy hitter
             Item.useTime = 32;
             Item.useAnimation = 32;
             Item.knockBack = 12f;
@@ -70,17 +70,6 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict
                     (int)(Item.damage * 0.35f), Item.knockBack * 0.3f,
                     player.whoAmI);
             }
-        }
-
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-            .AddIngredient(ModContent.ItemType<ResonantCoreOfDiesIrae>(), 25)
-            .AddIngredient(ModContent.ItemType<DiesIraeResonantEnergy>(), 20)
-            .AddIngredient(ModContent.ItemType<HarmonicCoreOfDiesIrae>(), 3)
-            .AddIngredient(ItemID.LunarBar, 20)
-            .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
-            .Register();
         }
     }
 }

@@ -204,7 +204,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
             if (tex == null) return;
 
             float t = Projectile.localAI[0] / (float)Lifetime;
-            float scale = 2f + ExpoOut(t) * 6f;
+            float scale = 0.015f + ExpoOut(t) * 0.092f;
             float alpha = (1f - t) * 0.6f;
             Color ringColor = GetBeamGradient(t) * alpha;
 

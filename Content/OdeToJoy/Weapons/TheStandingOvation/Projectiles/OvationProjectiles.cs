@@ -204,7 +204,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
                 bloomShader.Parameters["uPulseSpeed"]?.SetValue(0.8f + CrowdIndex * 0.15f);
                 OdeToJoyShaders.BeginDeferredShaderBatch(sb, bloomShader, "JubilantPulseTechnique");
                 sb.Draw(glow, pos, null, Color.White * pulse, 0f, glowOrigin,
-                    0.4f + meterGlow * 0.15f, SpriteEffects.None, 0f);
+                    Math.Min(0.4f + meterGlow * 0.15f, 0.293f), SpriteEffects.None, 0f);
                 sb.End();
             }
 
@@ -212,14 +212,14 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
             OdeToJoyShaders.BeginAdditiveBatch(sb);
 
             sb.Draw(glow, pos, null, spectatorColor * 0.25f * pulse, 0f, glowOrigin,
-                0.35f + meterGlow * 0.1f, SpriteEffects.None, 0f);
+                Math.Min(0.35f + meterGlow * 0.1f, 0.293f), SpriteEffects.None, 0f);
             sb.Draw(sparkle, pos, null, spectatorColor * 0.6f, Main.GameUpdateCount * 0.03f + CrowdIndex,
                 sparkleOrigin, 0.25f, SpriteEffects.None, 0f);
             sb.Draw(glow, pos, null, OvationTextures.PureJoyWhite * 0.3f * pulse, 0f, glowOrigin,
                 0.08f, SpriteEffects.None, 0f);
             if (meterGlow > 0.3f)
                 sb.Draw(glow, pos, null, OvationTextures.ApplauseFlash * meterGlow * 0.15f, 0f, glowOrigin,
-                    0.5f * meterGlow, SpriteEffects.None, 0f);
+                    Math.Min(0.5f * meterGlow, 0.293f), SpriteEffects.None, 0f);
 
             // Theme blossom sparkle accent
             OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
@@ -316,7 +316,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
                     OvationTextures.PureJoyWhite, fade * 0.45f, 1.8f, 2.5f);
                 harmonyShader.Parameters["uRadius"]?.SetValue(0.25f);
                 OdeToJoyShaders.BeginDeferredShaderBatch(sb, harmonyShader, "SymphonicAuraTechnique");
-                float shaderScale = IsRush ? 0.25f : (0.15f + _timer * 0.005f);
+                float shaderScale = IsRush ? 0.25f : Math.Min(0.15f + _timer * 0.005f, 0.293f);
                 sb.Draw(glow, pos, null, Color.White * fade, Projectile.rotation, glowOrigin,
                     shaderScale, SpriteEffects.None, 0f);
                 sb.End();
@@ -327,7 +327,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
 
             if (IsRush)
             {
-                float stretch = 0.3f + Projectile.velocity.Length() * 0.02f;
+                float stretch = Math.Min(0.3f + Projectile.velocity.Length() * 0.02f, 0.293f);
                 sb.Draw(glow, pos, null, OvationTextures.BloomGold * fade * 0.6f, Projectile.rotation,
                     glowOrigin, new Vector2(stretch, 0.12f), SpriteEffects.None, 0f);
                 sb.Draw(glow, pos, null, OvationTextures.PureJoyWhite * fade * 0.35f, Projectile.rotation,
@@ -335,7 +335,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
             }
             else
             {
-                float scale = 0.15f + _timer * 0.005f;
+                float scale = Math.Min(0.15f + _timer * 0.005f, 0.293f);
                 sb.Draw(impact, pos, null, OvationTextures.BloomGold * fade * 0.4f, Projectile.rotation,
                     impactOrigin, scale, SpriteEffects.None, 0f);
                 sb.Draw(glow, pos, null, OvationTextures.ApplauseFlash * fade * 0.25f, 0f, glowOrigin,
@@ -654,7 +654,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
                     OvationTextures.ApplauseFlash, fade * 0.55f, 2.5f, auraRadius, 5f);
                 OdeToJoyShaders.BeginShaderBatch(sb, auraShader, "CelebrationAuraTechnique");
                 auraShader.CurrentTechnique.Passes["P0"].Apply();
-                float shaderScale = 0.15f + progress * 0.5f;
+                float shaderScale = Math.Min(0.15f + progress * 0.5f, 0.293f);
                 sb.Draw(glow, pos, null, Color.White * fade, 0f, glowOrigin, shaderScale,
                     SpriteEffects.None, 0f);
                 sb.End();

@@ -390,7 +390,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 
                 float progress = (float)i / Projectile.oldPos.Length;
                 float trailAlpha = (1f - progress) * 0.55f;
-                float trailScale = 0.35f * (1f - progress * 0.5f);
+                float trailScale = 0.29f * (1f - progress * 0.5f);
                 Color trailColor = Color.Lerp(purpleBloom, greenBloom, progress) * trailAlpha;
                 
                 Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
@@ -402,9 +402,9 @@ namespace MagnumOpus.Content.Autumn.Projectiles
             // 4+ LAYERED SPINNING FLARES (TRUE_VFX_STANDARDS)
             // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
             
-            // Layer 1: Soft glow base (large, dim)
+            // Layer 1: Soft glow base (large, dim) (capped 300px max)
             spriteBatch.Draw(texture, drawPos, null, purpleBloom * 0.4f, 0f, 
-                origin, 0.55f * pulse, SpriteEffects.None, 0f);
+                origin, 0.25f * pulse, SpriteEffects.None, 0f);
             
             // Layer 2: First flare spinning clockwise (green)
             spriteBatch.Draw(flare1, drawPos, null, greenBloom * 0.5f, time, 
@@ -418,9 +418,9 @@ namespace MagnumOpus.Content.Autumn.Projectiles
             spriteBatch.Draw(flare1, drawPos, null, purpleBloom * 0.5f, time * 1.4f, 
                 flareOrigin1, 0.32f * pulse, SpriteEffects.None, 0f);
             
-            // Layer 5: Main glow texture
+            // Layer 5: Main glow texture (capped 300px max)
             spriteBatch.Draw(texture, drawPos, null, greenBloom * 0.55f, 0f, 
-                origin, 0.3f * pulse, SpriteEffects.None, 0f);
+                origin, 0.20f * pulse, SpriteEffects.None, 0f);
             
             // Layer 6: Pale white core
             spriteBatch.Draw(texture, drawPos, null, whiteBloom * 0.55f, 0f, 

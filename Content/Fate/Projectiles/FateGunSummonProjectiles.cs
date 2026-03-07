@@ -159,6 +159,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
                 float progress = (float)i / Projectile.oldPos.Length;
                 Color trailColor = FatePalette.GetCosmicGradient(progress) * (1f - progress) * 0.6f;
+                trailColor.A = 0;
                 Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
                 spriteBatch.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, (0.2f - progress * 0.1f) * pulse, SpriteEffects.None, 0f);
             }
@@ -629,6 +630,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
                 float progress = (float)i / Projectile.oldPos.Length;
                 Color trailColor = FatePalette.GetCosmicGradient(progress) * (1f - progress) * (0.5f + speedRatio * 0.3f);
+                trailColor.A = 0;
                 Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
                 float trailScale = (1f - progress) * (0.5f + speedRatio * 0.3f) * pulse;
                 spriteBatch.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
@@ -784,6 +786,7 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
                 float progress = (float)i / Projectile.oldPos.Length;
                 Color trailColor = FatePalette.GetCosmicGradient(progress) * (1f - progress) * 0.5f;
+                trailColor.A = 0;
                 Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
                 spriteBatch.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, (0.4f - progress * 0.2f) * pulse, SpriteEffects.None, 0f);
             }

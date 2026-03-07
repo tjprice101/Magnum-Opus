@@ -501,7 +501,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
             // Soft glow underlayer 窶・violet constellation nebula
             Color glowColor = MulticolorLerp(Progression, IncisorPalette) with { A = 0 };
             Main.spriteBatch.Draw(bloomTex, tipPos, null, glowColor * opacity * 0.3f,
-                0f, bloomTex.Size() * 0.5f, 0.4f * starPulse * Projectile.scale,
+                0f, bloomTex.Size() * 0.5f, 0.1f * starPulse * Projectile.scale,
                 SpriteEffects.None, 0f);
 
             // Sharp 4-pointed star 窶・constellation node revelation
@@ -621,7 +621,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
                     Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer,
                     swingFX, Main.GameViewMatrix.TransformationMatrix);
 
-                Main.EntitySpriteDraw(texture, Owner.MountedCenter - Main.screenPosition, null,
+                // Offset blade forward along swing direction to align with smear arc
+                Vector2 bladeDrawPos = Owner.MountedCenter + SwordDirection * 14f * Projectile.scale - Main.screenPosition;
+                Main.EntitySpriteDraw(texture, bladeDrawPos, null,
                     Color.White, BaseRotation, texture.Size() / 2f,
                     SquishVector * 3.5f * Projectile.scale, dir, 0);
 

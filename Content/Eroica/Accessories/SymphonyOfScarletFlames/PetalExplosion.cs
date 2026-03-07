@@ -221,24 +221,24 @@ namespace MagnumOpus.Content.Eroica.Accessories.SymphonyOfScarletFlames
             if (glowTex == null) return;
             
             // Outer scarlet glow
-            float outerScale = 2.5f * glowIntensity;
+            float outerScale = 0.58f * glowIntensity;
             spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null,
                 new Color(255, 60, 60) * glowIntensity * 0.7f, 0f, glowTex.Size() / 2f, outerScale, SpriteEffects.None, 0f);
             
             // Middle pink glow
-            float midScale = 1.8f * glowIntensity;
+            float midScale = 0.42f * glowIntensity;
             spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null,
                 new Color(255, 120, 150) * glowIntensity * 0.6f, 0f, glowTex.Size() / 2f, midScale, SpriteEffects.None, 0f);
             
             // Inner golden glow
-            float innerScale = 1.2f * glowIntensity;
+            float innerScale = 0.28f * glowIntensity;
             spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null,
                 new Color(255, 220, 150) * glowIntensity * 0.8f, 0f, glowTex.Size() / 2f, innerScale, SpriteEffects.None, 0f);
             
             // Bright white core (initial flash only)
             if (explosionTimer <= 5)
             {
-                float coreScale = 0.8f * (1f - explosionTimer / 5f);
+                float coreScale = 0.19f * (1f - explosionTimer / 5f);
                 spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null,
                     Color.White * (1f - explosionTimer / 5f), 0f, glowTex.Size() / 2f, coreScale, SpriteEffects.None, 0f);
             }

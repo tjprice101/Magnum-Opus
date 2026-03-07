@@ -28,7 +28,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.PiercingLightOfTheSakura
         public override void SetDefaults()
         {
             Item.ResearchUnlockCount = 1;
-            Item.damage = 155;
+            Item.damage = 175; // Tier 2 (300-500 range), speed-proportional for useTime=8
             Item.DamageType = DamageClass.Ranged;
             Item.width = 64;
             Item.height = 24;

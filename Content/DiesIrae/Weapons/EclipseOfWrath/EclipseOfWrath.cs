@@ -36,17 +36,6 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath
             Item.crit = 22;
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-            .AddIngredient(ModContent.ItemType<ResonantCoreOfDiesIrae>(), 20)
-            .AddIngredient(ModContent.ItemType<DiesIraeResonantEnergy>(), 15)
-            .AddIngredient(ModContent.ItemType<HarmonicCoreOfDiesIrae>(), 2)
-            .AddIngredient(ItemID.LunarBar, 15)
-            .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
-            .Register();
-        }
-
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Throws a slow-moving eclipse orb with a dark core and fire corona"));

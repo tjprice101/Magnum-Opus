@@ -8,6 +8,7 @@ using Terraria.Audio;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Content.Eroica;
 using MagnumOpus.Content.FoundationWeapons.SparkleProjectileFoundation;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.FoundationWeapons.RibbonFoundation;
 using ReLogic.Content;
 
@@ -178,6 +179,16 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
+            // === GPU Primitive Ribbon Trail (EnhancedTrailRenderer) ===
+            EnhancedTrailRenderer.RenderMultiPassTrail(
+                trailPositions,
+                EnhancedTrailRenderer.LinearTaper(16f),
+                EnhancedTrailRenderer.GradientColor(
+                    EroicaPalette.Sakura with { A = 0 },
+                    EroicaPalette.Gold with { A = 0 } * 0.15f,
+                    0.7f),
+                bloomMultiplier: 2.2f, coreMultiplier: 0.35f);
+
             // ── Layer 1: Pure Bloom Ribbon trail (RibbonFoundation Mode 1) ──
             DrawPureBloomTrail(sb);
 
@@ -274,18 +285,16 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         }
 
         /// <summary>
-        /// Bloom afterimages — soft bloom orbs along trail instead of sword copies.
-        /// Noise-tinted for organic sakura petal feel.
+        /// Bloom afterimages — soft bloom orbs along trail.
+        /// Clean sakura petal glow without noise textures.
         /// </summary>
         private void DrawBloomAfterimages(SpriteBatch sb)
         {
             int imageCount = 5;
             Texture2D bloomTex = RBFTextures.SoftGlow.Value;
-            Texture2D noiseTex = RBFTextures.FBMNoise.Value;
             if (bloomTex == null) return;
 
             Vector2 bloomOrigin = bloomTex.Size() / 2f;
-            Vector2 noiseOrigin = noiseTex != null ? noiseTex.Size() / 2f : Vector2.Zero;
             float baseScale = 0.18f * Projectile.scale;
 
             sb.End();
@@ -312,14 +321,6 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 fadeFactor *= fadeFactor;
                 float afterScale = baseScale * (1f - progress * 0.3f);
 
-                // Noise blob — organic petal shape
-                if (noiseTex != null)
-                {
-                    Color noiseColor = EroicaPalette.Sakura with { A = 0 } * (fadeFactor * 0.2f);
-                    sb.Draw(noiseTex, pos, null, noiseColor,
-                        progress * 2.5f + AgeTimer * 0.02f, noiseOrigin, afterScale * 0.5f, SpriteEffects.None, 0f);
-                }
-
                 // Soft bloom orb
                 Color afterColor = Color.Lerp(EroicaPalette.Sakura, EroicaPalette.Gold, progress * 0.3f) with { A = 0 } * (fadeFactor * 0.25f);
                 sb.Draw(bloomTex, pos, null, afterColor, 0f, bloomOrigin, afterScale, SpriteEffects.None, 0f);
@@ -337,18 +338,15 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         }
 
         /// <summary>
-        /// Noise-masked circular bloom as the projectile core.
-        /// FBM noise texture provides organic sakura petal edges,
-        /// overlaid with a bright bloom core and hot white center.
+        /// Pure bloom core — soft sakura glow without noise textures.
+        /// Multi-scale bloom stack: outer sakura haze → mid glow → bright core → white-hot center.
         /// </summary>
         private void DrawNoiseMaskedCore(SpriteBatch sb, Vector2 drawPos)
         {
             Texture2D bloomTex = RBFTextures.SoftGlowBright.Value;
-            Texture2D noiseTex = RBFTextures.FBMNoise.Value;
-            if (bloomTex == null || noiseTex == null) return;
+            if (bloomTex == null) return;
 
             Vector2 bloomOrigin = bloomTex.Size() / 2f;
-            Vector2 noiseOrigin = noiseTex.Size() / 2f;
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
@@ -360,27 +358,26 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             float pulse = 0.85f + 0.15f * (float)Math.Sin(AgeTimer * 0.1f);
             float bloomScale = 0.22f * Projectile.scale;
-            float time = AgeTimer * 0.03f;
 
-            // Outer noise layer — FBM noise gives organic sakura petal-like edges
-            Color noiseColor = EroicaPalette.Sakura with { A = 0 };
-            sb.Draw(noiseTex, drawPos, null, noiseColor * 0.35f * pulse,
-                time, noiseOrigin, bloomScale * 0.55f, SpriteEffects.None, 0f);
+            // Outer sakura haze — wide, soft ambient glow
+            Color outerColor = EroicaPalette.Sakura with { A = 0 };
+            sb.Draw(bloomTex, drawPos, null, outerColor * 0.2f * pulse,
+                0f, bloomOrigin, bloomScale * 0.55f, SpriteEffects.None, 0f);
 
-            // Second noise layer — rotated for richer detail
-            Color noise2Color = Color.Lerp(EroicaPalette.Sakura, EroicaPalette.Gold, 0.25f) with { A = 0 };
-            sb.Draw(noiseTex, drawPos, null, noise2Color * 0.2f * pulse,
-                -time * 0.7f, noiseOrigin, bloomScale * 0.45f, SpriteEffects.None, 0f);
+            // Mid sakura-gold glow body
+            Color midColor = Color.Lerp(EroicaPalette.Sakura, EroicaPalette.Gold, 0.25f) with { A = 0 };
+            sb.Draw(bloomTex, drawPos, null, midColor * 0.3f * pulse,
+                0f, bloomOrigin, bloomScale * 0.38f, SpriteEffects.None, 0f);
 
-            // Middle bloom body — soft sakura-white glow
+            // Bright sakura-white bloom body
             Color bodyColor = Color.Lerp(EroicaPalette.Sakura, Color.White, 0.35f) with { A = 0 };
             sb.Draw(bloomTex, drawPos, null, bodyColor * 0.4f * pulse,
-                0f, bloomOrigin, bloomScale * 0.4f, SpriteEffects.None, 0f);
+                0f, bloomOrigin, bloomScale * 0.25f, SpriteEffects.None, 0f);
 
             // Hot white core
             Color coreColor = Color.White with { A = 0 };
-            sb.Draw(bloomTex, drawPos, null, coreColor * 0.25f * pulse,
-                0f, bloomOrigin, bloomScale * 0.15f, SpriteEffects.None, 0f);
+            sb.Draw(bloomTex, drawPos, null, coreColor * 0.3f * pulse,
+                0f, bloomOrigin, bloomScale * 0.12f, SpriteEffects.None, 0f);
 
             }
             finally

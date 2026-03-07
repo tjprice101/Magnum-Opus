@@ -471,9 +471,9 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles
 
         private void DrawTemporalTrail(SpriteBatch sb, float overallAlpha)
         {
-            Texture2D bloom;
-            try { bloom = MagnumTextureRegistry.GetBloom(); } catch { return; }
+            Texture2D bloom = MagnumTextureRegistry.GetSoftGlow();
             if (bloom == null) return;
+            Texture2D starTex = MagnumTextureRegistry.GetStar4Soft();
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
@@ -495,20 +495,31 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles
                 float fade = (1f - progress) * phaseIntensity * overallAlpha;
                 Vector2 drawPos = pos - Main.screenPosition;
 
-                // Outer glow  Ewide, themed
+                // Outer glow — wide, themed (capped ~150px on SoftGlow)
                 Color outerCol = ClairDeLunePalette.NightMist with { A = 0 } * fade * 0.35f;
                 sb.Draw(bloom, drawPos, null, outerCol, 0f, origin,
-                    0.6f * (1f - progress * 0.5f), SpriteEffects.None, 0f);
+                    0.29f * (1f - progress * 0.5f), SpriteEffects.None, 0f);
 
                 // Mid glow
                 Color midCol = ClairDeLunePalette.SoftBlue with { A = 0 } * fade * 0.4f;
                 sb.Draw(bloom, drawPos, null, midCol, 0f, origin,
-                    0.35f * (1f - progress * 0.3f), SpriteEffects.None, 0f);
+                    0.20f * (1f - progress * 0.3f), SpriteEffects.None, 0f);
 
                 // Core
                 Color coreCol = ClairDeLunePalette.PearlBlue with { A = 0 } * fade * 0.5f;
                 sb.Draw(bloom, drawPos, null, coreCol, 0f, origin,
-                    0.2f * (1f - progress * 0.3f), SpriteEffects.None, 0f);
+                    0.12f * (1f - progress * 0.3f), SpriteEffects.None, 0f);
+
+                // Star4Soft sparkle accent every 3rd trail point
+                if (i % 3 == 0 && starTex != null)
+                {
+                    Vector2 starOrigin = starTex.Size() / 2f;
+                    float starRot = Main.GlobalTimeWrappedHourly * 2f + i * 0.5f;
+                    float starScale = 0.08f * fade;
+                    sb.Draw(starTex, drawPos, null,
+                        ClairDeLunePalette.PearlWhite with { A = 0 } * fade * 0.4f, starRot,
+                        starOrigin, starScale, SpriteEffects.None, 0f);
+                }
             }
 
             sb.End();
@@ -520,9 +531,9 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles
 
         private void DrawTipGlow(SpriteBatch sb, Vector2 drawOrigin, float angle, float reach, float alpha)
         {
-            Texture2D bloom;
-            try { bloom = MagnumTextureRegistry.GetBloom(); } catch { return; }
+            Texture2D bloom = MagnumTextureRegistry.GetSoftGlow();
             if (bloom == null) return;
+            Texture2D starTex = MagnumTextureRegistry.GetStar4Soft();
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
@@ -534,26 +545,39 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles
             Vector2 tipDrawPos = drawOrigin + angle.ToRotationVector2() * reach;
             float pulse = 0.9f + 0.1f * MathF.Sin(Main.GameUpdateCount * 0.15f);
 
-            // 4-layer bloom at tip (matching CDL layering pattern)
+            // 4-layer bloom at tip — SoftGlow capped (max ~180px outer)
             sb.Draw(bloom, tipDrawPos, null,
                 ClairDeLunePalette.NightMist with { A = 0 } * 0.3f * alpha, 0f, origin,
-                1.2f * pulse, SpriteEffects.None, 0f);
+                0.35f * pulse, SpriteEffects.None, 0f);
             sb.Draw(bloom, tipDrawPos, null,
                 ClairDeLunePalette.SoftBlue with { A = 0 } * 0.4f * alpha, 0f, origin,
-                0.7f * pulse, SpriteEffects.None, 0f);
+                0.22f * pulse, SpriteEffects.None, 0f);
             sb.Draw(bloom, tipDrawPos, null,
                 ClairDeLunePalette.PearlWhite with { A = 0 } * 0.5f * alpha, 0f, origin,
-                0.4f * pulse, SpriteEffects.None, 0f);
+                0.14f * pulse, SpriteEffects.None, 0f);
             sb.Draw(bloom, tipDrawPos, null,
                 ClairDeLunePalette.WhiteHot with { A = 0 } * 0.3f * alpha, 0f, origin,
-                0.2f * pulse, SpriteEffects.None, 0f);
+                0.08f * pulse, SpriteEffects.None, 0f);
+
+            // Star4Soft clockwork sparkle accent
+            if (starTex != null)
+            {
+                Vector2 starOrigin = starTex.Size() / 2f;
+                float starRot = Main.GlobalTimeWrappedHourly * 1.5f;
+                sb.Draw(starTex, tipDrawPos, null,
+                    ClairDeLunePalette.PearlWhite with { A = 0 } * 0.5f * alpha, starRot,
+                    starOrigin, 0.12f * pulse, SpriteEffects.None, 0f);
+                sb.Draw(starTex, tipDrawPos, null,
+                    ClairDeLunePalette.SoftBlue with { A = 0 } * 0.35f * alpha, -starRot * 0.7f,
+                    starOrigin, 0.07f * pulse, SpriteEffects.None, 0f);
+            }
 
             // Clockwork gold accent for Hour Hand phase
             if (_comboPhase == 0 || _overflowActive)
             {
                 sb.Draw(bloom, tipDrawPos, null,
                     ClairDeLunePalette.ClockworkBrass with { A = 0 } * 0.25f * alpha, 0f, origin,
-                    0.9f * pulse, SpriteEffects.None, 0f);
+                    0.28f * pulse, SpriteEffects.None, 0f);
             }
 
             sb.End();

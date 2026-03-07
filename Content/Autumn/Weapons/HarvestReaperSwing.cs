@@ -422,11 +422,106 @@ namespace MagnumOpus.Content.Autumn.Weapons
             if (Progression < 0.08f || Progression > 0.95f) return;
 
             Vector2 tipWorld = GetBladeTipPosition();
-            float pulse = 1f + MathF.Sin(Main.GlobalTimeWrappedHourly * 5f) * 0.10f;
-            float tipScale = (0.18f + ComboStep * 0.06f) * pulse;
+            Vector2 tipScreen = tipWorld - Main.screenPosition;
+            Vector2 rootScreen = Owner.MountedCenter - Main.screenPosition;
+            float phaseIntensity = 1f + ComboStep * 0.12f;
+            float pulse = 1f + MathF.Sin(Main.GlobalTimeWrappedHourly * 4f) * 0.12f;
+            float swingFade = MathHelper.Clamp((Progression - 0.08f) / 0.08f, 0f, 1f)
+                            * MathHelper.Clamp((0.95f - Progression) / 0.08f, 0f, 1f);
 
-            BloomRenderer.DrawBloomStackAdditive(tipWorld, AutumnOrange, AutumnGold, tipScale, 0.85f);
+            // ═══ Switch to additive for all glow layers ═══
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                SamplerState.LinearClamp, DepthStencilState.None,
+                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
+            Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
+            Texture2D starTex = MagnumTextureRegistry.GetStar4Soft();
+            if (glowTex != null)
+            {
+                Vector2 glowOrigin = glowTex.Size() / 2f;
+                float baseScale = MathHelper.Min((0.18f + ComboStep * 0.06f) * pulse * phaseIntensity, 0.335f);
+
+                // Layer 1: Wide decay haze — the creeping autumn shadow (capped 300px max)
+                sb.Draw(glowTex, tipScreen, null,
+                    DecayPurple with { A = 0 } * 0.2f * swingFade, 0f,
+                    glowOrigin, baseScale * 1.75f, SpriteEffects.None, 0f);
+
+                // Layer 2: Warm autumn orange glow
+                sb.Draw(glowTex, tipScreen, null,
+                    AutumnOrange with { A = 0 } * 0.45f * swingFade, 0f,
+                    glowOrigin, baseScale * 1.6f, SpriteEffects.None, 0f);
+
+                // Layer 3: Inner harvest gold — the ripened core
+                sb.Draw(glowTex, tipScreen, null,
+                    AutumnGold with { A = 0 } * 0.6f * swingFade, 0f,
+                    glowOrigin, baseScale * 0.9f, SpriteEffects.None, 0f);
+
+                // Layer 4: Bright harvest ember core
+                Color hotCore = Color.Lerp(AutumnGold, Color.White, 0.5f);
+                sb.Draw(glowTex, tipScreen, null,
+                    hotCore with { A = 0 } * 0.75f * swingFade, 0f,
+                    glowOrigin, baseScale * 0.35f, SpriteEffects.None, 0f);
+
+                // Layer 5: Root glow — warm ember at sword base
+                float rootPulse = 0.6f + 0.4f * MathF.Sin(Main.GlobalTimeWrappedHourly * 2.5f);
+                sb.Draw(glowTex, rootScreen, null,
+                    AutumnBrown with { A = 0 } * 0.25f * swingFade * rootPulse, 0f,
+                    glowOrigin, 0.12f * phaseIntensity, SpriteEffects.None, 0f);
+
+                // Layer 6: Trailing decay echo at 35% blade length
+                Vector2 echoScreen = Vector2.Lerp(rootScreen, tipScreen, 0.35f);
+                sb.Draw(glowTex, echoScreen, null,
+                    DecayPurple with { A = 0 } * 0.18f * swingFade, 0f,
+                    glowOrigin, baseScale * 0.5f, SpriteEffects.None, 0f);
+            }
+
+            // Layer 7: Ember star flare at tip — the reaper's lantern
+            if (starTex != null)
+            {
+                Vector2 starOrigin = starTex.Size() / 2f;
+                float starRot = Main.GlobalTimeWrappedHourly * 2.5f;
+                float starScale = (0.07f + ComboStep * 0.025f) * pulse;
+                sb.Draw(starTex, tipScreen, null,
+                    AutumnOrange with { A = 0 } * 0.65f * swingFade, starRot,
+                    starOrigin, starScale, SpriteEffects.None, 0f);
+                sb.Draw(starTex, tipScreen, null,
+                    AutumnGold with { A = 0 } * 0.4f * swingFade, -starRot * 0.6f,
+                    starOrigin, starScale * 0.55f, SpriteEffects.None, 0f);
+            }
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                SamplerState.LinearClamp, DepthStencilState.None,
+                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // ═══ Falling leaf dust along blade ═══
+            if (Progression > 0.12f && Progression < 0.88f)
+            {
+                int dustCount = 1 + ComboStep;
+                for (int i = 0; i < dustCount; i++)
+                {
+                    float t = Main.rand.NextFloat(0.25f, 0.85f);
+                    Vector2 dustPos = Vector2.Lerp(Owner.MountedCenter, tipWorld, t);
+                    Vector2 drift = new Vector2(
+                        Main.rand.NextFloat(-1f, 1f),
+                        Main.rand.NextFloat(0.3f, 1.5f));
+                    Color leafColor = Color.Lerp(AutumnOrange, AutumnRed, Main.rand.NextFloat());
+                    Dust leaf = Dust.NewDustPerfect(dustPos, DustID.AmberBolt, drift, 0, leafColor, 0.7f);
+                    leaf.noGravity = true;
+                    leaf.fadeIn = 0.5f;
+                }
+            }
+
+            // ═══ Rising embers from tip (upward drift) ═══
+            if (Main.rand.NextBool(3))
+            {
+                Vector2 emberVel = new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), Main.rand.NextFloat(-2f, -0.8f));
+                Dust ember = Dust.NewDustPerfect(tipWorld, DustID.Torch, emberVel, 0, AutumnGold, 0.6f);
+                ember.noGravity = true;
+            }
+
+            // ═══ Music note particles ═══
             if (Main.rand.NextBool(4))
             {
                 Vector2 noteVel = (Projectile.velocity.SafeNormalize(Vector2.UnitX) * -1.5f).RotatedByRandom(0.4);

@@ -23,7 +23,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw
         public override void SetDefaults()
         {
             Item.ResearchUnlockCount = 1;
-            Item.damage = 4400;
+            Item.damage = 350; // Tier 9 (2100-3200 range), speed-proportional for useTime=1 chainsaw
             Item.DamageType = DamageClass.MeleeNoSpeed;
             Item.width = 54;
             Item.height = 24;
@@ -54,17 +54,6 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw
                     return false;
             }
             return true;
-        }
-
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient(ModContent.ItemType<ResonantCoreOfOdeToJoy>(), 25)
-                .AddIngredient(ModContent.ItemType<OdeToJoyResonantEnergy>(), 20)
-                .AddIngredient(ModContent.ItemType<HarmonicCoreOfOdeToJoy>(), 3)
-                .AddIngredient(ItemID.LunarBar, 20)
-                .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
-                .Register();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)

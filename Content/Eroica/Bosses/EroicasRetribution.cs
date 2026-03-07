@@ -169,7 +169,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             NPC.height = 90;
             NPC.damage = BaseDamage;
             NPC.defense = 80;
-            NPC.lifeMax = 450000;
+            NPC.lifeMax = 350000; // Tier 2 - 350K Normal (Expert 700K, Master 1.05M via auto-scaling)
             NPC.HitSound = SoundID.NPCHit1;
             NPC.DeathSound = SoundID.NPCDeath14;
             NPC.knockBackResist = 0f;

@@ -45,12 +45,12 @@ namespace MagnumOpus.Common.Systems.Bosses
                 primary, secondary, time);
             shader.CurrentTechnique.Passes[0].Apply();
 
-            // Draw a quad covering the aura area
+            // Draw a quad covering the aura area (capped to 300px on 512px texture)
             Texture2D pixel = MagnumTextureRegistry.GetSoftGlow() ?? Terraria.GameContent.TextureAssets.MagicPixel.Value;
             Vector2 drawPos = npc.Center - screenPos;
             float drawSize = baseRadius * 2.5f;
             sb.Draw(pixel, drawPos, null, Color.White, 0f,
-                new Vector2(0.5f), drawSize / pixel.Width, SpriteEffects.None, 0f);
+                new Vector2(0.5f), MathHelper.Min(drawSize / pixel.Width, 0.586f), SpriteEffects.None, 0f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
@@ -70,7 +70,7 @@ namespace MagnumOpus.Common.Systems.Bosses
                 float angle = MathHelper.TwoPi * i / 6f + (float)Main.timeForVisualEffects * 0.01f;
                 Vector2 offset = angle.ToRotationVector2() * (radius * 0.15f);
                 sb.Draw(pixel, drawPos + offset, null, auraColor, 0f,
-                    new Vector2(0.5f), radius * 2f / pixel.Width, SpriteEffects.None, 0f);
+                    new Vector2(0.5f), MathHelper.Min(radius * 2f / pixel.Width, 0.586f), SpriteEffects.None, 0f);
             }
         }
 
@@ -198,7 +198,7 @@ namespace MagnumOpus.Common.Systems.Bosses
             float expandRadius = 200f * progress;
             
             sb.Draw(pixel, drawPos, null, flashColor, 0f,
-                new Vector2(0.5f), expandRadius * 2f / pixel.Width, SpriteEffects.None, 0f);
+                new Vector2(0.5f), MathHelper.Min(expandRadius * 2f / pixel.Width, 0.586f), SpriteEffects.None, 0f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
@@ -269,7 +269,7 @@ namespace MagnumOpus.Common.Systems.Bosses
             flashColor.A = 0;
             Texture2D pixel = MagnumTextureRegistry.GetPointBloom() ?? Terraria.GameContent.TextureAssets.MagicPixel.Value;
             sb.Draw(pixel, drawPos, null, flashColor * 0.8f, 0f,
-                new Vector2(0.5f), scale * 100f / pixel.Width, SpriteEffects.None, 0f);
+                new Vector2(0.5f), MathHelper.Min(scale * 100f / pixel.Width, 0.139f), SpriteEffects.None, 0f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,

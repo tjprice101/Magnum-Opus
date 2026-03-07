@@ -273,10 +273,10 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Outer glow layers
+            // Outer glow layers (capped 300px max)
             Color springGlow = SpringPink with { A = 0 };
-            spriteBatch.Draw(glowTexture, drawPos, null, springGlow * 0.3f * coordinatedBoost, 0f, glowOrigin, 0.6f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(glowTexture, drawPos, null, SpringGreen with { A = 0 } * 0.2f * coordinatedBoost, 0f, glowOrigin, 0.8f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(glowTexture, drawPos, null, springGlow * 0.3f * coordinatedBoost, 0f, glowOrigin, 0.20f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(glowTexture, drawPos, null, SpringGreen with { A = 0 } * 0.2f * coordinatedBoost, 0f, glowOrigin, 0.26f * pulse, SpriteEffects.None, 0f);
 
             // Petal-like orbiting glow points
             for (int i = 0; i < 5; i++)
@@ -923,11 +923,12 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             // Outer aura ring
             Color autumnGlow = AutumnOrange with { A = 0 };
             float auraScale = (CoordinatedAttackTimer > 0 ? 0.75f : 0.5f) * (0.95f + (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.05f);
+            auraScale = MathHelper.Min(auraScale, 0.139f); // SoftCircle is 2160px — cap to 300px max
             spriteBatch.Draw(glowTexture, drawPos, null, autumnGlow * 0.2f * coordinatedBoost, 0f, glowOrigin, auraScale, SpriteEffects.None, 0f);
 
             // Inner glows
-            spriteBatch.Draw(glowTexture, drawPos, null, AutumnBrown with { A = 0 } * 0.3f * coordinatedBoost, 0f, glowOrigin, 0.55f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(glowTexture, drawPos, null, autumnGlow * 0.4f * coordinatedBoost, 0f, glowOrigin, 0.38f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(glowTexture, drawPos, null, AutumnBrown with { A = 0 } * 0.3f * coordinatedBoost, 0f, glowOrigin, MathHelper.Min(0.55f * pulse, 0.139f), SpriteEffects.None, 0f);
+            spriteBatch.Draw(glowTexture, drawPos, null, autumnGlow * 0.4f * coordinatedBoost, 0f, glowOrigin, MathHelper.Min(0.38f * pulse, 0.139f), SpriteEffects.None, 0f);
 
             // Falling leaf points
             for (int i = 0; i < 4; i++)
@@ -1212,13 +1213,13 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Frost aura
+            // Frost aura (capped 300px max)
             Color winterGlow = WinterBlue with { A = 0 };
-            float auraScale = (CoordinatedAttackTimer > 0 ? 0.7f : 0.45f) * (0.95f + (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.05f);
+            float auraScale = (CoordinatedAttackTimer > 0 ? 0.29f : 0.19f) * (0.95f + (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.05f);
             spriteBatch.Draw(glowTexture, drawPos, null, winterGlow * 0.15f * coordinatedBoost, 0f, glowOrigin, auraScale, SpriteEffects.None, 0f);
 
-            spriteBatch.Draw(glowTexture, drawPos, null, WinterPurple with { A = 0 } * 0.25f * coordinatedBoost, 0f, glowOrigin, 0.55f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(glowTexture, drawPos, null, winterGlow * 0.35f * coordinatedBoost, 0f, glowOrigin, 0.4f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(glowTexture, drawPos, null, WinterPurple with { A = 0 } * 0.25f * coordinatedBoost, 0f, glowOrigin, 0.22f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(glowTexture, drawPos, null, winterGlow * 0.35f * coordinatedBoost, 0f, glowOrigin, 0.16f * pulse, SpriteEffects.None, 0f);
 
             // Ice crystal points
             for (int i = 0; i < 6; i++)

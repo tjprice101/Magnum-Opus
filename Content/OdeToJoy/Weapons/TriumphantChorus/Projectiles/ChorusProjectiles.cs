@@ -168,7 +168,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles
                 bloomShader.Parameters["uPulseSpeed"]?.SetValue(1.0f + VoiceType * 0.2f);
                 OdeToJoyShaders.BeginDeferredShaderBatch(sb, bloomShader, "JubilantPulseTechnique");
                 sb.Draw(glow, pos, null, Color.White * pulse, 0f, glowOrigin,
-                    0.45f, SpriteEffects.None, 0f);
+                    0.28f, SpriteEffects.None, 0f);
                 sb.End();
             }
 
@@ -176,7 +176,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles
             OdeToJoyShaders.BeginAdditiveBatch(sb);
 
             // Outer voice glow
-            sb.Draw(glow, pos, null, voiceColor * 0.35f * pulse, 0f, glowOrigin, 0.4f,
+            sb.Draw(glow, pos, null, voiceColor * 0.35f * pulse, 0f, glowOrigin, 0.28f,
                 SpriteEffects.None, 0f);
             // Sparkle body
             sb.Draw(sparkle, pos, null, voiceColor * 0.6f, Main.GameUpdateCount * 0.05f, sparkleOrigin,
@@ -279,14 +279,14 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles
                 harmonyShader.Parameters["uRadius"]?.SetValue(0.3f);
                 OdeToJoyShaders.BeginDeferredShaderBatch(sb, harmonyShader, "SymphonicAuraTechnique");
                 sb.Draw(glow, pos, null, Color.White * fade, Projectile.rotation, origin,
-                    scale * 1.5f, SpriteEffects.None, 0f);
+                    Math.Min(scale * 1.5f, 0.293f), SpriteEffects.None, 0f);
                 sb.End();
             }
 
             // ── LAYER 1: Additive bloom ──
             OdeToJoyShaders.BeginAdditiveBatch(sb);
 
-            sb.Draw(glow, pos, null, c * fade * 0.5f, 0f, origin, scale, SpriteEffects.None, 0f);
+            sb.Draw(glow, pos, null, c * fade * 0.5f, 0f, origin, Math.Min(scale, 0.293f), SpriteEffects.None, 0f);
             sb.Draw(glow, pos, null, ChorusTextures.PureJoyWhite * fade * 0.3f, 0f, origin,
                 scale * 0.35f, SpriteEffects.None, 0f);
 

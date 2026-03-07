@@ -310,6 +310,10 @@ namespace MagnumOpus.Content.SandboxLastPrism
             Main.spriteBatch.Draw(sigil, drawPos, null, Color.White, rot, sigil.Size() / 2, sigilScale1, 0, 0f);
             Main.spriteBatch.Draw(sigil, drawPos, null, Color.White, rot, sigil.Size() / 2, sigilScale1, 0, 0f);
 
+            // Cap Y for star/flare textures (1024px) — 300px max
+            sigilScale1.Y = MathHelper.Min(sigilScale1.Y, 0.293f);
+            sigilScale2.Y = MathHelper.Min(sigilScale2.Y, 0.293f);
+
             Main.spriteBatch.Draw(star, drawPos + new Vector2(1f, 0f).RotatedBy(rot) * (15f * sin3), null, Color.White, rot, star.Size() / 2, sigilScale2, 0, 0f);
 
             Main.spriteBatch.Draw(star2, drawPos, null, Color.White, rot, star2.Size() / 2, sigilScale1 * 1f, 0, 0f);
@@ -320,9 +324,9 @@ namespace MagnumOpus.Content.SandboxLastPrism
             Main.spriteBatch.Draw(orbGlow, endPoint + new Vector2(0f, 0f), null, Color.White, endRot * 0.1f, orbGlow.Size() / 2f, 0.5f, 0, 0f);
 
             float endScale = 0.7f + (combinedLaserStartBoostPower * 0.5f);
-            Main.spriteBatch.Draw(star, endPoint, null, Color.White, endRot * 0.02f, star.Size() / 2f, endScale * 0.45f, 0, 0f);
-            Main.spriteBatch.Draw(star2, endPoint, null, Color.White, endRot * 0.05f, star2.Size() / 2f, endScale * 0.6f, 0, 0f);
-            Main.spriteBatch.Draw(star2, endPoint, null, Color.White, endRot * 0.077f, star2.Size() / 2f, endScale * 0.35f, 0, 0f);
+            Main.spriteBatch.Draw(star, endPoint, null, Color.White, endRot * 0.02f, star.Size() / 2f, MathHelper.Min(endScale * 0.45f, 0.293f), 0, 0f);
+            Main.spriteBatch.Draw(star2, endPoint, null, Color.White, endRot * 0.05f, star2.Size() / 2f, MathHelper.Min(endScale * 0.6f, 0.293f), 0, 0f);
+            Main.spriteBatch.Draw(star2, endPoint, null, Color.White, endRot * 0.077f, star2.Size() / 2f, MathHelper.Min(endScale * 0.35f, 0.293f), 0, 0f);
 
             Main.spriteBatch.End();
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.EffectMatrix);

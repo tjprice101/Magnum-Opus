@@ -276,7 +276,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer.Projectiles
                 {
                     Main.spriteBatch.Draw(flareTex, pos, null,
                         NachtmusikPalette.StarGold with { A = 0 } * 0.15f,
-                        time * 0.4f, flareTex.Size() / 2f, 0.18f * pulse, SpriteEffects.None, 0f);
+                        time * 0.4f, flareTex.Size() / 2f, 0.12f * pulse, SpriteEffects.None, 0f);
                 }
 
                 NachtmusikShaderManager.RestoreSpriteBatch(Main.spriteBatch);

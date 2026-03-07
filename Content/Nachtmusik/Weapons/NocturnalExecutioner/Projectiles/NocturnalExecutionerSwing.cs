@@ -402,15 +402,15 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Projectiles
 
                     // Layer 1: Wide void atmospheric halo
                     sb.Draw(bloomTex, tipScreen, null, NachtmusikPalette.CosmicVoid with { A = 0 } * bloomOpacity * 0.2f,
-                        0f, bloomOrigin, bloomScale * 2.8f * pulse, SpriteEffects.None, 0f);
+                        0f, bloomOrigin, bloomScale * 0.65f * pulse, SpriteEffects.None, 0f);
 
                     // Layer 2: Cosmic purple mid glow
                     sb.Draw(bloomTex, tipScreen, null, NachtmusikPalette.CosmicPurple with { A = 0 } * bloomOpacity * 0.3f,
-                        SwordRotation * 0.4f, bloomOrigin, bloomScale * 1.8f * pulse, SpriteEffects.None, 0f);
+                        SwordRotation * 0.4f, bloomOrigin, bloomScale * 0.42f * pulse, SpriteEffects.None, 0f);
 
                     // Layer 3: Deep indigo inner glow
                     sb.Draw(bloomTex, tipScreen, null, DeepIndigo with { A = 0 } * bloomOpacity * 0.45f,
-                        0f, bloomOrigin, bloomScale * 1.0f, SpriteEffects.None, 0f);
+                        0f, bloomOrigin, bloomScale * 0.55f, SpriteEffects.None, 0f);
 
                     // Layer 4: Starlight silver accent
                     sb.Draw(bloomTex, tipScreen, null, StarlightSilver with { A = 0 } * bloomOpacity * 0.5f,
@@ -427,9 +427,22 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Projectiles
                         Vector2 flareOrigin = flareTex.Size() / 2f;
                         float flareRot = time * 0.3f;
                         sb.Draw(flareTex, tipScreen, null, NachtmusikPalette.Violet with { A = 0 } * bloomOpacity * 0.35f,
-                            flareRot, flareOrigin, bloomScale * 0.6f * pulse, SpriteEffects.None, 0f);
+                            flareRot, flareOrigin, bloomScale * 0.14f * pulse, SpriteEffects.None, 0f);
                         sb.Draw(flareTex, tipScreen, null, StellarWhite with { A = 0 } * bloomOpacity * 0.15f,
-                            flareRot + MathHelper.PiOver4, flareOrigin, bloomScale * 0.35f, SpriteEffects.None, 0f);
+                            flareRot + MathHelper.PiOver4, flareOrigin, bloomScale * 0.08f, SpriteEffects.None, 0f);
+                    }
+
+                    // Star4Soft sparkle accent — executioner's cold gleam
+                    Texture2D starTex = MagnumTextureRegistry.GetStar4Soft();
+                    if (starTex != null)
+                    {
+                        Vector2 starOrigin = starTex.Size() / 2f;
+                        float starRot = time * 1.2f;
+                        float starScale = bloomScale * 0.14f * pulse;
+                        sb.Draw(starTex, tipScreen, null, StarlightSilver with { A = 0 } * bloomOpacity * 0.4f,
+                            starRot, starOrigin, starScale, SpriteEffects.None, 0f);
+                        sb.Draw(starTex, tipScreen, null, StellarWhite with { A = 0 } * bloomOpacity * 0.2f,
+                            -starRot * 0.7f, starOrigin, starScale * 0.55f, SpriteEffects.None, 0f);
                     }
 
                     SwingShaderSystem.RestoreSpriteBatch(sb);

@@ -342,8 +342,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             }
 
             // === 6-LAYER SPINNING FLARES (TRUE_VFX_STANDARDS) ===
-            // Layer 1: Soft glow base (large, dim)
-            spriteBatch.Draw(softGlow, drawPos, null, secondaryBloom * 0.3f, 0f, glowOrigin, 0.9f * pulse, SpriteEffects.None, 0f);
+            // Layer 1: Soft glow base (large, dim) (capped 300px max)
+            spriteBatch.Draw(softGlow, drawPos, null, secondaryBloom * 0.3f, 0f, glowOrigin, 0.24f * pulse, SpriteEffects.None, 0f);
 
             // Layer 2: First flare spinning clockwise
             float hue2 = HueMin + 0.2f * (HueMax - HueMin);
@@ -405,9 +405,9 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 spriteBatch.Draw(softGlow, sparklePos, null, whiteBloom * sparkleIntensity, 0f, glowOrigin, 0.22f * pulse, SpriteEffects.None, 0f);
             }
             
-            // === CENTER GLOW for ambient bloom ===
-            spriteBatch.Draw(softGlow, drawPos, null, primaryBloom * 0.45f, 0f, glowOrigin, 0.7f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(softGlow, drawPos, null, whiteBloom * 0.3f, 0f, glowOrigin, 0.35f, SpriteEffects.None, 0f);
+            // === CENTER GLOW for ambient bloom === (capped 300px max)
+            spriteBatch.Draw(softGlow, drawPos, null, primaryBloom * 0.45f, 0f, glowOrigin, 0.18f * pulse, SpriteEffects.None, 0f);
+            spriteBatch.Draw(softGlow, drawPos, null, whiteBloom * 0.3f, 0f, glowOrigin, 0.10f, SpriteEffects.None, 0f);
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);

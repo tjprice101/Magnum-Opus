@@ -379,8 +379,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
             Vector2 screenPos = Projectile.Center - Main.screenPosition;
             float pulse = 0.8f + 0.2f * (float)Math.Sin(Projectile.timeLeft * 0.15f);
             float waltzPulse = 0.85f + 0.15f * (float)Math.Sin(Main.GameUpdateCount * 0.1047f);
-            float baseScale = IsEmpowered ? 0.5f : 0.35f;
-            float empScale = IsEmpowered ? 1.3f : 1f;
+            float baseScale = IsEmpowered ? 0.3f : 0.2f;
+            float empScale = IsEmpowered ? 1.1f : 1f;
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
@@ -393,8 +393,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
             {
                 Vector2 origin = wideBloom.Size() * 0.5f;
                 Color outerColor = IsBlack ? new Color(25, 25, 50, 0) : new Color(210, 215, 235, 0);
-                sb.Draw(wideBloom, screenPos, null, outerColor * 0.28f * waltzPulse * empScale,
-                    0f, origin, baseScale * 2.8f, SpriteEffects.None, 0f);
+                sb.Draw(wideBloom, screenPos, null, outerColor * 0.15f * waltzPulse * empScale,
+                    0f, origin, baseScale * 0.25f, SpriteEffects.None, 0f);
             }
 
             // Sub-layer 2: Mid polarity glow
@@ -402,15 +402,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
             {
                 Vector2 origin = bloom.Size() * 0.5f;
                 Color midColor = IsBlack ? new Color(60, 60, 90, 0) : new Color(200, 205, 235, 0);
-                sb.Draw(bloom, screenPos, null, midColor * 0.4f * pulse * empScale,
-                    0f, origin, baseScale * 1.4f, SpriteEffects.None, 0f);
+                sb.Draw(bloom, screenPos, null, midColor * 0.22f * pulse * empScale,
+                    0f, origin, baseScale * 0.55f, SpriteEffects.None, 0f);
             }
 
             // Sub-layer 3: Silver core bloom
             if (bloom != null)
             {
                 Vector2 origin = bloom.Size() * 0.5f;
-                sb.Draw(bloom, screenPos, null, new Color(200, 200, 225, 0) * 0.55f * pulse,
+                sb.Draw(bloom, screenPos, null, new Color(200, 200, 225, 0) * 0.3f * pulse,
                     0f, origin, baseScale * 0.8f, SpriteEffects.None, 0f);
             }
 
@@ -419,7 +419,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
             {
                 Vector2 pbOrigin = pointBloom.Size() * 0.5f;
                 sb.Draw(pointBloom, screenPos, null, new Color(255, 255, 255, 0) * 0.65f * waltzPulse,
-                    0f, pbOrigin, baseScale * 0.5f, SpriteEffects.None, 0f);
+                    0f, pbOrigin, baseScale * 0.05f, SpriteEffects.None, 0f);
             }
 
             // Sub-layer 5: Rotating star accent (polarity-tinted)
@@ -441,13 +441,13 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                     Vector2 auraOrigin = auraBloom.Size() * 0.5f;
                     float hue = (Main.GameUpdateCount * 0.02f) % 1f;
                     Color rainbow = Main.hslToRgb(hue, 0.9f, 0.85f);
-                    sb.Draw(auraBloom, screenPos, null, new Color(rainbow.R, rainbow.G, rainbow.B, 0) * 0.25f * waltzPulse,
-                        0f, auraOrigin, baseScale * 4f, SpriteEffects.None, 0f);
+                    sb.Draw(auraBloom, screenPos, null, new Color(rainbow.R, rainbow.G, rainbow.B, 0) * 0.15f * waltzPulse,
+                        0f, auraOrigin, baseScale * 0.25f, SpriteEffects.None, 0f);
 
                     // Counter-rotating prismatic ring
                     Color rainbow2 = Main.hslToRgb((hue + 0.5f) % 1f, 0.85f, 0.8f);
                     sb.Draw(auraBloom, screenPos, null, new Color(rainbow2.R, rainbow2.G, rainbow2.B, 0) * 0.15f,
-                        0f, auraOrigin, baseScale * 3.2f, SpriteEffects.None, 0f);
+                        0f, auraOrigin, baseScale * 0.2f, SpriteEffects.None, 0f);
                 }
             }
 

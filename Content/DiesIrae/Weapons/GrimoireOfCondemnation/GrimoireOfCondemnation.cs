@@ -20,7 +20,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.GrimoireOfCondemnation
         {
             Item.width = 32;
             Item.height = 32;
-            Item.damage = 1500;
+            Item.damage = 1650; // Tier 8 (1600-2400 range)
             Item.DamageType = DamageClass.Magic;
             Item.mana = 12;
             Item.useTime = 15;
@@ -85,17 +85,6 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.GrimoireOfCondemnation
 
             Projectile.NewProjectile(source, position, velocity, type, actualDamage, knockback, player.whoAmI);
             return false;
-        }
-
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-            .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.ResonantCoreOfDiesIrae>(), 20)
-            .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.DiesIraeResonantEnergy>(), 15)
-            .AddIngredient(ModContent.ItemType<Content.DiesIrae.HarmonicCores.HarmonicCoreOfDiesIrae>(), 2)
-            .AddIngredient(ItemID.LunarBar, 15)
-            .AddTile(ModContent.TileType<Content.Fate.CraftingStations.FatesCosmicAnvilTile>())
-            .Register();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)

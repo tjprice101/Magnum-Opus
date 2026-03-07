@@ -32,7 +32,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NebulasWhisper
         {
             Item.width = 30;
             Item.height = 58;
-            Item.damage = 1050;
+            Item.damage = 1200; // Tier 7 (1200-1800 range)
             Item.DamageType = DamageClass.Ranged;
             Item.useTime = 16;
             Item.useAnimation = 16;

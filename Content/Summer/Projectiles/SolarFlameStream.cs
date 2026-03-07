@@ -296,7 +296,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
                 float angle = MathHelper.TwoPi * i / pointCount;
                 Vector2 pointPos = Projectile.Center + angle.ToRotationVector2() * expandRadius - Main.screenPosition;
                 Color pointColor = Color.Lerp(SunGold, SunRed, (float)i / pointCount) * alpha * 0.4f;
-                spriteBatch.Draw(glowTex, pointPos, null, pointColor, 0f, origin, 0.25f, SpriteEffects.None, 0f);
+                spriteBatch.Draw(glowTex, pointPos, null, pointColor, 0f, origin, 0.139f, SpriteEffects.None, 0f); // SoftCircle 2160px — cap to 300px max
             }
 
             spriteBatch.End();

@@ -591,15 +591,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
 
             // Outer glow — shifts color with resonance
             Color outerCol = Color.Lerp(PrismViolet, resColor, 0.4f) with { A = 0 };
-            Main.spriteBatch.Draw(tex, drawPos, null, outerCol * (0.5f * intensity * pulse), 0f, origin, (1.5f + resonance * 0.2f) * intensity, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(tex, drawPos, null, outerCol * (0.5f * intensity * pulse), 0f, origin, (0.1f + resonance * 0.015f) * intensity, SpriteEffects.None, 0f);
 
             // Mid glow
             Color midCol = Color.Lerp(RefractedBlue, resColor, 0.3f) with { A = 0 };
-            Main.spriteBatch.Draw(tex, drawPos, null, midCol * (0.4f * intensity * pulse), 0f, origin, (0.8f + resonance * 0.1f) * intensity, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(tex, drawPos, null, midCol * (0.4f * intensity * pulse), 0f, origin, (0.055f + resonance * 0.008f) * intensity, SpriteEffects.None, 0f);
 
             // Core
             Color coreCol = MoonWhite with { A = 0 };
-            Main.spriteBatch.Draw(tex, drawPos, null, coreCol * (0.7f * intensity * pulse), 0f, origin, 0.3f * intensity, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(tex, drawPos, null, coreCol * (0.7f * intensity * pulse), 0f, origin, 0.02f * intensity, SpriteEffects.None, 0f);
 
             // Restore to AlphaBlend
             Main.spriteBatch.End();

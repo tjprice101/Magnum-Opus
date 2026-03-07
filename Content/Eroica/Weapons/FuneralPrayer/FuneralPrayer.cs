@@ -24,7 +24,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.FuneralPrayer
         public override void SetDefaults()
         {
             Item.ResearchUnlockCount = 1;
-            Item.damage = 105;
+            Item.damage = 200; // Tier 2 (300-500 range), speed-proportional for useTime=10
             Item.DamageType = DamageClass.Magic;
             Item.width = 50;
             Item.height = 50;

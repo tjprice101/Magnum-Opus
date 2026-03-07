@@ -155,10 +155,10 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConductorOfConstellations.Projec
                 Vector2 glowOrigin = glow.Size() / 2f;
                 // Outer cosmic halo
                 sb.Draw(glow, drawPos, null, NachtmusikPalette.CosmicPurple with { A = 0 } * 0.4f,
-                    0f, glowOrigin, 1f * pulse, SpriteEffects.None, 0f);
+                    0f, glowOrigin, 0.55f * pulse, SpriteEffects.None, 0f);
                 // Radiance gold mid
                 sb.Draw(glow, drawPos, null, NachtmusikPalette.RadianceGold with { A = 0 } * 0.35f,
-                    0f, glowOrigin, 0.7f * pulse, SpriteEffects.None, 0f);
+                    0f, glowOrigin, 0.4f * pulse, SpriteEffects.None, 0f);
                 // Violet inner
                 sb.Draw(glow, drawPos, null, NachtmusikPalette.Violet with { A = 0 } * 0.25f,
                     0f, glowOrigin, 0.5f * pulse, SpriteEffects.None, 0f);
@@ -173,7 +173,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConductorOfConstellations.Projec
             {
                 sb.Draw(flareTex, drawPos, null,
                     NachtmusikPalette.RadianceGold with { A = 0 } * 0.12f,
-                    time * 0.2f, flareTex.Size() / 2f, 0.3f * pulse, SpriteEffects.None, 0f);
+                    time * 0.2f, flareTex.Size() / 2f, 0.12f * pulse, SpriteEffects.None, 0f);
             }
 
             // Main sprite

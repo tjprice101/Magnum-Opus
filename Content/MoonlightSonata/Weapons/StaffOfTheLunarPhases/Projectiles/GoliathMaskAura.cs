@@ -150,7 +150,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
             float fadeIn = MathHelper.Clamp(timer / 15f, 0f, 1f);
             float fadeOut = MathHelper.Clamp((MaxLifetime - timer) / 20f, 0f, 1f);
             // Gentle oscillation
-            float pulse = 0.8f + 0.2f * MathF.Sin(timer * 0.06f);
+            float pulse = 1.0f;
             return fadeIn * fadeOut * pulse;
         }
 
@@ -198,13 +198,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
             Color outerColor = GetCurrentPhaseColor(0.3f);
             Color midColor = GetCurrentPhaseColor(0.5f);
 
-            // Outer halo — wide, faint
+            // Outer halo — wide, faint (SoftGlow 1024px — cap to 300px max)
             sb.Draw(glow, drawPos, null, outerColor * (0.12f * pulse), 0f,
-                origin, 1.4f, SpriteEffects.None, 0f);
+                origin, 0.293f, SpriteEffects.None, 0f);
 
             // Mid halo — moderate
             sb.Draw(glow, drawPos, null, midColor * (0.18f * pulse), 0f,
-                origin, 0.9f, SpriteEffects.None, 0f);
+                origin, 0.293f, SpriteEffects.None, 0f);
         }
 
         private void DrawShaderAura(SpriteBatch sb, Vector2 drawPos, float pulse)
@@ -243,7 +243,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
 
             Texture2D circle = _softCircle.Value;
             Vector2 circleOrigin = circle.Size() / 2f;
-            float orbDrawScale = 0.4f;
+            float orbDrawScale = 0.25f;
             sb.Draw(circle, drawPos, null, Color.White * (pulse * 0.6f), 0f,
                 circleOrigin, orbDrawScale, SpriteEffects.None, 0f);
 

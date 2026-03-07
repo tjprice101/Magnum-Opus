@@ -96,7 +96,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract.Particles
             Vector2 origin = tex.Size() / 2f;
             Vector2 pos = Position - Main.screenPosition;
             float alpha = MathF.Sin(Progress * MathF.PI) * 0.5f;
-            sb.Draw(tex, pos, null, DrawColor * alpha, Rotation + Time * _rotSpeed, origin, Scale, SpriteEffects.None, 0f);
+            sb.Draw(tex, pos, null, DrawColor * alpha, Rotation + Time * _rotSpeed, origin, MathHelper.Min(Scale, 0.537f), SpriteEffects.None, 0f);
         }
     }
 
@@ -129,8 +129,8 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract.Particles
             Vector2 origin = tex.Size() / 2f;
             Vector2 pos = Position - Main.screenPosition;
             float alpha = (1f - Progress) * 0.8f;
-            sb.Draw(tex, pos, null, DrawColor * alpha, 0f, origin, Scale, SpriteEffects.None, 0f);
-            sb.Draw(tex, pos, null, DiesIraePalette.WrathWhite * alpha * 0.3f, 0f, origin, Scale * 0.4f, SpriteEffects.None, 0f);
+            sb.Draw(tex, pos, null, DrawColor * alpha, 0f, origin, MathHelper.Min(Scale, 0.139f), SpriteEffects.None, 0f);
+            sb.Draw(tex, pos, null, DiesIraePalette.WrathWhite * alpha * 0.3f, 0f, origin, MathHelper.Min(Scale * 0.4f, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -201,7 +201,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract.Particles
             Vector2 origin = tex.Size() / 2f;
             Vector2 pos = Position - Main.screenPosition;
             float alpha = (1f - Progress);
-            sb.Draw(tex, pos, null, DrawColor * alpha * 0.6f, Velocity.ToRotation(), origin, Scale, SpriteEffects.None, 0f);
+            sb.Draw(tex, pos, null, DrawColor * alpha * 0.6f, Velocity.ToRotation(), origin, MathHelper.Min(Scale, 0.293f), SpriteEffects.None, 0f);
         }
     }
 
@@ -229,7 +229,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract.Particles
             Vector2 pos = Position - Main.screenPosition;
 
             float t = Progress;
-            float scale = MathHelper.Lerp(Scale, _endScale, 1f - MathF.Pow(1f - t, 3f));
+            float scale = MathHelper.Min(MathHelper.Lerp(Scale, _endScale, 1f - MathF.Pow(1f - t, 3f)), 0.293f);
             float alpha = t < 0.2f ? t / 0.2f : MathF.Pow(1f - (t - 0.2f) / 0.8f, 2f);
 
             sb.Draw(tex, pos, null, DiesIraePalette.JudgmentGold * alpha * 0.5f, 0f, origin, scale, SpriteEffects.None, 0f);
@@ -261,7 +261,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract.Particles
             float pulse = MathF.Sin(t * MathF.PI * 4f); // Fast pulsing
             float alpha = (1f - t) * MathF.Abs(pulse) * 0.6f;
 
-            sb.Draw(tex, pos, null, DrawColor * alpha, 0f, origin, Scale * (1f + t * 0.5f), SpriteEffects.None, 0f);
+            sb.Draw(tex, pos, null, DrawColor * alpha, 0f, origin, MathHelper.Min(Scale * (1f + t * 0.5f), 0.293f), SpriteEffects.None, 0f);
         }
     }
 }

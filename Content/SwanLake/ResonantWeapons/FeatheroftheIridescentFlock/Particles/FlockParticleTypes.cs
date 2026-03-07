@@ -13,7 +13,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
     public class IridescentFeatherParticle : FlockParticle
     {
         private float _swayPhase;
-        public override bool UseAdditiveBlend => false;
+        public override bool UseAdditiveBlend => true; // WideSoftEllipse + SoftGlow have black bg
         protected override int SetLifetime() => 55 + Main.rand.Next(30);
 
         public override void Update()
@@ -36,13 +36,13 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
 
             Color sheen = FlockUtils.GetOilSheen(Rotation, Time);
             spriteBatch.Draw(tex, drawPos, null, sheen * alpha, Rotation,
-                origin, new Vector2(Scale * 0.5f, Scale * 0.12f), SpriteEffects.None, 0f);
+                origin, new Vector2(MathHelper.Min(Scale * 0.5f, 0.139f), MathHelper.Min(Scale * 0.12f, 0.139f)), SpriteEffects.None, 0f);
 
             // Additive bloom overlay
             Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
             if (glow != null)
                 spriteBatch.Draw(glow, drawPos, null, sheen * alpha * 0.35f, Rotation,
-                    glow.Size() * 0.5f, new Vector2(Scale * 0.75f, Scale * 0.18f), SpriteEffects.None, 0f);
+                    glow.Size() * 0.5f, new Vector2(MathHelper.Min(Scale * 0.75f, 0.586f), MathHelper.Min(Scale * 0.18f, 0.586f)), SpriteEffects.None, 0f);
         }
     }
 
@@ -71,7 +71,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
             Vector2 drawPos = Position - Main.screenPosition;
 
             spriteBatch.Draw(tex, drawPos, null, DrawColor * alpha, Rotation,
-                tex.Size() * 0.5f, new Vector2(Scale * 0.04f, Scale * 0.15f), SpriteEffects.None, 0f);
+                tex.Size() * 0.5f, new Vector2(MathHelper.Min(Scale * 0.04f, 0.139f), MathHelper.Min(Scale * 0.15f, 0.139f)), SpriteEffects.None, 0f);
 
             // Additive bloom overlay
             Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
@@ -118,7 +118,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
             {
                 Color bloomCol = FlockUtils.GetIridescent(t);
                 spriteBatch.Draw(glow, Position - Main.screenPosition, null, bloomCol * alpha * 0.3f * Scale,
-                    0f, glow.Size() * 0.5f, radius / 40f, SpriteEffects.None, 0f);
+                    0f, glow.Size() * 0.5f, MathHelper.Min(radius / 40f, 0.586f), SpriteEffects.None, 0f);
             }
         }
     }

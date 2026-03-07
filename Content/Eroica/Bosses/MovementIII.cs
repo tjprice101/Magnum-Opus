@@ -94,7 +94,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             NPC.height = 26;
             NPC.damage = 80;
             NPC.defense = 60;
-            NPC.lifeMax = 260254;
+            NPC.lifeMax = 200000; // Eroica sub-boss (proportional to main boss 350K)
             NPC.HitSound = SoundID.NPCHit54;
             NPC.DeathSound = SoundID.NPCDeath52;
             NPC.knockBackResist = 0f;

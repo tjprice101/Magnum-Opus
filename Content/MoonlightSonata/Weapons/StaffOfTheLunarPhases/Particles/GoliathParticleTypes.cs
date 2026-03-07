@@ -173,7 +173,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
             Vector2 drawPos = Position - Main.screenPosition;
             float fade = GoliathUtils.SineBump(LifetimeCompletion) * 0.6f;
             sb.Draw(tex, drawPos, null, DrawColor * fade,
-                0f, origin, Scale * 0.3f, SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(Scale * 0.3f, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -216,7 +216,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
             Vector2 drawPos = Position - Main.screenPosition;
             float fade = 1f - GoliathUtils.PolyIn(LifetimeCompletion);
             sb.Draw(tex, drawPos, null, DrawColor * fade * 0.7f,
-                0f, origin, Scale, SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(Scale, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -320,7 +320,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
             Vector2 drawPos = Position - Main.screenPosition;
             float fade = 1f - GoliathUtils.PolyIn(LifetimeCompletion);
             sb.Draw(tex, drawPos, null, DrawColor * fade * 0.5f,
-                0f, origin, Scale * 0.25f, SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(Scale * 0.25f, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -410,7 +410,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
             Vector2 drawPos = Position - Main.screenPosition;
             float fade = 1f - GoliathUtils.PolyIn(LifetimeCompletion);
             sb.Draw(tex, drawPos, null, DrawColor * fade * 0.8f,
-                0f, origin, Scale, SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(Scale, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -458,10 +458,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
 
             // Outer ring
             sb.Draw(tex, drawPos, null, color,
-                0f, origin, Scale, SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(Scale, 0.139f), SpriteEffects.None, 0f);
             // Inner ring (brighter, smaller)
             sb.Draw(tex, drawPos, null, color * 0.7f,
-                0f, origin, Scale * 0.65f, SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(Scale * 0.65f, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -523,10 +523,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
 
             // Soft bloom
             sb.Draw(tex, drawPos, null, color * 0.5f,
-                0f, origin, Scale * 0.6f, SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(Scale * 0.6f, 0.139f), SpriteEffects.None, 0f);
             // Core
             sb.Draw(tex, drawPos, null, color,
-                0f, origin, Scale * 0.25f, SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(Scale * 0.25f, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -574,7 +574,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
             color.A = 0;
 
             sb.Draw(tex, drawPos, null, color * opacity,
-                Rotation, origin, Scale * 0.35f * pulse, SpriteEffects.None, 0f);
+                Rotation, origin, MathHelper.Min(Scale * 0.35f * pulse, 0.293f), SpriteEffects.None, 0f);
         }
     }
 
@@ -660,7 +660,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
             color.A = 0;
 
             sb.Draw(tex, drawPos, null, color * opacity,
-                0f, origin, Scale * 0.3f * pulse, SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(Scale * 0.3f * pulse, 0.293f), SpriteEffects.None, 0f);
         }
     }
 
@@ -703,7 +703,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
             color.A = 0;
 
             sb.Draw(tex, drawPos, null, color * fade,
-                0f, origin, Scale * 0.45f, SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(Scale * 0.45f, 0.293f), SpriteEffects.None, 0f);
         }
     }
 
@@ -744,7 +744,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
             color.A = 0;
 
             sb.Draw(tex, drawPos, null, color * opacity * 0.7f,
-                Rotation, origin, Scale * 0.35f, SpriteEffects.None, 0f);
+                Rotation, origin, MathHelper.Min(Scale * 0.35f, 0.293f), SpriteEffects.None, 0f);
         }
     }
 

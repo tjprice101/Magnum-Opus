@@ -135,10 +135,10 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract.Utilities
                 float hazeAlpha = state == DemonState.Frenzy ? 0.18f : 0.1f;
                 sb.Draw(softGlow, drawPos, null, primary * hazeAlpha * pulse, 0f, softGlow.Size() / 2f, 0.45f, SpriteEffects.None, 0f);
 
-                // Frenzy aura
+                // Frenzy aura (capped 300px max)
                 if (state == DemonState.Frenzy)
                 {
-                    sb.Draw(softGlow, drawPos, null, DemonCore * 0.08f, 0f, softGlow.Size() / 2f, circleRadius / 0.32f * 0.4f, SpriteEffects.None, 0f);
+                    sb.Draw(softGlow, drawPos, null, DemonCore * 0.08f, 0f, softGlow.Size() / 2f, MathHelper.Min(circleRadius / 0.32f * 0.4f, 0.58f), SpriteEffects.None, 0f);
                 }
             }
 

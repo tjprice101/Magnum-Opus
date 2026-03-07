@@ -184,8 +184,8 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
             NPC.width = 120;
             NPC.height = 160;
             NPC.damage = BaseDamage;
-            NPC.defense = 55;
-            NPC.lifeMax = 320000;
+            NPC.defense = 320; // Tier 9 defense - above Dies Irae (280)
+            NPC.lifeMax = 14000000; // Tier 9 - 14M Normal (Expert 28M, Master 42M via auto-scaling)
             NPC.HitSound = SoundID.NPCHit1;
             NPC.DeathSound = SoundID.NPCDeath14;
             NPC.knockBackResist = 0f;
@@ -1371,9 +1371,7 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
             npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<OdeToJoyResonantEnergy>(), 1, 20, 30));
             
             // Treasure bag (Expert/Master)
-            // npcLoot.Add(ItemDropRule.BossBag(ModContent.ItemType<OdeToJoyTreasureBag>()));
-            
-            // TODO: Add weapon drops, accessories, etc.
+            npcLoot.Add(ItemDropRule.BossBag(ModContent.ItemType<OdeToJoyTreasureBag>()));
         }
         
         public override void OnKill()

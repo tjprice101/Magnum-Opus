@@ -24,7 +24,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture
         {
             Item.width = 40;
             Item.height = 40;
-            Item.damage = 980;
+            Item.damage = 1200; // Tier 7 (1200-1800 range)
             Item.DamageType = DamageClass.Summon;
             Item.mana = 18;
             Item.useTime = 30;

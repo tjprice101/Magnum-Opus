@@ -25,7 +25,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.P
         private readonly float _pulseSpeed;
 
         public override bool SetLifetime => true;
-        public override bool UseAdditiveBlend => false;
+        public override bool UseAdditiveBlend => true; // SoftRadialBloom halo has black bg
         public override bool UseCustomDraw => true;
 
         public QuestionMarkParticle(Vector2 position, Vector2 velocity, Color color, float scale, int lifetime)
@@ -67,7 +67,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.P
 
             // Soft glow behind the glyph
             var glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
-            sb.Draw(glowTex, drawPos, null, drawColor * 0.25f, 0f, glowTex.Size() / 2f, Scale * 2.5f, SpriteEffects.None, 0f);
+            sb.Draw(glowTex, drawPos, null, drawColor * 0.25f, 0f, glowTex.Size() / 2f, MathHelper.Min(Scale * 2.5f, 0.139f), SpriteEffects.None, 0f);
 
             // The glyph itself
             sb.Draw(tex, drawPos, null, drawColor * 0.9f, Rotation, tex.Size() / 2f, Scale, SpriteEffects.None, 0f);
@@ -109,9 +109,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.P
             Vector2 drawPos = Position - Main.screenPosition;
 
             // Layer 1: Outer soft glow
-            sb.Draw(tex, drawPos, null, Color * alpha * 0.3f, 0f, tex.Size() / 2f, Scale * 1.8f, SpriteEffects.None, 0f);
+            sb.Draw(tex, drawPos, null, Color * alpha * 0.3f, 0f, tex.Size() / 2f, MathHelper.Min(Scale * 1.8f, 0.139f), SpriteEffects.None, 0f);
             // Layer 2: Bright core
-            sb.Draw(tex, drawPos, null, Color * alpha * 0.8f, 0f, tex.Size() / 2f, Scale * 0.6f, SpriteEffects.None, 0f);
+            sb.Draw(tex, drawPos, null, Color * alpha * 0.8f, 0f, tex.Size() / 2f, MathHelper.Min(Scale * 0.6f, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -156,8 +156,10 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.P
             // Velocity-stretched scale for directional feel
             float stretch = MathHelper.Clamp(Velocity.Length() * 0.15f, 1f, 3.5f);
             Vector2 wideScale = new(Scale * stretch * 2.5f, Scale * 1.2f);
-            Vector2 midScale = new(Scale * stretch * 1.5f, Scale * 0.8f);
-            Vector2 sharpScale = new(Scale * stretch * 0.7f, Scale * 0.35f);
+            float chainCap = wideScale.X > 0.139f ? 0.139f / wideScale.X : 1f;
+            wideScale *= chainCap;
+            Vector2 midScale = new Vector2(Scale * stretch * 1.5f, Scale * 0.8f) * chainCap;
+            Vector2 sharpScale = new Vector2(Scale * stretch * 0.7f, Scale * 0.35f) * chainCap;
 
             // Layer 1: Wide outer bloom (faint)
             sb.Draw(tex, drawPos, null, Color * alpha * 0.2f, Rotation, tex.Size() / 2f, wideScale, SpriteEffects.None, 0f);
@@ -220,8 +222,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.P
                     new Vector2(thickness / tex.Width * 2f, thickness / tex.Height * 2f), SpriteEffects.None, 0f);
             }
 
-            // Central glow fade
-            sb.Draw(tex, drawPos, null, ringColor * 0.15f, 0f, tex.Size() / 2f, outerRadius / tex.Width * 2f, SpriteEffects.None, 0f);
+            // Central glow fade (capped to 300px on 2160px texture)
+            sb.Draw(tex, drawPos, null, ringColor * 0.15f, 0f, tex.Size() / 2f, MathHelper.Min(outerRadius / tex.Width * 2f, 0.139f), SpriteEffects.None, 0f);
         }
     }
 }

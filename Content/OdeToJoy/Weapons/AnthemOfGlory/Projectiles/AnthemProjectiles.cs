@@ -238,21 +238,21 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory.Projectiles
             Vector2 originPos = owner.Center - Main.screenPosition;
             // Origin: wide outer → medium → bright core (3-layer bloom)
             sb.Draw(glowTex, originPos, null, AnthemTextures.BloomGold * brightness * 0.3f, 0f,
-                glowTex.Size() / 2f, 0.8f * crescendo, SpriteEffects.None, 0f);
+                glowTex.Size() / 2f, Math.Min(0.8f * crescendo, 0.293f), SpriteEffects.None, 0f);
             sb.Draw(glowTex, originPos, null, AnthemTextures.RadiantAmber * brightness * 0.4f, 0f,
-                glowTex.Size() / 2f, 0.5f * crescendo, SpriteEffects.None, 0f);
+                glowTex.Size() / 2f, Math.Min(0.5f * crescendo, 0.293f), SpriteEffects.None, 0f);
             sb.Draw(glowTex, originPos, null, AnthemTextures.JubilantLight * brightness * 0.3f, 0f,
-                glowTex.Size() / 2f, 0.2f * crescendo, SpriteEffects.None, 0f);
+                glowTex.Size() / 2f, Math.Min(0.2f * crescendo, 0.293f), SpriteEffects.None, 0f);
 
             // Endpoint: bloom + pulse
             Vector2 endPos = owner.Center + dir * beamLength - Main.screenPosition;
             float endPulse = 0.8f + 0.2f * (float)Math.Sin(ap.ChannelFrames * 0.1f);
             sb.Draw(glowTex, endPos, null, AnthemTextures.BloomGold * brightness * 0.4f * endPulse, 0f,
-                glowTex.Size() / 2f, 0.7f * crescendo, SpriteEffects.None, 0f);
+                glowTex.Size() / 2f, Math.Min(0.7f * crescendo, 0.293f), SpriteEffects.None, 0f);
             sb.Draw(glowTex, endPos, null, AnthemTextures.RadiantAmber * brightness * 0.5f * endPulse, 0f,
-                glowTex.Size() / 2f, 0.4f * crescendo, SpriteEffects.None, 0f);
+                glowTex.Size() / 2f, Math.Min(0.4f * crescendo, 0.293f), SpriteEffects.None, 0f);
             sb.Draw(glowTex, endPos, null, AnthemTextures.PureJoyWhite * brightness * 0.3f * endPulse, 0f,
-                glowTex.Size() / 2f, 0.15f * crescendo, SpriteEffects.None, 0f);
+                glowTex.Size() / 2f, Math.Min(0.15f * crescendo, 0.293f), SpriteEffects.None, 0f);
 
             // Theme blossom sparkle accent
             OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
@@ -412,7 +412,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory.Projectiles
 
             // Note body sparkle (3-layer bloom head)
             sb.Draw(glowTex, drawPos, null, AnthemTextures.BloomGold * fade * 0.4f, 0f,
-                glowOrigin, 0.3f, SpriteEffects.None, 0f);
+                glowOrigin, 0.28f, SpriteEffects.None, 0f);
             sb.Draw(sparkleTex, drawPos, null, AnthemTextures.BloomGold * fade * 0.7f, Projectile.rotation,
                 sparkleOrigin, 0.35f, SpriteEffects.None, 0f);
             sb.Draw(glowTex, drawPos, null, AnthemTextures.RadiantAmber * fade * 0.4f, 0f,
@@ -518,7 +518,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory.Projectiles
                 OdeToJoyShaders.BeginShaderBatch(sb, auraShader, "CelebrationAuraTechnique");
                 auraShader.CurrentTechnique.Passes["P0"].Apply();
 
-                float shaderScale = 0.08f + _timer * 0.004f;
+                float shaderScale = Math.Min(0.08f + _timer * 0.004f, 0.293f);
                 sb.Draw(glowTex, drawPos, null, Color.White * fade, 0f, glowOrigin,
                     shaderScale, SpriteEffects.None, 0f);
                 sb.End();
@@ -545,11 +545,11 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory.Projectiles
             // Core flash (3-tier bloom: wide → medium → tight)
             float flashFade = MathHelper.Clamp(1f - _timer / 15f, 0f, 1f);
             sb.Draw(glowTex, drawPos, null, AnthemTextures.BloomGold * flashFade * 0.4f, 0f,
-                glowOrigin, 2.0f, SpriteEffects.None, 0f);
+                glowOrigin, 0.28f, SpriteEffects.None, 0f);
             sb.Draw(glowTex, drawPos, null, AnthemTextures.PureJoyWhite * flashFade * 0.6f, 0f,
-                glowOrigin, 1.2f, SpriteEffects.None, 0f);
+                glowOrigin, 0.18f, SpriteEffects.None, 0f);
             sb.Draw(glowTex, drawPos, null, AnthemTextures.JubilantLight * flashFade * 0.4f, 0f,
-                glowOrigin, 0.5f, SpriteEffects.None, 0f);
+                glowOrigin, 0.09f, SpriteEffects.None, 0f);
 
             // Theme blossom sparkle accent
             OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);

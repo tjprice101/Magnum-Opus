@@ -138,14 +138,14 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
                 Vector2 topPos = new Vector2(beamCenterX, beamTop.Y);
                 sb.Draw(bloomTex, topPos, null, EroicaPalette.Scarlet with { A = 0 } * (0.4f * lifeAlpha),
-                    0f, bloomOrigin, 0.6f, SpriteEffects.None, 0f);
+                    0f, bloomOrigin, 0.58f, SpriteEffects.None, 0f);
                 sb.Draw(bloomTex, topPos, null, Color.White with { A = 0 } * (0.2f * lifeAlpha),
                     0f, bloomOrigin, 0.25f, SpriteEffects.None, 0f);
 
                 Vector2 botPos = new Vector2(beamCenterX, beamTop.Y + beamHeight);
                 float endPulse = 0.8f + 0.2f * (float)Math.Sin(time * 6f);
                 sb.Draw(bloomTex, botPos, null, EroicaPalette.Gold with { A = 0 } * (0.5f * lifeAlpha * endPulse),
-                    0f, bloomOrigin, 0.8f, SpriteEffects.None, 0f);
+                    0f, bloomOrigin, 0.55f, SpriteEffects.None, 0f);
                 sb.Draw(bloomTex, botPos, null, Color.White with { A = 0 } * (0.3f * lifeAlpha),
                     0f, bloomOrigin, 0.35f, SpriteEffects.None, 0f);
 
@@ -154,7 +154,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 {
                     Vector2 flareOrigin = flareTex.Size() / 2f;
                     sb.Draw(flareTex, topPos, null, EroicaPalette.Gold with { A = 0 } * (0.35f * lifeAlpha),
-                        time * 0.3f, flareOrigin, 0.4f, SpriteEffects.None, 0f);
+                        time * 0.3f, flareOrigin, MathHelper.Min(0.4f, 0.293f), SpriteEffects.None, 0f);
                 }
             }
 

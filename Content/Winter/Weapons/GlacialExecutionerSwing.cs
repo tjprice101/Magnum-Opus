@@ -384,11 +384,95 @@ namespace MagnumOpus.Content.Winter.Weapons
             if (Progression < 0.08f || Progression > 0.95f) return;
 
             Vector2 tipWorld = GetBladeTipPosition();
+            Vector2 tipScreen = tipWorld - Main.screenPosition;
+            Vector2 rootScreen = Owner.MountedCenter - Main.screenPosition;
+            float phaseIntensity = 1f + ComboStep * 0.15f;
             float pulse = 1f + MathF.Sin(Main.GlobalTimeWrappedHourly * 5f) * 0.10f;
-            float tipScale = (0.20f + ComboStep * 0.06f) * pulse;
+            float swingFade = MathHelper.Clamp((Progression - 0.08f) / 0.08f, 0f, 1f)
+                            * MathHelper.Clamp((0.95f - Progression) / 0.08f, 0f, 1f);
 
-            BloomRenderer.DrawBloomStackAdditive(tipWorld, IceBlue, CrystalCyan, tipScale, 0.85f);
+            // ═══ Switch to additive for all glow layers ═══
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                SamplerState.LinearClamp, DepthStencilState.None,
+                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
+            Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
+            Texture2D starTex = MagnumTextureRegistry.GetStar4Soft();
+            if (glowTex != null)
+            {
+                Vector2 glowOrigin = glowTex.Size() / 2f;
+                float baseScale = MathHelper.Min((0.20f + ComboStep * 0.06f) * pulse * phaseIntensity, 0.355f);
+
+                // Layer 1: Wide atmospheric frost haze (capped 300px max)
+                sb.Draw(glowTex, tipScreen, null,
+                    DeepBlue with { A = 0 } * 0.25f * swingFade, 0f,
+                    glowOrigin, baseScale * 1.65f, SpriteEffects.None, 0f);
+
+                // Layer 2: Mid ice glow (capped 300px max)
+                sb.Draw(glowTex, tipScreen, null,
+                    IceBlue with { A = 0 } * 0.45f * swingFade, 0f,
+                    glowOrigin, baseScale * 1.15f, SpriteEffects.None, 0f);
+
+                // Layer 3: Inner crystal cyan
+                sb.Draw(glowTex, tipScreen, null,
+                    CrystalCyan with { A = 0 } * 0.6f * swingFade, 0f,
+                    glowOrigin, baseScale * 1.0f, SpriteEffects.None, 0f);
+
+                // Layer 4: White-hot frost core
+                sb.Draw(glowTex, tipScreen, null,
+                    FrostWhite with { A = 0 } * 0.8f * swingFade, 0f,
+                    glowOrigin, baseScale * 0.4f, SpriteEffects.None, 0f);
+
+                // Layer 5: Root glow — cold emanation at sword base
+                float rootPulse = 0.7f + 0.3f * MathF.Sin(Main.GlobalTimeWrappedHourly * 3f);
+                sb.Draw(glowTex, rootScreen, null,
+                    DeepBlue with { A = 0 } * 0.3f * swingFade * rootPulse, 0f,
+                    glowOrigin, 0.15f * phaseIntensity, SpriteEffects.None, 0f);
+
+                // Layer 6: Blade midpoint frost aura
+                Vector2 midScreen = Vector2.Lerp(rootScreen, tipScreen, 0.55f);
+                sb.Draw(glowTex, midScreen, null,
+                    IceBlue with { A = 0 } * 0.2f * swingFade, 0f,
+                    glowOrigin, baseScale * 0.6f, SpriteEffects.None, 0f);
+            }
+
+            // Layer 7: Rotating crystal star flare at tip
+            if (starTex != null)
+            {
+                Vector2 starOrigin = starTex.Size() / 2f;
+                float starRot = Main.GlobalTimeWrappedHourly * 3f;
+                float starScale = (0.08f + ComboStep * 0.03f) * pulse;
+                sb.Draw(starTex, tipScreen, null,
+                    CrystalCyan with { A = 0 } * 0.7f * swingFade, starRot,
+                    starOrigin, starScale, SpriteEffects.None, 0f);
+                sb.Draw(starTex, tipScreen, null,
+                    FrostWhite with { A = 0 } * 0.5f * swingFade, -starRot * 0.7f,
+                    starOrigin, starScale * 0.6f, SpriteEffects.None, 0f);
+            }
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                SamplerState.LinearClamp, DepthStencilState.None,
+                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // ═══ Frost dust trail along blade edge ═══
+            if (Progression > 0.12f && Progression < 0.88f)
+            {
+                int dustCount = 1 + ComboStep;
+                for (int i = 0; i < dustCount; i++)
+                {
+                    float t = Main.rand.NextFloat(0.2f, 0.9f);
+                    Vector2 dustPos = Vector2.Lerp(Owner.MountedCenter, tipWorld, t);
+                    Vector2 drift = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1.5f, -0.3f));
+                    Color frostColor = Color.Lerp(IceBlue, CrystalCyan, Main.rand.NextFloat());
+                    Dust frost = Dust.NewDustPerfect(dustPos, DustID.IceTorch, drift, 0, frostColor, 0.8f);
+                    frost.noGravity = true;
+                    frost.fadeIn = 0.6f;
+                }
+            }
+
+            // ═══ Music note particles ═══
             if (Main.rand.NextBool(4))
             {
                 Vector2 noteVel = (Projectile.velocity.SafeNormalize(Vector2.UnitX) * -1.5f).RotatedByRandom(0.4);

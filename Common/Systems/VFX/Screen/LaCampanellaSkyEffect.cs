@@ -288,7 +288,7 @@ namespace MagnumOpus.Common.Systems
                 switch (particle.Type)
                 {
                     case 0: // Ember - soft glow
-                        DrawSoftGlow(spriteBatch, pixel, drawPos, drawColor, particle.Scale * 5f);
+                        DrawSoftGlow(spriteBatch, pixel, drawPos, drawColor, Math.Min(particle.Scale * 5f, 88f));
                         break;
                         
                     case 1: // Spark - cross shape

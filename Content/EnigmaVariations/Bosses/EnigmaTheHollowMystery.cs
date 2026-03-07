@@ -184,7 +184,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             NPC.height = 398;
             NPC.damage = BaseDamage;
             NPC.defense = 65;
-            NPC.lifeMax = 380000;
+            NPC.lifeMax = 800000; // Tier 4 - 800K Normal (Expert 1.6M, Master 2.4M via auto-scaling)
             NPC.HitSound = SoundID.NPCHit54;
             NPC.DeathSound = SoundID.NPCDeath52;
             NPC.knockBackResist = 0f;

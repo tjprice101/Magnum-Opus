@@ -109,9 +109,9 @@ namespace MagnumOpus.Content.SwanLake.Debuffs
                     Vector2 origin = new Vector2(markTex.Width / 2f, markTex.Height / 2f);
 
                     spriteBatch.Draw(markTex, drawPos, null,
-                        new Color(15, 15, 25, 0) * 0.4f * pulse, 0f, origin, 0.2f, SpriteEffects.None, 0f);
+                        new Color(15, 15, 25, 0) * 0.4f * pulse, 0f, origin, 0.139f, SpriteEffects.None, 0f);
                     spriteBatch.Draw(markTex, drawPos, null,
-                        new Color(200, 180, 255, 0) * 0.2f * pulse, 0f, origin, 0.35f, SpriteEffects.None, 0f);
+                        new Color(200, 180, 255, 0) * 0.2f * pulse, 0f, origin, 0.139f, SpriteEffects.None, 0f);
                 }
             }
             catch { }

@@ -27,7 +27,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire
         {
             Item.width = 32;
             Item.height = 32;
-            Item.damage = 180;
+            Item.damage = 3600; // Tier 10 (2800-4200 range), slow magic
             Item.DamageType = DamageClass.Magic;
             Item.mana = 15;
             Item.useTime = 30;

@@ -95,21 +95,24 @@ namespace MagnumOpus.Content.EnigmaVariations
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
+            // 2160px bloom — cap so largest layer (scale*0.04) ≤ 0.139 → ≤300px
+            scale = MathHelper.Min(scale, 3.475f);
+
             Vector2 drawPos = worldPos - Main.screenPosition;
             Vector2 origin = bloom.Size() * 0.5f;
 
             // Outer: deep purple haze
             sb.Draw(bloom, drawPos, null,
                 (DeepPurple with { A = 0 }) * 0.25f * intensity, 0f, origin,
-                scale * 0.20f, SpriteEffects.None, 0f);
+                scale * 0.04f, SpriteEffects.None, 0f);
             // Mid: green flame glow
             sb.Draw(bloom, drawPos, null,
                 (GreenFlame with { A = 0 }) * 0.35f * intensity, 0f, origin,
-                scale * 0.12f, SpriteEffects.None, 0f);
+                scale * 0.025f, SpriteEffects.None, 0f);
             // Core: bright flash
             sb.Draw(bloom, drawPos, null,
                 (WhiteGreenFlash with { A = 0 }) * 0.5f * intensity, 0f, origin,
-                scale * coreScale * 0.35f, SpriteEffects.None, 0f);
+                scale * coreScale * 0.07f, SpriteEffects.None, 0f);
         }
 
         /// <summary>

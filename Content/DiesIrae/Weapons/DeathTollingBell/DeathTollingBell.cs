@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell
     {
         public override void SetDefaults()
         {
-            Item.damage = 1450;
+            Item.damage = 1700; // Tier 8 (1600-2400 range)
             Item.DamageType = DamageClass.Summon;
             Item.mana = 22;
             Item.width = 40;
@@ -38,17 +38,6 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell
             player.AddBuff(Item.buffType, 2);
             Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
             return false;
-        }
-
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-            .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.DiesIraeResonantEnergy>(), 30)
-            .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.ResonantCoreOfDiesIrae>(), 12)
-            .AddIngredient(ModContent.ItemType<Content.DiesIrae.HarmonicCores.HarmonicCoreOfDiesIrae>(), 2)
-            .AddIngredient(ItemID.LunarBar, 20)
-            .AddTile(ModContent.TileType<Content.Fate.CraftingStations.FatesCosmicAnvilTile>())
-            .Register();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)

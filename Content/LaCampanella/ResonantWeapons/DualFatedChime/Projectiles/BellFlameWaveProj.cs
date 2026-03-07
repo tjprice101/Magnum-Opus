@@ -148,10 +148,10 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             finally
             {
                 try { sb.End(); } catch { }
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             }
-            return false;
+            return false; // Don't draw default weapon sprite
         }
 
         private void DrawFlameTrail(SpriteBatch sb)
@@ -223,7 +223,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
 
             // Orange fire glow
             sb.Draw(bloomTex, screenPos, null, DualFatedChimeUtils.Additive(new Color(255, 100, 0), 0.4f * pulse),
-                0f, origin, 0.6f, SpriteEffects.None, 0f);
+                0f, origin, 0.29f, SpriteEffects.None, 0f);
 
             // White-hot core
             sb.Draw(bloomTex, screenPos, null, DualFatedChimeUtils.Additive(new Color(255, 240, 200), 0.7f * pulse),

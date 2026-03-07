@@ -287,7 +287,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.GrimoireOfCondemnation.Projectiles
                         Vector2 origin = glow.Size() / 2f;
                         Vector2 pos = Projectile.Center - Main.screenPosition;
                         sb.Draw(glow, pos, null, DiesIraePalette.JudgmentGold * 0.4f * fadeProgress, 0f, origin,
-                            CircleRadius / glow.Width * 4f, SpriteEffects.None, 0f);
+                            MathHelper.Min(CircleRadius / glow.Width * 4f, 0.586f), SpriteEffects.None, 0f);
                     }
                 }
             }

@@ -408,11 +408,108 @@ namespace MagnumOpus.Content.Spring.Weapons
             if (Progression < 0.08f || Progression > 0.95f) return;
 
             Vector2 tipWorld = GetBladeTipPosition();
-            float pulse = 1f + MathF.Sin(Main.GlobalTimeWrappedHourly * 5f) * 0.08f;
-            float tipScale = (0.15f + ComboStep * 0.05f) * pulse;
+            Vector2 tipScreen = tipWorld - Main.screenPosition;
+            Vector2 rootScreen = Owner.MountedCenter - Main.screenPosition;
+            float phaseIntensity = 1f + ComboStep * 0.10f;
+            // Gentle breathing pulse — spring is soft and alive
+            float breathe = 1f + MathF.Sin(Main.GlobalTimeWrappedHourly * 3.5f) * 0.08f;
+            float swingFade = MathHelper.Clamp((Progression - 0.08f) / 0.1f, 0f, 1f)
+                            * MathHelper.Clamp((0.95f - Progression) / 0.1f, 0f, 1f);
 
-            BloomRenderer.DrawBloomStackAdditive(tipWorld, SpringPink, SpringGreen, tipScale, 0.85f);
+            // ═══ Switch to additive for petal glow layers ═══
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                SamplerState.LinearClamp, DepthStencilState.None,
+                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
+            Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
+            Texture2D starTex = MagnumTextureRegistry.GetStar4Soft();
+            if (glowTex != null)
+            {
+                Vector2 glowOrigin = glowTex.Size() / 2f;
+                float baseScale = MathHelper.Min((0.15f + ComboStep * 0.05f) * breathe * phaseIntensity, 0.279f);
+
+                // Layer 1: Wide gentle pink atmosphere — cherry blossom cloud (capped 300px max)
+                sb.Draw(glowTex, tipScreen, null,
+                    SpringPink with { A = 0 } * 0.2f * swingFade, 0f,
+                    glowOrigin, baseScale * 2.1f, SpriteEffects.None, 0f);
+
+                // Layer 2: Mid cherry blossom glow
+                sb.Draw(glowTex, tipScreen, null,
+                    CherryBlossom with { A = 0 } * 0.4f * swingFade, 0f,
+                    glowOrigin, baseScale * 1.5f, SpriteEffects.None, 0f);
+
+                // Layer 3: Inner fresh spring green
+                sb.Draw(glowTex, tipScreen, null,
+                    SpringGreen with { A = 0 } * 0.55f * swingFade, 0f,
+                    glowOrigin, baseScale * 0.85f, SpriteEffects.None, 0f);
+
+                // Layer 4: Petal white core
+                sb.Draw(glowTex, tipScreen, null,
+                    SpringWhite with { A = 0 } * 0.7f * swingFade, 0f,
+                    glowOrigin, baseScale * 0.3f, SpriteEffects.None, 0f);
+
+                // Layer 5: Root glow — gentle green nature emanation
+                float rootBreath = 0.5f + 0.5f * MathF.Sin(Main.GlobalTimeWrappedHourly * 2f);
+                sb.Draw(glowTex, rootScreen, null,
+                    SpringGreen with { A = 0 } * 0.2f * swingFade * rootBreath, 0f,
+                    glowOrigin, 0.10f * phaseIntensity, SpriteEffects.None, 0f);
+
+                // Layer 6: Blade midpoint petal shimmer (40% along blade)
+                Vector2 midScreen = Vector2.Lerp(rootScreen, tipScreen, 0.4f);
+                sb.Draw(glowTex, midScreen, null,
+                    SpringPink with { A = 0 } * 0.15f * swingFade, 0f,
+                    glowOrigin, baseScale * 0.45f, SpriteEffects.None, 0f);
+            }
+
+            // Layer 7: Delicate petal star flare at tip
+            if (starTex != null)
+            {
+                Vector2 starOrigin = starTex.Size() / 2f;
+                float starRot = Main.GlobalTimeWrappedHourly * 2f;
+                float starScale = (0.06f + ComboStep * 0.02f) * breathe;
+                sb.Draw(starTex, tipScreen, null,
+                    SpringPink with { A = 0 } * 0.55f * swingFade, starRot,
+                    starOrigin, starScale, SpriteEffects.None, 0f);
+                sb.Draw(starTex, tipScreen, null,
+                    SpringWhite with { A = 0 } * 0.35f * swingFade, -starRot * 0.5f,
+                    starOrigin, starScale * 0.5f, SpriteEffects.None, 0f);
+            }
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                SamplerState.LinearClamp, DepthStencilState.None,
+                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // ═══ Drifting petal dust along blade ═══
+            if (Progression > 0.12f && Progression < 0.88f)
+            {
+                int dustCount = 1 + (ComboStep > 1 ? 1 : 0);
+                for (int i = 0; i < dustCount; i++)
+                {
+                    float t = Main.rand.NextFloat(0.3f, 0.85f);
+                    Vector2 dustPos = Vector2.Lerp(Owner.MountedCenter, tipWorld, t);
+                    // Petals drift gently sideways and upward
+                    Vector2 drift = new Vector2(
+                        Main.rand.NextFloat(-0.8f, 0.8f),
+                        Main.rand.NextFloat(-1.2f, -0.2f));
+                    Dust petal = Dust.NewDustPerfect(dustPos, DustID.PinkTorch, drift, 0,
+                        Color.Lerp(SpringPink, SpringWhite, Main.rand.NextFloat()), 0.6f);
+                    petal.noGravity = true;
+                    petal.fadeIn = 0.4f;
+                }
+            }
+
+            // ═══ Green nature sparkles at tip (every other frame) ═══
+            if (Main.rand.NextBool(2))
+            {
+                Vector2 sparkVel = -SwordDirection * Main.rand.NextFloat(0.3f, 0.8f)
+                    + new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-0.5f, 0f));
+                Dust sparkle = Dust.NewDustPerfect(tipWorld, DustID.GreenFairy, sparkVel, 0, SpringGreen, 0.5f);
+                sparkle.noGravity = true;
+            }
+
+            // ═══ Music note particles ═══
             if (Main.rand.NextBool(4))
             {
                 Vector2 noteVel = -SwordDirection * Main.rand.NextFloat(0.5f, 1.5f);

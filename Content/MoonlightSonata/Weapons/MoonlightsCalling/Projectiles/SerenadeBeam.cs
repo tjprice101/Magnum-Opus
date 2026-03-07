@@ -479,27 +479,27 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
             Color haloColor = GetBeamGradient(SpectralPhase * 0.3f) with { A = 0 };
             Main.spriteBatch.Draw(softBloom, drawPos, null,
                 haloColor * 0.35f * bounceIntensity * pulse,
-                0f, softBloom.Size() * 0.5f, 1.8f * bounceIntensity * pulse,
+                0f, softBloom.Size() * 0.5f, 0.1f * bounceIntensity * pulse,
                 SpriteEffects.None, 0f);
 
             // Layer 2: Spectral band ring (SoftRadialBloom) — shifts color with phase
             Color spectralRing = GetBeamGradient(SpectralPhase * 0.7f) with { A = 0 };
             Main.spriteBatch.Draw(softBloom, drawPos, null,
                 spectralRing * 0.5f * bounceIntensity * pulse,
-                AliveTime * 0.02f, softBloom.Size() * 0.5f, 1.1f * bounceIntensity * pulse,
+                AliveTime * 0.02f, softBloom.Size() * 0.5f, 0.06f * bounceIntensity * pulse,
                 SpriteEffects.None, 0f);
 
             // Layer 3: Bright core glow (PointBloom) — refracted focal point
             Color coreColor = GetBeamGradient(SpectralPhase * 0.5f) with { A = 0 };
             Main.spriteBatch.Draw(pointBloom, drawPos, null,
                 coreColor * 0.7f * bounceIntensity * pulse,
-                0f, pointBloom.Size() * 0.5f, 0.7f * bounceIntensity * pulse,
+                0f, pointBloom.Size() * 0.5f, 0.035f * bounceIntensity * pulse,
                 SpriteEffects.None, 0f);
 
             // Layer 4: White-hot pinpoint (PointBloom) — coherent light focus
             Main.spriteBatch.Draw(pointBloom, drawPos, null,
                 (MoonWhite with { A = 0 }) * 0.8f * bounceIntensity,
-                0f, pointBloom.Size() * 0.5f, 0.35f * bounceIntensity * pulse,
+                0f, pointBloom.Size() * 0.5f, 0.04f * bounceIntensity * pulse,
                 SpriteEffects.None, 0f);
 
             // Restore to AlphaBlend

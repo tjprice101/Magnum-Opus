@@ -339,7 +339,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
             float tipPulse = 0.85f + 0.15f * MathF.Sin((float)Main.timeForVisualEffects * 0.08f);
             sb.Draw(softGlow, tipDrawPos, null,
                 ThornboundTextures.BloomGold * smearAlpha * 0.6f * tipPulse, 0f,
-                softGlow.Size() / 2f, 0.22f * widthScale, SpriteEffects.None, 0f);
+                softGlow.Size() / 2f, 0.20f * widthScale, SpriteEffects.None, 0f);
 
             sb.Draw(starFlare, tipDrawPos, null,
                 ThornboundTextures.JubilantLight * smearAlpha * 0.4f, currentAngle * 0.5f,
@@ -350,7 +350,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
             {
                 sb.Draw(softGlow, tipDrawPos, null,
                     ThornboundTextures.PureJoyWhite * smearAlpha * 0.4f, 0f,
-                    softGlow.Size() / 2f, 0.35f * widthScale, SpriteEffects.None, 0f);
+                    softGlow.Size() / 2f, 0.20f * widthScale, SpriteEffects.None, 0f);
             }
 
             // ==================================================================

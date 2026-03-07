@@ -67,7 +67,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 
         // -- Swing constants (Foundation-calibrated) --
         private const float BladeLength = 100f;
-        private const float SmearScaleMult = 2.4f;
+        private const float SmearScaleMult = 1.4f;
 
         // -- Combo phase definitions --
         private static readonly int[] PhaseDuration = { 22, 24, 18, 28 };
@@ -79,6 +79,63 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
             new Color(200, 50, 50),
             new Color(230, 120, 40),
             new Color(255, 200, 80),
+        };
+
+        // ── Piecewise CurveSegment (Incisor-style windup → main swing → settle) ──
+        private struct CurveSegment
+        {
+            public float StartX, EndX, StartY, EndY;
+            public Func<float, float> Easing;
+            public CurveSegment(float sx, float ex, float sy, float ey, Func<float, float> e = null)
+            { StartX = sx; EndX = ex; StartY = sy; EndY = ey; Easing = e ?? (t => t); }
+        }
+
+        private static float SineOut(float t) => MathF.Sin(t * MathHelper.PiOver2);
+        private static float QuadIn(float t) => t * t;
+        private static float QuadOut(float t) => 1f - (1f - t) * (1f - t);
+        private static float CubicIn(float t) => t * t * t;
+
+        private static float PiecewiseAnimation(float t, CurveSegment[] segments)
+        {
+            t = MathHelper.Clamp(t, 0f, 1f);
+            foreach (var seg in segments)
+            {
+                if (t >= seg.StartX && t <= seg.EndX)
+                {
+                    float localT = (t - seg.StartX) / Math.Max(seg.EndX - seg.StartX, 0.0001f);
+                    return MathHelper.Lerp(seg.StartY, seg.EndY, seg.Easing(localT));
+                }
+            }
+            return segments.Length > 0 ? segments[^1].EndY : 0f;
+        }
+
+        // Per-phase swing curves: heroic escalating combo
+        private static readonly CurveSegment[][] SwingCurves = new[]
+        {
+            // Phase 0: Resolute Strike — standard heroic arc
+            new[] {
+                new CurveSegment(0f, 0.22f, 0f, 0.12f, SineOut),
+                new CurveSegment(0.22f, 0.80f, 0.12f, 0.92f, QuadIn),
+                new CurveSegment(0.80f, 1.0f, 0.92f, 1.0f, SineOut),
+            },
+            // Phase 1: Ascending Valor — rising sweep
+            new[] {
+                new CurveSegment(0f, 0.20f, 0f, 0.10f, SineOut),
+                new CurveSegment(0.20f, 0.80f, 0.10f, 0.93f, QuadIn),
+                new CurveSegment(0.80f, 1.0f, 0.93f, 1.0f, SineOut),
+            },
+            // Phase 2: Crimson Legion — fast aggressive slash
+            new[] {
+                new CurveSegment(0f, 0.18f, 0f, 0.08f, SineOut),
+                new CurveSegment(0.18f, 0.78f, 0.08f, 0.94f, CubicIn),
+                new CurveSegment(0.78f, 1.0f, 0.94f, 1.0f, SineOut),
+            },
+            // Phase 3: Finale Fortissimo — dramatic finisher
+            new[] {
+                new CurveSegment(0f, 0.25f, 0f, 0.15f, QuadOut),
+                new CurveSegment(0.25f, 0.85f, 0.15f, 0.95f, CubicIn),
+                new CurveSegment(0.85f, 1.0f, 0.95f, 1.0f, SineOut),
+            },
         };
 
         public override void SetDefaults()
@@ -129,13 +186,13 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
                 }
             }
 
-            Projectile.Center = player.Center;
+            Projectile.Center = player.MountedCenter;
 
-            // -- Swing interpolation (smoothstep easing) --
+            // -- Swing interpolation (piecewise CurveSegment) --
             int phaseIdx = (int)MathHelper.Clamp(ComboPhase, 0, 3);
             float duration = PhaseDuration[phaseIdx];
             float progress = MathHelper.Clamp(PhaseTimer / duration, 0f, 1f);
-            float eased = progress * progress * (3f - 2f * progress);
+            float eased = PiecewiseAnimation(progress, SwingCurves[phaseIdx]);
 
             float arcRad = MathHelper.ToRadians(ArcDegrees[phaseIdx]);
             float currentAngle = startAngle + arcRad * eased * swingDirection;
@@ -253,7 +310,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 
             // Hero's Resolve: extra rising embers
             if (heroResolve && Main.rand.NextBool(2))
-                EroicaVFXLibrary.SpawnHeroicAura(player.Center, 35f);
+                EroicaVFXLibrary.SpawnHeroicAura(player.MountedCenter, 35f);
 
             // Dynamic lighting
             EroicaVFXLibrary.AddPaletteLighting(tipPos, 0.3f + phase * 0.15f, 0.7f + phase * 0.1f);
@@ -263,7 +320,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
         {
             if (Main.myPlayer != Projectile.owner) return;
 
-            Vector2 aimDir = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX);
+            Vector2 aimDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
 
             switch (phase)
             {
@@ -271,7 +328,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
                     Projectile.NewProjectile(Projectile.GetSource_FromThis(), tipPos, aimDir * 14f,
                         ModContent.ProjectileType<ValorBeam>(), (int)(Projectile.damage * 0.5f),
                         Projectile.knockBack * 0.5f, Projectile.owner);
-                    SoundEngine.PlaySound(SoundID.Item60 with { Pitch = 0.1f, Volume = 0.6f }, player.Center);
+                    SoundEngine.PlaySound(SoundID.Item60 with { Pitch = 0.1f, Volume = 0.6f }, player.MountedCenter);
                     break;
 
                 case 2:
@@ -282,7 +339,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
                             ModContent.ProjectileType<ValorBeam>(), (int)(Projectile.damage * 0.35f),
                             Projectile.knockBack * 0.3f, Projectile.owner);
                     }
-                    SoundEngine.PlaySound(SoundID.Item71 with { Pitch = 0.2f, Volume = 0.5f }, player.Center);
+                    SoundEngine.PlaySound(SoundID.Item71 with { Pitch = 0.2f, Volume = 0.5f }, player.MountedCenter);
                     break;
 
                 case 3:
@@ -290,7 +347,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
                     Projectile.NewProjectile(Projectile.GetSource_FromThis(), tipPos, Vector2.Zero,
                         ModContent.ProjectileType<ValorBoom>(), (int)(Projectile.damage * 0.7f * boomScale),
                         Projectile.knockBack, Projectile.owner);
-                    SoundEngine.PlaySound(SoundID.Item62 with { Pitch = -0.3f }, player.Center);
+                    SoundEngine.PlaySound(SoundID.Item62 with { Pitch = -0.3f }, player.MountedCenter);
                     break;
             }
         }
@@ -346,7 +403,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
             if (player.statLife < player.statLifeMax2 * 0.3f)
             {
                 EroicaVFXLibrary.SpawnDirectionalSparks(target.Center,
-                    (target.Center - player.Center).SafeNormalize(Vector2.UnitX), 5, 7f);
+                    (target.Center - player.MountedCenter).SafeNormalize(Vector2.UnitX), 5, 7f);
             }
         }
 
@@ -401,6 +458,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
             // ==================================================================
             //  LAYER 2: TIP GLOW (Foundation pattern)
             // ==================================================================
+            sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
@@ -410,7 +468,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
             Texture2D starFlare = SMFTextures.StarFlare.Value;
             Texture2D softGlow = SMFTextures.SoftGlow.Value;
 
-            float glowScale = 0.2f + phase * 0.04f;
+            float glowScale = 0.17f + phase * 0.04f;
             sb.Draw(softGlow, tipDrawPos, null,
                 EroicaSmearColors[1] * (smearAlpha * 0.5f), 0f,
                 softGlow.Size() / 2f, glowScale, SpriteEffects.None, 0f);
@@ -478,14 +536,14 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
                 Main.GameViewMatrix.TransformationMatrix);
 
             Color bladeGlow = EroicaVFXLibrary.GetPaletteColor(0.5f + phase * 0.1f) with { A = 0 };
-            sb.Draw(bladeTex, drawOrigin, null, bladeGlow * (0.3f + phase * 0.05f), drawRot, bladeOrigin, bladeScale * 1.03f, flip, 0f);
+            sb.Draw(bladeTex, drawOrigin, null, bladeGlow * (0.15f + phase * 0.025f), drawRot, bladeOrigin, bladeScale * 1.03f, flip, 0f);
 
             if (heroResolve)
             {
                 float resolveTime = (float)Main.gameTimeCache.TotalGameTime.TotalSeconds;
                 Color resolveGlow = EroicaPalette.HotCore with { A = 0 };
                 float resolvePulse = 0.7f + MathF.Sin(resolveTime * 6f) * 0.3f;
-                sb.Draw(bladeTex, drawOrigin, null, resolveGlow * (0.2f * resolvePulse), drawRot, bladeOrigin, bladeScale * 1.06f, flip, 0f);
+                sb.Draw(bladeTex, drawOrigin, null, resolveGlow * (0.1f * resolvePulse), drawRot, bladeOrigin, bladeScale * 1.06f, flip, 0f);
             }
 
             sb.End();
@@ -536,7 +594,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
                 shader.Parameters["flowSpeed"]?.SetValue(0.4f + phase * 0.1f);
                 shader.CurrentTechnique.Passes[0].Apply();
                 sb.Draw(smearTex, drawOrigin, null,
-                    Color.White * smearAlpha * 0.5f,
+                    Color.White * smearAlpha * 0.2f,
                     currentAngle, smearOrigin,
                     smearScale * 1.15f, SpriteEffects.None, 0f);
 
@@ -545,7 +603,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
                 shader.Parameters["flowSpeed"]?.SetValue(0.5f + phase * 0.08f);
                 shader.CurrentTechnique.Passes[0].Apply();
                 sb.Draw(smearTex, drawOrigin, null,
-                    Color.White * smearAlpha * 0.8f,
+                    Color.White * smearAlpha * 0.35f,
                     currentAngle, smearOrigin,
                     smearScale, SpriteEffects.None, 0f);
 
@@ -554,7 +612,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
                 shader.Parameters["flowSpeed"]?.SetValue(0.6f + phase * 0.05f);
                 shader.CurrentTechnique.Passes[0].Apply();
                 sb.Draw(smearTex, drawOrigin, null,
-                    Color.White * smearAlpha * 0.65f,
+                    Color.White * smearAlpha * 0.3f,
                     currentAngle, smearOrigin,
                     smearScale * 0.85f, SpriteEffects.None, 0f);
 
@@ -565,12 +623,16 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
                     shader.Parameters["flowSpeed"]?.SetValue(0.8f);
                     shader.CurrentTechnique.Passes[0].Apply();
                     sb.Draw(smearTex, drawOrigin, null,
-                        Color.White * smearAlpha * 0.3f,
+                        Color.White * smearAlpha * 0.12f,
                         currentAngle, smearOrigin,
                         smearScale * 1.2f, SpriteEffects.None, 0f);
                 }
 
                 sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.TransformationMatrix);
             }
             else
             {
@@ -582,21 +644,25 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
                     Main.GameViewMatrix.EffectMatrix);
 
                 sb.Draw(smearTex, drawOrigin, null,
-                    EroicaSmearColors[0] * smearAlpha * 0.4f,
+                    EroicaSmearColors[0] * smearAlpha * 0.18f,
                     currentAngle, smearOrigin,
                     smearScale * 1.15f, SpriteEffects.None, 0f);
 
                 sb.Draw(smearTex, drawOrigin, null,
-                    EroicaSmearColors[1] * smearAlpha * 0.7f,
+                    EroicaSmearColors[1] * smearAlpha * 0.3f,
                     currentAngle, smearOrigin,
                     smearScale, SpriteEffects.None, 0f);
 
                 sb.Draw(smearTex, drawOrigin, null,
-                    EroicaSmearColors[2] * smearAlpha * 0.55f,
+                    EroicaSmearColors[2] * smearAlpha * 0.25f,
                     currentAngle, smearOrigin,
                     smearScale * 0.85f, SpriteEffects.None, 0f);
 
                 sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.TransformationMatrix);
             }
         }
 
@@ -759,7 +825,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
                         if (progress < 0.15f) continue;
                         float bloomFade = progress * progress * 0.2f * smearAlpha;
                         Color bloomCol = EroicaPalette.Gold with { A = 0 };
-                        float bloomScale = MathHelper.Lerp(0.06f, 0.18f, progress);
+                        float bloomScale = MathHelper.Lerp(0.04f, 0.135f, progress);
                         sb.Draw(bloomTex, positions[i] - Main.screenPosition, null,
                             bloomCol * bloomFade, 0f, bloomOrigin, bloomScale, SpriteEffects.None, 0f);
                     }

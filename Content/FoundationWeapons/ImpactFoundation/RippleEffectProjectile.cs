@@ -45,6 +45,22 @@ namespace MagnumOpus.Content.FoundationWeapons.ImpactFoundation
         private float seed;
         private Effect rippleShader;
 
+        private static Asset<Texture2D> _gradientLUT;
+        private static string _cachedGradientPath;
+
+        /// <summary>
+        /// Returns the LUT gradient path for the current theme.
+        /// </summary>
+        private string GetGradientLUTPath()
+        {
+            float theme = Projectile.ai[0];
+            if (theme >= 0.9f && theme <= 1.1f)
+                return "MagnumOpus/Assets/VFX Asset Library/ColorGradients/LaCampanellaGradientLUTandRAMP";
+            if (theme >= 1.9f && theme <= 2.1f)
+                return "MagnumOpus/Assets/VFX Asset Library/ColorGradients/EroicaGradientLUTandRAMP";
+            return "MagnumOpus/Assets/VFX Asset Library/ColorGradients/MoonlightSonataGradientLUTandRAMP";
+        }
+
         /// <summary>
         /// Returns themed color array based on Projectile.ai[0].
         /// Index 0 = primary, 1 = secondary, 2 = core/highlight.
@@ -198,6 +214,16 @@ namespace MagnumOpus.Content.FoundationWeapons.ImpactFoundation
 
             // Provide noise texture for subtle ring distortion
             rippleShader.Parameters["noiseTex"]?.SetValue(IFTextures.NoisePerlin.Value);
+
+            // Bind theme-specific LUT gradient for color ramping
+            string lutPath = GetGradientLUTPath();
+            if (_gradientLUT == null || _cachedGradientPath != lutPath)
+            {
+                _gradientLUT = ModContent.Request<Texture2D>(lutPath);
+                _cachedGradientPath = lutPath;
+            }
+            rippleShader.Parameters["gradientTex"]?.SetValue(_gradientLUT.Value);
+            rippleShader.Parameters["useGradient"]?.SetValue(1f);
 
             // ---- DRAW WITH SHADER ----
             sb.End();

@@ -109,7 +109,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Particles
             Vector2 pos = Position - Main.screenPosition;
 
             float t = Progress;
-            float scale = MathHelper.Lerp(_startScale, _endScale, EaseOutCubic(t));
+            float scale = MathHelper.Min(MathHelper.Lerp(_startScale, _endScale, EaseOutCubic(t)), 0.293f);
             float alpha = t < 0.2f ? t / 0.2f : (1f - (t - 0.2f) / 0.8f);
             alpha = MathHelper.Clamp(alpha, 0f, 1f);
 
@@ -141,7 +141,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Particles
             Vector2 pos = Position - Main.screenPosition;
 
             float alpha = MathF.Sin(Progress * MathF.PI) * 0.6f;
-            sb.Draw(tex, pos, null, DrawColor * alpha, 0f, origin, Scale, SpriteEffects.None, 0f);
+            sb.Draw(tex, pos, null, DrawColor * alpha, 0f, origin, MathHelper.Min(Scale, 0.586f), SpriteEffects.None, 0f);
         }
     }
 
@@ -184,7 +184,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Particles
             float alpha = Progress < 0.3f ? Progress / 0.3f : (1f - (Progress - 0.3f) / 0.7f);
             alpha = MathHelper.Clamp(alpha, 0f, 1f) * 0.7f;
 
-            sb.Draw(tex, pos, null, DrawColor * alpha, Rotation, origin, Scale, SpriteEffects.None, 0f);
+            sb.Draw(tex, pos, null, DrawColor * alpha, Rotation, origin, MathHelper.Min(Scale, 0.537f), SpriteEffects.None, 0f);
         }
     }
 
@@ -222,7 +222,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Particles
             Vector2 pos = Position - Main.screenPosition;
 
             float alpha = 1f - Progress;
-            sb.Draw(tex, pos, null, DrawColor * alpha * 0.7f, Rotation, origin, Scale, SpriteEffects.None, 0f);
+            sb.Draw(tex, pos, null, DrawColor * alpha * 0.7f, Rotation, origin, MathHelper.Min(Scale, 0.293f), SpriteEffects.None, 0f);
         }
     }
 
@@ -255,9 +255,9 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Particles
             Vector2 pos = Position - Main.screenPosition;
 
             float alpha = (1f - Progress) * 0.8f;
-            sb.Draw(tex, pos, null, DrawColor * alpha, 0f, origin, Scale, SpriteEffects.None, 0f);
+            sb.Draw(tex, pos, null, DrawColor * alpha, 0f, origin, MathHelper.Min(Scale, 0.139f), SpriteEffects.None, 0f);
             // Hot core
-            sb.Draw(tex, pos, null, DiesIraePalette.WrathWhite * alpha * 0.4f, 0f, origin, Scale * 0.4f, SpriteEffects.None, 0f);
+            sb.Draw(tex, pos, null, DiesIraePalette.WrathWhite * alpha * 0.4f, 0f, origin, MathHelper.Min(Scale * 0.4f, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
@@ -286,11 +286,11 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Particles
             float scale = Scale * (0.8f + 0.4f * MathF.Sin(t * MathF.PI));
 
             // Gold core
-            sb.Draw(tex, pos, null, DiesIraePalette.JudgmentGold * alpha * 0.7f, 0f, origin, scale, SpriteEffects.None, 0f);
+            sb.Draw(tex, pos, null, DiesIraePalette.JudgmentGold * alpha * 0.7f, 0f, origin, MathHelper.Min(scale, 0.293f), SpriteEffects.None, 0f);
             // White hot center
-            sb.Draw(tex, pos, null, DiesIraePalette.WrathWhite * alpha * 0.5f, 0f, origin, scale * 0.5f, SpriteEffects.None, 0f);
+            sb.Draw(tex, pos, null, DiesIraePalette.WrathWhite * alpha * 0.5f, 0f, origin, MathHelper.Min(scale * 0.5f, 0.293f), SpriteEffects.None, 0f);
             // Crimson outer
-            sb.Draw(tex, pos, null, DiesIraePalette.BloodRed * alpha * 0.3f, 0f, origin, scale * 1.5f, SpriteEffects.None, 0f);
+            sb.Draw(tex, pos, null, DiesIraePalette.BloodRed * alpha * 0.3f, 0f, origin, MathHelper.Min(scale * 1.5f, 0.293f), SpriteEffects.None, 0f);
         }
     }
 
@@ -315,7 +315,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Particles
             Vector2 pos = Position - Main.screenPosition;
 
             float alpha = MathF.Sin(Progress * MathF.PI) * 0.5f;
-            sb.Draw(tex, pos, null, DrawColor * alpha, 0f, origin, Scale, SpriteEffects.None, 0f);
+            sb.Draw(tex, pos, null, DrawColor * alpha, 0f, origin, MathHelper.Min(Scale, 0.139f), SpriteEffects.None, 0f);
         }
     }
 }

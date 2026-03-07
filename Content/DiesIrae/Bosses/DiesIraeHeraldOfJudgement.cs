@@ -161,8 +161,8 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
             NPC.width = 200;
             NPC.height = 200;
             NPC.damage = BaseDamage;
-            NPC.defense = 280; // POST-NACHTMUSIK ULTIMATE defense (Nachtmusik: 180)
-            NPC.lifeMax = 10000000; // 10 million HP - POST-NACHTMUSIK (Nachtmusik: 8M total)
+            NPC.defense = 280; // Tier 8 defense - above Nachtmusik (180)
+            NPC.lifeMax = 10000000; // Tier 8 - 10M Normal (Expert 20M, Master 30M via auto-scaling)
             NPC.HitSound = SoundID.NPCHit4;
             NPC.DeathSound = SoundID.NPCDeath14;
             NPC.knockBackResist = 0f;

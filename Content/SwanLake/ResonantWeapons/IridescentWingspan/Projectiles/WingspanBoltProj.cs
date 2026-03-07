@@ -36,6 +36,11 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Project
         private float[] oldRot = new float[TrailLength];
         private WingspanPrimitiveRenderer _trailRenderer;
 
+        // Hit flash tracking for noise-zone rendering on impact
+        private Vector2 _lastHitPos;
+        private int _hitFlashTimer;
+        private const int HitFlashDuration = 12;
+
         private Player Owner => Main.player[Projectile.owner];
         private bool IsEmpowered => BoltIndex == -1f;
 
@@ -92,6 +97,10 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Project
             oldPos[0] = Projectile.Center;
             oldRot[0] = Projectile.rotation;
 
+            // Hit flash decay
+            if (_hitFlashTimer > 0)
+                _hitFlashTimer--;
+
             // --- Spectral wing dust ---
             if (Timer % 2 == 0)
             {
@@ -124,8 +133,12 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Project
         {
             target.AddBuff(ModContent.BuffType<SwansMark>(), 240);
 
+            // Record hit for noise flash rendering
+            _lastHitPos = target.Center;
+            _hitFlashTimer = HitFlashDuration;
+
             // Prismatic impact burst
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 10; i++)
             {
                 float angle = MathHelper.TwoPi / 8f * i;
                 Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
@@ -151,7 +164,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Project
             }
             catch { }
 
-            try { SwanLakeVFXLibrary.SpawnRainbowBurst(target.Center, 5, 3.5f); } catch { }
+            try { SwanLakeVFXLibrary.SpawnRainbowBurst(target.Center, 8, 4.5f); } catch { }
+            try { SwanLakeVFXLibrary.SpawnPrismaticSparkles(target.Center, 6, 20f); } catch { }
+            try { SwanLakeVFXLibrary.SpawnMusicNotes(target.Center, 2, 15f, 0.6f, 0.9f, 22); } catch { }
         }
 
         private void SpawnConvergenceBurst(Vector2 pos)
@@ -169,15 +184,18 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Project
             }
 
             // Gold inner burst
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 12; i++)
             {
                 Dust d = Dust.NewDustPerfect(pos, DustID.WhiteTorch,
                     Main.rand.NextVector2Circular(6, 6), 0, WingspanUtils.WingPrismatic, 1.2f);
                 d.noGravity = true;
             }
 
-            // Feather drift
-            try { SwanLakeVFXLibrary.SpawnFeatherBurst(pos, 6, 0.3f); } catch { }
+            // Rainbow explosion + feather drift + sparkles
+            try { SwanLakeVFXLibrary.SpawnFeatherBurst(pos, 8, 0.35f); } catch { }
+            try { SwanLakeVFXLibrary.SpawnRainbowExplosion(pos, 1.2f); } catch { }
+            try { SwanLakeVFXLibrary.SpawnPrismaticSparkles(pos, 8, 30f); } catch { }
+            try { SwanLakeVFXLibrary.SpawnMusicNotes(pos, 4, 25f, 0.7f, 1.0f, 28); } catch { }
         }
 
         public override void OnKill(int timeLeft)
@@ -296,9 +314,21 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Project
                     sb.End();
                 }
 
-                // ============ BLOOM CORE (5-layer prismatic) ============
+                // Restart SpriteBatch for hit flash + bloom core (both use TrueAdditive)
                 sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                // ============ HIT FLASH SPARKLE BURST (replaces noise zone) ============
+                if (_hitFlashTimer > 0 && _lastHitPos != Vector2.Zero)
+                {
+                    float flashProgress = 1f - (float)_hitFlashTimer / HitFlashDuration;
+                    float flashAlpha = (1f - flashProgress) * (1f - flashProgress);
+                    float flashRadius = MathHelper.Lerp(8f, IsEmpowered ? 50f : 35f, flashProgress);
+                    SwanLakeVFXLibrary.DrawPrismaticSparkleImpact(sb, _lastHitPos, flashRadius,
+                        (float)Main.timeForVisualEffects, flashAlpha * 0.8f);
+                }
+
+                // ============ BLOOM CORE (5-layer prismatic) ============
 
                 Texture2D bloom = MagnumTextureRegistry.GetSoftGlow();
                 Texture2D point = MagnumTextureRegistry.GetPointBloom();
@@ -308,12 +338,12 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Project
                 Vector2 drawPos = Projectile.Center - screenPos;
                 float pulse = 0.9f + 0.1f * MathF.Sin((float)Main.timeForVisualEffects * 0.09f + BoltIndex);
 
-                // Layer 1: Outer spectral glow
+                // Layer 1: Outer spectral glow (cap to 300px on 512px SoftGlow)
                 if (bloom != null)
                 {
                     Vector2 bOrigin = bloom.Size() * 0.5f;
                     Color outerColor = WingspanUtils.GetPrismaticEdge(Timer * 0.02f + BoltIndex * 0.2f);
-                    sb.Draw(bloom, drawPos, null, outerColor * 0.35f * pulse, 0f, bOrigin, 0.4f * boltScale * pulse, SpriteEffects.None, 0f);
+                    sb.Draw(bloom, drawPos, null, outerColor * 0.35f * pulse, 0f, bOrigin, MathHelper.Min(0.4f * boltScale * pulse, 0.586f), SpriteEffects.None, 0f);
                 }
 
                 // Layer 2: Ethereal white mid glow
@@ -327,7 +357,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Project
                 if (point != null)
                 {
                     Vector2 pOrigin = point.Size() * 0.5f;
-                    sb.Draw(point, drawPos, null, Color.White * 0.85f, 0f, pOrigin, 0.16f * boltScale * pulse, SpriteEffects.None, 0f);
+                    sb.Draw(point, drawPos, null, Color.White * 0.85f, 0f, pOrigin, 0.07f * boltScale * pulse, SpriteEffects.None, 0f);
                 }
 
                 // Layer 4: Star sparkle accent (rotating)

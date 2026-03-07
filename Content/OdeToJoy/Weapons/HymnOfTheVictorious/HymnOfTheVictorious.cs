@@ -26,7 +26,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious
         {
             Item.width = 44;
             Item.height = 44;
-            Item.damage = 3600;
+            Item.damage = 3100; // Tier 9 (2100-3200 range)
             Item.DamageType = DamageClass.Magic;
             Item.useTime = 25;
             Item.useAnimation = 25;
@@ -93,17 +93,6 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious
             }
 
             return false;
-        }
-
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-            .AddIngredient(ModContent.ItemType<ResonantCoreOfOdeToJoy>(), 25)
-            .AddIngredient(ModContent.ItemType<OdeToJoyResonantEnergy>(), 20)
-            .AddIngredient(ModContent.ItemType<HarmonicCoreOfOdeToJoy>(), 3)
-            .AddIngredient(ItemID.LunarBar, 20)
-            .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
-            .Register();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)

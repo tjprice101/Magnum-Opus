@@ -154,11 +154,11 @@ namespace MagnumOpus.Common.Systems.VFX
             
             // Layer 1: Outer ethereal glow (largest, dimmest)
             Color outerGlow = primaryColor.WithoutAlpha() * 0.25f;
-            sb.Draw(_softGlowTexture, pos, null, outerGlow, 0f, origin, baseScale * pulse * 2.0f, SpriteEffects.None, 0f);
+            sb.Draw(_softGlowTexture, pos, null, outerGlow, 0f, origin, MathHelper.Min(baseScale * pulse * 2.0f, 0.293f), SpriteEffects.None, 0f);
             
             // Layer 2: Middle energy layer
             Color middleGlow = secondaryColor.WithoutAlpha() * 0.4f;
-            sb.Draw(_softGlowTexture, pos, null, middleGlow, 0f, origin, baseScale * pulse * 1.4f, SpriteEffects.None, 0f);
+            sb.Draw(_softGlowTexture, pos, null, middleGlow, 0f, origin, MathHelper.Min(baseScale * pulse * 1.4f, 0.293f), SpriteEffects.None, 0f);
             
             // Layer 3: Inner core flare (rotating)
             float rotation = Main.GameUpdateCount * 0.05f;
@@ -234,7 +234,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 trailColor = trailColor.WithoutAlpha() * opacity;
                 
                 Vector2 drawPos = smoothTrail[i] - Main.screenPosition;
-                sb.Draw(_softGlowTexture, drawPos, null, trailColor, 0f, origin, scale, SpriteEffects.None, 0f);
+                sb.Draw(_softGlowTexture, drawPos, null, trailColor, 0f, origin, MathHelper.Min(scale, 0.293f), SpriteEffects.None, 0f);
             }
         }
         

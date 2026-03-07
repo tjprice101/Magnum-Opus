@@ -703,7 +703,7 @@ namespace MagnumOpus.Common.Systems.VFX
             Vector2 origin = bloom.Size() * 0.5f;
             
             // Layer multipliers for standard bloom stack
-            float[] scaleMultipliers = { 2.0f, 1.4f, 0.9f, 0.4f };
+            float[] scaleMultipliers = { 0.115f, 0.08f, 0.052f, 0.023f };
             float[] opacityMultipliers = { 0.3f, 0.5f, 0.7f, 0.85f };
             
             for (int i = 0; i < Math.Min(layers, 4); i++)

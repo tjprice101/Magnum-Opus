@@ -125,7 +125,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
 
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
-            // „Ÿ„Ÿ Foundation bloom stack (SMFTextures) „Ÿ„Ÿ
+            // ï¿½ï¿½ï¿½ï¿½ Foundation bloom stack (SMFTextures) ï¿½ï¿½ï¿½ï¿½
             Texture2D softGlow = SMFTextures.SoftGlow.Value;
             Texture2D starFlare = SMFTextures.StarFlare.Value;
             Vector2 glowOrigin = softGlow.Size() / 2f;
@@ -137,22 +137,22 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
                 Main.GameViewMatrix.TransformationMatrix);
 
             // Layer 1: Wide scarlet shockwave haze
-            float outerScale = 2f + progress * 4f;
+            float outerScale = 0.1f + progress * 0.18f;
             sb.Draw(softGlow, drawPos, null,
-                (EroicaPalette.Scarlet with { A = 0 }) * (fade * 0.25f), 0f,
+                (EroicaPalette.Scarlet with { A = 0 }) * (fade * 0.15f), 0f,
                 glowOrigin, outerScale, SpriteEffects.None, 0f);
 
             // Layer 2: Mid gold glow
-            float midScale = 1.5f + progress * 2.5f;
+            float midScale = 0.08f + progress * 0.13f;
             sb.Draw(softGlow, drawPos, null,
-                (EroicaPalette.Gold with { A = 0 }) * (fade * 0.35f), 0f,
+                (EroicaPalette.Gold with { A = 0 }) * (fade * 0.25f), 0f,
                 glowOrigin, midScale, SpriteEffects.None, 0f);
 
             // Layer 3: Hot core (fades fast)
-            float coreScale = 0.8f + progress * 1f;
+            float coreScale = 0.05f + progress * 0.08f;
             float coreFade = MathF.Max(0f, 1f - progress * 2f);
             sb.Draw(softGlow, drawPos, null,
-                (EroicaPalette.HotCore with { A = 0 }) * (coreFade * 0.6f), 0f,
+                (EroicaPalette.HotCore with { A = 0 }) * (coreFade * 0.4f), 0f,
                 glowOrigin, coreScale, SpriteEffects.None, 0f);
 
             // Layer 4: Rotating star flare cross (early frames only)
@@ -163,13 +163,13 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
                 Vector2 flareOrigin = starFlare.Size() / 2f;
 
                 sb.Draw(starFlare, drawPos, null,
-                    (EroicaPalette.Gold with { A = 0 }) * (flareFade * 0.5f), flareRot,
-                    flareOrigin, 0.6f * flareFade, SpriteEffects.None, 0f);
+                    (EroicaPalette.Gold with { A = 0 }) * (flareFade * 0.35f), flareRot,
+                    flareOrigin, MathHelper.Min(0.3f * flareFade, 0.293f), SpriteEffects.None, 0f);
 
                 sb.Draw(starFlare, drawPos, null,
-                    (EroicaPalette.HotCore with { A = 0 }) * (flareFade * 0.3f),
+                    (EroicaPalette.HotCore with { A = 0 }) * (flareFade * 0.2f),
                     flareRot + MathHelper.PiOver4,
-                    flareOrigin, 0.4f * flareFade, SpriteEffects.None, 0f);
+                    flareOrigin, 0.2f * flareFade, SpriteEffects.None, 0f);
             }
 
             sb.End();

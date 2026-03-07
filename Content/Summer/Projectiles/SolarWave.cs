@@ -309,7 +309,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
                 float progress = (float)i / Projectile.oldPos.Length;
                 float trailAlpha = 1f - progress;
-                float trailScale = (1f - progress * 0.4f);
+                float trailScale = MathHelper.Min(1f - progress * 0.4f, 0.139f); // SoftCircle is 2160px — cap to 300px max
                 Color trailColor = Color.Lerp(SunGold, SunRed, progress) * trailAlpha * 0.55f;
                 Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
                 spriteBatch.Draw(texture, trailPos, null, trailColor, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
@@ -318,11 +318,11 @@ namespace MagnumOpus.Content.Summer.Projectiles
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.12f + 1f;
 
-            // Multi-layer bloom
-            spriteBatch.Draw(texture, drawPos, null, SunRed * 0.3f, Projectile.rotation, origin, 0.7f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, SunOrange * 0.4f, Projectile.rotation, origin, 0.55f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, SunGold * 0.5f, Projectile.rotation, origin, 0.4f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, SunWhite * 0.6f, Projectile.rotation, origin, 0.25f * pulse, SpriteEffects.None, 0f);
+            // Multi-layer bloom (SoftCircle 2160px — capped to 300px max)
+            spriteBatch.Draw(texture, drawPos, null, SunRed * 0.3f, Projectile.rotation, origin, MathHelper.Min(0.7f * pulse, 0.139f), SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, drawPos, null, SunOrange * 0.4f, Projectile.rotation, origin, MathHelper.Min(0.55f * pulse, 0.139f), SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, drawPos, null, SunGold * 0.5f, Projectile.rotation, origin, MathHelper.Min(0.4f * pulse, 0.139f), SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, drawPos, null, SunWhite * 0.6f, Projectile.rotation, origin, MathHelper.Min(0.25f * pulse, 0.139f), SpriteEffects.None, 0f);
 
             // Orbiting points
             for (int i = 0; i < 4; i++)
@@ -330,7 +330,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
                 float sparkAngle = orbitAngle + MathHelper.PiOver2 * i;
                 Vector2 sparkOffset = sparkAngle.ToRotationVector2() * 16f;
                 Color sparkColor = i % 2 == 0 ? SunGold : SunOrange;
-                spriteBatch.Draw(texture, drawPos + sparkOffset, null, sparkColor * 0.5f, 0f, origin, 0.15f * pulse, SpriteEffects.None, 0f);
+                spriteBatch.Draw(texture, drawPos + sparkOffset, null, sparkColor * 0.5f, 0f, origin, MathHelper.Min(0.15f * pulse, 0.139f), SpriteEffects.None, 0f);
             }
 
             spriteBatch.End();

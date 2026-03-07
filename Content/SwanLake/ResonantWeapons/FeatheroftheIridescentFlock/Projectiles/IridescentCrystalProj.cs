@@ -46,6 +46,11 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
         private int volleyShots = 0;
         private FlockPrimitiveRenderer _trailRenderer;
 
+        // Hit flash system for noise zone rendering at impact points
+        private Vector2 _lastHitPos;
+        private int _hitFlashTimer;
+        private const int HitFlashDuration = 14;
+
         private Player Owner => Main.player[Projectile.owner];
 
         public override void SetStaticDefaults()
@@ -82,6 +87,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
 
             Timer++;
             StateTimer++;
+
+            // Hit flash decay
+            if (_hitFlashTimer > 0) _hitFlashTimer--;
 
             // --- Trail recording ---
             for (int i = TrailLength - 1; i > 0; i--)
@@ -348,12 +356,16 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
         {
             target.AddBuff(ModContent.BuffType<SwansMark>(), 240);
 
+            // Record hit for noise zone flash
+            _lastHitPos = target.Center;
+            _hitFlashTimer = HitFlashDuration;
+
             // Iridescent impact sparkle
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 10; i++)
             {
-                Color c = FlockUtils.GetIridescent(i / 8f);
+                Color c = FlockUtils.GetIridescent(i / 10f);
                 Dust d = Dust.NewDustPerfect(target.Center, DustID.WhiteTorch,
-                    Main.rand.NextVector2Circular(4, 4), 0, c, 0.8f);
+                    Main.rand.NextVector2Circular(5, 5), 0, c, 0.8f);
                 d.noGravity = true;
             }
 
@@ -370,7 +382,17 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
                 }
             }
 
-            try { SwanLakeVFXLibrary.SpawnRainbowBurst(target.Center, 5, 3f); } catch { }
+            try
+            {
+                SwanLakeVFXLibrary.SpawnRainbowBurst(target.Center, 7, 4.5f);
+                SwanLakeVFXLibrary.SpawnPrismaticSparkles(target.Center, 6, 22f);
+                SwanLakeVFXLibrary.SpawnMusicNotes(target.Center, 3, 18f);
+                SwanLakeVFXLibrary.SpawnFeatherBurst(target.Center, 4, 20f);
+                if (CountActiveCrystals() >= 4)
+                {
+                    SwanLakeVFXLibrary.SpawnRainbowExplosion(target.Center, 0.8f);
+                }
+            } catch { }
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -396,6 +418,19 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
                 bool isDiving = CurrentState == CrystalState.DiveAttack;
                 bool isMovingFast = Projectile.velocity.Length() > 3f;
                 float stateIntensity = isDiving ? 1.4f : (CurrentState == CrystalState.ShardVolley ? 1.1f : 0.85f);
+
+                // ========================================================
+                // HIT FLASH NOISE ZONE — renders at last impact position
+                // ========================================================
+                if (_hitFlashTimer > 0 && _lastHitPos != Vector2.Zero)
+                {
+                    float flashProgress = 1f - (float)_hitFlashTimer / HitFlashDuration;
+                    float flashAlpha = (1f - flashProgress) * 0.7f;
+                    float flashRadius = MathHelper.Lerp(10f, 45f, flashProgress);
+                    float flashTime = (float)Main.timeForVisualEffects * 0.02f;
+
+                    SwanLakeVFXLibrary.DrawPrismaticSparkleImpact(sb, _lastHitPos, flashRadius, flashTime, flashAlpha, 6);
+                }
 
                 // --- Formation lines to nearby crystals ---
                 DrawFormationLines(sb, screenPos, point);
@@ -462,7 +497,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
                 {
                     Vector2 rOrigin = radial.Size() * 0.5f;
                     Color oilColor = FlockUtils.GetOilSheen(idleRotation, (float)Main.timeForVisualEffects * 0.01f);
-                    float radialScale = (0.4f + 0.08f * stateIntensity) * pulse;
+                    float radialScale = (0.1f + 0.02f * stateIntensity) * pulse;
                     sb.Draw(radial, drawPos, null, oilColor * 0.2f * pulse, idleRotation * 0.3f, rOrigin, radialScale, SpriteEffects.None, 0f);
                 }
 
@@ -511,7 +546,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
                 if (point != null)
                 {
                     Vector2 pOrigin = point.Size() * 0.5f;
-                    sb.Draw(point, drawPos, null, Color.White * 0.8f * stateIntensity, 0f, pOrigin, 0.14f * pulse, SpriteEffects.None, 0f);
+                    sb.Draw(point, drawPos, null, Color.White * 0.8f * stateIntensity, 0f, pOrigin, 0.12f * pulse, SpriteEffects.None, 0f);
                 }
 
                 // ========================================================

@@ -9,6 +9,7 @@ using Terraria.GameContent;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Utilities;
 using MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Particles;
 using MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Primitives;
@@ -40,8 +41,41 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
 
         // Swing arc parameters per movement (from Resonance Weapons Planning doc)
         private static readonly float[] ArcAngles = { 160f, 120f, 270f, 100f };  // Degrees
-        private static readonly float[] SwingDurations = { 30f, 22f, 18f, 26f }; // Frames  EAdagio(slow), Allegro(quick), Scherzo(wild), Finale(devastating)
+        private static readonly float[] SwingDurations = { 30f, 22f, 18f, 26f }; // Frames — Adagio(slow), Allegro(quick), Scherzo(wild), Finale(devastating)
         private static readonly float[] DamageMultipliers = { 1f, 0.9f, 0.8f, 1.5f };
+
+        // Incisor-style 3-segment piecewise curves (windup → swing → settle)
+        private static readonly RequiemUtils.CurveSegment[][] MovementCurves = new[]
+        {
+            // Movement 0 (Adagio): slow mournful, flowing sweep
+            new RequiemUtils.CurveSegment[]
+            {
+                new(0f, 0.28f, 0f, 0.15f, RequiemUtils.SineOut),
+                new(0.28f, 0.82f, 0.15f, 0.90f, RequiemUtils.SineInOut),
+                new(0.82f, 1.0f, 0.90f, 1.0f, RequiemUtils.SineOut),
+            },
+            // Movement 1 (Allegro): quick desperate, aggressive snap
+            new RequiemUtils.CurveSegment[]
+            {
+                new(0f, 0.18f, 0f, 0.10f, RequiemUtils.SineOut),
+                new(0.18f, 0.78f, 0.10f, 0.94f, RequiemUtils.QuadIn),
+                new(0.78f, 1.0f, 0.94f, 1.0f, RequiemUtils.QuadOut),
+            },
+            // Movement 2 (Scherzo): wild spinning, minimal windup
+            new RequiemUtils.CurveSegment[]
+            {
+                new(0f, 0.12f, 0f, 0.06f, RequiemUtils.QuadOut),
+                new(0.12f, 0.88f, 0.06f, 0.96f, RequiemUtils.SineInOut),
+                new(0.88f, 1.0f, 0.96f, 1.0f, RequiemUtils.QuadOut),
+            },
+            // Movement 3 (Finale): devastating overhead slam, long windup
+            new RequiemUtils.CurveSegment[]
+            {
+                new(0f, 0.35f, 0f, 0.10f, RequiemUtils.SineOut),
+                new(0.35f, 0.85f, 0.10f, 0.95f, RequiemUtils.ExpIn),
+                new(0.85f, 1.0f, 0.95f, 1.0f, RequiemUtils.QuadOut),
+            },
+        };
 
         // Trail system
         private Vector2[] _trailPoints = new Vector2[24];
@@ -136,26 +170,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
 
             float progress = Projectile.ai[1] / duration;
 
-            // Swing easing per movement (from Resonance Weapons Planning doc)
-            float easedProgress;
-            switch (_movement)
-            {
-                case 0: // Adagio: smooth, mournful  ESineInOut
-                    easedProgress = RequiemUtils.SineInOut(progress);
-                    break;
-                case 1: // Allegro: quick, desperate  EQuadOut
-                    easedProgress = RequiemUtils.QuadOut(progress);
-                    break;
-                case 2: // Scherzo: wild, spinning  EExpOut (fast start, decelerating)
-                    easedProgress = RequiemUtils.ExpOut(progress);
-                    break;
-                case 3: // Finale: devastating overhead slam  EBackOut overshoot
-                    easedProgress = RequiemUtils.BackOut(progress);
-                    break;
-                default:
-                    easedProgress = progress;
-                    break;
-            }
+            // 3-segment piecewise swing: windup → accelerating sweep → settle
+            float easedProgress = RequiemUtils.PiecewiseAnimation(progress, MovementCurves[_movement]);
 
             // Calculate current angle
             _currentAngle = _startAngle + ArcRadians * easedProgress * _direction;
@@ -531,23 +547,23 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
 
                 // Layer 1: Wide outer void haze
                 sb.Draw(bloom, tipDraw, null, RequiemUtils.Additive(RequiemUtils.CosmicVoid, 0.15f * intensity),
-                    0f, bloomOrigin, 1.6f * intensity, SpriteEffects.None, 0f);
+                    0f, bloomOrigin, MathHelper.Min(0.16f * intensity, 0.139f), SpriteEffects.None, 0f);
 
                 // Layer 2: Crimson outer glow
                 sb.Draw(bloom, tipDraw, null, RequiemUtils.Additive(RequiemUtils.BrightCrimson, 0.25f * intensity),
-                    0f, bloomOrigin, 1.1f * intensity, SpriteEffects.None, 0f);
+                    0f, bloomOrigin, 0.11f * intensity, SpriteEffects.None, 0f);
 
                 // Layer 3: Dark pink mid glow
                 sb.Draw(bloom, tipDraw, null, RequiemUtils.Additive(RequiemUtils.DarkPink, 0.35f * intensity),
-                    0f, bloomOrigin, 0.65f * intensity, SpriteEffects.None, 0f);
+                    0f, bloomOrigin, 0.065f * intensity, SpriteEffects.None, 0f);
 
                 // Layer 4: Silver constellation highlight
                 sb.Draw(point, tipDraw, null, RequiemUtils.Additive(RequiemUtils.ConstellationSilver, 0.45f * intensity),
-                    0f, pointOrigin, 0.35f * intensity, SpriteEffects.None, 0f);
+                    0f, pointOrigin, 0.04f * intensity, SpriteEffects.None, 0f);
 
                 // Layer 5: Supernova white core
                 sb.Draw(point, tipDraw, null, RequiemUtils.Additive(RequiemUtils.SupernovaWhite, 0.55f * intensity),
-                    0f, pointOrigin, 0.18f * intensity, SpriteEffects.None, 0f);
+                    0f, pointOrigin, 0.025f * intensity, SpriteEffects.None, 0f);
 
                 // Layer 6: Rotating star cross flare
                 if (_starFlareTex?.Value != null)
@@ -556,9 +572,9 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
                     Texture2D starTex = _starFlareTex.Value;
                     Vector2 starOrigin = starTex.Size() / 2f;
                     sb.Draw(starTex, tipDraw, null, RequiemUtils.Additive(RequiemUtils.BrightCrimson, 0.3f * intensity),
-                        starRot, starOrigin, 0.4f * intensity, SpriteEffects.None, 0f);
+                        starRot, starOrigin, 0.14f * intensity, SpriteEffects.None, 0f);
                     sb.Draw(starTex, tipDraw, null, RequiemUtils.Additive(RequiemUtils.SupernovaWhite, 0.2f * intensity),
-                        -starRot * 0.7f, starOrigin, 0.25f * intensity, SpriteEffects.None, 0f);
+                        -starRot * 0.7f, starOrigin, 0.09f * intensity, SpriteEffects.None, 0f);
                 }
 
                 sb.End();
@@ -806,6 +822,18 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
                         0f, _glowTex.Value.Size() / 2f, 0.35f * flarePulse, SpriteEffects.None, 0f);
                     sb.Draw(_glowTex.Value, tipPos, null, RequiemUtils.Additive(RequiemUtils.SupernovaWhite, 0.3f * flarePulse),
                         0f, _glowTex.Value.Size() / 2f, 0.18f * flarePulse, SpriteEffects.None, 0f);
+
+                    // Star4Soft sparkle accent — requiem's fading light
+                    Texture2D starTex = MagnumTextureRegistry.GetStar4Soft();
+                    if (starTex != null)
+                    {
+                        Vector2 starOrigin = starTex.Size() / 2f;
+                        float starRot = (float)Main.timeForVisualEffects * 0.04f;
+                        sb.Draw(starTex, tipPos, null, RequiemUtils.Additive(RequiemUtils.BrightCrimson, 0.4f * flarePulse),
+                            starRot, starOrigin, 0.10f * flarePulse, SpriteEffects.None, 0f);
+                        sb.Draw(starTex, tipPos, null, RequiemUtils.Additive(RequiemUtils.SupernovaWhite, 0.25f * flarePulse),
+                            -starRot * 0.7f, starOrigin, 0.06f * flarePulse, SpriteEffects.None, 0f);
+                    }
                     RequiemUtils.EndAdditive(sb);
                 }
             }

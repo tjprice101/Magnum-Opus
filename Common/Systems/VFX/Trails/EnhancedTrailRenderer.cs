@@ -1075,13 +1075,13 @@ namespace MagnumOpus.Common.Systems.VFX
                 Vector2 drawPos = positions[i] - Main.screenPosition;
                 Vector2 origin = bloomTex.Size() * 0.5f;
                 
-                // Bloom behind star
+                // Bloom behind star (capped to 300px on 2160px texture)
                 Main.spriteBatch.Draw(bloomTex, drawPos, null, 
-                    starColor.WithoutAlpha() * 0.4f, 0f, origin, scale * 2f, SpriteEffects.None, 0f);
+                    starColor.WithoutAlpha() * 0.4f, 0f, origin, MathHelper.Min(scale * 2f, 0.139f), SpriteEffects.None, 0f);
                 
                 // Star core
                 Main.spriteBatch.Draw(bloomTex, drawPos, null, 
-                    color.WithoutAlpha() * 0.8f, 0f, origin, scale, SpriteEffects.None, 0f);
+                    color.WithoutAlpha() * 0.8f, 0f, origin, MathHelper.Min(scale, 0.139f), SpriteEffects.None, 0f);
             }
         }
         

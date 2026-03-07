@@ -170,7 +170,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure
             {
                 Texture2D shBloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
                 EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.SilentSeekerTrail,
-                    shBloom, drawPos, shBloom.Size() / 2f, 0.7f,
+                    shBloom, drawPos, shBloom.Size() / 2f, 0.045f,
                     SilentUtils.QuestionViolet.ToVector3(), SilentUtils.EnigmaEmerald.ToVector3(),
                     opacity: 0.45f, intensity: 1.0f, rotation: Projectile.velocity.ToRotation(),
                     noiseTexture: ShaderLoader.GetNoiseTexture("PerlinNoise"),
@@ -186,12 +186,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure
             Vector2 bOrigin = bloom.Size() / 2f;
             float pulse = 0.85f + MathF.Sin(time * 0.07f) * 0.15f;
 
-            sb.Draw(bloom, drawPos, null, SilentUtils.AbsoluteSilence * 0.20f * pulse, 0f, bOrigin, 0.55f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, SilentUtils.HushedDepth * 0.30f * pulse, 0f, bOrigin, 0.40f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, SilentUtils.QuestionViolet * 0.50f * pulse, 0f, bOrigin, 0.28f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, SilentUtils.EnigmaEmerald * 0.45f * pulse, 0f, bOrigin, 0.18f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, SilentUtils.BrightQuestion * 0.35f * pulse, 0f, bOrigin, 0.10f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, SilentUtils.AnswerWhite * 0.55f * pulse, 0f, bOrigin, 0.05f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, SilentUtils.HushedDepth * 0.30f * pulse, 0f, bOrigin, new Vector2(0.04f * 0.7f, 0.04f), SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, SilentUtils.QuestionViolet * 0.50f * pulse, 0f, bOrigin, new Vector2(0.028f * 0.7f, 0.028f), SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, SilentUtils.EnigmaEmerald * 0.45f * pulse, 0f, bOrigin, new Vector2(0.018f * 0.7f, 0.018f), SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, SilentUtils.BrightQuestion * 0.35f * pulse, 0f, bOrigin, new Vector2(0.010f * 0.7f, 0.010f), SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, SilentUtils.AnswerWhite * 0.55f * pulse, 0f, bOrigin, new Vector2(0.005f * 0.7f, 0.005f), SpriteEffects.None, 0f);
 
             // === Stage 4: EN Star Flare ===
             {
@@ -454,7 +453,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure
             {
                 Texture2D shBloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
                 EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.SilentQuestionBurst,
-                    shBloom, drawPos, shBloom.Size() / 2f, 0.5f,
+                    shBloom, drawPos, shBloom.Size() / 2f, 0.035f,
                     SilentUtils.EnigmaEmerald.ToVector3(), SilentUtils.BrightQuestion.ToVector3(),
                     opacity: 0.35f, intensity: 1.0f, rotation: Projectile.velocity.ToRotation(),
                     noiseTexture: ShaderLoader.GetNoiseTexture("SimplexNoise"),
@@ -470,12 +469,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure
             Vector2 bOrigin = bloom.Size() / 2f;
             float pulse = 0.85f + MathF.Sin(time * 0.09f) * 0.15f;
 
-            sb.Draw(bloom, drawPos, null, SilentUtils.AbsoluteSilence * 0.15f * pulse, 0f, bOrigin, 0.40f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, SilentUtils.HushedDepth * 0.22f * pulse, 0f, bOrigin, 0.30f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, SilentUtils.QuestionViolet * 0.30f * pulse, 0f, bOrigin, 0.20f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, SilentUtils.EnigmaEmerald * 0.45f * pulse, 0f, bOrigin, 0.13f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, SilentUtils.BrightQuestion * 0.35f * pulse, 0f, bOrigin, 0.07f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, SilentUtils.AnswerWhite * 0.45f * pulse, 0f, bOrigin, 0.035f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, SilentUtils.HushedDepth * 0.22f * pulse, 0f, bOrigin, new Vector2(0.03f * 0.7f, 0.03f), SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, SilentUtils.QuestionViolet * 0.30f * pulse, 0f, bOrigin, new Vector2(0.02f * 0.7f, 0.02f), SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, SilentUtils.EnigmaEmerald * 0.45f * pulse, 0f, bOrigin, new Vector2(0.013f * 0.7f, 0.013f), SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, SilentUtils.BrightQuestion * 0.35f * pulse, 0f, bOrigin, new Vector2(0.007f * 0.7f, 0.007f), SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, SilentUtils.AnswerWhite * 0.45f * pulse, 0f, bOrigin, new Vector2(0.0035f * 0.7f, 0.0035f), SpriteEffects.None, 0f);
 
             // === Stage 4: EN Star Flare (small, seeker-scale) ===
             {
@@ -693,12 +691,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure
             Vector2 bOrigin = bloom.Size() / 2f;
             float pulse = 0.85f + MathF.Sin(time * 0.06f) * 0.15f;
 
-            sb.Draw(bloom, drawPos, null, SilentUtils.AbsoluteSilence * 0.25f * pulse, 0f, bOrigin, 0.70f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, SilentUtils.HushedDepth * 0.35f * pulse, 0f, bOrigin, 0.52f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, SilentUtils.QuestionViolet * 0.50f * pulse, 0f, bOrigin, 0.38f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, SilentUtils.EnigmaEmerald * 0.55f * pulse, 0f, bOrigin, 0.25f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, SilentUtils.BrightQuestion * 0.50f * pulse, 0f, bOrigin, 0.14f, SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, SilentUtils.AnswerWhite * 0.65f * pulse, 0f, bOrigin, 0.07f, SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, SilentUtils.HushedDepth * 0.35f * pulse, 0f, bOrigin, new Vector2(0.139f * 0.7f, 0.139f), SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, SilentUtils.QuestionViolet * 0.50f * pulse, 0f, bOrigin, new Vector2(0.10f * 0.7f, 0.10f), SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, SilentUtils.EnigmaEmerald * 0.55f * pulse, 0f, bOrigin, new Vector2(0.07f * 0.7f, 0.07f), SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, SilentUtils.BrightQuestion * 0.50f * pulse, 0f, bOrigin, new Vector2(0.05f * 0.7f, 0.05f), SpriteEffects.None, 0f);
+            sb.Draw(bloom, drawPos, null, SilentUtils.AnswerWhite * 0.65f * pulse, 0f, bOrigin, new Vector2(0.03f * 0.7f, 0.03f), SpriteEffects.None, 0f);
 
             // === Stage 4: EN Star Flare — dual counter-rotating paradox flares ===
             {

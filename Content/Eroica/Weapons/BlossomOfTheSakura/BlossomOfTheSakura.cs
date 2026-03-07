@@ -40,7 +40,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura
         public override void SetDefaults()
         {
             Item.ResearchUnlockCount = 1;
-            Item.damage = 75;
+            Item.damage = 85; // Tier 2 (300-500 range), speed-proportional for useTime=4
             Item.DamageType = DamageClass.Ranged;
             Item.width = 64;
             Item.height = 28;

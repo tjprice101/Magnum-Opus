@@ -64,6 +64,57 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
         private static readonly float[] SmearFlowPerPhase = { 0.5f, 0.6f, 0.75f };
         private static readonly float[] RibbonWidthScale = { 1.0f, 1.1f, 1.25f };
 
+        // ── Piecewise CurveSegment (Incisor-style windup → main swing → settle) ──
+        private struct CurveSegment
+        {
+            public float StartX, EndX, StartY, EndY;
+            public Func<float, float> Easing;
+            public CurveSegment(float sx, float ex, float sy, float ey, Func<float, float> e = null)
+            { StartX = sx; EndX = ex; StartY = sy; EndY = ey; Easing = e ?? (t => t); }
+        }
+
+        private static float SineOut(float t) => MathF.Sin(t * MathHelper.PiOver2);
+        private static float QuadIn(float t) => t * t;
+        private static float QuadOut(float t) => 1f - (1f - t) * (1f - t);
+        private static float CubicIn(float t) => t * t * t;
+
+        private static float PiecewiseAnimation(float t, CurveSegment[] segments)
+        {
+            t = MathHelper.Clamp(t, 0f, 1f);
+            foreach (var seg in segments)
+            {
+                if (t >= seg.StartX && t <= seg.EndX)
+                {
+                    float localT = (t - seg.StartX) / Math.Max(seg.EndX - seg.StartX, 0.0001f);
+                    return MathHelper.Lerp(seg.StartY, seg.EndY, seg.Easing(localT));
+                }
+            }
+            return segments.Length > 0 ? segments[^1].EndY : 0f;
+        }
+
+        // Per-phase swing curves: graceful sakura petal arcs
+        private static readonly CurveSegment[][] SwingCurves = new[]
+        {
+            // Phase 0: First Petal — gentle flowing arc
+            new[] {
+                new CurveSegment(0f, 0.22f, 0f, 0.10f, SineOut),
+                new CurveSegment(0.22f, 0.80f, 0.10f, 0.92f, QuadIn),
+                new CurveSegment(0.80f, 1.0f, 0.92f, 1.0f, SineOut),
+            },
+            // Phase 1: Scattered Petals — slightly faster
+            new[] {
+                new CurveSegment(0f, 0.20f, 0f, 0.10f, SineOut),
+                new CurveSegment(0.20f, 0.78f, 0.10f, 0.93f, QuadIn),
+                new CurveSegment(0.78f, 1.0f, 0.93f, 1.0f, SineOut),
+            },
+            // Phase 2: Final Bloom — dramatic finisher
+            new[] {
+                new CurveSegment(0f, 0.25f, 0f, 0.14f, QuadOut),
+                new CurveSegment(0.25f, 0.83f, 0.14f, 0.94f, CubicIn),
+                new CurveSegment(0.83f, 1.0f, 0.94f, 1.0f, SineOut),
+            },
+        };
+
         // ── Phase definitions ──
         private static readonly int[] PhaseDuration = { 18, 22, 26 };
         private static readonly float[] ArcStart = { -1.8f, 1.2f, -2.4f };
@@ -82,6 +133,17 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
             Projectile.localNPCHitCooldown = 10;
             Projectile.noEnchantmentVisuals = true;
             Projectile.ownerHitCheck = true;
+        }
+
+        public override bool ShouldUpdatePosition() => false;
+
+        public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
+        {
+            float _ = 0f;
+            Player player = Main.player[Projectile.owner];
+            Vector2 start = player.MountedCenter;
+            Vector2 end = start + swingRotation.ToRotationVector2() * BladeLength * Projectile.scale;
+            return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), start, end, 28f, ref _);
         }
 
         public override void AI()
@@ -106,12 +168,12 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
                     afterimageRotations[i] = swingRotation;
                 for (int i = 0; i < RibbonTrailLength; i++)
                 {
-                    ribbonPositions[i] = player.Center;
+                    ribbonPositions[i] = player.MountedCenter;
                     ribbonRotations[i] = swingRotation;
                 }
             }
 
-            Projectile.Center = player.Center;
+            Projectile.Center = player.MountedCenter;
 
             // ── Meditation check (no nearby enemies + holding) ──
             if (!meditationCharged)
@@ -120,7 +182,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
                 for (int i = 0; i < Main.maxNPCs; i++)
                 {
                     if (Main.npc[i].active && !Main.npc[i].friendly && Main.npc[i].CanBeChasedBy()
-                        && Vector2.Distance(player.Center, Main.npc[i].Center) < 400f)
+                        && Vector2.Distance(player.MountedCenter, Main.npc[i].Center) < 400f)
                     {
                         enemiesNearby = true;
                         break;
@@ -132,8 +194,8 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
                     if (meditationTimer >= 90) // 1.5 seconds
                     {
                         meditationCharged = true;
-                        EroicaVFXLibrary.HaloBurst(player.Center, 0.8f);
-                        SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.4f, Volume = 0.5f }, player.Center);
+                        EroicaVFXLibrary.HaloBurst(player.MountedCenter, 0.8f);
+                        SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.4f, Volume = 0.5f }, player.MountedCenter);
                     }
                 }
                 else
@@ -142,11 +204,11 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
                 }
             }
 
-            // ── Swing interpolation ──
+            // ── Swing interpolation (piecewise CurveSegment) ──
             int phaseIdx = (int)MathHelper.Clamp(ComboPhase, 0, 2);
             float duration = PhaseDuration[phaseIdx];
             float progress = MathHelper.Clamp(PhaseTimer / duration, 0f, 1f);
-            float eased = EaseFlowing(progress);
+            float eased = PiecewiseAnimation(progress, SwingCurves[phaseIdx]);
 
             float arcScale = meditationCharged ? 1.4f : 1f;
             float startAngle = ArcStart[phaseIdx] * swingDirection * arcScale;
@@ -160,7 +222,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
 
             // ── Blade tip & ribbon recording ──
             Vector2 tipDir = swingRotation.ToRotationVector2();
-            Vector2 tipPos = player.Center + tipDir * BladeLength;
+            Vector2 tipPos = player.MountedCenter + tipDir * BladeLength;
 
             ribbonPositions[ribbonIndex] = tipPos;
             ribbonRotations[ribbonIndex] = swingRotation;
@@ -192,22 +254,18 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
                 for (int i = 0; i < MaxAfterimages; i++)
                     afterimageRotations[i] = ArcStart[(int)ComboPhase] * swingDirection;
                 for (int i = 0; i < RibbonTrailLength; i++)
-                    ribbonPositions[i] = player.Center;
+                    ribbonPositions[i] = player.MountedCenter;
                 ribbonCount = 0;
             }
 
             // ── Player lock ──
-            player.direction = Main.MouseWorld.X >= player.Center.X ? 1 : -1;
+            player.direction = Main.MouseWorld.X >= player.MountedCenter.X ? 1 : -1;
             player.heldProj = Projectile.whoAmI;
             player.itemAnimation = 2;
             player.itemTime = 2;
         }
 
-        private static float EaseFlowing(float t)
-        {
-            // Smooth flowing ease — gentler than standard for sakura grace
-            return MathF.Sin(t * MathHelper.PiOver2);
-        }
+        // EaseFlowing replaced by PiecewiseAnimation SwingCurves above
 
         #region VFX Spawning
 
@@ -228,7 +286,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
             // Meditation aura — glowing rings while charged
             if (meditationCharged && (int)PhaseTimer % 8 == 0)
             {
-                var ring = new BloomRingParticle(player.Center, Vector2.Zero, EroicaPalette.Sakura, 0.4f, 25, 0.06f);
+                var ring = new BloomRingParticle(player.MountedCenter, Vector2.Zero, EroicaPalette.Sakura, 0.4f, 25, 0.06f);
                 MagnumParticleHandler.SpawnParticle(ring);
             }
 
@@ -250,7 +308,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
                         ModContent.ProjectileType<SakurasBlossomSpectral>(),
                         (int)(Projectile.damage * 0.3f), Projectile.knockBack * 0.3f, Projectile.owner);
                 }
-                SoundEngine.PlaySound(SoundID.Item43 with { Pitch = 0.3f, Volume = 0.6f }, player.Center);
+                SoundEngine.PlaySound(SoundID.Item43 with { Pitch = 0.3f, Volume = 0.6f }, player.MountedCenter);
             }
         }
 
@@ -314,7 +372,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
             float progress = MathHelper.Clamp(PhaseTimer / (float)PhaseDuration[phase], 0f, 1f);
             float comboNorm = phase / 2f;
             float time = (float)Main.gameTimeCache.TotalGameTime.TotalSeconds;
-            Vector2 playerDraw = player.Center - Main.screenPosition;
+            Vector2 playerDraw = player.MountedCenter - Main.screenPosition;
             float drawBaseRot = swingRotation + (swingDirection > 0 ? -MathHelper.PiOver4 : MathHelper.PiOver4 + MathHelper.Pi);
 
             // ═══════════════════════════════════════════════════════════════════
@@ -662,7 +720,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
                         if (progress < 0.2f) continue;
                         float bloomFade = progress * progress * 0.25f;
                         Color bloomCol = EroicaPalette.Sakura with { A = 0 };
-                        float bloomScale = MathHelper.Lerp(0.08f, 0.22f, progress) * widthScale;
+                        float bloomScale = MathHelper.Lerp(0.02f, 0.06f, progress) * widthScale;
                         sb.Draw(bloomTex, positions[i] - Main.screenPosition, null,
                             bloomCol * bloomFade, 0f, bloomOrigin, bloomScale, SpriteEffects.None, 0f);
                     }
@@ -739,7 +797,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
         // ═══════════════════════════════════════════════════════════════════════
         private void DrawShaderBladeTipBloom(SpriteBatch sb, Player player, int phase, float time)
         {
-            Vector2 tipPos = player.Center + swingRotation.ToRotationVector2() * BladeLength;
+            Vector2 tipPos = player.MountedCenter + swingRotation.ToRotationVector2() * BladeLength;
             float comboNorm = phase / 2f;
 
             // Standard bloom stack
@@ -759,11 +817,11 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
                 {
                     EroicaShaderManager.ApplySakurasBlossomPetalBurst(time, comboNorm, glowPass: false);
                     sb.Draw(bloom, bloomDrawPos, null, Color.White * (0.2f + comboNorm * 0.1f),
-                        0f, bloomOrigin, 0.3f + phase * 0.05f, SpriteEffects.None, 0f);
+                        0f, bloomOrigin, 0.04f + phase * 0.008f, SpriteEffects.None, 0f);
 
                     EroicaShaderManager.ApplySakurasBlossomPetalBurst(time, comboNorm, glowPass: true);
                     sb.Draw(bloom, bloomDrawPos, null, Color.White * (0.15f + comboNorm * 0.08f),
-                        time * 0.5f, bloomOrigin, 0.45f + phase * 0.07f, SpriteEffects.None, 0f);
+                        time * 0.5f, bloomOrigin, 0.06f + phase * 0.01f, SpriteEffects.None, 0f);
                 }
                 finally
                 {
@@ -790,7 +848,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
         // ═══════════════════════════════════════════════════════════════════════
         private void DrawShaderMeditationGlow(SpriteBatch sb, Player player, float time)
         {
-            Vector2 drawPos = player.Center - Main.screenPosition;
+            Vector2 drawPos = player.MountedCenter - Main.screenPosition;
             float pulse = 0.8f + MathF.Sin(time * 3f) * 0.2f;
 
             if (EroicaShaderManager.HasPetalDissolve)
@@ -806,12 +864,12 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
                         // Inner dissolve aura — solid petal ring
                         EroicaShaderManager.ApplySakurasBlossomDissolve(time, 0.3f, glowPass: false);
                         sb.Draw(bloom, drawPos, null, Color.White * (0.2f * pulse),
-                            0f, bloomOrigin, 0.5f, SpriteEffects.None, 0f);
+                            0f, bloomOrigin, 0.06f, SpriteEffects.None, 0f);
 
                         // Outer dissolve haze — partially dissolved petals
                         EroicaShaderManager.ApplySakurasBlossomDissolve(time, 0.6f, glowPass: true);
                         sb.Draw(bloom, drawPos, null, Color.White * (0.12f * pulse),
-                            time * 0.2f, bloomOrigin, 0.9f, SpriteEffects.None, 0f);
+                            time * 0.2f, bloomOrigin, 0.1f, SpriteEffects.None, 0f);
                     }
                     finally
                     {
@@ -827,10 +885,10 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
                 {
                     Vector2 bloomOrigin = bloom.Size() * 0.5f;
                     Color meditColor = EroicaPalette.Sakura with { A = 0 };
-                    sb.Draw(bloom, drawPos, null, meditColor * (0.18f * pulse), 0f, bloomOrigin, 0.7f, SpriteEffects.None, 0f);
+                    sb.Draw(bloom, drawPos, null, meditColor * (0.18f * pulse), 0f, bloomOrigin, 0.12f, SpriteEffects.None, 0f);
 
                     Color innerColor = EroicaPalette.PollenGold with { A = 0 };
-                    sb.Draw(bloom, drawPos, null, innerColor * (0.12f * pulse), 0f, bloomOrigin, 0.4f, SpriteEffects.None, 0f);
+                    sb.Draw(bloom, drawPos, null, innerColor * (0.12f * pulse), 0f, bloomOrigin, 0.08f, SpriteEffects.None, 0f);
                 }
             }
 
@@ -855,7 +913,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
             Texture2D bloom = MagnumTextureRegistry.GetBloom();
             if (bloom == null) return;
 
-            Vector2 drawPos = player.Center - Main.screenPosition;
+            Vector2 drawPos = player.MountedCenter - Main.screenPosition;
             Vector2 bloomOrigin = bloom.Size() * 0.5f;
 
             if (EroicaShaderManager.HasSakuraBloom)
@@ -865,11 +923,11 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
                 {
                     EroicaShaderManager.ApplySakurasBlossomPetalBurst(time, progress, glowPass: false);
                     sb.Draw(bloom, drawPos, null, Color.White * (0.25f * progress),
-                        0f, bloomOrigin, 1.2f * progress, SpriteEffects.None, 0f);
+                        0f, bloomOrigin, 0.1f * progress, SpriteEffects.None, 0f);
 
                     EroicaShaderManager.ApplySakurasBlossomPetalBurst(time, progress, glowPass: true);
                     sb.Draw(bloom, drawPos, null, Color.White * (0.15f * progress),
-                        time * 0.3f, bloomOrigin, 1.8f * progress, SpriteEffects.None, 0f);
+                        time * 0.3f, bloomOrigin, 0.139f * progress, SpriteEffects.None, 0f);
                 }
                 finally
                 {
@@ -883,7 +941,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.SakurasBlossom
                 try
                 {
                     sb.Draw(bloom, drawPos, null, sakuraGlow * (0.2f * progress), 0f, bloomOrigin,
-                        1.2f * progress, SpriteEffects.None, 0f);
+                        MathHelper.Min(1.2f * progress, 0.139f), SpriteEffects.None, 0f);
                 }
                 finally
                 {

@@ -47,6 +47,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
         private static Asset<Texture2D> _softCircle;
         private static Asset<Texture2D> _glowOrb;
         private static Asset<Texture2D> _noisePerlin;
+        private static Asset<Texture2D> _gradientLUT;
+
+        private static readonly string GradientLUTPath = "MagnumOpus/Assets/VFX Asset Library/ColorGradients/MoonlightSonataGradientLUTandRAMP";
 
         public override void SetStaticDefaults()
         {
@@ -178,6 +181,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
             rippleShader.Parameters["primaryColor"]?.SetValue(EdgeColor.ToVector3());
             rippleShader.Parameters["secondaryColor"]?.SetValue(MidColor.ToVector3());
             rippleShader.Parameters["coreColor"]?.SetValue(CoreColor.ToVector3());
+
+            // Bind Moonlight Sonata LUT gradient for theme-consistent ring coloring
+            _gradientLUT ??= ModContent.Request<Texture2D>(GradientLUTPath);
+            rippleShader.Parameters["gradientTex"]?.SetValue(_gradientLUT.Value);
+            rippleShader.Parameters["useGradient"]?.SetValue(1f);
             rippleShader.Parameters["fadeAlpha"]?.SetValue(fadeAlpha);
 
             _noisePerlin ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/PerlinNoise");

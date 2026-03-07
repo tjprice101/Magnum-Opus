@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -29,7 +29,6 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         private ref float HeatProgress => ref Projectile.ai[0];
         private ref float AgeTimer => ref Projectile.ai[1];
 
-        private int targetNPC = -1;
 
         // 笏笏 Trail tracking 笏笏
         private const int TrailLength = 20;
@@ -85,9 +84,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 trailRotations[0] = Projectile.rotation;
             }
 
-            // Pulsating visual scale 窶・subtle heat shimmer
-            float pulse = (float)Math.Sin(AgeTimer * 0.15f) * 0.06f;
-            Projectile.scale = 1f + pulse + HeatProgress * 0.1f;
+            // Pulsating visual scale — smaller, tighter bullets
+            float pulse = (float)Math.Sin(AgeTimer * 0.15f) * 0.03f;
+            Projectile.scale = 0.5f + pulse + HeatProgress * 0.05f;
 
             // 笏笏 Particle Spawning 笏笏
             SpawnTracerParticles();
@@ -96,56 +95,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             if (AgeTimer == 1)
                 SpawnMuzzleFlash();
 
-            // 笏笏 HOMING AI 窶・boss-priority with gentle tracking 笏笏
-            if (targetNPC < 0 || !Main.npc[targetNPC].active)
-            {
-                targetNPC = -1;
-                float maxDistance = 850f;
-                bool foundBoss = false;
 
-                for (int i = 0; i < Main.maxNPCs; i++)
-                {
-                    NPC npc = Main.npc[i];
-                    if (npc.active && !npc.friendly && npc.boss && !npc.dontTakeDamage)
-                    {
-                        float distance = Vector2.Distance(Projectile.Center, npc.Center);
-                        if (distance < maxDistance)
-                        {
-                            maxDistance = distance;
-                            targetNPC = i;
-                            foundBoss = true;
-                        }
-                    }
-                }
-
-                if (!foundBoss)
-                {
-                    maxDistance = 650f;
-                    for (int i = 0; i < Main.maxNPCs; i++)
-                    {
-                        NPC npc = Main.npc[i];
-                        if (npc.active && !npc.friendly && npc.lifeMax > 5 && !npc.dontTakeDamage)
-                        {
-                            float distance = Vector2.Distance(Projectile.Center, npc.Center);
-                            if (distance < maxDistance)
-                            {
-                                maxDistance = distance;
-                                targetNPC = i;
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Gentle homing 窶・tighter when hot, looser when cool
-            if (targetNPC >= 0 && Main.npc[targetNPC].active)
-            {
-                Vector2 direction = (Main.npc[targetNPC].Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
-                float speed = Projectile.velocity.Length();
-                float turnWeight = 28f - HeatProgress * 6f;
-                turnWeight = MathHelper.Clamp(turnWeight, 20f, 30f);
-                Projectile.velocity = (Projectile.velocity * turnWeight + direction * speed) / (turnWeight + 1f);
-            }
+            // Homing removed - bullets now fly straight for cleaner visuals
         }
 
         #region Particle Spawning
@@ -183,19 +134,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 ));
             }
 
-            // Sakura petal drift 窶・more frequent at low heat (cool blossoms)
-            if (HeatProgress < 0.5f && Main.rand.NextBool(6))
-            {
-                Vector2 petalVel = -Projectile.velocity.SafeNormalize(Vector2.Zero) * Main.rand.NextFloat(0.5f, 1.5f)
-                    + new Vector2(Main.rand.NextFloatDirection() * 0.8f, Main.rand.NextFloat(0.2f, 0.6f));
-                BlossomParticleHandler.SpawnParticle(new BulletPetalParticle(
-                    Projectile.Center,
-                    petalVel,
-                    Color.Lerp(BlossomUtils.CoolPetal, BlossomUtils.SakuraBody, Main.rand.NextFloat()),
-                    Main.rand.NextFloat(0.3f, 0.55f),
-                    Main.rand.Next(30, 55)
-                ));
-            }
+            // Sakura petal drift removed — petals were visually cluttering the bullet trail
         }
 
         private void SpawnMuzzleFlash()
@@ -236,7 +175,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 Projectile.Center,
                 Vector2.Zero,
                 impactColor,
-                0.8f + HeatProgress * 0.6f,
+                (0.8f + HeatProgress * 0.6f) * 0.25f,
                 12
             ));
 
@@ -250,7 +189,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     Projectile.Center,
                     angle.ToRotationVector2() * speed,
                     Color.Lerp(impactColor, BlossomUtils.MuzzleFlash, Main.rand.NextFloat(0.4f)),
-                    Main.rand.NextFloat(0.3f, 0.7f),
+                    Main.rand.NextFloat(0.3f, 0.7f) * 0.55f,
                     Main.rand.Next(10, 20)
                 ));
             }
@@ -263,7 +202,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     Projectile.Center + Main.rand.NextVector2Circular(8f, 8f),
                     petalVel,
                     Color.Lerp(BlossomUtils.CoolPetal, BlossomUtils.WarmCrimson, HeatProgress),
-                    Main.rand.NextFloat(0.35f, 0.6f),
+                    Main.rand.NextFloat(0.35f, 0.6f) * 0.55f,
                     Main.rand.Next(25, 50)
                 ));
             }
@@ -661,8 +600,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             Color bloomColor = BlossomUtils.GetHeatGradient(HeatProgress);
             bloomColor.A = 0;
-            float bloomAlpha = 0.25f + HeatProgress * 0.35f;
-            float bloomScale = Projectile.scale * (1.6f + HeatProgress * 0.8f);
+            float bloomAlpha = (0.25f + HeatProgress * 0.35f) * 0.55f;
+            float bloomScale = Projectile.scale * (1.6f + HeatProgress * 0.8f) * 0.25f;
 
             float pulse = (float)Math.Sin(AgeTimer * 0.2f) * 0.1f;
             bloomScale += pulse;

@@ -43,7 +43,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner
 
         protected override void SetWeaponDefaults()
         {
-            Item.damage = 1850;
+            Item.damage = 1800; // Tier 7 (1200-1800 range)
             Item.knockBack = 7.5f;
             Item.useTime = 16;
             Item.useAnimation = 16;

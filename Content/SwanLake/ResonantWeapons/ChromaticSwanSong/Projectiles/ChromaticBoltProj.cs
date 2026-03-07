@@ -413,7 +413,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Projecti
                 Vector2 origin = wideBloom.Size() * 0.5f;
                 sb.Draw(wideBloom, drawPos, null,
                     new Color(noteColor.R, noteColor.G, noteColor.B, 0) * 0.3f * alphaFade * tempoPulse,
-                    0f, origin, 0.5f * empScale, SpriteEffects.None, 0f);
+                    0f, origin, 0.08f * empScale, SpriteEffects.None, 0f);
             }
 
             // Sub-layer 2: Mid note glow (shifted hue for depth)
@@ -434,13 +434,13 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Projecti
                     0f, origin, 0.16f * empScale, SpriteEffects.None, 0f);
             }
 
-            // Sub-layer 4: White-hot core point
+            // Sub-layer 4: White-hot core point (cap to 300px on 2160px PointBloom)
             if (pointBloom != null)
             {
                 Vector2 pbOrigin = pointBloom.Size() * 0.5f;
                 sb.Draw(pointBloom, drawPos, null,
                     new Color(255, 255, 255, 0) * 0.6f * alphaFade * tempoPulse,
-                    0f, pbOrigin, 0.1f * empScale, SpriteEffects.None, 0f);
+                    0f, pbOrigin, MathHelper.Min(0.1f * empScale, 0.139f), SpriteEffects.None, 0f);
             }
 
             // Sub-layer 5: Rotating rainbow star accent

@@ -67,17 +67,6 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict
             }
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-            .AddIngredient(ModContent.ItemType<ResonantCoreOfOdeToJoy>(), 20)
-            .AddIngredient(ModContent.ItemType<OdeToJoyResonantEnergy>(), 15)
-            .AddIngredient(ModContent.ItemType<HarmonicCoreOfOdeToJoy>(), 2)
-            .AddIngredient(ItemID.LunarBar, 15)
-            .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
-            .Register();
-        }
-
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires golden judgment orbs that apply Elysian Marks on hit"));

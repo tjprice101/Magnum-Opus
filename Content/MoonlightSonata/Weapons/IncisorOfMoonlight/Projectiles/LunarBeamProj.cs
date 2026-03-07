@@ -213,10 +213,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
 
                 // Wide soft outer glow
                 sb.Draw(glowTex, drawPos, null, lunarGlow * 0.35f, 0f,
-                    glowTex.Size() / 2f, 0.3f, SpriteEffects.None, 0f);
+                    glowTex.Size() / 2f, 0.25f, SpriteEffects.None, 0f);
                 // Mid bloom
                 sb.Draw(bloomTex, drawPos, null, lunarGlow * 0.5f, 0f,
-                    bloomTex.Size() / 2f, 0.15f, SpriteEffects.None, 0f);
+                    bloomTex.Size() / 2f, 0.1f, SpriteEffects.None, 0f);
                 // White-hot center point
                 sb.Draw(bloomTex, drawPos, null, Color.White * 0.7f, 0f,
                     bloomTex.Size() / 2f, 0.06f, SpriteEffects.None, 0f);

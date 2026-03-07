@@ -81,7 +81,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
             var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad).Value;
             float fade = 1f - LifetimeCompletion;
             float alpha = fade * 0.6f;
-            float scale = currentRadius / (tex.Width * 0.5f);
+            float scale = MathHelper.Min(currentRadius / (tex.Width * 0.5f), 0.139f);
             sb.Draw(tex, Position - Main.screenPosition, null,
                 DrawColor * alpha, 0f, tex.Size() / 2f, scale, SpriteEffects.None, 0f);
         }
@@ -116,7 +116,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
             var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
             float fade = 1f - LifetimeCompletion;
             sb.Draw(tex, Position - Main.screenPosition, null,
-                DrawColor * (fade * 0.7f), 0f, tex.Size() / 2f, Scale * 0.5f, SpriteEffects.None, 0f);
+                DrawColor * (fade * 0.7f), 0f, tex.Size() / 2f, MathHelper.Min(Scale * 0.5f, 0.293f), SpriteEffects.None, 0f);
         }
     }
 

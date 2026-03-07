@@ -320,7 +320,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars.Projectil
                 {
                     Main.spriteBatch.Draw(flareTex, pos, null,
                         NachtmusikPalette.StarGold with { A = 0 } * 0.2f,
-                        time * 0.3f, flareTex.Size() / 2f, 0.25f * pulse, SpriteEffects.None, 0f);
+                        time * 0.3f, flareTex.Size() / 2f, 0.12f * pulse, SpriteEffects.None, 0f);
                 }
             }
 

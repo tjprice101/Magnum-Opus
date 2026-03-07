@@ -125,6 +125,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
 
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float ringScale = radius * 2f / ringTex.Width;
+            float bloomDrawScale = MathF.Min(radius * 3f / bloomTex.Width, 0.139f);
 
             // Switch to Additive blending for glow/bloom layers
             Main.spriteBatch.End();
@@ -136,7 +137,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
             // Wide ambient bloom underlayer
             Color ambientColor = new Color(90, 50, 160) with { A = 0 };
             Main.spriteBatch.Draw(bloomTex, drawPos, null, ambientColor * fade * 0.15f,
-                0f, bloomTex.Size() * 0.5f, ringScale * 1.5f, SpriteEffects.None, 0f);
+                0f, bloomTex.Size() * 0.5f, bloomDrawScale, SpriteEffects.None, 0f);
 
             // Main expanding ring — ice blue to violet
             Color ringColor = Color.Lerp(new Color(135, 206, 250), new Color(170, 140, 255), progress) with { A = 0 };
@@ -153,7 +154,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
             {
                 float flashFade = 1f - progress / 0.3f;
                 Main.spriteBatch.Draw(bloomTex, drawPos, null, Color.White with { A = 0 } * flashFade * 0.5f,
-                    0f, bloomTex.Size() * 0.5f, 0.6f * flashFade, SpriteEffects.None, 0f);
+                    0f, bloomTex.Size() * 0.5f, 0.08f * flashFade, SpriteEffects.None, 0f);
             }
 
             // Restore to AlphaBlend

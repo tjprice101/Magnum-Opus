@@ -494,17 +494,17 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.MidnightsCrescendo.Projectiles
                     // Layer 1: Outer atmospheric halo — wider at higher stacks
                     Color outerColor = Color.Lerp(NightVoid, DeepIndigo, stackProgress) with { A = 0 };
                     sb.Draw(bloomTex, tipScreen, null, outerColor * bloomOpacity * (0.15f + stackProgress * 0.15f),
-                        0f, bloomOrigin, bloomScale * (2.2f + stackProgress * 1f) * pulse, SpriteEffects.None, 0f);
+                        0f, bloomOrigin, bloomScale * (0.42f + stackProgress * 0.18f) * pulse, SpriteEffects.None, 0f);
 
                     // Layer 2: Cosmic blue mid glow
                     Color midColor = Color.Lerp(DeepIndigo, CosmicBlue, stackProgress) with { A = 0 };
                     sb.Draw(bloomTex, tipScreen, null, midColor * bloomOpacity * (0.25f + stackProgress * 0.15f),
-                        SwordRotation * 0.3f, bloomOrigin, bloomScale * (1.4f + stackProgress * 0.5f) * pulse, SpriteEffects.None, 0f);
+                        SwordRotation * 0.3f, bloomOrigin, bloomScale * (0.3f + stackProgress * 0.1f) * pulse, SpriteEffects.None, 0f);
 
                     // Layer 3: Inner starlight — intensifies with stacks
                     Color innerColor = Color.Lerp(CosmicBlue, StarlightSilver, stackProgress) with { A = 0 };
                     sb.Draw(bloomTex, tipScreen, null, innerColor * bloomOpacity * (0.3f + stackProgress * 0.2f),
-                        0f, bloomOrigin, bloomScale * (0.8f + stackProgress * 0.3f), SpriteEffects.None, 0f);
+                        0f, bloomOrigin, bloomScale * (0.4f + stackProgress * 0.15f), SpriteEffects.None, 0f);
 
                     // Layer 4: Core — white-hot at max stacks
                     Color coreColor = Color.Lerp(StarlightSilver, StellarWhite, stackProgress) with { A = 0 };
@@ -522,7 +522,23 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.MidnightsCrescendo.Projectiles
                             float flareAlpha = (stackProgress - 0.3f) / 0.7f;
                             sb.Draw(flareTex, tipScreen, null,
                                 Color.Lerp(CosmicBlue, StarlightSilver, stackProgress) with { A = 0 } * bloomOpacity * flareAlpha * 0.3f,
-                                flareRot, flareOrigin, bloomScale * (0.4f + stackProgress * 0.3f) * pulse, SpriteEffects.None, 0f);
+                                flareRot, flareOrigin, bloomScale * (0.08f + stackProgress * 0.06f) * pulse, SpriteEffects.None, 0f);
+                        }
+
+                        // Star4Soft sparkle accent — crescendo shimmer at high stacks
+                        Texture2D starTex = MagnumTextureRegistry.GetStar4Soft();
+                        if (starTex != null)
+                        {
+                            Vector2 starOrigin = starTex.Size() / 2f;
+                            float starRot = time * 1.8f;
+                            float starScale = bloomScale * (0.08f + stackProgress * 0.08f) * pulse;
+                            float starAlpha = (stackProgress - 0.3f) / 0.7f;
+                            sb.Draw(starTex, tipScreen, null,
+                                Color.Lerp(CosmicBlue, StarlightSilver, stackProgress) with { A = 0 } * bloomOpacity * starAlpha * 0.4f,
+                                starRot, starOrigin, starScale, SpriteEffects.None, 0f);
+                            sb.Draw(starTex, tipScreen, null,
+                                Color.Lerp(StarlightSilver, StellarWhite, stackProgress) with { A = 0 } * bloomOpacity * starAlpha * 0.22f,
+                                -starRot * 0.6f, starOrigin, starScale * 0.6f, SpriteEffects.None, 0f);
                         }
                     }
 

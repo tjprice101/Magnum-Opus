@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement
         {
             Item.width = 40;
             Item.height = 40;
-            Item.damage = 1300;
+            Item.damage = 1650; // Tier 8 (1600-2400 range)
             Item.DamageType = DamageClass.Summon;
             Item.mana = 20;
             Item.useTime = 30;
@@ -39,17 +39,6 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement
             player.AddBuff(Item.buffType, 2);
             Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
             return false;
-        }
-
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-            .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.ResonantCoreOfDiesIrae>(), 10)
-            .AddIngredient(ModContent.ItemType<Content.DiesIrae.ResonanceEnergies.DiesIraeResonantEnergy>(), 28)
-            .AddIngredient(ModContent.ItemType<Content.DiesIrae.HarmonicCores.HarmonicCoreOfDiesIrae>(), 2)
-            .AddIngredient(ItemID.LunarBar, 18)
-            .AddTile(ModContent.TileType<Content.Fate.CraftingStations.FatesCosmicAnvilTile>())
-            .Register();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)

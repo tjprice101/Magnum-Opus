@@ -204,7 +204,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NebulasWhisper.Projectiles
                     NachtmusikShaderManager.ApplySerenade(time, NachtmusikPalette.CosmicPurple,
                         NachtmusikPalette.Violet, phase: phase);
 
-                    float auraScale = currentScale * 0.35f * breathe;
+                    float auraScale = currentScale * 0.15f * breathe;
                     Main.spriteBatch.Draw(glowTex, pos, null,
                         NachtmusikPalette.CosmicPurple with { A = 0 } * baseOpacity * 0.4f,
                         Projectile.rotation * 0.5f, glowTex.Size() / 2f, auraScale, SpriteEffects.None, 0f);
@@ -214,7 +214,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NebulasWhisper.Projectiles
                     {
                         Main.spriteBatch.Draw(glowTex, pos, null,
                             NachtmusikPalette.Violet with { A = 0 } * 0.25f,
-                            -Projectile.rotation, glowTex.Size() / 2f, auraScale * 1.3f, SpriteEffects.None, 0f);
+                            -Projectile.rotation, glowTex.Size() / 2f, auraScale * 0.9f, SpriteEffects.None, 0f);
                     }
 
                     NachtmusikShaderManager.RestoreSpriteBatch(Main.spriteBatch);
@@ -256,7 +256,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NebulasWhisper.Projectiles
                     NachtmusikShaderManager.BeginAdditive(Main.spriteBatch);
                     Main.spriteBatch.Draw(bloomTex, pos, null,
                         NachtmusikPalette.Violet with { A = 0 } * 0.2f,
-                        0f, bloomTex.Size() / 2f, currentScale * 0.5f * breathe, SpriteEffects.None, 0f);
+                        0f, bloomTex.Size() / 2f, currentScale * 0.15f * breathe, SpriteEffects.None, 0f);
                     NachtmusikShaderManager.RestoreSpriteBatch(Main.spriteBatch);
                 }
             }

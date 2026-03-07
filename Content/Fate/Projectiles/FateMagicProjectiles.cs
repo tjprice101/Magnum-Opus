@@ -754,295 +754,105 @@ namespace MagnumOpus.Content.Fate.Projectiles
             if (figure8Phase > MathHelper.TwoPi * 4f)
                 figure8Phase -= MathHelper.TwoPi * 4f;
             
-            // === MASSIVE FIGURE-8 CHROMATIC/PEARLESCENT LIGHT EFFECT ===
-            // The figure-8 is created using parametric equations
-            // x = sin(t), y = sin(2t) creates a figure-8 (Lissajous curve)
+            // === SNAKE-LIKE WISP FIGURE-8 EFFECT ===
+            // Elegant, flowing wisps tracing a figure-8 Lissajous curve
+            // x = sin(t), y = sin(2t) creates the figure-8 path
             
             float time = figure8Phase;
             
-            // Large figure-8 dimensions
-            float xRadius = 100f; // Horizontal extent
-            float yRadius = 60f;  // Vertical extent
+            // Tighter figure-8 dimensions for a closer, wispy feel
+            float xRadius = 70f;
+            float yRadius = 42f;
             
-            // === PRIMARY FIGURE-8 PATH - CHROMATIC RAINBOW ===
-            // Spawn particles along the figure-8 path
-            for (int i = 0; i < 3; i++)
+            // === PRIMARY WISP PATH — flowing chromatic snake ===
+            // 2 particles per frame along the path — just enough for a continuous wisp
+            for (int i = 0; i < 2; i++)
             {
-                float pathOffset = i * 0.3f;
+                float pathOffset = i * 0.45f;
                 float t = time + pathOffset;
                 
-                // Figure-8 parametric: x = sin(t), y = sin(2t) / 2
                 float x = (float)Math.Sin(t) * xRadius;
                 float y = (float)Math.Sin(t * 2f) * yRadius * 0.5f;
                 
                 Vector2 particlePos = Player.Center + new Vector2(x, y);
                 
-                // Chromatic rainbow cycling through the path
-                float hue = (t * 0.15f + Main.GameUpdateCount * 0.008f) % 1f;
-                Color chromaticColor = Main.hslToRgb(hue, 1f, 0.7f);
+                // Smooth chromatic hue cycling along the path
+                float hue = (t * 0.12f + Main.GameUpdateCount * 0.006f) % 1f;
+                Color chromaticColor = Main.hslToRgb(hue, 0.9f, 0.7f);
                 
-                // Main chromatic glow
+                // Wisp glow — visible and vibrant
                 var chromatic = new GenericGlowParticle(particlePos, 
-                    new Vector2((float)Math.Cos(t) * 0.8f, (float)Math.Cos(t * 2f) * 0.5f),
-                    chromaticColor * 0.7f, 0.35f, 25, true);
+                    new Vector2((float)Math.Cos(t) * 0.5f, (float)Math.Cos(t * 2f) * 0.3f),
+                    chromaticColor * 0.65f, 0.3f, 22, true);
                 MagnumParticleHandler.SpawnParticle(chromatic);
             }
             
-            // === SECONDARY FIGURE-8 PATH - PEARLESCENT (offset and opposite direction) ===
-            for (int i = 0; i < 2; i++)
+            // === SECONDARY WISP — pearlescent counter-flow ===
+            // Single particle tracing the opposite direction for depth
             {
-                float pathOffset = i * 0.4f + 0.15f;
-                float t = -time * 0.8f + pathOffset; // Opposite direction, slightly slower
+                float t = -time * 0.75f + 0.2f;
                 
-                float x = (float)Math.Sin(t) * (xRadius * 0.85f);
-                float y = (float)Math.Sin(t * 2f) * (yRadius * 0.85f) * 0.5f;
+                float x = (float)Math.Sin(t) * (xRadius * 0.8f);
+                float y = (float)Math.Sin(t * 2f) * (yRadius * 0.8f) * 0.5f;
                 
                 Vector2 particlePos = Player.Center + new Vector2(x, y);
                 
                 // Pearlescent white/pink/cyan cycling
-                float pearlPhase = (t * 0.2f + Main.GameUpdateCount * 0.01f) % 1f;
+                float pearlPhase = (t * 0.18f + Main.GameUpdateCount * 0.008f) % 1f;
                 Color pearlColor;
                 if (pearlPhase < 0.33f)
-                    pearlColor = Color.Lerp(Color.White, new Color(255, 200, 220), pearlPhase * 3f); // White to pink
+                    pearlColor = Color.Lerp(Color.White, new Color(255, 200, 220), pearlPhase * 3f);
                 else if (pearlPhase < 0.66f)
-                    pearlColor = Color.Lerp(new Color(255, 200, 220), new Color(200, 230, 255), (pearlPhase - 0.33f) * 3f); // Pink to cyan
+                    pearlColor = Color.Lerp(new Color(255, 200, 220), new Color(200, 230, 255), (pearlPhase - 0.33f) * 3f);
                 else
-                    pearlColor = Color.Lerp(new Color(200, 230, 255), Color.White, (pearlPhase - 0.66f) * 3f); // Cyan to white
+                    pearlColor = Color.Lerp(new Color(200, 230, 255), Color.White, (pearlPhase - 0.66f) * 3f);
                 
                 var pearl = new GenericGlowParticle(particlePos,
-                    new Vector2((float)Math.Cos(t) * -0.6f, (float)Math.Cos(t * 2f) * -0.4f),
-                    pearlColor * 0.5f, 0.28f, 22, true);
+                    new Vector2((float)Math.Cos(t) * -0.4f, (float)Math.Cos(t * 2f) * -0.25f),
+                    pearlColor * 0.5f, 0.24f, 20, true);
                 MagnumParticleHandler.SpawnParticle(pearl);
             }
             
-            // === SPARKLE ACCENTS AT FIGURE-8 CROSSOVER POINTS ===
-            // The crossover point is at the center (0,0 of the figure-8)
-            if (Main.rand.NextBool(3))
-            {
-                // Near the center crossover
-                Vector2 crossoverPos = Player.Center + Main.rand.NextVector2Circular(15f, 15f);
-                float sparkHue = Main.rand.NextFloat();
-                Color sparkColor = Main.hslToRgb(sparkHue, 1f, 0.85f);
-                
-                CustomParticles.GenericFlare(crossoverPos, sparkColor, 0.3f, 15);
-            }
-            
-            // === OUTER CHROMATIC HALO RING (pulsing) ===
-            if (Main.GameUpdateCount % 8 == 0)
-            {
-                float haloHue = (Main.GameUpdateCount * 0.02f) % 1f;
-                Color haloColor = Main.hslToRgb(haloHue, 0.8f, 0.6f);
-                CustomParticles.HaloRing(Player.Center, haloColor * 0.4f, 0.6f, 18);
-            }
-            
-            // === PEARLESCENT STAR SPARKLES ===
+            // === CROSSOVER SPARKLE — subtle accent at the figure-8 crossing ===
             if (Main.rand.NextBool(4))
             {
-                // Random position along the figure-8 path
+                Vector2 crossoverPos = Player.Center + Main.rand.NextVector2Circular(10f, 10f);
+                float sparkHue = Main.rand.NextFloat();
+                Color sparkColor = Main.hslToRgb(sparkHue, 0.95f, 0.8f);
+                
+                CustomParticles.GenericFlare(crossoverPos, sparkColor * 0.7f, 0.25f, 14);
+            }
+            
+            // === OCCASIONAL PATH SPARKLE — tiny star along the wisp trail ===
+            if (Main.rand.NextBool(5))
+            {
                 float randT = Main.rand.NextFloat(MathHelper.TwoPi * 2f);
-                float randX = (float)Math.Sin(randT) * xRadius * Main.rand.NextFloat(0.8f, 1.1f);
-                float randY = (float)Math.Sin(randT * 2f) * yRadius * 0.5f * Main.rand.NextFloat(0.8f, 1.1f);
+                float randX = (float)Math.Sin(randT) * xRadius * Main.rand.NextFloat(0.85f, 1.05f);
+                float randY = (float)Math.Sin(randT * 2f) * yRadius * 0.5f * Main.rand.NextFloat(0.85f, 1.05f);
                 Vector2 starPos = Player.Center + new Vector2(randX, randY);
                 
                 Color starColor = Main.rand.NextBool() ? Color.White : new Color(255, 240, 250);
-                var star = new GenericGlowParticle(starPos, Main.rand.NextVector2Circular(0.5f, 0.5f),
-                    starColor, 0.22f, 20, true);
+                var star = new GenericGlowParticle(starPos, Main.rand.NextVector2Circular(0.3f, 0.3f),
+                    starColor * 0.6f, 0.16f, 18, true);
                 MagnumParticleHandler.SpawnParticle(star);
             }
             
-            // === GLYPHS ORBITING THE FIGURE-8 ===
-            if (Main.GameUpdateCount % 12 == 0)
+            // === FIGURE-8 LIGHTING — soft ambient glow ===
+            for (int i = 0; i < 3; i++)
             {
-                float glyphT = time * 0.5f;
-                float glyphX = (float)Math.Sin(glyphT) * xRadius * 1.1f;
-                float glyphY = (float)Math.Sin(glyphT * 2f) * yRadius * 0.55f;
-                Vector2 glyphPos = Player.Center + new Vector2(glyphX, glyphY);
-                
-                CustomParticles.Glyph(glyphPos, FatePalette.DarkPink * 0.6f, 0.35f, -1);
-            }
-            
-            // === COSMIC DUST MOTES DRIFTING ===
-            if (Main.rand.NextBool(6))
-            {
-                Vector2 dustPos = Player.Center + Main.rand.NextVector2Circular(xRadius * 1.2f, yRadius * 0.8f);
-                float dustHue = Main.rand.NextFloat();
-                Color dustColor = Main.hslToRgb(dustHue, 0.6f, 0.5f);
-                
-                var dust = new GenericGlowParticle(dustPos, new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -0.3f),
-                    dustColor * 0.35f, 0.12f, 30, true);
-                MagnumParticleHandler.SpawnParticle(dust);
-            }
-            
-            // === LENS FLARE EFFECT - DRAMATIC COSMIC RAYS ===
-            // Spawns periodically at the weapon/player position with radiant streaks
-            if (Main.GameUpdateCount % 6 == 0)
-            {
-                // Main lens flare center - bright white core
-                float flarePulse = (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.3f + 0.7f;
-                CustomParticles.GenericFlare(Player.Center, Color.White * flarePulse, 0.45f * flarePulse, 12);
-                
-                // Chromatic lens flare rays - 6-point star pattern
-                for (int ray = 0; ray < 6; ray++)
-                {
-                    float rayAngle = MathHelper.TwoPi * ray / 6f + Main.GameUpdateCount * 0.015f;
-                    float rayLength = 45f + (float)Math.Sin(Main.GameUpdateCount * 0.1f + ray) * 15f;
-                    Vector2 rayEnd = Player.Center + rayAngle.ToRotationVector2() * rayLength;
-                    
-                    // Chromatic color for each ray - shifted hue
-                    float rayHue = (ray / 6f + Main.GameUpdateCount * 0.005f) % 1f;
-                    Color rayColor = Main.hslToRgb(rayHue, 0.9f, 0.75f);
-                    
-                    // Ray flare at end point
-                    CustomParticles.GenericFlare(rayEnd, rayColor * 0.6f, 0.25f, 10);
-                    
-                    // Streak particle along the ray
-                    Vector2 streakPos = Vector2.Lerp(Player.Center, rayEnd, 0.5f + Main.rand.NextFloat(0.3f));
-                    var streak = new GenericGlowParticle(streakPos, rayAngle.ToRotationVector2() * 2f,
-                        rayColor * 0.5f, 0.18f, 15, true);
-                    MagnumParticleHandler.SpawnParticle(streak);
-                }
-            }
-            
-            // === SECONDARY LENS FLARE ARTIFACTS - Pearlescent hexagonal bokeh ===
-            if (Main.GameUpdateCount % 10 == 0)
-            {
-                // Hexagonal bokeh artifacts at random positions (like camera lens artifacts)
-                for (int i = 0; i < 3; i++)
-                {
-                    // Position bokeh along a line from player toward a random direction
-                    float bokehAngle = Main.rand.NextFloat(MathHelper.TwoPi);
-                    float bokehDist = 30f + Main.rand.NextFloat(60f);
-                    Vector2 bokehPos = Player.Center + bokehAngle.ToRotationVector2() * bokehDist;
-                    
-                    // Pearlescent color cycling
-                    float bokehPhase = (Main.GameUpdateCount * 0.02f + i * 0.33f) % 1f;
-                    Color bokehColor;
-                    if (bokehPhase < 0.33f)
-                        bokehColor = Color.Lerp(new Color(255, 220, 240), Color.White, bokehPhase * 3f);
-                    else if (bokehPhase < 0.66f)
-                        bokehColor = Color.Lerp(Color.White, new Color(220, 240, 255), (bokehPhase - 0.33f) * 3f);
-                    else
-                        bokehColor = Color.Lerp(new Color(220, 240, 255), new Color(255, 220, 240), (bokehPhase - 0.66f) * 3f);
-                    
-                    CustomParticles.GenericFlare(bokehPos, bokehColor * 0.4f, 0.2f + Main.rand.NextFloat(0.15f), 15);
-                }
-            }
-            
-            // === INFINITY SPARKLE LINES - SCREEN-SPANNING EFFECT ===
-            // Dramatic sparkle lines that extend across the screen in an infinity pattern
-            if (Main.GameUpdateCount % 3 == 0)
-            {
-                float infinityPhase = Main.GameUpdateCount * 0.025f;
-                
-                // Screen dimensions for sparkle line extent
-                float lineExtent = Main.screenWidth * 0.6f; // Lines extend well across screen
-                
-                // Multiple sparkle points along each infinity arm
-                for (int arm = 0; arm < 2; arm++)
-                {
-                    float armOffset = arm * MathHelper.Pi;
-                    
-                    // Create sparkle points along extending lines
-                    for (int point = 0; point < 8; point++)
-                    {
-                        float pointProgress = (float)point / 8f;
-                        float extensionDist = pointProgress * lineExtent;
-                        
-                        // Infinity pattern angle calculation
-                        // Creates sweeping lines that curve in figure-8 pattern
-                        float curveAngle = infinityPhase + armOffset;
-                        float curveFactor = (float)Math.Sin(curveAngle * 2f) * 0.3f;
-                        float lineAngle = curveAngle + curveFactor * pointProgress;
-                        
-                        Vector2 sparklePos = Player.Center + lineAngle.ToRotationVector2() * extensionDist;
-                        
-                        // Don't spawn if off-screen
-                        if (sparklePos.X < Main.screenPosition.X - 50 || sparklePos.X > Main.screenPosition.X + Main.screenWidth + 50 ||
-                            sparklePos.Y < Main.screenPosition.Y - 50 || sparklePos.Y > Main.screenPosition.Y + Main.screenHeight + 50)
-                            continue;
-                        
-                        // Fade based on distance
-                        float distanceFade = 1f - pointProgress * 0.7f;
-                        
-                        // Chromatic color cycling along the line
-                        float sparkHue = (infinityPhase * 0.3f + pointProgress * 0.5f + arm * 0.5f) % 1f;
-                        Color sparkColor = Main.hslToRgb(sparkHue, 1f, 0.8f);
-                        
-                        // Main sparkle
-                        float sparkScale = 0.2f + (1f - pointProgress) * 0.25f;
-                        CustomParticles.GenericFlare(sparklePos, sparkColor * distanceFade * 0.8f, sparkScale, 8);
-                        
-                        // Trailing glow particle
-                        if (point < 6 && Main.rand.NextBool(2))
-                        {
-                            Vector2 trailVel = lineAngle.ToRotationVector2() * (2f + pointProgress * 3f);
-                            var trail = new GenericGlowParticle(sparklePos, trailVel * 0.3f,
-                                sparkColor * distanceFade * 0.5f, sparkScale * 0.7f, 15, true);
-                            MagnumParticleHandler.SpawnParticle(trail);
-                        }
-                    }
-                }
-                
-                // === CENTRAL INFINITY CROSSOVER BURST ===
-                // Extra sparkles at the center where the infinity lines cross
-                float crossBurst = (float)Math.Sin(infinityPhase * 2f) * 0.5f + 0.5f;
-                if (crossBurst > 0.8f)
-                {
-                    for (int i = 0; i < 4; i++)
-                    {
-                        float burstAngle = MathHelper.TwoPi * i / 4f + infinityPhase;
-                        Vector2 burstPos = Player.Center + burstAngle.ToRotationVector2() * 20f;
-                        
-                        float burstHue = (infinityPhase * 0.5f + i * 0.25f) % 1f;
-                        Color burstColor = Main.hslToRgb(burstHue, 1f, 0.9f);
-                        
-                        CustomParticles.GenericFlare(burstPos, burstColor * 0.7f, 0.35f, 12);
-                    }
-                }
-            }
-            
-            // === ANAMORPHIC LENS STREAK - Horizontal light streak through center ===
-            if (Main.GameUpdateCount % 15 == 0)
-            {
-                float streakLength = 80f + (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 30f;
-                
-                // Horizontal streak particles
-                for (int s = -3; s <= 3; s++)
-                {
-                    if (s == 0) continue; // Skip center (already has main flare)
-                    
-                    float streakX = s * (streakLength / 3f);
-                    Vector2 streakPos = Player.Center + new Vector2(streakX, 0);
-                    
-                    // Fade based on distance from center
-                    float distFade = 1f - Math.Abs(s) / 4f;
-                    
-                    // Chromatic aberration - slightly different colors on each side
-                    Color streakColor = s < 0 
-                        ? Color.Lerp(new Color(255, 200, 220), Color.White, distFade) // Pink on left
-                        : Color.Lerp(new Color(200, 220, 255), Color.White, distFade); // Cyan on right
-                    
-                    CustomParticles.GenericFlare(streakPos, streakColor * distFade * 0.5f, 0.15f, 12);
-                }
-            }
-            
-            // === FIGURE-8 LIGHTING ===
-            // Multiple light sources along the figure-8
-            for (int i = 0; i < 4; i++)
-            {
-                float lightT = time + MathHelper.PiOver2 * i;
-                float lightX = (float)Math.Sin(lightT) * xRadius * 0.6f;
-                float lightY = (float)Math.Sin(lightT * 2f) * yRadius * 0.3f;
+                float lightT = time + MathHelper.TwoPi / 3f * i;
+                float lightX = (float)Math.Sin(lightT) * xRadius * 0.5f;
+                float lightY = (float)Math.Sin(lightT * 2f) * yRadius * 0.25f;
                 Vector2 lightPos = Player.Center + new Vector2(lightX, lightY);
                 
                 float lightHue = (lightT * 0.1f) % 1f;
-                Color lightColor = Main.hslToRgb(lightHue, 0.7f, 0.5f);
-                Lighting.AddLight(lightPos, lightColor.ToVector3() * 0.35f);
+                Color lightColor = Main.hslToRgb(lightHue, 0.65f, 0.5f);
+                Lighting.AddLight(lightPos, lightColor.ToVector3() * 0.3f);
             }
             
-            // Central cosmic glow
-            float centralPulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.2f + 0.8f;
-            Lighting.AddLight(Player.Center, FatePalette.FatePurple.ToVector3() * centralPulse * 0.5f);
+            // Central subtle glow
+            float centralPulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.15f + 0.7f;
+            Lighting.AddLight(Player.Center, FatePalette.FatePurple.ToVector3() * centralPulse * 0.4f);
         }
 
         public override void ResetEffects()

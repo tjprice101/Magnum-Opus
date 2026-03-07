@@ -57,13 +57,17 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Particl
             float rot = (float)Math.Atan2(Velocity.Y, Velocity.X);
             Vector2 squishScale = new Vector2(Scale * squish, Scale / squish);
 
+            // Cap bloom so no dimension exceeds 300px on 1024px texture
+            float emberMax = squishScale.X * 2f;
+            float emberCap = emberMax > 0.293f ? 0.293f / emberMax : 1f;
+
             // Outer fiery glow
             Color glowColor = DualFatedChimeUtils.Additive(DrawColor, _opacity * 0.5f);
-            spriteBatch.Draw(_bloomTexture, screenPos, null, glowColor, rot, origin, squishScale * 2f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(_bloomTexture, screenPos, null, glowColor, rot, origin, squishScale * 2f * emberCap, SpriteEffects.None, 0f);
 
             // White-hot core
             Color coreColor = DualFatedChimeUtils.Additive(Color.White, _opacity * 0.8f);
-            spriteBatch.Draw(_bloomTexture, screenPos, null, coreColor, rot, origin, squishScale * 0.5f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(_bloomTexture, screenPos, null, coreColor, rot, origin, squishScale * 0.5f * emberCap, SpriteEffects.None, 0f);
         }
     }
 
@@ -78,7 +82,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Particl
         private readonly float _rotationSpeed;
 
         public override bool SetLifetime => true;
-        public override bool UseAdditiveBlend => false;
+        public override bool UseAdditiveBlend => true;  // SoftGlow.png has black background — must be additive
 
         public BellSmokeParticle(Vector2 position, Vector2 velocity, int lifetime = 50, float scale = 1f, float opacity = 0.6f)
         {
@@ -89,7 +93,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Particl
             _opacity = opacity;
             _rotationSpeed = Main.rand.NextFloat(-0.03f, 0.03f);
             Rotation = Main.rand.NextFloat(MathHelper.TwoPi);
-            DrawColor = new Color(20, 15, 20); // Soot black
+            DrawColor = new Color(30, 20, 25); // Dark soot — low-intensity additive glow reads as dark smoke
         }
 
         public override void Update()
@@ -124,7 +128,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Particl
             Vector2 origin = new Vector2(_texture.Width / 2f, _texture.Height / 2f);
             Color drawCol = DrawColor * _opacity;
 
-            spriteBatch.Draw(_texture, screenPos, null, drawCol, Rotation, origin, Scale, SpriteEffects.None, 0f);
+            spriteBatch.Draw(_texture, screenPos, null, drawCol, Rotation, origin, MathHelper.Min(Scale, 0.586f), SpriteEffects.None, 0f);
         }
     }
 
@@ -170,17 +174,17 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Particl
             Vector2 screenPos = Position - Main.screenPosition;
             Vector2 origin = new Vector2(_bloomTexture.Width / 2f, _bloomTexture.Height / 2f);
 
-            // Large gold bell glow
+            // Large gold bell glow (capped to 300px on 1024px texture)
             Color outerGlow = DualFatedChimeUtils.Additive(DrawColor, _opacity * 0.4f);
-            spriteBatch.Draw(_bloomTexture, screenPos, null, outerGlow, 0f, origin, Scale * 2f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(_bloomTexture, screenPos, null, outerGlow, 0f, origin, MathHelper.Min(Scale * 2f, 0.293f), SpriteEffects.None, 0f);
 
             // White-hot inner flash
             Color innerFlash = DualFatedChimeUtils.Additive(new Color(255, 240, 200), _opacity * 0.7f);
-            spriteBatch.Draw(_bloomTexture, screenPos, null, innerFlash, 0f, origin, Scale * 0.6f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(_bloomTexture, screenPos, null, innerFlash, 0f, origin, MathHelper.Min(Scale * 0.6f, 0.293f), SpriteEffects.None, 0f);
 
             // Orange ring
             Color ring = DualFatedChimeUtils.Additive(new Color(255, 100, 0), _opacity * 0.3f);
-            spriteBatch.Draw(_bloomTexture, screenPos, null, ring, 0f, origin, Scale * 1.5f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(_bloomTexture, screenPos, null, ring, 0f, origin, MathHelper.Min(Scale * 1.5f, 0.293f), SpriteEffects.None, 0f);
         }
     }
 
@@ -265,7 +269,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Particl
             {
                 Vector2 bloomOrigin = new Vector2(bloomTex.Width / 2f, bloomTex.Height / 2f);
                 Color glowCol = DualFatedChimeUtils.Additive(DrawColor, _opacity * 0.3f);
-                spriteBatch.Draw(bloomTex, screenPos, null, glowCol, 0f, bloomOrigin, Scale * 1.5f, SpriteEffects.None, 0f);
+                spriteBatch.Draw(bloomTex, screenPos, null, glowCol, 0f, bloomOrigin, MathHelper.Min(Scale * 1.5f, 0.293f), SpriteEffects.None, 0f);
             }
         }
     }

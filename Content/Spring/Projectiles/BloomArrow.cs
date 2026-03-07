@@ -264,8 +264,8 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 sb.Draw(petalTex, petalPos, null, (petalColor * 0.7f) with { A = 0 }, orbitAngles[i], petalOrigin, 0.12f, SpriteEffects.None, 0f);
             }
 
-            // ARROW GLOW - Pink aura around arrow
-            sb.Draw(glowTex, drawPos, null, (SpringPink * 0.4f) with { A = 0 }, 0f, glowOrigin, 0.35f * pulse, SpriteEffects.None, 0f);
+            // ARROW GLOW - Pink aura around arrow (capped 300px max)
+            sb.Draw(glowTex, drawPos, null, (SpringPink * 0.4f) with { A = 0 }, 0f, glowOrigin, 0.26f * pulse, SpriteEffects.None, 0f);
             
             // Arrow-shaped core elongated in direction of travel
             sb.Draw(coreTex, drawPos, null, (SpringPink * 0.7f) with { A = 0 }, Projectile.rotation, coreOrigin, new Vector2(0.25f, 0.45f) * pulse, SpriteEffects.None, 0f);
@@ -611,11 +611,11 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 sb.Draw(petalTex, petalPos, null, (petalColor * 0.6f * alpha) with { A = 0 }, petalAngles[i], petalOrigin, 0.15f * pulse, SpriteEffects.None, 0f);
             }
 
-            // GREEN HEALING HALO - Outer ring
-            sb.Draw(haloTex, drawPos, null, (SpringGreen * 0.35f * alpha) with { A = 0 }, flowerRotation, haloOrigin, 0.4f * pulse, SpriteEffects.None, 0f);
+            // GREEN HEALING HALO - Outer ring (SoftCircle 2160px — cap to 300px max)
+            sb.Draw(haloTex, drawPos, null, (SpringGreen * 0.35f * alpha) with { A = 0 }, flowerRotation, haloOrigin, MathHelper.Min(0.4f * pulse, 0.139f), SpriteEffects.None, 0f);
             
             // PINK FLOWER CENTER - Core halo
-            sb.Draw(haloTex, drawPos, null, (SpringPink * 0.5f * alpha) with { A = 0 }, -flowerRotation * 0.5f, haloOrigin, 0.25f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(haloTex, drawPos, null, (SpringPink * 0.5f * alpha) with { A = 0 }, -flowerRotation * 0.5f, haloOrigin, MathHelper.Min(0.25f * pulse, 0.139f), SpriteEffects.None, 0f);
             
             // WHITE HEALING CORE
             sb.Draw(glowTex, drawPos, null, (Color.White * 0.4f * alpha) with { A = 0 }, 0f, glowOrigin, 0.18f * pulse, SpriteEffects.None, 0f);

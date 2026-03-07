@@ -95,7 +95,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     Color col = settings.ColorFunction(completion);
                     col.A = 0;
 
-                    float scale = width / 32f;
+                    float scale = width / (float)bloom.Width;
                     Vector2 drawPos = positions[i] - Main.screenPosition;
                     sb.Draw(bloom, drawPos, null, col, 0f, origin, scale, SpriteEffects.None, 0f);
                 }
@@ -237,7 +237,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Vector2 origin = tex.Size() * 0.5f;
             float fade = MathF.Max(0f, 1f - LifetimeCompletion * 1.5f);
             Color drawColor = Color with { A = 0 } * fade;
-            spriteBatch.Draw(tex, drawPos, null, drawColor, 0f, origin, Scale, SpriteEffects.None, 0f);
+            float maxScale = 300f / tex.Width;
+            spriteBatch.Draw(tex, drawPos, null, drawColor, 0f, origin, MathF.Min(Scale, maxScale), SpriteEffects.None, 0f);
         }
     }
 
@@ -272,7 +273,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             float fade = 1f - LifetimeCompletion;
             fade *= fade;
             Color drawColor = Color with { A = 0 } * (fade * 0.5f);
-            spriteBatch.Draw(tex, drawPos, null, drawColor, 0f, origin, Scale, SpriteEffects.None, 0f);
+            float maxScale = 300f / tex.Width;
+            spriteBatch.Draw(tex, drawPos, null, drawColor, 0f, origin, MathF.Min(Scale, maxScale), SpriteEffects.None, 0f);
         }
     }
 

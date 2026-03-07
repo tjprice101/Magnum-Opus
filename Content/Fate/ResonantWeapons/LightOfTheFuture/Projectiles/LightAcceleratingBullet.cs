@@ -336,14 +336,14 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
-                // Layer 1: Outer void-violet haze (SoftRadialBloom)
+                // Layer 1: Outer void-violet haze (SoftRadialBloom) — reduced to avoid dark borders
                 if (_softRadialBloomTex?.IsLoaded == true)
                 {
                     var radTex = _softRadialBloomTex.Value;
                     var radOrigin = radTex.Size() * 0.5f;
                     sb.Draw(radTex, drawPos, null,
-                        LightUtils.Additive(LightUtils.DeepViolet, 0.2f * speedGlow),
-                        0f, radOrigin, (0.5f + sr * 0.3f) * pulse, SpriteEffects.None, 0f);
+                        LightUtils.Additive(LightUtils.TrailViolet, 0.12f * speedGlow),
+                        0f, radOrigin, MathHelper.Min((0.45f + sr * 0.25f) * pulse, 0.139f), SpriteEffects.None, 0f);
                 }
 
                 // Layer 2: Trail violet resonance field (SoftRadialBloom)
@@ -353,7 +353,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture.Projectiles
                     var radOrigin = radTex.Size() * 0.5f;
                     sb.Draw(radTex, drawPos, null,
                         LightUtils.Additive(LightUtils.TrailViolet, 0.3f * speedGlow),
-                        0f, radOrigin, (0.35f + sr * 0.2f) * pulse, SpriteEffects.None, 0f);
+                        0f, radOrigin, MathHelper.Min((0.35f + sr * 0.2f) * pulse, 0.139f), SpriteEffects.None, 0f);
                 }
 
                 // Layer 3: Cyan laser core (PointBloom)
@@ -363,7 +363,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture.Projectiles
                     var ptOrigin = ptTex.Size() * 0.5f;
                     sb.Draw(ptTex, drawPos, null,
                         LightUtils.Additive(LightUtils.LaserCyan, 0.4f * speedGlow),
-                        0f, ptOrigin, (0.2f + sr * 0.12f) * pulse, SpriteEffects.None, 0f);
+                        0f, ptOrigin, MathHelper.Min((0.2f + sr * 0.12f) * pulse, 0.139f), SpriteEffects.None, 0f);
                 }
 
                 // Layer 4: Plasma white hot center (PointBloom)
@@ -373,7 +373,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture.Projectiles
                     var ptOrigin = ptTex.Size() * 0.5f;
                     sb.Draw(ptTex, drawPos, null,
                         LightUtils.Additive(LightUtils.PlasmaWhite, 0.5f * speedGlow),
-                        0f, ptOrigin, (0.1f + sr * 0.08f) * pulse, SpriteEffects.None, 0f);
+                        0f, ptOrigin, MathHelper.Min((0.1f + sr * 0.08f) * pulse, 0.139f), SpriteEffects.None, 0f);
                 }
 
                 // Layer 5: StarFlare at bullet head (visible at higher speeds)
@@ -400,7 +400,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture.Projectiles
                     // Outer bloom layer
                     Color bloomCol = LightUtils.TrailViolet * 0.4f;
                     sb.Draw(_glowTex.Value, drawPos, null, bloomCol with { A = 0 },
-                        0f, _glowTex.Value.Size() / 2f, coreScale * 2.5f, SpriteEffects.None, 0f);
+                        0f, _glowTex.Value.Size() / 2f, MathHelper.Min(coreScale * 2.5f, 0.586f), SpriteEffects.None, 0f);
                 }
 
                 // ═══ LEADING-EDGE BLOOM ═══
@@ -413,7 +413,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture.Projectiles
                     var ptTex = _pointBloomTex.Value;
                     sb.Draw(ptTex, tipPos, null,
                         LightUtils.Additive(LightUtils.LaserCyan, 0.3f * speedGlow),
-                        0f, ptTex.Size() * 0.5f, (0.12f + sr * 0.08f) * leadPulse, SpriteEffects.None, 0f);
+                        0f, ptTex.Size() * 0.5f, MathHelper.Min((0.12f + sr * 0.08f) * leadPulse, 0.139f), SpriteEffects.None, 0f);
                     sb.Draw(ptTex, tipPos, null,
                         LightUtils.Additive(LightUtils.PlasmaWhite, 0.4f * speedGlow),
                         0f, ptTex.Size() * 0.5f, (0.06f + sr * 0.04f) * leadPulse, SpriteEffects.None, 0f);

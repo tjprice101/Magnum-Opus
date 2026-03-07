@@ -356,11 +356,11 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Projectiles
 
                     // Layer 1: Wide dusk atmospheric halo
                     sb.Draw(bloomTex, tipScreen, null, NachtmusikPalette.DuskViolet with { A = 0 } * bloomOpacity * 0.2f,
-                        0f, bloomOrigin, bloomScale * 2.2f * pulse, SpriteEffects.None, 0f);
+                        0f, bloomOrigin, bloomScale * 0.7f * pulse, SpriteEffects.None, 0f);
 
                     // Layer 2: Mid cosmic blue glow
                     sb.Draw(bloomTex, tipScreen, null, CosmicBlue with { A = 0 } * bloomOpacity * 0.35f,
-                        SwordRotation * 0.3f, bloomOrigin, bloomScale * 1.4f * pulse, SpriteEffects.None, 0f);
+                        SwordRotation * 0.3f, bloomOrigin, bloomScale * 0.45f * pulse, SpriteEffects.None, 0f);
 
                     // Layer 3: Inner starlight silver
                     sb.Draw(bloomTex, tipScreen, null, StarlightSilver with { A = 0 } * bloomOpacity * 0.5f,
@@ -377,9 +377,22 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Projectiles
                         Vector2 flareOrigin = flareTex.Size() / 2f;
                         float flareRot = time * 0.5f;
                         sb.Draw(flareTex, tipScreen, null, MoonPearl with { A = 0 } * bloomOpacity * 0.3f,
-                            flareRot, flareOrigin, bloomScale * 0.5f * pulse, SpriteEffects.None, 0f);
+                            flareRot, flareOrigin, bloomScale * 0.06f * pulse, SpriteEffects.None, 0f);
                         sb.Draw(flareTex, tipScreen, null, StellarWhite with { A = 0 } * bloomOpacity * 0.15f,
-                            flareRot + MathHelper.PiOver4, flareOrigin, bloomScale * 0.3f, SpriteEffects.None, 0f);
+                            flareRot + MathHelper.PiOver4, flareOrigin, bloomScale * 0.035f, SpriteEffects.None, 0f);
+                    }
+
+                    // Star4Soft delicate sparkle accent — twilight shimmer
+                    Texture2D starTex = MagnumTextureRegistry.GetStar4Soft();
+                    if (starTex != null)
+                    {
+                        Vector2 starOrigin = starTex.Size() / 2f;
+                        float starRot = time * 1.5f;
+                        float starScale = bloomScale * 0.12f * pulse;
+                        sb.Draw(starTex, tipScreen, null, StarlightSilver with { A = 0 } * bloomOpacity * 0.45f,
+                            starRot, starOrigin, starScale, SpriteEffects.None, 0f);
+                        sb.Draw(starTex, tipScreen, null, StellarWhite with { A = 0 } * bloomOpacity * 0.25f,
+                            -starRot * 0.6f, starOrigin, starScale * 0.6f, SpriteEffects.None, 0f);
                     }
 
                     SwingShaderSystem.RestoreSpriteBatch(sb);

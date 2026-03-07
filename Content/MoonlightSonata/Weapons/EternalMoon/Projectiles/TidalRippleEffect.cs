@@ -47,6 +47,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
         private static Asset<Texture2D> _noisePerlin;
         private static Asset<Texture2D> _gradientLUT;
 
+        private static readonly string GradientLUTPath = "MagnumOpus/Assets/VFX Asset Library/ColorGradients/MoonlightSonataGradientLUTandRAMP";
+
         public override void SetStaticDefaults()
         {
             ProjectileID.Sets.DrawScreenCheckFluff[Projectile.type] = 600;
@@ -128,7 +130,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                 sb.Draw(softGlow, drawPos, null, CoreColor * (flashAlpha * 0.7f),
                     0f, glowOrigin, 0.1f * tidalMult, SpriteEffects.None, 0f);
                 sb.Draw(softGlow, drawPos, null, MidColor * (flashAlpha * 0.35f),
-                    0f, glowOrigin, 0.2f * tidalMult, SpriteEffects.None, 0f);
+                    0f, glowOrigin, MathHelper.Min(0.2f * tidalMult, 0.293f), SpriteEffects.None, 0f);
             }
 
             // ---- LAYER 2: SHADER-DRIVEN RIPPLE RINGS ----
@@ -147,7 +149,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             float outerPulse = 0.9f + 0.1f * MathF.Sin(timer * 0.2f);
 
             sb.Draw(glowOrb, drawPos, null, EdgeColor * (0.12f * fadeAlpha * outerPulse),
-                0f, orbOrigin, expandScale * 0.5f, SpriteEffects.None, 0f);
+                0f, orbOrigin, MathHelper.Min(expandScale * 0.5f, 0.293f), SpriteEffects.None, 0f);
 
             // ---- RESTORE ----
             sb.End();
@@ -185,6 +187,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 
             _noisePerlin ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/PerlinNoise");
             rippleShader.Parameters["noiseTex"]?.SetValue(_noisePerlin.Value);
+
+            // Bind Moonlight Sonata LUT gradient for theme-consistent ring coloring
+            _gradientLUT ??= ModContent.Request<Texture2D>(GradientLUTPath);
+            rippleShader.Parameters["gradientTex"]?.SetValue(_gradientLUT.Value);
+            rippleShader.Parameters["useGradient"]?.SetValue(1f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,

@@ -9,6 +9,7 @@ using Terraria.GameContent;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Utilities;
 using MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Particles;
 using MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Primitives;
@@ -39,10 +40,36 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
         // Swing arc parameters per phase
         // Phase 0: Horizontal Sweep (wide, moderate speed)
         // Phase 1: Rising Uppercut (narrow, fast)
-        // Phase 2: Gravity Slam (narrow vertical, slow windup ↁEfast slam)
+        // Phase 2: Gravity Slam (narrow vertical, slow windup → fast slam)
         private static readonly float[] ArcAngles = { 170f, 130f, 120f };        // Degrees
         private static readonly float[] SwingDurations = { 22f, 16f, 24f };      // Frames
         private static readonly float[] DamageMultipliers = { 1f, 0.95f, 1.4f }; // Slam hits hardest
+
+        // Incisor-style 3-segment piecewise curves (windup → swing → settle)
+        private static readonly FractalUtils.CurveSegment[][] PhaseCurves = new[]
+        {
+            // Phase 0 (Horizontal Sweep): wide smooth sweep
+            new FractalUtils.CurveSegment[]
+            {
+                new(0f, 0.25f, 0f, 0.14f, FractalUtils.QuadOut),
+                new(0.25f, 0.83f, 0.14f, 0.92f, FractalUtils.SineInOut),
+                new(0.83f, 1.0f, 0.92f, 1.0f, FractalUtils.QuadOut),
+            },
+            // Phase 1 (Rising Uppercut): explosive fast, minimal windup
+            new FractalUtils.CurveSegment[]
+            {
+                new(0f, 0.16f, 0f, 0.08f, FractalUtils.SineOut),
+                new(0.16f, 0.76f, 0.08f, 0.95f, FractalUtils.CubicIn),
+                new(0.76f, 1.0f, 0.95f, 1.0f, FractalUtils.SineOut),
+            },
+            // Phase 2 (Gravity Slam): long dramatic windup → devastating slam
+            new FractalUtils.CurveSegment[]
+            {
+                new(0f, 0.35f, 0f, 0.10f, FractalUtils.SineOut),
+                new(0.35f, 0.88f, 0.10f, 0.96f, FractalUtils.ExpIn),
+                new(0.88f, 1.0f, 0.96f, 1.0f, FractalUtils.QuadOut),
+            },
+        };
 
         // Trail system
         private Vector2[] _trailPoints = new Vector2[24];
@@ -147,23 +174,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
 
             float progress = Projectile.ai[1] / duration;
 
-            // Swing easing per phase
-            float easedProgress;
-            switch (_phase)
-            {
-                case 0: // Horizontal Sweep: smooth sine
-                    easedProgress = FractalUtils.SineInOut(progress);
-                    break;
-                case 1: // Rising Uppercut: fast explosive start
-                    easedProgress = FractalUtils.QuadOut(progress);
-                    break;
-                case 2: // Gravity Slam: slow windup ↁEexplosive slam
-                    easedProgress = FractalUtils.ExpIn(progress);
-                    break;
-                default:
-                    easedProgress = progress;
-                    break;
-            }
+            // 3-segment piecewise swing: windup → accelerating sweep → settle
+            float easedProgress = FractalUtils.PiecewiseAnimation(progress, PhaseCurves[_phase]);
 
             // Calculate current angle
             _currentAngle = _startAngle + ArcRadians * easedProgress * _direction;
@@ -630,22 +642,22 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
                 // Layer 1: Wide soft radial halo (SoftRadialBloom)
                 outerColor.A = 0;
                 sb.Draw(softBloom, tipPos, null, outerColor * crescentOpacity * 0.25f,
-                    0f, softBloom.Size() / 2f, crescentScale * 2.0f, SpriteEffects.None, 0f);
+                    0f, softBloom.Size() / 2f, crescentScale * 0.2f, SpriteEffects.None, 0f);
 
                 // Layer 2: Mid-range stellar glow (SoftRadialBloom)  Epurple body
                 Color midColor = FractalUtils.FractalPurple with { A = 0 };
                 sb.Draw(softBloom, tipPos, null, midColor * crescentOpacity * 0.35f,
-                    _currentAngle * 0.5f, softBloom.Size() / 2f, crescentScale * 1.3f, SpriteEffects.None, 0f);
+                    _currentAngle * 0.5f, softBloom.Size() / 2f, crescentScale * 0.13f, SpriteEffects.None, 0f);
 
                 // Layer 3: Inner crescent core (PointBloom)  Ebright gold
                 innerColor.A = 0;
                 sb.Draw(sharpBloom, tipPos, null, innerColor * crescentOpacity * 0.8f,
-                    _currentAngle, sharpBloom.Size() / 2f, crescentScale * 0.6f, SpriteEffects.None, 0f);
+                    _currentAngle, sharpBloom.Size() / 2f, crescentScale * 0.065f, SpriteEffects.None, 0f);
 
                 // Layer 4: White-hot supernova center (PointBloom)
                 Color coreWhite = FractalUtils.SupernovaFlash with { A = 0 };
                 sb.Draw(sharpBloom, tipPos, null, coreWhite * crescentOpacity * 0.5f,
-                    _currentAngle, sharpBloom.Size() / 2f, crescentScale * 0.25f, SpriteEffects.None, 0f);
+                    _currentAngle, sharpBloom.Size() / 2f, crescentScale * 0.03f, SpriteEffects.None, 0f);
 
                 // Layer 5: Cross star flare at blade tip
                 if (_starFlareTex?.Value != null)
@@ -656,18 +668,18 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
                     // Vertical flare
                     sb.Draw(starFlare, tipPos, null, flareColor * crescentOpacity * 0.5f * flarePulse,
                         MathHelper.PiOver2, starFlare.Size() / 2f,
-                        new Vector2(crescentScale * 0.3f, crescentScale * 0.8f) * flarePulse, SpriteEffects.None, 0f);
+                        new Vector2(crescentScale * 0.1f, crescentScale * 0.25f) * flarePulse, SpriteEffects.None, 0f);
                     // Horizontal flare (perpendicular cross)
                     sb.Draw(starFlare, tipPos, null, flareColor * crescentOpacity * 0.35f * flarePulse,
                         0f, starFlare.Size() / 2f,
-                        new Vector2(crescentScale * 0.25f, crescentScale * 0.6f) * flarePulse, SpriteEffects.None, 0f);
+                        new Vector2(crescentScale * 0.08f, crescentScale * 0.2f) * flarePulse, SpriteEffects.None, 0f);
                 }
 
                 // Layer 6: Nebula glow orb overlay (pulsing, behind crescent)
                 float orbPulse = 0.85f + 0.15f * MathF.Sin(progress * MathHelper.Pi * 3f);
                 Color orbColor = FractalUtils.NebulaPink with { A = 0 };
                 sb.Draw(softBloom, tipPos, null, orbColor * crescentOpacity * 0.2f * orbPulse,
-                    0f, softBloom.Size() / 2f, crescentScale * 1.6f * orbPulse, SpriteEffects.None, 0f);
+                    0f, softBloom.Size() / 2f, crescentScale * 0.16f * orbPulse, SpriteEffects.None, 0f);
 
                 FractalUtils.EndAdditive(sb);
             }
@@ -911,6 +923,18 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
                         0f, _glowTex.Value.Size() / 2f, 0.35f * flarePulse, SpriteEffects.None, 0f);
                     sb.Draw(_glowTex.Value, tipPos, null, FractalUtils.Additive(FractalUtils.SupernovaFlash, 0.3f * flarePulse),
                         0f, _glowTex.Value.Size() / 2f, 0.18f * flarePulse, SpriteEffects.None, 0f);
+
+                    // Star4Soft sparkle accent — fractal starpoint
+                    Texture2D starTex = MagnumTextureRegistry.GetStar4Soft();
+                    if (starTex != null)
+                    {
+                        Vector2 starOrigin = starTex.Size() / 2f;
+                        float starRot = (float)Main.timeForVisualEffects * 0.06f;
+                        sb.Draw(starTex, tipPos, null, FractalUtils.Additive(FractalUtils.StarGold, 0.4f * flarePulse),
+                            starRot, starOrigin, 0.10f * flarePulse, SpriteEffects.None, 0f);
+                        sb.Draw(starTex, tipPos, null, FractalUtils.Additive(FractalUtils.SupernovaFlash, 0.25f * flarePulse),
+                            -starRot * 0.7f, starOrigin, 0.06f * flarePulse, SpriteEffects.None, 0f);
+                    }
                     FractalUtils.EndAdditive(sb);
                 }
             }

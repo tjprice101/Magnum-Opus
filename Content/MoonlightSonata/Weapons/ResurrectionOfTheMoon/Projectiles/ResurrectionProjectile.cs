@@ -387,18 +387,26 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
             ), TrailLength);
         }
 
-        /// <summary>Multi-layered comet head glow with directional stretch along velocity.
-        /// Uses WideSoftEllipse for comet-shaped silhouette + SoftRadialBloom for atmospheric halo.</summary>
+        /// <summary>Compact comet head: circular noise-masked orb (player-sized) with small bloom halo.
+        /// Uses RadialNoiseMaskShader for a swirling noise sphere instead of oversized ellipses.</summary>
+        private static Effect _cometHeadShader;
+        private static Asset<Texture2D> _softCircleTex;
+        private static Asset<Texture2D> _nebulaWispNoise;
+        private static Asset<Texture2D> _moonlightGradient;
+
         private void DrawHeadGlow()
         {
             SpriteBatch sb = Main.spriteBatch;
             Texture2D bloom = CometTextures.SoftRadialBloom;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            float velRotation = Projectile.velocity.ToRotation();
 
-            // Layer 1: Directional comet ellipse — stretched along velocity for comet shape
-            var ellipseTex = ModContent.Request<Texture2D>(
-                "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/WideSoftEllipse", AssetRequestMode.ImmediateLoad).Value;
+            // Ensure noise mask textures are loaded
+            _softCircleTex ??= ModContent.Request<Texture2D>(
+                "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad);
+            _nebulaWispNoise ??= ModContent.Request<Texture2D>(
+                "MagnumOpus/Assets/VFX Asset Library/NoiseTextures/NebulaWispNoise", AssetRequestMode.ImmediateLoad);
+            _moonlightGradient ??= ModContent.Request<Texture2D>(
+                "MagnumOpus/Assets/VFX Asset Library/ColorGradients/MoonlightSonataGradientLUTandRAMP", AssetRequestMode.ImmediateLoad);
 
             // Switch to Additive for bloom rendering
             sb.End();
@@ -407,27 +415,55 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
 
-            Color ellipseColor = CometUtils.GetCometGradient(CometPhase * 0.8f) with { A = 0 };
-            float ellipseScale = 0.3f + CometPhase * 0.25f;
-            sb.Draw(ellipseTex, drawPos, null, ellipseColor * (0.3f + CometPhase * 0.2f),
-                velRotation, ellipseTex.Size() * 0.5f,
-                new Vector2(ellipseScale * 1.8f, ellipseScale), SpriteEffects.None, 0f);
+            // Layer 1: Noise-masked circular orb (player-sized ~0.2 scale)
+            if (_cometHeadShader == null)
+            {
+                _cometHeadShader = ModContent.Request<Effect>(
+                    "MagnumOpus/Content/FoundationWeapons/MaskFoundation/Shaders/RadialNoiseMaskShader",
+                    AssetRequestMode.ImmediateLoad).Value;
+            }
 
-            // Layer 2: Wide atmospheric bloom — soft outer halo (scaled down some)
+            Color cometColor = CometUtils.GetCometGradient(CometPhase * 0.8f);
+            Color coreCol = CometUtils.CometCoreWhite;
+
+            _cometHeadShader.Parameters["uTime"]?.SetValue((float)Main.timeForVisualEffects * 0.02f + AliveTime * 0.05f);
+            _cometHeadShader.Parameters["noiseStrength"]?.SetValue(0.5f + CometPhase * 0.2f);
+            _cometHeadShader.Parameters["scrollSpeed"]?.SetValue(0.3f + CometPhase * 0.15f);
+            _cometHeadShader.Parameters["rotationSpeed"]?.SetValue(0.12f);
+            _cometHeadShader.Parameters["coreColor"]?.SetValue(coreCol.ToVector3());
+            _cometHeadShader.Parameters["edgeColor"]?.SetValue(cometColor.ToVector3());
+            _cometHeadShader.Parameters["noiseTex"]?.SetValue(_nebulaWispNoise.Value);
+            _cometHeadShader.Parameters["gradientTex"]?.SetValue(_moonlightGradient.Value);
+
+            // Use SourceAlpha-based additive for shader pass so alpha channel properly masks edges
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
+                SamplerState.LinearWrap, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, _cometHeadShader,
+                Main.GameViewMatrix.TransformationMatrix);
+
+            Texture2D circle = _softCircleTex.Value;
+            float orbScale = 0.18f + CometPhase * 0.06f; // Player-sized circular orb
+            sb.Draw(circle, drawPos, null, Color.White * (0.7f + CometPhase * 0.2f),
+                0f, circle.Size() * 0.5f, orbScale, SpriteEffects.None, 0f);
+
+            // End shader, return to additive
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null,
+                Main.GameViewMatrix.TransformationMatrix);
+
+            // Layer 2: Small outer bloom halo
             Color outerColor = CometUtils.GetCometGradient(CometPhase) with { A = 0 };
-            float outerScale = 0.45f + CometPhase * 0.3f;
-            sb.Draw(bloom, drawPos, null, outerColor * (0.35f + CometPhase * 0.25f),
+            float outerScale = 0.08f + CometPhase * 0.04f;
+            sb.Draw(bloom, drawPos, null, outerColor * (0.2f + CometPhase * 0.1f),
                 0f, bloom.Size() * 0.5f, outerScale, SpriteEffects.None, 0f);
 
-            // Layer 3: Mid glow — comet coma
-            Color midColor = CometUtils.GetCometGradient(CometPhase * 0.5f) with { A = 0 };
-            sb.Draw(bloom, drawPos, null, midColor * 0.25f,
-                0f, bloom.Size() * 0.5f, outerScale * 0.6f, SpriteEffects.None, 0f);
-
-            // Layer 4: Bright inner core
+            // Layer 3: Tight inner core glow
             Color coreColor = CometUtils.FrigidImpact with { A = 0 };
-            float coreScale = 0.25f + CometPhase * 0.15f;
-            sb.Draw(bloom, drawPos, null, coreColor * (0.5f + CometPhase * 0.35f),
+            float coreScale = 0.06f + CometPhase * 0.03f;
+            sb.Draw(bloom, drawPos, null, coreColor * (0.3f + CometPhase * 0.15f),
                 0f, bloom.Size() * 0.5f, coreScale, SpriteEffects.None, 0f);
 
             // Restore to AlphaBlend

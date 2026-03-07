@@ -12,6 +12,7 @@ using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Pri
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Shaders;
 using MagnumOpus.Content.LaCampanella.Debuffs;
 using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
+using MagnumOpus.Common.Systems.VFX;
 using ReLogic.Content;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Projectiles
@@ -47,16 +48,26 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
             if (trailPositions.Count > MaxTrailPoints)
                 trailPositions.RemoveAt(trailPositions.Count - 1);
 
-            // Fire ember trail
-            if (Main.rand.NextBool(3))
+            // Fire ember trail — frequent hot sparks scattering from the bullet
+            if (Main.GameUpdateCount % 2 == 0)
             {
+                Vector2 perpDir = Projectile.velocity.SafeNormalize(Vector2.Zero).RotatedBy(MathHelper.PiOver2);
+                Vector2 emberOffset = perpDir * Main.rand.NextFloat(-4f, 4f);
+                Vector2 emberVel = -Projectile.velocity * 0.08f + Main.rand.NextVector2Circular(1f, 1f);
                 PiercingBellsParticleHandler.SpawnParticle(new BulletTracerParticle(
-                    Projectile.Center + Main.rand.NextVector2Circular(3, 3),
-                    -Projectile.velocity * 0.05f + Main.rand.NextVector2Circular(0.5f, 0.5f),
-                    Main.rand.Next(8, 15)));
+                    Projectile.Center + emberOffset, emberVel, Main.rand.Next(8, 16)));
             }
 
-            Lighting.AddLight(Projectile.Center, PiercingBellsResonanceUtils.StaccatoPalette[2].ToVector3() * 0.3f);
+            // Occasional brighter tracer spark
+            if (Main.rand.NextBool(4))
+            {
+                PiercingBellsParticleHandler.SpawnParticle(new BulletTracerParticle(
+                    Projectile.Center, Main.rand.NextVector2Circular(2f, 2f),
+                    Main.rand.Next(6, 12))
+                    { Scale = Main.rand.NextFloat(0.25f, 0.4f) });
+            }
+
+            Lighting.AddLight(Projectile.Center, PiercingBellsResonanceUtils.StaccatoPalette[2].ToVector3() * 0.45f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
@@ -110,11 +121,22 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
 
                     var settings = new BulletTrailSettings
                     {
-                        ColorStart = PiercingBellsResonanceUtils.StaccatoPalette[2] * 0.7f,
-                        ColorEnd = PiercingBellsResonanceUtils.StaccatoPalette[0] * 0.2f,
-                        Width = 4f,
-                        BloomIntensity = 0.2f,
-                        Shader = bulletShader
+                        ColorStart = PiercingBellsResonanceUtils.StaccatoPalette[2] * 0.8f,
+                        ColorEnd = PiercingBellsResonanceUtils.StaccatoPalette[0] * 0.3f,
+                        Width = 22f,
+                        BloomIntensity = 0.6f,
+                        Shader = bulletShader,
+                        WidthFunc = t =>
+                        {
+                            float w = MathHelper.Lerp(22f, 3f, t);
+                            return w * (1f + (float)Math.Sin(Main.GameUpdateCount * 0.2f) * 0.08f);
+                        },
+                        ColorFunc = t =>
+                        {
+                            Color c = Color.Lerp(PiercingBellsResonanceUtils.StaccatoPalette[2],
+                                PiercingBellsResonanceUtils.StaccatoPalette[0], t);
+                            return c * (1f - t * 0.6f) * 0.85f;
+                        }
                     };
                     trailRenderer.DrawTrail(sb, trailPositions, settings, Main.screenPosition);
                 }
@@ -127,11 +149,42 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null, drawColor,
                 Projectile.rotation, tex.Size() / 2f, Projectile.scale, SpriteEffects.None, 0f);
 
-            // Theme texture accents
+            // Additive bloom glow layers around bullet
             try { sb.End(); } catch { }
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            PiercingBellsResonanceUtils.DrawThemeAccents(sb, Projectile.Center - Main.screenPosition, Projectile.scale);
+
+            var bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
+            Vector2 bloomOrigin = bloomTex.Size() / 2f;
+            Vector2 bulletScreen = Projectile.Center - Main.screenPosition;
+            float bPulse = 0.9f + (float)Math.Sin(Main.GameUpdateCount * 0.25f) * 0.1f;
+
+            // Outer ambient glow
+            sb.Draw(bloomTex, bulletScreen, null,
+                PiercingBellsResonanceUtils.StaccatoPalette[0] * (0.25f * bPulse),
+                0f, bloomOrigin, 0.22f, SpriteEffects.None, 0f);
+            // Mid warm glow
+            sb.Draw(bloomTex, bulletScreen, null,
+                PiercingBellsResonanceUtils.StaccatoPalette[2] * (0.4f * bPulse),
+                0f, bloomOrigin, 0.12f, SpriteEffects.None, 0f);
+            // Hot white core
+            sb.Draw(bloomTex, bulletScreen, null,
+                Color.White * (0.5f * bPulse * bPulse),
+                0f, bloomOrigin, 0.05f, SpriteEffects.None, 0f);
+
+            // Star sparkle accent at bullet tip
+            Texture2D starTex = null;
+            try { starTex = MagnumTextureRegistry.GetStar4Soft(); } catch { }
+            if (starTex != null)
+            {
+                float starRot = Main.GameUpdateCount * 0.08f;
+                sb.Draw(starTex, bulletScreen, null,
+                    PiercingBellsResonanceUtils.StaccatoPalette[2] * (0.6f * bPulse),
+                    starRot, starTex.Size() / 2f, 0.4f * bPulse, SpriteEffects.None, 0f);
+            }
+
+            // Theme texture accents
+            PiercingBellsResonanceUtils.DrawThemeAccents(sb, bulletScreen, Projectile.scale);
             try { sb.End(); } catch { }
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
@@ -155,13 +208,20 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
             trailRenderer?.Dispose();
             trailRenderer = null;
 
-            // Impact sparks
-            for (int i = 0; i < 3; i++)
+            // Impact spark burst — radial scatter of 8 tracers
+            for (int i = 0; i < 8; i++)
             {
+                float angle = MathHelper.TwoPi * i / 8f + Main.rand.NextFloat(-0.3f, 0.3f);
+                float speed = Main.rand.NextFloat(1.5f, 4f);
                 PiercingBellsParticleHandler.SpawnParticle(new BulletTracerParticle(
-                    Projectile.Center, Main.rand.NextVector2Circular(3f, 3f),
-                    Main.rand.Next(10, 18)));
+                    Projectile.Center, angle.ToRotationVector2() * speed,
+                    Main.rand.Next(10, 20))
+                    { Scale = Main.rand.NextFloat(0.2f, 0.35f) });
             }
+
+            // Central flash
+            PiercingBellsParticleHandler.SpawnParticle(new ResonantBlastFlashParticle(
+                Projectile.Center, 0.6f, 8));
         }
     }
 }

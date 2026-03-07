@@ -54,7 +54,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver
 
         protected override void SetWeaponDefaults()
         {
-            Item.damage = 2800;
+            Item.damage = 2200; // Tier 8 (1600-2400 range)
             Item.knockBack = 9f;
             Item.useTime = 16;
             Item.useAnimation = 16;
@@ -123,21 +123,6 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver
                     SoundEngine.PlaySound(SoundID.Item45 with { Pitch = -0.5f, Volume = 0.8f }, player.Center);
                     break;
             }
-        }
-
-        #endregion
-
-        #region Recipes
-
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient(ModContent.ItemType<ResonantCoreOfDiesIrae>(), 20)
-                .AddIngredient(ModContent.ItemType<DiesIraeResonantEnergy>(), 15)
-                .AddIngredient(ModContent.ItemType<HarmonicCoreOfDiesIrae>(), 2)
-                .AddIngredient(ItemID.LunarBar, 15)
-                .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
-                .Register();
         }
 
         #endregion

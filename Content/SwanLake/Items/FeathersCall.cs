@@ -781,10 +781,10 @@ namespace MagnumOpus.Content.SwanLake.Items
                 spriteBatch.Draw(glowTex, trailPos, null, trailCol, 0f, glowTex.Size() / 2f, trailScale, SpriteEffects.None, 0f);
             }
 
-            // Draw outer glow
+            // Draw outer glow (cap to 300px on 512px SoftGlow)
             Texture2D glowTexture = MagnumTextureRegistry.GetSoftGlow();
             if (glowTexture == null) return false;
-            spriteBatch.Draw(glowTexture, drawPos, null, glowColor * 0.6f, 0f, glowTexture.Size() / 2f, 0.8f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(glowTexture, drawPos, null, glowColor * 0.6f, 0f, glowTexture.Size() / 2f, 0.586f, SpriteEffects.None, 0f);
 
             // Draw inner core
             spriteBatch.Draw(glowTexture, drawPos, null, coreColor, 0f, glowTexture.Size() / 2f, 0.4f, SpriteEffects.None, 0f);

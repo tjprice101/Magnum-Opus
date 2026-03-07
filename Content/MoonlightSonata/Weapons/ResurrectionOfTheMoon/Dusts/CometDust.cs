@@ -1,4 +1,6 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using Terraria;
 using Terraria.ModLoader;
 
@@ -50,6 +52,21 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Dusts
             }
 
             return false;
+        }
+
+        public override bool PreDraw(Dust dust)
+        {
+            // PointBloom is 2160px — cap draw scale so it never exceeds 300px
+            const float MaxDrawScale = 300f / 2160f; // ~0.139
+            float drawScale = MathHelper.Min(dust.scale, MaxDrawScale);
+
+            var tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
+            Vector2 origin = tex.Size() * 0.5f;
+            Vector2 pos = dust.position - Main.screenPosition;
+            float alpha = (255 - dust.alpha) / 255f;
+
+            Main.spriteBatch.Draw(tex, pos, null, dust.color * alpha, dust.rotation, origin, drawScale, SpriteEffects.None, 0f);
+            return false; // Prevent vanilla from drawing at uncapped scale
         }
     }
 }

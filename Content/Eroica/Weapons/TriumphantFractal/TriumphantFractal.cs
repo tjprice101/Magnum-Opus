@@ -26,7 +26,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.TriumphantFractal
         public override void SetDefaults()
         {
             Item.ResearchUnlockCount = 1;
-            Item.damage = 518;
+            Item.damage = 490; // Tier 2 (300-500 range)
             Item.DamageType = DamageClass.Magic;
             Item.width = 56;
             Item.height = 56;
