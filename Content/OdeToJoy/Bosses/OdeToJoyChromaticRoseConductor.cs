@@ -18,6 +18,7 @@ using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.OdeToJoy.Bosses.Systems;
 using MagnumOpus.Common.Systems.Bosses;
 using static MagnumOpus.Common.Systems.BossDialogueSystem;
+using static MagnumOpus.Content.OdeToJoy.Bosses.Systems.OdeToJoySkySystem;
 
 namespace MagnumOpus.Content.OdeToJoy.Bosses
 {
@@ -316,6 +317,11 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
             
             BossIndexTracker.OdeToJoyConductor = NPC.whoAmI;
             BossIndexTracker.OdeToJoyPhase = difficultyTier;
+            
+            // Feed sky system with boss state
+            OdeToJoySky.BossLifeRatio = (float)NPC.life / NPC.lifeMax;
+            OdeToJoySky.BossCenter = NPC.Center;
+            OdeToJoySky.BossIsPhase2 = isPhase2;
             
             if (State != BossPhase.Spawning && State != BossPhase.Dying)
                 OdeToJoyBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier, isPhase2);
@@ -1208,6 +1214,13 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
             {
                 float intensity = (float)deathTimer / 120f;
                 
+                // Escalating sky flashes every 30 frames
+                if (deathTimer % 30 == 0 && deathTimer > 0)
+                {
+                    float flashIntensity = 4f + intensity * 8f;
+                    TriggerPetalFlash(flashIntensity);
+                }
+                
                 // Petals swirling and gathering
                 if (deathTimer % 3 == 0)
                 {
@@ -1234,12 +1247,31 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
             else if (deathTimer == 140)
             {
                 // FINAL EXPLOSION
+                TriggerEternalBloomFlash(25f);
                 OdeToJoyVFXLibrary.DeathGardenFlash(NPC.Center, 2.5f);
                 MagnumScreenEffects.AddScreenShake(25f);
                 
                 // === PHASE 10 MUSICAL VFX: Death Finale - The Garden's Final Song ===
                 Phase10Integration.Universal.DeathFinale(NPC.Center, WhiteBloom, RosePink);
                 VFXIntegration.OnBossDeath("OdeToJoy", NPC.Center);
+                
+                // Bloom supernova ring - 16 radiating bloom particles
+                for (int i = 0; i < 16; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 16f;
+                    Vector2 vel = angle.ToRotationVector2() * 6f;
+                    float hue = (float)i / 16f;
+                    Color bloomColor = Main.hslToRgb(hue, 0.8f, 0.65f);
+                    MagnumParticleHandler.SpawnParticle(new BloomParticle(NPC.Center, vel, bloomColor, 0.8f, 30));
+                }
+                
+                // Ascending golden sparkles
+                for (int i = 0; i < 10; i++)
+                {
+                    Vector2 sparkPos = NPC.Center + Main.rand.NextVector2Circular(40f, 40f);
+                    Vector2 sparkVel = new Vector2(Main.rand.NextFloat(-1f, 1f), -Main.rand.NextFloat(2.5f, 5f));
+                    MagnumParticleHandler.SpawnParticle(new SparkleParticle(sparkPos, sparkVel, new Color(255, 240, 200), 0.4f, 30));
+                }
                 
                 if (Main.netMode != NetmodeID.Server)
                 {
@@ -1290,6 +1322,10 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
             Texture2D texture = Terraria.GameContent.TextureAssets.Npc[Type].Value;
             Rectangle frame = NPC.frame;
             Vector2 origin = frame.Size() / 2f;
+            
+            // === SHADER LAYER 0: Boss ambient glow ===
+            if (State != BossPhase.Spawning)
+                OdeToJoyBossShaderSystem.DrawBossGlow(spriteBatch, NPC, screenPos, isPhase2);
             
             // === Shader: Garden Aura ===
             if (State != BossPhase.Spawning)
