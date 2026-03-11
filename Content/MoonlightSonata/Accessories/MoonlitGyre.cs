@@ -38,21 +38,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             // Note: Additional Moonlight-specific rifle buffs (+25% fire rate, +25% bullet damage)
             // are handled in the Resurrection of the Moon weapon itself
             
-            // Ambient particles when equipped
-            if (!hideVisual && Main.rand.NextBool(8))
-            {
-                int dustType = Main.rand.NextBool() ? DustID.Shadowflame : DustID.IceTorch;
-                Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
-                Dust dust = Dust.NewDustPerfect(player.Center + offset + new Vector2(0, -35f), dustType, 
-                    new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1.5f), 100, default, 1f);
-                dust.noGravity = true;
-            }
 
-            // Unified ambient VFX
-            if (!hideVisual)
-            {
-                MoonlitGyreVFX.AmbientGyroSpin(player.Center, (int)Main.GameUpdateCount);
-            }
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)

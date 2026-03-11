@@ -104,7 +104,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire.Projectiles
             _softRadialBloom ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
             _pointBloom ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom", AssetRequestMode.ImmediateLoad);
             _starFlare ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/StarFlare", AssetRequestMode.ImmediateLoad);
-            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/MarbleSwirlNoise", AssetRequestMode.ImmediateLoad);
+            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/TileableMarbleNoise", AssetRequestMode.ImmediateLoad);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -113,6 +113,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire.Projectiles
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
 
             float swing = MathF.Sin(_timer * SwingFrequency);
@@ -127,6 +129,15 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire.Projectiles
             DrawArcanePageZone(sb, matrix, drawCenter, radius, fade, swing);   // Pass 1
             DrawMoonlitAmbient(sb, matrix, drawCenter, radius, fade, pulse);   // Pass 2
             DrawBloomComposite(sb, matrix, drawCenter, radius, fade, swing, pulse); // Pass 3
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
@@ -216,7 +227,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire.Projectiles
             Texture2D sf = _starFlare.Value;
             Vector2 anchorDraw = Projectile.Center - Main.screenPosition;
 
-            // Pendulum arm — line from anchor to swing center
+            // Pendulum arm  Eline from anchor to swing center
             int armPts = 8;
             for (int i = 0; i < armPts; i++)
             {
@@ -247,7 +258,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire.Projectiles
                 ClairDeLunePalette.ClockworkBrass with { A = 0 } * 0.12f * fade,
                 0f, srb.Size() * 0.5f, radius * 1.4f / srb.Width, SpriteEffects.None, 0f);
 
-            // Core glow — intensity follows swing
+            // Core glow  Eintensity follows swing
             sb.Draw(pb, drawCenter, null,
                 ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.2f * fade * MathF.Abs(swing),
                 0f, pb.Size() * 0.5f, 10f / pb.Width, SpriteEffects.None, 0f);

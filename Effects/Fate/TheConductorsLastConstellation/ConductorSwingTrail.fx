@@ -9,6 +9,7 @@
 
 sampler uImage0 : register(s0);
 sampler uImage1 : register(s1);
+sampler uGradientLUT : register(s2);
 
 float3 uColor;           // Primary: ConductorCyan
 float3 uSecondaryColor;  // Secondary: BatonPurple
@@ -158,6 +159,11 @@ float4 SwingMainPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COL
     alpha *= (1.0 - progress * 0.3);
     alpha *= uOpacity * sampleColor.a * baseTex.a;
     float3 finalColor = color * uIntensity * baseTex.rgb;
+
+    // Fate LUT color toning — subtle theme cohesion
+    float lum = dot(finalColor, float3(0.299, 0.587, 0.114));
+    float3 lutColor = tex2D(uGradientLUT, float2(saturate(lum), 0.5)).rgb;
+    finalColor = lerp(finalColor, lutColor * finalColor * 2.0, 0.25);
 
     return ApplyOverbright(finalColor, alpha);
 }

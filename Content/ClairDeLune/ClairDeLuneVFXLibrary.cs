@@ -597,6 +597,255 @@ namespace MagnumOpus.Content.ClairDeLune
             }
         }
 
+        // ─────────── LUT-RAMPED SPARKLE COLORS (F4PS PATTERN) ───────────
+
+        /// <summary>
+        /// Clair de Lune sparkle color palette — analogous to F4PSTextures.GetSparkleColors().
+        /// Color-ramped through the theme: night mist → soft blue → pearl → white hot.
+        /// Used by all sparkle rendering to ensure proper LUT gradient consistency.
+        /// </summary>
+        private static readonly Color[] SparkleColors =
+        {
+            ClairDeLunePalette.NightMist,       // Deep shadow (pianissimo)
+            ClairDeLunePalette.SoftBlue,        // Mid-body blue (mezzo)
+            ClairDeLunePalette.PearlBlue,       // Bright pearl-blue (forte)
+            ClairDeLunePalette.PearlWhite,      // Near-white shimmer (fortissimo)
+            ClairDeLunePalette.WhiteHot,        // Hot white core (sforzando)
+        };
+
+        /// <summary>
+        /// Get a sparkle color ramped through the CdL palette at position t (0→1).
+        /// Matches the visual character of the ClairDeLuneGradientLUTandRAMP texture.
+        /// </summary>
+        public static Color GetSparkleColor(float t)
+        {
+            t = MathHelper.Clamp(t, 0f, 1f);
+            float scaled = t * (SparkleColors.Length - 1);
+            int lo = (int)scaled;
+            int hi = Math.Min(lo + 1, SparkleColors.Length - 1);
+            return Color.Lerp(SparkleColors[lo], SparkleColors[hi], scaled - lo);
+        }
+
+        // ─────────── LUT-RAMPED SWING SPARKLES ───────────
+
+        /// <summary>
+        /// Spawns LUT-color-ramped 4-point star sparkles at the blade tip during melee swing.
+        /// Call from OnSwingFrame() every tick. Spawns 1-2 SparkleParticle per frame with
+        /// colors ramped through the CdL palette based on swing progression.
+        /// Follows the Foundation4PointSparkle pattern: multi-layered star + bloom rendering.
+        /// </summary>
+        public static void SpawnLUTSwingSparkles(Vector2 tipPos, Vector2 swordDirection, int direction, float progression)
+        {
+            // Sparkles intensify through the swing arc
+            float intensity = MathF.Sin(progression * MathHelper.Pi);
+            if (intensity < 0.05f) return;
+
+            // 1-3 sparkles per frame based on swing intensity
+            int sparkleCount = intensity > 0.6f ? 2 : 1;
+            if (intensity > 0.85f && Main.rand.NextBool(3))
+                sparkleCount = 3;
+
+            for (int i = 0; i < sparkleCount; i++)
+            {
+                // Color ramps from deep palette at start to white-hot at peak
+                float colorT = progression * 0.8f + Main.rand.NextFloat(0.2f);
+                Color sparkleCol = GetSparkleColor(colorT);
+                Color bloomCol = GetSparkleColor(MathHelper.Clamp(colorT - 0.15f, 0f, 1f));
+
+                // Drift perpendicular to swing direction + slight outward
+                Vector2 perpDir = swordDirection.RotatedBy(-MathHelper.PiOver2 * direction);
+                Vector2 vel = perpDir * (1f + Main.rand.NextFloat(1.5f))
+                            + swordDirection * Main.rand.NextFloat(0.3f)
+                            + Main.rand.NextVector2Circular(0.4f, 0.4f);
+
+                // Position offset along blade tip area
+                Vector2 spawnPos = tipPos + Main.rand.NextVector2Circular(6f, 6f);
+
+                float scale = (0.15f + intensity * 0.2f) * Main.rand.NextFloat(0.7f, 1.3f);
+
+                try
+                {
+                    var sparkle = new SparkleParticle(
+                        spawnPos, vel,
+                        sparkleCol with { A = 0 },
+                        bloomCol with { A = 0 },
+                        scale,
+                        Main.rand.Next(12, 25),
+                        Main.rand.NextFloat(0.04f, 0.12f),  // Rotation speed — gentle twinkle
+                        1.8f);                                // Bloom scale — prominent glow
+                    MagnumParticleHandler.SpawnParticle(sparkle);
+                }
+                catch
+                {
+                    Dust d = Dust.NewDustPerfect(spawnPos, DustID.GemDiamond, vel, 0, sparkleCol, scale * 4f);
+                    d.noGravity = true;
+                }
+            }
+
+            // Occasional secondary starlit sparkle behind the swing for trail feel
+            if (Main.rand.NextBool(4))
+            {
+                float behindT = Main.rand.NextFloat(0.3f, 0.8f);
+                Vector2 behindPos = tipPos - swordDirection * (20f * behindT);
+                Color trailCol = GetSparkleColor(0.5f + Main.rand.NextFloat(0.3f));
+                var trailSparkle = new SparkleParticle(
+                    behindPos + Main.rand.NextVector2Circular(4f, 4f),
+                    Main.rand.NextVector2Circular(0.5f, 0.5f) + new Vector2(0, -0.2f),
+                    trailCol with { A = 0 },
+                    0.12f,
+                    Main.rand.Next(15, 28));
+                MagnumParticleHandler.SpawnParticle(trailSparkle);
+            }
+        }
+
+        // ─────────── LUT-RAMPED SPARKLE EXPLOSIONS ───────────
+
+        /// <summary>
+        /// Spawns a Foundation4PointSparkle-style sparkle explosion using the CdL LUT gradient.
+        /// Each sparkle is a SparkleParticle (4-point star with bloom backing) with color
+        /// sampled from the CdL palette. Varied sizes and flash timings for dazzling variety.
+        /// </summary>
+        public static void SpawnLUTSparkleExplosion(Vector2 pos, int count, float speed, float baseScale)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                // Color ramp through palette — core sparkles are whiter, edge sparkles are bluer
+                float t = (float)i / Math.Max(1, count - 1);
+                // Bias toward brighter end for sparkle explosions (they should read as luminous)
+                float colorT = 0.2f + t * 0.8f;
+                Color sparkleCol = GetSparkleColor(colorT);
+                Color bloomCol = GetSparkleColor(MathHelper.Clamp(colorT - 0.2f, 0f, 1f));
+
+                // Push toward white for extra brilliance
+                sparkleCol = Color.Lerp(sparkleCol, Color.White, 0.2f);
+
+                Vector2 vel = Main.rand.NextVector2Circular(speed, speed);
+                float scale = baseScale * Main.rand.NextFloat(0.6f, 1.4f);
+
+                try
+                {
+                    var particle = new SparkleParticle(
+                        pos + Main.rand.NextVector2Circular(6f, 6f),
+                        vel,
+                        sparkleCol with { A = 0 },
+                        bloomCol with { A = 0 },
+                        scale,
+                        Main.rand.Next(18, 35),
+                        Main.rand.NextFloat(0.03f, 0.10f),  // Varied rotation speeds
+                        1.6f);                                // Prominent bloom
+                    MagnumParticleHandler.SpawnParticle(particle);
+                }
+                catch
+                {
+                    Dust d = Dust.NewDustPerfect(pos, DustID.BlueFairy, vel, 0, sparkleCol, scale * 3f);
+                    d.noGravity = true;
+                }
+            }
+        }
+
+        // ─────────── COLOR-RAMPED SPARKLE EXPLOSIONS (UPGRADED) ───────────
+
+        /// <summary>
+        /// Spawns a color-ramped sparkle explosion using the Clair de Lune moonlit gradient.
+        /// Particles are now SparkleParticle (4-point star with bloom) for proper star-shaped sparkles.
+        /// Colors range from night mist blue through pearl blue to white hot.
+        /// </summary>
+        public static void SpawnMoonlitSparkleExplosion(Vector2 pos, int count, float speed, float baseScale)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                float t = (float)i / Math.Max(1, count - 1);
+                Color sparkleColor = ClairDeLunePalette.GetMoonlitGradient(t);
+                sparkleColor = Color.Lerp(sparkleColor, Color.White, 0.15f);
+                Color bloomColor = ClairDeLunePalette.GetMoonlitGradient(MathHelper.Clamp(t - 0.15f, 0f, 1f));
+
+                Vector2 vel = Main.rand.NextVector2Circular(speed, speed);
+                float scale = baseScale * Main.rand.NextFloat(0.6f, 1.2f);
+
+                try
+                {
+                    var particle = new SparkleParticle(
+                        pos + Main.rand.NextVector2Circular(4f, 4f),
+                        vel,
+                        sparkleColor with { A = 0 },
+                        bloomColor with { A = 0 },
+                        scale,
+                        Main.rand.Next(15, 30),
+                        Main.rand.NextFloat(0.04f, 0.10f),
+                        1.5f);
+                    MagnumParticleHandler.SpawnParticle(particle);
+                }
+                catch
+                {
+                    Dust d = Dust.NewDustPerfect(pos, DustID.BlueFairy, vel, 0, sparkleColor, scale * 3f);
+                    d.noGravity = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Pearl starburst — multi-layered sparkle cascade using pearl-blue to white gradient.
+        /// Clair de Lune's signature sparkle effect: dreamy, luminous, otherworldly.
+        /// </summary>
+        public static void SpawnPearlStarburst(Vector2 pos, float intensity = 1f)
+        {
+            // Inner layer: tight pearl-white sparkles
+            SpawnMoonlitSparkleExplosion(pos, (int)(8 * intensity), 5f * intensity, 0.35f);
+
+            // Middle layer: soft blue radial ring
+            for (int i = 0; i < (int)(6 * intensity); i++)
+            {
+                float angle = MathHelper.TwoPi * i / (int)(6 * intensity);
+                Vector2 vel = angle.ToRotationVector2() * (4f * intensity);
+                Color col = Color.Lerp(PearlBlue, WhiteHot, Main.rand.NextFloat(0.3f, 0.7f));
+
+                try
+                {
+                    var particle = new SparkleParticle(
+                        pos + Main.rand.NextVector2Circular(3f, 3f),
+                        vel,
+                        col with { A = 0 },
+                        (PearlBlue with { A = 0 }) * 0.7f,
+                        0.3f * intensity,
+                        Main.rand.Next(18, 32),
+                        Main.rand.NextFloat(0.04f, 0.10f),
+                        1.5f);
+                    MagnumParticleHandler.SpawnParticle(particle);
+                }
+                catch
+                {
+                    Dust d = Dust.NewDustPerfect(pos, DustID.BlueFairy, vel, 0, col, 0.9f * intensity);
+                    d.noGravity = true;
+                }
+            }
+
+            // Outer layer: wide dreamy moonlit mist sparkles
+            for (int i = 0; i < (int)(4 * intensity); i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(8f * intensity, 8f * intensity);
+                Color col = Color.Lerp(SoftBlue, PearlWhite, Main.rand.NextFloat(0.2f, 0.6f));
+
+                try
+                {
+                    var particle = new SparkleParticle(
+                        pos + Main.rand.NextVector2Circular(8f, 8f),
+                        vel,
+                        col with { A = 0 },
+                        (SoftBlue with { A = 0 }) * 0.6f,
+                        0.4f * intensity,
+                        Main.rand.Next(22, 40),
+                        Main.rand.NextFloat(0.03f, 0.08f),
+                        1.6f);
+                    MagnumParticleHandler.SpawnParticle(particle);
+                }
+                catch
+                {
+                    Dust d = Dust.NewDustPerfect(pos, DustID.BlueFairy, vel, 0, col, 1.2f * intensity);
+                    d.noGravity = true;
+                }
+            }
+        }
+
         // ─────────── IMPACTS ───────────
 
         /// <summary>
@@ -608,6 +857,14 @@ namespace MagnumOpus.Content.ClairDeLune
         {
             float bloomScale = 0.5f + comboStep * 0.1f;
             DrawBloom(pos, bloomScale);
+
+            // LUT-ramped 4-point star sparkle explosion — the signature CdL sparkle burst
+            SpawnLUTSparkleExplosion(pos, 4 + comboStep * 2, 4f + comboStep, 0.22f);
+
+            // Color-ramped sparkle explosion
+            SpawnMoonlitSparkleExplosion(pos, 6 + comboStep * 3, 4f + comboStep, 0.25f);
+            if (comboStep >= 2)
+                SpawnPearlStarburst(pos, 0.3f + comboStep * 0.15f);
 
             int rings = 3 + comboStep;
             SpawnGradientHaloRings(pos, rings);
@@ -637,6 +894,14 @@ namespace MagnumOpus.Content.ClairDeLune
         public static void ProjectileImpact(Vector2 pos, float intensity = 1f)
         {
             DrawBloom(pos, 0.6f * intensity);
+
+            // LUT-ramped 4-point star sparkle burst
+            SpawnLUTSparkleExplosion(pos, (int)(6 * intensity), 5f * intensity, 0.25f);
+
+            // Full color-ramped sparkle explosion
+            SpawnPearlStarburst(pos, intensity * 0.8f);
+            SpawnMoonlitSparkleExplosion(pos, (int)(10 * intensity), 6f * intensity, 0.3f);
+
             SpawnGradientHaloRings(pos, 6, 0.3f * intensity);
             SpawnMusicNotes(pos, 6, 30f * intensity, 0.75f, 1.1f, 30);
             SpawnRadialDustBurst(pos, 15, 7f * intensity);
@@ -679,6 +944,14 @@ namespace MagnumOpus.Content.ClairDeLune
         {
             MagnumScreenEffects.AddScreenShake(8f * intensity);
             DrawBloom(pos, 0.8f * intensity);
+
+            // LUT-ramped 4-point star explosion — grand sparkle burst for finisher
+            SpawnLUTSparkleExplosion(pos, (int)(8 * intensity), 7f * intensity, 0.35f);
+
+            // Cataclysmic pearl starburst cascade
+            SpawnPearlStarburst(pos, intensity * 1.5f);
+            SpawnMoonlitSparkleExplosion(pos, (int)(16 * intensity), 8f * intensity, 0.4f);
+
             SpawnGradientHaloRings(pos, 7, 0.35f * intensity);
             SpawnMusicNotes(pos, 6, 40f, 0.8f, 1.2f, 40);
             SpawnRadialDustBurst(pos, 20, 8f * intensity);

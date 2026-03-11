@@ -191,6 +191,9 @@ namespace MagnumOpus.Content.Eroica.Accessories.SymphonyOfScarletFlames
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
             
             // End current batch and start with additive blending for glow
@@ -212,6 +215,15 @@ namespace MagnumOpus.Content.Eroica.Accessories.SymphonyOfScarletFlames
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
             }
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
         

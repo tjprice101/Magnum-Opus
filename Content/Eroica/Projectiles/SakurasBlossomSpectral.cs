@@ -177,6 +177,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
             // === GPU Primitive Ribbon Trail (EnhancedTrailRenderer) ===
@@ -187,7 +189,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     EroicaPalette.Sakura with { A = 0 },
                     EroicaPalette.Gold with { A = 0 } * 0.15f,
                     0.7f),
-                bloomMultiplier: 2.2f, coreMultiplier: 0.35f);
+                bloomMultiplier: 1.2f, coreMultiplier: 0.5f);
 
             // ── Layer 1: Pure Bloom Ribbon trail (RibbonFoundation Mode 1) ──
             DrawPureBloomTrail(sb);
@@ -205,6 +207,15 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             EroicaVFXLibrary.BeginEroicaAdditive(sb);
             EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.5f);
             EroicaVFXLibrary.EndEroicaAdditive(sb);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -357,27 +368,27 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             {
 
             float pulse = 0.85f + 0.15f * (float)Math.Sin(AgeTimer * 0.1f);
-            float bloomScale = 0.22f * Projectile.scale;
+            float bloomScale = 0.14f * Projectile.scale;
 
-            // Outer sakura haze — wide, soft ambient glow
+            // Outer sakura haze — tighter ambient glow
             Color outerColor = EroicaPalette.Sakura with { A = 0 };
-            sb.Draw(bloomTex, drawPos, null, outerColor * 0.2f * pulse,
-                0f, bloomOrigin, bloomScale * 0.55f, SpriteEffects.None, 0f);
+            sb.Draw(bloomTex, drawPos, null, outerColor * 0.12f * pulse,
+                0f, bloomOrigin, bloomScale * 0.45f, SpriteEffects.None, 0f);
 
             // Mid sakura-gold glow body
             Color midColor = Color.Lerp(EroicaPalette.Sakura, EroicaPalette.Gold, 0.25f) with { A = 0 };
-            sb.Draw(bloomTex, drawPos, null, midColor * 0.3f * pulse,
-                0f, bloomOrigin, bloomScale * 0.38f, SpriteEffects.None, 0f);
+            sb.Draw(bloomTex, drawPos, null, midColor * 0.2f * pulse,
+                0f, bloomOrigin, bloomScale * 0.3f, SpriteEffects.None, 0f);
 
             // Bright sakura-white bloom body
             Color bodyColor = Color.Lerp(EroicaPalette.Sakura, Color.White, 0.35f) with { A = 0 };
-            sb.Draw(bloomTex, drawPos, null, bodyColor * 0.4f * pulse,
-                0f, bloomOrigin, bloomScale * 0.25f, SpriteEffects.None, 0f);
+            sb.Draw(bloomTex, drawPos, null, bodyColor * 0.35f * pulse,
+                0f, bloomOrigin, bloomScale * 0.2f, SpriteEffects.None, 0f);
 
-            // Hot white core
+            // Hot white core — sharper definition
             Color coreColor = Color.White with { A = 0 };
-            sb.Draw(bloomTex, drawPos, null, coreColor * 0.3f * pulse,
-                0f, bloomOrigin, bloomScale * 0.12f, SpriteEffects.None, 0f);
+            sb.Draw(bloomTex, drawPos, null, coreColor * 0.4f * pulse,
+                0f, bloomOrigin, bloomScale * 0.08f, SpriteEffects.None, 0f);
 
             }
             finally

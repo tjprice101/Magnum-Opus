@@ -235,6 +235,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
         public override bool PreDraw(ref Color lightColor)
         {
             if (Main.dedServ) return false;
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
 
             // End the active SpriteBatch before GPU primitive drawing
             Main.spriteBatch.End();
@@ -250,6 +253,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
             }
 
             DrawHeadGlow();
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

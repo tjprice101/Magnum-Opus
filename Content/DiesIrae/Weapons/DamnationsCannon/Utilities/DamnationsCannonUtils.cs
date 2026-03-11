@@ -76,6 +76,12 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DamnationsCannon.Utilities
         /// </summary>
         public static void DoExplosion(Vector2 worldPos, int sparkCount = 40)
         {
+            // === Color-ramped sparkle explosion VFX ===
+            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(worldPos, 12, 7f, 0.4f);
+
+            // === Color-ramped sparkle explosion VFX ===
+            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(worldPos, 8, 5f, 0.3f);
+
             if (Main.dedServ) return;
 
             // Fire rain sparks (upward cone, heavy gravity)

@@ -23,18 +23,18 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater
         private static Asset<Texture2D> _ojPowerRing;
         private static Asset<Texture2D> _ojBeamSurge;
         private static Asset<Texture2D> _ojTrail;
-        private static Asset<Texture2D> _circularMask;
+        private static Asset<Texture2D> _SoftCircle;
 
-        public static Texture2D SoftGlow => (_softGlow ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX/Blooms/SoftGlow", AssetRequestMode.ImmediateLoad)).Value;
-        public static Texture2D NoisePerlin => (_noisePerlin ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX/Noise/TileablePerlinNoise", AssetRequestMode.ImmediateLoad)).Value;
-        public static Texture2D NoiseCellular => (_noiseCellular ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX/Noise/TileableCellularCrackNoise", AssetRequestMode.ImmediateLoad)).Value;
+        public static Texture2D SoftGlow => (_softGlow ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow", AssetRequestMode.ImmediateLoad)).Value;
+        public static Texture2D NoisePerlin => (_noisePerlin ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/PerlinNoise", AssetRequestMode.ImmediateLoad)).Value;
+        public static Texture2D NoiseCellular => (_noiseCellular ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/VoronoiCellNoise", AssetRequestMode.ImmediateLoad)).Value;
         public static Texture2D OJGradient => (_ojGradient ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/ColorGradients/OdeToJoyGradientLUTandRAMP", AssetRequestMode.ImmediateLoad)).Value;
         public static Texture2D OJThornFragment => (_ojThornFrag ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Ode to Joy/Particles/OJ Thorn Fragment", AssetRequestMode.ImmediateLoad)).Value;
         public static Texture2D OJBlossomSparkle => (_ojBlossomSparkle ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Ode to Joy/Particles/OJ Blossom Sparkle", AssetRequestMode.ImmediateLoad)).Value;
         public static Texture2D OJPowerRing => (_ojPowerRing ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Ode to Joy/Impact Effects/OJ Power Effect Ring", AssetRequestMode.ImmediateLoad)).Value;
         public static Texture2D OJBeamSurge => (_ojBeamSurge ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Ode to Joy/Impact Effects/OJ Harmonic Resonance Beam Surge Impact", AssetRequestMode.ImmediateLoad)).Value;
         public static Texture2D OJTrail => (_ojTrail ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Ode to Joy/Trails and Ribbons/OJ Basic Trail", AssetRequestMode.ImmediateLoad)).Value;
-        public static Texture2D CircularMask => (_circularMask ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX/Masks/CircularMask", AssetRequestMode.ImmediateLoad)).Value;
+        public static Texture2D SoftCircle => (_SoftCircle ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad)).Value;
 
         // === OJ Color Palette ===
         public static readonly Color RoseShadow = new Color(100, 30, 50);

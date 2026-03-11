@@ -39,6 +39,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Tools
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Dodge", "Double-tap left or right to perform a moonlit dodge with brief invulnerability") { OverrideColor = new Color(180, 160, 255) });
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Soar upon the gentle embrace of moonlight'") { OverrideColor = new Color(140, 100, 200) });
         }
 

@@ -128,6 +128,9 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.GrimoireOfCondemnation.Utilities
         /// </summary>
         public static void DoSermonDetonation(Vector2 center, float radius)
         {
+            // === Color-ramped sparkle explosion VFX ===
+            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(center, 14, 8f, 0.4f);
+
             if (Main.dedServ) return;
 
             // Massive spark burst

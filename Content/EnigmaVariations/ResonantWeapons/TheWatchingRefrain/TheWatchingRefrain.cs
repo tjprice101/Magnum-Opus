@@ -55,7 +55,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
             Item.useStyle = ItemUseStyleID.Swing;
             Item.knockBack = 3f;
             Item.value = Item.sellPrice(gold: 20);
-            Item.rare = ModContent.RarityType<EnigmaRarity>();
+            Item.rare = ModContent.RarityType<EnigmaVariationsRarity>();
             Item.UseSound = SoundID.Item44;
             Item.shoot = ModContent.ProjectileType<UnsolvedPhantomMinion>();
             Item.buffType = ModContent.BuffType<UnsolvedPhantomBuff>();
@@ -127,7 +127,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
         private int attackCooldown = 0;
         private int mysteryZoneCooldown = 0;
         
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/CursiveMusicNote";
+        public override string Texture => "MagnumOpus/Content/EnigmaVariations/ResonantWeapons/TheWatchingRefrain/UnsolvedPhantomMinion";
         
         public override bool PreDraw(ref Color lightColor)
         {

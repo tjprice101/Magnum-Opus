@@ -15,7 +15,7 @@ using static MagnumOpus.Common.Systems.ThemedParticles;
 namespace MagnumOpus.Content.Autumn.Weapons
 {
     /// <summary>
-    /// Harvest Reaper — Autumn-themed melee weapon (Post-Plantera tier).
+    /// Harvest Reaper — Autumn-themed melee weapon (Post-Wall of Flesh tier).
     /// A massive scythe channeling autumn's decay, using held-projectile combo architecture.
     /// </summary>
     public class HarvestReaper : MeleeSwingItemBase

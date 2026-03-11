@@ -1,14 +1,19 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using Terraria;
 using Terraria.ID;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Common.Systems.VFX.Trails;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.OdeToJoy
 {
     /// <summary>
     /// Shared Ode to Joy VFX library used by bosses, accessories, and tools.
     /// Weapons have their own per-weapon particle systems in their self-contained folders.
-    /// These methods use vanilla dust as a lightweight shared system for non-weapon code.
+    /// Includes: bloom stacking, screen effects, musical VFX, trail draw helpers.
     /// </summary>
     public static class OdeToJoyVFXLibrary
     {
@@ -124,6 +129,9 @@ namespace MagnumOpus.Content.OdeToJoy
                 d.noGravity = true;
             }
             SpawnPollenSparkles(position, (int)(4 * scale), 20f * scale);
+
+            // Color-ramped sparkle explosion
+            SpawnGardenSparkleExplosion(position, (int)(8 * scale), 5f * scale, 0.3f);
         }
 
         public static void BlossomImpact(Vector2 position, float scale)
@@ -138,6 +146,9 @@ namespace MagnumOpus.Content.OdeToJoy
                 d.fadeIn = 1.1f;
             }
             SpawnPetalMusicNotes(position, (int)(3 * scale), 4f * scale);
+
+            // Blossom sparkle explosion
+            SpawnBlossomSparkleExplosion(position, (int)(6 * scale), 4f * scale, 0.25f);
         }
 
         public static void BloomBurst(Vector2 position, float scale)
@@ -160,6 +171,9 @@ namespace MagnumOpus.Content.OdeToJoy
             SpawnRosePetals(position, (int)(20 * scale), 12f * scale);
             SpawnMusicNotes(position, (int)(8 * scale), 8f * scale);
             SpawnPetalHaloRings(position, 3, scale * 0.5f);
+
+            // Triumphant sparkle cascade
+            SpawnTriumphantStarburst(position, scale * 0.8f);
 
             for (int i = 0; i < (int)(8 * scale); i++)
             {
@@ -197,6 +211,10 @@ namespace MagnumOpus.Content.OdeToJoy
             float scale = 0.8f + variant * 0.2f;
             GardenImpact(position, scale);
             SpawnRosePetals(position, 4 + variant * 2, 5f * scale);
+
+            // Tiered sparkle based on combo step
+            if (variant >= 2)
+                SpawnTriumphantStarburst(position, 0.3f + variant * 0.15f);
         }
 
         public static void MusicalImpact(Vector2 position, float scale, bool withNotes)
@@ -210,11 +228,18 @@ namespace MagnumOpus.Content.OdeToJoy
         {
             GardenImpact(position, scale * 0.7f);
             SpawnPollenSparkles(position, (int)(5 * scale), 15f * scale);
+
+            // Color-ramped sparkle burst on every projectile impact
+            SpawnGardenSparkleExplosion(position, (int)(6 * scale), 4f * scale, 0.25f);
         }
 
         public static void FinisherSlam(Vector2 position, float scale)
         {
             TriumphantCelebration(position, scale);
+
+            // Massive triumphant starburst for finisher
+            SpawnTriumphantStarburst(position, scale * 1.5f);
+
             for (int i = 0; i < (int)(12 * scale); i++)
             {
                 Vector2 vel = Main.rand.NextVector2Circular(8f * scale, 8f * scale);
@@ -227,6 +252,115 @@ namespace MagnumOpus.Content.OdeToJoy
         public static Color GetPaletteColor(float t)
         {
             return OdeToJoyPalette.GetGradient(t);
+        }
+
+        // ─────────── COLOR-RAMPED SPARKLE EXPLOSIONS ───────────
+
+        /// <summary>
+        /// Spawns a color-ramped sparkle explosion using the Ode to Joy garden gradient.
+        /// Particles range from deep forest green through golden pollen to white bloom.
+        /// </summary>
+        public static void SpawnGardenSparkleExplosion(Vector2 position, int count, float speed, float baseScale)
+        {
+            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+            if (glow == null) return;
+
+            for (int i = 0; i < count; i++)
+            {
+                float t = (float)i / Math.Max(1, count - 1);
+                Color sparkleColor = OdeToJoyPalette.GetGardenGradient(t);
+                sparkleColor = Color.Lerp(sparkleColor, Color.White, 0.15f);
+
+                Vector2 vel = Main.rand.NextVector2Circular(speed, speed);
+                float scale = baseScale * Main.rand.NextFloat(0.6f, 1.2f);
+
+                try
+                {
+                    var particle = new GlowSparkParticle(
+                        position + Main.rand.NextVector2Circular(4f, 4f),
+                        vel,
+                        sparkleColor with { A = 0 },
+                        scale,
+                        Main.rand.Next(15, 30));
+                    MagnumParticleHandler.SpawnParticle(particle);
+                }
+                catch
+                {
+                    Dust d = Dust.NewDustPerfect(position, DustID.GreenFairy, vel, 0, sparkleColor, scale * 3f);
+                    d.noGravity = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Spawns a blossom sparkle explosion using pink-to-gold-to-white gradient.
+        /// </summary>
+        public static void SpawnBlossomSparkleExplosion(Vector2 position, int count, float speed, float baseScale)
+        {
+            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+            if (glow == null) return;
+
+            for (int i = 0; i < count; i++)
+            {
+                float t = (float)i / Math.Max(1, count - 1);
+                Color sparkleColor = OdeToJoyPalette.GetBlossomGradient(t);
+                sparkleColor = Color.Lerp(sparkleColor, Color.White, 0.2f);
+
+                Vector2 vel = Main.rand.NextVector2Circular(speed, speed);
+                float scale = baseScale * Main.rand.NextFloat(0.5f, 1.1f);
+
+                try
+                {
+                    var particle = new GlowSparkParticle(
+                        position + Main.rand.NextVector2Circular(3f, 3f),
+                        vel,
+                        sparkleColor with { A = 0 },
+                        scale,
+                        Main.rand.Next(12, 25));
+                    MagnumParticleHandler.SpawnParticle(particle);
+                }
+                catch
+                {
+                    Dust d = Dust.NewDustPerfect(position, DustID.PinkFairy, vel, 0, sparkleColor, scale * 3f);
+                    d.noGravity = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Triumphant starburst — the biggest sparkle effect. Full palette explosion
+        /// with concentric rings of garden green → blossom pink → golden pollen → white bloom.
+        /// </summary>
+        public static void SpawnTriumphantStarburst(Vector2 position, float intensity = 1f)
+        {
+            // Inner ring: golden pollen
+            SpawnGardenSparkleExplosion(position, (int)(12 * intensity), 8f * intensity, 0.4f);
+
+            // Middle ring: blossom pink
+            SpawnBlossomSparkleExplosion(position, (int)(10 * intensity), 6f * intensity, 0.35f);
+
+            // Outer ring: wide soft green
+            for (int i = 0; i < (int)(8 * intensity); i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(10f * intensity, 10f * intensity);
+                Color col = Color.Lerp(OdeToJoyPalette.GoldenPollen, OdeToJoyPalette.WhiteBloom, Main.rand.NextFloat(0.3f, 0.8f));
+
+                try
+                {
+                    var particle = new GlowSparkParticle(
+                        position + Main.rand.NextVector2Circular(8f, 8f),
+                        vel,
+                        col with { A = 0 },
+                        0.45f * intensity,
+                        Main.rand.Next(20, 35));
+                    MagnumParticleHandler.SpawnParticle(particle);
+                }
+                catch
+                {
+                    Dust d = Dust.NewDustPerfect(position, DustID.GoldFlame, vel, 0, col, 1.2f * intensity);
+                    d.noGravity = true;
+                }
+            }
         }
 
         // ─────────── THEME TEXTURE VFX ───────────
@@ -332,6 +466,263 @@ namespace MagnumOpus.Content.OdeToJoy
             float rot = (float)Main.GameUpdateCount * 0.02f;
             DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.5f, rot);
             DrawThemeThornAccent(sb, worldPos, scale * 0.8f, intensity * 0.4f);
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  BLOOM STACKING — Multi-layer additive bloom with {A=0} pattern
+        // ═════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Draws a multi-layer additive bloom stack at a world position.
+        /// Uses the {A=0} premultiplied alpha pattern for correct additive blending.
+        /// Call while SpriteBatch is in additive blend mode (TrueAdditive or ShaderAdditive).
+        /// </summary>
+        /// <param name="sb">SpriteBatch (must be in additive mode).</param>
+        /// <param name="worldPos">World position for the bloom center.</param>
+        /// <param name="coreColor">Brightest inner color.</param>
+        /// <param name="outerColor">Dimmer outer glow color.</param>
+        /// <param name="scale">Base scale (1.0 = texture native size).</param>
+        /// <param name="intensity">Overall intensity multiplier 0-1.</param>
+        /// <param name="layers">Number of bloom layers (3-6 recommended).</param>
+        public static void DrawBloomStack(SpriteBatch sb, Vector2 worldPos,
+            Color coreColor, Color outerColor, float scale, float intensity = 1f, int layers = 4)
+        {
+            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+            if (glow == null) return;
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = glow.Size() * 0.5f;
+
+            for (int i = layers - 1; i >= 0; i--)
+            {
+                float t = (float)i / Math.Max(1, layers - 1);
+                float layerScale = scale * MathHelper.Lerp(0.4f, 2.2f, t);
+                float layerOpacity = MathHelper.Lerp(0.7f, 0.15f, t) * intensity;
+                Color layerColor = Color.Lerp(coreColor, outerColor, t) with { A = 0 };
+
+                sb.Draw(glow, drawPos, null, layerColor * layerOpacity, 0f,
+                    origin, layerScale, SpriteEffects.None, 0f);
+            }
+        }
+
+        /// <summary>
+        /// Draws a directional lens flare at a world position.
+        /// Perfect for melee blade tips and magic projectile heads.
+        /// </summary>
+        public static void DrawLensFlare(SpriteBatch sb, Vector2 worldPos,
+            Color color, float scale, float rotation, float intensity = 1f)
+        {
+            Texture2D flare = MagnumTextureRegistry.GetSoftGlow();
+            if (flare == null) return;
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = flare.Size() * 0.5f;
+            Color flareColor = color with { A = 0 };
+
+            // Horizontal bar
+            sb.Draw(flare, drawPos, null, flareColor * 0.6f * intensity,
+                rotation, origin, new Vector2(scale * 2f, scale * 0.3f), SpriteEffects.None, 0f);
+            // Vertical bar
+            sb.Draw(flare, drawPos, null, flareColor * 0.4f * intensity,
+                rotation + MathHelper.PiOver2, origin, new Vector2(scale * 1.5f, scale * 0.2f), SpriteEffects.None, 0f);
+            // Core dot
+            sb.Draw(flare, drawPos, null, (Color.White with { A = 0 }) * 0.5f * intensity,
+                0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  SCREEN EFFECTS — Shake, flash, pulse
+        // ═════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Triggers screen shake via player's ScreenPosition offset.
+        /// Strength is in pixels of maximum displacement.
+        /// </summary>
+        public static void ScreenShake(float strength, int durationTicks = 8)
+        {
+            if (Main.LocalPlayer.dead) return;
+
+            // Use Terraria's built-in screen shake system
+            if (strength > 0f)
+            {
+                // PunchCameraModifier is the preferred tModLoader way
+                var shake = new Terraria.Graphics.CameraModifiers.PunchCameraModifier(
+                    Main.LocalPlayer.Center, Main.rand.NextVector2CircularEdge(1f, 1f),
+                    strength, 6f, durationTicks, 1000f);
+                Main.instance.CameraModifiers.Add(shake);
+            }
+        }
+
+        /// <summary>
+        /// Triggers a screen flash effect by spawning a large additive bloom at the player's center.
+        /// </summary>
+        public static void ScreenFlash(Color color, float intensity = 1f, int lifetime = 12)
+        {
+            try
+            {
+                var flash = new BloomParticle(
+                    Main.LocalPlayer.Center,
+                    Vector2.Zero,
+                    color with { A = 0 },
+                    8f * intensity, 12f * intensity,
+                    lifetime, true);
+                MagnumParticleHandler.SpawnParticle(flash);
+            }
+            catch { }
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  TRAIL DRAWING — High-level wrappers around CalamityStyleTrailRenderer
+        // ═════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Draws a VertexStrip trail for a projectile using CalamityStyleTrailRenderer
+        /// with Ode to Joy colors. Uses the Nature trail style by default (green-gold).
+        /// </summary>
+        public static void DrawProjectileTrail(Projectile proj, float width = 30f,
+            Color? primary = null, Color? secondary = null, float intensity = 1f)
+        {
+            Color p = primary ?? OdeToJoyPalette.VerdantGreen;
+            Color s = secondary ?? OdeToJoyPalette.GoldenPollen;
+            CalamityStyleTrailRenderer.DrawProjectileTrail(proj, CalamityStyleTrailRenderer.TrailStyle.Nature,
+                width, p, s, intensity);
+        }
+
+        /// <summary>
+        /// Draws a VertexStrip trail with multi-pass bloom for a projectile.
+        /// Creates the "body + glow halo" look.
+        /// </summary>
+        public static void DrawProjectileTrailWithBloom(Projectile proj, float width = 30f,
+            Color? primary = null, Color? secondary = null,
+            float intensity = 1f, float bloomMult = 2.5f)
+        {
+            Color p = primary ?? OdeToJoyPalette.VerdantGreen;
+            Color s = secondary ?? OdeToJoyPalette.GoldenPollen;
+            CalamityStyleTrailRenderer.DrawProjectileTrailWithBloom(proj, CalamityStyleTrailRenderer.TrailStyle.Nature,
+                width, p, s, intensity, bloomMult);
+        }
+
+        /// <summary>
+        /// Draws a custom trail from a position buffer (not tied to a projectile).
+        /// Useful for swing trails and custom effect paths.
+        /// </summary>
+        public static void DrawTrailFromPositions(Vector2[] positions, float width = 30f,
+            Color? primary = null, Color? secondary = null, float intensity = 1f,
+            CalamityStyleTrailRenderer.TrailStyle style = CalamityStyleTrailRenderer.TrailStyle.Nature)
+        {
+            Color p = primary ?? OdeToJoyPalette.VerdantGreen;
+            Color s = secondary ?? OdeToJoyPalette.GoldenPollen;
+            CalamityStyleTrailRenderer.DrawTrail(positions, style, width, p, s, intensity);
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  MUSICAL VFX — Note particles, harmonic pulses, rhythmic effects
+        // ═════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Spawns a ring of expanding music note particles.
+        /// Used at combo phase transitions and finishers.
+        /// </summary>
+        public static void HarmonicPulseRing(Vector2 position, float radius, int noteCount,
+            Color? color = null, float speed = 3f)
+        {
+            Color col = color ?? OdeToJoyPalette.GoldenPollen;
+
+            for (int i = 0; i < noteCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / noteCount;
+                Vector2 vel = angle.ToRotationVector2() * speed;
+                Vector2 offset = angle.ToRotationVector2() * radius * 0.3f;
+
+                try
+                {
+                    var sparkle = new GlowSparkParticle(
+                        position + offset, vel,
+                        col with { A = 0 },
+                        0.3f, Main.rand.Next(20, 35));
+                    MagnumParticleHandler.SpawnParticle(sparkle);
+                }
+                catch
+                {
+                    Dust d = Dust.NewDustPerfect(position + offset, DustID.GoldFlame, vel, 0, col, 0.8f);
+                    d.noGravity = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Spawns a cascade of music note dust rising upward.
+        /// Perfect for celebration/finisher moments.
+        /// </summary>
+        public static void MusicNoteCascade(Vector2 position, int count, float spread,
+            Color? primary = null, Color? secondary = null)
+        {
+            Color p = primary ?? OdeToJoyPalette.GoldenPollen;
+            Color s = secondary ?? OdeToJoyPalette.SunlightYellow;
+
+            for (int i = 0; i < count; i++)
+            {
+                float t = (float)i / Math.Max(1, count - 1);
+                Color col = Color.Lerp(p, s, t);
+                Vector2 vel = new Vector2(
+                    Main.rand.NextFloat(-spread, spread),
+                    Main.rand.NextFloat(-6f, -2f));
+
+                try
+                {
+                    var note = new SparkleParticle(
+                        position + Main.rand.NextVector2Circular(spread * 2f, 8f),
+                        vel, col with { A = 0 },
+                        Main.rand.NextFloat(0.2f, 0.5f),
+                        Main.rand.Next(25, 50));
+                    MagnumParticleHandler.SpawnParticle(note);
+                }
+                catch
+                {
+                    Dust d = Dust.NewDustPerfect(position, DustID.YellowStarDust, vel, 0, col, 0.7f);
+                    d.noGravity = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Spawns a rhythmic pulsing bloom ring that expands outward.
+        /// </summary>
+        public static void RhythmicPulse(Vector2 position, float scale, Color? color = null)
+        {
+            Color col = color ?? OdeToJoyPalette.GoldenPollen;
+
+            try
+            {
+                var ring = new BloomRingParticle(
+                    position, Vector2.Zero,
+                    col with { A = 0 },
+                    scale * 0.3f, 25);
+                MagnumParticleHandler.SpawnParticle(ring);
+            }
+            catch { }
+        }
+
+        /// <summary>
+        /// Full celebration burst — combines harmonic pulse ring, music note cascade,
+        /// rhythmic pulse, bloom stack, and screen effects.
+        /// </summary>
+        public static void CelebrationBurst(Vector2 position, float scale, bool withScreenEffects = true)
+        {
+            HarmonicPulseRing(position, 40f * scale, 12 + (int)(8 * scale));
+            MusicNoteCascade(position, 8 + (int)(6 * scale), 4f * scale);
+            RhythmicPulse(position, scale);
+
+            // Layered garden + blossom sparkle bursts
+            SpawnGardenSparkleExplosion(position, (int)(12 * scale), 6f * scale, 0.35f);
+            SpawnBlossomSparkleExplosion(position, (int)(10 * scale), 5f * scale, 0.3f);
+            SpawnTriumphantStarburst(position, scale * 0.8f);
+
+            if (withScreenEffects)
+            {
+                ScreenShake(4f * scale, 10);
+                ScreenFlash(OdeToJoyPalette.GoldenPollen, 0.6f * scale);
+            }
         }
     }
 }

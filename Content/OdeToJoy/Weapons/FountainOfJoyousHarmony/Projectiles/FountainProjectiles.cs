@@ -1,23 +1,27 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
 using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
 using MagnumOpus.Content.OdeToJoy;
+using MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Dusts;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectiles
 {
     /// <summary>
-    /// JoyousFountainMinion — Stationary golden fountain.
+    /// JoyousFountainMinion ? Stationary golden fountain.
     /// Heals allies (5HP/s base + tier scaling), fires golden droplets,
     /// provides Harmony Zone (+8% all damage), and erupts Joyous Geyser every 15s.
     /// ai[0] = unused. ai[1] = fountain tier (0-4+).
     /// </summary>
     public class JoyousFountainMinion : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
+        public override string Texture => "MagnumOpus/Content/OdeToJoy/Weapons/Summon/FountainOfJoyousHarmonyMinion";
 
         private int FountainTier => (int)Projectile.ai[1];
         private int _attackTimer;
@@ -103,11 +107,11 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
                 }
             }
 
-            // Harmony Zone — damage buff for nearby allies (applied every frame via player buffs)
+            // Harmony Zone ? damage buff for nearby allies (applied every frame via player buffs)
             float harmonyDist = Vector2.Distance(Projectile.Center, player.Center);
             if (harmonyDist < HarmonyRadius)
             {
-                // +8% all damage — applied as generic damage bonus
+                // +8% all damage ? applied as generic damage bonus
                 // Inner aura gives +15%
                 float bonus = harmonyDist < 48f ? 0.15f : 0.08f;
                 player.GetDamage(DamageClass.Generic) += bonus;
@@ -155,12 +159,12 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
                 }
             }
 
-            // Ambient fountain particles — golden water spray upward
+            // Ambient fountain particles ? golden water spray upward
             if (Main.rand.NextBool(3))
             {
                 Vector2 vel = new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), -Main.rand.NextFloat(2f, 5f));
-                Dust d = Dust.NewDustDirect(Projectile.Center + new Vector2(-8, -30), 16, 4, DustID.GoldFlame,
-                    vel.X, vel.Y, 80, FountainTextures.DropletGold, 0.4f);
+                Dust d = Dust.NewDustDirect(Projectile.Center + new Vector2(-8, -30), 16, 4, ModContent.DustType<FountainDropletDust>(),
+                    vel.X, vel.Y, 80, default, 0.4f);
                 d.noGravity = false; // Falls back down like water
                 d.fadeIn = 0.8f;
             }
@@ -171,8 +175,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
                 float ang = Main.rand.NextFloat(MathHelper.TwoPi);
                 float dist = Main.rand.NextFloat(HarmonyRadius * 0.8f);
                 Vector2 fieldPos = Projectile.Center + new Vector2((float)Math.Cos(ang), (float)Math.Sin(ang)) * dist;
-                Dust d = Dust.NewDustDirect(fieldPos, 1, 1, DustID.GoldFlame, 0f, -0.3f, 120,
-                    FountainTextures.JubilantLight * 0.5f, 0.3f);
+                Dust d = Dust.NewDustDirect(fieldPos, 1, 1, ModContent.DustType<HarmonyFieldDust>(), 0f, -0.3f, 120,
+                    default, 0.3f);
                 d.noGravity = true;
             }
         }
@@ -192,13 +196,15 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
         }
 
         public override bool? CanCutTiles() => false;
-        public override bool MinionContactDamage() => false; // Stationary — attacks via droplets
+        public override bool MinionContactDamage() => false; // Stationary ? attacks via droplets
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D glow = FountainTextures.SoftGlow;
-            Texture2D mask = FountainTextures.CircularMask;
+            Texture2D mask = FountainTextures.SoftCircle;
             Texture2D sparkle = FountainTextures.OJBlossomSparkle;
             Vector2 glowOrigin = glow.Size() / 2f;
             Vector2 maskOrigin = mask.Size() / 2f;
@@ -208,10 +214,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
             float pulse = 0.85f + 0.15f * (float)Math.Sin(Main.GameUpdateCount * 0.05f);
             float tierScale = 1f + FountainTier * 0.15f;
             float time = (float)Main.timeForVisualEffects * 0.015f;
-
+            // ── MINION SPRITE: Draw base PNG sprite ──
+            Texture2D minionTex = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
+            Vector2 minionOrigin = minionTex.Size() / 2f;
+            sb.Draw(minionTex, pos, null, lightColor * Projectile.Opacity, Projectile.rotation, minionOrigin, Projectile.scale, SpriteEffects.None, 0f);
             sb.End();
 
-            // ── LAYER 0: CelebrationAura FloralSigil shader — harmony zone field ──
+            // ���� LAYER 0: CelebrationAura FloralSigil shader ? harmony zone field ����
             Effect auraShader = OdeToJoyShaders.CelebrationAura;
             if (auraShader != null)
             {
@@ -224,7 +233,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
                 sb.End();
             }
 
-            // ── LAYER 1: GardenBloom JubilantPulse shader — fountain body ──
+            // ���� LAYER 1: GardenBloom JubilantPulse shader ? fountain body ����
             Effect bloomShader = OdeToJoyShaders.GardenBloom;
             if (bloomShader != null)
             {
@@ -237,7 +246,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
                 sb.End();
             }
 
-            // ── LAYER 2: Additive bloom overlays ──
+            // ���� LAYER 2: Additive bloom overlays ����
             OdeToJoyShaders.BeginAdditiveBatch(sb);
 
             // Inner harmony aura (brighter, smaller)
@@ -251,7 +260,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
             sb.Draw(glow, pos + new Vector2(0, -15), null, FountainTextures.PureJoyWhite * 0.3f * pulse,
                 0f, glowOrigin, 0.08f * tierScale, SpriteEffects.None, 0f);
 
-            // Tier indicators — small orbiting sparkles
+            // Tier indicators ? small orbiting sparkles
             for (int i = 0; i < FountainTier; i++)
             {
                 float orbAngle = Main.GameUpdateCount * 0.06f + i * MathHelper.TwoPi / Math.Max(1, FountainTier);
@@ -264,12 +273,21 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
 
             sb.End();
             OdeToJoyShaders.RestoreSpriteBatch(sb);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
 
     /// <summary>
-    /// GoldenDropletProjectile — Arcing homing golden droplet.
+    /// GoldenDropletProjectile ? Arcing homing golden droplet.
     /// SparkleProjectileFoundation-style. Parabolic arc trajectory then homes to target.
     /// ai[0] = pierce count (0 = none, 2 = pierces at tier 3+). ai[1] = visual index.
     /// </summary>
@@ -279,6 +297,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
         private int _timer;
         private readonly Vector2[] _trail = new Vector2[16];
         private int _trailIdx;
+        private VertexStrip _vertexStrip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -337,7 +362,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
             // Sparkle trail
             if (Main.rand.NextBool(3))
             {
-                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.GoldFlame,
+                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, ModContent.DustType<FountainDropletDust>(),
                     0f, 0f, 100, FountainTextures.GetDropletColor((int)Projectile.ai[1]), 0.3f);
                 d.noGravity = true;
             }
@@ -349,80 +374,56 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
             for (int i = 0; i < 5; i++)
             {
                 Vector2 vel = Main.rand.NextVector2Circular(3f, 3f);
-                Dust d = Dust.NewDustDirect(target.Center, 1, 1, DustID.GoldFlame,
-                    vel.X, vel.Y, 60, FountainTextures.BloomGold, 0.5f);
+                Dust d = Dust.NewDustDirect(target.Center, 1, 1, ModContent.DustType<FountainDropletDust>(),
+                    vel.X, vel.Y, 60, default, 0.5f);
                 d.noGravity = false;
             }
+
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(target.Center, 3, 4f, 1f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D glow = FountainTextures.SoftGlow;
-            Vector2 glowOrigin = glow.Size() / 2f;
-            Vector2 pos = Projectile.Center - Main.screenPosition;
-
-            Color dropletColor = FountainTextures.GetDropletColor((int)Projectile.ai[1]);
-            float fade = MathHelper.Clamp(_timer / 4f, 0f, 1f) * MathHelper.Clamp(Projectile.timeLeft / 10f, 0f, 1f);
-            float time = (float)Main.timeForVisualEffects * 0.015f;
-
-            sb.End();
-
-            // ── LAYER 0: TriumphantTrail VertexStrip — golden droplet trail ──
-            Effect trailShader = OdeToJoyShaders.TriumphantTrail;
-            int validCount = 0;
-            for (int i = 0; i < _trail.Length; i++)
+            try
             {
-                int idx = (_trailIdx - 1 - i + _trail.Length * 2) % _trail.Length;
-                if (_trail[idx] != Vector2.Zero) validCount++; else break;
-            }
-            if (trailShader != null && validCount >= 2)
-            {
-                Vector2[] positions = new Vector2[validCount];
-                float[] rotations = new float[validCount];
-                for (int i = 0; i < validCount; i++)
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _vertexStrip);
+
+                // Fountain water shimmer accent
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
                 {
-                    int idx = (_trailIdx - 1 - i + _trail.Length * 2) % _trail.Length;
-                    positions[validCount - 1 - i] = _trail[idx];
-                }
-                for (int i = 0; i < validCount; i++)
-                {
-                    if (i < validCount - 1) rotations[i] = (positions[i + 1] - positions[i]).ToRotation();
-                    else rotations[i] = rotations[Math.Max(0, i - 1)];
+                    Vector2 origin = glow.Size() / 2f;
+                    float pulse = 0.8f + 0.2f * MathF.Sin((float)Main.timeForVisualEffects * 0.13f + Projectile.whoAmI);
+
+                    // Verdant water shimmer
+                    sb.Draw(glow, drawPos, null,
+                        (OdeToJoyPalette.VerdantGreen with { A = 0 }) * 0.18f * pulse,
+                        0f, origin, 0.04f, SpriteEffects.None, 0f);
                 }
 
-                VertexStrip strip = new VertexStrip();
-                strip.PrepareStrip(positions, rotations,
-                    (float p) => dropletColor * fade * p * 0.3f,
-                    (float p) => MathHelper.Lerp(1f, 5f, p),
-                    -Main.screenPosition, includeBacksides: true);
-                OdeToJoyShaders.SetTrailParams(trailShader, time, dropletColor,
-                    FountainTextures.PureJoyWhite, fade * 0.45f, 1.3f);
-                trailShader.CurrentTechnique = trailShader.Techniques["TriumphantTrailTechnique"];
-                trailShader.Parameters["WorldViewProjection"]?.SetValue(
-                    Main.GameViewMatrix.NormalizedTransformationmatrix);
-                trailShader.CurrentTechnique.Passes["P0"].Apply();
-                strip.DrawTrail();
-                Main.pixelShader.CurrentTechnique.Passes[0].Apply();
+                sb.End();
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
-            // ── LAYER 1: Additive bloom ──
-            OdeToJoyShaders.BeginAdditiveBatch(sb);
-
-            sb.Draw(glow, pos, null, dropletColor * fade * 0.55f, 0f, glowOrigin, 0.08f, SpriteEffects.None, 0f);
-            sb.Draw(glow, pos, null, FountainTextures.PureJoyWhite * fade * 0.35f, 0f, glowOrigin, 0.03f, SpriteEffects.None, 0f);
-
-            // Theme blossom sparkle accent
-            OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
-
-            sb.End();
-            OdeToJoyShaders.RestoreSpriteBatch(sb);
             return false;
         }
     }
 
     /// <summary>
-    /// JoyousGeyserBurstProjectile — Massive vertical burst every 15s.
+    /// JoyousGeyserBurstProjectile ? Massive vertical burst every 15s.
     /// Damages all enemies within 20 tiles. ImpactFoundation-style expanding rings.
     /// ai[0] = fountain tier for scaling.
     /// </summary>
@@ -462,16 +463,26 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
                 {
                     Vector2 vel = new Vector2(Main.rand.NextFloat(-2f, 2f), -Main.rand.NextFloat(6f, 14f));
                     Dust d = Dust.NewDustDirect(Projectile.Center + new Vector2(Main.rand.NextFloat(-15f, 15f), 0), 1, 1,
-                        DustID.GoldFlame, vel.X, vel.Y, 60, FountainTextures.DropletGold, 0.8f);
+                        ModContent.DustType<FountainDropletDust>(), vel.X, vel.Y, 60, default, 0.8f);
                     d.noGravity = false;
                     d.fadeIn = 1.2f;
                 }
+            }
+
+            // Geyser burst screen effects
+            if (_timer == 1)
+            {
+                OdeToJoyVFXLibrary.ScreenShake(8f, 16);
+                OdeToJoyVFXLibrary.ScreenFlash(OdeToJoyPalette.GoldenPollen, 1.2f);
+                OdeToJoyVFXLibrary.HarmonicPulseRing(Projectile.Center, 1.5f, 12, OdeToJoyPalette.GoldenPollen);
             }
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D ring = FountainTextures.OJPowerRing;
             Texture2D glow = FountainTextures.SoftGlow;
             Texture2D harmonic = FountainTextures.OJHarmonicWave2;
@@ -486,7 +497,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
 
             sb.End();
 
-            // ── LAYER 0: CelebrationAura shader — expanding geyser rings ──
+            // ���� LAYER 0: CelebrationAura shader ? expanding geyser rings ����
             Effect auraShader = OdeToJoyShaders.CelebrationAura;
             if (auraShader != null)
             {
@@ -501,7 +512,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
                 sb.End();
             }
 
-            // ── LAYER 1: JubilantHarmony SymphonicAura shader — harmonic burst center ──
+            // ���� LAYER 1: JubilantHarmony SymphonicAura shader ? harmonic burst center ����
             Effect harmonyShader = OdeToJoyShaders.JubilantHarmony;
             if (harmonyShader != null)
             {
@@ -515,7 +526,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
                 sb.End();
             }
 
-            // ── LAYER 2: Additive overlays ──
+            // ���� LAYER 2: Additive overlays ����
             OdeToJoyShaders.BeginAdditiveBatch(sb);
 
             // 6 staggered expanding rings
@@ -543,6 +554,15 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
 
             sb.End();
             OdeToJoyShaders.RestoreSpriteBatch(sb);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }

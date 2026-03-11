@@ -28,30 +28,6 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Projectiles
     /// </summary>
     public sealed class TwilightSeveranceSwing : MeleeSwingBase
     {
-        #region Theme Colors — Night Void → Deep Indigo → Cosmic Blue → Starlight Silver
-
-        private static readonly Color NightVoid = new Color(10, 10, 30);
-        private static readonly Color DeepIndigo = new Color(40, 30, 100);
-        private static readonly Color CosmicBlue = new Color(60, 80, 180);
-        private static readonly Color StarlightSilver = new Color(180, 200, 230);
-        private static readonly Color MoonPearl = new Color(220, 225, 245);
-        private static readonly Color StellarWhite = new Color(240, 245, 255);
-
-        /// <summary>
-        /// 6-stop palette: Night Void → Deep Indigo → Cosmic Blue → Starlight Silver → Moon Pearl → Stellar White.
-        /// Katana precision — thinner, sharper gradient than Executioner's heavy cosmic palette.
-        /// </summary>
-        private static readonly Color[] SeverancePalette = new Color[]
-        {
-            NightVoid,          // [0] Pianissimo — void edge
-            DeepIndigo,         // [1] Piano — dimensional violet
-            CosmicBlue,         // [2] Mezzo — cosmic blue core
-            StarlightSilver,    // [3] Forte — starlight edge
-            MoonPearl,          // [4] Fortissimo — moon pearl flash
-            StellarWhite        // [5] Sforzando — stellar white peak
-        };
-
-        #endregion
 
         #region Combo Phases — Ultra-fast katana precision
 
@@ -114,7 +90,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Projectiles
             Phase2_TwilightHorizon
         };
 
-        protected override Color[] GetPalette() => SeverancePalette;
+        protected override Color[] GetPalette() => NachtmusikPalette.TwilightSeveranceBlade;
 
         protected override CalamityStyleTrailRenderer.TrailStyle GetTrailStyle()
             => CalamityStyleTrailRenderer.TrailStyle.Cosmic;
@@ -145,7 +121,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Projectiles
         protected override Vector3 GetLightColor()
         {
             float intensity = 0.4f + ComboStep * 0.12f;
-            Color c = Color.Lerp(DeepIndigo, StarlightSilver, Progression);
+            Color c = Color.Lerp(NachtmusikPalette.DuskViolet, NachtmusikPalette.MoonlitSilver, Progression);
             return c.ToVector3() * intensity;
         }
 
@@ -178,6 +154,9 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Projectiles
 
                 Vector2 vfxTip = GetBladeTipPosition();
                 TwilightSeveranceVFX.PerpendicularSlashVFX(vfxTip);
+
+                // Palette-ramped sparkles at slash tip
+                NachtmusikVFXLibrary.SpawnGradientSparkles(vfxTip, SwordDirection, 2 + ComboStep, 0.25f + ComboStep * 0.05f, 16, 6f);
 
                 // Phase 2: additional ground impact flash
                 if (ComboStep == 2)
@@ -216,7 +195,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Projectiles
             for (int ring = 0; ring < 1 + ComboStep; ring++)
             {
                 float p = (float)ring / (1 + ComboStep);
-                Color ringColor = Color.Lerp(DeepIndigo, StarlightSilver, p);
+                Color ringColor = Color.Lerp(NachtmusikPalette.DuskViolet, NachtmusikPalette.MoonlitSilver, p);
                 CustomParticles.HaloRing(target.Center, ringColor, 0.2f + ring * 0.08f, 10 + ring * 2);
             }
 
@@ -226,7 +205,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Projectiles
             {
                 float angle = MathHelper.TwoPi * i / dustCount;
                 float dp = (float)i / dustCount;
-                Color dc = Color.Lerp(DeepIndigo, StarlightSilver, dp);
+                Color dc = Color.Lerp(NachtmusikPalette.DuskViolet, NachtmusikPalette.MoonlitSilver, dp);
                 Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 5f);
                 Dust d = Dust.NewDustPerfect(target.Center, DustID.PurpleTorch, vel, 0, dc, 1.0f);
                 d.noGravity = true;
@@ -236,12 +215,15 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Projectiles
             NachtmusikVFXLibrary.SpawnTwinklingStars(target.Center, 1 + ComboStep, 18f);
             NachtmusikVFXLibrary.SpawnMusicNotes(target.Center, 1 + ComboStep, 18f, 0.5f, 0.7f, 22);
 
-            Lighting.AddLight(target.Center, CosmicBlue.ToVector3() * 0.6f);
+            // Palette-ramped sparkle explosion on impact
+            NachtmusikVFXLibrary.SpawnGradientSparkleExplosion(target.Center, 6 + ComboStep * 3, 4f + ComboStep, 0.3f);
+
+            Lighting.AddLight(target.Center, NachtmusikPalette.TwilightSeveranceBlade[2].ToVector3() * 0.6f);
         }
 
         #endregion
 
-        #region Custom VFX — Shader-driven dimensional rift trail + precision bloom
+        #region Custom VFX — DimensionalRift shader trail + precision bloom
 
         protected override void DrawCustomVFX(SpriteBatch sb)
         {
@@ -251,11 +233,15 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Projectiles
             float phaseIntensity = 1f + ComboStep * 0.15f;
             float time = (float)Main.timeForVisualEffects * 0.03f;
 
+            // Smooth fade envelope
+            float vfxOpacity = MathHelper.Clamp((Progression - 0.08f) / 0.1f, 0f, 1f)
+                             * MathHelper.Clamp((0.92f - Progression) / 0.1f, 0f, 1f);
+
             // ═══════════════════════════════════════════════════════════════
-            //  SHADER LAYER 1: DimensionalRift — per-weapon trail overlay
-            //  Ultra-sharp dimensional tear VFX unique to Twilight Severance
+            //  LAYER 1: NK-textured Trail Overlay — Harmonic Standing Wave
+            //  Uses NKHarmonicRibbon noise to create a ribbed standing-wave
+            //  trail pattern unique to Twilight Severance. Thin and sharp.
             // ═══════════════════════════════════════════════════════════════
-            if (NachtmusikShaderManager.HasDimensionalRift || NachtmusikShaderManager.HasStarTrail)
             {
                 int trailCount = BuildTrailPositions();
                 if (trailCount > 2)
@@ -263,70 +249,113 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Projectiles
                     var trailPositions = new Vector2[trailCount];
                     Array.Copy(_trailPosBuffer, trailPositions, trailCount);
 
-                    // Glow underlayer — wide, soft dimensional shimmer
-                    float glowWidth = (10f + ComboStep * 3f) * phaseIntensity;
+                    Texture2D ribbonNoise = NachtmusikThemeTextures.NKHarmonicRibbon?.Value;
+
+                    // Thin trail — katana precision, not greatsword bulk
+                    float trailWidth = (8f + ComboStep * 2f) * phaseIntensity;
                     CalamityStyleTrailRenderer.DrawDualLayerTrail(
                         trailPositions, null, CalamityStyleTrailRenderer.TrailStyle.Cosmic,
-                        glowWidth, NachtmusikPalette.DuskViolet * 0.5f, NachtmusikPalette.MoonlitSilver * 0.4f,
-                        phaseIntensity * 0.5f, bodyOverbright: 2.5f, coreOverbright: 4f, coreWidthRatio: 0.3f);
+                        trailWidth,
+                        NachtmusikPalette.DuskViolet * 0.6f,
+                        NachtmusikPalette.MoonlitSilver * 0.5f,
+                        phaseIntensity * 0.6f,
+                        bodyOverbright: 3.0f, coreOverbright: 5f, coreWidthRatio: 0.25f,
+                        noiseTextureOverride: ribbonNoise);
                 }
             }
 
             // ═══════════════════════════════════════════════════════════════
-            //  SHADER LAYER 2: NachtmusikSerenade aura at blade tip
-            //  Harmonic wave shimmer unique to the katana's speed identity
+            //  LAYER 2: DimensionalRift Shader — Tip Shimmer
+            //  Per-weapon shader applied to glow sprites at blade tip.
+            //  Creates dimensional tear shimmer with twilight flicker.
             // ═══════════════════════════════════════════════════════════════
-            if (NachtmusikShaderManager.HasSerenade)
+            if (NachtmusikShaderManager.HasDimensionalRift)
             {
-                Texture2D auraTex = MagnumTextureRegistry.GetSoftGlow();
-                if (auraTex != null)
+                Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
+                if (glowTex != null)
                 {
-                    float auraPulse = 0.85f + 0.15f * MathF.Sin(Progression * MathHelper.Pi * 4f);
-                    float auraScale = (0.18f + ComboStep * 0.04f) * auraPulse;
-                    float auraOpacity = MathHelper.Clamp((Progression - 0.1f) / 0.1f, 0f, 1f)
-                                      * MathHelper.Clamp((0.9f - Progression) / 0.1f, 0f, 1f);
+                    NachtmusikShaderManager.BeginShaderAdditive(sb);
+                    NachtmusikShaderManager.ApplyDimensionalRift(time);
+
+                    Vector2 tipScreen = tipPos - Main.screenPosition;
+                    Vector2 glowOrigin = glowTex.Size() / 2f;
+
+                    // Elongated rift along sword direction — the dimensional tear
+                    float riftScale = 0.15f + ComboStep * 0.03f;
+                    float riftPulse = 0.88f + 0.12f * MathF.Sin(Progression * MathHelper.Pi * 6f);
+                    Color riftColor = NachtmusikPalette.DuskViolet with { A = 0 } * vfxOpacity * 0.5f;
+
+                    sb.Draw(glowTex, tipScreen, null, riftColor,
+                        SwordRotation, glowOrigin,
+                        new Vector2(riftScale * 1.6f, riftScale * 0.5f) * riftPulse,
+                        SpriteEffects.None, 0f);
+
+                    // Inner core rift — tighter, brighter
+                    Color coreRiftColor = NachtmusikPalette.MoonlitSilver with { A = 0 } * vfxOpacity * 0.35f;
+                    sb.Draw(glowTex, tipScreen, null, coreRiftColor,
+                        SwordRotation, glowOrigin,
+                        new Vector2(riftScale * 0.8f, riftScale * 0.25f) * riftPulse,
+                        SpriteEffects.None, 0f);
+
+                    // DimensionalRift glow pass on the NK radial slash texture at 50%+ progression
+                    if (Progression > 0.4f && ComboStep >= 1)
+                    {
+                        NachtmusikShaderManager.ApplyDimensionalRiftGlow(time);
+                        Texture2D slashTex = NachtmusikThemeTextures.NKRadialSlashStar?.Value;
+                        if (slashTex != null)
+                        {
+                            float slashOpacity = MathHelper.Clamp((Progression - 0.4f) / 0.15f, 0f, 1f)
+                                               * MathHelper.Clamp((0.85f - Progression) / 0.15f, 0f, 1f);
+                            float slashScale = 0.06f + ComboStep * 0.015f;
+                            Color slashColor = NachtmusikPalette.TwilightSeveranceBlade[3] with { A = 0 } * slashOpacity * 0.3f;
+                            sb.Draw(slashTex, tipScreen, null, slashColor,
+                                SwordRotation * 0.5f + time, slashTex.Size() / 2f,
+                                slashScale, SpriteEffects.None, 0f);
+                        }
+                    }
+
+                    NachtmusikShaderManager.RestoreSpriteBatch(sb);
+                }
+            }
+            else if (NachtmusikShaderManager.HasSerenade)
+            {
+                // Fallback: Serenade shader if DimensionalRift unavailable
+                Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
+                if (glowTex != null)
+                {
+                    float auraPulse = 0.88f + 0.12f * MathF.Sin(Progression * MathHelper.Pi * 6f);
+                    float auraScale = (0.12f + ComboStep * 0.03f) * auraPulse;
 
                     NachtmusikShaderManager.BeginShaderAdditive(sb);
                     NachtmusikShaderManager.ApplySerenade(time, NachtmusikPalette.DuskViolet,
                         NachtmusikPalette.MoonlitSilver, phase: Progression);
 
                     Vector2 tipScreen = tipPos - Main.screenPosition;
-                    Color auraColor = NachtmusikPalette.DuskViolet with { A = 0 } * auraOpacity * 0.6f;
-                    sb.Draw(auraTex, tipScreen, null, auraColor, SwordRotation,
-                        auraTex.Size() / 2f, auraScale, SpriteEffects.None, 0f);
+                    Color auraColor = NachtmusikPalette.DuskViolet with { A = 0 } * vfxOpacity * 0.5f;
+                    sb.Draw(glowTex, tipScreen, null, auraColor, SwordRotation,
+                        glowTex.Size() / 2f, auraScale, SpriteEffects.None, 0f);
 
                     NachtmusikShaderManager.RestoreSpriteBatch(sb);
                 }
             }
 
             // ═══════════════════════════════════════════════════════════════
-            //  PARTICLE LAYER: Precision katana dust — minimal, razor-thin
+            //  LAYER 3: Directional Speed Dust — razor-thin katana identity
+            //  Fast backward streaks, not diffuse clouds.
             // ═══════════════════════════════════════════════════════════════
-
-            // Ultra-thin indigo dust trail along blade — katana precision
-            if (Main.rand.NextBool(2))
+            if (Main.rand.NextBool(3))
             {
                 float dp = Main.rand.NextFloat();
-                Color dc = Color.Lerp(DeepIndigo, CosmicBlue, dp);
-                Vector2 dustPos = Vector2.Lerp(Owner.MountedCenter, tipPos, Main.rand.NextFloat(0.5f, 1f));
-                Dust d = Dust.NewDustPerfect(dustPos, DustID.PurpleTorch,
-                    -SwordDirection * Main.rand.NextFloat(0.5f, 2f) + Main.rand.NextVector2Circular(0.5f, 0.5f),
-                    0, dc, 0.9f * phaseIntensity);
+                Color lineColor = Color.Lerp(NachtmusikPalette.DuskViolet, NachtmusikPalette.MoonlitSilver, dp);
+                Vector2 dustPos = Vector2.Lerp(Owner.MountedCenter, tipPos, Main.rand.NextFloat(0.6f, 1f));
+                Vector2 lineVel = -SwordDirection * Main.rand.NextFloat(2f, 4f);
+                Dust d = Dust.NewDustPerfect(dustPos, DustID.PurpleTorch, lineVel, 0, lineColor, 0.7f);
                 d.noGravity = true;
-                d.fadeIn = 1f;
+                d.fadeIn = 0.8f;
             }
 
-            // Precise silver sparkle at blade tip — the katana's signature edge
-            if (Main.rand.NextBool(2))
-            {
-                Vector2 sparklePos = tipPos + Main.rand.NextVector2Circular(5f, 5f);
-                Dust star = Dust.NewDustPerfect(sparklePos, DustID.Enchanted_Gold,
-                    Main.rand.NextVector2Circular(1.5f, 1.5f), 0, StarlightSilver, 0.65f);
-                star.noGravity = true;
-            }
-
-            // Music notes — sparse, fast (katana tempo)
-            if (Main.rand.NextBool(7))
+            // Music notes — sparse, fast katana tempo
+            if (Main.rand.NextBool(8))
             {
                 Vector2 noteVel = -SwordDirection * 1.2f + new Vector2(0, -0.4f);
                 MagnumParticleHandler.SpawnParticle(new HueShiftingMusicNoteParticle(
@@ -337,62 +366,42 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Projectiles
             }
 
             // ═══════════════════════════════════════════════════════════════
-            //  BLOOM LAYER: Multi-scale bloom stack at blade tip
-            //  4-layer: outer dusk → mid cosmic → inner starlight → core white
+            //  LAYER 4: Precision Bloom — tight core + NK lens flare
+            //  No wide atmospheric padding. Sharp, focused, katana-clean.
             // ═══════════════════════════════════════════════════════════════
             {
-                float bloomOpacity = MathHelper.Clamp((Progression - 0.08f) / 0.12f, 0f, 1f)
-                                   * MathHelper.Clamp((0.92f - Progression) / 0.12f, 0f, 1f);
-                float bloomScale = 0.3f + ComboStep * 0.06f;
-                float pulse = 0.9f + 0.1f * MathF.Sin(time * 5f);
+                float bloomScale = 0.22f + ComboStep * 0.03f;
+                float pulse = 0.92f + 0.08f * MathF.Sin(time * 7f);
 
                 Texture2D bloomTex = MagnumTextureRegistry.GetSoftGlow();
-                if (bloomTex != null && bloomOpacity > 0.01f)
+                if (bloomTex != null && vfxOpacity > 0.01f)
                 {
                     Vector2 tipScreen = tipPos - Main.screenPosition;
                     Vector2 bloomOrigin = bloomTex.Size() / 2f;
 
                     SwingShaderSystem.BeginAdditive(sb);
 
-                    // Layer 1: Wide dusk atmospheric halo
-                    sb.Draw(bloomTex, tipScreen, null, NachtmusikPalette.DuskViolet with { A = 0 } * bloomOpacity * 0.2f,
-                        0f, bloomOrigin, bloomScale * 0.7f * pulse, SpriteEffects.None, 0f);
+                    // Silver core glow (tight)
+                    sb.Draw(bloomTex, tipScreen, null,
+                        NachtmusikPalette.MoonlitSilver with { A = 0 } * vfxOpacity * 0.4f,
+                        0f, bloomOrigin, bloomScale * 0.3f * pulse, SpriteEffects.None, 0f);
 
-                    // Layer 2: Mid cosmic blue glow
-                    sb.Draw(bloomTex, tipScreen, null, CosmicBlue with { A = 0 } * bloomOpacity * 0.35f,
-                        SwordRotation * 0.3f, bloomOrigin, bloomScale * 0.45f * pulse, SpriteEffects.None, 0f);
+                    // White-hot center (razor point)
+                    sb.Draw(bloomTex, tipScreen, null,
+                        Color.White with { A = 0 } * vfxOpacity * 0.25f,
+                        0f, bloomOrigin, bloomScale * 0.15f, SpriteEffects.None, 0f);
 
-                    // Layer 3: Inner starlight silver
-                    sb.Draw(bloomTex, tipScreen, null, StarlightSilver with { A = 0 } * bloomOpacity * 0.5f,
-                        0f, bloomOrigin, bloomScale * 0.7f, SpriteEffects.None, 0f);
-
-                    // Layer 4: White-hot core
-                    sb.Draw(bloomTex, tipScreen, null, StellarWhite with { A = 0 } * bloomOpacity * 0.3f,
-                        0f, bloomOrigin, bloomScale * 0.3f, SpriteEffects.None, 0f);
-
-                    // Star flare accent (rotation gives 4-pointed star look)
-                    Texture2D flareTex = MagnumTextureRegistry.GetRadialBloom();
+                    // NK Lens Flare — weapon-specific flare instead of generic radial bloom
+                    Texture2D flareTex = NachtmusikThemeTextures.NKLensFlare?.Value
+                                      ?? MagnumTextureRegistry.GetStar4Soft();
                     if (flareTex != null)
                     {
                         Vector2 flareOrigin = flareTex.Size() / 2f;
-                        float flareRot = time * 0.5f;
-                        sb.Draw(flareTex, tipScreen, null, MoonPearl with { A = 0 } * bloomOpacity * 0.3f,
-                            flareRot, flareOrigin, bloomScale * 0.06f * pulse, SpriteEffects.None, 0f);
-                        sb.Draw(flareTex, tipScreen, null, StellarWhite with { A = 0 } * bloomOpacity * 0.15f,
-                            flareRot + MathHelper.PiOver4, flareOrigin, bloomScale * 0.035f, SpriteEffects.None, 0f);
-                    }
-
-                    // Star4Soft delicate sparkle accent — twilight shimmer
-                    Texture2D starTex = MagnumTextureRegistry.GetStar4Soft();
-                    if (starTex != null)
-                    {
-                        Vector2 starOrigin = starTex.Size() / 2f;
-                        float starRot = time * 1.5f;
-                        float starScale = bloomScale * 0.12f * pulse;
-                        sb.Draw(starTex, tipScreen, null, StarlightSilver with { A = 0 } * bloomOpacity * 0.45f,
-                            starRot, starOrigin, starScale, SpriteEffects.None, 0f);
-                        sb.Draw(starTex, tipScreen, null, StellarWhite with { A = 0 } * bloomOpacity * 0.25f,
-                            -starRot * 0.6f, starOrigin, starScale * 0.6f, SpriteEffects.None, 0f);
+                        float flareRot = time * 2f;
+                        float flareScale = bloomScale * 0.08f * pulse;
+                        sb.Draw(flareTex, tipScreen, null,
+                            NachtmusikPalette.MoonlitSilver with { A = 0 } * vfxOpacity * 0.45f,
+                            flareRot, flareOrigin, flareScale, SpriteEffects.None, 0f);
                     }
 
                     SwingShaderSystem.RestoreSpriteBatch(sb);

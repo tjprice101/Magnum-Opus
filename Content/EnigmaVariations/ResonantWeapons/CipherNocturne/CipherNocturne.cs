@@ -23,10 +23,10 @@ using MagnumOpus.Content.EnigmaVariations;
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
 {
     /// <summary>
-    /// CIPHER NOCTURNE — Magic channeled beam weapon (Enigma Variations theme).
-    /// The cipher — a coded message projected as a beam that unravels reality along its path.
+    /// CIPHER NOCTURNE  EMagic channeled beam weapon (Enigma Variations theme).
+    /// The cipher  Ea coded message projected as a beam that unravels reality along its path.
     /// 
-    /// Channeled beam with tile collision, damage ramps 1x→3x over 2 seconds.
+    /// Channeled beam with tile collision, damage ramps 1xↁEx over 2 seconds.
     /// Records unravel points every 15 frames along the beam path.
     /// On release: snap-back detonations at all stored unravel points.
     /// Snap-back spawns SeekingCrystals (3 per detonation, 25% damage).
@@ -60,7 +60,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
             Item.useStyle = ItemUseStyleID.Shoot;
             Item.knockBack = 1f;
             Item.value = Item.sellPrice(gold: 20);
-            Item.rare = ModContent.RarityType<EnigmaRarity>();
+            Item.rare = ModContent.RarityType<EnigmaVariationsRarity>();
             Item.UseSound = null;
             Item.autoReuse = true;
             Item.shoot = ModContent.ProjectileType<RealityUnravelerBeam>();
@@ -128,7 +128,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
             
             Player owner = Main.player[Projectile.owner];
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             
+            try
+            {
             Vector2 beamStart = owner.Center;
             Vector2 beamEnd = currentBeamEnd;
             Vector2 beamDir = (beamEnd - beamStart).SafeNormalize(Vector2.UnitX);
@@ -138,9 +142,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
             // Pulsing factor and channel intensity
             float pulse = 1f + 0.15f * (float)Math.Sin(Main.GameUpdateCount * 0.1f);
             float channelFactor = Math.Min(channelTime / 60f, 1f);
-            float deepChannel = Math.Min(channelTime / 120f, 1f); // 0→1 over 2 seconds
+            float deepChannel = Math.Min(channelTime / 120f, 1f); // 0ↁE over 2 seconds
             
-            // Width scales with channel time — 35f base → 60f at full ramp
+            // Width scales with channel time  E35f base ↁE60f at full ramp
             float baseWidth = 35f + channelFactor * 25f;
 
             // Screen positions
@@ -148,11 +152,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
             Vector2 endScreen = beamEnd - Main.screenPosition;
             Vector2 midScreen = startScreen + (endScreen - startScreen) * 0.5f;
 
-            // ═══════════════════════════════════════════════════════
-            // LAYER 1: GPU PRIMITIVE BEAM — CipherBeamTrail shader-driven
+            // ══════════════════════════════════════════════════════╁E
+            // LAYER 1: GPU PRIMITIVE BEAM  ECipherBeamTrail shader-driven
             // Build beam point strip and render 3 passes:
             // Body (CipherBeamFlow), Glow (CipherBeamGlow), Deep channel shimmer
-            // ═══════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════╁E
             {
                 // Generate evenly spaced points along the beam
                 int pointCount = Math.Max(2, (int)(length / 16f));
@@ -182,7 +186,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
                     cipherShader.Parameters["uColor"]?.SetValue(CipherUtils.ArcaneViolet.ToVector3());
                     cipherShader.Parameters["uSecondaryColor"]?.SetValue(CipherUtils.UnravelGreen.ToVector3());
 
-                    // PASS A: Body beam (CipherBeamFlow) — primary cipher data-stream
+                    // PASS A: Body beam (CipherBeamFlow)  Eprimary cipher data-stream
                     cipherShader.Parameters["uOpacity"]?.SetValue(0.85f + channelFactor * 0.15f);
                     cipherShader.Parameters["uIntensity"]?.SetValue(1.0f + deepChannel * 0.5f);
                     cipherShader.CurrentTechnique = cipherShader.Techniques["CipherBeamFlow"];
@@ -204,7 +208,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
                         smoothing: false
                     ));
 
-                    // PASS B: Glow beam (CipherBeamGlow) — soft bloom haze around beam
+                    // PASS B: Glow beam (CipherBeamGlow)  Esoft bloom haze around beam
                     cipherShader.Parameters["uOpacity"]?.SetValue(0.3f + channelFactor * 0.2f);
                     cipherShader.Parameters["uIntensity"]?.SetValue(0.6f + deepChannel * 0.4f);
                     cipherShader.CurrentTechnique = cipherShader.Techniques["CipherBeamGlow"];
@@ -224,7 +228,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
                         smoothing: false
                     ));
 
-                    // PASS C: Deep channel shimmer — white-hot core at high channel time
+                    // PASS C: Deep channel shimmer  Ewhite-hot core at high channel time
                     if (deepChannel > 0.3f)
                     {
                         cipherShader.Parameters["uOpacity"]?.SetValue(deepChannel * 0.6f);
@@ -256,10 +260,10 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
                 }
             }
 
-            // ═══════════════════════════════════════════════════════
-            // LAYER 2: SHADER OVERLAY — Digital data-stream cipher aura
+            // ══════════════════════════════════════════════════════╁E
+            // LAYER 2: SHADER OVERLAY  EDigital data-stream cipher aura
             // CipherBeamTrail shader as screen-space overlay at beam center
-            // ═══════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════╁E
             {
                 Texture2D shBloom = MagnumTextureRegistry.GetSoftGlow();
                 if (shBloom != null)
@@ -275,11 +279,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
                 }
             }
 
-            // ═══════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════╁E
             // LAYER 3: 6-LAYER BLOOM STACK at beam endpoint
             // Abyss Black -> Deep Enigma -> Arcane Violet -> Unravel Green
             // -> Cipher Bright -> White Revelation
-            // ═══════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════╁E
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
@@ -314,7 +318,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
                     bloomBase * 0.75f, SpriteEffects.None, 0f);
             }
 
-            // EN Star Flare — dual counter-rotating spectral cipher flares at beam endpoint
+            // EN Star Flare  Edual counter-rotating spectral cipher flares at beam endpoint
             Texture2D starFlareTex = EnigmaThemeTextures.ENStarFlare?.Value;
             if (starFlareTex != null)
             {
@@ -328,7 +332,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
                     sfRotB, sfOrigin, sfScale * 0.85f, SpriteEffects.None, 0f);
             }
 
-            // EN Power Effect Ring — concentric cipher rings at beam endpoint
+            // EN Power Effect Ring  Econcentric cipher rings at beam endpoint
             Texture2D powerRingTex = EnigmaThemeTextures.ENPowerEffectRing?.Value;
             if (powerRingTex != null)
             {
@@ -341,7 +345,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
                     -prRot * 0.7f, prOrigin, prScale * 1.4f, SpriteEffects.None, 0f);
             }
 
-            // EN Enigma Eye — the cipher's gaze manifests at deep channel
+            // EN Enigma Eye  Ethe cipher's gaze manifests at deep channel
             if (deepChannel > 0.5f)
             {
                 Texture2D eyeTex = EnigmaThemeTextures.ENEnigmaEye?.Value;
@@ -355,7 +359,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
                 }
             }
 
-            // Unravel point markers — glowing cipher glyphs at stored detonation nodes
+            // Unravel point markers  Eglowing cipher glyphs at stored detonation nodes
             if (unravelPoints.Count > 0 && bloomTex != null)
             {
                 Vector2 bOrigin2 = bloomTex.Size() / 2f;
@@ -373,11 +377,24 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
 
             // Theme accents
             CipherUtils.DrawThemeAccents(sb, Projectile.Center, 0.25f, 0.6f * channelFactor);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
             
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-            
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
         
@@ -532,7 +549,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
         
         private void DealBeamDamage(Vector2 start, Vector2 end, Vector2 direction, float beamLength)
         {
-            float damageMultiplier = 1f + Math.Min(channelTime / 60f, 2f); // Ramps 1x→3x over 2 seconds (120 frames)
+            float damageMultiplier = 1f + Math.Min(channelTime / 60f, 2f); // Ramps 1xↁEx over 2 seconds (120 frames)
             
             foreach (NPC npc in Main.ActiveNPCs)
             {
@@ -599,7 +616,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
         {
             SpriteBatch sb = Main.spriteBatch;
             
-            // Progress: 1 at spawn → 0 at death
+            try
+            {
+            // Progress: 1 at spawn ↁE0 at death
             float progress = Projectile.timeLeft / 15f;
             
             Texture2D bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
@@ -611,14 +630,14 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
                 bloomTex, drawPos, origin, 0.06f + (1f - progress) * 0.079f,
                 CipherUtils.ArcaneViolet.ToVector3(), CipherUtils.CipherBright.ToVector3(),
                 opacity: progress * 0.7f, intensity: 1.5f,
-                noiseTexture: ShaderLoader.GetNoiseTexture("SparklyNoiseTexture"),
+                noiseTexture: ShaderLoader.GetNoiseTexture("SimplexNoise"),
                 techniqueName: "CipherSnapBackMain");
             
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
-            // Expanding ring (starts small, grows, fades) — cap accounts for 1.3x outer layer
+            // Expanding ring (starts small, grows, fades)  Ecap accounts for 1.3x outer layer
             float ringScale = MathHelper.Min(((1f - progress) * 2.5f + 0.3f) * 0.25f, 0.107f);
             float ringAlpha = progress * 0.8f;
             sb.Draw(bloomTex, drawPos, null, CipherUtils.ArcaneViolet * ringAlpha * 0.5f, 0f,
@@ -634,7 +653,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
             sb.Draw(bloomTex, drawPos, null, CipherUtils.CipherBright * coreAlpha * 0.6f, 0f,
                 origin, coreScale * 0.7f, SpriteEffects.None, 0f);
 
-            // Layer 5: EN Star Flare — dual-rotating starburst at snap-back center
+            // Layer 5: EN Star Flare  Edual-rotating starburst at snap-back center
             {
                 Texture2D snapFlareTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
                 Vector2 snapFlareOrigin = snapFlareTex.Size() / 2f;
@@ -645,7 +664,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
                 sb.Draw(snapFlareTex, drawPos, null, CipherUtils.WhiteRevelation * coreAlpha * 0.4f, snapFlareRotB, snapFlareOrigin, snapFlareScale * 0.8f, SpriteEffects.None, 0f);
             }
 
-            // Layer 6: EN Power Effect Ring — expanding void ring
+            // Layer 6: EN Power Effect Ring  Eexpanding void ring
             {
                 Texture2D snapRingTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Power Effect Ring", AssetRequestMode.ImmediateLoad).Value;
                 Vector2 snapRingOrigin = snapRingTex.Size() / 2f;
@@ -654,10 +673,14 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
                 sb.Draw(snapRingTex, drawPos, null, CipherUtils.ArcaneViolet * ringAlpha * 0.4f, snapRingRot, snapRingOrigin, snapRingScale, SpriteEffects.None, 0f);
                 sb.Draw(snapRingTex, drawPos, null, CipherUtils.CipherBright * ringAlpha * 0.25f, -snapRingRot * 0.6f, snapRingOrigin, snapRingScale * 1.3f, SpriteEffects.None, 0f);
             }
-            
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
             
             return false;
         }
@@ -749,7 +772,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
                     vel, col, Main.rand.NextFloat(0.4f, 1.0f), Main.rand.Next(12, 28)));
             }
             
-            // 2 VoidDistortionRingParticle — double ripple
+            // 2 VoidDistortionRingParticle  Edouble ripple
             CipherParticleHandler.Spawn(new VoidDistortionRingParticle(
                 Projectile.Center, CipherUtils.ArcaneViolet,
                 1.5f, 30));

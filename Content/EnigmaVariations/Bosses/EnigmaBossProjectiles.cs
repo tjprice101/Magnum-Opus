@@ -82,6 +82,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             Vector2 pos = Projectile.Center - Main.screenPosition;
             
             var sb = Main.spriteBatch;
+            try
+            {
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
@@ -97,6 +99,15 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 Main.DefaultSamplerState, DepthStencilState.None,
                 Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -161,6 +172,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             float alpha = 1f - Projectile.alpha / 255f;
             
             var sb = Main.spriteBatch;
+            try
+            {
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
@@ -174,6 +187,15 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 Main.DefaultSamplerState, DepthStencilState.None,
                 Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -371,6 +393,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             if (Projectile.timeLeft > 90 - DelayFrames) return false;
             
             Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad).Value;
@@ -380,7 +405,6 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             float progress = 1f - Projectile.timeLeft / (90f - DelayFrames);
             float alpha = 1f - progress;
             
-            var sb = Main.spriteBatch;
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
@@ -394,6 +418,15 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 Main.DefaultSamplerState, DepthStencilState.None,
                 Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -497,6 +530,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/TallMusicNote", AssetRequestMode.ImmediateLoad).Value;
             SpriteBatch spriteBatch = Main.spriteBatch;
             
@@ -536,6 +572,15 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -635,6 +680,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/QuarterNote", AssetRequestMode.ImmediateLoad).Value;
             SpriteBatch spriteBatch = Main.spriteBatch;
             
@@ -674,6 +722,15 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }

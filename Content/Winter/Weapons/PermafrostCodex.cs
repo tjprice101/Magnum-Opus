@@ -16,7 +16,7 @@ using static MagnumOpus.Common.Systems.ThemedParticles;
 namespace MagnumOpus.Content.Winter.Weapons
 {
     /// <summary>
-    /// Permafrost Codex - Winter-themed magic weapon (Post-Golem tier)
+    /// Permafrost Codex - Winter-themed magic weapon (Post-Mechanical Bosses tier)
     /// An ancient tome of frost magic that channels winter's might.
     /// - Frost Barrage: Fires a spread of 5 frost bolts (165 damage)
     /// - Permafrost Barrier: Creates a defensive ice shield after channeling

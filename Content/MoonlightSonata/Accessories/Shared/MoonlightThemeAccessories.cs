@@ -69,44 +69,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
 
             // -10% mana cost always
             player.manaCost -= 0.10f;
-
-            // Moonlight ambient particles
-            if (!hideVisual)
-            {
-                // Crescent moon orbiting effect
-                if (Main.rand.NextBool(10))
-                {
-                    float angle = Main.GameUpdateCount * 0.02f;
-                    Vector2 crescentPos = player.Center + angle.ToRotationVector2() * 25f;
-
-                    Color moonColor = Color.Lerp(MoonlightVFXLibrary.DarkPurple, MoonlightVFXLibrary.IceBlue,
-                        (float)Math.Sin(Main.GameUpdateCount * 0.03f) * 0.5f + 0.5f);
-
-                    CustomParticles.GenericFlare(crescentPos, moonColor * 0.7f, 0.25f, 12);
-                }
-
-                // Starlight wisps
-                if (Main.rand.NextBool(15))
-                {
-                    Vector2 pos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                    Dust wisp = Dust.NewDustPerfect(pos, DustID.Enchanted_Pink,
-                        new Vector2(0, -0.5f), 0, MoonlightVFXLibrary.MoonWhite * 0.6f, 0.8f);
-                    wisp.noGravity = true;
-                }
-
-                // Enhanced effects at night
-                if (isNight && Main.rand.NextBool(20))
-                {
-                    CustomParticles.MoonlightCrescendo(player.Center, 0.3f);
-                }
-
-                // Unified adagio ambient VFX
-                AdagioPendantVFX.AmbientAdagioAura(player.Center, (int)Main.GameUpdateCount);
-            }
-
-            // Soft lunar light
-            float intensity = isNight ? 0.4f : 0.2f;
-            Lighting.AddLight(player.Center, MoonlightVFXLibrary.Violet.ToVector3() * intensity);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -200,58 +162,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             }
 
             // Moonstruck debuff is applied via SonatasEmbracePlayer.OnHitNPC
-
-            // Enhanced lunar ambient particles
-            if (!hideVisual)
-            {
-                // Lunar crescent orbit with trailing stars
-                float baseAngle = Main.GameUpdateCount * 0.025f;
-                for (int i = 0; i < 3; i++)
-                {
-                    float angle = baseAngle + MathHelper.TwoPi * i / 3f;
-                    float radius = 30f + (float)Math.Sin(Main.GameUpdateCount * 0.05f + i) * 5f;
-                    Vector2 pos = player.Center + angle.ToRotationVector2() * radius;
-                    
-                    if (Main.rand.NextBool(12))
-                    {
-                        float hueShift = (float)i / 3f;
-                        Color orbitColor = Color.Lerp(MoonlightVFXLibrary.DarkPurple, MoonlightVFXLibrary.IceBlue, hueShift);
-                        CustomParticles.GenericFlare(pos, orbitColor * 0.6f, 0.22f, 10);
-                    }
-                }
-
-                // Melodic waves emanating
-                if (Main.rand.NextBool(25))
-                {
-                    CustomParticles.MoonlightHalo(player.Center, 0.4f);
-                }
-
-                // Starlight particles
-                if (Main.rand.NextBool(8))
-                {
-                    Vector2 pos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                    Color starColor = Color.Lerp(MoonlightVFXLibrary.MoonWhite, MoonlightVFXLibrary.IceBlue, Main.rand.NextFloat());
-                    Dust star = Dust.NewDustPerfect(pos, DustID.Enchanted_Pink,
-                        Main.rand.NextVector2Circular(1f, 1f) + new Vector2(0, -0.5f), 0, starColor * 0.7f, 0.9f);
-                    star.noGravity = true;
-                }
-
-                // Music notes at night
-                if (isNight && Main.rand.NextBool(18))
-                {
-                    Vector2 pos = player.Center + Main.rand.NextVector2Circular(25f, 25f);
-                    MoonlightVFXLibrary.SpawnMusicNotes(pos, 1, 8f, 0.6f, 0.75f, 30);
-                }
-
-                // Unified orchestral ambient VFX
-                SonatasEmbraceVFX.AmbientOrchestraAura(player.Center, (int)Main.GameUpdateCount);
-            }
-
-            // Enhanced lunar light
-            float intensity = isNight ? 0.55f : 0.3f;
-            Vector3 lightColor = Color.Lerp(MoonlightVFXLibrary.DarkPurple, MoonlightVFXLibrary.IceBlue,
-                (float)Math.Sin(Main.GameUpdateCount * 0.02f) * 0.5f + 0.5f).ToVector3();
-            Lighting.AddLight(player.Center, lightColor * intensity);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -276,7 +186,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
                 OverrideColor = MoonlightColors.Silver
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Moonstruck", "Attacks inflict 'Moonstruck' - slowed movement, -15% damage dealt")
+            tooltips.Add(new TooltipLine(Mod, "Moonstruck", "Attacks inflict 'Moonstruck' - slowed movement, -15 defense")
             {
                 OverrideColor = new Color(200, 180, 255)
             });

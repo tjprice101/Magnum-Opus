@@ -81,6 +81,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             float time = (float)Main.timeForVisualEffects * 0.015f;
 
             // Beam geometry
@@ -166,6 +168,15 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             EroicaVFXLibrary.BeginEroicaAdditive(sb);
             EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.5f);
             EroicaVFXLibrary.EndEroicaAdditive(sb);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

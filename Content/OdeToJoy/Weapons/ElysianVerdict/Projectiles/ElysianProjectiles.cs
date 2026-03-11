@@ -1,9 +1,14 @@
-﻿using MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Buffs;
+using MagnumOpus.Common;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Content.OdeToJoy;
+using MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Buffs;
+using MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Dusts;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -19,12 +24,19 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Projectiles
     {
         public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
 
+        private VertexStrip _vertexStrip;
         private const int TrailLength = 24;
         private Vector2[] _trail = new Vector2[TrailLength];
         private int _head;
         private int _timer;
 
         private bool IsParadiseLost => Projectile.ai[0] >= 1f;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -49,7 +61,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Projectiles
             if (Main.rand.NextBool(2))
             {
                 Color c = IsParadiseLost ? ElysianTextures.CrimsonEdge : ElysianTextures.BloomGold;
-                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.GoldFlame, -Projectile.velocity.X * 0.1f, -Projectile.velocity.Y * 0.1f, 100, c, 0.5f);
+                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, ModContent.DustType<ElysianJudgmentDust>(), -Projectile.velocity.X * 0.1f, -Projectile.velocity.Y * 0.1f, 100, c, 0.5f);
                 d.noGravity = true;
                 d.fadeIn = 1.1f;
             }
@@ -57,6 +69,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Projectiles
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(target.Center, 3, 3f, 0.6f);
+
             var markNPC = target.GetGlobalNPC<ElysianMarkNPC>();
             bool detonate = markNPC.AddMark(target, hit.Crit);
 
@@ -84,113 +98,44 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D glow = ElysianTextures.SoftGlow;
-            Texture2D sparkle = ElysianTextures.OJBlossomSparkle;
-            Vector2 glowOrigin = glow.Size() / 2f;
-            Vector2 sparkleOrigin = sparkle.Size() / 2f;
-            Vector2 pos = Projectile.Center - Main.screenPosition;
-
-            float fadeIn = MathHelper.Clamp(_timer / 8f, 0f, 1f);
-            float fadeOut = MathHelper.Clamp(Projectile.timeLeft / 20f, 0f, 1f);
-            float fade = fadeIn * fadeOut;
-            float pulse = 0.85f + 0.15f * (float)Math.Sin(_timer * 0.1f);
-            float time = (float)Main.timeForVisualEffects * 0.015f;
-
-            Color orbColor = ElysianTextures.GetOrbColor(IsParadiseLost, 0.3f);
-            Color coreColor = IsParadiseLost ? ElysianTextures.CrimsonEdge : ElysianTextures.JubilantLight;
-            Color edgeColor = IsParadiseLost ? new Color(180, 40, 40) : ElysianTextures.PureJoyWhite;
-            Color accentColor = IsParadiseLost ? new Color(120, 30, 30) : new Color(90, 200, 60);
-
-            sb.End();
-
-            // ── LAYER 0: TriumphantTrail shader trail (new) ──
-            Effect trailShader = OdeToJoyShaders.TriumphantTrail;
-            if (trailShader != null)
+            try
             {
-                int validCount = 0;
-                for (int i = 0; i < TrailLength; i++)
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _vertexStrip);
+
+                // Elysian accent: jubilant golden cross-flare
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
                 {
-                    int idx = (_head - 1 - i + TrailLength) % TrailLength;
-                    if (_trail[idx] != Vector2.Zero) validCount++;
-                    else break;
+                    Vector2 origin = glow.Size() / 2f;
+                    float pulse = 0.8f + 0.2f * MathF.Sin((float)Main.timeForVisualEffects * 0.1f);
+                    float scale = IsParadiseLost ? 1.3f : 1f;
+
+                    // Golden jubilant cross
+                    float rot = Projectile.velocity.ToRotation();
+                    sb.Draw(glow, drawPos, null,
+                        (OdeToJoyPalette.GoldenPollen with { A = 0 }) * 0.22f * pulse * scale,
+                        rot, origin, new Vector2(0.12f * scale, 0.025f), SpriteEffects.None, 0f);
+                    sb.Draw(glow, drawPos, null,
+                        (OdeToJoyPalette.WarmAmber with { A = 0 }) * 0.15f * pulse * scale,
+                        rot + MathHelper.PiOver2, origin, new Vector2(0.06f * scale, 0.018f), SpriteEffects.None, 0f);
                 }
-                if (validCount >= 2)
-                {
-                    Vector2[] positions = new Vector2[validCount];
-                    float[] rotations = new float[validCount];
-                    for (int i = 0; i < validCount; i++)
-                    {
-                        int idx = (_head - 1 - i + TrailLength) % TrailLength;
-                        positions[validCount - 1 - i] = _trail[idx];
-                    }
-                    for (int i = 0; i < validCount; i++)
-                    {
-                        if (i < validCount - 1)
-                            rotations[i] = (positions[i + 1] - positions[i]).ToRotation();
-                        else
-                            rotations[i] = rotations[Math.Max(0, i - 1)];
-                    }
 
-                    Terraria.Graphics.VertexStrip strip = new Terraria.Graphics.VertexStrip();
-                    strip.PrepareStrip(positions, rotations,
-                        (float p) => orbColor * fade * p * 0.5f,
-                        (float p) => MathHelper.Lerp(1f, 12f, p),
-                        -Main.screenPosition, includeBacksides: true);
-
-                    OdeToJoyShaders.SetTrailParams(trailShader, time, orbColor,
-                        accentColor, fade * 0.6f, 1.4f);
-                    trailShader.CurrentTechnique = trailShader.Techniques["TriumphantTrailTechnique"];
-                    trailShader.Parameters["WorldViewProjection"]?.SetValue(
-                        Main.GameViewMatrix.NormalizedTransformationmatrix);
-                    trailShader.CurrentTechnique.Passes["P0"].Apply();
-                    strip.DrawTrail();
-                    Main.pixelShader.CurrentTechnique.Passes[0].Apply();
-                }
-            }
-
-            // ── LAYER 1: GardenBloom shader orb body (new) ──
-            Effect bloomShader = OdeToJoyShaders.GardenBloom;
-            if (bloomShader != null)
-            {
-                OdeToJoyShaders.SetBloomParams(bloomShader, time, orbColor,
-                    accentColor, fade * 0.6f * pulse, 2.0f, 0.4f);
-                OdeToJoyShaders.BeginDeferredShaderBatch(sb, bloomShader, "GardenBloomTechnique");
-                sb.Draw(glow, pos, null, Color.White * fade * pulse, 0f, glowOrigin,
-                    0.45f, SpriteEffects.None, 0f);
                 sb.End();
             }
-
-            // ── LAYER 2: Additive bloom overlays ──
-            OdeToJoyShaders.BeginAdditiveBatch(sb);
-
-            // Bloom trail (lighter alongside shader trail)
-            for (int i = 0; i < TrailLength; i++)
+            catch { }
+            finally
             {
-                int idx = (_head - 1 - i + TrailLength) % TrailLength;
-                if (_trail[idx] == Vector2.Zero) continue;
-                float t = 1f - i / (float)TrailLength;
-                sb.Draw(glow, _trail[idx] - Main.screenPosition, null, orbColor * fade * t * 0.15f,
-                    0f, glowOrigin, 0.1f * t, SpriteEffects.None, 0f);
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
-            // Outer prismatic glow
-            sb.Draw(glow, pos, null, orbColor * fade * 0.35f * pulse, 0f, glowOrigin, 0.45f,
-                SpriteEffects.None, 0f);
-            // Sparkle body
-            sb.Draw(sparkle, pos, null, orbColor * fade * 0.6f, Projectile.rotation, sparkleOrigin,
-                0.35f, SpriteEffects.None, 0f);
-            // Inner core
-            sb.Draw(glow, pos, null, coreColor * fade * 0.45f, 0f, glowOrigin, 0.18f,
-                SpriteEffects.None, 0f);
-            // Hot center
-            sb.Draw(glow, pos, null, edgeColor * fade * 0.35f, 0f, glowOrigin, 0.06f,
-                SpriteEffects.None, 0f);
-
-            // Theme blossom sparkle accent
-            OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
-
-            sb.End();
-            OdeToJoyShaders.RestoreSpriteBatch(sb);
             return false;
         }
     }
@@ -237,16 +182,27 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Projectiles
                     Color c = IsParadiseLost
                         ? Color.Lerp(ElysianTextures.CrimsonEdge, ElysianTextures.CorruptedGold, Main.rand.NextFloat())
                         : Color.Lerp(ElysianTextures.BloomGold, ElysianTextures.PureJoyWhite, Main.rand.NextFloat());
-                    Dust d = Dust.NewDustDirect(Projectile.Center, 1, 1, DustID.GoldFlame, vel.X, vel.Y, 60, c, 1.1f);
+                    Dust d = Dust.NewDustDirect(Projectile.Center, 1, 1, ModContent.DustType<ElysianJudgmentDust>(), vel.X, vel.Y, 60, c, 1.1f);
                     d.noGravity = true;
                     d.fadeIn = 1.5f;
                 }
+            }
+
+            // Elysian Verdict detonation screen effects
+            if (_timer == 1)
+            {
+                OdeToJoyVFXLibrary.ScreenShake(10f, 20);
+                OdeToJoyVFXLibrary.ScreenFlash(OdeToJoyPalette.GoldenPollen, 1.4f);
+                OdeToJoyVFXLibrary.HarmonicPulseRing(Projectile.Center, 1.8f, 16, OdeToJoyPalette.GoldenPollen);
+                OdeToJoyVFXLibrary.SpawnTriumphantStarburst(Projectile.Center);
             }
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D glow = ElysianTextures.SoftGlow;
             Texture2D ring = ElysianTextures.OJPowerRing;
             Texture2D impact = ElysianTextures.OJHarmonicImpact;
@@ -321,6 +277,15 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Projectiles
 
             sb.End();
             OdeToJoyShaders.RestoreSpriteBatch(sb);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }

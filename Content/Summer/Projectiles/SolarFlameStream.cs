@@ -174,8 +174,20 @@ namespace MagnumOpus.Content.Summer.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Use procedural VFX system - Summer flame stream effect
             ProceduralProjectileVFX.DrawSummerProjectile(Main.spriteBatch, Projectile, 0.4f * Projectile.scale);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -278,6 +290,9 @@ namespace MagnumOpus.Content.Summer.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Draw expanding ring
             SpriteBatch spriteBatch = Main.spriteBatch;
 
@@ -301,6 +316,15 @@ namespace MagnumOpus.Content.Summer.Projectiles
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

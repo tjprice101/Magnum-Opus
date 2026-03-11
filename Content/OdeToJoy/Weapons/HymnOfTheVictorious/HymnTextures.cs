@@ -31,8 +31,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious
         // --- Library ---
         public static Texture2D SoftGlow => (_softGlow ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow", AssetRequestMode.ImmediateLoad)).Value;
         public static Texture2D NoiseFBM => (_noiseFBM ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/TileableFBMNoise", AssetRequestMode.ImmediateLoad)).Value;
-        public static Texture2D NoisePerlin => (_noisePerlin ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/TileablePerlinFlowNoise", AssetRequestMode.ImmediateLoad)).Value;
-        public static Texture2D NoiseVoronoi => (_noiseVoronoi ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/TileableVoronoiCellNoise", AssetRequestMode.ImmediateLoad)).Value;
+        public static Texture2D NoisePerlin => (_noisePerlin ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/PerlinNoise", AssetRequestMode.ImmediateLoad)).Value;
+        public static Texture2D NoiseVoronoi => (_noiseVoronoi ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/VoronoiCellNoise", AssetRequestMode.ImmediateLoad)).Value;
 
         // --- OJ Theme ---
         public static Texture2D OJGradient => (_ojGradient ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/ColorGradients/OdeToJoyGradientLUTandRAMP", AssetRequestMode.ImmediateLoad)).Value;
@@ -51,13 +51,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious
         public static readonly Color PureJoyWhite = new Color(255, 255, 240);
 
         // --- Per-Verse Color Palettes ---
-        // V1 Exordium: Pure Gold → Radiant Amber (clean, piercing)
+        // V1 Exordium: Pure Gold ↁERadiant Amber (clean, piercing)
         public static readonly Color[] ExordiumColors = { new Color(255, 200, 50), new Color(255, 170, 40), new Color(255, 250, 200) };
-        // V2 Rising: Petal Pink → Bloom Gold (warmer, spreading)
+        // V2 Rising: Petal Pink ↁEBloom Gold (warmer, spreading)
         public static readonly Color[] RisingColors = { new Color(220, 100, 120), new Color(255, 200, 50), new Color(255, 170, 40) };
-        // V3 Apex: Bloom Gold → Jubilant Light (largest, brightest)
+        // V3 Apex: Bloom Gold ↁEJubilant Light (largest, brightest)
         public static readonly Color[] ApexColors = { new Color(255, 200, 50), new Color(255, 250, 200), new Color(255, 255, 240) };
-        // V4 Gloria: Radiant Amber → Pure Joy White (fracturing, splitting)
+        // V4 Gloria: Radiant Amber ↁEPure Joy White (fracturing, splitting)
         public static readonly Color[] GloriaColors = { new Color(255, 170, 40), new Color(255, 250, 200), new Color(255, 255, 240) };
 
         /// <summary>

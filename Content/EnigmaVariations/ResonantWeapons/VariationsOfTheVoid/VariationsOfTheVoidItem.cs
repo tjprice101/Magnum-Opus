@@ -2,64 +2,88 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
-using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
-using MagnumOpus.Common.BaseClasses;
-using MagnumOpus.Common.Systems;
-using MagnumOpus.Content.EnigmaVariations.Debuffs;
+using MagnumOpus.Content.SandboxExoblade.Utilities;
 
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoid
 {
     /// <summary>
     /// VARIATIONS OF THE VOID — Enigma Melee Sword (Item).
-    /// Held-projectile swing via MeleeSwingItemBase → VariationsOfTheVoidSwing.
-    /// 
-    /// Mechanics:
-    ///   • 3-Phase combo: Horizontal Sweep → Diagonal Slash → Heavy Slam
-    ///   • Phase 1 spawns DimensionalSlash (33%), Phase 2 spawns 3 DimSlash + 3 seekers
-    ///   • Every 3rd strike spawns VoidConvergenceBeamSet tri-beam convergence
-    ///   • Beams converge over 120 frames → Void Resonance Explosion (3x, 100→300 AoE)
-    ///   • ParadoxBrand on hit (8s), seeking crystals on crit
+    /// Exoblade-architecture swing with right-click dash.
+    /// Every 3rd swing spawns VoidConvergenceBeamSet.
     /// </summary>
-    public class VariationsOfTheVoidItem : MeleeSwingItemBase
+    public class VariationsOfTheVoidItem : ModItem
     {
         public override string Texture => "MagnumOpus/Content/EnigmaVariations/ResonantWeapons/VariationsOfTheVoid/VariationsOfTheVoid";
 
-        #region Theme Colors
-
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
-        private static readonly Color EnigmaGreen = new Color(50, 220, 100);
-
-        #endregion
-
-        #region MeleeSwingItemBase Overrides
-
-        protected override int SwingProjectileType
-            => ModContent.ProjectileType<VariationsOfTheVoidSwing>();
-
-        protected override int ComboStepCount => 3;
-
-        protected override Color GetLoreColor() => EnigmaPurple;
 
         public override void SetStaticDefaults()
         {
             Item.ResearchUnlockCount = 1;
         }
 
-        protected override void SetWeaponDefaults()
+        public override void SetDefaults()
         {
+            Item.useStyle = ItemUseStyleID.Swing;
+            Item.noMelee = true;
+            Item.noUseGraphic = true;
+            Item.channel = true;
+            Item.autoReuse = true;
+            Item.DamageType = DamageClass.MeleeNoSpeed;
+            Item.width = 80;
+            Item.height = 80;
             Item.damage = 380;
             Item.knockBack = 6f;
             Item.useTime = 18;
             Item.useAnimation = 18;
             Item.value = Item.sellPrice(gold: 18);
-            Item.rare = ModContent.RarityType<EnigmaRarity>();
+            Item.rare = ModContent.RarityType<EnigmaVariationsRarity>();
+            Item.shoot = ModContent.ProjectileType<VariationsOfTheVoidSwing>();
+            Item.shootSpeed = 1f;
         }
 
-        protected override void AddWeaponTooltips(List<TooltipLine> tooltips)
+        public override bool CanShoot(Player player)
+        {
+            bool isDash = player.altFunctionUse == 2;
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile p = Main.projectile[i];
+                if (!p.active || p.owner != player.whoAmI || p.type != Item.shoot)
+                    continue;
+                if (isDash) return false;
+                if (!(p.ai[0] == 1 && p.ai[1] == 1)) return false;
+            }
+            return true;
+        }
+
+        public override void HoldItem(Player player)
+        {
+            player.ExoBlade().rightClickListener = true;
+            player.ExoBlade().mouseWorldListener = true;
+        }
+
+        public override bool AltFunctionUse(Player player) => true;
+        public override bool? CanHitNPC(Player player, NPC target) => false;
+        public override bool CanHitPvp(Player player, Player target) => false;
+
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
+            Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        {
+            float state = player.altFunctionUse == 2 ? 1f : 0f;
+            Projectile.NewProjectile(source, player.MountedCenter,
+                (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
+                type, damage, knockback, player.whoAmI, state, 0);
+
+            // Combo projectiles (VoidConvergenceBeamSet) are now spawned by VariationsOfTheVoidSwing.OnSwingStart()
+
+            return false;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "3-phase combo: Horizontal Sweep, Diagonal Slash, Heavy Slam"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Spawns dimensional slashes that tear through enemies"));
@@ -72,33 +96,5 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
                 OverrideColor = EnigmaPurple
             });
         }
-
-        #endregion
-
-        #region OnShoot — Spawn beams on finisher combo
-
-        protected override void OnShoot(Player player, int projectileIndex)
-        {
-            // On finisher combo (step 2 → just launched step 2 swing, but combo advanced to 0 already)
-            // MeleeSwingItemBase advances combo BEFORE calling OnShoot, so step just used = (current - 1 + count) % count
-            int justUsedStep = (CurrentComboStep + ComboStepCount - 1) % ComboStepCount;
-            if (justUsedStep == 2)
-            {
-                // Spawn the void beam set
-                int beamType = ModContent.ProjectileType<VoidConvergenceBeamSet>();
-                int beamCount = player.ownedProjectileCounts[beamType];
-                if (beamCount == 0)
-                {
-                    Vector2 toCursor = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX);
-                    Projectile.NewProjectile(
-                        player.GetSource_ItemUse(Item), player.Center, toCursor,
-                        beamType, Item.damage, Item.knockBack, player.whoAmI);
-
-                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.1f, Volume = 0.7f }, player.Center);
-                }
-            }
-        }
-
-        #endregion
     }
 }

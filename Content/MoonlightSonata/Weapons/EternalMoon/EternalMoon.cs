@@ -54,6 +54,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon
         {
             Item.width = 50;
             Item.height = 50;
+            Item.scale = 0.10f;
             Item.damage = 300;
             Item.useStyle = ItemUseStyleID.Swing;
             Item.useTime = BaseUseTime;

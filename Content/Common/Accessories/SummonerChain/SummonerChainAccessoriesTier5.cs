@@ -55,15 +55,6 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             {
                 conductor.TryConduct();
             }
-            
-            // Ambient VFX at night
-            if (!hideVisual && !Main.dayTime && Main.rand.NextBool(30))
-            {
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(20f, 20f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.PurpleTorch, Vector2.UnitY * -1f);
-                dust.noGravity = true;
-                dust.scale = 0.8f;
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -72,7 +63,7 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Double-tap Conduct to Scatter: spread minions to all nearby enemies"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Conducted minions deal +30% damage during focus"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Conducted minions heal you 1 HP per hit during focus"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Focused target receives 'Performed' debuff: -5 defense and 25% slow"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Focused target receives Broken Armor (halved defense) and 25% slow"));
             tooltips.Add(new TooltipLine(Mod, "Effect6", "Killing conducted target extends focus duration by 2 seconds"));
             tooltips.Add(new TooltipLine(Mod, "Effect7", "Conducting at night: +10% minion damage globally"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The moon rises, and your symphony begins'") { OverrideColor = new Color(140, 100, 200) });
@@ -123,15 +114,6 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             {
                 conductor.TryConduct();
             }
-            
-            // Ambient VFX - scarlet sparkles
-            if (!hideVisual && Main.rand.NextBool(35))
-            {
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(25f, 25f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.RedTorch, Main.rand.NextVector2Circular(1f, 1f));
-                dust.noGravity = true;
-                dust.scale = 0.7f;
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -140,7 +122,7 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Double-tap Conduct to Scatter: spread minions to all nearby enemies"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Conducted minions deal +30% damage during focus"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Conducted minions heal you 1 HP per hit during focus"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Focused target receives 'Performed' debuff: -5 defense and 25% slow"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Focused target receives Broken Armor (halved defense) and 25% slow"));
             tooltips.Add(new TooltipLine(Mod, "Effect6", "Killing conducted target extends focus duration by 2 seconds"));
             tooltips.Add(new TooltipLine(Mod, "Effect7", "Conducting at night: +10% minion damage globally"));
             tooltips.Add(new TooltipLine(Mod, "Effect8", "Conduct grants minions 1 second of invincibility"));
@@ -193,15 +175,6 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             {
                 conductor.TryConduct();
             }
-            
-            // Ambient VFX - infernal embers
-            if (!hideVisual && Main.rand.NextBool(25))
-            {
-                Vector2 dustPos = player.Center + new Vector2(Main.rand.NextFloat(-30f, 30f), 20f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.Torch, Vector2.UnitY * -2f);
-                dust.noGravity = true;
-                dust.scale = 1.0f;
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -210,7 +183,7 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Double-tap Conduct to Scatter: spread minions to all nearby enemies"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Conducted minions deal +30% damage during focus"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Conducted minions heal you 1 HP per hit during focus"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Focused target receives 'Performed' debuff: -5 defense and 25% slow"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Focused target receives Broken Armor (halved defense) and 25% slow"));
             tooltips.Add(new TooltipLine(Mod, "Effect6", "Killing conducted target extends focus duration by 2 seconds"));
             tooltips.Add(new TooltipLine(Mod, "Effect7", "Conducting at night: +10% minion damage globally"));
             tooltips.Add(new TooltipLine(Mod, "Effect8", "Conduct grants minions 1 second of invincibility"));
@@ -265,16 +238,6 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             {
                 conductor.TryConduct();
             }
-            
-            // Ambient VFX - enigmatic purple wisps
-            if (!hideVisual && Main.rand.NextBool(30))
-            {
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.PurpleTorch, Main.rand.NextVector2Circular(0.5f, 0.5f));
-                dust.noGravity = true;
-                dust.scale = 0.6f;
-                dust.fadeIn = 0.8f;
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -283,7 +246,7 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Double-tap Conduct to Scatter: spread minions to all nearby enemies"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Conducted minions deal +30% damage during focus"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Conducted minions heal you 1 HP per hit during focus"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Focused target receives 'Performed' debuff: -5 defense and 25% slow"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Focused target receives Broken Armor (halved defense) and 25% slow"));
             tooltips.Add(new TooltipLine(Mod, "Effect6", "Killing conducted target extends focus duration by 2 seconds"));
             tooltips.Add(new TooltipLine(Mod, "Effect7", "Conducting at night: +10% minion damage globally"));
             tooltips.Add(new TooltipLine(Mod, "Effect8", "Conduct grants minions 1 second of invincibility"));
@@ -340,15 +303,6 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             {
                 conductor.TryConduct();
             }
-            
-            // Ambient VFX - graceful white feathers
-            if (!hideVisual && Main.rand.NextBool(40))
-            {
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.Cloud, Vector2.UnitY * -0.5f);
-                dust.noGravity = true;
-                dust.scale = 0.9f;
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -357,7 +311,7 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Double-tap Conduct to Scatter: spread minions to all nearby enemies"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Conducted minions deal +30% damage during focus"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Conducted minions heal you 1 HP per hit during focus"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Focused target receives 'Performed' debuff: -5 defense and 25% slow"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Focused target receives Broken Armor (halved defense) and 25% slow"));
             tooltips.Add(new TooltipLine(Mod, "Effect6", "Killing conducted target extends focus duration by 2 seconds"));
             tooltips.Add(new TooltipLine(Mod, "Effect7", "Conducting at night: +10% minion damage globally"));
             tooltips.Add(new TooltipLine(Mod, "Effect8", "Conduct grants minions 1 second of invincibility"));
@@ -427,32 +381,6 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
                     conductor.ReleaseConductButton();
                 }
             }
-            
-            // Ambient VFX - cosmic glyphs and stars
-            if (!hideVisual)
-            {
-                // Orbiting cosmic particles
-                if (Main.rand.NextBool(20))
-                {
-                    float angle = Main.GameUpdateCount * 0.03f + Main.rand.NextFloat(MathHelper.TwoPi);
-                    Vector2 dustPos = player.Center + angle.ToRotationVector2() * Main.rand.NextFloat(25f, 40f);
-                    Color dustColor = Color.Lerp(FateCrimson, FatePurple, Main.rand.NextFloat());
-                    
-                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.PurpleTorch, Vector2.Zero);
-                    dust.noGravity = true;
-                    dust.scale = 0.7f;
-                    dust.color = dustColor;
-                }
-                
-                // Star twinkles
-                if (Main.rand.NextBool(50))
-                {
-                    Vector2 starPos = player.Center + Main.rand.NextVector2Circular(45f, 45f);
-                    Dust star = Dust.NewDustPerfect(starPos, DustID.MagicMirror, Vector2.Zero);
-                    star.noGravity = true;
-                    star.scale = 0.5f;
-                }
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -462,7 +390,7 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             tooltips.Add(new TooltipLine(Mod, "Effect3", "5 second cooldown"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Conducted minions deal +30% damage during focus"));
             tooltips.Add(new TooltipLine(Mod, "Effect5", "Conducted minions heal you 1 HP per hit during focus"));
-            tooltips.Add(new TooltipLine(Mod, "Effect6", "Focused target receives 'Performed' debuff: -5 defense and 25% slow"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Focused target receives Broken Armor (halved defense) and 25% slow"));
             tooltips.Add(new TooltipLine(Mod, "Effect7", "Killing conducted target extends focus duration by 2 seconds"));
             tooltips.Add(new TooltipLine(Mod, "Effect8", "Conducting at night: +10% minion damage globally"));
             tooltips.Add(new TooltipLine(Mod, "Effect9", "Conduct grants minions 1 second of invincibility"));

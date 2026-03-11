@@ -12,26 +12,26 @@ namespace MagnumOpus.Content.Nachtmusik
     /// Wraps ShaderLoader for easy Apply* calls from weapon VFX files.
     ///
     /// Core shaders (shared):
-    ///   NachtmusikStarTrail  — Twinkling star point field trail (melee base)
-    ///   NachtmusikSerenade   — Harmonic wave aura/bloom (all weapons)
+    ///   NachtmusikStarTrail   ETwinkling star point field trail (melee base)
+    ///   NachtmusikSerenade    EHarmonic wave aura/bloom (all weapons)
     ///
     /// Per-weapon shaders (unique):
-    ///   ExecutionDecree       — NocturnalExecutioner: void-rip slash
-    ///   CrescendoRise         — MidnightsCrescendo: intensity-building trail
-    ///   DimensionalRift       — TwilightSeverance: dimensional tear slash
-    ///   StarChainBeam         — ConstellationPiercer: precision bullet trail
-    ///   NebulaScatter         — NebulasWhisper: gaseous nebula cloud trail
-    ///   StarHomingTrail       — SerenadeOfDistantStars: arcing star ribbon
-    ///   ConstellationWeave    — StarweaversGrimoire: star map charge orb
-    ///   CosmicRequiem         — RequiemOfTheCosmos: channeled nebula beam
-    ///   ChorusSummonAura      — CelestialChorusBaton: musical note aura
-    ///   OvertureAura          — GalacticOverture: orchestral wave aura
-    ///   StellarConductorAura  — ConductorOfConstellations: constellation ring
+    ///   ExecutionDecree        ENocturnalExecutioner: void-rip slash
+    ///   CrescendoRise          EMidnightsCrescendo: intensity-building trail
+    ///   DimensionalRift        ETwilightSeverance: dimensional tear slash
+    ///   StarChainBeam          EConstellationPiercer: precision bullet trail
+    ///   NebulaScatter          ENebulasWhisper: gaseous nebula cloud trail
+    ///   StarHomingTrail        ESerenadeOfDistantStars: arcing star ribbon
+    ///   ConstellationWeave     EStarweaversGrimoire: star map charge orb
+    ///   CosmicRequiem          ERequiemOfTheCosmos: channeled nebula beam
+    ///   ChorusSummonAura       ECelestialChorusBaton: musical note aura
+    ///   OvertureAura           EGalacticOverture: orchestral wave aura
+    ///   StellarConductorAura   EConductorOfConstellations: constellation ring
     /// </summary>
     public static class NachtmusikShaderManager
     {
         // =====================================================================
-        //  Shader Availability — Per-Weapon
+        //  Shader Availability  EPer-Weapon
         // =====================================================================
 
         public static bool HasStarTrail => ShaderLoader.HasShader(ShaderLoader.NachtmusikStarTrailShader);
@@ -64,7 +64,7 @@ namespace MagnumOpus.Content.Nachtmusik
         public static void BindStarfieldNoise(GraphicsDevice device)
         {
             Texture2D noise = ShaderLoader.GetNoiseTexture("StarFieldScatter")
-                           ?? ShaderLoader.GetNoiseTexture("SparklyNoiseTexture")
+                           ?? ShaderLoader.GetNoiseTexture("SimplexNoise")
                            ?? ShaderLoader.GetNoiseTexture("PerlinNoise");
             if (noise != null)
             {
@@ -131,7 +131,7 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         // =====================================================================
-        //  CORE: NachtmusikStarTrail — shared twinkling star trail
+        //  CORE: NachtmusikStarTrail  Eshared twinkling star trail
         // =====================================================================
 
         /// <summary>Apply the core NachtmusikStarTrail shader (technique: NachtmusikStarFlow).</summary>
@@ -164,7 +164,7 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         // =====================================================================
-        //  CORE: NachtmusikSerenade — shared aura/bloom
+        //  CORE: NachtmusikSerenade  Eshared aura/bloom
         // =====================================================================
 
         /// <summary>Apply the NachtmusikSerenade aura shader.</summary>
@@ -183,7 +183,7 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         // =====================================================================
-        //  WEAPON: NocturnalExecutioner — ExecutionDecree
+        //  WEAPON: NocturnalExecutioner  EExecutionDecree
         // =====================================================================
 
         /// <summary>Heavy void-rip slash trail for NocturnalExecutioner.</summary>
@@ -215,7 +215,7 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         // =====================================================================
-        //  WEAPON: MidnightsCrescendo — CrescendoRise
+        //  WEAPON: MidnightsCrescendo  ECrescendoRise
         // =====================================================================
 
         /// <summary>Intensity-building trail for MidnightsCrescendo. crescendoLevel 0..1.</summary>
@@ -251,7 +251,7 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         // =====================================================================
-        //  WEAPON: TwilightSeverance — DimensionalRift
+        //  WEAPON: TwilightSeverance  EDimensionalRift
         // =====================================================================
 
         /// <summary>Ultra-sharp dimensional tear trail for TwilightSeverance.</summary>
@@ -283,7 +283,7 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         // =====================================================================
-        //  WEAPON: ConstellationPiercer — StarChainBeam
+        //  WEAPON: ConstellationPiercer  EStarChainBeam
         // =====================================================================
 
         /// <summary>Precision constellation bullet trail for ConstellationPiercer.</summary>
@@ -315,7 +315,7 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         // =====================================================================
-        //  WEAPON: NebulasWhisper — NebulaScatter
+        //  WEAPON: NebulasWhisper  ENebulaScatter
         // =====================================================================
 
         /// <summary>Gaseous nebula cloud trail for NebulasWhisper.</summary>
@@ -347,7 +347,7 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         // =====================================================================
-        //  WEAPON: SerenadeOfDistantStars — StarHomingTrail
+        //  WEAPON: SerenadeOfDistantStars  EStarHomingTrail
         // =====================================================================
 
         /// <summary>Graceful arcing star ribbon trail for SerenadeOfDistantStars.</summary>
@@ -379,7 +379,7 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         // =====================================================================
-        //  WEAPON: StarweaversGrimoire — ConstellationWeave
+        //  WEAPON: StarweaversGrimoire  EConstellationWeave
         // =====================================================================
 
         /// <summary>Constellation star map orb for StarweaversGrimoire. chargeLevel 0..1.</summary>
@@ -413,7 +413,7 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         // =====================================================================
-        //  WEAPON: RequiemOfTheCosmos — CosmicRequiem
+        //  WEAPON: RequiemOfTheCosmos  ECosmicRequiem
         // =====================================================================
 
         /// <summary>Channeled nebula-swirl beam for RequiemOfTheCosmos. phase 0..1 channel intensity.</summary>
@@ -448,7 +448,7 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         // =====================================================================
-        //  WEAPON: CelestialChorusBaton — ChorusSummonAura
+        //  WEAPON: CelestialChorusBaton  EChorusSummonAura
         // =====================================================================
 
         /// <summary>Musical note constellation aura for CelestialChorusBaton minion.</summary>
@@ -468,7 +468,7 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         // =====================================================================
-        //  WEAPON: GalacticOverture — OvertureAura
+        //  WEAPON: GalacticOverture  EOvertureAura
         // =====================================================================
 
         /// <summary>Orchestral wave aura for GalacticOverture minion.</summary>
@@ -488,7 +488,7 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         // =====================================================================
-        //  WEAPON: ConductorOfConstellations — StellarConductorAura
+        //  WEAPON: ConductorOfConstellations  EStellarConductorAura
         // =====================================================================
 
         /// <summary>Orbiting constellation ring aura for ConductorOfConstellations minion.</summary>

@@ -39,12 +39,6 @@ namespace MagnumOpus.Content.Fate.Accessories
             
             // +10% minion knockback
             player.GetKnockback(DamageClass.Summon) += 0.10f;
-            
-            // Cosmic orrery ambient VFX
-            if (!hideVisual)
-            {
-                FateAccessoryVFX.OrreryOrbitVFX(player);
-            }
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
@@ -125,15 +119,6 @@ namespace MagnumOpus.Content.Fate.Accessories
                 EmpowerRandomMinion();
             }
             
-            // Show empowerment VFX on empowered minion
-            if (empoweredMinionIndex >= 0 && empowermentTimer < EmpowermentDuration)
-            {
-                Projectile minion = Main.projectile[empoweredMinionIndex];
-                if (minion.active && minion.owner == Player.whoAmI && minion.minion)
-                {
-                    FateAccessoryVFX.OrreryEmpoweredMinionVFX(minion.Center);
-                }
-            }
         }
 
         private void EmpowerRandomMinion()

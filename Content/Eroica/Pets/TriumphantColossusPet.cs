@@ -204,6 +204,9 @@ namespace MagnumOpus.Content.Eroica.Pets
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D texture = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
 
             // Calculate frame from 6x6 grid
@@ -238,10 +241,18 @@ namespace MagnumOpus.Content.Eroica.Pets
             Main.EntitySpriteDraw(texture, drawPos, sourceRect, lightColor, Projectile.rotation,
                 origin, drawScale, effects, 0);
             // Eroica theme accent
-            SpriteBatch sb = Main.spriteBatch;
             EroicaVFXLibrary.BeginEroicaAdditive(sb);
             EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.4f);
             EroicaVFXLibrary.EndEroicaAdditive(sb);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }

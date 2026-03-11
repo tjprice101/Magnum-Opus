@@ -53,25 +53,6 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
 
             // +15% ammo conservation - POST-FATE ULTIMATE
             player.ammoCost75 = true;
-
-            // Ambient starlight particles
-            if (!hideVisual && Main.rand.NextBool(10))
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(28f, 28f);
-                int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.GoldFlame;
-                Dust dust = Dust.NewDustPerfect(player.Center + offset, dustType,
-                    new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -0.8f), 120, default, 0.9f);
-                dust.noGravity = true;
-            }
-
-            // Floating nocturnal melody notes
-            if (!hideVisual && Main.rand.NextBool(12))
-            {
-                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(32f, 32f);
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.2f, 0.2f), -Main.rand.NextFloat(0.3f, 0.5f));
-                Color noteColor = Color.Lerp(new Color(100, 60, 180), new Color(80, 100, 200), Main.rand.NextFloat()) * 0.55f;
-                NachtmusikVFXLibrary.SpawnMusicNotes(notePos, 1, 8f, 0.7f, 0.85f, 35);
-            }
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)

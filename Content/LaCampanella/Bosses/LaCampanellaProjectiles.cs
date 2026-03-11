@@ -88,6 +88,9 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Draw glowing trail
             Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = new Vector2(texture.Width / 2, texture.Height / 2);
@@ -118,6 +121,15 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             Main.spriteBatch.End();
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
@@ -220,6 +232,9 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = new Vector2(texture.Width / 2, texture.Height / 2);
             
@@ -247,6 +262,15 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 Color.Lerp(lightColor, ThemedParticles.CampanellaGold, 0.3f), Projectile.rotation, origin, 
                 Projectile.scale, SpriteEffects.None, 0);
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -333,6 +357,9 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Draw as flame column using particles only - no rectangles
             float fade = Projectile.timeLeft > 30 ? 1f : Projectile.timeLeft / 30f;
             
@@ -359,6 +386,15 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             Main.spriteBatch.End();
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -471,6 +507,9 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Draw as large flame column using glow textures
             float baseHeight = 80f * Projectile.scale;
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare", AssetRequestMode.ImmediateLoad).Value;
@@ -506,6 +545,15 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             Main.spriteBatch.End();
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -623,6 +671,9 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             if (currentLength <= 0) return false;
             
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare", AssetRequestMode.ImmediateLoad).Value;
@@ -671,6 +722,15 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             Main.spriteBatch.End();
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }

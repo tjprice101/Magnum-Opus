@@ -50,37 +50,6 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
 
             // Minions inflict a stacking debuff
             // (handled in ModPlayer)
-
-            // Ambient conductor particles
-            if (!hideVisual && Main.rand.NextBool(10))
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
-                int dustType = DustID.PurpleTorch;
-                Dust dust = Dust.NewDustPerfect(player.Center + offset, dustType,
-                    new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -0.8f), 120, default, 0.9f);
-                dust.noGravity = true;
-            }
-
-            // Orbiting constellation points
-            if (!hideVisual && Main.rand.NextBool(20))
-            {
-                float orbitAngle = Main.GameUpdateCount * 0.025f;
-                for (int i = 0; i < 3; i++)
-                {
-                    float angle = orbitAngle + MathHelper.TwoPi * i / 3f;
-                    Vector2 starPos = player.Center + angle.ToRotationVector2() * 35f;
-                    CustomParticles.GenericFlare(starPos, Gold * 0.5f, 0.18f, 10);
-                }
-            }
-
-            // Floating nocturnal melody notes
-            if (!hideVisual && Main.rand.NextBool(10))
-            {
-                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(32f, 32f);
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.2f, 0.2f), -Main.rand.NextFloat(0.3f, 0.5f)); // Rising like night whispers
-                Color noteColor = Color.Lerp(new Color(100, 60, 180), new Color(80, 100, 200), Main.rand.NextFloat()) * 0.55f;
-                NachtmusikVFXLibrary.SpawnMusicNotes(notePos, 1, 8f, 0.7f, 0.85f, 35);
-            }
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
@@ -155,28 +124,6 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
             }
 
             strikeTimer++;
-
-            // Visual buildup as strike approaches
-            if (strikeTimer > StrikeCooldown - 40 && strikeTimer % 8 == 0)
-            {
-                float progress = (strikeTimer - (StrikeCooldown - 40)) / 40f;
-                
-                // Particles around each minion
-                foreach (Projectile proj in Main.projectile)
-                {
-                    if (!proj.active || proj.owner != Player.whoAmI || !proj.minion) continue;
-
-                    int particleCount = (int)(2 + progress * 3);
-                    for (int i = 0; i < particleCount; i++)
-                    {
-                        float angle = MathHelper.TwoPi * i / particleCount + Main.GameUpdateCount * 0.08f;
-                        float radius = 25f * (1f - progress * 0.3f);
-                        Vector2 pos = proj.Center + angle.ToRotationVector2() * radius;
-                        Color color = Color.Lerp(Violet, Gold, progress);
-                        CustomParticles.GenericFlare(pos, color, 0.2f + progress * 0.1f, 8);
-                    }
-                }
-            }
 
             if (strikeTimer >= StrikeCooldown)
             {

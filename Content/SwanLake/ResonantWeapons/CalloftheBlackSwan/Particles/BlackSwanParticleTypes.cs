@@ -113,7 +113,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Particl
         public override void Draw(SpriteBatch spriteBatch)
         {
             if (_bloomTexture == null || _bloomTexture.IsDisposed)
-                _bloomTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+                _bloomTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow64", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
 
             if (_bloomTexture == null) return;
 
@@ -127,17 +127,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Particl
 
             Vector2 squishScale = new Vector2(Scale * squish, Scale / squish);
 
-            // Outer glow (SoftGlow=512px, cap to 300px)
-            Vector2 outerScale = squishScale * 2f;
-            outerScale = new Vector2(MathHelper.Min(outerScale.X, 0.586f), MathHelper.Min(outerScale.Y, 0.586f));
-            Color glowColor = DrawColor * _opacity * 0.4f;
-            spriteBatch.Draw(_bloomTexture, screenPos, null, glowColor, rot, origin, outerScale, SpriteEffects.None, 0f);
-
-            // Core
-            Vector2 coreScale = squishScale * 0.5f;
-            coreScale = new Vector2(MathHelper.Min(coreScale.X, 0.586f), MathHelper.Min(coreScale.Y, 0.586f));
-            Color coreColor = Color.White * _opacity * 0.8f;
-            spriteBatch.Draw(_bloomTexture, screenPos, null, coreColor, rot, origin, coreScale, SpriteEffects.None, 0f);
+            // Core spark (SoftGlow64 = 64px, no outer bloom)
+            Color coreColor = Color.Lerp(DrawColor, Color.White, 0.5f) * _opacity * 0.8f;
+            spriteBatch.Draw(_bloomTexture, screenPos, null, coreColor, rot, origin, squishScale, SpriteEffects.None, 0f);
         }
     }
 
@@ -192,7 +184,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Particl
         public override void Draw(SpriteBatch spriteBatch)
         {
             if (_texture == null || _texture.IsDisposed)
-                _texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+                _texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow64", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
 
             if (_texture == null) return;
 

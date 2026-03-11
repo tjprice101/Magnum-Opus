@@ -108,6 +108,9 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.StaffOfFinalJudgement.Utilities
         /// </summary>
         public static void DoDetonation(Vector2 position, bool isChain = false)
         {
+            // === Color-ramped sparkle explosion VFX ===
+            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(position, 12, 7f, 0.4f);
+
             if (Main.dedServ) return;
 
             int sparkCount = isChain ? 50 : 40;

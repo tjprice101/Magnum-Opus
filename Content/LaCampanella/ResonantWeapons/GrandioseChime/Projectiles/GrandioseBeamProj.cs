@@ -229,15 +229,15 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Outer ambient glow — wide soft spread
+            // Outer ambient glow — reduced from 4.5× to 2×
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
-                GrandioseChimeUtils.BeamPalette[0] * (0.12f * pulse), 0f, tex.Size() / 2f,
-                coreScale * 4.5f, SpriteEffects.None, 0f);
+                GrandioseChimeUtils.BeamPalette[0] * (0.08f * pulse), 0f, tex.Size() / 2f,
+                coreScale * 2.0f, SpriteEffects.None, 0f);
 
-            // Mid glow layer — warm orange haze
+            // Mid glow layer — warm orange haze, reduced from 2.5× to 1.5×
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
-                GrandioseChimeUtils.BeamPalette[1] * (0.25f * pulse), 0f, tex.Size() / 2f,
-                coreScale * 2.5f, SpriteEffects.None, 0f);
+                GrandioseChimeUtils.BeamPalette[1] * (0.18f * pulse), 0f, tex.Size() / 2f,
+                coreScale * 1.5f, SpriteEffects.None, 0f);
 
             // Bright gold core
             sb.Draw(tex, Projectile.Center - Main.screenPosition, null,

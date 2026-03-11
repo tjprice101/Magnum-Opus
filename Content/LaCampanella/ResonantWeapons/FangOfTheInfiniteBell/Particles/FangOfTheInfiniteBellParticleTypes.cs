@@ -97,7 +97,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
         public override void Update()
         {
             Time++;
-            Scale = _baseScale * (1f + LifetimeCompletion * 0.5f);
+            Scale = _baseScale * (1f + LifetimeCompletion * 0.3f);
         }
 
         public override void Draw(SpriteBatch sb)
@@ -109,19 +109,19 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
             float alpha = 1f - LifetimeCompletion; alpha *= alpha;
             Vector2 screenPos = Position - Main.screenPosition;
 
-            // 1024px SoftGlow → max 300px; cap proportionally
-            float arcaneCap = Scale * 1.5f > 0.293f ? 0.293f / (Scale * 1.5f) : 1f;
+            // 1024px SoftGlow → max 200px; tighter cap for less screen fill
+            float arcaneCap = Scale * 1.0f > 0.195f ? 0.195f / (Scale * 1.0f) : 1f;
 
             Color outer = _empowered
-                ? FangOfTheInfiniteBellUtils.Additive(new Color(200, 150, 0), alpha * 0.4f)
-                : FangOfTheInfiniteBellUtils.Additive(new Color(180, 50, 20), alpha * 0.4f);
-            sb.Draw(tex, screenPos, null, outer, 0f, origin, Scale * 1.5f * arcaneCap, SpriteEffects.None, 0f);
+                ? FangOfTheInfiniteBellUtils.Additive(new Color(200, 150, 0), alpha * 0.25f)
+                : FangOfTheInfiniteBellUtils.Additive(new Color(180, 50, 20), alpha * 0.25f);
+            sb.Draw(tex, screenPos, null, outer, 0f, origin, Scale * 1.0f * arcaneCap, SpriteEffects.None, 0f);
 
-            Color mid = FangOfTheInfiniteBellUtils.Additive(DrawColor, alpha * 0.6f);
-            sb.Draw(tex, screenPos, null, mid, 0f, origin, Scale * arcaneCap, SpriteEffects.None, 0f);
+            Color mid = FangOfTheInfiniteBellUtils.Additive(DrawColor, alpha * 0.4f);
+            sb.Draw(tex, screenPos, null, mid, 0f, origin, Scale * 0.6f * arcaneCap, SpriteEffects.None, 0f);
 
-            Color core = FangOfTheInfiniteBellUtils.Additive(new Color(255, 245, 210), alpha * 0.8f);
-            sb.Draw(tex, screenPos, null, core, 0f, origin, Scale * 0.35f * arcaneCap, SpriteEffects.None, 0f);
+            Color core = FangOfTheInfiniteBellUtils.Additive(new Color(255, 245, 210), alpha * 0.5f);
+            sb.Draw(tex, screenPos, null, core, 0f, origin, Scale * 0.2f * arcaneCap, SpriteEffects.None, 0f);
         }
     }
 

@@ -143,39 +143,22 @@ Mods: {
 
 			MoonlitEngine: {
 				DisplayName: Moonlit Engine
-				Tooltip:
-					'''
-					Lunar-powered yoyo that leaves silvery afterimages
-					'The engine hums with moonlit resonance'
-					'''
+				Tooltip: ""
 			}
 
 			MoonlitGyre: {
 				DisplayName: Moonlit Gyre
-				Tooltip:
-					'''
-					Spins with ethereal lunar energy
-					'Caught in the moon's eternal orbit'
-					'''
+				Tooltip: ""
 			}
 
 			FractalOfMoonlight: {
 				DisplayName: Fractal of Moonlight
-				Tooltip:
-					'''
-					Fires fractal projectiles infused with lunar sorrow
-					Projectiles split into silvery shards on impact
-					'Each fragment carries the moon's quiet melancholy'
-					'''
+				Tooltip: ""
 			}
 
 			EmberOfTheMoon: {
 				DisplayName: Ember of the Moon
-				Tooltip:
-					'''
-					'A cold flame born from lunar light'
-					Used to craft Moonlight Sonata equipment
-					'''
+				Tooltip: ""
 			}
 
 			ShardsOfMoonlitTempo: {
@@ -293,28 +276,12 @@ Mods: {
 
 			DualFeatherQuiver: {
 				DisplayName: Dual Feather Quiver
-				Tooltip:
-					'''
-					Ranger Accessory - Works with arrows AND bullets
-					Toggle modes with right-click
-					WHITE MODE (Grace of Odette): +10% ranged crit, every 5th shot spawns a homing swan feather
-					          Enemies killed have 25% chance to drop healing feathers (+5 HP on pickup)
-					BLACK MODE (Shadow of Odile): +18% ranged damage, +2 pierce, applies Flame of the Swan
-					'Each feather remembers the flight - one toward the light, one into darkness'
-					'''
+				Tooltip: ""
 			}
 
 			PendantOfTheTwoSwans: {
 				DisplayName: Pendant of the Two Swans
-				Tooltip:
-					'''
-					Melee Accessory - Toggle modes with right-click
-					WHITE MODE: A monochromatic halo surrounds you, granting 3 shield charges
-					          Each charge blocks 1 lethal hit (recharges after 15 seconds)
-					          Halo brightness indicates remaining charges
-					BLACK MODE: 20% chance on ANY melee crit to trigger rainbow explosions with Flame of the Swan
-					'Two souls entwined in eternal dance - light and shadow, love and deception'
-					'''
+				Tooltip: ""
 			}
 
 			TheSwansAxe: {
@@ -694,11 +661,7 @@ Mods: {
 
 			RiddlemastersFlight: {
 				DisplayName: Riddlemasters Flight
-				Tooltip:
-					'''
-					Wings shrouded in arcane mystery
-					'Fly through riddles, soar through secrets'
-					'''
+				Tooltip: ""
 			}
 
 			EnigmasPickaxe: {
@@ -730,31 +693,17 @@ Mods: {
 
 			SymphonyOfTheUniverse: {
 				DisplayName: Symphony Of The Universe
-				Tooltip:
-					'''
-					Channels the cosmic orchestra itself
-					Each note rewrites reality around the target
-					'All of existence is but one grand composition'
-					'''
+				Tooltip: ""
 			}
 
 			WingsOfTheBellbornDawn: {
 				DisplayName: Wings Of The Bellborn Dawn
-				Tooltip:
-					'''
-					Blazing wings forged from infernal resonance
-					'Rise with the dawn, chime with the bell'
-					'''
+				Tooltip: ""
 			}
 
 			IridescentDawn: {
 				DisplayName: Iridescent Dawn
-				Tooltip:
-					'''
-					Prismatic light bursts forth with each strike
-					The beauty of dawn captured in blade form
-					'Where light meets darkness, rainbows are born'
-					'''
+				Tooltip: ""
 			}
 
 			Debug2Ray: {
@@ -956,46 +905,22 @@ Mods: {
 
 			FuneralMarchInsignia: {
 				DisplayName: Funeral March Insignia
-				Tooltip:
-					'''
-					Heroic Sacrifice:
-					When below 25% health, gain +25% damage
-					Dodge the next fatal hit once per minute
-					'Even in death, heroes find glory'
-					'''
+				Tooltip: ""
 			}
 
 			PyreOfTheFallenHero: {
 				DisplayName: Pyre Of The Fallen Hero
-				Tooltip:
-					'''
-					The Fallen Rise:
-					Nearby fallen enemies fuel your heroic flames
-					Kills grant stacking fire damage bonus
-					'From the ashes of the fallen, the hero is reborn'
-					'''
+				Tooltip: ""
 			}
 
 			SakurasBurningWill: {
 				DisplayName: Sakuras Burning Will
-				Tooltip:
-					'''
-					Blossoming Fury:
-					Critical strikes scatter burning sakura petals
-					Petals deal area damage to nearby enemies
-					'Beauty and destruction bloom as one'
-					'''
+				Tooltip: ""
 			}
 
 			SymphonyOfScarletFlames: {
 				DisplayName: Symphony Of Scarlet Flames
-				Tooltip:
-					'''
-					The Heroic Symphony:
-					All attacks ignite enemies with scarlet fire
-					+15% fire damage against burning foes
-					'The flames of heroism burn brightest in battle'
-					'''
+				Tooltip: ""
 			}
 
 			EroicaTreasureBag: {
@@ -1116,11 +1041,7 @@ Mods: {
 
 			ReincarnatedValor: {
 				DisplayName: Reincarnated Valor
-				Tooltip:
-					'''
-					Wings reborn from the flames of heroism
-					'Death cannot contain true valor'
-					'''
+				Tooltip: ""
 			}
 
 			HarmonicCoreOfFate: {
@@ -1627,47 +1548,22 @@ Mods: {
 
 			StarweaversSignet: {
 				DisplayName: Starweaver's Signet
-				Tooltip:
-					'''
-					22% increased melee damage
-					15% increased melee speed
-					10% increased melee critical strike chance
-					Critical strikes call down starfall
-					'The night sky bends to the wearer's blade'
-					'''
+				Tooltip: ""
 			}
 
 			MoonlitSerenadePendant: {
 				DisplayName: Moonlit Serenade Pendant
-				Tooltip:
-					'''
-					20% increased magic damage
-					Greatly increased mana regeneration
-					Releases harmonic waves when casting spells
-					'The moon's song flows through your magic'
-					'''
+				Tooltip: ""
 			}
 
 			RadianceOfTheNightQueen: {
 				DisplayName: Radiance of the Night Queen
-				Tooltip:
-					'''
-					15% increased damage for all classes
-					8% increased critical strike chance
-					Every 10 seconds, releases a celestial nova
-					'Her majesty's blessing illuminates the darkness'
-					'''
+				Tooltip: ""
 			}
 
 			NocturnesEmbrace: {
 				DisplayName: Nocturne's Embrace
-				Tooltip:
-					'''
-					25% increased summon damage
-					Increases your max number of minions by 2
-					Minions periodically trigger constellation strikes
-					'The night itself fights alongside you'
-					'''
+				Tooltip: ""
 			}
 
 			ScoreOfNachtmusik: {
@@ -1694,8 +1590,8 @@ Mods: {
 					'''
 			}
 
-			FatesStellarFurnace: {
-				DisplayName: Fate's Stellar Furnace
+			FatesCosmicFurnace: {
+				DisplayName: Fate's Cosmic Furnace
 				Tooltip:
 					'''
 					Used to smelt post-Fate materials
@@ -1714,7 +1610,7 @@ Mods: {
 			FateResonanceOreTile.MapEntry: Fate Resonance Ore
 			NachtmusikResonanceOreTile.MapEntry: Nachtmusik Resonance Ore
 			FatesCosmicAnvilTile.MapEntry: Fate's Cosmic Anvil
-			FatesStellarFurnaceTile.MapEntry: Fate's Stellar Furnace
+			FatesCosmicFurnaceTile.MapEntry: Fate's Cosmic Furnace
 		}
 
 		Buffs: {
@@ -6202,8 +6098,8 @@ Items: {
 		Tooltip: ""
 	}
 
-	FatesStellarFurnace: {
-		DisplayName: Fates Stellar Furnace
+	FatesCosmicFurnace: {
+		DisplayName: Fates Cosmic Furnace
 		Tooltip: ""
 	}
 
@@ -6688,7 +6584,12 @@ Items: {
 	}
 
 	RemnantOfDiesIraesWrath: {
-		DisplayName: Remnant Of Dies Iraes Wrath
+		DisplayName: Remnant Of Dies Irae's Wrath
+		Tooltip: ""
+	}
+
+	ShardOfDiesIraesTempo: {
+		DisplayName: Shard Of Dies Irae's Tempo
 		Tooltip: ""
 	}
 
@@ -7646,6 +7547,16 @@ Items: {
 		Tooltip: ""
 		DisplayName: Ode To Joy Treasure Bag
 	}
+
+	FoundationAnimeStyleAttackAnimation: {
+		DisplayName: Foundation Anime Style Attack Animation
+		Tooltip: ""
+	}
+
+	FoundationIncisorOrbs: {
+		Tooltip: ""
+		DisplayName: Foundation Incisor Orbs
+	}
 }
 
 NPCs: {
@@ -8568,4 +8479,9 @@ Projectiles: {
 	CrystallineThornProjectile.DisplayName: Crystalline Thorn Projectile
 	ThornDetonationProjectile.DisplayName: Thorn Detonation Projectile
 	FuneralPrayerChanneledBeam.DisplayName: Funeral Prayer Channeled Beam
+	ThemeSparkleExplosion.DisplayName: Theme Sparkle Explosion
+	SakuraPetalProj.DisplayName: Sakura Petal Proj
+	AnimeSwingProjectile.DisplayName: Anime Swing Projectile
+	IncisorOrbSwingProj.DisplayName: Incisor Orb Swing Proj
+	IncisorOrbProj.DisplayName: Incisor Orb Proj
 }

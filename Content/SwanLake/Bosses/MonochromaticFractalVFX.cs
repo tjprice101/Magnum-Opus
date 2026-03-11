@@ -95,7 +95,6 @@ namespace MagnumOpus.Content.SwanLake.Bosses
 
             // Massive monochromatic flash
             Color flashCol = toBlackPhase ? SwanLakePalette.ObsidianBlack : SwanLakePalette.MonochromaticFlash;
-            SwanLakeVFXLibrary.DrawBloom(pos, 1.2f);
 
             // Dual-polarity explosion — massive radial burst
             SwanLakeVFXLibrary.SpawnRadialDustBurst(pos, 30, 10f);
@@ -202,9 +201,6 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             // Heavy screen shake
             MagnumScreenEffects.AddScreenShake(16f);
 
-            // Massive dual-polarity bloom
-            SwanLakeVFXLibrary.DrawBloom(pos, 1.5f);
-
             // Massive radial bursts (40 particles each)
             for (int i = 0; i < 40; i++)
             {
@@ -268,8 +264,6 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             // Additional boss-scale particles
             SwanLakeVFXLibrary.SpawnRainbowBurst(pos, (int)(8 * intensity), 5f);
             SwanLakeVFXLibrary.SpawnFeatherBurst(pos, (int)(3 * intensity), 0.25f);
-
-            SwanLakeVFXLibrary.DrawBloom(pos, 0.5f * intensity);
         }
 
         /// <summary>
@@ -298,9 +292,6 @@ namespace MagnumOpus.Content.SwanLake.Bosses
 
             // Heavy screen shake
             MagnumScreenEffects.AddScreenShake(20f);
-
-            // Massive bloom
-            SwanLakeVFXLibrary.DrawBloom(pos, 2.0f);
 
             // Full finisher slam effects
             SwanLakeVFXLibrary.FinisherSlam(pos, 2.0f);

@@ -35,16 +35,6 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             // Base movement boost
             player.moveSpeed += 0.08f;
             player.maxRunSpeed += 0.3f;
-            
-            // VFX when momentum is building
-            if (!hideVisual && momentumPlayer.CurrentMomentum > 30f && Main.rand.NextBool(8))
-            {
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(15f, 20f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.MagicMirror, Vector2.Zero);
-                dust.noGravity = true;
-                dust.scale = 0.5f;
-                dust.color = new Color(255, 220, 100);
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -94,17 +84,6 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             // Enhanced jump height
             player.jumpBoost = true;
             player.autoJump = true;
-            
-            // VFX when moving fast
-            if (!hideVisual && momentumPlayer.CurrentMomentum >= 50f && Main.rand.NextBool(6))
-            {
-                Vector2 dustPos = player.Bottom + Main.rand.NextVector2Circular(10f, 5f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.PinkTorch, 
-                    new Vector2(0, -Main.rand.NextFloat(1f, 2f)));
-                dust.noGravity = true;
-                dust.scale = 0.7f;
-                dust.color = new Color(255, 180, 200);
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -162,16 +141,6 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
                 player.buffImmune[BuffID.OnFire] = true;
                 player.buffImmune[BuffID.Burning] = true;
             }
-            
-            // VFX aura at high momentum
-            if (!hideVisual && momentumPlayer.CurrentMomentum >= 70f && Main.rand.NextBool(4))
-            {
-                Vector2 dustPos = player.Bottom + Main.rand.NextVector2Circular(12f, 6f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.Torch, 
-                    new Vector2(Main.rand.NextFloat(-1f, 1f), -Main.rand.NextFloat(1f, 3f)));
-                dust.noGravity = true;
-                dust.scale = 1.0f;
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -226,17 +195,6 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             // Fire immunity
             player.buffImmune[BuffID.OnFire] = true;
             player.buffImmune[BuffID.Burning] = true;
-            
-            // Ghost VFX when phasing
-            if (!hideVisual && momentumPlayer.CurrentMomentum >= 80f && Main.rand.NextBool(5))
-            {
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(20f, 30f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.Wraith, 
-                    Main.rand.NextVector2Circular(1f, 1f));
-                dust.noGravity = true;
-                dust.scale = 0.6f;
-                dust.color = new Color(180, 120, 200);
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -299,17 +257,6 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             {
                 player.statDefense += 5;
             }
-            
-            // Frost VFX at high momentum
-            if (!hideVisual && momentumPlayer.CurrentMomentum >= 90f && Main.rand.NextBool(4))
-            {
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(18f, 25f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.IceTorch, 
-                    Main.rand.NextVector2Circular(0.5f, 1f));
-                dust.noGravity = true;
-                dust.scale = 0.7f;
-                dust.color = new Color(150, 200, 255);
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -369,36 +316,6 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             player.buffImmune[BuffID.Burning] = true;
             player.buffImmune[BuffID.Frostburn] = true;
             player.buffImmune[BuffID.Chilled] = true;
-            
-            // Seasonal aura VFX
-            if (!hideVisual && momentumPlayer.CurrentMomentum >= 60f && Main.rand.NextBool(4))
-            {
-                int season = (int)(Main.time / 54000) % 4;
-                int dustType = season switch
-                {
-                    0 => DustID.PinkTorch,    // Spring - Cherry blossom
-                    1 => DustID.Torch,        // Summer - Fire
-                    2 => DustID.OrangeTorch,  // Autumn - Harvest
-                    3 => DustID.IceTorch,     // Winter - Frost
-                    _ => DustID.MagicMirror
-                };
-                
-                Color seasonColor = season switch
-                {
-                    0 => new Color(255, 180, 200),
-                    1 => new Color(255, 140, 50),
-                    2 => new Color(200, 120, 80),
-                    3 => new Color(150, 200, 255),
-                    _ => Color.White
-                };
-                
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(20f, 30f);
-                Dust dust = Dust.NewDustPerfect(dustPos, dustType, 
-                    Main.rand.NextVector2Circular(1f, 2f));
-                dust.noGravity = true;
-                dust.scale = 0.8f;
-                dust.color = seasonColor;
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)

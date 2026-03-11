@@ -1,3 +1,5 @@
+﻿using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Core;
 using MagnumOpus.Content.DiesIrae;
 using MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Utilities;
@@ -9,15 +11,14 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Projectiles
 {
     /// <summary>
-    /// Chain Lightning Arc  Efast electrical arc that bounces between enemies.
+    /// Chain Lightning Arc - fast electrical arc that bounces between enemies.
     /// Spawned when the Chain of Judgment reaches 5 hit combo.
     /// Arcs to up to 3 targets, each bounce dimmer. 25-frame lifetime.
-    /// Rendered as a segmented lightning bolt with ember-gold coloring.
+    /// Rendered as a segmented lightning bolt with 3-layer ember-gold coloring.
     /// </summary>
     public class ChainLightningArc : ModProjectile
     {
@@ -50,7 +51,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Projectiles
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
             Projectile.usesLocalNPCImmunity = true;
-            Projectile.localNPCHitCooldown = -1; // hit each NPC once
+            Projectile.localNPCHitCooldown = -1;
         }
 
         public override void AI()
@@ -75,6 +76,16 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Projectiles
                     DiesIraePalette.EmberOrange, 0.7f);
                 d.noGravity = true;
             }
+
+            // Gold judgment sparks at junction points
+            if (arcPoints.Count >= 2 && Main.rand.NextBool(4))
+            {
+                int idx = Main.rand.Next(arcPoints.Count);
+                Dust g = Dust.NewDustPerfect(arcPoints[idx], DustID.GoldFlame,
+                    Main.rand.NextVector2Circular(0.5f, 0.5f), 0,
+                    DiesIraePalette.JudgmentGold, 0.6f);
+                g.noGravity = true;
+            }
         }
 
         private void BuildArcPath()
@@ -84,16 +95,14 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Projectiles
 
             Vector2 currentPos = Projectile.Center;
             int targetIdx = TargetNPC;
-            hitNPCs.Add(targetIdx); // don't re-hit the source
+            hitNPCs.Add(targetIdx);
 
             for (int bounce = 0; bounce < MaxBounces; bounce++)
             {
-                // Find next closest enemy
                 int nextTarget = FindNextTarget(currentPos);
                 if (nextTarget < 0) break;
 
                 Vector2 targetPos = Main.npc[nextTarget].Center;
-                // Add intermediate jagged points for lightning look
                 AddLightningSegments(currentPos, targetPos);
                 arcPoints.Add(targetPos);
 
@@ -109,7 +118,8 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Projectiles
                     owner.ApplyDamageToNPC(npc, dmg, 0f, Projectile.Center.X < npc.Center.X ? 1 : -1, false);
                 }
 
-                // Impact spark
+                // Impact VFX at each bounce target
+                DiesIraeVFXLibrary.MeleeImpact(Main.npc[nextTarget].Center, 0);
                 ChainOfJudgmentUtils.DoChainImpact(Main.npc[nextTarget].Center, Vector2.Zero);
             }
         }
@@ -160,62 +170,79 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            if (arcPoints.Count < 2) return false;
-
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-            if (glow == null) return false;
-            Vector2 glowOrigin = glow.Size() / 2f;
-
-            // Begin additive
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
-
-            // Draw line segments between arc points
-            for (int i = 0; i < arcPoints.Count - 1; i++)
+            try
             {
-                Vector2 a = arcPoints[i];
-                Vector2 b = arcPoints[i + 1];
-                float segDist = Vector2.Distance(a, b);
-                int pointCount = Math.Max(2, (int)(segDist / 6f));
+                if (arcPoints.Count < 2) return false;
 
-                for (int j = 0; j <= pointCount; j++)
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow == null) return false;
+                Vector2 glowOrigin = glow.Size() * 0.5f;
+
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
+
+                // Draw line segments between arc points
+                for (int i = 0; i < arcPoints.Count - 1; i++)
                 {
-                    float t = j / (float)pointCount;
-                    Vector2 pos = Vector2.Lerp(a, b, t) - Main.screenPosition;
+                    Vector2 a = arcPoints[i];
+                    Vector2 b = arcPoints[i + 1];
+                    float segDist = Vector2.Distance(a, b);
+                    int pointCount = Math.Max(2, (int)(segDist / 6f));
 
-                    float fadeMult = alphaFade * (1f - (float)i / arcPoints.Count * 0.5f);
+                    for (int j = 0; j <= pointCount; j++)
+                    {
+                        float t = j / (float)pointCount;
+                        Vector2 pos = Vector2.Lerp(a, b, t) - Main.screenPosition;
 
-                    // Wide outer glow  Eember
-                    sb.Draw(glow, pos, null, DiesIraePalette.EmberOrange * 0.3f * fadeMult,
-                        0f, glowOrigin, 0.025f, SpriteEffects.None, 0f);
-                    // Mid  Ewhite-hot
-                    sb.Draw(glow, pos, null, DiesIraePalette.WrathWhite * 0.5f * fadeMult,
-                        0f, glowOrigin, 0.012f, SpriteEffects.None, 0f);
-                    // Core  Egold
-                    sb.Draw(glow, pos, null, DiesIraePalette.JudgmentGold * 0.7f * fadeMult,
-                        0f, glowOrigin, 0.006f, SpriteEffects.None, 0f);
+                        float fadeMult = alphaFade * (1f - (float)i / arcPoints.Count * 0.5f);
+
+                        // Wide outer glow - ember
+                        sb.Draw(glow, pos, null, DiesIraePalette.EmberOrange * 0.3f * fadeMult,
+                            0f, glowOrigin, 0.025f, SpriteEffects.None, 0f);
+                        // Mid - blood red
+                        sb.Draw(glow, pos, null, DiesIraePalette.BloodRed * 0.4f * fadeMult,
+                            0f, glowOrigin, 0.015f, SpriteEffects.None, 0f);
+                        // Core - white-hot
+                        sb.Draw(glow, pos, null, DiesIraePalette.WrathWhite * 0.5f * fadeMult,
+                            0f, glowOrigin, 0.008f, SpriteEffects.None, 0f);
+                        // Gold judgment accent
+                        sb.Draw(glow, pos, null, DiesIraePalette.JudgmentGold * 0.35f * fadeMult,
+                            0f, glowOrigin, 0.012f, SpriteEffects.None, 0f);
+                    }
+                }
+
+                // Junction flares at each arc point
+                for (int i = 0; i < arcPoints.Count; i++)
+                {
+                    Vector2 pos = arcPoints[i] - Main.screenPosition;
+                    float brightness = (i == 0 || i == arcPoints.Count - 1) ? 0.7f : 0.45f;
+                    brightness *= alphaFade;
+
+                    // 3-layer junction bloom
+                    sb.Draw(glow, pos, null, DiesIraePalette.JudgmentGold * brightness,
+                        0f, glowOrigin, 0.05f, SpriteEffects.None, 0f);
+                    sb.Draw(glow, pos, null, DiesIraePalette.EmberOrange * brightness * 0.6f,
+                        0f, glowOrigin, 0.035f, SpriteEffects.None, 0f);
+                    sb.Draw(glow, pos, null, DiesIraePalette.WrathWhite * brightness * 0.4f,
+                        0f, glowOrigin, 0.02f, SpriteEffects.None, 0f);
+                }
+
+                // Theme star flare at terminal points
+                if (arcPoints.Count > 0)
+                {
+                    DiesIraeVFXLibrary.DrawThemeStarFlare(sb, arcPoints[arcPoints.Count - 1],
+                        0.6f, alphaFade * 0.4f);
                 }
             }
-
-            // Junction flares at each arc point
-            for (int i = 0; i < arcPoints.Count; i++)
+            catch { }
+            finally
             {
-                Vector2 pos = arcPoints[i] - Main.screenPosition;
-                float brightness = (i == 0 || i == arcPoints.Count - 1) ? 0.6f : 0.4f;
-                brightness *= alphaFade;
-
-                sb.Draw(glow, pos, null, DiesIraePalette.JudgmentGold * brightness,
-                    0f, glowOrigin, 0.04f, SpriteEffects.None, 0f);
-                sb.Draw(glow, pos, null, DiesIraePalette.WrathWhite * brightness * 0.6f,
-                    0f, glowOrigin, 0.02f, SpriteEffects.None, 0f);
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
-            // Restore
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
 
             return false;
         }

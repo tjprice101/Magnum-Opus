@@ -92,9 +92,6 @@ namespace MagnumOpus.Content.SwanLake.Enemies
             // Halo ring
             try { CustomParticles.HaloRing(pos, SwanLakePalette.SwanSilver, 0.25f * intensity, 12); } catch { }
 
-            // Bloom
-            SwanLakeVFXLibrary.DrawBloom(pos, 0.4f * intensity);
-
             // Music notes
             SwanLakeVFXLibrary.SpawnMusicNotes(pos, 2, 12f, 0.7f, 0.9f, 22);
 
@@ -116,9 +113,6 @@ namespace MagnumOpus.Content.SwanLake.Enemies
             // Core impact
             try { UnifiedVFX.SwanLake.Impact(pos, 1.0f * scale); } catch { }
             SwanLakeVFXLibrary.SpawnRainbowExplosion(pos, 0.8f * scale);
-
-            // Bloom
-            SwanLakeVFXLibrary.DrawBloom(pos, 0.6f * scale);
 
             // Dual-polarity radial burst
             SwanLakeVFXLibrary.SpawnRadialDustBurst(pos, (int)(14 * scale), 6f * scale);

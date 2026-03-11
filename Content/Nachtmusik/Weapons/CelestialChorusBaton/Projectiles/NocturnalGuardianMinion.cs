@@ -99,6 +99,9 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton.Projectiles
 
                     // Dash trail VFX
                     NachtmusikVFXLibrary.SpawnCloudTrail(Projectile.Center, Projectile.velocity, 0.4f);
+
+                    // Palette-ramped sparkles during dash
+                    NachtmusikVFXLibrary.SpawnGradientSparkles(Projectile.Center, Projectile.velocity, 2, 0.2f, 14, 6f);
                 }
                 else
                 {
@@ -121,11 +124,16 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton.Projectiles
             target.AddBuff(ModContent.BuffType<CelestialHarmony>(), 300);
             target.GetGlobalNPC<CelestialHarmonyNPC>().AddStack(target, 1);
             CelestialChorusBatonVFX.MinionImpactVFX(target.Center);
+
+            // Palette-ramped sparkle explosion on hit
+            NachtmusikVFXLibrary.SpawnGradientSparkleExplosion(target.Center, 6, 4f, 0.25f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -134,26 +142,73 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton.Projectiles
             float time = (float)Main.timeForVisualEffects * 0.03f;
             float pulse = MathF.Sin(Main.GameUpdateCount * 0.1f) * 0.1f + 0.9f;
 
-            // ═══════════════════════════════════════════════════════════════
+            // ==============================================================
             //  SHADER LAYER: ChorusSummonAura — spectral guardian presence
-            //  Intensifies during dash attacks
-            // ═══════════════════════════════════════════════════════════════
-            if (NachtmusikShaderManager.HasSerenade)
+            //  Uses dedicated shader. Intensifies during dash attacks.
+            // ==============================================================
+            float auraIntensity = isAttacking ? 0.85f : 0.4f;
+            float auraScale = (isAttacking ? 0.4f : 0.25f) * pulse;
+
+            if (NachtmusikShaderManager.HasChorusSummonAura)
             {
                 Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
                 if (glowTex != null)
                 {
-                    float auraIntensity = isAttacking ? 0.85f : 0.4f;
-
                     NachtmusikShaderManager.BeginShaderAdditive(sb);
-                    NachtmusikShaderManager.ApplySerenade(time, NachtmusikPalette.CosmicPurple,
-                        NachtmusikPalette.Violet, phase: auraIntensity);
+                    NachtmusikShaderManager.ApplyChorusSummonAura(time, auraIntensity);
 
-                    float auraScale = (isAttacking ? 0.4f : 0.25f) * pulse;
+                    // Outer constellation aura
                     sb.Draw(glowTex, drawPos, null,
-                        NachtmusikPalette.CosmicPurple with { A = 0 } * auraIntensity * 0.4f,
+                        NachtmusikPalette.ConstellationBlue with { A = 0 } * auraIntensity * 0.45f,
                         0f, glowTex.Size() / 2f, auraScale, SpriteEffects.None, 0f);
 
+                    // Inner star-gold core
+                    sb.Draw(glowTex, drawPos, null,
+                        NachtmusikPalette.StarGold with { A = 0 } * auraIntensity * 0.2f,
+                        0f, glowTex.Size() / 2f, auraScale * 0.4f, SpriteEffects.None, 0f);
+
+                    NachtmusikShaderManager.RestoreSpriteBatch(sb);
+                }
+
+                // NK Power Ring — rotating aura ring around guardian
+                Texture2D ringTex = NachtmusikThemeTextures.NKPowerEffectRing?.Value;
+                if (ringTex != null)
+                {
+                    NachtmusikShaderManager.BeginAdditive(sb);
+                    float ringPulse = 0.12f + auraIntensity * 0.08f;
+                    sb.Draw(ringTex, drawPos, null,
+                        NachtmusikPalette.ConstellationBlue with { A = 0 } * auraIntensity * 0.2f,
+                        time * 0.5f, ringTex.Size() / 2f, ringPulse * pulse, SpriteEffects.None, 0f);
+                    NachtmusikShaderManager.RestoreSpriteBatch(sb);
+                }
+
+                // NK Lens Flare — bright accent during dash attacks
+                if (isAttacking)
+                {
+                    Texture2D flareTex = NachtmusikThemeTextures.NKLensFlare?.Value;
+                    if (flareTex != null)
+                    {
+                        NachtmusikShaderManager.BeginAdditive(sb);
+                        sb.Draw(flareTex, drawPos, null,
+                            NachtmusikPalette.StarGold with { A = 0 } * 0.15f,
+                            -time * 0.6f, flareTex.Size() / 2f, 0.06f, SpriteEffects.None, 0f);
+                        NachtmusikShaderManager.RestoreSpriteBatch(sb);
+                    }
+                }
+            }
+            else
+            {
+                // Non-shader fallback — TrueAdditive bloom only
+                Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
+                if (glowTex != null)
+                {
+                    NachtmusikShaderManager.BeginAdditive(sb);
+                    sb.Draw(glowTex, drawPos, null,
+                        NachtmusikPalette.ConstellationBlue with { A = 0 } * auraIntensity * 0.35f,
+                        0f, glowTex.Size() / 2f, auraScale, SpriteEffects.None, 0f);
+                    sb.Draw(glowTex, drawPos, null,
+                        NachtmusikPalette.StarGold with { A = 0 } * auraIntensity * 0.15f,
+                        0f, glowTex.Size() / 2f, auraScale * 0.4f, SpriteEffects.None, 0f);
                     NachtmusikShaderManager.RestoreSpriteBatch(sb);
                 }
             }
@@ -181,6 +236,15 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton.Projectiles
             NachtmusikShaderManager.BeginAdditive(sb);
             NachtmusikVFXLibrary.DrawThemeStarFlare(sb, Projectile.Center, 1f, 0.5f);
             NachtmusikShaderManager.RestoreSpriteBatch(sb);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

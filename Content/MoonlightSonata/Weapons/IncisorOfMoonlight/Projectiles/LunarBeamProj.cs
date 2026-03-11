@@ -127,6 +127,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
             if (Main.dedServ) return false;
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             LoadBeamTextures();
 
             // Build VertexStrip from trail cache (oldPos[0] = newest/head)
@@ -226,6 +228,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

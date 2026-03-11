@@ -53,6 +53,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases
             Item.useAnimation = 36;
             Item.useStyle = ItemUseStyleID.Swing;
             Item.knockBack = 4f;
+            Item.scale = 0.06f;
             Item.value = Item.buyPrice(gold: 30);
             Item.rare = ModContent.RarityType<MoonlightSonataRarity>();
             Item.UseSound = SoundID.Item44;

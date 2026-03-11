@@ -98,7 +98,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
             Projectile.ownerHitCheck = true;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = 8;
-            Projectile.extraUpdates = 1;
+            // extraUpdates removed — was causing 2x trail recording and visual stutter
         }
 
         public override void AI()
@@ -242,42 +242,14 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
 
             Vector2 hitPos = target.Center;
 
-            // === Multi-layer bloom flash (Foundation-tier) ===
-            _bloomCircle ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
-            _softRadialBloom ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom");
-            if (_softRadialBloom?.Value != null && !Main.dedServ)
-            {
-                SpriteBatch sb = Main.spriteBatch;
-                try
-                {
-                    sb.End();
-                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-                    Texture2D softBloom = _softRadialBloom.Value;
-                    Vector2 drawPos = hitPos - Main.screenPosition;
-                    Vector2 bloomOrigin = softBloom.Size() / 2f;
-
-                    sb.Draw(softBloom, drawPos, null, CodaUtils.Additive(CodaUtils.VoidBlack, 0.25f),
-                        0f, bloomOrigin, 0.18f, SpriteEffects.None, 0f);
-                    sb.Draw(softBloom, drawPos, null, CodaUtils.Additive(CodaUtils.CodaCrimson, 0.4f),
-                        0f, bloomOrigin, 0.12f, SpriteEffects.None, 0f);
-                    sb.Draw(softBloom, drawPos, null, CodaUtils.Additive(CodaUtils.CodaPink, 0.35f),
-                        0f, bloomOrigin, 0.07f, SpriteEffects.None, 0f);
-                    if (_bloomCircle?.Value != null)
-                    {
-                        sb.Draw(_bloomCircle.Value, drawPos, null, CodaUtils.Additive(CodaUtils.AnnihilationWhite, 0.6f),
-                            0f, _bloomCircle.Value.Size() / 2f, 0.04f, SpriteEffects.None, 0f);
-                    }
-                    sb.End();
-                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-                }
-                catch
-                {
-                    try { sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix); } catch { }
-                }
-            }
+            // Hit bloom handled via particle system flares (safe draw-loop context)
+            // Outer cosmic bloom flash
+            CodaParticleHandler.SpawnParticle(new AnnihilationFlareParticle(
+                hitPos, CodaUtils.CodaPurple * 0.8f, 0.5f, 12));
+            CodaParticleHandler.SpawnParticle(new AnnihilationFlareParticle(
+                hitPos, CodaUtils.CodaCrimson * 0.6f, 0.35f, 10));
+            CodaParticleHandler.SpawnParticle(new AnnihilationFlareParticle(
+                hitPos, CodaUtils.CodaPink * 0.5f, 0.2f, 8));
 
             // Annihilation flare (enhanced)
             CodaParticleHandler.SpawnParticle(new AnnihilationFlareParticle(
@@ -335,6 +307,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
                     hitPos + Main.rand.NextVector2Circular(15f, 15f), moteVel,
                     moteCol * 0.7f, 0.25f, 28));
             }
+
+            // Shader-driven impact burst (CodaImpactBurst.fx)
+            CodaParticleHandler.SpawnParticle(new CodaImpactBurstParticle(
+                hitPos, CodaUtils.CodaCrimson, CodaUtils.CodaPink, 0.5f, 18));
 
             // Impact sound
             SoundEngine.PlaySound(SoundID.Item71 with { Volume = 0.7f, Pitch = 0.2f }, hitPos);
@@ -535,6 +511,9 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
 
             Texture2D weaponTex = null;
@@ -639,6 +618,15 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
                 SafeRestoreSpriteBatch(spriteBatch);
             }
 
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
@@ -689,6 +677,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
 
         public override void OnKill(int timeLeft)
         {
+            // Dispose GPU trail resources (vertex/index buffers)
+            _trailRenderer?.Dispose();
+            _trailRenderer = null;
+
             // Final burst of particles
             for (int i = 0; i < 8; i++)
             {

@@ -6,6 +6,8 @@ using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using ReLogic.Content;
+using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.VFX.Sparkle;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
 {
@@ -381,99 +383,45 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
                 float pulse = 1f + MathF.Sin(pulsePhase) * 0.15f;
                 float time = (float)Main.timeForVisualEffects;
 
-                // === STEP 1: OLD-POSITION TRAIL WITH BLOOM TEXTURES ===
-                if (_softRadialBloomTex?.IsLoaded == true)
+                // === STEP 1: OLD-POSITION TRAIL WITH SPARKLE BLOOM ===
                 {
-                    Texture2D softBloom = _softRadialBloomTex.Value;
-                    Vector2 softOrigin = softBloom.Size() / 2f;
-
                     sb.End();
                     sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                         DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                    Color[] trailSparkleColors = new Color[] {
+                        ResonanceUtils.CosmicRose,
+                        ResonanceUtils.NebulaPurple,
+                        ResonanceUtils.ConstellationSilver,
+                        ResonanceUtils.StarGold,
+                    };
 
                     for (int i = 0; i < Projectile.oldPos.Length; i++)
                     {
                         if (Projectile.oldPos[i] == Vector2.Zero) continue;
                         float progress = (float)i / Projectile.oldPos.Length;
                         float fade = (1f - progress);
-                        Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                        if (fade < 0.1f) continue;
+                        Vector2 trailWorld = Projectile.oldPos[i] + Projectile.Size / 2f;
 
-                        // Nebula bloom trail — fading nebula mist halos along the path
-                        Color nebulaTrail = Color.Lerp(ResonanceUtils.CosmicRose, ResonanceUtils.NebulaPurple, progress);
-                        float trailBloomScale = (0.04f - progress * 0.025f) * pulse;
-                        sb.Draw(softBloom, trailPos, null, Additive(nebulaTrail, 0.3f * fade), 0f, softOrigin, trailBloomScale, SpriteEffects.None, 0f);
+                        // Celestial sparkle trail point — replaces SoftRadialBloom per-point
+                        SparkleBloomHelper.DrawSparkleBloom(sb, trailWorld, SparkleTheme.Fate,
+                            trailSparkleColors, fade * 0.4f, 6f * pulse, 2, time,
+                            seed: i * 0.37f + Projectile.identity * 0.11f, sparkleScale: 0.012f);
 
-                        // Sharp star trail on top
+                        // Sharp star trail on top — retained
+                        Vector2 trailPos = trailWorld - Main.screenPosition;
                         Color trailColor = ResonanceUtils.GradientLerp(progress * 0.8f + 0.2f) * fade * 0.6f;
                         float trailScale = (0.2f - progress * 0.1f) * pulse;
                         sb.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
                     }
                 }
-                else
-                {
-                    // Fallback: original star-only trail
-                    sb.End();
-                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-                    for (int i = 0; i < Projectile.oldPos.Length; i++)
-                    {
-                        if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                        float progress = (float)i / Projectile.oldPos.Length;
-                        Color trailColor = ResonanceUtils.GradientLerp(progress * 0.8f + 0.2f) * (1f - progress) * 0.5f;
-                        Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                        float trailScale = (0.2f - progress * 0.1f) * pulse;
-                        sb.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
-                    }
-                }
-
-                // === STEP 2: GRADUATED FOUNDATION BLOOM BODY ===
+                // === STEP 2: CELESTIAL SPARKLE BODY BLOOM ===
                 Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
-                if (_pointBloomTex?.IsLoaded == true && _softRadialBloomTex?.IsLoaded == true && _starFlareTex?.IsLoaded == true)
-                {
-                    Texture2D softBloom = _softRadialBloomTex.Value;
-                    Texture2D pointBloom = _pointBloomTex.Value;
-                    Texture2D starFlare = _starFlareTex.Value;
-                    Vector2 softOrigin = softBloom.Size() / 2f;
-                    Vector2 pointOrigin = pointBloom.Size() / 2f;
-                    Vector2 starOrigin = starFlare.Size() / 2f;
-
-                    // Layer 1: Outer void-nebula haze — the bygone reality bleeds through
-                    sb.Draw(softBloom, drawPos, null, Additive(ResonanceUtils.VoidBlack, 0.2f), 0f, softOrigin, 0.06f * pulse, SpriteEffects.None, 0f);
-                    // Layer 2: Nebula mist atmosphere
-                    sb.Draw(softBloom, drawPos, null, Additive(ResonanceUtils.NebulaMist, 0.22f), 0f, softOrigin, 0.04f * pulse, SpriteEffects.None, 0f);
-                    // Layer 3: Nebula purple glow
-                    sb.Draw(softBloom, drawPos, null, Additive(ResonanceUtils.NebulaPurple, 0.35f), 0f, softOrigin, 0.03f * pulse, SpriteEffects.None, 0f);
-                    // Layer 4: Cosmic rose intensity
-                    sb.Draw(pointBloom, drawPos, null, Additive(ResonanceUtils.CosmicRose, 0.5f), 0f, pointOrigin, 0.025f * pulse, SpriteEffects.None, 0f);
-                    // Layer 5: Star gold hot inner
-                    sb.Draw(pointBloom, drawPos, null, Additive(ResonanceUtils.StarGold, 0.45f), 0f, pointOrigin, 0.015f * pulse, SpriteEffects.None, 0f);
-                    // Layer 6: Constellation silver white core
-                    sb.Draw(pointBloom, drawPos, null, Additive(ResonanceUtils.ConstellationSilver, 0.55f), 0f, pointOrigin, 0.08f * pulse, SpriteEffects.None, 0f);
-                    // Layer 7: StarFlare rotating cross — cosmic signature
-                    sb.Draw(starFlare, drawPos, null, Additive(ResonanceUtils.CosmicRose, 0.22f), time * 1.4f + pulsePhase, starOrigin, 0.15f * pulse, SpriteEffects.None, 0f);
-                    sb.Draw(starFlare, drawPos, null, Additive(ResonanceUtils.ConstellationSilver, 0.16f), -time * 1.9f, starOrigin, 0.11f * pulse, SpriteEffects.None, 0f);
-
-                    // === STEP 3: ORIGINAL STAR SPRITE AS SHARP CORE ===
-                    sb.Draw(tex, drawPos, null, Additive(ResonanceUtils.CosmicRose, 0.5f), Projectile.rotation, origin, 0.18f * pulse, SpriteEffects.None, 0f);
-                    sb.Draw(tex, drawPos, null, Additive(ResonanceUtils.ConstellationSilver, 0.65f), Projectile.rotation, origin, 0.1f * pulse, SpriteEffects.None, 0f);
-
-                    // === STEP 4: LEADING-EDGE BLOOM AT VELOCITY TIP ===
-                    Vector2 velDir = Projectile.velocity.SafeNormalize(Vector2.UnitX);
-                    Vector2 leadPos = drawPos + velDir * 6f;
-
-                    sb.Draw(softBloom, leadPos, null, Additive(ResonanceUtils.NebulaPurple, 0.22f), 0f, softOrigin, MathHelper.Min(0.15f * pulse, 0.139f), SpriteEffects.None, 0f);
-                    sb.Draw(pointBloom, leadPos, null, Additive(ResonanceUtils.CosmicRose, 0.35f), 0f, pointOrigin, 0.09f * pulse, SpriteEffects.None, 0f);
-                    sb.Draw(pointBloom, leadPos, null, Additive(ResonanceUtils.ConstellationSilver, 0.5f), 0f, pointOrigin, 0.045f * pulse, SpriteEffects.None, 0f);
-                }
-                else
-                {
-                    // Fallback to simple star blooms
-                    sb.Draw(tex, drawPos, null, ResonanceUtils.NebulaPurple * 0.3f, Projectile.rotation, origin, 0.4f * pulse, SpriteEffects.None, 0f);
-                    sb.Draw(tex, drawPos, null, ResonanceUtils.CosmicRose * 0.6f, Projectile.rotation, origin, 0.28f * pulse, SpriteEffects.None, 0f);
-                    sb.Draw(tex, drawPos, null, ResonanceUtils.ConstellationSilver * 0.8f, Projectile.rotation, origin, 0.15f * pulse, SpriteEffects.None, 0f);
-                }
+                // Graduated orb bloom head
+                MagnumVFX.DrawGraduatedOrbHead(sb, drawPos, ResonanceUtils.CosmicRose, ResonanceUtils.NebulaPurple, 0.7f);
 
                 // Restore alpha blend
                 sb.End();

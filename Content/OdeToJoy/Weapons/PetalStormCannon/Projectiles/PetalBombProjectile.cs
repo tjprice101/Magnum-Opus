@@ -1,7 +1,13 @@
+using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Content.OdeToJoy;
+using MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Dusts;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -13,7 +19,15 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
     /// </summary>
     public class PetalBombProjectile : ModProjectile
     {
+        private VertexStrip _vertexStrip;
+
         public override string Texture => "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Ode to Joy/Projectiles/OJ Rose Petal";
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -32,7 +46,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
             Projectile.rotation += Projectile.velocity.X * 0.04f;
             Projectile.velocity.Y += 0.2f; // Gravity arc
 
-            // Petal dust trail
+            // Petal dust trail — custom storm petal
             if (Main.rand.NextBool(3))
             {
                 Color col = Main.rand.NextBool()
@@ -40,10 +54,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
                     : new Color(255, 200, 50);  // BloomGold
                 Dust dust = Dust.NewDustPerfect(
                     Projectile.Center + Main.rand.NextVector2Circular(4f, 4f),
-                    DustID.RainbowMk2,
+                    ModContent.DustType<StormPetalDust>(),
                     Projectile.velocity * -0.2f + Main.rand.NextVector2Circular(1f, 1f),
-                    newColor: col,
                     Scale: Main.rand.NextFloat(0.3f, 0.6f));
+                dust.color = col;
                 dust.noGravity = true;
                 dust.fadeIn = 0.4f;
             }
@@ -51,7 +65,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
 
         public override void OnKill(int timeLeft)
         {
-            // Radial petal burst on detonation
+            // Radial petal burst on detonation — custom storm petal
             for (int i = 0; i < 16; i++)
             {
                 float angle = MathHelper.TwoPi / 16f * i;
@@ -63,36 +77,51 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
                     1 => new Color(255, 200, 50),   // BloomGold
                     _ => new Color(255, 250, 200)    // JubilantLight
                 };
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowMk2, vel,
-                    newColor: col, Scale: Main.rand.NextFloat(0.4f, 0.8f));
+                Dust dust = Dust.NewDustPerfect(Projectile.Center,
+                    ModContent.DustType<StormPetalDust>(), vel,
+                    Scale: Main.rand.NextFloat(0.4f, 0.8f));
+                dust.color = col;
                 dust.noGravity = true;
             }
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(Projectile.Center, 5, 4f, 1f);
+            OdeToJoyVFXLibrary.ScreenShake(5f, 10);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
-            if (tex == null) return true;
-            Vector2 origin = tex.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _vertexStrip);
 
-            // Additive glow behind
-            Main.spriteBatch.Draw(tex, drawPos, null,
-                new Color(255, 200, 50, 0) * 0.4f, Projectile.rotation, origin, 0.6f, SpriteEffects.None, 0f);
-            // Main sprite
-            Main.spriteBatch.Draw(tex, drawPos, null,
-                lightColor, Projectile.rotation, origin, 0.4f, SpriteEffects.None, 0f);
+                // Petal Bomb accent: rose-pink petal shimmer halo
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Theme blossom sparkle accent
-            Main.spriteBatch.End();
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, Main.DefaultSamplerState,
-                DepthStencilState.None, RasterizerState.CullCounterClockwise, null,
-                Main.GameViewMatrix.TransformationMatrix);
-            OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(Main.spriteBatch, Projectile.Center, 1f, 0.5f);
-            Main.spriteBatch.End();
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                DepthStencilState.None, RasterizerState.CullCounterClockwise, null,
-                Main.GameViewMatrix.TransformationMatrix);
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
+                {
+                    Vector2 origin = glow.Size() / 2f;
+                    float pulse = 0.8f + 0.2f * MathF.Sin((float)Main.timeForVisualEffects * 0.12f);
+
+                    // Rose-pink bloom
+                    sb.Draw(glow, drawPos, null,
+                        (OdeToJoyPalette.RosePink with { A = 0 }) * 0.2f * pulse,
+                        0f, origin, 0.05f, SpriteEffects.None, 0f);
+                }
+
+                sb.End();
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

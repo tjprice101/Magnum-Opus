@@ -1,4 +1,9 @@
-﻿using MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Buffs;
+using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Content.OdeToJoy;
+using MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Buffs;
+using MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Dusts;
 using MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -22,6 +27,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
         private Vector2[] _trail = new Vector2[TrailLength];
         private int _head;
         private int _timer;
+        private VertexStrip _vertexStrip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -44,7 +56,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
 
             if (Main.rand.NextBool(3))
             {
-                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.GoldFlame, -Projectile.velocity.X * 0.1f, -Projectile.velocity.Y * 0.1f, 100, HymnTextures.BloomGold, 0.5f);
+                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, ModContent.DustType<HymnVerseDust>(), -Projectile.velocity.X * 0.1f, -Projectile.velocity.Y * 0.1f, 100, HymnTextures.BloomGold, 0.5f);
                 d.noGravity = true;
             }
         }
@@ -52,92 +64,44 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.GetGlobalNPC<HymnDebuffNPC>().RegisterVerseHit(target, 0);
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(target.Center, 3, 4f, 1f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D glow = HymnTextures.SoftGlow;
-            Vector2 origin = glow.Size() / 2f;
-            float fade = MathHelper.Clamp(_timer / 6f, 0f, 1f) * MathHelper.Clamp(Projectile.timeLeft / 15f, 0f, 1f);
-            float time = (float)Main.timeForVisualEffects * 0.015f;
-            Vector2 pos = Projectile.Center - Main.screenPosition;
-
-            sb.End();
-
-            // ── LAYER 0: TriumphantTrail shader VertexStrip trail ──
-            Effect trailShader = OdeToJoyShaders.TriumphantTrail;
-            int validCount = 0;
-            for (int i = 0; i < TrailLength; i++)
+            try
             {
-                int idx = (_head - 1 - i + TrailLength) % TrailLength;
-                if (_trail[idx] != Vector2.Zero) validCount++; else break;
-            }
-            if (trailShader != null && validCount >= 2)
-            {
-                Vector2[] positions = new Vector2[validCount];
-                float[] rotations = new float[validCount];
-                for (int i = 0; i < validCount; i++)
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _vertexStrip);
+
+                // Exordium: pure gold directional streak
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
                 {
-                    int idx = (_head - 1 - i + TrailLength) % TrailLength;
-                    positions[validCount - 1 - i] = _trail[idx];
-                }
-                for (int i = 0; i < validCount; i++)
-                {
-                    if (i < validCount - 1) rotations[i] = (positions[i + 1] - positions[i]).ToRotation();
-                    else rotations[i] = rotations[Math.Max(0, i - 1)];
+                    Vector2 origin = glow.Size() / 2f;
+                    float rot = Projectile.velocity.ToRotation();
+
+                    sb.Draw(glow, drawPos, null,
+                        (OdeToJoyPalette.GoldenPollen with { A = 0 }) * 0.22f,
+                        rot, origin, new Vector2(0.07f, 0.025f), SpriteEffects.None, 0f);
                 }
 
-                // Wide glow underlayer
-                VertexStrip glowStrip = new VertexStrip();
-                glowStrip.PrepareStrip(positions, rotations,
-                    (float p) => HymnTextures.BloomGold * fade * p * 0.3f,
-                    (float p) => MathHelper.Lerp(2f, 18f, p),
-                    -Main.screenPosition, includeBacksides: true);
-                OdeToJoyShaders.SetTrailParams(trailShader, time, HymnTextures.BloomGold,
-                    HymnTextures.RadiantAmber, fade * 0.5f, 1.5f);
-                trailShader.CurrentTechnique = trailShader.Techniques["TriumphantTrailTechnique"];
-                trailShader.Parameters["WorldViewProjection"]?.SetValue(
-                    Main.GameViewMatrix.NormalizedTransformationmatrix);
-                trailShader.CurrentTechnique.Passes["P0"].Apply();
-                glowStrip.DrawTrail();
-
-                // Narrow bright core trail
-                VertexStrip coreStrip = new VertexStrip();
-                coreStrip.PrepareStrip(positions, rotations,
-                    (float p) => HymnTextures.JubilantLight * fade * p * 0.6f,
-                    (float p) => MathHelper.Lerp(1f, 8f, p),
-                    -Main.screenPosition, includeBacksides: true);
-                OdeToJoyShaders.SetTrailParams(trailShader, time * 1.3f, HymnTextures.JubilantLight,
-                    HymnTextures.BloomGold, fade * 0.8f, 2.0f);
-                trailShader.CurrentTechnique.Passes["P0"].Apply();
-                coreStrip.DrawTrail();
-                Main.pixelShader.CurrentTechnique.Passes[0].Apply();
+                sb.End();
             }
-
-            // ── LAYER 1: Additive bloom head ──
-            OdeToJoyShaders.BeginAdditiveBatch(sb);
-
-            // Lightweight trail sparkles
-            for (int i = 0; i < TrailLength; i++)
+            catch { }
+            finally
             {
-                int idx = (_head - 1 - i + TrailLength) % TrailLength;
-                if (_trail[idx] == Vector2.Zero) continue;
-                float t = 1f - i / (float)TrailLength;
-                sb.Draw(glow, _trail[idx] - Main.screenPosition, null,
-                    HymnTextures.BloomGold * fade * t * 0.1f, 0f, origin, 0.06f * t, SpriteEffects.None, 0f);
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
-            // 3-tier bloom head
-            sb.Draw(glow, pos, null, HymnTextures.BloomGold * fade * 0.5f, 0f, origin, 0.35f, SpriteEffects.None, 0f);
-            sb.Draw(glow, pos, null, HymnTextures.RadiantAmber * fade * 0.45f, 0f, origin, 0.18f, SpriteEffects.None, 0f);
-            sb.Draw(glow, pos, null, HymnTextures.JubilantLight * fade * 0.35f, 0f, origin, 0.08f, SpriteEffects.None, 0f);
-
-            // Theme blossom sparkle accent
-            OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
-
-            sb.End();
-            OdeToJoyShaders.RestoreSpriteBatch(sb);
             return false;
         }
     }
@@ -150,6 +114,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
     {
         public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
         private int _timer;
+        private VertexStrip _vertexStrip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -169,7 +140,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
             Projectile.rotation = Projectile.velocity.ToRotation();
             if (Main.rand.NextBool(3))
             {
-                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.GoldFlame, 0f, 0f, 120, HymnTextures.PetalPink, 0.4f);
+                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, ModContent.DustType<HymnVerseDust>(), 0f, 0f, 120, HymnTextures.PetalPink, 0.4f);
                 d.noGravity = true;
             }
         }
@@ -185,39 +156,38 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D glow = HymnTextures.SoftGlow;
-            Vector2 origin = glow.Size() / 2f;
-            Vector2 pos = Projectile.Center - Main.screenPosition;
-            float fade = MathHelper.Clamp(_timer / 6f, 0f, 1f) * MathHelper.Clamp(Projectile.timeLeft / 15f, 0f, 1f);
-            float time = (float)Main.timeForVisualEffects * 0.015f;
-            float pulse = 0.85f + 0.15f * (float)Math.Sin(_timer * 0.15f);
-
-            sb.End();
-
-            // ── LAYER 0: GardenBloom shader petal body ──
-            Effect bloomShader = OdeToJoyShaders.GardenBloom;
-            if (bloomShader != null)
+            try
             {
-                OdeToJoyShaders.SetBloomParams(bloomShader, time, HymnTextures.PetalPink,
-                    HymnTextures.BloomGold, fade * 0.55f * pulse, 1.8f, 0.35f);
-                OdeToJoyShaders.BeginDeferredShaderBatch(sb, bloomShader, "GardenBloomTechnique");
-                sb.Draw(glow, pos, null, Color.White * fade * pulse, Projectile.rotation, origin,
-                    0.3f, SpriteEffects.None, 0f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _vertexStrip);
+
+                // Rising bolt: warmly colored petal-pink directional glow
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
+                {
+                    Vector2 origin = glow.Size() / 2f;
+                    float rot = Projectile.velocity.ToRotation();
+
+                    sb.Draw(glow, drawPos, null,
+                        (OdeToJoyPalette.PetalPink with { A = 0 }) * 0.2f,
+                        rot, origin, new Vector2(0.06f, 0.025f), SpriteEffects.None, 0f);
+                }
+
                 sb.End();
             }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
-            // ── LAYER 1: Additive bloom layers ──
-            OdeToJoyShaders.BeginAdditiveBatch(sb);
-
-            sb.Draw(glow, pos, null, HymnTextures.PetalPink * fade * 0.5f, 0f, origin, 0.28f, SpriteEffects.None, 0f);
-            sb.Draw(glow, pos, null, HymnTextures.BloomGold * fade * 0.35f, 0f, origin, 0.15f, SpriteEffects.None, 0f);
-            sb.Draw(glow, pos, null, HymnTextures.JubilantLight * fade * 0.25f, 0f, origin, 0.06f, SpriteEffects.None, 0f);
-
-            // Theme blossom sparkle accent
-            OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
-
-            sb.End();
-            OdeToJoyShaders.RestoreSpriteBatch(sb);
             return false;
         }
     }
@@ -232,6 +202,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
         private int _timer;
         private bool _hovering;
         private Vector2 _hoverPos;
+        private VertexStrip _vertexStrip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -272,7 +249,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
                 if (Main.rand.NextBool(2))
                 {
                     Vector2 vel = Main.rand.NextVector2Circular(2f, 2f);
-                    Dust d = Dust.NewDustDirect(Projectile.Center - new Vector2(15), 30, 30, DustID.GoldFlame, vel.X, vel.Y, 100, HymnTextures.JubilantLight, 0.5f * pulse);
+                    Dust d = Dust.NewDustDirect(Projectile.Center - new Vector2(15), 30, 30, ModContent.DustType<HymnVerseDust>(), vel.X, vel.Y, 100, HymnTextures.JubilantLight, 0.5f * pulse);
                     d.noGravity = true;
                 }
 
@@ -299,77 +276,54 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
                 float speed = 4f + Main.rand.NextFloat() * 3f;
                 Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * speed;
                 Color c = Color.Lerp(HymnTextures.BloomGold, HymnTextures.JubilantLight, Main.rand.NextFloat());
-                Dust d = Dust.NewDustDirect(Projectile.Center, 1, 1, DustID.GoldFlame, vel.X, vel.Y, 80, c, 0.9f);
+                Dust d = Dust.NewDustDirect(Projectile.Center, 1, 1, ModContent.DustType<HymnVerseDust>(), vel.X, vel.Y, 80, c, 0.9f);
                 d.noGravity = true;
                 d.fadeIn = 1.3f;
             }
+
+            // Apex detonation screen effects
+            OdeToJoyVFXLibrary.ScreenShake(8f, 16);
+            OdeToJoyVFXLibrary.ScreenFlash(OdeToJoyPalette.SunlightYellow, 1.2f);
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(Projectile.Center, 5, 4f, 1f);
+            OdeToJoyVFXLibrary.RhythmicPulse(Projectile.Center, 1.0f, OdeToJoyPalette.GoldenPollen);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D glow = HymnTextures.SoftGlow;
-            Texture2D ring = HymnTextures.OJPowerRing;
-            Vector2 glowOrigin = glow.Size() / 2f;
-            Vector2 ringOrigin = ring.Size() / 2f;
-            Vector2 pos = Projectile.Center - Main.screenPosition;
-
-            float fade = MathHelper.Clamp(_timer / 8f, 0f, 1f) * MathHelper.Clamp(Projectile.timeLeft / 15f, 0f, 1f);
-            float pulse = 0.85f + 0.15f * (float)Math.Sin(_timer * 0.12f);
-            float scale = _hovering ? 0.5f * pulse : 0.3f;
-            float time = (float)Main.timeForVisualEffects * 0.015f;
-
-            sb.End();
-
-            // ── LAYER 0: GardenBloom JubilantPulse shader — pulsing orb body ──
-            Effect bloomShader = OdeToJoyShaders.GardenBloom;
-            if (bloomShader != null)
+            try
             {
-                OdeToJoyShaders.SetBloomParams(bloomShader, time, HymnTextures.BloomGold,
-                    HymnTextures.JubilantLight, fade * 0.5f * pulse, 2.2f, 0.45f);
-                bloomShader.Parameters["uPulseSpeed"]?.SetValue(1.2f);
-                OdeToJoyShaders.BeginDeferredShaderBatch(sb, bloomShader, "JubilantPulseTechnique");
-                sb.Draw(glow, pos, null, Color.White * fade * pulse, 0f, glowOrigin,
-                    scale * 1.8f, SpriteEffects.None, 0f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _vertexStrip);
+
+                // Apex orb: jubilant radiance halo (pulses while hovering)
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
+                {
+                    Vector2 origin = glow.Size() / 2f;
+                    float pulse = 0.7f + 0.3f * MathF.Sin((float)Main.timeForVisualEffects * 0.12f);
+                    float hoverIntensity = _hovering ? 1.3f : 1f;
+
+                    sb.Draw(glow, drawPos, null,
+                        (OdeToJoyPalette.SunlightYellow with { A = 0 }) * 0.2f * pulse * hoverIntensity,
+                        0f, origin, 0.05f * hoverIntensity, SpriteEffects.None, 0f);
+                }
+
                 sb.End();
             }
-
-            // ── LAYER 1: CelebrationAura shader — concentric rings (hover mode) ──
-            Effect auraShader = OdeToJoyShaders.CelebrationAura;
-            if (auraShader != null && _hovering)
+            catch { }
+            finally
             {
-                float auraRadius = 0.3f + 0.1f * (float)Math.Sin(_timer * 0.08f);
-                OdeToJoyShaders.SetAuraParams(auraShader, time, HymnTextures.RadiantAmber,
-                    HymnTextures.BloomGold, fade * 0.35f, 1.5f, auraRadius, 3f);
-                OdeToJoyShaders.BeginShaderBatch(sb, auraShader, "CelebrationAuraTechnique");
-                auraShader.CurrentTechnique.Passes["P0"].Apply();
-                sb.Draw(glow, pos, null, Color.White * fade * 0.4f, 0f, glowOrigin,
-                    scale * 1.2f, SpriteEffects.None, 0f);
-                sb.End();
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
-            // ── LAYER 2: Additive bloom overlays ──
-            OdeToJoyShaders.BeginAdditiveBatch(sb);
-
-            // Outer glow
-            sb.Draw(glow, pos, null, HymnTextures.BloomGold * fade * 0.35f, 0f, glowOrigin,
-                scale * 2f, SpriteEffects.None, 0f);
-            // Orb body
-            sb.Draw(glow, pos, null, HymnTextures.JubilantLight * fade * 0.5f, 0f, glowOrigin,
-                scale, SpriteEffects.None, 0f);
-            // Power ring (hover mode)
-            if (_hovering)
-                sb.Draw(ring, pos, null, HymnTextures.RadiantAmber * fade * 0.35f, _timer * 0.03f,
-                    ringOrigin, scale * 0.6f, SpriteEffects.None, 0f);
-            // Hot center
-            sb.Draw(glow, pos, null, HymnTextures.PureJoyWhite * fade * 0.4f, 0f, glowOrigin,
-                scale * 0.3f, SpriteEffects.None, 0f);
-
-            // Theme blossom sparkle accent
-            OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
-
-            sb.End();
-            OdeToJoyShaders.RestoreSpriteBatch(sb);
             return false;
         }
     }
@@ -382,6 +336,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
     {
         public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
         private int _timer;
+        private VertexStrip _vertexStrip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -401,7 +362,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
             Projectile.rotation = Projectile.velocity.ToRotation();
             if (Main.rand.NextBool(2))
             {
-                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.GoldFlame, 0f, 0f, 100, HymnTextures.RadiantAmber, 0.5f);
+                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, ModContent.DustType<HymnVerseDust>(), 0f, 0f, 100, HymnTextures.RadiantAmber, 0.5f);
                 d.noGravity = true;
             }
         }
@@ -426,9 +387,12 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
             for (int i = 0; i < 20; i++)
             {
                 Vector2 vel = Main.rand.NextVector2Circular(4f, 4f);
-                Dust d = Dust.NewDustDirect(Projectile.Center, 1, 1, DustID.GoldFlame, vel.X, vel.Y, 80, HymnTextures.PureJoyWhite, 0.7f);
+                Dust d = Dust.NewDustDirect(Projectile.Center, 1, 1, ModContent.DustType<HymnVerseDust>(), vel.X, vel.Y, 80, HymnTextures.PureJoyWhite, 0.7f);
                 d.noGravity = true;
             }
+
+            // Gloria split sparkle burst
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(Projectile.Center, 4, 4f, 1f);
 
             // Encore check — if part of Complete Hymn and kill happens
             if (target.life <= 0)
@@ -440,50 +404,43 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D glow = HymnTextures.SoftGlow;
-            Texture2D sparkle = HymnTextures.OJBlossomSparkle;
-            Vector2 glowOrigin = glow.Size() / 2f;
-            Vector2 sparkleOrigin = sparkle.Size() / 2f;
-            Vector2 pos = Projectile.Center - Main.screenPosition;
-            float fade = MathHelper.Clamp(_timer / 6f, 0f, 1f) * MathHelper.Clamp(Projectile.timeLeft / 15f, 0f, 1f);
-            float time = (float)Main.timeForVisualEffects * 0.015f;
-            float pulse = 0.9f + 0.1f * (float)Math.Sin(_timer * 0.2f);
-
-            sb.End();
-
-            // ── LAYER 0: VerdantSlash shader — fracture pattern overlay ──
-            Effect slashShader = OdeToJoyShaders.VerdantSlash;
-            if (slashShader != null)
+            try
             {
-                OdeToJoyShaders.SetSlashParams(slashShader, time, HymnTextures.RadiantAmber,
-                    HymnTextures.PureJoyWhite, fade * 0.5f, 2.0f, 0f);
-                OdeToJoyShaders.BeginDeferredShaderBatch(sb, slashShader, "ThornImpactTechnique");
-                sb.Draw(glow, pos, null, Color.White * fade * pulse, Projectile.rotation, glowOrigin,
-                    0.35f, SpriteEffects.None, 0f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _vertexStrip);
+
+                // Gloria bolt: amber fracture glow
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
+                {
+                    Vector2 origin = glow.Size() / 2f;
+                    float rot = Projectile.velocity.ToRotation();
+
+                    // Amber directional streak
+                    sb.Draw(glow, drawPos, null,
+                        (OdeToJoyPalette.WarmAmber with { A = 0 }) * 0.22f,
+                        rot, origin, new Vector2(0.07f, 0.028f), SpriteEffects.None, 0f);
+                    // White-hot core accent
+                    sb.Draw(glow, drawPos, null,
+                        (OdeToJoyPalette.WhiteBloom with { A = 0 }) * 0.1f,
+                        0f, origin, 0.025f, SpriteEffects.None, 0f);
+                }
+
                 sb.End();
             }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
-            // ── LAYER 1: Additive bloom + sparkle body ──
-            OdeToJoyShaders.BeginAdditiveBatch(sb);
-
-            // Fracture sparkle body
-            sb.Draw(sparkle, pos, null, HymnTextures.RadiantAmber * fade * 0.6f, Projectile.rotation,
-                sparkleOrigin, 0.35f, SpriteEffects.None, 0f);
-            // Outer glow
-            sb.Draw(glow, pos, null, HymnTextures.RadiantAmber * fade * 0.4f, 0f, glowOrigin, 0.32f,
-                SpriteEffects.None, 0f);
-            // Mid glow
-            sb.Draw(glow, pos, null, HymnTextures.JubilantLight * fade * 0.35f, 0f, glowOrigin, 0.15f,
-                SpriteEffects.None, 0f);
-            // Hot core
-            sb.Draw(glow, pos, null, HymnTextures.PureJoyWhite * fade * 0.4f, 0f, glowOrigin, 0.06f,
-                SpriteEffects.None, 0f);
-
-            // Theme blossom sparkle accent
-            OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
-
-            sb.End();
-            OdeToJoyShaders.RestoreSpriteBatch(sb);
             return false;
         }
     }
@@ -496,6 +453,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
     {
         public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
         private int _timer;
+        private VertexStrip _vertexStrip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -539,7 +503,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
 
             if (Main.rand.NextBool(3))
             {
-                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.GoldFlame, 0f, 0f, 120, HymnTextures.BloomGold, 0.3f);
+                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, ModContent.DustType<HymnVerseDust>(), 0f, 0f, 120, HymnTextures.BloomGold, 0.3f);
                 d.noGravity = true;
             }
         }
@@ -547,37 +511,38 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D glow = HymnTextures.SoftGlow;
-            Vector2 origin = glow.Size() / 2f;
-            Vector2 pos = Projectile.Center - Main.screenPosition;
-            float fade = MathHelper.Clamp(_timer / 5f, 0f, 1f) * MathHelper.Clamp(Projectile.timeLeft / 10f, 0f, 1f);
-            float time = (float)Main.timeForVisualEffects * 0.015f;
-
-            sb.End();
-
-            // ── LAYER 0: GardenBloom shader — small petal accent ──
-            Effect bloomShader = OdeToJoyShaders.GardenBloom;
-            if (bloomShader != null)
+            try
             {
-                OdeToJoyShaders.SetBloomParams(bloomShader, time * 1.5f, HymnTextures.BloomGold,
-                    HymnTextures.RadiantAmber, fade * 0.4f, 1.5f, 0.25f);
-                OdeToJoyShaders.BeginDeferredShaderBatch(sb, bloomShader, "GardenBloomTechnique");
-                sb.Draw(glow, pos, null, Color.White * fade, Projectile.rotation, origin,
-                    0.18f, SpriteEffects.None, 0f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _vertexStrip);
+
+                // Gloria fragment: golden directional streak
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
+                {
+                    Vector2 origin = glow.Size() / 2f;
+                    float rot = Projectile.velocity.ToRotation();
+
+                    sb.Draw(glow, drawPos, null,
+                        (OdeToJoyPalette.GoldenPollen with { A = 0 }) * 0.18f,
+                        rot, origin, new Vector2(0.04f, 0.018f), SpriteEffects.None, 0f);
+                }
+
                 sb.End();
             }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
-            // ── LAYER 1: Additive bloom ──
-            OdeToJoyShaders.BeginAdditiveBatch(sb);
-
-            sb.Draw(glow, pos, null, HymnTextures.BloomGold * fade * 0.4f, 0f, origin, 0.15f, SpriteEffects.None, 0f);
-            sb.Draw(glow, pos, null, HymnTextures.JubilantLight * fade * 0.3f, 0f, origin, 0.06f, SpriteEffects.None, 0f);
-
-            // Theme blossom sparkle accent
-            OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
-
-            sb.End();
-            OdeToJoyShaders.RestoreSpriteBatch(sb);
             return false;
         }
     }

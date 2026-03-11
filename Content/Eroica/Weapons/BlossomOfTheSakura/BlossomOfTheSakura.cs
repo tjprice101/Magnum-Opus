@@ -44,6 +44,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.BlossomOfTheSakura
             Item.DamageType = DamageClass.Ranged;
             Item.width = 64;
             Item.height = 28;
+            Item.scale = 0.05f;
             Item.useTime = 4;
             Item.useAnimation = 4;
             Item.useStyle = ItemUseStyleID.Shoot;

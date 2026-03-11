@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Dusts;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Buffs
 {
@@ -111,7 +112,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Buffs
                 drawColor = Color.Lerp(drawColor, new Color(255, 200, 50), 0.15f);
                 if (Main.rand.NextBool(5))
                 {
-                    Dust d = Dust.NewDustDirect(npc.position, npc.width, npc.height, DustID.GoldFlame, 0f, -1.5f, 120, new Color(255, 200, 50), 0.6f);
+                    Dust d = Dust.NewDustDirect(npc.position, npc.width, npc.height, ModContent.DustType<JubilantEmberDust>(), 0f, -1.5f, 120, new Color(255, 200, 50), 0.6f);
                     d.noGravity = true;
                 }
             }
@@ -120,7 +121,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Buffs
                 drawColor = Color.Lerp(drawColor, new Color(255, 250, 200), 0.1f);
                 if (Main.rand.NextBool(8))
                 {
-                    Dust d = Dust.NewDustDirect(npc.position, npc.width, npc.height, DustID.GoldFlame, 0f, -0.5f, 100, new Color(255, 250, 200), 0.4f);
+                    Dust d = Dust.NewDustDirect(npc.position, npc.width, npc.height, ModContent.DustType<JubilantEmberDust>(), 0f, -0.5f, 100, new Color(255, 250, 200), 0.4f);
                     d.noGravity = true;
                 }
             }

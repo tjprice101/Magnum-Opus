@@ -2,11 +2,16 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Buffs;
-using MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Utilities;
+using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
 using MagnumOpus.Content.OdeToJoy;
+using MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Buffs;
+using MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Dusts;
+using MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Utilities;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
 {
@@ -24,6 +29,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
         private const int FadeOutFrames = 10;
         private int timer;
         private float seed;
+        private VertexStrip _vertexStrip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -56,18 +68,16 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
             Lighting.AddLight(Projectile.Center,
                 ThornboundTextures.RadiantAmber.ToVector3() * 0.4f * alpha);
 
-            // Trailing sparks
+            // Trailing sparks — ThornburstDust fragments shed from the lash
             if (timer % 2 == 0)
             {
                 Vector2 vel = -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(1f, 1f);
                 Color col = Color.Lerp(ThornboundTextures.PetalPink, ThornboundTextures.RadiantAmber,
                     Main.rand.NextFloat());
-                Dust dust = Dust.NewDustPerfect(
+                Dust.NewDustPerfect(
                     Projectile.Center + Main.rand.NextVector2Circular(4f, 4f),
-                    DustID.RainbowMk2, vel, newColor: col,
-                    Scale: Main.rand.NextFloat(0.2f, 0.45f));
-                dust.noGravity = true;
-                dust.fadeIn = 0.4f;
+                    ModContent.DustType<ThornburstDust>(), vel, newColor: col,
+                    Scale: Main.rand.NextFloat(0.6f, 1.2f));
             }
         }
 
@@ -90,68 +100,68 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
             var tbp = owner.GetModPlayer<ThornboundPlayer>();
             tbp.AddThornEmbedCharge();
 
-            // Embed impact burst
+            // Embed impact burst — ThornburstDust fragments + sparkle
             for (int i = 0; i < 6; i++)
             {
                 Vector2 vel = Main.rand.NextVector2Circular(4f, 4f);
                 Color col = Color.Lerp(ThornboundTextures.RoseShadow, ThornboundTextures.RadiantAmber,
                     Main.rand.NextFloat());
-                Dust dust = Dust.NewDustPerfect(target.Center, DustID.RainbowMk2, vel,
-                    newColor: col, Scale: Main.rand.NextFloat(0.4f, 0.7f));
-                dust.noGravity = true;
+                Dust.NewDustPerfect(target.Center, ModContent.DustType<ThornburstDust>(), vel,
+                    newColor: col, Scale: Main.rand.NextFloat(1.0f, 1.8f));
             }
+
+            // Sparkle burst on embed
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(target.Center, 4, 3f, 0.15f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            float alpha = GetAlpha();
-            float time = (float)Main.timeForVisualEffects * 0.015f;
-
-            sb.End();
-
-            // ── LAYER 0: VerdantSlash ThornImpact shader — thorn body ──
-            Effect slashShader = OdeToJoyShaders.VerdantSlash;
-            if (slashShader != null)
+            try
             {
-                OdeToJoyShaders.SetSlashParams(slashShader, time + seed * 0.3f,
-                    ThornboundTextures.RadiantAmber, ThornboundTextures.RoseShadow,
-                    alpha * 0.55f, 1.5f, 0f);
-                OdeToJoyShaders.BeginDeferredShaderBatch(sb, slashShader, "ThornImpactTechnique");
-                Texture2D thornTex = ThornboundTextures.OJThornFragment.Value;
-                Vector2 thornOrigin = thornTex.Size() / 2f;
-                sb.Draw(thornTex, drawPos, null, Color.White * alpha,
-                    Projectile.rotation, thornOrigin, 0.6f, SpriteEffects.None, 0f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _vertexStrip);
+
+                // Thorn Lash accent: vine-green directional streak
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
+                {
+                    Vector2 origin = glow.Size() / 2f;
+                    float velRot = Projectile.velocity.ToRotation();
+                    float alpha = GetAlpha();
+
+                    sb.Draw(glow, drawPos, null,
+                        (OdeToJoyPalette.LeafGreen with { A = 0 }) * 0.22f * alpha,
+                        velRot, origin, new Vector2(0.1f, 0.022f), SpriteEffects.None, 0f);
+                }
+
                 sb.End();
             }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
-            // ── LAYER 1: Additive bloom ──
-            OdeToJoyShaders.BeginAdditiveBatch(sb);
-
-            Texture2D softGlow = ThornboundTextures.SoftGlow.Value;
-            Vector2 glowOrigin = softGlow.Size() / 2f;
-            sb.Draw(softGlow, drawPos, null,
-                ThornboundTextures.PetalPink * alpha * 0.3f,
-                0f, glowOrigin, 0.08f, SpriteEffects.None, 0f);
-
-            // Theme blossom sparkle accent
-            OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
-
-            sb.End();
-            OdeToJoyShaders.RestoreSpriteBatch(sb);
             return false;
         }
 
         public override void OnKill(int timeLeft)
         {
-            for (int i = 0; i < 8; i++)
+            // Thorn fragment burst on death
+            for (int i = 0; i < 6; i++)
             {
                 Vector2 vel = Main.rand.NextVector2Circular(3f, 3f);
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowMk2, vel,
+                Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<ThornburstDust>(), vel,
                     newColor: ThornboundTextures.RoseShadow,
-                    Scale: Main.rand.NextFloat(0.2f, 0.5f));
-                dust.noGravity = true;
+                    Scale: Main.rand.NextFloat(0.7f, 1.4f));
             }
         }
     }

@@ -119,6 +119,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             float time = (float)Main.timeForVisualEffects * 0.015f;
             float pulse = 1f + (float)Math.Sin(pulseTimer) * 0.15f;
 
@@ -146,6 +148,15 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             EroicaVFXLibrary.BeginEroicaAdditive(sb);
             EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.5f);
             EroicaVFXLibrary.EndEroicaAdditive(sb);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -315,7 +326,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                         Vector2 pos = segStart - Main.screenPosition;
                         Vector2 drawOrigin = new Vector2(0, texH / 2f);
 
-                        Color bodyColor = Color.Lerp(EroicaPalette.Gold, EroicaPalette.Scarlet, 1f - progress) with { A = 0 };
+                        Color bodyColor = new Color(255, 0, 50) with { A = 0 }; // NEON RED fallback!
                         sb.Draw(stripTex, pos, srcRect, bodyColor * (fade * 0.5f), segAngle, drawOrigin,
                             new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
                     }

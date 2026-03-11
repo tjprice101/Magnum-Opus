@@ -189,7 +189,7 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+40% ranged critical strike chance"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "All ranged projectiles gain slight homing (precision tracking)"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Ranged critical strikes fire a bonus temporal bolt"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "+35% chance not to consume ammo"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "~51% chance not to consume ammo (layered conservation)"));
             tooltips.Add(new TooltipLine(Mod, "Effect6", "Headshots (crits from above) deal +100% bonus damage"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Every gear clicks into perfect alignment'") 
             { 
@@ -412,9 +412,10 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+80% magic damage"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+50% magic critical strike chance"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "-45% mana cost"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Magic attacks create temporal echoes that repeat the hit"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Magic attacks create temporal echoes that deal 50% damage"));
             tooltips.Add(new TooltipLine(Mod, "Effect5", "+200 max mana"));
-            tooltips.Add(new TooltipLine(Mod, "Effect6", "When mana drops below 20%, gain Temporal Clarity (+30% all stats for 8 seconds)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "When mana drops below 20%, gain Temporal Clarity for 8 seconds"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "Temporal Clarity: +30% damage, +20% crit, +15% attack speed, +20% movement"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The sphere that holds all moments in perfect suspension'") 
             { 
                 OverrideColor = ClairDeLuneColors.Crystal 
@@ -607,9 +608,9 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+90% summon damage"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+6 max minions"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Minions attack 35% faster"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Minion attacks have 20% chance to create temporal clones"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "+40% whip speed and range"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+40% whip speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Minion attacks have 20% chance to create temporal clones (33% damage)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Every 10 minion hits summons a temporal storm burst"));
             tooltips.Add(new TooltipLine(Mod, "Effect6", "Every 10 minion hits summons a temporal storm burst"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The conductor commands the orchestra of time itself'") 
             { 

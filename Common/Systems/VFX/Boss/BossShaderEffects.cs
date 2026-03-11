@@ -244,7 +244,7 @@ namespace MagnumOpus.Common.Systems.VFX
             {
                 float layerScale = scale * pulse * scales[i];
                 float layerOpacity = opacities[i] * intensity;
-                Color layerColor = Color.Lerp(primary, secondary, i / 2f) with { A = 0 } * layerOpacity;
+                Color layerColor = new Color(255, 0, 50) with { A = 0 } * layerOpacity; // NEON RED fallback!
                 
                 spriteBatch.Draw(texture, drawPos, frame, layerColor, rotation, origin, layerScale, SpriteEffects.None, 0f);
             }

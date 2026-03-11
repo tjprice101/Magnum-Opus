@@ -39,12 +39,6 @@ namespace MagnumOpus.Content.Fate.Accessories
             
             // +10% melee critical strike chance
             player.GetCritChance(DamageClass.Melee) += 10;
-            
-            // Temporal chronometer ambient VFX
-            if (!hideVisual)
-            {
-                FateAccessoryVFX.ParadoxChronometerAmbientVFX(player);
-            }
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)

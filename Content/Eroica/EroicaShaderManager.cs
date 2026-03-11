@@ -10,16 +10,16 @@ namespace MagnumOpus.Content.Eroica
     /// Compartmentalized shader manager for all Eroica VFX.
     /// Wraps ShaderLoader access to HeroicFlameTrail.fx, CelestialValorTrail.fx,
     /// SakuraBloom.fx, EroicaFuneralTrail.fx, TriumphantFractalShader.fx,
-    /// SakuraSwingTrail.fx, and all weapon-specific shaders — providing preset
+    /// SakuraSwingTrail.fx, and all weapon-specific shaders  Eproviding preset
     /// Apply* methods for each rendering technique.
     ///
     /// Root-Level Techniques:
-    ///   HeroicFlameTrail    — HeroicFlameFlow / HeroicFlameGlow
-    ///   CelestialValorTrail — HeroicTrail / ValorFlare
-    ///   SakuraBloom         — SakuraPetalBloom / SakuraGlowPass
-    ///   EroicaFuneralTrail  — FuneralFlameFlow / FuneralGlowPass
-    ///   TriumphantFractal   — FractalEnergyTrail / FractalGlowPass
-    ///   SakuraSwingTrail    — SakuraTrailFlow / SakuraTrailGlow
+    ///   HeroicFlameTrail     EHeroicFlameFlow / HeroicFlameGlow
+    ///   CelestialValorTrail  EHeroicTrail / ValorFlare
+    ///   SakuraBloom          ESakuraPetalBloom / SakuraGlowPass
+    ///   EroicaFuneralTrail   EFuneralFlameFlow / FuneralGlowPass
+    ///   TriumphantFractal    EFractalEnergyTrail / FractalGlowPass
+    ///   SakuraSwingTrail     ESakuraTrailFlow / SakuraTrailGlow
     ///
     /// Usage (in PreDraw):
     ///   EroicaShaderManager.BindPerlinNoise(device);
@@ -47,7 +47,7 @@ namespace MagnumOpus.Content.Eroica
         private const string DarkFlameAuraPath = ShaderLoader.DarkFlameAuraShader;
 
         // =====================================================================
-        //  Shader Availability — Root-Level
+        //  Shader Availability  ERoot-Level
         // =====================================================================
 
         /// <summary>True if the HeroicFlameTrail shader loaded successfully.</summary>
@@ -69,7 +69,7 @@ namespace MagnumOpus.Content.Eroica
         public static bool HasTriumphantFractal => ShaderLoader.HasShader(ShaderLoader.TriumphantFractalShaderName);
 
         // =====================================================================
-        //  Shader Availability — Weapon-Specific
+        //  Shader Availability  EWeapon-Specific
         // =====================================================================
 
         /// <summary>True if the ValorAura shader loaded (Celestial Valor hold aura).</summary>
@@ -147,12 +147,12 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Binds SparklyNoiseTexture to sampler slot 1 for fractal/crystal effects.
+        /// Binds SimplexNoise to sampler slot 1 for fractal/crystal effects.
         /// Falls back to PerlinNoise if unavailable.
         /// </summary>
         public static void BindSparklyNoise(GraphicsDevice device)
         {
-            Texture2D noise = ShaderLoader.GetNoiseTexture("SparklyNoiseTexture");
+            Texture2D noise = ShaderLoader.GetNoiseTexture("SimplexNoise");
             if (noise == null)
                 noise = ShaderLoader.GetNoiseTexture("PerlinNoise");
             if (noise != null)
@@ -447,7 +447,7 @@ namespace MagnumOpus.Content.Eroica
             float fractalDepth = 2.0f, float rotationSpeed = 0.3f,
             float noiseScale = 3f, float noiseScroll = 0.5f)
         {
-            Texture2D noise = ShaderLoader.GetNoiseTexture("SparklyNoiseTexture");
+            Texture2D noise = ShaderLoader.GetNoiseTexture("SimplexNoise");
             if (noise == null)
                 noise = ShaderLoader.GetNoiseTexture("PerlinNoise");
             if (noise != null)
@@ -795,7 +795,7 @@ namespace MagnumOpus.Content.Eroica
         // =====================================================================
 
         /// <summary>
-        /// Preset: Celestial Valor swing trail — heroic fire with phase-scaled intensity.
+        /// Preset: Celestial Valor swing trail  Eheroic fire with phase-scaled intensity.
         /// comboPhase maps to EroicaPalette.CelestialValorBlade progression.
         /// </summary>
         public static void ApplyCelestialValorSwingTrail(float time, float comboPhase, bool glowPass = false)
@@ -810,7 +810,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Preset: Celestial Valor impact flare — ValorFlare technique.
+        /// Preset: Celestial Valor impact flare  EValorFlare technique.
         /// </summary>
         public static void ApplyCelestialValorFlare(float time, float comboPhase)
         {
@@ -823,7 +823,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Preset: Celestial Valor hold aura — expanding ember rings.
+        /// Preset: Celestial Valor hold aura  Eexpanding ember rings.
         /// </summary>
         public static void ApplyCelestialValorHoldAura(float time, float comboPhase, bool glowPass = false)
         {
@@ -836,7 +836,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Preset: Sakura's Blossom swing trail — flowing petal energy.
+        /// Preset: Sakura's Blossom swing trail  Eflowing petal energy.
         /// comboPhase 0-3 maps to the 4-phase combo system.
         /// </summary>
         public static void ApplySakurasBlossomSwingTrail(float time, float comboPhase, bool glowPass = false)
@@ -852,7 +852,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Preset: Sakura's Blossom petal bloom overlay — phase-driven petal burst.
+        /// Preset: Sakura's Blossom petal bloom overlay  Ephase-driven petal burst.
         /// </summary>
         public static void ApplySakurasBlossomPetalBurst(float time, float bloomPhase, bool glowPass = false)
         {
@@ -876,7 +876,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Preset: Blossom of the Sakura tracer trail — heat-reactive color shift.
+        /// Preset: Blossom of the Sakura tracer trail  Eheat-reactive color shift.
         /// heatLevel: heatCounter/40f (0=cool, 1=overheat).
         /// </summary>
         public static void ApplyBlossomTracerTrail(float time, float heatLevel, bool glowPass = false)
@@ -924,7 +924,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Preset: Piercing Light lightning trail — sakura-fire zigzag bolt.
+        /// Preset: Piercing Light lightning trail  Esakura-fire zigzag bolt.
         /// </summary>
         public static void ApplyPiercingLightLightningTrail(float time, float chargeProgress, bool glowPass = false)
         {
@@ -938,7 +938,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Preset: Funeral Prayer beam trail — somber funeral fire beam.
+        /// Preset: Funeral Prayer beam trail  Esomber funeral fire beam.
         /// </summary>
         public static void ApplyFuneralPrayerBeamTrail(float time, bool glowPass = false)
         {
@@ -954,7 +954,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Preset: Funeral Prayer requiem beam — electric tracking beam body.
+        /// Preset: Funeral Prayer requiem beam  Eelectric tracking beam body.
         /// </summary>
         public static void ApplyFuneralPrayerRequiemBeam(float time, bool glowPass = false)
         {
@@ -970,7 +970,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Preset: Funeral Prayer convergence — "Prayer Answered" radial burst.
+        /// Preset: Funeral Prayer convergence  E"Prayer Answered" radial burst.
         /// </summary>
         public static void ApplyFuneralPrayerConvergence(float time, float expansionPhase, bool glowPass = false)
         {
@@ -982,7 +982,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Preset: Triumphant Fractal projectile trail — golden geometry.
+        /// Preset: Triumphant Fractal projectile trail  Egolden geometry.
         /// </summary>
         public static void ApplyTriumphantFractalProjectileTrail(float time, bool glowPass = false)
         {
@@ -998,7 +998,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Preset: Triumphant Fractal sacred geometry burst — hexagram impact.
+        /// Preset: Triumphant Fractal sacred geometry burst  Ehexagram impact.
         /// </summary>
         public static void ApplyTriumphantFractalSacredGeometry(float time, float burstPhase, bool glowPass = false)
         {
@@ -1011,7 +1011,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Preset: Finality of the Sakura summoning circle — dark fate ritual.
+        /// Preset: Finality of the Sakura summoning circle  Edark fate ritual.
         /// </summary>
         public static void ApplyFinalitySummonCircle(float time, float ritualPhase, bool glowPass = false)
         {
@@ -1025,7 +1025,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Preset: Finality of the Sakura dark flame aura — minion dark fire halo.
+        /// Preset: Finality of the Sakura dark flame aura  Eminion dark fire halo.
         /// </summary>
         public static void ApplyFinalityDarkFlameAura(float time, bool glowPass = false)
         {
@@ -1039,7 +1039,7 @@ namespace MagnumOpus.Content.Eroica
         }
 
         /// <summary>
-        /// Preset: Finality of the Sakura dark funeral trail — minion dark flame stream.
+        /// Preset: Finality of the Sakura dark funeral trail  Eminion dark flame stream.
         /// Uses EroicaFuneralTrail with dark palette variant.
         /// </summary>
         public static void ApplyFinalityDarkFuneralTrail(float time, bool glowPass = false)

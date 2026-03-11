@@ -4,6 +4,7 @@ using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.Eroica.Projectiles
@@ -130,6 +131,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D texture = Terraria.GameContent.TextureAssets.Projectile[Type].Value;
             Vector2 drawOrigin = new Vector2(texture.Width * 0.5f, texture.Height * 0.5f);
@@ -177,9 +181,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 float pulse = 0.85f + 0.15f * (float)Math.Sin(Main.GameUpdateCount * 0.15f);
                 Vector2 mainPos = Projectile.Center - Main.screenPosition + new Vector2(0f, Projectile.gfxOffY);
 
-                Main.EntitySpriteDraw(texture, mainPos, null, EroicaPalette.Scarlet * 0.35f, Projectile.rotation, drawOrigin, Projectile.scale * 1.5f * pulse, SpriteEffects.None, 0);
-                Main.EntitySpriteDraw(texture, mainPos, null, EroicaPalette.Sakura * 0.5f, Projectile.rotation, drawOrigin, Projectile.scale * 1.25f * pulse, SpriteEffects.None, 0);
-                Main.EntitySpriteDraw(texture, mainPos, null, EroicaPalette.Gold * 0.6f, Projectile.rotation, drawOrigin, Projectile.scale * 1.1f * pulse, SpriteEffects.None, 0);
+                // Graduated orb bloom head (Incisor of Moonlight pattern)
+                MagnumVFX.DrawGraduatedOrbHead(spriteBatch, mainPos, EroicaPalette.Scarlet, EroicaPalette.Gold, 1.0f);
             }
             finally
             {
@@ -190,6 +193,15 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             EroicaVFXLibrary.BeginEroicaAdditive(spriteBatch);
             EroicaVFXLibrary.DrawThemeSakuraAccent(spriteBatch, Projectile.Center, 1f, 0.5f);
             EroicaVFXLibrary.EndEroicaAdditive(spriteBatch);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

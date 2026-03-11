@@ -258,6 +258,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
         public override bool PreDraw(ref Color lightColor)
         {
             if (Main.dedServ) return false;
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
 
             // End the active SpriteBatch before GPU primitive drawing
             Main.spriteBatch.End();
@@ -273,6 +276,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
             }
 
             DrawHeadGlow();
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -348,20 +360,20 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
                 Main.DefaultSamplerState, DepthStencilState.None,
                 Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Outer glow — cast palette (scaled down)
+            // Outer glow — cast palette (reduced further for clarity)
             Color outerColor = GoliathUtils.WaxingGibbous with { A = 0 };
-            float outerScale = 0.1f + IntensityPulse * 0.04f;
-            sb.Draw(bloom, drawPos, null, outerColor * (0.4f + IntensityPulse * 0.2f), 0f, origin, outerScale, SpriteEffects.None, 0f);
+            float outerScale = 0.07f + IntensityPulse * 0.03f;
+            sb.Draw(bloom, drawPos, null, outerColor * (0.22f + IntensityPulse * 0.1f), 0f, origin, outerScale, SpriteEffects.None, 0f);
 
             // Middle glow — ice blue
             Color midColor = GoliathUtils.FullMoonIceBlue with { A = 0 };
-            float midScale = 0.06f + IntensityPulse * 0.03f;
-            sb.Draw(bloom, drawPos, null, midColor * (0.4f + IntensityPulse * 0.2f), 0f, origin, midScale, SpriteEffects.None, 0f);
+            float midScale = 0.04f + IntensityPulse * 0.02f;
+            sb.Draw(bloom, drawPos, null, midColor * (0.22f + IntensityPulse * 0.1f), 0f, origin, midScale, SpriteEffects.None, 0f);
 
             // Inner core — supermoon white
             Color coreColor = GoliathUtils.SupermoonWhite with { A = 0 };
-            float coreScale = 0.035f + IntensityPulse * 0.015f;
-            sb.Draw(bloom, drawPos, null, coreColor * (0.6f + IntensityPulse * 0.3f), 0f, origin, coreScale, SpriteEffects.None, 0f);
+            float coreScale = 0.025f + IntensityPulse * 0.01f;
+            sb.Draw(bloom, drawPos, null, coreColor * (0.35f + IntensityPulse * 0.15f), 0f, origin, coreScale, SpriteEffects.None, 0f);
 
             // Restore to AlphaBlend
             sb.End();

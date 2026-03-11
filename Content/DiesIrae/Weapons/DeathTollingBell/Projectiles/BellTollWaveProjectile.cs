@@ -1,6 +1,7 @@
 using MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Buffs;
 using MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Particles;
 using MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Utilities;
+using MagnumOpus.Content.DiesIrae;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -140,6 +141,15 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Projectiles
             if (!Main.dedServ)
             {
                 DeathTollingBellUtils.DoTollWaveDust(target.Center, 15f, IsFuneralMarch);
+
+                // Dies Irae VFX: tolling bell impact — music notes (thematic for a bell!)
+                DiesIraeVFXLibrary.MeleeImpact(target.Center, 0);
+                DiesIraeVFXLibrary.SpawnMusicNotes(target.Center, 2, 2.5f, 0.7f, 0.8f, 35);
+
+                if (IsFuneralMarch)
+                {
+                    DiesIraeVFXLibrary.SpawnJudgmentRings(target.Center, 2, 0.3f);
+                }
             }
         }
 
@@ -149,10 +159,12 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             float effectiveTimer = _timer - SpawnDelay * 60f;
             if (effectiveTimer < 0) return false;
 
-            SpriteBatch sb = Main.spriteBatch;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
             float progress = effectiveTimer / MaxLifetime;
@@ -214,10 +226,15 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Projectiles
             }
 
             // ── RESTORE SpriteBatch ──
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null,
-                Main.GameViewMatrix.ZoomMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

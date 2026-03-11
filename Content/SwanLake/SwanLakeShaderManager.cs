@@ -36,11 +36,10 @@ namespace MagnumOpus.Content.SwanLake
         // =====================================================================
 
         public const string SwanLakeTrailShaderName = "SwanLakeTrail";
-        public const string SwanLakeBloomShaderName = "SwanLakeBloom";
         public const string SwanLakePrismaticShaderName = "SwanLakePrismatic";
 
         // =====================================================================
-        //  Shader Availability — Weapon-Specific
+        //  Shader Availability  EWeapon-Specific
         // =====================================================================
 
         // CalloftheBlackSwan
@@ -69,7 +68,6 @@ namespace MagnumOpus.Content.SwanLake
 
         // Legacy shared shader checks
         public static bool HasSwanTrail => ShaderLoader.HasShader(SwanLakeTrailShaderName);
-        public static bool HasSwanBloom => ShaderLoader.HasShader(SwanLakeBloomShaderName);
         public static bool HasSwanPrismatic => ShaderLoader.HasShader(SwanLakePrismaticShaderName);
 
         /// <summary>True if any Swan Lake shader is available.</summary>
@@ -80,7 +78,7 @@ namespace MagnumOpus.Content.SwanLake
             HasCrystalOrbitTrail || HasFlockAura ||
             HasEtherealWing || HasWingspanFlareTrail ||
             HasLamentBulletTrail || HasDestructionRevelation ||
-            HasSwanTrail || HasSwanBloom || HasSwanPrismatic;
+            HasSwanTrail || HasSwanPrismatic;
 
         /// <summary>True if any trail shader is usable (dedicated or shared fallback).</summary>
         public static bool HasFallbackTrail => ShaderLoader.HasShader(ShaderLoader.ScrollingTrailShader);
@@ -125,12 +123,12 @@ namespace MagnumOpus.Content.SwanLake
         }
 
         /// <summary>
-        /// Binds SparklyNoiseTexture to sampler slot 1 for chromatic shimmer highlights.
+        /// Binds SimplexNoise to sampler slot 1 for chromatic shimmer highlights.
         /// Used by Chromatic Swan Song trail and Aria Explosion.
         /// </summary>
-        public static void BindSparklyNoiseTexture(GraphicsDevice device)
+        public static void BindSimplexNoise(GraphicsDevice device)
         {
-            Texture2D noise = ShaderLoader.GetNoiseTexture("SparklyNoiseTexture");
+            Texture2D noise = ShaderLoader.GetNoiseTexture("SimplexNoise");
             if (noise == null)
                 noise = ShaderLoader.GetNoiseTexture("PerlinNoise");
             if (noise != null)
@@ -173,7 +171,7 @@ namespace MagnumOpus.Content.SwanLake
         }
 
         // =====================================================================
-        //  Generic Apply Methods — Trail Shaders
+        //  Generic Apply Methods  ETrail Shaders
         // =====================================================================
 
         /// <summary>
@@ -265,7 +263,7 @@ namespace MagnumOpus.Content.SwanLake
         }
 
         // =====================================================================
-        //  WEAPON PRESETS — Call of the Black Swan (Melee Greatsword)
+        //  WEAPON PRESETS  ECall of the Black Swan (Melee Greatsword)
         // =====================================================================
 
         /// <summary>
@@ -313,7 +311,7 @@ namespace MagnumOpus.Content.SwanLake
         }
 
         // =====================================================================
-        //  WEAPON PRESETS — Call of the Pearlescent Lake (Ranged Assault Rifle)
+        //  WEAPON PRESETS  ECall of the Pearlescent Lake (Ranged Assault Rifle)
         // =====================================================================
 
         /// <summary>
@@ -355,7 +353,7 @@ namespace MagnumOpus.Content.SwanLake
         }
 
         // =====================================================================
-        //  WEAPON PRESETS — Chromatic Swan Song (Magic Pistol)
+        //  WEAPON PRESETS  EChromatic Swan Song (Magic Pistol)
         // =====================================================================
 
         /// <summary>
@@ -367,7 +365,7 @@ namespace MagnumOpus.Content.SwanLake
             string technique = glow ? "ChromaticTrailGlow" : "ChromaticTrailMain";
             if (HasChromaticTrail)
             {
-                BindSparklyNoiseTexture(Main.graphics.GraphicsDevice);
+                BindSimplexNoise(Main.graphics.GraphicsDevice);
                 Color rainbow = SwanLakePalette.GetRainbow(time * 0.1f);
                 return ApplyTrailShader(ShaderLoader.ChromaticTrailShader, technique,
                     time, SwanLakePalette.Silver, rainbow,
@@ -390,7 +388,7 @@ namespace MagnumOpus.Content.SwanLake
             string technique = ringOnly ? "AriaExplosionRing" : "AriaExplosionMain";
             if (HasAriaExplosion)
             {
-                BindSparklyNoiseTexture(Main.graphics.GraphicsDevice);
+                BindSimplexNoise(Main.graphics.GraphicsDevice);
                 return ApplyRadialShader(ShaderLoader.AriaExplosionShader, technique,
                     time, SwanLakePalette.PureWhite, SwanLakePalette.ObsidianBlack,
                     explosionAge, intensity: 2.0f, overbrightMult: 3.5f,
@@ -400,7 +398,7 @@ namespace MagnumOpus.Content.SwanLake
         }
 
         // =====================================================================
-        //  WEAPON PRESETS — Feather of the Iridescent Flock (Summoner)
+        //  WEAPON PRESETS  EFeather of the Iridescent Flock (Summoner)
         // =====================================================================
 
         /// <summary>
@@ -446,7 +444,7 @@ namespace MagnumOpus.Content.SwanLake
         }
 
         // =====================================================================
-        //  WEAPON PRESETS — Iridescent Wingspan (Magic Staff)
+        //  WEAPON PRESETS  EIridescent Wingspan (Magic Staff)
         // =====================================================================
 
         /// <summary>
@@ -491,7 +489,7 @@ namespace MagnumOpus.Content.SwanLake
         }
 
         // =====================================================================
-        //  WEAPON PRESETS — The Swan's Lament (Ranged Shotgun)
+        //  WEAPON PRESETS  EThe Swan's Lament (Ranged Shotgun)
         // =====================================================================
 
         /// <summary>

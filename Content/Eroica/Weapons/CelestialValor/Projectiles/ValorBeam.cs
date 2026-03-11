@@ -1,15 +1,16 @@
 using System;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Eroica;
 using MagnumOpus.Content.Eroica.Weapons.CelestialValor.Buffs;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using MagnumOpus.Content.FoundationWeapons.SwordSmearFoundation;
 using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
-using MagnumOpus.Common.Systems.VFX;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.Audio;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -29,6 +30,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
     {
         private int TargetIndex = -1;
         private const int NoHomeTime = 20;
+        private VertexStrip _strip;
 
         private ref float Time => ref Projectile.ai[0];
 
@@ -168,106 +170,23 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            if (Projectile.timeLeft > 295) return false;
-
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D softGlow = SMFTextures.SoftGlow.Value;
-            Texture2D starFlare = SMFTextures.StarFlare.Value;
-            Texture2D pointBloom = SMFTextures.PointBloom.Value;
-
-            float scale = Projectile.scale;
-            float time = (float)Main.gameTimeCache.TotalGameTime.TotalSeconds;
-
-            // Cycle through Eroica fire colors
-            Color mainColor = MulticolorLerp(
-                (time * 1.5f + Projectile.whoAmI * 0.15f) % 1f,
-                EroicaPalette.Scarlet, EroicaPalette.Flame, EroicaPalette.Gold, EroicaPalette.HotCore);
-
-            // === GPU Primitive Ribbon Trail (EnhancedTrailRenderer) ===
-            EnhancedTrailRenderer.RenderProjectileTrail(
-                Projectile,
-                startColor: EroicaPalette.Gold with { A = 0 },
-                endColor: EroicaPalette.DeepScarlet with { A = 0 } * 0.1f,
-                width: 22f * scale,
-                multiPass: true);
-
-            // ���� LAYER 1: Afterimage trail chain (Foundation bloom-per-point) ����
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
-                Main.DefaultSamplerState, DepthStencilState.None,
-                RasterizerState.CullCounterClockwise, null,
-                Main.GameViewMatrix.TransformationMatrix);
-
-            Vector2 glowOrigin = softGlow.Size() / 2f;
-            for (int i = 1; i < Projectile.oldPos.Length; i++)
+            try
             {
-                if (Projectile.oldPos[i] == Vector2.Zero) break;
-
-                float progress = (float)i / Projectile.oldPos.Length;
-                float fade = (1f - progress);
-                fade *= fade;
-                if (fade < 0.02f) continue;
-
-                Vector2 drawPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                float trailScale = 0.15f * fade * scale;
-
-                // Outer glow
-                Color outerCol = Color.Lerp(EroicaPalette.Scarlet, EroicaPalette.DeepScarlet, progress) with { A = 0 };
-                sb.Draw(softGlow, drawPos, null, outerCol * (fade * 0.4f), 0f, glowOrigin, trailScale * 1.5f, SpriteEffects.None, 0f);
-
-                // Inner core
-                Color coreCol = Color.Lerp(EroicaPalette.Gold, Color.White, fade * 0.3f) with { A = 0 };
-                sb.Draw(pointBloom, drawPos, null, coreCol * (fade * 0.5f), 0f,
-                    pointBloom.Size() / 2f, trailScale * 0.6f, SpriteEffects.None, 0f);
+            if (Projectile.timeLeft > 295) return false;
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.Eroica, ref _strip);
             }
-
-            // ���� LAYER 2: Head bloom (Foundation multi-scale stack) ����
-            Vector2 headPos = Projectile.Center - Main.screenPosition;
-
-            // Wide ambient haze
-            sb.Draw(softGlow, headPos, null,
-                (EroicaPalette.Scarlet with { A = 0 }) * 0.12f, 0f, glowOrigin,
-                0.28f * scale, SpriteEffects.None, 0f);
-
-            // Main body glow
-            sb.Draw(softGlow, headPos, null,
-                (mainColor with { A = 0 }) * 0.5f, 0f, glowOrigin,
-                0.28f * scale, SpriteEffects.None, 0f);
-
-            // Hot white core
-            sb.Draw(pointBloom, headPos, null,
-                (Color.White with { A = 0 }) * 0.4f, 0f, pointBloom.Size() / 2f,
-                0.12f * scale, SpriteEffects.None, 0f);
-
-            // Star flare accent
-            float flareRot = time * 2f + Projectile.whoAmI;
-            sb.Draw(starFlare, headPos, null,
-                (EroicaPalette.Gold with { A = 0 }) * 0.35f, flareRot,
-                starFlare.Size() / 2f, 0.15f * scale, SpriteEffects.None, 0f);
-
-            // Counter-rotating flare
-            sb.Draw(starFlare, headPos, null,
-                (mainColor with { A = 0 }) * 0.2f, -flareRot * 0.7f,
-                starFlare.Size() / 2f, 0.1f * scale, SpriteEffects.None, 0f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                Main.DefaultSamplerState, DepthStencilState.None,
-                RasterizerState.CullCounterClockwise, null,
-                Main.GameViewMatrix.TransformationMatrix);
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
 
         #endregion
-
-        private static Color MulticolorLerp(float t, params Color[] colors)
-        {
-            t = MathHelper.Clamp(t, 0f, 0.999f);
-            float scaled = t * (colors.Length - 1);
-            int lo = (int)scaled;
-            int hi = Math.Min(lo + 1, colors.Length - 1);
-            return Color.Lerp(colors[lo], colors[hi], scaled - lo);
-        }
     }
 }

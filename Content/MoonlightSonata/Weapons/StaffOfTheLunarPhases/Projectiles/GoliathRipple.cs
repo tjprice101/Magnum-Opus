@@ -117,6 +117,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float t = timer / (float)MaxLifetime;
             float expansionEase = 1f - MathF.Pow(2f, -10f * t); // expo ease-out
@@ -150,6 +152,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
 
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
@@ -163,16 +174,16 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
             Color coreColor = GoliathUtils.StarCore;
 
             // Core flash — white-hot (SoftGlow 1024px — cap to 300px max)
-            sb.Draw(glow, drawPos, null, coreColor * (0.7f * flashAlpha * devMult), 0f,
-                origin, MathHelper.Min(0.3f * devMult, 0.293f), SpriteEffects.None, 0f);
+            sb.Draw(glow, drawPos, null, coreColor * (0.4f * flashAlpha * devMult), 0f,
+                origin, MathHelper.Min(0.2f * devMult, 0.2f), SpriteEffects.None, 0f);
 
             // Mid flash — ice blue
-            sb.Draw(glow, drawPos, null, GoliathUtils.IceBlueBrilliance * (0.5f * flashAlpha * devMult), 0f,
-                origin, MathHelper.Min(0.5f * devMult, 0.293f), SpriteEffects.None, 0f);
+            sb.Draw(glow, drawPos, null, GoliathUtils.IceBlueBrilliance * (0.3f * flashAlpha * devMult), 0f,
+                origin, MathHelper.Min(0.35f * devMult, 0.25f), SpriteEffects.None, 0f);
 
             // Outer flash — phase-tinted
-            sb.Draw(glow, drawPos, null, phaseColor * (0.3f * flashAlpha * devMult), 0f,
-                origin, MathHelper.Min(0.7f * devMult, 0.293f), SpriteEffects.None, 0f);
+            sb.Draw(glow, drawPos, null, phaseColor * (0.18f * flashAlpha * devMult), 0f,
+                origin, MathHelper.Min(0.5f * devMult, 0.25f), SpriteEffects.None, 0f);
         }
 
         private void DrawRippleShader(SpriteBatch sb, Vector2 drawPos, float t,

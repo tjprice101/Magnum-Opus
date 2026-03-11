@@ -12,6 +12,7 @@ using MagnumOpus.Content.LaCampanella.Debuffs;
 using Terraria.Graphics.Shaders;
 using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
 using MagnumOpus.Content.FoundationWeapons.ExplosionParticlesFoundation;
+using MagnumOpus.Common.Systems.VFX.Sparkle;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Projectiles
 {
@@ -270,50 +271,46 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Non-shader bloom layers for depth and glow
+            // Bellfire sparkle layers — replaces 4×N SoftGlow per-layer stacking (~30 draws → sparkles)
             int layerCount = IsSmall ? 4 : 7;
+            float sparkleTime = (float)Main.timeForVisualEffects;
+            Color[] bellfireColors = new Color[] {
+                new Color(200, 50, 0),      // Deep ember
+                new Color(255, 140, 30),    // Bright orange
+                new Color(255, 200, 100),   // Gold flicker
+                new Color(255, 240, 210),   // White-hot core
+                new Color(255, 255, 220),   // Bell chime white
+            };
+
             for (int i = 0; i < layerCount; i++)
             {
                 float t = i / (float)(layerCount - 1);
-                Vector2 layerPos = _groundPos - new Vector2(0, currentHeight * t) - Main.screenPosition;
+                Vector2 layerWorld = _groundPos - new Vector2(0, currentHeight * t);
 
-                float widthScale = (1f - t * 0.5f) * (IsSmall ? 0.18f : 0.28f);
+                float widthPx = (1f - t * 0.5f) * (IsSmall ? 18f : 28f);
                 float alphaFade = (1f - t * 0.3f) * heightMult;
 
-                // Deep ember outer
-                sb.Draw(bloomTex, layerPos, null,
-                    IgnitionOfTheBellUtils.Additive(new Color(200, 50, 0), 0.2f * alphaFade * pulse),
-                    0f, origin, widthScale * 0.5f, SpriteEffects.None, 0f);
-
-                // Bright orange mid
-                sb.Draw(bloomTex, layerPos, null,
-                    IgnitionOfTheBellUtils.Additive(new Color(255, 140, 30), 0.35f * alphaFade * pulse),
-                    0f, origin, widthScale, SpriteEffects.None, 0f);
-
-                // White-hot core
-                sb.Draw(bloomTex, layerPos, null,
-                    IgnitionOfTheBellUtils.Additive(new Color(255, 240, 210), 0.5f * alphaFade),
-                    0f, origin, widthScale * 0.3f, SpriteEffects.None, 0f);
-
-                // Additional flicker at each layer for visual richness
-                float flicker = (float)Math.Sin(_timer * 0.5f + t * 5f) * 0.1f + 0.9f;
-                sb.Draw(bloomTex, layerPos + new Vector2((float)Math.Sin(_timer * 0.3f + t * 3f) * 3f, 0), null,
-                    IgnitionOfTheBellUtils.Additive(new Color(255, 200, 100), 0.15f * alphaFade * flicker),
-                    0f, origin, widthScale * 0.3f, SpriteEffects.None, 0f);
+                SparkleBloomHelper.DrawSparkleBloom(sb, layerWorld, SparkleTheme.LaCampanella,
+                    bellfireColors, alphaFade * pulse, widthPx, 3, sparkleTime,
+                    seed: i * 0.73f + _timer * 0.01f, sparkleScale: 0.022f);
             }
 
-            // Base eruption bloom
-            Vector2 basePos = _groundPos - Main.screenPosition;
-            sb.Draw(bloomTex, basePos, null,
-                IgnitionOfTheBellUtils.Additive(new Color(255, 100, 0), 0.4f * heightMult * pulse),
-                0f, origin, IsSmall ? 0.12f : 0.18f, SpriteEffects.None, 0f);
+            // Base eruption sparkle
+            SparkleBloomHelper.DrawSparkleBloom(sb, _groundPos, SparkleTheme.LaCampanella,
+                bellfireColors, 0.6f * heightMult * pulse, IsSmall ? 12f : 18f, 4, sparkleTime,
+                seed: 7.31f, sparkleScale: 0.025f);
 
-            // Tip glow at top of geyser
-            Vector2 tipPos = _groundPos - new Vector2(0, currentHeight) - Main.screenPosition;
+            // Tip glow sparkle at top of geyser
+            Vector2 tipWorld = _groundPos - new Vector2(0, currentHeight);
             float tipPulse = 0.7f + 0.3f * (float)Math.Sin(_timer * 0.6f);
-            sb.Draw(bloomTex, tipPos, null,
-                IgnitionOfTheBellUtils.Additive(new Color(255, 220, 150), 0.35f * heightMult * tipPulse),
-                0f, origin, (IsSmall ? 0.06f : 0.1f) * tipPulse, SpriteEffects.None, 0f);
+            Color[] tipColors = new Color[] {
+                new Color(255, 220, 150),
+                new Color(255, 255, 220),
+                Color.White,
+            };
+            SparkleBloomHelper.DrawSparkleBloom(sb, tipWorld, SparkleTheme.LaCampanella,
+                tipColors, 0.5f * heightMult * tipPulse, IsSmall ? 8f : 14f, 3, sparkleTime,
+                seed: 11.17f, sparkleScale: 0.02f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,

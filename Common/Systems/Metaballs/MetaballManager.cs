@@ -360,17 +360,8 @@ namespace MagnumOpus.Common.Systems.Metaballs
                     if (target == null || target.IsDisposed)
                         continue;
 
-                    // Use a BRIGHT color for fallback visibility
-                    // The EdgeColor is typically dark for shader-based edge detection
-                    // For fallback, we want the shapes to actually be visible
-                    Color edgeColor = metaball.EdgeColor;
-                    // Brighten the color significantly for additive rendering
-                    Color tint = new Color(
-                        Math.Min(255, edgeColor.R * 3 + 80),
-                        Math.Min(255, edgeColor.G * 3 + 80),
-                        Math.Min(255, edgeColor.B * 3 + 80),
-                        0  // Alpha = 0 for proper additive blending
-                    );
+                    // Use NEON RED for fallback — makes shader failures immediately visible
+                    Color tint = new Color(255, 0, 50, 0); // NEON RED fallback!
                     
                     spriteBatch.Draw(target, new Vector2(-2, -2), tint);
                 }

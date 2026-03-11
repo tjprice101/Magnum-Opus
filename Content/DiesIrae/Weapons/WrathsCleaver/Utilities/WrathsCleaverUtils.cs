@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.DiesIrae;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Utilities
 {
@@ -49,16 +50,12 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Utilities
         // ══════════════════════════════════════════════════════════╁E
 
         /// <summary>
-        /// Lerp through the 6-colour Wrath's Cleaver palette.
-        /// t=0 ↁECharcoalBlack, t=1 ↁEWrathWhite.
+        /// Sample the Dies Irae gradient LUT texture.
+        /// t=0 → left edge (dark), t=1 → right edge (bright).
         /// </summary>
         public static Color GetPaletteColor(float t)
         {
-            t = MathHelper.Clamp(t, 0f, 1f);
-            float scaled = t * (SwingPalette.Length - 1);
-            int idx = (int)scaled;
-            int next = Math.Min(idx + 1, SwingPalette.Length - 1);
-            return Color.Lerp(SwingPalette[idx], SwingPalette[next], scaled - idx);
+            return DiesIraeVFXLibrary.SampleLUT(t);
         }
 
         /// <summary>Palette color with white push for brilliance on cores/bloom.</summary>
@@ -208,6 +205,9 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Utilities
         /// </summary>
         public static void DoHitImpact(Vector2 hitPos, int comboStep)
         {
+            // === Color-ramped sparkle explosion VFX ===
+            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(hitPos, 8, 5f, 0.3f);
+
             // Radial fire dust burst
             int dustCount = 8 + comboStep * 4;
             for (int i = 0; i < dustCount; i++)

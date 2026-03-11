@@ -5,11 +5,13 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Fate.Debuffs;
 using ReLogic.Content;
 
@@ -147,6 +149,9 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
@@ -178,6 +183,15 @@ namespace MagnumOpus.Content.Fate.Projectiles
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -389,6 +403,9 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
@@ -431,6 +448,15 @@ namespace MagnumOpus.Content.Fate.Projectiles
             float ghostAlpha = Phase == 1 ? 0.95f : 0.7f;
             spriteBatch.Draw(tex, drawPos, null, Color.White * ghostAlpha, Projectile.rotation, origin, 1f * pulse, SpriteEffects.None, 0f);
 
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -452,10 +478,11 @@ namespace MagnumOpus.Content.Fate.Projectiles
         private const float MaxSpeed = 25f;
         private const float Acceleration = 0.8f;
         private float pulsePhase = 0f;
+        private VertexStrip _strip;
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 15;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -617,40 +644,18 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/WholeNote", AssetRequestMode.ImmediateLoad).Value;
-            Vector2 origin = tex.Size() / 2f;
-            
-            float speedRatio = currentSpeed / MaxSpeed;
-            float pulse = 1f + (float)Math.Sin(pulsePhase) * (0.1f + speedRatio * 0.1f);
-
-            // Enhanced trail with gradient
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            SpriteBatch sb = Main.spriteBatch;
+            try
             {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                Color trailColor = FatePalette.GetCosmicGradient(progress) * (1f - progress) * (0.5f + speedRatio * 0.3f);
-                trailColor.A = 0;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                float trailScale = (1f - progress) * (0.5f + speedRatio * 0.3f) * pulse;
-                spriteBatch.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.Fate, ref _strip);
             }
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            
-            // Multi-layer bloom that scales with speed
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.FatePurple * (0.2f + speedRatio * 0.2f), Projectile.rotation, origin, (0.7f + speedRatio * 0.4f) * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.BrightCrimson * (0.5f + speedRatio * 0.4f), Projectile.rotation, origin, (0.5f + speedRatio * 0.3f) * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.DarkPink * (0.6f + speedRatio * 0.3f), Projectile.rotation, origin, (0.35f + speedRatio * 0.2f) * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.WhiteCelestial * (0.5f + speedRatio * 0.4f), Projectile.rotation, origin, (0.2f + speedRatio * 0.15f) * pulse, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -665,10 +670,11 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
         private float pulsePhase = 0f;
+        private VertexStrip _stripRocket;
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 10;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -774,38 +780,18 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
-            Vector2 origin = tex.Size() / 2f;
-            
-            float pulse = 1f + (float)Math.Sin(pulsePhase) * 0.12f;
-
-            // Draw trail
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            SpriteBatch sb = Main.spriteBatch;
+            try
             {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                Color trailColor = FatePalette.GetCosmicGradient(progress) * (1f - progress) * 0.5f;
-                trailColor.A = 0;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                spriteBatch.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, (0.4f - progress * 0.2f) * pulse, SpriteEffects.None, 0f);
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.Fate, ref _stripRocket);
             }
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            
-            // Multi-layer bloom
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.FatePurple * 0.4f, Projectile.rotation, origin, 0.6f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.BrightCrimson * 0.5f, Projectile.rotation, origin, 0.4f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.DarkPink * 0.6f, Projectile.rotation, origin, 0.28f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.WhiteCelestial * 0.6f, Projectile.rotation, origin, 0.15f * pulse, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -1057,6 +1043,9 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
             
             // Load the actual Cosmic Deity sprite (120x68 single frame)
@@ -1097,6 +1086,15 @@ namespace MagnumOpus.Content.Fate.Projectiles
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -1225,6 +1223,9 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard", AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
@@ -1257,6 +1258,15 @@ namespace MagnumOpus.Content.Fate.Projectiles
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

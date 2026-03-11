@@ -111,7 +111,6 @@ namespace MagnumOpus.Content.SwanLake.Bosses.Systems
         {
             Phase10BossVFX.StaffLineLaser(start, end, PureWhite, 25f);
             CustomParticles.PrismaticSparkleBurst(start, PureWhite, 6);
-            ThemedParticles.SwanLakeBloomBurst(end, 0.6f);
         }
 
         /// <summary>TempestDash: Violent charge with prismatic distortion.</summary>

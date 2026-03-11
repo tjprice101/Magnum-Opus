@@ -296,12 +296,6 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             {
                 float regenRate = GetRegenRate();
                 CurrentShield = Math.Min(CurrentShield + regenRate, MaxShield);
-                
-                // Regen VFX
-                if (ambientParticleTimer % 10 == 0 && CurrentShield < MaxShield)
-                {
-                    SpawnRegenParticles();
-                }
             }
             
             // Initialize shield if just equipped
@@ -316,12 +310,6 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
                           HasHeroicValorsAegis || HasInfernalBellsFortress ||
                           HasEnigmasVoidShell || HasSwansImmortalGrace || HasFatesCosmicAegis;
             
-            // Ambient shield particles
-            if (CurrentShield > 0 && ambientParticleTimer % 8 == 0)
-            {
-                SpawnAmbientShieldParticles();
-            }
-            
             // Swan's Immortal Grace: +5% dodge at full shield
             if (HasSwansImmortalGrace && CurrentShield >= MaxShield)
             {
@@ -334,20 +322,6 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
         
         public override void PostUpdate()
         {
-            // Apply damage boost from break effect
-            if (damageBoostDuration > 0)
-            {
-                // Visual indicator
-                if (ambientParticleTimer % 5 == 0)
-                {
-                    Vector2 dustPos = Player.Center + Main.rand.NextVector2Circular(20f, 30f);
-                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.Torch, Vector2.Zero);
-                    dust.noGravity = true;
-                    dust.scale = 0.6f;
-                    dust.color = HeroicScarlet;
-                }
-            }
-            
             // Invisibility effect
             if (invisibilityDuration > 0)
             {
@@ -360,17 +334,6 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             {
                 Player.immune = true;
                 Player.immuneTime = 2;
-                
-                // Golden invincibility aura
-                if (ambientParticleTimer % 3 == 0)
-                {
-                    float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
-                    Vector2 dustPos = Player.Center + angle.ToRotationVector2() * 40f;
-                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.GoldCoin, 
-                        -angle.ToRotationVector2() * 2f);
-                    dust.noGravity = true;
-                    dust.scale = 1.2f;
-                }
             }
         }
         
@@ -779,42 +742,12 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
         
         private void SpawnAmbientShieldParticles()
         {
-            if (!HasAnyDefenseAccessory() || CurrentShield <= 0) return;
-            
-            float shieldRatio = CurrentShield / MaxShield;
-            Color shieldColor = GetCurrentShieldColor();
-            
-            // Orbiting shield particles
-            float angle = shieldPulseTimer * 0.05f;
-            for (int i = 0; i < 2; i++)
-            {
-                float particleAngle = angle + MathHelper.Pi * i;
-                float radius = 30f + (float)Math.Sin(shieldPulseTimer * 0.1f) * 5f;
-                Vector2 dustPos = Player.Center + particleAngle.ToRotationVector2() * radius;
-                
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.MagicMirror, Vector2.Zero);
-                dust.noGravity = true;
-                dust.scale = 0.4f * shieldRatio;
-                dust.color = shieldColor;
-                dust.alpha = 100;
-            }
+            // Ambient VFX removed
         }
         
         private void SpawnRegenParticles()
         {
-            Color shieldColor = GetCurrentShieldColor();
-            
-            for (int i = 0; i < 3; i++)
-            {
-                Vector2 dustPos = Player.Bottom + new Vector2(Main.rand.NextFloat(-20f, 20f), 0f);
-                Vector2 dustVel = new Vector2(0, -Main.rand.NextFloat(1f, 2f));
-                
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.MagicMirror, dustVel);
-                dust.noGravity = true;
-                dust.scale = 0.5f;
-                dust.color = shieldColor;
-                dust.alpha = 150;
-            }
+            // Regen VFX removed
         }
         
         private void SpawnShieldHitParticles(int damage)

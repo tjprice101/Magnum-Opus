@@ -8,8 +8,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation
 {
     /// <summary>
     /// Texture registry for The Standing Ovation.
-    /// Phantom spectator minions — applause waves, thrown roses, standing rush.
-    /// Ovation Meter → Standing Ovation Event (shockwave + rose rain).
+    /// Phantom spectator minions  Eapplause waves, thrown roses, standing rush.
+    /// Ovation Meter ↁEStanding Ovation Event (shockwave + rose rain).
     /// </summary>
     public static class OvationTextures
     {
@@ -22,19 +22,19 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation
         private static Asset<Texture2D> _ojHarmonicImpact;
         private static Asset<Texture2D> _ojHarmonicWave2;
         private static Asset<Texture2D> _ojBasicTrail;
-        private static Asset<Texture2D> _circularMask;
+        private static Asset<Texture2D> _SoftCircle;
         private static Asset<Texture2D> _ojThornFragment;
 
         public static Texture2D SoftGlow => (_softGlow ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow", AssetRequestMode.ImmediateLoad)).Value;
         public static Texture2D NoiseFBM => (_noiseFBM ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/TileableFBMNoise", AssetRequestMode.ImmediateLoad)).Value;
-        public static Texture2D NoisePerlin => (_noisePerlin ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/TileablePerlinNoise", AssetRequestMode.ImmediateLoad)).Value;
+        public static Texture2D NoisePerlin => (_noisePerlin ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/PerlinNoise", AssetRequestMode.ImmediateLoad)).Value;
         public static Texture2D OJBlossomSparkle => (_ojBlossomSparkle ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Ode to Joy/Particles/OJ Blossom Sparkle", AssetRequestMode.ImmediateLoad)).Value;
         public static Texture2D OJRosePetal => (_ojRosePetal ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Ode to Joy/Projectiles/OJ Rose Petal", AssetRequestMode.ImmediateLoad)).Value;
         public static Texture2D OJPowerRing => (_ojPowerRing ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Ode to Joy/Impact Effects/OJ Power Effect Ring", AssetRequestMode.ImmediateLoad)).Value;
         public static Texture2D OJHarmonicImpact => (_ojHarmonicImpact ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Ode to Joy/Impact Effects/OJ Harmonic Resonance Wave Impact", AssetRequestMode.ImmediateLoad)).Value;
         public static Texture2D OJHarmonicWave2 => (_ojHarmonicWave2 ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Ode to Joy/Impact Effects/OJ Harmonic Resonance Wave Impact 2 (Floral)", AssetRequestMode.ImmediateLoad)).Value;
         public static Texture2D OJBasicTrail => (_ojBasicTrail ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Ode to Joy/Trails and Ribbons/OJ Basic Trail", AssetRequestMode.ImmediateLoad)).Value;
-        public static Texture2D CircularMask => (_circularMask ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/CircularMask", AssetRequestMode.ImmediateLoad)).Value;
+        public static Texture2D SoftCircle => (_SoftCircle ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad)).Value;
         public static Texture2D OJThornFragment => (_ojThornFragment ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Ode to Joy/Particles/OJ Thorn Fragment", AssetRequestMode.ImmediateLoad)).Value;
 
         // OJ Palette

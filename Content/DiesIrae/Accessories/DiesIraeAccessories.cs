@@ -271,8 +271,8 @@ namespace MagnumOpus.Content.DiesIrae.Accessories
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+50% ranged damage"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+30% ranged critical strike chance"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Ranged attacks mark enemies for 5 seconds"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Marked enemies take 20% increased damage from all sources"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Ranged attacks mark enemies with Ichor for 5 seconds"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Marked enemies lose 15 defense"));
             tooltips.Add(new TooltipLine(Mod, "Effect5", "25% chance to not consume ammo"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The shackles that bind souls to their requiem'") 
             { 

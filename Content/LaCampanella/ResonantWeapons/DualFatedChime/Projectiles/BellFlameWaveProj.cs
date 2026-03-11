@@ -2,9 +2,11 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Graphics.Shaders;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Particles;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Primitives;
@@ -31,6 +33,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
         private Player Owner => Main.player[Projectile.owner];
         private bool _initialized;
         private DualFatedChimePrimitiveRenderer _trailRenderer;
+        private VertexStrip _strip;
 
         #endregion
 
@@ -38,7 +41,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Type] = 20;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
             ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
@@ -141,97 +144,17 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-                DrawFlameTrail(sb);
-                DrawFlameCore(sb);
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.LaCampanella, ref _strip);
             }
             catch { }
             finally
             {
                 try { sb.End(); } catch { }
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            }
-            return false; // Don't draw default weapon sprite
-        }
-
-        private void DrawFlameTrail(SpriteBatch sb)
-        {
-            if (_trailRenderer == null) return;
-
-            Vector2[] trailPositions = new Vector2[Projectile.oldPos.Length];
-            for (int i = 0; i < trailPositions.Length; i++)
-            {
-                trailPositions[i] = Projectile.oldPos[i] == Vector2.Zero
-                    ? Projectile.Center
-                    : Projectile.oldPos[i] + Projectile.Size / 2f;
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
-            Color trailColor = DualFatedChimeUtils.GetInfernalGradient(0.5f);
-            Color glowColor = DualFatedChimeUtils.GetInfernalGradient(0.8f);
-
-            MiscShaderData shader = DualFatedChimeShaderLoader.GetFlameShader();
-            if (shader != null)
-            {
-                shader.UseColor(trailColor);
-                shader.UseSecondaryColor(glowColor);
-                try { shader.Shader.Parameters["uTime"]?.SetValue(Main.GameUpdateCount * 0.03f); } catch { }
-            }
-
-            var mainSettings = new DualFatedChimeTrailSettings(
-                width: (float t) => MathHelper.Lerp(14f, 2f, t),
-                trailColor: (float t) => Color.Lerp(trailColor, Color.Transparent, t * t),
-                shader: shader,
-                smoothen: true
-            );
-
-            sb.End();
-            _trailRenderer.RenderTrail(trailPositions, mainSettings, 30);
-
-            var glowSettings = new DualFatedChimeTrailSettings(
-                width: (float t) => MathHelper.Lerp(20f, 3f, t),
-                trailColor: (float t) => DualFatedChimeUtils.Additive(glowColor, (1f - t) * 0.3f),
-                shader: shader,
-                smoothen: true
-            );
-
-            _trailRenderer.RenderTrail(trailPositions, glowSettings, 30);
-
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-        }
-
-        private void DrawFlameCore(SpriteBatch sb)
-        {
-            Texture2D bloomTex = null;
-            try
-            {
-                bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow",
-                    ReLogic.Content.AssetRequestMode.ImmediateLoad)?.Value;
-            }
-            catch { }
-
-            if (bloomTex == null) return;
-
-            Vector2 screenPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = new Vector2(bloomTex.Width / 2f, bloomTex.Height / 2f);
-
-            float pulse = 0.8f + 0.2f * (float)Math.Sin(Projectile.timeLeft * 0.15f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Orange fire glow
-            sb.Draw(bloomTex, screenPos, null, DualFatedChimeUtils.Additive(new Color(255, 100, 0), 0.4f * pulse),
-                0f, origin, 0.29f, SpriteEffects.None, 0f);
-
-            // White-hot core
-            sb.Draw(bloomTex, screenPos, null, DualFatedChimeUtils.Additive(new Color(255, 240, 200), 0.7f * pulse),
-                0f, origin, 0.25f, SpriteEffects.None, 0f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            return false;
         }
 
         public override void OnKill(int timeLeft)

@@ -271,6 +271,9 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             if (Main.dedServ) return false;
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
 
             // Load textures
             if (_noteTextures == null)
@@ -281,7 +284,6 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
             }
             _glowTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow");
 
-            SpriteBatch sb = Main.spriteBatch;
             float opacity = 1f - Projectile.alpha / 255f;
 
             try
@@ -305,6 +307,15 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
                         DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
                 }
                 catch { }
+            }
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
             return false;

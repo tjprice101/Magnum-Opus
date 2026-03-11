@@ -1,4 +1,7 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using MagnumOpus.Common;
+using ReLogic.Content;
 using Terraria;
 using Terraria.ModLoader;
 
@@ -44,6 +47,35 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Dusts
         public override Color? GetAlpha(Dust dust, Color lightColor)
         {
             return new Color(138, 43, 226, dust.alpha);
+        }
+
+        public override bool PreDraw(Dust dust)
+        {
+            // PointBloom is a glow texture on black background — must use additive blending.
+            // Cap draw scale: PointBloom is 2160px, max 300px on screen.
+            const float MaxDrawScale = 300f / 2160f; // ~0.139
+            float drawScale = MathHelper.Min(dust.scale, MaxDrawScale);
+
+            var tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
+            if (tex == null) return false;
+
+            Vector2 origin = tex.Size() * 0.5f;
+            Vector2 pos = dust.position - Main.screenPosition;
+            float alpha = (255 - dust.alpha) / 255f;
+            Color drawColor = GetAlpha(dust, Color.White) ?? Color.White;
+
+            var sb = Main.spriteBatch;
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
+            sb.Draw(tex, pos, null, drawColor * alpha, dust.rotation, origin, drawScale, SpriteEffects.None, 0f);
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
+            return false;
         }
     }
 }

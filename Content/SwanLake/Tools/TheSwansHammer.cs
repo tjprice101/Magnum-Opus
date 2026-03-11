@@ -97,13 +97,6 @@ namespace MagnumOpus.Content.SwanLake.Tools
                 sparkle.velocity *= 0.5f;
             }
             
-            // Swan feather burst on heavy swing
-            if (Main.rand.NextBool(6))
-            {
-                Microsoft.Xna.Framework.Vector2 swingPos = new Microsoft.Xna.Framework.Vector2(hitbox.X + hitbox.Width / 2f, hitbox.Y + hitbox.Height / 2f);
-                CustomParticles.SwanFeatherBurst(swingPos, 3, 0.25f);
-            }
-
             // Music notes in tool swing
             if (Main.rand.NextBool(4))
             {

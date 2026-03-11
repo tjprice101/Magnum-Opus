@@ -164,9 +164,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Project
             }
             catch { }
 
-            try { SwanLakeVFXLibrary.SpawnRainbowBurst(target.Center, 8, 4.5f); } catch { }
-            try { SwanLakeVFXLibrary.SpawnPrismaticSparkles(target.Center, 6, 20f); } catch { }
-            try { SwanLakeVFXLibrary.SpawnMusicNotes(target.Center, 2, 15f, 0.6f, 0.9f, 22); } catch { }
+            try { SwanLakeVFXLibrary.SpawnMixedSparkleImpact(target.Center, 0.6f, 4, 4); } catch { }
+            try { SwanLakeVFXLibrary.SpawnMusicNotes(target.Center, 1, 12f, 0.5f, 0.8f, 20); } catch { }
         }
 
         private void SpawnConvergenceBurst(Vector2 pos)
@@ -191,11 +190,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Project
                 d.noGravity = true;
             }
 
-            // Rainbow explosion + feather drift + sparkles
-            try { SwanLakeVFXLibrary.SpawnFeatherBurst(pos, 8, 0.35f); } catch { }
-            try { SwanLakeVFXLibrary.SpawnRainbowExplosion(pos, 1.2f); } catch { }
-            try { SwanLakeVFXLibrary.SpawnPrismaticSparkles(pos, 8, 30f); } catch { }
-            try { SwanLakeVFXLibrary.SpawnMusicNotes(pos, 4, 25f, 0.7f, 1.0f, 28); } catch { }
+            // Mixed sparkle convergence burst + notes
+            try { SwanLakeVFXLibrary.SpawnMixedSparkleImpact(pos, 1.0f, 6, 6); } catch { }
+            try { SwanLakeVFXLibrary.SpawnMusicNotes(pos, 3, 20f, 0.6f, 0.9f, 25); } catch { }
         }
 
         public override void OnKill(int timeLeft)
@@ -210,12 +207,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Project
                 d.noGravity = true;
             }
 
-            try { SwanLakeVFXLibrary.SpawnFeatherDrift(Projectile.Center, 2, 12f); } catch { }
+            try { SwanLakeVFXLibrary.SpawnMixedSparkleImpact(Projectile.Center, 0.6f, 4, 4); } catch { }
+            try { SwanLakeVFXLibrary.SpawnPrismaticSparkles(Projectile.Center, 4, 15f); } catch { }
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Vector2 screenPos = Main.screenPosition;
 
             try
@@ -296,10 +296,10 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Project
                 }
                 else
                 {
-                    // Fallback: basic bloom trail
+                    // Fallback: NEON RED bloom trail (shader failed!)
                     sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                         DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-                    Texture2D fb = MagnumTextureRegistry.GetSoftGlow();
+                    Texture2D fb = MagnumTextureRegistry.GetSoftGlow64();
                     if (fb != null)
                     {
                         Vector2 fbO = fb.Size() * 0.5f;
@@ -307,7 +307,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Project
                         {
                             if (oldPos[i] == Vector2.Zero) continue;
                             float p = 1f - i / (float)TrailLength;
-                            Color c = WingspanUtils.GetPrismaticEdge(i / (float)TrailLength + (float)Main.timeForVisualEffects * 0.008f);
+                            Color c = new Color(255, 0, 50);
                             sb.Draw(fb, oldPos[i] - screenPos, null, c * (p * 0.4f), oldRot[i], fbO, 0.2f + p * 0.15f, SpriteEffects.None, 0f);
                         }
                     }
@@ -328,60 +328,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Project
                         (float)Main.timeForVisualEffects, flashAlpha * 0.8f);
                 }
 
-                // ============ BLOOM CORE (5-layer prismatic) ============
-
-                Texture2D bloom = MagnumTextureRegistry.GetSoftGlow();
-                Texture2D point = MagnumTextureRegistry.GetPointBloom();
-                Texture2D star = MagnumTextureRegistry.GetStar4Soft();
-
-                float boltScale = IsEmpowered ? 1.5f : 1f;
                 Vector2 drawPos = Projectile.Center - screenPos;
-                float pulse = 0.9f + 0.1f * MathF.Sin((float)Main.timeForVisualEffects * 0.09f + BoltIndex);
-
-                // Layer 1: Outer spectral glow (cap to 300px on 512px SoftGlow)
-                if (bloom != null)
-                {
-                    Vector2 bOrigin = bloom.Size() * 0.5f;
-                    Color outerColor = WingspanUtils.GetPrismaticEdge(Timer * 0.02f + BoltIndex * 0.2f);
-                    sb.Draw(bloom, drawPos, null, outerColor * 0.35f * pulse, 0f, bOrigin, MathHelper.Min(0.4f * boltScale * pulse, 0.586f), SpriteEffects.None, 0f);
-                }
-
-                // Layer 2: Ethereal white mid glow
-                if (bloom != null)
-                {
-                    Vector2 bOrigin = bloom.Size() * 0.5f;
-                    sb.Draw(bloom, drawPos, null, WingspanUtils.EtherealWhite * 0.45f * pulse, 0f, bOrigin, 0.25f * boltScale * pulse, SpriteEffects.None, 0f);
-                }
-
-                // Layer 3: Hot white core
-                if (point != null)
-                {
-                    Vector2 pOrigin = point.Size() * 0.5f;
-                    sb.Draw(point, drawPos, null, Color.White * 0.85f, 0f, pOrigin, 0.07f * boltScale * pulse, SpriteEffects.None, 0f);
-                }
-
-                // Layer 4: Star sparkle accent (rotating)
-                if (star != null)
-                {
-                    Vector2 sOrigin = star.Size() * 0.5f;
-                    float starRot = (float)Main.timeForVisualEffects * 0.04f + BoltIndex;
-                    Color starColor = WingspanUtils.GetPrismaticEdge(Timer * 0.015f + 0.5f);
-                    sb.Draw(star, drawPos, null, starColor * 0.3f * pulse, starRot, sOrigin, 0.2f * boltScale, SpriteEffects.None, 0f);
-                }
-
-                // Layer 5: Empowered wing-like prismatic side accents
-                if (IsEmpowered && bloom != null)
-                {
-                    Vector2 bOrigin = bloom.Size() * 0.5f;
-                    for (int side = -1; side <= 1; side += 2)
-                    {
-                        Vector2 wingOffset = Projectile.velocity.SafeNormalize(Vector2.UnitY).RotatedBy(MathHelper.PiOver2 * side) * 14f;
-                        Color wingColor = WingspanUtils.GetPrismaticEdge(Timer * 0.02f + side * 0.33f);
-                        sb.Draw(bloom, drawPos + wingOffset, null, wingColor * 0.25f, 0f, bOrigin, 0.22f, SpriteEffects.None, 0f);
-                    }
-                    // Additional gold feather accent
-                    sb.Draw(bloom, drawPos, null, WingspanUtils.WingPrismatic * 0.15f, 0f, bloom.Size() * 0.5f, 0.5f * pulse, SpriteEffects.None, 0f);
-                }
             }
             catch { }
             finally
@@ -401,6 +348,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan.Project
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
             catch { }
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

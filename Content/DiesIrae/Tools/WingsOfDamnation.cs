@@ -74,58 +74,6 @@ namespace MagnumOpus.Content.DiesIrae.Tools
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             player.GetModPlayer<WingsOfDamnationPlayer>().hasWingsEquipped = true;
-            
-            // Infernal fire particles when flying
-            if (!hideVisual && player.velocity.Y != 0)
-            {
-                // Blood-red to orange gradient flames
-                if (Main.rand.NextBool(2))
-                {
-                    float progress = Main.rand.NextFloat();
-                    Color flameColor = Color.Lerp(BloodRed, EmberOrange, progress);
-                    
-                    var glow = new GenericGlowParticle(
-                        player.Center + Main.rand.NextVector2Circular(25f, 20f),
-                        new Vector2(player.velocity.X * -0.05f, -2f),
-                        flameColor * 0.8f, 0.45f, 30, true);
-                    MagnumParticleHandler.SpawnParticle(glow);
-                }
-                
-                // Ember sparks
-                if (Main.rand.NextBool(3))
-                {
-                    Vector2 emberPos = player.Center + Main.rand.NextVector2Circular(30f, 25f);
-                    CustomParticles.GenericFlare(emberPos, HellfireGold * 0.7f, 0.3f, 18);
-                }
-                
-                // Heavy smoke trailing behind
-                if (Main.rand.NextBool(3))
-                {
-                    var smoke = new HeavySmokeParticle(
-                        player.Center + Main.rand.NextVector2Circular(20f, 15f),
-                        new Vector2(player.velocity.X * -0.1f, Main.rand.NextFloat(0.5f, 1.5f)),
-                        CharredBlack * 0.6f,
-                        Main.rand.Next(35, 55), 0.35f, 0.5f, 0.018f, false);
-                    MagnumParticleHandler.SpawnParticle(smoke);
-                }
-                
-                // Crimson fire wisps
-                if (Main.rand.NextBool(4))
-                {
-                    Vector2 wispPos = player.Center + Main.rand.NextVector2Circular(35f, 30f);
-                    var wisp = new GenericGlowParticle(wispPos, 
-                        new Vector2(player.velocity.X * -0.08f, Main.rand.NextFloat(-0.5f, 0.5f)),
-                        Crimson * 0.6f, 0.25f, 35, true);
-                    MagnumParticleHandler.SpawnParticle(wisp);
-                }
-                
-                // Music notes with fire effect
-                if (Main.rand.NextBool(8))
-                {
-                    Vector2 notePos = player.Center + new Vector2(Main.rand.NextFloat(-20f, 20f), 15f);
-                    ThemedParticles.MusicNote(notePos, new Vector2(player.velocity.X * -0.1f, -0.5f), EmberOrange * 0.7f, 0.6f, 28);
-                }
-            }
         }
 
         public override void AddRecipes()

@@ -104,6 +104,8 @@ namespace MagnumOpus.Content.FoundationWeapons.AttackAnimationFoundation
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float alpha = GetAlphaMultiplier();
 
@@ -131,6 +133,15 @@ namespace MagnumOpus.Content.FoundationWeapons.AttackAnimationFoundation
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

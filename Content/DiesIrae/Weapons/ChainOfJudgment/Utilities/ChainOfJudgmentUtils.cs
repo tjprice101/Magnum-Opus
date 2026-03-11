@@ -45,16 +45,10 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Utilities
         //  PALETTE INTERPOLATION
         // ══════════════════════════════════════════════════════════════╁E
 
-        /// <summary>Sample chain palette at position t ∁E[0,1]. 0 = cold iron, 1 = wrath-hot core.</summary>
+        /// <summary>Sample Dies Irae gradient LUT. t=0 → dark edge, t=1 → bright edge.</summary>
         public static Color GetPaletteColor(float t)
         {
-            t = MathHelper.Clamp(t, 0f, 1f);
-            int count = ChainPalette.Length;
-            float scaledT = t * (count - 1);
-            int lower = (int)scaledT;
-            int upper = Math.Min(lower + 1, count - 1);
-            float frac = scaledT - lower;
-            return Color.Lerp(ChainPalette[lower], ChainPalette[upper], frac);
+            return DiesIraeVFXLibrary.SampleLUT(t);
         }
 
         // ══════════════════════════════════════════════════════════════╁E
@@ -150,6 +144,12 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Utilities
         /// </summary>
         public static void DoChainImpact(Vector2 worldPosition, Vector2 hitDirection)
         {
+            // === Color-ramped sparkle explosion VFX ===
+            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(worldPosition, 8, 5f, 0.3f);
+
+            // === Color-ramped sparkle explosion VFX ===
+            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(worldPosition, 8, 5f, 0.3f);
+
             if (Main.dedServ) return;
 
             for (int i = 0; i < 12; i++)

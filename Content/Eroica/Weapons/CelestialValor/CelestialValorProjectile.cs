@@ -1,6 +1,7 @@
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Sparkle;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using MagnumOpus.Content.Eroica;
 using MagnumOpus.Content.FoundationWeapons.SwordSmearFoundation;
@@ -87,6 +88,8 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
 
             // === GPU Primitive Ribbon Trail (EnhancedTrailRenderer) ===
             EnhancedTrailRenderer.RenderMultiPassTrail(
@@ -98,83 +101,58 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
                     0.8f),
                 bloomMultiplier: 2.5f, coreMultiplier: 0.4f);
 
-            // Foundation textures
-            Texture2D softGlow = SMFTextures.SoftGlow.Value;
-            Texture2D pointBloom = SMFTextures.PointBloom.Value;
-            Texture2D starFlare = SMFTextures.StarFlare.Value;
-
-            Vector2 glowOrigin = softGlow.Size() / 2f;
-            Vector2 pointOrigin = pointBloom.Size() / 2f;
-
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
 
-            // ���� LAYER 1: Trail afterimage bloom chain (Foundation pattern) ����
+            // LAYER 1: Trail sparkle chain — replaces SoftGlow×3 per-point stacking
+            float time = (float)Main.timeForVisualEffects;
+            Color[] trailColors = new Color[] {
+                EroicaPalette.Scarlet,
+                EroicaPalette.Gold,
+                EroicaPalette.HotCore,
+                Color.White,
+            };
             for (int i = TrailLength - 1; i > 0; i--)
             {
                 float progress = (float)i / TrailLength;
                 float headStrength = 1f - progress;
                 float fade = headStrength * headStrength;
-                if (fade < 0.02f) continue;
+                if (fade < 0.05f) continue;
 
-                Vector2 drawPos = trailPositions[i] - Main.screenPosition;
-
-                // Velocity-aligned stretch
-                Vector2 vel = i + 1 < TrailLength ?
-                    trailPositions[i] - trailPositions[i + 1] : Projectile.velocity;
-                float rot = vel.ToRotation() + MathHelper.PiOver2;
-                float scale = MathHelper.Lerp(2f, 10f, headStrength) / softGlow.Width;
-                float stretchX = scale;
-                float stretchY = scale * 2.2f;
-
-                // Outer scarlet haze
-                Color outerCol = (EroicaPalette.Scarlet with { A = 0 }) * (fade * 0.3f);
-                sb.Draw(softGlow, drawPos, null, outerCol, rot, glowOrigin,
-                    new Vector2(stretchX * 1.6f, stretchY * 1.3f), SpriteEffects.None, 0f);
-
-                // Body gold glow
-                Color bodyCol = Color.Lerp(Color.White, EroicaPalette.Gold, progress) with { A = 0 };
-                sb.Draw(softGlow, drawPos, null, bodyCol * (fade * 0.45f), rot, glowOrigin,
-                    new Vector2(stretchX, stretchY), SpriteEffects.None, 0f);
-
-                // Hot core
-                Color coreCol = (Color.White with { A = 0 }) * (fade * 0.35f * headStrength);
-                sb.Draw(pointBloom, drawPos, null, coreCol, rot, pointOrigin,
-                    new Vector2(stretchX * 0.4f, stretchY * 0.6f), SpriteEffects.None, 0f);
+                SparkleBloomHelper.DrawSparkleBloom(sb, trailPositions[i], SparkleTheme.Eroica,
+                    trailColors, fade * 0.6f, MathHelper.Lerp(4f, 12f, headStrength), 2, time,
+                    seed: i * 0.41f + Projectile.identity * 0.13f, sparkleScale: 0.018f);
             }
 
-            // ���� LAYER 2: Head bloom stack ����
-            Vector2 headPos = Projectile.Center - Main.screenPosition;
-
-            // Wide ambient
-            sb.Draw(softGlow, headPos, null,
-                (EroicaPalette.Scarlet with { A = 0 }) * 0.25f, 0f,
-                glowOrigin, 0.29f, SpriteEffects.None, 0f);
-
-            // Main body
-            sb.Draw(softGlow, headPos, null,
-                (EroicaPalette.Gold with { A = 0 }) * 0.5f, 0f,
-                glowOrigin, 0.18f, SpriteEffects.None, 0f);
-
-            // Hot core
-            sb.Draw(pointBloom, headPos, null,
-                (EroicaPalette.HotCore with { A = 0 }) * 0.4f, 0f,
-                pointOrigin, 0.08f, SpriteEffects.None, 0f);
-
-            // ���� LAYER 3: Rotating flare ����
-            float flareRot = (float)Main.GameUpdateCount * 0.08f;
-            sb.Draw(starFlare, headPos, null,
-                (EroicaPalette.Gold with { A = 0 }) * 0.4f, flareRot,
-                starFlare.Size() / 2f, 0.18f, SpriteEffects.None, 0f);
+            // LAYER 2: Head sparkle bloom — replaces SoftGlow×2 + PointBloom + StarFlare
+            Color[] headColors = new Color[] {
+                EroicaPalette.Scarlet,
+                EroicaPalette.Gold,
+                EroicaPalette.HotCore,
+                new Color(255, 150, 180),  // Sakura
+                Color.White,
+            };
+            SparkleBloomHelper.DrawSparkleBloom(sb, Projectile.Center, SparkleTheme.Eroica,
+                headColors, 0.8f, 22f, 6, time,
+                seed: Projectile.identity * 0.67f, sparkleScale: 0.03f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

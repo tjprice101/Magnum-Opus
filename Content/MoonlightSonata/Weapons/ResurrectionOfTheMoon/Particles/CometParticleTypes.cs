@@ -12,14 +12,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
     // TEXTURE CACHE
     // =================================================================
 
-    /// <summary>Lazy texture loader for comet particle assets — includes Moonlight Sonata theme-specific textures.</summary>
+    /// <summary>Lazy texture loader for comet particle assets  Eincludes Moonlight Sonata theme-specific textures.</summary>
     internal static class CometTextures
     {
         private static Asset<Texture2D> _pointBloom;
         private static Asset<Texture2D> _softRadialBloom;
         private static Asset<Texture2D> _starSoft;
         private static Asset<Texture2D> _musicNote1;
-        private static Asset<Texture2D> _circularMask;
+        private static Asset<Texture2D> _SoftCircle;
 
         // === Moonlight Sonata Theme-Specific Textures ===
         private static Asset<Texture2D> _msStarFlare;
@@ -43,10 +43,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
             "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft")).Value;
         public static Texture2D MusicNote => (_musicNote1 ??= ModContent.Request<Texture2D>(
             "MagnumOpus/Assets/Particles Asset Library/MusicNote")).Value;
-        public static Texture2D CircularMask => (_circularMask ??= ModContent.Request<Texture2D>(
+        public static Texture2D SoftCircle => (_SoftCircle ??= ModContent.Request<Texture2D>(
             "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle")).Value;
 
-        // Moonlight Sonata theme-specific textures — glow, bloom, and flares
+        // Moonlight Sonata theme-specific textures  Eglow, bloom, and flares
         public static Texture2D MSStarFlare => (_msStarFlare ??= ModContent.Request<Texture2D>(
             "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Glow and Bloom/MS Star Flare")).Value;
         public static Texture2D MSLensFlare => (_msLensFlare ??= ModContent.Request<Texture2D>(
@@ -80,7 +80,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
     }
 
     // =================================================================
-    // EMBER TRAIL PARTICLE — burning embers jetting off comet trails
+    // EMBER TRAIL PARTICLE  Eburning embers jetting off comet trails
     // =================================================================
 
     /// <summary>
@@ -110,7 +110,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
         {
             float t = LifetimeCompletion;
 
-            // Cooling gradient: white-hot → gold → violet → fade
+            // Cooling gradient: white-hot ↁEgold ↁEviolet ↁEfade
             DrawColor = CometUtils.GetCometGradient(t);
 
             // Shrink and slow down
@@ -136,7 +136,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
     }
 
     // =================================================================
-    // CRATER BLOOM PARTICLE — expanding bloom at ricochet/impact points
+    // CRATER BLOOM PARTICLE  Eexpanding bloom at ricochet/impact points
     // =================================================================
 
     /// <summary>
@@ -181,7 +181,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
     }
 
     // =================================================================
-    // SHOCKWAVE RING PARTICLE — expanding ring for supernova detonation
+    // SHOCKWAVE RING PARTICLE  Eexpanding ring for supernova detonation
     // =================================================================
 
     /// <summary>
@@ -214,7 +214,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
 
         public override void CustomDraw(SpriteBatch sb)
         {
-            Texture2D tex = CometTextures.CircularMask;
+            Texture2D tex = CometTextures.SoftCircle;
             Vector2 origin = tex.Size() * 0.5f;
             Vector2 drawPos = Position - Main.screenPosition;
 
@@ -225,7 +225,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
     }
 
     // =================================================================
-    // LUNAR SHARD PARTICLE — angular shards flying from impacts
+    // LUNAR SHARD PARTICLE  Eangular shards flying from impacts
     // =================================================================
 
     /// <summary>
@@ -272,7 +272,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
     }
 
     // =================================================================
-    // COMET MIST PARTICLE — ambient mist around projectile heads
+    // COMET MIST PARTICLE  Eambient mist around projectile heads
     // =================================================================
 
     /// <summary>
@@ -319,7 +319,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
     }
 
     // =================================================================
-    // MOONRISE CHARGE PARTICLE — spirals inward during charge hold
+    // MOONRISE CHARGE PARTICLE  Espirals inward during charge hold
     // =================================================================
 
     /// <summary>
@@ -382,7 +382,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
     }
 
     // =================================================================
-    // LUNAR CYCLE INDICATOR PARTICLE — visual phase indicator ring
+    // LUNAR CYCLE INDICATOR PARTICLE  Evisual phase indicator ring
     // =================================================================
 
     /// <summary>
@@ -415,7 +415,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
 
         public override void CustomDraw(SpriteBatch sb)
         {
-            Texture2D tex = CometTextures.CircularMask;
+            Texture2D tex = CometTextures.SoftCircle;
             Vector2 origin = tex.Size() * 0.5f;
             Vector2 drawPos = Position - Main.screenPosition;
 
@@ -426,7 +426,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
     }
 
     // =================================================================
-    // SUPERNOVA DEBRIS PARTICLE — lunar rock tumbling from explosions
+    // SUPERNOVA DEBRIS PARTICLE  Elunar rock tumbling from explosions
     // =================================================================
 
     /// <summary>
@@ -473,7 +473,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Parti
     }
 
     // =================================================================
-    // THEME-SPECIFIC PARTICLES — Moonlight Sonata VFX Library
+    // THEME-SPECIFIC PARTICLES  EMoonlight Sonata VFX Library
     // =================================================================
 
     /// <summary>

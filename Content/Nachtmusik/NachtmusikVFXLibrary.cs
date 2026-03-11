@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -629,6 +629,107 @@ namespace MagnumOpus.Content.Nachtmusik
             }
         }
 
+
+        // ─────────── COLOR-RAMPED SPARKLE EXPLOSIONS ───────────
+
+        /// <summary>
+        /// Spawn a starburst of color-ramped GlowSparkParticles using Nachtmusik's
+        /// deep-blue → starlit-blue → star-white → moonlit-silver gradient.
+        /// </summary>
+        public static void SpawnStarlitSparkleExplosion(Vector2 pos, int count = 10, float speed = 6f, float scale = 0.35f)
+        {
+            try
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    float progress = (float)i / count;
+                    Color sparkColor;
+                    if (progress < 0.33f)
+                        sparkColor = Color.Lerp(DeepBlue, StarlitBlue, progress / 0.33f);
+                    else if (progress < 0.66f)
+                        sparkColor = Color.Lerp(StarlitBlue, StarWhite, (progress - 0.33f) / 0.33f);
+                    else
+                        sparkColor = Color.Lerp(StarWhite, MoonlitSilver, (progress - 0.66f) / 0.34f);
+
+                    float angle = MathHelper.TwoPi * i / count + Main.rand.NextFloat(-0.2f, 0.2f);
+                    Vector2 vel = angle.ToRotationVector2() * speed * Main.rand.NextFloat(0.7f, 1.3f);
+                    float sparkScale = scale * Main.rand.NextFloat(0.8f, 1.3f);
+
+                    var spark = new GlowSparkParticle(pos, vel, sparkColor with { A = 0 }, sparkScale, 18);
+                    MagnumParticleHandler.SpawnParticle(spark);
+                }
+            }
+            catch
+            {
+                // Fallback: vanilla dust burst
+                for (int i = 0; i < count; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / count;
+                    Vector2 vel = angle.ToRotationVector2() * speed * 0.5f;
+                    Dust.NewDustPerfect(pos, DustID.BlueTorch, vel, 0, default, 1.2f);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Multi-layered constellation starburst — 3 concentric rings of sparks:
+        /// inner white-hot core, mid starlit-blue radial burst, outer deep-blue halo.
+        /// </summary>
+        public static void SpawnConstellationStarburst(Vector2 pos, float intensityMul = 1f)
+        {
+            try
+            {
+                // Inner ring — twinkling white core sparks
+                int innerCount = (int)(6 * intensityMul);
+                for (int i = 0; i < innerCount; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / innerCount + Main.rand.NextFloat(-0.3f, 0.3f);
+                    Vector2 vel = angle.ToRotationVector2() * 3f * Main.rand.NextFloat(0.8f, 1.2f);
+                    var spark = new GlowSparkParticle(pos, vel, TwinklingWhite with { A = 0 }, 0.25f * intensityMul, 14);
+                    MagnumParticleHandler.SpawnParticle(spark);
+                }
+
+                // Mid ring — starlit blue radial sparks
+                int midCount = (int)(10 * intensityMul);
+                for (int i = 0; i < midCount; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / midCount + Main.rand.NextFloat(-0.15f, 0.15f);
+                    Vector2 vel = angle.ToRotationVector2() * 6f * Main.rand.NextFloat(0.7f, 1.3f);
+                    Color midColor = Color.Lerp(StarlitBlue, StarWhite, Main.rand.NextFloat(0.3f)) with { A = 0 };
+                    var spark = new GlowSparkParticle(pos, vel, midColor, 0.32f * intensityMul, 20);
+                    MagnumParticleHandler.SpawnParticle(spark);
+                }
+
+                // Outer ring — deep blue constellation halo
+                int outerCount = (int)(8 * intensityMul);
+                for (int i = 0; i < outerCount; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / outerCount + Main.rand.NextFloat(-0.25f, 0.25f);
+                    Vector2 vel = angle.ToRotationVector2() * 9f * Main.rand.NextFloat(0.6f, 1.4f);
+                    Color outerColor = Color.Lerp(DeepBlue, StarlitBlue, Main.rand.NextFloat()) with { A = 0 };
+                    var spark = new GlowSparkParticle(pos, vel, outerColor, 0.4f * intensityMul, 24);
+                    MagnumParticleHandler.SpawnParticle(spark);
+                }
+
+                // Gold accent sparks — radiance gold highlights scattered among the burst
+                int goldCount = (int)(4 * intensityMul);
+                for (int i = 0; i < goldCount; i++)
+                {
+                    float angle = Main.rand.NextFloat(MathHelper.TwoPi);
+                    Vector2 vel = angle.ToRotationVector2() * 5f * Main.rand.NextFloat(0.8f, 1.2f);
+                    var spark = new GlowSparkParticle(pos, vel, RadianceGold with { A = 0 }, 0.28f * intensityMul, 16);
+                    MagnumParticleHandler.SpawnParticle(spark);
+                }
+            }
+            catch
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 8;
+                    Dust.NewDustPerfect(pos, DustID.BlueTorch, angle.ToRotationVector2() * 4f, 0, default, 1.5f);
+                }
+            }
+        }
         // ─────────── IMPACTS ───────────
 
         /// <summary>
@@ -640,6 +741,13 @@ namespace MagnumOpus.Content.Nachtmusik
         {
             float bloomScale = 0.5f + comboStep * 0.1f;
             DrawBloom(pos, bloomScale);
+
+            // Color-ramped starlit sparkle explosion
+            SpawnStarlitSparkleExplosion(pos, 8 + comboStep * 2, 5f + comboStep, 0.3f);
+
+            // Constellation starburst on higher combo steps
+            if (comboStep >= 2)
+                SpawnConstellationStarburst(pos, 0.6f + comboStep * 0.15f);
 
             int rings = 3 + comboStep;
             SpawnGradientHaloRings(pos, rings);
@@ -670,6 +778,11 @@ namespace MagnumOpus.Content.Nachtmusik
         public static void ProjectileImpact(Vector2 pos, float intensity = 1f)
         {
             DrawBloom(pos, 0.6f * intensity);
+
+            // Color-ramped starlit sparkle explosion
+            SpawnStarlitSparkleExplosion(pos, 12, 7f * intensity, 0.35f);
+            SpawnConstellationStarburst(pos, intensity);
+
             SpawnGradientHaloRings(pos, 6, 0.3f * intensity);
             SpawnMusicNotes(pos, 6, 30f * intensity, 0.75f, 1.1f, 30);
             SpawnRadialDustBurst(pos, 15, 7f * intensity);
@@ -713,6 +826,11 @@ namespace MagnumOpus.Content.Nachtmusik
         {
             MagnumScreenEffects.AddScreenShake(8f * intensity);
             DrawBloom(pos, 0.8f * intensity);
+
+            // Grand constellation starburst at 1.5x intensity
+            SpawnConstellationStarburst(pos, intensity * 1.5f);
+            SpawnStarlitSparkleExplosion(pos, 16, 8f * intensity, 0.4f);
+
             SpawnGradientHaloRings(pos, 7, 0.35f * intensity);
             SpawnRadianceHaloRings(pos, 5, 0.3f * intensity);
             SpawnMusicNotes(pos, 6, 40f, 0.8f, 1.2f, 40);
@@ -997,6 +1115,104 @@ namespace MagnumOpus.Content.Nachtmusik
             DrawThemeStarFlare(sb, worldPos, scale, intensity * 0.7f);
             float rot = (float)Main.GameUpdateCount * 0.02f;
             DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.6f, rot);
+        }
+
+        // ─────────── LUT TEXTURE SAMPLING (CPU-SIDE) ───────────
+
+        private static Color[] _lutPixelCache;
+        private static int _lutWidth;
+
+        /// <summary>
+        /// Sample the NachtmusikGradientLUTandRAMP texture on CPU.
+        /// t=0 → left edge, t=1 → right edge. Caches pixel data on first call.
+        /// Returns the actual LUT colour (dark purples / yellows per the texture).
+        /// Falls back to GetPaletteColor if the texture isn't available.
+        /// </summary>
+        public static Color SampleLUT(float t)
+        {
+            if (_lutPixelCache == null)
+            {
+                var lutAsset = NachtmusikThemeTextures.NKGradientLUT;
+                if (lutAsset?.Value == null)
+                    return GetPaletteColor(t);
+
+                Texture2D tex = lutAsset.Value;
+                _lutWidth = tex.Width;
+                _lutPixelCache = new Color[tex.Width * tex.Height];
+                tex.GetData(_lutPixelCache);
+            }
+
+            t = MathHelper.Clamp(t, 0f, 1f);
+            int x = (int)(t * (_lutWidth - 1));
+            return _lutPixelCache[x]; // sample first row
+        }
+
+        // ─────────── LUT-RAMPED SPARKLE PARTICLES ───────────
+
+        /// <summary>
+        /// Spawn LUT-colour-ramped SparkleParticle / TwinklingSparkleParticle along a swing arc
+        /// or projectile trail. Colors are sampled through the NachtmusikGradientLUTandRAMP
+        /// texture (dark purples → yellows), matching the actual gradient ramp asset.
+        /// </summary>
+        public static void SpawnGradientSparkles(Vector2 pos, Vector2 velocity, int count = 3,
+            float scale = 0.3f, int lifetime = 18, float spread = 8f, bool twinkling = true)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                float t = (count <= 1) ? Main.rand.NextFloat() : (float)i / (count - 1);
+                Color sparkleColor = SampleLUT(t);
+
+                Vector2 offset = Main.rand.NextVector2Circular(spread, spread);
+                Vector2 vel = -velocity * 0.05f + Main.rand.NextVector2Circular(0.8f, 0.8f);
+                float sparkScale = scale * Main.rand.NextFloat(0.7f, 1.3f);
+
+                if (twinkling && Main.rand.NextBool())
+                {
+                    var twinkle = new TwinklingSparkleParticle(pos + offset, vel, sparkleColor,
+                        sparkleColor * 0.7f, sparkScale * 0.6f, sparkScale, lifetime,
+                        twinkleSpeed: Main.rand.NextFloat(0.15f, 0.3f), bloomScale: 1.3f);
+                    MagnumParticleHandler.SpawnParticle(twinkle);
+                }
+                else
+                {
+                    var sparkle = new SparkleParticle(pos + offset, vel, sparkleColor, sparkScale, lifetime);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Spawn a radial burst of LUT-colour-ramped SparkleParticle for impact/explosion VFX.
+        /// Each sparkle's colour is sampled progressively through the NachtmusikGradientLUTandRAMP
+        /// texture, creating a colour-ramped starburst with the actual LUT gradient.
+        /// </summary>
+        public static void SpawnGradientSparkleExplosion(Vector2 pos, int count = 10,
+            float speed = 6f, float scale = 0.35f, int lifetime = 22)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                float t = (float)i / count;
+                Color sparkleColor = SampleLUT(t);
+
+                float angle = MathHelper.TwoPi * i / count + Main.rand.NextFloat(-0.2f, 0.2f);
+                Vector2 vel = angle.ToRotationVector2() * speed * Main.rand.NextFloat(0.6f, 1.3f);
+                float sparkScale = scale * Main.rand.NextFloat(0.7f, 1.3f);
+
+                if (Main.rand.NextBool(3))
+                {
+                    var twinkle = new TwinklingSparkleParticle(pos, vel, sparkleColor,
+                        sparkleColor * 0.7f, sparkScale * 0.5f, sparkScale, lifetime,
+                        twinkleSpeed: Main.rand.NextFloat(0.12f, 0.25f), bloomScale: 1.4f);
+                    MagnumParticleHandler.SpawnParticle(twinkle);
+                }
+                else
+                {
+                    var sparkle = new SparkleParticle(pos, vel, sparkleColor,
+                        sparkleColor * 0.6f, sparkScale, lifetime,
+                        rotationSpeed: Main.rand.NextFloat(0.5f, 1.5f), bloomScale: 1.2f);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
+                }
+            }
         }
     }
 }

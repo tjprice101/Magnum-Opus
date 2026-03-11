@@ -10,6 +10,7 @@ using Terraria.Audio;
 using MagnumOpus.Common;
 using MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Projectiles;
 using MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Utilities;
+using MagnumOpus.Content.SandboxExoblade.Utilities;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan
 {
@@ -33,6 +34,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan
     /// </summary>
     public class CalloftheBlackSwan : ModItem
     {
+        /// <summary>Tracks the Swan Dance combo phase (0-2). Entrechat → Fouetté → Grand Jeté.</summary>
+        private int dancePhase = 0;
+
         public override string Texture => "MagnumOpus/Content/SwanLake/ResonantWeapons/CalloftheBlackSwan/CalloftheBlackSwan";
 
         public override void SetStaticDefaults()
@@ -67,13 +71,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan
 
         public override bool CanShoot(Player player)
         {
-            // Prevent overlapping swing projectiles (Exoblade pattern)
+            bool isDash = player.altFunctionUse == 2;
             int swingType = ModContent.ProjectileType<BlackSwanSwingProj>();
             for (int i = 0; i < Main.maxProjectiles; i++)
             {
                 Projectile p = Main.projectile[i];
-                if (p.active && p.owner == player.whoAmI && p.type == swingType)
-                    return false;
+                if (!p.active || p.owner != player.whoAmI || p.type != swingType)
+                    continue;
+                if (isDash) return false;
+                if (!(p.ai[0] == 1 && p.ai[1] == 1)) return false;
             }
             return true;
         }
@@ -88,16 +94,76 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan
             velocity = player.MountedCenter.SafeDirectionTo(Main.MouseWorld);
         }
 
+        public override bool AltFunctionUse(Player player) => true;
+
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
             Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            float state = player.altFunctionUse == 2 ? 1f : 0f;
+            Projectile.NewProjectile(source, player.MountedCenter,
+                (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
+                type, damage, knockback, player.whoAmI, state, 0);
+
+            // --- Swan Dance combo system ---
+            // Phase 0 (Entrechat): 3 feather flares in fan arc (alternating white/black)
+            // Phase 1 (Fouetté): 4 flares in spinning radial burst
+            // Phase 2 (Grand Jeté): 5 empowered flares raining down + 2 shockwave flares
+            Vector2 aimDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
+            int phase = dancePhase % 3;
+            dancePhase++;
+            int flareType = ModContent.ProjectileType<BlackSwanFlareProj>();
+            int flareDmg = (int)(damage * 0.3f);
+
             var bsp = player.BlackSwan();
-            int comboStep = bsp.ComboStep;
+            bool maxGrace = bsp.IsMaxGrace;
 
-            Projectile.NewProjectile(source, position, velocity, type, damage, knockback,
-                player.whoAmI, ai0: comboStep);
+            switch (phase)
+            {
+                case 0: // Entrechat — 3 feathers in fan arc
+                    for (int i = -1; i <= 1; i++)
+                    {
+                        Vector2 flareVel = aimDir.RotatedBy(MathHelper.ToRadians(20 * i)) * 10f;
+                        float polarity = (i + 1) % 2; // Alternating white(0)/black(1)
+                        Projectile.NewProjectile(source, player.MountedCenter, flareVel,
+                            flareType, flareDmg, knockback * 0.4f, player.whoAmI,
+                            maxGrace ? 1f : 0f, polarity);
+                    }
+                    break;
 
-            bsp.AdvanceCombo();
+                case 1: // Fouetté — 4 flares in spinning radial burst
+                    for (int i = 0; i < 4; i++)
+                    {
+                        float angle = MathHelper.PiOver2 * i + Projectile.GetSource_None().GetHashCode() * 0.01f;
+                        Vector2 flareVel = aimDir.RotatedBy(MathHelper.ToRadians(90 * i - 135)) * 9f;
+                        Projectile.NewProjectile(source, player.MountedCenter, flareVel,
+                            flareType, flareDmg, knockback * 0.4f, player.whoAmI,
+                            maxGrace ? 1f : 0f, i % 2);
+                    }
+                    break;
+
+                case 2: // Grand Jeté — 5 empowered raining flares + 2 shockwave seeds
+                    for (int i = 0; i < 5; i++)
+                    {
+                        float spread = MathHelper.ToRadians(-40 + 20 * i);
+                        Vector2 flareVel = aimDir.RotatedBy(spread) * 11f;
+                        Projectile.NewProjectile(source, player.MountedCenter, flareVel,
+                            flareType, (int)(damage * 0.4f), knockback * 0.6f, player.whoAmI,
+                            1f, i % 2); // All empowered
+                    }
+                    // 2 shockwave seeds (mode 2) flanking
+                    for (int i = -1; i <= 1; i += 2)
+                    {
+                        Vector2 shockVel = aimDir.RotatedBy(MathHelper.ToRadians(50 * i)) * 6f;
+                        Projectile.NewProjectile(source, player.MountedCenter, shockVel,
+                            flareType, (int)(damage * 0.5f), knockback, player.whoAmI,
+                            2f, 0f);
+                    }
+                    break;
+            }
+
+            // Rainbow sparkle burst at player on each swing
+            try { SwanLakeVFXLibrary.SpawnPrismaticSparkles(player.MountedCenter, 4, 20f); } catch { }
+
             return false;
         }
 
@@ -116,6 +182,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan
 
         public override void HoldItem(Player player)
         {
+            player.ExoBlade().rightClickListener = true;
+            player.ExoBlade().mouseWorldListener = true;
+
             var bsp = player.BlackSwan();
 
             // Grace stack visual feedback

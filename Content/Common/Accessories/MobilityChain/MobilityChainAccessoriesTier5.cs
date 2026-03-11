@@ -55,23 +55,11 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
                 player.moveSpeed += 0.05f;
                 player.GetDamage(DamageClass.Generic) += 0.05f;
             }
-            
-            // Moonlit phantom VFX
-            if (!hideVisual && momentumPlayer.CurrentMomentum >= 100f && Main.rand.NextBool(4))
-            {
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(22f, 32f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.PurpleTorch, 
-                    Main.rand.NextVector2Circular(0.5f, 1f));
-                dust.noGravity = true;
-                dust.scale = 0.6f;
-                dust.color = new Color(150, 120, 200);
-                dust.alpha = 100;
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 120)"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+20% movement speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "+1.5 max run speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "+1.0 jump speed"));
@@ -132,22 +120,11 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             {
                 player.statDefense += 8;
             }
-            
-            // Heroic aura VFX
-            if (!hideVisual && momentumPlayer.CurrentMomentum >= 60f && Main.rand.NextBool(4))
-            {
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(20f, 30f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.RedTorch, 
-                    Main.rand.NextVector2Circular(0.8f, 1.2f));
-                dust.noGravity = true;
-                dust.scale = 0.7f;
-                dust.color = new Color(200, 80, 80);
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 120)"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+22% movement speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "+1.7 max run speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "+1.2 jump speed"));
@@ -211,22 +188,11 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             {
                 player.GetDamage(DamageClass.Generic) += 0.08f;
             }
-            
-            // Infernal flame VFX
-            if (!hideVisual && momentumPlayer.CurrentMomentum >= 70f && Main.rand.NextBool(3))
-            {
-                Vector2 dustPos = player.Bottom + Main.rand.NextVector2Circular(15f, 8f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.Torch, 
-                    new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(2f, 4f)));
-                dust.noGravity = true;
-                dust.scale = 1.1f;
-                dust.color = new Color(255, 100, 30);
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 120)"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+24% movement speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "+1.9 max run speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "+1.4 jump speed"));
@@ -291,22 +257,11 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             {
                 player.blackBelt = true; // Grants dodge chance
             }
-            
-            // Enigma void VFX
-            if (!hideVisual && momentumPlayer.CurrentMomentum >= 80f && Main.rand.NextBool(5))
-            {
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(25f, 35f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.PurpleTorch, 
-                    Main.rand.NextVector2Circular(0.3f, 0.5f));
-                dust.noGravity = true;
-                dust.scale = 0.5f;
-                dust.color = new Color(140, 60, 200);
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 120)"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+26% movement speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "+2.1 max run speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "+1.6 jump speed"));
@@ -372,35 +327,11 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             
             // Graceful presence - reduced aggro
             player.aggro -= 400;
-            
-            // Swan feather VFX
-            if (!hideVisual && momentumPlayer.CurrentMomentum >= 100f && Main.rand.NextBool(4))
-            {
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(30f, 40f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.Cloud, 
-                    new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-0.5f, 1f)));
-                dust.noGravity = true;
-                dust.scale = 0.9f;
-                dust.color = new Color(240, 245, 255);
-            }
-            
-            // Prismatic shimmer at max momentum
-            if (!hideVisual && momentumPlayer.CurrentMomentum >= momentumPlayer.MaxMomentum && Main.rand.NextBool(6))
-            {
-                float hue = (Main.GameUpdateCount * 0.02f) % 1f;
-                Color rainbowColor = Main.hslToRgb(hue, 0.8f, 0.7f);
-                
-                Vector2 shimmerPos = player.Center + Main.rand.NextVector2Circular(25f, 35f);
-                Dust shimmer = Dust.NewDustPerfect(shimmerPos, DustID.RainbowTorch, Vector2.Zero);
-                shimmer.noGravity = true;
-                shimmer.scale = 0.5f;
-                shimmer.color = rainbowColor;
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 120)"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+28% movement speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "+2.3 max run speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "+1.8 jump speed"));
@@ -471,41 +402,6 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             
             // Fate's grip - reduced aggro but intimidating presence
             player.aggro -= 200;
-            
-            // Cosmic velocity VFX
-            if (!hideVisual && momentumPlayer.CurrentMomentum >= 100f)
-            {
-                // Dark cosmic trail
-                if (Main.rand.NextBool(3))
-                {
-                    Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(25f, 35f);
-                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.PurpleTorch, 
-                        Main.rand.NextVector2Circular(0.5f, 1f));
-                    dust.noGravity = true;
-                    dust.scale = 0.6f;
-                    dust.color = new Color(180, 40, 80);
-                }
-                
-                // Star sparkles at max momentum
-                if (momentumPlayer.CurrentMomentum >= 150f && Main.rand.NextBool(5))
-                {
-                    Vector2 starPos = player.Center + Main.rand.NextVector2Circular(35f, 45f);
-                    Dust star = Dust.NewDustPerfect(starPos, DustID.MagicMirror, Vector2.Zero);
-                    star.noGravity = true;
-                    star.scale = 0.4f;
-                    star.color = Color.White;
-                }
-                
-                // Glyph accents
-                if (momentumPlayer.CurrentMomentum >= 150f && Main.rand.NextBool(15))
-                {
-                    Vector2 glyphPos = player.Center + Main.rand.NextVector2Circular(40f, 50f);
-                    Dust glyph = Dust.NewDustPerfect(glyphPos, DustID.Enchanted_Pink, 
-                        Main.rand.NextVector2Circular(0.3f, 0.3f));
-                    glyph.noGravity = true;
-                    glyph.scale = 0.5f;
-                }
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)

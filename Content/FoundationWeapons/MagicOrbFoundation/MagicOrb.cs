@@ -247,6 +247,8 @@ namespace MagnumOpus.Content.FoundationWeapons.MagicOrbFoundation
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Color[] colors = MOFTextures.GetStyleColors(CurrentStyle);
             float alpha = GetAlpha();
 
@@ -277,6 +279,15 @@ namespace MagnumOpus.Content.FoundationWeapons.MagicOrbFoundation
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

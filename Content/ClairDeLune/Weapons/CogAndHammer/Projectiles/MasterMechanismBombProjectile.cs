@@ -169,11 +169,22 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.CogAndHammer.Projectiles
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
 
             DrawSingularityBody(sb, matrix);     // Pass 1: SingularityVortex mega body
             DrawPearlTickOverlay(sb, matrix);    // Pass 2: PearlBloom tick overlay
             DrawMassiveBloomCore(sb, matrix);    // Pass 3: Massive bloom
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

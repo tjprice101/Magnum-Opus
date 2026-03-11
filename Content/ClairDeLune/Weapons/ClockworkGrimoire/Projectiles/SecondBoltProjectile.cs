@@ -1,10 +1,15 @@
+using MagnumOpus.Common;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.Shaders;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Content.ClairDeLune;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using System;
 using Terraria;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -21,14 +26,15 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire.Projectiles
     {
         public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
 
+        private VertexStrip _vertexStrip;
         private const int TrailLen = 6;
         private Vector2[] _oldPos = new Vector2[TrailLen];
 
-        // --- Texture + shader caching ---
-        private static Effect _moonlitShader;
-        private static Asset<Texture2D> _softCircle;
-        private static Asset<Texture2D> _softRadialBloom;
-        private static Asset<Texture2D> _pointBloom;
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -60,101 +66,38 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire.Projectiles
             MagnumParticleHandler.SpawnParticle(flash);
         }
 
-        private void LoadTextures()
-        {
-            _softCircle ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad);
-            _softRadialBloom ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
-            _pointBloom ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom", AssetRequestMode.ImmediateLoad);
-        }
-
         public override bool PreDraw(ref Color lightColor)
         {
             if (Main.dedServ) return false;
-            LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
-            Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
-
-            DrawMoonlitBody(sb, matrix);       // Pass 1: MoonlitFlow shimmer body
-            DrawBloomTrailAndCore(sb, matrix); // Pass 2: Bloom trail + core
-            return false;
-        }
-
-        // ---- PASS 1: ClairDeLuneMoonlit MoonlitFlow shimmer body ----
-        private void DrawMoonlitBody(SpriteBatch sb, Matrix matrix)
-        {
-            _moonlitShader ??= ShaderLoader.ClairDeLuneMoonlit;
-            if (_moonlitShader == null) return;
-
-            sb.End();
-
-            _moonlitShader.Parameters["uColor"]?.SetValue(ClairDeLunePalette.PearlFrost.ToVector4());
-            _moonlitShader.Parameters["uSecondaryColor"]?.SetValue(ClairDeLunePalette.SoftBlue.ToVector4());
-            _moonlitShader.Parameters["uOpacity"]?.SetValue(0.35f);
-            _moonlitShader.Parameters["uTime"]?.SetValue(Main.GlobalTimeWrappedHourly);
-            _moonlitShader.Parameters["uIntensity"]?.SetValue(1.0f);
-            _moonlitShader.Parameters["uOverbrightMult"]?.SetValue(1.0f);
-            _moonlitShader.Parameters["uScrollSpeed"]?.SetValue(6f);
-            _moonlitShader.Parameters["uDistortionAmt"]?.SetValue(0.01f);
-            _moonlitShader.Parameters["uHasSecondaryTex"]?.SetValue(false);
-
-            _moonlitShader.CurrentTechnique = _moonlitShader.Techniques["MoonlitFlow"];
-
-            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
-                SamplerState.LinearWrap, DepthStencilState.None,
-                RasterizerState.CullCounterClockwise, _moonlitShader, matrix);
-
-            Texture2D sc = _softCircle.Value;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            float bodyScale = 8f / sc.Width;
-            sb.Draw(sc, drawPos, null, Color.White, Projectile.rotation,
-                sc.Size() * 0.5f, new Vector2(bodyScale * 1.5f, bodyScale), SpriteEffects.None, 0f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
-                SamplerState.LinearClamp, DepthStencilState.None,
-                RasterizerState.CullCounterClockwise, null, matrix);
-        }
-
-        // ---- PASS 2: Elongated bloom trail + core stacking ----
-        private void DrawBloomTrailAndCore(SpriteBatch sb, Matrix matrix)
-        {
-            Texture2D srb = _softRadialBloom.Value;
-            Texture2D pb = _pointBloom.Value;
-            Vector2 srbOrigin = srb.Size() * 0.5f;
-            Vector2 pbOrigin = pb.Size() * 0.5f;
-
-            // Trail afterimages
-            for (int i = 0; i < TrailLen; i++)
+            try
             {
-                if (_oldPos[i] == Vector2.Zero) continue;
-                float fade = 1f - (float)i / TrailLen;
-                Vector2 tDraw = _oldPos[i] - Main.screenPosition;
-                Color tCol = Color.Lerp(ClairDeLunePalette.PearlFrost, ClairDeLunePalette.SoftBlue,
-                    (float)i / TrailLen) with { A = 0 } * fade * 0.2f;
-                float trailScale = 6f / srb.Width * fade;
-                sb.Draw(srb, tDraw, null, tCol, Projectile.rotation, srbOrigin,
-                    new Vector2(trailScale * 2f, trailScale), SpriteEffects.None, 0f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.ClairDeLune, ref _vertexStrip);
+
+                // --- Rapid-fire frost streak accent ---
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                var glowTex = MagnumTextureRegistry.GetSoftGlow();
+                Vector2 origin = glowTex.Size() / 2f;
+                Vector2 pos = Projectile.Center - Main.screenPosition;
+                float rot = Projectile.velocity.ToRotation();
+                Color frost = (ClairDeLunePalette.MoonlitFrost with { A = 0 }) * 0.55f;
+                sb.Draw(glowTex, pos, null, frost, rot, origin, new Vector2(0.06f, 0.02f), SpriteEffects.None, 0f);
+
+                sb.End();
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
-            // Core bloom layers
-            Vector2 pos = Projectile.Center - Main.screenPosition;
-
-            // Outer soft haze
-            sb.Draw(srb, pos, null,
-                ClairDeLunePalette.SoftBlue with { A = 0 } * 0.2f, Projectile.rotation, srbOrigin,
-                new Vector2(12f / srb.Width, 6f / srb.Width), SpriteEffects.None, 0f);
-
-            // Inner bright core
-            sb.Draw(pb, pos, null,
-                ClairDeLunePalette.PearlFrost with { A = 0 } * 0.3f, Projectile.rotation, pbOrigin,
-                new Vector2(6f / pb.Width, 3f / pb.Width), SpriteEffects.None, 0f);
-
-            // Restore AlphaBlend
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                Main.DefaultSamplerState, DepthStencilState.None,
-                RasterizerState.CullCounterClockwise, null, matrix);
+            return false;
         }
     }
 }

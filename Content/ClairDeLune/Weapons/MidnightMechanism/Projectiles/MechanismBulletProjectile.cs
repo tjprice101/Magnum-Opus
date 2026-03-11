@@ -1,5 +1,9 @@
+using MagnumOpus.Common;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.Shaders;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Content.ClairDeLune;
 using MagnumOpus.Content.ClairDeLune.Weapons.MidnightMechanism.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -13,7 +17,7 @@ using Terraria.ModLoader;
 namespace MagnumOpus.Content.ClairDeLune.Weapons.MidnightMechanism.Projectiles
 {
     /// <summary>
-    /// Mechanism Bullet — rapid-fire projectile with phase-scaled VFX.
+    /// Mechanism Bullet  Erapid-fire projectile with phase-scaled VFX.
     /// 3 render passes: (1) SparkleTrailShader VertexStrip trail (Phase 3+),
     /// (2) GatlingBlur.fx muzzle overlay on bullet body, (3) Multi-scale bloom core.
     /// ai[0] = phase (1-5). Visual complexity scales with phase.
@@ -38,6 +42,13 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.MidnightMechanism.Projectiles
         private static Asset<Texture2D> _softRadialBloom;
         private static Asset<Texture2D> _pointBloom;
         private VertexStrip _strip;
+        private VertexStrip _vertexStrip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -102,7 +113,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.MidnightMechanism.Projectiles
 
         private void LoadTextures()
         {
-            _sparkleTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/TrailsAndRibbons/SpiralTrail", AssetRequestMode.ImmediateLoad);
+            _sparkleTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/TrailsAndRibbons/Spiraling Vortex Energy Strip", AssetRequestMode.ImmediateLoad);
             _gradientLUT ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/ColorGradients/ClairDeLuneGradientLUTandRAMP", AssetRequestMode.ImmediateLoad);
             _glowMask ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow", AssetRequestMode.ImmediateLoad);
             _softCircle ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad);
@@ -116,11 +127,32 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.MidnightMechanism.Projectiles
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
-            Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
+            try
+            {
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.ClairDeLune, ref _vertexStrip);
 
-            if (Phase >= 3) DrawSparkleTrail(sb, matrix);  // Pass 1: VertexStrip trail (Phase 3+)
-            DrawGatlingBlurOverlay(sb, matrix);              // Pass 2: GatlingBlur shader on bullet
-            DrawBloomCore(sb, matrix);                       // Pass 3: Multi-scale bloom body
+                // --- Phase-scaled dream-blue bullet streak ---
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                var glowTex = MagnumTextureRegistry.GetSoftGlow();
+                Vector2 origin = glowTex.Size() / 2f;
+                Vector2 pos = Projectile.Center - Main.screenPosition;
+                float rot = Projectile.velocity.ToRotation();
+                Color blue = (ClairDeLunePalette.DreamBlue with { A = 0 }) * 0.55f;
+                sb.Draw(glowTex, pos, null, blue, rot, origin, new Vector2(0.055f, 0.02f), SpriteEffects.None, 0f);
+
+                sb.End();
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

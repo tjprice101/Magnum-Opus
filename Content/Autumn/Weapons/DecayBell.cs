@@ -16,7 +16,7 @@ using static MagnumOpus.Common.Systems.ThemedParticles;
 namespace MagnumOpus.Content.Autumn.Weapons
 {
     /// <summary>
-    /// Decay Bell - Autumn-themed summon weapon (Post-Plantera tier)
+    /// Decay Bell - Autumn-themed summon weapon (Post-Wall of Flesh tier)
     /// A cursed bell that summons spirits of decay.
     /// - Harvest Wraith: Summons spectral reapers that attack enemies (88 damage)
     /// - Death Toll: Wraiths periodically toll, dealing AoE damage

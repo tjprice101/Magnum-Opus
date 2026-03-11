@@ -12,7 +12,7 @@ using Terraria.ModLoader;
 namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles
 {
     /// <summary>
-    /// Clockwork Overflow — 8-tile temporal detonation after a perfect 3-phase combo.
+    /// Clockwork Overflow  E8-tile temporal detonation after a perfect 3-phase combo.
     /// 4 phases: Trigger -> Freeze -> Detonation -> Resume.
     /// 3 render passes: (1) RadialNoiseMaskShader zone disc,
     /// (2) TemporalDrill.fx phase overlay, (3) Multi-scale bloom per phase.
@@ -235,7 +235,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles
 
         private void LoadTextures()
         {
-            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseAndDistortion/PerlinNoise", AssetRequestMode.ImmediateLoad);
+            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/PerlinNoise", AssetRequestMode.ImmediateLoad);
             _gradientLUT ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/ColorGradients/ClairDeLuneGradientLUTandRAMP", AssetRequestMode.ImmediateLoad);
             _softCircle ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad);
             _softRadialBloom ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
@@ -248,12 +248,23 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
             var phase = CurrentPhase;
 
             DrawRadialZone(sb, matrix, phase);       // Pass 1: RadialNoiseMask zone
             DrawTemporalDrillOverlay(sb, matrix, phase); // Pass 2: TemporalDrill.fx overlay
             DrawPhaseBloom(sb, matrix, phase);       // Pass 3: Multi-scale bloom
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

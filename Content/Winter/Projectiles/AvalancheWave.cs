@@ -149,8 +149,20 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Use procedural VFX system - Winter avalanche wave effect
             ProceduralProjectileVFX.DrawWinterProjectile(Main.spriteBatch, Projectile, Projectile.scale * 0.8f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
@@ -255,8 +267,20 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Use procedural VFX system - Winter shard effect
             ProceduralProjectileVFX.DrawWinterProjectile(Main.spriteBatch, Projectile, 0.22f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

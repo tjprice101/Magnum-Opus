@@ -711,7 +711,7 @@ namespace MagnumOpus.Common.Systems.VFX
                 Color layerColor = i == layers - 1 
                     ? Color.White.WithoutAlpha() * opacityMultipliers[i]
                     : primaryColor.WithoutAlpha() * opacityMultipliers[i];
-                    
+                
                 spriteBatch.Draw(bloom, drawPos, null, layerColor, 0f, origin, 
                     scale * scaleMultipliers[i], SpriteEffects.None, 0f);
             }
@@ -755,12 +755,12 @@ namespace MagnumOpus.Common.Systems.VFX
             }
             else
             {
-                // Fallback: draw stretched blooms as cross
+                // Fallback: draw stretched blooms as NEON RED cross (shader failed!)
                 for (int i = 0; i < 4; i++)
                 {
                     float angle = rotation + i * MathHelper.PiOver2;
                     Vector2 offset = angle.ToRotationVector2() * scale * 10f;
-                    spriteBatch.Draw(bloom, drawPos + offset, null, color.WithoutAlpha() * 0.6f, 
+                    spriteBatch.Draw(bloom, drawPos + offset, null, new Color(255, 0, 50).WithoutAlpha() * 0.6f, 
                         0f, bloomOrigin, scale * 0.3f, SpriteEffects.None, 0f);
                 }
             }

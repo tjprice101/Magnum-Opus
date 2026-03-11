@@ -305,6 +305,8 @@ namespace MagnumOpus.Content.FoundationWeapons.Foundation4PointSparkle
             if (sparkles == null) return false;
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Color[] colors = F4PSTextures.GetSparkleColors();
             float time = (float)Main.timeForVisualEffects;
 
@@ -330,6 +332,15 @@ namespace MagnumOpus.Content.FoundationWeapons.Foundation4PointSparkle
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

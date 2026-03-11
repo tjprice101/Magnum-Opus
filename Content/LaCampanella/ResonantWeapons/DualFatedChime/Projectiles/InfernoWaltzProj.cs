@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Graphics.Shaders;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Utilities;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Particles;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Primitives;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Shaders;
@@ -248,33 +249,18 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             // Outer fire ring (large, orange)
             float outerScale = MathHelper.Lerp(0.17f, 0.29f, progress) * pulse;
             sb.Draw(bloomTex, screenPos, null,
-                DualFatedChimeUtils.Additive(new Color(200, 80, 0), 0.15f * pulse),
+                DualFatedChimeUtils.Additive(new Color(200, 80, 0), 0.1f * pulse),
                 _spinAngle, origin, outerScale, SpriteEffects.None, 0f);
 
             // Mid ring (gold)
             float midScale = MathHelper.Lerp(0.12f, 0.19f, progress) * pulse;
             sb.Draw(bloomTex, screenPos, null,
-                DualFatedChimeUtils.Additive(new Color(255, 180, 40), 0.2f * pulse),
+                DualFatedChimeUtils.Additive(new Color(255, 180, 40), 0.15f * pulse),
                 -_spinAngle * 0.7f, origin, midScale, SpriteEffects.None, 0f);
 
-            // Core (white-hot)
-            float coreScale = MathHelper.Lerp(0.06f, 0.10f, progress) * pulse;
-            sb.Draw(bloomTex, screenPos, null,
-                DualFatedChimeUtils.Additive(new Color(255, 240, 200), 0.35f),
-                0f, origin, coreScale, SpriteEffects.None, 0f);
-
-            // --- LC Impact Ellipse — expanding shockwave ring around the waltz ---
-            float ellipseScale = MathHelper.Lerp(0.3f, 0.7f, progress) * pulse;
-            LaCampanellaVFXLibrary.DrawImpactEllipse(sb, screenPos,
-                ellipseScale, _spinAngle * 0.5f,
-                0.2f * pulse, LaCampanellaPalette.FlameYellow);
-
-            // --- LC Bright Star — rotating infernal star at waltz center ---
-            float starPulse = 0.6f + 0.4f * (float)Math.Sin(Timer * 0.18f);
-            LaCampanellaVFXLibrary.DrawBrightStar(sb, screenPos,
-                0.2f * starPulse * (1f + progress * 0.5f),
-                -_spinAngle * 1.3f,
-                0.3f * starPulse, LaCampanellaPalette.BellGold);
+            // Core graduated orb head
+            MagnumVFX.DrawGraduatedOrbHead(sb, screenPos, 
+                LaCampanellaPalette.InfernalOrange, LaCampanellaPalette.FlameYellow, 0.8f * pulse);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,

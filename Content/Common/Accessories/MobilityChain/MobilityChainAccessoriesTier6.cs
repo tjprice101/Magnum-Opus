@@ -57,25 +57,6 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
                 player.GetDamage(DamageClass.Generic) += 0.08f;
             }
             
-            // At 125+ momentum: Leave constellation trail
-            if (!hideVisual && momentumPlayer.CurrentMomentum >= 125f && Main.rand.NextBool(3))
-            {
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(25f, 35f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.Enchanted_Gold, 
-                    Main.rand.NextVector2Circular(0.5f, 1.2f));
-                dust.noGravity = true;
-                dust.scale = Main.rand.NextFloat(0.8f, 1.2f);
-                dust.color = new Color(255, 220, 180);
-                
-                // Constellation star sparkle
-                if (Main.rand.NextBool(4))
-                {
-                    Dust star = Dust.NewDustPerfect(dustPos, DustID.PlatinumCoin, Vector2.Zero);
-                    star.noGravity = true;
-                    star.scale = 0.6f;
-                }
-            }
-            
             // At 150+ momentum: Semi-transparent (reduced aggro)
             if (momentumPlayer.CurrentMomentum >= 150f)
             {
@@ -142,17 +123,6 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             
             // Night vision
             player.nightVision = true;
-            
-            // At 150+ Momentum: Leave burning trail
-            if (!hideVisual && momentumPlayer.CurrentMomentum >= 150f && Main.rand.NextBool(2))
-            {
-                Vector2 dustPos = player.Bottom + Main.rand.NextVector2Circular(15f, 5f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.Torch, 
-                    new Vector2(0, Main.rand.NextFloat(-1f, -2f)));
-                dust.noGravity = true;
-                dust.scale = Main.rand.NextFloat(1.0f, 1.5f);
-                dust.color = new Color(255, 100, 30);
-            }
             
             // At 175+ momentum while falling: Meteor impact on landing handled in MomentumPlayer
             // Running through enemies at high momentum knocks them aside
@@ -232,24 +202,7 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
                 player.wingTime = player.wingTimeMax;
             }
             
-            // At 200+ Momentum: Healing trail for allies (VFX only for now, healing in PostUpdate)
-            if (!hideVisual && momentumPlayer.CurrentMomentum >= 200f && Main.rand.NextBool(3))
-            {
-                Vector2 dustPos = player.Bottom + Main.rand.NextVector2Circular(20f, 8f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.GreenFairy, 
-                    new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-2f, -0.5f)));
-                dust.noGravity = true;
-                dust.scale = Main.rand.NextFloat(0.8f, 1.2f);
-                
-                // Joyful petal effect
-                if (Main.rand.NextBool(5))
-                {
-                    Dust petal = Dust.NewDustPerfect(player.Center + Main.rand.NextVector2Circular(30f, 30f), 
-                        DustID.RainbowMk2, Main.rand.NextVector2Circular(1f, 1f));
-                    petal.noGravity = true;
-                    petal.scale = 0.5f;
-                }
-            }
+            // At 200+ Momentum: Healing trail for allies (healing in PostUpdate)
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -312,9 +265,8 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             player.buffImmune[BuffID.Frozen] = true;
             player.buffImmune[BuffID.Webbed] = true;
             
-            // Night vision and full light
+            // Night vision
             player.nightVision = true;
-            Lighting.AddLight(player.Center, 0.8f, 0.6f, 0.5f);
             
             // Momentum never decays during boss fights (handled in MomentumPlayer)
             
@@ -347,36 +299,7 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
                         int damage = (int)(player.GetDamage(DamageClass.Generic).ApplyTo(100) * 0.75f);
                         int dir = npc.Center.X > player.Center.X ? 1 : -1;
                         npc.SimpleStrikeNPC(damage, dir, false, 8f);
-                        
-                        // Temporal VFX on hit
-                        for (int i = 0; i < 5; i++)
-                        {
-                            Dust dust = Dust.NewDustPerfect(npc.Center, DustID.Clentaminator_Cyan, 
-                                Main.rand.NextVector2Circular(3f, 3f));
-                            dust.noGravity = true;
-                            dust.scale = 0.8f;
-                        }
                     }
-                }
-            }
-            
-            // Eternal VFX - clockwork temporal particles
-            if (!hideVisual && momentumPlayer.CurrentMomentum >= 200f && Main.rand.NextBool(2))
-            {
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(30f, 40f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.Clentaminator_Cyan, 
-                    Main.rand.NextVector2Circular(0.5f, 0.5f));
-                dust.noGravity = true;
-                dust.scale = Main.rand.NextFloat(0.6f, 1.0f);
-                dust.color = new Color(180, 140, 100);
-                
-                // Clockwork gear particles
-                if (Main.rand.NextBool(8))
-                {
-                    Dust gear = Dust.NewDustPerfect(player.Center + Main.rand.NextVector2Circular(25f, 25f), 
-                        DustID.Copper, Vector2.Zero);
-                    gear.noGravity = true;
-                    gear.scale = 0.5f;
                 }
             }
         }

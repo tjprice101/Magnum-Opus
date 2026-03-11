@@ -12,6 +12,7 @@ using MagnumOpus.Common;
 using MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation.Utilities;
 using MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation.Particles;
 using MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation.Projectiles;
+using MagnumOpus.Content.SandboxExoblade.Utilities;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
 {
@@ -66,9 +67,27 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
             Item.noMelee = true;
             Item.noUseGraphic = true;
             Item.shoot = ModContent.ProjectileType<ConductorSwingProjectile>();
-            Item.channel = false;
+            Item.channel = true;
             Item.UseSound = null; // Swing projectile handles sounds
         }
+
+        public override bool CanShoot(Player player)
+        {
+            bool isDash = player.altFunctionUse == 2;
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile p = Main.projectile[i];
+                if (!p.active || p.owner != player.whoAmI || p.type != Item.shoot)
+                    continue;
+                if (isDash) return false;
+                if (!(p.ai[0] == 1 && p.ai[1] == 1)) return false;
+            }
+            return true;
+        }
+
+        public override bool AltFunctionUse(Player player) => true;
+        public override bool? CanHitNPC(Player player, NPC target) => false;
+        public override bool CanHitPvp(Player player, Player target) => false;
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
@@ -86,16 +105,18 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            // Fire the held swing projectile — it handles beam spawning internally
-            Projectile.NewProjectile(source, player.Center, Vector2.Zero, type, damage, knockback, player.whoAmI);
-
-            SoundEngine.PlaySound(SoundID.Item71 with { Pitch = 0.4f, Volume = 0.9f }, player.Center);
-
+            float state = player.altFunctionUse == 2 ? 1f : 0f;
+            Projectile.NewProjectile(source, player.MountedCenter,
+                (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
+                type, damage, knockback, player.whoAmI, state, 0);
             return false;
         }
 
         public override void HoldItem(Player player)
         {
+            player.ExoBlade().rightClickListener = true;
+            player.ExoBlade().mouseWorldListener = true;
+
             if (Main.dedServ) return;
 
             float time = (float)Main.timeForVisualEffects;

@@ -249,9 +249,21 @@ namespace MagnumOpus.Content.FoundationWeapons.LaserFoundation
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Draw the beam body and endpoint flares
             DrawBeamBody();
             DrawEndpointFlares();
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false; // Don't draw the default projectile sprite
         }

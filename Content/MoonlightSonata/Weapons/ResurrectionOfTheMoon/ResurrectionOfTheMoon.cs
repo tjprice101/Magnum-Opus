@@ -58,6 +58,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon
         {
             Item.width = 70;
             Item.height = 26;
+            Item.scale = 0.075f;
             Item.damage = 1500;
             Item.DamageType = DamageClass.Ranged;
             Item.useTime = 30;

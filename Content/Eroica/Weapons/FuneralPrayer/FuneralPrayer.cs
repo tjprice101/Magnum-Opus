@@ -28,6 +28,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.FuneralPrayer
             Item.DamageType = DamageClass.Magic;
             Item.width = 50;
             Item.height = 50;
+            Item.scale = 0.055f;
             Item.useTime = 10;
             Item.useAnimation = 10;
             Item.useStyle = ItemUseStyleID.Shoot;

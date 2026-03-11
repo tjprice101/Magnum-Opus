@@ -52,12 +52,6 @@ namespace MagnumOpus.Content.Fate.Accessories
             
             // Cosmic Dodge Chance bonus
             player.GetModPlayer<EventHorizonPlayer>().cosmicDodgeChance += 0.08f;
-            
-            // Event Horizon ambient VFX
-            if (!hideVisual)
-            {
-                FateAccessoryVFX.EventHorizonAmbientVFX(player);
-            }
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)

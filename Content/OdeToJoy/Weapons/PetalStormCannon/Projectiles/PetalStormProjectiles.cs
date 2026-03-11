@@ -1,4 +1,7 @@
-﻿using MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.OdeToJoy;
+using MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon;
+using MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Dusts;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -10,13 +13,21 @@ using Terraria.ModLoader;
 namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
 {
     /// <summary>
-    /// PetalClusterProjectile — arcing petal bomb that creates a persistent vortex zone on impact.
+    /// PetalClusterProjectile ? arcing petal bomb that creates a persistent vortex zone on impact.
     /// ai[0] = seasonal color index (0=pink, 1=gold, 2=white cycle).
     /// ExplosionParticlesFoundation SpiralShrapnel on impact.
     /// </summary>
     public class PetalClusterProjectile : ModProjectile
     {
+        private VertexStrip _vertexStrip;
+
         public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -35,11 +46,11 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
             Projectile.rotation += 0.15f;
             Projectile.velocity.Y += 0.12f; // Slight arc
 
-            // Spinning petal trail
+            // Spinning petal trail — custom storm petal dust (seasonal)
             if (Main.rand.NextBool(2))
             {
                 Color seasonal = PetalStormTextures.GetSeasonalColor((int)Projectile.ai[0]);
-                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.GoldFlame, -Projectile.velocity.X * 0.15f, -Projectile.velocity.Y * 0.15f, 120, seasonal, 0.7f);
+                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, ModContent.DustType<StormPetalDust>(), -Projectile.velocity.X * 0.15f, -Projectile.velocity.Y * 0.15f, 120, seasonal, 0.7f);
                 d.noGravity = true;
                 d.fadeIn = 1.2f;
             }
@@ -56,70 +67,42 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
                     Main.projectile[proj].ai[0] = Projectile.ai[0]; // Pass seasonal color
             }
 
-            // SpiralShrapnel particles — 40 per cluster
+            // SpiralShrapnel particles — 40 storm petal dust per cluster
             Color seasonal = PetalStormTextures.GetSeasonalColor((int)Projectile.ai[0]);
             for (int i = 0; i < 40; i++)
             {
                 float angle = MathHelper.TwoPi * i / 40f + (i * 0.15f); // Spiral offset
                 float speed = 3f + Main.rand.NextFloat() * 4f;
                 Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * speed;
-                Dust d = Dust.NewDustDirect(Projectile.Center, 1, 1, DustID.GoldFlame, vel.X, vel.Y, 100, seasonal, 1.0f);
+                Dust d = Dust.NewDustDirect(Projectile.Center, 1, 1, ModContent.DustType<StormPetalDust>(), vel.X, vel.Y, 100, seasonal, 1.0f);
                 d.noGravity = true;
                 d.fadeIn = 1.4f;
             }
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(Projectile.Center, 4, 3f, 0.8f);
+            OdeToJoyVFXLibrary.RhythmicPulse(Projectile.Center, 0.7f, OdeToJoyPalette.PetalPink);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D petalTex = PetalStormTextures.OJRosePetal;
-            Texture2D glowTex = PetalStormTextures.SoftGlow;
-            Vector2 petalOrigin = petalTex.Size() / 2f;
-            Vector2 glowOrigin = glowTex.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Color seasonal = PetalStormTextures.GetSeasonalColor((int)Projectile.ai[0]);
-
-            float fade = MathHelper.Clamp((300 - Projectile.timeLeft) / 8f, 0f, 1f);
-            float time = (float)Main.timeForVisualEffects * 0.015f;
-
-            sb.End();
-
-            // ── LAYER 0: PollenDrift shader — seed trail body ──
-            Effect pollenShader = OdeToJoyShaders.PollenDrift;
-            if (pollenShader != null)
+            try
             {
-                OdeToJoyShaders.SetPollenParams(pollenShader, time, seasonal,
-                    PetalStormTextures.BloomGold, fade * 0.5f, 1.6f, 0.3f);
-                OdeToJoyShaders.BeginDeferredShaderBatch(sb, pollenShader, "PollenTrailTechnique");
-                sb.Draw(glowTex, drawPos, null, Color.White * fade, Projectile.rotation, glowOrigin,
-                    0.28f, SpriteEffects.None, 0f);
-                sb.End();
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _vertexStrip);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
-            // ── LAYER 1: Additive bloom layers ──
-            OdeToJoyShaders.BeginAdditiveBatch(sb);
-
-            // Spinning petal body
-            sb.Draw(petalTex, drawPos, null, seasonal * fade * 0.8f, Projectile.rotation, petalOrigin,
-                0.7f, SpriteEffects.None, 0f);
-            // Glow
-            sb.Draw(glowTex, drawPos, null, PetalStormTextures.BloomGold * fade * 0.35f, 0f, glowOrigin,
-                0.28f, SpriteEffects.None, 0f);
-            // Core
-            sb.Draw(glowTex, drawPos, null, PetalStormTextures.JubilantLight * fade * 0.4f, 0f, glowOrigin,
-                0.12f, SpriteEffects.None, 0f);
-
-            // Theme blossom sparkle accent
-            OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
-
-            sb.End();
-            OdeToJoyShaders.RestoreSpriteBatch(sb);
             return false;
         }
     }
 
     /// <summary>
-    /// PetalVortexZone — persistent spinning vortex AoE (2s).
+    /// PetalVortexZone ? persistent spinning vortex AoE (2s).
     /// MaskFoundation-style rendering with CosmicVortex noise.
     /// ai[0] = seasonal color. Merges with nearby vortexes (+50% radius).
     /// </summary>
@@ -165,13 +148,14 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
                         other.Kill();
                         Projectile.timeLeft = Math.Max(Projectile.timeLeft, 120);
 
-                        // Merge VFX burst
+                        // Merge VFX burst — storm petal dust
                         for (int j = 0; j < 15; j++)
                         {
                             Vector2 vel = Main.rand.NextVector2Circular(4f, 4f);
-                            Dust d = Dust.NewDustDirect(Projectile.Center, 1, 1, DustID.GoldFlame, vel.X, vel.Y, 100, PetalStormTextures.BloomGold, 0.8f);
+                            Dust d = Dust.NewDustDirect(Projectile.Center, 1, 1, ModContent.DustType<StormPetalDust>(), vel.X, vel.Y, 100, default, 0.8f);
                             d.noGravity = true;
                         }
+                        OdeToJoyVFXLibrary.HarmonicPulseRing(Projectile.Center, 1.0f, 8, OdeToJoyPalette.GoldenPollen);
                         break;
                     }
                 }
@@ -186,12 +170,12 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
                 // for now just spawn some visual healing particles
                 if (Main.rand.NextBool(8))
                 {
-                    Dust d = Dust.NewDustDirect(owner.Center - new Vector2(4), 8, 8, DustID.GoldFlame, 0f, -1f, 100, PetalStormTextures.JubilantLight, 0.4f);
+                    Dust d = Dust.NewDustDirect(owner.Center - new Vector2(4), 8, 8, ModContent.DustType<StormPetalDust>(), 0f, -1f, 100, default, 0.4f);
                     d.noGravity = true;
                 }
             }
 
-            // Ambient swirling petal dust
+            // Ambient swirling petal dust — custom storm petal
             if (Main.rand.NextBool(3))
             {
                 float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
@@ -200,7 +184,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
                 float tangentAngle = angle + MathHelper.PiOver2;
                 Vector2 vel = new Vector2((float)Math.Cos(tangentAngle), (float)Math.Sin(tangentAngle)) * 2f;
                 Color seasonal = PetalStormTextures.GetSeasonalColor((int)Projectile.ai[0]);
-                Dust d = Dust.NewDustDirect(pos, 1, 1, DustID.GoldFlame, vel.X, vel.Y, 120, seasonal, 0.6f);
+                Dust d = Dust.NewDustDirect(pos, 1, 1, ModContent.DustType<StormPetalDust>(), vel.X, vel.Y, 120, seasonal, 0.6f);
                 d.noGravity = true;
             }
         }
@@ -217,7 +201,9 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D maskTex = PetalStormTextures.CircularMask;
+            try
+            {
+            Texture2D maskTex = PetalStormTextures.SoftCircle;
             Texture2D glowTex = PetalStormTextures.SoftGlow;
             Texture2D ringTex = PetalStormTextures.OJPowerRing;
             Vector2 maskOrigin = maskTex.Size() / 2f;
@@ -235,7 +221,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
 
             sb.End();
 
-            // ── LAYER 0: CelebrationAura shader — concentric vortex rings ──
+            // ���� LAYER 0: CelebrationAura shader ? concentric vortex rings ����
             Effect auraShader = OdeToJoyShaders.CelebrationAura;
             if (auraShader != null)
             {
@@ -249,7 +235,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
                 sb.End();
             }
 
-            // ── LAYER 1: GardenBloom JubilantPulse shader — pulsing zone center ──
+            // ���� LAYER 1: GardenBloom JubilantPulse shader ? pulsing zone center ����
             Effect bloomShader = OdeToJoyShaders.GardenBloom;
             if (bloomShader != null)
             {
@@ -262,7 +248,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
                 sb.End();
             }
 
-            // ── LAYER 2: Additive overlays ──
+            // ���� LAYER 2: Additive overlays ����
             OdeToJoyShaders.BeginAdditiveBatch(sb);
 
             // Vortex base (spinning mask)
@@ -286,12 +272,21 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
 
             sb.End();
             OdeToJoyShaders.RestoreSpriteBatch(sb);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
 
     /// <summary>
-    /// HurricaneShotProjectile — massive moving petal storm that sweeps the battlefield.
+    /// HurricaneShotProjectile ? massive moving petal storm that sweeps the battlefield.
     /// Travels forward with persistent AoE. RibbonFoundation-style trail.
     /// </summary>
     public class HurricaneShotProjectile : ModProjectile
@@ -325,14 +320,14 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
             _trailPositions[_trailHead] = Projectile.Center;
             _trailHead = (_trailHead + 1) % TrailLength;
 
-            // Dense swirling petal debris
+            // Dense swirling petal debris — custom storm petal
             for (int i = 0; i < 3; i++)
             {
                 float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
                 float dist = Main.rand.NextFloat() * 40f;
                 Vector2 pos = Projectile.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * dist;
                 Color seasonal = PetalStormTextures.GetSeasonalColor(i);
-                Dust d = Dust.NewDustDirect(pos, 1, 1, DustID.GoldFlame, (float)Math.Cos(angle + MathHelper.PiOver2) * 3f, (float)Math.Sin(angle + MathHelper.PiOver2) * 3f, 100, seasonal, 0.9f);
+                Dust d = Dust.NewDustDirect(pos, 1, 1, ModContent.DustType<StormPetalDust>(), (float)Math.Cos(angle + MathHelper.PiOver2) * 3f, (float)Math.Sin(angle + MathHelper.PiOver2) * 3f, 100, seasonal, 0.9f);
                 d.noGravity = true;
                 d.fadeIn = 1.3f;
             }
@@ -350,8 +345,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D glowTex = PetalStormTextures.SoftGlow;
-            Texture2D maskTex = PetalStormTextures.CircularMask;
+            Texture2D maskTex = PetalStormTextures.SoftCircle;
             Texture2D ringTex = PetalStormTextures.OJPowerRing;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             Vector2 maskOrigin = maskTex.Size() / 2f;
@@ -362,7 +359,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
 
             sb.End();
 
-            // ── LAYER 0: TriumphantTrail VertexStrip — 40-point hurricane ribbon ──
+            // ���� LAYER 0: TriumphantTrail VertexStrip ? 40-point hurricane ribbon ����
             Effect trailShader = OdeToJoyShaders.TriumphantTrail;
             int validCount = 0;
             for (int i = 0; i < TrailLength; i++)
@@ -417,7 +414,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
                 Main.pixelShader.CurrentTechnique.Passes[0].Apply();
             }
 
-            // ── LAYER 1: PollenDrift shader — hurricane body ──
+            // ���� LAYER 1: PollenDrift shader ? hurricane body ����
             Effect pollenShader = OdeToJoyShaders.PollenDrift;
             if (pollenShader != null)
             {
@@ -432,7 +429,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
                 sb.End();
             }
 
-            // ── LAYER 2: Additive overlays ──
+            // ���� LAYER 2: Additive overlays ����
             OdeToJoyShaders.BeginAdditiveBatch(sb);
 
             Vector2 pos = Projectile.Center - Main.screenPosition;
@@ -454,6 +451,15 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
 
             sb.End();
             OdeToJoyShaders.RestoreSpriteBatch(sb);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }

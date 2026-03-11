@@ -229,6 +229,9 @@ namespace MagnumOpus.Common.Systems
         
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/TallMusicNote").Value;
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
             Vector2 origin = tex.Size() / 2f;
@@ -249,6 +252,15 @@ namespace MagnumOpus.Common.Systems
             Main.spriteBatch.Draw(tex, drawPos, null, Color.White * 0.6f, 
                 trebleRotation, origin, 0.3f * pulse, SpriteEffects.None, 0f);
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -372,6 +384,9 @@ namespace MagnumOpus.Common.Systems
         
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -392,6 +407,15 @@ namespace MagnumOpus.Common.Systems
                     spiralPhase + i * 0.5f, origin, layerScale * coreScale, SpriteEffects.None, 0f);
             }
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -521,6 +545,9 @@ namespace MagnumOpus.Common.Systems
         
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
             Texture2D noteTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/WholeNote").Value;
             Vector2 origin = tex.Size() / 2f;
@@ -544,6 +571,15 @@ namespace MagnumOpus.Common.Systems
                     0f, noteOrigin, Projectile.scale * 0.6f * pulse, SpriteEffects.None, 0f);
             }
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -663,6 +699,9 @@ namespace MagnumOpus.Common.Systems
         
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare").Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -683,6 +722,15 @@ namespace MagnumOpus.Common.Systems
             Main.spriteBatch.Draw(tex, drawPos, null, (Color.Gold with { A = 0 }) * 0.6f,
                 0f, origin, 0.2f * coreScale, SpriteEffects.None, 0f);
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -825,6 +873,9 @@ namespace MagnumOpus.Common.Systems
         
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow").Value;
             Vector2 origin = tex.Size() / 2f;
@@ -854,6 +905,15 @@ namespace MagnumOpus.Common.Systems
                     instrumentAngles[i], origin, 0.2f, SpriteEffects.None, 0f);
             }
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -967,6 +1027,9 @@ namespace MagnumOpus.Common.Systems
         
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D discTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle").Value;
             Texture2D labelTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare").Value;
             Vector2 discOrigin = discTex.Size() / 2f;
@@ -985,6 +1048,15 @@ namespace MagnumOpus.Common.Systems
             Main.spriteBatch.Draw(labelTex, drawPos, null, (Color.DarkRed with { A = 0 }) * 0.8f,
                 0f, labelOrigin, 0.15f, SpriteEffects.None, 0f);
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }

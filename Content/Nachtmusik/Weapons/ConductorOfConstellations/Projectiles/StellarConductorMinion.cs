@@ -105,6 +105,9 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConductorOfConstellations.Projec
 
                 NachtmusikVFXLibrary.ProjectileImpact(Projectile.Center, 0.7f);
                 NachtmusikVFXLibrary.SpawnMusicNotes(Projectile.Center, 12, 6f, 0.7f, 0.9f, 25);
+
+                // Orchestra burst: palette-ramped sparkle explosion
+                NachtmusikVFXLibrary.SpawnGradientSparkleExplosion(Projectile.Center, 12, 6f, 0.35f);
             }
 
             // Ambient VFX
@@ -116,6 +119,8 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConductorOfConstellations.Projec
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -123,24 +128,81 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConductorOfConstellations.Projec
             float time = (float)Main.timeForVisualEffects * 0.03f;
             float pulse = MathF.Sin(Main.GameUpdateCount * 0.08f) * 0.2f + 0.8f;
 
-            // ═══════════════════════════════════════════════════════════════
+            // ==============================================================
             //  SHADER LAYER: StellarConductorAura — commanding cosmic presence
-            //  The most powerful Nachtmusik summoner gets a rich shader-driven aura
-            // ═══════════════════════════════════════════════════════════════
-            if (NachtmusikShaderManager.HasSerenade)
+            //  Uses dedicated shader. The most powerful NK summoner gets rich aura.
+            // ==============================================================
+            float phase = (float)(Main.timeForVisualEffects * 0.006f) % 1f;
+
+            if (NachtmusikShaderManager.HasStellarConductorAura)
             {
                 Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
                 if (glowTex != null)
                 {
                     NachtmusikShaderManager.BeginShaderAdditive(sb);
-                    NachtmusikShaderManager.ApplySerenade(time, NachtmusikPalette.CosmicPurple,
-                        NachtmusikPalette.RadianceGold, phase: (float)(Main.timeForVisualEffects * 0.006f) % 1f);
+                    NachtmusikShaderManager.ApplyStellarConductorAura(time, phase);
 
                     float auraScale = 0.5f * pulse;
                     sb.Draw(glowTex, drawPos, null,
-                        NachtmusikPalette.CosmicPurple with { A = 0 } * 0.3f,
+                        NachtmusikPalette.MidnightBlue with { A = 0 } * 0.35f,
                         conductAngle * 0.2f, glowTex.Size() / 2f, auraScale, SpriteEffects.None, 0f);
 
+                    // Inner stellar white core
+                    sb.Draw(glowTex, drawPos, null,
+                        NachtmusikPalette.StarWhite with { A = 0 } * 0.15f,
+                        0f, glowTex.Size() / 2f, auraScale * 0.3f, SpriteEffects.None, 0f);
+
+                    NachtmusikShaderManager.RestoreSpriteBatch(sb);
+                }
+
+                // NK Power Effect Ring — conductor's commanding aura ring
+                Texture2D ringTex = NachtmusikThemeTextures.NKPowerEffectRing?.Value;
+                if (ringTex != null)
+                {
+                    NachtmusikShaderManager.BeginAdditive(sb);
+                    float ringScale = 0.15f + MathF.Sin(Main.GameUpdateCount * 0.06f) * 0.02f;
+                    sb.Draw(ringTex, drawPos, null,
+                        NachtmusikPalette.RadianceGold with { A = 0 } * 0.18f,
+                        conductAngle * 0.3f, ringTex.Size() / 2f, ringScale * pulse, SpriteEffects.None, 0f);
+                    NachtmusikShaderManager.RestoreSpriteBatch(sb);
+                }
+
+                // NK Constellation Noise — nebula corona around conductor
+                Texture2D noiseTex = NachtmusikThemeTextures.NKConstellationNoise?.Value;
+                if (noiseTex != null)
+                {
+                    NachtmusikShaderManager.BeginAdditive(sb);
+                    sb.Draw(noiseTex, drawPos, null,
+                        NachtmusikPalette.CosmicPurple with { A = 0 } * 0.07f,
+                        time * 0.1f, noiseTex.Size() / 2f, 0.1f * pulse, SpriteEffects.None, 0f);
+                    NachtmusikShaderManager.RestoreSpriteBatch(sb);
+                }
+
+                // NK Comet — radial accent flare for the most powerful summoner
+                Texture2D cometTex = NachtmusikThemeTextures.NKComet?.Value;
+                if (cometTex != null)
+                {
+                    NachtmusikShaderManager.BeginAdditive(sb);
+                    sb.Draw(cometTex, drawPos, null,
+                        NachtmusikPalette.StarGold with { A = 0 } * 0.08f,
+                        -time * 0.3f, cometTex.Size() / 2f, 0.06f, SpriteEffects.None, 0f);
+                    NachtmusikShaderManager.RestoreSpriteBatch(sb);
+                }
+            }
+            else
+            {
+                // Non-shader fallback — TrueAdditive bloom only
+                Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
+                if (glowTex != null)
+                {
+                    float auraScale = 0.5f * pulse;
+                    NachtmusikShaderManager.BeginAdditive(sb);
+                    sb.Draw(glowTex, drawPos, null,
+                        NachtmusikPalette.MidnightBlue with { A = 0 } * 0.3f,
+                        conductAngle * 0.2f, glowTex.Size() / 2f, auraScale, SpriteEffects.None, 0f);
+                    sb.Draw(glowTex, drawPos, null,
+                        NachtmusikPalette.StarWhite with { A = 0 } * 0.12f,
+                        0f, glowTex.Size() / 2f, auraScale * 0.3f, SpriteEffects.None, 0f);
                     NachtmusikShaderManager.RestoreSpriteBatch(sb);
                 }
             }
@@ -183,6 +245,15 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConductorOfConstellations.Projec
             NachtmusikShaderManager.BeginAdditive(sb);
             NachtmusikVFXLibrary.DrawThemeStarFlare(sb, Projectile.Center, 1f, 0.5f);
             NachtmusikShaderManager.RestoreSpriteBatch(sb);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

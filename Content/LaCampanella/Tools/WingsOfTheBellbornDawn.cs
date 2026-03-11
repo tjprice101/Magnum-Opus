@@ -46,6 +46,7 @@ namespace MagnumOpus.Content.LaCampanella.Tools
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Dodge", "Double-tap left or right to perform a blazing dodge with brief invulnerability") { OverrideColor = new Color(255, 200, 80) });
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Ride the flames of the eternal chime'") { OverrideColor = new Color(255, 140, 40) });
         }
 
@@ -62,22 +63,6 @@ namespace MagnumOpus.Content.LaCampanella.Tools
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             player.GetModPlayer<WingsOfTheBellbornDawnPlayer>().hasWingsEquipped = true;
-            
-            // Infernal bell particles when flying
-            if (!hideVisual && player.velocity.Y != 0)
-            {
-                ThemedParticles.LaCampanellaAura(player.Center, 35f);
-                
-                // Occasional smoke particles
-                if (Main.rand.NextBool(4))
-                {
-                    var smoke = new HeavySmokeParticle(
-                        player.Center + Main.rand.NextVector2Circular(15f, 15f),
-                        new Vector2(player.velocity.X * -0.1f, -1f),
-                        Color.Black, Main.rand.Next(25, 40), 0.3f, 0.6f, 0.02f, false);
-                    MagnumParticleHandler.SpawnParticle(smoke);
-                }
-            }
         }
 
         public override void AddRecipes()

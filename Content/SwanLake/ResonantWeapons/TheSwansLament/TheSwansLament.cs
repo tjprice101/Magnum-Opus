@@ -119,6 +119,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament
                 }
             }
 
+            // Rainbow muzzle sparkle on every shot
+            try { SwanLakeVFXLibrary.SpawnPrismaticSparkles(position, 3, 12f); } catch { }
+
             return false;
         }
 

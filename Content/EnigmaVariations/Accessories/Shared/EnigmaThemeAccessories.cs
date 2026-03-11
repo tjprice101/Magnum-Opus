@@ -51,29 +51,6 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
             
             // Enable Paradox debuff mechanic
             player.GetModPlayer<PuzzleFragmentPlayer>().puzzleFragmentEquipped = true;
-            
-            // Ambient VFX - mysterious arcane particles
-            if (!hideVisual && Main.rand.NextBool(12))
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
-                Color particleColor = Color.Lerp(EnigmaColors.DeepPurple, EnigmaColors.GreenFlame, Main.rand.NextFloat());
-                
-                CustomParticles.GenericFlare(player.Center + offset, particleColor * 0.6f, 0.25f, 15);
-                
-                // Occasional watching eye
-                if (Main.rand.NextBool(5))
-                {
-                    CustomParticles.EnigmaEyeGaze(player.Center + offset, EnigmaColors.Purple, 0.3f, null);
-                }
-            }
-            
-            // Orbiting glyphs
-            if (!hideVisual && Main.rand.NextBool(20))
-            {
-                float angle = Main.GameUpdateCount * 0.03f;
-                Vector2 glyphPos = player.Center + angle.ToRotationVector2() * 35f;
-                CustomParticles.Glyph(glyphPos, EnigmaColors.Purple * 0.5f, 0.3f, -1);
-            }
         }
 
         public override void AddRecipes()
@@ -205,50 +182,6 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
             
             // Enable Void Paradox mechanic
             player.GetModPlayer<RiddleOfTheVoidPlayer>().riddleOfTheVoidEquipped = true;
-            
-            // Elaborate ambient VFX - void energy swirling
-            if (!hideVisual)
-            {
-                // Constant void particles
-                if (Main.rand.NextBool(6))
-                {
-                    Vector2 offset = Main.rand.NextVector2Circular(40f, 40f);
-                    Vector2 velocity = (player.Center - (player.Center + offset)).SafeNormalize(Vector2.Zero) * 1.5f;
-                    Color color = Color.Lerp(EnigmaColors.VoidBlack, EnigmaColors.Purple, Main.rand.NextFloat());
-                    
-                    var particle = new GenericGlowParticle(
-                        player.Center + offset, velocity,
-                        color * 0.7f, 0.3f, 20, true);
-                    MagnumParticleHandler.SpawnParticle(particle);
-                }
-                
-                // Orbiting glyph circle
-                if (Main.GameUpdateCount % 8 == 0)
-                {
-                    int glyphCount = 5;
-                    for (int i = 0; i < glyphCount; i++)
-                    {
-                        float angle = Main.GameUpdateCount * 0.02f + MathHelper.TwoPi * i / glyphCount;
-                        Vector2 glyphPos = player.Center + angle.ToRotationVector2() * 45f;
-                        CustomParticles.Glyph(glyphPos, EnigmaColors.DeepPurple * 0.6f, 0.35f, -1);
-                    }
-                }
-                
-                // Watching eyes occasionally appear
-                if (Main.rand.NextBool(25))
-                {
-                    Vector2 eyeOffset = Main.rand.NextVector2Circular(50f, 50f);
-                    CustomParticles.EnigmaEyeGaze(player.Center + eyeOffset, EnigmaColors.GreenFlame, 0.4f, null);
-                }
-                
-                // Void shimmer flares
-                if (Main.rand.NextBool(15))
-                {
-                    float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                    Vector2 pos = player.Center + angle.ToRotationVector2() * Main.rand.NextFloat(20f, 50f);
-                    CustomParticles.GenericFlare(pos, EnigmaColors.GreenFlame * 0.5f, 0.2f, 12);
-                }
-            }
         }
 
         public override void AddRecipes()

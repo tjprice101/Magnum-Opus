@@ -130,6 +130,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -170,6 +172,15 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             EroicaVFXLibrary.BeginEroicaAdditive(sb);
             EroicaVFXLibrary.DrawThemeImpactRing(sb, Projectile.Center, 1f, 0.4f, (float)Main.GameUpdateCount * 0.02f);
             EroicaVFXLibrary.EndEroicaAdditive(sb);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

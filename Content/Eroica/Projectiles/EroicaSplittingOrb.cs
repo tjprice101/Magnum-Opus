@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.FoundationWeapons.SparkleProjectileFoundation;
 
@@ -180,6 +181,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D tex = SPFTextures.SparkleSoft.Value;
             Vector2 origin = tex.Size() / 2f;
@@ -199,25 +203,18 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 spriteBatch.Draw(tex, trailPos, null, trailColor, 0f, origin, trailScale, SpriteEffects.None, 0f);
             }
             
-            // Outer glow layer
-            Color outerGlow = EroicaPalette.Gold * 0.3f;
-            outerGlow.A = 0;
-            spriteBatch.Draw(tex, drawPos, null, outerGlow, 0f, origin, baseScale * pulse * 1.6f, SpriteEffects.None, 0f);
-            
-            // Middle layer
-            Color midGlow = Color.Lerp(EroicaPalette.Gold, EroicaPalette.Scarlet, 0.3f) * 0.5f;
-            midGlow.A = 0;
-            spriteBatch.Draw(tex, drawPos, null, midGlow, 0f, origin, baseScale * pulse * 1.2f, SpriteEffects.None, 0f);
-            
-            // Core
-            Color coreGlow = Color.Lerp(EroicaPalette.Scarlet, Color.White, 0.3f) * 0.8f;
-            coreGlow.A = 0;
-            spriteBatch.Draw(tex, drawPos, null, coreGlow, 0f, origin, baseScale * pulse * 0.7f, SpriteEffects.None, 0f);
-            
-            // Hot center
-            Color hotCore = Color.White * 0.9f;
-            hotCore.A = 0;
-            spriteBatch.Draw(tex, drawPos, null, hotCore, 0f, origin, baseScale * pulse * 0.3f, SpriteEffects.None, 0f);
+            // Graduated orb bloom head (Incisor of Moonlight pattern — in additive mode)
+            try
+            {
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                MagnumVFX.DrawGraduatedOrbHead(spriteBatch, drawPos, EroicaPalette.Scarlet, EroicaPalette.Gold, 0.8f);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
             
             // ── Crystal shimmer overlay (SparkleProjectileFoundation pattern) ──
             // Only for larger orbs (gen 1+), progressively simpler per doc
@@ -268,6 +265,15 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             EroicaVFXLibrary.BeginEroicaAdditive(spriteBatch);
             EroicaVFXLibrary.DrawThemeSakuraAccent(spriteBatch, Projectile.Center, 1f, 0.5f);
             EroicaVFXLibrary.EndEroicaAdditive(spriteBatch);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

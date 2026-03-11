@@ -202,7 +202,7 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Includes all previous overflow effects"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can overflow to -150 mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can overflow to -120 mana"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "At -100 mana or below: spells hit enemies twice"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "While below -100 mana: take 5% of max HP per second"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'In the negative space between questions, answers multiply'") { OverrideColor = new Color(140, 60, 200) });
@@ -256,7 +256,7 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Includes all previous overflow effects"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can overflow to -150 mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can overflow to -120 mana"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Recovering from negative mana grants 'Grace' buff"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Grace: +20% damage for 5 seconds"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The swan finds balance in the space between falling and flight'") { OverrideColor = new Color(240, 245, 255) });

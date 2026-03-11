@@ -3,11 +3,14 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.Audio;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
 using MagnumOpus.Content.Nachtmusik;
 using MagnumOpus.Content.Nachtmusik.Debuffs;
 using MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Utilities;
@@ -25,12 +28,13 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Projectiles
         private static readonly Color CosmicBlue = new Color(60, 80, 180);
         private static readonly Color StarlightSilver = new Color(180, 200, 230);
         private static readonly Color StellarWhite = new Color(240, 245, 255);
+        private VertexStrip _vertexStrip;
 
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/QuarterNote";
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 12;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -119,46 +123,20 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            // Custom afterimage trail
-            for (int i = 1; i < Projectile.oldPos.Length; i++)
+            SpriteBatch sb = Main.spriteBatch;
+            try
             {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = 1f - (float)i / Projectile.oldPos.Length;
-                Color trailColor = Color.Lerp(DeepIndigo, CosmicBlue, progress) * progress * 0.5f;
-                trailColor.A = 0;
-
-                Texture2D tex = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
-                Vector2 drawPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                Main.EntitySpriteDraw(tex, drawPos, null, trailColor, Projectile.oldRot[i],
-                    tex.Size() / 2f, Projectile.scale * progress, SpriteEffects.None, 0);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Nachtmusik, ref _vertexStrip);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
-            // Core glow
-            {
-                Texture2D tex = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
-                Vector2 pos = Projectile.Center - Main.screenPosition;
-                Vector2 origin = tex.Size() / 2f;
-
-                Main.spriteBatch.End();
-                Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-                Main.EntitySpriteDraw(tex, pos, null, CosmicBlue with { A = 0 } * 0.6f,
-                    Projectile.rotation, origin, Projectile.scale * 1.3f, SpriteEffects.None, 0);
-                Main.EntitySpriteDraw(tex, pos, null, StarlightSilver with { A = 0 } * 0.3f,
-                    Projectile.rotation, origin, Projectile.scale * 1.1f, SpriteEffects.None, 0);
-
-                Main.spriteBatch.End();
-                Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            }
-
-            // Nachtmusik theme star flare accent
-            NachtmusikShaderManager.BeginAdditive(Main.spriteBatch);
-            NachtmusikVFXLibrary.DrawThemeStarFlare(Main.spriteBatch, Projectile.Center, 1f, 0.5f);
-            NachtmusikShaderManager.RestoreSpriteBatch(Main.spriteBatch);
-
-            return true;
+            return false;
         }
 
         private NPC FindClosestTarget(float maxDistance)
@@ -193,6 +171,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Projectiles
         private static readonly Color CosmicBlue = new Color(60, 80, 180);
         private static readonly Color StarlightSilver = new Color(180, 200, 230);
         private static readonly Color StellarWhite = new Color(240, 245, 255);
+        private VertexStrip _vertexStrip;
 
         private bool isMaxCharge => Projectile.ai[0] == 1f;
 
@@ -296,44 +275,42 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D tex = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
-            Vector2 origin = tex.Size() / 2f;
-
-            // Afterimage trail
-            for (int i = 1; i < Projectile.oldPos.Length; i++)
+            SpriteBatch sb = Main.spriteBatch;
+            try
             {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = 1f - (float)i / Projectile.oldPos.Length;
-                Color trailColor = Color.Lerp(DeepIndigo, StarlightSilver, progress) * progress * 0.4f;
-                trailColor.A = 0;
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Nachtmusik, ref _vertexStrip);
 
-                Vector2 drawPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                Main.EntitySpriteDraw(tex, drawPos, null, trailColor, Projectile.oldRot[i],
-                    origin, Projectile.scale * (0.7f + progress * 0.3f), SpriteEffects.None, 0);
+                // Execution Blade accent: indigo phantom edge with charge glow
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
+                {
+                    Vector2 origin = glow.Size() / 2f;
+                    float velRot = Projectile.velocity.ToRotation();
+                    float charge = isMaxCharge ? 1.4f : 1f;
+
+                    // Indigo phantom blade edge — brighter when max charge
+                    sb.Draw(glow, drawPos, null,
+                        (new Color(100, 80, 180) with { A = 0 }) * 0.25f * charge,
+                        velRot, origin, new Vector2(0.14f * charge, 0.025f), SpriteEffects.None, 0f);
+                }
+
+                sb.End();
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
-            // Core additive glow
-            Vector2 pos = Projectile.Center - Main.screenPosition;
-            Main.spriteBatch.End();
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.1f;
-            Main.EntitySpriteDraw(tex, pos, null, StarlightSilver with { A = 0 } * 0.5f,
-                Projectile.rotation, origin, Projectile.scale * pulse * 1.4f, SpriteEffects.None, 0);
-            Main.EntitySpriteDraw(tex, pos, null, CosmicBlue with { A = 0 } * 0.3f,
-                Projectile.rotation, origin, Projectile.scale * pulse * 1.15f, SpriteEffects.None, 0);
-
-            Main.spriteBatch.End();
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Nachtmusik theme star flare accent
-            NachtmusikShaderManager.BeginAdditive(Main.spriteBatch);
-            NachtmusikVFXLibrary.DrawThemeStarFlare(Main.spriteBatch, Projectile.Center, 1f, 0.5f);
-            NachtmusikShaderManager.RestoreSpriteBatch(Main.spriteBatch);
-
-            return true;
+            return false;
         }
 
         private NPC FindClosestTarget(float maxDistance)

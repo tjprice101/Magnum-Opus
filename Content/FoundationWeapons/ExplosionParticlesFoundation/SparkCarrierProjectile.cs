@@ -123,6 +123,8 @@ namespace MagnumOpus.Content.FoundationWeapons.ExplosionParticlesFoundation
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Color[] colors = EPFTextures.GetModeColors(CurrentMode);
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float fadeIn = MathHelper.Clamp(timer / 5f, 0f, 1f);
@@ -158,6 +160,15 @@ namespace MagnumOpus.Content.FoundationWeapons.ExplosionParticlesFoundation
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

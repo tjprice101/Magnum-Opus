@@ -43,6 +43,7 @@ namespace MagnumOpus.Content.Eroica.Tools
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Dodge", "Double-tap left or right to perform a heroic dodge with brief invulnerability") { OverrideColor = new Color(255, 180, 100) });
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Rise upon wings forged from legend'") { OverrideColor = new Color(200, 50, 50) });
         }
 
@@ -59,12 +60,6 @@ namespace MagnumOpus.Content.Eroica.Tools
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             player.GetModPlayer<ReincarnatedValorPlayer>().hasWingsEquipped = true;
-            
-            // Enhanced ambient particles when flying using new particle system
-            if (!hideVisual && player.velocity.Y != 0)
-            {
-                EroicaVFXLibrary.SpawnHeroicAura(player.Center, 35f);
-            }
         }
 
         public override void AddRecipes()

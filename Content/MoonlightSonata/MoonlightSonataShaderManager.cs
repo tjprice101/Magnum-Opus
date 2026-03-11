@@ -9,13 +9,13 @@ namespace MagnumOpus.Content.MoonlightSonata
     /// <summary>
     /// Compartmentalized shader manager for all Moonlight Sonata VFX.
     /// Wraps ShaderLoader access to MoonlightTrail.fx, LunarBeam.fx,
-    /// and CrescentAura.fx — providing preset Apply* methods for each
+    /// and CrescentAura.fx  Eproviding preset Apply* methods for each
     /// rendering technique.
     ///
     /// Techniques available:
-    ///   MoonlightTrail  — MoonlightFlowTrail: flowing lunar trail with noise distortion
-    ///   LunarBeam       — CrescentBeam: crescent-shaped beam body rendering
-    ///   CrescentAura    — CrescentShape / CrescentPulse: procedural crescent overlays
+    ///   MoonlightTrail   EMoonlightFlowTrail: flowing lunar trail with noise distortion
+    ///   LunarBeam        ECrescentBeam: crescent-shaped beam body rendering
+    ///   CrescentAura     ECrescentShape / CrescentPulse: procedural crescent overlays
     ///
     /// Usage (in PreDraw):
     ///   MoonlightSonataShaderManager.BindNoiseTexture(device);
@@ -183,7 +183,7 @@ namespace MagnumOpus.Content.MoonlightSonata
         }
 
         /// <summary>
-        /// Preset: EternalMoon trail — wide crescent sweep with moderate distortion.
+        /// Preset: EternalMoon trail  Ewide crescent sweep with moderate distortion.
         /// </summary>
         public static void ApplyEternalMoonTrail(float time)
         {
@@ -193,7 +193,7 @@ namespace MagnumOpus.Content.MoonlightSonata
         }
 
         /// <summary>
-        /// Preset: Incisor trail — sharp, fast, minimal distortion for precision cuts.
+        /// Preset: Incisor trail  Esharp, fast, minimal distortion for precision cuts.
         /// </summary>
         public static void ApplyIncisorTrail(float time)
         {
@@ -203,7 +203,7 @@ namespace MagnumOpus.Content.MoonlightSonata
         }
 
         /// <summary>
-        /// Preset: Resurrection comet trail — heavy, impactful, strong distortion.
+        /// Preset: Resurrection comet trail  Eheavy, impactful, strong distortion.
         /// </summary>
         public static void ApplyResurrectionTrail(float time)
         {
@@ -214,7 +214,7 @@ namespace MagnumOpus.Content.MoonlightSonata
         }
 
         /// <summary>
-        /// Preset: Goliath cosmic beam trail — massive, gravitational distortion.
+        /// Preset: Goliath cosmic beam trail  Emassive, gravitational distortion.
         /// </summary>
         public static void ApplyGoliathTrail(float time)
         {
@@ -256,7 +256,7 @@ namespace MagnumOpus.Content.MoonlightSonata
         }
 
         /// <summary>
-        /// Preset: MoonlightsCalling prismatic beam — bouncing refraction beam.
+        /// Preset: MoonlightsCalling prismatic beam  Ebouncing refraction beam.
         /// </summary>
         public static void ApplyMoonlightsCallingBeam(float time, float bouncePhase)
         {
@@ -266,7 +266,7 @@ namespace MagnumOpus.Content.MoonlightSonata
         }
 
         /// <summary>
-        /// Preset: WaningDeer lunar beam sweep — enemy attack beam.
+        /// Preset: WaningDeer lunar beam sweep  Eenemy attack beam.
         /// </summary>
         public static void ApplyWaningDeerBeam(float time, float sweepProgress)
         {
@@ -305,7 +305,7 @@ namespace MagnumOpus.Content.MoonlightSonata
         }
 
         /// <summary>
-        /// Preset: StaffOfTheLunarPhases crescent — phase-cycling aura for conductor's baton.
+        /// Preset: StaffOfTheLunarPhases crescent  Ephase-cycling aura for conductor's baton.
         /// </summary>
         public static void ApplyLunarPhaseAura(float time, float lunarPhase)
         {
@@ -320,7 +320,7 @@ namespace MagnumOpus.Content.MoonlightSonata
 
         /// <summary>
         /// Configure and apply TidalTrail.fx for EternalMoon flowing water trail.
-        /// comboPhase controls intensity (0.25 new moon → 1.0 full moon).
+        /// comboPhase controls intensity (0.25 new moon ↁE1.0 full moon).
         /// </summary>
         public static void ApplyTidalTrail(float time, float comboPhase,
             Color primary, Color secondary, bool glowPass = false,
@@ -487,7 +487,7 @@ namespace MagnumOpus.Content.MoonlightSonata
 
         /// <summary>
         /// Configure and apply IncisorResonance.fx for standing-wave resonance trail.
-        /// resonanceLevel controls frequency density (0.3 low → 1.0 full resonance).
+        /// resonanceLevel controls frequency density (0.3 low ↁE1.0 full resonance).
         /// </summary>
         public static void ApplyIncisorResonance(float time, float resonanceLevel,
             Color primary, Color secondary, bool glowPass = false,
@@ -518,7 +518,7 @@ namespace MagnumOpus.Content.MoonlightSonata
         /// </summary>
         public static void ApplyIncisorResonanceTrail(float time, float resonanceLevel, bool glowPass = false)
         {
-            Texture2D noise = ShaderLoader.GetNoiseTexture("SparklyNoiseTexture");
+            Texture2D noise = ShaderLoader.GetNoiseTexture("SimplexNoise");
             if (noise != null)
             {
                 Main.graphics.GraphicsDevice.Textures[1] = noise;
@@ -586,7 +586,7 @@ namespace MagnumOpus.Content.MoonlightSonata
         {
             Texture2D noise = ShaderLoader.GetNoiseTexture("StarFieldScatter");
             if (noise == null)
-                noise = ShaderLoader.GetNoiseTexture("SparklyNoiseTexture");
+                noise = ShaderLoader.GetNoiseTexture("SimplexNoise");
             if (noise != null)
             {
                 Main.graphics.GraphicsDevice.Textures[1] = noise;
@@ -655,7 +655,7 @@ namespace MagnumOpus.Content.MoonlightSonata
         /// </summary>
         public static void ApplyMoonlightsCallingPrismaticBeam(float time, float bouncePhase, bool glowPass = false)
         {
-            Texture2D noise = ShaderLoader.GetNoiseTexture("SparklyNoiseTexture");
+            Texture2D noise = ShaderLoader.GetNoiseTexture("SimplexNoise");
             if (noise != null)
             {
                 Main.graphics.GraphicsDevice.Textures[1] = noise;

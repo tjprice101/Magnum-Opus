@@ -6,8 +6,10 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.GameContent;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation.Utilities;
 using MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation.Particles;
 using MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation.Primitives;
@@ -45,6 +47,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
         // Trail
         private Vector2[] _trailPositions = new Vector2[18];
         private int _trailCount;
+        private VertexStrip _strip;
 
         // Textures
         private static Asset<Texture2D> _glowTex;
@@ -58,7 +61,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 18;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -258,132 +261,20 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
 
         public override bool PreDraw(ref Color lightColor)
         {
-            if (Main.dedServ) return false;
-
-            _glowTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow");
-            _flareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Flare/flare_16");
-            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/MusicalWavePattern");
-
             SpriteBatch sb = Main.spriteBatch;
-            float opacity = 1f - Projectile.alpha / 255f;
-
             try
             {
-                // End SpriteBatch for GPU primitive trail drawing
-                sb.End();
-                DrawBeamTrail(sb, opacity);
-
-                // Restart SpriteBatch for sprite-based drawing
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-
-                DrawBeamBody(sb, lightColor, opacity);
-                DrawTipGlow(sb, opacity);
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.Fate, ref _strip);
             }
-            catch
+            catch { }
+            finally
             {
-                try
-                {
-                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-                }
-                catch { }
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
             return false;
-        }
-
-        private void DrawBeamTrail(SpriteBatch sb, float opacity)
-        {
-            if (_trailCount < 2) return;
-
-            var shader = ConductorShaderLoader.GetBeamShader();
-
-            try
-            {
-                float scaleMult = IsCrystalShard ? 0.5f : 1f;
-
-                if (shader != null)
-                {
-                    if (_noiseTex?.Value != null)
-                        shader.UseImage1(_noiseTex);
-
-                    shader.UseColor(ConductorUtils.ConductorCyan.ToVector3());
-                    shader.UseSecondaryColor(ConductorUtils.LightningGold.ToVector3());
-                    shader.Shader.Parameters["uTime"]?.SetValue(Main.GlobalTimeWrappedHourly * 4f);
-                    shader.Shader.Parameters["uOpacity"]?.SetValue(0.8f * opacity);
-                    shader.Shader.Parameters["uIntensity"]?.SetValue(1.5f);
-                    shader.Shader.Parameters["uOverbrightMult"]?.SetValue(1.6f);
-                    shader.Shader.Parameters["uScrollSpeed"]?.SetValue(2f);
-                    shader.Shader.Parameters["uNoiseScale"]?.SetValue(3f);
-                }
-
-                ConductorTrailRenderer.RenderTrail(_trailPositions, new ConductorTrailSettings(
-                    (p, _) =>
-                    {
-                        float baseW = 18f * scaleMult;
-                        float taper = MathF.Sin(p * MathHelper.Pi);
-                        return baseW * (0.3f + taper * 0.7f);
-                    },
-                    (p) =>
-                    {
-                        Color c = ConductorUtils.GetLightningGradient(p);
-                        return ConductorUtils.Additive(c, (1f - p * 0.5f) * opacity);
-                    },
-                    shader: shader), _trailCount, 2);
-            }
-            catch { }
-        }
-
-        private void DrawBeamBody(SpriteBatch sb, Color lightColor, float opacity)
-        {
-            try
-            {
-                Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
-                Vector2 origin = tex.Size() / 2f;
-                Vector2 drawPos = Projectile.Center - Main.screenPosition;
-                float scale = Projectile.scale;
-                Color bodyColor = Color.Lerp(lightColor, ConductorUtils.ConductorCyan, 0.5f) * opacity;
-
-                sb.Draw(tex, drawPos, null, bodyColor, Projectile.rotation + MathHelper.PiOver4, origin, scale, SpriteEffects.None, 0f);
-            }
-            catch { }
-        }
-
-        private void DrawTipGlow(SpriteBatch sb, float opacity)
-        {
-            if (_glowTex?.Value == null) return;
-
-            try
-            {
-                ConductorUtils.BeginAdditive(sb);
-
-                Vector2 drawPos = Projectile.Center - Main.screenPosition;
-                float pulse = 0.7f + MathF.Sin((float)Main.timeForVisualEffects * 0.1f) * 0.3f;
-                float tipScale = IsCrystalShard ? 0.18f : 0.3f;
-
-                sb.Draw(_glowTex.Value, drawPos, null,
-                    ConductorUtils.Additive(ConductorUtils.ConductorCyan, 0.5f * opacity * pulse),
-                    0f, _glowTex.Value.Size() / 2f, tipScale * pulse, SpriteEffects.None, 0f);
-                sb.Draw(_glowTex.Value, drawPos, null,
-                    ConductorUtils.Additive(ConductorUtils.CelestialWhite, 0.3f * opacity * pulse),
-                    0f, _glowTex.Value.Size() / 2f, tipScale * 0.5f * pulse, SpriteEffects.None, 0f);
-
-                // Flare spike at tip
-                if (_flareTex?.Value != null)
-                {
-                    sb.Draw(_flareTex.Value, drawPos, null,
-                        ConductorUtils.Additive(ConductorUtils.LightningGold, 0.3f * opacity * pulse),
-                        Projectile.rotation, _flareTex.Value.Size() / 2f,
-                        tipScale * 0.8f, SpriteEffects.None, 0f);
-                }
-
-                ConductorUtils.EndAdditive(sb);
-            }
-            catch
-            {
-                try { ConductorUtils.EndAdditive(sb); } catch { }
-            }
         }
     }
 }

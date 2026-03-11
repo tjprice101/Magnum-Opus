@@ -346,65 +346,6 @@ namespace MagnumOpus.Content.SwanLake
         public static Color Additive(Color c, float opacity) => c with { A = 0 } * opacity;
 
         // =================================================================
-        //  PREDRAW BLOOM LAYER PRESETS
-        // =================================================================
-
-        /// <summary>
-        /// Standard 3-layer PreDrawInWorld bloom for Swan Lake items.
-        /// Dual-polarity: black outer halo fading to white inner core.
-        /// </summary>
-        public static void DrawItemBloom(
-            SpriteBatch sb,
-            Texture2D tex,
-            Vector2 pos,
-            Vector2 origin,
-            float rotation,
-            float scale,
-            float pulse)
-        {
-            // Layer 1: Outer dark silver aura
-            sb.Draw(tex, pos, null, Additive(DarkSilver, 0.40f), rotation, origin, scale * 1.08f * pulse,
-                SpriteEffects.None, 0f);
-            // Layer 2: Middle silver glow
-            sb.Draw(tex, pos, null, Additive(Silver, 0.30f), rotation, origin, scale * 1.04f * pulse,
-                SpriteEffects.None, 0f);
-            // Layer 3: Inner white core
-            sb.Draw(tex, pos, null, Additive(PureWhite, 0.22f), rotation, origin, scale * 1.01f * pulse,
-                SpriteEffects.None, 0f);
-        }
-
-        /// <summary>
-        /// Enhanced 4-layer PreDrawInWorld bloom with prismatic color shift.
-        /// For higher-tier Swan Lake items with rainbow iridescent aura.
-        /// </summary>
-        public static void DrawItemBloomEnhanced(
-            SpriteBatch sb,
-            Texture2D tex,
-            Vector2 pos,
-            Vector2 origin,
-            float rotation,
-            float scale,
-            float pulse,
-            float time)
-        {
-            Color rainbow = GetRainbow(time * 0.1f);
-            Color midColor = Color.Lerp(Silver, rainbow, 0.35f);
-
-            // Layer 1: Outer obsidian-tinted halo
-            sb.Draw(tex, pos, null, Additive(DarkSilver, 0.35f), rotation, origin, scale * 1.12f * pulse,
-                SpriteEffects.None, 0f);
-            // Layer 2: Middle prismatic-shifting glow
-            sb.Draw(tex, pos, null, Additive(midColor, 0.28f), rotation, origin, scale * 1.06f * pulse,
-                SpriteEffects.None, 0f);
-            // Layer 3: Inner pure white
-            sb.Draw(tex, pos, null, Additive(PureWhite, 0.25f), rotation, origin, scale * 1.03f * pulse,
-                SpriteEffects.None, 0f);
-            // Layer 4: Core white flash
-            sb.Draw(tex, pos, null, Additive(RainbowFlash, 0.15f), rotation, origin, scale * 1.00f * pulse,
-                SpriteEffects.None, 0f);
-        }
-
-        // =================================================================
         //  6-COLOR MASTER PALETTE INTERPOLATION
         // =================================================================
 

@@ -1,11 +1,16 @@
+using MagnumOpus.Common;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.Shaders;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Content.ClairDeLune;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using System;
 using Terraria;
 using Terraria.Audio;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -21,19 +26,18 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire.Projectiles
     {
         public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
 
+        private VertexStrip _vertexStrip;
         private int _tickCount;
         private int _timer;
         private const int TickInterval = 25;
         private const int TotalTicks = 3;
         private const float DetonationRadius = 48f;
 
-        // --- Shader + texture caching ---
-        private static Effect _moonlitShader;
-        private static Effect _pearlGlowShader;
-        private static Asset<Texture2D> _softCircle;
-        private static Asset<Texture2D> _softRadialBloom;
-        private static Asset<Texture2D> _pointBloom;
-        private static Asset<Texture2D> _starFlare;
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -136,161 +140,38 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire.Projectiles
             }
         }
 
-        private void LoadTextures()
-        {
-            _softCircle ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad);
-            _softRadialBloom ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
-            _pointBloom ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom", AssetRequestMode.ImmediateLoad);
-            _starFlare ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/StarFlare", AssetRequestMode.ImmediateLoad);
-        }
-
         public override bool PreDraw(ref Color lightColor)
         {
             if (Main.dedServ) return false;
-            LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
-            Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
+            try
+            {
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.ClairDeLune, ref _vertexStrip);
 
-            DrawMoonlitBody(sb, matrix);      // Pass 1: MoonlitGlow ticking body
-            DrawTickPulse(sb, matrix);         // Pass 2: PearlShimmer tick-pulse overlay
-            DrawBloomVoronoi(sb, matrix);      // Pass 3: Multi-scale bloom + Voronoi facets
+                // --- Ticking moonbeam halo accent ---
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                var glowTex = MagnumTextureRegistry.GetSoftGlow();
+                Vector2 origin = glowTex.Size() / 2f;
+                Vector2 pos = Projectile.Center - Main.screenPosition;
+                float tick = 0.85f + 0.15f * (float)Math.Sin(Main.timeForVisualEffects * 0.1);
+                Color gold = (ClairDeLunePalette.MoonbeamGold with { A = 0 }) * 0.5f * tick;
+                sb.Draw(glowTex, pos, null, gold, 0f, origin, 0.04f, SpriteEffects.None, 0f);
+
+                sb.End();
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
-        }
-
-        // ---- PASS 1: ClairDeLuneMoonlit MoonlitGlow ticking body ----
-        private void DrawMoonlitBody(SpriteBatch sb, Matrix matrix)
-        {
-            _moonlitShader ??= ShaderLoader.ClairDeLuneMoonlit;
-            if (_moonlitShader == null) return;
-
-            float tickProgress = (float)_tickCount / TotalTicks;
-            float tickPulse = _timer % TickInterval < 6 ? 1.25f : 1f;
-
-            sb.End();
-
-            _moonlitShader.Parameters["uColor"]?.SetValue(
-                Color.Lerp(ClairDeLunePalette.SoftBlue, ClairDeLunePalette.MoonbeamGold, tickProgress).ToVector4());
-            _moonlitShader.Parameters["uSecondaryColor"]?.SetValue(ClairDeLunePalette.NightMist.ToVector4());
-            _moonlitShader.Parameters["uOpacity"]?.SetValue(0.5f + tickProgress * 0.3f);
-            _moonlitShader.Parameters["uTime"]?.SetValue(Main.GlobalTimeWrappedHourly);
-            _moonlitShader.Parameters["uIntensity"]?.SetValue(1f + tickProgress * 0.5f);
-            _moonlitShader.Parameters["uOverbrightMult"]?.SetValue(1.0f);
-            _moonlitShader.Parameters["uScrollSpeed"]?.SetValue(1.5f + tickProgress * 2f);
-            _moonlitShader.Parameters["uDistortionAmt"]?.SetValue(0.015f);
-            _moonlitShader.Parameters["uHasSecondaryTex"]?.SetValue(false);
-
-            _moonlitShader.CurrentTechnique = _moonlitShader.Techniques["MoonlitGlow"];
-
-            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
-                SamplerState.LinearWrap, DepthStencilState.None,
-                RasterizerState.CullCounterClockwise, _moonlitShader, matrix);
-
-            Texture2D sc = _softCircle.Value;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            float bodyScale = 16f * tickPulse / sc.Width;
-            sb.Draw(sc, drawPos, null, Color.White, Projectile.rotation, sc.Size() * 0.5f, bodyScale, SpriteEffects.None, 0f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
-                SamplerState.LinearClamp, DepthStencilState.None,
-                RasterizerState.CullCounterClockwise, null, matrix);
-        }
-
-        // ---- PASS 2: PearlShimmer tick-pulse overlay ----
-        private void DrawTickPulse(SpriteBatch sb, Matrix matrix)
-        {
-            if (_tickCount < 1) return;
-
-            _pearlGlowShader ??= ShaderLoader.ClairDeLunePearlGlow;
-            if (_pearlGlowShader == null) return;
-
-            float tickProgress = (float)_tickCount / TotalTicks;
-            float tickPulse = _timer % TickInterval < 6 ? 1.25f : 1f;
-
-            sb.End();
-
-            _pearlGlowShader.Parameters["uColor"]?.SetValue(ClairDeLunePalette.MoonbeamGold.ToVector4());
-            _pearlGlowShader.Parameters["uSecondaryColor"]?.SetValue(ClairDeLunePalette.PearlFrost.ToVector4());
-            _pearlGlowShader.Parameters["uOpacity"]?.SetValue(0.25f * tickProgress * tickPulse);
-            _pearlGlowShader.Parameters["uTime"]?.SetValue(Main.GlobalTimeWrappedHourly);
-            _pearlGlowShader.Parameters["uIntensity"]?.SetValue(0.8f + tickProgress);
-            _pearlGlowShader.Parameters["uOverbrightMult"]?.SetValue(1.1f);
-            _pearlGlowShader.Parameters["uScrollSpeed"]?.SetValue(1.5f);
-            _pearlGlowShader.Parameters["uDistortionAmt"]?.SetValue(0.01f);
-            _pearlGlowShader.Parameters["uHasSecondaryTex"]?.SetValue(false);
-
-            _pearlGlowShader.CurrentTechnique = _pearlGlowShader.Techniques["PearlShimmer"];
-
-            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
-                SamplerState.LinearWrap, DepthStencilState.None,
-                RasterizerState.CullCounterClockwise, _pearlGlowShader, matrix);
-
-            Texture2D sc = _softCircle.Value;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            float overlayScale = 22f * tickPulse / sc.Width;
-            sb.Draw(sc, drawPos, null, Color.White, 0f, sc.Size() * 0.5f, overlayScale, SpriteEffects.None, 0f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
-                SamplerState.LinearClamp, DepthStencilState.None,
-                RasterizerState.CullCounterClockwise, null, matrix);
-        }
-
-        // ---- PASS 3: Multi-scale bloom + Voronoi facets ----
-        private void DrawBloomVoronoi(SpriteBatch sb, Matrix matrix)
-        {
-            Vector2 pos = Projectile.Center - Main.screenPosition;
-            Texture2D srb = _softRadialBloom.Value;
-            Texture2D pb = _pointBloom.Value;
-            Texture2D sf = _starFlare.Value;
-
-            float tickProgress = (float)_tickCount / TotalTicks;
-            float tickPulse = _timer % TickInterval < 6 ? 1.25f : 1f;
-
-            // Outer ambient glow
-            sb.Draw(srb, pos, null,
-                ClairDeLunePalette.NightMist with { A = 0 } * 0.12f, 0f, srb.Size() * 0.5f,
-                20f * tickPulse / srb.Width, SpriteEffects.None, 0f);
-
-            // Mid SoftBlue glow
-            sb.Draw(srb, pos, null,
-                ClairDeLunePalette.SoftBlue with { A = 0 } * (0.2f + tickProgress * 0.2f), 0f, srb.Size() * 0.5f,
-                12f * tickPulse / srb.Width, SpriteEffects.None, 0f);
-
-            // Core gold glow
-            sb.Draw(pb, pos, null,
-                ClairDeLunePalette.MoonbeamGold with { A = 0 } * (0.15f + tickProgress * 0.25f), 0f, pb.Size() * 0.5f,
-                8f / pb.Width, SpriteEffects.None, 0f);
-
-            // Voronoi facet dots — 6 orbiting points for VoronoiCell look
-            float facetAngleBase = Main.GlobalTimeWrappedHourly * 2f + Projectile.whoAmI * 0.5f;
-            int facetCount = 6;
-            for (int i = 0; i < facetCount; i++)
-            {
-                float angle = facetAngleBase + i * MathHelper.TwoPi / facetCount;
-                float dist = 6f + 2f * MathF.Sin(Main.GlobalTimeWrappedHourly * 3f + i);
-                Vector2 facetPos = pos + angle.ToRotationVector2() * dist;
-                Color facetCol = Color.Lerp(ClairDeLunePalette.SoftBlue, ClairDeLunePalette.MoonbeamGold, (float)i / facetCount);
-
-                sb.Draw(pb, facetPos, null,
-                    facetCol with { A = 0 } * 0.12f, 0f, pb.Size() * 0.5f,
-                    3f / pb.Width, SpriteEffects.None, 0f);
-            }
-
-            // Star flare at max tick
-            if (_tickCount >= 2)
-            {
-                float flareRot = Main.GlobalTimeWrappedHourly * 3f;
-                sb.Draw(sf, pos, null,
-                    ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.15f * tickProgress,
-                    flareRot, sf.Size() * 0.5f, 10f / sf.Width, SpriteEffects.None, 0f);
-            }
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                Main.DefaultSamplerState, DepthStencilState.None,
-                RasterizerState.CullCounterClockwise, null, matrix);
         }
     }
 }

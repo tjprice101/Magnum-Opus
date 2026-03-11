@@ -529,6 +529,9 @@ namespace MagnumOpus.Content.Fate.Projectiles
         
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -569,6 +572,15 @@ namespace MagnumOpus.Content.Fate.Projectiles
             // Main spectral sword
             spriteBatch.Draw(texture, drawPos, null, spectralColor * 0.9f, Projectile.rotation, origin, 0.95f, SpriteEffects.None, 0f);
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }

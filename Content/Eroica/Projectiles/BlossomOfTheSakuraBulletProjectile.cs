@@ -189,7 +189,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     Projectile.Center,
                     angle.ToRotationVector2() * speed,
                     Color.Lerp(impactColor, BlossomUtils.MuzzleFlash, Main.rand.NextFloat(0.4f)),
-                    Main.rand.NextFloat(0.3f, 0.7f) * 0.55f,
+                    Main.rand.NextFloat(0.3f, 0.7f) * 0.41f,
                     Main.rand.Next(10, 20)
                 ));
             }
@@ -202,7 +202,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     Projectile.Center + Main.rand.NextVector2Circular(8f, 8f),
                     petalVel,
                     Color.Lerp(BlossomUtils.CoolPetal, BlossomUtils.WarmCrimson, HeatProgress),
-                    Main.rand.NextFloat(0.35f, 0.6f) * 0.55f,
+                    Main.rand.NextFloat(0.35f, 0.6f) * 0.41f,
                     Main.rand.Next(25, 50)
                 ));
             }
@@ -259,6 +259,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = tex.Size() / 2f;
             float time = (float)Main.gameTimeCache.TotalGameTime.TotalSeconds;
@@ -293,6 +295,15 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             EroicaVFXLibrary.BeginEroicaAdditive(sb);
             EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.4f);
             EroicaVFXLibrary.EndEroicaAdditive(sb);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

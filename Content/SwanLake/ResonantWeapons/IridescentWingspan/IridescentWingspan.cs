@@ -116,6 +116,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.IridescentWingspan
                 WingspanParticleHandler.Spawn(spark);
             }
 
+            // Rainbow muzzle sparkle
+            try { SwanLakeVFXLibrary.SpawnPrismaticSparkles(position, 4, 15f); } catch { }
+
             return false;
         }
 

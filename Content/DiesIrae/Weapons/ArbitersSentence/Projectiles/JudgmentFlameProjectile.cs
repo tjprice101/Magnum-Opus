@@ -1,3 +1,4 @@
+using MagnumOpus.Common;
 using MagnumOpus.Common.Systems.VFX.Core;
 using MagnumOpus.Content.DiesIrae;
 using MagnumOpus.Content.DiesIrae.Weapons.ArbitersSentence.Buffs;
@@ -6,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems.VFX;
@@ -26,6 +28,13 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ArbitersSentence.Projectiles
         private float[] trailRotations = new float[TrailLength];
         private int trailHead = 0;
         private bool trailInitialized = false;
+        private VertexStrip _vertexStrip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -85,43 +94,53 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ArbitersSentence.Projectiles
 
             // Precision impact VFX
             ArbitersSentenceUtils.DoFlameImpact(target.Center, globalNPC.JudgmentFlameStacks);
+
+            // DiesIrae VFXLibrary: color-ramped sparkle explosion + directional ember scatter + contrast sparkle
+            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(target.Center, 6 + globalNPC.JudgmentFlameStacks, 4f, 0.25f);
+            DiesIraeVFXLibrary.SpawnEmberScatter(target.Center, 3 + globalNPC.JudgmentFlameStacks, 3f);
+            DiesIraeVFXLibrary.SpawnContrastSparkle(target.Center, Projectile.velocity.SafeNormalize(Vector2.UnitX));
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-            if (glow != null)
+            try
             {
-                Vector2 origin = glow.Size() / 2f;
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.DiesIrae, ref _vertexStrip);
 
-                // Draw trail ? tight precision trail
-                for (int i = 0; i < TrailLength; i++)
+                // Judgment Flame accent: crimson directional flare along velocity
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
                 {
-                    int idx = (trailHead - 1 - i + TrailLength) % TrailLength;
-                    float progress = (float)i / TrailLength;
-                    float alpha = (1f - progress) * 0.5f;
-                    float scale = (1f - progress) * 0.025f;
+                    Vector2 origin = glow.Size() / 2f;
+                    float velRot = Projectile.velocity.ToRotation();
 
-                    Color trailColor = Color.Lerp(ArbitersSentenceUtils.JudgmentEmber, ArbitersSentenceUtils.PrecisionCrimson, progress) * alpha;
-                    Vector2 pos = trailPositions[idx] - Main.screenPosition;
-                    sb.Draw(glow, pos, null, trailColor, 0f, origin, scale, SpriteEffects.None, 0f);
+                    // Crimson judgment streak
+                    sb.Draw(glow, drawPos, null,
+                        (DiesIraePalette.InfernalRed with { A = 0 }) * 0.25f,
+                        velRot, origin, new Vector2(0.12f, 0.025f), SpriteEffects.None, 0f);
+
+                    // Gold judgment cross accent
+                    sb.Draw(glow, drawPos, null,
+                        (DiesIraePalette.JudgmentGold with { A = 0 }) * 0.15f,
+                        velRot + MathHelper.PiOver2, origin, new Vector2(0.06f, 0.015f), SpriteEffects.None, 0f);
                 }
+
+                sb.End();
             }
-
-            // Draw bullet body
-            ArbitersSentenceUtils.DrawFlameBulletBody(sb, Projectile.Center, Projectile.rotation, Projectile.ai[0]++);
-
-            // Dies Irae theme accent layer
-            ArbitersSentenceUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -173,11 +192,16 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ArbitersSentence.Projectiles
             // Also apply Judgment Flame stacking
             var globalNPC = target.GetGlobalNPC<ArbitersSentenceGlobalNPC>();
             globalNPC.IncrementFlameStack(target);
+
+            // Dies Irae VFX: ground fire impact sparkles
+            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(target.Center, 4, 3f, 0.2f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
@@ -202,9 +226,15 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ArbitersSentence.Projectiles
                     new Vector2(0.015f, 0.008f), SpriteEffects.None, 0f);
             }
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

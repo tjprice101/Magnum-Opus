@@ -457,6 +457,9 @@ namespace MagnumOpus.Common.Systems
         
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
             
             // Use the sparkle variant assigned to this crystal
@@ -538,6 +541,15 @@ namespace MagnumOpus.Common.Systems
                 0f
             );
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
         

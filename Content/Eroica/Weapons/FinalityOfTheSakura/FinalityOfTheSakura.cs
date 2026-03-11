@@ -25,6 +25,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.FinalityOfTheSakura
         {
             Item.width = 48;
             Item.height = 48;
+            Item.scale = 0.065f;
             Item.damage = 320;
             Item.DamageType = DamageClass.Summon;
             Item.mana = 20;

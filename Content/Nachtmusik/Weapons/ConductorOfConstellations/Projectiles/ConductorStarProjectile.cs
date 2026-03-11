@@ -2,11 +2,14 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
 using MagnumOpus.Content.Nachtmusik;
 using MagnumOpus.Content.Nachtmusik.Debuffs;
 
@@ -19,11 +22,13 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConductorOfConstellations.Projec
     /// </summary>
     public class ConductorStarProjectile : ModProjectile
     {
+        private VertexStrip _vertexStrip;
+
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 6;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -120,13 +125,45 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConductorOfConstellations.Projec
 
         public override bool PreDraw(ref Color lightColor)
         {
-            // Procedural Nachtmusik VFX — star projectile rendering
-            ProceduralProjectileVFX.DrawNachtmusikProjectile(Main.spriteBatch, Projectile, 0.3f);
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Nachtmusik, ref _vertexStrip);
 
-            // Nachtmusik theme star flare accent
-            NachtmusikShaderManager.BeginAdditive(Main.spriteBatch);
-            NachtmusikVFXLibrary.DrawThemeStarFlare(Main.spriteBatch, Projectile.Center, 1f, 0.5f);
-            NachtmusikShaderManager.RestoreSpriteBatch(Main.spriteBatch);
+                // Conductor Star accent: baton-wave directional sweep
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
+                {
+                    Vector2 origin = glow.Size() / 2f;
+                    float velRot = Projectile.velocity.ToRotation();
+                    float sweep = 0.85f + 0.15f * MathF.Sin((float)Main.timeForVisualEffects * 0.1f);
+
+                    // Conductor's baton sweep — wide directional glow
+                    sb.Draw(glow, drawPos, null,
+                        (NachtmusikPalette.StarlightCore with { A = 0 }) * 0.2f * sweep,
+                        velRot, origin, new Vector2(0.14f, 0.03f), SpriteEffects.None, 0f);
+
+                    // Star point accent
+                    sb.Draw(glow, drawPos, null,
+                        (NachtmusikPalette.StarWhite with { A = 0 }) * 0.15f,
+                        0f, origin, 0.035f, SpriteEffects.None, 0f);
+                }
+
+                sb.End();
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

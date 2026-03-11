@@ -32,6 +32,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.PiercingLightOfTheSakura
             Item.DamageType = DamageClass.Ranged;
             Item.width = 64;
             Item.height = 24;
+            Item.scale = 0.06f;
             Item.useTime = 8;
             Item.useAnimation = 8;
             Item.useStyle = ItemUseStyleID.Shoot;

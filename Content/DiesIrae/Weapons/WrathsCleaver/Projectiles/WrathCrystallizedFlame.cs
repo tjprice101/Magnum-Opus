@@ -155,6 +155,8 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
             if (glow == null) return false;
 
@@ -213,10 +215,15 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Projectiles
                 sb.Draw(glow, drawPos, null, coreColor, 0f, origin, orbScale * 0.5f, SpriteEffects.None, 0f);
             }
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
-                null, Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

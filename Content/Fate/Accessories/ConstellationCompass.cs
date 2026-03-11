@@ -39,12 +39,6 @@ namespace MagnumOpus.Content.Fate.Accessories
             
             // Increased projectile speed
             player.GetAttackSpeed(DamageClass.Ranged) += 0.12f;
-            
-            // Constellation compass ambient VFX
-            if (!hideVisual)
-            {
-                FateAccessoryVFX.ConstellationCompassAmbientVFX(player);
-            }
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)

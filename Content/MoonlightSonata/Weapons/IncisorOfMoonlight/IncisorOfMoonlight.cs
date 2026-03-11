@@ -73,6 +73,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight
         {
             Item.width = 80;
             Item.height = 80;
+            Item.scale = 0.08f;
             Item.damage = 280;
             Item.DamageType = DamageClass.MeleeNoSpeed;
             Item.useTime = 12;

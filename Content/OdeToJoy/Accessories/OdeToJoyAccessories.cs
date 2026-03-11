@@ -132,7 +132,7 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+70% summon damage"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+4 max minions"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Minions leave verdant trails that slow enemies by 40%"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Minions leave verdant trails that slow enemies"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Minion attacks have 15% chance to spawn a healing flower"));
             tooltips.Add(new TooltipLine(Mod, "Effect5", "+25% whip speed and range"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The endless melody of nature's eternal chorus'") 
@@ -345,9 +345,9 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+65% ranged damage"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+40% ranged critical strike chance"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Ranged attacks mark enemies with Blooming Vines for 6 seconds"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Marked enemies take 25% increased damage and are slowed"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "40% chance to not consume ammo"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Ranged attacks apply Ichor and Slow for 6 seconds"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Enemies lose 15 defense and are slowed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "20% chance to not consume ammo"));
             tooltips.Add(new TooltipLine(Mod, "Effect6", "Every 5th shot fires a homing petal storm"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'A symphony played in petals and thorns, celebrating nature's triumph'") 
             { 
@@ -359,7 +359,7 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
         {
             player.GetDamage(DamageClass.Ranged) += 0.65f; // POST-DIES IRAE (Dies Irae: 0.50f)
             player.GetCritChance(DamageClass.Ranged) += 40;
-            player.ammoCost80 = true; // 40% chance to not consume ammo (stacking)
+            player.ammoCost80 = true; // 20% chance to not consume ammo
             
             player.GetModPlayer<SymphonyOfBlossomsPlayer>().symphonyActive = true;
         }

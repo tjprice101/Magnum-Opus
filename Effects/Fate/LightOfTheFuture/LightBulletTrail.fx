@@ -5,6 +5,7 @@
 // =============================================================================
 
 sampler uImage0 : register(s0);
+sampler uGradientLUT : register(s2);
 
 float3 uColor;
 float3 uSecondaryColor;
@@ -35,7 +36,14 @@ float4 BulletTrailPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : C
     float alpha = (body * 0.4 + core * 0.5) * (1.0 - progress * 0.3);
     alpha *= uOpacity * sampleColor.a * baseTex.a;
 
-    return float4(color * uIntensity * uOverbrightMult * baseTex.rgb, alpha);
+    float3 trailColor = color * uIntensity * uOverbrightMult * baseTex.rgb;
+
+    // Fate LUT color toning — subtle theme cohesion
+    float lum = dot(trailColor, float3(0.299, 0.587, 0.114));
+    float3 lutColor = tex2D(uGradientLUT, float2(saturate(lum), 0.5)).rgb;
+    trailColor = lerp(trailColor, lutColor * trailColor * 2.0, 0.25);
+
+    return float4(trailColor, alpha);
 }
 
 // Wide glow aura that intensifies with speed

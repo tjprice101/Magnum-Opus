@@ -1978,6 +1978,66 @@ namespace MagnumOpus.Common.Systems
             }
         }
         
+        // ================== GRADUATED ORB BLOOM (INCISOR OF MOONLIGHT PATTERN) ==================
+        
+        /// <summary>
+        /// Draws a 3-layer graduated bloom orb head following the Incisor of Moonlight pattern.
+        /// Uses SoftGlow for wide outer glow + PointBloom for sharp mid/core layers.
+        /// MUST be called inside an additive SpriteBatch (MagnumBlendStates.TrueAdditive).
+        /// </summary>
+        /// <param name="sb">SpriteBatch (must already be in TrueAdditive mode)</param>
+        /// <param name="drawPos">Screen-space position (worldPos - Main.screenPosition)</param>
+        /// <param name="themeColor">Primary theme color for outer/mid glow</param>
+        /// <param name="scale">Base scale multiplier (1.0 = default Incisor-sized)</param>
+        /// <param name="intensity">Overall opacity multiplier</param>
+        public static void DrawGraduatedOrbHead(SpriteBatch sb, Vector2 drawPos, Color themeColor,
+            float scale = 1f, float intensity = 1f)
+        {
+            Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
+            Texture2D bloomTex = MagnumTextureRegistry.GetPointBloom();
+            if (glowTex == null || bloomTex == null) return;
+            
+            Color glow = themeColor;
+            glow.A = 0; // zero alpha for proper additive blending
+            
+            // Layer 1: Wide soft outer glow (SoftGlow)
+            sb.Draw(glowTex, drawPos, null, glow * 0.35f * intensity, 0f,
+                glowTex.Size() / 2f, 0.25f * scale, SpriteEffects.None, 0f);
+            // Layer 2: Mid bloom (PointBloom)
+            sb.Draw(bloomTex, drawPos, null, glow * 0.5f * intensity, 0f,
+                bloomTex.Size() / 2f, 0.1f * scale, SpriteEffects.None, 0f);
+            // Layer 3: White-hot core (PointBloom)
+            sb.Draw(bloomTex, drawPos, null, new Color(255, 255, 255, 0) * 0.7f * intensity, 0f,
+                bloomTex.Size() / 2f, 0.06f * scale, SpriteEffects.None, 0f);
+        }
+        
+        /// <summary>
+        /// Draws a 3-layer graduated bloom with distinct outer/mid colors for richer theming.
+        /// MUST be called inside an additive SpriteBatch.
+        /// </summary>
+        public static void DrawGraduatedOrbHead(SpriteBatch sb, Vector2 drawPos, Color outerColor,
+            Color midColor, float scale = 1f, float intensity = 1f)
+        {
+            Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
+            Texture2D bloomTex = MagnumTextureRegistry.GetPointBloom();
+            if (glowTex == null || bloomTex == null) return;
+            
+            Color outer = outerColor;
+            outer.A = 0;
+            Color mid = midColor;
+            mid.A = 0;
+            
+            // Layer 1: Wide soft outer glow (SoftGlow)
+            sb.Draw(glowTex, drawPos, null, outer * 0.35f * intensity, 0f,
+                glowTex.Size() / 2f, 0.25f * scale, SpriteEffects.None, 0f);
+            // Layer 2: Mid bloom (PointBloom)
+            sb.Draw(bloomTex, drawPos, null, mid * 0.5f * intensity, 0f,
+                bloomTex.Size() / 2f, 0.1f * scale, SpriteEffects.None, 0f);
+            // Layer 3: White-hot core (PointBloom)
+            sb.Draw(bloomTex, drawPos, null, new Color(255, 255, 255, 0) * 0.7f * intensity, 0f,
+                bloomTex.Size() / 2f, 0.06f * scale, SpriteEffects.None, 0f);
+        }
+        
         // ================== EROICA-SPECIFIC ADVANCED EFFECTS ==================
         
         /// <summary>

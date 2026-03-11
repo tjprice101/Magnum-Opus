@@ -1,3 +1,4 @@
+using MagnumOpus.Common;
 using MagnumOpus.Common.Systems.VFX.Core;
 using MagnumOpus.Content.DiesIrae;
 using MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Utilities;
@@ -5,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems.VFX;
@@ -26,6 +28,13 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Projectiles
         private int trailHead = 0;
         private bool trailInitialized = false;
         private float timer = 0;
+        private VertexStrip _vertexStrip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -96,10 +105,15 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Projectiles
         {
             target.AddBuff(BuffID.OnFire3, 300);
 
+            // Dies Irae VFX: eclipse impact burst
+            DiesIraeVFXLibrary.MeleeImpact(target.Center, 0);
+
             bool isCrit = hit.Crit;
             if (isCrit)
             {
                 EclipseOfWrathUtils.DoCoronaFlare(target.Center);
+                DiesIraeVFXLibrary.SpawnMusicNotes(target.Center, 3, 2f, 0.8f, 1f, 40);
+                DiesIraeVFXLibrary.SpawnJudgmentRings(target.Center, 2, 0.4f);
             }
         }
 
@@ -132,40 +146,49 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
 
-            // Pass 1: Dark disc (AlphaBlend)
-            EclipseOfWrathUtils.DrawEclipseDisc(sb, Projectile.Center, timer);
+            IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.DiesIrae, ref _vertexStrip);
 
-            // Pass 2: Corona (Additive)
+            // Eclipse accent: dark corona ring — 4 elongated eclipse flares
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                SamplerState.LinearClamp, DepthStencilState.None,
+                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Trail corona glow
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
             if (glow != null)
             {
                 Vector2 origin = glow.Size() / 2f;
-                for (int i = 0; i < TrailLength; i++)
+                float pulse = 0.8f + 0.2f * MathF.Sin((float)Main.timeForVisualEffects * 0.07f);
+                float coronaRot = (float)Main.timeForVisualEffects * 0.025f;
+
+                for (int i = 0; i < 4; i++)
                 {
-                    int idx = (trailHead - 1 - i + TrailLength) % TrailLength;
-                    float progress = (float)i / TrailLength;
-                    float alpha = (1f - progress) * 0.3f;
-                    Color c = Color.Lerp(EclipseOfWrathUtils.CoronaEmber, EclipseOfWrathUtils.ShardCrimson, progress);
-                    sb.Draw(glow, trailPositions[idx] - Main.screenPosition, null, c * alpha, 0f, origin,
-                        0.03f * (1f - progress * 0.5f), SpriteEffects.None, 0f);
+                    float angle = coronaRot + MathHelper.PiOver2 * i;
+                    sb.Draw(glow, drawPos, null,
+                        (DiesIraePalette.EmberOrange with { A = 0 }) * 0.2f * pulse,
+                        angle, origin, new Vector2(0.16f, 0.03f), SpriteEffects.None, 0f);
                 }
+
+                // Central dark ember glow
+                sb.Draw(glow, drawPos, null,
+                    (DiesIraePalette.BloodRed with { A = 0 }) * 0.15f,
+                    0f, origin, 0.07f, SpriteEffects.None, 0f);
             }
 
-            // Corona ring
-            EclipseOfWrathUtils.DrawEclipseCorona(sb, Projectile.Center, timer);
-
-            // Dies Irae theme accent layer
-            EclipseOfWrathUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
-
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -228,6 +251,8 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
@@ -235,9 +260,15 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Projectiles
             float life = (float)Projectile.timeLeft / MaxLifetime;
             EclipseOfWrathUtils.DrawEclipseField(sb, Projectile.Center, FieldRadius, life, Projectile.ai[0]++);
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

@@ -122,6 +122,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake
                 }
             }
 
+            // Rainbow muzzle sparkle
+            try { SwanLakeVFXLibrary.SpawnPrismaticSparkles(position, 3, 12f); } catch { }
+
             // Fire our custom rocket instead of the bullet
             float ai0 = isTidal ? 1f : 0f;
             float ai1 = isStillWaters ? 1f : 0f;

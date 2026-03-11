@@ -1,92 +1,91 @@
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common;
 using MagnumOpus.Common.BaseClasses;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Trails;
-using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.Particles;
+using static MagnumOpus.Common.Systems.Particles.Particle;
+using MagnumOpus.Content.DiesIrae;
 using MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Utilities;
 using MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Buffs;
-using MagnumOpus.Common.Systems.VFX;
-using static MagnumOpus.Common.Systems.Particles.Particle;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Projectiles
 {
     /// <summary>
-    /// EXECUTIONER'S VERDICT ? Melee Swing Projectile.
-    /// Extends MeleeSwingBase for the full 6-layer pipeline.
+    /// Executioner's Verdict swing projectile (MeleeSwingBase).
+    /// 3-Phase Judicial Combo:
+    ///   0 - Arraignment:       160 deg overhead strike, deliberate + heavy
+    ///   1 - Cross-Examination: 140 deg reversed cross slash, faster
+    ///   2 - The Verdict:       200 deg execution slash, devastating
     ///
-    /// 3-Phase Judgment Combo:
-    ///   Phase 0 (Arraignment) ? Overhead strike, applies first Judgment Mark
-    ///   Phase 1 (Cross-Examination) ? Cross slash at �}45��, heavier damage to marked
-    ///   Phase 2 (The Verdict) ? Horizontal execution slash, triggers Verdict Execution at 3 marks
-    ///
-    /// VFX traits: Clean, sharp, deliberate (not chaotic like Wrath's Cleaver).
-    /// Controlled distortion, sharper palette transitions.
+    /// DrawCustomVFX: 5-layer judicial precision VFX
+    ///   L1: Shader-driven guillotine blade aura
+    ///   L2: Sharp crimson-gold bloom at blade tip
+    ///   L3: Controlled fire dust along blade (not chaotic — precise)
+    ///   L4: Judgment impact ring + star flare accents
+    ///   L5: Root glow + execution bloom on Phase 2
     /// </summary>
-    public class ExecutionersVerdictSwing : MeleeSwingBase
+    public sealed class ExecutionersVerdictSwing : MeleeSwingBase
     {
-        // ???????????????????????????????????????????????????????????
-        //  COMBO PHASES ? Three movements of judicial process
-        // ???????????????????????????????????????????????????????????
-
         private static readonly ComboPhase[] _phases = new ComboPhase[]
         {
-            // Phase 0: ARRAIGNMENT ? Overhead strike, deliberate and heavy
+            // Phase 0: ARRAIGNMENT - Overhead strike, deliberate and heavy
             new ComboPhase(
                 curves: new CurveSegment[]
                 {
-                    new CurveSegment(EasingType.SineIn, 0.0f, -0.18f, 0.18f),   // Deliberate windup
-                    new CurveSegment(EasingType.PolyOut, 0.20f, 0.0f, 1.0f, 3), // Controlled descent
-                    new CurveSegment(EasingType.SineOut, 0.72f, 1.0f, -0.06f),  // Measured follow-through
+                    new CurveSegment(EasingType.SineIn, 0.0f, -0.18f, 0.18f),
+                    new CurveSegment(EasingType.PolyOut, 0.20f, 0.0f, 1.0f, 3),
+                    new CurveSegment(EasingType.SineOut, 0.72f, 1.0f, -0.06f),
                 },
                 maxAngle: MathHelper.ToRadians(160),
                 duration: 26,
-                bladeLength: 170f,   // Larger weapon
+                bladeLength: 170f,
                 flip: false,
                 squish: 0.82f,
                 damageMult: 1.0f
             ),
 
-            // Phase 1: CROSS-EXAMINATION ? Reversed cross slash
+            // Phase 1: CROSS-EXAMINATION - Reversed cross slash
             new ComboPhase(
                 curves: new CurveSegment[]
                 {
-                    new CurveSegment(EasingType.SineIn, 0.0f, -0.15f, 0.15f),   // Quick reverse
-                    new CurveSegment(EasingType.PolyOut, 0.15f, 0.0f, 1.0f, 3), // Sharp cross cut
-                    new CurveSegment(EasingType.SineOut, 0.68f, 1.0f, -0.07f),  // Snap back
+                    new CurveSegment(EasingType.SineIn, 0.0f, -0.15f, 0.15f),
+                    new CurveSegment(EasingType.PolyOut, 0.15f, 0.0f, 1.0f, 3),
+                    new CurveSegment(EasingType.SineOut, 0.68f, 1.0f, -0.07f),
                 },
                 maxAngle: MathHelper.ToRadians(140),
                 duration: 24,
                 bladeLength: 165f,
                 flip: true,
                 squish: 0.84f,
-                damageMult: 1.25f   // Marked enemies already take +25%, layered
+                damageMult: 1.25f
             ),
 
-            // Phase 2: THE VERDICT ? Massive horizontal execution slash
+            // Phase 2: THE VERDICT - Massive horizontal execution slash
             new ComboPhase(
                 curves: new CurveSegment[]
                 {
-                    new CurveSegment(EasingType.SineIn, 0.0f, -0.22f, 0.22f),   // Grand windup
-                    new CurveSegment(EasingType.PolyOut, 0.25f, 0.0f, 1.0f, 4), // Devastating horizontal
-                    new CurveSegment(EasingType.SineOut, 0.75f, 1.0f, -0.04f),  // Finality
+                    new CurveSegment(EasingType.SineIn, 0.0f, -0.22f, 0.22f),
+                    new CurveSegment(EasingType.PolyOut, 0.25f, 0.0f, 1.0f, 4),
+                    new CurveSegment(EasingType.SineOut, 0.75f, 1.0f, -0.04f),
                 },
                 maxAngle: MathHelper.ToRadians(200),
                 duration: 30,
-                bladeLength: 180f,   // Maximum reach for the verdict
+                bladeLength: 180f,
                 flip: false,
                 squish: 0.78f,
                 damageMult: 1.6f
             ),
         };
 
-        // ???????????????????????????????????????????????????????????
-        //  ABSTRACT OVERRIDES
-        // ???????????????????????????????????????????????????????????
+        // === Abstract overrides ===
 
         protected override ComboPhase[] GetAllPhases() => _phases;
 
@@ -97,7 +96,6 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Projectiles
 
         protected override string GetSmearTexturePath(int comboStep)
         {
-            // Controlled flame arcs ? cleaner than Wrath's chaotic fire
             return comboStep switch
             {
                 0 => "MagnumOpus/Assets/VFX Asset Library/SlashArcs/SwordArcSmear",
@@ -107,14 +105,12 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Projectiles
             };
         }
 
-        protected override string GetSmearGradientPath() => "MagnumOpus/Assets/VFX Asset Library/ColorGradients/DiesIraeGradientLUTandRAMP";
+        protected override string GetSmearGradientPath()
+            => "MagnumOpus/Assets/VFX Asset Library/ColorGradients/DiesIraeGradientLUTandRAMP";
 
-        // ???????????????????????????????????????????????????????????
-        //  VIRTUAL OVERRIDES ? Judgment theme
-        // ???????????????????????????????????????????????????????????
+        // === Virtual overrides ===
 
         protected override int GetInitialDustType() => DustID.Torch;
-
         protected override int GetSecondaryDustType() => DustID.GoldFlame;
 
         protected override SoundStyle GetSwingSound()
@@ -137,155 +133,227 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Projectiles
         protected override Vector3 GetLightColor()
         {
             float intensity = 0.45f + ComboStep * 0.2f;
-            return new Vector3(
-                intensity * 0.9f,   // Blood red
-                intensity * 0.15f,  // Very low green
-                intensity * 0.05f   // Minimal blue
-            );
+            return new Vector3(intensity * 0.9f, intensity * 0.15f, intensity * 0.05f);
         }
 
-        // ???????????????????????????????????????????????????????????
-        //  COMBO SPECIALS ? Judgment Mark application VFX
-        // ???????????????????????????????????????????????????????????
+        // === Combo specials ===
 
         protected override void HandleComboSpecials()
         {
             float prog = Progression;
 
-            // Phase 2 (The Verdict) ? Gold judgment flash at peak
+            // Phase 1 (Cross-Examination) @ 60%: Judgment spark flash
+            if (ComboStep == 1 && !hasSpawnedSpecial && prog > 0.60f)
+            {
+                hasSpawnedSpecial = true;
+                Vector2 tipPos = GetBladeTipPosition();
+
+                DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(tipPos, 8, 5f, 0.3f);
+                DiesIraeVFXLibrary.SpawnEmberScatter(tipPos, 6, 3f);
+
+                SoundEngine.PlaySound(SoundID.Item73 with { Pitch = 0.1f, Volume = 0.6f }, tipPos);
+            }
+
+            // Phase 2 (The Verdict) @ 55%: Execution flash + judgment rings
             if (ComboStep == 2 && !hasSpawnedSpecial && prog > 0.55f)
             {
                 hasSpawnedSpecial = true;
-                SpawnVerdictFlash();
+                Vector2 tipPos = GetBladeTipPosition();
+                Vector2 center = Owner.MountedCenter;
+
+                // Judgment flash at blade tip
+                DiesIraeVFXLibrary.SpawnJudgmentRings(tipPos, 3, 0.3f);
+                DiesIraeVFXLibrary.SpawnRadialDustBurst(tipPos, 12, 6f, DustID.GoldFlame);
+                DiesIraeVFXLibrary.SpawnHellfireStarburst(tipPos, 1.2f);
+
+                MagnumScreenEffects.AddScreenShake(5f);
+
+                SoundEngine.PlaySound(SoundID.Item73 with { Pitch = 0.1f, Volume = 0.7f }, tipPos);
+                SoundEngine.PlaySound(SoundID.Item45 with { Pitch = -0.3f, Volume = 0.6f }, center);
             }
 
-            // Controlled ember trail during swing
+            // Continuous controlled dust during swing (more precise than WrathsCleaver)
             if (prog > 0.12f && prog < 0.88f)
             {
                 ExecutionersVerdictUtils.SpawnSwingDust(Owner.MountedCenter, SwordDirection,
                     CurrentPhase.BladeLength, ComboStep, prog, Direction);
+
+                // Gold judgment sparkles every 6 frames
+                if (Main.GameUpdateCount % 6 == 0)
+                {
+                    Vector2 tipPos = GetBladeTipPosition();
+                    DiesIraeVFXLibrary.SpawnContrastSparkle(tipPos, SwordDirection);
+                }
+
+                // Music notes on Phase 2 only (judgment proclamation)
+                if (ComboStep == 2 && Main.GameUpdateCount % 10 == 0)
+                {
+                    Vector2 tipPos = GetBladeTipPosition();
+                    DiesIraeVFXLibrary.SpawnMusicNotes(tipPos, 1, 12f, 0.5f, 0.8f, 20);
+                }
             }
         }
 
-        private void SpawnVerdictFlash()
-        {
-            Vector2 tipPos = GetBladeTipPosition();
-
-            // Gold judgment flash ? clean, bright, authoritative
-            for (int i = 0; i < 12; i++)
-            {
-                float angle = MathHelper.TwoPi / 12f * i;
-                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
-
-                Dust d = Dust.NewDustPerfect(tipPos, DustID.GoldFlame, vel, 0,
-                    ExecutionersVerdictUtils.JudgmentGold, Main.rand.NextFloat(1.0f, 1.6f));
-                d.noGravity = true;
-                d.fadeIn = 1.3f;
-            }
-
-            // Crimson ring accent
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi / 8f * i + MathHelper.PiOver4;
-                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
-
-                Dust d = Dust.NewDustPerfect(tipPos, DustID.Torch, vel, 0,
-                    ExecutionersVerdictUtils.BloodCrimson, 0.9f);
-                d.noGravity = true;
-            }
-
-            SoundEngine.PlaySound(SoundID.Item73 with { Pitch = 0.1f, Volume = 0.7f }, tipPos);
-        }
-
-        // ???????????????????????????????????????????????????????????
-        //  HIT EFFECTS ? Judgment marks + execution mechanics
-        // ???????????????????????????????????????????????????????????
+        // === Hit effects ===
 
         protected override void OnSwingHitNPC(NPC target, NPC.HitInfo hit, int remainingDamageCount)
         {
-            // Apply debuffs
             target.AddBuff(ModContent.BuffType<ExecutionBrand>(), 360);
             target.AddBuff(ModContent.BuffType<PyreImmolation>(), 180);
 
-            // Execution threshold ? 15% HP insta-kill for non-bosses
+            // Execution threshold: non-boss enemies below 15% HP die instantly
             if (!target.boss && target.life < target.lifeMax * 0.15f)
             {
                 target.life = 0;
                 target.checkDead();
 
-                // Execution flash
-                for (int i = 0; i < 20; i++)
-                {
-                    Vector2 vel = Main.rand.NextVector2Circular(8f, 8f);
-                    Dust d = Dust.NewDustPerfect(target.Center, DustID.GoldFlame, vel, 0,
-                        ExecutionersVerdictUtils.JudgmentGold, 1.5f);
-                    d.noGravity = true;
-                }
+                // Gold judgment flash on execution kill
+                DiesIraeVFXLibrary.SpawnHellfireStarburst(target.Center, 1.5f);
+                DiesIraeVFXLibrary.SpawnJudgmentRings(target.Center, 2, 0.4f);
                 return;
             }
 
-            // +50% damage to enemies below 30% HP (applied via damage modifiers in the item)
-            // Visual: extra crimson sparks
+            // Low HP indicator: extra crimson sparks below 30%
             if (target.life < target.lifeMax * 0.30f)
             {
-                for (int i = 0; i < 6; i++)
-                {
-                    Vector2 vel = Main.rand.NextVector2Circular(5f, 5f);
-                    Dust d = Dust.NewDustPerfect(target.Center, DustID.Torch, vel, 0,
-                        ExecutionersVerdictUtils.CrimsonRed, 1.2f);
-                    d.noGravity = true;
-                }
+                DiesIraeVFXLibrary.SpawnDirectionalSparkleExplosion(
+                    target.Center,
+                    (target.Center - Owner.MountedCenter).SafeNormalize(Vector2.UnitX),
+                    8, 6f, 0.35f, 0.7f);
             }
 
-            // Standard judgment impact
-            ExecutionersVerdictUtils.DoHitImpact(target.Center, ComboStep);
+            // Standard multi-layered judgment impact
+            DiesIraeVFXLibrary.MeleeImpact(target.Center, ComboStep);
+
+            // Extra gold sparks on heavier phases
+            if (ComboStep >= 1)
+            {
+                Vector2 hitDir = (target.Center - Owner.MountedCenter).SafeNormalize(Vector2.UnitX);
+                DiesIraeVFXLibrary.SpawnDirectionalSparkleExplosion(
+                    target.Center, hitDir, 4 + ComboStep * 2, 5f, 0.3f, 0.6f);
+            }
+
+            // The Verdict: screen shake on execution slash
+            if (ComboStep == 2)
+                MagnumScreenEffects.AddScreenShake(4f);
         }
 
-        // ???????????????????????????????????????????????????????????
-        //  CUSTOM VFX ? Judicial precision rendering
-        // ???????????????????????????????????????????????????????????
+        // === DrawCustomVFX: 5-layer composited judicial VFX ===
 
         protected override void DrawCustomVFX(SpriteBatch sb)
         {
             if (Progression < 0.05f || Progression > 0.95f) return;
 
+            try
+            {
             Vector2 tipWorld = GetBladeTipPosition();
             Vector2 tipScreen = tipWorld - Main.screenPosition;
+            Vector2 rootScreen = Owner.MountedCenter - Main.screenPosition;
 
+            float time = (float)Main.GameUpdateCount * 0.03f;
+            float stepIntensity = 0.65f + ComboStep * 0.18f;
+            float swingIntensity = MathF.Sin(Progression * MathF.PI) * stepIntensity;
+
+            // -- LAYER 1: Shader-driven guillotine blade aura --
+            bool hasGuillotineShader = false;
+            try { hasGuillotineShader = ExecutionersVerdictShaderLoader.GuillotineBladeShader?.Value != null; }
+            catch { }
+
+            if (hasGuillotineShader)
+            {
+                try
+                {
+                    DiesIraeShaderManager.BeginShaderAdditive(sb);
+
+                    var shader = ExecutionersVerdictShaderLoader.GuillotineBladeShader.Value;
+                    shader.Parameters["uColor"]?.SetValue(DiesIraePalette.BloodRed.ToVector3());
+                    shader.Parameters["uSecondaryColor"]?.SetValue(DiesIraePalette.JudgmentGold.ToVector3());
+                    shader.Parameters["uTime"]?.SetValue(time);
+                    shader.Parameters["uOpacity"]?.SetValue(swingIntensity);
+                    shader.Parameters["uIntensity"]?.SetValue(1.5f + ComboStep * 0.25f);
+                    shader.CurrentTechnique.Passes[0].Apply();
+
+                    Texture2D softGlow = MagnumTextureRegistry.GetSoftGlow();
+                    if (softGlow != null)
+                    {
+                        Vector2 glowOrigin = softGlow.Size() * 0.5f;
+
+                        // Blade midpoint: controlled crimson presence
+                        Color midColor = DiesIraePalette.Additive(DiesIraePalette.BloodRed, 0.3f * swingIntensity);
+                        Vector2 midScreen = Owner.MountedCenter + SwordDirection * CurrentPhase.BladeLength * 0.5f - Main.screenPosition;
+                        sb.Draw(softGlow, midScreen, null, midColor, 0f, glowOrigin,
+                            0.05f + ComboStep * 0.008f, SpriteEffects.None, 0f);
+
+                        // Blade tip: focused judgment point
+                        Color tipColor = DiesIraePalette.Additive(DiesIraePalette.JudgmentGold, 0.45f * swingIntensity);
+                        sb.Draw(softGlow, tipScreen, null, tipColor, 0f, glowOrigin,
+                            0.035f + ComboStep * 0.006f, SpriteEffects.None, 0f);
+                    }
+
+                    DiesIraeShaderManager.RestoreSpriteBatch(sb);
+                }
+                catch
+                {
+                    try { sb.End(); } catch { }
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
+
+            // -- LAYER 2: Controlled fire dust along blade --
+            int dustCount = 1 + ComboStep;
+            for (int i = 0; i < dustCount; i++)
+            {
+                float along = Main.rand.NextFloat(0.4f, 1f);
+                Vector2 dustPos = Owner.MountedCenter + SwordDirection * CurrentPhase.BladeLength * along;
+                Vector2 perp = SwordDirection.RotatedBy(MathHelper.PiOver2 * Direction);
+                Vector2 vel = perp * Main.rand.NextFloat(0.3f, 1f);
+
+                Color col = ExecutionersVerdictUtils.GetPaletteColor(along);
+                Dust d = Dust.NewDustPerfect(dustPos, DustID.Torch, vel, 0, col, 1f + ComboStep * 0.15f);
+                d.noGravity = true;
+                d.fadeIn = 0.8f;
+            }
+
+            // -- LAYER 3-5: Additive bloom, judgment rings, root glow --
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
                 null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Controlled tip bloom ? precise, not wild
-            float bloomIntensity = 0.55f + ComboStep * 0.18f;
-            ExecutionersVerdictUtils.DrawTipBloom(sb, tipScreen, bloomIntensity, ComboStep);
+            // Sharp crimson-gold bloom at blade tip
+            ExecutionersVerdictUtils.DrawTipBloom(sb, tipScreen, swingIntensity, ComboStep);
 
-            // Player root glow ? subtle crimson judicial authority
-            Vector2 rootScreen = Owner.MountedCenter - Main.screenPosition;
+            // Root glow at player center
             Texture2D rootGlow = MagnumTextureRegistry.GetSoftGlow();
             if (rootGlow != null)
             {
                 Vector2 rootOrigin = rootGlow.Size() * 0.5f;
                 float rootAlpha = 0.25f + ComboStep * 0.08f;
-                Color rootColor = ExecutionersVerdictUtils.BloodCrimson * (rootAlpha * 0.35f);
-                rootColor.A = 0;
+                Color rootColor = DiesIraePalette.Additive(DiesIraePalette.BloodRed, rootAlpha * 0.35f * swingIntensity);
                 sb.Draw(rootGlow, rootScreen, null, rootColor, 0f, rootOrigin, 0.10f, SpriteEffects.None, 0f);
             }
 
-            // Verdict phase: intensified judicial aura
+            // Phase 2 (The Verdict): execution bloom + impact ring
             if (ComboStep == 2 && Progression > 0.20f && Progression < 0.75f)
             {
-                ExecutionersVerdictUtils.DrawBloomStack(sb, rootScreen, 0.025f, 0.45f, ComboStep);
+                ExecutionersVerdictUtils.DrawBloomStack(sb, rootScreen, 0.025f, swingIntensity * 0.5f, ComboStep);
+
+                float ringPhase = Progression * 2f;
+                DiesIraeVFXLibrary.DrawThemeImpactRing(sb, tipWorld, 1f + ComboStep * 0.2f, swingIntensity * 0.5f, ringPhase);
             }
 
-            // Dies Irae theme accent layer
-            ExecutionersVerdictUtils.DrawThemeAccents(sb, tipWorld, 1f, Progression);
+            // Theme star flare accents at blade tip
+            DiesIraeVFXLibrary.DrawThemeStarFlare(sb, tipWorld, 0.8f + ComboStep * 0.15f, swingIntensity * 0.4f);
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
-                null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
         }
     }
 }

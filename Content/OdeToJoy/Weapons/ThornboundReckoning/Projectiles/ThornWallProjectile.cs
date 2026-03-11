@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.OdeToJoy;
+using MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Dusts;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
 {
@@ -70,7 +71,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
             Lighting.AddLight(Projectile.Center,
                 ThornboundTextures.BloomGold.ToVector3() * lightStrength * alpha);
 
-            // Ambient botanical particles
+            // Ambient botanical particles — VineSapDust rising from the zone
             if (timer % 4 == 0 && alpha > 0.3f)
             {
                 float angle = Main.rand.NextFloat(MathHelper.TwoPi);
@@ -80,24 +81,25 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
 
                 Color col = Color.Lerp(ThornboundTextures.BloomGold, ThornboundTextures.PetalPink,
                     Main.rand.NextFloat());
-                Dust dust = Dust.NewDustPerfect(spawnPos, DustID.RainbowMk2, vel,
-                    newColor: col, Scale: Main.rand.NextFloat(0.3f, 0.6f));
-                dust.noGravity = true;
-                dust.fadeIn = 0.3f;
+                Dust.NewDustPerfect(spawnPos, ModContent.DustType<VineSapDust>(), vel,
+                    newColor: col, Scale: Main.rand.NextFloat(0.8f, 1.4f));
             }
 
-            // Empowered: extra sparkle burst particles
+            // Empowered: ThornburstDust chips radiating outward
             if (empowered && timer % 6 == 0 && alpha > 0.5f)
             {
                 float angle = Main.rand.NextFloat(MathHelper.TwoPi);
                 Vector2 pos = Projectile.Center + angle.ToRotationVector2() * currentRadius * 0.8f;
                 Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(0.5f, 2f);
 
-                Dust dust = Dust.NewDustPerfect(pos, DustID.RainbowMk2, vel,
+                Dust.NewDustPerfect(pos, ModContent.DustType<ThornburstDust>(), vel,
                     newColor: ThornboundTextures.JubilantLight,
-                    Scale: Main.rand.NextFloat(0.4f, 0.8f));
-                dust.noGravity = true;
+                    Scale: Main.rand.NextFloat(1.0f, 1.8f));
             }
+
+            // Harmonic pulse on initial zone creation
+            if (timer == 1)
+                OdeToJoyVFXLibrary.HarmonicPulseRing(Projectile.Center, currentRadius, 12, OdeToJoyPalette.GoldenPollen, 2f);
         }
 
         private float GetAlpha()
@@ -120,6 +122,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float alpha = GetAlpha();
             bool empowered = Projectile.ai[0] >= 1f;
@@ -190,22 +194,34 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
 
             sb.End();
             OdeToJoyShaders.RestoreSpriteBatch(sb);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
         public override void OnKill(int timeLeft)
         {
-            // Death burst
+            // Death burst — radial ThornburstDust + VineSapDust
             for (int i = 0; i < 12; i++)
             {
                 float angle = MathHelper.TwoPi / 12f * i;
                 Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f);
                 Color col = Color.Lerp(ThornboundTextures.BloomGold,
                     ThornboundTextures.PetalPink, Main.rand.NextFloat());
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowMk2, vel,
-                    newColor: col, Scale: Main.rand.NextFloat(0.4f, 0.8f));
-                dust.noGravity = true;
+                int dustType = i % 2 == 0 ? ModContent.DustType<ThornburstDust>() : ModContent.DustType<VineSapDust>();
+                Dust.NewDustPerfect(Projectile.Center, dustType, vel,
+                    newColor: col, Scale: Main.rand.NextFloat(1.0f, 1.8f));
             }
+
+            // Garden sparkle explosion on zone collapse
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(Projectile.Center, 8, 5f, 0.25f);
         }
     }
 }

@@ -119,6 +119,10 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Projectiles
                     Main.rand.NextVector2Circular(3, 3), 0, LamentUtils.CatharsisWhite, 0.8f);
                 d.noGravity = true;
             }
+
+            // Inner B&W + Outer rainbow sparkle explosion
+            try { SwanLakeVFXLibrary.SpawnMixedSparkleImpact(target.Center, 0.6f, 4, 4); } catch { }
+            try { SwanLakeVFXLibrary.SpawnPrismaticSparkles(target.Center, 3, 15f); } catch { }
         }
 
         public override void OnKill(int timeLeft)
@@ -132,11 +136,17 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Projectiles
                     DustID.WhiteTorch, vel, 0, LamentUtils.CatharsisWhite, 0.5f);
                 d.noGravity = true;
             }
+
+            // Inner B&W + Outer rainbow sparkle explosion on death
+            try { SwanLakeVFXLibrary.SpawnMixedSparkleImpact(Projectile.Center, 0.7f, 5, 5); } catch { }
+            try { SwanLakeVFXLibrary.SpawnPrismaticSparkles(Projectile.Center, 5, 20f); } catch { }
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float radius = CurrentRadius;
             float lifeProgress = Timer / Duration;
@@ -148,7 +158,6 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Projectiles
             {
                 sb.End();
 
-                Texture2D bloom = MagnumTextureRegistry.GetSoftGlow();
                 Texture2D point = MagnumTextureRegistry.GetPointBloom();
                 Texture2D halo = MagnumTextureRegistry.GetHaloRing();
                 Texture2D star = MagnumTextureRegistry.GetStar4Soft();
@@ -175,7 +184,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Projectiles
                 if (halo != null)
                 {
                     Vector2 hOrigin = halo.Size() * 0.5f;
-                    float haloScale = (radius * 2f) / halo.Width;
+                    float haloScale = MathHelper.Min((radius * 2f) / halo.Width, 0.4f);
                     float spin = (float)Main.timeForVisualEffects * 0.01f;
                     sb.Draw(halo, drawPos, null, LamentUtils.CatharsisWhite * 0.35f * opacity, spin, hOrigin, haloScale, SpriteEffects.None, 0f);
                 }
@@ -205,6 +214,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Projectiles
             finally
             {
                 sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }

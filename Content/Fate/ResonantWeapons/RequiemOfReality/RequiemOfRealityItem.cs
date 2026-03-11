@@ -12,6 +12,7 @@ using MagnumOpus.Common;
 using MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Utilities;
 using MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Particles;
 using MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles;
+using MagnumOpus.Content.SandboxExoblade.Utilities;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality
 {
@@ -39,6 +40,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality
         // Glow texture for hold VFX
         private static Asset<Texture2D> _glowTex;
 
+        /// <summary>Tracks the 4-movement combo: Adagio → Allegro → Scherzo → Finale.
+        /// Finale (every 4th swing) summons the autonomous RequiemSpectralBlade.</summary>
+        private int movementCounter = 0;
+
         public override void SetStaticDefaults()
         {
             Item.ResearchUnlockCount = 1;
@@ -64,9 +69,27 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality
             Item.noUseGraphic = true; // The swing projectile handles visuals
             Item.shoot = ModContent.ProjectileType<RequiemSwingProjectile>();
             Item.shootSpeed = 1f; // Not used for speed — swing projectile ignores velocity
-            Item.channel = false;
+            Item.channel = true;
             Item.UseSound = null; // Swing projectile handles its own sounds
         }
+
+        public override bool CanShoot(Player player)
+        {
+            bool isDash = player.altFunctionUse == 2;
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile p = Main.projectile[i];
+                if (!p.active || p.owner != player.whoAmI || p.type != Item.shoot)
+                    continue;
+                if (isDash) return false;
+                if (!(p.ai[0] == 1 && p.ai[1] == 1)) return false;
+            }
+            return true;
+        }
+
+        public override bool AltFunctionUse(Player player) => true;
+        public override bool? CanHitNPC(Player player, NPC target) => false;
+        public override bool CanHitPvp(Player player, Player target) => false;
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
@@ -83,85 +106,88 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            var rp = player.Requiem();
+            float state = player.altFunctionUse == 2 ? 1f : 0f;
+            Projectile.NewProjectile(source, player.MountedCenter,
+                (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
+                type, damage, knockback, player.whoAmI, state, 0);
 
-            // Fire the held swing projectile (RequiemSwingProjectile)
-            Projectile.NewProjectile(source, player.Center, Vector2.Zero, type, damage, knockback, player.whoAmI);
+            // --- 4-Movement Requiem Combo ---
+            // Adagio (0): 2 cosmic notes with long seek delay (slow, drifting)
+            // Allegro (1): 4 cosmic notes with short seek delay (fast, aggressive)
+            // Scherzo (2): 3 notes in wide spread + 2 flanking notes
+            // Finale (3): 5 notes burst + autonomous RequiemSpectralBlade
+            Vector2 aimDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
+            int movement = movementCounter % 4;
+            movementCounter++;
+            int noteType = ModContent.ProjectileType<RequiemCosmicNote>();
+            int noteDmg = (int)(damage * 0.25f);
 
-            // Register swing with player tracker
-            bool comboTriggered = rp.OnSwing();
-
-            // Spawn spectral blade on combo trigger (4th swing → Finale)
-            if (comboTriggered && player.ownedProjectileCounts[ModContent.ProjectileType<RequiemSpectralBlade>()] < 1)
+            switch (movement)
             {
-                Projectile.NewProjectile(source, player.Center, Vector2.Zero,
-                    ModContent.ProjectileType<RequiemSpectralBlade>(),
-                    damage * 2, knockback, player.whoAmI);
+                case 0: // Adagio — 2 slow drifting notes
+                    for (int i = -1; i <= 1; i += 2)
+                    {
+                        Vector2 noteVel = aimDir.RotatedBy(MathHelper.ToRadians(15 * i)) * 5f;
+                        Projectile.NewProjectile(source, player.MountedCenter, noteVel,
+                            noteType, noteDmg, knockback * 0.3f, player.whoAmI,
+                            Main.rand.Next(4), 70f); // Long seek delay
+                    }
+                    break;
 
-                // Dramatic VFX burst at spawn
-                SpawnSpectralBladeSpawnVFX(player.Center);
-                SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f, Volume = 0.8f }, player.Center);
+                case 1: // Allegro — 4 fast seeking notes
+                    for (int i = 0; i < 4; i++)
+                    {
+                        float spread = MathHelper.ToRadians(-30 + 20 * i);
+                        Vector2 noteVel = aimDir.RotatedBy(spread) * 8f;
+                        Projectile.NewProjectile(source, player.MountedCenter, noteVel,
+                            noteType, noteDmg, knockback * 0.3f, player.whoAmI,
+                            Main.rand.Next(4), 25f); // Short seek delay
+                    }
+                    break;
+
+                case 2: // Scherzo — 3 wide + 2 flanking
+                    for (int i = -1; i <= 1; i++)
+                    {
+                        Vector2 noteVel = aimDir.RotatedBy(MathHelper.ToRadians(30 * i)) * 7f;
+                        Projectile.NewProjectile(source, player.MountedCenter, noteVel,
+                            noteType, noteDmg, knockback * 0.3f, player.whoAmI,
+                            Main.rand.Next(4), 40f);
+                    }
+                    // Flanking notes from the side
+                    for (int i = -1; i <= 1; i += 2)
+                    {
+                        Vector2 sideVel = aimDir.RotatedBy(MathHelper.PiOver2 * i) * 6f;
+                        Projectile.NewProjectile(source, player.MountedCenter, sideVel,
+                            noteType, noteDmg, knockback * 0.3f, player.whoAmI,
+                            Main.rand.Next(4), 50f);
+                    }
+                    break;
+
+                case 3: // Finale — 5 notes burst + autonomous spectral blade
+                    for (int i = 0; i < 5; i++)
+                    {
+                        float angle = MathHelper.TwoPi / 5f * i;
+                        Vector2 noteVel = aimDir.RotatedBy(angle) * 6f;
+                        Projectile.NewProjectile(source, player.MountedCenter, noteVel,
+                            noteType, (int)(damage * 0.3f), knockback * 0.4f, player.whoAmI,
+                            Main.rand.Next(4), 30f);
+                    }
+
+                    // Summon the autonomous RequiemSpectralBlade
+                    Projectile.NewProjectile(source, player.MountedCenter, aimDir * 2f,
+                        ModContent.ProjectileType<RequiemSpectralBlade>(),
+                        (int)(damage * 0.6f), knockback, player.whoAmI);
+                    break;
             }
 
-            // Always spawn cosmic music notes (3-5)
-            SpawnMusicNotes(source, player, damage, knockback);
-
-            return false; // We already spawned the projectile
-        }
-
-        private void SpawnMusicNotes(IEntitySource source, Player player, int damage, float knockback)
-        {
-            Vector2 toMouse = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX);
-            float baseAngle = toMouse.ToRotation();
-            int count = Main.rand.Next(3, 6);
-
-            for (int i = 0; i < count; i++)
-            {
-                float spread = MathHelper.Lerp(-0.4f, 0.4f, (i + 0.5f) / count);
-                Vector2 noteVel = (baseAngle + spread).ToRotationVector2() * Main.rand.NextFloat(6f, 10f);
-                Vector2 spawnPos = player.Center + toMouse * 35f;
-
-                Projectile.NewProjectile(source, spawnPos, noteVel,
-                    ModContent.ProjectileType<RequiemCosmicNote>(),
-                    (int)(damage * 0.4f), knockback * 0.3f, player.whoAmI,
-                    Main.rand.Next(4),          // ai[0] = note type
-                    Main.rand.Next(30, 60));     // ai[1] = seek delay
-            }
-
-            // Note spawn sound
-            SoundEngine.PlaySound(SoundID.Item26 with { Pitch = 0.5f, Volume = 0.5f }, player.Center);
-        }
-
-        private void SpawnSpectralBladeSpawnVFX(Vector2 position)
-        {
-            if (Main.dedServ) return;
-
-            // Big bloom flash
-            RequiemParticleHandler.SpawnParticle(new RequiemBloomFlare(
-                position, RequiemUtils.SupernovaWhite, 0.8f, 16));
-            RequiemParticleHandler.SpawnParticle(new RequiemBloomFlare(
-                position, RequiemUtils.BrightCrimson, 0.6f, 14));
-
-            // Radial spark ring
-            for (int i = 0; i < 12; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 12f;
-                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
-                RequiemParticleHandler.SpawnParticle(new RequiemSparkParticle(
-                    position, sparkVel, RequiemUtils.GetCosmicGradient((float)i / 12f), 0.3f, 14));
-            }
-
-            // Glyph accents
-            for (int i = 0; i < 4; i++)
-            {
-                Vector2 glyphPos = position + Main.rand.NextVector2Circular(25f, 25f);
-                RequiemParticleHandler.SpawnParticle(new RequiemGlyphParticle(
-                    glyphPos, RequiemUtils.DarkPink, 0.35f, 25));
-            }
+            return false;
         }
 
         public override void HoldItem(Player player)
         {
+            player.ExoBlade().rightClickListener = true;
+            player.ExoBlade().mouseWorldListener = true;
+
             // Ambient weapon glow while held
             if (Main.dedServ) return;
 

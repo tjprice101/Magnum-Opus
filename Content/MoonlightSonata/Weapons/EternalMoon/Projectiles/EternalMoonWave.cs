@@ -165,6 +165,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             if (Projectile.alpha > 200) return false;
 
             _bloomTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
@@ -211,6 +214,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 
             // Moonlight
             Lighting.AddLight(Projectile.Center, EternalMoonUtils.IceBlue.ToVector3() * 0.5f * Projectile.scale);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

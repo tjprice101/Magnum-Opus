@@ -58,18 +58,6 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
                 player.statDefense += 5;
                 player.GetDamage(DamageClass.Generic) += 0.05f;
             }
-            
-            // Moonlit veil VFX
-            if (!hideVisual && shieldPlayer.CurrentShield > 0 && Main.rand.NextBool(8))
-            {
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(36f, 46f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.PurpleTorch, 
-                    Main.rand.NextVector2Circular(0.4f, 0.7f));
-                dust.noGravity = true;
-                dust.scale = 0.5f;
-                dust.color = new Color(150, 120, 200);
-                dust.alpha = 80;
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -135,17 +123,6 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             
             // Base damage boost
             player.GetDamage(DamageClass.Generic) += 0.05f;
-            
-            // Heroic aura VFX
-            if (!hideVisual && shieldPlayer.CurrentShield > 0 && Main.rand.NextBool(7))
-            {
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(38f, 48f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.RedTorch, 
-                    Main.rand.NextVector2Circular(0.6f, 1f));
-                dust.noGravity = true;
-                dust.scale = 0.6f;
-                dust.color = new Color(200, 80, 80);
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -212,17 +189,6 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             
             // Fire damage boost
             player.GetDamage(DamageClass.Generic) += 0.08f;
-            
-            // Infernal fortress VFX
-            if (!hideVisual && shieldPlayer.CurrentShield > 0 && Main.rand.NextBool(6))
-            {
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(40f, 50f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.Torch, 
-                    new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -Main.rand.NextFloat(1f, 2f)));
-                dust.noGravity = true;
-                dust.scale = 0.8f;
-                dust.color = new Color(255, 100, 30);
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -291,17 +257,6 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             
             // Black Belt dodge synergy
             player.blackBelt = true;
-            
-            // Void shell VFX
-            if (!hideVisual && shieldPlayer.CurrentShield > 0 && Main.rand.NextBool(8))
-            {
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(42f, 52f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.PurpleTorch, 
-                    Main.rand.NextVector2Circular(0.3f, 0.5f));
-                dust.noGravity = true;
-                dust.scale = 0.5f;
-                dust.color = new Color(140, 60, 200);
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -373,30 +328,6 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             
             // Reduced enemy aggro (graceful presence)
             player.aggro -= 300;
-            
-            // Swan feather VFX
-            if (!hideVisual && shieldPlayer.CurrentShield > 0 && Main.rand.NextBool(7))
-            {
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(44f, 54f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.Cloud, 
-                    new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-0.3f, 0.5f)));
-                dust.noGravity = true;
-                dust.scale = 0.7f;
-                dust.color = new Color(240, 245, 255);
-            }
-            
-            // Prismatic shimmer at full shield
-            if (!hideVisual && shieldPlayer.CurrentShield >= shieldPlayer.MaxShield && Main.rand.NextBool(10))
-            {
-                float hue = (Main.GameUpdateCount * 0.02f) % 1f;
-                Color rainbowColor = Main.hslToRgb(hue, 0.8f, 0.7f);
-                
-                Vector2 shimmerPos = player.Center + Main.rand.NextVector2Circular(35f, 45f);
-                Dust shimmer = Dust.NewDustPerfect(shimmerPos, DustID.RainbowTorch, Vector2.Zero);
-                shimmer.noGravity = true;
-                shimmer.scale = 0.4f;
-                shimmer.color = rainbowColor;
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -470,41 +401,6 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             
             // Damage boost
             player.GetDamage(DamageClass.Generic) += 0.10f;
-            
-            // Cosmic VFX
-            if (!hideVisual && shieldPlayer.CurrentShield > 0)
-            {
-                // Dark cosmic trail
-                if (Main.rand.NextBool(6))
-                {
-                    Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(46f, 56f);
-                    Dust dust = Dust.NewDustPerfect(dustPos, DustID.PurpleTorch, 
-                        Main.rand.NextVector2Circular(0.4f, 0.7f));
-                    dust.noGravity = true;
-                    dust.scale = 0.5f;
-                    dust.color = new Color(180, 40, 80);
-                }
-                
-                // Star sparkles at full shield
-                if (shieldPlayer.CurrentShield >= shieldPlayer.MaxShield && Main.rand.NextBool(10))
-                {
-                    Vector2 starPos = player.Center + Main.rand.NextVector2Circular(50f, 60f);
-                    Dust star = Dust.NewDustPerfect(starPos, DustID.MagicMirror, Vector2.Zero);
-                    star.noGravity = true;
-                    star.scale = 0.4f;
-                    star.color = Color.White;
-                }
-                
-                // Glyph accents
-                if (Main.rand.NextBool(20))
-                {
-                    Vector2 glyphPos = player.Center + Main.rand.NextVector2Circular(55f, 65f);
-                    Dust glyph = Dust.NewDustPerfect(glyphPos, DustID.Enchanted_Pink, 
-                        Main.rand.NextVector2Circular(0.2f, 0.2f));
-                    glyph.noGravity = true;
-                    glyph.scale = 0.4f;
-                }
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)

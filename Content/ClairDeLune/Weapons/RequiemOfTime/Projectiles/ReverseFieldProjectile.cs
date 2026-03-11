@@ -11,7 +11,7 @@ using Terraria.ModLoader;
 namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles
 {
     /// <summary>
-    /// Reverse Field — time-deceleration zone rendered via RadialNoiseMaskShader + TimeFreezeCrack overlay.
+    /// Reverse Field  Etime-deceleration zone rendered via RadialNoiseMaskShader + TimeFreezeCrack overlay.
     /// 4 render passes: (1) RadialNoiseMask base (darker), (2) TimeFreezeCrack fracture overlay,
     /// (3) Counter-clockwise arrow indicators, (4) Center crimson bloom core.
     /// 40% slow applied to enemies inside the field.
@@ -110,7 +110,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles
 
         private void LoadTextures()
         {
-            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/VoronoiCrackNoise", AssetRequestMode.ImmediateLoad);
+            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/VornoiEdgeNoise", AssetRequestMode.ImmediateLoad);
             _gradientLUT ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/ColorGradients/ClairDeLuneGradientLUTandRAMP", AssetRequestMode.ImmediateLoad);
             _softCircle ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad);
             _softRadialBloom ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
@@ -124,6 +124,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
 
             float life = 1f - (Projectile.timeLeft / (float)Duration);
@@ -135,10 +137,19 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles
             DrawTimeFreezeCrack(sb, matrix, alpha);     // Pass 2: TimeFreezeCrack fracture overlay
             DrawOrbitingArrows(sb, matrix, alpha);       // Pass 3: Counter-clockwise arrows
             DrawCenterBloom(sb, matrix, alpha);          // Pass 4: Crimson-tinged center bloom
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
-        // ---- PASS 1: RadialNoiseMaskShader — dark, ominous deceleration field ----
+        // ---- PASS 1: RadialNoiseMaskShader  Edark, ominous deceleration field ----
         private void DrawRadialNoiseField(SpriteBatch sb, Matrix matrix, float alpha)
         {
             _radialNoiseShader ??= ModContent.Request<Effect>(

@@ -130,6 +130,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Projectiles
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
 
             float lifeFrac = 1f - (float)_timer / Duration;
@@ -141,6 +143,15 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Projectiles
             DrawGearSwingZone(sb, matrix, drawPos, fadeAlpha);             // Pass 1
             DrawMoonlitAmbient(sb, matrix, drawPos, fadeAlpha, corePulse); // Pass 2
             DrawBloomComposite(sb, matrix, drawPos, fadeAlpha, corePulse); // Pass 3
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

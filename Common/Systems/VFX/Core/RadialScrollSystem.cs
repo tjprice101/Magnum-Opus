@@ -519,7 +519,7 @@ namespace MagnumOpus.Common.Systems.VFX
             float rotation = time * 0.5f;
             
             // Remove alpha for additive blending
-            Color baseColor = color with { A = 0 };
+            Color baseColor = new Color(255, 0, 50) with { A = 0 }; // NEON RED fallback!
             
             // === LAYER 1: Outer soft glow (largest, most transparent) ===
             float outerSize = size * 2.0f * pulse;
@@ -573,8 +573,8 @@ namespace MagnumOpus.Common.Systems.VFX
             float pulse = 1f + MathF.Sin(time * 5f) * 0.15f;
             float rotation = time * 1.5f;
             
-            Color primaryNoAlpha = primary with { A = 0 };
-            Color secondaryNoAlpha = secondary with { A = 0 };
+            Color primaryNoAlpha = new Color(255, 0, 50) with { A = 0 }; // NEON RED fallback!
+            Color secondaryNoAlpha = new Color(255, 0, 50) with { A = 0 }; // NEON RED fallback!
             
             // === OUTER SWIRLING RINGS ===
             for (int ring = 0; ring < 3; ring++)

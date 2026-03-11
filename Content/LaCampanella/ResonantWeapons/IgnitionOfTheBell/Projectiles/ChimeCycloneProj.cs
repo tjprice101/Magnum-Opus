@@ -480,30 +480,31 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             }
             else
             {
-                // === FALLBACK: Render vortex texture WITHOUT shader — still additive ===
+                // === FALLBACK: NEON RED vortex (shader failed!) ===
                 sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
+                Color _neonRed = new Color(255, 0, 50);
                 if (vortexTex != null)
                 {
                     Vector2 vortexOrigin = new Vector2(vortexTex.Width / 2f, vortexTex.Height / 2f);
                     float vortexScale = (1.0f - progress * 0.4f) * intensity;
                     float vortexAlpha = 0.5f * pulse * intensity;
                     sb.Draw(vortexTex, screenPos, null,
-                        IgnitionOfTheBellUtils.Additive(new Color(255, 120, 20), vortexAlpha),
+                        IgnitionOfTheBellUtils.Additive(_neonRed, vortexAlpha),
                         _spinAngle * 0.6f, vortexOrigin, vortexScale, SpriteEffects.None, 0f);
 
                     float innerVortexScale = (0.7f - progress * 0.25f) * intensity;
                     float innerAlpha = 0.4f * pulse * intensity;
                     sb.Draw(vortexTex, screenPos, null,
-                        IgnitionOfTheBellUtils.Additive(new Color(255, 80, 0), innerAlpha),
+                        IgnitionOfTheBellUtils.Additive(_neonRed, innerAlpha),
                         -_spinAngle * 0.9f, vortexOrigin, innerVortexScale, SpriteEffects.FlipHorizontally, 0f);
 
-                    // Third layer: slow-rotating fiery outer ring
+                    // Third layer: slow-rotating outer ring
                     float outerVortexScale = (1.3f - progress * 0.5f) * intensity;
                     float outerVortexAlpha = 0.25f * pulse * intensity;
                     sb.Draw(vortexTex, screenPos, null,
-                        IgnitionOfTheBellUtils.Additive(new Color(200, 50, 0), outerVortexAlpha),
+                        IgnitionOfTheBellUtils.Additive(_neonRed, outerVortexAlpha),
                         _spinAngle * 0.3f, vortexOrigin, outerVortexScale, SpriteEffects.FlipVertically, 0f);
                 }
 
@@ -511,12 +512,12 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
                 {
                     float outerScale = MathHelper.Min((0.5f - progress * 0.25f) * intensity, 0.293f);
                     sb.Draw(bloomTex, screenPos, null,
-                        IgnitionOfTheBellUtils.Additive(new Color(140, 20, 0), 0.3f * pulse * intensity),
+                        IgnitionOfTheBellUtils.Additive(_neonRed, 0.3f * pulse * intensity),
                         _spinAngle, origin, outerScale, SpriteEffects.None, 0f);
 
                     float midScale = MathHelper.Min((0.25f - progress * 0.08f) * intensity, 0.293f);
                     sb.Draw(bloomTex, screenPos, null,
-                        IgnitionOfTheBellUtils.Additive(new Color(255, 100, 10), 0.4f * pulse * intensity),
+                        IgnitionOfTheBellUtils.Additive(_neonRed, 0.4f * pulse * intensity),
                         -_spinAngle * 0.7f, origin, midScale, SpriteEffects.None, 0f);
                 }
 
@@ -526,23 +527,23 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.IgnitionOfTheBell.Proj
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Outer contracting vortex glow (non-shader layer for depth)
-            float outerGlowScale = (0.4f - progress * 0.18f) * intensity;
+            // Outer contracting vortex glow (non-shader layer for depth) — reduced to not obscure vortex
+            float outerGlowScale = (0.25f - progress * 0.12f) * intensity;
             sb.Draw(bloomTex, screenPos, null,
-                IgnitionOfTheBellUtils.Additive(new Color(140, 20, 0), 0.15f * pulse * intensity),
+                IgnitionOfTheBellUtils.Additive(new Color(140, 20, 0), 0.08f * pulse * intensity),
                 _spinAngle * 0.5f, origin, outerGlowScale, SpriteEffects.None, 0f);
 
-            // Intensifying hot core
-            float coreIntensity = 0.3f + progress * 0.5f;
+            // Intensifying hot core — reduced so vortex texture is visible
+            float coreIntensity = 0.15f + progress * 0.25f;
             sb.Draw(bloomTex, screenPos, null,
                 IgnitionOfTheBellUtils.Additive(new Color(255, 210, 80), coreIntensity),
-                0f, origin, MathHelper.Min(0.25f + progress * 0.15f, 0.293f), SpriteEffects.None, 0f);
+                0f, origin, MathHelper.Min(0.15f + progress * 0.1f, 0.2f), SpriteEffects.None, 0f);
 
-            // Secondary pulsing core for heartbeat effect
+            // Secondary pulsing core for heartbeat effect — reduced
             float heartbeat = (float)Math.Sin(_timer * 0.3f) * 0.15f + 0.85f;
             sb.Draw(bloomTex, screenPos, null,
-                IgnitionOfTheBellUtils.Additive(new Color(255, 255, 240), coreIntensity * 0.4f * heartbeat),
-                0f, origin, (0.15f + progress * 0.1f) * heartbeat, SpriteEffects.None, 0f);
+                IgnitionOfTheBellUtils.Additive(new Color(255, 255, 240), coreIntensity * 0.2f * heartbeat),
+                0f, origin, (0.08f + progress * 0.06f) * heartbeat, SpriteEffects.None, 0f);
 
             // --- LC Impact Ellipse — expanding infernal shockwave ring in vortex ---
             {

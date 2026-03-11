@@ -277,6 +277,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
             _flareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Flare/flare_16");
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             float opacity = 1f - Projectile.alpha / 255f;
 
             try
@@ -300,6 +302,15 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
                         DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
                 }
                 catch { }
+            }
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
             return false;

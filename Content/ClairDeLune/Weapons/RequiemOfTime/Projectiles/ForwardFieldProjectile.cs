@@ -140,6 +140,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
 
             float life = 1f - (Projectile.timeLeft / (float)Duration);
@@ -151,6 +153,15 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles
             DrawResonanceHarmonicRings(sb, matrix, alpha); // Pass 2: ResonanceField overlay
             DrawOrbitingArrows(sb, matrix, alpha);          // Pass 3: Clockwise arrow indicators
             DrawCenterBloom(sb, matrix, alpha);             // Pass 4: Center bloom core
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

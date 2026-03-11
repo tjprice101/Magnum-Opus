@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Terraria;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.DataStructures;
@@ -56,7 +57,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure
             Item.useStyle = ItemUseStyleID.Shoot;
             Item.knockBack = 3.5f;
             Item.value = Item.sellPrice(gold: 20);
-            Item.rare = ModContent.RarityType<EnigmaRarity>();
+            Item.rare = ModContent.RarityType<EnigmaVariationsRarity>();
             Item.UseSound = SoundID.Item5;
             Item.autoReuse = true;
             Item.shoot = ModContent.ProjectileType<QuestionSeekerBolt>();
@@ -405,101 +406,31 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure
         
         private int eyeTextureIndex = 0;
         private List<Vector2> _trailPositions = new List<Vector2>(30);
+        private VertexStrip _strip;
         
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/CursiveMusicNote";
-        
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+        }
+
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            float time = (float)Main.GameUpdateCount;
-
-            // === Stage 1: GPU Primitive Trail — homing seeker ribbon ===
-            if (_trailPositions.Count >= 2)
-            {
-                try
-                {
-                    sb.End();
-                    // Pass 1: Body trail — EnigmaEmerald to BrightQuestion (green seeker identity)
-                    var bodySettings = new SilentPrimitiveSettings(
-                        completion => MathHelper.Lerp(10f, 1.5f, completion),
-                        completion => Color.Lerp(SilentUtils.EnigmaEmerald, SilentUtils.BrightQuestion, completion) * (1f - completion * 0.75f),
-                        ShaderLoader.SilentSeekerTrail,
-                        smoothing: true, maxPoints: 80);
-                    SilentPrimitiveRenderer.RenderTrail(_trailPositions, bodySettings);
-
-                    // Pass 2: Outer glow — QuestionViolet shimmer
-                    var glowSettings = new SilentPrimitiveSettings(
-                        completion => MathHelper.Lerp(16f, 3f, completion),
-                        completion => SilentUtils.QuestionViolet * (0.25f * (1f - completion)),
-                        ShaderLoader.SilentSeekerTrail,
-                        smoothing: true, maxPoints: 80);
-                    SilentPrimitiveRenderer.RenderTrail(_trailPositions, glowSettings);
-
-                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-                }
-                catch
-                {
-                    try { sb.End(); } catch { }
-                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-                }
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.Enigma, ref _strip);
             }
-
-            // === Stage 2: Shader overlay — question-mark echo ===
-            {
-                Texture2D shBloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
-                EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.SilentQuestionBurst,
-                    shBloom, drawPos, shBloom.Size() / 2f, 0.035f,
-                    SilentUtils.EnigmaEmerald.ToVector3(), SilentUtils.BrightQuestion.ToVector3(),
-                    opacity: 0.35f, intensity: 1.0f, rotation: Projectile.velocity.ToRotation(),
-                    noiseTexture: ShaderLoader.GetNoiseTexture("SimplexNoise"),
-                    techniqueName: "SilentQuestionBlast");
-            }
-
-            // === Stage 3: 6-layer bloom stack (Additive) ===
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-
-            Texture2D bloom = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
-            Vector2 bOrigin = bloom.Size() / 2f;
-            float pulse = 0.85f + MathF.Sin(time * 0.09f) * 0.15f;
-
-            sb.Draw(bloom, drawPos, null, SilentUtils.HushedDepth * 0.22f * pulse, 0f, bOrigin, new Vector2(0.03f * 0.7f, 0.03f), SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, SilentUtils.QuestionViolet * 0.30f * pulse, 0f, bOrigin, new Vector2(0.02f * 0.7f, 0.02f), SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, SilentUtils.EnigmaEmerald * 0.45f * pulse, 0f, bOrigin, new Vector2(0.013f * 0.7f, 0.013f), SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, SilentUtils.BrightQuestion * 0.35f * pulse, 0f, bOrigin, new Vector2(0.007f * 0.7f, 0.007f), SpriteEffects.None, 0f);
-            sb.Draw(bloom, drawPos, null, SilentUtils.AnswerWhite * 0.45f * pulse, 0f, bOrigin, new Vector2(0.0035f * 0.7f, 0.0035f), SpriteEffects.None, 0f);
-
-            // === Stage 4: EN Star Flare (small, seeker-scale) ===
-            {
-                Texture2D sfTex = EnigmaThemeTextures.ENStarFlare.Value;
-                Vector2 sfOrigin = sfTex.Size() / 2f;
-                float sfRot = time * 0.04f;
-                sb.Draw(sfTex, drawPos, null, SilentUtils.EnigmaEmerald * 0.25f, sfRot, sfOrigin, 0.09f, SpriteEffects.None, 0f);
-            }
-
-            // === Stage 5: Faint glyph overlay — cursive note spinning ===
-            {
-                Texture2D glyph = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/CursiveMusicNote", AssetRequestMode.ImmediateLoad).Value;
-                float glyphAlpha = 0.12f + MathF.Sin(Projectile.timeLeft * 0.1f) * 0.04f;
-                sb.Draw(glyph, drawPos, null, SilentUtils.QuestionViolet * glyphAlpha, Projectile.rotation + MathHelper.PiOver4,
-                    glyph.Size() / 2f, 0.25f, SpriteEffects.None, 0f);
-            }
-
-            // === Pulsing light accent ===
-            EnigmaVFXLibrary.AddPulsingLight(Projectile.Center, SilentUtils.EnigmaEmerald, 0.4f, 0.25f);
-            }
+            catch { }
             finally
             {
                 try { sb.End(); } catch { }
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
+
             return false;
         }
         

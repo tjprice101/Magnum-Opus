@@ -317,16 +317,12 @@ namespace MagnumOpus.Content.DiesIrae
         };
 
         /// <summary>
-        /// Lerp through the 6-colour master palette.
-        /// t=0 -> CharcoalBlack (Pianissimo), t=1 -> WrathWhite (Sforzando).
+        /// Sample the Dies Irae gradient LUT texture via VFXLibrary.
+        /// t=0 -> left edge (dark), t=1 -> right edge (bright).
         /// </summary>
         public static Color GetPaletteColor(float t)
         {
-            t = MathHelper.Clamp(t, 0f, 1f);
-            float scaled = t * (MasterPalette.Length - 1);
-            int idx = (int)scaled;
-            int next = Math.Min(idx + 1, MasterPalette.Length - 1);
-            return Color.Lerp(MasterPalette[idx], MasterPalette[next], scaled - idx);
+            return DiesIraeVFXLibrary.SampleLUT(t);
         }
 
         /// <summary>

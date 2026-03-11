@@ -1,12 +1,14 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using Terraria;
+using Terraria.ModLoader;
 
 namespace MagnumOpus.Content.OdeToJoy
 {
     /// <summary>
     /// Shared Ode to Joy color palette used by bosses, accessories, and tools.
-    /// Weapons have their own per-weapon palettes in their self-contained folders.
+    /// All gradient methods sample from OdeToJoyGradientLUTandRAMP.png for consistent color ramping.
     /// </summary>
     public static class OdeToJoyPalette
     {
@@ -30,43 +32,78 @@ namespace MagnumOpus.Content.OdeToJoy
         // Whites
         public static readonly Color WhiteBloom = new Color(255, 250, 235);
 
-        /// <summary>General palette gradient (green -> pink -> gold -> white)</summary>
-        public static Color GetGradient(float t)
+        // ═══════════════════════════════════════════════════════
+        //  LUT TEXTURE SAMPLING
+        // ═══════════════════════════════════════════════════════
+
+        private const string LUTPath = "MagnumOpus/Assets/VFX Asset Library/ColorGradients/OdeToJoyGradientLUTandRAMP";
+        private static Color[] _lutColors;
+        private static int _lutWidth;
+        private static bool _lutLoadAttempted;
+
+        /// <summary>
+        /// Loads and caches the pixel row from the OdeToJoy gradient LUT texture.
+        /// Samples the middle row (y = height/2) for the color ramp.
+        /// </summary>
+        private static void EnsureLUTLoaded()
         {
-            t = MathHelper.Clamp(t, 0f, 1f);
-            if (t < 0.33f)
-                return Color.Lerp(LeafGreen, RosePink, t / 0.33f);
-            if (t < 0.66f)
-                return Color.Lerp(RosePink, GoldenPollen, (t - 0.33f) / 0.33f);
-            return Color.Lerp(GoldenPollen, WhiteBloom, (t - 0.66f) / 0.34f);
+            if (_lutLoadAttempted)
+                return;
+            _lutLoadAttempted = true;
+
+            if (!ModContent.HasAsset(LUTPath))
+                return;
+
+            var asset = ModContent.Request<Texture2D>(LUTPath, AssetRequestMode.ImmediateLoad);
+            if (asset?.Value == null)
+                return;
+
+            Texture2D tex = asset.Value;
+            _lutWidth = tex.Width;
+            int height = tex.Height;
+
+            Color[] allPixels = new Color[_lutWidth * height];
+            tex.GetData(allPixels);
+
+            // Sample the middle row of the texture as the 1D color ramp
+            int midRow = height / 2;
+            _lutColors = new Color[_lutWidth];
+            for (int x = 0; x < _lutWidth; x++)
+                _lutColors[x] = allPixels[midRow * _lutWidth + x];
         }
 
-        /// <summary>Garden gradient (deep green -> verdant green -> golden pollen)</summary>
-        public static Color GetGardenGradient(float t)
+        /// <summary>
+        /// Samples the LUT texture at position t (0-1). Falls back to LeafGreen->WhiteBloom lerp if texture unavailable.
+        /// </summary>
+        public static Color SampleLUT(float t)
         {
             t = MathHelper.Clamp(t, 0f, 1f);
-            if (t < 0.5f)
-                return Color.Lerp(DeepForest, VerdantGreen, t / 0.5f);
-            return Color.Lerp(VerdantGreen, GoldenPollen, (t - 0.5f) / 0.5f);
+            EnsureLUTLoaded();
+
+            if (_lutColors == null || _lutWidth == 0)
+                return Color.Lerp(LeafGreen, WhiteBloom, t);
+
+            float scaledT = t * (_lutWidth - 1);
+            int index = (int)scaledT;
+            float frac = scaledT - index;
+
+            if (index >= _lutWidth - 1)
+                return _lutColors[_lutWidth - 1];
+
+            return Color.Lerp(_lutColors[index], _lutColors[index + 1], frac);
         }
 
-        /// <summary>Blossom gradient (rose pink -> petal pink -> white bloom)</summary>
-        public static Color GetBlossomGradient(float t)
-        {
-            t = MathHelper.Clamp(t, 0f, 1f);
-            if (t < 0.5f)
-                return Color.Lerp(RosePink, PetalPink, t / 0.5f);
-            return Color.Lerp(PetalPink, WhiteBloom, (t - 0.5f) / 0.5f);
-        }
+        /// <summary>General palette gradient — samples full LUT range</summary>
+        public static Color GetGradient(float t) => SampleLUT(t);
 
-        /// <summary>Petal gradient (deep pink -> golden pollen -> sunlight)</summary>
-        public static Color GetPetalGradient(float t)
-        {
-            t = MathHelper.Clamp(t, 0f, 1f);
-            if (t < 0.5f)
-                return Color.Lerp(RosePink, GoldenPollen, t / 0.5f);
-            return Color.Lerp(GoldenPollen, SunlightYellow, (t - 0.5f) / 0.5f);
-        }
+        /// <summary>Garden gradient — samples full LUT range (used for green-to-gold effects)</summary>
+        public static Color GetGardenGradient(float t) => SampleLUT(t);
+
+        /// <summary>Blossom gradient — samples full LUT range (used for pink-to-white effects)</summary>
+        public static Color GetBlossomGradient(float t) => SampleLUT(t);
+
+        /// <summary>Petal gradient — samples full LUT range (used for pink-to-gold effects)</summary>
+        public static Color GetPetalGradient(float t) => SampleLUT(t);
 
         /// <summary>Draw additive bloom behind an item texture</summary>
         public static void DrawItemBloom(SpriteBatch spriteBatch, Texture2D texture, Vector2 position, Vector2 origin, float rotation, float scale, float pulse)

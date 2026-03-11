@@ -139,12 +139,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                     Projectile.Center, 2f * tidalMult, phaseColor * 0.5f, 45));
             }
 
-            // Large bloom cascade — scaled by tidal phase
-            LunarParticleHandler.SpawnParticle(new LunarBloomParticle(Projectile.Center, 2f * tidalMult, EternalMoonUtils.MoonWhite, 25, 0.1f));
-            LunarParticleHandler.SpawnParticle(new LunarBloomParticle(Projectile.Center, 2.5f * tidalMult, EternalMoonUtils.CrescentGlow, 30, 0.08f));
-            LunarParticleHandler.SpawnParticle(new LunarBloomParticle(Projectile.Center, 3f * tidalMult, EternalMoonUtils.IceBlue, 35, 0.06f));
-            LunarParticleHandler.SpawnParticle(new LunarBloomParticle(Projectile.Center, 3.5f * tidalMult, EternalMoonUtils.Violet, 40, 0.05f));
-            LunarParticleHandler.SpawnParticle(new LunarBloomParticle(Projectile.Center, 4f * tidalMult, EternalMoonUtils.DarkPurple, 50, 0.04f));
+            // Bloom cascade — scaled by tidal phase (reduced intensity)
+            LunarParticleHandler.SpawnParticle(new LunarBloomParticle(Projectile.Center, 1.2f * tidalMult, EternalMoonUtils.MoonWhite, 20, 0.08f));
+            LunarParticleHandler.SpawnParticle(new LunarBloomParticle(Projectile.Center, 1.5f * tidalMult, EternalMoonUtils.CrescentGlow, 25, 0.06f));
+            LunarParticleHandler.SpawnParticle(new LunarBloomParticle(Projectile.Center, 1.8f * tidalMult, EternalMoonUtils.IceBlue, 30, 0.05f));
+            LunarParticleHandler.SpawnParticle(new LunarBloomParticle(Projectile.Center, 2.2f * tidalMult, EternalMoonUtils.Violet, 35, 0.04f));
+            LunarParticleHandler.SpawnParticle(new LunarBloomParticle(Projectile.Center, 2.5f * tidalMult, EternalMoonUtils.DarkPurple, 45, 0.035f));
 
             // Radial crescent spark explosion (count scales with tidal phase)
             int sparkCount = 20 + emPlayer.TidalPhase * 5;
@@ -240,6 +240,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             float progress = 1f - (Projectile.timeLeft / (float)DetonationLifetime);
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
             // Switch to additive for all detonation rendering
@@ -280,6 +282,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

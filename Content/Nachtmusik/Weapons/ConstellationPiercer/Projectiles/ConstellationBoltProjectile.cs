@@ -7,6 +7,8 @@ using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
+using Terraria.Graphics;
+using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.Shaders;
@@ -35,10 +37,11 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer.Projectiles
         private int chainCount = 0;
         private const int MaxChains = 4;
         private readonly List<int> hitEnemies = new List<int>();
+        private VertexStrip _vertexStrip;
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 15;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -111,8 +114,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer.Projectiles
                 {
                     float angle = orbitAngle + MathHelper.TwoPi * i / 4f;
                     Vector2 motePos = Projectile.Center + angle.ToRotationVector2() * 14f;
-                    float hue = HueMin + (i / 4f) * (HueMax - HueMin);
-                    Color moteColor = Main.hslToRgb(hue, 0.88f, 0.78f);
+                    Color moteColor = Color.Lerp(NachtmusikPalette.ConstellationPiercerShot[1], NachtmusikPalette.ConstellationPiercerShot[4], i / 3f);
                     CustomParticles.GenericFlare(motePos, moteColor, 0.2f, 10);
                 }
             }
@@ -120,11 +122,14 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer.Projectiles
             // === FLARE OSCILLATION ===
             if (Main.rand.NextBool(2))
             {
-                float hue = HueMin + Main.rand.NextFloat() * (HueMax - HueMin);
-                Color flareColor = Main.hslToRgb(hue, 0.9f, 0.75f);
+                Color flareColor = Color.Lerp(NachtmusikPalette.ConstellationPiercerShot[1], NachtmusikPalette.ConstellationPiercerShot[3], Main.rand.NextFloat());
                 CustomParticles.GenericFlare(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f),
                     flareColor, 0.3f, 14);
             }
+
+            // Palette-ramped trail sparkles
+            if (Main.rand.NextBool(3))
+                NachtmusikVFXLibrary.SpawnGradientSparkles(Projectile.Center, Projectile.velocity, 1, 0.25f, 16, 6f);
 
             Lighting.AddLight(Projectile.Center, NachtmusikPalette.ConstellationBlue.ToVector3() * 0.6f);
         }
@@ -144,15 +149,8 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer.Projectiles
             // === STAR CHAIN BURST — music notes scatter ===
             NachtmusikVFXLibrary.SpawnMusicNotes(target.Center, 3, 14f, 0.5f, 0.8f, 24);
 
-            // === SPARKLE SCATTER ===
-            for (int s = 0; s < 5; s++)
-            {
-                float angle = MathHelper.TwoPi * s / 5f;
-                Vector2 sparkVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 5f);
-                var sparkle = new SparkleParticle(target.Center, sparkVel,
-                    NachtmusikPalette.StarWhite, 0.3f, 18);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
+            // === SPARKLE SCATTER (palette-ramped) ===
+            NachtmusikVFXLibrary.SpawnGradientSparkleExplosion(target.Center, 8, 5f, 0.3f);
 
             // Star Point creation VFX
             ConstellationPiercerVFX.StarPointCreationVFX(target.Center);
@@ -177,8 +175,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer.Projectiles
                     for (int i = 0; i < 8; i++)
                     {
                         Vector2 linePos = Vector2.Lerp(target.Center, target.Center + toNext * 60f, i / 8f);
-                        float hue = HueMin + (i / 8f) * (HueMax - HueMin);
-                        Color lineColor = Main.hslToRgb(hue, 0.88f, 0.75f);
+                        Color lineColor = Color.Lerp(NachtmusikPalette.ConstellationPiercerShot[1], NachtmusikPalette.ConstellationPiercerShot[4], i / 7f);
                         var line = new GenericGlowParticle(linePos, Vector2.Zero,
                             lineColor * 0.8f, 0.22f, 12, true);
                         MagnumParticleHandler.SpawnParticle(line);
@@ -206,86 +203,74 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
-            Vector2 origin = tex.Size() * 0.5f;
-
-            float time = (float)Main.timeForVisualEffects * 0.03f;
-
-            // ═══════════════════════════════════════════════════════════════
-            //  SHADER LAYER 1: StarChainBeam GPU trail
-            //  Constellation-blue piercing bolt trail with cosmic style
-            // ═══════════════════════════════════════════════════════════════
+            SpriteBatch sb = Main.spriteBatch;
+            try
             {
-                int validCount = 0;
-                for (int i = 0; i < Projectile.oldPos.Length; i++)
+                // Layer 1: Shader-driven beam trail + enhanced bloom head via IncisorOrbRenderer
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Nachtmusik, ref _vertexStrip);
+
+                // Layer 2: StarChainBeam shader-driven constellation crosshair
+                float time = (float)Main.timeForVisualEffects * 0.03f;
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                float life = MathHelper.Clamp((float)Projectile.timeLeft / 200f, 0f, 1f);
+                float chainFade = 1f - chainCount * 0.15f;
+                float pulse = 0.85f + 0.15f * MathF.Sin(Main.GameUpdateCount * 0.12f);
+
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null && NachtmusikShaderManager.HasStarChainBeam)
                 {
-                    if (Projectile.oldPos[i] != Vector2.Zero) validCount++;
-                    else break;
+                    NachtmusikShaderManager.BeginShaderAdditive(sb);
+                    NachtmusikShaderManager.ApplyStarChainBeam(time);
+
+                    float crossRot = Projectile.velocity.ToRotation();
+                    Color crossColor = NachtmusikPalette.ConstellationPiercerShot[3] with { A = 0 } * 0.35f * life * chainFade * pulse;
+                    sb.Draw(glow, drawPos, null, crossColor,
+                        crossRot, glow.Size() * 0.5f, new Vector2(0.18f, 0.04f), SpriteEffects.None, 0f);
+                    sb.Draw(glow, drawPos, null, crossColor,
+                        crossRot + MathHelper.PiOver2, glow.Size() * 0.5f, new Vector2(0.18f, 0.04f), SpriteEffects.None, 0f);
+
+                    // Inner core glow pass
+                    NachtmusikShaderManager.ApplyStarChainBeamGlow(time);
+                    Color coreColor = NachtmusikPalette.ConstellationPiercerShot[5] with { A = 0 } * 0.2f * life * chainFade;
+                    sb.Draw(glow, drawPos, null, coreColor,
+                        0f, glow.Size() * 0.5f, 0.05f * pulse, SpriteEffects.None, 0f);
+
+                    // NK Lens Flare accent at head
+                    Texture2D flareTex = NachtmusikThemeTextures.NKLensFlare?.Value;
+                    if (flareTex != null)
+                    {
+                        Vector2 flareOrigin = flareTex.Size() / 2f;
+                        Color flareColor = NachtmusikPalette.ConstellationPiercerShot[2] with { A = 0 } * 0.25f * life * chainFade * pulse;
+                        sb.Draw(flareTex, drawPos, null, flareColor,
+                            time * 0.6f, flareOrigin, 0.06f * pulse, SpriteEffects.None, 0f);
+                    }
+
+                    NachtmusikShaderManager.RestoreSpriteBatch(sb);
                 }
-
-                if (validCount > 2)
+                else if (glow != null)
                 {
-                    var trailPositions = new Vector2[validCount];
-                    for (int i = 0; i < validCount; i++)
-                        trailPositions[i] = Projectile.oldPos[i] + Projectile.Size * 0.5f;
+                    // Fallback without shader
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                        SamplerState.LinearClamp, DepthStencilState.None,
+                        RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-                    CalamityStyleTrailRenderer.DrawDualLayerTrail(
-                        trailPositions, null, CalamityStyleTrailRenderer.TrailStyle.Cosmic,
-                        9f, NachtmusikPalette.ConstellationBlue * 0.45f, NachtmusikPalette.StarWhite * 0.35f,
-                        0.5f, bodyOverbright: 2.5f, coreOverbright: 4.5f, coreWidthRatio: 0.3f);
+                    float crossRot = Projectile.velocity.ToRotation();
+                    sb.Draw(glow, drawPos, null,
+                        (NachtmusikPalette.StarGold with { A = 0 }) * 0.3f * life * chainFade * pulse,
+                        crossRot, glow.Size() * 0.5f, new Vector2(0.15f, 0.04f), SpriteEffects.None, 0f);
+                    sb.Draw(glow, drawPos, null,
+                        (NachtmusikPalette.StarGold with { A = 0 }) * 0.3f * life * chainFade * pulse,
+                        crossRot + MathHelper.PiOver2, glow.Size() * 0.5f, new Vector2(0.15f, 0.04f), SpriteEffects.None, 0f);
                 }
             }
-
-            // ═══════════════════════════════════════════════════════════════
-            //  BLOOM LAYER: Multi-scale additive star core + bloom halo
-            // ═══════════════════════════════════════════════════════════════
+            catch { }
+            finally
             {
-                Vector2 pos = Projectile.Center - Main.screenPosition;
-                float pulse = 1f + MathF.Sin(time * 3f) * 0.1f;
-
-                NachtmusikShaderManager.BeginAdditive(Main.spriteBatch);
-
-                // Cosmic Blue outer
-                Main.spriteBatch.Draw(tex, pos, null,
-                    NachtmusikPalette.ConstellationBlue with { A = 0 } * 0.5f,
-                    Projectile.rotation, origin, 0.8f * pulse, SpriteEffects.None, 0f);
-
-                // Starlight Silver mid
-                Main.spriteBatch.Draw(tex, pos, null,
-                    NachtmusikPalette.StarWhite with { A = 0 } * 0.45f,
-                    Projectile.rotation, origin, 0.55f * pulse, SpriteEffects.None, 0f);
-
-                // Stellar White core
-                Main.spriteBatch.Draw(tex, pos, null,
-                    NachtmusikPalette.StarlightCore with { A = 0 } * 0.4f,
-                    Projectile.rotation, origin, 0.35f * pulse, SpriteEffects.None, 0f);
-
-                // Bloom halo from texture registry
-                Texture2D bloomTex = MagnumTextureRegistry.GetSoftGlow();
-                if (bloomTex != null)
-                {
-                    Vector2 bloomOrigin = bloomTex.Size() / 2f;
-                    Main.spriteBatch.Draw(bloomTex, pos, null,
-                        NachtmusikPalette.ConstellationBlue with { A = 0 } * 0.2f,
-                        0f, bloomOrigin, 0.25f * pulse, SpriteEffects.None, 0f);
-                }
-
-                // Star flare accent
-                Texture2D flareTex = MagnumTextureRegistry.GetRadialBloom();
-                if (flareTex != null)
-                {
-                    Main.spriteBatch.Draw(flareTex, pos, null,
-                        NachtmusikPalette.StarGold with { A = 0 } * 0.15f,
-                        time * 0.4f, flareTex.Size() / 2f, 0.12f * pulse, SpriteEffects.None, 0f);
-                }
-
-                NachtmusikShaderManager.RestoreSpriteBatch(Main.spriteBatch);
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
-            // Nachtmusik theme star flare accent
-            NachtmusikShaderManager.BeginAdditive(Main.spriteBatch);
-            NachtmusikVFXLibrary.DrawThemeStarFlare(Main.spriteBatch, Projectile.Center, 1f, 0.5f);
-            NachtmusikShaderManager.RestoreSpriteBatch(Main.spriteBatch);
 
             return false;
         }

@@ -10,14 +10,16 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
     /// </summary>
     public class WatchingPhantomDust : ModDust
     {
-        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/Projectiles/BrightStarProjectile1";
 
         public override void OnSpawn(Dust dust)
         {
             dust.noGravity = true;
             dust.noLight = false;
-            dust.frame = new Rectangle(0, 0, 64, 64);
-            dust.scale = Main.rand.NextFloat(0.3f, 0.8f);
+            dust.frame = new Rectangle(0, 0, 128, 128);
+            dust.scale = Main.rand.NextFloat(0.15f, 0.45f);
+            // Apply black or white tint for enigma sparkles
+            dust.color = Main.rand.NextBool() ? Color.White : new Color(40, 20, 60);
         }
 
         public override bool Update(Dust dust)

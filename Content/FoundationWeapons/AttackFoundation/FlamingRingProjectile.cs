@@ -208,6 +208,8 @@ namespace MagnumOpus.Content.FoundationWeapons.AttackFoundation
                 return false;
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Player owner = Main.player[Projectile.owner];
             Color[] colors = AFTextures.GetModeColors(AttackMode.FlamingRing);
             Vector2 center = owner.Center - Main.screenPosition;
@@ -283,6 +285,15 @@ namespace MagnumOpus.Content.FoundationWeapons.AttackFoundation
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

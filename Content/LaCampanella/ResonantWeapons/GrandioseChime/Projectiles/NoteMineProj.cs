@@ -6,6 +6,7 @@ using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Utilities;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Particles;
 using MagnumOpus.Content.LaCampanella;
 using MagnumOpus.Content.LaCampanella.Debuffs;
@@ -161,14 +162,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
                 sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-                sb.Draw(bloomTex, Projectile.Center - Main.screenPosition, null,
-                    GrandioseChimeUtils.MinePalette[2] * ringAlpha, 0f, bloomTex.Size() / 2f, ringScale, SpriteEffects.None, 0f);
-
-                // LC Power Effect Ring - pulsing concentric ring on armed mine
-                float minePulse = 0.5f + 0.5f * (float)Math.Sin(Main.GameUpdateCount * 0.12f + Projectile.whoAmI);
-                LaCampanellaVFXLibrary.DrawPowerEffectRing(sb, Projectile.Center - Main.screenPosition,
-                    0.2f * minePulse, (float)Main.GameUpdateCount * 0.03f,
-                    0.2f * minePulse, LaCampanellaPalette.InfernalOrange);
+                // Graduated orb bloom head for mine core
+                MagnumVFX.DrawGraduatedOrbHead(sb, Projectile.Center - Main.screenPosition,
+                    LaCampanellaPalette.InfernalOrange, LaCampanellaPalette.FlameYellow, 0.6f * (armed ? 1f : 0.4f));
                 }
                 catch { }
                 finally

@@ -268,6 +268,8 @@ namespace MagnumOpus.Content.FoundationWeapons.AttackFoundation
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Color[] colors = AFTextures.GetModeColors(AttackMode.ComboSwing);
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
@@ -327,6 +329,15 @@ namespace MagnumOpus.Content.FoundationWeapons.AttackFoundation
             Vector2 swordOrigin = swordTex.Size() / 2f;
             sb.Draw(swordTex, drawPos, null, Color.White, Projectile.rotation,
                 swordOrigin, 1f, SpriteEffects.None, 0f);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

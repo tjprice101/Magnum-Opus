@@ -4,6 +4,8 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
+using MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Dusts;
+
 namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Buffs
 {
     /// <summary>
@@ -81,10 +83,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Buffs
             StackRefreshTimer = 300; // 5s duration per refresh
             npc.AddBuff(ModContent.BuffType<ThornAccumulationDebuff>(), 300);
 
-            // Visual: thorn embed dust
+            // Visual: thorn embed dust — crystalline shards
             for (int i = 0; i < 3; i++)
             {
-                Dust d = Dust.NewDustDirect(npc.position, npc.width, npc.height, DustID.WoodFurniture, 0f, 0f, 100, ThornSprayTextures.RadiantAmber, 0.8f);
+                Dust d = Dust.NewDustDirect(npc.position, npc.width, npc.height, ModContent.DustType<CrystallineThornSparkDust>(), 0f, 0f, 100, default, 0.8f);
                 d.noGravity = true;
                 d.velocity *= 0.5f;
             }
@@ -108,10 +110,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Buffs
             Color glowColor = Color.Lerp(ThornSprayTextures.PetalPink, ThornSprayTextures.BloomGold, intensity);
             drawColor = Color.Lerp(drawColor, glowColor, intensity * 0.3f);
 
-            // Ambient thorn dust
+            // Ambient thorn dust — crystalline sparkle
             if (Main.rand.NextBool(8 - (ThornStacks / 4)))
             {
-                Dust d = Dust.NewDustDirect(npc.position, npc.width, npc.height, DustID.GoldFlame, 0f, -1f, 150, default, 0.5f + intensity * 0.5f);
+                Dust d = Dust.NewDustDirect(npc.position, npc.width, npc.height, ModContent.DustType<CrystallineThornSparkDust>(), 0f, -1f, 150, default, 0.5f + intensity * 0.5f);
                 d.noGravity = true;
             }
         }

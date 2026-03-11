@@ -7,6 +7,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.OdeToJoy;
 using MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Buffs;
+using MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Dusts;
 using MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Buffs;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
@@ -58,14 +59,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
                 Projectile.velocity = Vector2.Zero;
                 Projectile.tileCollide = false;
 
-                // Embed particles
+                // Embed particles — PollenMistDust burst
                 for (int i = 0; i < 6; i++)
                 {
                     Vector2 vel = new Vector2(Main.rand.NextFloat(-2f, 2f), -Main.rand.NextFloat(1f, 3f));
-                    Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowMk2, vel,
+                    Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<PollenMistDust>(), vel,
                         newColor: GardenerFuryTextures.GetPodColor(PodType),
-                        Scale: Main.rand.NextFloat(0.2f, 0.4f));
-                    dust.noGravity = true;
+                        Scale: Main.rand.NextFloat(0.5f, 1.0f));
                 }
 
                 // Rain pods detonate on landing
@@ -115,16 +115,14 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
             Color podColor = GardenerFuryTextures.GetPodColor(PodType);
             Lighting.AddLight(Projectile.Center, podColor.ToVector3() * 0.2f * alpha);
 
-            // Pulsing particles for embedded pods
+            // Pulsing particles for embedded pods — PollenMistDust
             if (isEmbedded && timer % 8 == 0)
             {
                 Vector2 vel = new Vector2(0, -Main.rand.NextFloat(0.3f, 0.8f));
-                Dust dust = Dust.NewDustPerfect(
+                Dust.NewDustPerfect(
                     Projectile.Center + Main.rand.NextVector2Circular(8f * growthScale, 8f * growthScale),
-                    DustID.RainbowMk2, vel,
-                    newColor: podColor, Scale: Main.rand.NextFloat(0.15f, 0.3f));
-                dust.noGravity = true;
-                dust.fadeIn = 0.2f;
+                    ModContent.DustType<PollenMistDust>(), vel,
+                    newColor: podColor, Scale: Main.rand.NextFloat(0.4f, 0.8f));
             }
         }
 
@@ -152,25 +150,28 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
             SoundEngine.PlaySound(SoundID.Item14 with { Pitch = 0.3f + PodType * 0.15f, Volume = 0.5f },
                 Projectile.Center);
 
-            // Explosion particles — FountainCascade pattern
+            // Explosion particles — PetalFragmentDust + PollenMistDust FountainCascade
             int sparkCount = (int)(55 * growthScale);
             Color[] debrisColors = GetDebrisColors();
 
             for (int i = 0; i < sparkCount; i++)
             {
                 float angle = MathHelper.TwoPi / sparkCount * i + Main.rand.NextFloat(-0.1f, 0.1f);
-                // FountainCascade: mostly upward
                 float speed = Main.rand.NextFloat(2f, 7f);
                 Vector2 vel = new Vector2(
                     (float)Math.Cos(angle) * speed,
                     -Math.Abs((float)Math.Sin(angle)) * speed * 1.5f - Main.rand.NextFloat(1f, 3f));
 
                 Color col = debrisColors[i % debrisColors.Length];
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowMk2, vel,
-                    newColor: col, Scale: Main.rand.NextFloat(0.4f, 0.9f));
-                dust.noGravity = true;
-                dust.fadeIn = 0.5f;
+                int dustType = i % 3 == 0 ? ModContent.DustType<PollenMistDust>() : ModContent.DustType<PetalFragmentDust>();
+                Dust.NewDustPerfect(Projectile.Center, dustType, vel,
+                    newColor: col, Scale: Main.rand.NextFloat(0.8f, 1.8f));
             }
+
+            // Screen effects on detonation
+            OdeToJoyVFXLibrary.ScreenShake(4f + growthScale, 8);
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(Projectile.Center, 8, 5f, 0.25f);
+            OdeToJoyVFXLibrary.HarmonicPulseRing(Projectile.Center, detonationRadius, 10, podColor, 2.5f);
 
             Projectile.Kill();
         }
@@ -199,6 +200,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float alpha = GetAlpha();
             Color podColor = GardenerFuryTextures.GetPodColor(PodType);
@@ -263,6 +266,15 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
             OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
 
             OdeToJoyShaders.RestoreSpriteBatch(sb);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

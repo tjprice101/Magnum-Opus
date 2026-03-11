@@ -14,6 +14,7 @@ float3 uColor;
 float3 uSecondaryColor;
 
 sampler uImage0 : register(s0);
+sampler uGradientLUT : register(s2);
 
 struct VSInput
 {
@@ -129,6 +130,11 @@ float4 SpiralMainPS(VSOutput input) : COLOR0
     float alpha = intensity * uOpacity;
     alpha += wispIntensity * 0.15 * uOpacity;
     alpha += stars * 0.1 * uOpacity;
+
+    // Fate LUT color toning — subtle theme cohesion
+    float lum = dot(color * alpha, float3(0.299, 0.587, 0.114));
+    float3 lutTone = tex2D(uGradientLUT, float2(saturate(lum), 0.5)).rgb;
+    color = lerp(color, lutTone * color * 2.0, 0.25);
 
     return float4(color * alpha, alpha);
 }

@@ -368,6 +368,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // End the active SpriteBatch before GPU primitive drawing
             Main.spriteBatch.End();
             try
@@ -383,6 +386,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
 
             // Draw beam head glow (uses SpriteBatch)
             DrawBeamHead();
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false; // Skip default drawing
         }
@@ -453,53 +465,63 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Projectil
             SerenadeTrailRenderer.RenderTrail(trailPositions, beamSettings);
         }
 
-        /// <summary>Multi-layered spectral bloom head — each bounce adds richer prismatic depth.
-        /// Uses SoftRadialBloom for wide atmospheric halo + PointBloom for sharp core.
-        /// Spectral color bands shift with SpectralPhase for refracting-light effect.</summary>
+        /// <summary>Multi-layered spectral bloom head — Incisor-of-Moonlight-style orb tip.
+        /// Uses SoftGlow for wide outer halo + 4PointedStarSoft for shaped core + PointBloom for hot center.
+        /// Gives the beam a visible, structured "projectile tip" rather than just bloom circles.</summary>
         private void DrawBeamHead()
         {
             var pointBloom = SerenadeTextures.PointBloom;
             if (pointBloom == null) return;
 
+            var softGlow = ModContent.Request<Texture2D>(
+                "MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
             var softBloom = ModContent.Request<Texture2D>(
                 "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
+            var starTex = ModContent.Request<Texture2D>(
+                "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
 
-            // Use a higher floor so the head is always clearly visible, even at 0 bounces
             float bounceIntensity = MathF.Max(0.7f, GetBounceIntensity(BounceCount, MaxBounces));
-            float pulse = 1f + MathF.Sin(AliveTime * 0.3f) * 0.15f;
+            float pulse = 1f + MathF.Sin(AliveTime * 0.3f) * 0.12f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
-            // Switch to Additive for bloom layers (A=0 colors are invisible in AlphaBlend)
+            // Switch to Additive for bloom layers
             Main.spriteBatch.End();
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
-                Main.DefaultSamplerState, DepthStencilState.None,
-                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                SamplerState.LinearClamp, DepthStencilState.None,
+                RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Layer 1: Wide atmospheric halo (SoftRadialBloom) — prismatic outer glow
-            Color haloColor = GetBeamGradient(SpectralPhase * 0.3f) with { A = 0 };
-            Main.spriteBatch.Draw(softBloom, drawPos, null,
-                haloColor * 0.35f * bounceIntensity * pulse,
-                0f, softBloom.Size() * 0.5f, 0.1f * bounceIntensity * pulse,
+            // Layer 1: Wide soft outer glow (SoftGlow) — Incisor-style moonlight haze
+            Color lunarGlow = GetBeamGradient(SpectralPhase * 0.5f) with { A = 0 };
+            Main.spriteBatch.Draw(softGlow, drawPos, null,
+                lunarGlow * 0.35f * bounceIntensity,
+                0f, softGlow.Size() * 0.5f, 0.25f * bounceIntensity * pulse,
                 SpriteEffects.None, 0f);
 
-            // Layer 2: Spectral band ring (SoftRadialBloom) — shifts color with phase
-            Color spectralRing = GetBeamGradient(SpectralPhase * 0.7f) with { A = 0 };
-            Main.spriteBatch.Draw(softBloom, drawPos, null,
-                spectralRing * 0.5f * bounceIntensity * pulse,
-                AliveTime * 0.02f, softBloom.Size() * 0.5f, 0.06f * bounceIntensity * pulse,
+            // Layer 2: 4-pointed star shape (4PointedStarSoft) — gives the head a structured silhouette
+            Color starColor = GetBeamGradient(SpectralPhase * 0.7f) with { A = 0 };
+            float starRotation = AliveTime * 0.04f;
+            Main.spriteBatch.Draw(starTex, drawPos, null,
+                starColor * 0.6f * bounceIntensity * pulse,
+                starRotation, starTex.Size() * 0.5f, 0.35f * bounceIntensity,
                 SpriteEffects.None, 0f);
 
-            // Layer 3: Bright core glow (PointBloom) — refracted focal point
-            Color coreColor = GetBeamGradient(SpectralPhase * 0.5f) with { A = 0 };
+            // Layer 3: Counter-rotated star overlay — depth and shimmer
+            Main.spriteBatch.Draw(starTex, drawPos, null,
+                (MoonWhite with { A = 0 }) * 0.3f * bounceIntensity * pulse,
+                -starRotation * 0.7f + MathHelper.PiOver4, starTex.Size() * 0.5f, 0.25f * bounceIntensity,
+                SpriteEffects.None, 0f);
+
+            // Layer 4: Mid bloom (PointBloom) — focused color
+            Color coreColor = GetBeamGradient(SpectralPhase * 0.3f) with { A = 0 };
             Main.spriteBatch.Draw(pointBloom, drawPos, null,
-                coreColor * 0.7f * bounceIntensity * pulse,
-                0f, pointBloom.Size() * 0.5f, 0.035f * bounceIntensity * pulse,
+                coreColor * 0.5f * bounceIntensity,
+                0f, pointBloom.Size() * 0.5f, 0.1f * bounceIntensity * pulse,
                 SpriteEffects.None, 0f);
 
-            // Layer 4: White-hot pinpoint (PointBloom) — coherent light focus
+            // Layer 5: White-hot center point (PointBloom) — coherent light focus
             Main.spriteBatch.Draw(pointBloom, drawPos, null,
-                (MoonWhite with { A = 0 }) * 0.8f * bounceIntensity,
-                0f, pointBloom.Size() * 0.5f, 0.04f * bounceIntensity * pulse,
+                (MoonWhite with { A = 0 }) * 0.7f * bounceIntensity,
+                0f, pointBloom.Size() * 0.5f, 0.06f * bounceIntensity,
                 SpriteEffects.None, 0f);
 
             // Restore to AlphaBlend

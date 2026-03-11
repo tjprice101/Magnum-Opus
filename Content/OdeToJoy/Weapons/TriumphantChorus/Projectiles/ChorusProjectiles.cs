@@ -1,9 +1,15 @@
-﻿using Microsoft.Xna.Framework;
+using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.VFX.Core;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.OdeToJoy;
+using MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Dusts;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles
 {
@@ -14,7 +20,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles
     /// </summary>
     public class TriumphantChorusMinion : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
+        public override string Texture => "MagnumOpus/Content/OdeToJoy/Weapons/Summon/TriumphantChorusMinion";
 
         private int VoiceType => (int)Projectile.ai[0];
         private int _attackTimer;
@@ -94,10 +100,16 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles
                     for (int i = 0; i < 30; i++)
                     {
                         Vector2 vel = Main.rand.NextVector2Circular(5f, 5f);
-                        Dust d = Dust.NewDustDirect(Projectile.Center, 1, 1, DustID.GoldFlame, vel.X, vel.Y, 80, ChorusTextures.BloomGold, 1.0f);
+                        Dust d = Dust.NewDustDirect(Projectile.Center, 1, 1, ModContent.DustType<ChorusVoiceDust>(), vel.X, vel.Y, 80, ChorusTextures.BloomGold, 1.0f);
                         d.noGravity = true;
                         d.fadeIn = 1.4f;
                     }
+
+                    // Ensemble climax VFX
+                    OdeToJoyVFXLibrary.ScreenShake(10f, 20);
+                    OdeToJoyVFXLibrary.ScreenFlash(OdeToJoyPalette.GoldenPollen, 1.3f);
+                    OdeToJoyVFXLibrary.HarmonicPulseRing(Projectile.Center, 1.5f, 16, OdeToJoyPalette.GoldenPollen);
+                    OdeToJoyVFXLibrary.CelebrationBurst(Projectile.Center, 1.5f);
                 }
             }
 
@@ -105,7 +117,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles
             if (Main.rand.NextBool(6))
             {
                 Color voiceColor = ChorusTextures.GetVoiceColor(VoiceType);
-                Dust d = Dust.NewDustDirect(Projectile.Center - new Vector2(8), 16, 16, DustID.GoldFlame, 0f, -0.5f, 120, voiceColor, 0.4f);
+                Dust d = Dust.NewDustDirect(Projectile.Center - new Vector2(8), 16, 16, ModContent.DustType<ChorusVoiceDust>(), 0f, -0.5f, 120, voiceColor, 0.4f);
                 d.noGravity = true;
             }
         }
@@ -147,6 +159,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D glow = ChorusTextures.SoftGlow;
             Texture2D sparkle = ChorusTextures.OJBlossomSparkle;
             Vector2 glowOrigin = glow.Size() / 2f;
@@ -156,6 +170,11 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles
             Color voiceColor = ChorusTextures.GetVoiceColor(VoiceType);
             float pulse = 0.85f + 0.15f * (float)Math.Sin(Main.GameUpdateCount * 0.08f + VoiceType * 1.5f);
             float time = (float)Main.timeForVisualEffects * 0.015f;
+
+            // ── MINION SPRITE: Draw base PNG sprite ──
+            Texture2D minionTex = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
+            Vector2 minionOrigin = minionTex.Size() / 2f;
+            sb.Draw(minionTex, pos, null, lightColor * Projectile.Opacity, Projectile.rotation, minionOrigin, Projectile.scale, SpriteEffects.None, 0f);
 
             sb.End();
 
@@ -190,6 +209,15 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles
 
             sb.End();
             OdeToJoyShaders.RestoreSpriteBatch(sb);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -202,6 +230,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles
     {
         public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
         private int _timer;
+        private VertexStrip _vertexStrip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -250,7 +285,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles
             {
                 int voice = (int)Projectile.ai[0];
                 Color c = voice >= 4 ? ChorusTextures.BloomGold : ChorusTextures.GetVoiceColor(voice);
-                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.GoldFlame, 0f, 0f, 120, c, 0.4f);
+                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, ModContent.DustType<ChorusVoiceDust>(), 0f, 0f, 120, c, 0.4f);
                 d.noGravity = true;
             }
         }
@@ -258,43 +293,40 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D glow = ChorusTextures.SoftGlow;
-            Vector2 origin = glow.Size() / 2f;
-            Vector2 pos = Projectile.Center - Main.screenPosition;
-
-            int voice = (int)Projectile.ai[0];
-            Color c = voice >= 4 ? ChorusTextures.BloomGold : ChorusTextures.GetVoiceColor(voice);
-            float fade = MathHelper.Clamp(_timer / 5f, 0f, 1f) * MathHelper.Clamp(Projectile.timeLeft / 12f, 0f, 1f);
-            float scale = voice >= 4 ? 0.3f : 0.2f;
-            float time = (float)Main.timeForVisualEffects * 0.015f;
-
-            sb.End();
-
-            // ── LAYER 0: JubilantHarmony SymphonicAura shader — radial harmonic pulse ──
-            Effect harmonyShader = OdeToJoyShaders.JubilantHarmony;
-            if (harmonyShader != null)
+            try
             {
-                OdeToJoyShaders.SetBeamParams(harmonyShader, time, c,
-                    ChorusTextures.PureJoyWhite, fade * 0.5f, 1.6f, 3.0f);
-                harmonyShader.Parameters["uRadius"]?.SetValue(0.3f);
-                OdeToJoyShaders.BeginDeferredShaderBatch(sb, harmonyShader, "SymphonicAuraTechnique");
-                sb.Draw(glow, pos, null, Color.White * fade, Projectile.rotation, origin,
-                    Math.Min(scale * 1.5f, 0.293f), SpriteEffects.None, 0f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _vertexStrip);
+
+                // Harmonic blast: golden voice-colored pulse
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
+                {
+                    Vector2 origin = glow.Size() / 2f;
+                    float rot = Projectile.velocity.ToRotation();
+                    float pulse = 0.8f + 0.2f * MathF.Sin((float)Main.timeForVisualEffects * 0.15f + Projectile.whoAmI);
+
+                    // Golden directional harmonic glow
+                    sb.Draw(glow, drawPos, null,
+                        (OdeToJoyPalette.GoldenPollen with { A = 0 }) * 0.2f * pulse,
+                        rot, origin, new Vector2(0.06f, 0.025f), SpriteEffects.None, 0f);
+                }
+
                 sb.End();
             }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
-            // ── LAYER 1: Additive bloom ──
-            OdeToJoyShaders.BeginAdditiveBatch(sb);
-
-            sb.Draw(glow, pos, null, c * fade * 0.5f, 0f, origin, Math.Min(scale, 0.293f), SpriteEffects.None, 0f);
-            sb.Draw(glow, pos, null, ChorusTextures.PureJoyWhite * fade * 0.3f, 0f, origin,
-                scale * 0.35f, SpriteEffects.None, 0f);
-
-            // Theme blossom sparkle accent
-            OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
-
-            sb.End();
-            OdeToJoyShaders.RestoreSpriteBatch(sb);
             return false;
         }
     }

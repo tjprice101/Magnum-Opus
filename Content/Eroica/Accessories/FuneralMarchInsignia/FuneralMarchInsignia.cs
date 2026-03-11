@@ -32,17 +32,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.FuneralMarchInsignia
             var modPlayer = player.GetModPlayer<EroicaAccessoryPlayer>();
             modPlayer.hasFuneralMarchInsignia = true;
             
-            // Ambient particles - funeral march theme with dark flames
-            if (!hideVisual && Main.rand.NextBool(7))
-            {
-                // Dark purple/crimson flame
-                Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
-                int dustType = Main.rand.NextBool() ? DustID.CrimsonTorch : DustID.Shadowflame;
-                Dust flame = Dust.NewDustPerfect(player.Center + offset, dustType, 
-                    new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1.5f), 100, default, 1.1f);
-                flame.noGravity = true;
-            }
-            
             // Heroic Encore active visual - brilliant prismatic gem effect
             if (modPlayer.heroicEncoreActive)
             {
@@ -64,30 +53,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.FuneralMarchInsignia
                     ring.noGravity = true;
                 }
             }
-            else if (!hideVisual)
-            {
-                // Normal state - subtle Eroica aura
-                ThemedParticles.EroicaAura(player.Center, 25f);
-            }
-            
-            // Low mana visual (when mana regen is tripled)
-            float manaPercent = (float)player.statMana / player.statManaMax2;
-            if (!hideVisual && manaPercent < 0.2f && Main.rand.NextBool(4))
-            {
-                // Desperate energy gathering
-                Vector2 offset = Main.rand.NextVector2Circular(40f, 40f);
-                Dust mana = Dust.NewDustPerfect(player.Center + offset, DustID.Smoke, 
-                    (player.Center - (player.Center + offset)).SafeNormalize(Vector2.Zero) * 2f, 100, Color.Black, 1f);
-                mana.noGravity = true;
-            }
-            
-            // Cooldown visual indicator (subtle when on cooldown)
-            if (!hideVisual && modPlayer.heroicEncoreCooldown > 0 && Main.rand.NextBool(30))
-            {
-                Dust cooldown = Dust.NewDustPerfect(player.Center + Main.rand.NextVector2Circular(20f, 20f),
-                    DustID.Smoke, new Vector2(0, -0.5f), 150, Color.Gray, 0.8f);
-                cooldown.noGravity = true;
-            }
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
@@ -105,7 +70,7 @@ namespace MagnumOpus.Content.Eroica.Accessories.FuneralMarchInsignia
                 OverrideColor = new Color(255, 100, 100)
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Invulnerability", "Grants 3 seconds of invulnerability and doubled magic damage")
+            tooltips.Add(new TooltipLine(Mod, "Invulnerability", "Grants 3 seconds of invulnerability and doubled damage")
             {
                 OverrideColor = new Color(255, 200, 100)
             });

@@ -1,4 +1,7 @@
+﻿using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Content.DiesIrae;
 using MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Buffs;
 using MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Utilities;
@@ -10,27 +13,30 @@ using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Projectiles
 {
     /// <summary>
-    /// Judgment Chain ? the core chain-whip projectile.
-    /// 
+    /// Judgment Chain - the core chain-whip projectile.
+    ///
     /// Behaviour:
-    ///   Phase 0 (Extend): Launches outward from the player, decelerating over distance.
+    ///   Phase 0 (Extend): Launches outward, decelerating over distance.
     ///   Phase 1 (Retract): Returns to the player, pulled by increasing force.
-    ///   Hit enemies receive Chain Link stacks; at 5 stacks �� Fully Bound.
+    ///   Hit enemies receive Chain Link stacks; at 5 stacks -> Fully Bound.
     ///   Every 5 cumulative hits spawns a ChainLightningArc.
-    /// 
-    /// Rendering: Segmented chain body drawn between player and tip with jitter offsets.
-    ///   Tip glow + ember dust trail. Additive bloom layering throughout.
+    ///
+    /// Rendering: 5-layer composited chain VFX:
+    ///   L1: Shader-driven chain body via DiesIraeShaderManager
+    ///   L2: Segmented glow links (ChainOfJudgmentUtils.DrawChainBody)
+    ///   L3: Tip bloom with radial flare
+    ///   L4: Theme accent flares (star flare, impact rings)
+    ///   L5: Retract phase ember intensification + judgment spark trail
     /// </summary>
     public class JudgmentChainProjectile : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
 
-        // ������ Constants ����������������������������������������������������������������������������������������������������
+        // --- Constants ---
         private const float MaxRange = 12f * 16f; // 12 tiles in pixels
         private const float ExtendDecel = 0.94f;
         private const float RetractAccel = 0.18f;
@@ -38,7 +44,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Projectiles
         private const float KillRadius = 36f;
         private const int MaxExtendTime = 35;
 
-        // ������ AI slots ������������������������������������������������������������������������������������������������������
+        // --- AI slots ---
         /// <summary>0 = extending, 1 = retracting.</summary>
         private ref float Phase => ref Projectile.ai[0];
         /// <summary>Frame counter.</summary>
@@ -62,7 +68,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Projectiles
             Projectile.extraUpdates = 1;
         }
 
-        // ������ AI ������������������������������������������������������������������������������������������������������������������
+        // --- AI ---
 
         public override void AI()
         {
@@ -101,6 +107,10 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Projectiles
                 Phase = 1;
                 Timer = 0;
                 SoundEngine.PlaySound(SoundID.Item153 with { Volume = 0.4f, Pitch = 0.3f }, Projectile.Center);
+
+                // Retract initiation VFX: judgment spark burst at chain tip
+                DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(Projectile.Center, 6, 4f, 0.25f);
+                DiesIraeVFXLibrary.SpawnEmberScatter(Projectile.Center, 5, 3f);
                 return;
             }
 
@@ -128,17 +138,41 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Projectiles
         private void SpawnTrailDust()
         {
             if (Main.dedServ) return;
-            if (!Main.rand.NextBool(3)) return;
 
-            Dust d = Dust.NewDustPerfect(
-                Projectile.Center + Main.rand.NextVector2Circular(8, 8),
-                DustID.Torch,
-                Projectile.velocity * -0.1f + Main.rand.NextVector2Circular(1f, 1f),
-                0, DiesIraePalette.EmberOrange, 0.8f);
-            d.noGravity = true;
+            // Standard ember trail
+            if (Main.rand.NextBool(3))
+            {
+                Dust d = Dust.NewDustPerfect(
+                    Projectile.Center + Main.rand.NextVector2Circular(8, 8),
+                    DustID.Torch,
+                    Projectile.velocity * -0.1f + Main.rand.NextVector2Circular(1f, 1f),
+                    0, DiesIraePalette.EmberOrange, 0.8f);
+                d.noGravity = true;
+            }
+
+            // Retract phase: intensified dust + gold sparks
+            if (Phase == 1 && Timer > 5)
+            {
+                if (Main.rand.NextBool(2))
+                {
+                    Dust g = Dust.NewDustPerfect(
+                        Projectile.Center + Main.rand.NextVector2Circular(6, 6),
+                        DustID.GoldFlame,
+                        Projectile.velocity * -0.15f,
+                        0, DiesIraePalette.JudgmentGold, 1.0f);
+                    g.noGravity = true;
+                    g.fadeIn = 0.7f;
+                }
+            }
+
+            // Music notes every 12 frames during retract (chains of judgment sing)
+            if (Phase == 1 && Main.GameUpdateCount % 12 == 0)
+            {
+                DiesIraeVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 8f, 0.4f, 0.6f, 18);
+            }
         }
 
-        // ������ Hit ����������������������������������������������������������������������������������������������������������������
+        // --- Hit ---
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
@@ -148,12 +182,29 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Projectiles
             // Chain Link stacking
             target.AddBuff(ModContent.BuffType<ChainLinkMark>(), 300);
             var global = target.GetGlobalNPC<ChainOfJudgmentGlobalNPC>();
-            global.IncrementChainLink(target);
+            int stacks = global.IncrementChainLink(target);
 
-            // Impact VFX
-            ChainOfJudgmentUtils.DoChainImpact(target.Center, Projectile.velocity.SafeNormalize(Vector2.Zero));
+            // Multi-layered impact VFX via DiesIraeVFXLibrary
+            Vector2 hitDir = Projectile.velocity.SafeNormalize(Vector2.Zero);
+            DiesIraeVFXLibrary.MeleeImpact(target.Center, Math.Min(stacks, 2));
 
-            // Combo tracking �� chain lightning
+            // Directional chain sparks on impact
+            DiesIraeVFXLibrary.SpawnDirectionalSparkleExplosion(
+                target.Center, hitDir, 6 + stacks * 2, 5f, 0.3f, 0.6f);
+
+            // Chain impact (metallic sparks + binding ring)
+            ChainOfJudgmentUtils.DoChainImpact(target.Center, hitDir);
+
+            // Fully Bound conversion flash
+            if (stacks == 0) // just triggered Fully Bound (stacks reset to 0)
+            {
+                DiesIraeVFXLibrary.SpawnHellfireStarburst(target.Center, 1.3f);
+                DiesIraeVFXLibrary.SpawnJudgmentRings(target.Center, 3, 0.4f);
+                MagnumScreenEffects.AddScreenShake(4f);
+                SoundEngine.PlaySound(SoundID.Item73 with { Pitch = -0.3f, Volume = 0.8f }, target.Center);
+            }
+
+            // Combo tracking -> chain lightning
             hitCombo++;
             if (hitCombo >= 5 && Projectile.owner == Main.myPlayer)
             {
@@ -189,44 +240,106 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Projectiles
             }
         }
 
-        // ������ Drawing ��������������������������������������������������������������������������������������������������������
+        // --- Drawing: 5-layer composited chain VFX ---
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Player owner = Main.player[Projectile.owner];
-
-            // ���� Layer 1: Chain body (additive) ����
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
-
-            ChainOfJudgmentUtils.DrawChainBody(sb, owner.Center, Projectile.Center, Timer);
-
-            // ���� Layer 2: Tip glow ����
-            ChainOfJudgmentUtils.DrawTipBloom(sb, Projectile.Center, Timer);
-
-            // ���� Layer 3: Retract phase ? intensified trail glow ����
-            if (Phase == 1 && Timer > 5)
+            try
             {
-                float retractIntensity = MathHelper.Clamp(Timer / 20f, 0f, 1f);
-                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-                if (glow != null)
+                Player owner = Main.player[Projectile.owner];
+                float time = (float)Main.GameUpdateCount;
+                float dist = Vector2.Distance(owner.Center, Projectile.Center);
+                float chainIntensity = Phase == 1 ? MathHelper.Clamp(Timer / 15f, 0.5f, 1f) : 0.7f;
+
+                // -- LAYER 1: Shader-driven chain aura --
+                bool hasShader = false;
+                try { hasShader = DiesIraeShaderManager.HasFlameTrail; }
+                catch { }
+
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
+
+                if (hasShader)
                 {
-                    Vector2 origin = glow.Size() / 2f;
-                    Vector2 drawPos = Projectile.Center - Main.screenPosition;
-                    sb.Draw(glow, drawPos, null, DiesIraePalette.JudgmentGold * 0.3f * retractIntensity,
-                        0f, origin, 0.12f, SpriteEffects.None, 0f);
+                    try
+                    {
+                        DiesIraeShaderManager.BeginShaderAdditive(sb);
+
+                        Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                        if (glow != null)
+                        {
+                            Vector2 glowOrigin = glow.Size() * 0.5f;
+                            // Shader-enhanced bloom at chain midpoint
+                            Vector2 midWorld = Vector2.Lerp(owner.Center, Projectile.Center, 0.5f);
+                            Vector2 midScreen = midWorld - Main.screenPosition;
+                            Color shaderColor = DiesIraePalette.Additive(DiesIraePalette.BloodRed, 0.2f * chainIntensity);
+                            sb.Draw(glow, midScreen, null, shaderColor, 0f, glowOrigin, 0.06f, SpriteEffects.None, 0f);
+                        }
+
+                        DiesIraeShaderManager.RestoreSpriteBatch(sb);
+
+                        // Re-enter additive after shader restore
+                        sb.End();
+                        sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                            DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
+                    }
+                    catch
+                    {
+                        try { sb.End(); } catch { }
+                        sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                            DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
+                    }
+                }
+
+                // -- LAYER 2: Segmented glow chain body --
+                ChainOfJudgmentUtils.DrawChainBody(sb, owner.Center, Projectile.Center, Timer);
+
+                // -- LAYER 3: Tip bloom with radial flare --
+                ChainOfJudgmentUtils.DrawTipBloom(sb, Projectile.Center, Timer, chainIntensity);
+
+                // -- LAYER 4: Theme accent flares --
+                DiesIraeVFXLibrary.DrawThemeStarFlare(sb, Projectile.Center, 0.9f, chainIntensity * 0.5f);
+
+                // Judgment ring at tip during retract
+                if (Phase == 1 && Timer > 8)
+                {
+                    float ringRot = time * 0.03f;
+                    DiesIraeVFXLibrary.DrawThemeImpactRing(sb, Projectile.Center, 0.8f, chainIntensity * 0.4f, ringRot);
+                }
+
+                // -- LAYER 5: Retract intensification --
+                if (Phase == 1 && Timer > 5)
+                {
+                    float retractGlow = MathHelper.Clamp(Timer / 20f, 0f, 1f);
+                    Texture2D softGlow = MagnumTextureRegistry.GetSoftGlow();
+                    if (softGlow != null)
+                    {
+                        Vector2 origin = softGlow.Size() * 0.5f;
+                        Vector2 drawPos = Projectile.Center - Main.screenPosition;
+
+                        // Outer ember haze
+                        Color outerColor = DiesIraePalette.Additive(DiesIraePalette.EmberOrange, 0.25f * retractGlow);
+                        sb.Draw(softGlow, drawPos, null, outerColor, 0f, origin, 0.14f, SpriteEffects.None, 0f);
+
+                        // Inner gold core
+                        Color coreColor = DiesIraePalette.Additive(DiesIraePalette.JudgmentGold, 0.4f * retractGlow);
+                        sb.Draw(softGlow, drawPos, null, coreColor, 0f, origin, 0.06f, SpriteEffects.None, 0f);
+
+                        // Wrath-white hotspot
+                        Color hotColor = DiesIraePalette.Additive(DiesIraePalette.WrathWhite, 0.2f * retractGlow);
+                        sb.Draw(softGlow, drawPos, null, hotColor, 0f, origin, 0.03f, SpriteEffects.None, 0f);
+                    }
                 }
             }
-
-            // Dies Irae theme accent layer
-            ChainOfJudgmentUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
-
-            // ���� Restore blend state ����
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

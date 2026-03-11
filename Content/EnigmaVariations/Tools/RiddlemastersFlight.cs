@@ -46,6 +46,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Tools
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Dodge", "Double-tap left or right to perform an arcane dodge with brief invulnerability") { OverrideColor = new Color(180, 100, 255) });
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Soar through the spaces between questions'") { OverrideColor = new Color(140, 60, 200) });
         }
 
@@ -62,39 +63,6 @@ namespace MagnumOpus.Content.EnigmaVariations.Tools
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             player.GetModPlayer<RiddlemastersFlightPlayer>().hasWingsEquipped = true;
-            
-            // Mysterious enigma particles when flying - performance optimized
-            if (!hideVisual && player.velocity.Y != 0)
-            {
-                // EnigmaAura only every 20 frames
-                if (Main.GameUpdateCount % 20 == 0)
-                    ThemedParticles.EnigmaAura(player.Center, 35f);
-                
-                // Eerie green flame wisps - every 20 frames
-                if (Main.GameUpdateCount % 20 == 0)
-                {
-                    Color greenFlame = ThemedParticles.EnigmaGreenFlame;
-                    var glow = new GenericGlowParticle(
-                        player.Center + Main.rand.NextVector2Circular(20f, 15f),
-                        new Vector2(player.velocity.X * -0.05f, -1.5f),
-                        greenFlame, 0.3f, 25, true);
-                    MagnumParticleHandler.SpawnParticle(glow);
-                }
-                
-                // Occasional glyph - every 50 frames
-                if (Main.GameUpdateCount % 50 == 0)
-                {
-                    CustomParticles.Glyph(player.Center + Main.rand.NextVector2Circular(30f, 25f), 
-                        ThemedParticles.EnigmaPurple, 0.25f, -1);
-                }
-                
-                // Rare watching eye - every 120 frames
-                if (Main.GameUpdateCount % 120 == 0)
-                {
-                    Vector2 eyePos = player.Center + Main.rand.NextVector2Circular(25f, 20f);
-                    CustomParticles.EnigmaEyeGaze(eyePos, ThemedParticles.EnigmaGreenFlame * 0.7f, 0.3f, null);
-                }
-            }
         }
 
         public override void AddRecipes()

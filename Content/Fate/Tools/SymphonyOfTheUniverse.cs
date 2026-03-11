@@ -46,6 +46,7 @@ namespace MagnumOpus.Content.Fate.Tools
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Dodge", "Double-tap left or right to perform a cosmic dodge with brief invulnerability") { OverrideColor = new Color(200, 80, 120) });
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Wings woven from the fabric of cosmic destiny itself'") { OverrideColor = new Color(180, 40, 80) });
         }
 
@@ -62,57 +63,6 @@ namespace MagnumOpus.Content.Fate.Tools
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             player.GetModPlayer<SymphonyOfTheUniversePlayer>().hasWingsEquipped = true;
-            
-            // Cosmic fate particles when flying
-            if (!hideVisual && player.velocity.Y != 0)
-            {
-                ThemedParticles.FateAura(player.Center, 40f);
-                
-                // Dark prismatic cosmic wisps
-                if (Main.rand.NextBool(4))
-                {
-                    // Gradient from black through dark pink to bright red
-                    float progress = Main.rand.NextFloat();
-                    Color cosmicColor;
-                    if (progress < 0.4f)
-                        cosmicColor = Color.Lerp(ThemedParticles.FateBlack, ThemedParticles.FateDarkPink, progress / 0.4f);
-                    else if (progress < 0.8f)
-                        cosmicColor = Color.Lerp(ThemedParticles.FateDarkPink, ThemedParticles.FateBrightRed, (progress - 0.4f) / 0.4f);
-                    else
-                        cosmicColor = Color.Lerp(ThemedParticles.FateBrightRed, ThemedParticles.FateWhite, (progress - 0.8f) / 0.2f);
-                    
-                    var glow = new GenericGlowParticle(
-                        player.Center + Main.rand.NextVector2Circular(25f, 20f),
-                        new Vector2(player.velocity.X * -0.05f, -1.2f),
-                        cosmicColor, 0.35f, 30, true);
-                    MagnumParticleHandler.SpawnParticle(glow);
-                }
-                
-                // Cosmic glyphs
-                if (Main.rand.NextBool(12))
-                {
-                    CustomParticles.Glyph(player.Center + Main.rand.NextVector2Circular(35f, 30f), 
-                        ThemedParticles.FateDarkPink, 0.3f, -1);
-                }
-                
-                // === DARK COSMIC SMOKE - amorphous reality distortion ===
-                if (Main.rand.NextBool(3))
-                {
-                    var smoke = new HeavySmokeParticle(
-                        player.Center + Main.rand.NextVector2Circular(25f, 20f),
-                        new Vector2(player.velocity.X * -0.1f, Main.rand.NextFloat(-0.5f, 0.5f)),
-                        Color.Lerp(ThemedParticles.FateBlack, ThemedParticles.FatePurple, Main.rand.NextFloat(0.4f)),
-                        Main.rand.Next(35, 55), 0.35f, 0.5f, 0.02f, false);
-                    MagnumParticleHandler.SpawnParticle(smoke);
-                }
-                
-                // Temporal afterimage echoes
-                if (Main.rand.NextBool(8))
-                {
-                    CustomParticles.GenericFlare(player.Center + Main.rand.NextVector2Circular(20f, 15f),
-                        ThemedParticles.FateBrightRed * 0.6f, 0.3f, 15);
-                }
-            }
         }
 
         public override void AddRecipes()

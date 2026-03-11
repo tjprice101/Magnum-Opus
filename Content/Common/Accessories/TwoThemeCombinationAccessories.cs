@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using Terraria;
@@ -72,41 +72,6 @@ namespace MagnumOpus.Content.Common.Accessories
             // Fire immunity from Campanella
             player.buffImmune[BuffID.OnFire] = true;
             player.buffImmune[BuffID.Burning] = true;
-            
-            // Blue fire at night (handled in player class)
-            
-            // Ambient VFX - Fusion of moonlight and flames
-            if (!hideVisual)
-            {
-                Color flameColor = isNight ? new Color(100, 150, 255) : CampanellaColors.Orange;
-                
-                // Lunar fire particles
-                if (Main.rand.NextBool(8))
-                {
-                    Vector2 offset = Main.rand.NextVector2Circular(35f, 35f);
-                    Vector2 velocity = new Vector2(0, -Main.rand.NextFloat(1f, 2f));
-                    
-                    var flame = new GenericGlowParticle(
-                        player.Center + offset, velocity,
-                        flameColor * 0.7f, 0.35f, 20, true);
-                    MagnumParticleHandler.SpawnParticle(flame);
-                }
-                
-                // Crescent moon flares at night
-                if (isNight && Main.rand.NextBool(15))
-                {
-                    float angle = Main.GameUpdateCount * 0.03f;
-                    Vector2 moonPos = player.Center + angle.ToRotationVector2() * 40f;
-                    CustomParticles.GenericFlare(moonPos, MoonlightColors.Silver, 0.3f, 15);
-                }
-                
-                // Fire wisps
-                if (Main.rand.NextBool(12))
-                {
-                    Vector2 wispPos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                    CustomParticles.GenericFlare(wispPos, flameColor * 0.6f, 0.25f, 12);
-                }
-            }
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -248,36 +213,6 @@ namespace MagnumOpus.Content.Common.Accessories
             // Enigma bonuses - all damage
             player.GetDamage(DamageClass.Generic) += 0.18f;
             player.GetCritChance(DamageClass.Generic) += 8;
-            
-            // Ambient VFX - Sakura petals transforming into question marks
-            if (!hideVisual)
-            {
-                // Sakura-mystery fusion particles
-                if (Main.rand.NextBool(10))
-                {
-                    Vector2 offset = Main.rand.NextVector2Circular(40f, 40f);
-                    Color color = Color.Lerp(EroicaPalette.Sakura,
-                        EnigmaColors.Purple, Main.rand.NextFloat());
-                    
-                    CustomParticles.GenericFlare(player.Center + offset, color * 0.6f, 0.28f, 15);
-                }
-                
-                // Orbiting glyphs with golden edges
-                if (Main.rand.NextBool(18))
-                {
-                    float angle = Main.GameUpdateCount * 0.025f;
-                    Vector2 glyphPos = player.Center + angle.ToRotationVector2() * 45f;
-                    Color glyphColor = Color.Lerp(EroicaColors.Gold, EnigmaColors.DeepPurple, 0.5f);
-                    CustomParticles.Glyph(glyphPos, glyphColor * 0.5f, 0.35f, -1);
-                }
-                
-                // Occasional watching eye with heroic glow
-                if (Main.rand.NextBool(25))
-                {
-                    Vector2 eyePos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                    CustomParticles.EnigmaEyeGaze(eyePos, EroicaColors.Gold, 0.35f, null);
-                }
-            }
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -355,14 +290,6 @@ namespace MagnumOpus.Content.Common.Accessories
                 heroicSurgeTimer--;
                 // Heroic Surge active
                 Player.GetDamage(DamageClass.Generic) += 0.25f;
-                
-                // Golden-purple aura while active
-                if (Main.rand.NextBool(4))
-                {
-                    Vector2 pos = Player.Center + Main.rand.NextVector2Circular(25f, 25f);
-                    Color color = Color.Lerp(EroicaColors.Gold, EnigmaColors.Purple, Main.rand.NextFloat());
-                    CustomParticles.GenericFlare(pos, color, 0.3f, 12);
-                }
             }
         }
 
@@ -506,44 +433,6 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 player.GetDamage(DamageClass.Generic) += 0.05f;
                 player.GetCritChance(DamageClass.Generic) += 5;
-                
-                // Dancing VFX
-                if (Main.rand.NextBool(6))
-                {
-                    Color danceColor = Color.Lerp(MoonlightColors.Purple, SwanColors.GetRainbow(Main.rand.NextFloat()), 0.5f);
-                    CustomParticles.GenericFlare(player.Center, danceColor * 0.5f, 0.25f, 12);
-                }
-            }
-            
-            // Ambient VFX - Moonlit swan feathers
-            if (!hideVisual)
-            {
-                // Feathers with lunar glow
-                if (Main.rand.NextBool(12))
-                {
-                    Vector2 featherPos = player.Center + new Vector2(Main.rand.NextFloat(-30f, 30f), -15f);
-                    Color featherColor = isNight ? MoonlightColors.Silver : SwanColors.White;
-                    CustomParticles.SwanFeatherDrift(featherPos, featherColor, 0.4f);
-                }
-                
-                // Rainbow-lunar sparkles
-                if (Main.rand.NextBool(10))
-                {
-                    Vector2 sparklePos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
-                    Color sparkleColor = Color.Lerp(MoonlightColors.Purple, SwanColors.GetRainbow(Main.rand.NextFloat()), 0.6f);
-                    
-                    var sparkle = new SparkleParticle(sparklePos, Main.rand.NextVector2Circular(1f, 1f),
-                        sparkleColor, 0.35f, 18);
-                    MagnumParticleHandler.SpawnParticle(sparkle);
-                }
-                
-                // Crescent-feather fusion at night
-                if (isNight && Main.rand.NextBool(20))
-                {
-                    float angle = Main.GameUpdateCount * 0.02f;
-                    Vector2 pos = player.Center + angle.ToRotationVector2() * 45f;
-                    CustomParticles.GenericFlare(pos, Color.Lerp(MoonlightColors.LightBlue, SwanColors.Silver, 0.5f), 0.3f, 15);
-                }
             }
         }
 
@@ -709,42 +598,6 @@ namespace MagnumOpus.Content.Common.Accessories
             player.GetCritChance(DamageClass.Generic) += 8;
             player.moveSpeed += 0.20f;
             player.runAcceleration *= 1.20f;
-            
-            // Ambient VFX - Rainbow fire feathers
-            if (!hideVisual)
-            {
-                // Prismatic fire particles
-                if (Main.rand.NextBool(8))
-                {
-                    Vector2 offset = Main.rand.NextVector2Circular(35f, 35f);
-                    Vector2 velocity = new Vector2(0, -Main.rand.NextFloat(1f, 2.5f));
-                    Color flameColor = Color.Lerp(CampanellaColors.Orange, 
-                        SwanColors.GetRainbow(Main.rand.NextFloat()), 0.4f);
-                    
-                    var flame = new GenericGlowParticle(
-                        player.Center + offset, velocity,
-                        flameColor * 0.7f, 0.35f, 20, true);
-                    MagnumParticleHandler.SpawnParticle(flame);
-                }
-                
-                // Fire-feathers
-                if (Main.rand.NextBool(12))
-                {
-                    Vector2 featherPos = player.Center + new Vector2(Main.rand.NextFloat(-30f, 30f), -15f);
-                    Color featherColor = Color.Lerp(SwanColors.White, CampanellaColors.Orange, Main.rand.NextFloat(0.3f, 0.7f));
-                    CustomParticles.SwanFeatherDrift(featherPos, featherColor, 0.4f);
-                }
-                
-                // Rainbow sparkles in flames
-                if (Main.rand.NextBool(15))
-                {
-                    Vector2 sparklePos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
-                    
-                    var sparkle = new SparkleParticle(sparklePos, new Vector2(0, -1.5f),
-                        SwanColors.GetRainbow(Main.rand.NextFloat()), 0.3f, 15);
-                    MagnumParticleHandler.SpawnParticle(sparkle);
-                }
-            }
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -937,34 +790,6 @@ namespace MagnumOpus.Content.Common.Accessories
             player.GetCritChance(DamageClass.Generic) += 8;
             player.moveSpeed += 0.20f;
             player.runAcceleration *= 1.20f;
-            
-            // Ambient VFX - Sakura petals meeting swan feathers
-            if (!hideVisual)
-            {
-                // Sakura-feather fusion
-                if (Main.rand.NextBool(10))
-                {
-                    Vector2 petalPos = player.Center + new Vector2(Main.rand.NextFloat(-35f, 35f), -15f);
-                    Color petalColor = Main.rand.NextBool() ? 
-                        EroicaPalette.Sakura : SwanColors.White;
-                    
-                    if (Main.rand.NextBool())
-                        ThemedParticles.SakuraPetals(petalPos, 1, 10f);
-                    else
-                        CustomParticles.SwanFeatherDrift(petalPos, petalColor, 0.4f);
-                }
-                
-                // Golden-rainbow sparkles
-                if (Main.rand.NextBool(12))
-                {
-                    Vector2 sparklePos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
-                    Color sparkleColor = Color.Lerp(EroicaColors.Gold, SwanColors.GetRainbow(Main.rand.NextFloat()), 0.5f);
-                    
-                    var sparkle = new SparkleParticle(sparklePos, Main.rand.NextVector2Circular(1f, 1f),
-                        sparkleColor, 0.35f, 18);
-                    MagnumParticleHandler.SpawnParticle(sparkle);
-                }
-            }
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -1028,14 +853,6 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 heroicSurgeTimer--;
                 Player.GetDamage(DamageClass.Generic) += 0.25f;
-                
-                // Golden-rainbow aura
-                if (Main.rand.NextBool(4))
-                {
-                    Vector2 pos = Player.Center + Main.rand.NextVector2Circular(25f, 25f);
-                    Color color = Color.Lerp(EroicaColors.Gold, SwanColors.GetRainbow(Main.rand.NextFloat()), 0.5f);
-                    CustomParticles.GenericFlare(pos, color, 0.3f, 12);
-                }
             }
             
             if (dodgeCooldown > 0) dodgeCooldown--;
@@ -1158,39 +975,6 @@ namespace MagnumOpus.Content.Common.Accessories
             // Enigma bonuses
             player.GetDamage(DamageClass.Generic) += 0.18f;
             player.GetCritChance(DamageClass.Generic) += 8;
-            
-            // Ambient VFX - Fire burning with void edges
-            if (!hideVisual)
-            {
-                // Void fire particles
-                if (Main.rand.NextBool(8))
-                {
-                    Vector2 offset = Main.rand.NextVector2Circular(35f, 35f);
-                    Vector2 velocity = new Vector2(0, -Main.rand.NextFloat(1f, 2.5f));
-                    Color flameColor = Color.Lerp(CampanellaColors.Orange, 
-                        EnigmaColors.GreenFlame, Main.rand.NextFloat(0.2f, 0.5f));
-                    
-                    var flame = new GenericGlowParticle(
-                        player.Center + offset, velocity,
-                        flameColor * 0.7f, 0.35f, 20, true);
-                    MagnumParticleHandler.SpawnParticle(flame);
-                }
-                
-                // Enigma glyphs in fire
-                if (Main.rand.NextBool(18))
-                {
-                    float angle = Main.GameUpdateCount * 0.025f;
-                    Vector2 glyphPos = player.Center + angle.ToRotationVector2() * 40f;
-                    CustomParticles.Glyph(glyphPos, Color.Lerp(CampanellaColors.Orange, EnigmaColors.Purple, 0.5f) * 0.5f, 0.3f, -1);
-                }
-                
-                // Watching eyes in flames
-                if (Main.rand.NextBool(25))
-                {
-                    Vector2 eyePos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                    CustomParticles.EnigmaEyeGaze(eyePos, EnigmaColors.GreenFlame, 0.35f, null);
-                }
-            }
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)

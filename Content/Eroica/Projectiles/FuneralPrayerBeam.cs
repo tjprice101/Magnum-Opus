@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ID;
@@ -31,7 +31,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         private int shotId = -1;
         private int beamIndex = -1;
 
-        // 笏笏 Trail tracking 笏笏
+        // ── Trail tracking ──
         private const int TrailLength = 18;
         private Vector2[] trailPositions = new Vector2[TrailLength];
         private float[] trailRotations = new float[TrailLength];
@@ -71,7 +71,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 beamIndex = Projectile.whoAmI;
             }
 
-            // 笏笏 Trail position tracking 笏笏
+            // ── Trail position tracking ──
             if (!trailInitialized)
             {
                 for (int i = 0; i < TrailLength; i++)
@@ -103,7 +103,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // 笏笏 Particle Spawning 笏笏
+            // ── Particle Spawning ──
             SpawnFlightParticles();
         }
 
@@ -239,7 +239,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 if (!hasHitEnemy && shotId >= 0)
                 {
                     hasHitEnemy = true;
-                    // RegisterBeamHit removed — Funeral Prayer is now a channeled beam weapon
+                    // RegisterBeamHit removed ? Funeral Prayer is now a channeled beam weapon
                 }
 
                 CreateSecondaryArc(target);
@@ -294,6 +294,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = tex.Size() / 2f;
             float time = (float)Main.gameTimeCache.TotalGameTime.TotalSeconds;
@@ -320,6 +322,15 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             EroicaVFXLibrary.BeginEroicaAdditive(sb);
             EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.4f);
             EroicaVFXLibrary.EndEroicaAdditive(sb);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -428,7 +439,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     EroicaShaderManager.RestoreSpriteBatch(sb);
                 }
 
-                // PASS 2: FuneralTrail glow — wider smolder
+                // PASS 2: FuneralTrail glow ? wider smolder
                 EroicaShaderManager.BeginShaderAdditive(sb);
                 try
                 {
@@ -518,7 +529,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 {
                     EroicaShaderManager.ApplyFuneralPrayerRequiemBeam(time, glowPass: false);
 
-                    Texture2D ringTex = EroicaTextures.HaloRing?.Value ?? EroicaTextures.CircularMask?.Value;
+                    Texture2D ringTex = EroicaTextures.HaloRing?.Value ?? EroicaTextures.SoftCircle?.Value;
                     if (ringTex != null)
                     {
                         float pulse = 0.8f + 0.2f * (float)Math.Sin(ageTimer * 0.18f);

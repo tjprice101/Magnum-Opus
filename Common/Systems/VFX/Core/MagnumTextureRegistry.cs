@@ -36,7 +36,7 @@ namespace MagnumOpus.Common.Systems.VFX
         public static Asset<Texture2D> EnergyFlare       { get; private set; }
         public static Asset<Texture2D> PartiGlow         { get; private set; }
         public static Asset<Texture2D> BloomCircle       { get; private set; }
-        public static Asset<Texture2D> SmallBloom        { get; private set; }
+        public static Asset<Texture2D> SmallBloom      { get; private set; }
 
         // ═══════════════════════════════════════════════════════
         //  MASKS & SHAPES
@@ -97,6 +97,7 @@ namespace MagnumOpus.Common.Systems.VFX
         public static Asset<Texture2D> FateGradient           { get; private set; }
         public static Asset<Texture2D> LaCampanellaGradient   { get; private set; }
         public static Asset<Texture2D> MoonlightGradient      { get; private set; }
+        public static Asset<Texture2D> OdeToJoyGradient       { get; private set; }
         public static Asset<Texture2D> SwanLakeGradient       { get; private set; }
         public static Asset<Texture2D> RainbowGradient        { get; private set; }
 
@@ -203,6 +204,7 @@ namespace MagnumOpus.Common.Systems.VFX
             FateGradient         = SafeLoad($"{VFX}/ColorGradients/FateGradientLUTandRAMP");
             LaCampanellaGradient = SafeLoad($"{VFX}/ColorGradients/LaCampanellaGradientLUTandRAMP");
             MoonlightGradient    = SafeLoad($"{VFX}/ColorGradients/MoonlightSonataGradientLUTandRAMP");
+            OdeToJoyGradient     = SafeLoad($"{VFX}/ColorGradients/OdeToJoyGradientLUTandRAMP");
             SwanLakeGradient     = SafeLoad($"{VFX}/ColorGradients/SwanLakeGradient");
             RainbowGradient      = SafeLoad($"{SLP}/Gradients/RainbowGrad1");
 
@@ -286,6 +288,7 @@ namespace MagnumOpus.Common.Systems.VFX
         // ── Glow ──
         public static Texture2D GetBloom()           => Get(PointBloom) ?? Get(SoftRadialBloom) ?? Get(SoftGlow);
         public static Texture2D GetSoftGlow()        => Get(SoftGlow) ?? GetBloom();
+        public static Texture2D GetSoftGlow64()      => Get(SoftGlow64) ?? GetBloom();
         public static Texture2D GetPointBloom()      => Get(PointBloom) ?? GetBloom();
         public static Texture2D GetRadialBloom()     => Get(SoftRadialBloom) ?? GetBloom();
         public static Texture2D GetFeatherGlow()     => Get(FeatherCircle) ?? GetBloom();

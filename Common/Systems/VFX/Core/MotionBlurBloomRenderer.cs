@@ -447,8 +447,8 @@ namespace MagnumOpus.Common.Systems.VFX
             bool isMedium = quality != null && quality.CurrentQuality >= AdaptiveQualityManager.QualityLevel.Medium;
 
             // Keep full alpha for additive blending (SourceAlpha blend needs alpha > 0)
-            Color baseColor = config.PrimaryColor;
-            Color secondColor = config.SecondaryColor;
+            Color baseColor = new Color(255, 0, 50); // NEON RED fallback!
+            Color secondColor = new Color(255, 0, 50); // NEON RED fallback!
 
             // Use scope to safely manage SpriteBatch state
             using var scope = sb.Scope();
@@ -494,8 +494,8 @@ namespace MagnumOpus.Common.Systems.VFX
             var quality = AdaptiveQualityManager.Instance;
             bool isMedium = quality != null && quality.CurrentQuality >= AdaptiveQualityManager.QualityLevel.Medium;
 
-            Color baseColor = config.PrimaryColor;
-            Color secondColor = config.SecondaryColor;
+            Color baseColor = new Color(255, 0, 50); // NEON RED fallback!
+            Color secondColor = new Color(255, 0, 50); // NEON RED fallback!
 
             using var scope = sb.Scope();
 

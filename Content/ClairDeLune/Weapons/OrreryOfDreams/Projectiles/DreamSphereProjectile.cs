@@ -168,6 +168,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.OrreryOfDreams.Projectiles
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
 
             Color coreColor = SphereType switch
@@ -189,6 +191,15 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.OrreryOfDreams.Projectiles
             DrawOrbitRing(sb, matrix, glowColor);                   // Pass 3: Orbit ring trail
 
             ClairDeLuneVFXLibrary.DrawThemeAccents(sb, Projectile.Center, 0.5f, 0.3f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.FoundationWeapons.SparkleProjectileFoundation;
 using ReLogic.Content;
@@ -212,6 +213,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Draw multiple layered glows as the "projectile" visual
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D glowTex = SPFTextures.SparkleSoft.Value;
@@ -225,20 +229,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
-            // Outer crimson glow
-            Color outerColor = EroicaPalette.Scarlet * 0.4f;
-            spriteBatch.Draw(glowTex, drawPos, null, outerColor, Projectile.rotation, origin, 1.8f * pulse, SpriteEffects.None, 0f);
-            
-            // Middle gold glow
-            Color middleColor = Color.Lerp(EroicaPalette.Crimson, EroicaPalette.Gold, progress) * 0.5f;
-            spriteBatch.Draw(glowTex, drawPos, null, middleColor, Projectile.rotation * 0.7f, origin, 1.2f * pulse, SpriteEffects.None, 0f);
-            
-            // Inner core
-            Color innerColor = Color.Lerp(EroicaPalette.Gold, Color.White, 0.4f) * 0.7f;
-            spriteBatch.Draw(glowTex, drawPos, null, innerColor, -Projectile.rotation, origin, 0.7f * pulse, SpriteEffects.None, 0f);
-            
-            // Central white hot core
-            spriteBatch.Draw(glowTex, drawPos, null, Color.White * 0.8f, 0f, origin, 0.35f * pulse, SpriteEffects.None, 0f);
+            // Graduated orb bloom head (Incisor of Moonlight pattern)
+            MagnumVFX.DrawGraduatedOrbHead(spriteBatch, drawPos, EroicaPalette.Scarlet, EroicaPalette.Gold, 0.9f);
 
             // Restore default blend state
             spriteBatch.End();
@@ -248,6 +240,15 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             EroicaVFXLibrary.BeginEroicaAdditive(spriteBatch);
             EroicaVFXLibrary.DrawThemeSakuraAccent(spriteBatch, Projectile.Center, 1f, 0.5f);
             EroicaVFXLibrary.EndEroicaAdditive(spriteBatch);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false; // Don't draw default sprite
         }

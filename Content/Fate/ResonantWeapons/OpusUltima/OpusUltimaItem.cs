@@ -12,6 +12,7 @@ using MagnumOpus.Common;
 using MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Utilities;
 using MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Particles;
 using MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles;
+using MagnumOpus.Content.SandboxExoblade.Utilities;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima
 {
@@ -42,6 +43,9 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima
         // Glow texture for hold VFX
         private static Asset<Texture2D> _glowTex;
 
+        /// <summary>Tracks the 3-movement combo cycle: Exposition → Development → Recapitulation.</summary>
+        private int movementCounter = 0;
+
         public override void SetStaticDefaults()
         {
             Item.ResearchUnlockCount = 1;
@@ -67,9 +71,27 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima
             Item.noUseGraphic = true;
             Item.shoot = ModContent.ProjectileType<OpusSwingProjectile>();
             Item.shootSpeed = 12f;
-            Item.channel = false;
+            Item.channel = true;
             Item.UseSound = null; // Swing projectile handles sounds
         }
+
+        public override bool CanShoot(Player player)
+        {
+            bool isDash = player.altFunctionUse == 2;
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile p = Main.projectile[i];
+                if (!p.active || p.owner != player.whoAmI || p.type != Item.shoot)
+                    continue;
+                if (isDash) return false;
+                if (!(p.ai[0] == 1 && p.ai[1] == 1)) return false;
+            }
+            return true;
+        }
+
+        public override bool AltFunctionUse(Player player) => true;
+        public override bool? CanHitNPC(Player player, NPC target) => false;
+        public override bool CanHitPvp(Player player, Player target) => false;
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
@@ -86,19 +108,52 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            var op = player.Opus();
+            float state = player.altFunctionUse == 2 ? 1f : 0f;
+            Projectile.NewProjectile(source, player.MountedCenter,
+                (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
+                type, damage, knockback, player.whoAmI, state, 0);
 
-            // Fire the held swing projectile
-            Projectile.NewProjectile(source, player.Center, Vector2.Zero, type, damage, knockback, player.whoAmI);
+            // --- 3-Movement Opus Combo ---
+            // Movement I  (Exposition): Single energy ball forward
+            // Movement II (Development): Twin energy balls in narrow spread
+            // Movement III (Recapitulation): Massive energy ball (1.5x) + flanking seekers
+            Vector2 aimDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
+            int movement = movementCounter % 3;
+            movementCounter++;
+            int energyBallType = ModContent.ProjectileType<OpusEnergyBallProjectile>();
 
-            // Register swing with player tracker (returns movement index)
-            int movement = op.OnSwing();
-
-            // Movement-specific sound accents
-            if (movement == 2)
+            switch (movement)
             {
-                // Recapitulation: dramatic crescendo sound
-                SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.1f, Volume = 0.7f }, player.Center);
+                case 0: // Exposition — single energy ball
+                    Projectile.NewProjectile(source, player.MountedCenter, aimDir * 12f,
+                        energyBallType, (int)(damage * 0.4f), knockback * 0.5f, player.whoAmI,
+                        0f, 1f); // mode=EnergyBall, size=1.0
+                    break;
+
+                case 1: // Development — twin energy balls
+                    for (int i = -1; i <= 1; i += 2)
+                    {
+                        Vector2 ballVel = aimDir.RotatedBy(MathHelper.ToRadians(12 * i)) * 13f;
+                        Projectile.NewProjectile(source, player.MountedCenter, ballVel,
+                            energyBallType, (int)(damage * 0.35f), knockback * 0.5f, player.whoAmI,
+                            0f, 1f);
+                    }
+                    break;
+
+                case 2: // Recapitulation — massive energy ball + 2 crystal shards
+                    Projectile.NewProjectile(source, player.MountedCenter, aimDir * 10f,
+                        energyBallType, (int)(damage * 0.6f), knockback, player.whoAmI,
+                        0f, 1.5f); // size=1.5x massive
+
+                    // Flanking crystal shards
+                    for (int i = -1; i <= 1; i += 2)
+                    {
+                        Vector2 shardVel = aimDir.RotatedBy(MathHelper.ToRadians(35 * i)) * 8f;
+                        Projectile.NewProjectile(source, player.MountedCenter, shardVel,
+                            energyBallType, (int)(damage * 0.25f), knockback * 0.3f, player.whoAmI,
+                            2f, 1f); // mode=CrystalShard
+                    }
+                    break;
             }
 
             return false;
@@ -106,6 +161,9 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima
 
         public override void HoldItem(Player player)
         {
+            player.ExoBlade().rightClickListener = true;
+            player.ExoBlade().mouseWorldListener = true;
+
             if (Main.dedServ) return;
 
             var op = player.Opus();

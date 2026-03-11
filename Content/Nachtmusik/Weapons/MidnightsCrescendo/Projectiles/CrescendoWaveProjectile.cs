@@ -203,6 +203,8 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.MidnightsCrescendo.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
             Vector2 origin = tex.Size() * 0.5f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -280,6 +282,15 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.MidnightsCrescendo.Projectiles
             NachtmusikShaderManager.BeginAdditive(sb);
             NachtmusikVFXLibrary.DrawThemeStarFlare(sb, Projectile.Center, 1f, 0.5f);
             NachtmusikShaderManager.RestoreSpriteBatch(sb);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

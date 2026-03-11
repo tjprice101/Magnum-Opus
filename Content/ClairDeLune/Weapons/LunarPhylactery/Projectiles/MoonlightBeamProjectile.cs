@@ -12,7 +12,7 @@ using Terraria.ModLoader;
 namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
 {
     /// <summary>
-    /// Moonlight Beam — sustained beam projectile fired by Moonlight Sentinel.
+    /// Moonlight Beam  Esustained beam projectile fired by Moonlight Sentinel.
     /// Rendering: (1) SparkleTrailShader VertexStrip trail, (2) SoulBeam.fx shimmer overlay,
     /// (3) Multi-scale bloom core, (4) Crossing-burst VFX.
     /// ai[0] = target NPC index. Pierces up to 3 enemies.
@@ -145,7 +145,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
 
         private void LoadTextures()
         {
-            _sparkleTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/TrailsAndRibbons/SpiralTrail", AssetRequestMode.ImmediateLoad);
+            _sparkleTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/TrailsAndRibbons/Spiraling Vortex Energy Strip", AssetRequestMode.ImmediateLoad);
             _gradientLUT ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/ColorGradients/ClairDeLuneGradientLUTandRAMP", AssetRequestMode.ImmediateLoad);
             _glowMask ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow", AssetRequestMode.ImmediateLoad);
             _softGlow ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow", AssetRequestMode.ImmediateLoad);
@@ -160,11 +160,22 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
 
             DrawSparkleTrail(sb, matrix);    // Pass 1: VertexStrip sparkle trail
             DrawSoulBeamOverlay(sb, matrix); // Pass 2: SoulBeam.fx shimmer on SoftCircle quad
             DrawBloomCore(sb, matrix);       // Pass 3: Multi-scale bloom at projectile head
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
@@ -174,7 +185,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
             int count = Math.Min(_trailIndex, TrailLength);
             if (count < 3) return;
 
-            // Build ordered arrays from ring buffer (newest → oldest)
+            // Build ordered arrays from ring buffer (newest ↁEoldest)
             Vector2[] positions = new Vector2[count];
             float[] rotations = new float[count];
             for (int i = 0; i < count; i++)

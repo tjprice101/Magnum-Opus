@@ -34,6 +34,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
     {
         public Player Owner => Main.player[Projectile.owner];
         const float BladeLength = 150;
+        const float TextureDrawScale = 0.108f;
 
         // =====================================================================
         // TIMING
@@ -469,11 +470,23 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             if (Projectile.Opacity <= 0f || InPostDashStasis) return false;
             DrawSlash();
             DrawPierceTrail();
             DrawBlade();
             DrawConstellationFlare();
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
@@ -625,7 +638,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
                 Vector2 bladeDrawPos = Owner.MountedCenter + SwordDirection * 14f * Projectile.scale - Main.screenPosition;
                 Main.EntitySpriteDraw(texture, bladeDrawPos, null,
                     Color.White, BaseRotation, texture.Size() / 2f,
-                    SquishVector * 3.5f * Projectile.scale, dir, 0);
+                    SquishVector * 3.5f * Projectile.scale * TextureDrawScale, dir, 0);
 
                 Main.spriteBatch.End();
                 Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
@@ -648,7 +661,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
 
                 Projectile.scale = MathHelper.Lerp(1f, 0.22f, MathF.Pow(LungeProgression, 7));
                 Main.EntitySpriteDraw(texture, drawPos, null, Color.White, rotation, origin,
-                    Projectile.scale, dir, 0);
+                    Projectile.scale * TextureDrawScale, dir, 0);
 
                 // Purple-silver bloom afterimages
                 float energyPower = Utils.GetLerpValue(0f, 0.32f, Progression, true)
@@ -660,7 +673,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
                     Color afterColor = Color.Lerp(new Color(170, 140, 255), new Color(135, 206, 250), Progression);
                     afterColor.A = 0;
                     Main.spriteBatch.Draw(texture, drawPos + offset, null, afterColor * 0.14f,
-                        rotation, origin, Projectile.scale, dir, 0);
+                        rotation, origin, Projectile.scale * TextureDrawScale, dir, 0);
                 }
             }
         }

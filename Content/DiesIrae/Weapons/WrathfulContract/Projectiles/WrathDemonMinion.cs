@@ -335,6 +335,10 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract.Projectiles
             target.AddBuff(BuffID.OnFire3, 180);
             EndCharge();
 
+            // Dies Irae VFX: demon charge impact
+            DiesIraeVFXLibrary.MeleeImpact(target.Center, 1);
+            DiesIraeVFXLibrary.SpawnEmberScatter(target.Center, 6, 4f);
+
             // Contract Clause healing: 5% enemy max HP
             Player player = Main.player[Projectile.owner];
             int healing = (int)(target.lifeMax * 0.05f);
@@ -426,6 +430,14 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
+            // ── MINION SPRITE: Draw base PNG sprite ──
+            Texture2D minionTex = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            Vector2 minionOrigin = minionTex.Size() / 2f;
+            sb.Draw(minionTex, drawPos, null, lightColor * Projectile.Opacity, Projectile.rotation, minionOrigin, Projectile.scale, SpriteEffects.None, 0f);
+
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
@@ -445,9 +457,15 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract.Projectiles
             // Demon body (MaskFoundation shader handles batch internally)
             WrathfulContractUtils.DrawDemonBody(sb, Projectile.Center, timer, vfxState, _seed);
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -517,6 +535,10 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract.Projectiles
         {
             target.AddBuff(BuffID.OnFire3, 120);
 
+            // Dies Irae VFX: fireball impact with color-ramped sparkle explosion
+            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(target.Center, 6, 4f, 0.25f);
+            DiesIraeVFXLibrary.SpawnContrastSparkle(target.Center, Projectile.velocity);
+
             // Impact sparks
             for (int i = 0; i < 4; i++)
             {
@@ -529,6 +551,8 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D glow = DemonTextures.SoftGlow;
             if (glow == null) return false;
 
@@ -565,10 +589,15 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract.Projectiles
             }
 
             // ── Restore default SpriteBatch ──
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                SamplerState.PointClamp, DepthStencilState.None,
-                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

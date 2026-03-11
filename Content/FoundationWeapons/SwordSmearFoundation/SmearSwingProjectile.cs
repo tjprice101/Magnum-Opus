@@ -147,6 +147,8 @@ namespace MagnumOpus.Content.FoundationWeapons.SwordSmearFoundation
         {
             Player owner = Main.player[Projectile.owner];
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Vector2 drawOrigin = owner.MountedCenter - Main.screenPosition;
 
             float progress = MathHelper.Clamp((float)timer / SwingDuration, 0f, 1f);
@@ -226,7 +228,7 @@ namespace MagnumOpus.Content.FoundationWeapons.SwordSmearFoundation
             }
             else
             {
-                // --- FALLBACK: static colored layers (no shader) ---
+                // --- FALLBACK: NEON RED layers (shader failed!) ---
                 // BlendState.Additive (SourceAlpha) for alpha-transparent arc textures
                 sb.End();
                 sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
@@ -234,18 +236,19 @@ namespace MagnumOpus.Content.FoundationWeapons.SwordSmearFoundation
                     RasterizerState.CullCounterClockwise, null,
                     Main.GameViewMatrix.EffectMatrix);
 
+                Color _neonRed = new Color(255, 0, 50);
                 sb.Draw(smearTex, drawOrigin, null,
-                    styleColors[0] * smearAlpha * 0.4f,
+                    _neonRed * smearAlpha * 0.4f,
                     smearRotation, smearOrigin,
                     smearScale * 1.15f, SpriteEffects.None, 0f);
 
                 sb.Draw(smearTex, drawOrigin, null,
-                    styleColors[1] * smearAlpha * 0.7f,
+                    _neonRed * smearAlpha * 0.7f,
                     smearRotation, smearOrigin,
                     smearScale, SpriteEffects.None, 0f);
 
                 sb.Draw(smearTex, drawOrigin, null,
-                    styleColors[2] * smearAlpha * 0.55f,
+                    _neonRed * smearAlpha * 0.55f,
                     smearRotation, smearOrigin,
                     smearScale * 0.85f, SpriteEffects.None, 0f);
 
@@ -299,6 +302,15 @@ namespace MagnumOpus.Content.FoundationWeapons.SwordSmearFoundation
             sb.Draw(bladeTex, drawOrigin, null,
                 lightColor, currentAngle + MathHelper.PiOver4,
                 bladeOrigin, 1f, flip, 0f);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

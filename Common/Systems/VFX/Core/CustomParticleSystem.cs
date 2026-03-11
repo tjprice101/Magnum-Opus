@@ -216,14 +216,14 @@ namespace MagnumOpus.Common.Systems
             Glyphs[10] = TryLoad($"{vfx}/NoiseTextures/TileableMarbleNoise", ref loaded);
             Glyphs[11] = TryLoad($"{vfx}/NoiseTextures/UniversalRadialFlowNoise", ref loaded);
 
-            // === SWAN FEATHERS — use ellipse/glow shapes tinted white at runtime ===
-            SwanFeathers[0] = TryLoad($"{vfx}/MasksAndShapes/VerticalEllipse", ref loaded);
-            SwanFeathers[1] = TryLoad($"{vfx}/MasksAndShapes/WideSoftEllipse", ref loaded);
+            // === SWAN FEATHERS — small sparkle/feather shapes (no large bloom textures) ===
+            SwanFeathers[0] = TryLoad($"{slp}/Orbs/feather_circle128PMA", ref loaded);
+            SwanFeathers[1] = TryLoad($"{slp}/Orbs/SoftGlow64", ref loaded);
             SwanFeathers[2] = TryLoad($"{slp}/Orbs/feather_circle128PMA", ref loaded);
             SwanFeathers[3] = TryLoad($"{vfx}/MasksAndShapes/SoftCircle", ref loaded);
-            SwanFeathers[4] = TryLoad($"{slp}/Orbs/SoftGlow", ref loaded);
-            SwanFeathers[5] = TryLoad($"{vfx}/MasksAndShapes/VerticalEllipse", ref loaded);
-            SwanFeathers[6] = TryLoad($"{vfx}/MasksAndShapes/WideSoftEllipse", ref loaded);
+            SwanFeathers[4] = TryLoad($"{slp}/Orbs/SoftGlow64", ref loaded);
+            SwanFeathers[5] = TryLoad($"{slp}/Orbs/feather_circle128PMA", ref loaded);
+            SwanFeathers[6] = TryLoad($"{slp}/Orbs/SoftGlow64", ref loaded);
             SwanFeathers[7] = TryLoad($"{slp}/Orbs/feather_circle128PMA", ref loaded);
             SwanFeathers[8] = TryLoad($"{vfx}/MasksAndShapes/SoftCircle", ref loaded);
             SwanFeathers[9] = TryLoad($"{slp}/Orbs/SoftGlow64", ref loaded);

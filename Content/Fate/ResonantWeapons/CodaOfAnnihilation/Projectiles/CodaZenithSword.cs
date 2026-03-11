@@ -10,6 +10,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Common.Systems.VFX.Sparkle;
 using MagnumOpus.Content.Fate.Debuffs;
 using MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Primitives;
 using MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Shaders;
@@ -299,6 +300,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
                     target.Center, noteVel, noteColor, 0.4f, 30));
             }
 
+            // Shader-driven impact burst (CodaImpactBurst.fx)
+            CodaParticleHandler.SpawnParticle(new CodaImpactBurstParticle(
+                target.Center, weaponColor, CodaUtils.AnnihilationWhite, 0.4f, 16));
+
             // Apply DestinyCollapse 180 ticks
             target.AddBuff(ModContent.BuffType<DestinyCollapse>(), 180);
 
@@ -306,8 +311,12 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
             target.AddBuff(ModContent.BuffType<AnnihilationMark>(), 300);
             var annihilationNPC = target.GetGlobalNPC<AnnihilationMarkNPC>();
             bool detonated = annihilationNPC.AddStack(damageDone);
-            if (detonated && !Main.dedServ)
+            if (detonated)
             {
+                // Apply the actual damage burst and reset stacks
+                annihilationNPC.Detonate(target);
+
+                if (Main.dedServ) goto SkipDetonationVFX;
                 // Massive detonation VFX at max stacks
                 for (int j = 0; j < 12; j++)
                 {
@@ -321,6 +330,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
                     target.Center, Color.White, 1.0f, 20));
                 CodaParticleHandler.SpawnParticle(new AnnihilationFlareParticle(
                     target.Center, CodaUtils.CodaCrimson, 0.8f, 18));
+                // Shader-driven annihilation bloom (CodaAnnihilationBloom.fx)
+                CodaParticleHandler.SpawnParticle(new CodaAnnihilationBloomParticle(
+                    target.Center, CodaUtils.CodaCrimson, CodaUtils.CodaPink, 0.7f, 24));
+
+                SkipDetonationVFX:;
             }
 
             // Impact sound
@@ -362,6 +376,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Color weaponColor = CodaUtils.GetWeaponColor(WeaponIndex);
 
             Texture2D weaponTex = CodaUtils.GetWeaponTexture(WeaponIndex);
@@ -440,80 +456,39 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
             _trailRenderer.RenderTrail(orderedTrail, innerSettings);
 
             // ════════════════════════════════════════════════════════
-            // PASS 2: BLOOM STACK (multi-layer glow at proj center)
-            // Uses A=0 premultiplied trick under AlphaBlend for true additive glow
+            // PASS 2: CELESTIAL SPARKLE BLOOM (replaces 6-layer SoftGlow stack)
+            // Twinkling star-point sparkles through CelestialSparkleShader
+            // ════════════════════════════════════════════════════════
+
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                SamplerState.LinearClamp, DepthStencilState.None,
+                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            float time = (float)Main.timeForVisualEffects;
+            float pulse = 0.85f + 0.15f * MathF.Sin(time * 0.0013f);
+
+            // Celestial sparkle bloom — per-weapon unique colors
+            Color[] sparkleColors = new Color[] {
+                weaponColor,
+                Color.Lerp(weaponColor, CodaUtils.CodaCrimson, 0.3f),
+                Color.Lerp(weaponColor, CodaUtils.AnnihilationWhite, 0.4f),
+                CodaUtils.StarGold,
+                CodaUtils.CodaPink,
+            };
+            float sparkleRadius = 24f * pulse;
+            SparkleBloomHelper.DrawSparkleBloom(sb, Projectile.Center, SparkleTheme.Fate,
+                sparkleColors, 0.7f * pulse, sparkleRadius, 8, time,
+                seed: Projectile.identity * 0.29f + WeaponIndex * 1.37f, sparkleScale: 0.035f);
+
+            sb.End();
+
+            // ════════════════════════════════════════════════════════
+            // PASS 3: WEAPON SPRITE (AlphaBlend for sprite rendering)
             // ════════════════════════════════════════════════════════
 
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            float time = (float)Main.GameUpdateCount;
-            float pulse = 0.85f + 0.15f * MathF.Sin(time * 0.08f);
-
-            // Layer 1: Wide ambient halo (RadialBloom)
-            Texture2D radialBloom = MagnumTextureRegistry.GetRadialBloom();
-            if (radialBloom != null)
-            {
-                Vector2 rOrigin = radialBloom.Size() * 0.5f;
-                Color haloColor = CodaUtils.Additive(weaponColor, 0.12f * pulse);
-                sb.Draw(radialBloom, drawPos, null, haloColor, 0f, rOrigin, MathHelper.Min(0.14f * pulse, 0.139f), SpriteEffects.None, 0f);
-            }
-
-            // Layer 2: Mid glow (SoftGlow)
-            Texture2D softGlow = MagnumTextureRegistry.GetSoftGlow();
-            if (softGlow != null)
-            {
-                Vector2 sOrigin = softGlow.Size() * 0.5f;
-                Color midColor = CodaUtils.Additive(
-                    Color.Lerp(weaponColor, CodaUtils.CodaCrimson, 0.3f), 0.24f * pulse);
-                sb.Draw(softGlow, drawPos, null, midColor, 0f, sOrigin, 0.45f, SpriteEffects.None, 0f);
-            }
-
-            // Layer 3: Inner bloom (PointBloom)
-            Texture2D pointBloom = MagnumTextureRegistry.GetPointBloom();
-            if (pointBloom != null)
-            {
-                Vector2 pOrigin = pointBloom.Size() * 0.5f;
-                Color innerColor = CodaUtils.Additive(
-                    Color.Lerp(weaponColor, CodaUtils.AnnihilationWhite, 0.4f), 0.39f);
-                sb.Draw(pointBloom, drawPos, null, innerColor, 0f, pOrigin, 0.06f, SpriteEffects.None, 0f);
-            }
-
-            // Layer 4: White-hot core
-            if (softGlow != null)
-            {
-                Vector2 sOrigin = softGlow.Size() * 0.5f;
-                Color coreColor = CodaUtils.Additive(CodaUtils.AnnihilationWhite, 0.48f);
-                sb.Draw(softGlow, drawPos, null, coreColor, 0f, sOrigin, 0.28f, SpriteEffects.None, 0f);
-            }
-
-            // Layer 5: Counter-rotating star flares (cosmic Fate identity)
-            Texture2D star4 = MagnumTextureRegistry.GetStar4Soft();
-            if (star4 != null)
-            {
-                Vector2 starOrigin = star4.Size() * 0.5f;
-                float rot1 = time * 0.03f;
-                float rot2 = -time * 0.02f;
-                Color flareColor1 = CodaUtils.Additive(CodaUtils.CodaCrimson, 0.3f * pulse);
-                Color flareColor2 = CodaUtils.Additive(CodaUtils.StarGold, 0.21f * pulse);
-                sb.Draw(star4, drawPos, null, flareColor1, rot1, starOrigin, 0.64f, SpriteEffects.None, 0f);
-                sb.Draw(star4, drawPos, null, flareColor2, rot2, starOrigin, 0.48f, SpriteEffects.None, 0f);
-            }
-
-            // Layer 6: Thin tall star accent
-            Texture2D starThin = MagnumTextureRegistry.GetStarThin();
-            if (starThin != null)
-            {
-                Vector2 thinOrigin = starThin.Size() * 0.5f;
-                float thinRot = Projectile.velocity.ToRotation();
-                Color thinColor = CodaUtils.Additive(CodaUtils.CodaPink, 0.27f * pulse);
-                sb.Draw(starThin, drawPos, null, thinColor, thinRot, thinOrigin, 0.44f, SpriteEffects.None, 0f);
-            }
-
-            // ════════════════════════════════════════════════════════
-            // PASS 3: WEAPON SPRITE (same AlphaBlend batch — no restart needed)
-            // ════════════════════════════════════════════════════════
 
             // Draw weapon sprite
             sb.Draw(weaponTex, drawPos, null, Color.White, Projectile.rotation, origin, 1f, SpriteEffects.None, 0f);
@@ -521,6 +496,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
             // Additive weapon glow overlay (A=0 trick under AlphaBlend = pure additive)
             Color weaponGlow = CodaUtils.Additive(weaponColor, 0.15f);
             sb.Draw(weaponTex, drawPos, null, weaponGlow, Projectile.rotation, origin, 0.84f, SpriteEffects.None, 0f);
+
+            // Restore SpriteBatch to the state Terraria expects (matching Main.DefaultSamplerState + Main.Rasterizer)
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
             }
             catch
@@ -533,6 +513,15 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
                         DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
                 }
                 catch { }
+            }
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
             return false;

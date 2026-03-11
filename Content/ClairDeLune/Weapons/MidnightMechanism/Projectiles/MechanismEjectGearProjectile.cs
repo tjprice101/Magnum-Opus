@@ -1,10 +1,15 @@
+using MagnumOpus.Common;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.Shaders;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Content.ClairDeLune;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using System;
 using Terraria;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -30,6 +35,13 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.MidnightMechanism.Projectiles
         private static Asset<Texture2D> _softCircle;
         private static Asset<Texture2D> _softRadialBloom;
         private static Asset<Texture2D> _pointBloom;
+        private VertexStrip _vertexStrip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -106,11 +118,32 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.MidnightMechanism.Projectiles
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
-            Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
+            try
+            {
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.ClairDeLune, ref _vertexStrip);
 
-            DrawGatlingBlur(sb, matrix);      // Pass 1: GatlingBarrelBlur motion blur
-            DrawBounceFlash(sb, matrix);      // Pass 2: PearlShimmer bounce flash (if active)
-            DrawBloomAndTeeth(sb, matrix);    // Pass 3: Bloom teeth + core
+                // --- Ejected gear brass fragment glow ---
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                var glowTex = MagnumTextureRegistry.GetSoftGlow();
+                Vector2 origin = glowTex.Size() / 2f;
+                Vector2 pos = Projectile.Center - Main.screenPosition;
+                float rot = Projectile.rotation + (float)(Main.timeForVisualEffects * 0.07);
+                Color brass = (ClairDeLunePalette.ClockworkBrass with { A = 0 }) * 0.5f;
+                sb.Draw(glowTex, pos, null, brass, rot, origin, 0.03f, SpriteEffects.None, 0f);
+
+                sb.End();
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

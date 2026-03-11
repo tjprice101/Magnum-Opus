@@ -202,8 +202,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Procedural Spring rendering - cherry blossom storm aesthetic
             ProceduralProjectileVFX.DrawSpringProjectile(Main.spriteBatch, Projectile, 0.5f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
@@ -304,8 +316,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Procedural Spring petal rendering
             ProceduralProjectileVFX.DrawSpringProjectile(Main.spriteBatch, Projectile, 0.25f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -469,8 +493,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Procedural Summer rendering - blazing sun orb aesthetic
             ProceduralProjectileVFX.DrawSummerProjectile(Main.spriteBatch, Projectile, 0.55f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
@@ -573,8 +609,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Procedural Summer pillar rendering
             ProceduralProjectileVFX.DrawSummerProjectile(Main.spriteBatch, Projectile, 0.6f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -718,8 +766,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Procedural Autumn rendering - decaying orbs with falling leaves aesthetic
             ProceduralProjectileVFX.DrawAutumnProjectile(Main.spriteBatch, Projectile, 0.5f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
@@ -827,9 +887,21 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Procedural Autumn rendering - decay field with fading life energy
             float lifeProgress = Projectile.timeLeft / 90f;
             ProceduralProjectileVFX.DrawAutumnProjectile(Main.spriteBatch, Projectile, 0.4f * lifeProgress);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -978,8 +1050,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Procedural Winter rendering - icy orb with crystalline shimmer
             ProceduralProjectileVFX.DrawWinterProjectile(Main.spriteBatch, Projectile, 0.5f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
@@ -1096,8 +1180,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Procedural Winter rendering - small spinning ice shard
             ProceduralProjectileVFX.DrawWinterProjectile(Main.spriteBatch, Projectile, 0.25f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }

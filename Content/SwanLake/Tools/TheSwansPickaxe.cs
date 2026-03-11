@@ -97,13 +97,6 @@ namespace MagnumOpus.Content.SwanLake.Tools
                 sparkle.velocity *= 0.5f;
             }
             
-            // Swan feather trail on swing
-            if (Main.rand.NextBool(5))
-            {
-                Microsoft.Xna.Framework.Vector2 swingPos = new Microsoft.Xna.Framework.Vector2(hitbox.X + hitbox.Width / 2f, hitbox.Y + hitbox.Height / 2f);
-                CustomParticles.SwanFeatherTrail(swingPos, player.velocity, 0.25f);
-            }
-
             // Music notes in tool swing
             if (Main.rand.NextBool(4))
             {

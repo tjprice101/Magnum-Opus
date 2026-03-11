@@ -40,7 +40,6 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
 
         // ConvergenceBeamShader pipeline (LaserFoundation pattern)
         private Effect beamShader;
-        private Effect flareShader;
         private float flareRotation;
         
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MusicNote";
@@ -112,14 +111,22 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
                 beamShader.Parameters["tex3reps"].SetValue(1.15f * repVal);
                 beamShader.Parameters["tex4reps"].SetValue(1.15f * repVal);
 
-                Vector2[] positions = { beamStart, beamEnd };
-                float[] rotations = { beamAngle, beamAngle };
-                float stripWidth = 80f * intensityRamp;
+                // Build multi-point strip for smooth tapered beam
+                const int segCount = 20;
+                Vector2[] positions = new Vector2[segCount];
+                float[] rotations = new float[segCount];
+                for (int s = 0; s < segCount; s++)
+                {
+                    float t = s / (float)(segCount - 1);
+                    positions[s] = Vector2.Lerp(beamStart, beamEnd, t);
+                    rotations[s] = beamAngle;
+                }
+                float baseWidth = 80f * intensityRamp;
 
                 VertexStrip strip = new VertexStrip();
                 strip.PrepareStrip(positions, rotations,
                     (float p) => Color.White,
-                    (float p) => stripWidth,
+                    (float p) => baseWidth * (0.3f + 0.7f * MathF.Sin(p * MathHelper.Pi)),
                     -Main.screenPosition, includeBacksides: true);
 
                 beamShader.CurrentTechnique.Passes["MainPS"].Apply();
@@ -128,19 +135,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
 
             Main.pixelShader.CurrentTechnique.Passes[0].Apply();
 
-            // ── ENDPOINT FLARES (FlareRainbowShader) ──
-            if (flareShader == null)
-            {
-                flareShader = ModContent.Request<Effect>(
-                    "MagnumOpus/Content/FoundationWeapons/LaserFoundation/Shaders/FlareRainbowShader",
-                    AssetRequestMode.ImmediateLoad).Value;
-            }
-
+            // ── ENDPOINT FLARES (Enigma-themed direct colors) ──
             flareRotation += 1.15f;
-            flareShader.Parameters["rotation"].SetValue(flareRotation * 0.075f);
-            flareShader.Parameters["rainbowRotation"].SetValue(flareRotation * 0.025f);
-            flareShader.Parameters["intensity"].SetValue(intensityRamp);
-            flareShader.Parameters["fadeStrength"].SetValue(1f);
 
             Texture2D lensFlare = LFTextures.LensFlare.Value;
             Texture2D starFlare = LFTextures.StarFlare.Value;
@@ -149,10 +145,16 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
 
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
-                RasterizerState.CullCounterClockwise, flareShader,
+                RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.EffectMatrix);
 
             float pulse = 1f + 0.1f * MathF.Sin(Main.GameUpdateCount * 0.15f);
+
+            // Enigma-themed endpoint colors
+            Color tipOuter = VoidVariationUtils.VariationViolet * (0.5f * intensityRamp);
+            Color tipStar = VoidVariationUtils.RiftTeal * (0.45f * intensityRamp);
+            Color baseOuter = VoidVariationUtils.AbyssPurple * (0.4f * intensityRamp);
+            Color baseStar = VoidVariationUtils.VoidSurge * (0.35f * intensityRamp);
 
             // Per-beam tip flares (capped to 300px on 1024px textures)
             for (int b = 0; b < BeamCount; b++)
@@ -162,25 +164,27 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
                 Vector2 bDir = new Vector2((float)Math.Cos(bAngle), (float)Math.Sin(bAngle));
                 Vector2 tipDraw = owner.Center + bDir * beamLengths[b] - Main.screenPosition;
 
-                sb.Draw(glowOrb, tipDraw, null, Color.White, flareRotation * 0.1f,
-                    glowOrb.Size() / 2f, MathHelper.Min(0.4f * intensityRamp * pulse, 0.293f), SpriteEffects.None, 0f);
-                sb.Draw(starFlare, tipDraw, null, Color.White, flareRotation * 0.05f,
-                    starFlare.Size() / 2f, MathHelper.Min(0.35f * intensityRamp, 0.293f), SpriteEffects.None, 0f);
+                sb.Draw(glowOrb, tipDraw, null, tipOuter * pulse, flareRotation * 0.1f,
+                    glowOrb.Size() / 2f, MathHelper.Min(0.3f * intensityRamp * pulse, 0.2f), SpriteEffects.None, 0f);
+                sb.Draw(starFlare, tipDraw, null, tipStar, flareRotation * 0.05f,
+                    starFlare.Size() / 2f, MathHelper.Min(0.25f * intensityRamp, 0.18f), SpriteEffects.None, 0f);
+                sb.Draw(starFlare, tipDraw, null, VoidVariationUtils.SunderingWhite * (0.25f * intensityRamp), -flareRotation * 0.08f,
+                    starFlare.Size() / 2f, MathHelper.Min(0.15f * intensityRamp, 0.12f), SpriteEffects.None, 0f);
             }
 
             // Base flare at player origin
             Vector2 baseDraw = owner.Center - Main.screenPosition;
-            Vector2 sigilScale = new Vector2(0.2f, 1f) * 0.5f * intensityRamp;
-            // Cap sigilScale max dimension to 300px on 1024px textures
+            Vector2 sigilScale = new Vector2(0.2f, 1f) * 0.4f * intensityRamp;
+            // Cap sigilScale max dimension to 250px on 1024px textures
             float sigilMax = Math.Max(sigilScale.X, sigilScale.Y);
-            if (sigilMax > 0.293f)
+            if (sigilMax > 0.244f)
             {
-                float sigilCap = 0.293f / sigilMax;
+                float sigilCap = 0.244f / sigilMax;
                 sigilScale *= sigilCap;
             }
-            sb.Draw(softGlow, baseDraw, null, Color.White, baseAngle,
+            sb.Draw(softGlow, baseDraw, null, baseOuter, baseAngle,
                 softGlow.Size() / 2f, sigilScale, SpriteEffects.None, 0f);
-            sb.Draw(starFlare, baseDraw, null, Color.White, baseAngle,
+            sb.Draw(starFlare, baseDraw, null, baseStar, baseAngle,
                 starFlare.Size() / 2f, sigilScale, SpriteEffects.None, 0f);
 
             // Convergence point glow when nearly aligned (>70%)
@@ -189,14 +193,14 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
                 Vector2 convergePt = owner.Center + toCursorDraw * Math.Min(beamLengths[0], MaxBeamLength) - Main.screenPosition;
                 float convergeIntensity = (convergenceProgress - 0.7f) / 0.3f;
 
-                sb.Draw(glowOrb, convergePt, null, Color.White, flareRotation * 0.1f,
-                    glowOrb.Size() / 2f, MathHelper.Min(0.6f * convergeIntensity * pulse, 0.293f), SpriteEffects.None, 0f);
-                sb.Draw(lensFlare, convergePt, null, Color.White, flareRotation * 0.02f,
-                    lensFlare.Size() / 2f, MathHelper.Min(0.5f * convergeIntensity, 0.293f), SpriteEffects.None, 0f);
-                sb.Draw(starFlare, convergePt, null, Color.White, flareRotation * 0.05f,
-                    starFlare.Size() / 2f, MathHelper.Min(0.5f * convergeIntensity * pulse, 0.293f), SpriteEffects.None, 0f);
-                sb.Draw(softGlow, convergePt, null, Color.White, 0f,
-                    softGlow.Size() / 2f, MathHelper.Min(0.7f * convergeIntensity, 0.293f), SpriteEffects.None, 0f);
+                sb.Draw(glowOrb, convergePt, null, VoidVariationUtils.VoidSurge * (0.45f * convergeIntensity * pulse), flareRotation * 0.1f,
+                    glowOrb.Size() / 2f, MathHelper.Min(0.4f * convergeIntensity * pulse, 0.2f), SpriteEffects.None, 0f);
+                sb.Draw(lensFlare, convergePt, null, VoidVariationUtils.VariationViolet * (0.35f * convergeIntensity), flareRotation * 0.02f,
+                    lensFlare.Size() / 2f, MathHelper.Min(0.35f * convergeIntensity, 0.2f), SpriteEffects.None, 0f);
+                sb.Draw(starFlare, convergePt, null, VoidVariationUtils.RiftTeal * (0.4f * convergeIntensity * pulse), flareRotation * 0.05f,
+                    starFlare.Size() / 2f, MathHelper.Min(0.35f * convergeIntensity * pulse, 0.2f), SpriteEffects.None, 0f);
+                sb.Draw(softGlow, convergePt, null, VoidVariationUtils.SunderingWhite * (0.3f * convergeIntensity), 0f,
+                    softGlow.Size() / 2f, MathHelper.Min(0.45f * convergeIntensity, 0.2f), SpriteEffects.None, 0f);
             }
 
             // Theme texture accents

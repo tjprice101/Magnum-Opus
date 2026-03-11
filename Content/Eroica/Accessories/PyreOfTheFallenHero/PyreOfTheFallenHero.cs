@@ -38,56 +38,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.PyreOfTheFallenHero
             {
                 player.GetAttackSpeed(DamageClass.Melee) += 0.25f;
             }
-            
-            // Ambient particles - deep scarlet and black flames
-            if (!hideVisual && Main.rand.NextBool(6))
-            {
-                // Scarlet flame
-                Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
-                Dust flame = Dust.NewDustPerfect(player.Center + offset, DustID.CrimsonTorch, 
-                    new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -2f), 100, default, 1.3f);
-                flame.noGravity = true;
-            }
-            
-            if (!hideVisual && Main.rand.NextBool(8))
-            {
-                // Black smoke
-                Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
-                Dust smoke = Dust.NewDustPerfect(player.Center + offset, DustID.Smoke, 
-                    new Vector2(0, -1.5f), 180, Color.Black, 1.2f);
-                smoke.noGravity = true;
-            }
-            
-            // Eroica themed aura
-            if (!hideVisual)
-            {
-                ThemedParticles.EroicaAura(player.Center, 35f);
-            }
-            
-            // Fury stack visual indicator - intensifying prismatic glow
-            if (!hideVisual && modPlayer.furyStacks > 0)
-            {
-                // More intense particles as stacks build
-                float intensity = (float)modPlayer.furyStacks / 12f;
-                if (Main.rand.NextFloat() < intensity * 0.5f)
-                {
-                    Dust fury = Dust.NewDustPerfect(player.Center + Main.rand.NextVector2Circular(30f, 30f),
-                        DustID.Torch, Main.rand.NextVector2Circular(2f, 2f), 50, new Color(255, 100 + (int)(155 * intensity), 50), 1f + intensity);
-                    fury.noGravity = true;
-                }
-                
-                // Custom particles at high stacks
-                if (modPlayer.furyStacks >= 6 && Main.rand.NextBool(8))
-                {
-                    CustomParticles.EroicaFlare(player.Center + Main.rand.NextVector2Circular(20f, 20f), 0.3f * intensity);
-                }
-                
-                // Prismatic sparkles at high stacks
-                if (modPlayer.furyStacks >= 8 && Main.rand.NextBool(6))
-                {
-                    ThemedParticles.EroicaSparkles(player.Center, (int)(intensity * 4) + 2, 30f);
-                }
-            }
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)

@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -203,6 +203,29 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             return true;
+        }
+
+
+        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
+        {
+            Texture2D tex = TextureAssets.Item[Item.type].Value;
+            float time = Main.GameUpdateCount * 0.04f;
+            float twinkle = 1f + (float)Math.Sin(time * 2.3f) * 0.07f;
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+
+            float cycle = (float)Math.Sin(time * 0.7f) * 0.5f + 0.5f;
+            Color glowColor = Color.Lerp(NachtmusikPalette.StarlitBlue, NachtmusikPalette.StarGold, cycle) * 0.24f;
+            spriteBatch.Draw(tex, position, frame, glowColor, 0f, origin, scale * twinkle * 1.1f, SpriteEffects.None, 0f);
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+
+            spriteBatch.Draw(tex, position, frame, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
+            return false;
         }
 
         protected override Color GetLoreColor() => new Color(100, 120, 200); // Starlight Indigo

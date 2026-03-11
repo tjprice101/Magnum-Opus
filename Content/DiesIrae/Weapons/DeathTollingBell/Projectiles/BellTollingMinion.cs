@@ -227,6 +227,8 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
 
             // Load bell texture for sprite rendering
             Texture2D bellTex = null;
@@ -247,9 +249,15 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Projectiles
             // Draw bell body with state-driven layered glow + bell sprite
             DeathTollingBellUtils.DrawBellBody(sb, Projectile.Center, State, Timer, bellTex);
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

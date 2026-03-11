@@ -8,13 +8,13 @@ using Terraria.ModLoader;
 namespace MagnumOpus.Content.OdeToJoy
 {
     /// <summary>
-    /// Centralized lazy-loading registry for all 6 Ode to Joy theme shaders.
+    /// Centralized lazy-loading registry for all Ode to Joy theme and per-weapon shaders.
     /// Each weapon projectile calls into this to get shader references.
     /// Follows foundation weapon pattern: lazy load → cache → null-safe fallback.
     /// </summary>
     public static class OdeToJoyShaders
     {
-        // ─── Shader cache fields ───────────────────────────────────────
+        // ─── Theme shader cache fields ─────────────────────────────────
         private static Effect _triumphantTrail;
         private static Effect _jubilantHarmony;
         private static Effect _verdantSlash;
@@ -30,6 +30,39 @@ namespace MagnumOpus.Content.OdeToJoy
         private static bool _triedGardenBloom;
         private static bool _triedCelebrationAura;
         private static bool _triedSmearDistort;
+
+        // ─── Per-weapon shader cache fields ────────────────────────────
+        // Melee
+        private static Effect _verdantReckoningTrail;
+        private static Effect _gardenGrowthTrail;
+        private static Effect _roseChainTrail;
+        private static bool _triedVerdantReckoningTrail;
+        private static bool _triedGardenGrowthTrail;
+        private static bool _triedRoseChainTrail;
+
+        // Ranged
+        private static Effect _crystallineThornTrail;
+        private static Effect _pollenFieldTrail;
+        private static Effect _petalVortexField;
+        private static bool _triedCrystallineThornTrail;
+        private static bool _triedPollenFieldTrail;
+        private static bool _triedPetalVortexField;
+
+        // Magic
+        private static Effect _anthemBeamBody;
+        private static Effect _hymnVerseTrail;
+        private static Effect _elysianJudgmentTrail;
+        private static bool _triedAnthemBeamBody;
+        private static bool _triedHymnVerseTrail;
+        private static bool _triedElysianJudgmentTrail;
+
+        // Summon
+        private static Effect _chorusVoiceAura;
+        private static Effect _ovationSpectatorAura;
+        private static Effect _harmonyFountainField;
+        private static bool _triedChorusVoiceAura;
+        private static bool _triedOvationSpectatorAura;
+        private static bool _triedHarmonyFountainField;
 
         // ─── Shader Properties ─────────────────────────────────────────
 
@@ -86,6 +119,60 @@ namespace MagnumOpus.Content.OdeToJoy
         /// </summary>
         public static Effect SmearDistort => LoadShader(ref _smearDistort, ref _triedSmearDistort,
             "MagnumOpus/Content/FoundationWeapons/SwordSmearFoundation/Shaders/SmearDistortShader");
+
+        // ─── Per-Weapon Shader Properties ──────────────────────────────
+
+        // Melee weapons
+        /// <summary>ThornboundReckoning: vine-entwined trail with thorn overlay + LUT ramp.</summary>
+        public static Effect VerdantReckoningTrail => LoadShader(ref _verdantReckoningTrail, ref _triedVerdantReckoningTrail,
+            "MagnumOpus/Effects/OdeToJoy/ThornboundReckoning/VerdantReckoningTrail");
+
+        /// <summary>TheGardenersFury: petal-scatter growth trail with seasonal color cycling.</summary>
+        public static Effect GardenGrowthTrail => LoadShader(ref _gardenGrowthTrail, ref _triedGardenGrowthTrail,
+            "MagnumOpus/Effects/OdeToJoy/TheGardenersFury/GardenGrowthTrail");
+
+        /// <summary>RoseThornChainsaw: spinning ribbon with thorn silhouette, speed-responsive UV.</summary>
+        public static Effect RoseChainTrail => LoadShader(ref _roseChainTrail, ref _triedRoseChainTrail,
+            "MagnumOpus/Effects/OdeToJoy/RoseThornChainsaw/RoseChainTrail");
+
+        // Ranged weapons
+        /// <summary>ThornSprayRepeater: crystalline/Voronoi thorn trail, sharp edges, green-gold LUT.</summary>
+        public static Effect CrystallineThornTrail => LoadShader(ref _crystallineThornTrail, ref _triedCrystallineThornTrail,
+            "MagnumOpus/Effects/OdeToJoy/ThornSprayRepeater/CrystallineThornTrail");
+
+        /// <summary>ThePollinator: soft pollen cloud trail with Perlin drift, warm golden glow.</summary>
+        public static Effect PollenFieldTrail => LoadShader(ref _pollenFieldTrail, ref _triedPollenFieldTrail,
+            "MagnumOpus/Effects/OdeToJoy/ThePollinator/PollenFieldTrail");
+
+        /// <summary>PetalStormCannon: rotational vortex field with petal overlay, expandable radius.</summary>
+        public static Effect PetalVortexField => LoadShader(ref _petalVortexField, ref _triedPetalVortexField,
+            "MagnumOpus/Effects/OdeToJoy/PetalStormCannon/PetalVortexField");
+
+        // Magic weapons
+        /// <summary>AnthemOfGlory: dual-layer beam with staff lines + harmonic standing wave nodes.</summary>
+        public static Effect AnthemBeamBody => LoadShader(ref _anthemBeamBody, ref _triedAnthemBeamBody,
+            "MagnumOpus/Effects/OdeToJoy/AnthemOfGlory/AnthemBeamBody");
+
+        /// <summary>HymnOfTheVictorious: per-verse configurable trail (4 technique variants).</summary>
+        public static Effect HymnVerseTrail => LoadShader(ref _hymnVerseTrail, ref _triedHymnVerseTrail,
+            "MagnumOpus/Effects/OdeToJoy/HymnOfTheVictorious/HymnVerseTrail");
+
+        /// <summary>ElysianVerdict: radial judgment glyph GPU trail, pulsing intensity w/ mark count.</summary>
+        public static Effect ElysianJudgmentTrail => LoadShader(ref _elysianJudgmentTrail, ref _triedElysianJudgmentTrail,
+            "MagnumOpus/Effects/OdeToJoy/ElysianVerdict/ElysianJudgmentTrail");
+
+        // Summon weapons
+        /// <summary>TriumphantChorus: per-voice harmonic aura with musical staff overlay.</summary>
+        public static Effect ChorusVoiceAura => LoadShader(ref _chorusVoiceAura, ref _triedChorusVoiceAura,
+            "MagnumOpus/Effects/OdeToJoy/TriumphantChorus/ChorusVoiceAura");
+
+        /// <summary>TheStandingOvation: ghostly spectator aura with applause ripple pattern.</summary>
+        public static Effect OvationSpectatorAura => LoadShader(ref _ovationSpectatorAura, ref _triedOvationSpectatorAura,
+            "MagnumOpus/Effects/OdeToJoy/TheStandingOvation/OvationSpectatorAura");
+
+        /// <summary>FountainOfJoyousHarmony: concentric harmony rings, floral overlay, tier-responsive.</summary>
+        public static Effect HarmonyFountainField => LoadShader(ref _harmonyFountainField, ref _triedHarmonyFountainField,
+            "MagnumOpus/Effects/OdeToJoy/FountainOfJoyousHarmony/HarmonyFountainField");
 
         // ─── Helper Methods ────────────────────────────────────────────
 
@@ -236,6 +323,103 @@ namespace MagnumOpus.Content.OdeToJoy
                 SamplerState.LinearClamp, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        // ─── High-Level Apply Helpers ──────────────────────────────────
+
+        /// <summary>
+        /// Apply a trail shader with standard OdeToJoy parameters + optional noise/LUT texture binding.
+        /// Call this right before drawing a VertexStrip or primitive trail.
+        /// Returns the shader Effect (or null if unavailable).
+        /// </summary>
+        public static Effect ApplyTrailShader(Effect shader, float time, Color primary, Color secondary,
+            float opacity, float intensity, Texture2D noiseTex = null, Texture2D lutTex = null)
+        {
+            if (shader == null) return null;
+
+            SetTrailParams(shader, time, primary, secondary, opacity, intensity);
+
+            var device = Main.graphics.GraphicsDevice;
+
+            // Bind noise texture to sampler slot 1
+            if (noiseTex != null)
+            {
+                device.Textures[1] = noiseTex;
+                device.SamplerStates[1] = SamplerState.LinearWrap;
+                shader.Parameters["uHasNoise"]?.SetValue(1f);
+            }
+
+            // Bind LUT gradient to sampler slot 2
+            if (lutTex != null)
+            {
+                device.Textures[2] = lutTex;
+                device.SamplerStates[2] = SamplerState.LinearClamp;
+                shader.Parameters["uHasLUT"]?.SetValue(1f);
+            }
+
+            return shader;
+        }
+
+        /// <summary>
+        /// Clean up secondary/tertiary texture sampler bindings after trail rendering.
+        /// Call in finally block after drawing primitives.
+        /// </summary>
+        public static void CleanupSamplers()
+        {
+            var device = Main.graphics.GraphicsDevice;
+            device.Textures[1] = null;
+            device.Textures[2] = null;
+        }
+
+        /// <summary>
+        /// Apply a bloom/aura shader with standard OdeToJoy parameters + optional noise binding.
+        /// For use with additive SpriteBatch draw passes (GardenBloom, CelebrationAura, etc.).
+        /// </summary>
+        public static Effect ApplyBloomShader(Effect shader, string technique, float time,
+            Color primary, Color secondary, float opacity, float intensity,
+            float radius, float pulseSpeed = 3f, Texture2D noiseTex = null)
+        {
+            if (shader == null) return null;
+
+            SetBloomParams(shader, time, primary, secondary, opacity, intensity, radius, pulseSpeed);
+
+            if (noiseTex != null)
+            {
+                var device = Main.graphics.GraphicsDevice;
+                device.Textures[1] = noiseTex;
+                device.SamplerStates[1] = SamplerState.LinearWrap;
+            }
+
+            if (shader.Techniques[technique] != null)
+                shader.CurrentTechnique = shader.Techniques[technique];
+
+            return shader;
+        }
+
+        /// <summary>
+        /// Apply a beam shader with OdeToJoy parameters + optional texture binding.
+        /// </summary>
+        public static Effect ApplyBeamShader(Effect shader, float time, Color primary, Color secondary,
+            float opacity, float intensity, float harmonicFreq = 1f,
+            Texture2D bodyTex = null, Texture2D noiseTex = null)
+        {
+            if (shader == null) return null;
+
+            SetBeamParams(shader, time, primary, secondary, opacity, intensity, harmonicFreq);
+
+            var device = Main.graphics.GraphicsDevice;
+            if (bodyTex != null)
+            {
+                device.Textures[1] = bodyTex;
+                device.SamplerStates[1] = SamplerState.LinearWrap;
+            }
+            if (noiseTex != null)
+            {
+                device.Textures[2] = noiseTex;
+                device.SamplerStates[2] = SamplerState.LinearWrap;
+            }
+
+            return shader;
         }
 
         // ─── Private Helpers ───────────────────────────────────────────

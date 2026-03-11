@@ -37,53 +37,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             modPlayer.hasEmberOfTheMoon = true;
             
             // Note: -30% mana cost, +25% magic damage, and double cast handled in MoonlightAccessoryPlayer
-            
-            // Moonlight themed ambient aura
-            if (!hideVisual)
-            {
-                // Palette-based aura dust
-                if (Main.rand.NextBool(4))
-                {
-                    float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                    Vector2 auraPos = player.Center + angle.ToRotationVector2() * Main.rand.NextFloat(15f, 30f);
-                    Color auraColor = Color.Lerp(MoonlightVFXLibrary.DarkPurple, MoonlightVFXLibrary.IceBlue, Main.rand.NextFloat());
-                    Dust auraDust = Dust.NewDustPerfect(auraPos, DustID.PurpleTorch, (player.Center - auraPos).SafeNormalize(Vector2.Zero) * 1.5f, 0, auraColor, 1.0f);
-                    auraDust.noGravity = true;
-                }
-
-                // Occasional sparkles
-                if (Main.rand.NextBool(10))
-                {
-                    CustomParticles.MoonlightFlare(player.Center + Main.rand.NextVector2Circular(25f, 25f), 0.3f);
-                }
-            }
-            
-            // Ambient particles when equipped - ember-like effect
-            if (!hideVisual && Main.rand.NextBool(5))
-            {
-                int dustType = Main.rand.NextBool(3) ? DustID.IceTorch : DustID.PurpleTorch;
-                Vector2 offset = Main.rand.NextVector2Circular(15f, 15f);
-                
-                Dust dust = Dust.NewDustPerfect(player.Center + offset, dustType, 
-                    new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-2f, -1f)), 0, default, 1.3f);
-                dust.noGravity = true;
-                dust.fadeIn = 1f;
-            }
-            
-            // Occasional white sparkle
-            if (!hideVisual && Main.rand.NextBool(15))
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
-                Dust sparkle = Dust.NewDustPerfect(player.Center + offset, DustID.SparksMech, 
-                    new Vector2(0, -1.5f), 0, Color.White, 1f);
-                sparkle.noGravity = true;
-            }
-
-            // Unified ember ambient VFX
-            if (!hideVisual)
-            {
-                EmberOfTheMoonVFX.AmbientEmberFloat(player.Center, (int)Main.GameUpdateCount);
-            }
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)

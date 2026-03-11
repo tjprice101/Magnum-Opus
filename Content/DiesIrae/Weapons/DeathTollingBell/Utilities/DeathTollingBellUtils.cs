@@ -348,6 +348,9 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Utilities
         /// </summary>
         public static void DoFuneralMarch(Vector2 center)
         {
+            // === Color-ramped sparkle explosion VFX ===
+            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(center, 10, 6f, 0.35f);
+
             if (Main.dedServ) return;
 
             // Crimson-black smoke burst (15 puffs)

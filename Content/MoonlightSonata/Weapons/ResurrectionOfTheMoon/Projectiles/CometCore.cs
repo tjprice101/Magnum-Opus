@@ -206,6 +206,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
         public override bool PreDraw(ref Color lightColor)
         {
             if (Main.dedServ) return false;
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
 
             // Pass 1: Wide burning glow trail (CometTrailGlow shader)
             DrawGlowTrail();
@@ -221,6 +224,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
 
             // Pass 5: Burning head orb + enhanced bloom
             DrawHeadGlow();
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

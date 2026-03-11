@@ -30,10 +30,11 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/TheConductorsLastConstellation";
         
         private float pulsePhase = 0f;
+        private VertexStrip _strip;
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 12;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -178,50 +179,18 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
-            Vector2 origin = tex.Size() / 2f;
-            
-            // Pulsing effects for magical feel
-            float pulse = 1f + (float)Math.Sin(pulsePhase) * 0.08f;
-            float glowIntensity = 0.6f + (float)Math.Sin(pulsePhase * 0.7f) * 0.25f;
-
-            // Draw trail with copies of the sword fading away
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            SpriteBatch sb = Main.spriteBatch;
+            try
             {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                Color trailColor = Color.Lerp(FatePalette.WhiteCelestial, FatePalette.DarkPink, progress) * (1f - progress) * 0.5f;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                float trailScale = (1f - progress * 0.4f) * 0.8f;
-                spriteBatch.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.Fate, ref _strip);
             }
-
-            // === MULTI-LAYER BLOOM STACK FOR CELESTIAL GLOW ===
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            
-            // Outermost purple cosmic nebula
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.FatePurple * 0.15f * glowIntensity, Projectile.rotation, origin, 1.8f * pulse, SpriteEffects.None, 0f);
-            
-            // Outer bright red energy
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.BrightCrimson * 0.25f * glowIntensity, Projectile.rotation, origin, 1.4f * pulse, SpriteEffects.None, 0f);
-            
-            // Middle dark pink glow
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.DarkPink * 0.4f * glowIntensity, Projectile.rotation, origin, 1.15f * pulse, SpriteEffects.None, 0f);
-            
-            // Inner white celestial core
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.WhiteCelestial * 0.35f * glowIntensity, Projectile.rotation, origin, 1.0f * pulse, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Main sword - the Conductor's Last Constellation flying through the air
-            spriteBatch.Draw(tex, drawPos, null, Color.White, Projectile.rotation, origin, 0.85f * pulse, SpriteEffects.None, 0f);
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -380,6 +349,9 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard", AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
@@ -402,13 +374,21 @@ namespace MagnumOpus.Content.Fate.Projectiles
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.15f;
             
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.CosmicBlack * 0.6f, Projectile.rotation, origin, 0.6f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.DarkPink * 0.8f, Projectile.rotation, origin, 0.45f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.WhiteCelestial * 0.7f, Projectile.rotation, origin, 0.25f * pulse, SpriteEffects.None, 0f);
+            // Graduated orb bloom head (Incisor of Moonlight pattern)
+            MagnumVFX.DrawGraduatedOrbHead(spriteBatch, drawPos, FatePalette.DarkPink, FatePalette.BrightCrimson, 0.8f);
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -421,9 +401,11 @@ namespace MagnumOpus.Content.Fate.Projectiles
     {
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
 
+        private VertexStrip _strip;
+
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 10;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -516,21 +498,18 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
-            Vector2 origin = tex.Size() / 2f;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.BrightCrimson * 0.8f, Projectile.rotation, origin, 0.8f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.WhiteCelestial * 0.6f, Projectile.rotation, origin, 0.4f, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.Fate, ref _strip);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -693,6 +672,9 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
@@ -741,6 +723,15 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
             // Main Coda of Annihilation blade
             spriteBatch.Draw(tex, drawPos, null, Color.White, Projectile.rotation, origin, pulse, SpriteEffects.None, 0f);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -1065,6 +1056,9 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
@@ -1079,17 +1073,8 @@ namespace MagnumOpus.Content.Fate.Projectiles
             spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Outermost cosmic nebula glow - purple/crimson
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.FatePurple * 0.15f * glowIntensity, Projectile.rotation, origin, 2.0f * pulse, SpriteEffects.None, 0f);
-            
-            // Outer bright red energy corona
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.BrightCrimson * 0.25f * glowIntensity, Projectile.rotation, origin, 1.6f * pulse, SpriteEffects.None, 0f);
-            
-            // Middle dark pink energy field
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.DarkPink * 0.4f * glowIntensity, Projectile.rotation, origin, 1.3f * pulse, SpriteEffects.None, 0f);
-            
-            // Inner white-hot celestial core
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.WhiteCelestial * 0.3f * glowIntensity, Projectile.rotation, origin, 1.1f * pulse, SpriteEffects.None, 0f);
+            // Graduated orb bloom head (Incisor of Moonlight pattern)
+            MagnumVFX.DrawGraduatedOrbHead(spriteBatch, drawPos, FatePalette.DarkPink, FatePalette.BrightCrimson, 1.3f, glowIntensity);
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
@@ -1097,6 +1082,15 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
             // Main Coda of Annihilation blade - slightly tinted with celestial white
             spriteBatch.Draw(tex, drawPos, null, Color.White * 0.95f, Projectile.rotation, origin, pulse, SpriteEffects.None, 0f);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -1186,6 +1180,9 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
@@ -1198,12 +1195,22 @@ namespace MagnumOpus.Content.Fate.Projectiles
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            spriteBatch.Draw(tex, drawPos, null, prismaticColor * 0.8f, Projectile.rotation, origin, 0.5f * BeamSize, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.WhiteCelestial * 0.6f, Projectile.rotation, origin, 0.25f * BeamSize, SpriteEffects.None, 0f);
+            
+            // Graduated orb bloom head (Incisor of Moonlight pattern)
+            MagnumVFX.DrawGraduatedOrbHead(spriteBatch, drawPos, prismaticColor, 0.6f * BeamSize);
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -1224,10 +1231,11 @@ namespace MagnumOpus.Content.Fate.Projectiles
         private int floatTimer = 0;
         private const int FloatDuration = 60;
         private NPC seekTarget = null;
+        private VertexStrip _strip;
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 10;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -1357,24 +1365,18 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/MusicNote", AssetRequestMode.ImmediateLoad).Value;
-            Vector2 origin = tex.Size() / 2f;
-
-            float colorCycle = Main.GameUpdateCount * 0.03f + Projectile.ai[0];
-            Color noteColor = FatePalette.GetCosmicGradient((colorCycle % 1f));
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            spriteBatch.Draw(tex, drawPos, null, noteColor * 0.8f, Projectile.rotation, origin, 0.5f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.WhiteCelestial * 0.5f, Projectile.rotation, origin, 0.3f, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.Fate, ref _strip);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

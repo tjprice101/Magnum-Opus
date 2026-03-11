@@ -4,6 +4,7 @@ using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.FoundationWeapons.SparkleProjectileFoundation;
 
@@ -107,6 +108,9 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D pixel = SPFTextures.PointBloom.Value;
             if (pixel == null) return false;
@@ -159,21 +163,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             float pulse = 0.9f + 0.1f * (float)Math.Sin(Main.GameUpdateCount * 0.15f);
             Vector2 mainPos = Projectile.Center - Main.screenPosition;
             
-            // Outer crimson bloom
-            spriteBatch.Draw(glowTex, mainPos, null, EroicaPalette.Crimson * 0.35f,
-                0f, glowOrigin, 2.2f * pulse, SpriteEffects.None, 0f);
-            
-            // Mid sakura bloom
-            spriteBatch.Draw(glowTex, mainPos, null, EroicaPalette.Sakura * 0.5f,
-                0f, glowOrigin, 1.4f * pulse, SpriteEffects.None, 0f);
-            
-            // Inner gold bloom
-            spriteBatch.Draw(glowTex, mainPos, null, EroicaPalette.Gold * 0.6f,
-                0f, glowOrigin, 0.9f * pulse, SpriteEffects.None, 0f);
-            
-            // White hot core
-            spriteBatch.Draw(glowTex, mainPos, null, Color.White * 0.8f,
-                0f, glowOrigin, 0.5f * pulse, SpriteEffects.None, 0f);
+            // Graduated orb bloom head (Incisor of Moonlight pattern)
+            MagnumVFX.DrawGraduatedOrbHead(spriteBatch, mainPos, EroicaPalette.Crimson, EroicaPalette.Gold, 0.9f);
             
             }
             finally
@@ -185,6 +176,15 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             EroicaVFXLibrary.BeginEroicaAdditive(spriteBatch);
             EroicaVFXLibrary.DrawThemeSakuraAccent(spriteBatch, Projectile.Center, 1f, 0.5f);
             EroicaVFXLibrary.EndEroicaAdditive(spriteBatch);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

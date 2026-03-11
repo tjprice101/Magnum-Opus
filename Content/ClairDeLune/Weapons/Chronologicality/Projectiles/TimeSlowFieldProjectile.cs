@@ -11,7 +11,7 @@ using Terraria.ModLoader;
 namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles
 {
     /// <summary>
-    /// Time Slow Field — Persistent AoE zone left by Chronologicality's Hour Hand hits.
+    /// Time Slow Field  EPersistent AoE zone left by Chronologicality's Hour Hand hits.
     /// Slows enemies within range for 3 seconds with clockwork VFX.
     /// 3 render passes: (1) RadialNoiseMaskShader frozen time zone,
     /// (2) ClairDeLuneMoonlit.fx MoonlitGlow frost overlay, (3) Multi-scale bloom layers.
@@ -88,7 +88,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles
         {
             _softCircle ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad);
             _softRadialBloom ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
-            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX/Noise/VoronoiCrackNoise", AssetRequestMode.ImmediateLoad);
+            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/VornoiEdgeNoise", AssetRequestMode.ImmediateLoad);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -97,6 +97,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
 
             float fadeOut = Projectile.timeLeft < FadeOutFrames ? Projectile.timeLeft / (float)FadeOutFrames : 1f;
@@ -106,6 +108,15 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles
             DrawRadialNoiseZone(sb, matrix, alpha);   // Pass 1: RadialNoiseMask frozen time
             DrawMoonlitOverlay(sb, matrix, alpha);    // Pass 2: MoonlitGlow frost overlay
             DrawBloomLayers(sb, matrix, alpha);       // Pass 3: Multi-scale bloom
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

@@ -179,6 +179,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.StarfallWhisper.Projectiles
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
 
             float lifeProgress = (float)_timer / Duration;
@@ -188,6 +190,15 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.StarfallWhisper.Projectiles
             DrawStarfallCrack(sb, matrix, fade, isReplaying);    // Pass 1: StarfallBolt frozen crack
             DrawPearlReplayBurst(sb, matrix, fade, isReplaying); // Pass 2: PearlShimmer replay overlay
             DrawBloomCrackLines(sb, matrix, fade, isReplaying);  // Pass 3: Bloom core + crack lines
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

@@ -152,6 +152,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
             var sb = Main.spriteBatch;
             try
             {
+            try
+            {
             float opacity = 1f - Projectile.alpha / 255f;
             float pulse = 0.85f + 0.15f * MathF.Sin(_pulsePhase);
             float lifeProgress = 1f - (float)Projectile.timeLeft / LIFETIME;
@@ -217,6 +219,15 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
                     Main.DefaultSamplerState, DepthStencilState.None,
                     Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }

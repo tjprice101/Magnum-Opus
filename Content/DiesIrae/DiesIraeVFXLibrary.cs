@@ -57,12 +57,51 @@ namespace MagnumOpus.Content.DiesIrae
             new GlowRenderer.GlowLayer(4.0f, 0.2f, DiesIraePalette.BloodRed)
         };
 
+        // ─────────── LUT TEXTURE SAMPLING (CPU-SIDE) ───────────
+
+        private static Color[] _lutPixelCache;
+        private static int _lutWidth;
+
+        /// <summary>
+        /// Sample the DiesIraeGradientLUTandRAMP texture on CPU.
+        /// t=0 → left edge, t=1 → right edge. Caches pixel data on first call.
+        /// Falls back to hardcoded palette interpolation if texture isn't available.
+        /// </summary>
+        public static Color SampleLUT(float t)
+        {
+            if (_lutPixelCache == null)
+            {
+                var lutAsset = DiesIraeThemeTextures.DIGradientLUT;
+                if (lutAsset?.Value == null)
+                    return SamplePaletteArray(t);
+
+                Texture2D tex = lutAsset.Value;
+                _lutWidth = tex.Width;
+                _lutPixelCache = new Color[tex.Width * tex.Height];
+                tex.GetData(_lutPixelCache);
+            }
+
+            t = MathHelper.Clamp(t, 0f, 1f);
+            int x = (int)(t * (_lutWidth - 1));
+            return _lutPixelCache[x]; // sample first row
+        }
+
         // ─────────── PALETTE INTERPOLATION ───────────
 
         /// <summary>
-        /// Lerp through the 6-colour Dies Irae palette. t=0 ↁECharcoalBlack, t=1 ↁEWrathWhite.
+        /// Sample the Dies Irae gradient LUT texture. t=0 → left edge, t=1 → right edge.
+        /// All colour ramping across Dies Irae uses this as the single source of truth.
         /// </summary>
         public static Color GetPaletteColor(float t)
+        {
+            return SampleLUT(t);
+        }
+
+        /// <summary>
+        /// Fallback: lerp through the 6-colour hardcoded palette array.
+        /// Only used when the LUT texture hasn't loaded yet.
+        /// </summary>
+        private static Color SamplePaletteArray(float t)
         {
             t = MathHelper.Clamp(t, 0f, 1f);
             float scaled = t * (Palette.Length - 1);
@@ -632,6 +671,111 @@ namespace MagnumOpus.Content.DiesIrae
             }
         }
 
+        
+        // ─────────── COLOR-RAMPED SPARKLE EXPLOSIONS ───────────
+
+        /// <summary>
+        /// Color-ramped sparkle explosion — the signature Dies Irae impact particle burst.
+        /// Spawns GlowSparkParticles that travel outward with colors ramped through
+        /// the Dies Irae palette (BloodRed → InfernalRed → JudgmentGold → BoneWhite).
+        /// </summary>
+        public static void SpawnColorRampedSparkleExplosion(Vector2 pos, int count = 12,
+            float speed = 6f, float scale = 0.4f, float paletteStart = 0.15f, float paletteEnd = 0.85f)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                float progress = (float)i / count;
+                float angle = MathHelper.TwoPi * i / count + Main.rand.NextFloat(-0.25f, 0.25f);
+                float sparkSpeed = speed * Main.rand.NextFloat(0.7f, 1.3f);
+                Vector2 vel = angle.ToRotationVector2() * sparkSpeed;
+                float paletteT = MathHelper.Lerp(paletteStart, paletteEnd, progress);
+                Color sparkColor = GetPaletteColor(paletteT);
+                float sparkScale = scale * Main.rand.NextFloat(0.8f, 1.2f);
+                var spark = new GlowSparkParticle(pos, vel, sparkColor, sparkScale, 20 + Main.rand.Next(8));
+                MagnumParticleHandler.SpawnParticle(spark);
+            }
+            try { CustomParticles.GenericFlare(pos, WrathWhite, 0.5f * scale, 12); } catch { }
+        }
+
+        /// <summary>
+        /// Directional color-ramped sparkle burst — sparks fly in a cone direction.
+        /// </summary>
+        public static void SpawnDirectionalSparkleExplosion(Vector2 pos, Vector2 direction,
+            int count = 8, float speed = 5f, float scale = 0.35f, float coneAngle = 0.8f)
+        {
+            float baseAngle = direction.ToRotation();
+            for (int i = 0; i < count; i++)
+            {
+                float progress = (float)i / count;
+                float angle = baseAngle + Main.rand.NextFloat(-coneAngle, coneAngle);
+                float sparkSpeed = speed * Main.rand.NextFloat(0.6f, 1.4f);
+                Vector2 vel = angle.ToRotationVector2() * sparkSpeed;
+                Color sparkColor = GetPaletteColor(0.2f + progress * 0.6f);
+                var spark = new GlowSparkParticle(pos, vel, sparkColor, scale * Main.rand.NextFloat(0.7f, 1.3f), 16 + Main.rand.Next(6));
+                MagnumParticleHandler.SpawnParticle(spark);
+            }
+        }
+
+        /// <summary>
+        /// Tiered sparkle explosion — intensity scales with combo/power level.
+        /// </summary>
+        public static void SpawnTieredSparkleExplosion(Vector2 pos, int tier, float baseScale = 0.35f)
+        {
+            int count = tier switch { 0 => 6, 1 => 10, 2 => 16, _ => 24 + (tier - 3) * 4 };
+            float speed = 4f + tier * 1.5f;
+            float scale = baseScale + tier * 0.08f;
+            float paletteEnd = MathHelper.Clamp(0.5f + tier * 0.12f, 0.5f, 0.95f);
+            SpawnColorRampedSparkleExplosion(pos, count, speed, scale, 0.15f, paletteEnd);
+            if (tier >= 2)
+            {
+                for (int ring = 0; ring < tier - 1; ring++)
+                {
+                    int ringCount = 8 + ring * 4;
+                    for (int i = 0; i < ringCount; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / ringCount;
+                        Vector2 vel = angle.ToRotationVector2() * (speed * 0.6f + ring * 2f) * Main.rand.NextFloat(0.8f, 1.2f);
+                        var spark = new GlowSparkParticle(pos, vel, GetPaletteColor(0.4f + ring * 0.15f), scale * 0.7f, 22 + ring * 4);
+                        MagnumParticleHandler.SpawnParticle(spark);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Hellfire starburst — explosive radial sparkle with fire-themed color ramp.
+        /// Blood-red outer, gold inner, white-hot center flash.
+        /// </summary>
+        public static void SpawnHellfireStarburst(Vector2 pos, float intensity = 1f)
+        {
+            int outerCount = (int)(8 * intensity);
+            for (int i = 0; i < outerCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / outerCount + Main.rand.NextFloat(-0.15f, 0.15f);
+                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 5f) * intensity;
+                var spark = new GlowSparkParticle(pos, vel, Color.Lerp(BloodRed, InfernalRed, Main.rand.NextFloat()), 0.45f * intensity, 24);
+                MagnumParticleHandler.SpawnParticle(spark);
+            }
+            int midCount = (int)(12 * intensity);
+            for (int i = 0; i < midCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / midCount + Main.rand.NextFloat(-0.2f, 0.2f);
+                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 8f) * intensity;
+                var spark = new GlowSparkParticle(pos, vel, Color.Lerp(EmberOrange, JudgmentGold, Main.rand.NextFloat()), 0.35f * intensity, 18);
+                MagnumParticleHandler.SpawnParticle(spark);
+            }
+            int coreCount = (int)(6 * intensity);
+            for (int i = 0; i < coreCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / coreCount + Main.rand.NextFloat(-0.3f, 0.3f);
+                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(8f, 12f) * intensity;
+                var spark = new GlowSparkParticle(pos, vel, Color.Lerp(BoneWhite, WrathWhite, Main.rand.NextFloat()), 0.25f * intensity, 12);
+                MagnumParticleHandler.SpawnParticle(spark);
+            }
+            try { CustomParticles.GenericFlare(pos, WrathWhite, 0.6f * intensity, 14); } catch { }
+            try { CustomParticles.GenericFlare(pos, JudgmentGold, 0.4f * intensity, 10); } catch { }
+        }
+
         // ─────────── IMPACTS ───────────
 
         /// <summary>
@@ -643,6 +787,9 @@ namespace MagnumOpus.Content.DiesIrae
         {
             float bloomScale = 0.5f + comboStep * 0.1f;
             DrawBloom(pos, bloomScale);
+
+            // Color-ramped sparkle explosion
+            SpawnTieredSparkleExplosion(pos, comboStep);
 
             CustomParticles.DiesIraeImpactBurst(pos, 6 + comboStep * 2);
 
@@ -666,6 +813,11 @@ namespace MagnumOpus.Content.DiesIrae
         public static void ProjectileImpact(Vector2 pos, float intensity = 1f)
         {
             DrawBloom(pos, 0.6f * intensity);
+
+            // Full color-ramped sparkle explosion
+            SpawnHellfireStarburst(pos, intensity);
+            SpawnColorRampedSparkleExplosion(pos, (int)(10 * intensity), 6f * intensity, 0.35f);
+
             CustomParticles.DiesIraeImpactBurst(pos, (int)(10 * intensity));
             SpawnMusicNotes(pos, 6, 30f * intensity, 0.75f, 1.1f, 30);
             SpawnRadialDustBurst(pos, 15, 7f * intensity);
@@ -682,6 +834,11 @@ namespace MagnumOpus.Content.DiesIrae
         public static void WrathShockwaveImpact(Vector2 pos, float intensity = 1f)
         {
             DrawBloom(pos, 0.8f * intensity);
+
+            // Massive tiered sparkle explosion
+            SpawnTieredSparkleExplosion(pos, 3, 0.4f * intensity);
+            SpawnHellfireStarburst(pos, intensity * 1.5f);
+
             SpawnJudgmentRings(pos, 4, 0.4f * intensity);
             SpawnRadialDustBurst(pos, 20, 8f * intensity);
             SpawnEmberScatter(pos, (int)(12 * intensity), 5f);
@@ -732,6 +889,10 @@ namespace MagnumOpus.Content.DiesIrae
         {
             MagnumScreenEffects.AddScreenShake(8f * intensity);
             DrawBloom(pos, 0.8f * intensity);
+
+            // Apocalyptic sparkle cascade
+            SpawnTieredSparkleExplosion(pos, 4, 0.45f * intensity);
+
             WrathShockwaveImpact(pos, intensity);
             SpawnMusicNotes(pos, 6, 40f, 0.8f, 1.2f, 40);
             SpawnRadialDustBurst(pos, 20, 8f * intensity);
@@ -748,6 +909,10 @@ namespace MagnumOpus.Content.DiesIrae
         {
             MagnumScreenEffects.AddScreenShake(12f * intensity);
             DrawBloom(pos, 1.2f * intensity);
+
+            // Cataclysmic sparkle cascade
+            SpawnTieredSparkleExplosion(pos, 5, 0.5f * intensity);
+            SpawnHellfireStarburst(pos, intensity * 2f);
 
             // Massive radial burst
             SpawnRadialDustBurst(pos, 30, 10f * intensity);

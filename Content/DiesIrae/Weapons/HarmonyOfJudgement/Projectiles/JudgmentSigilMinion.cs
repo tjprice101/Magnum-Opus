@@ -346,6 +346,14 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
+            // ── MINION SPRITE: Draw base PNG sprite ──
+            Texture2D minionTex = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            Vector2 minionOrigin = minionTex.Size() / 2f;
+            sb.Draw(minionTex, drawPos, null, lightColor * Projectile.Opacity, Projectile.rotation, minionOrigin, Projectile.scale, SpriteEffects.None, 0f);
+
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
@@ -374,9 +382,15 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement.Projectiles
             // Dies Irae theme accent layer
             HarmonyOfJudgementUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -435,6 +449,11 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement.Projectiles
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(BuffID.OnFire3, 180);
+
+            // Dies Irae VFX: judgment beam impact
+            DiesIraeVFXLibrary.MeleeImpact(target.Center, 0);
+            DiesIraeVFXLibrary.SpawnContrastSparkle(target.Center, Projectile.velocity);
+
             for (int i = 0; i < 5; i++)
             {
                 Vector2 sparkVel = Main.rand.NextVector2CircularEdge(2f, 2f);

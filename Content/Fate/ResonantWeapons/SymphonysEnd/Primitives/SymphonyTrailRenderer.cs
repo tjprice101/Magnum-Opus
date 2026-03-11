@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.GameContent;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.Fate;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
 {
@@ -89,6 +90,14 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
             shader.Parameters["uTime"]?.SetValue((float)Main.timeForVisualEffects * 0.01f);
             shader.Parameters["uOpacity"]?.SetValue(1f);
 
+            // Bind FateGradientLUT to sampler slot 2 for LUT color toning
+            var lutTex = FateThemeTextures.FAGradientLUT;
+            if (lutTex?.Value != null)
+            {
+                gd.Textures[2] = lutTex.Value;
+                gd.SamplerStates[2] = SamplerState.LinearClamp;
+            }
+
             foreach (EffectPass pass in shader.CurrentTechnique.Passes)
             {
                 pass.Apply();
@@ -96,7 +105,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
             }
         }
 
-        // ─── SpriteBatch fallback (no shader) ─────────────────────
+        // ─── SpriteBatch fallback (no shader) — NEON RED ─────────────
 
         private static void DrawFallback(Vector2[] positions, Vector2 half,
             int count, SymphonyTrailSettings settings)
@@ -119,7 +128,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
 
                 float angle = diff.ToRotation();
                 float width = settings.WidthFunction(progress);
-                Color color = settings.ColorFunction(progress);
+                Color color = new Color(255, 0, 50); // NEON RED fallback!
 
                 Main.spriteBatch.Draw(pixel, a, new Rectangle(0, 0, 1, 1), color,
                     angle, new Vector2(0f, 0.5f), new Vector2(length, width),

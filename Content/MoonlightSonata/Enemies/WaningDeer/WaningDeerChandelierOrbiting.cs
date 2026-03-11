@@ -143,6 +143,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D texture = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = new Vector2(texture.Width / 2, texture.Height / 2);
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -170,6 +173,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             // Draw main sprite with enhanced brightness
             Color drawColor = new Color(255, 255, 255, 220);
             Main.EntitySpriteDraw(texture, drawPos, null, drawColor, Projectile.rotation, origin, Projectile.scale, SpriteEffects.None, 0);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

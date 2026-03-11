@@ -91,12 +91,18 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture.Projectiles
                 NachtmusikVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 10f, 0.3f, 0.5f, 16);
             }
 
+            // Ambient palette-ramped sparkles around hovering spirit
+            if (Main.rand.NextBool(8))
+                NachtmusikVFXLibrary.SpawnGradientSparkles(Projectile.Center, Projectile.velocity, 1, 0.15f, 14, 12f);
+
             Lighting.AddLight(Projectile.Center, NachtmusikPalette.RadianceGold.ToVector3() * 0.4f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -105,22 +111,69 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture.Projectiles
             float time = (float)Main.timeForVisualEffects * 0.03f;
             float pulse = MathF.Sin(Main.GameUpdateCount * 0.12f) * 0.15f + 0.85f;
 
-            // ═══════════════════════════════════════════════════════════════
+            // ==============================================================
             //  SHADER LAYER: OvertureAura — musical spirit's radiant presence
-            // ═══════════════════════════════════════════════════════════════
-            if (NachtmusikShaderManager.HasSerenade)
+            //  Uses dedicated shader for orchestral wave effect.
+            // ==============================================================
+            float phase = (float)(Main.timeForVisualEffects * 0.008f) % 1f;
+
+            if (NachtmusikShaderManager.HasOvertureAura)
             {
                 Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
                 if (glowTex != null)
                 {
                     NachtmusikShaderManager.BeginShaderAdditive(sb);
-                    NachtmusikShaderManager.ApplySerenade(time, NachtmusikPalette.RadianceGold,
-                        NachtmusikPalette.Violet, phase: (float)(Main.timeForVisualEffects * 0.008f) % 1f);
+                    NachtmusikShaderManager.ApplyOvertureAura(time, phase);
 
+                    // Outer radiant aura
+                    sb.Draw(glowTex, drawPos, null,
+                        NachtmusikPalette.RadianceGold with { A = 0 } * 0.3f,
+                        0f, glowTex.Size() / 2f, 0.35f * pulse, SpriteEffects.None, 0f);
+
+                    // Subtle inner deep-blue core glow
+                    sb.Draw(glowTex, drawPos, null,
+                        NachtmusikPalette.DeepBlue with { A = 0 } * 0.15f,
+                        0f, glowTex.Size() / 2f, 0.15f * pulse, SpriteEffects.None, 0f);
+
+                    NachtmusikShaderManager.RestoreSpriteBatch(sb);
+                }
+
+                // NK Lens Flare — radiant center accent
+                Texture2D flareTex = NachtmusikThemeTextures.NKLensFlare?.Value;
+                if (flareTex != null)
+                {
+                    NachtmusikShaderManager.BeginAdditive(sb);
+                    float flareAlpha = 0.1f + MathF.Sin(Main.GameUpdateCount * 0.15f) * 0.04f;
+                    sb.Draw(flareTex, drawPos, null,
+                        NachtmusikPalette.RadianceGold with { A = 0 } * flareAlpha,
+                        time * 0.4f, flareTex.Size() / 2f, 0.05f * pulse, SpriteEffects.None, 0f);
+                    NachtmusikShaderManager.RestoreSpriteBatch(sb);
+                }
+
+                // NK Constellation Noise — ambient magical haze
+                Texture2D noiseTex = NachtmusikThemeTextures.NKConstellationNoise?.Value;
+                if (noiseTex != null)
+                {
+                    NachtmusikShaderManager.BeginAdditive(sb);
+                    sb.Draw(noiseTex, drawPos, null,
+                        NachtmusikPalette.Violet with { A = 0 } * 0.06f,
+                        time * 0.15f, noiseTex.Size() / 2f, 0.08f * pulse, SpriteEffects.None, 0f);
+                    NachtmusikShaderManager.RestoreSpriteBatch(sb);
+                }
+            }
+            else
+            {
+                // Non-shader fallback — TrueAdditive bloom only
+                Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
+                if (glowTex != null)
+                {
+                    NachtmusikShaderManager.BeginAdditive(sb);
                     sb.Draw(glowTex, drawPos, null,
                         NachtmusikPalette.RadianceGold with { A = 0 } * 0.25f,
                         0f, glowTex.Size() / 2f, 0.35f * pulse, SpriteEffects.None, 0f);
-
+                    sb.Draw(glowTex, drawPos, null,
+                        NachtmusikPalette.DeepBlue with { A = 0 } * 0.12f,
+                        0f, glowTex.Size() / 2f, 0.15f * pulse, SpriteEffects.None, 0f);
                     NachtmusikShaderManager.RestoreSpriteBatch(sb);
                 }
             }
@@ -150,6 +203,15 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture.Projectiles
             NachtmusikShaderManager.BeginAdditive(sb);
             NachtmusikVFXLibrary.DrawThemeStarFlare(sb, Projectile.Center, 1f, 0.5f);
             NachtmusikShaderManager.RestoreSpriteBatch(sb);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

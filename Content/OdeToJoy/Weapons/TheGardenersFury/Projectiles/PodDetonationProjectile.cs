@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.OdeToJoy;
 using MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Buffs;
+using MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Dusts;
 using MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Buffs;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
@@ -91,6 +92,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float alpha = GetAlpha();
             float progress = timer / (float)MaxLifetime;
@@ -122,11 +125,11 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
                     RasterizerState.CullCounterClockwise, null,
                     Main.GameViewMatrix.TransformationMatrix);
 
-                // Fallback expanding ring
+                // Fallback expanding ring — NEON RED (shader failed!)
                 Texture2D ringTex = GardenerFuryTextures.OJPowerEffectRing.Value;
                 Vector2 ringOrigin = ringTex.Size() / 2f;
                 float ringScale = Radius * 2f * expandProgress / Math.Max(ringTex.Width, ringTex.Height);
-                sb.Draw(ringTex, drawPos, null, podColor * alpha * 0.6f,
+                sb.Draw(ringTex, drawPos, null, new Color(255, 0, 50) * alpha * 0.6f,
                     timer * 0.03f, ringOrigin, ringScale, SpriteEffects.None, 0f);
             }
 
@@ -198,19 +201,30 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
 
             OdeToJoyShaders.RestoreSpriteBatch(sb);
 
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
         public override void OnKill(int timeLeft)
         {
             Color podColor = GardenerFuryTextures.GetPodColor(PodType);
-            for (int i = 0; i < 10; i++)
+            int dustType = PodType == 2 ? ModContent.DustType<PollenMistDust>() : ModContent.DustType<PetalFragmentDust>();
+            for (int i = 0; i < 8; i++)
             {
                 Vector2 vel = Main.rand.NextVector2Circular(4f, 4f);
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowMk2, vel,
-                    newColor: podColor, Scale: Main.rand.NextFloat(0.3f, 0.7f));
-                dust.noGravity = true;
+                Dust.NewDustPerfect(Projectile.Center, dustType, vel,
+                    newColor: podColor, Scale: Main.rand.NextFloat(0.8f, 1.5f));
             }
+
+            OdeToJoyVFXLibrary.SpawnTriumphantStarburst(Projectile.Center, 0.4f);
         }
     }
 }

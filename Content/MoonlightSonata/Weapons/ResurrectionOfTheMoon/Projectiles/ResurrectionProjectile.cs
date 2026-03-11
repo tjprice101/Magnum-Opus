@@ -35,7 +35,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
         public const int HomingStartBounce = 7;
         public const float HomingRange = 1200f;
         public const float HomingStrength = 0.04f;
-        public const float BulletWidth = 20f;
+        public const float BulletWidth = 17f;
         public const int TrailLength = 25;
         public const float CraterDamageMultiplier = 0.35f;
 
@@ -195,8 +195,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
             float phase = CometPhase;
             Color craterColor = CometUtils.GetCometGradient(phase);
 
-            // Crater bloom 窶・size escalates with bounces
-            float bloomScale = 0.7f + phase * 0.8f;
+            // Crater bloom — size escalates with bounces
+            float bloomScale = 0.58f + phase * 0.67f;
             CometParticleHandler.Spawn(new CraterBloomParticle(
                 Projectile.Center, craterColor, bloomScale, 20 + (int)(phase * 15)));
 
@@ -242,7 +242,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
             if (Projectile.owner != Main.myPlayer) return;
 
             // Expanding hitbox check for crater AoE
-            float radius = 48f + CometPhase * 64f;
+            float radius = 40f + CometPhase * 54f;
             int craterDamage = (int)(Projectile.damage * CraterDamageMultiplier * (1f + CometPhase * 0.5f));
 
             foreach (NPC npc in Main.ActiveNPCs)
@@ -298,6 +298,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
         public override bool PreDraw(ref Color lightColor)
         {
             if (Main.dedServ) return false;
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
 
             // End the active SpriteBatch before GPU primitive drawing
             Main.spriteBatch.End();
@@ -317,6 +320,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
 
             // Pass 3: Head glow orb (uses SpriteBatch)
             DrawHeadGlow();
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -443,7 +455,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
                 Main.GameViewMatrix.TransformationMatrix);
 
             Texture2D circle = _softCircleTex.Value;
-            float orbScale = 0.18f + CometPhase * 0.06f; // Player-sized circular orb
+            float orbScale = 0.15f + CometPhase * 0.05f; // Player-sized circular orb
             sb.Draw(circle, drawPos, null, Color.White * (0.7f + CometPhase * 0.2f),
                 0f, circle.Size() * 0.5f, orbScale, SpriteEffects.None, 0f);
 
@@ -456,13 +468,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
 
             // Layer 2: Small outer bloom halo
             Color outerColor = CometUtils.GetCometGradient(CometPhase) with { A = 0 };
-            float outerScale = 0.08f + CometPhase * 0.04f;
+            float outerScale = 0.067f + CometPhase * 0.033f;
             sb.Draw(bloom, drawPos, null, outerColor * (0.2f + CometPhase * 0.1f),
                 0f, bloom.Size() * 0.5f, outerScale, SpriteEffects.None, 0f);
 
             // Layer 3: Tight inner core glow
             Color coreColor = CometUtils.FrigidImpact with { A = 0 };
-            float coreScale = 0.06f + CometPhase * 0.03f;
+            float coreScale = 0.05f + CometPhase * 0.025f;
             sb.Draw(bloom, drawPos, null, coreColor * (0.3f + CometPhase * 0.15f),
                 0f, bloom.Size() * 0.5f, coreScale, SpriteEffects.None, 0f);
 

@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Utilities;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Particles;
 using MagnumOpus.Content.LaCampanella.Debuffs;
 using ReLogic.Content;
@@ -91,8 +92,10 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
                         sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                             Main.DefaultSamplerState, DepthStencilState.None,
                             Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-                        sb.Draw(bloomTex, Projectile.Center - Main.screenPosition, null,
-                            (GrandioseChimeUtils.BarragePalette[1] with { A = 0 }) * 0.2f, 0f, bloomTex.Size() / 2f, 0.2f, SpriteEffects.None, 0f);
+                        
+                        // Graduated orb bloom head
+                        MagnumVFX.DrawGraduatedOrbHead(sb, Projectile.Center - Main.screenPosition, 
+                            LaCampanellaPalette.InfernalOrange, LaCampanellaPalette.FlameYellow, 0.7f);
                     }
                     catch { }
                     finally

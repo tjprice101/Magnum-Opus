@@ -6,6 +6,8 @@ using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
+using Terraria.Graphics;
+using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
@@ -29,6 +31,13 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NebulasWhisper.Projectiles
         private const int PhasePixelDistance = 48; // 3 tiles
         private float currentScale = 0.5f;
         private bool IsStormMode => Projectile.ai[0] == 1f;
+        private VertexStrip _vertexStrip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Type] = 18;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -117,6 +126,10 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NebulasWhisper.Projectiles
                 MagnumParticleHandler.SpawnParticle(glow);
             }
 
+            // Palette-ramped trail sparkles
+            if (Main.rand.NextBool(4))
+                NachtmusikVFXLibrary.SpawnGradientSparkles(Projectile.Center, Projectile.velocity, 1, 0.2f * currentScale * 0.5f, 16, 8f * currentScale * 0.5f);
+
             Lighting.AddLight(Projectile.Center, NachtmusikPalette.CosmicPurple.ToVector3() * 0.4f * currentScale * 0.5f);
         }
 
@@ -175,96 +188,87 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NebulasWhisper.Projectiles
             // Nebula slow indicator flash
             CustomParticles.GenericFlare(target.Center, NachtmusikPalette.CosmicPurple, 0.4f, 14);
             CustomParticles.GenericFlare(target.Center, NachtmusikPalette.Violet, 0.3f, 12);
+
+            // Palette-ramped sparkle explosion
+            NachtmusikVFXLibrary.SpawnGradientSparkleExplosion(target.Center, 8, 5f, 0.3f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
-            Vector2 origin = tex.Size() * 0.5f;
-            Vector2 pos = Projectile.Center - Main.screenPosition;
-
-            float time = (float)Main.timeForVisualEffects * 0.03f;
-            float breathe = 1f + MathF.Sin(time * 1.5f) * 0.08f;
-
-            // Opacity decreases as size increases
-            float baseOpacity = MathHelper.Lerp(0.7f, 0.25f, MathHelper.Clamp((currentScale - 0.5f) / 1.5f, 0f, 1f));
-
-            // ═══════════════════════════════════════════════════════════════
-            //  SHADER LAYER: Serenade nebula aura — swirling cosmic presence
-            //  Nebula shots don't have trails, but the expanding cloud IS the VFX
-            // ═══════════════════════════════════════════════════════════════
-            if (NachtmusikShaderManager.HasSerenade)
+            SpriteBatch sb = Main.spriteBatch;
+            try
             {
-                Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
-                if (glowTex != null)
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Nachtmusik, ref _vertexStrip);
+
+                // Nebula Whisper accent: NebulaScatter shader-driven nebula haze
+                float time = (float)Main.timeForVisualEffects * 0.03f;
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null && NachtmusikShaderManager.HasNebulaScatter)
                 {
-                    float phase = IsStormMode ? 0.85f : MathHelper.Clamp(currentScale / 2f, 0f, 1f);
+                    Vector2 origin = glow.Size() / 2f;
+                    float expand = MathHelper.Clamp(1f - (float)Projectile.timeLeft / 180f, 0f, 1f);
+                    float nebulaScale = 0.06f + expand * 0.06f;
+                    float pulse = 0.8f + 0.2f * MathF.Sin((float)Main.timeForVisualEffects * 0.06f);
 
-                    NachtmusikShaderManager.BeginShaderAdditive(Main.spriteBatch);
-                    NachtmusikShaderManager.ApplySerenade(time, NachtmusikPalette.CosmicPurple,
-                        NachtmusikPalette.Violet, phase: phase);
+                    NachtmusikShaderManager.BeginShaderAdditive(sb);
 
-                    float auraScale = currentScale * 0.15f * breathe;
-                    Main.spriteBatch.Draw(glowTex, pos, null,
-                        NachtmusikPalette.CosmicPurple with { A = 0 } * baseOpacity * 0.4f,
-                        Projectile.rotation * 0.5f, glowTex.Size() / 2f, auraScale, SpriteEffects.None, 0f);
+                    // Primary nebula scatter haze
+                    NachtmusikShaderManager.ApplyNebulaScatter(time);
+                    sb.Draw(glow, drawPos, null,
+                        (NachtmusikPalette.CosmicPurple with { A = 0 }) * 0.25f * pulse,
+                        0f, origin, nebulaScale, SpriteEffects.None, 0f);
 
-                    // Storm mode: extra vortex aura
-                    if (IsStormMode)
+                    // Nebula scatter glow pass — pink shimmer
+                    NachtmusikShaderManager.ApplyNebulaScatterGlow(time);
+                    sb.Draw(glow, drawPos, null,
+                        (NachtmusikPalette.NebulaPink with { A = 0 }) * 0.15f * pulse,
+                        MathHelper.PiOver4, origin, nebulaScale * 0.8f, SpriteEffects.None, 0f);
+
+                    // NK Constellation Noise outer halo at high expansion
+                    if (expand > 0.3f)
                     {
-                        Main.spriteBatch.Draw(glowTex, pos, null,
-                            NachtmusikPalette.Violet with { A = 0 } * 0.25f,
-                            -Projectile.rotation, glowTex.Size() / 2f, auraScale * 0.9f, SpriteEffects.None, 0f);
+                        Texture2D noiseTex = NachtmusikThemeTextures.NKConstellationNoise?.Value;
+                        if (noiseTex != null)
+                        {
+                            Vector2 noiseOrigin = noiseTex.Size() / 2f;
+                            float haloAlpha = (expand - 0.3f) / 0.7f;
+                            Color haloColor = NachtmusikPalette.Violet with { A = 0 } * 0.12f * haloAlpha * pulse;
+                            sb.Draw(noiseTex, drawPos, null, haloColor,
+                                time * 0.3f, noiseOrigin, nebulaScale * 0.5f, SpriteEffects.None, 0f);
+                        }
                     }
 
-                    NachtmusikShaderManager.RestoreSpriteBatch(Main.spriteBatch);
+                    NachtmusikShaderManager.RestoreSpriteBatch(sb);
                 }
-            }
-
-            // ═══════════════════════════════════════════════════════════════
-            //  BLOOM LAYER: Multi-layer additive nebula rendering — palette-driven
-            // ═══════════════════════════════════════════════════════════════
-
-            // Deep cosmic purple outer haze
-            Main.spriteBatch.Draw(tex, pos, null,
-                NachtmusikPalette.CosmicPurple with { A = 0 } * baseOpacity * 0.6f,
-                Projectile.rotation, origin, currentScale * breathe * 1.3f, SpriteEffects.None, 0f);
-
-            // Violet mid-body
-            float violetShift = MathF.Sin(time * 2f) * 0.15f + 0.85f;
-            Main.spriteBatch.Draw(tex, pos, null,
-                NachtmusikPalette.Violet with { A = 0 } * baseOpacity * 0.5f * violetShift,
-                Projectile.rotation * 0.7f, origin, currentScale * breathe * 1.0f, SpriteEffects.None, 0f);
-
-            // Deep indigo inner swirl
-            Main.spriteBatch.Draw(tex, pos, null,
-                NachtmusikPalette.DeepBlue with { A = 0 } * baseOpacity * 0.45f,
-                -Projectile.rotation * 0.5f, origin, currentScale * breathe * 0.7f, SpriteEffects.None, 0f);
-
-            // Star white shimmer core
-            float corePulse = MathF.Sin(time * 3.5f) * 0.5f + 0.5f;
-            Main.spriteBatch.Draw(tex, pos, null,
-                NachtmusikPalette.StarWhite with { A = 0 } * baseOpacity * 0.35f * corePulse,
-                0f, origin, currentScale * breathe * 0.4f, SpriteEffects.None, 0f);
-
-            // Extra bloom halo for Storm mode
-            if (IsStormMode)
-            {
-                Texture2D bloomTex = MagnumTextureRegistry.GetSoftGlow();
-                if (bloomTex != null)
+                else if (glow != null)
                 {
-                    NachtmusikShaderManager.BeginAdditive(Main.spriteBatch);
-                    Main.spriteBatch.Draw(bloomTex, pos, null,
-                        NachtmusikPalette.Violet with { A = 0 } * 0.2f,
-                        0f, bloomTex.Size() / 2f, currentScale * 0.15f * breathe, SpriteEffects.None, 0f);
-                    NachtmusikShaderManager.RestoreSpriteBatch(Main.spriteBatch);
+                    // Fallback without shader
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                        SamplerState.LinearClamp, DepthStencilState.None,
+                        RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                    Vector2 origin = glow.Size() / 2f;
+                    float expand = MathHelper.Clamp(1f - (float)Projectile.timeLeft / 180f, 0f, 1f);
+                    float nebulaScale = 0.06f + expand * 0.06f;
+                    float pulse = 0.8f + 0.2f * MathF.Sin((float)Main.timeForVisualEffects * 0.06f);
+
+                    sb.Draw(glow, drawPos, null,
+                        (NachtmusikPalette.CosmicPurple with { A = 0 }) * 0.2f * pulse,
+                        0f, origin, nebulaScale, SpriteEffects.None, 0f);
+                    sb.Draw(glow, drawPos, null,
+                        (NachtmusikPalette.NebulaPink with { A = 0 }) * 0.12f * pulse,
+                        MathHelper.PiOver4, origin, nebulaScale * 0.8f, SpriteEffects.None, 0f);
                 }
             }
-
-            // Nachtmusik theme star flare accent
-            NachtmusikShaderManager.BeginAdditive(Main.spriteBatch);
-            NachtmusikVFXLibrary.DrawThemeStarFlare(Main.spriteBatch, Projectile.Center, 1f, 0.5f);
-            NachtmusikShaderManager.RestoreSpriteBatch(Main.spriteBatch);
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

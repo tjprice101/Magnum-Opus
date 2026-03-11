@@ -19,7 +19,7 @@ using ReLogic.Content;
 namespace MagnumOpus.Content.Winter.Bosses
 {
     /// <summary>
-    /// L'INVERNO, THE FROZEN SILENCE - POST-GOLEM BOSS
+    /// L'INVERNO, THE SILENT FINALE - POST-MECHANICAL BOSSES BOSS
     /// 
     /// Design Philosophy:
     /// - Cold, stillness, silence before the storm
@@ -163,7 +163,7 @@ namespace MagnumOpus.Content.Winter.Bosses
             bestiaryEntry.Info.AddRange(new IBestiaryInfoElement[]
             {
                 BestiaryDatabaseNPCsPopulator.CommonTags.SpawnConditions.Biomes.Snow,
-                new FlavorTextBestiaryInfoElement("L'Inverno, the Frozen Silence - the crystalline sovereign of eternal winter, whose frigid symphony brings all life to stillness.")
+                new FlavorTextBestiaryInfoElement("L'Inverno, the Silent Finale - the crystalline sovereign of eternal winter, whose frigid symphony brings all life to stillness.")
             });
         }
 

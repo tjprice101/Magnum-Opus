@@ -12,7 +12,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
     // TEXTURE CACHE
     // =================================================================
 
-    /// <summary>Lazy texture loader for Goliath particle assets — includes Moonlight Sonata theme-specific textures.</summary>
+    /// <summary>Lazy texture loader for Goliath particle assets  Eincludes Moonlight Sonata theme-specific textures.</summary>
     internal static class GoliathTextures
     {
         private static Asset<Texture2D> _pointBloom;
@@ -20,7 +20,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
         private static Asset<Texture2D> _starSoft;
         private static Asset<Texture2D> _musicNote1;
         private static Asset<Texture2D> _musicNote2;
-        private static Asset<Texture2D> _circularMask;
+        private static Asset<Texture2D> _SoftCircle;
         private static Asset<Texture2D> _energyFlare;
         private static Asset<Texture2D> _glyph;
 
@@ -45,14 +45,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
             "MagnumOpus/Assets/Particles Asset Library/MusicNote")).Value;
         public static Texture2D MusicNote2 => (_musicNote2 ??= ModContent.Request<Texture2D>(
             "MagnumOpus/Assets/Particles Asset Library/CursiveMusicNote")).Value;
-        public static Texture2D CircularMask => (_circularMask ??= ModContent.Request<Texture2D>(
+        public static Texture2D SoftCircle => (_SoftCircle ??= ModContent.Request<Texture2D>(
             "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle")).Value;
         public static Texture2D EnergyFlare => (_energyFlare ??= ModContent.Request<Texture2D>(
             "MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare")).Value;
         public static Texture2D Glyph => (_glyph ??= ModContent.Request<Texture2D>(
             "MagnumOpus/Assets/Particles Asset Library/MusicNote")).Value;
 
-        // Moonlight Sonata theme-specific — glow and bloom
+        // Moonlight Sonata theme-specific  Eglow and bloom
         public static Texture2D MSStarFlare => (_msStarFlare ??= ModContent.Request<Texture2D>(
             "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Glow and Bloom/MS Star Flare")).Value;
         public static Texture2D MSLensFlare => (_msLensFlare ??= ModContent.Request<Texture2D>(
@@ -60,13 +60,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
         public static Texture2D MSGlowOrb => (_msGlowOrb ??= ModContent.Request<Texture2D>(
             "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Glow and Bloom/MS Glow Orb")).Value;
 
-        // Moonlight Sonata theme-specific — particles
+        // Moonlight Sonata theme-specific  Eparticles
         public static Texture2D MSCrescentMoon => (_msCrescentMoon ??= ModContent.Request<Texture2D>(
             "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Particles/MS Crescent Moon")).Value;
         public static Texture2D MSMusicNote => (_msMusicNote ??= ModContent.Request<Texture2D>(
             "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Particles/MS Music Note")).Value;
 
-        // Moonlight Sonata theme-specific — impacts
+        // Moonlight Sonata theme-specific  Eimpacts
         public static Texture2D MSHarmonicImpact => (_msHarmonicImpact ??= ModContent.Request<Texture2D>(
             "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Moonlight Sonata/Impacts/MS Harmonic Resonance Wave Impact")).Value;
         public static Texture2D MSPowerEffectRing => (_msPowerEffectRing ??= ModContent.Request<Texture2D>(
@@ -78,7 +78,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
     }
 
     // =================================================================
-    // BEAM SPARK PARTICLE — sparkles along moonlight beam paths
+    // BEAM SPARK PARTICLE  Esparkles along moonlight beam paths
     // =================================================================
 
     /// <summary>
@@ -125,7 +125,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
     }
 
     // =================================================================
-    // RIFT MOTE PARTICLE — swirling cosmic dust around the Goliath
+    // RIFT MOTE PARTICLE  Eswirling cosmic dust around the Goliath
     // =================================================================
 
     /// <summary>
@@ -178,7 +178,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
     }
 
     // =================================================================
-    // SUMMON GLOW PARTICLE — radiating glow during summoning ritual
+    // SUMMON GLOW PARTICLE  Eradiating glow during summoning ritual
     // =================================================================
 
     /// <summary>
@@ -221,7 +221,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
     }
 
     // =================================================================
-    // MUSIC NOTE PARTICLE — musical motifs scattered from beam impacts
+    // MUSIC NOTE PARTICLE  Emusical motifs scattered from beam impacts
     // =================================================================
 
     /// <summary>
@@ -271,7 +271,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
     }
 
     // =================================================================
-    // GRAVITY WELL PARTICLE — pulled-in particles for rift effect
+    // GRAVITY WELL PARTICLE  Epulled-in particles for rift effect
     // =================================================================
 
     /// <summary>
@@ -325,7 +325,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
     }
 
     // =================================================================
-    // CONDUCTOR GLYPH PARTICLE — arcane glyphs during Conductor Mode
+    // CONDUCTOR GLYPH PARTICLE  Earcane glyphs during Conductor Mode
     // =================================================================
 
     /// <summary>
@@ -372,7 +372,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
     }
 
     // =================================================================
-    // IMPACT BLOOM PARTICLE — expanding bloom at beam hit points
+    // IMPACT BLOOM PARTICLE  Eexpanding bloom at beam hit points
     // =================================================================
 
     /// <summary>
@@ -415,7 +415,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
     }
 
     // =================================================================
-    // LUNAR PHASE RING — expanding ring showing current lunar phase
+    // LUNAR PHASE RING  Eexpanding ring showing current lunar phase
     // =================================================================
 
     /// <summary>
@@ -452,7 +452,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
             float alpha = (1f - t * t) * 0.4f;
             Color color = DrawColor * alpha;
 
-            Texture2D tex = GoliathTextures.CircularMask;
+            Texture2D tex = GoliathTextures.SoftCircle;
             Vector2 origin = tex.Size() * 0.5f;
             Vector2 drawPos = Position - Main.screenPosition;
 
@@ -466,7 +466,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
     }
 
     // =================================================================
-    // LUNAR HEALING PARTICLE — soft orb arcing from Goliath to player
+    // LUNAR HEALING PARTICLE  Esoft orb arcing from Goliath to player
     // =================================================================
 
     /// <summary>
@@ -486,7 +486,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
         {
             Position = start;
             _target = target;
-            // Arc control point — offset perpendicular to the line connecting start and target
+            // Arc control point  Eoffset perpendicular to the line connecting start and target
             Vector2 mid = (start + target) * 0.5f;
             Vector2 perpendicular = new(-(target.Y - start.Y), target.X - start.X);
             perpendicular.Normalize();
@@ -531,7 +531,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
     }
 
     // =================================================================
-    // THEME-SPECIFIC GOLIATH PARTICLES — Moonlight Sonata VFX Library
+    // THEME-SPECIFIC GOLIATH PARTICLES  EMoonlight Sonata VFX Library
     // =================================================================
 
     /// <summary>

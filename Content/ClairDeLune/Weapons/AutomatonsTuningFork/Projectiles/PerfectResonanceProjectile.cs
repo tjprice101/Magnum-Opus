@@ -139,6 +139,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.AutomatonsTuningFork.Projectile
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
 
             float progress = _timer / (float)LifeTime;
@@ -147,6 +149,15 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.AutomatonsTuningFork.Projectile
             DrawResonanceBurst(sb, matrix, progress, fadeOut);   // Pass 1: ResonanceFieldHarmonic
             DrawRadialZone(sb, matrix, progress, fadeOut);       // Pass 2: RadialNoiseMask fractal zone
             DrawBloomFacets(sb, matrix, progress, fadeOut);      // Pass 3: Bloom + frequency facets
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

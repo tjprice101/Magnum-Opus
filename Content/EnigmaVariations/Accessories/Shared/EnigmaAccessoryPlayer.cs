@@ -108,45 +108,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
                 {
                     puzzleMasteryTimer--;
                     
-                    // ====== VISUAL INDICATOR - Orbiting glyphs + aura showing buff is active ======
-                    // Pulsing aura to clearly indicate the buff is active
-                    float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.2f + 0.8f;
-                    Lighting.AddLight(Player.Center, EnigmaGreenFlame.ToVector3() * 0.5f * pulse);
-                    
-                    // Orbiting glyphs around player (clear visual indicator)
-                    if (Main.GameUpdateCount % 4 == 0)
-                    {
-                        float orbitAngle = Main.GameUpdateCount * 0.05f;
-                        for (int i = 0; i < 3; i++)
-                        {
-                            float angle = orbitAngle + MathHelper.TwoPi * i / 3f;
-                            Vector2 glyphPos = Player.Center + angle.ToRotationVector2() * 45f;
-                            Color glyphColor = Color.Lerp(EnigmaPurple, EnigmaGreenFlame, (float)i / 3f) * pulse;
-                            CustomParticles.Glyph(glyphPos, glyphColor, 0.35f, -1);
-                        }
-                    }
-                    
-                    // Occasional sparkle to reinforce the active state
-                    if (Main.rand.NextBool(8))
-                    {
-                        Vector2 sparklePos = Player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                        CustomParticles.GenericFlare(sparklePos, EnigmaGreenFlame * 0.7f, 0.25f, 12);
-                    }
-                    
-                    // Show remaining time via subtle intensity change
-                    float timeRemainingPercent = (float)puzzleMasteryTimer / PuzzleMasteryDuration;
-                    if (timeRemainingPercent < 0.25f && Main.GameUpdateCount % 10 == 0)
-                    {
-                        // Warning flash when buff is about to expire
-                        CustomParticles.GenericFlare(Player.Center, EnigmaPurple, 0.4f, 8);
-                    }
-                    
                     if (puzzleMasteryTimer <= 0)
                     {
                         puzzleMasteryActive = false;
-                        // End of mastery burst
-                        CustomParticles.GlyphBurst(Player.Center, EnigmaPurple, 8, 5f);
-                        ThemedParticles.EnigmaMusicNotes(Player.Center, 4, 30f);
                     }
                 }
             }
@@ -363,18 +327,6 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
                 Vector2 targetPos = Player.Center + fragment.Angle.ToRotationVector2() * fragment.OrbitRadius;
                 fragment.Position = Vector2.Lerp(fragment.Position, targetPos, 0.08f);
                 fragment.Lifetime--;
-                
-                // Visual effect
-                if (Main.rand.NextBool(3))
-                {
-                    CustomParticles.GenericGlow(fragment.Position, fragment.Color * 0.7f, 0.2f, 12);
-                }
-                
-                // Occasional glyph
-                if (Main.rand.NextBool(20))
-                {
-                    CustomParticles.Glyph(fragment.Position, EnigmaPurple * 0.6f, 0.25f, -1);
-                }
                 
                 // Check if collected (close to player)
                 if (fragment.Position.Distance(Player.Center) < 30f)

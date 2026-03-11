@@ -12,7 +12,7 @@ using Terraria.ModLoader;
 namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles
 {
     /// <summary>
-    /// Temporal Paradox — created when Forward and Reverse fields overlap.
+    /// Temporal Paradox  Ecreated when Forward and Reverse fields overlap.
     /// 3-phase expanding detonation dealing heavy damage.
     /// 3 render passes: (1) RadialNoiseMaskShader expanding zone,
     /// (2) TimeFreezeSlash.fx TimeFreezeCrack overlay, (3) Multi-scale bloom rings.
@@ -184,7 +184,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles
 
         private void LoadTextures()
         {
-            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseAndDistortion/VoronoiCrackNoise", AssetRequestMode.ImmediateLoad);
+            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/VornoiEdgeNoise", AssetRequestMode.ImmediateLoad);
             _gradientLUT ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/ColorGradients/ClairDeLuneGradientLUTandRAMP", AssetRequestMode.ImmediateLoad);
             _softCircle ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad);
             _softRadialBloom ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
@@ -197,12 +197,23 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
 
             DrawRadialMaskZone(sb, matrix);      // Pass 1: RadialNoiseMask expanding zone
             DrawTimeFreezeOverlay(sb, matrix);   // Pass 2: TimeFreezeCrack shader overlay
             DrawBloomRings(sb, matrix);          // Pass 3: Multi-scale bloom rings + core
             ClairDeLuneVFXLibrary.DrawThemeAccents(sb, Projectile.Center, 0.5f, 0.3f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

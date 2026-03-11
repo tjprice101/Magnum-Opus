@@ -73,7 +73,7 @@ namespace MagnumOpus.Common.Systems.VFX
         {
             if (_fallbackGlow == null || _fallbackGlow.IsDisposed)
             {
-                // Create a simple gradient circle as fallback
+                // Create a simple gradient circle as NEON RED fallback
                 _fallbackGlow = new Texture2D(Main.instance.GraphicsDevice, 64, 64);
                 Color[] data = new Color[64 * 64];
                 Vector2 center = new Vector2(32, 32);
@@ -84,7 +84,7 @@ namespace MagnumOpus.Common.Systems.VFX
                         float dist = Vector2.Distance(new Vector2(x, y), center) / 32f;
                         float alpha = Math.Max(0, 1f - dist);
                         alpha = alpha * alpha; // Quadratic falloff
-                        data[y * 64 + x] = new Color(255, 255, 255, (byte)(alpha * 255));
+                        data[y * 64 + x] = new Color((byte)(alpha * 255), 0, (byte)(alpha * 50), (byte)(alpha * 255));
                     }
                 }
                 _fallbackGlow.SetData(data);

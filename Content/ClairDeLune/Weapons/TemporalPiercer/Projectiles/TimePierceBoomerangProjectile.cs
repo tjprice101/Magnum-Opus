@@ -164,12 +164,23 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer.Projectiles
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
 
             DrawSparkleTrail(sb, matrix);      // Pass 1: SparkleTrailShader VertexStrip crystal trail
             DrawCrystalAura(sb, matrix);       // Pass 2: CrystalLanceThrust piercing aura
             DrawBloomAndSprite(sb, matrix, lightColor); // Pass 3: Bloom + spinning rapier sprite
             ClairDeLuneVFXLibrary.DrawThemeAccents(sb, Projectile.Center, 0.5f, 0.3f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

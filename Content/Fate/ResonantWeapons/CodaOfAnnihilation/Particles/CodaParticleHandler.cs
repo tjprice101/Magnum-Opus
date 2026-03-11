@@ -39,6 +39,34 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Particles
             }
         }
 
+        public override void PostDrawTiles()
+        {
+            if (_particles.Count == 0)
+                return;
+
+            SpriteBatch sb = Main.spriteBatch;
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            foreach (var p in _particles)
+            {
+                if (p.UseAdditiveBlend)
+                    p.Draw(sb);
+            }
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            foreach (var p in _particles)
+            {
+                if (!p.UseAdditiveBlend)
+                    p.Draw(sb);
+            }
+
+            sb.End();
+        }
+
         /// <summary>
         /// Draw all active particles. 
         /// Two passes: additive (glows, sparks, flares) then alpha-blend (smoke, debris).

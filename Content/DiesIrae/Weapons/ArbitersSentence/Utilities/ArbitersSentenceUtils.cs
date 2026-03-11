@@ -107,6 +107,12 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ArbitersSentence.Utilities
         /// </summary>
         public static void DoFlameImpact(Vector2 position, int intensity = 1)
         {
+            // === Color-ramped sparkle explosion VFX ===
+            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(position, 8, 5f, 0.3f);
+
+            // === Color-ramped sparkle explosion VFX ===
+            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(position, 8, 5f, 0.3f);
+
             if (Main.dedServ) return;
 
             // Directional sparks  Efewer, tighter than Damnation's Cannon

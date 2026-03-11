@@ -7,7 +7,7 @@ namespace MagnumOpus.Content.ClairDeLune
 {
     /// <summary>
     /// Shader manager for all Clair de Lune weapon-specific and theme-wide shaders.
-    /// Wraps ShaderLoader access to 14 custom Clair de Lune .fx files — 2 theme-wide
+    /// Wraps ShaderLoader access to 14 custom Clair de Lune .fx files  E2 theme-wide
     /// (ClairDeLuneMoonlit, ClairDeLunePearlGlow) plus 12 per-weapon shaders.
     ///
     /// Each weapon has its own unique shader with two techniques (main + glow/overlay).
@@ -65,7 +65,7 @@ namespace MagnumOpus.Content.ClairDeLune
 
         /// <summary>
         /// Binds SoftCircularCaustics noise to sampler slot 1 for dreamy mist distortion.
-        /// Primary noise for Clair de Lune — used by the theme-wide moonlit trail shader.
+        /// Primary noise for Clair de Lune  Eused by the theme-wide moonlit trail shader.
         /// </summary>
         public static void BindMistNoise(GraphicsDevice device)
         {
@@ -95,11 +95,11 @@ namespace MagnumOpus.Content.ClairDeLune
         }
 
         /// <summary>
-        /// Binds SparklyNoiseTexture for crystalline/starfall weapon effects.
+        /// Binds SimplexNoise for crystalline/starfall weapon effects.
         /// </summary>
         public static void BindSparkleNoise(GraphicsDevice device)
         {
-            Texture2D noise = ShaderLoader.GetNoiseTexture("SparklyNoiseTexture")
+            Texture2D noise = ShaderLoader.GetNoiseTexture("SimplexNoise")
                            ?? ShaderLoader.GetNoiseTexture("StarFieldScatter")
                            ?? ShaderLoader.GetNoiseTexture("PerlinNoise");
             if (noise != null)
@@ -167,7 +167,7 @@ namespace MagnumOpus.Content.ClairDeLune
         }
 
         // =====================================================================
-        //  THEME-WIDE: ClairDeLuneMoonlit — dreamy moonlit pearl trail
+        //  THEME-WIDE: ClairDeLuneMoonlit  Edreamy moonlit pearl trail
         // =====================================================================
 
         /// <summary>Apply the theme-wide moonlit pearl trail (technique: MoonlitFlow).</summary>
@@ -199,7 +199,7 @@ namespace MagnumOpus.Content.ClairDeLune
         }
 
         // =====================================================================
-        //  THEME-WIDE: ClairDeLunePearlGlow — pearl bloom overlay
+        //  THEME-WIDE: ClairDeLunePearlGlow  Epearl bloom overlay
         // =====================================================================
 
         /// <summary>Apply the theme-wide pearl bloom (technique: PearlBloom).</summary>
@@ -229,7 +229,7 @@ namespace MagnumOpus.Content.ClairDeLune
         }
 
         // =====================================================================
-        //  MELEE: Chronologicality — Temporal Drill
+        //  MELEE: Chronologicality  ETemporal Drill
         // =====================================================================
 
         /// <summary>Apply TemporalDrill bore trail (technique: TemporalDrillBore).</summary>
@@ -264,7 +264,7 @@ namespace MagnumOpus.Content.ClairDeLune
         }
 
         // =====================================================================
-        //  MELEE: Temporal Piercer — Crystal Lance
+        //  MELEE: Temporal Piercer  ECrystal Lance
         // =====================================================================
 
         /// <summary>Apply CrystalLance thrust trail (technique: CrystalLanceThrust).</summary>
@@ -299,7 +299,7 @@ namespace MagnumOpus.Content.ClairDeLune
         }
 
         // =====================================================================
-        //  MELEE: Clockwork Harmony — Gear Swing
+        //  MELEE: Clockwork Harmony  EGear Swing
         // =====================================================================
 
         /// <summary>Apply GearSwing arc (technique: GearSwingArc).</summary>
@@ -335,7 +335,7 @@ namespace MagnumOpus.Content.ClairDeLune
         }
 
         // =====================================================================
-        //  MAGIC: Clockwork Grimoire — Arcane Pages
+        //  MAGIC: Clockwork Grimoire  EArcane Pages
         // =====================================================================
 
         /// <summary>Apply ArcanePages flowing script (technique: ArcanePageFlow).</summary>
@@ -370,7 +370,7 @@ namespace MagnumOpus.Content.ClairDeLune
         }
 
         // =====================================================================
-        //  MAGIC: Orrery Of Dreams — Celestial Orbit
+        //  MAGIC: Orrery Of Dreams  ECelestial Orbit
         // =====================================================================
 
         /// <summary>Apply CelestialOrbit orbital paths (technique: CelestialOrbitPath).</summary>
@@ -405,7 +405,7 @@ namespace MagnumOpus.Content.ClairDeLune
         }
 
         // =====================================================================
-        //  MAGIC: Requiem Of Time — Time Freeze Slash
+        //  MAGIC: Requiem Of Time  ETime Freeze Slash
         // =====================================================================
 
         /// <summary>Apply TimeFreezeSlash main slash (technique: TimeFreezeSlash).</summary>
@@ -441,7 +441,7 @@ namespace MagnumOpus.Content.ClairDeLune
         }
 
         // =====================================================================
-        //  RANGED: Starfall Whisper — Starfall Trail
+        //  RANGED: Starfall Whisper  EStarfall Trail
         // =====================================================================
 
         /// <summary>Apply StarfallTrail falling star bolt (technique: StarfallBolt).</summary>
@@ -477,7 +477,7 @@ namespace MagnumOpus.Content.ClairDeLune
         }
 
         // =====================================================================
-        //  RANGED: Midnight Mechanism — Gatling Blur
+        //  RANGED: Midnight Mechanism  EGatling Blur
         // =====================================================================
 
         /// <summary>Apply GatlingBlur barrel motion blur (technique: GatlingBarrelBlur).</summary>
@@ -512,7 +512,7 @@ namespace MagnumOpus.Content.ClairDeLune
         }
 
         // =====================================================================
-        //  RANGED: Cog And Hammer — Singularity Pull
+        //  RANGED: Cog And Hammer  ESingularity Pull
         // =====================================================================
 
         /// <summary>Apply SingularityPull gravitational vortex (technique: SingularityVortex).</summary>
@@ -547,7 +547,7 @@ namespace MagnumOpus.Content.ClairDeLune
         }
 
         // =====================================================================
-        //  SUMMON: Lunar Phylactery — Soul Beam
+        //  SUMMON: Lunar Phylactery  ESoul Beam
         // =====================================================================
 
         /// <summary>Apply SoulBeam tether beam (technique: SoulBeamTether).</summary>
@@ -583,7 +583,7 @@ namespace MagnumOpus.Content.ClairDeLune
         }
 
         // =====================================================================
-        //  SUMMON: Gear-Driven Arbiter — Judgment Mark
+        //  SUMMON: Gear-Driven Arbiter  EJudgment Mark
         // =====================================================================
 
         /// <summary>Apply JudgmentMark sigil (technique: JudgmentMarkSigil).</summary>
@@ -620,7 +620,7 @@ namespace MagnumOpus.Content.ClairDeLune
         }
 
         // =====================================================================
-        //  SUMMON: Automaton's Tuning Fork — Resonance Field
+        //  SUMMON: Automaton's Tuning Fork  EResonance Field
         // =====================================================================
 
         /// <summary>Apply ResonanceField expanding pulse rings (technique: ResonanceFieldPulse).</summary>
@@ -659,7 +659,7 @@ namespace MagnumOpus.Content.ClairDeLune
         // =====================================================================
 
         /// <summary>
-        /// Boss temporal shockwave — massive expanding ring with intense moonlit bloom.
+        /// Boss temporal shockwave  Emassive expanding ring with intense moonlit bloom.
         /// Uses RadialScroll as this is a screen-space effect.
         /// </summary>
         public static void ApplyTemporalShockwave(float time)

@@ -169,6 +169,9 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D tex = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = tex.Size() / 2f;
             float baseScale = IsDimensionSever ? 1.0f : 0.8f;
@@ -236,6 +239,15 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Projectiles
             NachtmusikShaderManager.BeginAdditive(Main.spriteBatch);
             NachtmusikVFXLibrary.DrawThemeStarFlare(Main.spriteBatch, Projectile.Center, 1f, 0.5f);
             NachtmusikShaderManager.RestoreSpriteBatch(Main.spriteBatch);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return true;
         }

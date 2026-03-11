@@ -39,12 +39,6 @@ namespace MagnumOpus.Content.Fate.Accessories
             
             // Reduced mana cost
             player.manaCost -= 0.10f;
-            
-            // Cosmic ambient VFX
-            if (!hideVisual)
-            {
-                FateAccessoryVFX.AstralConduitAmbientVFX(player);
-            }
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
@@ -106,7 +100,7 @@ namespace MagnumOpus.Content.Fate.Accessories
         {
             if (!hasAstralConduit) return;
             if (!proj.CountsAsClass(DamageClass.Magic)) return;
-            if (!Main.rand.NextBool(7)) return; // ~15% chance
+            if (Main.rand.NextFloat() >= 0.15f) return; // 15% chance
             
             TriggerCosmicFlare(target, damageDone);
         }

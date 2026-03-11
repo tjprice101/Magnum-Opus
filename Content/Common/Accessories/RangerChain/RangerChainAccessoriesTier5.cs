@@ -49,33 +49,6 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             markingPlayer.hasVivaldisSeSonalSight = true;
             // Enable this tier
             markingPlayer.hasMoonlitPredatorsGaze = true;
-            
-            // Lunar particles
-            if (!hideVisual && Main.rand.NextBool(12))
-            {
-                float angle = Main.GameUpdateCount * 0.03f;
-                Vector2 orbitPos = player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 35f;
-                Vector2 vel = new Vector2(0, -Main.rand.NextFloat(0.3f, 0.6f));
-                Color lunarColor = Color.Lerp(MoonlightPurple, MoonlightSilver, Main.rand.NextFloat());
-                CustomParticles.GenericGlow(orbitPos, vel, lunarColor * 0.6f, 0.22f, 20, true);
-                
-                // Moonbeam sparkles
-                if (Main.rand.NextBool(5))
-                {
-                    CustomParticles.GenericFlare(orbitPos, MoonlightSilver * 0.4f, 0.18f, 12);
-                }
-            }
-            
-            // Music notes for the sonata theme
-            if (!hideVisual && Main.rand.NextBool(25))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                ThemedParticles.MusicNote(pos, new Vector2(0, -0.5f), MoonlightPurple, 0.25f, 20);
-            }
-            
-            // Ethereal moonlight
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.15f + 0.25f;
-            Lighting.AddLight(player.Center, MoonlightPurple.ToVector3() * pulse);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -160,31 +133,6 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             markingPlayer.hasMoonlitPredatorsGaze = true;
             // Enable this tier
             markingPlayer.hasHeroicDeadeye = true;
-            
-            // Heroic flames and sakura
-            if (!hideVisual && Main.rand.NextBool(10))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(32f, 32f);
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(0.8f, 1.5f));
-                Color flameColor = Color.Lerp(EroicaScarlet, EroicaGold, Main.rand.NextFloat());
-                CustomParticles.GenericGlow(pos, vel, flameColor * 0.7f, 0.24f, 22, true);
-                
-                // Golden flares for heroic essence
-                if (Main.rand.NextBool(5))
-                {
-                    CustomParticles.GenericFlare(pos, EroicaGold * 0.5f, 0.2f, 12);
-                }
-            }
-            
-            // Sakura petals (Eroica theme)
-            if (!hideVisual && Main.rand.NextBool(20))
-            {
-                ThemedParticles.SakuraPetals(player.Center, 1, 40f);
-            }
-            
-            // Heroic golden light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.12f + 0.25f;
-            Lighting.AddLight(player.Center, EroicaGold.ToVector3() * pulse);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -270,33 +218,6 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             markingPlayer.hasHeroicDeadeye = true;
             // Enable this tier
             markingPlayer.hasInfernalExecutionersBrand = true;
-            
-            // Infernal flames and smoke
-            if (!hideVisual && Main.rand.NextBool(8))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), -Main.rand.NextFloat(1f, 2f));
-                Color fireColor = Color.Lerp(CampanellaOrange, CampanellaGold, Main.rand.NextFloat());
-                CustomParticles.GenericGlow(pos, vel, fireColor * 0.8f, 0.28f, 20, true);
-                
-                // Black smoke wisps
-                if (Main.rand.NextBool(3))
-                {
-                    Vector2 smokeVel = vel * 0.5f;
-                    CustomParticles.GenericGlow(pos, smokeVel, CampanellaBlack * 0.6f, 0.35f, 28, true);
-                }
-            }
-            
-            // Bell chime flares
-            if (!hideVisual && Main.rand.NextBool(30))
-            {
-                CustomParticles.GenericFlare(player.Center + Main.rand.NextVector2Circular(25f, 25f), 
-                    CampanellaOrange * 0.5f, 0.25f, 15);
-            }
-            
-            // Infernal light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.07f) * 0.15f + 0.28f;
-            Lighting.AddLight(player.Center, CampanellaOrange.ToVector3() * pulse);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -365,7 +286,7 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             Item.height = 38;
             Item.accessory = true;
             Item.value = Item.sellPrice(gold: 45);
-            Item.rare = ModContent.RarityType<EnigmaRarity>();
+            Item.rare = ModContent.RarityType<EnigmaVariationsRarity>();
         }
 
         public override void UpdateAccessory(Player player, bool hideVisual)
@@ -383,32 +304,6 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             markingPlayer.hasInfernalExecutionersBrand = true;
             // Enable this tier
             markingPlayer.hasEnigmasParadoxMark = true;
-            
-            // Enigmatic void particles
-            if (!hideVisual && Main.rand.NextBool(10))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                Vector2 vel = Main.rand.NextVector2Circular(0.5f, 0.5f);
-                Color voidColor = Main.rand.NextBool() ? EnigmaPurple : EnigmaGreen;
-                CustomParticles.GenericGlow(pos, vel, voidColor * 0.6f, 0.26f, 22, true);
-                
-                // Glyphs for arcane mystery
-                if (Main.rand.NextBool(6))
-                {
-                    CustomParticles.GlyphBurst(pos, EnigmaPurple, 2, 2f);
-                }
-            }
-            
-            // Watching eye particles (Enigma theme)
-            if (!hideVisual && Main.rand.NextBool(40))
-            {
-                Vector2 eyePos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
-                CustomParticles.EnigmaEyeGaze(eyePos, EnigmaPurple * 0.7f, 0.3f, null);
-            }
-            
-            // Mysterious pulsing light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.18f + 0.22f;
-            Lighting.AddLight(player.Center, EnigmaPurple.ToVector3() * pulse);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -496,45 +391,6 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             markingPlayer.hasEnigmasParadoxMark = true;
             // Enable this tier
             markingPlayer.hasSwansGracefulHunt = true;
-            
-            // Graceful feather particles
-            if (!hideVisual && Main.rand.NextBool(12))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-0.3f, 0.5f));
-                Color featherColor = Main.rand.NextBool() ? SwanWhite : SwanSilver;
-                CustomParticles.GenericGlow(pos, vel, featherColor * 0.7f, 0.28f, 30, true);
-                
-                // Black feather contrast
-                if (Main.rand.NextBool(4))
-                {
-                    CustomParticles.GenericGlow(pos + Main.rand.NextVector2Circular(10f, 10f), 
-                        vel, SwanBlack * 0.5f, 0.22f, 25, true);
-                }
-            }
-            
-            // Rainbow shimmer accents (Swan Lake theme)
-            if (!hideVisual && Main.rand.NextBool(20))
-            {
-                float hue = Main.rand.NextFloat();
-                Color rainbowColor = Main.hslToRgb(hue, 0.8f, 0.7f);
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                CustomParticles.GenericFlare(pos, rainbowColor * 0.4f, 0.2f, 12);
-            }
-            
-            // Perfect shot indicator
-            if (!hideVisual && markingPlayer.IsPerfectShot)
-            {
-                // Glowing halo when ready for perfect shot
-                if (Main.rand.NextBool(15))
-                {
-                    CustomParticles.HaloRing(player.Center, SwanWhite * 0.3f, 0.15f, 12);
-                }
-            }
-            
-            // Elegant white light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.12f + 0.28f;
-            Lighting.AddLight(player.Center, SwanWhite.ToVector3() * pulse);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -648,53 +504,6 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             markingPlayer.hasSwansGracefulHunt = true;
             // Enable this tier
             markingPlayer.hasFatesCosmicVerdict = true;
-            
-            // CELESTIAL COSMIC particles - Fate theme
-            if (!hideVisual && Main.rand.NextBool(8))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
-                Vector2 vel = Main.rand.NextVector2Circular(0.8f, 0.8f);
-                
-                // Cosmic gradient colors
-                float gradientProgress = Main.rand.NextFloat();
-                Color cosmicColor = gradientProgress < 0.33f 
-                    ? Color.Lerp(FatePurple, FateCrimson, gradientProgress * 3f)
-                    : gradientProgress < 0.66f 
-                        ? Color.Lerp(FateCrimson, FatePink, (gradientProgress - 0.33f) * 3f)
-                        : Color.Lerp(FatePink, FateWhite, (gradientProgress - 0.66f) * 3f);
-                
-                CustomParticles.GenericGlow(pos, vel, cosmicColor * 0.7f, 0.3f, 25, true);
-                
-                // Star sparkles
-                if (Main.rand.NextBool(4))
-                {
-                    CustomParticles.GenericFlare(pos, FateWhite * 0.5f, 0.2f, 12);
-                }
-            }
-            
-            // Orbiting glyphs (Fate celestial theme)
-            if (!hideVisual && Main.rand.NextBool(20))
-            {
-                float angle = Main.GameUpdateCount * 0.02f;
-                for (int i = 0; i < 3; i++)
-                {
-                    float glyphAngle = angle + MathHelper.TwoPi * i / 3f;
-                    Vector2 glyphPos = player.Center + new Vector2((float)Math.Cos(glyphAngle), (float)Math.Sin(glyphAngle)) * 45f;
-                    CustomParticles.Glyph(glyphPos, FateCrimson * 0.6f, 0.25f, -1);
-                }
-            }
-            
-            // Cosmic halo pulses
-            if (!hideVisual && Main.rand.NextBool(35))
-            {
-                CustomParticles.HaloRing(player.Center, FateCrimson * 0.3f, 0.2f, 15);
-            }
-            
-            // Cosmic light with color shifting
-            float timeShift = Main.GameUpdateCount * 0.02f;
-            float pulse = (float)Math.Sin(timeShift) * 0.12f + 0.3f;
-            Color lightColor = Color.Lerp(FateCrimson, FatePink, (float)Math.Sin(timeShift * 0.5f) * 0.5f + 0.5f);
-            Lighting.AddLight(player.Center, lightColor.ToVector3() * pulse);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)

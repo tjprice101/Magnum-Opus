@@ -3,8 +3,10 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
 using Terraria.Audio;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.Utilities;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.Particles;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.Primitives;
@@ -33,6 +35,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
         private Vector2[] _trailPositions = new Vector2[MaxTrailPositions];
         private int _trailIndex;
         private FangOfTheInfiniteBellPrimitiveRenderer _trailRenderer;
+        private VertexStrip _strip;
 
         private int BouncesRemaining { get => (int)Projectile.ai[0]; set => Projectile.ai[0] = value; }
         private bool IsCrescendo => Projectile.ai[1] == 1f;
@@ -41,6 +44,12 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
         private int _lightningCooldown;
 
         public override string Texture => "MagnumOpus/Content/LaCampanella/ResonantWeapons/FangOfTheInfiniteBell/FangOfTheInfiniteBell";
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -328,225 +337,22 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
                 ai0: (float)SparkMode.RadialScatter);
         }
 
-        private static int _lastParticleDrawFrame;
-
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-                // Draw particles (dedup across all orbs per frame)
-                int currentFrame = (int)Main.GameUpdateCount;
-                if (_lastParticleDrawFrame != currentFrame)
-                {
-                    _lastParticleDrawFrame = currentFrame;
-                    FangOfTheInfiniteBellParticleHandler handler = ModContent.GetInstance<FangOfTheInfiniteBellParticleHandler>();
-                    handler?.DrawAllParticles(sb);
-                }
-
-                // Draw trail
-                DrawOrbTrail(sb);
-
-                // Draw orb body with bloom
-                DrawOrbBody(sb, lightColor);
-
-                // Theme texture accents
-                try { sb.End(); } catch { }
-                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-                FangOfTheInfiniteBellUtils.DrawThemeAccents(sb, Projectile.Center - Main.screenPosition, Projectile.scale);
-                try { sb.End(); } catch { }
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            }
-            catch
-            {
-                try
-                {
-                    sb.End();
-                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-                }
-                catch { }
-            }
-            return false;
-        }
-
-        private void DrawOrbTrail(SpriteBatch sb)
-        {
-            if (_trailRenderer == null) return;
-
-            // Build ordered trail from ring buffer
-            Vector2[] trail = new Vector2[Math.Min(_trailIndex, MaxTrailPositions)];
-            for (int i = 0; i < trail.Length; i++)
-            {
-                int idx = (_trailIndex - trail.Length + i) % MaxTrailPositions;
-                if (idx < 0) idx += MaxTrailPositions;
-                trail[i] = _trailPositions[idx];
-            }
-            if (trail.Length < 2) return;
-
-            // === SHADER-DRIVEN ARCANE ORB TRAIL ===
-            MiscShaderData orbShader = FangOfTheInfiniteBellShaderLoader.GetOrbShader();
-            if (orbShader != null)
-            {
-                Color arcaneAmber = FangOfTheInfiniteBellUtils.GetArcaneGradient(0.5f);
-                Color brightGold = FangOfTheInfiniteBellUtils.GetArcaneGradient(0.85f);
-                orbShader.UseColor(arcaneAmber);
-                orbShader.UseSecondaryColor(brightGold);
-                orbShader.UseOpacity(IsCrescendo ? 0.9f : 0.7f);
-                try
-                {
-                    orbShader.Shader.Parameters["uTime"]?.SetValue(Main.GameUpdateCount * 0.025f);
-                    orbShader.Shader.Parameters["uIntensity"]?.SetValue(IsCrescendo ? 1.4f : 1.0f);
-                    orbShader.Shader.Parameters["uOverbrightMult"]?.SetValue(IsCrescendo ? 1.6f : 1.2f);
-                    orbShader.Shader.Parameters["uScrollSpeed"]?.SetValue(1.5f);
-                    orbShader.Shader.Parameters["uNoiseScale"]?.SetValue(3.0f);
-                    orbShader.Shader.Parameters["uHasSecondaryTex"]?.SetValue(0f);
-                }
-                catch { }
-
-                // Bind FBM noise on sampler 1 for extra detail
-                try
-                {
-                    var noiseTexture = ModContent.Request<Texture2D>(
-                        "MagnumOpus/Assets/VFX Asset Library/NoiseTextures/TileableFBMNoise",
-                        ReLogic.Content.AssetRequestMode.ImmediateLoad);
-                    if (noiseTexture?.Value != null)
-                    {
-                        Main.graphics.GraphicsDevice.Textures[1] = noiseTexture.Value;
-                        Main.graphics.GraphicsDevice.SamplerStates[1] = SamplerState.LinearWrap;
-                        orbShader.Shader.Parameters["uHasSecondaryTex"]?.SetValue(1f);
-                        orbShader.Shader.Parameters["uSecondaryTexScale"]?.SetValue(2.5f);
-                        orbShader.Shader.Parameters["uSecondaryTexScroll"]?.SetValue(0.8f);
-                    }
-                }
-                catch { }
-            }
-
-            float baseWidth = IsCrescendo ? 20f : 12f;
-            var mainSettings = new FangOfTheInfiniteBellPrimitiveRenderer.FangTrailSettings(
-                width: t =>
-                {
-                    float w = MathHelper.Lerp(baseWidth, 2f, t);
-                    // Pulsing width for mystical feel
-                    float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.12f + t * 4f) * 0.08f;
-                    return w * pulse;
-                },
-                color: t =>
-                {
-                    Color c = FangOfTheInfiniteBellUtils.GetArcaneGradient(t * 0.6f + 0.2f);
-                    float alpha = (1f - t * 0.7f) * 0.7f;
-                    // Heartbeat pulse brightens the core
-                    float heartbeat = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.1f + 0.9f;
-                    return FangOfTheInfiniteBellUtils.Additive(c, alpha * heartbeat);
-                },
-                shader: orbShader,
-                smoothen: true);
-
-            try { sb.End(); } catch { }
-
-            // Main arcane energy trail
-            _trailRenderer.RenderTrail(trail, mainSettings, trail.Length);
-
-            // Second pass: wider outer glow trail for depth
-            if (orbShader != null)
-            {
-                try
-                {
-                    Color outerGlow = FangOfTheInfiniteBellUtils.GetArcaneGradient(0.25f);
-                    orbShader.UseColor(outerGlow);
-                    orbShader.UseOpacity(0.25f);
-                    orbShader.Shader.Parameters["uIntensity"]?.SetValue(0.6f);
-                }
-                catch { }
-            }
-
-            var glowSettings = new FangOfTheInfiniteBellPrimitiveRenderer.FangTrailSettings(
-                width: t => MathHelper.Lerp(baseWidth * 1.8f, 4f, t),
-                color: t =>
-                {
-                    Color c = FangOfTheInfiniteBellUtils.GetArcaneGradient(0.15f + t * 0.3f);
-                    return FangOfTheInfiniteBellUtils.Additive(c, (1f - t) * 0.2f);
-                },
-                shader: orbShader,
-                smoothen: true);
-
-            _trailRenderer.RenderTrail(trail, glowSettings, trail.Length);
-
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-        }
-
-        private void DrawOrbBody(SpriteBatch sb, Color lightColor)
-        {
-            // Bloom glow
-            Texture2D bloomTex = null;
-            try
-            {
-                bloomTex = ModContent.Request<Texture2D>(
-                    "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow",
-                    ReLogic.Content.AssetRequestMode.ImmediateLoad)?.Value;
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.LaCampanella, ref _strip);
             }
             catch { }
-
-            if (bloomTex != null)
+            finally
             {
-                Vector2 screenPos = Projectile.Center - Main.screenPosition;
-                Vector2 bloomOrigin = new(bloomTex.Width / 2f, bloomTex.Height / 2f);
-                float pulse = 0.85f + 0.15f * (float)Math.Sin(Main.GameUpdateCount * 0.1f);
-
                 try { sb.End(); } catch { }
-                try
-                {
-                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-                // Outer glow (capped to 300px on 1024px SoftGlow)
-                float outerScale = MathHelper.Min((IsCrescendo ? 0.6f : 0.35f) * pulse, 0.293f);
-                Color outerColor = FangOfTheInfiniteBellUtils.Additive(
-                    FangOfTheInfiniteBellUtils.GetArcaneGradient(0.4f), 0.3f);
-                sb.Draw(bloomTex, screenPos, null, outerColor, 0f, bloomOrigin, outerScale, SpriteEffects.None, 0f);
-
-                // Core glow (capped to 300px on 1024px SoftGlow)
-                float coreScale = MathHelper.Min((IsCrescendo ? 0.3f : 0.18f) * pulse, 0.293f);
-                Color coreColor = FangOfTheInfiniteBellUtils.Additive(
-                    FangOfTheInfiniteBellUtils.GetArcaneGradient(0.85f), 0.6f);
-                sb.Draw(bloomTex, screenPos, null, coreColor, 0f, bloomOrigin, coreScale, SpriteEffects.None, 0f);
-
-                // --- LC Bright Star Projectile — sharp infernal star inside the orb ---
-                float starRot = (float)Main.GameUpdateCount * 0.05f;
-                float starScale = (IsCrescendo ? 0.25f : 0.15f) * pulse;
-                LaCampanellaVFXLibrary.DrawBrightStar(sb, screenPos,
-                    starScale, starRot, 0.35f * pulse,
-                    LaCampanellaPalette.BellGold);
-
-                // --- LC Power Effect Ring — concentric energy ring during crescendo ---
-                if (IsCrescendo)
-                {
-                    float ringPulse = 0.5f + 0.5f * (float)Math.Sin(Main.GameUpdateCount * 0.12f);
-                    LaCampanellaVFXLibrary.DrawPowerEffectRing(sb, screenPos,
-                        0.35f * pulse, -(float)Main.GameUpdateCount * 0.03f,
-                        0.25f * ringPulse, LaCampanellaPalette.InfernalOrange);
-                }
-                }
-                catch { }
-                finally
-                {
-                    try { sb.End(); } catch { }
-                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
-                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-                }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
-            // Draw actual sprite
-            Texture2D tex = ModContent.Request<Texture2D>(Texture, ReLogic.Content.AssetRequestMode.ImmediateLoad)?.Value;
-            if (tex != null)
-            {
-                Vector2 origin = new(tex.Width / 2f, tex.Height / 2f);
-                Vector2 drawPos = Projectile.Center - Main.screenPosition;
-                sb.Draw(tex, drawPos, null, lightColor * Projectile.Opacity, Projectile.rotation, origin, Projectile.scale * 0.6f, SpriteEffects.None, 0f);
-            }
+            return false;
         }
 
         public override void OnKill(int timeLeft)

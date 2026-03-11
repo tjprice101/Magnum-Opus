@@ -331,8 +331,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Procedural seasonal rendering - dynamically selects season based on ai[0]
             ProceduralProjectileVFX.DrawSeasonalProjectile(Main.spriteBatch, Projectile, SeasonIndex, 0.55f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
@@ -585,8 +597,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Procedural Spring rendering - cherry blossom pink and green
             ProceduralProjectileVFX.DrawSpringProjectile(Main.spriteBatch, Projectile, 0.4f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
@@ -813,8 +837,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Procedural Summer rendering - solar flare gold and orange
             ProceduralProjectileVFX.DrawSummerProjectile(Main.spriteBatch, Projectile, 0.5f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
@@ -1054,8 +1090,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Procedural Autumn rendering - decay zone with harvest colors
             ProceduralProjectileVFX.DrawAutumnProjectile(Main.spriteBatch, Projectile, 0.65f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

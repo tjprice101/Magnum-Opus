@@ -16,7 +16,7 @@ using static MagnumOpus.Common.Systems.ThemedParticles;
 namespace MagnumOpus.Content.Winter.Weapons
 {
     /// <summary>
-    /// Frostbite Repeater - Winter-themed ranged weapon (Post-Golem tier)
+    /// Frostbite Repeater - Winter-themed ranged weapon (Post-Mechanical Bosses tier)
     /// A crystalline crossbow that fires volleys of ice bolts.
     /// - Icicle Volley: Fires 3 icicle bolts per shot (135 damage)
     /// - Crystalline Penetration: Icicles pierce through 3 enemies

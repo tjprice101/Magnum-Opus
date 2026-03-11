@@ -19,7 +19,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
     /// </summary>
     public class MoonlightSentinelProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
+        public override string Texture => "MagnumOpus/Content/ClairDeLune/Weapons/LunarPhylactery/LunarPhylacteryMinion";
 
         private float _orbitAngle;
         private int _fireTimer;
@@ -183,12 +183,29 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
+
+            // ── MINION SPRITE: Draw base PNG sprite ──
+            Texture2D minionTex = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            Vector2 minionOrigin = minionTex.Size() / 2f;
+            sb.Draw(minionTex, drawPos, null, lightColor * Projectile.Opacity, Projectile.rotation, minionOrigin, Projectile.scale, SpriteEffects.None, 0f);
 
             DrawSoulBeamBody(sb, matrix);        // Pass 1: SoulBeamAura crystal body
             DrawPearlFacetOverlay(sb, matrix);   // Pass 2: PearlShimmer facets
             DrawBloomCrystal(sb, matrix);        // Pass 3: Bloom + target indicator
             ClairDeLuneVFXLibrary.DrawThemeAccents(sb, Projectile.Center, 0.5f, 0.3f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

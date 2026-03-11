@@ -33,8 +33,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory
         // --- Library Textures ---
         public static Texture2D SoftGlow => (_softGlow ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow", AssetRequestMode.ImmediateLoad)).Value;
         public static Texture2D NoiseFBM => (_noiseFBM ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/TileableFBMNoise", AssetRequestMode.ImmediateLoad)).Value;
-        public static Texture2D NoisePerlin => (_noisePerlin ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/TileablePerlinFlowNoise", AssetRequestMode.ImmediateLoad)).Value;
-        public static Texture2D NoiseVoronoi => (_noiseVoronoi ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/TileableVoronoiCellNoise", AssetRequestMode.ImmediateLoad)).Value;
+        public static Texture2D NoisePerlin => (_noisePerlin ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/PerlinNoise", AssetRequestMode.ImmediateLoad)).Value;
+        public static Texture2D NoiseVoronoi => (_noiseVoronoi ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/VoronoiCellNoise", AssetRequestMode.ImmediateLoad)).Value;
 
         // --- OJ Theme Assets ---
         public static Texture2D OJGradient => (_ojGradient ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/ColorGradients/OdeToJoyGradientLUTandRAMP", AssetRequestMode.ImmediateLoad)).Value;
@@ -54,7 +54,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory
         public static readonly Color JubilantLight = new Color(255, 250, 200);
         public static readonly Color PureJoyWhite = new Color(255, 255, 240);
 
-        // --- Beam gradient colors (edge → core) ---
+        // --- Beam gradient colors (edge ↁEcore) ---
         public static readonly Color[] BeamGradient = new Color[]
         {
             new Color(100, 30, 50),   // Rose Shadow edge

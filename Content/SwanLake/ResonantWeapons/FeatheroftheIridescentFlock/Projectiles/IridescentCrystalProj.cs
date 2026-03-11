@@ -384,13 +384,11 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
 
             try
             {
-                SwanLakeVFXLibrary.SpawnRainbowBurst(target.Center, 7, 4.5f);
-                SwanLakeVFXLibrary.SpawnPrismaticSparkles(target.Center, 6, 22f);
-                SwanLakeVFXLibrary.SpawnMusicNotes(target.Center, 3, 18f);
-                SwanLakeVFXLibrary.SpawnFeatherBurst(target.Center, 4, 20f);
+                SwanLakeVFXLibrary.SpawnMixedSparkleImpact(target.Center, 0.7f, 5, 5);
+                SwanLakeVFXLibrary.SpawnMusicNotes(target.Center, 2, 14f);
                 if (CountActiveCrystals() >= 4)
                 {
-                    SwanLakeVFXLibrary.SpawnRainbowExplosion(target.Center, 0.8f);
+                    SwanLakeVFXLibrary.SpawnMixedSparkleImpact(target.Center, 0.5f, 4, 4);
                 }
             } catch { }
         }
@@ -398,6 +396,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Vector2 screenPos = Main.screenPosition;
 
             try
@@ -406,7 +406,6 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
                 sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-                Texture2D bloom = MagnumTextureRegistry.GetSoftGlow();
                 Texture2D point = MagnumTextureRegistry.GetPointBloom();
                 Texture2D radial = MagnumTextureRegistry.GetRadialBloom();
                 Texture2D star = MagnumTextureRegistry.GetStar4Soft();
@@ -491,34 +490,6 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
                 }
 
                 // ========================================================
-                // LAYER 1: Atmospheric radial backdrop
-                // ========================================================
-                if (radial != null)
-                {
-                    Vector2 rOrigin = radial.Size() * 0.5f;
-                    Color oilColor = FlockUtils.GetOilSheen(idleRotation, (float)Main.timeForVisualEffects * 0.01f);
-                    float radialScale = (0.1f + 0.02f * stateIntensity) * pulse;
-                    sb.Draw(radial, drawPos, null, oilColor * 0.2f * pulse, idleRotation * 0.3f, rOrigin, radialScale, SpriteEffects.None, 0f);
-                }
-
-                // ========================================================
-                // LAYER 2: Outer prismatic orbit ring (8 faceted dots)
-                // ========================================================
-                if (bloom != null)
-                {
-                    Vector2 bOrigin = bloom.Size() * 0.5f;
-                    float orbitRadius = 18f + 4f * MathF.Sin(Timer * 0.025f);
-                    for (int i = 0; i < 8; i++)
-                    {
-                        float angle = MathHelper.TwoPi / 8f * i + idleRotation * 1.3f;
-                        Vector2 orbitPos = drawPos + angle.ToRotationVector2() * orbitRadius;
-                        Color c = FlockUtils.GetIridescent(i / 8f + crystalHue + Timer * 0.006f);
-                        float dotPulse = 0.9f + 0.1f * MathF.Sin(Timer * 0.08f + i * 0.8f);
-                        sb.Draw(bloom, orbitPos, null, c * 0.25f * pulse * dotPulse, 0f, bOrigin, 0.07f * dotPulse, SpriteEffects.None, 0f);
-                    }
-                }
-
-                // ========================================================
                 // LAYER 3: Halo ring (oil-sheen iridescent)
                 // ========================================================
                 if (haloRing != null)
@@ -527,26 +498,6 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
                     Color haloC = FlockUtils.GetOilSheen(idleRotation * 0.7f, Timer * 0.005f);
                     float haloScale = 0.18f * pulse * stateIntensity;
                     sb.Draw(haloRing, drawPos, null, haloC * 0.15f * pulse, -idleRotation * 0.5f, hOrigin, haloScale, SpriteEffects.None, 0f);
-                }
-
-                // ========================================================
-                // LAYER 4: Core iridescent bloom
-                // ========================================================
-                if (bloom != null)
-                {
-                    Vector2 bOrigin = bloom.Size() * 0.5f;
-                    Color coreColor = Color.Lerp(FlockUtils.PetalLavender, FlockUtils.CrystalAqua,
-                        0.5f + 0.5f * MathF.Sin(Timer * 0.03f + CrystalIndex * 2.1f));
-                    sb.Draw(bloom, drawPos, null, coreColor * 0.4f * pulse * stateIntensity, 0f, bOrigin, 0.3f * pulse, SpriteEffects.None, 0f);
-                }
-
-                // ========================================================
-                // LAYER 5: White-hot center point
-                // ========================================================
-                if (point != null)
-                {
-                    Vector2 pOrigin = point.Size() * 0.5f;
-                    sb.Draw(point, drawPos, null, Color.White * 0.8f * stateIntensity, 0f, pOrigin, 0.12f * pulse, SpriteEffects.None, 0f);
                 }
 
                 // ========================================================
@@ -560,54 +511,6 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
                     sb.Draw(star, drawPos, null, starColor * 0.3f * pulse, starRot, sOrigin, 0.18f * stateIntensity, SpriteEffects.None, 0f);
                     // Counter-rotating faint second star
                     sb.Draw(star, drawPos, null, starColor * 0.12f * pulse, -starRot * 0.7f, sOrigin, 0.25f, SpriteEffects.None, 0f);
-                }
-
-                // ========================================================
-                // STATE ACCENTS — Dive attack: streaking afterglow
-                // ========================================================
-                if (isDiving && bloom != null && StateTimer >= 20)
-                {
-                    Vector2 bOrigin = bloom.Size() * 0.5f;
-                    // Intense dive bloom
-                    sb.Draw(bloom, drawPos, null, Color.White * 0.5f, 0f, bOrigin, 0.45f, SpriteEffects.None, 0f);
-                    // Speed streaks along velocity
-                    Vector2 velDir = Projectile.velocity.SafeNormalize(Vector2.UnitX);
-                    for (int i = 1; i <= 4; i++)
-                    {
-                        Vector2 streakPos = drawPos - velDir * (i * 12f);
-                        float fade = 1f - i / 5f;
-                        Color sc = FlockUtils.GetIridescent(i / 4f + crystalHue) * (fade * 0.35f);
-                        sb.Draw(bloom, streakPos, null, sc, 0f, bOrigin, 0.2f * fade, SpriteEffects.None, 0f);
-                    }
-                }
-
-                // ========================================================
-                // STATE ACCENTS — Shard Volley: charging pulse ring
-                // ========================================================
-                if (CurrentState == CrystalState.ShardVolley && bloom != null)
-                {
-                    Vector2 bOrigin = bloom.Size() * 0.5f;
-                    float chargePulse = 0.6f + 0.4f * MathF.Sin(StateTimer * 0.15f);
-                    Color chargeC = FlockUtils.GetIridescent(StateTimer * 0.02f + crystalHue);
-                    sb.Draw(bloom, drawPos, null, chargeC * 0.3f * chargePulse, 0f, bOrigin, 0.35f * chargePulse, SpriteEffects.None, 0f);
-                    // Charging ring dots
-                    for (int i = 0; i < 5; i++)
-                    {
-                        float a = MathHelper.TwoPi / 5f * i + StateTimer * 0.12f;
-                        Vector2 cPos = drawPos + a.ToRotationVector2() * (10f + 6f * chargePulse);
-                        sb.Draw(point, cPos, null, chargeC * 0.2f, 0f, (point?.Size() ?? Vector2.One) * 0.5f, 0.05f, SpriteEffects.None, 0f);
-                    }
-                }
-
-                // ========================================================
-                // STATE ACCENTS — Resonance glow (4+ crystals active)
-                // ========================================================
-                if (CountActiveCrystals() >= 4 && bloom != null)
-                {
-                    Vector2 bOrigin = bloom.Size() * 0.5f;
-                    float resPulse = 0.5f + 0.5f * MathF.Sin(Timer * 0.04f);
-                    Color resColor = Color.Lerp(new Color(240, 240, 255), FlockUtils.GetIridescent(Timer * 0.007f), 0.5f);
-                    sb.Draw(bloom, drawPos, null, resColor * 0.15f * resPulse, 0f, bOrigin, 0.5f * resPulse, SpriteEffects.None, 0f);
                 }
 
                 // --- Draw crystal sprite ---
@@ -631,6 +534,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
             catch { }
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

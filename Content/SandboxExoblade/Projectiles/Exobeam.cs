@@ -127,6 +127,9 @@ namespace MagnumOpus.Content.SandboxExoblade.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             if (Projectile.timeLeft > 595)
                 return false;
 
@@ -170,6 +173,15 @@ namespace MagnumOpus.Content.SandboxExoblade.Projectiles
             // Draw the bloom above the trail
             Main.EntitySpriteDraw(bloomTex, Projectile.oldPos[2] + Projectile.Size / 2f - Main.screenPosition, null, (Color.White * 0.2f) with { A = 0 }, 0, bloomTex.Size() / 2f, 0.78f * Projectile.scale, 0, 0);
             Main.EntitySpriteDraw(bloomTex, Projectile.oldPos[1] + Projectile.Size / 2f - Main.screenPosition, null, (Color.White * 0.5f) with { A = 0 }, 0, bloomTex.Size() / 2f, 0.2f * Projectile.scale, 0, 0);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }

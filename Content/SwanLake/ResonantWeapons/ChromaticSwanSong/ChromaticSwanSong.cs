@@ -100,6 +100,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong
                 d.noGravity = true;
             }
 
+            // Rainbow muzzle sparkle
+            try { SwanLakeVFXLibrary.SpawnPrismaticSparkles(position, 3, 12f); } catch { }
+
             // Opus ready flash — golden sparkle burst on the 7th cast
             if (ai0 == 2f)
             {

@@ -116,6 +116,9 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.SinCollector.Utilities
         /// </summary>
         public static void DoBulletImpact(Vector2 worldPos, Vector2 hitDir)
         {
+            // === Color-ramped sparkle explosion VFX ===
+            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(worldPos, 8, 5f, 0.3f);
+
             if (Main.dedServ) return;
 
             for (int i = 0; i < 8; i++)

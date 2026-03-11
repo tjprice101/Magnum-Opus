@@ -306,8 +306,20 @@ namespace MagnumOpus.Content.Summer.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Use procedural VFX system for Summer theme with solar corona effects
             ProceduralProjectileVFX.DrawSummerProjectile(Main.spriteBatch, Projectile, 1f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -622,6 +634,8 @@ namespace MagnumOpus.Content.Summer.Projectiles
             if (Main.dedServ) return false;
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             LoadSunbeamTextures();
 
             // Build VertexStrip from trail cache (oldPos[0] = newest/head)
@@ -717,6 +731,15 @@ namespace MagnumOpus.Content.Summer.Projectiles
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

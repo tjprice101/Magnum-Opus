@@ -1,3 +1,4 @@
+using MagnumOpus.Common;
 using MagnumOpus.Common.Systems.VFX.Core;
 using MagnumOpus.Content.DiesIrae;
 using MagnumOpus.Content.DiesIrae.Weapons.DamnationsCannon.Utilities;
@@ -6,9 +7,11 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
 using Terraria.Audio;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.DamnationsCannon.Projectiles
 {
@@ -24,8 +27,15 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DamnationsCannon.Projectiles
         private const int TrailLength = 20;
         private Vector2[] trailPositions = new Vector2[TrailLength];
         private int trailCount;
+        private VertexStrip _vertexStrip;
 
         private ref float Timer => ref Projectile.ai[0];
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -103,6 +113,11 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DamnationsCannon.Projectiles
             // Massive explosion VFX
             DamnationsCannonUtils.DoExplosion(Projectile.Center, 50);
 
+            // DiesIrae VFXLibrary: hellfire starburst + judgment rings + screen shake
+            DiesIraeVFXLibrary.SpawnHellfireStarburst(Projectile.Center, 1.8f);
+            DiesIraeVFXLibrary.SpawnJudgmentRings(Projectile.Center, 3, 0.5f);
+            MagnumScreenEffects.AddScreenShake(8f);
+
             // Sound
             SoundEngine.PlaySound(SoundID.Item14 with { Volume = 1.3f, Pitch = -0.4f }, Projectile.Center);
 
@@ -139,39 +154,43 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DamnationsCannon.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-            if (glow == null) return false;
-            Vector2 origin = glow.Size() / 2f;
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
-
-            // ���� Trail ����
-            for (int i = 0; i < trailCount; i++)
+            try
             {
-                float progress = i / (float)TrailLength;
-                float fade = (1f - progress) * 0.75f;
-                float scale = MathHelper.Lerp(0.06f, 0.015f, progress);
-                Vector2 pos = trailPositions[i] - Main.screenPosition;
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.DiesIrae, ref _vertexStrip);
 
-                sb.Draw(glow, pos, null, DamnationsCannonUtils.WrathRed * fade * 0.3f,
-                    0f, origin, scale * 1.3f, SpriteEffects.None, 0f);
-                sb.Draw(glow, pos, null, DiesIraePalette.EmberOrange * fade * 0.5f,
-                    0f, origin, scale, SpriteEffects.None, 0f);
-                sb.Draw(glow, pos, null, DiesIraePalette.CharcoalBlack * fade * 0.2f,
-                    0f, origin, scale * 1.5f, SpriteEffects.None, 0f);
+                // Wrath Ball accent: hellfire corona pulsing outward
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
+                {
+                    Vector2 origin = glow.Size() / 2f;
+                    float pulse = 0.75f + 0.25f * MathF.Sin((float)Main.timeForVisualEffects * 0.09f);
+                    float rot = (float)Main.timeForVisualEffects * 0.03f;
+
+                    // Hellfire corona — 3 rotating elongated ember flares
+                    for (int i = 0; i < 3; i++)
+                    {
+                        float angle = rot + MathHelper.TwoPi * i / 3f;
+                        sb.Draw(glow, drawPos, null,
+                            (DiesIraePalette.WrathfulFlame with { A = 0 }) * 0.2f * pulse,
+                            angle, origin, new Vector2(0.15f, 0.035f), SpriteEffects.None, 0f);
+                    }
+                }
+
+                sb.End();
             }
-
-            // ���� Wrath ball body ����
-            DamnationsCannonUtils.DrawWrathBallBody(sb, Projectile.Center, Timer);
-
-            // Dies Irae theme accent layer
-            DamnationsCannonUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -269,6 +288,8 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DamnationsCannon.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
             if (glow == null) return false;
             Vector2 origin = glow.Size() / 2f;
@@ -292,9 +313,15 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DamnationsCannon.Projectiles
             // Body
             DamnationsCannonUtils.DrawShrapnelBloom(sb, Projectile.Center, Timer);
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -369,6 +396,8 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DamnationsCannon.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
             if (glow == null) return false;
             Vector2 origin = glow.Size() / 2f;
@@ -397,9 +426,15 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DamnationsCannon.Projectiles
             sb.Draw(glow, drawPos, null, DiesIraePalette.JudgmentGold * 0.1f * alpha * intensityScale,
                 0f, origin, glowScale * 0.4f, SpriteEffects.None, 0f);
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

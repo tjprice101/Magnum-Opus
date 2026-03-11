@@ -1,7 +1,11 @@
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Dusts;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.OdeToJoy;
@@ -84,7 +88,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
             else
                 owner.direction = -1;
 
-            // Dust particles along arc
+            // Dust particles along arc — PetalFragmentDust flutter
             float alpha = GetAlpha();
             if (timer % 2 == 0 && alpha > 0.3f)
             {
@@ -93,22 +97,44 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
                 Vector2 vel = currentAngle.ToRotationVector2() * Main.rand.NextFloat(1f, 3f);
 
                 Color col = GardenerFuryTextures.GetBotanicalGradient(Main.rand.NextFloat());
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.RainbowMk2, vel,
-                    newColor: col, Scale: Main.rand.NextFloat(0.3f, 0.6f));
-                dust.noGravity = true;
-                dust.fadeIn = 0.3f;
+                Dust.NewDustPerfect(dustPos, ModContent.DustType<PetalFragmentDust>(), vel,
+                    newColor: col, Scale: Main.rand.NextFloat(0.8f, 1.5f));
             }
 
-            // Phase 2 Harvest: extra ground-shake dust
+            // Tip sparkles during swing — GlowSparkParticle twinkle
+            if (timer % 3 == 0 && alpha > 0.3f)
+            {
+                float tipDist = 70f * GetPhaseScale();
+                Vector2 tipPos = owner.MountedCenter + currentAngle.ToRotationVector2() * tipDist;
+                Vector2 sparkVel = Main.rand.NextVector2Circular(2f, 2f);
+                Color sparkCol = OdeToJoyPalette.GetGardenGradient(Main.rand.NextFloat());
+                try
+                {
+                    var glow = new GlowSparkParticle(
+                        tipPos + Main.rand.NextVector2Circular(6f, 6f),
+                        sparkVel, sparkCol with { A = 0 },
+                        0.2f, Main.rand.Next(12, 22));
+                    MagnumParticleHandler.SpawnParticle(glow);
+                }
+                catch { }
+            }
+
+            // Phase 2 Harvest: PollenMistDust rising from ground
             if (ComboPhase == 2 && progress > 0.6f && timer % 3 == 0)
             {
                 Vector2 groundPos = owner.MountedCenter + new Vector2(
                     Main.rand.NextFloat(-60f, 60f), 40f);
-                Dust dust = Dust.NewDustPerfect(groundPos, DustID.RainbowMk2,
+                Dust.NewDustPerfect(groundPos, ModContent.DustType<PollenMistDust>(),
                     new Vector2(0, -Main.rand.NextFloat(1f, 3f)),
                     newColor: GardenerFuryTextures.RadiantAmber,
-                    Scale: Main.rand.NextFloat(0.4f, 0.7f));
-                dust.noGravity = true;
+                    Scale: Main.rand.NextFloat(0.8f, 1.4f));
+            }
+
+            // Screen shake on Harvest phase peak
+            if (ComboPhase == 2 && progress > 0.65f && progress < 0.68f && Projectile.owner == Main.myPlayer)
+            {
+                OdeToJoyVFXLibrary.ScreenShake(5f, 10);
+                OdeToJoyVFXLibrary.RhythmicPulse(owner.MountedCenter, 0.6f, OdeToJoyPalette.GoldenPollen);
             }
 
             // Lighting
@@ -132,9 +158,19 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
             return Math.Min(fadeIn, fadeOut);
         }
 
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(target.Center, 4 + ComboPhase * 2, 4f, 0.2f + ComboPhase * 0.1f);
+
+            if (ComboPhase >= 2)
+                OdeToJoyVFXLibrary.SpawnTriumphantStarburst(target.Center, 0.3f);
+        }
+
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Player owner = Main.player[Projectile.owner];
             Vector2 drawPos = owner.MountedCenter - Main.screenPosition;
             float alpha = GetAlpha();
@@ -273,6 +309,15 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
 
             OdeToJoyShaders.RestoreSpriteBatch(sb);
 
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -285,8 +330,15 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
     {
         public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
 
+        private VertexStrip _vertexStrip;
         private int timer;
         private const int MaxLifetime = 120;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -319,16 +371,14 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
                 }
             }
 
-            // Trailing petal particles
+            // Trailing petal particles — PetalFragmentDust
             if (timer % 3 == 0)
             {
                 Vector2 vel = -Projectile.velocity * 0.05f + Main.rand.NextVector2Circular(0.5f, 0.5f);
                 Color col = Color.Lerp(GardenerFuryTextures.PetalPink,
                     GardenerFuryTextures.BloomGold, Main.rand.NextFloat());
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowMk2, vel,
-                    newColor: col, Scale: Main.rand.NextFloat(0.2f, 0.4f));
-                dust.noGravity = true;
-                dust.fadeIn = 0.3f;
+                Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<PetalFragmentDust>(), vel,
+                    newColor: col, Scale: Main.rand.NextFloat(0.6f, 1.2f));
             }
 
             float a = GetAlpha();
@@ -364,80 +414,43 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            float alpha = GetAlpha();
-
-            // ---- Layer 1: GardenBloom shader petal accent ----
-            Effect gardenShader = OdeToJoyShaders.GardenBloom;
-            if (gardenShader != null)
+            try
             {
-                OdeToJoyShaders.SetBloomParams(gardenShader, (float)Main.gameTimeCache.TotalGameTime.TotalSeconds, GardenerFuryTextures.PetalPink, GardenerFuryTextures.BloomGold, alpha * 0.7f, 0.8f, 0.4f);
-                OdeToJoyShaders.BeginShaderBatch(sb, gardenShader, "GardenBloomTechnique");
-
-                Texture2D petalShader = GardenerFuryTextures.OJRosePetal.Value;
-                Vector2 petalShaderOrigin = petalShader.Size() / 2f;
-                sb.Draw(petalShader, drawPos, null,
-                    GardenerFuryTextures.PetalPink * alpha * 0.6f,
-                    Projectile.rotation, petalShaderOrigin, 0.55f, SpriteEffects.None, 0f);
-
-                OdeToJoyShaders.BeginAdditiveBatch(sb);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _vertexStrip);
             }
-            else
+            catch { }
+            finally
             {
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
-                    Main.DefaultSamplerState, DepthStencilState.None,
-                    RasterizerState.CullCounterClockwise, null,
-                    Main.GameViewMatrix.TransformationMatrix);
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
-            // ---- Layer 2: Rose petal body ----
-            Texture2D petalTex = GardenerFuryTextures.OJRosePetal.Value;
-            Vector2 petalOrigin = petalTex.Size() / 2f;
-            sb.Draw(petalTex, drawPos, null,
-                GardenerFuryTextures.PetalPink * alpha * 0.8f,
-                Projectile.rotation, petalOrigin, 0.5f, SpriteEffects.None, 0f);
-
-            // ---- Layer 3: Soft bloom halo ----
-            Texture2D glow = GardenerFuryTextures.SoftGlow.Value;
-            Vector2 glowOrigin = glow.Size() / 2f;
-            sb.Draw(glow, drawPos, null,
-                GardenerFuryTextures.PetalPink * alpha * 0.35f,
-                0f, glowOrigin, 0.07f, SpriteEffects.None, 0f);
-            sb.Draw(glow, drawPos, null,
-                GardenerFuryTextures.BloomGold * alpha * 0.2f,
-                0f, glowOrigin, 0.04f, SpriteEffects.None, 0f);
-
-            // Theme blossom sparkle accent
-            OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
-
-            OdeToJoyShaders.RestoreSpriteBatch(sb);
 
             return false;
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // Impact burst
+            // Impact burst — PetalFragmentDust
             for (int i = 0; i < 5; i++)
             {
                 Vector2 vel = Main.rand.NextVector2Circular(3f, 3f);
-                Dust dust = Dust.NewDustPerfect(target.Center, DustID.RainbowMk2, vel,
+                Dust.NewDustPerfect(target.Center, ModContent.DustType<PetalFragmentDust>(), vel,
                     newColor: GardenerFuryTextures.PetalPink,
-                    Scale: Main.rand.NextFloat(0.3f, 0.6f));
-                dust.noGravity = true;
+                    Scale: Main.rand.NextFloat(0.8f, 1.4f));
             }
+
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(target.Center, 4, 3f, 0.15f);
         }
 
         public override void OnKill(int timeLeft)
         {
             for (int i = 0; i < 4; i++)
             {
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowMk2,
+                Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<PetalFragmentDust>(),
                     Main.rand.NextVector2Circular(2f, 2f),
                     newColor: GardenerFuryTextures.PetalPink,
-                    Scale: Main.rand.NextFloat(0.2f, 0.4f));
-                dust.noGravity = true;
+                    Scale: Main.rand.NextFloat(0.6f, 1.0f));
             }
         }
     }
@@ -449,8 +462,15 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
     {
         public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
 
+        private VertexStrip _vertexStrip;
         private int timer;
         private const int MaxLifetime = 90;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -475,16 +495,14 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
             float spiralSpeed = 0.04f;
             Projectile.velocity = Projectile.velocity.RotatedBy(spiralSpeed);
 
-            // Jubilant sparkle trail
+            // Jubilant sparkle trail — PollenMistDust
             if (timer % 2 == 0)
             {
                 Vector2 vel = -Projectile.velocity * 0.1f + Main.rand.NextVector2Circular(1f, 1f);
                 Color col = Color.Lerp(GardenerFuryTextures.JubilantLight,
                     GardenerFuryTextures.BloomGold, Main.rand.NextFloat());
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowMk2, vel,
-                    newColor: col, Scale: Main.rand.NextFloat(0.3f, 0.6f));
-                dust.noGravity = true;
-                dust.fadeIn = 0.4f;
+                Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<PollenMistDust>(), vel,
+                    newColor: col, Scale: Main.rand.NextFloat(0.6f, 1.0f));
             }
 
             float a = GetAlpha();
@@ -502,54 +520,17 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            float alpha = GetAlpha();
-
-            // ---- Layer 1: GardenBloom shader jubilant shimmer ----
-            Effect gardenShader = OdeToJoyShaders.GardenBloom;
-            if (gardenShader != null)
+            try
             {
-                OdeToJoyShaders.SetBloomParams(gardenShader, (float)Main.gameTimeCache.TotalGameTime.TotalSeconds, GardenerFuryTextures.JubilantLight, GardenerFuryTextures.BloomGold, alpha * 0.75f, 1.1f, 0.5f);
-                OdeToJoyShaders.BeginShaderBatch(sb, gardenShader, "JubilantPulseTechnique");
-
-                Texture2D petalShader = GardenerFuryTextures.OJRosePetal.Value;
-                Vector2 petalShaderOrigin = petalShader.Size() / 2f;
-                sb.Draw(petalShader, drawPos, null,
-                    GardenerFuryTextures.JubilantLight * alpha * 0.65f,
-                    Projectile.rotation, petalShaderOrigin, 0.75f, SpriteEffects.None, 0f);
-
-                OdeToJoyShaders.BeginAdditiveBatch(sb);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _vertexStrip);
             }
-            else
+            catch { }
+            finally
             {
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
-                    Main.DefaultSamplerState, DepthStencilState.None,
-                    RasterizerState.CullCounterClockwise, null,
-                    Main.GameViewMatrix.TransformationMatrix);
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
-            // ---- Layer 2: Jubilant petal body ----
-            Texture2D petalTex = GardenerFuryTextures.OJRosePetal.Value;
-            Vector2 petalOrigin = petalTex.Size() / 2f;
-            sb.Draw(petalTex, drawPos, null,
-                GardenerFuryTextures.JubilantLight * alpha * 0.85f,
-                Projectile.rotation, petalOrigin, 0.7f, SpriteEffects.None, 0f);
-
-            // ---- Layer 3: Golden bloom overlays ----
-            Texture2D glow = GardenerFuryTextures.SoftGlow.Value;
-            Vector2 glowOrigin = glow.Size() / 2f;
-            sb.Draw(glow, drawPos, null,
-                GardenerFuryTextures.BloomGold * alpha * 0.45f,
-                0f, glowOrigin, 0.12f, SpriteEffects.None, 0f);
-            sb.Draw(glow, drawPos, null,
-                GardenerFuryTextures.PureJoyWhite * alpha * 0.25f,
-                0f, glowOrigin, 0.06f, SpriteEffects.None, 0f);
-
-            // Theme blossom sparkle accent
-            OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
-
-            OdeToJoyShaders.RestoreSpriteBatch(sb);
 
             return false;
         }
@@ -558,27 +539,29 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
         {
             target.AddBuff(BuffID.Confused, 60);
 
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 6; i++)
             {
                 Vector2 vel = Main.rand.NextVector2Circular(4f, 4f);
                 Color col = Color.Lerp(GardenerFuryTextures.JubilantLight,
                     GardenerFuryTextures.PureJoyWhite, Main.rand.NextFloat());
-                Dust dust = Dust.NewDustPerfect(target.Center, DustID.RainbowMk2, vel,
-                    newColor: col, Scale: Main.rand.NextFloat(0.4f, 0.8f));
-                dust.noGravity = true;
+                Dust.NewDustPerfect(target.Center, ModContent.DustType<PetalFragmentDust>(), vel,
+                    newColor: col, Scale: Main.rand.NextFloat(1.0f, 1.8f));
             }
+
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(target.Center, 6, 4f, 0.2f);
         }
 
         public override void OnKill(int timeLeft)
         {
             for (int i = 0; i < 6; i++)
             {
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowMk2,
+                Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<PollenMistDust>(),
                     Main.rand.NextVector2Circular(2f, 2f),
                     newColor: GardenerFuryTextures.BloomGold,
-                    Scale: Main.rand.NextFloat(0.3f, 0.5f));
-                dust.noGravity = true;
+                    Scale: Main.rand.NextFloat(0.6f, 1.0f));
             }
+
+            OdeToJoyVFXLibrary.RhythmicPulse(Projectile.Center, 0.3f, OdeToJoyPalette.GoldenPollen);
         }
     }
 }

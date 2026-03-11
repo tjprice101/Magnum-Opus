@@ -72,32 +72,6 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             
             // Damage boost
             player.GetDamage(DamageClass.Generic) += 0.12f;
-            
-            // Constellation particles
-            if (!hideVisual && Main.rand.NextBool(10))
-            {
-                float angle = Main.GameUpdateCount * 0.02f + Main.rand.NextFloat(MathHelper.TwoPi);
-                Vector2 dustPos = player.Center + angle.ToRotationVector2() * Main.rand.NextFloat(30f, 50f);
-                
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.GoldCoin, Vector2.Zero);
-                dust.noGravity = true;
-                dust.scale = 0.5f;
-                dust.color = NachtmusikGold;
-            }
-            
-            // Star particles at night
-            if (!hideVisual && !Main.dayTime && Main.rand.NextBool(15))
-            {
-                Vector2 starPos = player.Center + Main.rand.NextVector2Circular(45f, 55f);
-                Dust star = Dust.NewDustPerfect(starPos, DustID.MagicMirror, Vector2.Zero);
-                star.noGravity = true;
-                star.scale = 0.5f;
-                star.color = NachtmusikSilver;
-            }
-            
-            // Shield glow
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.03f) * 0.08f + 0.22f;
-            Lighting.AddLight(player.Center, NachtmusikPurple.ToVector3() * pulse);
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -202,31 +176,6 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             
             // Damage boost
             player.GetDamage(DamageClass.Generic) += 0.14f;
-            
-            // Infernal particles
-            if (!hideVisual && Main.rand.NextBool(8))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(40f, 50f);
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.2f, 0.2f), Main.rand.NextFloat(-0.8f, -0.2f));
-                
-                Dust dust = Dust.NewDustPerfect(pos, DustID.Torch, vel);
-                dust.noGravity = true;
-                dust.scale = 0.7f;
-                dust.color = DiesIraeOrange;
-            }
-            
-            // Rising embers on shield
-            if (!hideVisual && Main.rand.NextBool(15))
-            {
-                Vector2 emberPos = player.Center + new Vector2(Main.rand.NextFloat(-30f, 30f), 20f);
-                Dust ember = Dust.NewDustPerfect(emberPos, DustID.FlameBurst, Vector2.UnitY * -1f);
-                ember.noGravity = true;
-                ember.scale = 0.5f;
-            }
-            
-            // Infernal glow
-            float flicker = Main.rand.NextFloat(0.8f, 1f);
-            Lighting.AddLight(player.Center, DiesIraeOrange.ToVector3() * 0.25f * flicker);
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -331,34 +280,6 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             
             // Damage boost
             player.GetDamage(DamageClass.Generic) += 0.15f;
-            
-            // Iridescent particles
-            if (!hideVisual && Main.rand.NextBool(8))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(42f, 52f);
-                float hue = (Main.GameUpdateCount * 0.012f + Main.rand.NextFloat()) % 1f;
-                Color shimmerColor = Main.hslToRgb(hue, 0.5f, 0.85f);
-                
-                Dust dust = Dust.NewDustPerfect(pos, DustID.RainbowMk2, Main.rand.NextVector2Circular(0.4f, 0.4f));
-                dust.noGravity = true;
-                dust.scale = 0.55f;
-                dust.color = shimmerColor;
-            }
-            
-            // Rose petals
-            if (!hideVisual && Main.rand.NextBool(12))
-            {
-                Vector2 petalPos = player.Center + Main.rand.NextVector2Circular(45f, 55f);
-                Dust petal = Dust.NewDustPerfect(petalPos, DustID.PinkFairy, new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), Main.rand.NextFloat(-0.3f, 0.3f)));
-                petal.noGravity = true;
-                petal.scale = 0.65f;
-            }
-            
-            // Prismatic glow
-            float hueShift = (Main.GameUpdateCount * 0.007f) % 1f;
-            Color lightColor = Main.hslToRgb(hueShift, 0.3f, 0.7f);
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.06f + 0.22f;
-            Lighting.AddLight(player.Center, lightColor.ToVector3() * pulse);
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -464,34 +385,6 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             
             // Maximum damage boost
             player.GetDamage(DamageClass.Generic) += 0.18f;
-            
-            // Temporal/clockwork particles
-            if (!hideVisual && Main.rand.NextBool(10))
-            {
-                float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                Vector2 gearPos = player.Center + angle.ToRotationVector2() * Main.rand.NextFloat(35f, 55f);
-                
-                Dust dust = Dust.NewDustPerfect(gearPos, DustID.Enchanted_Gold, Vector2.Zero);
-                dust.noGravity = true;
-                dust.scale = 0.5f;
-                dust.color = ClairDeLuneBrass;
-            }
-            
-            // Temporal flame wisps
-            if (!hideVisual && Main.rand.NextBool(12))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(40f, 50f);
-                Dust dust = Dust.NewDustPerfect(pos, DustID.PinkFairy, new Vector2(0, Main.rand.NextFloat(-0.4f, 0.2f)));
-                dust.noGravity = true;
-                dust.scale = 0.55f;
-                dust.color = ClairDeLuneCrimson;
-            }
-            
-            // Temporal glow
-            float timeShift = Main.GameUpdateCount * 0.012f;
-            float pulse = (float)Math.Sin(timeShift) * 0.08f + 0.24f;
-            Color lightColor = Color.Lerp(ClairDeLuneCrimson, ClairDeLuneBrass, (float)Math.Sin(timeShift * 0.5f) * 0.5f + 0.5f);
-            Lighting.AddLight(player.Center, lightColor.ToVector3() * pulse);
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -600,34 +493,6 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             
             // Combined damage boost
             player.GetDamage(DamageClass.Generic) += 0.15f;
-            
-            // Dual-theme particles
-            if (!hideVisual && Main.rand.NextBool(7))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(45f, 55f);
-                
-                if (Main.rand.NextBool())
-                {
-                    // Stellar
-                    Dust dust = Dust.NewDustPerfect(pos, DustID.GoldCoin, Vector2.Zero);
-                    dust.noGravity = true;
-                    dust.scale = 0.5f;
-                    dust.color = NachtmusikPurple;
-                }
-                else
-                {
-                    // Infernal
-                    Dust dust = Dust.NewDustPerfect(pos, DustID.Torch, Vector2.UnitY * -0.4f);
-                    dust.noGravity = true;
-                    dust.scale = 0.6f;
-                    dust.color = DiesIraeCrimson;
-                }
-            }
-            
-            // Combined glow
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.03f) * 0.08f + 0.22f;
-            Color lightColor = Color.Lerp(NachtmusikPurple, DiesIraeCrimson, (float)Math.Sin(Main.GameUpdateCount * 0.015f) * 0.5f + 0.5f);
-            Lighting.AddLight(player.Center, lightColor.ToVector3() * pulse);
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -734,27 +599,6 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             
             // Maximum damage boost
             player.GetDamage(DamageClass.Generic) += 0.17f;
-            
-            // Triple-theme particles
-            if (!hideVisual && Main.rand.NextBool(6))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(48f, 58f);
-                
-                int theme = Main.rand.Next(3);
-                int dustType = theme switch { 0 => DustID.GoldCoin, 1 => DustID.Torch, _ => DustID.RainbowMk2 };
-                Color dustColor = theme switch { 0 => NachtmusikPurple, 1 => DiesIraeCrimson, _ => OdeToJoyWhite };
-                
-                Dust dust = Dust.NewDustPerfect(pos, dustType, Main.rand.NextVector2Circular(0.35f, 0.35f));
-                dust.noGravity = true;
-                dust.scale = 0.55f;
-                dust.color = dustColor;
-            }
-            
-            // Triumphant glow
-            float hueShift = (Main.GameUpdateCount * 0.005f) % 1f;
-            Color lightColor = Main.hslToRgb(hueShift, 0.35f, 0.65f);
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.03f) * 0.08f + 0.24f;
-            Lighting.AddLight(player.Center, lightColor.ToVector3() * pulse);
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -861,45 +705,6 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             
             // Maximum damage boost
             player.GetDamage(DamageClass.Generic) += 0.20f;
-            
-            // Quad-theme particle spectacle
-            if (!hideVisual && Main.rand.NextBool(5))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(52f, 62f);
-                
-                int theme = Main.rand.Next(4);
-                int dustType = theme switch { 0 => DustID.GoldCoin, 1 => DustID.Torch, 2 => DustID.RainbowMk2, _ => DustID.Enchanted_Gold };
-                Color dustColor = theme switch { 0 => NachtmusikPurple, 1 => DiesIraeCrimson, 2 => OdeToJoyWhite, _ => ClairDeLuneBrass };
-                
-                Dust dust = Dust.NewDustPerfect(pos, dustType, Main.rand.NextVector2Circular(0.4f, 0.4f));
-                dust.noGravity = true;
-                dust.scale = 0.6f;
-                dust.color = dustColor;
-            }
-            
-            // Orbiting quad points
-            if (!hideVisual && Main.rand.NextBool(18))
-            {
-                float angle = Main.GameUpdateCount * 0.015f;
-                Color[] colors = { NachtmusikPurple, DiesIraeCrimson, OdeToJoyWhite, ClairDeLuneBrass };
-                for (int i = 0; i < 4; i++)
-                {
-                    float orbitAngle = angle + MathHelper.TwoPi * i / 4f;
-                    Vector2 orbitPos = player.Center + orbitAngle.ToRotationVector2() * 55f;
-                    
-                    Dust dust = Dust.NewDustPerfect(orbitPos, DustID.MagicMirror, Vector2.Zero);
-                    dust.noGravity = true;
-                    dust.scale = 0.45f;
-                    dust.color = colors[i];
-                }
-            }
-            
-            // Ultimate prismatic glow
-            float timeShift = Main.GameUpdateCount * 0.008f;
-            float pulse = (float)Math.Sin(timeShift * 2f) * 0.1f + 0.3f;
-            float hue = (timeShift * 0.35f) % 1f;
-            Color lightColor = Main.hslToRgb(hue, 0.45f, 0.75f);
-            Lighting.AddLight(player.Center, lightColor.ToVector3() * pulse);
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)

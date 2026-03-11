@@ -103,6 +103,9 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Utilities
         /// </summary>
         public static void DoEclipseSplit(Vector2 center)
         {
+            // === Color-ramped sparkle explosion VFX ===
+            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(center, 10, 6f, 0.35f);
+
             if (Main.dedServ) return;
 
             // Spiral shrapnel burst

@@ -12,7 +12,7 @@ using Terraria.ModLoader;
 namespace MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer.Projectiles
 {
     /// <summary>
-    /// Frozen Moment — Triggered at 5 Temporal Puncture stacks.
+    /// Frozen Moment  ETriggered at 5 Temporal Puncture stacks.
     /// 3 render passes: (1) RadialNoiseMaskShader frozen burst disc,
     /// (2) CrystalLance.fx CrystalLanceShatter overlay, (3) Multi-scale expanding bloom.
     /// </summary>
@@ -124,7 +124,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer.Projectiles
 
         private void LoadTextures()
         {
-            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseAndDistortion/FrostCrystalNoise", AssetRequestMode.ImmediateLoad);
+            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/VornoiEdgeNoise", AssetRequestMode.ImmediateLoad);
             _gradientLUT ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/ColorGradients/ClairDeLuneGradientLUTandRAMP", AssetRequestMode.ImmediateLoad);
             _softCircle ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad);
             _softRadialBloom ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
@@ -137,11 +137,22 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer.Projectiles
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
 
             DrawRadialFrostZone(sb, matrix);     // Pass 1: RadialNoiseMask frozen burst
             DrawCrystalShatter(sb, matrix);      // Pass 2: CrystalLanceShatter overlay
             DrawExpandingBloom(sb, matrix);       // Pass 3: Multi-scale expanding bloom
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

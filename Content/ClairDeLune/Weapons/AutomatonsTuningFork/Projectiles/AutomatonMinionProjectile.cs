@@ -20,7 +20,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.AutomatonsTuningFork.Projectile
     /// </summary>
     public class AutomatonMinionProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
+        public override string Texture => "MagnumOpus/Content/ClairDeLune/Weapons/AutomatonsTuningFork/AutomatonsTuningForkMinion";
 
         private int _currentFrequency; // 0=A, 1=C, 2=E, 3=G
         private int _frequencyTimer;
@@ -246,16 +246,33 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.AutomatonsTuningFork.Projectile
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
 
             Color currentColor = GetFrequencyColor(_currentFrequency);
             float freqProgress = _frequencyTimer / (float)FrequencyCycleDuration;
             float pulse = 0.85f + 0.15f * MathF.Sin(Main.GameUpdateCount * 0.08f);
 
+            // ── MINION SPRITE: Draw base PNG sprite ──
+            Texture2D minionTex = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            Vector2 minionOrigin = minionTex.Size() / 2f;
+            sb.Draw(minionTex, drawPos, null, lightColor * Projectile.Opacity, Projectile.rotation, minionOrigin, Projectile.scale, SpriteEffects.None, 0f);
+
             DrawResonanceBodyAura(sb, matrix, currentColor, pulse);   // Pass 1
             DrawMoonlitAmbient(sb, matrix, currentColor, pulse);      // Pass 2
             DrawBloomComposite(sb, matrix, currentColor, pulse);      // Pass 3
             ClairDeLuneVFXLibrary.DrawThemeAccents(sb, Projectile.Center, 0.5f, 0.3f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

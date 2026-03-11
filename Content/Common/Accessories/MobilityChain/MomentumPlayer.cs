@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
 using Terraria.Audio;
@@ -68,28 +67,6 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
         private int dashCooldown;
         private int teleportCooldown;
         private int impactCooldown;
-        
-        // VFX timers
-        private int speedLineTimer;
-        
-        // Theme colors
-        private static readonly Color MomentumGold = new Color(255, 220, 100);
-        private static readonly Color SpringPink = new Color(255, 180, 200);
-        private static readonly Color SolarOrange = new Color(255, 140, 50);
-        private static readonly Color HarvestPurple = new Color(180, 120, 200);
-        private static readonly Color FrostBlue = new Color(150, 200, 255);
-        private static readonly Color MoonlitPurple = new Color(150, 120, 200);
-        private static readonly Color HeroicScarlet = new Color(200, 80, 80);
-        private static readonly Color InfernalOrange = new Color(255, 100, 30);
-        private static readonly Color EnigmaPurple = new Color(140, 60, 200);
-        private static readonly Color SwanWhite = new Color(240, 245, 255);
-        private static readonly Color FateCrimson = new Color(180, 40, 80);
-        
-        // Post-Fate theme colors
-        private static readonly Color NocturnalStarlight = new Color(200, 180, 255);
-        private static readonly Color InfernalHellfire = new Color(255, 80, 20);
-        private static readonly Color JubilantZephyr = new Color(150, 255, 180);
-        private static readonly Color EternalTemporal = new Color(200, 160, 120);
         
         public override void ResetEffects()
         {
@@ -224,9 +201,6 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             
             // Apply momentum effects
             ApplyMomentumEffects();
-            
-            // Spawn visual effects
-            SpawnMomentumVFX();
         }
         
         /// <summary>
@@ -369,21 +343,10 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
                 {
                     int dir = npc.Center.X > Player.Center.X ? 1 : -1;
                     Player.ApplyDamageToNPC(npc, damage, 10f, dir, crit: false);
-                    
-                    // VFX on hit
-                    for (int d = 0; d < 8; d++)
-                    {
-                        Dust dust = Dust.NewDustPerfect(npc.Center, DustID.RedTorch, 
-                            Main.rand.NextVector2Circular(5f, 5f));
-                        dust.noGravity = true;
-                        dust.scale = 1.2f;
-                    }
                 }
             }
             
-            // VFX
             SoundEngine.PlaySound(SoundID.Item66, Player.Center);
-            SpawnDashVFX();
             
             // Brief invincibility
             Player.immune = true;
@@ -409,10 +372,6 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             // Teleport in movement direction
             Vector2 teleportDir = Player.velocity.SafeNormalize(Player.direction == 1 ? Vector2.UnitX : -Vector2.UnitX);
             float teleportDist = 200f; // 12.5 tiles
-            
-            // VFX at departure
-            SpawnTeleportVFX(Player.Center, true);
-            
             Vector2 targetPos = Player.Center + teleportDir * teleportDist;
             
             // Find valid position (not inside tiles)
@@ -430,9 +389,6 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             
             Player.Teleport(targetPos, TeleportationStyleID.RodOfDiscord);
             
-            // VFX at arrival
-            SpawnTeleportVFX(targetPos, false);
-            
             SoundEngine.PlaySound(SoundID.Item8, targetPos);
         }
         
@@ -441,17 +397,6 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
         /// </summary>
         private void CreateMeteorImpact()
         {
-            // VFX explosion
-            for (int i = 0; i < 30; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 30f;
-                Vector2 dustVel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 12f);
-                Dust dust = Dust.NewDustPerfect(Player.Bottom, DustID.Torch, dustVel);
-                dust.noGravity = true;
-                dust.scale = 1.5f;
-                dust.color = InfernalOrange;
-            }
-            
             // Damage nearby enemies
             float impactRadius = 150f;
             int damage = (int)(Player.GetDamage(DamageClass.Generic).ApplyTo(80));
@@ -495,16 +440,6 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
                         
                         // Reduce velocity directly for more dramatic effect
                         npc.velocity *= 0.92f;
-                        
-                        // Occasional time-slow VFX
-                        if (Main.rand.NextBool(30))
-                        {
-                            Dust dust = Dust.NewDustPerfect(npc.Center + Main.rand.NextVector2Circular(20f, 20f),
-                                DustID.PurpleTorch, Vector2.Zero);
-                            dust.noGravity = true;
-                            dust.scale = 0.6f;
-                            dust.color = FateCrimson;
-                        }
                     }
                 }
             }
@@ -517,15 +452,6 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             if (Player.velocity.Y != 0) return;
             
             Vector2 trailPos = Player.Bottom - new Vector2(0, 4);
-            
-            // Create fire dust
-            for (int i = 0; i < 2; i++)
-            {
-                Dust dust = Dust.NewDustPerfect(trailPos + Main.rand.NextVector2Circular(8f, 4f),
-                    DustID.Torch, new Vector2(0, -Main.rand.NextFloat(1f, 2f)));
-                dust.noGravity = true;
-                dust.scale = 1.0f;
-            }
             
             // Damage enemies that touch trail (handled via projectile or direct check)
             Rectangle trailHitbox = new Rectangle((int)trailPos.X - 10, (int)trailPos.Y - 5, 20, 10);
@@ -549,16 +475,6 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             
             Vector2 trailPos = Player.Bottom - new Vector2(0, 4);
             
-            // Create frost dust
-            for (int i = 0; i < 2; i++)
-            {
-                Dust dust = Dust.NewDustPerfect(trailPos + Main.rand.NextVector2Circular(10f, 4f),
-                    DustID.IceTorch, new Vector2(0, -Main.rand.NextFloat(0.5f, 1.5f)));
-                dust.noGravity = true;
-                dust.scale = 0.9f;
-                dust.color = FrostBlue;
-            }
-            
             // Slow enemies that touch trail
             Rectangle trailHitbox = new Rectangle((int)trailPos.X - 15, (int)trailPos.Y - 5, 30, 10);
             for (int i = 0; i < Main.maxNPCs; i++)
@@ -572,107 +488,7 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             }
         }
         
-        // ========== VFX METHODS ==========
-        
-        private void SpawnMomentumVFX()
-        {
-            if (CurrentMomentum < 30f) return;
-            
-            // Speed lines at high momentum
-            if (speedLineTimer++ >= 3 && CurrentMomentum >= 60f)
-            {
-                speedLineTimer = 0;
-                
-                Color lineColor = GetMomentumColor();
-                Vector2 linePos = Player.Center + Main.rand.NextVector2Circular(15f, 25f);
-                Vector2 lineVel = -Player.velocity.SafeNormalize(Vector2.UnitX) * 3f;
-                
-                Dust dust = Dust.NewDustPerfect(linePos, DustID.MagicMirror, lineVel);
-                dust.noGravity = true;
-                dust.scale = 0.5f + (CurrentMomentum / MaxMomentum) * 0.5f;
-                dust.color = lineColor;
-            }
-            
-            // Additional VFX at max momentum
-            if (CurrentMomentum >= MaxMomentum && Main.rand.NextBool(5))
-            {
-                Color maxColor = HasFatesCosmicVelocity ? FateCrimson : 
-                                 HasSwansEternalGlide ? SwanWhite : MomentumGold;
-                
-                Vector2 auraPos = Player.Center + Main.rand.NextVector2Circular(25f, 35f);
-                Dust auraDust = Dust.NewDustPerfect(auraPos, DustID.MagicMirror, Vector2.Zero);
-                auraDust.noGravity = true;
-                auraDust.scale = 0.8f;
-                auraDust.color = maxColor;
-            }
-        }
-        
-        private void SpawnDashVFX()
-        {
-            Vector2 dashDir = Player.velocity.SafeNormalize(Vector2.UnitX);
-            
-            for (int i = 0; i < 15; i++)
-            {
-                Vector2 dustPos = Player.Center - dashDir * i * 8f;
-                Dust dust = Dust.NewDustPerfect(dustPos + Main.rand.NextVector2Circular(10f, 10f),
-                    DustID.RedTorch, -dashDir * 2f);
-                dust.noGravity = true;
-                dust.scale = 1.3f - i * 0.06f;
-                dust.color = HeroicScarlet;
-            }
-        }
-        
-        private void SpawnTeleportVFX(Vector2 position, bool isDeparture)
-        {
-            Color vfxColor = isDeparture ? EnigmaPurple : new Color(80, 200, 120);
-            
-            for (int i = 0; i < 20; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 20f;
-                Vector2 dustVel = angle.ToRotationVector2() * (isDeparture ? 5f : -3f);
-                Dust dust = Dust.NewDustPerfect(position, DustID.PurpleTorch, dustVel);
-                dust.noGravity = true;
-                dust.scale = 1.2f;
-                dust.color = vfxColor;
-            }
-        }
-        
-        private Color GetMomentumColor()
-        {
-            // Post-Fate T7-T10
-            if (HasEternalVelocityTreads) return EternalTemporal;
-            if (HasJubilantZephyrTreads) return JubilantZephyr;
-            if (HasInfernalMeteorTreads) return InfernalHellfire;
-            if (HasNocturnalPhantomTreads) return NocturnalStarlight;
-            
-            // Post-Moon Lord T6
-            if (HasFatesCosmicVelocity) return FateCrimson;
-            if (HasSwansEternalGlide) return SwanWhite;
-            if (HasEnigmasPhaseShift) return EnigmaPurple;
-            if (HasInfernalMeteorStride) return InfernalOrange;
-            if (HasHeroicChargeBoots) return HeroicScarlet;
-            if (HasMoonlitPhantomsRush) return MoonlitPurple;
-            if (HasVivaldisSeasonalSprint) return GetSeasonalColor();
-            if (HasPermafrostAvalancheStep) return FrostBlue;
-            if (HasHarvestPhantomStride) return HarvestPurple;
-            if (HasSolarBlitzTreads) return SolarOrange;
-            if (HasSpringZephyrBoots) return SpringPink;
-            return MomentumGold;
-        }
-        
-        private Color GetSeasonalColor()
-        {
-            // Get seasonal color based on in-game time/season
-            int season = (int)(Main.time / 54000) % 4;
-            return season switch
-            {
-                0 => SpringPink,
-                1 => SolarOrange,
-                2 => HarvestPurple,
-                3 => FrostBlue,
-                _ => MomentumGold
-            };
-        }
+        // ========== HURT / DRAW MODIFIERS ==========
         
         public override void ModifyHurt(ref Player.HurtModifiers modifiers)
         {

@@ -16,7 +16,7 @@ using static MagnumOpus.Common.Systems.ThemedParticles;
 namespace MagnumOpus.Content.Autumn.Weapons
 {
     /// <summary>
-    /// Twilight Arbalest - Autumn-themed ranged weapon (Post-Plantera tier)
+    /// Twilight Arbalest - Autumn-themed ranged weapon (Post-Wall of Flesh tier)
     /// A heavy crossbow that fires bolts infused with autumn's fading light.
     /// - Twilight Bolt: Fires piercing bolts that leave decay trails (98 damage)
     /// - Fading Light: Bolts gain damage as they travel, up to +50%

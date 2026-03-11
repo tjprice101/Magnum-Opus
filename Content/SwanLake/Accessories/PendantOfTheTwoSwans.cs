@@ -47,51 +47,6 @@ namespace MagnumOpus.Content.SwanLake.Accessories
         {
             var modPlayer = player.GetModPlayer<SwanLakeAccessoryPlayer>();
             modPlayer.hasPendantOfTheTwoSwans = true;
-
-            // Ambient particles based on mode
-            if (!hideVisual)
-            {
-                // Pearlescent shimmer (both modes)
-                if (Main.rand.NextBool(8))
-                {
-                    Color pearlescent = Main.rand.Next(3) switch
-                    {
-                        0 => new Color(255, 240, 245),
-                        1 => new Color(240, 245, 255),
-                        _ => new Color(250, 255, 245)
-                    };
-                    Vector2 offset = Main.rand.NextVector2Circular(20f, 25f);
-                    Dust shimmer = Dust.NewDustPerfect(player.Center + offset, DustID.TintableDustLighted,
-                        new Vector2(0, -0.5f), 0, pearlescent, 0.7f);
-                    shimmer.noGravity = true;
-                }
-                
-                // Swan feather aura around pendant
-                if (Main.rand.NextBool(12))
-                {
-                    Color featherColor = modPlayer.pendantIsBlackMode ? new Color(30, 30, 35) : Color.White;
-                    CustomParticles.SwanFeatherAura(player.Center, 25f, 1);
-                }
-
-                // Mode-specific particles
-                if (Main.rand.NextBool(6))
-                {
-                    if (modPlayer.pendantIsBlackMode)
-                    {
-                        // Black flame wisps
-                        Dust black = Dust.NewDustPerfect(player.Center + Main.rand.NextVector2Circular(15f, 20f),
-                            DustID.Smoke, new Vector2(0, -1.5f), 200, Color.Black, 1.2f);
-                        black.noGravity = true;
-                    }
-                    else
-                    {
-                        // White flame wisps
-                        Dust white = Dust.NewDustPerfect(player.Center + Main.rand.NextVector2Circular(15f, 20f),
-                            DustID.WhiteTorch, new Vector2(0, -1.2f), 100, default, 1.1f);
-                        white.noGravity = true;
-                    }
-                }
-            }
         }
 
         public override bool CanRightClick()

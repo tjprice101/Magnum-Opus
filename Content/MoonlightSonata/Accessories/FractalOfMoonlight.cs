@@ -41,28 +41,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             // Note: Additional Moonlight-specific minion buffs (+50% damage, +25% attack speed)
             // are handled in the Goliath and Razer minion projectiles themselves
             
-            // Enhanced ambient particles
-            if (!hideVisual)
-            {
-                // Palette-based aura dust
-                if (Main.rand.NextBool(4))
-                {
-                    float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                    Vector2 auraPos = player.Center + angle.ToRotationVector2() * Main.rand.NextFloat(15f, 30f);
-                    Color auraColor = Color.Lerp(MoonlightVFXLibrary.DarkPurple, MoonlightVFXLibrary.IceBlue, Main.rand.NextFloat());
-                    Dust auraDust = Dust.NewDustPerfect(auraPos, DustID.PurpleTorch, (player.Center - auraPos).SafeNormalize(Vector2.Zero) * 1.5f, 0, auraColor, 1.0f);
-                    auraDust.noGravity = true;
-                }
 
-                // Occasional sparkles
-                if (Main.rand.NextBool(8))
-                {
-                    CustomParticles.MoonlightFlare(player.Center + Main.rand.NextVector2Circular(25f, 25f), 0.3f);
-                }
-
-                // Unified fractal ambient VFX
-                FractalOfMoonlightVFX.AmbientFractalOrbit(player.Center, (int)Main.GameUpdateCount);
-            }
         }
         
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)

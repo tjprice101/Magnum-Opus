@@ -230,11 +230,23 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             if (warmupTimer < 2) return false;
 
             DrawBeamBody();
             DrawOriginRing();
             DrawEndpointFlares();
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -331,8 +343,12 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Eroica funeral theme tint
             Color ringTint = FuneralUtils.PrayerFlame;
 
-            // LAYER 2a: Wide soft glow behind ring (reduced brightness)
+            // LAYER 2-pre: Large source bloom anchoring the beam origin
             Texture2D softGlow = IBFTextures.SoftGlow.Value;
+            sb.Draw(softGlow, drawPos, null, ringTint * (0.35f * warmup), 0f,
+                softGlow.Size() / 2f, 0.6f * warmup, SpriteEffects.None, 0f);
+
+            // LAYER 2a: Wide soft glow behind ring
             sb.Draw(softGlow, drawPos, null, ringTint * (0.3f * warmup), 0f,
                 softGlow.Size() / 2f, 0.29f * warmup, SpriteEffects.None, 0f);
 

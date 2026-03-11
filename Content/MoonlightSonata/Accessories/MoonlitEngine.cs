@@ -34,21 +34,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             // +18% melee speed
             player.GetAttackSpeed(DamageClass.Melee) += 0.18f;
             
-            // Ambient particles when equipped
-            if (!hideVisual && Main.rand.NextBool(8))
-            {
-                int dustType = Main.rand.NextBool() ? DustID.PurpleTorch : DustID.IceTorch;
-                Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
-                Dust dust = Dust.NewDustPerfect(player.Center + offset + new Vector2(0, -40f), dustType, 
-                    new Vector2(0, -1f), 100, default, 1f);
-                dust.noGravity = true;
-            }
 
-            // Unified ambient VFX
-            if (!hideVisual)
-            {
-                MoonlitEngineVFX.AmbientGearOrbit(player.Center, (int)Main.GameUpdateCount);
-            }
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)

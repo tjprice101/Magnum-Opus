@@ -85,11 +85,18 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Projectiles
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(BuffID.OnFire3, 180);
+
+            // Dies Irae VFX: shard impact with color-ramped sparkle explosion
+            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(target.Center, 6, 4f, 0.25f);
+            DiesIraeVFXLibrary.SpawnEmberScatter(target.Center, 4, 3f);
+            DiesIraeVFXLibrary.SpawnContrastSparkle(target.Center, Projectile.velocity);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
@@ -117,9 +124,15 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Projectiles
             // Dies Irae theme accent layer
             EclipseOfWrathUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

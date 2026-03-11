@@ -237,26 +237,26 @@ namespace MagnumOpus.Common.Systems.VFX
             // ==========================================
             // NOISE TEXTURES
             // ==========================================
-            Noise.Smoke = LoadTexture("Assets/VFX/Noise/NoiseSmoke", CreateFallbackNoise);
-            Noise.TileableFBM = LoadTexture("Assets/VFX/Noise/TileableFBMNoise", CreateFallbackNoise);
-            Noise.Marble = LoadTexture("Assets/VFX/Noise/TileableMarbleNoise", CreateFallbackNoise);
-            Noise.Sparkly = LoadTexture("Assets/VFX/Noise/SparklyNoiseTexture", CreateFallbackNoise);
-            Noise.NebulaWisp = LoadTexture("Assets/VFX/Noise/NebulaWispNoise", CreateFallbackNoise);
-            Noise.Worley128 = LoadTexture("Assets/VFX/Noise/WorleyNoise512", CreateFallbackWorleyNoise);
-            Noise.Fire = LoadTexture("Assets/VFX/Noise/FireNoise512", CreateFallbackNoise);
-            Noise.Flow = LoadTexture("Assets/VFX/Noise/FlowNoise512", CreateFallbackNoise);
+            Noise.Smoke = LoadTexture("Assets/VFX Asset Library/NoiseTextures/NoiseSmoke", CreateFallbackNoise);
+            Noise.TileableFBM = LoadTexture("Assets/VFX Asset Library/NoiseTextures/TileableFBMNoise", CreateFallbackNoise);
+            Noise.Marble = LoadTexture("Assets/VFX Asset Library/NoiseTextures/TileableMarbleNoise", CreateFallbackNoise);
+            Noise.Sparkly = LoadTexture("Assets/VFX Asset Library/NoiseTextures/SimplexNoise", CreateFallbackNoise);
+            Noise.NebulaWisp = LoadTexture("Assets/VFX Asset Library/NoiseTextures/NebulaWispNoise", CreateFallbackNoise);
+            Noise.Worley128 = LoadTexture("Assets/VFX Asset Library/NoiseTextures/VoronoiNoise", CreateFallbackWorleyNoise);
+            Noise.Fire = LoadTexture("Assets/VFX Asset Library/NoiseTextures/TileableFBMNoise", CreateFallbackNoise);
+            Noise.Flow = LoadTexture("Assets/VFX Asset Library/NoiseTextures/PerlinNoise", CreateFallbackNoise);
             
             // ==========================================
             // LUT TEXTURES (Color Lookup Tables)
             // ==========================================
-            LUT.Rainbow = LoadTexture("Assets/VFX/LUT/RainbowLUT", CreateFallbackRainbowLUT);
-            LUT.EnergyGradient = LoadTexture("Assets/VFX/Noise/HorizontalBlackCoreCenterEnergyGradient", CreateFallbackGradient);
-            LUT.HorizontalEnergy = LoadTexture("Assets/VFX/Noise/HorizontalEnergyGradient", CreateFallbackGradient);
+            LUT.Rainbow = LoadTexture("Assets/VFX Asset Library/ColorGradients/SwanLakeGradient", CreateFallbackRainbowLUT);
+            LUT.EnergyGradient = LoadTexture("Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", CreateFallbackGradient);
+            LUT.HorizontalEnergy = LoadTexture("Assets/VFX Asset Library/GlowAndBloom/SoftGlow", CreateFallbackGradient);
             
             // ==========================================
             // BEAM/TRAIL TEXTURES
             // ==========================================
-            Beam.Streak1 = LoadTexture("Assets/VFX/Beams/BeamStreak1", CreateFallbackBeam);
+            Beam.Streak1 = LoadTexture("Assets/VFX Asset Library/BeamTextures/HorizontalBeamStreakSegment", CreateFallbackBeam);
             Beam.BloomLine = LoadTexture("Assets/SandboxLastPrism/Orbs/SoftGlow", CreateFallbackBeam);
             Beam.TaperedLine = LoadTexture("Assets/SandboxLastPrism/Trails/ThinGlowLine", CreateFallbackBeam);
             try
@@ -271,16 +271,16 @@ namespace MagnumOpus.Common.Systems.VFX
             // ==========================================
             // RIBBON TEXTURES
             // ==========================================
-            Ribbon.Soft = LoadTexture("Assets/VFX/Ribbons/RibbonSoft512", CreateFallbackBeam);
-            Ribbon.Flame = LoadTexture("Assets/VFX/Ribbons/RibbonFlame512", CreateFallbackBeam);
-            Ribbon.Cosmic = LoadTexture("Assets/VFX/Ribbons/RibbonCosmic512", CreateFallbackBeam);
-            Ribbon.Electric = LoadTexture("Assets/VFX/Ribbons/RibbonElectric512", CreateFallbackBeam);
+            Ribbon.Soft = LoadTexture("Assets/VFX Asset Library/TrailsAndRibbons/Harmonic Standing Wave Ribbon", CreateFallbackBeam);
+            Ribbon.Flame = LoadTexture("Assets/VFX Asset Library/TrailsAndRibbons/Harmonic Standing Wave Ribbon", CreateFallbackBeam);
+            Ribbon.Cosmic = LoadTexture("Assets/VFX Asset Library/TrailsAndRibbons/Spiraling Vortex Energy Strip", CreateFallbackBeam);
+            Ribbon.Electric = LoadTexture("Assets/VFX Asset Library/TrailsAndRibbons/BasicTrail", CreateFallbackBeam);
             
             // ==========================================
             // MASK TEXTURES
             // ==========================================
-            Mask.EclipseRing = LoadTexture("Assets/VFX/Masks/EclipseRing", CreateFallbackHalo);
-            Mask.RippleRing = LoadTexture("Assets/VFX/Masks/RippleRing", CreateFallbackHalo);
+            Mask.EclipseRing = LoadTexture("Assets/VFX Asset Library/MasksAndShapes/HardCircleMask", CreateFallbackHalo);
+            Mask.RippleRing = LoadTexture("Assets/VFX Asset Library/MasksAndShapes/SoftCircle", CreateFallbackHalo);
             Mask.RadialGradient = LoadTexture("Assets/SandboxLastPrism/Orbs/SoftGlow", CreateFallbackGradient);
             Mask.LinearGradient = LoadTexture("Assets/SandboxLastPrism/Orbs/SoftGlow64", CreateFallbackGradient);
             
@@ -360,7 +360,7 @@ namespace MagnumOpus.Common.Systems.VFX
         #region Fallback Texture Generation
         
         /// <summary>
-        /// Creates a simple procedural noise texture as fallback.
+        /// Creates a simple procedural noise texture as NEON RED fallback.
         /// </summary>
         private Texture2D CreateFallbackNoise()
         {
@@ -373,10 +373,12 @@ namespace MagnumOpus.Common.Systems.VFX
             {
                 for (int x = 0; x < size; x++)
                 {
-                    // Simple value noise
+                    // Simple value noise - NEON RED fallback!
                     float noise = (float)rand.NextDouble();
-                    byte value = (byte)(noise * 255);
-                    data[y * size + x] = new Color(value, value, value, 255);
+                    byte r = (byte)(noise * 255);
+                    byte g = 0;
+                    byte b = (byte)(noise * 50);
+                    data[y * size + x] = new Color(r, g, b, (byte)255);
                 }
             }
             
@@ -454,11 +456,11 @@ namespace MagnumOpus.Common.Systems.VFX
                     float maxExpectedDist = size / (float)cellCount;
                     float normalizedDist = Math.Min(1f, minDist / maxExpectedDist);
                     
-                    // Store F1 in R, edge (F2-F1) in G for shader flexibility
+                    // Store F1 in R, edge (F2-F1) in G for shader flexibility  ENEON RED fallback!
                     byte f1 = (byte)(normalizedDist * 255);
                     byte edge = (byte)(Math.Min(1f, (secondDist - minDist) / (maxExpectedDist * 0.5f)) * 255);
                     
-                    data[y * size + x] = new Color(f1, edge, f1, 255);
+                    data[y * size + x] = new Color(f1, (byte)0, (byte)(f1 / 5), (byte)255);
                 }
             }
             
@@ -467,7 +469,7 @@ namespace MagnumOpus.Common.Systems.VFX
         }
         
         /// <summary>
-        /// Creates a rainbow gradient LUT as fallback.
+        /// Creates a rainbow gradient LUT as NEON RED fallback.
         /// </summary>
         private Texture2D CreateFallbackRainbowLUT()
         {
@@ -478,8 +480,10 @@ namespace MagnumOpus.Common.Systems.VFX
             
             for (int x = 0; x < width; x++)
             {
-                float hue = (float)x / width;
-                Color color = Main.hslToRgb(hue, 1f, 0.5f);
+                // NEON RED fallback!
+                float t = (float)x / width;
+                byte r = (byte)(255 * (0.5f + 0.5f * t));
+                Color color = new Color(r, (byte)0, (byte)(50 * t), (byte)255);
                 
                 for (int y = 0; y < height; y++)
                 {
@@ -492,7 +496,7 @@ namespace MagnumOpus.Common.Systems.VFX
         }
         
         /// <summary>
-        /// Creates a simple horizontal gradient as fallback.
+        /// Creates a simple horizontal gradient as NEON RED fallback.
         /// </summary>
         private Texture2D CreateFallbackGradient()
         {
@@ -504,8 +508,10 @@ namespace MagnumOpus.Common.Systems.VFX
             for (int x = 0; x < width; x++)
             {
                 float t = (float)x / width;
-                byte value = (byte)(t * 255);
-                Color color = new Color(value, value, value, 255);
+                byte r = (byte)(t * 255);
+                byte b = (byte)(t * 50);
+                // NEON RED fallback!
+                Color color = new Color(r, (byte)0, b, (byte)255);
                 
                 for (int y = 0; y < height; y++)
                 {
@@ -541,8 +547,10 @@ namespace MagnumOpus.Common.Systems.VFX
                     float horizontalFade = 1f - xNorm;
                     
                     float intensity = verticalFade * horizontalFade;
-                    byte value = (byte)(intensity * 255);
-                    data[y * width + x] = new Color(value, value, value, value);
+                    byte r = (byte)(intensity * 255);
+                    byte b = (byte)(intensity * 50);
+                    // NEON RED fallback!
+                    data[y * width + x] = new Color(r, (byte)0, b, r);
                 }
             }
             
@@ -569,12 +577,13 @@ namespace MagnumOpus.Common.Systems.VFX
                     float dist = Vector2.Distance(new Vector2(x, y), center);
                     float normalizedDist = dist / maxDist;
                     
-                    // Ring pattern (bright at specific radius)
+                    // Ring pattern (bright at specific radius) - NEON RED fallback!
                     float ringValue = 1f - Math.Abs(normalizedDist - 0.8f) * 5f;
                     ringValue = Math.Max(0f, Math.Min(1f, ringValue));
                     
-                    byte value = (byte)(ringValue * 255);
-                    data[y * size + x] = new Color(value, value, value, value);
+                    byte r = (byte)(ringValue * 255);
+                    byte b = (byte)(ringValue * 50);
+                    data[y * size + x] = new Color(r, (byte)0, b, r);
                 }
             }
             

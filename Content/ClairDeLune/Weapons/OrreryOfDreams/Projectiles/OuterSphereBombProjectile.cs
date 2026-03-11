@@ -40,7 +40,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.OrreryOfDreams.Projectiles
             Projectile.width = 24;
             Projectile.height = 24;
             Projectile.friendly = true;
-            Projectile.DamageType = DamageClass.Summon;
+            Projectile.DamageType = DamageClass.Magic;
             Projectile.penetrate = -1;
             Projectile.timeLeft = DetonationTime;
             Projectile.tileCollide = true;
@@ -164,6 +164,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.OrreryOfDreams.Projectiles
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
 
             if (_detonated)
@@ -176,6 +178,15 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.OrreryOfDreams.Projectiles
                 DrawCelestialBody(sb, matrix);    // Pass 1: CelestialOrbitPath orbit body
                 DrawBloomHalo(sb, matrix);        // Pass 2: Multi-scale bloom halo
             }
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

@@ -1,5 +1,9 @@
-﻿using MagnumOpus.Common;
+using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Content.OdeToJoy;
 using MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Buffs;
+using MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Dusts;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -23,6 +27,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
         private Vector2[] _trailPositions = new Vector2[TrailLength];
         private float[] _trailRotations = new float[TrailLength];
         private int _trailHead;
+        private VertexStrip _vertexStrip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -49,10 +60,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
             _trailRotations[_trailHead] = Projectile.rotation;
             _trailHead = (_trailHead + 1) % TrailLength;
 
-            // Ambient sparkle dust
+            // Ambient sparkle dust — crystalline thorn chips
             if (Main.rand.NextBool(3))
             {
-                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.GoldFlame, 0f, 0f, 150, ThornSprayTextures.RadiantAmber, 0.5f);
+                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, ModContent.DustType<CrystallineThornSparkDust>(), 0f, 0f, 150, default, 0.5f);
                 d.noGravity = true;
                 d.velocity *= 0.3f;
             }
@@ -60,6 +71,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(target.Center, 3, 3f, 0.5f);
+
             var accumNPC = target.GetGlobalNPC<ThornAccumulationNPC>();
             bool detonate = accumNPC.AddStack(target);
 
@@ -77,78 +90,38 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D thornTex = ThornSprayTextures.OJThornFragment;
-            Texture2D glowTex = ThornSprayTextures.SoftGlow;
-            Vector2 thornOrigin = thornTex.Size() / 2f;
-            Vector2 glowOrigin = glowTex.Size() / 2f;
-
-            float lifeProgress = 1f - (Projectile.timeLeft / 240f);
-            float fade = MathHelper.Clamp(lifeProgress * 8f, 0f, 1f) * MathHelper.Clamp((Projectile.timeLeft / 30f), 0f, 1f);
-            float time = (float)Main.timeForVisualEffects * 0.015f;
-            Vector2 pos = Projectile.Center - Main.screenPosition;
-
-            sb.End();
-
-            // ── LAYER 0: VerdantSlash shader trail via VertexStrip ──
-            Effect slashShader = OdeToJoyShaders.VerdantSlash;
-            int validCount = 0;
-            for (int i = 0; i < TrailLength; i++)
+            try
             {
-                int idx = (_trailHead - 1 - i + TrailLength) % TrailLength;
-                if (_trailPositions[idx] != Vector2.Zero) validCount++; else break;
-            }
-            if (slashShader != null && validCount >= 2)
-            {
-                Vector2[] positions = new Vector2[validCount];
-                float[] rotations = new float[validCount];
-                for (int i = 0; i < validCount; i++)
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _vertexStrip);
+
+                // Crystalline thorn: verdant directional streak
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
                 {
-                    int idx = (_trailHead - 1 - i + TrailLength) % TrailLength;
-                    positions[validCount - 1 - i] = _trailPositions[idx];
-                }
-                for (int i = 0; i < validCount; i++)
-                {
-                    if (i < validCount - 1) rotations[i] = (positions[i + 1] - positions[i]).ToRotation();
-                    else rotations[i] = rotations[Math.Max(0, i - 1)];
+                    Vector2 origin = glow.Size() / 2f;
+                    float rot = Projectile.velocity.ToRotation();
+
+                    sb.Draw(glow, drawPos, null,
+                        (OdeToJoyPalette.LeafGreen with { A = 0 }) * 0.2f,
+                        rot, origin, new Vector2(0.07f, 0.025f), SpriteEffects.None, 0f);
                 }
 
-                VertexStrip strip = new VertexStrip();
-                strip.PrepareStrip(positions, rotations,
-                    (float p) => ThornSprayTextures.GetThornGradient(1f - p, false) * fade * p * 0.45f,
-                    (float p) => MathHelper.Lerp(1f, 10f, p),
-                    -Main.screenPosition, includeBacksides: true);
-                OdeToJoyShaders.SetSlashParams(slashShader, time, ThornSprayTextures.RadiantAmber,
-                    ThornSprayTextures.PetalPink, fade * 0.6f, 1.8f, 0f);
-                slashShader.CurrentTechnique = slashShader.Techniques["VerdantSlashTechnique"];
-                slashShader.Parameters["WorldViewProjection"]?.SetValue(
-                    Main.GameViewMatrix.NormalizedTransformationmatrix);
-                slashShader.CurrentTechnique.Passes["P0"].Apply();
-                strip.DrawTrail();
-                Main.pixelShader.CurrentTechnique.Passes[0].Apply();
+                sb.End();
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
-            // ── LAYER 1: Additive bloom layers ──
-            OdeToJoyShaders.BeginAdditiveBatch(sb);
-
-            // Ambient shimmer
-            float shimmer = 0.85f + 0.15f * (float)Math.Sin(Projectile.ai[0]++ * 0.15f);
-            sb.Draw(glowTex, pos, null, ThornSprayTextures.BloomGold * fade * 0.25f * shimmer, Projectile.rotation,
-                glowOrigin, 0.28f, SpriteEffects.None, 0f);
-            // Inner glow
-            sb.Draw(glowTex, pos, null, ThornSprayTextures.RadiantAmber * fade * 0.5f, 0f, glowOrigin,
-                0.2f, SpriteEffects.None, 0f);
-            // Thorn body
-            sb.Draw(thornTex, pos, null, ThornSprayTextures.PetalPink * fade * 0.9f, Projectile.rotation,
-                thornOrigin, 0.8f, SpriteEffects.None, 0f);
-            // Hot core
-            sb.Draw(glowTex, pos, null, ThornSprayTextures.JubilantLight * fade * 0.4f, 0f, glowOrigin,
-                0.1f, SpriteEffects.None, 0f);
-
-            // Theme blossom sparkle accent
-            OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
-
-            sb.End();
-            OdeToJoyShaders.RestoreSpriteBatch(sb);
             return false;
         }
     }
@@ -164,6 +137,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
         private const int TrailLength = 24;
         private Vector2[] _trailPositions = new Vector2[TrailLength];
         private int _trailHead;
+        private VertexStrip _vertexStrip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -187,10 +167,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
             _trailPositions[_trailHead] = Projectile.Center;
             _trailHead = (_trailHead + 1) % TrailLength;
 
-            // Golden sparkle dust (more prominent than standard)
+            // Golden sparkle dust (more prominent than standard) — bloom variant
             if (Main.rand.NextBool(2))
             {
-                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.GoldFlame, 0f, 0f, 100, ThornSprayTextures.BloomGold, 0.8f);
+                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, ModContent.DustType<ThornBloomBurstDust>(), 0f, 0f, 100, default, 0.8f);
                 d.noGravity = true;
                 d.velocity *= 0.4f;
             }
@@ -198,6 +178,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(target.Center, 3, 3f, 0.5f);
+
             var accumNPC = target.GetGlobalNPC<ThornAccumulationNPC>();
             bool detonate = accumNPC.AddStack(target);
 
@@ -214,77 +196,43 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D thornTex = ThornSprayTextures.OJThornFragment;
-            Texture2D glowTex = ThornSprayTextures.SoftGlow;
-            Vector2 thornOrigin = thornTex.Size() / 2f;
-            Vector2 glowOrigin = glowTex.Size() / 2f;
-
-            float fade = MathHelper.Clamp((240 - Projectile.timeLeft) / 10f, 0f, 1f) * MathHelper.Clamp(Projectile.timeLeft / 30f, 0f, 1f);
-            float time = (float)Main.timeForVisualEffects * 0.015f;
-            Vector2 pos = Projectile.Center - Main.screenPosition;
-
-            sb.End();
-
-            // ── LAYER 0: TriumphantTrail VertexStrip — golden bloom trail ──
-            Effect trailShader = OdeToJoyShaders.TriumphantTrail;
-            int validCount = 0;
-            for (int i = 0; i < TrailLength; i++)
+            try
             {
-                int idx = (_trailHead - 1 - i + TrailLength) % TrailLength;
-                if (_trailPositions[idx] != Vector2.Zero) validCount++; else break;
-            }
-            if (trailShader != null && validCount >= 2)
-            {
-                Vector2[] positions = new Vector2[validCount];
-                float[] rotations = new float[validCount];
-                for (int i = 0; i < validCount; i++)
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _vertexStrip);
+
+                // Bloom thorn: golden bloom glow (enhanced variant)
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
                 {
-                    int idx = (_trailHead - 1 - i + TrailLength) % TrailLength;
-                    positions[validCount - 1 - i] = _trailPositions[idx];
-                }
-                for (int i = 0; i < validCount; i++)
-                {
-                    if (i < validCount - 1) rotations[i] = (positions[i + 1] - positions[i]).ToRotation();
-                    else rotations[i] = rotations[Math.Max(0, i - 1)];
+                    Vector2 origin = glow.Size() / 2f;
+                    float rot = Projectile.velocity.ToRotation();
+
+                    // Brighter golden streak for bloom variant
+                    sb.Draw(glow, drawPos, null,
+                        (OdeToJoyPalette.GoldenPollen with { A = 0 }) * 0.25f,
+                        rot, origin, new Vector2(0.08f, 0.03f), SpriteEffects.None, 0f);
+                    // Warm amber halo
+                    sb.Draw(glow, drawPos, null,
+                        (OdeToJoyPalette.WarmAmber with { A = 0 }) * 0.12f,
+                        0f, origin, 0.04f, SpriteEffects.None, 0f);
                 }
 
-                VertexStrip strip = new VertexStrip();
-                strip.PrepareStrip(positions, rotations,
-                    (float p) => ThornSprayTextures.BloomGold * fade * p * 0.45f,
-                    (float p) => MathHelper.Lerp(1f, 14f, p),
-                    -Main.screenPosition, includeBacksides: true);
-                OdeToJoyShaders.SetTrailParams(trailShader, time, ThornSprayTextures.BloomGold,
-                    ThornSprayTextures.JubilantLight, fade * 0.7f, 2.0f);
-                trailShader.CurrentTechnique = trailShader.Techniques["TriumphantTrailTechnique"];
-                trailShader.Parameters["WorldViewProjection"]?.SetValue(
-                    Main.GameViewMatrix.NormalizedTransformationmatrix);
-                trailShader.CurrentTechnique.Passes["P0"].Apply();
-                strip.DrawTrail();
-                Main.pixelShader.CurrentTechnique.Passes[0].Apply();
+                sb.End();
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
-            // ── LAYER 1: Additive bloom layers ──
-            OdeToJoyShaders.BeginAdditiveBatch(sb);
-
-            // Bright golden shimmer
-            float shimmer = 0.8f + 0.2f * (float)Math.Sin(Projectile.ai[0]++ * 0.12f);
-            sb.Draw(glowTex, pos, null, ThornSprayTextures.BloomGold * fade * 0.4f * shimmer, 0f, glowOrigin,
-                0.28f, SpriteEffects.None, 0f);
-            // Bloom inner glow
-            sb.Draw(glowTex, pos, null, ThornSprayTextures.JubilantLight * fade * 0.6f, 0f, glowOrigin,
-                0.25f, SpriteEffects.None, 0f);
-            // Golden thorn body
-            sb.Draw(thornTex, pos, null, ThornSprayTextures.BloomGold * fade * 0.9f, Projectile.rotation,
-                thornOrigin, 0.9f, SpriteEffects.None, 0f);
-            // Hot core
-            sb.Draw(glowTex, pos, null, ThornSprayTextures.PureJoyWhite * fade * 0.5f, 0f, glowOrigin,
-                0.12f, SpriteEffects.None, 0f);
-
-            // Theme blossom sparkle accent
-            OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
-
-            sb.End();
-            OdeToJoyShaders.RestoreSpriteBatch(sb);
             return false;
         }
     }
@@ -326,25 +274,29 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
                         Main.player[Projectile.owner].velocity += Main.rand.NextVector2Circular(0.5f, 0.5f);
                 }
 
-                // 55 radial crystalline thorn shards (dust)
+                // 55 radial crystalline thorn shards — custom dust
                 for (int i = 0; i < 55; i++)
                 {
                     float angle = MathHelper.TwoPi * i / 55f;
                     float speed = 4f + Main.rand.NextFloat() * 6f;
                     Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * speed;
-                    Color sparkColor = ThornSprayTextures.DetonationColors[i % ThornSprayTextures.DetonationColors.Length];
-                    Dust d = Dust.NewDustDirect(Projectile.Center, 1, 1, DustID.GoldFlame, vel.X, vel.Y, 100, sparkColor, 1.2f);
+                    Dust d = Dust.NewDustDirect(Projectile.Center, 1, 1, ModContent.DustType<CrystallineThornSparkDust>(), vel.X, vel.Y, 100, default, 1.2f);
                     d.noGravity = true;
                     d.fadeIn = 1.8f;
                 }
 
-                // Secondary petal accents
+                // Secondary petal accents — bloom burst
                 for (int i = 0; i < 20; i++)
                 {
                     Vector2 vel = Main.rand.NextVector2Circular(8f, 8f);
-                    Dust d = Dust.NewDustDirect(Projectile.Center, 1, 1, DustID.YellowTorch, vel.X, vel.Y, 80, ThornSprayTextures.PetalPink, 0.9f);
+                    Dust d = Dust.NewDustDirect(Projectile.Center, 1, 1, ModContent.DustType<ThornBloomBurstDust>(), vel.X, vel.Y, 80, default, 0.9f);
                     d.noGravity = true;
                 }
+
+                // Screen effects on detonation
+                OdeToJoyVFXLibrary.ScreenShake(8f, 16);
+                OdeToJoyVFXLibrary.ScreenFlash(OdeToJoyPalette.GoldenPollen, 1.0f);
+                OdeToJoyVFXLibrary.HarmonicPulseRing(Projectile.Center, 1.2f, 12, OdeToJoyPalette.GoldenPollen);
             }
         }
 
@@ -353,6 +305,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
             if (_timer < 1) return false;
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D ringTex = ThornSprayTextures.OJPowerRing;
             Texture2D glowTex = ThornSprayTextures.SoftGlow;
             Texture2D surgeTex = ThornSprayTextures.OJBeamSurge;
@@ -415,6 +369,15 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
 
             sb.End();
             OdeToJoyShaders.RestoreSpriteBatch(sb);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
@@ -430,6 +393,14 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
     public class ThornSplinterProjectile : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
+
+        private VertexStrip _vertexStrip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -467,10 +438,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
                 }
             }
 
-            // Trail dust
+            // Trail dust — crystalline thorn splinter
             if (Main.rand.NextBool(3))
             {
-                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.GoldFlame, 0f, 0f, 150, ThornSprayTextures.RoseShadow, 0.4f);
+                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, ModContent.DustType<CrystallineThornSparkDust>(), 0f, 0f, 150, default, 0.4f);
                 d.noGravity = true;
                 d.velocity *= 0.2f;
             }
@@ -478,6 +449,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(target.Center, 2, 2f, 0.3f);
+
             // Splinters also apply accumulation
             var accumNPC = target.GetGlobalNPC<ThornAccumulationNPC>();
             accumNPC.AddStack(target);
@@ -486,44 +459,38 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D thornTex = ThornSprayTextures.OJThornFragment;
-            Texture2D glowTex = ThornSprayTextures.SoftGlow;
-            Vector2 thornOrigin = thornTex.Size() / 2f;
-            Vector2 glowOrigin = glowTex.Size() / 2f;
-            Vector2 pos = Projectile.Center - Main.screenPosition;
-
-            float fade = MathHelper.Clamp(Projectile.timeLeft / 20f, 0f, 1f);
-            float time = (float)Main.timeForVisualEffects * 0.015f;
-
-            sb.End();
-
-            // ── LAYER 0: VerdantSlash shader accent ──
-            Effect slashShader = OdeToJoyShaders.VerdantSlash;
-            if (slashShader != null)
+            try
             {
-                OdeToJoyShaders.SetSlashParams(slashShader, time * 1.5f, ThornSprayTextures.RoseShadow,
-                    ThornSprayTextures.PetalPink, fade * 0.35f, 1.3f, 0f);
-                OdeToJoyShaders.BeginDeferredShaderBatch(sb, slashShader, "ThornImpactTechnique");
-                sb.Draw(glowTex, pos, null, Color.White * fade, Projectile.rotation, glowOrigin,
-                    0.2f, SpriteEffects.None, 0f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _vertexStrip);
+
+                // Thorn splinter: rose-thorn directional glow
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
+                {
+                    Vector2 origin = glow.Size() / 2f;
+                    float rot = Projectile.velocity.ToRotation();
+
+                    sb.Draw(glow, drawPos, null,
+                        (OdeToJoyPalette.RosePink with { A = 0 }) * 0.18f,
+                        rot, origin, new Vector2(0.05f, 0.02f), SpriteEffects.None, 0f);
+                }
+
                 sb.End();
             }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
-            // ── LAYER 1: Additive splinter body ──
-            OdeToJoyShaders.BeginAdditiveBatch(sb);
-
-            sb.Draw(glowTex, pos, null, ThornSprayTextures.RoseShadow * fade * 0.3f, 0f, glowOrigin,
-                0.18f, SpriteEffects.None, 0f);
-            sb.Draw(thornTex, pos, null, ThornSprayTextures.PetalPink * fade * 0.7f, Projectile.rotation,
-                thornOrigin, 0.5f, SpriteEffects.None, 0f);
-            sb.Draw(glowTex, pos, null, ThornSprayTextures.JubilantLight * fade * 0.25f, 0f, glowOrigin,
-                0.06f, SpriteEffects.None, 0f);
-
-            // Theme blossom sparkle accent
-            OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
-
-            sb.End();
-            OdeToJoyShaders.RestoreSpriteBatch(sb);
             return false;
         }
     }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
@@ -205,6 +205,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             var starTex = ModContent.Request<Texture2D>(
                 "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard",
                 AssetRequestMode.ImmediateLoad).Value;
@@ -245,6 +248,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
                 Main.spriteBatch.Draw(starTex, oldDraw, null, haloColor * fade * 0.2f,
                     Projectile.oldRot[i], starTex.Size() * 0.5f, scale * fade * 0.8f,
                     SpriteEffects.None, 0f);
+            }
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
             return false;

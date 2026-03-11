@@ -408,6 +408,9 @@ namespace MagnumOpus.Content.Fate.Projectiles
         
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D weaponTex = GetWeaponTexture();
             Color weaponColor = GetWeaponColor();
@@ -456,6 +459,15 @@ namespace MagnumOpus.Content.Fate.Projectiles
             Color innerGlow = Color.Lerp(weaponColor, Color.White, 0.5f) with { A = 0 } * 0.4f;
             spriteBatch.Draw(weaponTex, drawPos, null, innerGlow, Projectile.rotation, origin, 0.9f, SpriteEffects.None, 0f);
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -813,6 +825,9 @@ namespace MagnumOpus.Content.Fate.Projectiles
         
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D weaponTex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             
@@ -856,6 +871,15 @@ namespace MagnumOpus.Content.Fate.Projectiles
             Color innerGlow = Color.Lerp(FatePalette.BrightCrimson, Color.White, 0.4f) with { A = 0 } * 0.35f;
             spriteBatch.Draw(weaponTex, drawPos, null, innerGlow, Projectile.rotation, origin, 0.85f, SpriteEffects.None, 0f);
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
         

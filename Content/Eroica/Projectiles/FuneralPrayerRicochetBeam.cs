@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ID;
@@ -30,7 +30,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         private const float MaxRicochetRange = 500f;
         private Vector2 lastHitPosition;
 
-        // 笏笏 Trail tracking 笏笏
+        // ── Trail tracking ──
         private const int TrailLength = 24;
         private Vector2[] trailPositions = new Vector2[TrailLength];
         private float[] trailRotations = new float[TrailLength];
@@ -63,7 +63,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         {
             ageTimer++;
 
-            // 笏笏 Trail position tracking 笏笏
+            // ── Trail position tracking ──
             if (!trailInitialized)
             {
                 for (int i = 0; i < TrailLength; i++)
@@ -116,7 +116,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // 笏笏 Particle Spawning 笏笏
+            // ── Particle Spawning ──
             SpawnFlightParticles();
         }
 
@@ -124,7 +124,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         private void SpawnFlightParticles()
         {
-            // Intense funeral flames 窶・this is a powerful ricochet beam
+            // Intense funeral flames  Ethis is a powerful ricochet beam
             if (Main.rand.NextBool(2))
             {
                 Vector2 perpendicular = Projectile.velocity.SafeNormalize(Vector2.UnitX).RotatedBy(MathHelper.PiOver2);
@@ -291,6 +291,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = tex.Size() / 2f;
             float time = (float)Main.gameTimeCache.TotalGameTime.TotalSeconds;
@@ -320,6 +322,15 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             EroicaVFXLibrary.BeginEroicaAdditive(sb);
             EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.4f);
             EroicaVFXLibrary.EndEroicaAdditive(sb);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -392,7 +403,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             if (hasShader)
             {
-                // PASS 1: FuneralTrail body — thin ricochet beam
+                // PASS 1: FuneralTrail body ? thin ricochet beam
                 EroicaShaderManager.BeginShaderAdditive(sb);
                 try
                 {
@@ -428,7 +439,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     EroicaShaderManager.RestoreSpriteBatch(sb);
                 }
 
-                // PASS 2: FuneralTrail glow — wider gold aura
+                // PASS 2: FuneralTrail glow ? wider gold aura
                 EroicaShaderManager.BeginShaderAdditive(sb);
                 try
                 {
@@ -513,13 +524,13 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             if (EroicaShaderManager.HasRequiemBeam)
             {
-                // RequiemBeam body — pulsing requiem halo
+                // RequiemBeam body ? pulsing requiem halo
                 EroicaShaderManager.BeginShaderAdditive(sb);
                 try
                 {
                     EroicaShaderManager.ApplyFuneralPrayerRequiemBeam(time, glowPass: false);
 
-                    Texture2D ringTex = EroicaTextures.HaloRing?.Value ?? EroicaTextures.CircularMask?.Value;
+                    Texture2D ringTex = EroicaTextures.HaloRing?.Value ?? EroicaTextures.SoftCircle?.Value;
                     if (ringTex != null)
                     {
                         float pulse = 0.8f + 0.2f * (float)Math.Sin(ageTimer * 0.2f);
@@ -532,7 +543,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     EroicaShaderManager.RestoreSpriteBatch(sb);
                 }
 
-                // RequiemBeam glow — wider divine radiance
+                // RequiemBeam glow ? wider divine radiance
                 EroicaShaderManager.BeginShaderAdditive(sb);
                 try
                 {

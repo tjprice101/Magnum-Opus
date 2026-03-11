@@ -19,7 +19,7 @@ using ReLogic.Content;
 namespace MagnumOpus.Content.Autumn.Bosses
 {
     /// <summary>
-    /// AUTUNNO, THE WITHERING MAESTRO - POST-PLANTERA BOSS
+    /// AUTUNNO, THE WITHERING MAESTRO - POST-WALL OF FLESH BOSS
     /// 
     /// Design Philosophy:
     /// - Melancholic, withering elegance

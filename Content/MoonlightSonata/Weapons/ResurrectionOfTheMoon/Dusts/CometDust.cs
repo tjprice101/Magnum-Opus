@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MagnumOpus.Common;
 using ReLogic.Content;
 using Terraria;
 using Terraria.ModLoader;
@@ -65,7 +66,19 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Dusts
             Vector2 pos = dust.position - Main.screenPosition;
             float alpha = (255 - dust.alpha) / 255f;
 
-            Main.spriteBatch.Draw(tex, pos, null, dust.color * alpha, dust.rotation, origin, drawScale, SpriteEffects.None, 0f);
+            // PointBloom is a glow texture on black background — must use additive blending
+            // to avoid rendering the black as visible. Switch to TrueAdditive, draw, restore.
+            var sb = Main.spriteBatch;
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
+            sb.Draw(tex, pos, null, dust.color * alpha, dust.rotation, origin, drawScale, SpriteEffects.None, 0f);
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+
             return false; // Prevent vanilla from drawing at uncapped scale
         }
     }

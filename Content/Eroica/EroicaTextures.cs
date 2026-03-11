@@ -46,7 +46,7 @@ namespace MagnumOpus.Content.Eroica
         public static Asset<Texture2D> HaloRing { get; private set; }
 
         /// <summary>Circular mask for radial effects.</summary>
-        public static Asset<Texture2D> CircularMask { get; private set; }
+        public static Asset<Texture2D> SoftCircle { get; private set; }
 
         /// <summary>Bloom orb for soft layered bloom.</summary>
         public static Asset<Texture2D> BloomOrb { get; private set; }
@@ -92,7 +92,7 @@ namespace MagnumOpus.Content.Eroica
         public static Asset<Texture2D> PerlinNoise { get; private set; }
 
         /// <summary>Cosmic energy vortex noise for heroic aura.</summary>
-        public static Asset<Texture2D> CosmicEnergyNoise { get; private set; }
+        public static Asset<Texture2D> CosmicEnergyVortex { get; private set; }
 
         /// <summary>Musical wave pattern noise for harmonic effects.</summary>
         public static Asset<Texture2D> MusicalWaveNoise { get; private set; }
@@ -188,7 +188,7 @@ namespace MagnumOpus.Content.Eroica
             if (_loaded) return;
             _loaded = true;
 
-            // Shared — remapped to existing VFX Asset Library + SandboxLastPrism assets
+            // Shared  Eremapped to existing VFX Asset Library + SandboxLastPrism assets
             // SoftGlow: radial bloom orb for tip glows, ambient bloom
             SoftGlow = Req("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow");
             // EnergyFlare: bright point flare for blade tips and impact bursts
@@ -197,15 +197,15 @@ namespace MagnumOpus.Content.Eroica
             Star4Point = Req("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard");
             // HaloRing: soft circle used as expanding shockwave ring via scale animation
             HaloRing = Req("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle");
-            // CircularMask: hard-edge circular mask for radial shader effects
-            CircularMask = Req("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/HardCircleMask");
+            // SoftCircle: hard-edge circular mask for radial shader effects
+            SoftCircle = Req("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/HardCircleMask");
             // BloomOrb: small soft glow for layered bloom stacking
             BloomOrb = Req("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow64");
             // FullSlashArc: wide soft ellipse stretched + rotated creates convincing slash arc overlay
             FullSlashArc = Req("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/WideSoftEllipse");
             // FlamingArc: impact ellipse drawn with additive blend + scale creates flame arc effect
             FlamingArc = Req("MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse");
-            // Music notes — these exist in the Particles Asset Library
+            // Music notes  Ethese exist in the Particles Asset Library
             MusicNote = Req("MagnumOpus/Assets/Particles Asset Library/MusicNote");
             CursiveMusicNote = Req("MagnumOpus/Assets/Particles Asset Library/CursiveMusicNote");
             // FlameImpact: SoftRadialBloom scaled up with additive orange tint = fire explosion effect
@@ -223,14 +223,14 @@ namespace MagnumOpus.Content.Eroica
             // RoseBud: 4-pointed soft star tinted pink = sakura petal substitute
             RoseBud = Req("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft");
 
-            // Noise — remapped to VFX Asset Library/NoiseTextures/
+            // Noise  Eremapped to VFX Asset Library/NoiseTextures/
             PerlinNoise = Req("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/PerlinNoise");
-            CosmicEnergyNoise = Req("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/CosmicEnergyVortex");
+            CosmicEnergyVortex = Req("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/CosmicEnergyVortex");
             MusicalWaveNoise = Req("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/MusicalWavePattern");
             // SparklyNoise: SimplexNoise provides fine-grain sparkle-like noise pattern
             SparklyNoise = Req("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/SimplexNoise");
 
-            // Trails — remapped to existing trail + VFX assets
+            // Trails  Eremapped to existing trail + VFX assets
             // CometTrailGradient: Eroica gradient LUT used as comet trail color ramp
             CometTrailGradient = Req("MagnumOpus/Assets/VFX Asset Library/ColorGradients/EroicaGradientLUTandRAMP");
             // EmberScatter: star field scatter provides scattered point pattern similar to ember scatter
@@ -240,7 +240,7 @@ namespace MagnumOpus.Content.Eroica
             // SparkleField: Voronoi cell noise makes excellent sparkle/shimmer field
             SparkleField = Req("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/VoronoiCellNoise");
 
-            // LUT — remapped to ColorGradients
+            // LUT  Eremapped to ColorGradients
             EroicaLUT = Req("MagnumOpus/Assets/VFX Asset Library/ColorGradients/EroicaGradientLUTandRAMP");
 
             // Celestial Valor
@@ -251,7 +251,7 @@ namespace MagnumOpus.Content.Eroica
             // Sakura's Blossom
             SakurasBlossomBlade = Req("MagnumOpus/Content/Eroica/Weapons/SakurasBlossom/SakurasBlossom");
 
-            // Smears / Arcs — remapped to available mask and shape textures.
+            // Smears / Arcs  Eremapped to available mask and shape textures.
             // Sword arcs use ImpactEllipse, WideSoftEllipse, VerticalEllipse, and BasicTrail
             // rotated/scaled/tinted differently per draw call for visual variety.
             // The arc "shape" comes from the elliptical masks combined with additive blending.
@@ -281,7 +281,7 @@ namespace MagnumOpus.Content.Eroica
             EnergyFlare = null;
             Star4Point = null;
             HaloRing = null;
-            CircularMask = null;
+            SoftCircle = null;
             BloomOrb = null;
             FullSlashArc = null;
             FlamingArc = null;
@@ -296,7 +296,7 @@ namespace MagnumOpus.Content.Eroica
             RoseBud = null;
 
             PerlinNoise = null;
-            CosmicEnergyNoise = null;
+            CosmicEnergyVortex = null;
             MusicalWaveNoise = null;
             SparklyNoise = null;
 

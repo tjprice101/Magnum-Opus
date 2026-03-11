@@ -10,14 +10,16 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
     /// </summary>
     public class VoidVariationDust : ModDust
     {
-        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Pixel/PartiGlow";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/Projectiles/BrightStarProjectile1";
 
         public override void OnSpawn(Dust dust)
         {
             dust.noGravity = true;
             dust.noLight = false;
-            dust.frame = new Rectangle(0, 0, 16, 16);
-            dust.scale = Main.rand.NextFloat(0.3f, 0.9f);
+            dust.frame = new Rectangle(0, 0, 128, 128);
+            dust.scale = Main.rand.NextFloat(0.12f, 0.4f);
+            // Black and white sparkles
+            dust.color = Main.rand.NextBool() ? Color.White : new Color(40, 20, 60);
         }
 
         public override bool Update(Dust dust)

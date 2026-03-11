@@ -1,16 +1,14 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ReLogic.Content;
 using System;
 using Terraria;
 using Terraria.Audio;
+using Terraria.Graphics;
 using Terraria.ID;
-using Terraria.Graphics.Shaders;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Utilities;
 using MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Particles;
-using MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Primitives;
-using MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Shaders;
 using MagnumOpus.Content.Fate.Debuffs;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
@@ -25,6 +23,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
     ///   Mode 2 (Crystal Shard): Spawned on melee hit, homes to enemies at 40% damage.
     ///
     /// All three modes share the same projectile type for self-containment.
+    /// Rendering uses IncisorOrbRenderer.Fate for consistent Fate-themed shader trail + bloom head.
     /// </summary>
     public class OpusEnergyBallProjectile : ModProjectile
     {
@@ -35,14 +34,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
         private const int ModeSeeker = 1;
         private const int ModeCrystalShard = 2;
 
-        // Trail points for seekers/shards
-        private Vector2[] _trail = new Vector2[16];
-        private int _trailCount;
-
-        // Textures
-        private static Asset<Texture2D> _glowTex;
-        private static Asset<Texture2D> _flareTex;
-        private static Asset<Texture2D> _noiseTex;
+        // VertexStrip for IncisorOrbRenderer shader trail
+        private VertexStrip _strip;
 
         private int Mode => (int)Projectile.ai[0];
         private float SizeMult => Mode == ModeEnergyBall ? Math.Max(Projectile.ai[1], 1f) : 1f;
@@ -81,18 +74,6 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
                 case ModeCrystalShard:
                     CrystalShardAI();
                     break;
-            }
-
-            // Update trail
-            if (_trailCount < _trail.Length)
-            {
-                _trail[_trailCount] = Projectile.Center;
-                _trailCount++;
-            }
-            else
-            {
-                Array.Copy(_trail, 1, _trail, 0, _trail.Length - 1);
-                _trail[_trail.Length - 1] = Projectile.Center;
             }
         }
 
@@ -298,208 +279,25 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             if (Main.dedServ) return false;
-
             SpriteBatch sb = Main.spriteBatch;
-
             try
             {
-                _glowTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow");
-                _flareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Flare/flare_16");
-                _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/CosmicNebulaClouds");
 
-                switch (Mode)
-                {
-                    case ModeEnergyBall:
-                        DrawEnergyBall(sb);
-                        break;
-                    case ModeSeeker:
-                        DrawSeeker(sb);
-                        break;
-                    case ModeCrystalShard:
-                        DrawCrystalShard(sb);
-                        break;
-                }
+            // All 3 modes use the same IncisorOrbRenderer Fate pipeline:
+            // LAYER 1: Shader-driven VertexStrip beam body with Fate gradient LUT
+            // LAYER 2: Multi-layer bloom head with Fate palette cycling
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.Fate, ref _strip);
+
             }
-            catch
+            catch { }
+            finally
             {
-                try
-                {
-                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-                }
-                catch { }
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
             return false;
-        }
-
-        private void DrawEnergyBall(SpriteBatch sb)
-        {
-            if (_glowTex?.Value == null) return;
-
-            try
-            {
-                OpusUtils.BeginAdditive(sb);
-
-                float scale = SizeMult;
-                float time = (float)Main.timeForVisualEffects;
-                float pulse = 1f + MathF.Sin(time * 0.08f) * 0.1f;
-                Vector2 drawPos = Projectile.Center - Main.screenPosition;
-                var tex = _glowTex.Value;
-                Vector2 origin = tex.Size() / 2f;
-
-                // Layer 1: Void black outer shell
-                sb.Draw(tex, drawPos, null, OpusUtils.Additive(OpusUtils.VoidBlack, 0.15f),
-                    0f, origin, MathHelper.Min(1.35f * scale * pulse, 0.586f), SpriteEffects.None, 0f);
-
-                // Layer 2: Purple haze
-                sb.Draw(tex, drawPos, null, OpusUtils.Additive(OpusUtils.RoyalPurple, 0.23f),
-                    0f, origin, MathHelper.Min(0.98f * scale * pulse, 0.586f), SpriteEffects.None, 0f);
-
-                // Layer 3: Crimson fire
-                float crimsonPulse = pulse * (1f + MathF.Sin(time * 0.12f + 1.3f) * 0.08f);
-                sb.Draw(tex, drawPos, null, OpusUtils.Additive(OpusUtils.OpusCrimson, 0.38f),
-                    0f, origin, MathHelper.Min(0.68f * scale * crimsonPulse, 0.586f), SpriteEffects.None, 0f);
-
-                // Layer 4: Gold glory ring
-                sb.Draw(tex, drawPos, null, OpusUtils.Additive(OpusUtils.GloryGold, 0.34f),
-                    0f, origin, MathHelper.Min(0.49f * scale * pulse, 0.586f), SpriteEffects.None, 0f);
-
-                // Layer 5: White-hot core
-                sb.Draw(tex, drawPos, null, OpusUtils.Additive(OpusUtils.OpusWhite, 0.45f),
-                    0f, origin, 0.23f * scale * pulse, SpriteEffects.None, 0f);
-
-                // Rotating flare spike cross
-                if (_flareTex?.Value != null)
-                {
-                    float rot = time * 0.03f;
-                    for (int i = 0; i < 4; i++)
-                    {
-                        float fRot = rot + MathHelper.PiOver2 * i;
-                        Color fCol = Color.Lerp(OpusUtils.GloryGold, OpusUtils.OpusCrimson, (i % 2) * 0.5f);
-                        sb.Draw(_flareTex.Value, drawPos, null, OpusUtils.Additive(fCol, 0.26f),
-                            fRot, _flareTex.Value.Size() / 2f, 0.23f * scale, SpriteEffects.None, 0f);
-                    }
-                }
-
-                OpusUtils.EndAdditive(sb);
-            }
-            catch
-            {
-                try { OpusUtils.EndAdditive(sb); } catch { }
-            }
-        }
-
-        private void DrawSeeker(SpriteBatch sb)
-        {
-            if (_glowTex?.Value == null) return;
-
-            try
-            {
-                // === GPU Shader Trail (Opus Seeker) ===
-                if (OpusShaderLoader.HasSeekerTrail)
-                {
-                    try
-                    {
-                        sb.End();
-                        var shader = OpusShaderLoader.GetSeekerTrail();
-                        if (shader != null)
-                        {
-                            shader.UseColor(OpusUtils.GloryGold.ToVector3());
-                            shader.UseSecondaryColor(OpusUtils.OpusCrimson.ToVector3());
-                            shader.Shader.Parameters["uTime"]?.SetValue(Main.GlobalTimeWrappedHourly * 3f);
-                            shader.Shader.Parameters["uOpacity"]?.SetValue(0.7f);
-
-                            var trailSettings = new OpusTrailSettings(
-                                width: (progress, idx) => 18f * (1f - progress * 0.85f),
-                                color: progress => Color.Lerp(
-                                    OpusUtils.GloryGold with { A = 0 },
-                                    OpusUtils.RoyalPurple with { A = 0 },
-                                    progress) * (1f - progress * 0.8f),
-                                offset: null,
-                                shader: shader);
-
-                            OpusTrailRenderer.RenderTrail(Projectile.oldPos, trailSettings, Projectile.oldPos.Length, 2);
-                        }
-                    }
-                    catch { }
-                    finally
-                    {
-                        sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                            DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-                    }
-                }
-
-                OpusUtils.BeginAdditive(sb);
-
-                float time = (float)Main.timeForVisualEffects;
-                float pulse = 0.9f + MathF.Sin(time * 0.15f) * 0.1f;
-                Vector2 drawPos = Projectile.Center - Main.screenPosition;
-                var tex = _glowTex.Value;
-                Vector2 origin = tex.Size() / 2f;
-
-                // Trail afterimages
-                if (_trailCount > 2)
-                {
-                    for (int i = 0; i < _trailCount - 1; i++)
-                    {
-                        float t = (float)i / _trailCount;
-                        float alpha = (1f - t) * 0.25f;
-                        Vector2 trailPos = _trail[i] - Main.screenPosition;
-                        Color trailCol = Color.Lerp(OpusUtils.GloryGold, OpusUtils.OpusCrimson, t);
-                        sb.Draw(tex, trailPos, null, OpusUtils.Additive(trailCol, alpha * 0.75f),
-                            0f, origin, 0.19f * (1f - t * 0.5f), SpriteEffects.None, 0f);
-                    }
-                }
-
-                // Core glow
-                sb.Draw(tex, drawPos, null, OpusUtils.Additive(OpusUtils.OpusCrimson, 0.38f),
-                    0f, origin, 0.3f * pulse, SpriteEffects.None, 0f);
-                sb.Draw(tex, drawPos, null, OpusUtils.Additive(OpusUtils.GloryGold, 0.3f),
-                    0f, origin, 0.19f * pulse, SpriteEffects.None, 0f);
-                sb.Draw(tex, drawPos, null, OpusUtils.Additive(OpusUtils.OpusWhite, 0.38f),
-                    0f, origin, 0.09f * pulse, SpriteEffects.None, 0f);
-
-                OpusUtils.EndAdditive(sb);
-            }
-            catch
-            {
-                try { OpusUtils.EndAdditive(sb); } catch { }
-            }
-        }
-
-        private void DrawCrystalShard(SpriteBatch sb)
-        {
-            if (_glowTex?.Value == null) return;
-
-            try
-            {
-                OpusUtils.BeginAdditive(sb);
-
-                Vector2 drawPos = Projectile.Center - Main.screenPosition;
-                var tex = _glowTex.Value;
-                Vector2 origin = tex.Size() / 2f;
-
-                // Crystal-like pointed shape using flare
-                if (_flareTex?.Value != null)
-                {
-                    float rot = Projectile.rotation;
-                    sb.Draw(_flareTex.Value, drawPos, null, OpusUtils.Additive(OpusUtils.GloryGold, 0.38f),
-                        rot, _flareTex.Value.Size() / 2f, new Vector2(0.15f, 0.075f), SpriteEffects.None, 0f);
-                }
-
-                // Small glow core
-                sb.Draw(tex, drawPos, null, OpusUtils.Additive(OpusUtils.GloryGold, 0.3f),
-                    0f, origin, 0.15f, SpriteEffects.None, 0f);
-                sb.Draw(tex, drawPos, null, OpusUtils.Additive(OpusUtils.OpusWhite, 0.26f),
-                    0f, origin, 0.08f, SpriteEffects.None, 0f);
-
-                OpusUtils.EndAdditive(sb);
-            }
-            catch
-            {
-                try { OpusUtils.EndAdditive(sb); } catch { }
-            }
         }
     }
 }

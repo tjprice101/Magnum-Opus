@@ -101,6 +101,9 @@ namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D texture = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -118,6 +121,15 @@ namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
 
             Main.EntitySpriteDraw(texture, drawPos, null, lightColor, Projectile.rotation,
                 origin, Projectile.scale, SpriteEffects.None, 0);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -215,6 +227,9 @@ namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D texture = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
             Vector2 origin = texture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -232,6 +247,15 @@ namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
 
             Main.EntitySpriteDraw(texture, drawPos, null, lightColor, Projectile.rotation,
                 origin, Projectile.scale, SpriteEffects.None, 0);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

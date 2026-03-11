@@ -54,40 +54,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             player.GetDamage(DamageClass.Magic) += 0.15f;
 
             // Fire trail effect is handled in player class
-
-            // Infernal ambient particles
-            if (!hideVisual)
-            {
-                // Smoky black particles
-                if (Main.rand.NextBool(10))
-                {
-                    Vector2 pos = player.Center + Main.rand.NextVector2Circular(20f, 20f);
-                    Vector2 vel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(0.5f, 1.5f));
-                    
-                    var smoke = new HeavySmokeParticle(pos, vel, CampanellaColors.Black, 
-                        Main.rand.Next(20, 35), 0.25f, 0.4f, 0.015f, false);
-                    MagnumParticleHandler.SpawnParticle(smoke);
-                }
-
-                // Orange flame licks
-                if (Main.rand.NextBool(8))
-                {
-                    Vector2 pos = player.Center + Main.rand.NextVector2Circular(25f, 25f);
-                    Vector2 vel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -Main.rand.NextFloat(1f, 2f));
-                    Color flameColor = Color.Lerp(CampanellaColors.Orange, CampanellaColors.Yellow, Main.rand.NextFloat());
-                    CustomParticles.GenericGlow(pos, vel, flameColor * 0.7f, 0.25f, 20, true);
-                }
-
-                // Bell shimmer
-                if (Main.rand.NextBool(20))
-                {
-                    ThemedParticles.LaCampanellaSparkles(player.Center, 3, 30f);
-                }
-            }
-
-            // Warm infernal light
-            float flicker = Main.rand.NextFloat(0.8f, 1.0f);
-            Lighting.AddLight(player.Center, CampanellaColors.Orange.ToVector3() * 0.35f * flicker);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -206,60 +172,10 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             // -12% mana cost
             player.manaCost -= 0.12f;
 
-            // Fire immunity
+            // Fire immunity (all fire debuffs)
             player.buffImmune[BuffID.OnFire] = true;
+            player.buffImmune[BuffID.OnFire3] = true;
             player.buffImmune[BuffID.Burning] = true;
-
-            // Enhanced infernal ambient particles
-            if (!hideVisual)
-            {
-                // Heavy smoke billowing
-                if (Main.rand.NextBool(6))
-                {
-                    Vector2 pos = player.Center + Main.rand.NextVector2Circular(25f, 25f);
-                    Vector2 vel = new Vector2(Main.rand.NextFloat(-0.8f, 0.8f), -Main.rand.NextFloat(1f, 2f));
-                    
-                    var smoke = new HeavySmokeParticle(pos, vel, CampanellaColors.Black, 
-                        Main.rand.Next(25, 45), 0.35f, 0.55f, 0.018f, false);
-                    MagnumParticleHandler.SpawnParticle(smoke);
-                }
-
-                // Intense flame orbiting
-                float baseAngle = Main.GameUpdateCount * 0.04f;
-                for (int i = 0; i < 3; i++)
-                {
-                    float angle = baseAngle + MathHelper.TwoPi * i / 3f;
-                    float radius = 25f + (float)Math.Sin(Main.GameUpdateCount * 0.08f + i) * 5f;
-                    Vector2 pos = player.Center + angle.ToRotationVector2() * radius;
-
-                    if (Main.rand.NextBool(8))
-                    {
-                        Color flameColor = Color.Lerp(CampanellaColors.DarkOrange, CampanellaColors.Yellow, (float)i / 3f);
-                        CustomParticles.GenericFlare(pos, flameColor * 0.8f, 0.28f, 10);
-                    }
-                }
-
-                // Rising infernal embers
-                if (Main.rand.NextBool(6))
-                {
-                    Vector2 pos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                    Vector2 vel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(1.5f, 3f));
-                    Color emberColor = Color.Lerp(CampanellaColors.Orange, CampanellaColors.Gold, Main.rand.NextFloat());
-                    CustomParticles.GenericGlow(pos, vel, emberColor * 0.8f, 0.28f, 28, true);
-                }
-
-                // Bell shimmer bursts
-                if (Main.rand.NextBool(15))
-                {
-                    ThemedParticles.LaCampanellaHaloBurst(player.Center, 0.4f);
-                }
-            }
-
-            // Intense infernal light
-            float flicker = Main.rand.NextFloat(0.85f, 1.0f);
-            Vector3 lightColor = Color.Lerp(CampanellaColors.Orange, CampanellaColors.Gold,
-                (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.5f + 0.5f).ToVector3();
-            Lighting.AddLight(player.Center, lightColor * 0.5f * flicker);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)

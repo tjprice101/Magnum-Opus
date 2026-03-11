@@ -111,6 +111,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float opacity = 1f - Projectile.alpha / 255f;
             float radius = CurrentRadius;
@@ -119,7 +121,6 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
             {
                 sb.End();
 
-                Texture2D bloom = MagnumTextureRegistry.GetSoftGlow();
                 Texture2D point = MagnumTextureRegistry.GetPointBloom();
                 Texture2D star = MagnumTextureRegistry.GetStar4Soft();
 
@@ -140,14 +141,6 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
                     time + 50f, opacity * 0.25f, 6);
 
                 float shimmer = 0.85f + 0.15f * MathF.Sin(time * 0.06f);
-
-                // Center bright point
-                if (point != null)
-                {
-                    Vector2 pOrigin = point.Size() * 0.5f;
-                    sb.Draw(point, drawPos, null, Color.White * 0.35f * opacity * shimmer,
-                        0f, pOrigin, 0.12f * shimmer, SpriteEffects.None, 0f);
-                }
 
                 // Star sparkle at center (rotating)
                 if (star != null)
@@ -173,16 +166,16 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
                     }
                 }
 
-                // Rainbow accent dots (slowly rotating inner ring)
-                if (bloom != null)
+                // Rainbow accent dots (slowly rotating inner ring — using PointBloom, no SoftGlow)
+                if (point != null)
                 {
-                    Vector2 bOrigin = bloom.Size() * 0.5f;
+                    Vector2 bOrigin = point.Size() * 0.5f;
                     for (int i = 0; i < 8; i++)
                     {
                         float angle = MathHelper.TwoPi / 8f * i - time * 0.012f;
                         Vector2 accentPos = drawPos + angle.ToRotationVector2() * (radius * 0.75f);
                         Color rc = PearlescentUtils.GetRainbow(i / 8f + time * 0.005f);
-                        sb.Draw(bloom, accentPos, null, rc * 0.1f * opacity, 0f, bOrigin, 0.12f, SpriteEffects.None, 0f);
+                        sb.Draw(point, accentPos, null, rc * 0.15f * opacity, 0f, bOrigin, 0.1f, SpriteEffects.None, 0f);
                     }
                 }
             }
@@ -190,6 +183,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
             finally
             {
                 sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }

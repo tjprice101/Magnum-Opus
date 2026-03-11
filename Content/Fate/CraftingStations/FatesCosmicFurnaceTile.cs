@@ -10,14 +10,14 @@ using MagnumOpus.Common;
 namespace MagnumOpus.Content.Fate.CraftingStations
 {
     /// <summary>
-    /// Fate's Stellar Furnace - Post-Fate smelting station required for all Phase 9 content.
+    /// Fate's Cosmic Furnace - Post-Fate smelting station required for all Phase 9 content.
     /// Unlocks: Nachtmusik, Dies Irae, Ode to Joy, Clair de Lune bar smelting.
     /// Sprite: 48x48 pixels (3x3 tiles)
     /// </summary>
-    public class FatesStellarFurnaceTile : ModTile
+    public class FatesCosmicFurnaceTile : ModTile
     {
         // Use the item texture since tile texture doesn't exist yet
-        public override string Texture => "MagnumOpus/Content/Fate/CraftingStations/FatesStellarFurnace";
+        public override string Texture => "MagnumOpus/Content/Fate/CraftingStations/FatesCosmicFurnace";
         public override void SetStaticDefaults()
         {
             Main.tileFrameImportant[Type] = true;
@@ -32,7 +32,7 @@ namespace MagnumOpus.Content.Fate.CraftingStations
             TileObjectData.newTile.CoordinateWidth = 16;
             TileObjectData.addTile(Type);
 
-            AddMapEntry(new Color(200, 80, 120), Language.GetText("Mods.MagnumOpus.Tiles.FatesStellarFurnaceTile.MapEntry"));
+            AddMapEntry(new Color(200, 80, 120), Language.GetText("Mods.MagnumOpus.Tiles.FatesCosmicFurnaceTile.MapEntry"));
 
             // Cosmic fire dust
             DustType = DustID.PinkTorch;
@@ -112,10 +112,10 @@ namespace MagnumOpus.Content.Fate.CraftingStations
     }
 
     /// <summary>
-    /// The item that places Fate's Stellar Furnace tile.
+    /// The item that places Fate's Cosmic Furnace tile.
     /// Crafted after defeating Fate boss.
     /// </summary>
-    public class FatesStellarFurnace : ModItem
+    public class FatesCosmicFurnace : ModItem
     {
         public override void SetDefaults()
         {
@@ -128,7 +128,7 @@ namespace MagnumOpus.Content.Fate.CraftingStations
             Item.useTime = 10;
             Item.useStyle = ItemUseStyleID.Swing;
             Item.consumable = true;
-            Item.createTile = ModContent.TileType<FatesStellarFurnaceTile>();
+            Item.createTile = ModContent.TileType<FatesCosmicFurnaceTile>();
             Item.value = Item.sellPrice(gold: 15);
             Item.rare = ModContent.RarityType<FateRarity>();
         }

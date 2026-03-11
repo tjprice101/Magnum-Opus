@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Dusts;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Buffs
 {
@@ -124,7 +125,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict.Buffs
 
             if (Main.rand.NextBool(8 - MarkCount * 2))
             {
-                Dust d = Dust.NewDustDirect(npc.position, npc.width, npc.height, DustID.GoldFlame, 0f, -0.8f, 100,
+                Dust d = Dust.NewDustDirect(npc.position, npc.width, npc.height, ModContent.DustType<ElysianMarkGlowDust>(), 0f, -0.8f, 100,
                     Color.Lerp(new Color(255, 200, 50), new Color(255, 255, 240), intensity), 0.4f + intensity * 0.3f);
                 d.noGravity = true;
             }

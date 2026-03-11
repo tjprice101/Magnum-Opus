@@ -161,6 +161,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float pulse = GetPulseIntensity();
 
@@ -187,6 +189,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
 
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
@@ -199,12 +210,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
             Color midColor = GetCurrentPhaseColor(0.5f);
 
             // Outer halo — wide, faint (SoftGlow 1024px — cap to 300px max)
-            sb.Draw(glow, drawPos, null, outerColor * (0.12f * pulse), 0f,
-                origin, 0.293f, SpriteEffects.None, 0f);
+            sb.Draw(glow, drawPos, null, outerColor * (0.07f * pulse), 0f,
+                origin, 0.24f, SpriteEffects.None, 0f);
 
             // Mid halo — moderate
-            sb.Draw(glow, drawPos, null, midColor * (0.18f * pulse), 0f,
-                origin, 0.293f, SpriteEffects.None, 0f);
+            sb.Draw(glow, drawPos, null, midColor * (0.11f * pulse), 0f,
+                origin, 0.2f, SpriteEffects.None, 0f);
         }
 
         private void DrawShaderAura(SpriteBatch sb, Vector2 drawPos, float pulse)
@@ -264,12 +275,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
             Color innerColor = GoliathUtils.StarCore;
 
             // Inner core glow
-            sb.Draw(glowOrb, drawPos, null, innerColor * (0.15f * pulse), 0f,
-                origin, 0.18f, SpriteEffects.None, 0f);
+            sb.Draw(glowOrb, drawPos, null, innerColor * (0.09f * pulse), 0f,
+                origin, 0.12f, SpriteEffects.None, 0f);
 
             // Phase-tinted core
-            sb.Draw(glowOrb, drawPos, null, coreColor * (0.1f * pulse), 0f,
-                origin, 0.25f, SpriteEffects.None, 0f);
+            sb.Draw(glowOrb, drawPos, null, coreColor * (0.06f * pulse), 0f,
+                origin, 0.17f, SpriteEffects.None, 0f);
         }
 
         public override Color? GetAlpha(Color lightColor) => Color.White;

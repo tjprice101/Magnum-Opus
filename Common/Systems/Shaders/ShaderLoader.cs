@@ -15,7 +15,7 @@ namespace MagnumOpus.Common.Systems.Shaders
     /// 
     /// tModLoader auto-compiles .fx files placed in the Effects/ folder
     /// into FNA-compatible effect bytecode at build time. Do NOT place
-    /// pre-compiled .fxc files here — they use DirectX bytecode that is
+    /// pre-compiled .fxc files here  Ethey use DirectX bytecode that is
     /// incompatible with FNA's MojoShader runtime.
     /// 
     /// Usage:
@@ -58,191 +58,191 @@ namespace MagnumOpus.Common.Systems.Shaders
         public const string NachtmusikSerenadeShader = "Nachtmusik/NachtmusikSerenade";
         public const string TerraBladeFlareBeamShaderName = "TerraBladeFlareBeamShader";
 
-        // Nachtmusik — NocturnalExecutioner weapon-specific shaders
+        // Nachtmusik  ENocturnalExecutioner weapon-specific shaders
         public const string ExecutionDecreeShader = "Nachtmusik/NocturnalExecutioner/ExecutionDecree";
 
-        // Nachtmusik — MidnightsCrescendo weapon-specific shaders
+        // Nachtmusik  EMidnightsCrescendo weapon-specific shaders
         public const string CrescendoRiseShader = "Nachtmusik/MidnightsCrescendo/CrescendoRise";
 
-        // Nachtmusik — TwilightSeverance weapon-specific shaders
+        // Nachtmusik  ETwilightSeverance weapon-specific shaders
         public const string DimensionalRiftShader = "Nachtmusik/TwilightSeverance/DimensionalRift";
 
-        // Nachtmusik — ConstellationPiercer weapon-specific shaders
+        // Nachtmusik  EConstellationPiercer weapon-specific shaders
         public const string StarChainBeamShader = "Nachtmusik/ConstellationPiercer/StarChainBeam";
 
-        // Nachtmusik — NebulasWhisper weapon-specific shaders
+        // Nachtmusik  ENebulasWhisper weapon-specific shaders
         public const string NebulaScatterShader = "Nachtmusik/NebulasWhisper/NebulaScatter";
 
-        // Nachtmusik — SerenadeOfDistantStars weapon-specific shaders
+        // Nachtmusik  ESerenadeOfDistantStars weapon-specific shaders
         public const string StarHomingTrailShader = "Nachtmusik/SerenadeOfDistantStars/StarHomingTrail";
 
-        // Nachtmusik — StarweaversGrimoire weapon-specific shaders
+        // Nachtmusik  EStarweaversGrimoire weapon-specific shaders
         public const string ConstellationWeaveShader = "Nachtmusik/StarweaversGrimoire/ConstellationWeave";
 
-        // Nachtmusik — RequiemOfTheCosmos weapon-specific shaders
+        // Nachtmusik  ERequiemOfTheCosmos weapon-specific shaders
         public const string CosmicRequiemShader = "Nachtmusik/RequiemOfTheCosmos/CosmicRequiem";
 
-        // Nachtmusik — CelestialChorusBaton weapon-specific shaders
+        // Nachtmusik  ECelestialChorusBaton weapon-specific shaders
         public const string ChorusSummonAuraShader = "Nachtmusik/CelestialChorusBaton/ChorusSummonAura";
 
-        // Nachtmusik — GalacticOverture weapon-specific shaders
+        // Nachtmusik  EGalacticOverture weapon-specific shaders
         public const string OvertureAuraShader = "Nachtmusik/GalacticOverture/OvertureAura";
 
-        // Nachtmusik — ConductorOfConstellations weapon-specific shaders
+        // Nachtmusik  EConductorOfConstellations weapon-specific shaders
         public const string StellarConductorAuraShader = "Nachtmusik/ConductorOfConstellations/StellarConductorAura";
         public const string IncisorResonanceShader = "MoonlightSonata/IncisorOfMoonlight/IncisorResonance";
         public const string ConstellationFieldShader = "MoonlightSonata/IncisorOfMoonlight/ConstellationField";
 
-        // Eroica — SakurasBlossom weapon-specific shaders
+        // Eroica  ESakurasBlossom weapon-specific shaders
         public const string SakuraSwingTrailShader = "Eroica/SakurasBlossom/SakuraSwingTrail";
         public const string PetalDissolveShader = "Eroica/SakurasBlossom/PetalDissolve";
 
-        // Eroica — CelestialValor weapon-specific shaders
+        // Eroica  ECelestialValor weapon-specific shaders
         public const string ValorAuraShader = "Eroica/CelestialValor/ValorAura";
 
-        // Eroica — BlossomOfTheSakura weapon-specific shaders
+        // Eroica  EBlossomOfTheSakura weapon-specific shaders
         public const string HeatDistortionShader = "Eroica/BlossomOfTheSakura/HeatDistortion";
         public const string TracerTrailShader = "Eroica/BlossomOfTheSakura/TracerTrail";
 
-        // Eroica — PiercingLightOfTheSakura weapon-specific shaders
+        // Eroica  EPiercingLightOfTheSakura weapon-specific shaders
         public const string CrescendoChargeShader = "Eroica/PiercingLightOfTheSakura/CrescendoCharge";
         public const string SakuraLightningTrailShader = "Eroica/PiercingLightOfTheSakura/SakuraLightningTrail";
 
-        // Eroica — FuneralPrayer weapon-specific shaders
+        // Eroica  EFuneralPrayer weapon-specific shaders
         public const string RequiemBeamShader = "Eroica/FuneralPrayer/RequiemBeam";
         public const string PrayerConvergenceShader = "Eroica/FuneralPrayer/PrayerConvergence";
 
-        // Eroica — TriumphantFractal weapon-specific shaders
+        // Eroica  ETriumphantFractal weapon-specific shaders
         public const string SacredGeometryShader = "Eroica/TriumphantFractal/SacredGeometry";
 
-        // Eroica — FinalityOfTheSakura weapon-specific shaders
+        // Eroica  EFinalityOfTheSakura weapon-specific shaders
         public const string FateSummonCircleShader = "Eroica/FinalityOfTheSakura/FateSummonCircle";
         public const string DarkFlameAuraShader = "Eroica/FinalityOfTheSakura/DarkFlameAura";
 
-        // Moonlight Sonata — EternalMoon weapon-specific shaders
+        // Moonlight Sonata  EEternalMoon weapon-specific shaders
         public const string TidalTrailShader = "MoonlightSonata/EternalMoon/TidalTrail";
         public const string CrescentBloomShader = "MoonlightSonata/EternalMoon/CrescentBloom";
         public const string LunarPhaseAuraShader = "MoonlightSonata/EternalMoon/LunarPhaseAura";
 
-        // Moonlight Sonata — MoonlightsCalling weapon-specific shaders
+        // Moonlight Sonata  EMoonlightsCalling weapon-specific shaders
         public const string PrismaticBeamShader = "MoonlightSonata/MoonlightsCalling/PrismaticBeam";
         public const string RefractionRippleShader = "MoonlightSonata/MoonlightsCalling/RefractionRipple";
 
-        // Moonlight Sonata — ResurrectionOfTheMoon weapon-specific shaders
+        // Moonlight Sonata  EResurrectionOfTheMoon weapon-specific shaders
         public const string CometTrailShader = "MoonlightSonata/ResurrectionOfTheMoon/CometTrail";
         public const string SupernovaBlastShader = "MoonlightSonata/ResurrectionOfTheMoon/SupernovaBlast";
 
-        // Moonlight Sonata — StaffOfTheLunarPhases weapon-specific shaders
+        // Moonlight Sonata  EStaffOfTheLunarPhases weapon-specific shaders
         public const string GravitationalRiftShader = "MoonlightSonata/StaffOfTheLunarPhases/GravitationalRift";
         public const string SummonCircleShader = "MoonlightSonata/StaffOfTheLunarPhases/SummonCircle";
 
-        // Swan Lake — CalloftheBlackSwan weapon-specific shaders
+        // Swan Lake  ECalloftheBlackSwan weapon-specific shaders
         public const string DualPolaritySwingShader = "SwanLake/CalloftheBlackSwan/DualPolaritySwing";
         public const string SwanFlareTrailShader = "SwanLake/CalloftheBlackSwan/SwanFlareTrail";
 
-        // Swan Lake — CallofthePearlescentLake weapon-specific shaders
+        // Swan Lake  ECallofthePearlescentLake weapon-specific shaders
         public const string PearlescentRocketTrailShader = "SwanLake/CallofthePearlescentLake/PearlescentRocketTrail";
         public const string LakeExplosionShader = "SwanLake/CallofthePearlescentLake/LakeExplosion";
 
-        // Swan Lake — ChromaticSwanSong weapon-specific shaders
+        // Swan Lake  EChromaticSwanSong weapon-specific shaders
         public const string ChromaticTrailShader = "SwanLake/ChromaticSwanSong/ChromaticTrail";
         public const string AriaExplosionShader = "SwanLake/ChromaticSwanSong/AriaExplosion";
 
-        // Swan Lake — FeatheroftheIridescentFlock weapon-specific shaders
+        // Swan Lake  EFeatheroftheIridescentFlock weapon-specific shaders
         public const string CrystalOrbitTrailShader = "SwanLake/FeatheroftheIridescentFlock/CrystalOrbitTrail";
         public const string FlockAuraShader = "SwanLake/FeatheroftheIridescentFlock/FlockAura";
 
-        // Swan Lake — IridescentWingspan weapon-specific shaders
+        // Swan Lake  EIridescentWingspan weapon-specific shaders
         public const string EtherealWingShader = "SwanLake/IridescentWingspan/EtherealWing";
         public const string WingspanFlareTrailShader = "SwanLake/IridescentWingspan/WingspanFlareTrail";
 
-        // Swan Lake — TheSwansLament weapon-specific shaders
+        // Swan Lake  ETheSwansLament weapon-specific shaders
         public const string LamentBulletTrailShader = "SwanLake/TheSwansLament/LamentBulletTrail";
         public const string DestructionRevelationShader = "SwanLake/TheSwansLament/DestructionRevelation";
 
-        // Clair de Lune — theme-wide shaders
+        // Clair de Lune  Etheme-wide shaders
         public const string ClairDeLuneMoonlitShader = "ClairDeLune/ClairDeLuneMoonlit";
         public const string ClairDeLunePearlGlowShader = "ClairDeLune/ClairDeLunePearlGlow";
 
-        // Clair de Lune — Chronologicality weapon-specific shaders
+        // Clair de Lune  EChronologicality weapon-specific shaders
         public const string TemporalDrillShader = "ClairDeLune/Chronologicality/TemporalDrill";
 
-        // Clair de Lune — TemporalPiercer weapon-specific shaders
+        // Clair de Lune  ETemporalPiercer weapon-specific shaders
         public const string CrystalLanceShader = "ClairDeLune/TemporalPiercer/CrystalLance";
 
-        // Clair de Lune — ClockworkHarmony weapon-specific shaders
+        // Clair de Lune  EClockworkHarmony weapon-specific shaders
         public const string GearSwingShader = "ClairDeLune/ClockworkHarmony/GearSwing";
 
-        // Clair de Lune — ClockworkGrimoire weapon-specific shaders
+        // Clair de Lune  EClockworkGrimoire weapon-specific shaders
         public const string ArcanePagesShader = "ClairDeLune/ClockworkGrimoire/ArcanePages";
 
-        // Clair de Lune — OrreryOfDreams weapon-specific shaders
+        // Clair de Lune  EOrreryOfDreams weapon-specific shaders
         public const string CelestialOrbitShader = "ClairDeLune/OrreryOfDreams/CelestialOrbit";
 
-        // Clair de Lune — RequiemOfTime weapon-specific shaders
+        // Clair de Lune  ERequiemOfTime weapon-specific shaders
         public const string TimeFreezeSlashShader = "ClairDeLune/RequiemOfTime/TimeFreezeSlash";
 
-        // Clair de Lune — StarfallWhisper weapon-specific shaders
+        // Clair de Lune  EStarfallWhisper weapon-specific shaders
         public const string StarfallTrailShader = "ClairDeLune/StarfallWhisper/StarfallTrail";
 
-        // Clair de Lune — MidnightMechanism weapon-specific shaders
+        // Clair de Lune  EMidnightMechanism weapon-specific shaders
         public const string GatlingBlurShader = "ClairDeLune/MidnightMechanism/GatlingBlur";
 
-        // Clair de Lune — CogAndHammer weapon-specific shaders
+        // Clair de Lune  ECogAndHammer weapon-specific shaders
         public const string SingularityPullShader = "ClairDeLune/CogAndHammer/SingularityPull";
 
-        // Clair de Lune — LunarPhylactery weapon-specific shaders
+        // Clair de Lune  ELunarPhylactery weapon-specific shaders
         public const string SoulBeamShader = "ClairDeLune/LunarPhylactery/SoulBeam";
 
-        // Clair de Lune — GearDrivenArbiter weapon-specific shaders
+        // Clair de Lune  EGearDrivenArbiter weapon-specific shaders
         public const string JudgmentMarkShader = "ClairDeLune/GearDrivenArbiter/JudgmentMark";
 
-        // Clair de Lune — AutomatonsTuningFork weapon-specific shaders
+        // Clair de Lune  EAutomatonsTuningFork weapon-specific shaders
         public const string ResonanceFieldShader = "ClairDeLune/AutomatonsTuningFork/ResonanceField";
 
-        // Enigma Variations — VariationsOfTheVoid weapon-specific shaders
+        // Enigma Variations  EVariationsOfTheVoid weapon-specific shaders
         public const string VoidSwingTrailShader = "EnigmaVariations/VariationsOfTheVoid/VoidVariationSwingTrail";
         public const string VoidBeamShader = "EnigmaVariations/VariationsOfTheVoid/VoidVariationBeam";
 
-        // Enigma Variations — TheUnresolvedCadence weapon-specific shaders
+        // Enigma Variations  ETheUnresolvedCadence weapon-specific shaders
         public const string CadenceSwingTrailShader = "EnigmaVariations/TheUnresolvedCadence/CadenceSwingTrail";
         public const string CadenceCollapseShader = "EnigmaVariations/TheUnresolvedCadence/CadenceCollapse";
 
-        // Enigma Variations — CipherNocturne weapon-specific shaders
+        // Enigma Variations  ECipherNocturne weapon-specific shaders
         public const string CipherBeamTrailShader = "EnigmaVariations/CipherNocturne/CipherBeamTrail";
         public const string CipherSnapBackShader = "EnigmaVariations/CipherNocturne/CipherSnapBack";
 
-        // Enigma Variations — TheSilentMeasure weapon-specific shaders
+        // Enigma Variations  ETheSilentMeasure weapon-specific shaders
         public const string SilentSeekerTrailShader = "EnigmaVariations/TheSilentMeasure/SilentSeekerTrail";
         public const string SilentQuestionBurstShader = "EnigmaVariations/TheSilentMeasure/SilentQuestionBurst";
 
-        // Enigma Variations — TacetsEnigma weapon-specific shaders
+        // Enigma Variations  ETacetsEnigma weapon-specific shaders
         public const string TacetBulletTrailShader = "EnigmaVariations/TacetsEnigma/TacetBulletTrail";
         public const string TacetParadoxExplosionShader = "EnigmaVariations/TacetsEnigma/TacetParadoxExplosion";
 
-        // Enigma Variations — TheWatchingRefrain weapon-specific shaders
+        // Enigma Variations  ETheWatchingRefrain weapon-specific shaders
         public const string WatchingPhantomAuraShader = "EnigmaVariations/TheWatchingRefrain/WatchingPhantomAura";
         public const string WatchingMysteryZoneShader = "EnigmaVariations/TheWatchingRefrain/WatchingMysteryZone";
 
-        // Enigma Variations — DissonanceOfSecrets weapon-specific shaders
+        // Enigma Variations  EDissonanceOfSecrets weapon-specific shaders
         public const string DissonanceOrbAuraShader = "EnigmaVariations/DissonanceOfSecrets/DissonanceOrbAura";
         public const string DissonanceRiddleTrailShader = "EnigmaVariations/DissonanceOfSecrets/DissonanceRiddleTrail";
 
-        // Enigma Variations — FugueOfTheUnknown weapon-specific shaders
+        // Enigma Variations  EFugueOfTheUnknown weapon-specific shaders
         public const string FugueVoiceTrailShader = "EnigmaVariations/FugueOfTheUnknown/FugueVoiceTrail";
         public const string FugueConvergenceShader = "EnigmaVariations/FugueOfTheUnknown/FugueConvergence";
 
-        // Ode to Joy — theme-wide shared shaders
+        // Ode to Joy  Etheme-wide shared shaders
         public const string OdeToJoyTriumphantTrailShader = "OdeToJoy/TriumphantTrail";
         public const string OdeToJoyGardenBloomShader = "OdeToJoy/GardenBloom";
         public const string OdeToJoyCelebrationAuraShader = "OdeToJoy/CelebrationAura";
 
-        // Ode to Joy — weapon-class-specific shaders
+        // Ode to Joy  Eweapon-class-specific shaders
         public const string OdeToJoyVerdantSlashShader = "OdeToJoy/VerdantSlash";
         public const string OdeToJoyPollenDriftShader = "OdeToJoy/PollenDrift";
         public const string OdeToJoyJubilantHarmonyShader = "OdeToJoy/JubilantHarmony";
 
-        // Noise texture names (without extension) - in Assets/VFX/Noise/
+        // Noise texture names (without extension) - in Assets/VFX Asset Library/NoiseTextures/
         private static readonly string[] NoiseTextureNames = new[]
         {
             "PerlinNoise",
@@ -260,7 +260,7 @@ namespace MagnumOpus.Common.Systems.Shaders
             "NoiseSmoke",
             "RealityCrackPattern",
             "SoftCircularCaustics",
-            "SparklyNoiseTexture",
+            "SimplexNoise",
             "StarFieldScatter",
             "UniversalRadialFlowNoise"
         };
@@ -373,7 +373,7 @@ namespace MagnumOpus.Common.Systems.Shaders
                 LoadShader(NachtmusikSerenadeShader);
                 LoadShader(TerraBladeFlareBeamShaderName);
 
-                // Nachtmusik — per-weapon shaders
+                // Nachtmusik  Eper-weapon shaders
                 LoadShader(ExecutionDecreeShader);
                 LoadShader(CrescendoRiseShader);
                 LoadShader(DimensionalRiftShader);
@@ -388,78 +388,78 @@ namespace MagnumOpus.Common.Systems.Shaders
                 LoadShader(IncisorResonanceShader);
                 LoadShader(ConstellationFieldShader);
 
-                // Eroica — SakurasBlossom shaders
+                // Eroica  ESakurasBlossom shaders
                 LoadShader(SakuraSwingTrailShader);
                 LoadShader(PetalDissolveShader);
 
-                // Eroica — CelestialValor shaders
+                // Eroica  ECelestialValor shaders
                 LoadShader(ValorAuraShader);
 
-                // Eroica — BlossomOfTheSakura shaders
+                // Eroica  EBlossomOfTheSakura shaders
                 LoadShader(HeatDistortionShader);
                 LoadShader(TracerTrailShader);
 
-                // Eroica — PiercingLightOfTheSakura shaders
+                // Eroica  EPiercingLightOfTheSakura shaders
                 LoadShader(CrescendoChargeShader);
                 LoadShader(SakuraLightningTrailShader);
 
-                // Eroica — FuneralPrayer shaders
+                // Eroica  EFuneralPrayer shaders
                 LoadShader(RequiemBeamShader);
                 LoadShader(PrayerConvergenceShader);
 
-                // Eroica — TriumphantFractal shaders
+                // Eroica  ETriumphantFractal shaders
                 LoadShader(SacredGeometryShader);
 
-                // Eroica — FinalityOfTheSakura shaders
+                // Eroica  EFinalityOfTheSakura shaders
                 LoadShader(FateSummonCircleShader);
                 LoadShader(DarkFlameAuraShader);
 
-                // Moonlight Sonata — EternalMoon shaders
+                // Moonlight Sonata  EEternalMoon shaders
                 LoadShader(TidalTrailShader);
                 LoadShader(CrescentBloomShader);
                 LoadShader(LunarPhaseAuraShader);
 
-                // Moonlight Sonata — MoonlightsCalling shaders
+                // Moonlight Sonata  EMoonlightsCalling shaders
                 LoadShader(PrismaticBeamShader);
                 LoadShader(RefractionRippleShader);
 
-                // Moonlight Sonata — ResurrectionOfTheMoon shaders
+                // Moonlight Sonata  EResurrectionOfTheMoon shaders
                 LoadShader(CometTrailShader);
                 LoadShader(SupernovaBlastShader);
 
-                // Moonlight Sonata — StaffOfTheLunarPhases shaders
+                // Moonlight Sonata  EStaffOfTheLunarPhases shaders
                 LoadShader(GravitationalRiftShader);
                 LoadShader(SummonCircleShader);
 
-                // Swan Lake — CalloftheBlackSwan shaders
+                // Swan Lake  ECalloftheBlackSwan shaders
                 LoadShader(DualPolaritySwingShader);
                 LoadShader(SwanFlareTrailShader);
 
-                // Swan Lake — CallofthePearlescentLake shaders
+                // Swan Lake  ECallofthePearlescentLake shaders
                 LoadShader(PearlescentRocketTrailShader);
                 LoadShader(LakeExplosionShader);
 
-                // Swan Lake — ChromaticSwanSong shaders
+                // Swan Lake  EChromaticSwanSong shaders
                 LoadShader(ChromaticTrailShader);
                 LoadShader(AriaExplosionShader);
 
-                // Swan Lake — FeatheroftheIridescentFlock shaders
+                // Swan Lake  EFeatheroftheIridescentFlock shaders
                 LoadShader(CrystalOrbitTrailShader);
                 LoadShader(FlockAuraShader);
 
-                // Swan Lake — IridescentWingspan shaders
+                // Swan Lake  EIridescentWingspan shaders
                 LoadShader(EtherealWingShader);
                 LoadShader(WingspanFlareTrailShader);
 
-                // Swan Lake — TheSwansLament shaders
+                // Swan Lake  ETheSwansLament shaders
                 LoadShader(LamentBulletTrailShader);
                 LoadShader(DestructionRevelationShader);
 
-                // Clair de Lune — theme-wide shaders
+                // Clair de Lune  Etheme-wide shaders
                 LoadShader(ClairDeLuneMoonlitShader);
                 LoadShader(ClairDeLunePearlGlowShader);
 
-                // Clair de Lune — per-weapon shaders
+                // Clair de Lune  Eper-weapon shaders
                 LoadShader(TemporalDrillShader);
                 LoadShader(CrystalLanceShader);
                 LoadShader(GearSwingShader);
@@ -473,7 +473,7 @@ namespace MagnumOpus.Common.Systems.Shaders
                 LoadShader(JudgmentMarkShader);
                 LoadShader(ResonanceFieldShader);
 
-                // Enigma Variations — per-weapon shaders
+                // Enigma Variations  Eper-weapon shaders
                 LoadShader(VoidSwingTrailShader);
                 LoadShader(VoidBeamShader);
                 LoadShader(CadenceSwingTrailShader);
@@ -491,7 +491,7 @@ namespace MagnumOpus.Common.Systems.Shaders
                 LoadShader(FugueVoiceTrailShader);
                 LoadShader(FugueConvergenceShader);
 
-                // Ode to Joy — theme-wide + weapon-class shaders
+                // Ode to Joy  Etheme-wide + weapon-class shaders
                 LoadShader(OdeToJoyTriumphantTrailShader);
                 LoadShader(OdeToJoyGardenBloomShader);
                 LoadShader(OdeToJoyCelebrationAuraShader);
@@ -499,9 +499,9 @@ namespace MagnumOpus.Common.Systems.Shaders
                 LoadShader(OdeToJoyPollenDriftShader);
                 LoadShader(OdeToJoyJubilantHarmonyShader);
 
-                // ═══════════════════════════════════════════════════════
-                // BOSS SHADERS — loaded via BossShaderManager key paths
-                // ═══════════════════════════════════════════════════════
+                // ══════════════════════════════════════════════════════╁E
+                // BOSS SHADERS  Eloaded via BossShaderManager key paths
+                // ══════════════════════════════════════════════════════╁E
 
                 // Eroica boss
                 LoadShader(BossShaderManager.EroicaValorAura);
@@ -587,9 +587,9 @@ namespace MagnumOpus.Common.Systems.Shaders
                 LoadShader(BossShaderManager.InvernoFreezeRay);
                 LoadShader(BossShaderManager.InvernoAbsoluteZeroDissolve);
 
-                // ═══════════════════════════════════════════════════════
-                // ENEMY SHADERS — 2 per mini-boss enemy (Aura + Trail)
-                // ═══════════════════════════════════════════════════════
+                // ══════════════════════════════════════════════════════╁E
+                // ENEMY SHADERS  E2 per mini-boss enemy (Aura + Trail)
+                // ══════════════════════════════════════════════════════╁E
 
                 // Waning Deer (Moonlight Sonata)
                 LoadShader(EnemyShaderManager.WaningDeerLunarAura);
@@ -675,7 +675,7 @@ namespace MagnumOpus.Common.Systems.Shaders
                 if (!ModContent.HasAsset(path))
                 {
                     ModContent.GetInstance<MagnumOpus>()?.Logger.Warn(
-                        $"ShaderLoader: Shader '{shaderName}' not found at '{path}' — skipping.");
+                        $"ShaderLoader: Shader '{shaderName}' not found at '{path}'  Eskipping.");
                     return;
                 }
 
@@ -709,7 +709,7 @@ namespace MagnumOpus.Common.Systems.Shaders
                 if (!ModContent.HasAsset(assetPath))
                 {
                     ModContent.GetInstance<MagnumOpus>()?.Logger.Info(
-                        $"ShaderLoader: Texture '{key}' not found at '{assetPath}' — skipping.");
+                        $"ShaderLoader: Texture '{key}' not found at '{assetPath}'  Eskipping.");
                     return false;
                 }
 
@@ -1055,7 +1055,7 @@ namespace MagnumOpus.Common.Systems.Shaders
 
         /// <summary>
         /// Gets a noise texture by name (case-insensitive). Returns null if not found.
-        /// Names match filenames without extension in Assets/VFX/Noise/.
+        /// Names match filenames without extension in Assets/VFX Asset Library/NoiseTextures/.
         /// </summary>
         public static Texture2D GetNoiseTexture(string name)
         {
@@ -1090,7 +1090,7 @@ namespace MagnumOpus.Common.Systems.Shaders
         }
 
         // =====================================================================
-        //  Style → Default Texture Mapping
+        //  Style ↁEDefault Texture Mapping
         // =====================================================================
 
         /// <summary>
@@ -1105,11 +1105,11 @@ namespace MagnumOpus.Common.Systems.Shaders
             // 0=Flame, 1=Ice, 2=Lightning, 3=Nature, 4=Cosmic
             string name = style switch
             {
-                0 => "PerlinNoise",                // Flame — organic swirls
-                1 => "SoftCircularCaustics",       // Ice — smooth caustic patterns
-                2 => "SparklyNoiseTexture",        // Lightning — sharp sparkle patterns
-                3 => "TileableFBMNoise",           // Nature — layered natural noise
-                4 => "CosmicNebulaClouds",         // Cosmic — nebula cloud patterns
+                0 => "PerlinNoise",                // Flame  Eorganic swirls
+                1 => "SoftCircularCaustics",       // Ice  Esmooth caustic patterns
+                2 => "SimplexNoise",        // Lightning  Esharp sparkle patterns
+                3 => "TileableFBMNoise",           // Nature  Elayered natural noise
+                4 => "CosmicNebulaClouds",         // Cosmic  Enebula cloud patterns
                 _ => "PerlinNoise"                 // Fallback
             };
             return GetNoiseTexture(name);
@@ -1127,11 +1127,11 @@ namespace MagnumOpus.Common.Systems.Shaders
             // 0=Flame, 1=Cosmic, 2=Energy, 3=Void, 4=Holy
             string name = scrollStyle switch
             {
-                0 => "NoiseSmoke",                 // Flame — wispy smoke noise
-                1 => "CosmicEnergyVortex",         // Cosmic — swirling vortex energy
-                2 => "HorizontalEnergyGradient",   // Energy — horizontal flow gradient
-                3 => "NebulaWispNoise",            // Void — dark nebula wisps
-                4 => "UniversalRadialFlowNoise",   // Holy — radial emanation
+                0 => "NoiseSmoke",                 // Flame  Ewispy smoke noise
+                1 => "CosmicEnergyVortex",         // Cosmic  Eswirling vortex energy
+                2 => "HorizontalEnergyGradient",   // Energy  Ehorizontal flow gradient
+                3 => "NebulaWispNoise",            // Void  Edark nebula wisps
+                4 => "UniversalRadialFlowNoise",   // Holy  Eradial emanation
                 _ => "PerlinNoise"                 // Fallback
             };
             return GetNoiseTexture(name);

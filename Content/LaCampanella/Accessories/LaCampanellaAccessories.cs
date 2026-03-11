@@ -51,23 +51,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             
             // Damage boost to burning enemies
             player.GetDamage(DamageClass.Generic) += 0.12f;
-            
-            // === SIGNATURE ACCESSORY AURA - VIBRANT PARTICLES! ===
-            if (!hideVisual)
-            {
-                ThemedParticles.LaCampanellaHoldAura(player.Center, 0.5f);
-                
-                // Bellfire aura (visual)
-                if (Main.rand.NextBool(8))
-                {
-                    Vector2 offset = Main.rand.NextVector2Circular(60f, 60f);
-                    Dust flame = Dust.NewDustPerfect(player.Center + offset, DustID.Torch,
-                        Vector2.Zero, 100, ThemedParticles.CampanellaOrange, 1.5f);
-                    flame.noGravity = true;
-                }
-            }
-            
-            Lighting.AddLight(player.Center, 0.4f, 0.2f, 0.05f);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -274,20 +257,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             
             // Attack speed
             player.GetAttackSpeed(DamageClass.Generic) += 0.08f;
-            
-            // === SIGNATURE ACCESSORY AURA - VIBRANT PARTICLES! ===
-            if (!hideVisual)
-            {
-                ThemedParticles.LaCampanellaHoldAura(player.Center, 0.6f);
-                
-                // Visual
-                if (Main.rand.NextBool(15))
-                {
-                    Dust glow = Dust.NewDustPerfect(player.Center + Main.rand.NextVector2Circular(20f, 20f),
-                        DustID.Torch, -player.velocity * 0.1f, 100, ThemedParticles.CampanellaYellow, 1f);
-                    glow.noGravity = true;
-                }
-            }
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -413,25 +382,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             {
                 player.statDefense += 15;
             }
-            
-            // === SIGNATURE ACCESSORY AURA - VIBRANT PARTICLES! ===
-            if (!hideVisual)
-            {
-                ThemedParticles.LaCampanellaHoldAura(player.Center, 0.7f);
-                
-                // Visual aura
-                if (Main.rand.NextBool(10))
-                {
-                    float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
-                    Vector2 offset = angle.ToRotationVector2() * 40f;
-                    
-                    Dust orbit = Dust.NewDustPerfect(player.Center + offset, DustID.Torch,
-                        angle.ToRotationVector2().RotatedBy(MathHelper.PiOver2) * 2f, 100, ThemedParticles.CampanellaYellow, 1.3f);
-                    orbit.noGravity = true;
-                }
-            }
-            
-            Lighting.AddLight(player.Center, 0.5f, 0.3f, 0.1f);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -463,6 +413,14 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             tooltips.Add(new TooltipLine(Mod, "Cooldown", "Bell barrier has a 30 second cooldown")
             {
                 OverrideColor = Color.Gray
+            });
+            tooltips.Add(new TooltipLine(Mod, "HealingPillar", "Killing enemies creates healing fire pillars (+15 HP when nearby)")
+            {
+                OverrideColor = campanellaYellow
+            });
+            tooltips.Add(new TooltipLine(Mod, "BellKnockback", "Bell barrier knocks back enemies and applies Resonant Toll")
+            {
+                OverrideColor = campanellaYellow
             });
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Within the blazing sanctuary, even the flames sing prayers of protection'")
             {
@@ -715,34 +673,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             
             // Fire mastery - attacks deal fire damage
             modPlayer.fireInfusionActive = true;
-            
-            // === SIGNATURE ACCESSORY AURA - ULTIMATE VIBRANT PARTICLES! ===
-            if (!hideVisual)
-            {
-                ThemedParticles.LaCampanellaHoldAura(player.Center, 1f);
-                
-                // Infernal aura visual - Fire swirl
-                for (int i = 0; i < 2; i++)
-                {
-                    float angle = Main.GameUpdateCount * 0.05f + i * MathHelper.Pi;
-                    Vector2 offset = angle.ToRotationVector2() * (50f + (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 10f);
-                    
-                    Dust flame = Dust.NewDustPerfect(player.Center + offset, DustID.Torch,
-                        angle.ToRotationVector2().RotatedBy(MathHelper.PiOver2) * 3f, 100, ThemedParticles.CampanellaOrange, 2f);
-                    flame.noGravity = true;
-                }
-                
-                // Random sparks
-                if (Main.rand.NextBool(3))
-                {
-                    Vector2 sparkPos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
-                    Dust spark = Dust.NewDustPerfect(sparkPos, DustID.Torch,
-                        Main.rand.NextVector2Circular(2f, 2f), 100, ThemedParticles.CampanellaYellow, 1.5f);
-                    spark.noGravity = true;
-                }
-            }
-            
-            Lighting.AddLight(player.Center, 0.8f, 0.4f, 0.15f);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -783,7 +713,11 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             {
                 OverrideColor = campanellaYellow
             });
-            tooltips.Add(new TooltipLine(Mod, "FireInfusion", "Fire Mastery: Attacks deal additional fire damage")
+            tooltips.Add(new TooltipLine(Mod, "FireInfusion", "Fire Mastery: Critical hits deal 25% bonus fire damage")
+            {
+                OverrideColor = campanellaYellow
+            });
+            tooltips.Add(new TooltipLine(Mod, "ResonantToll", "+5% damage per Resonant Toll stack on target")
             {
                 OverrideColor = campanellaYellow
             });

@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using Terraria;
@@ -127,124 +127,6 @@ namespace MagnumOpus.Content.Common.Accessories
             player.buffImmune[BuffID.Slow] = true;
             player.buffImmune[BuffID.Darkness] = true;
             player.buffImmune[BuffID.Silenced] = true;
-            
-            // ============================================
-            // === ULTIMATE AMBIENT VFX ===
-            // ============================================
-            if (!hideVisual)
-            {
-                // GRAND ORBITAL SYSTEM - 14 elements
-                if (Main.GameUpdateCount % 4 == 0)
-                {
-                    float baseAngle = Main.GameUpdateCount * 0.008f;
-                    
-                    // Inner ring - 5 themes
-                    Color[] themeColors = {
-                        MoonlightPurple, EroicaGold, CampanellaOrange,
-                        EnigmaPurple, SwanWhite
-                    };
-                    
-                    for (int i = 0; i < 5; i++)
-                    {
-                        float angle = baseAngle + MathHelper.TwoPi * i / 5f;
-                        float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.03f + i * 0.7f) * 4f;
-                        Vector2 pos = player.Center + angle.ToRotationVector2() * (35f + pulse);
-                        CustomParticles.GenericFlare(pos, themeColors[i], 0.38f, 14);
-                    }
-                    
-                    // Middle ring - 4 seasons
-                    Color[] seasonColors = { SpringPink, SummerGold, AutumnOrange, WinterBlue };
-                    
-                    for (int i = 0; i < 4; i++)
-                    {
-                        float angle = -baseAngle * 1.2f + MathHelper.TwoPi * i / 4f;
-                        float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f + i * 0.8f) * 5f;
-                        Vector2 pos = player.Center + angle.ToRotationVector2() * (55f + pulse);
-                        CustomParticles.GenericFlare(pos, seasonColors[i], 0.35f, 14);
-                    }
-                    
-                    // Outer ring - 3 Fate cosmic points
-                    Color[] fateColors = { FateDarkPink, FateBrightRed, Color.White };
-                    
-                    for (int i = 0; i < 3; i++)
-                    {
-                        float angle = baseAngle * 0.6f + MathHelper.TwoPi * i / 3f;
-                        Vector2 pos = player.Center + angle.ToRotationVector2() * 75f;
-                        CustomParticles.GenericFlare(pos, fateColors[i], 0.32f, 14);
-                        
-                        // Cosmic glyphs at fate points
-                        if (Main.rand.NextBool(3))
-                            CustomParticles.Glyph(pos, FateDarkPink * 0.5f, 0.3f, -1);
-                    }
-                }
-                
-                // Theme-specific ambient particles
-                if (Main.rand.NextBool(4))
-                {
-                    int choice = Main.rand.Next(14);
-                    Vector2 particlePos = player.Center + Main.rand.NextVector2Circular(60f, 60f);
-                    
-                    switch (choice)
-                    {
-                        case 0: // Moonlight
-                            CustomParticles.GenericGlow(particlePos, new Vector2(0, -0.8f), MoonlightSilver * 0.6f, 0.25f, 22, true);
-                            break;
-                        case 1: // Eroica
-                            ThemedParticles.SakuraPetals(particlePos, 1, 8f);
-                            break;
-                        case 2: // La Campanella
-                            var flame = new GenericGlowParticle(particlePos, new Vector2(0, -1.5f), CampanellaOrange * 0.6f, 0.28f, 18, true);
-                            MagnumParticleHandler.SpawnParticle(flame);
-                            break;
-                        case 3: // Enigma
-                            CustomParticles.Glyph(particlePos, EnigmaPurple * 0.5f, 0.28f, -1);
-                            break;
-                        case 4: // Swan Lake
-                            CustomParticles.SwanFeatherDrift(particlePos, Main.rand.NextBool() ? SwanWhite : Color.Black, 0.32f);
-                            break;
-                        case 5: // Spring
-                            CustomParticles.GenericGlow(particlePos, new Vector2(0, -1f), SpringPink * 0.6f, 0.25f, 20, true);
-                            break;
-                        case 6: // Summer
-                            CustomParticles.GenericGlow(particlePos, new Vector2(0, -1.5f), SummerGold * 0.6f, 0.25f, 18, true);
-                            break;
-                        case 7: // Autumn
-                            CustomParticles.GenericGlow(particlePos, new Vector2(Main.rand.NextFloat(-1f, 1f), 0.5f), AutumnOrange * 0.6f, 0.25f, 22, true);
-                            break;
-                        case 8: // Winter
-                            var sparkle = new SparkleParticle(particlePos, new Vector2(0, 0.5f), WinterBlue, 0.25f, 22);
-                            MagnumParticleHandler.SpawnParticle(sparkle);
-                            break;
-                        case 9: // Fate Glyph
-                            CustomParticles.Glyph(particlePos, FateDarkPink * 0.5f, 0.3f, -1);
-                            break;
-                        case 10: // Fate Star
-                            CustomParticles.GenericFlare(particlePos, Color.White, 0.3f, 12);
-                            break;
-                        case 11: // Rainbow sparkle
-                            float rainbowHue = Main.rand.NextFloat();
-                            var rainbow = new SparkleParticle(particlePos, Main.rand.NextVector2Circular(1f, 1f),
-                                Main.hslToRgb(rainbowHue, 1f, 0.8f), 0.28f, 18);
-                            MagnumParticleHandler.SpawnParticle(rainbow);
-                            break;
-                        case 12: // Smoke
-                            var smoke = new HeavySmokeParticle(particlePos, new Vector2(0, -0.8f),
-                                Color.DarkGray, 20, 0.2f, 0.35f, 0.012f, false);
-                            MagnumParticleHandler.SpawnParticle(smoke);
-                            break;
-                        case 13: // Music note
-                            ThemedParticles.MusicNote(particlePos, new Vector2(0, -1f), 
-                                Main.hslToRgb(Main.rand.NextFloat(), 0.9f, 0.75f), 0.35f, 22);
-                            break;
-                    }
-                }
-                
-                // Grand cosmic light cycling through all elements
-                float hue = (Main.GameUpdateCount * 0.003f) % 1f;
-                Color lightColor = Main.hslToRgb(hue, 0.9f, 0.7f);
-                float lightPulse = (float)Math.Sin(Main.GameUpdateCount * 0.02f) * 0.2f + 0.8f;
-                Lighting.AddLight(player.Center, lightColor.ToVector3() * lightPulse * 0.8f);
-            }
         }
 
         public override void AddRecipes()
@@ -276,7 +158,7 @@ namespace MagnumOpus.Content.Common.Accessories
                 OverrideColor = cosmicPurple
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Stats1", "+62% all damage, +30% crit chance, +20% attack speed, +35 defense")
+            tooltips.Add(new TooltipLine(Mod, "Stats1", "+84% all damage, +30 crit chance, +20% attack speed, +35 defense")
             {
                 OverrideColor = ultimateGold
             });
@@ -286,19 +168,29 @@ namespace MagnumOpus.Content.Common.Accessories
                 OverrideColor = ultimateGold
             });
             
-            tooltips.Add(new TooltipLine(Mod, "ClassBonuses", "Melee: +25% damage, +22% attack speed | Magic: +30% damage, -25% mana cost | Ranged: +30% damage, +18% crit | Summon: +30% damage, +6 minions")
+            tooltips.Add(new TooltipLine(Mod, "ClassBonuses", "Melee: +25% damage, +22% attack speed, +15 crit | Magic: +30% damage, +15 crit, -25% mana cost | Ranged: +30% damage, +18 crit | Summon: +30% damage, +6 minions")
             {
                 OverrideColor = cosmicPurple
             });
             
-            tooltips.Add(new TooltipLine(Mod, "NightPower", "At night: Additional +25% damage, +25% crit, +20 defense from Moonlight Sonata")
+            tooltips.Add(new TooltipLine(Mod, "NightPower", "At night: Additional +25% damage, +25 crit, +20 defense from Moonlight Sonata")
             {
                 OverrideColor = new Color(138, 43, 226)
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effects", "All theme effects active: Temporal echoes, bell ring AOE, paradox stacking, feather dodge, heroic surge, cosmic bursts")
+            tooltips.Add(new TooltipLine(Mod, "Mobility", "+120 wing time, no fall damage, +50% run acceleration, 30% faster max run speed")
             {
                 OverrideColor = cosmicPurple
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Effects", "All theme effects: Temporal echoes, bell ring AOE, paradox stacking, feather dodge (18-22%), heroic surge on kill, cosmic bursts")
+            {
+                OverrideColor = cosmicPurple
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Lifesteal", "12% chance to lifesteal 10% of damage (max 30 HP), mana burst when low")
+            {
+                OverrideColor = ultimateGold
             });
             
             tooltips.Add(new TooltipLine(Mod, "Immunities", "Immunity to all elemental debuffs, status effects, and grants magma stone, frost burn, and 200% thorns")

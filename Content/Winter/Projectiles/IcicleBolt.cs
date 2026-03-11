@@ -220,10 +220,22 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Use procedural VFX system instead of PNG textures
             // This replaces loading of: ConstellationStyleSparkle, EnergyFlare, EnergyFlare4, SoftGlow2
             ProceduralProjectileVFX.DrawWinterProjectile(Main.spriteBatch, Projectile, 1.2f);
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
@@ -525,8 +537,20 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Use procedural VFX system for Winter homing projectile
             ProceduralProjectileVFX.DrawWinterHomingProjectile(Main.spriteBatch, Projectile, hasTarget, 1f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

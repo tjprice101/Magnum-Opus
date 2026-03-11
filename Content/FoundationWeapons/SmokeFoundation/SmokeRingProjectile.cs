@@ -247,6 +247,8 @@ namespace MagnumOpus.Content.FoundationWeapons.SmokeFoundation
             if (puffs == null) return false;
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Color[] colors = SKFTextures.GetStyleColors(style);
             Texture2D smokeTex = SKFTextures.SmokeGrid.Value;
             Vector2 frameOrigin = SKFTextures.GetFrameOrigin();
@@ -278,6 +280,15 @@ namespace MagnumOpus.Content.FoundationWeapons.SmokeFoundation
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

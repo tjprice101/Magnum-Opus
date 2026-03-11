@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
@@ -16,7 +16,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 {
     /// <summary>
     /// Special crescendo projectile fired every 10th shot from Piercing Light of the Sakura.
-    /// Self-contained VFX: multi-layer rendering with 6ﾃ・ spritesheet, GPU trail,
+    /// Self-contained VFX: multi-layer rendering with 6ÁE spritesheet, GPU trail,
     /// afterimage chain, lightning spark particles, and impact lightning explosions.
     /// 
     /// ai[0] = chargeProgress (0-1, always 1.0 for crescendo shots)
@@ -24,7 +24,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
     /// </summary>
     public class PiercingLightOfTheSakuraProjectile : ModProjectile
     {
-        // 笏笏 Animation 笏笏 6ﾃ・ sprite sheet
+        // ── Animation ── 6ÁE sprite sheet
         private const int FrameColumns = 6;
         private const int FrameRows = 6;
         private const int TotalFrames = 36;
@@ -33,11 +33,11 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         private int frameCounter = 0;
         private int currentFrame = 0;
 
-        // 笏笏 AI state accessors 笏笏
+        // ── AI state accessors ──
         private ref float ChargeProgress => ref Projectile.ai[0];
         private ref float AgeTimer => ref Projectile.ai[1];
 
-        // 笏笏 Trail tracking 笏笏
+        // ── Trail tracking ──
         private const int TrailLength = 24;
         private Vector2[] trailPositions = new Vector2[TrailLength];
         private float[] trailRotations = new float[TrailLength];
@@ -70,7 +70,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             Projectile.rotation = Projectile.velocity.ToRotation();
             AgeTimer++;
 
-            // 笏笏 Trail position tracking 笏笏
+            // ── Trail position tracking ──
             if (!trailInitialized)
             {
                 for (int i = 0; i < TrailLength; i++)
@@ -91,7 +91,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 trailRotations[0] = Projectile.rotation;
             }
 
-            // Pulsating scale 窶・intense crescendo projectile
+            // Pulsating scale  Eintense crescendo projectile
             float scalePulse = (float)Math.Sin(AgeTimer * 0.08f) * 0.015f;
             Projectile.scale = 0.75f + ChargeProgress * 0.1f + scalePulse;
 
@@ -105,10 +105,10 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     currentFrame = 0;
             }
 
-            // 笏笏 Particle Spawning 笏笏
+            // ── Particle Spawning ──
             SpawnParticles();
 
-            // 笏笏 Crescendo flash on first frame 笏笏
+            // ── Crescendo flash on first frame ──
             if (AgeTimer == 1)
                 SpawnCrescendoFlash();
         }
@@ -282,6 +282,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
             float time = (float)Main.gameTimeCache.TotalGameTime.TotalSeconds;
 
@@ -315,6 +317,15 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             EroicaVFXLibrary.BeginEroicaAdditive(sb);
             EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.4f);
             EroicaVFXLibrary.EndEroicaAdditive(sb);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -589,7 +600,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 {
                     EroicaShaderManager.ApplyPiercingLightCrescendoCharge(time, ChargeProgress, glowPass: false);
 
-                    Texture2D ringTex = EroicaTextures.HaloRing?.Value ?? EroicaTextures.CircularMask?.Value;
+                    Texture2D ringTex = EroicaTextures.HaloRing?.Value ?? EroicaTextures.SoftCircle?.Value;
                     if (ringTex != null)
                     {
                         float ringScale = Projectile.scale * 0.6f * pulse;
@@ -677,8 +688,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             Color bloomColor = PiercingUtils.LightGold;
             bloomColor.A = 0;
-            float bloomAlpha = 1.1f;
-            float bloomScale = Projectile.scale * 1.1f;
+            float bloomAlpha = 0.8f;
+            float bloomScale = Projectile.scale * 0.75f;
 
             float pulse = (float)Math.Sin(AgeTimer * 0.15f) * 0.06f;
             float dynamicPulse = (float)Math.Sin(AgeTimer * 0.3f) * 0.03f;

@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
 using Terraria.ModLoader;
+using MagnumOpus.Content.Fate;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Primitives
 {
@@ -154,6 +155,14 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Primitives
             // Save and restore RasterizerState (prevent backface culling on trail)
             var prevRasterizer = _device.RasterizerState;
             _device.RasterizerState = RasterizerState.CullNone;
+
+            // Bind FateGradientLUT to sampler slot 2 for LUT color toning
+            var lutTex = FateThemeTextures.FAGradientLUT;
+            if (lutTex?.Value != null)
+            {
+                _device.Textures[2] = lutTex.Value;
+                _device.SamplerStates[2] = SamplerState.LinearClamp;
+            }
 
             settings.Shader.Apply();
 

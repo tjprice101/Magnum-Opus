@@ -1,10 +1,16 @@
-﻿using Microsoft.Xna.Framework;
+using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.VFX.Core;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Utilities;
+using MagnumOpus.Common.Systems.VFX;
+using Terraria.Graphics;
+using MagnumOpus.Content.OdeToJoy;
+using MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Dusts;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
 {
@@ -16,7 +22,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
     /// </summary>
     public class StandingOvationMinion : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
+        public override string Texture => "MagnumOpus/Content/OdeToJoy/Weapons/Summon/TheStandingOvationMinion";
 
         private int CrowdIndex => (int)Projectile.ai[0];
         private int _attackTimer;
@@ -140,14 +146,18 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
         {
             for (int i = 0; i < 10; i++)
             {
-                Dust d = Dust.NewDustDirect(Projectile.Center - new Vector2(8), 16, 16, DustID.GoldFlame,
-                    Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-2f, 2f), 100, OvationTextures.BloomGold, 0.5f);
+                Dust d = Dust.NewDustDirect(Projectile.Center - new Vector2(8), 16, 16, ModContent.DustType<ApplauseSparkDust>(),
+                    Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-2f, 2f), 100, default, 0.5f);
                 d.noGravity = true;
             }
+
+            OdeToJoyVFXLibrary.RhythmicPulse(Projectile.Center, 1.0f, OdeToJoyPalette.GoldenPollen);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(target.Center, 3, 3f, 0.5f);
+
             // Register kill if fatal
             if (target.life <= 0)
             {
@@ -180,6 +190,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D glow = OvationTextures.SoftGlow;
             Texture2D sparkle = OvationTextures.OJBlossomSparkle;
             Vector2 glowOrigin = glow.Size() / 2f;
@@ -192,6 +204,11 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
 
             OvationPlayer op = Main.player[Projectile.owner].GetModPlayer<OvationPlayer>();
             float meterGlow = op.OvationMeter / 100f;
+
+            // ── MINION SPRITE: Draw base PNG sprite ──
+            Texture2D minionTex = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
+            Vector2 minionOrigin = minionTex.Size() / 2f;
+            sb.Draw(minionTex, pos, null, lightColor * Projectile.Opacity, Projectile.rotation, minionOrigin, Projectile.scale, SpriteEffects.None, 0f);
 
             sb.End();
 
@@ -226,6 +243,15 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
 
             sb.End();
             OdeToJoyShaders.RestoreSpriteBatch(sb);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -239,6 +265,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
         public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
         private int _timer;
         private bool IsRush => Projectile.ai[0] >= 1f;
+        private VertexStrip _vertexStrip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -265,8 +298,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
                 Projectile.velocity *= 0.98f;
                 if (Main.rand.NextBool(2))
                 {
-                    Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.GoldFlame,
-                        0f, 0f, 100, OvationTextures.BloomGold, 0.5f);
+                    Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, ModContent.DustType<ApplauseSparkDust>(),
+                        0f, 0f, 100, default, 0.5f);
                     d.noGravity = true;
                 }
             }
@@ -286,6 +319,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(target.Center, 3, 3f, 0.5f);
+
             if (target.life <= 0)
             {
                 OvationPlayer op = Main.player[Projectile.owner].GetModPlayer<OvationPlayer>();
@@ -296,57 +331,39 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D glow = OvationTextures.SoftGlow;
-            Texture2D impact = OvationTextures.OJHarmonicImpact;
-            Vector2 glowOrigin = glow.Size() / 2f;
-            Vector2 impactOrigin = impact.Size() / 2f;
-            Vector2 pos = Projectile.Center - Main.screenPosition;
-
-            float fade = MathHelper.Clamp(_timer / 4f, 0f, 1f) * MathHelper.Clamp(Projectile.timeLeft / 10f, 0f, 1f);
-            float time = (float)Main.timeForVisualEffects * 0.015f;
-
-            sb.End();
-
-            // ── LAYER 0: JubilantHarmony SymphonicAura shader ──
-            Effect harmonyShader = OdeToJoyShaders.JubilantHarmony;
-            if (harmonyShader != null)
+            try
             {
-                Color waveColor = IsRush ? OvationTextures.BloomGold : OvationTextures.ApplauseFlash;
-                OdeToJoyShaders.SetBeamParams(harmonyShader, time, waveColor,
-                    OvationTextures.PureJoyWhite, fade * 0.45f, 1.8f, 2.5f);
-                harmonyShader.Parameters["uRadius"]?.SetValue(0.25f);
-                OdeToJoyShaders.BeginDeferredShaderBatch(sb, harmonyShader, "SymphonicAuraTechnique");
-                float shaderScale = IsRush ? 0.25f : Math.Min(0.15f + _timer * 0.005f, 0.293f);
-                sb.Draw(glow, pos, null, Color.White * fade, Projectile.rotation, glowOrigin,
-                    shaderScale, SpriteEffects.None, 0f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _vertexStrip);
+
+                // Joy wave: warm applause shimmer
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
+                {
+                    Vector2 origin = glow.Size() / 2f;
+                    float rot = Projectile.velocity.ToRotation();
+                    float scale = IsRush ? 1.2f : 1f;
+
+                    sb.Draw(glow, drawPos, null,
+                        (OdeToJoyPalette.GoldenPollen with { A = 0 }) * 0.2f * scale,
+                        rot, origin, new Vector2(0.07f * scale, 0.025f), SpriteEffects.None, 0f);
+                }
+
                 sb.End();
             }
-
-            // ── LAYER 1: Additive overlays ──
-            OdeToJoyShaders.BeginAdditiveBatch(sb);
-
-            if (IsRush)
+            catch { }
+            finally
             {
-                float stretch = Math.Min(0.3f + Projectile.velocity.Length() * 0.02f, 0.293f);
-                sb.Draw(glow, pos, null, OvationTextures.BloomGold * fade * 0.6f, Projectile.rotation,
-                    glowOrigin, new Vector2(stretch, 0.12f), SpriteEffects.None, 0f);
-                sb.Draw(glow, pos, null, OvationTextures.PureJoyWhite * fade * 0.35f, Projectile.rotation,
-                    glowOrigin, new Vector2(stretch * 0.5f, 0.05f), SpriteEffects.None, 0f);
-            }
-            else
-            {
-                float scale = Math.Min(0.15f + _timer * 0.005f, 0.293f);
-                sb.Draw(impact, pos, null, OvationTextures.BloomGold * fade * 0.4f, Projectile.rotation,
-                    impactOrigin, scale, SpriteEffects.None, 0f);
-                sb.Draw(glow, pos, null, OvationTextures.ApplauseFlash * fade * 0.25f, 0f, glowOrigin,
-                    scale * 0.8f, SpriteEffects.None, 0f);
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
-            // Theme blossom sparkle accent
-            OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
-
-            sb.End();
-            OdeToJoyShaders.RestoreSpriteBatch(sb);
             return false;
         }
     }
@@ -361,6 +378,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
         private int _timer;
         private readonly Vector2[] _trail = new Vector2[12];
         private int _trailIdx;
+        private VertexStrip _vertexStrip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -410,8 +434,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
             // Petal trail particles
             if (Main.rand.NextBool(3))
             {
-                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.PinkTorch,
-                    Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-0.5f, 0.5f), 100, OvationTextures.RosePetalPink, 0.4f);
+                Dust d = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, ModContent.DustType<RosePetalDriftDust>(),
+                    Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-0.5f, 0.5f), 100, default, 0.4f);
                 d.noGravity = true;
             }
         }
@@ -430,77 +454,49 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
             for (int i = 0; i < 8; i++)
             {
                 Vector2 vel = Main.rand.NextVector2Circular(3f, 3f);
-                Dust d = Dust.NewDustDirect(target.Center, 1, 1, DustID.PinkTorch,
-                    vel.X, vel.Y, 80, OvationTextures.PetalPink, 0.6f);
+                Dust d = Dust.NewDustDirect(target.Center, 1, 1, ModContent.DustType<RosePetalDriftDust>(),
+                    vel.X, vel.Y, 80, default, 0.6f);
                 d.noGravity = true;
             }
+
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(target.Center, 3, 4f, 1f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D glow = OvationTextures.SoftGlow;
-            Texture2D rosePetal = OvationTextures.OJRosePetal;
-            Vector2 glowOrigin = glow.Size() / 2f;
-            Vector2 roseOrigin = rosePetal.Size() / 2f;
-            Vector2 pos = Projectile.Center - Main.screenPosition;
-
-            float fade = MathHelper.Clamp(_timer / 4f, 0f, 1f);
-            float time = (float)Main.timeForVisualEffects * 0.015f;
-
-            sb.End();
-
-            // ── LAYER 0: TriumphantTrail BlossomWind VertexStrip — petal trail ──
-            Effect trailShader = OdeToJoyShaders.TriumphantTrail;
-            int validCount = 0;
-            for (int i = 0; i < _trail.Length; i++)
+            try
             {
-                int idx = (_trailIdx - 1 - i + _trail.Length * 2) % _trail.Length;
-                if (_trail[idx] != Vector2.Zero) validCount++; else break;
-            }
-            if (trailShader != null && validCount >= 2)
-            {
-                Vector2[] positions = new Vector2[validCount];
-                float[] rotations = new float[validCount];
-                for (int i = 0; i < validCount; i++)
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _vertexStrip);
+
+                // Thrown rose: rose-pink directional glow
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
                 {
-                    int idx = (_trailIdx - 1 - i + _trail.Length * 2) % _trail.Length;
-                    positions[validCount - 1 - i] = _trail[idx];
-                }
-                for (int i = 0; i < validCount; i++)
-                {
-                    if (i < validCount - 1) rotations[i] = (positions[i + 1] - positions[i]).ToRotation();
-                    else rotations[i] = rotations[Math.Max(0, i - 1)];
+                    Vector2 origin = glow.Size() / 2f;
+                    float rot = Projectile.velocity.ToRotation();
+
+                    sb.Draw(glow, drawPos, null,
+                        (OdeToJoyPalette.RosePink with { A = 0 }) * 0.22f,
+                        rot, origin, new Vector2(0.06f, 0.025f), SpriteEffects.None, 0f);
                 }
 
-                Terraria.Graphics.VertexStrip strip = new Terraria.Graphics.VertexStrip();
-                strip.PrepareStrip(positions, rotations,
-                    (float p) => OvationTextures.RosePetalPink * fade * p * 0.35f,
-                    (float p) => MathHelper.Lerp(1f, 6f, p),
-                    -Main.screenPosition, includeBacksides: true);
-                OdeToJoyShaders.SetTrailParams(trailShader, time, OvationTextures.RosePetalPink,
-                    OvationTextures.PetalPink, fade * 0.5f, 1.5f);
-                trailShader.CurrentTechnique = trailShader.Techniques["BlossomWindTrailTechnique"];
-                trailShader.Parameters["WorldViewProjection"]?.SetValue(
-                    Main.GameViewMatrix.NormalizedTransformationmatrix);
-                trailShader.CurrentTechnique.Passes["P0"].Apply();
-                strip.DrawTrail();
-                Main.pixelShader.CurrentTechnique.Passes[0].Apply();
+                sb.End();
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
-            // ── LAYER 1: Additive bloom ──
-            OdeToJoyShaders.BeginAdditiveBatch(sb);
-
-            sb.Draw(rosePetal, pos, null, OvationTextures.RoseRed * fade * 0.7f, Projectile.rotation,
-                roseOrigin, 0.15f, SpriteEffects.None, 0f);
-            sb.Draw(glow, pos, null, OvationTextures.PetalPink * fade * 0.35f, 0f, glowOrigin,
-                0.1f, SpriteEffects.None, 0f);
-
-            // Theme blossom sparkle accent
-            OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
-
-            sb.End();
-            OdeToJoyShaders.RestoreSpriteBatch(sb);
             return false;
         }
     }
@@ -513,6 +509,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
     {
         public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
         private int _timer;
+        private VertexStrip _vertexStrip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -537,6 +540,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(target.Center, 2, 2f, 0.3f);
+
             if (target.life <= 0)
             {
                 OvationPlayer op = Main.player[Projectile.owner].GetModPlayer<OvationPlayer>();
@@ -547,42 +552,38 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D rosePetal = OvationTextures.OJRosePetal;
-            Texture2D glow = OvationTextures.SoftGlow;
-            Vector2 roseOrigin = rosePetal.Size() / 2f;
-            Vector2 glowOrigin = glow.Size() / 2f;
-            Vector2 pos = Projectile.Center - Main.screenPosition;
-
-            float fade = MathHelper.Clamp(_timer / 3f, 0f, 1f) * MathHelper.Clamp(Projectile.timeLeft / 8f, 0f, 1f);
-            float time = (float)Main.timeForVisualEffects * 0.015f;
-
-            sb.End();
-
-            // ── LAYER 0: GardenBloom GardenBloomTechnique — petal shimmer ──
-            Effect bloomShader = OdeToJoyShaders.GardenBloom;
-            if (bloomShader != null)
+            try
             {
-                OdeToJoyShaders.SetBloomParams(bloomShader, time + Projectile.identity * 0.5f,
-                    OvationTextures.RosePetalPink, OvationTextures.PetalPink, fade * 0.4f, 1.2f, 0.15f);
-                OdeToJoyShaders.BeginDeferredShaderBatch(sb, bloomShader, "GardenBloomTechnique");
-                sb.Draw(glow, pos, null, Color.White * fade, Projectile.rotation, glowOrigin,
-                    0.1f, SpriteEffects.None, 0f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _vertexStrip);
+
+                // Rose petal: gentle falling petal shimmer
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
+                {
+                    Vector2 origin = glow.Size() / 2f;
+                    float drift = MathF.Sin((float)Main.timeForVisualEffects * 0.1f + Projectile.identity) * 0.3f;
+
+                    sb.Draw(glow, drawPos, null,
+                        (OdeToJoyPalette.PetalPink with { A = 0 }) * 0.16f,
+                        Projectile.rotation + drift, origin, 0.035f, SpriteEffects.None, 0f);
+                }
+
                 sb.End();
             }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
-            // ── LAYER 1: Additive bloom ──
-            OdeToJoyShaders.BeginAdditiveBatch(sb);
-
-            sb.Draw(rosePetal, pos, null, OvationTextures.RosePetalPink * fade * 0.65f, Projectile.rotation,
-                roseOrigin, 0.12f, SpriteEffects.None, 0f);
-            sb.Draw(glow, pos, null, OvationTextures.PetalPink * fade * 0.2f, 0f, glowOrigin,
-                0.06f, SpriteEffects.None, 0f);
-
-            // Theme blossom sparkle accent
-            OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
-
-            sb.End();
-            OdeToJoyShaders.RestoreSpriteBatch(sb);
             return false;
         }
     }
@@ -621,6 +622,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(target.Center, 4, 4f, 0.6f);
+
             if (target.life <= 0)
             {
                 OvationPlayer op = Main.player[Projectile.owner].GetModPlayer<OvationPlayer>();
@@ -631,6 +634,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D ring = OvationTextures.OJPowerRing;
             Texture2D glow = OvationTextures.SoftGlow;
             Texture2D harmonic = OvationTextures.OJHarmonicImpact;
@@ -681,6 +686,15 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
 
             sb.End();
             OdeToJoyShaders.RestoreSpriteBatch(sb);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }

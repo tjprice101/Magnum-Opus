@@ -44,6 +44,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling
         {
             Item.width = 28;
             Item.height = 30;
+            Item.scale = 0.06f;
             Item.damage = 200;
             Item.DamageType = DamageClass.Magic;
             Item.mana = 8;

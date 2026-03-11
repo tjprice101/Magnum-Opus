@@ -62,40 +62,6 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             
             // Enable rainbow afterimage mechanic
             player.GetModPlayer<PlumeOfElegancePlayer>().plumeEquipped = true;
-            
-            // Ambient VFX - graceful feathers and prismatic sparkles
-            if (!hideVisual)
-            {
-                // Drifting feathers
-                if (Main.rand.NextBool(15))
-                {
-                    Vector2 offset = new Vector2(Main.rand.NextFloat(-30f, 30f), -20f);
-                    Vector2 velocity = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(0.5f, 1.5f));
-                    Color featherColor = Main.rand.NextBool() ? SwanColors.White : SwanColors.Black;
-                    
-                    CustomParticles.SwanFeatherDrift(player.Center + offset, featherColor, 0.4f);
-                }
-                
-                // Prismatic sparkles
-                if (Main.rand.NextBool(12))
-                {
-                    Vector2 sparklePos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                    Color rainbowColor = SwanColors.GetRainbow(Main.rand.NextFloat());
-                    
-                    var sparkle = new SparkleParticle(sparklePos, Main.rand.NextVector2Circular(1f, 1f),
-                        rainbowColor, 0.35f, 20);
-                    MagnumParticleHandler.SpawnParticle(sparkle);
-                }
-                
-                // Occasional white/black contrast flares
-                if (Main.rand.NextBool(20))
-                {
-                    float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                    Vector2 pos = player.Center + angle.ToRotationVector2() * 25f;
-                    Color flareColor = Main.rand.NextBool() ? SwanColors.White : SwanColors.Black;
-                    CustomParticles.GenericFlare(pos, flareColor * 0.5f, 0.2f, 12);
-                }
-            }
         }
 
         public override void AddRecipes()
@@ -143,46 +109,6 @@ namespace MagnumOpus.Content.SwanLake.Accessories
         public override void PostUpdate()
         {
             if (!plumeEquipped) return;
-            
-            afterimageTimer++;
-            
-            // Detect fast movement/dodging (dashing, teleporting, etc.)
-            float movementSpeed = Vector2.Distance(Player.Center, lastPosition);
-            
-            // If moving very fast (dash/dodge), create rainbow afterimages
-            if (movementSpeed > 15f && afterimageTimer > 3)
-            {
-                afterimageTimer = 0;
-                CreateRainbowAfterimage();
-            }
-            
-            lastPosition = Player.Center;
-        }
-
-        private void CreateRainbowAfterimage()
-        {
-            // Create a trail of rainbow particles where player was
-            for (int i = 0; i < 6; i++)
-            {
-                float progress = i / 6f;
-                Color rainbowColor = SwanColors.GetRainbow(progress);
-                Vector2 offset = Main.rand.NextVector2Circular(8f, 8f);
-                
-                CustomParticles.GenericFlare(Player.Center + offset, rainbowColor, 0.4f, 15);
-                
-                // Sparkles in the trail
-                var sparkle = new SparkleParticle(Player.Center + offset, 
-                    -Player.velocity * 0.2f + Main.rand.NextVector2Circular(2f, 2f),
-                    rainbowColor, 0.3f, 18);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
-            
-            // White/black contrast feathers
-            CustomParticles.SwanFeatherDrift(Player.Center, SwanColors.White, 0.35f);
-            CustomParticles.SwanFeatherDrift(Player.Center, SwanColors.Black, 0.3f);
-            
-            // Prismatic halo
-            CustomParticles.HaloRing(Player.Center, SwanColors.GetRainbow(0f), 0.3f, 12);
         }
     }
     #endregion
@@ -222,60 +148,6 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             
             // +10% dodge chance (through Brain of Confusion-like effect)
             player.GetModPlayer<SwansChromaticDiademPlayer>().diademEquipped = true;
-            
-            // Elaborate ambient VFX - prismatic aura
-            if (!hideVisual)
-            {
-                // Constant feather waltz
-                if (Main.rand.NextBool(8))
-                {
-                    float angle = Main.GameUpdateCount * 0.03f + Main.rand.NextFloat(MathHelper.TwoPi);
-                    float radius = 35f + (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 10f;
-                    Vector2 featherPos = player.Center + angle.ToRotationVector2() * radius;
-                    
-                    // Alternate black and white feathers
-                    Color featherColor = (Main.GameUpdateCount / 20) % 2 == 0 ? SwanColors.White : SwanColors.Black;
-                    CustomParticles.SwanFeatherDrift(featherPos, featherColor, 0.4f);
-                }
-                
-                // Prismatic sparkle ring
-                if (Main.GameUpdateCount % 6 == 0)
-                {
-                    int sparkleCount = 5;
-                    for (int i = 0; i < sparkleCount; i++)
-                    {
-                        float angle = Main.GameUpdateCount * 0.02f + MathHelper.TwoPi * i / sparkleCount;
-                        Vector2 sparklePos = player.Center + angle.ToRotationVector2() * 45f;
-                        Color rainbowColor = SwanColors.GetRainbow((float)i / sparkleCount);
-                        
-                        var sparkle = new SparkleParticle(sparklePos, Vector2.Zero, rainbowColor, 0.35f, 12);
-                        MagnumParticleHandler.SpawnParticle(sparkle);
-                    }
-                }
-                
-                // Rainbow glow particles flowing around
-                if (Main.rand.NextBool(10))
-                {
-                    Vector2 startPos = player.Center + Main.rand.NextVector2Circular(50f, 50f);
-                    Vector2 velocity = (player.Center - startPos).SafeNormalize(Vector2.Zero) * 2f;
-                    Color glowColor = SwanColors.GetRainbow(Main.rand.NextFloat());
-                    
-                    var glow = new GenericGlowParticle(startPos, velocity, glowColor * 0.6f, 0.3f, 20, true);
-                    MagnumParticleHandler.SpawnParticle(glow);
-                }
-                
-                // Monochrome contrast flares
-                if (Main.rand.NextBool(18))
-                {
-                    for (int i = 0; i < 2; i++)
-                    {
-                        float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                        Vector2 pos = player.Center + angle.ToRotationVector2() * Main.rand.NextFloat(20f, 40f);
-                        Color flareColor = i == 0 ? SwanColors.White : SwanColors.Black;
-                        CustomParticles.GenericFlare(pos, flareColor * 0.4f, 0.22f, 14);
-                    }
-                }
-            }
         }
 
         public override void AddRecipes()
@@ -333,18 +205,6 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             
             if (dodgeCooldown > 0)
                 dodgeCooldown--;
-            
-            afterimageTimer++;
-            
-            // Rainbow afterimages on fast movement
-            float movementSpeed = Vector2.Distance(Player.Center, lastPosition);
-            if (movementSpeed > 12f && afterimageTimer > 2)
-            {
-                afterimageTimer = 0;
-                CreateEnhancedRainbowAfterimage();
-            }
-            
-            lastPosition = Player.Center;
         }
 
         public override bool FreeDodge(Player.HurtInfo info)
@@ -361,31 +221,6 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             }
             
             return false;
-        }
-
-        private void CreateEnhancedRainbowAfterimage()
-        {
-            // Enhanced rainbow trail
-            for (int i = 0; i < 8; i++)
-            {
-                float progress = i / 8f;
-                Color rainbowColor = SwanColors.GetRainbow(progress);
-                Vector2 offset = Main.rand.NextVector2Circular(10f, 10f);
-                
-                CustomParticles.GenericFlare(Player.Center + offset, rainbowColor, 0.45f, 16);
-                
-                var sparkle = new SparkleParticle(Player.Center + offset,
-                    -Player.velocity * 0.15f + Main.rand.NextVector2Circular(2f, 2f),
-                    rainbowColor, 0.35f, 20);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
-            
-            // Feather burst
-            CustomParticles.SwanFeatherDrift(Player.Center, SwanColors.White, 0.4f);
-            CustomParticles.SwanFeatherDrift(Player.Center + Main.rand.NextVector2Circular(10f, 10f), SwanColors.Black, 0.35f);
-            
-            // Prismatic halo
-            CustomParticles.HaloRing(Player.Center, SwanColors.GetRainbow(Main.rand.NextFloat()), 0.35f, 14);
         }
 
         private void TriggerDyingSwanBurst()

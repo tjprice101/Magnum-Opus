@@ -58,6 +58,8 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
             itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<ResonantCoreOfDiesIrae>(), 1, 30, 40));
             itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<DiesIraeResonantEnergy>(), 1, 20, 30));
             itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<HarmonicCoreOfDiesIrae>(), 1, 4, 6));
+            itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<RemnantOfDiesIraesWrath>(), 1, 30, 35));
+            itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<ShardOfDiesIraesTempo>(), 1, 10, 20));
             
             // 3 random weapons (no duplicates) — custom drop rule
             itemLoot.Add(new DiesIraeTreasureBagWeaponRule());

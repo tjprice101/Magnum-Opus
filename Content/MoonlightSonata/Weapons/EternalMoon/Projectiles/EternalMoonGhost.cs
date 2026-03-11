@@ -125,6 +125,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             var texture = Terraria.GameContent.TextureAssets.Projectile[Type].Value;
             Vector2 drawPos = GetBladeTipPosition() - Main.screenPosition;
 
@@ -171,6 +174,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             // Add moonlight at orbit position
             Vector2 tipPos = GetBladeTipPosition();
             Lighting.AddLight(tipPos, EternalMoonUtils.IceBlue.ToVector3() * Projectile.Opacity * 0.3f);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

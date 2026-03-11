@@ -56,45 +56,6 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             
             // Enable T7
             resonancePlayer.hasNocturnalSymphonyBand = true;
-
-            // Constellation particle effects
-            if (!hideVisual && Main.rand.NextBool(5))
-            {
-                float intensity = resonancePlayer.GetResonancePercent();
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(50f, 50f);
-                Vector2 vel = Main.rand.NextVector2Circular(1f, 1f);
-
-                // Stellar gradient particles
-                float gradient = Main.rand.NextFloat();
-                Color stellarColor = Color.Lerp(NachtmusikDeepPurple, NachtmusikGold, gradient);
-
-                CustomParticles.GenericGlow(pos, vel, stellarColor * intensity, 0.3f + intensity * 0.15f, 28, true);
-
-                // Orbiting constellation points
-                if (Main.rand.NextBool(4))
-                {
-                    float angle = Main.GameUpdateCount * 0.025f + Main.rand.NextFloat(MathHelper.TwoPi);
-                    Vector2 orbitPos = player.Center + angle.ToRotationVector2() * 45f;
-                    CustomParticles.GenericFlare(orbitPos, NachtmusikGold * 0.8f, 0.22f, 18);
-                }
-
-                // Star sparkles at high stacks
-                if (resonancePlayer.resonanceStacks >= 50 && Main.rand.NextBool(4))
-                {
-                    CustomParticles.GenericFlare(pos, NachtmusikStarWhite * 0.9f, 0.28f, 15);
-                }
-
-                // Floating nocturnal music notes
-                if (Main.rand.NextBool(6))
-                {
-                    ThemedParticles.MusicNote(pos, vel * 0.3f, NachtmusikViolet, 0.7f, 25);
-                }
-            }
-
-            // Stellar lighting
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.03f) * 0.2f + 0.6f;
-            float stackIntensity = (float)resonancePlayer.resonanceStacks / 70f;
-            Lighting.AddLight(player.Center, new Vector3(0.3f, 0.2f, 0.7f) * pulse * stackIntensity);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -220,38 +181,6 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             
             // Enable T8
             resonancePlayer.hasInfernalFortissimoBandT8 = true;
-
-            // Infernal particle effects
-            if (!hideVisual && Main.rand.NextBool(4))
-            {
-                float intensity = resonancePlayer.GetResonancePercent();
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(55f, 55f);
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-2f, -0.5f));
-
-                // Hellfire gradient
-                float gradient = Main.rand.NextFloat();
-                Color flameColor = Color.Lerp(DiesIraeCrimson, DiesIraeOrange, gradient);
-
-                CustomParticles.GenericGlow(pos, vel, flameColor * intensity, 0.35f + intensity * 0.2f, 25, true);
-
-                // Ember sparks rising
-                if (Main.rand.NextBool(3))
-                {
-                    Dust ember = Dust.NewDustPerfect(pos, DustID.Torch, vel * 1.5f, 0, DiesIraeOrange, 1.2f);
-                    ember.noGravity = true;
-                }
-
-                // Judgment flames at high stacks
-                if (resonancePlayer.resonanceStacks >= 60 && Main.rand.NextBool(3))
-                {
-                    CustomParticles.GenericFlare(pos, DiesIraeCrimson, 0.35f, 18);
-                }
-            }
-
-            // Infernal lighting
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.25f + 0.5f;
-            float stackIntensity = (float)resonancePlayer.resonanceStacks / 80f;
-            Lighting.AddLight(player.Center, new Vector3(0.8f, 0.3f, 0.1f) * pulse * stackIntensity);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -377,45 +306,6 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             
             // Enable T9
             resonancePlayer.hasJubilantCrescendoBand = true;
-
-            // Jubilant particle effects - chromatic iridescence
-            if (!hideVisual && Main.rand.NextBool(5))
-            {
-                float intensity = resonancePlayer.GetResonancePercent();
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(50f, 50f);
-                Vector2 vel = Main.rand.NextVector2Circular(1.2f, 1.2f);
-
-                // Rainbow shimmer using hue cycling
-                float hue = (Main.GameUpdateCount * 0.01f + Main.rand.NextFloat()) % 1f;
-                Color rainbowColor = Main.hslToRgb(hue, 0.8f, 0.85f);
-
-                CustomParticles.GenericGlow(pos, vel, rainbowColor * intensity * 0.8f, 0.28f + intensity * 0.15f, 30, true);
-
-                // Rose petal particles
-                if (Main.rand.NextBool(4))
-                {
-                    CustomParticles.GenericFlare(pos, OdeRose * 0.9f, 0.25f, 20);
-                }
-
-                // Golden pollen at high stacks
-                if (resonancePlayer.resonanceStacks >= 70 && Main.rand.NextBool(4))
-                {
-                    Dust pollen = Dust.NewDustPerfect(pos, DustID.GoldFlame, vel * 0.5f, 0, OdeGold, 0.8f);
-                    pollen.noGravity = true;
-                }
-
-                // Joy music notes
-                if (Main.rand.NextBool(6))
-                {
-                    ThemedParticles.MusicNote(pos, vel * 0.2f, OdeIridescent, 0.7f, 25);
-                }
-            }
-
-            // Joyful iridescent lighting
-            float hueShift = (Main.GameUpdateCount * 0.008f) % 1f;
-            Color lightColor = Main.hslToRgb(hueShift, 0.6f, 0.6f);
-            float stackIntensity = (float)resonancePlayer.resonanceStacks / 90f;
-            Lighting.AddLight(player.Center, lightColor.ToVector3() * stackIntensity * 0.7f);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -546,52 +436,6 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             
             // Enable T10
             resonancePlayer.hasEternalResonanceBand = true;
-
-            // Temporal clockwork particle effects
-            if (!hideVisual && Main.rand.NextBool(4))
-            {
-                float intensity = resonancePlayer.GetResonancePercent();
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(55f, 55f);
-                Vector2 vel = Main.rand.NextVector2Circular(1f, 1f);
-
-                // Temporal gradient
-                float gradient = Main.rand.NextFloat();
-                Color temporalColor = Color.Lerp(ClairGray, ClairCrimson, gradient);
-
-                CustomParticles.GenericGlow(pos, vel, temporalColor * intensity, 0.32f + intensity * 0.18f, 28, true);
-
-                // Clockwork gear particles
-                if (Main.rand.NextBool(4))
-                {
-                    CustomParticles.GenericFlare(pos, ClairBrass * 0.85f, 0.25f, 20);
-                }
-
-                // Shattered glass effect at high stacks
-                if (resonancePlayer.resonanceStacks >= 80 && Main.rand.NextBool(3))
-                {
-                    Vector2 shardVel = Main.rand.NextVector2Circular(2f, 2f) + Vector2.UnitY * 1f;
-                    CustomParticles.GenericGlow(pos, shardVel, ClairIridescent * 0.7f, 0.2f, 30, false);
-                }
-
-                // Temporal music notes
-                if (Main.rand.NextBool(6))
-                {
-                    ThemedParticles.MusicNote(pos, vel * 0.25f, ClairCrimson, 0.75f, 28);
-                }
-
-                // At max stacks: intense temporal aura
-                if (resonancePlayer.resonanceStacks >= 100)
-                {
-                    float angle = Main.GameUpdateCount * 0.05f;
-                    Vector2 auraPos = player.Center + angle.ToRotationVector2() * 40f;
-                    CustomParticles.GenericFlare(auraPos, ClairWhite * 0.6f, 0.2f, 12);
-                }
-            }
-
-            // Temporal lighting with brass warmth
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.02f) * 0.2f + 0.6f;
-            float stackIntensity = (float)resonancePlayer.resonanceStacks / 100f;
-            Lighting.AddLight(player.Center, new Vector3(0.6f, 0.4f, 0.5f) * pulse * stackIntensity);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -720,43 +564,6 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             
             // Enable Fusion
             resonancePlayer.hasStarfallJudgmentGauntlet = true;
-
-            // Combined stellar-infernal VFX
-            if (!hideVisual && Main.rand.NextBool(4))
-            {
-                float intensity = resonancePlayer.GetResonancePercent();
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(55f, 55f);
-                
-                // Dual-themed particles
-                if (Main.rand.NextBool())
-                {
-                    // Stellar
-                    Vector2 vel = Main.rand.NextVector2Circular(1f, 1f);
-                    CustomParticles.GenericGlow(pos, vel, StarfallPurple * intensity, 0.3f, 25, true);
-                    CustomParticles.GenericFlare(pos, StarfallGold * 0.8f, 0.2f, 15);
-                }
-                else
-                {
-                    // Infernal
-                    Vector2 vel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1.5f, -0.3f));
-                    CustomParticles.GenericGlow(pos, vel, StarfallCrimson * intensity, 0.35f, 22, true);
-                }
-
-                // Fusion spark at high stacks
-                if (resonancePlayer.resonanceStacks >= 65 && Main.rand.NextBool(4))
-                {
-                    Color fusionColor = Color.Lerp(StarfallPurple, StarfallCrimson, Main.rand.NextFloat());
-                    CustomParticles.GenericFlare(pos, fusionColor, 0.3f, 18);
-                }
-            }
-
-            // Dual-tone lighting
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.035f) * 0.2f + 0.6f;
-            float stackIntensity = (float)resonancePlayer.resonanceStacks / 85f;
-            float colorPhase = Main.GameUpdateCount * 0.02f;
-            float blend = (float)Math.Sin(colorPhase) * 0.5f + 0.5f;
-            Vector3 lightColor = Vector3.Lerp(new Vector3(0.4f, 0.2f, 0.6f), new Vector3(0.7f, 0.3f, 0.2f), blend);
-            Lighting.AddLight(player.Center, lightColor * pulse * stackIntensity);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -881,49 +688,6 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             
             // Enable Fusion Tier 2
             resonancePlayer.hasTriumphantCosmosGauntlet = true;
-
-            // Triple-theme VFX
-            if (!hideVisual && Main.rand.NextBool(4))
-            {
-                float intensity = resonancePlayer.GetResonancePercent();
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(55f, 55f);
-                Vector2 vel = Main.rand.NextVector2Circular(1.2f, 1.2f);
-
-                // Cycle through three themes
-                int theme = Main.rand.Next(3);
-                Color themeColor = theme switch
-                {
-                    0 => TriumphPurple,
-                    1 => TriumphCrimson,
-                    _ => TriumphRose
-                };
-
-                CustomParticles.GenericGlow(pos, vel, themeColor * intensity, 0.32f, 26, true);
-
-                // Rainbow shimmer overlay
-                if (Main.rand.NextBool(4))
-                {
-                    float hue = (Main.GameUpdateCount * 0.01f + Main.rand.NextFloat()) % 1f;
-                    Color rainbow = Main.hslToRgb(hue, 0.7f, 0.8f);
-                    CustomParticles.GenericFlare(pos, rainbow * 0.6f, 0.22f, 18);
-                }
-
-                // Rose petal accents
-                if (Main.rand.NextBool(5))
-                {
-                    CustomParticles.GenericFlare(pos, TriumphRose * 0.8f, 0.2f, 20);
-                }
-            }
-
-            // Tri-color cycling light
-            float phase = Main.GameUpdateCount * 0.015f;
-            float pulse = (float)Math.Sin(phase) * 0.5f + 0.5f;
-            float stackIntensity = (float)resonancePlayer.resonanceStacks / 95f;
-            float colorCycle = (Main.GameUpdateCount * 0.02f) % 3f;
-            Vector3 lightColor = colorCycle < 1f ? new Vector3(0.5f, 0.3f, 0.7f) :
-                                 colorCycle < 2f ? new Vector3(0.8f, 0.4f, 0.4f) :
-                                                   new Vector3(0.9f, 0.7f, 0.8f);
-            Lighting.AddLight(player.Center, lightColor * pulse * stackIntensity);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -1049,62 +813,6 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             
             // Enable Ultimate Fusion
             resonancePlayer.hasGauntletOfTheEternalSymphony = true;
-
-            // Ultimate quad-theme VFX
-            if (!hideVisual && Main.rand.NextBool(3))
-            {
-                float intensity = resonancePlayer.GetResonancePercent();
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(60f, 60f);
-                Vector2 vel = Main.rand.NextVector2Circular(1.5f, 1.5f);
-
-                // Cycle through all four themes
-                int theme = Main.rand.Next(4);
-                Color themeColor = theme switch
-                {
-                    0 => EternalPurple,
-                    1 => EternalCrimson,
-                    2 => EternalRose,
-                    _ => EternalBrass
-                };
-
-                CustomParticles.GenericGlow(pos, vel, themeColor * intensity, 0.35f, 28, true);
-
-                // Clockwork particles
-                if (Main.rand.NextBool(4))
-                {
-                    float angle = Main.GameUpdateCount * 0.03f + Main.rand.NextFloat(MathHelper.TwoPi);
-                    Vector2 gearPos = player.Center + angle.ToRotationVector2() * 50f;
-                    CustomParticles.GenericFlare(gearPos, EternalBrass * 0.8f, 0.22f, 20);
-                }
-
-                // Shattered glass at high stacks
-                if (resonancePlayer.resonanceStacks >= 90 && Main.rand.NextBool(3))
-                {
-                    Vector2 shardVel = Main.rand.NextVector2Circular(2f, 2f) + Vector2.UnitY * 0.8f;
-                    CustomParticles.GenericGlow(pos, shardVel, EternalWhite * 0.5f, 0.18f, 35, false);
-                }
-
-                // Ultimate aura at max
-                if (resonancePlayer.resonanceStacks >= 100)
-                {
-                    float auraHue = (Main.GameUpdateCount * 0.008f + Main.rand.NextFloat(0.2f)) % 1f;
-                    Color auraColor = Main.hslToRgb(auraHue, 0.6f, 0.8f);
-                    CustomParticles.GenericFlare(pos, auraColor * 0.7f, 0.25f, 15);
-                }
-
-                // Eternal music notes
-                if (Main.rand.NextBool(5))
-                {
-                    ThemedParticles.MusicNote(pos, vel * 0.2f, EternalCrimson, 0.8f, 30);
-                }
-            }
-
-            // Ultimate cycling lighting
-            float phase = Main.GameUpdateCount * 0.01f;
-            float hue = (phase * 0.25f) % 1f;
-            Color lightColor = Main.hslToRgb(hue, 0.5f, 0.6f);
-            float stackIntensity = (float)resonancePlayer.resonanceStacks / 100f;
-            Lighting.AddLight(player.Center, lightColor.ToVector3() * stackIntensity);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)

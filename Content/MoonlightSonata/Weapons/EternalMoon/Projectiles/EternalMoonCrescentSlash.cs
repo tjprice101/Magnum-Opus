@@ -77,6 +77,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             var texture = Terraria.GameContent.TextureAssets.Projectile[Type].Value;
 
             // Draw the crescent slash arc
@@ -97,6 +100,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                 texture.Size() / 2f, scale * 1.4f, SpriteEffects.None, 0);
 
             Lighting.AddLight(Projectile.Center, EternalMoonUtils.IceBlue.ToVector3() * Projectile.Opacity * 0.5f);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

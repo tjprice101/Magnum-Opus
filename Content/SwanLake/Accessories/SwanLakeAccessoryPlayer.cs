@@ -52,6 +52,7 @@ namespace MagnumOpus.Content.SwanLake.Accessories
         public bool crownIsBlackMode = false;
         public int protectiveWispCount = 0;
         private const int MaxProtectiveWisps = 5;
+        public bool crownWispConsumedThisHit = false; // Prevents double wisp consumption
         public int crownFlameOfSwanCooldown = 0; // Cooldown for applying Flame of the Swan
         private const int CrownFlameCooldownMax = 120; // 2 seconds cooldown
         
@@ -102,6 +103,9 @@ namespace MagnumOpus.Content.SwanLake.Accessories
         
         public override void PostUpdate()
         {
+            // Reset per-hit flags
+            crownWispConsumedThisHit = false;
+            
             // ========== FLOATING VISUAL ANGLE ==========
             floatAngle += 0.025f;
             if (floatAngle > MathHelper.TwoPi)
@@ -138,103 +142,7 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                 {
                     Main.NewText("Monochromatic Shield recharged!", new Color(240, 245, 255));
                     SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.5f }, Player.Center);
-                    
-                    // Visual recharge effect
-                    for (int i = 0; i < 30; i++)
-                    {
-                        float angle = MathHelper.TwoPi * i / 30f;
-                        Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 4f;
-                        Dust white = Dust.NewDustPerfect(Player.Center, DustID.WhiteTorch, vel, 0, default, 1.5f);
-                        white.noGravity = true;
-                    }
                 }
-            }
-            
-            // Show shield visual when active (White mode only) - VERY PROMINENT HALO SYSTEM
-            // Shield brightness scales with charges: 3 = full, 2 = 66%, 1 = 33%, 0 = fading out
-            if (hasPendantOfTheTwoSwans && !pendantIsBlackMode)
-            {
-                // Calculate halo intensity based on shield state
-                float haloIntensity = 0f;
-                if (pendantShieldActive && pendantShieldCharges > 0)
-                {
-                    haloIntensity = pendantShieldCharges / (float)MaxShieldCharges; // 0.33, 0.66, or 1.0
-                }
-                else if (pendantShieldCooldown > 0)
-                {
-                    // During recharge, slowly pulse back in
-                    float rechargeProgress = 1f - (pendantShieldCooldown / (float)ShieldCooldownMax);
-                    haloIntensity = rechargeProgress * 0.3f; // Dim glow during recharge
-                }
-                
-                // ALWAYS show SOMETHING when shield is equipped in white mode
-                haloIntensity = Math.Max(0.3f, haloIntensity); // Minimum 30% intensity always
-                
-                // === PROMINENT CONSTANT SHIELD AURA ===
-                // Rotating outer ring - ALWAYS visible
-                float ringAngle = Main.GameUpdateCount * 0.03f;
-                int ringSegments = 12;
-                for (int i = 0; i < ringSegments; i++)
-                {
-                    float segmentAngle = ringAngle + MathHelper.TwoPi * i / ringSegments;
-                    float radius = 50f + (float)Math.Sin(Main.GameUpdateCount * 0.08f + i) * 5f;
-                    Vector2 pos = Player.Center + new Vector2((float)Math.Cos(segmentAngle), (float)Math.Sin(segmentAngle)) * radius;
-                    
-                    // Alternating black and white segments
-                    if (i % 2 == 0)
-                    {
-                        Dust white = Dust.NewDustPerfect(pos, DustID.WhiteTorch, 
-                            new Vector2((float)Math.Cos(segmentAngle + MathHelper.PiOver2), (float)Math.Sin(segmentAngle + MathHelper.PiOver2)) * 0.5f, 
-                            (int)(80 - haloIntensity * 40), default, 1.2f * haloIntensity);
-                        white.noGravity = true;
-                    }
-                    else
-                    {
-                        Dust black = Dust.NewDustPerfect(pos, DustID.Smoke, 
-                            new Vector2((float)Math.Cos(segmentAngle + MathHelper.PiOver2), (float)Math.Sin(segmentAngle + MathHelper.PiOver2)) * 0.5f, 
-                            180, Color.Black, 1.0f * haloIntensity);
-                        black.noGravity = true;
-                    }
-                }
-                
-                // Rainbow shimmer particles in the shield
-                if (Main.rand.NextBool(3))
-                {
-                    float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                    float radius = 45f + Main.rand.NextFloat(15f);
-                    Vector2 pos = Player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
-                    float hue = (Main.GameUpdateCount * 0.02f + angle / MathHelper.TwoPi) % 1f;
-                    Color rainbow = Main.hslToRgb(hue, 0.8f, 0.7f) * haloIntensity;
-                    Dust r = Dust.NewDustPerfect(pos, DustID.RainbowTorch, Vector2.Zero, 0, rainbow, 0.8f);
-                    r.noGravity = true;
-                }
-                
-                // Pearlescent shimmer flares
-                if (Main.rand.NextBool(6))
-                {
-                    float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                    Vector2 pos = Player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 48f;
-                    CustomParticles.GenericFlare(pos, Color.White * haloIntensity, 0.25f * haloIntensity, 12);
-                }
-                
-                // Shield charge indicator - bright flares at cardinal directions based on charges
-                for (int c = 0; c < pendantShieldCharges; c++)
-                {
-                    float chargeAngle = Main.GameUpdateCount * 0.02f + MathHelper.TwoPi * c / 3f;
-                    Vector2 chargePos = Player.Center + new Vector2((float)Math.Cos(chargeAngle), (float)Math.Sin(chargeAngle)) * 55f;
-                    
-                    // Show charge indicator every few frames
-                    if (Main.GameUpdateCount % 8 == c * 2)
-                    {
-                        CustomParticles.GenericFlare(chargePos, Color.White, 0.35f, 15);
-                        Dust indicator = Dust.NewDustPerfect(chargePos, DustID.WhiteTorch, Vector2.Zero, 0, default, 1.5f);
-                        indicator.noGravity = true;
-                    }
-                }
-                
-                // Add prominent ambient light based on halo intensity
-                float lightPulse = 0.9f + (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.1f;
-                Lighting.AddLight(Player.Center, haloIntensity * 0.6f * lightPulse, haloIntensity * 0.6f * lightPulse, haloIntensity * 0.7f * lightPulse);
             }
             
             // Legacy halo system - keep for backward compatibility
@@ -263,22 +171,6 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                 if (protectiveWispCount < MaxProtectiveWisps && Main.rand.NextBool(180))
                 {
                     protectiveWispCount++;
-                    // Visual wisp spawn effect
-                    for (int i = 0; i < 10; i++)
-                    {
-                        Dust wisp = Dust.NewDustPerfect(Player.Center, DustID.WhiteTorch,
-                            Main.rand.NextVector2Circular(3f, 3f), 100, default, 1.2f);
-                        wisp.noGravity = true;
-                    }
-                }
-                
-                // Draw orbiting wisps
-                if (protectiveWispCount > 0 && Main.rand.NextBool(4))
-                {
-                    float wispAngle = floatAngle * 2f + Main.rand.NextFloat(MathHelper.TwoPi);
-                    Vector2 wispPos = Player.Center + new Vector2((float)Math.Cos(wispAngle), (float)Math.Sin(wispAngle)) * 40f;
-                    Dust wispDust = Dust.NewDustPerfect(wispPos, DustID.WhiteTorch, Vector2.Zero, 150, default, 0.8f);
-                    wispDust.noGravity = true;
                 }
             }
             else
@@ -286,86 +178,6 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                 protectiveWispCount = 0;
             }
             
-            // ========== BLACK WINGS - Minion visual effects ==========
-            if (hasBlackWings)
-            {
-                foreach (Projectile proj in Main.ActiveProjectiles)
-                {
-                    if (proj.owner == Player.whoAmI && proj.minion && Main.rand.NextBool(15))
-                    {
-                        if (wingsIsBlackMode)
-                        {
-                            // Black flame claws effect
-                            Dust claw = Dust.NewDustPerfect(proj.Center + Main.rand.NextVector2Circular(10f, 10f),
-                                DustID.Smoke, new Vector2(0, -0.5f), 200, Color.Black, 1.2f);
-                            claw.noGravity = true;
-                        }
-                        else
-                        {
-                            // White flame shield effect
-                            Dust shield = Dust.NewDustPerfect(proj.Center + Main.rand.NextVector2Circular(15f, 15f),
-                                DustID.WhiteTorch, Vector2.Zero, 100, default, 0.7f);
-                            shield.noGravity = true;
-                        }
-                    }
-                }
-            }
-            
-            // ========== AMBIENT PARTICLES ==========
-            SpawnAmbientParticles();
-            
-            // ========== UNIFIED SWAN LAKE FEATHER EFFECT ==========
-            // Only spawn feather aura once regardless of how many Swan Lake items equipped
-            SpawnUnifiedFeatherEffect();
-        }
-        
-        private void SpawnAmbientParticles()
-        {
-            // Pendant particles
-            if (hasPendantOfTheTwoSwans && Main.rand.NextBool(8))
-            {
-                int dustType = pendantIsBlackMode ? DustID.Smoke : DustID.WhiteTorch;
-                Color color = pendantIsBlackMode ? Color.Black : default;
-                Dust dust = Dust.NewDustPerfect(Player.Center + new Vector2(Main.rand.NextFloat(-20f, 20f), -40f),
-                    dustType, new Vector2(0, -1f), pendantIsBlackMode ? 200 : 100, color, 0.9f);
-                dust.noGravity = true;
-            }
-            
-            // Quiver particles
-            if (hasDualFeatherQuiver && Main.rand.NextBool(10))
-            {
-                int dustType = quiverIsBlackMode ? DustID.Smoke : DustID.WhiteTorch;
-                Vector2 offset = new Vector2((float)Math.Cos(floatAngle + MathHelper.Pi) * 35f, -35f);
-                Dust dust = Dust.NewDustPerfect(Player.Center + offset, dustType,
-                    new Vector2(0, -0.5f), quiverIsBlackMode ? 180 : 100, quiverIsBlackMode ? Color.Black : default, 0.7f);
-                dust.noGravity = true;
-            }
-        }
-        
-        /// <summary>
-        /// Spawns a unified feather effect around the player if they have ANY Swan Lake accessory equipped.
-        /// Only spawns once per tick regardless of how many items are equipped.
-        /// </summary>
-        private void SpawnUnifiedFeatherEffect()
-        {
-            // Check if player has any Swan Lake item (accessory OR held weapon)
-            bool hasAnySwanLakeItem = hasPendantOfTheTwoSwans || hasDualFeatherQuiver || 
-                                       hasCrownOfTheSwan || hasBlackWings || isHoldingSwanLakeWeapon;
-            
-            // If no Swan Lake items, don't spawn anything
-            if (!hasAnySwanLakeItem) return;
-            
-            // If feathers already spawned this tick, don't spawn again
-            if (hasSwanLakeFeatherEffect) return;
-            
-            // Mark that we've spawned feathers this tick
-            hasSwanLakeFeatherEffect = true;
-            
-            // Spawn ONE set of subtle feathers (much less frequent)
-            if (Main.rand.NextBool(25)) // 1 in 25 chance per tick
-            {
-                CustomParticles.SwanFeatherAura(Player.Center, 28f, 1);
-            }
         }
         
         public override bool FreeDodge(Player.HurtInfo info)
@@ -447,9 +259,11 @@ namespace MagnumOpus.Content.SwanLake.Accessories
         public override bool ConsumableDodge(Player.HurtInfo info)
         {
             // Crown white mode - Protective wisps can absorb a hit
-            if (hasCrownOfTheSwan && !crownIsBlackMode && protectiveWispCount > 0)
+            // Skip if ModifyHurt already consumed a wisp for this hit
+            if (hasCrownOfTheSwan && !crownIsBlackMode && protectiveWispCount > 0 && !crownWispConsumedThisHit)
             {
                 protectiveWispCount--;
+                crownWispConsumedThisHit = false; // Reset for next hit
                 
                 // Wisp break effect
                 for (int i = 0; i < 15; i++)

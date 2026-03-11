@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
@@ -12,7 +12,7 @@ using MagnumOpus.Common.Systems.Shaders;
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
     /// <summary>
-    /// Funeral Prayer projectile 窶・large flaming bolt with red/gold flames using 6ﾃ・ sprite sheet.
+    /// Funeral Prayer projectile  Elarge flaming bolt with red/gold flames using 6ÁE sprite sheet.
     /// Self-contained VFX: GPU trail, spritesheet rendering, afterimages, flame particles.
     /// </summary>
     public class FuneralPrayerProjectile : ModProjectile
@@ -27,7 +27,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         private ref float AgeTimer => ref Projectile.ai[1];
 
-        // 笏笏 Trail tracking 笏笏
+        // ── Trail tracking ──
         private const int TrailLength = 20;
         private Vector2[] trailPositions = new Vector2[TrailLength];
         private float[] trailRotations = new float[TrailLength];
@@ -60,11 +60,11 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         {
             AgeTimer++;
 
-            // Pulsating scale 窶・the funeral flame breathes
+            // Pulsating scale  Ethe funeral flame breathes
             float scalePulse = (float)Math.Sin(AgeTimer * 0.07f) * 0.05f;
             Projectile.scale = 1.0f + scalePulse;
 
-            // Animate through 6ﾃ・ sprite sheet
+            // Animate through 6ÁE sprite sheet
             frameCounter++;
             if (frameCounter >= AnimationSpeed)
             {
@@ -74,7 +74,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // 笏笏 Trail position tracking 笏笏
+            // ── Trail position tracking ──
             if (!trailInitialized)
             {
                 for (int i = 0; i < TrailLength; i++)
@@ -95,7 +95,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 trailRotations[0] = Projectile.rotation;
             }
 
-            // 笏笏 Particle Spawning 笏笏
+            // ── Particle Spawning ──
             SpawnFlightParticles();
         }
 
@@ -192,6 +192,8 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
             float time = (float)Main.gameTimeCache.TotalGameTime.TotalSeconds;
 
@@ -225,6 +227,15 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             EroicaVFXLibrary.BeginEroicaAdditive(sb);
             EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.4f);
             EroicaVFXLibrary.EndEroicaAdditive(sb);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -296,7 +307,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             if (hasShader)
             {
-                // PASS 1: FuneralTrail body — deep ember flames
+                // PASS 1: FuneralTrail body ? deep ember flames
                 EroicaShaderManager.BeginShaderAdditive(sb);
                 try
                 {
@@ -332,7 +343,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                     EroicaShaderManager.RestoreSpriteBatch(sb);
                 }
 
-                // PASS 2: FuneralTrail glow — wider smolder
+                // PASS 2: FuneralTrail glow ? wider smolder
                 EroicaShaderManager.BeginShaderAdditive(sb);
                 try
                 {
@@ -502,7 +513,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 {
                     EroicaShaderManager.ApplyFuneralPrayerConvergence(time, expansionPhase, glowPass: false);
 
-                    Texture2D ringTex = EroicaTextures.HaloRing?.Value ?? EroicaTextures.CircularMask?.Value;
+                    Texture2D ringTex = EroicaTextures.HaloRing?.Value ?? EroicaTextures.SoftCircle?.Value;
                     if (ringTex != null)
                     {
                         float ringScale = Projectile.scale * 0.5f * pulse;

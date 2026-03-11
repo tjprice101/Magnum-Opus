@@ -50,11 +50,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Utilities
 
         public static Color GetPaletteColor(float t)
         {
-            t = MathHelper.Clamp(t, 0f, 1f);
-            float scaled = t * (SwingPalette.Length - 1);
-            int idx = (int)scaled;
-            int next = Math.Min(idx + 1, SwingPalette.Length - 1);
-            return Color.Lerp(SwingPalette[idx], SwingPalette[next], scaled - idx);
+            return DiesIraeVFXLibrary.SampleLUT(t);
         }
 
         public static Color GetPaletteColorBright(float t, float push = 0.35f)
@@ -153,6 +149,9 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Utilities
         /// </summary>
         public static void DoHitImpact(Vector2 hitPos, int comboStep)
         {
+            // === Color-ramped sparkle explosion VFX ===
+            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(hitPos, 8, 5f, 0.3f);
+
             // Directional crimson dust burst
             int dustCount = 6 + comboStep * 3;
             for (int i = 0; i < dustCount; i++)

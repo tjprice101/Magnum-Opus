@@ -81,6 +81,9 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.FeatheroftheIridescentFloc
                 d.noGravity = true;
             }
 
+            // Rainbow sparkle burst on summon
+            try { SwanLakeVFXLibrary.SpawnPrismaticSparkles(player.Center, 5, 18f); } catch { }
+
             return false;
         }
 

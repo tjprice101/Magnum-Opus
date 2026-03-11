@@ -15,7 +15,7 @@ using static MagnumOpus.Common.Systems.ThemedParticles;
 namespace MagnumOpus.Content.Winter.Weapons
 {
     /// <summary>
-    /// Glacial Executioner — Winter-themed melee weapon (Post-Golem tier).
+    /// Glacial Executioner — Winter-themed melee weapon (Post-Mechanical Bosses tier).
     /// A massive frost claymore that shatters permafrost, using held-projectile combo architecture.
     /// Unique Mechanic: Frozen enemies take 30% bonus damage (Permafrost).
     /// </summary>

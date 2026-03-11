@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.FoundationWeapons.ExplosionParticlesFoundation;
+using MagnumOpus.Common.Systems.VFX.Sparkle;
 
 namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Projectiles
 {
@@ -170,6 +171,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
             if (sparks == null) return false;
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
@@ -186,6 +189,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
 
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
@@ -195,38 +207,21 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
 
             float flashProgress = timer / 12f;
             float flashAlpha = 1f - flashProgress * flashProgress;
-            Vector2 center = Projectile.Center - Main.screenPosition;
+            float time = (float)Main.timeForVisualEffects;
 
-            // Load shared Foundation bloom textures
-            Texture2D softGlow = EPFTextures.SoftGlow.Value;
-            Texture2D starFlare = EPFTextures.StarFlare.Value;
-            Texture2D lensFlare = EPFTextures.LensFlare.Value;
-            Vector2 glowOrigin = softGlow.Size() / 2f;
-
-            // Wide outer flash (ice blue)
-            float wideScale = 100f * (1f + flashProgress * 0.5f) / softGlow.Width;
-            sb.Draw(softGlow, center, null, LunarSparkColors[3] * (flashAlpha * 0.6f),
-                0f, glowOrigin, wideScale, SpriteEffects.None, 0f);
-
-            // Mid glow (purple core)
-            float midScale = 50f / softGlow.Width;
-            sb.Draw(softGlow, center, null, LunarSparkColors[1] * (flashAlpha * 0.4f),
-                0f, glowOrigin, midScale, SpriteEffects.None, 0f);
-
-            // Star flare burst (white-hot)
-            Vector2 flareOrigin = starFlare.Size() / 2f;
-            float starScale = 60f * (1f + flashProgress) / starFlare.Width;
-            sb.Draw(starFlare, center, null, LunarSparkColors[4] * (flashAlpha * 0.5f),
-                timer * 0.1f, flareOrigin, starScale, SpriteEffects.None, 0f);
-
-            // Lens flare (first 4 frames only)
-            if (timer < 4)
-            {
-                Vector2 lensOrigin = lensFlare.Size() / 2f;
-                float lensScale = 40f / lensFlare.Width;
-                sb.Draw(lensFlare, center, null, LunarSparkColors[4] * (flashAlpha * 0.3f),
-                    0f, lensOrigin, lensScale, SpriteEffects.None, 0f);
-            }
+            // Lunar sparkle impact - replaces 4-layer SoftGlow/StarFlare/LensFlare stacking
+            Color[] lunarColors = new Color[] {
+                new Color(40, 10, 60),      // NightPurple
+                new Color(75, 0, 130),      // DarkPurple
+                new Color(138, 43, 226),    // Violet
+                new Color(135, 206, 250),   // IceBlue
+                new Color(240, 235, 255),   // MoonWhite
+            };
+            float impactRadius = 45f * (1f + flashProgress * 0.5f);
+            int impactCount = 10 + (int)(flashProgress * 4f);
+            SparkleBloomHelper.DrawSparkleImpact(sb, Projectile.Center, SparkleTheme.MoonlightSonata,
+                lunarColors, flashAlpha, impactRadius, impactCount, time,
+                seed: Projectile.identity * 0.91f, sparkleScale: 0.04f);
         }
 
         private void DrawSparks(SpriteBatch sb)
@@ -234,11 +229,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
             Texture2D lineTex = EPFTextures.SolidWhiteLine.Value;
             Texture2D starTex = EPFTextures.Star4Hard.Value;
             Texture2D dotTex = EPFTextures.GlowOrb.Value;
-            Texture2D softGlow = EPFTextures.SoftGlow.Value;
             Vector2 lineOrigin = new Vector2(lineTex.Width / 2f, lineTex.Height / 2f);
             Vector2 starOrigin = starTex.Size() / 2f;
             Vector2 dotOrigin = dotTex.Size() / 2f;
-            Vector2 glowOrigin = softGlow.Size() / 2f;
+            float time = (float)Main.timeForVisualEffects;
 
             for (int i = 0; i < sparks.Length; i++)
             {
@@ -248,7 +242,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
                 Vector2 drawPos = s.Position - Main.screenPosition;
                 Color baseColor = LunarSparkColors[Math.Min(s.ColorIndex, LunarSparkColors.Length - 1)];
                 Color sparkColor = baseColor * s.Alpha;
-                Color coreColor = LunarSparkColors[4] * (s.Alpha * 0.7f); // White-hot core
+                Color coreColor = LunarSparkColors[4] * (s.Alpha * 0.7f);
 
                 float speedFactor = MathHelper.Clamp(s.Velocity.Length() / 6f, 0.2f, 1f);
 
@@ -268,9 +262,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
                             s.Rotation, lineOrigin, new Vector2(stretchX * 0.7f, stretchY * 0.4f),
                             SpriteEffects.None, 0f);
 
-                        float headGlowPx = s.Scale * 5f;
-                        sb.Draw(softGlow, drawPos, null, sparkColor * 0.3f,
-                            0f, glowOrigin, headGlowPx / softGlow.Width, SpriteEffects.None, 0f);
+                        // Sparkle twinkle at head instead of SoftGlow blob
+                        Color[] lunarSpkCols = new Color[] { baseColor, LunarSparkColors[4] };
+                        SparkleBloomHelper.DrawSparkleBloom(sb, s.Position, SparkleTheme.MoonlightSonata,
+                            lunarSpkCols, s.Alpha * 0.5f, s.Scale * 4f, 2, time,
+                            seed: i * 0.37f, sparkleScale: 0.015f);
                         break;
                     }
                     case 1: // Star chunk
@@ -279,11 +275,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
                         sb.Draw(starTex, drawPos, null, sparkColor,
                             s.Rotation, starOrigin, starScale, SpriteEffects.None, 0f);
 
-                        float starGlowPx = s.Scale * 8f;
-                        sb.Draw(softGlow, drawPos, null, sparkColor * 0.4f,
-                            0f, glowOrigin, starGlowPx / softGlow.Width, SpriteEffects.None, 0f);
-                        sb.Draw(softGlow, drawPos, null, coreColor * 0.3f,
-                            0f, glowOrigin, s.Scale * 4f / softGlow.Width, SpriteEffects.None, 0f);
+                        // Sparkle twinkle at star instead of SoftGlow×2 stack
+                        Color[] starSpkCols = new Color[] { baseColor, LunarSparkColors[4], new Color(135, 206, 250) };
+                        SparkleBloomHelper.DrawSparkleBloom(sb, s.Position, SparkleTheme.MoonlightSonata,
+                            starSpkCols, s.Alpha * 0.5f, s.Scale * 6f, 3, time,
+                            seed: i * 0.59f + 0.5f, sparkleScale: 0.018f);
                         break;
                     }
                     case 2: // Glowing dot
@@ -293,9 +289,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
                         sb.Draw(dotTex, drawPos, null, sparkColor,
                             0f, dotOrigin, dotScale, SpriteEffects.None, 0f);
 
-                        float dotGlowPx = MathHelper.Max(5f, s.Scale * 8f);
-                        sb.Draw(softGlow, drawPos, null, sparkColor * 0.25f,
-                            0f, glowOrigin, dotGlowPx / softGlow.Width, SpriteEffects.None, 0f);
+                        // Single small sparkle instead of SoftGlow blob
+                        Color[] dotSpkCols = new Color[] { baseColor, LunarSparkColors[4] };
+                        SparkleBloomHelper.DrawSparkleBloom(sb, s.Position, SparkleTheme.MoonlightSonata,
+                            dotSpkCols, s.Alpha * 0.3f, s.Scale * 4f, 1, time,
+                            seed: i * 0.83f + 1f, sparkleScale: 0.012f);
                         break;
                     }
                 }

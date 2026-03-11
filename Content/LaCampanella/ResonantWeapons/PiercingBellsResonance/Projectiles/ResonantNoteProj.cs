@@ -84,6 +84,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             var tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             float fade = Math.Min(1f, (float)Projectile.timeLeft / 30f); // Fade out in last 0.5s
             float pulse = 0.85f + (float)Math.Sin(Main.GameUpdateCount * 0.12f + Projectile.whoAmI) * 0.15f;
@@ -161,6 +163,15 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
                         Main.DefaultSamplerState, DepthStencilState.None,
                         Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
                 }
+            }
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
             return false;

@@ -258,6 +258,9 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
             // Use the ACTUAL sprite texture for the minion
             Texture2D spriteTexture = ModContent.Request<Texture2D>("MagnumOpus/Content/Spring/Projectiles/FlowerSpriteMinion", AssetRequestMode.ImmediateLoad).Value;
@@ -294,6 +297,15 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             SpriteEffects effects = Projectile.velocity.X < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             Color drawColor = Projectile.GetAlpha(lightColor) * coordinatedBoost;
             spriteBatch.Draw(spriteTexture, drawPos, null, drawColor, Projectile.rotation * 0.5f, spriteOrigin, scale, effects, 0f);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -364,8 +376,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Procedural Spring projectile rendering - no PNG loading
             ProceduralProjectileVFX.DrawSpringProjectile(Main.spriteBatch, Projectile, 0.6f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -576,6 +600,9 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard", AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = texture.Size() / 2f;
@@ -601,6 +628,15 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -672,8 +708,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Procedural Summer projectile rendering - no PNG loading
             ProceduralProjectileVFX.DrawSummerProjectile(Main.spriteBatch, Projectile, 0.6f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -905,6 +953,9 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
             // Use the ACTUAL sprite texture for the minion
             Texture2D spriteTexture = ModContent.Request<Texture2D>("MagnumOpus/Content/Autumn/Projectiles/HarvestWraithMinion", AssetRequestMode.ImmediateLoad).Value;
@@ -947,6 +998,15 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             SpriteEffects effects = Projectile.velocity.X < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             Color drawColor = Projectile.GetAlpha(lightColor) * coordinatedBoost;
             spriteBatch.Draw(spriteTexture, drawPos, null, drawColor, Projectile.rotation * 0.3f, spriteOrigin, scale, effects, 0f);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -1198,6 +1258,9 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
             // Use the ACTUAL sprite texture for the minion
             Texture2D spriteTexture = ModContent.Request<Texture2D>("MagnumOpus/Content/Winter/Projectiles/FrostSentinelMinion", AssetRequestMode.ImmediateLoad).Value;
@@ -1237,6 +1300,15 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             SpriteEffects effects = Projectile.velocity.X < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             Color drawColor = Projectile.GetAlpha(lightColor) * coordinatedBoost;
             spriteBatch.Draw(spriteTexture, drawPos, null, drawColor, Projectile.rotation * 0.3f, spriteOrigin, scale, effects, 0f);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -1309,8 +1381,20 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             // Procedural Winter projectile rendering - no PNG loading
             ProceduralProjectileVFX.DrawWinterProjectile(Main.spriteBatch, Projectile, 0.6f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }

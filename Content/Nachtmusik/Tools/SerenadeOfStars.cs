@@ -74,58 +74,6 @@ namespace MagnumOpus.Content.Nachtmusik.Tools
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             player.GetModPlayer<SerenadeOfStarsPlayer>().hasWingsEquipped = true;
-            
-            // Celestial starlight particles when flying
-            if (!hideVisual && player.velocity.Y != 0)
-            {
-                // Purple-gold gradient wisps
-                if (Main.rand.NextBool(3))
-                {
-                    float progress = Main.rand.NextFloat();
-                    Color wispColor = Color.Lerp(DeepPurple, Gold, progress);
-                    
-                    var glow = new GenericGlowParticle(
-                        player.Center + Main.rand.NextVector2Circular(25f, 20f),
-                        new Vector2(player.velocity.X * -0.05f, -1.5f),
-                        wispColor * 0.7f, 0.4f, 35, true);
-                    MagnumParticleHandler.SpawnParticle(glow);
-                }
-                
-                // Star sparkles
-                if (Main.rand.NextBool(5))
-                {
-                    Vector2 starPos = player.Center + Main.rand.NextVector2Circular(30f, 25f);
-                    CustomParticles.GenericFlare(starPos, StarWhite * 0.6f, 0.25f, 15);
-                }
-                
-                // Music notes trailing behind
-                if (Main.rand.NextBool(8))
-                {
-                    Vector2 notePos = player.Center + new Vector2(Main.rand.NextFloat(-20f, 20f), 15f);
-                    NachtmusikVFXLibrary.SpawnMusicNotes(notePos, 1, 6f, 0.7f, 0.85f, 25);
-                }
-                
-                // Constellation trail - connected star points
-                if (Main.rand.NextBool(10))
-                {
-                    Vector2 constPos = player.Center + Main.rand.NextVector2Circular(35f, 30f);
-                    var constellation = new GenericGlowParticle(constPos, 
-                        new Vector2(player.velocity.X * -0.08f, Main.rand.NextFloat(-0.3f, 0.3f)),
-                        Gold * 0.5f, 0.2f, 40, true);
-                    MagnumParticleHandler.SpawnParticle(constellation);
-                }
-                
-                // Ethereal violet mist
-                if (Main.rand.NextBool(4))
-                {
-                    var mist = new HeavySmokeParticle(
-                        player.Center + Main.rand.NextVector2Circular(20f, 15f),
-                        new Vector2(player.velocity.X * -0.1f, Main.rand.NextFloat(-0.3f, 0.5f)),
-                        Color.Lerp(DeepPurple, Violet, Main.rand.NextFloat(0.5f)) * 0.4f,
-                        Main.rand.Next(30, 50), 0.3f, 0.45f, 0.015f, false);
-                    MagnumParticleHandler.SpawnParticle(mist);
-                }
-            }
         }
 
         public override void AddRecipes()

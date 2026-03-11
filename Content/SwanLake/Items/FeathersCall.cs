@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.Graphics;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -97,8 +98,7 @@ namespace MagnumOpus.Content.SwanLake.Items
                 spark.noGravity = true;
             }
 
-            // Feather burst
-            CustomParticles.SwanFeatherExplosion(player.Center, 20, 0.8f);
+            // Rainbow explosion
             ThemedParticles.SwanLakeRainbowExplosion(player.Center, 2f);
 
             SoundEngine.PlaySound(SoundID.Roar with { Pitch = 0.5f, Volume = 0.7f }, player.Center);
@@ -235,14 +235,6 @@ namespace MagnumOpus.Content.SwanLake.Items
 
         private void SpawnAmbientParticles()
         {
-            // Feathers trailing
-            if (Main.rand.NextBool(3))
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(40f, 40f);
-                Color featherColor = Main.rand.NextBool() ? Color.White : Color.Black;
-                CustomParticles.SwanFeatherDrift(Player.Center + offset, featherColor, 0.25f);
-            }
-
             // Rainbow shimmer
             if (Main.rand.NextBool(5))
             {
@@ -388,9 +380,6 @@ namespace MagnumOpus.Content.SwanLake.Items
                 Vector2 offset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 50f;
                 CustomParticles.PrismaticSparkleBurst(position + offset, rainbowColor, 5);
             }
-            
-            // Feather burst
-            CustomParticles.SwanFeatherBurst(position, 8, 0.6f);
             
             // Dust explosion
             for (int i = 0; i < 30; i++)
@@ -592,10 +581,11 @@ namespace MagnumOpus.Content.SwanLake.Items
 
         private int FlareType => (int)Projectile.ai[0]; // 0 = white, 1 = black, 2 = rainbow
         private int TargetIndex => (int)Projectile.ai[1];
+        private VertexStrip _strip;
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Type] = 12;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
             ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
@@ -667,7 +657,8 @@ namespace MagnumOpus.Content.SwanLake.Items
                 float shimmer = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.1f;
                 ThemedParticles.MusicNote(Projectile.Center, noteVel, noteColor, 0.8f * shimmer, 35);
             }
-        }
+            // Swan Lake rainbow sparkles
+            IncisorOrbRenderer.SpawnSwanLakeRainbowSparkles(Projectile);        }
 
         public override void OnKill(int timeLeft)
         {
@@ -681,7 +672,6 @@ namespace MagnumOpus.Content.SwanLake.Items
 
             // Core explosion
             CustomParticles.ExplosionBurst(Projectile.Center, explosionColor, 12, 10f);
-            CustomParticles.SwanFeatherBurst(Projectile.Center, 6, 0.4f);
             
             // ☁EMUSICAL FINALE - Feathered symphony
             float finaleHue = (Main.GameUpdateCount * 0.02f) % 1f;
@@ -744,64 +734,20 @@ namespace MagnumOpus.Content.SwanLake.Items
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            // Switch to additive blending for glow VFX (black-background textures)
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Get color based on flare type
-            Color coreColor = FlareType switch
+            SpriteBatch sb = Main.spriteBatch;
+            try
             {
-                0 => Color.White,
-                1 => new Color(30, 30, 30),
-                _ => Main.hslToRgb((Main.GameUpdateCount * 0.02f) % 1f, 1f, 0.7f)
-            };
-            Color glowColor = FlareType switch
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.SwanLake, ref _strip);
+            }
+            catch { }
+            finally
             {
-                0 => new Color(255, 255, 255, 100),
-                1 => new Color(80, 80, 80, 100),
-                _ => Main.hslToRgb((Main.GameUpdateCount * 0.02f + 0.1f) % 1f, 0.8f, 0.8f) * 0.7f
-            };
-
-            // Draw trail
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                float fade = 1f - (i / (float)Projectile.oldPos.Length);
-                float trailScale = (1f - i * 0.06f) * 0.5f;
-                Color trailCol = glowColor * fade * 0.5f;
-
-                // Draw glowing orb trail
-                Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
-                if (glowTex == null) continue;
-                spriteBatch.Draw(glowTex, trailPos, null, trailCol, 0f, glowTex.Size() / 2f, trailScale, SpriteEffects.None, 0f);
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
-            // Draw outer glow (cap to 300px on 512px SoftGlow)
-            Texture2D glowTexture = MagnumTextureRegistry.GetSoftGlow();
-            if (glowTexture == null) return false;
-            spriteBatch.Draw(glowTexture, drawPos, null, glowColor * 0.6f, 0f, glowTexture.Size() / 2f, 0.586f, SpriteEffects.None, 0f);
-
-            // Draw inner core
-            spriteBatch.Draw(glowTexture, drawPos, null, coreColor, 0f, glowTexture.Size() / 2f, 0.4f, SpriteEffects.None, 0f);
-
-            // Draw sparkle overlay for rainbow type
-            if (FlareType == 2)
-            {
-                float sparkleRot = Main.GameUpdateCount * 0.1f;
-                Color sparkleCol = Main.hslToRgb((Main.GameUpdateCount * 0.03f + 0.5f) % 1f, 1f, 0.9f) * 0.8f;
-                spriteBatch.Draw(glowTexture, drawPos, null, sparkleCol, sparkleRot, glowTexture.Size() / 2f, 0.3f, SpriteEffects.None, 0f);
-            }
-
-            // Restore default blend state
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-
-            return false; // Don't draw default sprite
+            return false;
         }
     }
 }

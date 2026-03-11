@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.DataStructures;
@@ -54,7 +55,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
             Item.useStyle = ItemUseStyleID.Shoot;
             Item.knockBack = 5f;
             Item.value = Item.sellPrice(gold: 20);
-            Item.rare = ModContent.RarityType<EnigmaRarity>();
+            Item.rare = ModContent.RarityType<EnigmaVariationsRarity>();
             Item.UseSound = SoundID.Item117;
             Item.autoReuse = true;
             Item.shoot = ModContent.ProjectileType<RiddleCascadeOrb>();
@@ -113,6 +114,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             Texture2D glyphTex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -201,21 +204,21 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // [1] RiddleIndigo — deep question glow
-            sb.Draw(bloomTex, drawPos, null, DissonanceUtils.RiddleIndigo * 0.24f, 0f,
-                bloomTex.Size() / 2f, MathHelper.Min(currentScale * 0.65f * pulse, 0.139f), SpriteEffects.None, 0f);
+            // [1] RiddleIndigo — deep question glow (reduced)
+            sb.Draw(bloomTex, drawPos, null, DissonanceUtils.RiddleIndigo * 0.14f, 0f,
+                bloomTex.Size() / 2f, MathHelper.Min(currentScale * 0.4f * pulse, 0.09f), SpriteEffects.None, 0f);
             // [2] SecretPurple — the secret's aura
-            sb.Draw(bloomTex, drawPos, null, DissonanceUtils.SecretPurple * ((0.4f + 0.15f * MathF.Sin(Main.GameUpdateCount * 0.06f)) * 0.8f), 0f,
-                bloomTex.Size() / 2f, MathHelper.Min(currentScale * 0.5f * pulse, 0.107f), SpriteEffects.None, 0f);
+            sb.Draw(bloomTex, drawPos, null, DissonanceUtils.SecretPurple * ((0.4f + 0.15f * MathF.Sin(Main.GameUpdateCount * 0.06f)) * 0.5f), 0f,
+                bloomTex.Size() / 2f, MathHelper.Min(currentScale * 0.32f * pulse, 0.07f), SpriteEffects.None, 0f);
             // [3] CascadeGreen — cascade energy spilling forth
-            sb.Draw(bloomTex, drawPos, null, DissonanceUtils.CascadeGreen * 0.44f, 0f,
-                bloomTex.Size() / 2f, MathHelper.Min(currentScale * 0.325f * pulse, 0.07f), SpriteEffects.None, 0f);
+            sb.Draw(bloomTex, drawPos, null, DissonanceUtils.CascadeGreen * 0.28f, 0f,
+                bloomTex.Size() / 2f, MathHelper.Min(currentScale * 0.2f * pulse, 0.045f), SpriteEffects.None, 0f);
             // [4] RevelationLime — the answer approaching
-            sb.Draw(bloomTex, drawPos, null, DissonanceUtils.RevelationLime * ((0.3f + 0.2f * growthProgress) * 0.8f), 0f,
-                bloomTex.Size() / 2f, MathHelper.Min(currentScale * 0.175f * pulse, 0.038f), SpriteEffects.None, 0f);
+            sb.Draw(bloomTex, drawPos, null, DissonanceUtils.RevelationLime * ((0.3f + 0.2f * growthProgress) * 0.5f), 0f,
+                bloomTex.Size() / 2f, MathHelper.Min(currentScale * 0.12f * pulse, 0.025f), SpriteEffects.None, 0f);
             // [5] TruthWhite — white-hot core of forbidden knowledge
-            sb.Draw(bloomTex, drawPos, null, DissonanceUtils.TruthWhite * ((0.5f + 0.3f * growthProgress) * 0.8f), 0f,
-                bloomTex.Size() / 2f, MathHelper.Min(currentScale * 0.09f, 0.02f), SpriteEffects.None, 0f);
+            sb.Draw(bloomTex, drawPos, null, DissonanceUtils.TruthWhite * ((0.5f + 0.3f * growthProgress) * 0.5f), 0f,
+                bloomTex.Size() / 2f, MathHelper.Min(currentScale * 0.06f, 0.013f), SpriteEffects.None, 0f);
 
             // ═══════════════════════════════════════════════════════
             //  LAYER 4: THEME TEXTURES — Enigma identity
@@ -255,10 +258,14 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
             // ═══════════════════════════════════════════════════════
             EnigmaVFXLibrary.AddPulsingLight(Projectile.Center, DissonanceUtils.SecretPurple, currentScale * 0.6f, 0.3f + 0.4f * growthProgress);
             EnigmaVFXLibrary.AddPulsingLight(Projectile.Center, DissonanceUtils.CascadeGreen, currentScale * 0.4f, 0.2f + 0.3f * growthProgress);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -486,131 +493,31 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(50, 220, 100);
         private readonly List<Vector2> _trailPositions = new(30);
+        private VertexStrip _strip;
         
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/MusicNote";
         
         public override void SetStaticDefaults()
         {
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
             ProjectileID.Sets.CultistIsResistantTo[Projectile.type] = true;
         }
         
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            Texture2D bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            float velRot = Projectile.velocity.ToRotation();
-
-            // ═══════════════════════════════════════════════════════
-            //  LAYER 1: GPU PRIMITIVE TRAIL — encrypted riddle path
-            // ═══════════════════════════════════════════════════════
-            if (_trailPositions.Count > 2)
+            try
             {
-                try
-                {
-                    sb.End();
-
-                    // Pass 1: Body trail — SecretPurple→CascadeGreen gradient
-                    if (ShaderLoader.DissonanceRiddleTrail != null)
-                    {
-                        var bodySettings = new DissonancePrimitiveSettings(
-                            widthFunction: c => MathHelper.Lerp(10f, 2f, c),
-                            colorFunction: c => Color.Lerp(DissonanceUtils.CascadeGreen, DissonanceUtils.SecretPurple, c) * (0.7f - c * 0.4f),
-                            shader: ShaderLoader.DissonanceRiddleTrail);
-                        DissonancePrimitiveRenderer.RenderTrail(_trailPositions, bodySettings);
-                    }
-
-                    // Pass 2: Glow trail — wider, softer indigo haze
-                    if (ShaderLoader.DissonanceRiddleTrail != null)
-                    {
-                        var glowSettings = new DissonancePrimitiveSettings(
-                            widthFunction: c => MathHelper.Lerp(20f, 4f, c),
-                            colorFunction: c => DissonanceUtils.RiddleIndigo * (0.3f - c * 0.2f),
-                            shader: ShaderLoader.DissonanceRiddleTrail);
-                        DissonancePrimitiveRenderer.RenderTrail(_trailPositions, glowSettings);
-                    }
-
-                    // Pass 3: Hot core filament — revelation white thread
-                    if (ShaderLoader.DissonanceRiddleTrail != null)
-                    {
-                        var coreSettings = new DissonancePrimitiveSettings(
-                            widthFunction: c => MathHelper.Lerp(4f, 1f, c),
-                            colorFunction: c => Color.Lerp(DissonanceUtils.TruthWhite, DissonanceUtils.RevelationLime, c) * (0.6f - c * 0.4f),
-                            shader: ShaderLoader.DissonanceRiddleTrail);
-                        DissonancePrimitiveRenderer.RenderTrail(_trailPositions, coreSettings);
-                    }
-
-                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-                }
-                catch
-                {
-                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-                }
+                IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.Enigma, ref _strip);
             }
-
-            // ═══════════════════════════════════════════════════════
-            //  LAYER 2: SHADER OVERLAY — encrypted riddle segments
-            // ═══════════════════════════════════════════════════════
-            EnigmaShaderHelper.DrawShaderOverlay(sb, ShaderLoader.DissonanceRiddleTrail,
-                bloomTex, drawPos, bloomTex.Size() / 2f, 0.139f,
-                DissonanceUtils.SecretPurple.ToVector3(), DissonanceUtils.CascadeGreen.ToVector3(),
-                opacity: 0.55f, intensity: 1.1f, rotation: velRot,
-                noiseTexture: ShaderLoader.GetNoiseTexture("VoronoiNoise"),
-                techniqueName: "DissonanceRiddleFlow");
-
-            // ═══════════════════════════════════════════════════════
-            //  LAYER 3: 6-LAYER BLOOM STACK — riddlebolt radiance
-            // ═══════════════════════════════════════════════════════
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-
-            float corePulse = 0.3f + 0.06f * MathF.Sin(Main.GameUpdateCount * 0.15f);
-
-            // [1] RiddleIndigo — deep question glow
-            sb.Draw(bloomTex, drawPos, null, DissonanceUtils.RiddleIndigo * 0.20f, 0f,
-                bloomTex.Size() / 2f, 0.139f, SpriteEffects.None, 0f);
-            // [2] SecretPurple — main riddle energy
-            sb.Draw(bloomTex, drawPos, null, DissonanceUtils.SecretPurple * 0.32f, 0f,
-                bloomTex.Size() / 2f, 0.10f, SpriteEffects.None, 0f);
-            // [3] CascadeGreen — cascade core
-            sb.Draw(bloomTex, drawPos, null, DissonanceUtils.CascadeGreen * 0.48f, 0f,
-                bloomTex.Size() / 2f, corePulse * 0.375f, SpriteEffects.None, 0f);
-            // [4] RevelationLime — hot revelation
-            sb.Draw(bloomTex, drawPos, null, DissonanceUtils.RevelationLime * 0.28f, 0f,
-                bloomTex.Size() / 2f, corePulse * 0.225f, SpriteEffects.None, 0f);
-            // [5] TruthWhite — white-hot secret core
-            sb.Draw(bloomTex, drawPos, null, DissonanceUtils.TruthWhite * 0.40f, 0f,
-                bloomTex.Size() / 2f, corePulse * 0.1f, SpriteEffects.None, 0f);
-
-            // ═══════════════════════════════════════════════════════
-            //  LAYER 4: THEME TEXTURES — Enigma identity
-            // ═══════════════════════════════════════════════════════
-            // EN Star Flare — dual counter-rotating
-            Texture2D starFlare = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
-            float starRot = Main.GameUpdateCount * 0.045f;
-            sb.Draw(starFlare, drawPos, null, DissonanceUtils.CascadeGreen * 0.32f, starRot,
-                starFlare.Size() / 2f, corePulse * 0.3f, SpriteEffects.None, 0f);
-            sb.Draw(starFlare, drawPos, null, DissonanceUtils.SecretPurple * 0.20f, -starRot * 0.7f,
-                starFlare.Size() / 2f, corePulse * 0.2f, SpriteEffects.None, 0f);
-
-            // EN Power Effect Ring
-            Texture2D powerRing = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Power Effect Ring", AssetRequestMode.ImmediateLoad).Value;
-            float ringRot = Main.GameUpdateCount * -0.03f;
-            sb.Draw(powerRing, drawPos, null, DissonanceUtils.RiddleIndigo * 0.20f, ringRot,
-                powerRing.Size() / 2f, corePulse * 0.25f, SpriteEffects.None, 0f);
-
-            // ═══════════════════════════════════════════════════════
-            //  LAYER 5: THEME ACCENTS — ambient pulsing light
-            // ═══════════════════════════════════════════════════════
-            EnigmaVFXLibrary.AddPulsingLight(Projectile.Center, DissonanceUtils.CascadeGreen, 0.4f, 0.5f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-
+            catch { }
+            finally
+            {
+                try { Main.spriteBatch.End(); } catch { }
+                Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
             return false;
         }
         

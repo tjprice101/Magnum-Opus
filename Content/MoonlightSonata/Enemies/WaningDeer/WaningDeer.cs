@@ -1213,6 +1213,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
         
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D texture = Terraria.GameContent.TextureAssets.Projectile[Type].Value;
             Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
             if (glowTex == null) return true;
@@ -1258,6 +1261,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
             Main.EntitySpriteDraw(texture, drawPos, null, lightColor, Projectile.rotation,
                 texture.Size() / 2f, Projectile.scale * pulse, SpriteEffects.None, 0);
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }

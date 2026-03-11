@@ -390,7 +390,7 @@ namespace MagnumOpus.Common.Systems.VFX.Trails
                     continue;
 
                 Vector2 pos = positions[index];
-                Color color = Color.Lerp(primaryColor, secondaryColor, progress);
+                Color color = new Color(255, 0, 50); // NEON RED fallback!
                 float scale = baseWidth * 0.05f * (1f - progress) * intensity;
 
                 SpawnStyleParticle(pos, style, color, scale);

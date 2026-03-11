@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using Terraria;
@@ -79,59 +79,6 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 player.lifeRegen += 8;
             }
-            
-            // Ambient VFX
-            if (!hideVisual)
-            {
-                // Night blossoms - moon-kissed flowers
-                if (isNight)
-                {
-                    // Orbital moonlit petals
-                    if (Main.GameUpdateCount % 10 == 0)
-                    {
-                        float baseAngle = Main.GameUpdateCount * 0.015f;
-                        for (int i = 0; i < 5; i++)
-                        {
-                            float angle = baseAngle + MathHelper.TwoPi * i / 5f;
-                            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f + i) * 5f;
-                            Vector2 pos = player.Center + angle.ToRotationVector2() * (42f + pulse);
-                            
-                            Color petalColor = Color.Lerp(SpringPink, NightBlossomBlue, (float)i / 5f);
-                            CustomParticles.GenericFlare(pos, petalColor, 0.28f, 14);
-                        }
-                    }
-                    
-                    // Floating moon dust among flowers
-                    if (Main.rand.NextBool(8))
-                    {
-                        Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(45f, 45f);
-                        Color dustColor = Main.rand.NextBool() ? MoonlightSilver : NightBlossomBlue;
-                        CustomParticles.GenericGlow(dustPos, new Vector2(0, -0.8f), dustColor * 0.65f, 0.22f, 24, true);
-                    }
-                    
-                    // Sparkles like moonlight on dew
-                    if (Main.rand.NextBool(12))
-                    {
-                        Vector2 sparklePos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
-                        var sparkle = new SparkleParticle(sparklePos, new Vector2(0, -0.5f), MoonlightSilver, 0.25f, 18);
-                        MagnumParticleHandler.SpawnParticle(sparkle);
-                    }
-                }
-                else
-                {
-                    // Daytime - gentle spring essence
-                    if (Main.rand.NextBool(12))
-                    {
-                        Vector2 pos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                        CustomParticles.GenericGlow(pos, new Vector2(0, -1f), SpringPink * 0.5f, 0.22f, 20, true);
-                    }
-                }
-                
-                // Garden light
-                Color lightColor = isNight ? Color.Lerp(MoonlightPurple, NightBlossomBlue, 0.5f) : SpringPink;
-                float lightIntensity = isNight ? 0.5f : 0.35f;
-                Lighting.AddLight(player.Center, lightColor.ToVector3() * lightIntensity);
-            }
         }
 
         public override void AddRecipes()
@@ -158,15 +105,19 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 OverrideColor = SpringPink
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "At night: +22% damage, +18% crit, +12 defense, +15% move speed")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "At night: +22% damage, +18 crit, +12 defense, +15% move speed")
             {
                 OverrideColor = MoonlightPurple
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect2b", "During day: +10% damage, +8 crit")
+            {
+                OverrideColor = Color.Lerp(SpringPink, MoonlightPurple, 0.4f)
             });
             tooltips.Add(new TooltipLine(Mod, "Effect3", "+12% magic damage, +4 mana regen, +8 life regen at night")
             {
                 OverrideColor = Color.Lerp(SpringPink, MoonlightPurple, 0.3f)
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Hits can inflict Moonstruck and heal you, thorns poison enemies")
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Hits can inflict confusion and heal you, thorns poison enemies")
             {
                 OverrideColor = Color.Lerp(SpringPink, MoonlightPurple, 0.7f)
             });
@@ -300,55 +251,6 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 player.GetDamage(DamageClass.Generic) += 0.08f;
             }
-            
-            // Ambient VFX
-            if (!hideVisual)
-            {
-                // Orbital flame crown
-                if (Main.GameUpdateCount % 8 == 0)
-                {
-                    float baseAngle = Main.GameUpdateCount * 0.02f;
-                    for (int i = 0; i < 6; i++)
-                    {
-                        float angle = baseAngle + MathHelper.TwoPi * i / 6f;
-                        float flicker = Main.rand.NextFloat(0.8f, 1.2f);
-                        Vector2 pos = player.Center + angle.ToRotationVector2() * (45f * flicker);
-                        
-                        Color flameColor = Color.Lerp(SummerGold, CampanellaOrange, (float)i / 6f);
-                        CustomParticles.GenericFlare(pos, flameColor, 0.32f * flicker, 12);
-                    }
-                }
-                
-                // Rising heat distortion particles
-                if (Main.rand.NextBool(5))
-                {
-                    Vector2 heatPos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                    Color heatColor = Main.rand.NextBool() ? SummerGold : CampanellaOrange;
-                    var heat = new GenericGlowParticle(heatPos, new Vector2(0, -2f), heatColor * 0.6f, 0.28f, 22, true);
-                    MagnumParticleHandler.SpawnParticle(heat);
-                }
-                
-                // Solar flare sparks during day
-                if (Main.dayTime && Main.rand.NextBool(10))
-                {
-                    Vector2 sparkPos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
-                    CustomParticles.GenericFlare(sparkPos, SolarFlare, 0.35f, 10);
-                }
-                
-                // Smoke tendrils
-                if (Main.rand.NextBool(15))
-                {
-                    Vector2 smokePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                    var smoke = new HeavySmokeParticle(smokePos, new Vector2(0, -1f), 
-                        Color.DarkGray, 25, 0.25f, 0.4f, 0.015f, false);
-                    MagnumParticleHandler.SpawnParticle(smoke);
-                }
-                
-                // Infernal glow
-                float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.2f + 0.8f;
-                Color lightColor = Color.Lerp(SummerGold, CampanellaOrange, 0.5f);
-                Lighting.AddLight(player.Center, lightColor.ToVector3() * pulse * 0.6f);
-            }
         }
 
         public override void AddRecipes()
@@ -371,11 +273,15 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 OverrideColor = Color.Lerp(SummerGold, CampanellaOrange, 0.5f)
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+16% damage, +10% crit, +8 defense, attacks inflict fire")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+16% damage, +10 crit, +8 defense, attacks inflict fire")
             {
                 OverrideColor = SummerGold
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+22% magic damage, +14% magic crit, -15% mana cost, +4 mana regen")
+            tooltips.Add(new TooltipLine(Mod, "Effect1b", "During day: +8% bonus damage")
+            {
+                OverrideColor = SummerGold
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+22% magic damage, +14 magic crit, -15% mana cost, +4 mana regen")
             {
                 OverrideColor = CampanellaOrange
             });
@@ -386,6 +292,10 @@ namespace MagnumOpus.Content.Common.Accessories
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Bell Chime stuns enemies with fire AOE, Solar Burst during daytime")
             {
                 OverrideColor = Color.Lerp(SummerGold, CampanellaOrange, 0.7f)
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Fire retaliation when hit — nearby enemies catch fire")
+            {
+                OverrideColor = Color.Lerp(SummerGold, CampanellaOrange, 0.5f)
             });
         }
     }
@@ -544,64 +454,6 @@ namespace MagnumOpus.Content.Common.Accessories
             // === ENIGMA BONUSES (Riddle of the Void) ===
             player.GetDamage(DamageClass.Generic) += 0.18f;
             player.GetCritChance(DamageClass.Generic) += 12;
-            
-            // === HYBRID BONUS: Frozen Enigma ===
-            // Void damage freezes enemies
-            // Combined debuff application handled in player class
-            
-            // Ambient VFX
-            if (!hideVisual)
-            {
-                // Frozen enigma orbit
-                if (Main.GameUpdateCount % 10 == 0)
-                {
-                    float baseAngle = Main.GameUpdateCount * 0.012f;
-                    
-                    // Inner orbit - ice crystals
-                    for (int i = 0; i < 4; i++)
-                    {
-                        float angle = baseAngle + MathHelper.TwoPi * i / 4f;
-                        Vector2 pos = player.Center + angle.ToRotationVector2() * 35f;
-                        CustomParticles.GenericFlare(pos, WinterBlue, 0.28f, 14);
-                    }
-                    
-                    // Outer orbit - enigma glyphs
-                    for (int i = 0; i < 3; i++)
-                    {
-                        float angle = -baseAngle * 1.5f + MathHelper.TwoPi * i / 3f;
-                        Vector2 pos = player.Center + angle.ToRotationVector2() * 55f;
-                        CustomParticles.Glyph(pos, EnigmaPurple * 0.6f, 0.3f, -1);
-                    }
-                }
-                
-                // Frozen void mist
-                if (Main.rand.NextBool(6))
-                {
-                    Vector2 mistPos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
-                    Color mistColor = Color.Lerp(WinterBlue, FrozenVoid, Main.rand.NextFloat()) * 0.5f;
-                    CustomParticles.GenericGlow(mistPos, Main.rand.NextVector2Circular(1f, 1f), mistColor, 0.25f, 26, true);
-                }
-                
-                // Occasional enigma eyes in the frost
-                if (Main.rand.NextBool(25))
-                {
-                    Vector2 eyePos = player.Center + Main.rand.NextVector2Circular(50f, 50f);
-                    CustomParticles.EnigmaEyeGaze(eyePos, EnigmaPurple * 0.5f, 0.35f, null);
-                }
-                
-                // Snowflake sparkles
-                if (Main.rand.NextBool(10))
-                {
-                    Vector2 snowPos = player.Center + Main.rand.NextVector2Circular(45f, 45f);
-                    var sparkle = new SparkleParticle(snowPos, new Vector2(0, 0.5f), WinterBlue, 0.25f, 20);
-                    MagnumParticleHandler.SpawnParticle(sparkle);
-                }
-                
-                // Dual-tone light
-                float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.025f) * 0.2f + 0.8f;
-                Color lightColor = Color.Lerp(WinterBlue, EnigmaPurple, 0.4f);
-                Lighting.AddLight(player.Center, lightColor.ToVector3() * pulse * 0.5f);
-            }
         }
 
         public override void AddRecipes()

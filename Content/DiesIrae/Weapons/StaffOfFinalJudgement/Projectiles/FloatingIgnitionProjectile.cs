@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.StaffOfFinalJudgement.Projectiles
 {
@@ -154,6 +155,10 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.StaffOfFinalJudgement.Projectiles
             // VFX
             StaffOfFinalJudgementUtils.DoDetonation(Projectile.Center);
 
+            // Dies Irae VFX: mine detonation burst
+            DiesIraeVFXLibrary.SpawnHellfireStarburst(Projectile.Center, 1.2f);
+            DiesIraeVFXLibrary.SpawnEmberScatter(Projectile.Center, 6, 4f);
+
             // Track for Judgment Storm
             recentDetonations++;
             detonationCooldown = 60; // 1s window
@@ -161,6 +166,8 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.StaffOfFinalJudgement.Projectiles
             if (recentDetonations >= 3)
             {
                 StaffOfFinalJudgementUtils.DoJudgmentStorm(Projectile.Center);
+                DiesIraeVFXLibrary.SpawnJudgmentRings(Projectile.Center, 4, 0.7f);
+                MagnumScreenEffects.AddScreenShake(12f);
                 recentDetonations = 0;
             }
 
@@ -220,11 +227,18 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.StaffOfFinalJudgement.Projectiles
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(BuffID.OnFire3, 240);
+
+            // Dies Irae VFX: mine proximity hit with color-ramped sparkle explosion
+            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(target.Center, 6, 4f, 0.25f);
+            DiesIraeVFXLibrary.SpawnContrastSparkle(target.Center, Projectile.velocity);
+            DiesIraeVFXLibrary.SpawnEmberScatter(target.Center, 3, 2f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
@@ -254,9 +268,15 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.StaffOfFinalJudgement.Projectiles
             // Dies Irae theme accent layer
             StaffOfFinalJudgementUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

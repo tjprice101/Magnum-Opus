@@ -44,6 +44,7 @@ namespace MagnumOpus.Content.SwanLake.Tools
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Dodge", "Double-tap left or right to perform a prismatic dodge with brief invulnerability") { OverrideColor = new Color(220, 220, 255) });
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Dance upon the rainbow winds'") { OverrideColor = new Color(240, 240, 255) });
         }
 
@@ -60,27 +61,6 @@ namespace MagnumOpus.Content.SwanLake.Tools
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             player.GetModPlayer<IridescentDawnPlayer>().hasWingsEquipped = true;
-            
-            // Elegant swan particles when flying
-            if (!hideVisual && player.velocity.Y != 0)
-            {
-                ThemedParticles.SwanLakeAura(player.Center, 35f);
-                
-                // Graceful feather drift
-                if (Main.rand.NextBool(6))
-                {
-                    Color featherColor = Main.rand.NextBool() ? ThemedParticles.SwanWhite : ThemedParticles.SwanBlack;
-                    ThemedParticles.SwanFeatherDrift(player.Center + Main.rand.NextVector2Circular(20f, 15f), featherColor, 0.3f);
-                }
-                
-                // Rainbow shimmer accents
-                if (Main.rand.NextBool(10))
-                {
-                    float hue = Main.rand.NextFloat();
-                    Color rainbow = Main.hslToRgb(hue, 0.6f, 0.85f);
-                    CustomParticles.GenericFlare(player.Center + Main.rand.NextVector2Circular(25f, 20f), rainbow * 0.5f, 0.25f, 20);
-                }
-            }
         }
 
         public override void AddRecipes()
@@ -189,7 +169,6 @@ namespace MagnumOpus.Content.SwanLake.Tools
                     
                     // Graceful burst on dodge end
                     ThemedParticles.SwanLakeImpact(Player.Center, 1f);
-                    ThemedParticles.SwanFeatherBurst(Player.Center, 8, 40f);
                 }
             }
             
@@ -261,7 +240,6 @@ namespace MagnumOpus.Content.SwanLake.Tools
             
             // Graceful swan burst
             ThemedParticles.SwanLakeImpact(Player.Center, 1.5f);
-            ThemedParticles.SwanFeatherBurst(Player.Center, 12, 50f);
         }
         
         public override void HideDrawLayers(PlayerDrawSet drawInfo)

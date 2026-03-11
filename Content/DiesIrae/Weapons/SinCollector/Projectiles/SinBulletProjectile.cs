@@ -1,3 +1,4 @@
+using MagnumOpus.Common;
 using MagnumOpus.Common.Systems.VFX.Core;
 using MagnumOpus.Content.DiesIrae;
 using MagnumOpus.Content.DiesIrae.Weapons.SinCollector.Utilities;
@@ -6,9 +7,11 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
 using Terraria.Audio;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.SinCollector.Projectiles
 {
@@ -27,6 +30,14 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.SinCollector.Projectiles
         private int trailCount;
 
         private ref float Timer => ref Projectile.ai[1];
+
+        private VertexStrip _vertexStrip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -78,8 +89,12 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.SinCollector.Projectiles
             // Sin fragment wisp VFX
             SinCollectorUtils.SpawnSinFragmentDust(target.Center, owner.Center);
 
-            // Impact burst
+            // Multi-layered impact
+            DiesIraeVFXLibrary.MeleeImpact(target.Center, 0);
             SinCollectorUtils.DoBulletImpact(target.Center, Projectile.velocity.SafeNormalize(Vector2.Zero));
+
+            // Music note on sin collection
+            DiesIraeVFXLibrary.SpawnMusicNotes(target.Center, 1, 8f, 0.4f, 0.6f, 15);
         }
 
         public override void OnKill(int timeLeft)
@@ -97,47 +112,38 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.SinCollector.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-            if (glow == null) return false;
-            Vector2 origin = glow.Size() / 2f;
-
-            // Get sin count for intensity scaling
-            int sinCount = 0;
-            if (Projectile.owner >= 0 && Projectile.owner < Main.maxPlayers)
+            try
             {
-                Player owner = Main.player[Projectile.owner];
-                if (owner.active)
-                    sinCount = owner.GetModPlayer<SinCollectorPlayer>().SinCount;
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.DiesIrae, ref _vertexStrip);
+
+                // Sin Bullet accent: ember directional streak
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
+                {
+                    Vector2 origin = glow.Size() / 2f;
+                    float velRot = Projectile.velocity.ToRotation();
+
+                    // Ember streak along trajectory
+                    sb.Draw(glow, drawPos, null,
+                        (DiesIraePalette.EmberOrange with { A = 0 }) * 0.22f,
+                        velRot, origin, new Vector2(0.1f, 0.02f), SpriteEffects.None, 0f);
+                }
+
+                sb.End();
             }
-            float sinMult = 1f + sinCount / 30f * 0.6f;
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
-
-            // ���� Trail ����
-            for (int i = 0; i < trailCount; i++)
+            catch { }
+            finally
             {
-                float progress = i / (float)TrailLength;
-                float fade = (1f - progress) * 0.8f;
-                float scale = MathHelper.Lerp(0.025f, 0.008f, progress) * sinMult;
-                Vector2 pos = trailPositions[i] - Main.screenPosition;
-
-                sb.Draw(glow, pos, null, DiesIraePalette.BloodRed * fade * 0.4f,
-                    0f, origin, scale * 1.3f, SpriteEffects.None, 0f);
-                sb.Draw(glow, pos, null, DiesIraePalette.EmberOrange * fade * 0.6f,
-                    0f, origin, scale, SpriteEffects.None, 0f);
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
-            // ���� Bullet body bloom ����
-            SinCollectorUtils.DrawBulletBloom(sb, Projectile.Center, Timer, sinCount);
-
-            // Dies Irae theme accent layer
-            SinCollectorUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
 
             return false;
         }
@@ -253,6 +259,23 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.SinCollector.Projectiles
             }
 
             SinCollectorUtils.DoBulletImpact(target.Center, Projectile.velocity.SafeNormalize(Vector2.Zero));
+
+            // Tier-scaled VFX
+            DiesIraeVFXLibrary.MeleeImpact(target.Center, Math.Min(Tier, 2));
+            DiesIraeVFXLibrary.SpawnDirectionalSparkleExplosion(
+                target.Center, Projectile.velocity.SafeNormalize(Vector2.Zero),
+                4 + Tier * 3, 5f, 0.3f, 0.6f);
+
+            // Tier 2+: judgment rings
+            if (Tier >= 2)
+                DiesIraeVFXLibrary.SpawnJudgmentRings(target.Center, Tier, 0.3f);
+
+            // Tier 3: screen shake + starburst
+            if (Tier >= 3)
+            {
+                MagnumScreenEffects.AddScreenShake(3f);
+                DiesIraeVFXLibrary.SpawnHellfireStarburst(target.Center, 1.0f);
+            }
         }
 
         public override void OnKill(int timeLeft)
@@ -270,6 +293,8 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.SinCollector.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
             if (glow == null) return false;
             Vector2 origin = glow.Size() / 2f;
@@ -301,9 +326,15 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.SinCollector.Projectiles
             // ���� Body bloom ����
             SinCollectorUtils.DrawExpendBloom(sb, Projectile.Center, 0.04f * scaleMult, intensMult);
 
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

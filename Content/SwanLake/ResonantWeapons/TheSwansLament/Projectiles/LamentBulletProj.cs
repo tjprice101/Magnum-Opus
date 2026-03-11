@@ -121,15 +121,13 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Projectiles
                 }
             }
 
-            // VFXLibrary impact burst
+            // VFXLibrary impact burst — reduced counts + mixed sparkle
             try
             {
-                SwanLakeVFXLibrary.SpawnRainbowBurst(target.Center, 6, 4f);
-                SwanLakeVFXLibrary.SpawnPrismaticSparkles(target.Center, 5, 18f);
-                SwanLakeVFXLibrary.SpawnMusicNotes(target.Center, 2, 12f);
+                SwanLakeVFXLibrary.SpawnMixedSparkleImpact(target.Center, IsEmpowered ? 0.9f : 0.7f, 5, 5);
+                SwanLakeVFXLibrary.SpawnMusicNotes(target.Center, 1, 10f);
                 if (IsEmpowered)
                 {
-                    SwanLakeVFXLibrary.SpawnFeatherBurst(target.Center, 4, 20f);
                 }
             } catch { }
         }
@@ -149,7 +147,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Projectiles
             // Enhanced death burst
             try
             {
-                SwanLakeVFXLibrary.SpawnFeatherDrift(Projectile.Center, 3, 15f);
+                SwanLakeVFXLibrary.SpawnMixedSparkleImpact(Projectile.Center, IsEmpowered ? 0.8f : 0.6f, 5, 5);
                 SwanLakeVFXLibrary.SpawnPrismaticSparkles(Projectile.Center, 4, 20f);
                 SwanLakeVFXLibrary.SpawnMusicNotes(Projectile.Center, 2, 15f);
                 if (IsEmpowered)
@@ -170,6 +168,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Vector2 screenPos = Main.screenPosition;
 
             try
@@ -261,80 +261,14 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Projectiles
                 }
                 else
                 {
-                    // Fallback: basic bloom trail
-                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-                    Texture2D fb = MagnumTextureRegistry.GetSoftGlow();
-                    if (fb != null)
-                    {
-                        Vector2 fbO = fb.Size() * 0.5f;
-                        for (int i = TrailLength - 1; i >= 1; i--)
-                        {
-                            if (oldPos[i] == Vector2.Zero) continue;
-                            float p = 1f - i / (float)TrailLength;
-                            Color c = Color.Lerp(LamentUtils.GriefGrey, LamentUtils.CatharsisWhite, p);
-                            sb.Draw(fb, oldPos[i] - screenPos, null, c * (p * 0.3f), oldRot[i], fbO, 0.15f + p * 0.1f, SpriteEffects.None, 0f);
-                        }
-                    }
-                    sb.End();
+                    // No fallback trail
                 }
 
-                // ============ BLOOM CORE (5-layer grief/catharsis) ============
-                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                // Begin sprite batch for bullet draw
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-                Texture2D bloom = MagnumTextureRegistry.GetSoftGlow();
-                Texture2D point = MagnumTextureRegistry.GetPointBloom();
-                Texture2D star = MagnumTextureRegistry.GetStar4Soft();
-
                 Vector2 drawPos = Projectile.Center - screenPos;
-                float pulse = 0.9f + 0.1f * MathF.Sin((float)Main.timeForVisualEffects * 0.1f);
-                float empScale = IsEmpowered ? 1.3f : 1f;
-
-                // Layer 1: Outer grief haze
-                if (bloom != null)
-                {
-                    Vector2 bOrigin = bloom.Size() * 0.5f;
-                    sb.Draw(bloom, drawPos, null, LamentUtils.GriefGrey * 0.3f * pulse, 0f, bOrigin,
-                        0.35f * empScale * pulse, SpriteEffects.None, 0f);
-                }
-
-                // Layer 2: Catharsis white mid glow
-                if (bloom != null)
-                {
-                    Vector2 bOrigin = bloom.Size() * 0.5f;
-                    sb.Draw(bloom, drawPos, null, LamentUtils.CatharsisWhite * 0.4f * pulse, 0f, bOrigin,
-                        0.2f * empScale * pulse, SpriteEffects.None, 0f);
-                }
-
-                // Layer 3: Hot white core
-                if (point != null)
-                {
-                    Vector2 pOrigin = point.Size() * 0.5f;
-                    sb.Draw(point, drawPos, null, Color.White * 0.85f, 0f, pOrigin,
-                        0.08f * empScale * pulse, SpriteEffects.None, 0f);
-                }
-
-                // Layer 4: Star accent (subtle, rotating)
-                if (star != null)
-                {
-                    Vector2 sOrigin = star.Size() * 0.5f;
-                    float starRot = (float)Main.timeForVisualEffects * 0.03f;
-                    sb.Draw(star, drawPos, null, LamentUtils.CatharsisWhite * 0.2f * pulse, starRot,
-                        sOrigin, 0.12f * empScale, SpriteEffects.None, 0f);
-                }
-
-                // Layer 5: Empowered gold revelation ring
-                if (IsEmpowered && bloom != null)
-                {
-                    Vector2 bOrigin = bloom.Size() * 0.5f;
-                    for (int i = 0; i < 6; i++)
-                    {
-                        float angle = MathHelper.TwoPi / 6f * i + (float)Main.timeForVisualEffects * 0.05f;
-                        Vector2 offset = angle.ToRotationVector2() * 6f;
-                        sb.Draw(bloom, drawPos + offset, null, LamentUtils.RevelationWhite * 0.2f, 0f, bOrigin, 0.1f, SpriteEffects.None, 0f);
-                    }
-                }
 
                 // --- Draw bullet sprite ---
                 Texture2D tex = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
@@ -367,6 +301,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.TheSwansLament.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
             catch { }
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

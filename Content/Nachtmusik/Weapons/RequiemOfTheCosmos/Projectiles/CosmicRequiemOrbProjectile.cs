@@ -1,11 +1,14 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
 using System;
+using MagnumOpus.Common;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
 using MagnumOpus.Common.Systems.VFX.Trails;
 using MagnumOpus.Content.Nachtmusik;
 using MagnumOpus.Content.Nachtmusik.Debuffs;
@@ -20,6 +23,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.RequiemOfTheCosmos.Projectiles
         // ai[0]: 0 = normal orb, 1 = gravity well, 2 = Event Horizon
         private float Mode => Projectile.ai[0];
         private ref float Timer => ref Projectile.ai[1];
+        private VertexStrip _vertexStrip;
         
         public override void SetStaticDefaults()
         {
@@ -129,6 +133,13 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.RequiemOfTheCosmos.Projectiles
                     Main.dust[d].velocity = (Projectile.Center - diskPos) * 0.02f;
                 }
             }
+
+            // Palette-ramped trail sparkles (scales with mode)
+            if (Timer % 5 == 0)
+            {
+                float sparkleScale = Mode == 2f ? 0.3f : (Mode == 1f ? 0.25f : 0.2f);
+                NachtmusikVFXLibrary.SpawnGradientSparkles(Projectile.Center, Projectile.velocity, 1, sparkleScale, 16, 8f);
+            }
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
@@ -139,130 +150,94 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.RequiemOfTheCosmos.Projectiles
                 RequiemOfTheCosmosVFX.EventHorizonImpactVFX(target.Center);
             else
                 RequiemOfTheCosmosVFX.OrbImpactVFX(target.Center, Mode == 1f);
+
+            // Palette-ramped sparkle explosion (scales with mode)
+            float modeIntensity = Mode == 2f ? 1.5f : (Mode == 1f ? 1.2f : 1f);
+            NachtmusikVFXLibrary.SpawnGradientSparkleExplosion(target.Center, (int)(8 * modeIntensity), 5f * modeIntensity, 0.3f * modeIntensity);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
-            Vector2 origin = texture.Size() / 2f;
-
-            float time = (float)Main.timeForVisualEffects * 0.03f;
-            float modeScale = Mode == 2f ? 2.5f : (Mode == 1f ? 1.4f : 1f);
-
-            // ═══════════════════════════════════════════════════════════════
-            //  SHADER LAYER 1: CosmicRequiem GPU trail
-            //  Dark void energy trail — wider and denser for Event Horizon mode
-            // ═══════════════════════════════════════════════════════════════
+            SpriteBatch sb = Main.spriteBatch;
+            try
             {
-                int validCount = 0;
-                for (int i = 0; i < Projectile.oldPos.Length; i++)
-                {
-                    if (Projectile.oldPos[i] != Vector2.Zero) validCount++;
-                    else break;
-                }
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Nachtmusik, ref _vertexStrip);
 
-                if (validCount > 2)
-                {
-                    var trailPositions = new Vector2[validCount];
-                    for (int i = 0; i < validCount; i++)
-                        trailPositions[i] = Projectile.oldPos[i] + Projectile.Size * 0.5f;
-
-                    float trailWidth = (Mode == 2f ? 18f : (Mode == 1f ? 10f : 7f));
-                    CalamityStyleTrailRenderer.DrawDualLayerTrail(
-                        trailPositions, null, CalamityStyleTrailRenderer.TrailStyle.Cosmic,
-                        trailWidth, NachtmusikPalette.CosmicVoid * 0.5f, NachtmusikPalette.DeepBlue * 0.4f,
-                        Mode == 2f ? 0.7f : 0.45f,
-                        bodyOverbright: 2f + (Mode == 2f ? 1.5f : 0f),
-                        coreOverbright: 3.5f + (Mode == 2f ? 2f : 0f),
-                        coreWidthRatio: 0.3f);
-                }
-            }
-
-            // ═══════════════════════════════════════════════════════════════
-            //  SHADER LAYER 2: Serenade void aura — gravitational presence
-            //  Visible for Gravity Well and Event Horizon modes
-            // ═══════════════════════════════════════════════════════════════
-            if (NachtmusikShaderManager.HasSerenade && Mode >= 1f)
-            {
-                Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
-                if (glowTex != null)
-                {
-                    Vector2 drawPos = Projectile.Center - Main.screenPosition;
-                    float phase = Mode == 2f ? 0.9f : 0.5f;
-
-                    NachtmusikShaderManager.BeginShaderAdditive(spriteBatch);
-                    NachtmusikShaderManager.ApplySerenade(time, NachtmusikPalette.CosmicVoid,
-                        NachtmusikPalette.ConstellationBlue, phase: phase);
-
-                    float auraScale = (0.15f * modeScale) * (0.85f + 0.15f * MathF.Sin(Timer * 0.08f));
-                    spriteBatch.Draw(glowTex, drawPos, null,
-                        NachtmusikPalette.CosmicPurple with { A = 0 } * 0.35f,
-                        Timer * 0.01f, glowTex.Size() / 2f, auraScale, SpriteEffects.None, 0f);
-
-                    NachtmusikShaderManager.RestoreSpriteBatch(spriteBatch);
-                }
-            }
-
-            // ═══════════════════════════════════════════════════════════════
-            //  BLOOM LAYER: Multi-scale additive void core — palette-driven
-            // ═══════════════════════════════════════════════════════════════
-            {
-                spriteBatch.End();
-                spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                    DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
-
+                // Cosmic Requiem accent: CosmicRequiem shader — mode-dependent orbiting ring
+                float shaderTime = (float)Main.timeForVisualEffects * 0.03f;
                 Vector2 drawPos = Projectile.Center - Main.screenPosition;
-                float pulse = 0.85f + 0.15f * MathF.Sin(Timer * 0.08f);
-
-                // Void outer — palette-driven
-                spriteBatch.Draw(texture, drawPos, null, NachtmusikPalette.CosmicVoid with { A = 0 } * 0.7f * pulse,
-                    Projectile.rotation, origin, 0.5f * modeScale * 2f, SpriteEffects.None, 0f);
-                // Deep indigo
-                spriteBatch.Draw(texture, drawPos, null, NachtmusikPalette.DeepBlue with { A = 0 } * 0.6f * pulse,
-                    Projectile.rotation * 0.7f, origin, 0.5f * modeScale * 1.5f, SpriteEffects.None, 0f);
-                // Cosmic blue mid
-                spriteBatch.Draw(texture, drawPos, null, NachtmusikPalette.ConstellationBlue with { A = 0 } * 0.7f * pulse,
-                    Projectile.rotation * 0.4f, origin, 0.5f * modeScale * 1.1f, SpriteEffects.None, 0f);
-                // Starlight core
-                spriteBatch.Draw(texture, drawPos, null, NachtmusikPalette.StarWhite with { A = 0 } * 0.8f,
-                    0f, origin, 0.5f * modeScale * 0.6f, SpriteEffects.None, 0f);
-
-                // Event Horizon: extra accretion ring glow + bloom halo
-                if (Mode == 2f)
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null && NachtmusikShaderManager.HasCosmicRequiem)
                 {
-                    float ringPulse = 0.6f + 0.4f * MathF.Sin(Timer * 0.12f);
-                    spriteBatch.Draw(texture, drawPos, null, NachtmusikPalette.ConstellationBlue with { A = 0 } * 0.3f * ringPulse,
-                        Timer * 0.02f, origin, modeScale * 1.8f, SpriteEffects.None, 0f);
+                    float modeScale = Mode == 2f ? 1.5f : (Mode == 1f ? 1.2f : 1f);
+                    float pulse = 0.85f + 0.15f * MathF.Sin((float)Main.timeForVisualEffects * 0.08f);
+                    float ringRot = (float)Main.timeForVisualEffects * 0.04f;
+                    Vector2 origin = glow.Size() / 2f;
 
-                    // Extra void bloom from registry
-                    Texture2D bloomTex = MagnumTextureRegistry.GetSoftGlow();
-                    if (bloomTex != null)
+                    NachtmusikShaderManager.BeginShaderAdditive(sb);
+
+                    // Gravitational ring with CosmicRequiem shader
+                    float phase = Mode == 2f ? 1f : (Mode == 1f ? 0.6f : 0.3f);
+                    NachtmusikShaderManager.ApplyCosmicRequiem(shaderTime, phase);
+                    Color ringColor = Mode == 2f ? NachtmusikPalette.CosmicPurple : NachtmusikPalette.Violet;
+                    for (int i = 0; i < 3; i++)
                     {
-                        spriteBatch.Draw(bloomTex, drawPos, null,
-                            NachtmusikPalette.CosmicPurple with { A = 0 } * 0.2f * ringPulse,
-                            0f, bloomTex.Size() / 2f, modeScale * 0.05f, SpriteEffects.None, 0f);
+                        float angle = ringRot + MathHelper.TwoPi * i / 3f;
+                        sb.Draw(glow, drawPos, null,
+                            (ringColor with { A = 0 }) * 0.25f * pulse * modeScale,
+                            angle, origin, new Vector2(0.16f * modeScale, 0.04f), SpriteEffects.None, 0f);
                     }
 
-                    // Star flare for Event Horizon gravity well
-                    Texture2D flareTex = MagnumTextureRegistry.GetRadialBloom();
-                    if (flareTex != null)
+                    // Glow pass for inner radiance
+                    NachtmusikShaderManager.ApplyCosmicRequiemGlow(shaderTime, phase);
+                    Color coreColor = Color.Lerp(NachtmusikPalette.Violet, NachtmusikPalette.StarWhite, Mode == 2f ? 0.5f : 0.2f) with { A = 0 };
+                    sb.Draw(glow, drawPos, null, coreColor * 0.15f * pulse * modeScale,
+                        0f, origin, 0.05f * modeScale, SpriteEffects.None, 0f);
+
+                    // Event Horizon mode — cosmic noise corona
+                    if (Mode == 2f)
                     {
-                        spriteBatch.Draw(flareTex, drawPos, null,
-                            NachtmusikPalette.Violet with { A = 0 } * 0.15f,
-                            time * 0.2f, flareTex.Size() / 2f, modeScale * 0.04f * ringPulse, SpriteEffects.None, 0f);
+                        Texture2D noiseTex = NachtmusikThemeTextures.NKConstellationNoise?.Value;
+                        if (noiseTex != null)
+                        {
+                            Vector2 noiseOrigin = noiseTex.Size() / 2f;
+                            Color coronaColor = NachtmusikPalette.CosmicPurple with { A = 0 } * 0.12f * pulse;
+                            sb.Draw(noiseTex, drawPos, null, coronaColor,
+                                shaderTime * 0.2f, noiseOrigin, 0.08f * modeScale, SpriteEffects.None, 0f);
+                        }
+                    }
+
+                    NachtmusikShaderManager.RestoreSpriteBatch(sb);
+                }
+                else if (glow != null)
+                {
+                    // Fallback without shader
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                        SamplerState.LinearClamp, DepthStencilState.None,
+                        RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                    float modeScale = Mode == 2f ? 1.5f : (Mode == 1f ? 1.2f : 1f);
+                    float pulse = 0.85f + 0.15f * MathF.Sin((float)Main.timeForVisualEffects * 0.08f);
+                    float ringRot = (float)Main.timeForVisualEffects * 0.04f;
+                    Vector2 origin = glow.Size() / 2f;
+                    Color ringColor = Mode == 2f ? NachtmusikPalette.CosmicPurple : NachtmusikPalette.Violet;
+                    for (int i = 0; i < 3; i++)
+                    {
+                        float angle = ringRot + MathHelper.TwoPi * i / 3f;
+                        sb.Draw(glow, drawPos, null,
+                            (ringColor with { A = 0 }) * 0.2f * pulse * modeScale,
+                            angle, origin, new Vector2(0.14f * modeScale, 0.035f), SpriteEffects.None, 0f);
                     }
                 }
-
-                spriteBatch.End();
-                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                    DepthStencilState.None, RasterizerState.CullCounterClockwise, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
-            // Nachtmusik theme star flare accent
-            NachtmusikShaderManager.BeginAdditive(spriteBatch);
-            NachtmusikVFXLibrary.DrawThemeStarFlare(spriteBatch, Projectile.Center, 1f, 0.5f);
-            NachtmusikShaderManager.RestoreSpriteBatch(spriteBatch);
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

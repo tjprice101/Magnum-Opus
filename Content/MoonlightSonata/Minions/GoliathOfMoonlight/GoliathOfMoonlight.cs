@@ -688,6 +688,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
             if (Main.dedServ) return false;
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
 
             // Pass 1: Gravitational rift shader glow (under the sprite) — Additive
             sb.End();
@@ -719,6 +721,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Minions
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

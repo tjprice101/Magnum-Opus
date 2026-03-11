@@ -30,6 +30,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.TriumphantFractal
             Item.DamageType = DamageClass.Magic;
             Item.width = 56;
             Item.height = 56;
+            Item.scale = 0.075f;
             Item.useTime = 25;
             Item.useAnimation = 25;
             Item.useStyle = ItemUseStyleID.Shoot;

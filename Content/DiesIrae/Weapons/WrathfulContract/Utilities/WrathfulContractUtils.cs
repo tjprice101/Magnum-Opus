@@ -411,6 +411,9 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract.Utilities
         /// </summary>
         public static void DoFrenzyKillBurst(Vector2 worldPos)
         {
+            // === Color-ramped sparkle explosion VFX ===
+            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(worldPos, 10, 6f, 0.35f);
+
             Color[] palette = { DiesIraePalette.EmberOrange, DiesIraePalette.InfernalRed, DiesIraePalette.JudgmentGold };
 
             for (int i = 0; i < 30; i++)

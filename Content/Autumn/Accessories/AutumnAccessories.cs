@@ -12,7 +12,7 @@ namespace MagnumOpus.Content.Autumn.Accessories
 {
     /// <summary>
     /// Reaper's Charm - Life Steal Autumn accessory
-    /// Post-Plantera tier, provides life steal on hits
+    /// Post-Wall of Flesh tier, provides life steal on hits
     /// </summary>
     public class ReapersCharm : ModItem
     {
@@ -31,24 +31,6 @@ namespace MagnumOpus.Content.Autumn.Accessories
             
             // Life steal handled via OnHit
             player.GetModPlayer<ReapersCharmPlayer>().reapersCharmEquipped = true;
-            
-            // Decay aura
-            if (!hideVisual && Main.rand.NextBool(10))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(0.5f, 1.5f));
-                Color decayColor = Color.Lerp(new Color(255, 100, 30), new Color(139, 69, 19), Main.rand.NextFloat());
-                CustomParticles.GenericGlow(pos, vel, decayColor, 0.24f, 26, true);
-            }
-            
-            // Floating autumn melody note
-            if (!hideVisual && Main.rand.NextBool(10))
-            {
-                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.2f, 0.2f), Main.rand.NextFloat(0.1f, 0.4f));
-                Color noteColor = Color.Lerp(new Color(255, 140, 50), new Color(139, 90, 43), Main.rand.NextFloat()) * 0.55f;
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.68f, 35);
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -110,7 +92,7 @@ namespace MagnumOpus.Content.Autumn.Accessories
     
     /// <summary>
     /// Twilight Ring - Crit-based Autumn accessory
-    /// Post-Plantera tier, boosts crit chance and crit damage
+    /// Post-Wall of Flesh tier, boosts crit chance and crit damage
     /// </summary>
     public class TwilightRing : ModItem
     {
@@ -135,24 +117,6 @@ namespace MagnumOpus.Content.Autumn.Accessories
                 twilightMult = 1.2f;
             
             player.GetDamage(DamageClass.Generic) += 0.05f * twilightMult;
-            
-            // Twilight ring effect
-            if (!hideVisual && Main.rand.NextBool(12))
-            {
-                float angle = Main.GameUpdateCount * 0.03f + Main.rand.NextFloat();
-                Vector2 pos = player.Center + angle.ToRotationVector2() * 25f;
-                Color twilightColor = Color.Lerp(new Color(255, 100, 30), new Color(128, 64, 96), Main.rand.NextFloat());
-                CustomParticles.GenericFlare(pos, twilightColor * 0.7f, 0.22f, 18);
-            }
-            
-            // Floating autumn melody note
-            if (!hideVisual && Main.rand.NextBool(10))
-            {
-                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.2f, 0.2f), Main.rand.NextFloat(0.1f, 0.4f));
-                Color noteColor = Color.Lerp(new Color(255, 140, 50), new Color(128, 64, 96), Main.rand.NextFloat()) * 0.55f;
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.68f, 35);
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -180,7 +144,7 @@ namespace MagnumOpus.Content.Autumn.Accessories
     
     /// <summary>
     /// Harvest Mantle - Tank Autumn accessory
-    /// Post-Plantera tier, provides significant defense and thorns
+    /// Post-Wall of Flesh tier, provides significant defense and thorns
     /// </summary>
     public class HarvestMantle : ModItem
     {
@@ -198,25 +162,6 @@ namespace MagnumOpus.Content.Autumn.Accessories
             player.statDefense += 12;
             player.endurance += 0.08f; // 8% damage reduction
             player.thorns = 1f; // Thorns damage
-            
-            // Harvest shield effect
-            if (!hideVisual && Main.rand.NextBool(10))
-            {
-                float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                Vector2 pos = player.Center + angle.ToRotationVector2() * 35f;
-                Vector2 vel = angle.ToRotationVector2() * 0.5f;
-                Color harvestColor = Color.Lerp(new Color(139, 69, 19), new Color(218, 165, 32), Main.rand.NextFloat());
-                CustomParticles.GenericGlow(pos, vel, harvestColor, 0.26f, 24, true);
-            }
-            
-            // Floating autumn melody note
-            if (!hideVisual && Main.rand.NextBool(10))
-            {
-                Vector2 notePos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.2f, 0.2f), Main.rand.NextFloat(0.1f, 0.4f));
-                Color noteColor = Color.Lerp(new Color(255, 140, 50), new Color(139, 90, 43), Main.rand.NextFloat()) * 0.55f;
-                ThemedParticles.MusicNote(notePos, noteVel, noteColor, 0.68f, 35);
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)

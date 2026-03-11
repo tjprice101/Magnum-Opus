@@ -1,6 +1,7 @@
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Sparkle;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.MoonlightSonata.Debuffs;
 using MagnumOpus.Content.Eroica;
@@ -120,6 +121,8 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             float progress = 1f - (float)Projectile.timeLeft / MaxLife;
             float fade = 1f - progress;
 
@@ -177,6 +180,15 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles
                 Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullCounterClockwise, null,
                 Main.GameViewMatrix.TransformationMatrix);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

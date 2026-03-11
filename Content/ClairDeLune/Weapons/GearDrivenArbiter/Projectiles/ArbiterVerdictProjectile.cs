@@ -12,7 +12,7 @@ using Terraria.ModLoader;
 namespace MagnumOpus.Content.ClairDeLune.Weapons.GearDrivenArbiter.Projectiles
 {
     /// <summary>
-    /// Arbiter Verdict — 2-phase countdown-then-verdict zone projectile.
+    /// Arbiter Verdict  E2-phase countdown-then-verdict zone projectile.
     /// 3 render passes: (1) JudgmentMark.fx JudgmentMarkSigil countdown clock,
     /// (2) RadialNoiseMaskShader zone build-up, (3) Multi-scale bloom + flare verdict.
     /// </summary>
@@ -53,7 +53,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.GearDrivenArbiter.Projectiles
 
             float countProg = Math.Clamp((float)_timer / CountdownDuration, 0f, 1f);
 
-            // Countdown phase — rising tension
+            // Countdown phase  Erising tension
             if (_timer <= CountdownDuration)
             {
                 // Tick mark particles appear every quarter
@@ -106,7 +106,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.GearDrivenArbiter.Projectiles
                     }
                 }
 
-                // Verdict burst — 3 expanding gear rings
+                // Verdict burst  E3 expanding gear rings
                 for (int ring = 0; ring < 3; ring++)
                 {
                     int pointsInRing = 12 + ring * 4;
@@ -141,7 +141,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.GearDrivenArbiter.Projectiles
             _softCircle ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad);
             _softRadialBloom ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
             _starFlare ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/StarFlare", AssetRequestMode.ImmediateLoad);
-            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX/Noise/CosmicEnergyNoise", AssetRequestMode.ImmediateLoad);
+            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/CosmicEnergyVortex", AssetRequestMode.ImmediateLoad);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -150,6 +150,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.GearDrivenArbiter.Projectiles
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
 
             float countProg = Math.Clamp((float)_timer / CountdownDuration, 0f, 1f);
@@ -158,6 +160,15 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.GearDrivenArbiter.Projectiles
             DrawJudgmentSigil(sb, matrix, countProg, postProg);     // Pass 1: JudgmentMarkSigil countdown
             DrawRadialNoiseZone(sb, matrix, countProg, postProg);   // Pass 2: RadialNoiseMask build-up
             DrawBloomVerdict(sb, matrix, countProg, postProg);      // Pass 3: Bloom + flare
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

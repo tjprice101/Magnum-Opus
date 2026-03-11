@@ -2,8 +2,11 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.Graphics;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Utilities;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Particles;
 using MagnumOpus.Content.LaCampanella.Debuffs;
 using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
@@ -25,6 +28,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
         private bool hasStruck;
         private float ChainRange => Projectile.ai[0];
         private int ChainDepth => (int)Projectile.ai[1];
+        private VertexStrip _strip;
+
+        public override void SetStaticDefaults()
+        {
+            Terraria.ID.ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            Terraria.ID.ProjectileID.Sets.TrailingMode[Type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -140,47 +150,16 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-                var tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad)?.Value;
-                if (tex == null) return false;
-                float fade = (float)Projectile.timeLeft / 30f;
-
-                try { sb.End(); } catch { }
-                try
-                {
-                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
-                        Main.DefaultSamplerState, DepthStencilState.None,
-                        Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-
-                    // Echo orb
-                    Color echoColor = (GrandioseChimeUtils.EchoPalette[1] with { A = 0 }) * fade * 0.5f;
-                    sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
-                        echoColor, 0f, tex.Size() / 2f, 0.2f, SpriteEffects.None, 0f);
-
-                    // Outer glow
-                    Color glow = (GrandioseChimeUtils.EchoPalette[0] with { A = 0 }) * fade * 0.3f;
-                    sb.Draw(tex, Projectile.Center - Main.screenPosition, null,
-                        glow, 0f, tex.Size() / 2f, 0.4f, SpriteEffects.None, 0f);
-                }
-                catch { }
-                finally
-                {
-                    try { sb.End(); } catch { }
-                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                        Main.DefaultSamplerState, DepthStencilState.None,
-                        Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-                }
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.LaCampanella, ref _strip);
             }
-            catch
+            catch { }
+            finally
             {
-                try
-                {
-                    sb.End();
-                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                        Main.DefaultSamplerState, DepthStencilState.None,
-                        Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-                }
-                catch { }
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
+
             return false;
         }
     }

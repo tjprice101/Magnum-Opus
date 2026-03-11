@@ -34,18 +34,6 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             
             // Base defense bonus
             player.statDefense += 2;
-            
-            // Shield VFX when active
-            if (!hideVisual && shieldPlayer.CurrentShield > 0 && Main.rand.NextBool(12))
-            {
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(25f, 35f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.MagicMirror, 
-                    Main.rand.NextVector2Circular(0.3f, 0.5f));
-                dust.noGravity = true;
-                dust.scale = 0.4f;
-                dust.color = new Color(100, 180, 255);
-                dust.alpha = 150;
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -91,17 +79,6 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             
             // Life regen bonus
             player.lifeRegen += 2;
-            
-            // Spring healing VFX
-            if (!hideVisual && shieldPlayer.CurrentShield > 0 && Main.rand.NextBool(10))
-            {
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(28f, 38f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.PinkTorch, 
-                    new Vector2(0, -Main.rand.NextFloat(0.5f, 1.5f)));
-                dust.noGravity = true;
-                dust.scale = 0.5f;
-                dust.color = new Color(255, 180, 200);
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -150,17 +127,6 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             // Fire immunity
             player.buffImmune[BuffID.OnFire] = true;
             player.buffImmune[BuffID.Burning] = true;
-            
-            // Solar flame VFX
-            if (!hideVisual && shieldPlayer.CurrentShield > 0 && Main.rand.NextBool(8))
-            {
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(30f, 40f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.Torch, 
-                    new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(1f, 2f)));
-                dust.noGravity = true;
-                dust.scale = 0.7f;
-                dust.color = new Color(255, 140, 50);
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -208,17 +174,6 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             
             // Natural thorns
             player.thorns = 0.15f;
-            
-            // Thorn VFX
-            if (!hideVisual && shieldPlayer.CurrentShield > 0 && Main.rand.NextBool(10))
-            {
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(32f, 42f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.t_Cactus, 
-                    Main.rand.NextVector2Circular(0.5f, 0.8f));
-                dust.noGravity = true;
-                dust.scale = 0.6f;
-                dust.color = new Color(200, 150, 80);
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -267,17 +222,6 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             player.buffImmune[BuffID.Frostburn] = true;
             player.buffImmune[BuffID.Chilled] = true;
             player.buffImmune[BuffID.Frozen] = true;
-            
-            // Frost ward VFX
-            if (!hideVisual && shieldPlayer.CurrentShield > 0 && Main.rand.NextBool(9))
-            {
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(34f, 44f);
-                Dust dust = Dust.NewDustPerfect(dustPos, DustID.IceTorch, 
-                    Main.rand.NextVector2Circular(0.4f, 0.6f));
-                dust.noGravity = true;
-                dust.scale = 0.5f;
-                dust.color = new Color(150, 200, 255);
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -335,45 +279,6 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             
             // Thorns
             player.thorns = 0.15f;
-            
-            // Seasonal VFX based on time
-            if (!hideVisual && shieldPlayer.CurrentShield > 0 && Main.rand.NextBool(7))
-            {
-                Color seasonColor = GetSeasonColor();
-                int dustType = GetSeasonDust();
-                
-                Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(36f, 46f);
-                Dust dust = Dust.NewDustPerfect(dustPos, dustType, 
-                    Main.rand.NextVector2Circular(0.6f, 1f));
-                dust.noGravity = true;
-                dust.scale = 0.6f;
-                dust.color = seasonColor;
-            }
-        }
-        
-        private Color GetSeasonColor()
-        {
-            // Cycle through seasons based on game time
-            int cycle = (int)(Main.GameUpdateCount / 600) % 4;
-            return cycle switch
-            {
-                0 => new Color(255, 180, 200), // Spring pink
-                1 => new Color(255, 140, 50),  // Summer orange
-                2 => new Color(200, 150, 80),  // Autumn amber
-                _ => new Color(150, 200, 255)  // Winter blue
-            };
-        }
-        
-        private int GetSeasonDust()
-        {
-            int cycle = (int)(Main.GameUpdateCount / 600) % 4;
-            return cycle switch
-            {
-                0 => DustID.PinkTorch,
-                1 => DustID.Torch,
-                2 => DustID.AmberBolt,
-                _ => DustID.IceTorch
-            };
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)

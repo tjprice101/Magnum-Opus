@@ -111,6 +111,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
 
             // Compute ghost phase
@@ -126,6 +128,15 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles
             DrawTimeFreezeGhost(sb, matrix, ghostAlpha);   // Pass 1: TimeFreezeCrack crystalline ghost
             DrawMoonlitAura(sb, matrix, ghostAlpha);       // Pass 2: MoonlitGlow ambient aura
             DrawBloomRings(sb, matrix, ghostAlpha);        // Pass 3: Multi-scale bloom + rings
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

@@ -1,12 +1,9 @@
 using Microsoft.Xna.Framework;
-using System;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.Materials;
-using MagnumOpus.Common.Systems.Particles;
-using MagnumOpus.Common.Systems;
 using MagnumOpus.Common;
 using MagnumOpus.Content.ClairDeLune.ResonanceEnergies;
 using MagnumOpus.Content.DiesIrae.ResonanceEnergies;
@@ -65,44 +62,6 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             {
                 player.GetDamage(DamageClass.Magic) += 0.10f;
             }
-            
-            // Constellation particles
-            if (!hideVisual && Main.rand.NextBool(8))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                Vector2 vel = Main.rand.NextVector2Circular(0.5f, 0.5f);
-                Color starColor = Main.rand.NextBool() ? NachtmusikGold : NachtmusikPurple;
-                CustomParticles.GenericGlow(pos, vel, starColor * 0.7f, 0.25f, 22, true);
-                
-                // Star twinkle
-                if (Main.rand.NextBool(4))
-                {
-                    CustomParticles.GenericFlare(pos, NachtmusikSilver * 0.6f, 0.2f, 15);
-                }
-            }
-            
-            // Orbiting constellation points at night
-            if (!hideVisual && !Main.dayTime && Main.rand.NextBool(20))
-            {
-                float angle = Main.GameUpdateCount * 0.025f;
-                for (int i = 0; i < 5; i++)
-                {
-                    float starAngle = angle + MathHelper.TwoPi * i / 5f;
-                    Vector2 starPos = player.Center + starAngle.ToRotationVector2() * 40f;
-                    CustomParticles.GenericFlare(starPos, NachtmusikGold * 0.5f, 0.18f, 10);
-                }
-            }
-            
-            // Music notes
-            if (!hideVisual && Main.rand.NextBool(15))
-            {
-                ThemedParticles.MusicNote(player.Center + Main.rand.NextVector2Circular(30f, 30f),
-                    Vector2.UnitY * -0.3f, NachtmusikPurple * 0.6f, 0.5f, 25);
-            }
-            
-            // Stellar glow
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.03f) * 0.1f + 0.25f;
-            Lighting.AddLight(player.Center, NachtmusikPurple.ToVector3() * pulse);
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -203,37 +162,6 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             
             // +50% mana potion healing
             player.manaSickReduction *= 0.5f; // Less mana sickness = more effective healing
-            
-            // Hellfire particles
-            if (!hideVisual && Main.rand.NextBool(6))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1.5f, -0.5f));
-                Color fireColor = Color.Lerp(DiesIraeOrange, DiesIraeCrimson, Main.rand.NextFloat());
-                CustomParticles.GenericGlow(pos, vel, fireColor * 0.7f, 0.3f, 20, true);
-            }
-            
-            // Rising embers
-            if (!hideVisual && Main.rand.NextBool(10))
-            {
-                Vector2 emberPos = player.Center + new Vector2(Main.rand.NextFloat(-25f, 25f), 20f);
-                Vector2 emberVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-2f, -1f));
-                CustomParticles.GenericFlare(emberPos, DiesIraeOrange * 0.8f, 0.2f, 18);
-            }
-            
-            // Smoke wisps
-            if (!hideVisual && Main.rand.NextBool(15))
-            {
-                var smoke = new HeavySmokeParticle(
-                    player.Center + Main.rand.NextVector2Circular(20f, 20f),
-                    new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-0.8f, -0.3f)),
-                    DiesIraeBlack * 0.4f, Main.rand.Next(25, 40), 0.25f, 0.5f, 0.015f, false);
-                MagnumParticleHandler.SpawnParticle(smoke);
-            }
-            
-            // Infernal glow
-            float flicker = Main.rand.NextFloat(0.8f, 1f);
-            Lighting.AddLight(player.Center, DiesIraeOrange.ToVector3() * 0.3f * flicker);
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -332,40 +260,6 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             
             // T9 flag
             overflowPlayer.hasJubilantArcaneCelebration = true;
-            
-            // Iridescent sparkles
-            if (!hideVisual && Main.rand.NextBool(7))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                Vector2 vel = Main.rand.NextVector2Circular(0.6f, 0.6f);
-                
-                // Rainbow shimmer
-                float hue = (Main.GameUpdateCount * 0.02f + Main.rand.NextFloat()) % 1f;
-                Color shimmerColor = Main.hslToRgb(hue, 0.6f, 0.8f);
-                CustomParticles.GenericGlow(pos, vel, shimmerColor * 0.6f, 0.25f, 20, true);
-            }
-            
-            // Rose petals
-            if (!hideVisual && Main.rand.NextBool(12))
-            {
-                Vector2 petalPos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
-                Vector2 petalVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-0.5f, 0.5f));
-                Color petalColor = Color.Lerp(OdeToJoyRose, OdeToJoyWhite, Main.rand.NextFloat(0.3f));
-                CustomParticles.GenericGlow(petalPos, petalVel, petalColor * 0.7f, 0.22f, 25, true);
-            }
-            
-            // Music notes of joy
-            if (!hideVisual && Main.rand.NextBool(18))
-            {
-                ThemedParticles.MusicNote(player.Center + Main.rand.NextVector2Circular(25f, 25f),
-                    Vector2.UnitY * -0.4f, OdeToJoyIridescent * 0.6f, 0.5f, 28);
-            }
-            
-            // Prismatic glow
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.08f + 0.22f;
-            float hueShift = (Main.GameUpdateCount * 0.01f) % 1f;
-            Color lightColor = Main.hslToRgb(hueShift, 0.4f, 0.7f);
-            Lighting.AddLight(player.Center, lightColor.ToVector3() * pulse);
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -466,44 +360,6 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             
             // T10 flag
             overflowPlayer.hasEternalOverflowMastery = true;
-            
-            // Clockwork gear particles
-            if (!hideVisual && Main.rand.NextBool(10))
-            {
-                float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                Vector2 gearPos = player.Center + angle.ToRotationVector2() * Main.rand.NextFloat(25f, 45f);
-                CustomParticles.Glyph(gearPos, ClairDeLuneBrass * 0.5f, 0.2f, -1);
-            }
-            
-            // Temporal flame wisps
-            if (!hideVisual && Main.rand.NextBool(8))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                Vector2 vel = Main.rand.NextVector2Circular(0.4f, 0.4f);
-                Color temporalColor = Color.Lerp(ClairDeLuneCrimson, ClairDeLuneBrass, Main.rand.NextFloat());
-                CustomParticles.GenericGlow(pos, vel, temporalColor * 0.6f, 0.28f, 22, true);
-            }
-            
-            // Shattered glass effect
-            if (!hideVisual && Main.rand.NextBool(20))
-            {
-                Vector2 shardPos = player.Center + new Vector2(Main.rand.NextFloat(-35f, 35f), Main.rand.NextFloat(-40f, 10f));
-                Vector2 shardVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(0.5f, 1.5f));
-                CustomParticles.GenericFlare(shardPos, ClairDeLuneIridescent * 0.5f, 0.15f, 20);
-            }
-            
-            // Eternal music notes
-            if (!hideVisual && Main.rand.NextBool(16))
-            {
-                ThemedParticles.MusicNote(player.Center + Main.rand.NextVector2Circular(30f, 30f),
-                    new Vector2(0, Main.rand.NextFloat(-0.5f, 0.2f)), ClairDeLuneCrimson * 0.6f, 0.55f, 30);
-            }
-            
-            // Temporal glow with color shift
-            float timeShift = Main.GameUpdateCount * 0.015f;
-            float pulse = (float)Math.Sin(timeShift) * 0.1f + 0.25f;
-            Color lightColor = Color.Lerp(ClairDeLuneCrimson, ClairDeLuneBrass, (float)Math.Sin(timeShift * 0.5f) * 0.5f + 0.5f);
-            Lighting.AddLight(player.Center, lightColor.ToVector3() * pulse);
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -617,41 +473,6 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             {
                 player.GetDamage(DamageClass.Magic) += 0.15f; // Enhanced from 10%
             }
-            
-            // Dual-theme particle mix
-            if (!hideVisual && Main.rand.NextBool(6))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                Vector2 vel = Main.rand.NextVector2Circular(0.6f, 0.6f);
-                
-                // Alternate between stellar and infernal
-                if (Main.rand.NextBool())
-                {
-                    CustomParticles.GenericGlow(pos, vel, NachtmusikPurple * 0.6f, 0.25f, 20, true);
-                }
-                else
-                {
-                    CustomParticles.GenericGlow(pos, vel + Vector2.UnitY * -0.5f, DiesIraeCrimson * 0.6f, 0.28f, 18, true);
-                }
-            }
-            
-            // Orbiting fusion points
-            if (!hideVisual && Main.rand.NextBool(15))
-            {
-                float angle = Main.GameUpdateCount * 0.03f;
-                for (int i = 0; i < 3; i++)
-                {
-                    float orbitAngle = angle + MathHelper.TwoPi * i / 3f;
-                    Vector2 orbitPos = player.Center + orbitAngle.ToRotationVector2() * 38f;
-                    Color orbitColor = i % 2 == 0 ? NachtmusikPurple : DiesIraeCrimson;
-                    CustomParticles.GenericFlare(orbitPos, orbitColor * 0.5f, 0.18f, 12);
-                }
-            }
-            
-            // Combined glow
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.035f) * 0.1f + 0.25f;
-            Color lightColor = Color.Lerp(NachtmusikPurple, DiesIraeCrimson, (float)Math.Sin(Main.GameUpdateCount * 0.02f) * 0.5f + 0.5f);
-            Lighting.AddLight(player.Center, lightColor.ToVector3() * pulse);
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -763,52 +584,6 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             {
                 player.GetDamage(DamageClass.Magic) += 0.18f;
             }
-            
-            // Triple-theme particle mix
-            if (!hideVisual && Main.rand.NextBool(5))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
-                Vector2 vel = Main.rand.NextVector2Circular(0.6f, 0.6f);
-                
-                // Cycle through three themes
-                int theme = Main.rand.Next(3);
-                Color themeColor = theme switch
-                {
-                    0 => NachtmusikPurple,
-                    1 => DiesIraeCrimson,
-                    _ => OdeToJoyWhite
-                };
-                CustomParticles.GenericGlow(pos, vel, themeColor * 0.6f, 0.26f, 20, true);
-            }
-            
-            // Rainbow rose petals
-            if (!hideVisual && Main.rand.NextBool(12))
-            {
-                float hue = Main.rand.NextFloat();
-                Color petalColor = Main.hslToRgb(hue, 0.5f, 0.8f);
-                Vector2 petalPos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                Vector2 petalVel = new Vector2(Main.rand.NextFloat(-0.8f, 0.8f), Main.rand.NextFloat(-0.5f, 0.5f));
-                CustomParticles.GenericGlow(petalPos, petalVel, petalColor * 0.6f, 0.2f, 25, true);
-            }
-            
-            // Orbiting triple points
-            if (!hideVisual && Main.rand.NextBool(18))
-            {
-                float angle = Main.GameUpdateCount * 0.025f;
-                for (int i = 0; i < 3; i++)
-                {
-                    float orbitAngle = angle + MathHelper.TwoPi * i / 3f;
-                    Vector2 orbitPos = player.Center + orbitAngle.ToRotationVector2() * 42f;
-                    Color[] colors = { NachtmusikPurple, DiesIraeCrimson, OdeToJoyWhite };
-                    CustomParticles.GenericFlare(orbitPos, colors[i] * 0.5f, 0.18f, 12);
-                }
-            }
-            
-            // Triumphant glow
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.03f) * 0.1f + 0.28f;
-            float hueShift = (Main.GameUpdateCount * 0.008f) % 1f;
-            Color lightColor = Main.hslToRgb(hueShift, 0.4f, 0.7f);
-            Lighting.AddLight(player.Center, lightColor.ToVector3() * pulse);
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -919,69 +694,6 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             
             // Always has night bonus (mastered)
             player.GetDamage(DamageClass.Magic) += 0.20f;
-            
-            // Quad-theme particle spectacle
-            if (!hideVisual && Main.rand.NextBool(4))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
-                Vector2 vel = Main.rand.NextVector2Circular(0.7f, 0.7f);
-                
-                // Cycle through all four themes
-                int theme = Main.rand.Next(4);
-                Color themeColor = theme switch
-                {
-                    0 => NachtmusikPurple,
-                    1 => DiesIraeCrimson,
-                    2 => OdeToJoyWhite,
-                    _ => ClairDeLuneBrass
-                };
-                CustomParticles.GenericGlow(pos, vel, themeColor * 0.65f, 0.28f, 22, true);
-            }
-            
-            // Clockwork gears
-            if (!hideVisual && Main.rand.NextBool(12))
-            {
-                float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                Vector2 gearPos = player.Center + angle.ToRotationVector2() * Main.rand.NextFloat(30f, 50f);
-                CustomParticles.Glyph(gearPos, ClairDeLuneBrass * 0.4f, 0.22f, -1);
-            }
-            
-            // Shattered glass
-            if (!hideVisual && Main.rand.NextBool(18))
-            {
-                Vector2 shardPos = player.Center + new Vector2(Main.rand.NextFloat(-40f, 40f), Main.rand.NextFloat(-45f, 15f));
-                Vector2 shardVel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(0.4f, 1.2f));
-                CustomParticles.GenericFlare(shardPos, UltimatePrismatic * 0.4f, 0.15f, 20);
-            }
-            
-            // Ultimate orbiting quad
-            if (!hideVisual && Main.rand.NextBool(20))
-            {
-                float angle = Main.GameUpdateCount * 0.02f;
-                Color[] colors = { NachtmusikPurple, DiesIraeCrimson, OdeToJoyWhite, ClairDeLuneBrass };
-                for (int i = 0; i < 4; i++)
-                {
-                    float orbitAngle = angle + MathHelper.TwoPi * i / 4f;
-                    Vector2 orbitPos = player.Center + orbitAngle.ToRotationVector2() * 48f;
-                    CustomParticles.GenericFlare(orbitPos, colors[i] * 0.5f, 0.2f, 14);
-                }
-            }
-            
-            // Eternal music
-            if (!hideVisual && Main.rand.NextBool(14))
-            {
-                Color[] noteColors = { NachtmusikPurple, DiesIraeCrimson, OdeToJoyWhite, ClairDeLuneBrass };
-                Color noteColor = noteColors[Main.rand.Next(4)];
-                ThemedParticles.MusicNote(player.Center + Main.rand.NextVector2Circular(35f, 35f),
-                    Vector2.UnitY * -0.4f, noteColor * 0.6f, 0.6f, 30);
-            }
-            
-            // Ultimate prismatic glow with temporal shimmer
-            float timeShift = Main.GameUpdateCount * 0.012f;
-            float pulse = (float)Math.Sin(timeShift * 2f) * 0.12f + 0.35f;
-            float hue = (timeShift * 0.5f) % 1f;
-            Color lightColor = Main.hslToRgb(hue, 0.5f, 0.8f);
-            Lighting.AddLight(player.Center, lightColor.ToVector3() * pulse);
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)

@@ -41,61 +41,6 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
         {
             var modPlayer = player.GetModPlayer<EnigmaAccessoryPlayer>();
             modPlayer.hasIgnitionOfMystery = true;
-            
-            // Ambient visual effects
-            if (!hideVisual)
-            {
-                // Mysterious flame particles around player - every 30 frames
-                if (Main.GameUpdateCount % 30 == 0)
-                {
-                    Vector2 offset = Main.rand.NextVector2Circular(25f, 35f);
-                    float progress = Main.rand.NextFloat();
-                    Color flameColor = EnigmaAccessoryPlayer.GetEnigmaGradient(progress);
-                    
-                    // Upward drifting flame
-                    Vector2 vel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -1.5f - Main.rand.NextFloat(0.5f));
-                    CustomParticles.GenericGlow(player.Center + offset, flameColor * 0.6f, 0.25f, 20);
-                }
-                
-                // Stack indicator visuals - more intense as stacks build
-                if (modPlayer.mysteryStacks > 0)
-                {
-                    float intensity = (float)modPlayer.mysteryStacks / 10f;
-                    
-                    // Orbiting mystery flames
-                    if (Main.rand.NextFloat() < intensity * 0.4f)
-                    {
-                        float orbitAngle = Main.GameUpdateCount * 0.03f + Main.rand.NextFloat() * MathHelper.TwoPi;
-                        float orbitRadius = 30f + intensity * 15f;
-                        Vector2 flamePos = player.Center + orbitAngle.ToRotationVector2() * orbitRadius;
-                        
-                        Color flameColor = EnigmaAccessoryPlayer.GetEnigmaGradient(intensity);
-                        CustomParticles.GenericFlare(flamePos, flameColor, 0.25f + intensity * 0.2f, 12);
-                    }
-                    
-                    // At high stacks, eyes begin to watch
-                    if (modPlayer.mysteryStacks >= 6 && Main.rand.NextBool(15))
-                    {
-                        Vector2 eyePos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
-                        CustomParticles.EnigmaEyeGaze(eyePos, EnigmaGreenFlame * 0.5f, 0.25f * intensity, null);
-                    }
-                    
-                    // Glyphs at max stacks
-                    if (modPlayer.mysteryStacks >= 9 && Main.rand.NextBool(10))
-                    {
-                        CustomParticles.Glyph(player.Center + Main.rand.NextVector2Circular(35f, 35f), 
-                            EnigmaPurple * 0.6f, 0.25f, -1);
-                    }
-                    
-                    // Pulsing aura light based on stacks
-                    float pulse = (float)System.Math.Sin(Main.GameUpdateCount * 0.1f) * 0.2f + 0.8f;
-                    Lighting.AddLight(player.Center, EnigmaAccessoryPlayer.GetEnigmaGradient(intensity).ToVector3() * 0.3f * intensity * pulse);
-                }
-                
-                // Enigma aura - only spawn every 20 frames to reduce particle load
-                if (Main.GameUpdateCount % 20 == 0)
-                    ThemedParticles.EnigmaAura(player.Center, 35f, 0.3f);
-            }
         }
         
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)

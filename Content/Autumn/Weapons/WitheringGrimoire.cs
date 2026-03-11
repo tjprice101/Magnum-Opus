@@ -16,7 +16,7 @@ using static MagnumOpus.Common.Systems.ThemedParticles;
 namespace MagnumOpus.Content.Autumn.Weapons
 {
     /// <summary>
-    /// Withering Grimoire - Autumn-themed magic weapon (Post-Plantera tier)
+    /// Withering Grimoire - Autumn-themed magic weapon (Post-Wall of Flesh tier)
     /// An ancient tome containing the essence of autumn's decay.
     /// - Decay Bolt: Fires piercing bolts that wither enemies (125 damage)
     /// - Entropic Field: Creates damaging decay zones on impact

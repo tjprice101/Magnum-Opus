@@ -70,6 +70,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
         private const int FullMoonOpportunity = 37 * 3;
         private const float NotMeleeDamagePenalty = 0.3f;
         private const float DetonationDamageFactor = 2.0f;
+        private const float TextureDrawScale = 0.136f;
 
         public int GetSwingTime
         {
@@ -574,9 +575,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             if (_lunarPhase == 4 && Math.Abs(Progression - 0.55f) < 0.02f)
             {
                 LunarParticleHandler.SpawnParticle(new LunarBloomParticle(
-                    tipPos, 0.8f, IceBlue, 30, 0.05f));
+                    tipPos, 0.4f, IceBlue, 25, 0.04f));
                 LunarParticleHandler.SpawnParticle(new LunarBloomParticle(
-                    Owner.MountedCenter, 1.2f, DarkPurple, 40, 0.03f));
+                    Owner.MountedCenter, 0.6f, DarkPurple, 30, 0.025f));
 
                 // Musical identity: visible hue-shifting notes burst from the Full Moon crescendo
                 MoonlightVFXLibrary.SpawnMusicNotes(tipPos, count: 4, spread: 30f, minScale: 0.8f, maxScale: 1.1f, lifetime: 45);
@@ -738,6 +739,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             if (Projectile.Opacity <= 0f || InPostSurgeStasis)
                 return false;
 
@@ -747,6 +751,15 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             DrawSurgeTrail();
             DrawBlade();
             DrawCrescentBloom();
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
@@ -859,7 +872,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             }
             else
             {
-                // --- FALLBACK: static colored layers (no shader available) ---
+                // --- FALLBACK: NEON RED layers (shader failed!) ---
                 // NOTE: Same as shader path — must use SourceAlpha additive for alpha-masked arc textures.
                 sb.End();
                 sb.Begin(SpriteSortMode.Deferred, BlendState.Additive,
@@ -867,18 +880,19 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                     RasterizerState.CullCounterClockwise, null,
                     Main.GameViewMatrix.EffectMatrix);
 
+                Color _neonRed = new Color(255, 0, 50);
                 sb.Draw(smearTex, drawOrigin, null,
-                    DarkPurple * smearAlpha * 0.35f,
+                    _neonRed * smearAlpha * 0.35f,
                     smearRotation, smearOrigin,
                     smearScale * 1.15f, SpriteEffects.None, 0f);
 
                 sb.Draw(smearTex, drawOrigin, null,
-                    IceBlue * smearAlpha * 0.65f,
+                    _neonRed * smearAlpha * 0.65f,
                     smearRotation, smearOrigin,
                     smearScale, SpriteEffects.None, 0f);
 
                 sb.Draw(smearTex, drawOrigin, null,
-                    MoonWhite * smearAlpha * 0.5f,
+                    _neonRed * smearAlpha * 0.5f,
                     smearRotation, smearOrigin,
                     smearScale * 0.85f, SpriteEffects.None, 0f);
 
@@ -1025,7 +1039,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 
                 Main.EntitySpriteDraw(texture, Owner.MountedCenter - Main.screenPosition, null,
                     Color.White, BaseRotation, texture.Size() / 2f,
-                    SquishVector * 2.8f * Projectile.scale, direction, 0);
+                    SquishVector * 2.8f * Projectile.scale * TextureDrawScale, direction, 0);
 
                 Main.spriteBatch.End();
                 Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
@@ -1068,7 +1082,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 
                 Projectile.scale = MathHelper.Lerp(1f, 0.25f, MathF.Pow(SurgeProgression, 6));
 
-                Main.EntitySpriteDraw(texture, drawPosition, null, Color.White, rotation, origin, Projectile.scale, direction, 0);
+                Main.EntitySpriteDraw(texture, drawPosition, null, Color.White, rotation, origin, Projectile.scale * TextureDrawScale, direction, 0);
 
                 // Additive energy glow copies (ice blue moonlight)
                 float energyPower = Utils.GetLerpValue(0f, 0.3f, Progression, true) * Utils.GetLerpValue(1f, 0.85f, Progression, true);
@@ -1078,7 +1092,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                     Color glowColor = Color.Lerp(IceBlue, CrescentGlow, Progression);
                     glowColor.A = 0;
                     Main.spriteBatch.Draw(texture, drawPosition + drawOffset, null,
-                        glowColor * 0.14f, rotation, origin, Projectile.scale, direction, 0);
+                        glowColor * 0.14f, rotation, origin, Projectile.scale * TextureDrawScale, direction, 0);
                 }
             }
         }
@@ -1099,7 +1113,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             Vector2 tipPos = Owner.MountedCenter + DirectionAtProgressSmoothed(Progression) * Projectile.scale * BladeLength - Main.screenPosition;
 
             float crescentScale = 0.4f + 0.3f * _phaseIntensity;
-            float crescentOpacity = (float)Math.Sin(MathHelper.Pi * (Progression - 0.3f) / 0.55f) * 0.21f * _phaseIntensity;
+            float crescentOpacity = (float)Math.Sin(MathHelper.Pi * (Progression - 0.3f) / 0.55f) * 0.12f * _phaseIntensity;
 
             // Palette-driven tidal color: shifts from deep purple at swing start to ice blue at peak
             float paletteT = 0.2f + Progression * 0.6f;
@@ -1283,13 +1297,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                 // Massive impact VFX
                 if (!Main.dedServ)
                 {
-                    // Bloom burst — layered from wide dark halo to white-hot core
+                    // Bloom burst — layered from wide dark halo to white-hot core (reduced intensity)
                     LunarParticleHandler.SpawnParticle(new LunarBloomParticle(
-                        target.Center, 1.5f, MoonWhite, 35, 0.08f));
+                        target.Center, 0.8f, MoonWhite, 25, 0.06f));
                     LunarParticleHandler.SpawnParticle(new LunarBloomParticle(
-                        target.Center, 2f, IceBlue, 40, 0.06f));
+                        target.Center, 1.2f, IceBlue, 30, 0.05f));
                     LunarParticleHandler.SpawnParticle(new LunarBloomParticle(
-                        target.Center, 2.5f, DarkPurple, 50, 0.04f));
+                        target.Center, 1.6f, DarkPurple, 40, 0.035f));
 
                     // Crescent spark explosion
                     for (int i = 0; i < 16; i++)

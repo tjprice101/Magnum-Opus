@@ -31,44 +31,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.SakurasBurningWill
         {
             var modPlayer = player.GetModPlayer<EroicaAccessoryPlayer>();
             modPlayer.hasSakurasBurningWill = true;
-            
-            // Enhanced ambient particles using ThemedParticles system
-            if (!hideVisual)
-            {
-                // Sakura petals swirling around player
-                ThemedParticles.SakuraPetals(player.Center, 8, 40f);
-                
-                // Eroica aura embers
-                ThemedParticles.EroicaAura(player.Center, 30f);
-            }
-            
-            // Spirit summoning timer visual with enhanced effects
-            if (!hideVisual && modPlayer.heroicSpiritTimer > 600) // Last 2 seconds before summon
-            {
-                float progress = (modPlayer.heroicSpiritTimer - 600f) / 120f;
-                
-                // Pulsing halo effect building up to summon
-                if (Main.GameUpdateCount % (int)(20 - progress * 15) == 0)
-                {
-                    CustomParticles.EroicaHalo(player.Center, 0.3f + progress * 0.4f);
-                }
-                
-                // Building energy using sparkles from particle system
-                if (Main.rand.NextFloat() < progress * 0.5f)
-                {
-                    ThemedParticles.EroicaSparkles(player.Center, 3, 25f);
-                }
-                
-                // Original gold energy converging
-                if (Main.rand.NextFloat() < progress)
-                {
-                    float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                    Vector2 pos = player.Center + new Vector2((float)System.Math.Cos(angle), (float)System.Math.Sin(angle)) * 50f * (1f - progress);
-                    Dust energy = Dust.NewDustPerfect(pos, DustID.GoldCoin, 
-                        (player.Center - pos).SafeNormalize(Vector2.Zero) * 3f, 0, default, 1.2f);
-                    energy.noGravity = true;
-                }
-            }
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)

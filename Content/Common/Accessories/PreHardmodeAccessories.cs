@@ -35,25 +35,6 @@ namespace MagnumOpus.Content.Common.Accessories
 
             // Show enemy health bars (Hunter Potion effect)
             player.detectCreature = true;
-
-            // Ambient particles - soft purple and gold musical energy
-            if (!hideVisual && Main.rand.NextBool(12))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(25f, 25f);
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(0.5f, 1f));
-                Color noteColor = Color.Lerp(new Color(138, 43, 226), new Color(255, 215, 0), Main.rand.NextFloat());
-                
-                CustomParticles.GenericGlow(pos, vel, noteColor * 0.7f, 0.2f, 20, true);
-                
-                // Occasional music note
-                if (Main.rand.NextBool(3))
-                {
-                    ThemedParticles.MusicNote(pos, vel * 0.5f, noteColor, 0.25f, 25);
-                }
-            }
-
-            // Soft ambient light
-            Lighting.AddLight(player.Center, new Vector3(0.2f, 0.15f, 0.25f));
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -112,22 +93,6 @@ namespace MagnumOpus.Content.Common.Accessories
 
             // Music note drop chance handled by global NPC
             player.GetModPlayer<ResonantPendantPlayer>().hasResonantPendant = true;
-
-            // Ambient particles - harmonic sound waves
-            if (!hideVisual && Main.rand.NextBool(15))
-            {
-                float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                float radius = 20f + Main.rand.NextFloat(10f);
-                Vector2 pos = player.Center + angle.ToRotationVector2() * radius;
-                
-                // Concentric ring effect
-                Color waveColor = Color.Lerp(new Color(138, 43, 226), new Color(192, 192, 192), Main.rand.NextFloat()) * 0.6f;
-                CustomParticles.HaloRing(pos, waveColor, 0.15f, 12);
-            }
-
-            // Soft purple light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.1f + 0.2f;
-            Lighting.AddLight(player.Center, new Vector3(0.15f, 0.1f, 0.2f) * pulse);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -217,41 +182,6 @@ namespace MagnumOpus.Content.Common.Accessories
 
             // Music note drop chance
             player.GetModPlayer<ResonantPendantPlayer>().hasResonantPendant = true;
-
-            // Enhanced ambient particles
-            if (!hideVisual)
-            {
-                // Orbiting musical energy
-                if (Main.rand.NextBool(8))
-                {
-                    float baseAngle = Main.GameUpdateCount * 0.03f;
-                    for (int i = 0; i < 2; i++)
-                    {
-                        float angle = baseAngle + MathHelper.Pi * i;
-                        float radius = 28f + (float)Math.Sin(Main.GameUpdateCount * 0.05f + i) * 5f;
-                        Vector2 pos = player.Center + angle.ToRotationVector2() * radius;
-                        
-                        Color orbColor = i == 0 
-                            ? Color.Lerp(new Color(138, 43, 226), new Color(255, 215, 0), 0.3f)
-                            : Color.Lerp(new Color(255, 215, 0), new Color(138, 43, 226), 0.3f);
-                        
-                        CustomParticles.GenericFlare(pos, orbColor * 0.6f, 0.2f, 8);
-                    }
-                }
-
-                // Occasional music notes rising
-                if (Main.rand.NextBool(20))
-                {
-                    Vector2 pos = player.Center + Main.rand.NextVector2Circular(20f, 20f);
-                    Vector2 vel = new Vector2(0, -1f);
-                    Color noteColor = Main.hslToRgb(Main.rand.NextFloat(), 0.7f, 0.7f);
-                    ThemedParticles.MusicNote(pos, vel, noteColor, 0.3f, 30);
-                }
-            }
-
-            // Warm ambient light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.15f + 0.35f;
-            Lighting.AddLight(player.Center, new Vector3(0.25f, 0.2f, 0.3f) * pulse);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)

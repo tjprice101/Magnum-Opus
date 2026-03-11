@@ -64,64 +64,6 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                 // White mode: +10% ranged crit chance
                 player.GetCritChance(DamageClass.Ranged) += 10;
             }
-
-            // Ambient particles based on mode
-            if (!hideVisual)
-            {
-                // Feather particles (both modes)
-                if (Main.rand.NextBool(12))
-                {
-                    Color featherColor = modPlayer.quiverIsBlackMode 
-                        ? new Color(40, 35, 50) 
-                        : new Color(250, 248, 255);
-                    
-                    Vector2 offset = new Vector2(player.direction * -15f, -20f) + Main.rand.NextVector2Circular(5f, 5f);
-                    Dust feather = Dust.NewDustPerfect(player.Center + offset, DustID.TintableDustLighted,
-                        new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(1f, 2f)), 0, featherColor, 0.8f);
-                    feather.noGravity = false;
-                    feather.velocity *= 0.5f;
-                }
-                
-                // Swan feather from quiver
-                if (Main.rand.NextBool(15))
-                {
-                    Color swanFeatherColor = modPlayer.quiverIsBlackMode ? new Color(30, 30, 35) : Color.White;
-                    CustomParticles.SwanFeatherDrift(player.Center + new Vector2(player.direction * -15f, -20f), swanFeatherColor, 0.2f);
-                }
-
-                // Pearlescent shimmer
-                if (Main.rand.NextBool(10))
-                {
-                    Color pearlescent = Main.rand.Next(3) switch
-                    {
-                        0 => new Color(255, 240, 245),
-                        1 => new Color(240, 245, 255),
-                        _ => new Color(250, 255, 245)
-                    };
-                    Vector2 offset = new Vector2(player.direction * -12f, -18f) + Main.rand.NextVector2Circular(8f, 12f);
-                    Dust shimmer = Dust.NewDustPerfect(player.Center + offset, DustID.TintableDustLighted,
-                        Vector2.Zero, 0, pearlescent, 0.6f);
-                    shimmer.noGravity = true;
-                }
-
-                // Mode-specific flame particles
-                if (Main.rand.NextBool(8))
-                {
-                    Vector2 offset = new Vector2(player.direction * -14f, -22f);
-                    if (modPlayer.quiverIsBlackMode)
-                    {
-                        Dust black = Dust.NewDustPerfect(player.Center + offset, DustID.Smoke,
-                            new Vector2(0, -1f), 180, Color.Black, 0.9f);
-                        black.noGravity = true;
-                    }
-                    else
-                    {
-                        Dust white = Dust.NewDustPerfect(player.Center + offset, DustID.WhiteTorch,
-                            new Vector2(0, -0.8f), 100, default, 0.8f);
-                        white.noGravity = true;
-                    }
-                }
-            }
         }
 
         public override bool CanRightClick()
@@ -657,6 +599,9 @@ namespace MagnumOpus.Content.SwanLake.Accessories
         
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D texture = TextureAssets.Projectile[Type].Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -668,36 +613,7 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                 Main.DefaultSamplerState, DepthStencilState.None,
                 Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
-            // Draw rainbow glow outline trail
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                float fade = 1f - (i / (float)Projectile.oldPos.Length);
-                float trailScale = (1f - i * 0.08f) * 0.8f;
-                float hue = ((Main.GameUpdateCount * 0.03f) + i * 0.1f) % 1f;
-                Color trailColor = (Main.hslToRgb(hue, 1f, 0.7f) with { A = 0 }) * fade * 0.6f;
-                
-                // Rainbow glow texture
-                Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
-                if (glowTex == null) continue;
-                spriteBatch.Draw(glowTex, trailPos, null, trailColor, Projectile.oldRot[i], glowTex.Size() / 2f, trailScale * 0.4f, SpriteEffects.None, 0f);
-            }
-            
-            // Draw rainbow outline glow around feather
-            float currentHue = (Main.GameUpdateCount * 0.03f) % 1f;
-            Color glowColor = (Main.hslToRgb(currentHue, 1f, 0.7f) with { A = 0 }) * 0.7f;
-            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-            if (glow == null)
-            {
-                spriteBatch.End();
-                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                    Main.DefaultSamplerState, DepthStencilState.None,
-                    Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-                return false;
-            }
-            spriteBatch.Draw(glow, drawPos, null, glowColor, Projectile.rotation, glow.Size() / 2f, 0.5f, SpriteEffects.None, 0f);
+
             
             // Restore to AlphaBlend for feather core
             spriteBatch.End();
@@ -708,6 +624,15 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             // Draw black feather core (tinted dark)
             spriteBatch.Draw(texture, drawPos, null, new Color(30, 30, 35), Projectile.rotation, origin, 0.8f, SpriteEffects.None, 0f);
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
     }
@@ -899,37 +824,18 @@ namespace MagnumOpus.Content.SwanLake.Accessories
         
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D texture = TextureAssets.Projectile[Type].Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
             
-            // === GLOW BACKDROP (Additive) ===
-            Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
-            if (glowTex == null) return false;
-            float glowScale = MathHelper.Min(0.6f + glowPulse * 0.15f, 0.488f);
-            
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
                 Main.DefaultSamplerState, DepthStencilState.None,
                 Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            // White glow base
-            spriteBatch.Draw(glowTex, drawPos, null, 
-                (Color.White with { A = 0 }) * 0.4f * glowPulse, 
-                0f, glowTex.Size() / 2f, glowScale, SpriteEffects.None, 0f);
-            
-            // Subtle golden healing glow
-            spriteBatch.Draw(glowTex, drawPos, null, 
-                (new Color(255, 245, 200) with { A = 0 }) * 0.2f * glowPulse, 
-                0f, glowTex.Size() / 2f, glowScale * 0.8f, SpriteEffects.None, 0f);
-            
-            // Rainbow iridescent outer ring (very subtle)
-            float hue = (Main.GameUpdateCount * 0.015f) % 1f;
-            Color iridescentColor = (Main.hslToRgb(hue, 0.5f, 0.9f) with { A = 0 }) * 0.15f;
-            spriteBatch.Draw(glowTex, drawPos, null, 
-                iridescentColor, 
-                0f, glowTex.Size() / 2f, glowScale * 1.2f, SpriteEffects.None, 0f);
             
             // Slight additive glow overlay on the feather itself
             spriteBatch.Draw(texture, drawPos, null, 
@@ -949,6 +855,15 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                 featherColor, 
                 Projectile.rotation, origin, Projectile.scale, SpriteEffects.None, 0f);
             
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
         

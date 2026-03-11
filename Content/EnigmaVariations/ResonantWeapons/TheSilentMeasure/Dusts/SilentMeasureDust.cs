@@ -10,14 +10,16 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.D
     /// </summary>
     public class SilentMeasureDust : ModDust
     {
-        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/Projectiles/BrightStarProjectile1";
 
         public override void OnSpawn(Dust dust)
         {
             dust.noGravity = true;
             dust.noLight = false;
-            dust.frame = new Rectangle(0, 0, 16, 16);
-            dust.scale = Main.rand.NextFloat(0.3f, 0.7f);
+            dust.frame = new Rectangle(0, 0, 128, 128);
+            dust.scale = Main.rand.NextFloat(0.12f, 0.35f);
+            // Black and white sparkles per user request
+            dust.color = Main.rand.NextBool() ? Color.White : new Color(40, 20, 60);
         }
 
         public override bool Update(Dust dust)

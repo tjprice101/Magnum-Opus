@@ -40,18 +40,6 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         {
             var markingPlayer = player.GetModPlayer<MarkingPlayer>();
             markingPlayer.hasResonantSpotter = true;
-            
-            // Ambient particles showing marking system active
-            if (!hideVisual && Main.rand.NextBool(20))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(25f, 25f);
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(0.3f, 0.7f));
-                CustomParticles.GenericGlow(pos, vel, BaseRed * 0.5f, 0.18f, 15, true);
-            }
-            
-            // Pulsing light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.12f + 0.15f;
-            Lighting.AddLight(player.Center, BaseRed.ToVector3() * pulse);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -123,25 +111,6 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             var markingPlayer = player.GetModPlayer<MarkingPlayer>();
             markingPlayer.hasResonantSpotter = true;
             markingPlayer.hasSpringHuntersLens = true;
-            
-            // Spring-themed particles
-            if (!hideVisual && Main.rand.NextBool(15))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(28f, 28f);
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.6f, 0.6f), -Main.rand.NextFloat(0.4f, 0.9f));
-                Color particleColor = Color.Lerp(SpringGreen, SpringPink, Main.rand.NextFloat());
-                CustomParticles.GenericGlow(pos, vel, particleColor * 0.6f, 0.2f, 18, true);
-                
-                // Occasional music note
-                if (Main.rand.NextBool(4))
-                {
-                    ThemedParticles.MusicNote(pos, vel * 0.5f, SpringGreen, 0.22f, 18);
-                }
-            }
-            
-            // Spring light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.07f) * 0.1f + 0.18f;
-            Lighting.AddLight(player.Center, SpringGreen.ToVector3() * pulse);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -218,25 +187,6 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             markingPlayer.hasResonantSpotter = true;
             markingPlayer.hasSpringHuntersLens = true;
             markingPlayer.hasSolarTrackersBadge = true;
-            
-            // Solar flame particles
-            if (!hideVisual && Main.rand.NextBool(12))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(0.8f, 1.5f));
-                Color fireColor = Color.Lerp(SummerOrange, SummerGold, Main.rand.NextFloat());
-                CustomParticles.GenericGlow(pos, vel, fireColor * 0.7f, 0.22f, 20, true);
-                
-                // Solar flare at high activity
-                if (Main.rand.NextBool(6))
-                {
-                    CustomParticles.GenericFlare(pos, SummerGold * 0.5f, 0.2f, 10);
-                }
-            }
-            
-            // Warm solar light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.12f + 0.2f;
-            Lighting.AddLight(player.Center, SummerOrange.ToVector3() * pulse);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -320,26 +270,6 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             markingPlayer.hasSpringHuntersLens = true;
             markingPlayer.hasSolarTrackersBadge = true;
             markingPlayer.hasHarvestReapersMark = true;
-            
-            // Falling leaves particles
-            if (!hideVisual && Main.rand.NextBool(10))
-            {
-                Vector2 pos = player.Center + new Vector2(Main.rand.NextFloat(-35f, 35f), -30f);
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(0.5f, 1.5f));
-                Color leafColor = Main.rand.NextBool() ? AutumnBrown : (Main.rand.NextBool() ? AutumnOrange : AutumnRed);
-                CustomParticles.GenericGlow(pos, vel, leafColor * 0.7f, 0.25f, 30, true);
-            }
-            
-            // Harvest ember flares
-            if (!hideVisual && Main.rand.NextBool(25))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(25f, 25f);
-                CustomParticles.GenericFlare(pos, AutumnOrange * 0.4f, 0.15f, 12);
-            }
-            
-            // Warm autumn light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 0.18f;
-            Lighting.AddLight(player.Center, AutumnBrown.ToVector3() * pulse);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -424,26 +354,6 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             markingPlayer.hasSolarTrackersBadge = true;
             markingPlayer.hasHarvestReapersMark = true;
             markingPlayer.hasPermafrostHuntersEye = true;
-            
-            // Frost particles
-            if (!hideVisual && Main.rand.NextBool(12))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.4f, 0.4f), -Main.rand.NextFloat(0.3f, 0.8f));
-                Color frostColor = Color.Lerp(WinterBlue, WinterWhite, Main.rand.NextFloat());
-                CustomParticles.GenericGlow(pos, vel, frostColor * 0.6f, 0.22f, 22, true);
-                
-                // Snowflake sparkles
-                if (Main.rand.NextBool(5))
-                {
-                    Dust dust = Dust.NewDustDirect(pos, 0, 0, DustID.IceTorch, vel.X, vel.Y, 100, WinterCyan, 0.8f);
-                    dust.noGravity = true;
-                }
-            }
-            
-            // Cold winter light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.1f + 0.2f;
-            Lighting.AddLight(player.Center, WinterBlue.ToVector3() * pulse);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -521,40 +431,6 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             markingPlayer.hasHarvestReapersMark = true;
             markingPlayer.hasPermafrostHuntersEye = true;
             markingPlayer.hasVivaldisSeSonalSight = true;
-            
-            // Cycling seasonal particles
-            int season = (int)(Main.GameUpdateCount / 120) % 4;
-            Color seasonColor = season switch
-            {
-                0 => SpringGreen,
-                1 => SummerOrange,
-                2 => AutumnBrown,
-                3 => WinterBlue,
-                _ => Color.White
-            };
-            
-            if (!hideVisual && Main.rand.NextBool(10))
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.6f, 0.6f), -Main.rand.NextFloat(0.5f, 1f));
-                CustomParticles.GenericGlow(pos, vel, seasonColor * 0.7f, 0.25f, 25, true);
-                
-                // Music notes for the Four Seasons
-                if (Main.rand.NextBool(4))
-                {
-                    ThemedParticles.MusicNote(pos, vel * 0.5f, seasonColor, 0.28f, 22);
-                }
-            }
-            
-            // Seasonal halo pulses
-            if (!hideVisual && Main.rand.NextBool(40))
-            {
-                CustomParticles.HaloRing(player.Center, seasonColor * 0.3f, 0.2f, 15);
-            }
-            
-            // Dynamic seasonal light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.07f) * 0.12f + 0.22f;
-            Lighting.AddLight(player.Center, seasonColor.ToVector3() * pulse);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)

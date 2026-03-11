@@ -8,13 +8,13 @@ namespace MagnumOpus.Content.Fate
 {
     /// <summary>
     /// Compartmentalized shader manager for all Fate VFX.
-    /// Wraps ShaderLoader access to FateCosmicTrail.fx and FateDestinyBloom.fx —
+    /// Wraps ShaderLoader access to FateCosmicTrail.fx and FateDestinyBloom.fx  E
     /// providing preset Apply* methods for each rendering technique.
     ///
     /// Techniques available:
-    ///   FateCosmicTrail  — CosmicSwirl: nebula-like cosmic trail with star particle noise
-    ///   FateDestinyBloom — DestinyFlare: supernova-intensity bloom with chromatic edge
-    ///                    — CosmicFire: celestial flame for burning cosmic effects
+    ///   FateCosmicTrail   ECosmicSwirl: nebula-like cosmic trail with star particle noise
+    ///   FateDestinyBloom  EDestinyFlare: supernova-intensity bloom with chromatic edge
+    ///                     ECosmicFire: celestial flame for burning cosmic effects
     ///
     /// Until Fate-specific shaders are authored (Phase 2), this manager
     /// falls back to existing generic shaders (ScrollingTrailShader,
@@ -83,13 +83,13 @@ namespace MagnumOpus.Content.Fate
 
         /// <summary>
         /// Binds StarFieldScatter to sampler slot 1 for constellation effects.
-        /// Falls back to SparklyNoiseTexture if unavailable.
+        /// Falls back to SimplexNoise if unavailable.
         /// </summary>
         public static void BindStarFieldTexture(GraphicsDevice device)
         {
             Texture2D noise = ShaderLoader.GetNoiseTexture("StarFieldScatter");
             if (noise == null)
-                noise = ShaderLoader.GetNoiseTexture("SparklyNoiseTexture");
+                noise = ShaderLoader.GetNoiseTexture("SimplexNoise");
             if (noise == null)
                 noise = ShaderLoader.GetNoiseTexture("PerlinNoise");
             if (noise != null)
@@ -164,7 +164,7 @@ namespace MagnumOpus.Content.Fate
         }
 
         /// <summary>
-        /// Preset: CodaOfAnnihilation trail — annihilation incarnate, reality-ending sweep.
+        /// Preset: CodaOfAnnihilation trail  Eannihilation incarnate, reality-ending sweep.
         /// </summary>
         public static void ApplyCodaTrail(float time)
         {
@@ -174,7 +174,7 @@ namespace MagnumOpus.Content.Fate
         }
 
         /// <summary>
-        /// Preset: DestinysCrescendo trail — building cosmic power, crescendo momentum.
+        /// Preset: DestinysCrescendo trail  Ebuilding cosmic power, crescendo momentum.
         /// </summary>
         public static void ApplyCrescendoTrail(float time)
         {
@@ -185,7 +185,7 @@ namespace MagnumOpus.Content.Fate
         }
 
         /// <summary>
-        /// Preset: FractalOfTheStars trail — recursive starlight, kaleidoscopic cosmos.
+        /// Preset: FractalOfTheStars trail  Erecursive starlight, kaleidoscopic cosmos.
         /// </summary>
         public static void ApplyFractalTrail(float time)
         {
@@ -196,7 +196,7 @@ namespace MagnumOpus.Content.Fate
         }
 
         /// <summary>
-        /// Preset: LightOfTheFuture trail — dawning golden light, destiny revealed.
+        /// Preset: LightOfTheFuture trail  Edawning golden light, destiny revealed.
         /// </summary>
         public static void ApplyFutureLightTrail(float time)
         {
@@ -206,7 +206,7 @@ namespace MagnumOpus.Content.Fate
         }
 
         /// <summary>
-        /// Preset: OpusUltima trail — the magnum opus, ultimate cosmic power.
+        /// Preset: OpusUltima trail  Ethe magnum opus, ultimate cosmic power.
         /// </summary>
         public static void ApplyOpusUltimaTrail(float time)
         {
@@ -217,7 +217,7 @@ namespace MagnumOpus.Content.Fate
         }
 
         /// <summary>
-        /// Preset: RequiemOfReality trail — reality's funeral, cosmic entropy.
+        /// Preset: RequiemOfReality trail  Ereality's funeral, cosmic entropy.
         /// </summary>
         public static void ApplyRequiemTrail(float time)
         {
@@ -228,7 +228,7 @@ namespace MagnumOpus.Content.Fate
         }
 
         /// <summary>
-        /// Preset: ResonanceOfABygoneReality trail — ghost frequencies, phantom echoes.
+        /// Preset: ResonanceOfABygoneReality trail  Eghost frequencies, phantom echoes.
         /// </summary>
         public static void ApplyBygoneResonanceTrail(float time)
         {
@@ -239,7 +239,7 @@ namespace MagnumOpus.Content.Fate
         }
 
         /// <summary>
-        /// Preset: SymphonysEnd trail — the final note, cosmic silence.
+        /// Preset: SymphonysEnd trail  Ethe final note, cosmic silence.
         /// </summary>
         public static void ApplySymphonyEndTrail(float time)
         {
@@ -250,7 +250,7 @@ namespace MagnumOpus.Content.Fate
         }
 
         /// <summary>
-        /// Preset: TheConductorsLastConstellation trail — star map traced across the sky.
+        /// Preset: TheConductorsLastConstellation trail  Estar map traced across the sky.
         /// </summary>
         public static void ApplyConstellationTrail(float time)
         {
@@ -261,7 +261,7 @@ namespace MagnumOpus.Content.Fate
         }
 
         /// <summary>
-        /// Preset: TheFinalFermata trail — suspended time, the held note.
+        /// Preset: TheFinalFermata trail  Esuspended time, the held note.
         /// </summary>
         public static void ApplyFermataTrail(float time)
         {

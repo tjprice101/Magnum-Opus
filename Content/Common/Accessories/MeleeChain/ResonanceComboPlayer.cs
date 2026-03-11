@@ -253,13 +253,6 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             {
                 resonanceStacks--;
                 decayTimer = 0;
-                
-                // Visual feedback on decay
-                if (resonanceStacks > 0)
-                {
-                    Vector2 pos = Player.Center + Main.rand.NextVector2Circular(20f, 20f);
-                    CustomParticles.GenericGlow(pos, Vector2.UnitY * -1f, GetResonanceColor() * 0.5f, 0.2f, 15, true);
-                }
             }
         }
         

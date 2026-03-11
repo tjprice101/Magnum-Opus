@@ -10,6 +10,7 @@ using MagnumOpus.Content.Fate.Debuffs;
 using MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Utilities;
 using MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Particles;
 using MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Primitives;
+using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Projectiles
 {
@@ -303,6 +304,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
@@ -327,20 +330,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Projectiles
 
                 float pulse = 1f + MathF.Sin(Main.GameUpdateCount * 0.12f + OrbitOffset * 3f) * 0.1f;
 
-                // Outer purple glow
-                sb.Draw(texture, drawPos, null,
-                    FermataUtils.FermataPurple * 0.2f * _spectralAlpha,
-                    Projectile.rotation, origin, 1.3f * pulse, SpriteEffects.None, 0f);
-
-                // Mid crimson glow
-                sb.Draw(texture, drawPos, null,
-                    FermataUtils.FermataCrimson * 0.25f * _spectralAlpha,
-                    Projectile.rotation, origin, 1.15f * pulse, SpriteEffects.None, 0f);
-
-                // Inner silver highlight
-                sb.Draw(texture, drawPos, null,
-                    FermataUtils.GhostSilver * 0.15f * _spectralAlpha,
-                    Projectile.rotation, origin, 1.05f * pulse, SpriteEffects.None, 0f);
+                // Graduated orb bloom head
+                MagnumVFX.DrawGraduatedOrbHead(sb, drawPos, FermataUtils.FermataCrimson, FermataUtils.FermataPurple, 1.0f, _spectralAlpha);
 
                 sb.End();
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
@@ -376,6 +367,15 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Projectiles
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             }
             catch { }
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

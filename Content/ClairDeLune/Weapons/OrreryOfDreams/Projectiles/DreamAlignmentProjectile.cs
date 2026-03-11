@@ -12,7 +12,7 @@ using Terraria.ModLoader;
 namespace MagnumOpus.Content.ClairDeLune.Weapons.OrreryOfDreams.Projectiles
 {
     /// <summary>
-    /// Dream Alignment — combined sphere blast triggered every 12s.
+    /// Dream Alignment  Ecombined sphere blast triggered every 12s.
     /// 3-phase chain detonation representing Inner, Middle, Outer alignment.
     /// 3 render passes: (1) CelestialOrbit.fx CelestialOrbitPath expanding rings,
     /// (2) RadialNoiseMaskShader detonation zone, (3) Multi-scale bloom + phase rings.
@@ -151,7 +151,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.OrreryOfDreams.Projectiles
             _softCircle ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad);
             _softRadialBloom ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad);
             _starFlare ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/StarFlare", AssetRequestMode.ImmediateLoad);
-            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX/Noise/CosmicEnergyNoise", AssetRequestMode.ImmediateLoad);
+            _noiseTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/CosmicEnergyVortex", AssetRequestMode.ImmediateLoad);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -160,6 +160,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.OrreryOfDreams.Projectiles
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
 
             if (_phase == 0)
@@ -173,6 +175,15 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.OrreryOfDreams.Projectiles
                 DrawRadialNoiseZone(sb, matrix, phaseProgress);    // Pass 2: RadialNoiseMask detonation
                 DrawBloomPhaseRings(sb, matrix, phaseProgress);    // Pass 3: Bloom + phase rings
             }
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

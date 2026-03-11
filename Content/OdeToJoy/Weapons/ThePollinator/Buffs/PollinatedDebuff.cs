@@ -3,6 +3,8 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
+using MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator.Dusts;
+
 namespace MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator.Buffs
 {
     /// <summary>
@@ -65,10 +67,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator.Buffs
                 }
             }
 
-            // Visual: golden pollen aura
+            // Visual: golden pollen aura — custom pollen dust
             if (Main.rand.NextBool(4))
             {
-                Dust d = Dust.NewDustDirect(npc.position - new Vector2(4), npc.width + 8, npc.height + 8, DustID.GoldFlame, 0f, -0.5f, 150, PollinatorTextures.BloomGold, 0.6f);
+                Dust d = Dust.NewDustDirect(npc.position - new Vector2(4), npc.width + 8, npc.height + 8, ModContent.DustType<PollenCloudDust>(), 0f, -0.5f, 150, default, 0.6f);
                 d.noGravity = true;
                 d.velocity *= 0.3f;
             }

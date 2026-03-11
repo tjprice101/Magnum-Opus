@@ -171,12 +171,23 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.AutomatonsTuningFork.Projectile
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
             float fadeOut = Projectile.timeLeft < 20 ? Projectile.timeLeft / 20f : 1f;
 
             DrawResonanceCascadeRings(sb, matrix, fadeOut); // Pass 1
             DrawFinaleNoiseZone(sb, matrix, fadeOut);       // Pass 2
             DrawBloomComposite(sb, matrix, fadeOut);        // Pass 3
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

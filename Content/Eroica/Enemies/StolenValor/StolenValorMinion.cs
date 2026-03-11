@@ -195,6 +195,9 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D texture = Terraria.GameContent.TextureAssets.Projectile[Projectile.type].Value;
 
             // Calculate frame dimensions from 6x6 sprite sheet
@@ -232,6 +235,15 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
             // Draw main sprite
             Color drawColor = new Color(255, 255, 255, 220);
             Main.EntitySpriteDraw(texture, drawPos, sourceRect, drawColor, Projectile.rotation, origin, Projectile.scale, SpriteEffects.None, 0);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }

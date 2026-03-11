@@ -14,6 +14,7 @@ using MagnumOpus.Content.SwanLake.Debuffs;
 using MagnumOpus.Content.SwanLake;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Common.Systems.VFX.Sparkle;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Projectiles
 {
@@ -135,20 +136,20 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Projecti
             else
                 SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.6f, Volume = 0.7f }, target.Center);
 
-            // Hit sparks — vanilla Dust colored by scale note
+            // Keep dust sparks light — AriaDetonation handles the main impact VFX
             Color noteColor = ChromaticSwanPlayer.GetScaleColor(scalePos);
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < 4; i++)
             {
                 Dust d = Dust.NewDustPerfect(
-                    target.Center + Main.rand.NextVector2Circular(10f, 10f),
+                    target.Center + Main.rand.NextVector2Circular(8f, 8f),
                     DustID.RainbowTorch,
-                    Main.rand.NextVector2Circular(5f, 5f),
-                    0, noteColor, Main.rand.NextFloat(0.5f, 1.0f));
+                    Main.rand.NextVector2Circular(3f, 3f),
+                    0, noteColor, Main.rand.NextFloat(0.4f, 0.8f));
                 d.noGravity = true;
             }
 
-            try { SwanLakeVFXLibrary.SpawnMusicNotes(target.Center, 2, 14f, 0.5f, 0.9f, 24); } catch { }
-            try { SwanLakeVFXLibrary.SpawnPrismaticSparkles(target.Center, 3, 12f); } catch { }
+            // Minimal notes — AriaDetonation handles heavier VFX
+            try { SwanLakeVFXLibrary.SpawnMusicNotes(target.Center, 1, 10f, 0.4f, 0.7f, 20); } catch { }
         }
 
         public override void OnKill(int timeLeft)
@@ -166,7 +167,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Projecti
             }
 
             try { SwanLakeVFXLibrary.SpawnMusicNotes(Projectile.Center, 3, 18f, 0.6f, 0.9f, 26); } catch { }
-            try { SwanLakeVFXLibrary.SpawnFeatherDrift(Projectile.Center, 2, 0.35f); } catch { }
+            try { SwanLakeVFXLibrary.SpawnMixedSparkleImpact(Projectile.Center, 0.6f, 4, 4); } catch { }
+            try { SwanLakeVFXLibrary.SpawnPrismaticSparkles(Projectile.Center, 4, 18f); } catch { }
         }
 
         #region Rendering (3-Pass Shader Trail + 5-Layer Bloom — Chromatic Spectrum Pipeline)
@@ -182,6 +184,8 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Projecti
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             float alphaFade = (255 - Projectile.alpha) / 255f;
             if (alphaFade <= 0.01f) return false;
 
@@ -213,6 +217,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Projecti
                         DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
                 }
                 catch { }
+            }
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
             return false;
@@ -334,13 +347,12 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Projecti
                 }
                 else
                 {
-                    // Shader unavailable fallback
-                    DrawFallbackTrail(sb);
+                    // Shader unavailable — no fallback trail
                 }
             }
             catch
             {
-                DrawFallbackTrail(sb);
+                // Shader error — no fallback trail
             }
 
             // Restart SpriteBatch
@@ -349,122 +361,57 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.ChromaticSwanSong.Projecti
                 Main.GameViewMatrix.TransformationMatrix);
         }
 
-        /// <summary>Fallback trail when ChromaticTrail shader is unavailable.</summary>
-        private void DrawFallbackTrail(SpriteBatch sb)
-        {
-            Texture2D bloom = MagnumTextureRegistry.GetSoftGlow();
-            if (bloom == null) return;
 
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            Vector2 origin = bloom.Size() * 0.5f;
-            float alphaFade = (255 - Projectile.alpha) / 255f;
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float t = (float)i / Projectile.oldPos.Length;
-                Vector2 drawPos = Projectile.oldPos[i] + Projectile.Size * 0.5f - Main.screenPosition;
-                float trailAlpha = (1f - t) * 0.5f * alphaFade;
-                float trailScale = MathHelper.Lerp(0.15f, 0.03f, t);
-                Color spectrumCol = ChromaticSwanUtils.GetSpectrumColor(t + _hueOffset);
-                sb.Draw(bloom, drawPos, null, new Color(spectrumCol.R, spectrumCol.G, spectrumCol.B, 0) * trailAlpha,
-                    0f, origin, trailScale * 2f, SpriteEffects.None, 0f);
-                sb.Draw(bloom, drawPos, null, new Color(255, 255, 255, 0) * trailAlpha * 0.3f,
-                    0f, origin, trailScale * 0.5f, SpriteEffects.None, 0f);
-            }
-
-            sb.End();
-        }
 
         /// <summary>
-        /// 5-layer chromatic bloom core at projectile center.
+        /// Sparkle-enhanced chromatic bloom core at projectile center.
+        /// Replaces 5-layer SoftGlow stack with twinkling prismatic sparkle field.
         /// Note color from scale position, musical pulsing, combo intensity escalation.
         /// </summary>
         private void DrawChromaticBloomStack(SpriteBatch sb)
         {
-            Texture2D softRadial = MagnumTextureRegistry.SoftRadialBloom?.Value;
-            Texture2D bloom = MagnumTextureRegistry.SoftGlow?.Value;
-            Texture2D pointBloom = MagnumTextureRegistry.PointBloom?.Value;
-            Texture2D star = MagnumTextureRegistry.GetStar4Hard();
-            Texture2D glowOrb = MagnumTextureRegistry.BloomCircle?.Value;
-            if (bloom == null && pointBloom == null) return;
-
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float alphaFade = (255 - Projectile.alpha) / 255f;
-            float pulse = 0.85f + 0.15f * (float)Math.Sin(Main.GameUpdateCount * 0.2f);
-            // Musical tempo pulse — escalates with combo
             float tempoPulse = 0.9f + 0.1f * (float)Math.Sin(Main.GameUpdateCount * (0.12f + ShaderPhase * 0.08f));
-            float empScale = 1f + ShaderPhase * 0.4f; // Scales up with combo
+            float empScale = 1f + ShaderPhase * 0.4f;
+            float time = (float)Main.timeForVisualEffects;
 
             int scalePos = (int)Projectile.ai[1];
             Color noteColor = ChromaticSwanPlayer.GetScaleColor(scalePos);
             Color shifted = ChromaticSwanUtils.GetChromatic(_hueOffset + 0.33f);
+            Color spectrum = ChromaticSwanUtils.GetSpectrumColor(_hueOffset);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null,
                 Main.GameViewMatrix.TransformationMatrix);
 
-            // Sub-layer 1: Wide spectral halo (note-colored)
-            Texture2D wideBloom = softRadial ?? bloom;
-            if (wideBloom != null)
-            {
-                Vector2 origin = wideBloom.Size() * 0.5f;
-                sb.Draw(wideBloom, drawPos, null,
-                    new Color(noteColor.R, noteColor.G, noteColor.B, 0) * 0.3f * alphaFade * tempoPulse,
-                    0f, origin, 0.08f * empScale, SpriteEffects.None, 0f);
-            }
+            // Main sparkle bloom field — prismatic, note-colored, scales with combo
+            Color[] sparkleColors = new Color[] {
+                noteColor,
+                shifted,
+                new Color(220, 220, 240),   // Silver core
+                spectrum,
+                Color.White,
+            };
+            float sparkleRadius = 20f * empScale;
+            int sparkleCount = 6 + (int)(ShaderPhase * 3f);
+            SparkleBloomHelper.DrawSparkleBloom(sb, Projectile.Center, SparkleTheme.SwanLake,
+                sparkleColors, alphaFade * tempoPulse, sparkleRadius, sparkleCount, time,
+                seed: Projectile.identity * 0.53f + _hueOffset, sparkleScale: 0.03f * empScale);
 
-            // Sub-layer 2: Mid note glow (shifted hue for depth)
-            if (bloom != null)
+            // Opus Detonation charge: 7 chromatic sparkle positions orbiting center
+            if (Projectile.ai[0] >= 2f)
             {
-                Vector2 origin = bloom.Size() * 0.5f;
-                sb.Draw(bloom, drawPos, null,
-                    new Color(shifted.R, shifted.G, shifted.B, 0) * 0.35f * alphaFade * pulse,
-                    0f, origin, 0.3f * empScale, SpriteEffects.None, 0f);
-            }
-
-            // Sub-layer 3: Silver core
-            if (bloom != null)
-            {
-                Vector2 origin = bloom.Size() * 0.5f;
-                sb.Draw(bloom, drawPos, null,
-                    new Color(220, 220, 240, 0) * 0.5f * alphaFade * pulse,
-                    0f, origin, 0.16f * empScale, SpriteEffects.None, 0f);
-            }
-
-            // Sub-layer 4: White-hot core point (cap to 300px on 2160px PointBloom)
-            if (pointBloom != null)
-            {
-                Vector2 pbOrigin = pointBloom.Size() * 0.5f;
-                sb.Draw(pointBloom, drawPos, null,
-                    new Color(255, 255, 255, 0) * 0.6f * alphaFade * tempoPulse,
-                    0f, pbOrigin, MathHelper.Min(0.1f * empScale, 0.139f), SpriteEffects.None, 0f);
-            }
-
-            // Sub-layer 5: Rotating rainbow star accent
-            if (star != null)
-            {
-                Vector2 starOrigin = star.Size() * 0.5f;
-                Color rainbow = ChromaticSwanUtils.GetSpectrumColor(_hueOffset);
-                sb.Draw(star, drawPos, null,
-                    new Color(rainbow.R, rainbow.G, rainbow.B, 0) * 0.3f * alphaFade * pulse,
-                    _hueOffset * 3f, starOrigin, 0.2f * empScale, SpriteEffects.None, 0f);
-            }
-
-            // Opus Detonation charge: all 7 chromatic rings stacked
-            if (Projectile.ai[0] >= 2f && glowOrb != null)
-            {
-                Vector2 orbOrigin = glowOrb.Size() * 0.5f;
                 for (int n = 0; n < 7; n++)
                 {
                     Color c = ChromaticSwanPlayer.GetScaleColor(n);
                     float angleOff = MathHelper.TwoPi * n / 7f + Main.GameUpdateCount * 0.05f;
                     Vector2 offset = new Vector2((float)Math.Cos(angleOff), (float)Math.Sin(angleOff)) * 6f;
-                    sb.Draw(glowOrb, drawPos + offset, null,
-                        new Color(c.R, c.G, c.B, 0) * 0.15f * alphaFade,
-                        0f, orbOrigin, 0.35f, SpriteEffects.None, 0f);
+                    Color[] ringColors = new Color[] { c, Color.Lerp(c, Color.White, 0.5f), Color.White };
+                    SparkleBloomHelper.DrawSparkleBloom(sb, Projectile.Center + offset, SparkleTheme.SwanLake,
+                        ringColors, 0.4f * alphaFade, 8f, 3, time,
+                        seed: n * 1.23f + Projectile.identity * 0.17f, sparkleScale: 0.02f);
                 }
             }
 

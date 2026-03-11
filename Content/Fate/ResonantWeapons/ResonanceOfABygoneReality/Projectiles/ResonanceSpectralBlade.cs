@@ -6,6 +6,7 @@ using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.Fate.Debuffs;
+using MagnumOpus.Common.Systems;
 using ReLogic.Content;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
@@ -253,12 +254,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
 
                 float intensityMult = Phase == 1 ? 1.3f : 1f;
 
-                // Outer nebula glow
-                sb.Draw(tex, drawPos, null, ResonanceUtils.NebulaPurple * 0.25f * intensityMult, Projectile.rotation, origin, 1.8f * pulse, SpriteEffects.None, 0f);
-                // Mid cosmic rose energy
-                sb.Draw(tex, drawPos, null, ResonanceUtils.CosmicRose * 0.35f * intensityMult, Projectile.rotation, origin, 1.5f * pulse, SpriteEffects.None, 0f);
-                // Inner star gold field
-                sb.Draw(tex, drawPos, null, ResonanceUtils.StarGold * 0.3f * intensityMult, Projectile.rotation, origin, 1.25f * pulse, SpriteEffects.None, 0f);
+                // Graduated orb bloom head
+                MagnumVFX.DrawGraduatedOrbHead(sb, drawPos, ResonanceUtils.CosmicRose, ResonanceUtils.NebulaPurple, 1.1f, intensityMult);
 
                 ResonanceUtils.EndAdditive(sb);
 

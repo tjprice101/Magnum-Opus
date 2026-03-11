@@ -40,26 +40,6 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         {
             var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
             resonancePlayer.hasResonantRhythmBand = true;
-            
-            // Ambient particles showing resonance level
-            if (!hideVisual && resonancePlayer.resonanceStacks > 0 && Main.rand.NextBool(15))
-            {
-                float intensity = resonancePlayer.GetResonancePercent();
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(25f, 25f);
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(0.5f, 1f));
-                CustomParticles.GenericGlow(pos, vel, BasePurple * intensity, 0.2f + intensity * 0.15f, 18, true);
-                
-                // Beat lines at high stacks
-                if (resonancePlayer.resonanceStacks >= 7)
-                {
-                    CustomParticles.HaloRing(player.Center, BasePurple * 0.3f, 0.15f, 10);
-                }
-            }
-            
-            // Pulsing light based on stacks
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.15f + 0.2f;
-            float stackIntensity = (float)resonancePlayer.resonanceStacks / 10f;
-            Lighting.AddLight(player.Center, BasePurple.ToVector3() * pulse * stackIntensity);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -130,27 +110,6 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
             resonancePlayer.hasResonantRhythmBand = true;
             resonancePlayer.hasSpringTempoCharm = true;
-            
-            // Spring-themed particles
-            if (!hideVisual && resonancePlayer.resonanceStacks > 0 && Main.rand.NextBool(12))
-            {
-                float intensity = resonancePlayer.GetResonancePercent();
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(28f, 28f);
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.8f, 0.8f), -Main.rand.NextFloat(0.5f, 1.2f));
-                Color particleColor = Color.Lerp(SpringPink, SpringGreen, Main.rand.NextFloat());
-                CustomParticles.GenericGlow(pos, vel, particleColor * intensity, 0.22f + intensity * 0.12f, 22, true);
-                
-                // Cherry blossom at high stacks
-                if (resonancePlayer.resonanceStacks >= 10 && Main.rand.NextBool(3))
-                {
-                    ThemedParticles.MusicNote(pos, vel * 0.6f, SpringPink, 0.25f, 20);
-                }
-            }
-            
-            // Pulsing spring light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.15f + 0.25f;
-            float stackIntensity = (float)resonancePlayer.resonanceStacks / 15f;
-            Lighting.AddLight(player.Center, SpringPink.ToVector3() * pulse * stackIntensity);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -236,27 +195,6 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             resonancePlayer.hasResonantRhythmBand = true;
             resonancePlayer.hasSpringTempoCharm = true;
             resonancePlayer.hasSolarCrescendoRing = true;
-            
-            // Solar flame particles
-            if (!hideVisual && resonancePlayer.resonanceStacks > 0 && Main.rand.NextBool(10))
-            {
-                float intensity = resonancePlayer.GetResonancePercent();
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(1f, 2f));
-                Color fireColor = Color.Lerp(SummerOrange, SummerGold, Main.rand.NextFloat());
-                CustomParticles.GenericGlow(pos, vel, fireColor * intensity, 0.25f + intensity * 0.15f, 20, true);
-                
-                // Fire burst at threshold
-                if (resonancePlayer.resonanceStacks >= 15 && Main.rand.NextBool(4))
-                {
-                    CustomParticles.GenericFlare(pos, SummerOrange, 0.3f, 12);
-                }
-            }
-            
-            // Warm light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.07f) * 0.2f + 0.3f;
-            float stackIntensity = (float)resonancePlayer.resonanceStacks / 20f;
-            Lighting.AddLight(player.Center, SummerOrange.ToVector3() * pulse * stackIntensity);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -345,27 +283,6 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             resonancePlayer.hasSpringTempoCharm = true;
             resonancePlayer.hasSolarCrescendoRing = true;
             resonancePlayer.hasHarvestRhythmSignet = true;
-            
-            // Autumn leaf particles
-            if (!hideVisual && resonancePlayer.resonanceStacks > 0 && Main.rand.NextBool(10))
-            {
-                float intensity = resonancePlayer.GetResonancePercent();
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(32f, 32f);
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(0.5f, 1.5f));
-                Color leafColor = Color.Lerp(AutumnOrange, AutumnBrown, Main.rand.NextFloat());
-                CustomParticles.GenericGlow(pos, vel, leafColor * intensity, 0.24f + intensity * 0.12f, 25, true);
-                
-                // Life energy at threshold
-                if (resonancePlayer.resonanceStacks >= 20 && Main.rand.NextBool(5))
-                {
-                    CustomParticles.GenericGlow(player.Center, Vector2.UnitY * -1f, new Color(180, 255, 180) * 0.6f, 0.2f, 15, true);
-                }
-            }
-            
-            // Warm autumn light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.15f + 0.3f;
-            float stackIntensity = (float)resonancePlayer.resonanceStacks / 25f;
-            Lighting.AddLight(player.Center, AutumnOrange.ToVector3() * pulse * stackIntensity);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -455,27 +372,6 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             resonancePlayer.hasSolarCrescendoRing = true;
             resonancePlayer.hasHarvestRhythmSignet = true;
             resonancePlayer.hasPermafrostCadenceSeal = true;
-            
-            // Frost particles
-            if (!hideVisual && resonancePlayer.resonanceStacks > 0 && Main.rand.NextBool(9))
-            {
-                float intensity = resonancePlayer.GetResonancePercent();
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(35f, 35f);
-                Vector2 vel = Main.rand.NextVector2Circular(1f, 1f);
-                Color frostColor = Color.Lerp(WinterBlue, WinterWhite, Main.rand.NextFloat());
-                CustomParticles.GenericGlow(pos, vel, frostColor * intensity, 0.22f + intensity * 0.15f, 24, true);
-                
-                // Ice crystals at threshold
-                if (resonancePlayer.resonanceStacks >= 25 && Main.rand.NextBool(4))
-                {
-                    CustomParticles.GenericFlare(pos, WinterWhite, 0.25f, 15);
-                }
-            }
-            
-            // Cold light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.1f + 0.35f;
-            float stackIntensity = (float)resonancePlayer.resonanceStacks / 30f;
-            Lighting.AddLight(player.Center, WinterBlue.ToVector3() * pulse * stackIntensity);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -569,30 +465,6 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             resonancePlayer.hasHarvestRhythmSignet = true;
             resonancePlayer.hasPermafrostCadenceSeal = true;
             resonancePlayer.hasVivaldisTempoMaster = true;
-            
-            // Get current season color based on time
-            Color seasonColor = GetCurrentSeasonColor();
-            
-            // Seasonal particles
-            if (!hideVisual && resonancePlayer.resonanceStacks > 0 && Main.rand.NextBool(8))
-            {
-                float intensity = resonancePlayer.GetResonancePercent();
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(38f, 38f);
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-1f, 1f));
-                CustomParticles.GenericGlow(pos, vel, seasonColor * intensity, 0.26f + intensity * 0.14f, 26, true);
-                
-                // Music note at high stacks
-                if (resonancePlayer.resonanceStacks >= 25 && Main.rand.NextBool(4))
-                {
-                    ThemedParticles.MusicNote(pos, vel * 0.5f, seasonColor, 0.3f, 22);
-                }
-            }
-            
-            // Rainbow-cycling light
-            float hue = (Main.GameUpdateCount * 0.005f) % 1f;
-            Color lightColor = Main.hslToRgb(hue, 0.7f, 0.5f);
-            float stackIntensity = (float)resonancePlayer.resonanceStacks / 40f;
-            Lighting.AddLight(player.Center, lightColor.ToVector3() * 0.4f * stackIntensity);
         }
         
         private Color GetCurrentSeasonColor()

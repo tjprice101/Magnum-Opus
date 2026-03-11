@@ -1,10 +1,11 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Buffs;
+using MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Dusts;
 using MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Utilities;
 using MagnumOpus.Content.OdeToJoy;
 
@@ -61,17 +62,26 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
             Lighting.AddLight(Projectile.Center,
                 ThornboundTextures.BloomGold.ToVector3() * 0.5f * alpha);
 
-            // Vine trail dust
+            // Vine trail dust — VineSapDust drips + ThornburstDust chips
             if (timer % 3 == 0)
             {
                 Color col = ThornboundTextures.GetBotanicalGradient(Main.rand.NextFloat());
                 Vector2 vel = Main.rand.NextVector2Circular(1.5f, 1.5f);
                 Dust dust = Dust.NewDustPerfect(
                     Projectile.Center + Main.rand.NextVector2Circular(20f, 12f),
-                    DustID.RainbowMk2, vel, newColor: col,
-                    Scale: Main.rand.NextFloat(0.3f, 0.6f));
-                dust.noGravity = true;
-                dust.fadeIn = 0.5f;
+                    ModContent.DustType<VineSapDust>(), vel, newColor: col,
+                    Scale: Main.rand.NextFloat(0.6f, 1.2f));
+
+                // Occasional thorn chip debris
+                if (Main.rand.NextBool(3))
+                {
+                    Vector2 chipVel = Main.rand.NextVector2Circular(2f, 2f);
+                    Dust.NewDustPerfect(
+                        Projectile.Center + Main.rand.NextVector2Circular(15f, 8f),
+                        ModContent.DustType<ThornburstDust>(), chipVel,
+                        newColor: OdeToJoyPalette.VerdantGreen,
+                        Scale: Main.rand.NextFloat(0.8f, 1.5f));
+                }
             }
         }
 
@@ -94,20 +104,24 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
             var tbp = owner.GetModPlayer<ThornboundPlayer>();
             tbp.AddVineWaveCharge();
 
-            // Impact dust burst
-            for (int i = 0; i < 10; i++)
+            // Impact dust burst — ThornburstDust fragments
+            for (int i = 0; i < 8; i++)
             {
                 Vector2 vel = Main.rand.NextVector2Circular(5f, 5f);
                 Color col = ThornboundTextures.GetBotanicalGradient(Main.rand.NextFloat());
-                Dust dust = Dust.NewDustPerfect(target.Center, DustID.RainbowMk2, vel,
-                    newColor: col, Scale: Main.rand.NextFloat(0.4f, 0.8f));
-                dust.noGravity = true;
+                Dust dust = Dust.NewDustPerfect(target.Center, ModContent.DustType<ThornburstDust>(), vel,
+                    newColor: col, Scale: Main.rand.NextFloat(1.0f, 2.0f));
             }
+
+            // Sparkle explosion on impact
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(target.Center, 6, 4f, 0.2f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float alpha = GetAlpha();
             float time = (float)Main.timeForVisualEffects * 0.015f;
@@ -161,21 +175,32 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
 
             sb.End();
             OdeToJoyShaders.RestoreSpriteBatch(sb);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
         public override void OnKill(int timeLeft)
         {
-            // Death burst — petal scatter
-            for (int i = 0; i < 15; i++)
+            // Death burst — VineSapDust + ThornburstDust mixed scatter
+            for (int i = 0; i < 10; i++)
             {
                 Vector2 vel = Main.rand.NextVector2Circular(4f, 4f);
                 Color col = ThornboundTextures.GetBotanicalGradient(Main.rand.NextFloat());
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowMk2, vel,
-                    newColor: col, Scale: Main.rand.NextFloat(0.3f, 0.6f));
-                dust.noGravity = true;
-                dust.fadeIn = 0.4f;
+                int dustType = Main.rand.NextBool() ? ModContent.DustType<VineSapDust>() : ModContent.DustType<ThornburstDust>();
+                Dust.NewDustPerfect(Projectile.Center, dustType, vel,
+                    newColor: col, Scale: Main.rand.NextFloat(0.8f, 1.6f));
             }
+
+            // Musical harmonic pulse on dissipation
+            OdeToJoyVFXLibrary.RhythmicPulse(Projectile.Center, 0.4f, OdeToJoyPalette.VerdantGreen);
         }
     }
 }

@@ -1,12 +1,17 @@
-﻿using Microsoft.Xna.Framework;
+using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.VFX.Core;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
 using Terraria.Audio;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Buffs;
 using MagnumOpus.Content.OdeToJoy;
+using MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Dusts;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Projectiles
 {
@@ -106,31 +111,35 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Projectiles
 
         private void SpawnChainsawParticles(Player owner, Vector2 aimDir)
         {
-            // Thorn debris flying off
+            // Thorn debris flying off — custom chainsaw sparks
             if (holdTimer % 3 == 0)
             {
                 float angle = ribbonAngle + Main.rand.NextFloat(-0.5f, 0.5f);
                 Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f * (1f + revSpeed));
-                Color col = Color.Lerp(ChainsawTextures.PetalPink, ChainsawTextures.RadiantAmber,
-                    Main.rand.NextFloat());
                 Dust dust = Dust.NewDustPerfect(
                     Projectile.Center + Main.rand.NextVector2Circular(10f, 10f),
-                    DustID.RainbowMk2, vel,
-                    newColor: col, Scale: Main.rand.NextFloat(0.2f, 0.5f));
+                    ModContent.DustType<ChainsawSparkDust>(), vel,
+                    Scale: Main.rand.NextFloat(0.3f, 0.7f));
                 dust.noGravity = true;
                 dust.fadeIn = 0.3f;
             }
 
-            // Rev trail sparks at high RPM
+            // Rev trail sparks at high RPM — hot grind sparks
             if (revSpeed > 0.5f && holdTimer % 2 == 0)
             {
                 Vector2 sparkPos = Projectile.Center + aimDir * 25f
                     + Main.rand.NextVector2Circular(5f, 5f);
                 Vector2 vel = aimDir.RotatedByRandom(0.8f) * Main.rand.NextFloat(3f, 6f);
-                Dust dust = Dust.NewDustPerfect(sparkPos, DustID.RainbowMk2, vel,
-                    newColor: ChainsawTextures.BloomGold,
-                    Scale: Main.rand.NextFloat(0.15f, 0.35f));
+                Dust dust = Dust.NewDustPerfect(sparkPos,
+                    ModContent.DustType<ChainsawSparkDust>(), vel,
+                    Scale: Main.rand.NextFloat(0.2f, 0.5f));
                 dust.noGravity = true;
+            }
+
+            // RhythmicPulse at max rev
+            if (revSpeed >= 1f && holdTimer == (int)MaxRevTime)
+            {
+                OdeToJoyVFXLibrary.RhythmicPulse(Projectile.Center, 0.8f, OdeToJoyPalette.GoldenPollen);
             }
         }
 
@@ -174,44 +183,47 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Projectiles
                     owner.whoAmI);
             }
 
-            // Burst VFX: spiral petal particles
+            // Burst VFX: spiral petal + spark particles
             for (int i = 0; i < 55; i++)
             {
                 float angle = MathHelper.TwoPi / 55f * i;
                 float speed = Main.rand.NextFloat(3f, 8f);
                 Vector2 vel = angle.ToRotationVector2() * speed;
-                // Spiral: add tangential component
                 vel += angle.ToRotationVector2().RotatedBy(MathHelper.PiOver2) * speed * 0.3f;
 
-                Color col = (i % 4) switch
-                {
-                    0 => ChainsawTextures.PetalPink,
-                    1 => ChainsawTextures.BloomGold,
-                    2 => ChainsawTextures.JubilantLight,
-                    _ => ChainsawTextures.PureJoyWhite
-                };
+                // Alternate between petal chips and hot sparks
+                int dustType = (i % 3 == 0)
+                    ? ModContent.DustType<ChainsawSparkDust>()
+                    : ModContent.DustType<RosePetalChipDust>();
 
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowMk2, vel,
-                    newColor: col, Scale: Main.rand.NextFloat(0.5f, 1f));
+                Dust dust = Dust.NewDustPerfect(Projectile.Center, dustType, vel,
+                    Scale: Main.rand.NextFloat(0.5f, 1f));
                 dust.noGravity = true;
                 dust.fadeIn = 0.5f;
             }
+
+            // Petal Storm screen effects
+            OdeToJoyVFXLibrary.ScreenShake(10f, 20);
+            OdeToJoyVFXLibrary.ScreenFlash(OdeToJoyPalette.PetalPink, 1.2f);
+            OdeToJoyVFXLibrary.HarmonicPulseRing(Projectile.Center, 1.5f, 16, OdeToJoyPalette.GoldenPollen);
+            OdeToJoyVFXLibrary.CelebrationBurst(Projectile.Center, 1.5f);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.AddBuff(ModContent.BuffType<RoseThornBleedDebuff>(), 180);
 
-            // Contact impact sparks
+            // Contact impact sparks — grinding chainsaw sparks
             for (int i = 0; i < 4; i++)
             {
                 Vector2 vel = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero).RotatedByRandom(0.5f)
                     * Main.rand.NextFloat(2f, 5f);
-                Dust dust = Dust.NewDustPerfect(target.Center, DustID.RainbowMk2, vel,
-                    newColor: ChainsawTextures.RadiantAmber,
-                    Scale: Main.rand.NextFloat(0.3f, 0.5f));
+                Dust dust = Dust.NewDustPerfect(target.Center,
+                    ModContent.DustType<ChainsawSparkDust>(), vel,
+                    Scale: Main.rand.NextFloat(0.4f, 0.7f));
                 dust.noGravity = true;
             }
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(target.Center, 3, 4f, 0.5f);
 
             // Crit: bonus shrapnel
             if (hit.Crit)
@@ -229,6 +241,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Player owner = Main.player[Projectile.owner];
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float time = (float)Main.timeForVisualEffects * 0.015f;
@@ -304,6 +318,15 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Projectiles
 
             sb.End();
             OdeToJoyShaders.RestoreSpriteBatch(sb);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
@@ -312,11 +335,14 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Projectiles
             for (int i = 0; i < 8; i++)
             {
                 Vector2 vel = Main.rand.NextVector2Circular(3f, 3f);
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowMk2, vel,
-                    newColor: ChainsawTextures.PetalPink,
-                    Scale: Main.rand.NextFloat(0.2f, 0.5f));
+                int dustType = (i % 2 == 0)
+                    ? ModContent.DustType<ChainsawSparkDust>()
+                    : ModContent.DustType<RosePetalChipDust>();
+                Dust dust = Dust.NewDustPerfect(Projectile.Center, dustType, vel,
+                    Scale: Main.rand.NextFloat(0.3f, 0.6f));
                 dust.noGravity = true;
             }
+            OdeToJoyVFXLibrary.RhythmicPulse(Projectile.Center, 0.6f, OdeToJoyPalette.PetalPink);
         }
     }
 
@@ -329,6 +355,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Projectiles
         public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
 
         private int timer;
+        private VertexStrip _vertexStrip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -350,13 +383,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Projectiles
             Projectile.rotation = Projectile.velocity.ToRotation();
             Projectile.velocity.Y += 0.12f; // slight gravity
 
-            // Rose Shadow trail
+            // Rose Shadow trail — grinding sparks
             if (timer % 2 == 0)
             {
                 Vector2 vel = -Projectile.velocity * 0.05f;
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowMk2, vel,
-                    newColor: ChainsawTextures.RoseShadow,
-                    Scale: Main.rand.NextFloat(0.15f, 0.3f));
+                Dust dust = Dust.NewDustPerfect(Projectile.Center,
+                    ModContent.DustType<ChainsawSparkDust>(), vel,
+                    Scale: Main.rand.NextFloat(0.2f, 0.4f));
                 dust.noGravity = true;
             }
 
@@ -370,53 +403,50 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Projectiles
 
             for (int i = 0; i < 4; i++)
             {
-                Dust dust = Dust.NewDustPerfect(target.Center, DustID.RainbowMk2,
+                Dust dust = Dust.NewDustPerfect(target.Center,
+                    ModContent.DustType<ChainsawSparkDust>(),
                     Main.rand.NextVector2Circular(3f, 3f),
-                    newColor: ChainsawTextures.RoseShadow,
-                    Scale: Main.rand.NextFloat(0.2f, 0.4f));
+                    Scale: Main.rand.NextFloat(0.3f, 0.5f));
                 dust.noGravity = true;
             }
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(target.Center, 3, 4f, 0.5f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            float fadeIn = MathHelper.Clamp(timer / 5f, 0f, 1f);
-            float fadeOut = Projectile.timeLeft < 15 ? Projectile.timeLeft / 15f : 1f;
-            float alpha = fadeIn * fadeOut;
-            float time = (float)Main.timeForVisualEffects * 0.015f;
-
-            sb.End();
-
-            // ── LAYER 0: VerdantSlash ThornImpact shader — thorn accent ──
-            Effect slashShader = OdeToJoyShaders.VerdantSlash;
-            if (slashShader != null)
+            try
             {
-                OdeToJoyShaders.SetSlashParams(slashShader, time, ChainsawTextures.RoseShadow,
-                    ChainsawTextures.RadiantAmber, alpha * 0.5f, 1.5f, 0f);
-                OdeToJoyShaders.BeginDeferredShaderBatch(sb, slashShader, "ThornImpactTechnique");
-                Texture2D thornTex = ChainsawTextures.OJThornFragment.Value;
-                Vector2 thornOrigin = thornTex.Size() / 2f;
-                sb.Draw(thornTex, drawPos, null, Color.White * alpha,
-                    Projectile.rotation, thornOrigin, 0.4f, SpriteEffects.None, 0f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _vertexStrip);
+
+                // Thorn shrapnel: rose-thorn directional streak
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
+                {
+                    Vector2 origin = glow.Size() / 2f;
+                    float rot = Projectile.velocity.ToRotation();
+
+                    sb.Draw(glow, drawPos, null,
+                        (OdeToJoyPalette.RosePink with { A = 0 }) * 0.2f,
+                        rot, origin, new Vector2(0.05f, 0.02f), SpriteEffects.None, 0f);
+                }
+
                 sb.End();
             }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
-            // ── LAYER 1: Additive bloom ──
-            OdeToJoyShaders.BeginAdditiveBatch(sb);
-
-            Texture2D glow = ChainsawTextures.SoftGlow.Value;
-            Vector2 glowOrigin = glow.Size() / 2f;
-            sb.Draw(glow, drawPos, null,
-                ChainsawTextures.PetalPink * alpha * 0.25f,
-                0f, glowOrigin, 0.05f, SpriteEffects.None, 0f);
-
-            // Theme blossom sparkle accent
-            OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
-
-            sb.End();
-            OdeToJoyShaders.RestoreSpriteBatch(sb);
             return false;
         }
     }
@@ -430,7 +460,14 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Projectiles
         public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
 
         private int timer;
+        private VertexStrip _vertexStrip;
         private const int MaxLifetime = 60;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -451,14 +488,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Projectiles
             timer++;
             Projectile.rotation += 0.2f;
 
-            // Petal trail
+            // Petal trail — shredded rose chips
             if (timer % 2 == 0)
             {
                 Vector2 vel = -Projectile.velocity * 0.05f + Main.rand.NextVector2Circular(0.5f, 0.5f);
-                Color col = Color.Lerp(ChainsawTextures.PetalPink,
-                    ChainsawTextures.JubilantLight, Main.rand.NextFloat());
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowMk2, vel,
-                    newColor: col, Scale: Main.rand.NextFloat(0.2f, 0.4f));
+                Dust dust = Dust.NewDustPerfect(Projectile.Center,
+                    ModContent.DustType<RosePetalChipDust>(), vel,
+                    Scale: Main.rand.NextFloat(0.3f, 0.5f));
                 dust.noGravity = true;
                 dust.fadeIn = 0.3f;
             }
@@ -471,56 +507,49 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Projectiles
         {
             for (int i = 0; i < 5; i++)
             {
-                Dust dust = Dust.NewDustPerfect(target.Center, DustID.RainbowMk2,
+                Dust dust = Dust.NewDustPerfect(target.Center,
+                    ModContent.DustType<RosePetalChipDust>(),
                     Main.rand.NextVector2Circular(3f, 3f),
-                    newColor: ChainsawTextures.PetalPink,
-                    Scale: Main.rand.NextFloat(0.3f, 0.6f));
+                    Scale: Main.rand.NextFloat(0.4f, 0.7f));
                 dust.noGravity = true;
             }
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(target.Center, 4, 5f, 0.6f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            float fadeIn = MathHelper.Clamp(timer / 5f, 0f, 1f);
-            float fadeOut = Projectile.timeLeft < 12 ? Projectile.timeLeft / 12f : 1f;
-            float alpha = fadeIn * fadeOut;
-            float time = (float)Main.timeForVisualEffects * 0.015f;
-
-            sb.End();
-
-            // ── LAYER 0: GardenBloom GardenBloomTechnique shader — petal shimmer ──
-            Effect bloomShader = OdeToJoyShaders.GardenBloom;
-            if (bloomShader != null)
+            try
             {
-                OdeToJoyShaders.SetBloomParams(bloomShader, time + Projectile.identity * 0.4f,
-                    ChainsawTextures.PetalPink, ChainsawTextures.BloomGold, alpha * 0.5f, 1.5f, 0.12f);
-                OdeToJoyShaders.BeginDeferredShaderBatch(sb, bloomShader, "GardenBloomTechnique");
-                Texture2D petalTex = ChainsawTextures.OJRosePetal.Value;
-                Vector2 petalOrigin = petalTex.Size() / 2f;
-                sb.Draw(petalTex, drawPos, null, Color.White * alpha,
-                    Projectile.rotation, petalOrigin, 0.5f, SpriteEffects.None, 0f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _vertexStrip);
+
+                // Petal storm: pink petal shimmer
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
+                {
+                    Vector2 origin = glow.Size() / 2f;
+
+                    sb.Draw(glow, drawPos, null,
+                        (OdeToJoyPalette.PetalPink with { A = 0 }) * 0.16f,
+                        Projectile.rotation, origin, 0.035f, SpriteEffects.None, 0f);
+                }
+
                 sb.End();
             }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
-            // ── LAYER 1: Additive bloom ──
-            OdeToJoyShaders.BeginAdditiveBatch(sb);
-
-            Texture2D glow = ChainsawTextures.SoftGlow.Value;
-            Vector2 glowOrigin = glow.Size() / 2f;
-            sb.Draw(glow, drawPos, null,
-                ChainsawTextures.BloomGold * alpha * 0.3f,
-                0f, glowOrigin, 0.07f, SpriteEffects.None, 0f);
-            sb.Draw(glow, drawPos, null,
-                ChainsawTextures.PureJoyWhite * alpha * 0.15f,
-                0f, glowOrigin, 0.025f, SpriteEffects.None, 0f);
-
-            // Theme blossom sparkle accent
-            OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
-
-            sb.End();
-            OdeToJoyShaders.RestoreSpriteBatch(sb);
             return false;
         }
 
@@ -528,12 +557,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Projectiles
         {
             for (int i = 0; i < 4; i++)
             {
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowMk2,
+                Dust dust = Dust.NewDustPerfect(Projectile.Center,
+                    ModContent.DustType<RosePetalChipDust>(),
                     Main.rand.NextVector2Circular(2f, 2f),
-                    newColor: ChainsawTextures.PetalPink,
-                    Scale: Main.rand.NextFloat(0.2f, 0.4f));
+                    Scale: Main.rand.NextFloat(0.3f, 0.5f));
                 dust.noGravity = true;
             }
+            OdeToJoyVFXLibrary.SpawnTriumphantStarburst(Projectile.Center);
         }
     }
 
@@ -546,6 +576,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Projectiles
         public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
 
         private int timer;
+        private VertexStrip _vertexStrip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -569,15 +606,16 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Projectiles
             if (Projectile.velocity.Y != oldVelocity.Y)
                 Projectile.velocity.Y = -oldVelocity.Y;
 
-            // Bounce particles
+            // Bounce particles — sparks on ricochet
             for (int i = 0; i < 3; i++)
             {
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowMk2,
+                Dust dust = Dust.NewDustPerfect(Projectile.Center,
+                    ModContent.DustType<ChainsawSparkDust>(),
                     Main.rand.NextVector2Circular(2f, 2f),
-                    newColor: ChainsawTextures.RadiantAmber,
-                    Scale: Main.rand.NextFloat(0.2f, 0.4f));
+                    Scale: Main.rand.NextFloat(0.3f, 0.5f));
                 dust.noGravity = true;
             }
+            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(Projectile.Center, 2, 3f, 0.4f);
 
             Projectile.penetrate--;
             return false;
@@ -590,10 +628,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Projectiles
 
             if (timer % 3 == 0)
             {
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowMk2,
+                Dust dust = Dust.NewDustPerfect(Projectile.Center,
+                    ModContent.DustType<ChainsawSparkDust>(),
                     -Projectile.velocity * 0.05f,
-                    newColor: ChainsawTextures.RoseShadow,
-                    Scale: Main.rand.NextFloat(0.15f, 0.25f));
+                    Scale: Main.rand.NextFloat(0.2f, 0.35f));
                 dust.noGravity = true;
             }
         }
@@ -606,40 +644,38 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            float alpha = Projectile.timeLeft < 20 ? Projectile.timeLeft / 20f : 1f;
-            float time = (float)Main.timeForVisualEffects * 0.015f;
-
-            sb.End();
-
-            // ── LAYER 0: VerdantSlash VerdantSlashTechnique shader — vine trail accent ──
-            Effect slashShader = OdeToJoyShaders.VerdantSlash;
-            if (slashShader != null)
+            try
             {
-                OdeToJoyShaders.SetSlashParams(slashShader, time, ChainsawTextures.RadiantAmber,
-                    ChainsawTextures.RoseShadow, alpha * 0.45f, 1.5f, 0f);
-                OdeToJoyShaders.BeginDeferredShaderBatch(sb, slashShader, "VerdantSlashTechnique");
-                Texture2D thornTex = ChainsawTextures.OJThornFragment.Value;
-                Vector2 thornOrigin = thornTex.Size() / 2f;
-                sb.Draw(thornTex, drawPos, null, Color.White * alpha,
-                    Projectile.rotation, thornOrigin, 0.5f, SpriteEffects.None, 0f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _vertexStrip);
+
+                // Thorn chain: amber bounce streak
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                if (glow != null)
+                {
+                    Vector2 origin = glow.Size() / 2f;
+                    float rot = Projectile.velocity.ToRotation();
+
+                    sb.Draw(glow, drawPos, null,
+                        (OdeToJoyPalette.WarmAmber with { A = 0 }) * 0.18f,
+                        rot, origin, new Vector2(0.05f, 0.02f), SpriteEffects.None, 0f);
+                }
+
                 sb.End();
             }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
-            // ── LAYER 1: Additive bloom ──
-            OdeToJoyShaders.BeginAdditiveBatch(sb);
-
-            Texture2D glow = ChainsawTextures.SoftGlow.Value;
-            Vector2 glowOrigin = glow.Size() / 2f;
-            sb.Draw(glow, drawPos, null,
-                ChainsawTextures.PetalPink * alpha * 0.2f,
-                0f, glowOrigin, 0.06f, SpriteEffects.None, 0f);
-
-            // Theme blossom sparkle accent
-            OdeToJoyVFXLibrary.DrawThemeBlossomSparkle(sb, Projectile.Center, 1f, 0.5f);
-
-            sb.End();
-            OdeToJoyShaders.RestoreSpriteBatch(sb);
             return false;
         }
     }

@@ -10,6 +10,7 @@ using Terraria.Audio;
 using MagnumOpus.Common;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Projectiles;
 using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Utilities;
+using MagnumOpus.Content.SandboxExoblade.Utilities;
 using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
 using MagnumOpus.Content.FoundationWeapons.ExplosionParticlesFoundation;
 using MagnumOpus.Content.FoundationWeapons.RibbonFoundation;
@@ -34,6 +35,10 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime
     /// </summary>
     public class DualFatedChime : ModItem
     {
+        /// <summary>Tracks the Inferno Waltz toll phase (0-4). Each swing advances the toll,
+        /// with Grand Toll (phase 4) firing a devastating radial flame wave burst.</summary>
+        private int tollCounter = 0;
+
         public override string Texture => "MagnumOpus/Content/LaCampanella/ResonantWeapons/DualFatedChime/DualFatedChime";
 
         public override void SetStaticDefaults()
@@ -66,12 +71,15 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime
 
         public override bool CanShoot(Player player)
         {
+            bool isDash = player.altFunctionUse == 2;
             int swingType = ModContent.ProjectileType<DualFatedChimeSwingProj>();
             for (int i = 0; i < Main.maxProjectiles; i++)
             {
                 Projectile p = Main.projectile[i];
-                if (p.active && p.owner == player.whoAmI && p.type == swingType)
-                    return false;
+                if (!p.active || p.owner != player.whoAmI || p.type != swingType)
+                    continue;
+                if (isDash) return false;
+                if (!(p.ai[0] == 1 && p.ai[1] == 1)) return false;
             }
             return true;
         }
@@ -79,8 +87,8 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime
         public override bool? CanHitNPC(Player player, NPC target) => false;
         public override bool CanHitPvp(Player player, Player target) => false;
 
-        // No alt-fire — the 5-phase combo IS the full system
-        public override bool AltFunctionUse(Player player) => false;
+        // Alt-fire enables dash mechanic
+        public override bool AltFunctionUse(Player player) => true;
 
         public override bool CanUseItem(Player player)
         {
@@ -99,24 +107,73 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
             Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            var dfc = player.DualFatedChime();
+            float state = player.altFunctionUse == 2 ? 1f : 0f;
+            Projectile.NewProjectile(source, player.MountedCenter,
+                (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
+                type, damage, knockback, player.whoAmI, state, 0);
 
-            // 5-phase combo: pass combo step to swing projectile
-            int comboStep = dfc.ComboStep;
-            Projectile.NewProjectile(source, position, velocity, type, damage, knockback,
-                player.whoAmI, ai0: comboStep);
+            // --- Inferno Waltz toll system ---
+            // Toll 0 "Opening Peal": 1 flame wave forward
+            // Toll 1 "Answer": 2 flame waves in narrow spread
+            // Toll 2 "Escalation": 3 flame waves in wide fan
+            // Toll 3 "Resonance": 2 flame waves + ground-level waves
+            // Toll 4 "Grand Toll": 8 directional flame waves in radial burst
+            Vector2 aimDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
+            int toll = tollCounter % 5;
+            tollCounter++;
+            int flameType = ModContent.ProjectileType<BellFlameWaveProj>();
+            int flameDmg = (int)(damage * 0.35f);
 
-            dfc.AdvanceCombo();
-
-            // Flame Waltz Dodge: during Toll 2 (step 1) and Toll 4 (step 3), grant brief iframes + dash
-            if (comboStep == 1 || comboStep == 3)
+            switch (toll)
             {
-                player.immune = true;
-                player.immuneTime = 12; // 0.2s at 60fps
-                player.immuneNoBlink = true;
-                // Sway in swing direction
-                float swayDir = (comboStep == 1) ? -1f : 1f;
-                player.velocity += velocity.SafeNormalize(Vector2.UnitX).RotatedBy(MathHelper.PiOver2 * swayDir) * 4f;
+                case 0: // Opening Peal — single forward flame wave
+                    Projectile.NewProjectile(source, player.MountedCenter, aimDir * 12f,
+                        flameType, flameDmg, knockback * 0.5f, player.whoAmI);
+                    break;
+
+                case 1: // Answer — 2 waves in narrow spread
+                    for (int i = -1; i <= 1; i += 2)
+                    {
+                        Vector2 flameVel = aimDir.RotatedBy(MathHelper.ToRadians(10 * i)) * 13f;
+                        Projectile.NewProjectile(source, player.MountedCenter, flameVel,
+                            flameType, flameDmg, knockback * 0.5f, player.whoAmI);
+                    }
+                    break;
+
+                case 2: // Escalation — 3 waves in wide fan
+                    for (int i = -1; i <= 1; i++)
+                    {
+                        Vector2 flameVel = aimDir.RotatedBy(MathHelper.ToRadians(25 * i)) * 11f;
+                        Projectile.NewProjectile(source, player.MountedCenter, flameVel,
+                            flameType, (int)(damage * 0.4f), knockback * 0.6f, player.whoAmI);
+                    }
+                    break;
+
+                case 3: // Resonance — 2 forward + 2 ground-level flanking waves
+                    for (int i = -1; i <= 1; i += 2)
+                    {
+                        Vector2 flameVel = aimDir.RotatedBy(MathHelper.ToRadians(8 * i)) * 14f;
+                        Projectile.NewProjectile(source, player.MountedCenter, flameVel,
+                            flameType, flameDmg, knockback * 0.5f, player.whoAmI);
+                    }
+                    // Ground-level flanking waves
+                    for (int i = -1; i <= 1; i += 2)
+                    {
+                        Vector2 groundVel = new Vector2(i * 10f, 0.5f);
+                        Projectile.NewProjectile(source, player.MountedCenter + new Vector2(0, 20),
+                            groundVel, flameType, flameDmg, knockback * 0.3f, player.whoAmI);
+                    }
+                    break;
+
+                case 4: // Grand Toll — 8 directional bell flame waves burst
+                    for (int i = 0; i < 8; i++)
+                    {
+                        float angle = MathHelper.TwoPi / 8f * i;
+                        Vector2 flameVel = angle.ToRotationVector2() * 10f;
+                        Projectile.NewProjectile(source, player.MountedCenter, flameVel,
+                            flameType, (int)(damage * 0.5f), knockback, player.whoAmI);
+                    }
+                    break;
             }
 
             return false;
@@ -124,6 +181,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime
 
         public override void HoldItem(Player player)
         {
+            player.ExoBlade().rightClickListener = true;
+            player.ExoBlade().mouseWorldListener = true;
+
             var dfc = player.DualFatedChime();
 
             // Infernal ambient based on combo progression

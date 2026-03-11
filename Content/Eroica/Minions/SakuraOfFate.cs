@@ -15,11 +15,11 @@ namespace MagnumOpus.Content.Eroica.Minions
 {
     /// <summary>
     /// Sakura of Fate 窶・spectral dark-flame guardian minion.
-    /// Self-contained VFX: 6ﾃ・ spritesheet rendering, dark flame aura, ambient particles.
+    /// Self-contained VFX: 6�E�E�E spritesheet rendering, dark flame aura, ambient particles.
     /// </summary>
     public class SakuraOfFate : ModProjectile
     {
-        // 笏笏 Spritesheet configuration 窶・6ﾃ・ grid 笏笏
+        // 笏笏 Spritesheet configuration 窶・6�E�E�E grid 笏笏
         public const int FrameColumns = 6;
         public const int FrameRows = 6;
         public const int TotalFrames = 36;
@@ -348,6 +348,8 @@ namespace MagnumOpus.Content.Eroica.Minions
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Texture2D tex = TextureAssets.Projectile[Projectile.type].Value;
             float time = (float)Main.gameTimeCache.TotalGameTime.TotalSeconds;
 
@@ -385,6 +387,15 @@ namespace MagnumOpus.Content.Eroica.Minions
             EroicaVFXLibrary.BeginEroicaAdditive(sb);
             EroicaVFXLibrary.DrawThemeSakuraAccent(sb, Projectile.Center, 1f, 0.4f);
             EroicaVFXLibrary.EndEroicaAdditive(sb);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -434,7 +445,7 @@ namespace MagnumOpus.Content.Eroica.Minions
 
             if (EroicaShaderManager.HasDarkFlameAura)
             {
-                // PASS 1: Dark flame body — inner crimson fire
+                // PASS 1: Dark flame body  Einner crimson fire
                 EroicaShaderManager.BeginShaderAdditive(sb);
                 try
                 {
@@ -459,7 +470,7 @@ namespace MagnumOpus.Content.Eroica.Minions
                     EroicaShaderManager.RestoreSpriteBatch(sb);
                 }
 
-                // PASS 2: Dark flame glow — wider violet haze
+                // PASS 2: Dark flame glow  Ewider violet haze
                 EroicaShaderManager.BeginShaderAdditive(sb);
                 try
                 {
@@ -536,7 +547,7 @@ namespace MagnumOpus.Content.Eroica.Minions
 
             if (EroicaShaderManager.HasFuneralTrail)
             {
-                // PASS 1: DarkFuneralTrail body — dark crimson stream
+                // PASS 1: DarkFuneralTrail body  Edark crimson stream
                 EroicaShaderManager.BeginShaderAdditive(sb);
                 try
                 {
@@ -573,7 +584,7 @@ namespace MagnumOpus.Content.Eroica.Minions
                     EroicaShaderManager.RestoreSpriteBatch(sb);
                 }
 
-                // PASS 2: DarkFuneralTrail glow — wider smolder haze
+                // PASS 2: DarkFuneralTrail glow  Ewider smolder haze
                 EroicaShaderManager.BeginShaderAdditive(sb);
                 try
                 {
@@ -696,13 +707,13 @@ namespace MagnumOpus.Content.Eroica.Minions
             float ritualPhase = Math.Clamp(Timer / 30f, 0f, 1f);
             float pulse = 0.9f + 0.1f * (float)Math.Sin(Timer * 0.06f);
 
-            // Summon circle body — slowly rotating sigil beneath the minion
+            // Summon circle body  Eslowly rotating sigil beneath the minion
             EroicaShaderManager.BeginShaderAdditive(sb);
             try
             {
                 EroicaShaderManager.ApplyFinalitySummonCircle(time, ritualPhase, glowPass: false);
 
-                Texture2D ringTex = EroicaTextures.HaloRing?.Value ?? EroicaTextures.CircularMask?.Value;
+                Texture2D ringTex = EroicaTextures.HaloRing?.Value ?? EroicaTextures.SoftCircle?.Value;
                 if (ringTex != null)
                 {
                     float ringScale = Projectile.scale * 0.4f * pulse;
@@ -715,7 +726,7 @@ namespace MagnumOpus.Content.Eroica.Minions
                 EroicaShaderManager.RestoreSpriteBatch(sb);
             }
 
-            // Summon circle glow — subtle ambient glow
+            // Summon circle glow  Esubtle ambient glow
             EroicaShaderManager.BeginShaderAdditive(sb);
             try
             {

@@ -151,11 +151,22 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire.Projectiles
             LoadTextures();
 
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
 
             DrawBeamBody(sb, matrix);     // Pass 1: VertexStrip beam with ConvergenceBeamShader
             DrawEndpointFlares(sb, matrix); // Pass 2: Multi-layer flares at both ends
             ClairDeLuneVFXLibrary.DrawThemeAccents(sb, Projectile.Center, 0.5f, 0.3f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 

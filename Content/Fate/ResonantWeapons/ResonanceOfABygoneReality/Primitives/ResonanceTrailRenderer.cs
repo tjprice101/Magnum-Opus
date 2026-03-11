@@ -64,7 +64,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
             {
                 float progress = (float)i / (count - 1);
                 float width = settings.WidthFunction(progress) * settings.MaxWidth;
-                Color color = settings.ColorFunction(progress);
+                Color color = new Color(255, 0, 50); // NEON RED fallback!
 
                 Vector2 start = points[i] - Main.screenPosition;
                 Vector2 end = points[i + 1] - Main.screenPosition;

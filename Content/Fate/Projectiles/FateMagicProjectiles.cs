@@ -5,11 +5,13 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Fate.Debuffs;
 using ReLogic.Content;
 
@@ -171,6 +173,9 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             SpriteBatch spriteBatch = Main.spriteBatch;
             Texture2D tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
             Vector2 origin = tex.Size() / 2f;
@@ -184,14 +189,8 @@ namespace MagnumOpus.Content.Fate.Projectiles
             spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Outer cyan electricity glow
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.FateCyan * 0.2f * glowIntensity, Projectile.rotation, origin, 1.6f * pulse, SpriteEffects.None, 0f);
-            
-            // Middle dark pink cosmic energy
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.DarkPink * 0.3f * glowIntensity, Projectile.rotation, origin, 1.3f * pulse, SpriteEffects.None, 0f);
-            
-            // Inner white core
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.WhiteCelestial * 0.25f * glowIntensity, Projectile.rotation, origin, 1.1f * pulse, SpriteEffects.None, 0f);
+            // Graduated orb bloom head (Incisor of Moonlight pattern)
+            MagnumVFX.DrawGraduatedOrbHead(spriteBatch, drawPos, FatePalette.FateCyan, FatePalette.DarkPink, 1.0f, glowIntensity);
 
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
@@ -199,6 +198,15 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
             // Main staff - The Final Fermata
             spriteBatch.Draw(tex, drawPos, null, Color.White, Projectile.rotation, origin, pulse, SpriteEffects.None, 0f);
+
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             return false;
         }
@@ -365,13 +373,14 @@ namespace MagnumOpus.Content.Fate.Projectiles
         private const float DashSpeed = 28f;
         private const int DashDuration = 15;
         private const int CooldownDuration = 8;
+        private VertexStrip _strip;
 
         // Fallback to first weapon texture if load fails
         public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/TheConductorsLastConstellation";
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 15;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -625,63 +634,18 @@ namespace MagnumOpus.Content.Fate.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            
-            // Try to load the selected weapon texture
-            Texture2D tex;
+            SpriteBatch sb = Main.spriteBatch;
             try
             {
-                tex = ModContent.Request<Texture2D>(currentTexturePath, AssetRequestMode.ImmediateLoad).Value;
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.Fate, ref _strip);
             }
-            catch
+            catch { }
+            finally
             {
-                tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-            
-            Vector2 origin = tex.Size() / 2f;
-            
-            // More intense pulsing during dash
-            float dashIntensity = attackPhase == 1 ? 1.3f : 1f;
-            float pulse = 1f + (float)Math.Sin(pulsePhase) * 0.15f * dashIntensity;
-            float glowIntensity = (0.6f + (float)Math.Sin(pulsePhase * 0.8f) * 0.3f) * dashIntensity;
-
-            // Trail with fading weapon copies - longer trail during dash
-            int trailCount = attackPhase == 1 ? Projectile.oldPos.Length : Projectile.oldPos.Length / 2;
-            for (int i = 0; i < trailCount; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                Color trailColor = FatePalette.GetCosmicGradient(progress) * (1f - progress) * 0.5f;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                float trailScale = (1f - progress * 0.4f) * 0.7f;
-                spriteBatch.Draw(tex, trailPos, null, trailColor, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
-            }
-
-            // === MULTI-LAYER BLOOM STACK FOR CELESTIAL PULSING GLOW ===
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            
-            // Outermost cosmic nebula glow - purple
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.FatePurple * 0.15f * glowIntensity, Projectile.rotation, origin, 1.9f * pulse, SpriteEffects.None, 0f);
-            
-            // Outer bright red energy corona
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.BrightCrimson * 0.25f * glowIntensity, Projectile.rotation, origin, 1.5f * pulse, SpriteEffects.None, 0f);
-            
-            // Middle dark pink energy field
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.DarkPink * 0.4f * glowIntensity, Projectile.rotation, origin, 1.25f * pulse, SpriteEffects.None, 0f);
-            
-            // Inner white-hot celestial core
-            spriteBatch.Draw(tex, drawPos, null, FatePalette.WhiteCelestial * 0.3f * glowIntensity, Projectile.rotation, origin, 1.05f * pulse, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Main weapon blade - slightly tinted with celestial white
-            spriteBatch.Draw(tex, drawPos, null, Color.White * 0.95f, Projectile.rotation, origin, 0.85f * pulse, SpriteEffects.None, 0f);
 
             return false;
         }

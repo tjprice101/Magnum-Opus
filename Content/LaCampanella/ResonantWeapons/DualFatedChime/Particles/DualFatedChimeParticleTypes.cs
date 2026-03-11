@@ -233,6 +233,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Particl
         public override void Draw(SpriteBatch spriteBatch)
         {
             // Try to load a music note texture, fallback to bloom
+            bool _usingFallback = false;
             if (_noteTexture == null || _noteTexture.IsDisposed)
             {
                 try
@@ -244,6 +245,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Particl
                 {
                     _noteTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow",
                         ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+                    _usingFallback = true;
                 }
             }
 
@@ -251,7 +253,9 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Particl
 
             Vector2 screenPos = Position - Main.screenPosition;
             Vector2 origin = new Vector2(_noteTexture.Width / 2f, _noteTexture.Height / 2f);
-            Color drawCol = DualFatedChimeUtils.Additive(DrawColor, _opacity);
+            Color drawCol = _usingFallback 
+                ? new Color(255, 0, 50) * _opacity // NEON RED fallback!
+                : DualFatedChimeUtils.Additive(DrawColor, _opacity);
 
             // Note sprite
             spriteBatch.Draw(_noteTexture, screenPos, null, drawCol, Rotation, origin, Scale, SpriteEffects.None, 0f);

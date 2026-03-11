@@ -12,6 +12,8 @@ using MagnumOpus.Common;
 using MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Utilities;
 using MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Particles;
 using MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles;
+using MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles;
+using MagnumOpus.Content.SandboxExoblade.Utilities;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars
 {
@@ -38,6 +40,13 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars
 
         private static Asset<Texture2D> _glowTex;
 
+        /// <summary>Tracks the 3-phase combo: Sweep → Uppercut → Gravity Slam.
+        /// Gravity Slam spawns extra orbit blades.</summary>
+        private int comboPhase = 0;
+
+        /// <summary>Maximum FractalOrbitBlade count per player.</summary>
+        private const int MaxOrbitBlades = 6;
+
         public override void SetStaticDefaults()
         {
             Item.ResearchUnlockCount = 1;
@@ -63,9 +72,27 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars
             Item.noUseGraphic = true;
             Item.shoot = ModContent.ProjectileType<FractalSwingProjectile>();
             Item.shootSpeed = 1f;
-            Item.channel = false;
+            Item.channel = true;
             Item.UseSound = null; // Swing projectile handles sounds
         }
+
+        public override bool CanShoot(Player player)
+        {
+            bool isDash = player.altFunctionUse == 2;
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile p = Main.projectile[i];
+                if (!p.active || p.owner != player.whoAmI || p.type != Item.shoot)
+                    continue;
+                if (isDash) return false;
+                if (!(p.ai[0] == 1 && p.ai[1] == 1)) return false;
+            }
+            return true;
+        }
+
+        public override bool AltFunctionUse(Player player) => true;
+        public override bool? CanHitNPC(Player player, NPC target) => false;
+        public override bool CanHitPvp(Player player, Player target) => false;
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
@@ -82,14 +109,73 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            // Fire the held swing projectile
-            Projectile.NewProjectile(source, player.Center, Vector2.Zero, type, damage, knockback, player.whoAmI);
+            float state = player.altFunctionUse == 2 ? 1f : 0f;
+            Projectile.NewProjectile(source, player.MountedCenter,
+                (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
+                type, damage, knockback, player.whoAmI, state, 0);
 
-            return false; // We already spawned the projectile
+            // --- 3-Phase Fractal Combo ---
+            // Sweep (0): Spawn 1 orbit blade (if under cap)
+            // Uppercut (1): Spawn 1 orbit blade + 1 at opposite angle
+            // Gravity Slam (2): Spawn 2 orbit blades + Star Fracture burst (3 energy balls)
+            int phase = comboPhase % 3;
+            comboPhase++;
+            int orbitType = ModContent.ProjectileType<FractalOrbitBlade>();
+            int currentBlades = player.Fractal().OrbitBladeCount;
+
+            switch (phase)
+            {
+                case 0: // Sweep — single orbit blade
+                    if (currentBlades < MaxOrbitBlades)
+                    {
+                        float startAngle = MathHelper.TwoPi * currentBlades / MaxOrbitBlades;
+                        Projectile.NewProjectile(source, player.MountedCenter, Vector2.Zero,
+                            orbitType, (int)(damage * 0.3f), knockback * 0.3f, player.whoAmI,
+                            startAngle, 0f);
+                    }
+                    break;
+
+                case 1: // Uppercut — 2 orbit blades at opposing angles
+                    for (int i = 0; i < 2 && currentBlades + i < MaxOrbitBlades; i++)
+                    {
+                        float startAngle = MathHelper.TwoPi * (currentBlades + i) / MaxOrbitBlades;
+                        Projectile.NewProjectile(source, player.MountedCenter, Vector2.Zero,
+                            orbitType, (int)(damage * 0.3f), knockback * 0.3f, player.whoAmI,
+                            startAngle, 0f);
+                    }
+                    break;
+
+                case 2: // Gravity Slam — 2 orbit blades + Star Fracture energy ball burst
+                    for (int i = 0; i < 2 && currentBlades + i < MaxOrbitBlades; i++)
+                    {
+                        float startAngle = MathHelper.TwoPi * (currentBlades + i) / MaxOrbitBlades;
+                        Projectile.NewProjectile(source, player.MountedCenter, Vector2.Zero,
+                            orbitType, (int)(damage * 0.3f), knockback * 0.3f, player.whoAmI,
+                            startAngle, 0f);
+                    }
+
+                    // Star Fracture burst — 3 energy balls toward cursor
+                    Vector2 aimDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
+                    for (int i = -1; i <= 1; i++)
+                    {
+                        Vector2 ballVel = aimDir.RotatedBy(MathHelper.ToRadians(25 * i)) * 10f;
+                        // Use OpusEnergyBallProjectile as seeker (mode=1) — aggressive homing
+                        Projectile.NewProjectile(source, player.MountedCenter, ballVel,
+                            ModContent.ProjectileType<OpusEnergyBallProjectile>(),
+                            (int)(damage * 0.35f), knockback * 0.5f, player.whoAmI,
+                            1f, 1f); // mode=Seeker
+                    }
+                    break;
+            }
+
+            return false;
         }
 
         public override void HoldItem(Player player)
         {
+            player.ExoBlade().rightClickListener = true;
+            player.ExoBlade().mouseWorldListener = true;
+
             if (Main.dedServ) return;
 
             float pulse = 0.6f + MathF.Sin((float)Main.timeForVisualEffects * 0.04f) * 0.15f;

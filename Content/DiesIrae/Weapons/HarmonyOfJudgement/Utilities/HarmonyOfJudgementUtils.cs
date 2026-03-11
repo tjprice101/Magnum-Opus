@@ -450,6 +450,9 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement.Utilities
         /// </summary>
         public static void DoExecuteBurst(Vector2 worldPos, bool harmonized = false)
         {
+            // === Color-ramped sparkle explosion VFX ===
+            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(worldPos, 10, 6f, 0.35f);
+
             Color burstColor = harmonized ? HarmonizedGold : JudgeGold;
 
             // 4 expanding ring particles with staggered timing

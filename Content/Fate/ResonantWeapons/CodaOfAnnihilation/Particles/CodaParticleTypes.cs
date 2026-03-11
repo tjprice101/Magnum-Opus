@@ -2,7 +2,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Graphics.Shaders;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Shaders;
 using MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Utilities;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Particles
@@ -319,6 +322,191 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Particles
             Color c = CodaUtils.Additive(DrawColor, _opacity);
 
             sb.Draw(_bloomTex, screenPos, null, c, 0f, origin, Scale, SpriteEffects.None, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Shader-driven impact burst using CodaImpactBurst.fx.
+    /// Renders an expanding radial shockwave with energy dispersion and bright core flash.
+    /// Spawned on CodaZenithSword and CodaHeldSwing hits for a premium shader-driven impact.
+    /// </summary>
+    public class CodaImpactBurstParticle : CodaParticle
+    {
+        private static Texture2D _bloomTex;
+        private float _opacity;
+        private readonly Color _secondaryColor;
+
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+
+        public CodaImpactBurstParticle(Vector2 position, Color primary, Color secondary, float scale = 0.5f, int lifetime = 18)
+        {
+            Position = position;
+            Velocity = Vector2.Zero;
+            DrawColor = primary;
+            _secondaryColor = secondary;
+            Scale = scale;
+            Lifetime = lifetime;
+            _opacity = 1f;
+        }
+
+        public override void Update()
+        {
+            Scale += 0.04f;
+            _opacity = 1f - (float)Math.Pow(LifetimeCompletion, 1.4f);
+        }
+
+        public override void Draw(SpriteBatch sb)
+        {
+            if (_bloomTex == null || _bloomTex.IsDisposed)
+                _bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow",
+                    ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+            if (_bloomTex == null) return;
+
+            Vector2 screenPos = Position - Main.screenPosition;
+            Vector2 origin = new Vector2(_bloomTex.Width / 2f, _bloomTex.Height / 2f);
+
+            // Try shader-driven rendering first
+            if (CodaShaderLoader.HasImpactBurst)
+            {
+                try
+                {
+                    var shader = GameShaders.Misc["MagnumOpus:CodaImpactBurst"];
+                    var effect = shader.Shader;
+                    effect.Parameters["uColor"]?.SetValue(DrawColor.ToVector3());
+                    effect.Parameters["uSecondaryColor"]?.SetValue(_secondaryColor.ToVector3());
+                    effect.Parameters["uOpacity"]?.SetValue(_opacity);
+                    effect.Parameters["uTime"]?.SetValue(LifetimeCompletion);
+                    effect.Parameters["uIntensity"]?.SetValue(1.5f);
+
+                    // Need immediate mode for shader
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                    effect.CurrentTechnique.Passes[0].Apply();
+                    float shaderScale = MathHelper.Min(Scale * 1.5f, 0.586f);
+                    sb.Draw(_bloomTex, screenPos, null, Color.White, 0f, origin, shaderScale, SpriteEffects.None, 0f);
+
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                    return;
+                }
+                catch
+                {
+                    // Fall through to non-shader fallback
+                    try { sb.End(); } catch { }
+                    try
+                    {
+                        sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                            DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                    }
+                    catch { }
+                }
+            }
+
+            // Fallback: multi-layer expanding ring effect
+            float ringScale = Scale * 1.2f;
+            Color outer = CodaUtils.Additive(DrawColor, _opacity * 0.3f);
+            sb.Draw(_bloomTex, screenPos, null, outer, 0f, origin, MathHelper.Min(ringScale, 0.586f), SpriteEffects.None, 0f);
+
+            Color mid = CodaUtils.Additive(_secondaryColor, _opacity * 0.5f);
+            sb.Draw(_bloomTex, screenPos, null, mid, 0f, origin, MathHelper.Min(ringScale * 0.5f, 0.586f), SpriteEffects.None, 0f);
+
+            Color core = CodaUtils.Additive(Color.White, _opacity * 0.8f);
+            sb.Draw(_bloomTex, screenPos, null, core, 0f, origin, MathHelper.Min(ringScale * 0.15f, 0.586f), SpriteEffects.None, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Shader-driven annihilation bloom using CodaAnnihilationBloom.fx.
+    /// Renders an expanding radial glow with chromatic shift and cosmic pulse.
+    /// Used for critical moments: Annihilation Mark detonations, spawn flashes.
+    /// </summary>
+    public class CodaAnnihilationBloomParticle : CodaParticle
+    {
+        private static Texture2D _bloomTex;
+        private float _opacity;
+        private readonly Color _secondaryColor;
+
+        public override bool SetLifetime => true;
+        public override bool UseAdditiveBlend => true;
+
+        public CodaAnnihilationBloomParticle(Vector2 position, Color primary, Color secondary, float scale = 0.6f, int lifetime = 22)
+        {
+            Position = position;
+            Velocity = Vector2.Zero;
+            DrawColor = primary;
+            _secondaryColor = secondary;
+            Scale = scale;
+            Lifetime = lifetime;
+            _opacity = 1f;
+        }
+
+        public override void Update()
+        {
+            Scale *= 1.04f;
+            _opacity = 1f - (float)Math.Pow(LifetimeCompletion, 1.2f);
+        }
+
+        public override void Draw(SpriteBatch sb)
+        {
+            if (_bloomTex == null || _bloomTex.IsDisposed)
+                _bloomTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow",
+                    ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+            if (_bloomTex == null) return;
+
+            Vector2 screenPos = Position - Main.screenPosition;
+            Vector2 origin = new Vector2(_bloomTex.Width / 2f, _bloomTex.Height / 2f);
+
+            if (CodaShaderLoader.HasAnnihilationBloom)
+            {
+                try
+                {
+                    var shader = GameShaders.Misc["MagnumOpus:CodaAnnihilationBloom"];
+                    var effect = shader.Shader;
+                    effect.Parameters["uColor"]?.SetValue(DrawColor.ToVector3());
+                    effect.Parameters["uSecondaryColor"]?.SetValue(_secondaryColor.ToVector3());
+                    effect.Parameters["uOpacity"]?.SetValue(_opacity);
+                    effect.Parameters["uTime"]?.SetValue(LifetimeCompletion);
+                    effect.Parameters["uIntensity"]?.SetValue(1.8f);
+
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                    effect.CurrentTechnique.Passes[0].Apply();
+                    float shaderScale = MathHelper.Min(Scale * 1.8f, 0.586f);
+                    sb.Draw(_bloomTex, screenPos, null, Color.White, 0f, origin, shaderScale, SpriteEffects.None, 0f);
+
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                        DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                    return;
+                }
+                catch
+                {
+                    try { sb.End(); } catch { }
+                    try
+                    {
+                        sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                            DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                    }
+                    catch { }
+                }
+            }
+
+            // Fallback: stacked bloom with pulsing
+            float pulse = 0.9f + 0.1f * MathF.Sin(Time * 0.5f);
+            Color outer = CodaUtils.Additive(DrawColor, _opacity * 0.35f * pulse);
+            sb.Draw(_bloomTex, screenPos, null, outer, 0f, origin, MathHelper.Min(Scale * 1.5f, 0.586f), SpriteEffects.None, 0f);
+
+            Color inner = CodaUtils.Additive(_secondaryColor, _opacity * 0.5f * pulse);
+            sb.Draw(_bloomTex, screenPos, null, inner, 0f, origin, MathHelper.Min(Scale * 0.6f, 0.586f), SpriteEffects.None, 0f);
+
+            Color hot = CodaUtils.Additive(Color.White, _opacity * 0.7f);
+            sb.Draw(_bloomTex, screenPos, null, hot, 0f, origin, MathHelper.Min(Scale * 0.2f, 0.586f), SpriteEffects.None, 0f);
         }
     }
 }

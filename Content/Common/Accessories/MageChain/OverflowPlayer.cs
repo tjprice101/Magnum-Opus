@@ -247,15 +247,6 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
                     Player.GetDamage(DamageClass.Magic) += 0.15f;
                 }
             }
-            
-            // Visual feedback while in overflow
-            if (Main.rand.NextBool(10))
-            {
-                Vector2 pos = Player.Center + Main.rand.NextVector2Circular(25f, 35f);
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(1f, 2f));
-                Color overflowColor = GetOverflowColor();
-                CustomParticles.GenericGlow(pos, vel, overflowColor * 0.7f, 0.25f, 20, true);
-            }
         }
         
         private void HandleOverflowRecovery()

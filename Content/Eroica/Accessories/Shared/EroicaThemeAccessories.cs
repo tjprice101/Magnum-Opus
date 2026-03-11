@@ -44,37 +44,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
             player.GetAttackSpeed(DamageClass.Melee) += 0.10f;
 
             // Invulnerability timer effect is handled in player class on kill
-
-            // Heroic ambient particles
-            if (!hideVisual)
-            {
-                // Golden laurel leaves orbiting
-                if (Main.rand.NextBool(12))
-                {
-                    float angle = Main.GameUpdateCount * 0.03f;
-                    Vector2 laurelPos = player.Center + angle.ToRotationVector2() * 22f;
-                    
-                    CustomParticles.GenericFlare(laurelPos, EroicaPalette.Gold * 0.7f, 0.22f, 10);
-                }
-
-                // Sakura petals drifting
-                if (Main.rand.NextBool(18))
-                {
-                    ThemedParticles.SakuraPetals(player.Center, 2, 30f);
-                }
-
-                // Scarlet embers
-                if (Main.rand.NextBool(15))
-                {
-                    Vector2 pos = player.Center + Main.rand.NextVector2Circular(25f, 25f);
-                    Vector2 vel = new Vector2(0, -Main.rand.NextFloat(0.5f, 1.5f));
-                    CustomParticles.GenericGlow(pos, vel, EroicaPalette.Crimson * 0.6f, 0.2f, 22, true);
-                }
-            }
-
-            // Warm heroic light
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.1f + 0.3f;
-            Lighting.AddLight(player.Center, EroicaPalette.Gold.ToVector3() * pulse);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -209,53 +178,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
             {
                 player.GetDamage(DamageClass.Generic) += 0.25f;
             }
-
-            // Enhanced heroic ambient particles
-            if (!hideVisual)
-            {
-                // Phoenix-like flames orbiting
-                float baseAngle = Main.GameUpdateCount * 0.035f;
-                for (int i = 0; i < 3; i++)
-                {
-                    float angle = baseAngle + MathHelper.TwoPi * i / 3f;
-                    float radius = 28f + (float)Math.Sin(Main.GameUpdateCount * 0.06f + i * 0.5f) * 6f;
-                    Vector2 pos = player.Center + angle.ToRotationVector2() * radius;
-
-                    if (Main.rand.NextBool(10))
-                    {
-                        Color flameColor = Color.Lerp(EroicaPalette.DeepScarlet, EroicaPalette.Gold, (float)i / 3f);
-                        CustomParticles.GenericFlare(pos, flameColor * 0.7f, 0.25f, 12);
-                    }
-                }
-
-                // Sakura petal storm
-                if (Main.rand.NextBool(12))
-                {
-                    ThemedParticles.SakuraPetals(player.Center, 3, 35f);
-                }
-
-                // Rising embers
-                if (Main.rand.NextBool(10))
-                {
-                    Vector2 pos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                    Vector2 vel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(1f, 2f));
-                    Color emberColor = Color.Lerp(EroicaPalette.Crimson, EroicaPalette.Gold, Main.rand.NextFloat());
-                    CustomParticles.GenericGlow(pos, vel, emberColor * 0.75f, 0.24f, 25, true);
-                }
-
-                // Heroic surge visual
-                if (modPlayer.heroicSurgeDuration > 0 && Main.rand.NextBool(4))
-                {
-                    CustomParticles.HaloRing(player.Center, EroicaPalette.Gold * 0.5f, 0.3f, 10);
-                    ThemedParticles.EroicaSparkles(player.Center, 4, 40f);
-                }
-            }
-
-            // Enhanced heroic light
-            float intensity = modPlayer.heroicSurgeDuration > 0 ? 0.6f : 0.4f;
-            Vector3 lightColor = Color.Lerp(EroicaPalette.Crimson, EroicaPalette.Gold,
-                (float)Math.Sin(Main.GameUpdateCount * 0.03f) * 0.5f + 0.5f).ToVector3();
-            Lighting.AddLight(player.Center, lightColor * intensity);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)

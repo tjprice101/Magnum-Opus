@@ -6,6 +6,7 @@ using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Buffs;
+using MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Dusts;
 using MagnumOpus.Content.OdeToJoy;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
@@ -70,6 +71,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
                 // Sound effect
                 SoundEngine.PlaySound(SoundID.Item14 with { Pitch = 0.3f, Volume = 0.7f },
                     Projectile.Center);
+
+                // Screen effects for the big explosion
+                OdeToJoyVFXLibrary.ScreenShake(8f, 18);
+                OdeToJoyVFXLibrary.ScreenFlash(OdeToJoyPalette.GoldenPollen, 0.6f);
+
+                // Musical celebration burst
+                OdeToJoyVFXLibrary.CelebrationBurst(Projectile.Center, 1.2f, true);
             }
 
             // Lighting
@@ -88,6 +96,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
                 ThornboundTextures.JubilantLight
             };
 
+            // Radial ThornburstDust explosion — sharp angular thorn fragments
             for (int i = 0; i < SparkCount; i++)
             {
                 float angle = MathHelper.TwoPi / SparkCount * i
@@ -98,32 +107,28 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
                 Color col = sparkColors[i % sparkColors.Length];
                 col = Color.Lerp(col, Color.White, Main.rand.NextFloat(0.1f));
 
-                Dust dust = Dust.NewDustPerfect(
+                Dust.NewDustPerfect(
                     Projectile.Center + Main.rand.NextVector2Circular(8f, 8f),
-                    DustID.RainbowMk2, vel,
+                    ModContent.DustType<ThornburstDust>(), vel,
                     newColor: col,
-                    Scale: Main.rand.NextFloat(0.5f, 1.1f));
-                dust.noGravity = true;
-                dust.fadeIn = 0.5f;
+                    Scale: Main.rand.NextFloat(1.2f, 2.4f));
             }
 
-            // Extra large botanical particles
+            // Extra large VineSapDust particles — rising sap droplets
             for (int i = 0; i < 16; i++)
             {
                 float angle = MathHelper.TwoPi / 16f * i;
                 Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(1f, 3f);
-                vel.Y -= Main.rand.NextFloat(0.5f, 1.5f); // upward drift
+                vel.Y -= Main.rand.NextFloat(0.5f, 1.5f);
 
                 Color col = Color.Lerp(ThornboundTextures.BloomGold,
                     ThornboundTextures.PetalPink, Main.rand.NextFloat());
 
-                Dust dust = Dust.NewDustPerfect(
+                Dust.NewDustPerfect(
                     Projectile.Center + angle.ToRotationVector2() * Main.rand.NextFloat(20f),
-                    DustID.RainbowMk2, vel,
+                    ModContent.DustType<VineSapDust>(), vel,
                     newColor: col,
-                    Scale: Main.rand.NextFloat(0.8f, 1.4f));
-                dust.noGravity = true;
-                dust.fadeIn = 0.8f;
+                    Scale: Main.rand.NextFloat(1.5f, 2.5f));
             }
         }
 
@@ -154,6 +159,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+            try
+            {
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             float alpha = GetAlpha();
             float progress = timer / (float)MaxLifetime;
@@ -249,21 +256,33 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
 
             sb.End();
             OdeToJoyShaders.RestoreSpriteBatch(sb);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
             return false;
         }
 
         public override void OnKill(int timeLeft)
         {
-            // Final burst of golden particles
-            for (int i = 0; i < 20; i++)
+            // Final burst — ThornburstDust fragments + triumphant starburst
+            for (int i = 0; i < 16; i++)
             {
                 Vector2 vel = Main.rand.NextVector2Circular(6f, 6f);
                 Color col = Color.Lerp(ThornboundTextures.BloomGold,
                     ThornboundTextures.JubilantLight, Main.rand.NextFloat());
-                Dust dust = Dust.NewDustPerfect(Projectile.Center, DustID.RainbowMk2, vel,
-                    newColor: col, Scale: Main.rand.NextFloat(0.3f, 0.9f));
-                dust.noGravity = true;
+                Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<ThornburstDust>(), vel,
+                    newColor: col, Scale: Main.rand.NextFloat(1.2f, 2.2f));
             }
+
+            // Triumphant starburst + harmonic pulse on finisher end
+            OdeToJoyVFXLibrary.SpawnTriumphantStarburst(Projectile.Center, 0.8f);
+            OdeToJoyVFXLibrary.HarmonicPulseRing(Projectile.Center, 80f, 20, OdeToJoyPalette.GoldenPollen, 3f);
         }
     }
 }

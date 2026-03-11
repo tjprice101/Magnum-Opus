@@ -1272,7 +1272,7 @@ namespace MagnumOpus.Common.Systems
         /// </summary>
         public static void SwanFeatherBurst(Vector2 position, int count = 8, float spreadRadius = 40f)
         {
-            CustomParticles.SwanFeatherBurst(position, count, spreadRadius / 100f);
+            // Feather particles removed — textures no longer exist
         }
         
         /// <summary>
@@ -1284,7 +1284,7 @@ namespace MagnumOpus.Common.Systems
         /// <param name="scale">Feather scale (0.25-0.5 recommended)</param>
         public static void SwanFeatherDrift(Vector2 position, Color color, float scale = 0.35f)
         {
-            CustomParticles.SwanFeatherDrift(position, color, scale);
+            // Feather particles removed — textures no longer exist
         }
         
         /// <summary>
@@ -1422,7 +1422,6 @@ namespace MagnumOpus.Common.Systems
         {
             // Core explosion - always present
             CustomParticles.ExplosionBurst(position, baseColor, (int)(12 * intensity), 10f * intensity);
-            CustomParticles.SwanFeatherBurst(position, (int)(6 * intensity), 0.4f * intensity);
             
             // FRACTAL FLARE PATTERN - the signature geometric look
             // Create flares in a radial hexagonal/polygonal pattern

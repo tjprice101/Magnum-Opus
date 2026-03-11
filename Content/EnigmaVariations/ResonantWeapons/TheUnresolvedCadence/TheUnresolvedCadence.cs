@@ -78,21 +78,21 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
             Texture2D starFlare = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/Theme Specific/Enigma/Impact Effects/EN Star Flare", AssetRequestMode.ImmediateLoad).Value;
             float pulse = 1f + 0.15f * MathF.Sin(Main.GameUpdateCount * 0.15f);
             
-            // Layer 1: Wide DimensionalGreen ambient glow
-            sb.Draw(bloom, drawPos, null, CadenceUtils.DimensionalGreen * alpha * 0.35f, 0f,
-                bloom.Size() / 2f, 0.04f * pulse, SpriteEffects.None, 0f);
-            // Layer 2: Medium CadenceViolet glow
-            sb.Draw(bloom, drawPos, null, CadenceUtils.CadenceViolet * alpha * 0.3f, 0f,
+            // Layer 1: Wide DimensionalGreen ambient glow — tightened
+            sb.Draw(bloom, drawPos, null, CadenceUtils.DimensionalGreen * alpha * 0.2f, 0f,
                 bloom.Size() / 2f, 0.025f * pulse, SpriteEffects.None, 0f);
+            // Layer 2: Medium CadenceViolet glow
+            sb.Draw(bloom, drawPos, null, CadenceUtils.CadenceViolet * alpha * 0.18f, 0f,
+                bloom.Size() / 2f, 0.016f * pulse, SpriteEffects.None, 0f);
             // Layer 3: Tight ParadoxWhite hot core
-            sb.Draw(bloom, drawPos, null, CadenceUtils.ParadoxWhite * alpha * 0.25f, 0f,
-                bloom.Size() / 2f, 0.012f * pulse, SpriteEffects.None, 0f);
-            // Layer 4: Star flare overlay — rotating Enigma identity burst
+            sb.Draw(bloom, drawPos, null, CadenceUtils.ParadoxWhite * alpha * 0.2f, 0f,
+                bloom.Size() / 2f, 0.009f * pulse, SpriteEffects.None, 0f);
+            // Layer 4: Star flare overlay — reduced
             float starRot = Main.GameUpdateCount * 0.03f;
-            sb.Draw(starFlare, drawPos, null, CadenceUtils.DimensionalGreen * alpha * 0.4f, starRot,
-                starFlare.Size() / 2f, 0.25f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(starFlare, drawPos, null, CadenceUtils.CadenceViolet * alpha * 0.2f, -starRot * 0.7f,
-                starFlare.Size() / 2f, 0.18f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(starFlare, drawPos, null, CadenceUtils.DimensionalGreen * alpha * 0.3f, starRot,
+                starFlare.Size() / 2f, 0.16f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(starFlare, drawPos, null, CadenceUtils.CadenceViolet * alpha * 0.15f, -starRot * 0.7f,
+                starFlare.Size() / 2f, 0.11f * pulse, SpriteEffects.None, 0f);
 
             // Theme texture accents
             CadenceUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);

@@ -16,7 +16,7 @@ using static MagnumOpus.Common.Systems.ThemedParticles;
 namespace MagnumOpus.Content.Winter.Weapons
 {
     /// <summary>
-    /// Frozen Heart - Winter-themed summon weapon (Post-Golem tier)
+    /// Frozen Heart - Winter-themed summon weapon (Post-Mechanical Bosses tier)
     /// Summons sentinels of eternal ice to fight for you.
     /// - Frost Sentinel: Summons an orbiting ice elemental (115 damage)
     /// - Cryo Synchrony: 3+ sentinels create a freezing aura around the player
