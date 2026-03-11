@@ -6,6 +6,7 @@ using MagnumOpus.Common.Systems.Bosses;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.VFX.Screen;
 
 namespace MagnumOpus.Content.LaCampanella.Bosses.Systems
 {
@@ -36,12 +37,21 @@ namespace MagnumOpus.Content.LaCampanella.Bosses.Systems
         public static void BellSlamImpact(Vector2 position)
         {
             MagnumScreenEffects.AddScreenShake(15f);
+            LaCampanellaSkySystem.TriggerBellTollFlash();
             CustomParticles.LaCampanellaImpactBurst(position, 12);
             CustomParticles.LaCampanellaBellChime(position, 10);
             Phase10BossVFX.TimpaniDrumrollImpact(position, InfernalOrange, 1.2f);
             ThemedParticles.LaCampanellaImpact(position, 1.0f);
             CustomParticles.HaloRing(position, BellGold, 0.8f, 20);
             BossSignatureVFX.LaCampanellaBellToll(position, 1);
+            
+            // Bloom particle cascade
+            for (int i = 0; i < 6; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(4f, 4f) + new Vector2(0, -2f);
+                Color col = Color.Lerp(InfernalOrange, FlameWhite, Main.rand.NextFloat() * 0.4f);
+                MagnumParticleHandler.SpawnParticle(new BloomParticle(position + Main.rand.NextVector2Circular(20f, 20f), vel, col, 0.3f, 25));
+            }
         }
 
         /// <summary>TollWave: Radial sound wave ring expanding outward.</summary>
@@ -58,6 +68,17 @@ namespace MagnumOpus.Content.LaCampanella.Bosses.Systems
             CustomParticles.HaloRing(center, ringColor, ringScale, 18);
             ThemedParticles.LaCampanellaShockwave(center, 0.8f + waveIndex * 0.15f);
             BossVFXOptimizer.OptimizedFlare(center, InfernalOrange, 0.4f, 12);
+            
+            // Sky flash on every 3rd wave
+            if (waveIndex % 3 == 0)
+                LaCampanellaSkySystem.TriggerInfernalFlash(0.3f);
+            
+            // Ascending bloom sparks
+            for (int i = 0; i < 3; i++)
+            {
+                Vector2 vel = new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), -2f - Main.rand.NextFloat(1f));
+                MagnumParticleHandler.SpawnParticle(new SparkleParticle(center + Main.rand.NextVector2Circular(30f, 10f), vel, ringColor, 0.2f, 20));
+            }
         }
 
         /// <summary>EmberShower: Raining embers from above.</summary>
@@ -74,6 +95,13 @@ namespace MagnumOpus.Content.LaCampanella.Bosses.Systems
             ThemedParticles.LaCampanellaSparks(position, Vector2.UnitY, 2, 3f);
             if (Main.rand.NextBool(4))
                 CustomParticles.LaCampanellaMusicNotes(position, 1, 20f);
+            
+            // Trailing bloom mote
+            if (Main.rand.NextBool(3))
+            {
+                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), 1.5f);
+                MagnumParticleHandler.SpawnParticle(new GlowSparkParticle(position, vel, color, 0.15f, 18));
+            }
         }
 
         /// <summary>FireWallSweep: Horizontal wall of fire sweeping across the arena.</summary>
@@ -110,6 +138,15 @@ namespace MagnumOpus.Content.LaCampanella.Bosses.Systems
             CustomParticles.LaCampanellaBellChime(center, 8 + ringIndex * 3);
             CustomParticles.HaloRing(center, BellGold, 0.5f + ringIndex * 0.15f, 16);
             Phase10BossVFX.NoteConstellationWarning(center, InfernalOrange, 0.5f + ringIndex * 0.15f);
+            LaCampanellaSkySystem.TriggerInfernalFlash(0.15f + ringIndex * 0.1f);
+            
+            // Radial bloom burst per ring
+            for (int i = 0; i < 4; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 4f + ringIndex * 0.5f;
+                Vector2 vel = angle.ToRotationVector2() * 3f;
+                MagnumParticleHandler.SpawnParticle(new BloomParticle(center + vel * 5f, vel, BellGold, 0.25f, 22));
+            }
         }
 
         /// <summary>InfernoCircle: Ring of fire closing in on the player.</summary>
@@ -131,6 +168,15 @@ namespace MagnumOpus.Content.LaCampanella.Bosses.Systems
                 ThemedParticles.LaCampanellaSparks(pos, -angle.ToRotationVector2(), 3, 5f);
             }
             ThemedParticles.LaCampanellaShockwave(center, 1.2f);
+            LaCampanellaSkySystem.TriggerCrimsonFlash(0.4f);
+            
+            // Center bloom explosion
+            for (int i = 0; i < 8; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(5f, 5f);
+                Color col = Color.Lerp(InfernalOrange, FlameWhite, Main.rand.NextFloat() * 0.3f);
+                MagnumParticleHandler.SpawnParticle(new BloomParticle(center + Main.rand.NextVector2Circular(15f, 15f), vel, col, 0.35f, 20));
+            }
         }
 
         /// <summary>RhythmicToll: Multi-hit bell pattern with escalating intensity.</summary>
@@ -146,6 +192,18 @@ namespace MagnumOpus.Content.LaCampanella.Bosses.Systems
             CustomParticles.LaCampanellaImpactBurst(position, 6 + tollNumber * 2);
             CustomParticles.HaloRing(position, Color.Lerp(BellGold, InfernalOrange, tollNumber / 6f), intensity, 15);
             BossSignatureVFX.LaCampanellaBellToll(position, tollNumber, intensity);
+            MagnumScreenEffects.AddScreenShake(5f + tollNumber * 3f);
+            
+            // Escalating sky flash with each toll
+            if (tollNumber >= 2)
+                LaCampanellaSkySystem.TriggerBellTollFlash();
+            
+            // Ascending ember sparks
+            for (int i = 0; i < 2 + tollNumber; i++)
+            {
+                Vector2 vel = new Vector2(Main.rand.NextFloat(-2f, 2f), -3f - tollNumber * 0.5f);
+                MagnumParticleHandler.SpawnParticle(new SparkleParticle(position + Main.rand.NextVector2Circular(15f, 10f), vel, InfernalOrange, 0.2f, 22));
+            }
         }
 
         #endregion
@@ -163,6 +221,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses.Systems
         public static void InfernalJudgmentRelease(Vector2 center, int wave, int totalWaves)
         {
             MagnumScreenEffects.AddScreenShake(18f);
+            LaCampanellaSkySystem.TriggerWhiteFlash(0.5f + (float)wave / totalWaves * 0.3f);
             BossSignatureVFX.LaCampanellaInfernalJudgment(center, wave, totalWaves, 1.2f);
             CustomParticles.GenericFlare(center, FlameWhite, 1.5f, 25);
             for (int i = 0; i < 10; i++)
@@ -170,6 +229,14 @@ namespace MagnumOpus.Content.LaCampanella.Bosses.Systems
                 float angle = MathHelper.TwoPi * i / 10f;
                 Color color = i % 2 == 0 ? InfernalOrange : BellGold;
                 CustomParticles.HaloRing(center + angle.ToRotationVector2() * 50f, color, 0.5f, 18);
+            }
+            
+            // Massive bloom cascade
+            for (int i = 0; i < 10; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(6f, 6f) + new Vector2(0, -1.5f);
+                Color col = Color.Lerp(InfernalOrange, FlameWhite, Main.rand.NextFloat() * 0.5f);
+                MagnumParticleHandler.SpawnParticle(new BloomParticle(center + Main.rand.NextVector2Circular(40f, 40f), vel, col, 0.4f, 30));
             }
         }
 
@@ -196,6 +263,18 @@ namespace MagnumOpus.Content.LaCampanella.Bosses.Systems
             CustomParticles.LaCampanellaBellChime(position, 6 + slamIndex * 3);
             ThemedParticles.LaCampanellaImpact(position, intensity);
             Phase10BossVFX.TimpaniDrumrollImpact(position, InfernalOrange, intensity);
+            
+            // Each slam triggers escalating sky flash
+            LaCampanellaSkySystem.TriggerBellTollFlash();
+            if (slamIndex >= 2)
+                LaCampanellaSkySystem.TriggerCrimsonFlash(0.5f);
+            
+            // Radial bloom sparks
+            for (int i = 0; i < 4 + slamIndex * 2; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(4f, 4f);
+                MagnumParticleHandler.SpawnParticle(new SparkleParticle(position + Main.rand.NextVector2Circular(25f, 25f), vel, InfernalOrange, 0.25f + slamIndex * 0.05f, 20));
+            }
         }
 
         /// <summary>InfernalTorrent: Stream of fire projectiles in spiral pattern.</summary>
@@ -237,6 +316,14 @@ namespace MagnumOpus.Content.LaCampanella.Bosses.Systems
                 ThemedParticles.LaCampanellaBloomBurst(pos, 0.8f);
             }
             MagnumScreenEffects.AddScreenShake(10f);
+            LaCampanellaSkySystem.TriggerInfernalFlash(0.4f);
+            
+            // Center bloom detonation
+            for (int i = 0; i < 6; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(3f, 3f);
+                MagnumParticleHandler.SpawnParticle(new BloomParticle(center, vel, BellGold, 0.3f, 25));
+            }
         }
 
         /// <summary>ResonantShock: Waves of sonic force emanating from the bell.</summary>
@@ -252,6 +339,17 @@ namespace MagnumOpus.Content.LaCampanella.Bosses.Systems
             CustomParticles.HaloRing(center, InfernalOrange, radius / 200f, 22);
             Phase10BossVFX.SforzandoSpike(center, InfernalOrange, 1.0f);
             ThemedParticles.LaCampanellaShockwave(center, radius / 100f);
+            LaCampanellaSkySystem.TriggerBellTollFlash();
+            
+            // Ring of ascending sparks
+            int sparkCount = 8;
+            for (int i = 0; i < sparkCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / sparkCount;
+                Vector2 pos = center + angle.ToRotationVector2() * radius * 0.5f;
+                Vector2 vel = new Vector2(0, -2.5f) + Main.rand.NextVector2Circular(1f, 0.5f);
+                MagnumParticleHandler.SpawnParticle(new SparkleParticle(pos, vel, BellGold, 0.2f, 25));
+            }
         }
 
         /// <summary>GrandFinale: The ultimate attack  Emassive bell descent with full infernal eruption.</summary>
@@ -266,6 +364,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses.Systems
         public static void GrandFinaleRelease(Vector2 center)
         {
             MagnumScreenEffects.AddScreenShake(25f);
+            LaCampanellaSkySystem.TriggerWhiteFlash(0.9f);
             CustomParticles.GenericFlare(center, FlameWhite, 2.0f, 30);
             for (int i = 0; i < 16; i++)
             {
@@ -276,6 +375,20 @@ namespace MagnumOpus.Content.LaCampanella.Bosses.Systems
             Phase10BossVFX.CodaFinale(center, InfernalOrange, BellGold, 2.0f);
             Phase10BossVFX.TuttiFullEnsemble(center, new[] { InfernalOrange, BellGold, FlameWhite }, 1.8f);
             BossSignatureVFX.LaCampanellaInfernalJudgment(center, 5, 5, 2.0f);
+            
+            // Massive bloom supernova — 16 radial bloom particles + ascending sparks
+            for (int i = 0; i < 16; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 16f;
+                Vector2 vel = angle.ToRotationVector2() * (4f + Main.rand.NextFloat(2f));
+                Color col = Color.Lerp(InfernalOrange, FlameWhite, Main.rand.NextFloat() * 0.6f);
+                MagnumParticleHandler.SpawnParticle(new BloomParticle(center, vel, col, 0.5f, 35));
+            }
+            for (int i = 0; i < 12; i++)
+            {
+                Vector2 vel = new Vector2(Main.rand.NextFloat(-3f, 3f), -4f - Main.rand.NextFloat(2f));
+                MagnumParticleHandler.SpawnParticle(new SparkleParticle(center + Main.rand.NextVector2Circular(30f, 30f), vel, BellGold, 0.3f, 40));
+            }
         }
 
         #endregion

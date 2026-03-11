@@ -272,6 +272,11 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             // Boss index tracking for shader systems
             BossIndexTracker.SwanLakeFractal = NPC.whoAmI;
             BossIndexTracker.SwanLakeMood = (int)currentMood;
+
+            // Feed sky state for HP-driven sky effects
+            SwanLakeSkySystem.BossLifeRatio = (float)NPC.life / NPC.lifeMax;
+            SwanLakeSkySystem.BossCenter = NPC.Center;
+            SwanLakeSkySystem.BossIsDyingSwan = currentMood == BossMood.DyingSwan;
             
             // Enhanced shader-driven musical accents
             SwanLakeBossShaderSystem.SpawnMusicalAccents(NPC, (int)Timer, 0, (int)currentMood);
@@ -3245,6 +3250,9 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             Vector2 origin = new Vector2(frameWidth / 2f, frameHeight / 2f);
             SpriteEffects effects = NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 
+            // === SHADER LAYER 0: Boss Glow Underlay ===
+            SwanLakeBossShaderSystem.DrawBossGlow(spriteBatch, NPC, screenPos, (int)currentMood);
+
             // === SHADER LAYER 1: Prismatic Aura ===
             SwanLakeBossShaderSystem.DrawPrismaticAura(spriteBatch, NPC, screenPos,
                 (int)currentMood, 0, false);
@@ -3279,11 +3287,14 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             // Rainbow pearlescent glow - brighter during death
             float glowIntensity = isDying ? 0.4f + (deathTimer / (float)DeathAnimationDuration) * 0.6f : 0.4f;
             Color glowColor = Main.hslToRgb((Main.GameUpdateCount * 0.005f) % 1f, isDying ? 0.3f : 0.5f, isDying ? 0.8f : 0.6f) * glowIntensity;
+            glowColor.A = 0;
             spriteBatch.Draw(texture, position, sourceRect, glowColor, NPC.rotation, origin, NPC.scale * pulse * 1.15f, effects, 0f);
             
             // White/silver outer glow - much brighter during death
             float whiteGlow = isDying ? 0.3f + (deathTimer / (float)DeathAnimationDuration) * 0.7f : 0.3f;
-            spriteBatch.Draw(texture, position, sourceRect, Color.White * whiteGlow, NPC.rotation, origin, NPC.scale * pulse * 1.25f, effects, 0f);
+            Color whiteGlowColor = Color.White * whiteGlow;
+            whiteGlowColor.A = 0;
+            spriteBatch.Draw(texture, position, sourceRect, whiteGlowColor, NPC.rotation, origin, NPC.scale * pulse * 1.25f, effects, 0f);
             
             // Additional distortion ghost images during intense moments
             if (distortionIntensity > 0.3f)
@@ -3293,6 +3304,7 @@ namespace MagnumOpus.Content.SwanLake.Bosses
                     float ghostOffset = (float)Math.Sin(distortionTimer * 5f + i * 2f) * distortionIntensity * 8f;
                     Vector2 ghostPos = position + new Vector2(ghostOffset, ghostOffset * 0.5f);
                     Color ghostColor = Main.hslToRgb((Main.GameUpdateCount * 0.01f + i * 0.3f) % 1f, 0.8f, 0.6f) * 0.15f;
+                    ghostColor.A = 0;
                     spriteBatch.Draw(texture, ghostPos, sourceRect, ghostColor, NPC.rotation, origin, NPC.scale * pulse * 1.1f, effects, 0f);
                 }
             }
@@ -3463,6 +3475,10 @@ namespace MagnumOpus.Content.SwanLake.Bosses
                 float phase1Progress = deathTimer / 150f;
                 
                 backgroundDarknessAlpha = 1f;
+
+                // Escalating sky flashes during buildup
+                if (deathTimer % 30 == 0)
+                    SwanLakeSkySystem.TriggerWhiteFlash(8f);
                 
                 // Screen shake removed during death animation buildup
                 
@@ -3497,6 +3513,10 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             else if (deathTimer < 300)
             {
                 float phase2Progress = (deathTimer - 150f) / 150f;
+
+                // Escalating prismatic sky flashes
+                if (deathTimer % 20 == 0)
+                    SwanLakeSkySystem.TriggerPrismaticFlash(10f);
                 
                 // Screen shake removed during death animation
                 
@@ -3557,6 +3577,10 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             else if (deathTimer < 450)
             {
                 float phase3Progress = (deathTimer - 300f) / 150f;
+
+                // Rapid monochrome flashes
+                if (deathTimer % 12 == 0)
+                    SwanLakeSkySystem.TriggerMonochromeFlash(8f);
                 
                 // Screen shake removed during death animation
                 
@@ -3686,6 +3710,9 @@ namespace MagnumOpus.Content.SwanLake.Bosses
                 // Initial supernova burst - ONE TIME only
                 if (deathTimer == 570)
                 {
+                    // Ultimate death flash
+                    SwanLakeSkySystem.TriggerDeathFlash(25f);
+
                     SoundEngine.PlaySound(SoundID.Item14 with { Pitch = -0.8f, Volume = 1.8f }, NPC.Center);
                     SoundEngine.PlaySound(SoundID.Thunder with { Pitch = -0.6f, Volume = 1.5f }, NPC.Center);
                     EroicaScreenShake.LargeShake(NPC.Center);
@@ -3779,6 +3806,24 @@ namespace MagnumOpus.Content.SwanLake.Bosses
                     Dust d = Dust.NewDustPerfect(NPC.Center, DustID.WhiteTorch, vel, 0, col, 2.5f);
                     d.noGravity = true;
                     d.fadeIn = 1.5f;
+                }
+
+                // Bloom supernova ring at actual death
+                for (int i = 0; i < 16; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 16f;
+                    Vector2 bloomVel = angle.ToRotationVector2() * 6f;
+                    float hue = i / 16f;
+                    Color bloomColor = Main.hslToRgb(hue, 0.6f, 0.9f);
+                    var bloom = new BloomParticle(NPC.Center, bloomVel, bloomColor, 0.7f, 30);
+                    MagnumParticleHandler.SpawnParticle(bloom);
+                }
+                // Ascending sparkle wisps
+                for (int i = 0; i < 8; i++)
+                {
+                    Vector2 sparkVel = new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-4f, -2f));
+                    var sparkle = new SparkleParticle(NPC.Center + Main.rand.NextVector2Circular(50f, 50f), sparkVel, Color.White, 0.4f, 30);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
                 }
             }
         }

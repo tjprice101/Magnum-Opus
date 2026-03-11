@@ -6,6 +6,7 @@ using MagnumOpus.Common.Systems.Bosses;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems;
+using static MagnumOpus.Content.Fate.Bosses.Systems.FateSkySystem;
 
 namespace MagnumOpus.Content.Fate.Bosses.Systems
 {
@@ -45,11 +46,14 @@ namespace MagnumOpus.Content.Fate.Bosses.Systems
 
         public static void CosmicDashImpact(Vector2 position)
         {
+            TriggerCosmicFlash(8f);
             MagnumScreenEffects.AddScreenShake(12f);
             CustomParticles.FateImpactBurst(position, 10);
             Phase10BossVFX.CymbalCrashBurst(position, 1.0f);
             CustomParticles.HaloRing(position, DarkPink, 0.6f, 18);
             ThemedParticles.FateMusicNotes(position, 5, 60f);
+            var bloom = new BloomParticle(position, Vector2.Zero, DarkPink, 0.6f, 20);
+            MagnumParticleHandler.SpawnParticle(bloom);
         }
 
         /// <summary>StarfallBarrage: Streams of cosmic projectiles raining from constellations above.</summary>
@@ -77,10 +81,13 @@ namespace MagnumOpus.Content.Fate.Bosses.Systems
 
         public static void GlyphCircleRelease(Vector2 center, int burstIndex)
         {
+            TriggerCosmicFlash(6f);
             float angle = burstIndex * 0.25f;
             Color color = Color.Lerp(DarkPink, CelestialWhite, (float)Math.Sin(angle) * 0.5f + 0.5f);
             CustomParticles.GlyphBurst(center, color, 6, 5f);
             CustomParticles.GenericFlare(center, CelestialWhite, 0.5f, 15);
+            var bloom = new BloomParticle(center, Vector2.Zero, color, 0.5f, 18);
+            MagnumParticleHandler.SpawnParticle(bloom);
         }
 
         /// <summary>DestinyChain: Linked cosmic chains that bind then explode.</summary>
@@ -92,10 +99,13 @@ namespace MagnumOpus.Content.Fate.Bosses.Systems
 
         public static void DestinyChainImpact(Vector2 position)
         {
+            TriggerCrimsonFlash(10f);
             MagnumScreenEffects.AddScreenShake(10f);
             CustomParticles.FateImpactBurst(position, 8);
             CustomParticles.HaloRing(position, BrightCrimson, 0.5f, 16);
             Phase10BossVFX.ChordResolutionBloom(position, new[] { DarkPink, BrightCrimson, CelestialWhite }, 0.8f);
+            var bloom = new BloomParticle(position, Vector2.Zero, BrightCrimson, 0.5f, 20);
+            MagnumParticleHandler.SpawnParticle(bloom);
         }
 
         #endregion
@@ -117,6 +127,7 @@ namespace MagnumOpus.Content.Fate.Bosses.Systems
 
         public static void ConstellationStrikeImpact(Vector2 position)
         {
+            TriggerCelestialFlash(12f);
             MagnumScreenEffects.AddScreenShake(15f);
             CustomParticles.GenericFlare(position, CelestialWhite, 1.2f, 22);
             for (int i = 0; i < 10; i++)
@@ -139,6 +150,7 @@ namespace MagnumOpus.Content.Fate.Bosses.Systems
 
         public static void TimeSliceRelease(Vector2 start, Vector2 end)
         {
+            TriggerCrimsonFlash(15f);
             MagnumScreenEffects.AddScreenShake(18f);
             BossSignatureVFX.FateTimeSlice(start, end, 1.5f);
             Phase10Integration.Fate.RealityTempoDistortion((start + end) / 2f, 1.2f);
@@ -165,6 +177,7 @@ namespace MagnumOpus.Content.Fate.Bosses.Systems
 
         public static void UniversalJudgmentRelease(Vector2 center)
         {
+            TriggerCelestialFlash(18f);
             MagnumScreenEffects.AddScreenShake(25f);
             CustomParticles.GenericFlare(center, CelestialWhite, 2.0f, 28);
             for (int i = 0; i < 16; i++)
@@ -221,6 +234,7 @@ namespace MagnumOpus.Content.Fate.Bosses.Systems
 
         public static void FinalMelodyFinale(Vector2 center)
         {
+            TriggerSupernovaFlash(25f);
             MagnumScreenEffects.AddScreenShake(30f);
             CustomParticles.GenericFlare(center, CelestialWhite, 2.5f, 35);
             for (int i = 0; i < 24; i++)
@@ -231,6 +245,16 @@ namespace MagnumOpus.Content.Fate.Bosses.Systems
             }
             Phase10BossVFX.CodaFinale(center, CelestialWhite, CosmicBlack, 2.5f);
             Phase10BossVFX.CadenceFinisher(center, new[] { CosmicBlack, DarkPink, BrightCrimson, CelestialWhite }, 1f);
+
+            // Supernova bloom ring
+            for (int i = 0; i < 16; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 16f;
+                Vector2 bloomVel = angle.ToRotationVector2() * 5f;
+                Color bloomColor = Color.Lerp(DarkPink, CelestialWhite, i / 16f);
+                var bloom = new BloomParticle(center, bloomVel, bloomColor, 0.6f, 25);
+                MagnumParticleHandler.SpawnParticle(bloom);
+            }
         }
 
         #endregion

@@ -564,6 +564,16 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
                 Vector2 eyePos = NPC.Center + new Vector2(0, -10 * sizeMultiplier);
                 CustomParticles.GenericFlare(eyePos, EnigmaGreen * 0.6f, 0.15f * sizeMultiplier, 10);
             }
+            
+            // Bloom orbiting mote
+            if (Timer % 15 == 0)
+            {
+                float angle = Timer * 0.06f;
+                Vector2 orbitPos = NPC.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 30f * sizeMultiplier;
+                MagnumParticleHandler.SpawnParticle(new BloomParticle(
+                    orbitPos, Main.rand.NextVector2Circular(0.2f, 0.2f),
+                    EnigmaPurple, 0.2f, 20));
+            }
         }
         
         private void IdleBehavior(Player target, bool grounded)
@@ -795,18 +805,31 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
                 }
             }
             
-            // Glow underlay
+            // Bloom underlay
+            var bloomTex = MagnumTextureRegistry.GetSoftGlow();
+            if (bloomTex != null)
+            {
+                Vector2 bloomOrigin = new Vector2(bloomTex.Width, bloomTex.Height) * 0.5f;
+                Color bloomColor = EnigmaPurple;
+                bloomColor.A = 0;
+                float bloomPulse = 0.85f + 0.15f * (float)Math.Sin(Timer * 0.06f);
+                spriteBatch.Draw(bloomTex, drawPos, null, bloomColor * eyeGlow * 0.25f * bloomPulse, 0f, bloomOrigin, 0.6f * sizeMultiplier, SpriteEffects.None, 0f);
+            }
+            
+            // Glow underlay — additive-correct
             if (eyeGlow > 0.3f)
             {
                 Color glowColor = EnigmaGreen * eyeGlow * 0.3f;
+                glowColor.A = 0;
                 spriteBatch.Draw(texture, drawPos, frame, glowColor, 0f, origin, NPC.scale * 1.05f, effects, 0f);
             }
             
             // Main draw
             spriteBatch.Draw(texture, drawPos, frame, drawColor, 0f, origin, NPC.scale, effects, 0f);
             
-            // Eye overlay
+            // Eye overlay — additive-correct
             Color eyeColor = EnigmaGreen * eyeGlow * 0.4f;
+            eyeColor.A = 0;
             spriteBatch.Draw(texture, drawPos, frame, eyeColor, 0f, origin, NPC.scale, effects, 0f);
             
             return false;

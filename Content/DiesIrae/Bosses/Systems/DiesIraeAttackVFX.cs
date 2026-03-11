@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using System;
 using Terraria;
 using Terraria.ModLoader;
@@ -6,14 +6,14 @@ using MagnumOpus.Common.Systems.Bosses;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems;
+using static MagnumOpus.Content.DiesIrae.Bosses.Systems.DiesIraeSkySystem;
 
 namespace MagnumOpus.Content.DiesIrae.Bosses.Systems
 {
     /// <summary>
     /// Dies Irae boss attack choreography system.
-    /// 10 apocalyptic attacks  Eultimate-tier intensity, post-Nachtmusik.
-    /// Massive screen effects, heavy screen shake, multi-layered impacts.
-    /// Every attack should feel like divine punishment incarnate.
+    /// 10 apocalyptic attacks with sky flashes and bloom cascades on impacts.
+    /// Every attack feels like divine punishment incarnate.
     /// </summary>
     public static class DiesIraeAttackVFX
     {
@@ -23,7 +23,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses.Systems
         private static readonly Color AshenBlack = new Color(25, 15, 10);
         private static readonly Color HellfireWhite = new Color(255, 220, 180);
 
-        #region Core Attacks  EThe Herald's Fury
+        #region Core Attacks
 
         /// <summary>HellfireBarrage: Rapid hellfire projectile streams from multiple angles.</summary>
         public static void HellfireBarrageTelegraph(Vector2 center)
@@ -46,8 +46,10 @@ namespace MagnumOpus.Content.DiesIrae.Bosses.Systems
         public static void HellfireBarrageImpact(Vector2 position)
         {
             MagnumScreenEffects.AddScreenShake(10f);
+            TriggerHellfireFlash(5f);
             CustomParticles.DiesIraeImpactBurst(position, 8);
             CustomParticles.HaloRing(position, BloodRed, 0.5f, 15);
+            MagnumParticleHandler.SpawnParticle(new BloomParticle(position, Vector2.Zero, EmberOrange, 0.5f, 12));
         }
 
         /// <summary>JudgmentRay: Colossal beam of divine wrath sweeping across the arena.</summary>
@@ -61,6 +63,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses.Systems
 
         public static void JudgmentRayFiring(Vector2 position, Vector2 direction)
         {
+            TriggerJudgmentFlash(3f);
             CustomParticles.GenericFlare(position, HellfireWhite, 0.6f, 6);
             CustomParticles.GenericFlare(position, BloodRed, 0.4f, 8);
             if (Main.rand.NextBool(2))
@@ -70,9 +73,11 @@ namespace MagnumOpus.Content.DiesIrae.Bosses.Systems
         public static void JudgmentRayImpact(Vector2 position)
         {
             MagnumScreenEffects.AddScreenShake(15f);
+            TriggerJudgmentFlash(8f);
             CustomParticles.ExplosionBurst(position, EmberOrange, 12, 6f);
             CustomParticles.HaloRing(position, BloodRed, 0.7f, 18);
             BossSignatureVFX.DiesIraeWrathStrike(position, Vector2.UnitY, 1.2f);
+            MagnumParticleHandler.SpawnParticle(new BloomParticle(position, Vector2.Zero, HellfireWhite, 0.8f, 15));
         }
 
         /// <summary>InfernalRing: Expanding ring of hellfire that closes inward.</summary>
@@ -84,6 +89,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses.Systems
 
         public static void InfernalRingPulse(Vector2 center, float currentRadius)
         {
+            TriggerHellfireFlash(2f);
             for (int i = 0; i < 8; i++)
             {
                 float angle = MathHelper.TwoPi * i / 8f + Main.rand.NextFloat(0.2f);
@@ -104,6 +110,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses.Systems
         public static void CondemnationStrikeImpact(Vector2 position)
         {
             MagnumScreenEffects.AddScreenShake(18f);
+            TriggerWrathFlash(10f);
             CustomParticles.GenericFlare(position, HellfireWhite, 1.5f, 22);
             CustomParticles.ExplosionBurst(position, BloodRed, 14, 6f);
             for (int i = 0; i < 8; i++)
@@ -113,6 +120,15 @@ namespace MagnumOpus.Content.DiesIrae.Bosses.Systems
                     Color.Lerp(BloodRed, EmberOrange, i / 8f), 0.5f, 16);
             }
             BossSignatureVFX.DiesIraeWrathStrike(position, Vector2.UnitY, 1.5f);
+
+            // Bloom cascade on condemn impact
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 vel = angle.ToRotationVector2() * 3f;
+                Color bloomColor = Color.Lerp(BloodRed, HellfireWhite, i / 6f);
+                MagnumParticleHandler.SpawnParticle(new BloomParticle(position, vel, bloomColor, 0.6f, 18));
+            }
         }
 
         /// <summary>SoulHarvest: Draining attack with dark tendrils reaching toward player.</summary>
@@ -127,11 +143,14 @@ namespace MagnumOpus.Content.DiesIrae.Bosses.Systems
             Color color = Color.Lerp(DarkCrimson, BloodRed, (float)Math.Sin(frame * 0.15f) * 0.5f + 0.5f);
             CustomParticles.GenericFlare(position, color, 0.3f + (float)Math.Sin(frame * 0.1f) * 0.1f, 12);
             BossVFXOptimizer.ProjectileTrail(position, direction * 2f, DarkCrimson);
+
+            if (frame % 8 == 0)
+                TriggerHellfireFlash(2f);
         }
 
         #endregion
 
-        #region Escalation Attacks  EWrath Unleashed
+        #region Escalation Attacks
 
         /// <summary>WrathfulDescent: Massive diving attack from the sky with ground eruption.</summary>
         public static void WrathfulDescentTelegraph(Vector2 position, Vector2 target)
@@ -145,6 +164,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses.Systems
         public static void WrathfulDescentImpact(Vector2 position)
         {
             MagnumScreenEffects.AddScreenShake(25f);
+            TriggerWrathFlash(12f);
             CustomParticles.ExplosionBurst(position, EmberOrange, 18, 8f);
             CustomParticles.GenericFlare(position, HellfireWhite, 2.0f, 28);
             for (int i = 0; i < 12; i++)
@@ -154,6 +174,14 @@ namespace MagnumOpus.Content.DiesIrae.Bosses.Systems
                     i % 2 == 0 ? BloodRed : EmberOrange, 0.6f, 18);
             }
             Phase10BossVFX.TimpaniDrumrollImpact(position, BloodRed, 2.0f);
+
+            // Bloom ring on ground eruption
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 vel = angle.ToRotationVector2() * 5f;
+                MagnumParticleHandler.SpawnParticle(new BloomParticle(position, vel, EmberOrange, 0.7f, 20));
+            }
         }
 
         /// <summary>ChainOfDamnation: Linked explosive points in sequence.</summary>
@@ -172,12 +200,15 @@ namespace MagnumOpus.Content.DiesIrae.Bosses.Systems
         public static void ChainOfDamnationDetonation(Vector2 position, int chainIndex)
         {
             MagnumScreenEffects.AddScreenShake(12f + chainIndex * 2f);
+            TriggerHellfireFlash(4f + chainIndex * 2f);
             CustomParticles.DiesIraeImpactBurst(position, 10 + chainIndex * 2);
             CustomParticles.DiesIraeHellfireBurst(position, 6 + chainIndex * 2);
             CustomParticles.HaloRing(position, BloodRed, 0.5f + chainIndex * 0.08f, 16);
+            MagnumParticleHandler.SpawnParticle(new BloomParticle(position, Vector2.Zero,
+                Color.Lerp(EmberOrange, HellfireWhite, chainIndex / 5f), 0.5f + chainIndex * 0.1f, 14));
         }
 
-        /// <summary>ApocalypseRain: Massive barrage raining from the sky  Eultimate version of hellfire barrage.</summary>
+        /// <summary>ApocalypseRain: Massive barrage raining from the sky.</summary>
         public static void ApocalypseRainTelegraph(Vector2 targetArea)
         {
             TelegraphSystem.DangerZone(targetArea, 400f, 50, BloodRed * 0.4f);
@@ -188,16 +219,18 @@ namespace MagnumOpus.Content.DiesIrae.Bosses.Systems
         public static void ApocalypseRainImpact(Vector2 position)
         {
             MagnumScreenEffects.AddScreenShake(8f);
+            TriggerHellfireFlash(3f);
             CustomParticles.ExplosionBurst(position, EmberOrange, 8, 5f);
             CustomParticles.HaloRing(position, BloodRed, 0.4f, 14);
             CustomParticles.DiesIraeHellfireBurst(position, 4);
+            MagnumParticleHandler.SpawnParticle(new BloomParticle(position, Vector2.Zero, EmberOrange, 0.4f, 10));
         }
 
         #endregion
 
-        #region Ultimate Attacks  EDay of Wrath
+        #region Ultimate Attacks
 
-        /// <summary>FinalJudgment: Supreme radial attack  Epillars of hellfire from all directions.</summary>
+        /// <summary>FinalJudgment: Supreme radial attack with hellfire pillars from all directions.</summary>
         public static void FinalJudgmentTelegraph(Vector2 center)
         {
             TelegraphSystem.ConvergingRing(center, 350f, 60, BloodRed);
@@ -208,6 +241,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses.Systems
         public static void FinalJudgmentRelease(Vector2 center)
         {
             MagnumScreenEffects.AddScreenShake(30f);
+            TriggerJudgmentFlash(18f);
             CustomParticles.GenericFlare(center, HellfireWhite, 2.5f, 30);
             for (int i = 0; i < 16; i++)
             {
@@ -217,6 +251,15 @@ namespace MagnumOpus.Content.DiesIrae.Bosses.Systems
             }
             BossSignatureVFX.DiesIraeDayOfWrath(center, 5, 5, 2.0f);
             Phase10BossVFX.CodaFinale(center, BloodRed, AshenBlack, 2.0f);
+
+            // Bloom judgment ring - 10 radiating bloom particles
+            for (int i = 0; i < 10; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 10f;
+                Vector2 vel = angle.ToRotationVector2() * 6f;
+                Color bloomColor = Color.Lerp(BloodRed, HellfireWhite, i / 10f);
+                MagnumParticleHandler.SpawnParticle(new BloomParticle(center, vel, bloomColor, 0.8f, 25));
+            }
         }
 
         /// <summary>DivinePunishment: The ultimate single-target obliteration.</summary>
@@ -235,6 +278,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses.Systems
         public static void DivinePunishmentRelease(Vector2 center)
         {
             MagnumScreenEffects.AddScreenShake(35f);
+            TriggerApocalypseFlash(22f);
             CustomParticles.GenericFlare(center, HellfireWhite, 3.0f, 35);
             CustomParticles.ExplosionBurst(center, BloodRed, 25, 10f);
             for (int i = 0; i < 20; i++)
@@ -248,6 +292,23 @@ namespace MagnumOpus.Content.DiesIrae.Bosses.Systems
             Phase10BossVFX.CodaFinale(center, HellfireWhite, DarkCrimson, 3.0f);
             Phase10BossVFX.CadenceFinisher(center,
                 new[] { DarkCrimson, BloodRed, EmberOrange, HellfireWhite }, 1f);
+
+            // Supernova bloom ring - 16 radiating particles
+            for (int i = 0; i < 16; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 16f;
+                Vector2 vel = angle.ToRotationVector2() * 7f;
+                Color bloomColor = Color.Lerp(EmberOrange, HellfireWhite, i / 16f);
+                MagnumParticleHandler.SpawnParticle(new BloomParticle(center, vel, bloomColor, 0.9f, 30));
+            }
+
+            // Ascending hellfire sparkles
+            for (int i = 0; i < 10; i++)
+            {
+                Vector2 sparkPos = center + Main.rand.NextVector2Circular(60f, 60f);
+                Vector2 sparkVel = new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), -Main.rand.NextFloat(3f, 6f));
+                MagnumParticleHandler.SpawnParticle(new SparkleParticle(sparkPos, sparkVel, HellfireWhite, 0.5f, 30));
+            }
         }
 
         #endregion

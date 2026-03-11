@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using System;
 using Terraria;
 using Terraria.ModLoader;
@@ -6,14 +6,14 @@ using MagnumOpus.Common.Systems.Bosses;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems;
+using static MagnumOpus.Content.Nachtmusik.Bosses.Systems.NachtmusikSkySystem;
 
 namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
 {
     /// <summary>
     /// Nachtmusik boss attack choreography system.
     /// 15 attacks across Phase 1 (serene nocturnal) and Phase 2 (violent cosmic fury).
-    /// Phase 2 attacks are dramatically more intense visually.
-    /// TwilightReversal uses inverted color VFX; QuantumBlink uses rapid position flashes.
+    /// Enhanced with sky flashes + bloom particles on all major impacts.
     /// </summary>
     public static class NachtmusikAttackVFX
     {
@@ -21,8 +21,9 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
         private static readonly Color StarlightSilver = new Color(200, 210, 230);
         private static readonly Color CosmicBlue = new Color(80, 120, 200);
         private static readonly Color NebulaGold = new Color(220, 180, 100);
+        private static readonly Color StarWhite = new Color(200, 210, 240);
 
-        #region Phase 1  ENocturnal Serenade
+        #region Phase 1 - Nocturnal Serenade
 
         /// <summary>StarlightWaltz: Graceful swirling starlight arcs.</summary>
         public static void StarlightWaltzTelegraph(Vector2 center)
@@ -37,6 +38,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
             Color color = Color.Lerp(StarlightSilver, CosmicBlue, (float)Math.Sin(angle) * 0.5f + 0.5f);
             CustomParticles.GenericFlare(position, color, 0.35f, 12);
             BossVFXOptimizer.OptimizedFlare(position, color, 0.3f, 10);
+            TriggerStarlightFlash(4f);
         }
 
         /// <summary>ConstellationDance: Points of light forming ephemeral patterns.</summary>
@@ -56,6 +58,9 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
             MagnumScreenEffects.AddScreenShake(6f);
             CustomParticles.HaloRing(position, StarlightSilver, 0.5f, 16);
             CustomParticles.GenericFlare(position, CosmicBlue, 0.4f, 12);
+            TriggerStarlightFlash(6f);
+            var bloom = new BloomParticle(position, Vector2.Zero, StarlightSilver * 0.5f, 0.5f, 18);
+            MagnumParticleHandler.SpawnParticle(bloom);
         }
 
         /// <summary>MoonbeamCascade: Falling streams of pale moonlight beams.</summary>
@@ -82,6 +87,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
             CustomParticles.HaloRing(center, Color.Lerp(StarlightSilver, CosmicBlue, waveIndex / 5f),
                 0.4f + waveIndex * 0.1f, 18);
             Phase10BossVFX.DynamicsWave(center, 0.4f + waveIndex * 0.1f, StarlightSilver);
+            TriggerStarlightFlash(5f);
         }
 
         /// <summary>CrescentSlash: Crescent-shaped projectile arcs.</summary>
@@ -97,13 +103,16 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
             CustomParticles.HaloRing(position, StarlightSilver, 0.5f, 15);
             CustomParticles.GenericFlare(position, CosmicBlue, 0.5f, 14);
             Phase10BossVFX.ChordResolutionBloom(position, new[] { StarlightSilver, CosmicBlue }, 0.7f);
+            TriggerStarlightFlash(7f);
+            var bloom = new BloomParticle(position, Vector2.Zero, CosmicBlue * 0.5f, 0.5f, 18);
+            MagnumParticleHandler.SpawnParticle(bloom);
         }
 
         #endregion
 
-        #region Phase 1B  ERising Tension
+        #region Phase 1B - Rising Tension
 
-        /// <summary>AuroraVeil: Shimmering curtain of light that damages on contact.</summary>
+        /// <summary>AuroraVeil: Shimmering curtain of light.</summary>
         public static void AuroraVeilTelegraph(Vector2 start, Vector2 end)
         {
             TelegraphSystem.LaserPath(start, end, 40f, 30, CosmicBlue * 0.4f);
@@ -128,11 +137,12 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
             float intensity = 0.4f + pulseIndex * 0.1f;
             CustomParticles.GenericFlare(center, CosmicBlue, intensity, 14);
             CustomParticles.HaloRing(center, StarlightSilver, intensity * 0.8f, 16);
+            TriggerCosmicStormFlash(6f + pulseIndex * 1.5f);
         }
 
         #endregion
 
-        #region Phase 2  EViolent Cosmic Storm (Post Fake-Death)
+        #region Phase 2 - Violent Cosmic Storm (Post Fake-Death)
 
         /// <summary>NebulaBurst: Explosive nebula cloud detonation.</summary>
         public static void NebulaBurstTelegraph(Vector2 center)
@@ -152,9 +162,12 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
                 Color color = i % 2 == 0 ? NebulaGold : CosmicBlue;
                 CustomParticles.HaloRing(center + angle.ToRotationVector2() * 50f, color, 0.5f, 16);
             }
+            TriggerRadianceFlash(12f);
+            var bloom = new BloomParticle(center, Vector2.Zero, NebulaGold * 0.6f, 0.6f, 20);
+            MagnumParticleHandler.SpawnParticle(bloom);
         }
 
-        /// <summary>GalacticJudgment: Massive radial pattern  Ethe Queen's fury unleashed.</summary>
+        /// <summary>GalacticJudgment: Massive radial pattern - the Queen's fury unleashed.</summary>
         public static void GalacticJudgmentTelegraph(Vector2 center)
         {
             TelegraphSystem.ConvergingRing(center, 250f, 50, CosmicBlue * 0.7f);
@@ -173,9 +186,19 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
                 CustomParticles.HaloRing(center + angle.ToRotationVector2() * 70f, color, 0.5f, 18);
             }
             Phase10BossVFX.TuttiFullEnsemble(center, new[] { CosmicBlue, NebulaGold, StarlightSilver }, 1.5f);
+            TriggerRadianceFlash(15f);
+            // Bloom ring
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 8f;
+                Vector2 vel = angle.ToRotationVector2() * 3f;
+                Color bColor = Color.Lerp(CosmicBlue, NebulaGold, i / 8f);
+                var bloom = new BloomParticle(center, vel, bColor * 0.5f, 0.5f, 20);
+                MagnumParticleHandler.SpawnParticle(bloom);
+            }
         }
 
-        /// <summary>StarfallApocalypse: Phase 2 version of starfall  E3x more projectiles, bigger explosions.</summary>
+        /// <summary>StarfallApocalypse: Phase 2 starfall - 3x more projectiles.</summary>
         public static void StarfallApocalypseTelegraph(Vector2 targetArea)
         {
             TelegraphSystem.DangerZone(targetArea, 350f, 50, CosmicBlue * 0.5f);
@@ -188,6 +211,9 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
             CustomParticles.ExplosionBurst(position, NebulaGold, 10, 5f);
             CustomParticles.HaloRing(position, CosmicBlue, 0.6f, 18);
             CustomParticles.GenericFlare(position, StarlightSilver, 0.8f, 15);
+            TriggerCosmicStormFlash(10f);
+            var bloom = new BloomParticle(position, Vector2.Zero, NebulaGold * 0.5f, 0.5f, 18);
+            MagnumParticleHandler.SpawnParticle(bloom);
         }
 
         /// <summary>EternalNightmare: Dark void tendrils reaching from boss.</summary>
@@ -203,9 +229,11 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
             Color color = Color.Lerp(DeepIndigo, CosmicBlue, tendrilIndex * 0.15f);
             CustomParticles.GenericFlare(pos, color, 0.4f + tendrilIndex * 0.05f, 16);
             BossVFXOptimizer.ProjectileTrail(pos, direction * 3f, color);
+            if (tendrilIndex == 0)
+                TriggerCosmicStormFlash(8f);
         }
 
-        /// <summary>CelestialCharge: Blazing multi-dash attack with escalating afterimages.</summary>
+        /// <summary>CelestialCharge: Blazing multi-dash with escalating afterimages.</summary>
         public static void CelestialChargeTelegraph(Vector2 position, Vector2 target)
         {
             Vector2 dir = (target - position).SafeNormalize(Vector2.UnitX);
@@ -219,9 +247,10 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
             Color trailColor = Color.Lerp(CosmicBlue, NebulaGold, dashNumber / 6f);
             CustomParticles.GenericFlare(position, trailColor, intensity, 12);
             BossVFXOptimizer.OptimizedHalo(position, trailColor, intensity, 10);
+            TriggerRadianceFlash(5f + dashNumber * 2f);
         }
 
-        /// <summary>SupernovaCollapse: Massive stellar explosion  Ethe Queen's signature finisher.</summary>
+        /// <summary>SupernovaCollapse: Massive stellar explosion - the Queen's signature finisher.</summary>
         public static void SupernovaCollapseTelegraph(Vector2 center)
         {
             TelegraphSystem.ConvergingRing(center, 300f, 60, NebulaGold);
@@ -240,6 +269,16 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
                 CustomParticles.HaloRing(center + angle.ToRotationVector2() * 90f, color, 0.6f, 20);
             }
             Phase10BossVFX.CodaFinale(center, NebulaGold, DeepIndigo, 2.0f);
+            TriggerSupernovaFlash(20f);
+            // 16 bloom supernova ring
+            for (int i = 0; i < 16; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 16f;
+                Vector2 vel = angle.ToRotationVector2() * 5f;
+                Color bColor = Color.Lerp(CosmicBlue, StarWhite, i / 16f);
+                var bloom = new BloomParticle(center, vel, bColor * 0.6f, 0.6f, 25);
+                MagnumParticleHandler.SpawnParticle(bloom);
+            }
         }
 
         #endregion
@@ -249,9 +288,8 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
         /// <summary>TwilightReversal: Time-reversal with inverted color palette VFX.</summary>
         public static void TwilightReversalTelegraph(Vector2 center)
         {
-            // Inverted color warning  Enormally bright colors become dark, dark become bright
-            Color invertedIndigo = new Color(215, 225, 155); // Inverted DeepIndigo
-            Color invertedSilver = new Color(55, 45, 25);    // Inverted StarlightSilver
+            Color invertedIndigo = new Color(215, 225, 155);
+            Color invertedSilver = new Color(55, 45, 25);
             TelegraphSystem.ConvergingRing(center, 200f, 40, invertedIndigo * 0.6f);
             Phase10BossVFX.TempoShiftDistortion(center, 120f, 60f, 100f);
         }
@@ -259,9 +297,8 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
         public static void TwilightReversalRelease(Vector2 center)
         {
             MagnumScreenEffects.AddScreenShake(18f);
-            // Inverted chromatic burst
-            Color invertedBlue = new Color(175, 135, 55); // Inverted CosmicBlue
-            Color invertedGold = new Color(35, 75, 155);  // Inverted NebulaGold
+            Color invertedBlue = new Color(175, 135, 55);
+            Color invertedGold = new Color(35, 75, 155);
             CustomParticles.GenericFlare(center, invertedBlue, 1.5f, 20);
             CustomParticles.GenericFlare(center, invertedGold, 1.2f, 18);
             for (int i = 0; i < 8; i++)
@@ -270,20 +307,20 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
                 CustomParticles.HaloRing(center + angle.ToRotationVector2() * 60f, invertedBlue, 0.4f, 15);
             }
             Phase10BossVFX.KeyChangeFlash(center, CosmicBlue, invertedBlue, 1f);
+            TriggerCosmicStormFlash(14f);
+            var bloom = new BloomParticle(center, Vector2.Zero, invertedGold * 0.5f, 0.6f, 20);
+            MagnumParticleHandler.SpawnParticle(bloom);
         }
 
         /// <summary>QuantumBlink: Rapid multi-teleport with flash effects between positions.</summary>
         public static void QuantumBlinkFlash(Vector2 fromPos, Vector2 toPos)
         {
-            // Flash at departure
             CustomParticles.GenericFlare(fromPos, StarlightSilver, 0.8f, 6);
             CustomParticles.HaloRing(fromPos, CosmicBlue * 0.6f, 0.3f, 8);
 
-            // Flash at arrival
             CustomParticles.GenericFlare(toPos, NebulaGold, 0.9f, 8);
             CustomParticles.HaloRing(toPos, NebulaGold * 0.7f, 0.4f, 10);
 
-            // Connecting line of fading particles
             Vector2 dir = (toPos - fromPos);
             float length = dir.Length();
             dir.Normalize();
@@ -292,6 +329,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
                 Vector2 pos = fromPos + dir * (length * i / 5f);
                 CustomParticles.GenericFlare(pos, StarlightSilver * 0.4f, 0.2f, 5);
             }
+            TriggerStarlightFlash(5f);
         }
 
         public static void QuantumBlinkAttack(Vector2 position)
@@ -299,6 +337,9 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
             MagnumScreenEffects.AddScreenShake(8f);
             CustomParticles.ExplosionBurst(position, NebulaGold, 8, 4f);
             Phase10BossVFX.StaccatoMultiBurst(position, NebulaGold, 3, 40f);
+            TriggerRadianceFlash(8f);
+            var bloom = new BloomParticle(position, Vector2.Zero, NebulaGold * 0.5f, 0.5f, 18);
+            MagnumParticleHandler.SpawnParticle(bloom);
         }
 
         #endregion

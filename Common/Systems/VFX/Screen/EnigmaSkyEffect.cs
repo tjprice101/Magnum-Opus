@@ -12,7 +12,7 @@ namespace MagnumOpus.Common.Systems
     /// <summary>
     /// Custom sky background effect for Enigma, The Hollow Mystery boss fight.
     /// Features dark void background with swirling purple mists, watching eyes, and eerie green accents.
-    /// A mysterious void that questions reality itself.
+    /// HP-driven intensity: low HP deepens the void, spawns more eyes, and shifts green.
     /// </summary>
     public class EnigmaSkyEffect : CustomSky
     {
@@ -20,17 +20,22 @@ namespace MagnumOpus.Common.Systems
         private float intensity = 0f;
         private float animationTimer = 0f;
         
+        // Boss state tracking
+        private float bossLifeRatio = 1f;
+        private Vector2 bossCenter = Vector2.Zero;
+        private bool bossIsEnraged = false;
+        
         // Background particles (void wisps, mystery motes)
         private List<MysteryParticle> backgroundParticles = new List<MysteryParticle>();
-        private const int MaxBackgroundParticles = 150;
+        private const int MaxBackgroundParticles = 200;
         
         // Watching eyes in the void
         private List<VoidEye> watchingEyes = new List<VoidEye>();
-        private const int MaxEyes = 12;
+        private const int MaxEyes = 18;
         
         // Swirling void vortexes
         private List<VoidVortex> vortexes = new List<VoidVortex>();
-        private const int MaxVortexes = 4;
+        private const int MaxVortexes = 6;
         
         // Flash effect for boss attacks
         private float flashIntensity = 0f;
@@ -93,6 +98,40 @@ namespace MagnumOpus.Common.Systems
             watchingEyes = new List<VoidEye>();
             vortexes = new List<VoidVortex>();
         }
+        
+        /// <summary>Called by EnigmaSkySystem to feed boss state each frame.</summary>
+        public void UpdateBossState(float lifeRatio, Vector2 center, bool enraged)
+        {
+            bossLifeRatio = lifeRatio;
+            bossCenter = center;
+            bossIsEnraged = enraged;
+        }
+        
+        /// <summary>
+        /// Distance-based intensity: full effect near boss, fading to 0.35 at ~3000 px.
+        /// </summary>
+        public float GetEffectiveIntensity()
+        {
+            if (bossCenter == Vector2.Zero || !isActive) return intensity;
+            Vector2 screenCenter = Main.screenPosition + new Vector2(Main.screenWidth, Main.screenHeight) * 0.5f;
+            float dist = Vector2.Distance(screenCenter, bossCenter);
+            float distanceFade = MathHelper.SmoothStep(1f, 0.35f, MathHelper.Clamp(dist / 3000f, 0f, 1f));
+            return intensity * distanceFade;
+        }
+        
+        public override Color OnTileColor(Color inColor)
+        {
+            float eff = GetEffectiveIntensity();
+            if (eff <= 0f) return inColor;
+            
+            // High HP: deep purple void tint. Low HP: shifts green as the mystery deepens
+            float hpDrive = 1f - bossLifeRatio;
+            Color highHpTint = new Color(30, 15, 45);   // Deep purple
+            Color lowHpTint = new Color(15, 35, 25);     // Eerie green-void
+            Color tintTarget = Color.Lerp(highHpTint, lowHpTint, hpDrive);
+            
+            return Color.Lerp(inColor, tintTarget, eff * 0.55f);
+        }
 
         public override void Update(GameTime gameTime)
         {
@@ -109,22 +148,27 @@ namespace MagnumOpus.Common.Systems
             
             intensity = MathHelper.Clamp(intensity, 0f, 1f);
             
-            // Slow, ominous pulse
-            pulseTimer += 0.012f;
-            pulseIntensity = (float)Math.Sin(pulseTimer) * 0.2f + 0.8f;
+            // Slow, ominous pulse — accelerates as HP drops
+            float hpDrive = 1f - bossLifeRatio;
+            float pulseSpeed = MathHelper.Lerp(0.012f, 0.035f, hpDrive);
+            pulseTimer += pulseSpeed;
+            float pulseAmplitude = MathHelper.Lerp(0.2f, 0.35f, hpDrive);
+            pulseIntensity = (float)Math.Sin(pulseTimer) * pulseAmplitude + (1f - pulseAmplitude);
             
             // Decay flash
             flashIntensity *= 0.9f;
             if (flashIntensity < 0.01f)
                 flashIntensity = 0f;
             
-            // Initialize elements
+            // Initialize elements — more frequent at low HP
             if (isActive && intensity > 0.1f)
             {
-                if (watchingEyes.Count < MaxEyes && Main.rand.NextBool(60))
+                int eyeChance = (int)MathHelper.Lerp(60, 20, hpDrive);
+                if (watchingEyes.Count < MaxEyes && Main.rand.NextBool(Math.Max(1, eyeChance)))
                     SpawnWatchingEye();
                     
-                if (vortexes.Count < MaxVortexes && Main.rand.NextBool(180))
+                int vortexChance = (int)MathHelper.Lerp(180, 80, hpDrive);
+                if (vortexes.Count < MaxVortexes && Main.rand.NextBool(Math.Max(1, vortexChance)))
                     SpawnVortex();
             }
             
@@ -258,8 +302,12 @@ namespace MagnumOpus.Common.Systems
         {
             if (backgroundParticles.Count >= MaxBackgroundParticles)
                 return;
+            
+            // More particles at low HP
+            float hpDrive = 1f - bossLifeRatio;
+            int spawnChance = (int)MathHelper.Lerp(3, 1, hpDrive);
                 
-            if (Main.rand.NextBool(3))
+            if (Main.rand.NextBool(Math.Max(1, spawnChance)))
             {
                 float spawnX = Main.rand.NextFloat(-50, Main.screenWidth + 50);
                 float spawnY = Main.rand.NextFloat(-50, Main.screenHeight + 50);
@@ -646,13 +694,18 @@ namespace MagnumOpus.Common.Systems
         
         private void DrawVignette(SpriteBatch spriteBatch, Texture2D pixel)
         {
-            int vignetteSize = 350;
-            float vignetteStrength = 0.7f * intensity;
+            // HP-driven: vignette encroaches as HP drops
+            float hpDrive = 1f - bossLifeRatio;
+            int vignetteSize = (int)MathHelper.Lerp(350, 500, hpDrive);
+            float vignetteStrength = MathHelper.Lerp(0.7f, 0.95f, hpDrive) * intensity;
+            
+            // Green-shifted vignette at low HP
+            Color vignetteBase = Color.Lerp(EnigmaBlack, new Color(5, 12, 8), hpDrive * 0.3f);
             
             for (int i = 0; i < vignetteSize; i++)
             {
                 float opacity = (1f - (float)i / vignetteSize) * vignetteStrength;
-                Color vignetteColor = EnigmaBlack * opacity;
+                Color vignetteColor = vignetteBase * opacity;
                 
                 // All sides - darker on bottom for ominous feel
                 spriteBatch.Draw(pixel, new Rectangle(0, i, Main.screenWidth, 1), vignetteColor * 0.6f);
@@ -685,15 +738,101 @@ namespace MagnumOpus.Common.Systems
     }
     
     /// <summary>
-    /// ModSystem to register the Enigma sky effect.
+    /// Companion ModSystem for EnigmaSkyEffect — feeds boss state, provides static flash APIs,
+    /// and spawns ambient world-space particles near the boss.
     /// </summary>
-    public class EnigmaSkyEffectLoader : ModSystem
+    public class EnigmaSkySystem : ModSystem
     {
+        // Boss state for feeding to sky
+        public static float BossLifeRatio { get; set; } = 1f;
+        public static Vector2 BossCenter { get; set; } = Vector2.Zero;
+        public static bool BossEnraged { get; set; } = false;
+        
+        // Flash tracking
+        private static float pendingFlashStrength = 0f;
+        private static Color pendingFlashColor = new Color(100, 40, 160);
+        
+        // Ambient world particle tracking
+        private static int ambientTimer = 0;
+        
+        /// <summary>Trigger a deep void purple flash — standard attacks.</summary>
+        public static void TriggerVoidFlash(float strength = 0.5f)
+        {
+            pendingFlashStrength = Math.Max(pendingFlashStrength, strength);
+            pendingFlashColor = new Color(60, 20, 100);
+        }
+        
+        /// <summary>Trigger a bright purple flash — mystery attacks.</summary>
+        public static void TriggerPurpleFlash(float strength = 0.6f)
+        {
+            pendingFlashStrength = Math.Max(pendingFlashStrength, strength);
+            pendingFlashColor = new Color(140, 60, 200);
+        }
+        
+        /// <summary>Trigger an eerie green flash — enigma eye/tendril attacks.</summary>
+        public static void TriggerGreenFlash(float strength = 0.5f)
+        {
+            pendingFlashStrength = Math.Max(pendingFlashStrength, strength);
+            pendingFlashColor = new Color(50, 200, 100);
+        }
+        
+        /// <summary>Trigger a piercing white-green flash — phase transition / death.</summary>
+        public static void TriggerRevelationFlash(float strength = 0.8f)
+        {
+            pendingFlashStrength = Math.Max(pendingFlashStrength, strength);
+            pendingFlashColor = new Color(200, 255, 220);
+        }
+        
         public override void Load()
         {
             if (!Main.dedServ)
             {
                 SkyManager.Instance["MagnumOpus:EnigmaSky"] = new EnigmaSkyEffect();
+            }
+        }
+        
+        public override void PostUpdateEverything()
+        {
+            if (Main.dedServ) return;
+            
+            var skyObj = SkyManager.Instance["MagnumOpus:EnigmaSky"];
+            if (skyObj is EnigmaSkyEffect sky && sky.IsActive())
+            {
+                // Feed boss state to sky
+                sky.UpdateBossState(BossLifeRatio, BossCenter, BossEnraged);
+                
+                // Deliver pending flash
+                if (pendingFlashStrength > 0f)
+                {
+                    sky.TriggerFlash(pendingFlashStrength, pendingFlashColor);
+                    pendingFlashStrength = 0f;
+                }
+                
+                // Ambient world-space particles near boss
+                ambientTimer++;
+                if (BossCenter != Vector2.Zero && ambientTimer % 4 == 0)
+                {
+                    float hpDrive = 1f - BossLifeRatio;
+                    int wispChance = (int)MathHelper.Lerp(8, 3, hpDrive);
+                    
+                    if (Main.rand.NextBool(Math.Max(1, wispChance)))
+                    {
+                        // Void wisp dust near boss
+                        Vector2 wispPos = BossCenter + Main.rand.NextVector2Circular(300f, 300f);
+                        int d = Dust.NewDust(wispPos, 4, 4, Terraria.ID.DustID.PurpleTorch, 0f, -1f, 180, default, 1.4f);
+                        Main.dust[d].noGravity = true;
+                        Main.dust[d].velocity *= 0.3f;
+                    }
+                    
+                    // Green flame wisps at low HP
+                    if (hpDrive > 0.4f && Main.rand.NextBool(Math.Max(1, (int)MathHelper.Lerp(12, 4, hpDrive))))
+                    {
+                        Vector2 flamePos = BossCenter + Main.rand.NextVector2Circular(200f, 200f);
+                        int d = Dust.NewDust(flamePos, 4, 4, Terraria.ID.DustID.CursedTorch, 0f, -2f, 160, default, 1.2f);
+                        Main.dust[d].noGravity = true;
+                        Main.dust[d].velocity *= 0.2f;
+                    }
+                }
             }
         }
     }

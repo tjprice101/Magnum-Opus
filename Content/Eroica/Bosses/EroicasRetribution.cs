@@ -1637,35 +1637,56 @@ namespace MagnumOpus.Content.Eroica.Bosses
             // Performance gate - skip under critical load
             if (BossVFXOptimizer.IsCriticalLoad) return;
             bool isHighLoad = BossVFXOptimizer.IsHighLoad;
+            float lifeRatio = (float)NPC.life / NPC.lifeMax;
             
-            // Orbiting embers - reduce count and frequency under load
+            // Orbiting embers — count and speed scale with HP loss
             int orbitInterval = isHighLoad ? 10 : 6;
             if (Timer % orbitInterval == 0)
             {
                 int orbitCount = isHighLoad ? (2 + difficultyTier) : (3 + difficultyTier * 2);
+                float orbitSpeed = MathHelper.Lerp(0.03f, 0.06f, 1f - lifeRatio);
                 for (int i = 0; i < orbitCount; i++)
                 {
-                    float angle = Timer * 0.03f + MathHelper.TwoPi * i / orbitCount;
+                    float angle = Timer * orbitSpeed + MathHelper.TwoPi * i / orbitCount;
                     float radius = 60f + (float)Math.Sin(Timer * 0.05f + i) * 15f;
                     Vector2 pos = NPC.Center + angle.ToRotationVector2() * radius;
                     Color color = Color.Lerp(EroicaScarlet, EroicaGold, (float)i / orbitCount);
                     CustomParticles.GenericFlare(pos, color, 0.28f, 10);
                 }
+                
+                // Bloom particle orbiting (adds depth via additive glow)
+                if (!isHighLoad && Timer % 18 == 0)
+                {
+                    float bAngle = Timer * 0.04f;
+                    Vector2 bPos = NPC.Center + bAngle.ToRotationVector2() * 70f;
+                    var bloom = new BloomParticle(bPos, Main.rand.NextVector2Circular(0.3f, 0.3f), 
+                        Color.Lerp(EroicaGold, EroicaWhite, Main.rand.NextFloat(0.3f)), 0.2f, 30);
+                    MagnumParticleHandler.SpawnParticle(bloom);
+                }
             }
             
-            // Sakura petals - reduce under load
+            // Sakura petals — more at lower HP
             int petalChance = isHighLoad ? (10 - difficultyTier) : (6 - difficultyTier);
-            if (Main.rand.NextBool(petalChance))
+            if (Main.rand.NextBool(Math.Max(1, petalChance)))
             {
-                int petalCount = isHighLoad ? 1 : 2;
+                int petalCount = isHighLoad ? 1 : (lifeRatio < 0.4f ? 3 : 2);
                 ThemedParticles.SakuraPetals(NPC.Center + Main.rand.NextVector2Circular(50f, 50f), petalCount, 25f);
             }
             
-            // Enrage particles - reduce under load  
+            // Enrage particles — crimson glow sparks
             if (isEnraged && Timer % (isHighLoad ? 4 : 2) == 0)
             {
                 Vector2 pos = NPC.Center + Main.rand.NextVector2Circular(60f, 60f);
                 CustomParticles.GenericFlare(pos, EroicaCrimson, 0.4f, 8);
+                
+                // Extra: glow spark particles during enrage
+                if (!isHighLoad)
+                {
+                    Vector2 vel = Main.rand.NextVector2Circular(2f, 2f) - Vector2.UnitY;
+                    var spark = new GlowSparkParticle(pos, vel, Color.Lerp(EroicaCrimson, new Color(255, 80, 40), Main.rand.NextFloat()), 
+                        Main.rand.NextFloat(0.15f, 0.3f), Main.rand.Next(15, 30));
+                    MagnumParticleHandler.SpawnParticle(spark);
+                }
             }
         }
         
@@ -1675,14 +1696,23 @@ namespace MagnumOpus.Content.Eroica.Bosses
             NPC.velocity *= 0.95f;
             
             float progress = deathTimer / 180f;
+            float lifeRatio = (float)NPC.life / NPC.lifeMax;
             
-            // Enhanced skybox effects during death
+            // Enhanced skybox effects during death — escalating chromatic aberration and vignette
             VFXIntegration.SetChromaticAberration(progress * 0.3f);
             VFXIntegration.SetVignette(progress * 0.6f);
             
             // SHADER: Phoenix flame burst intensifies as death approaches
             if (progress > 0.3f)
                 EroicaBossShaderSystem.DrawPhoenixFlame(Main.spriteBatch, NPC.Center, Main.screenPosition, progress);
+            
+            // Phoenix wings grow as death builds (hero ascending)
+            if (progress > 0.2f)
+                EroicaBossShaderSystem.DrawPhoenixWings(Main.spriteBatch, NPC, Main.screenPosition, (progress - 0.2f) * 1.25f);
+            
+            // Escalating sky flashes synchronized to death buildup
+            if (deathTimer % 20 == 0 && progress > 0.3f)
+                EroicaSkySystem.TriggerGoldenFlash(0.3f + progress * 0.4f);
             
             if (deathTimer % 8 == 0)
             {
@@ -1705,18 +1735,46 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 {
                     Phase10BossVFX.FermataHoldIndicator(NPC.Center, EroicaScarlet, progress - 0.5f);
                 }
+                
+                // Bloom particle cascades — intensifying with progress
+                int bloomCount = (int)(2 + progress * 6);
+                for (int i = 0; i < bloomCount; i++)
+                {
+                    Vector2 vel = Main.rand.NextVector2Circular(4f, 4f) - Vector2.UnitY * Main.rand.NextFloat(1f, 3f);
+                    Color bloomCol = Color.Lerp(EroicaGold, EroicaWhite, progress * Main.rand.NextFloat());
+                    var bloom = new BloomParticle(burstPos, vel, bloomCol, Main.rand.NextFloat(0.2f, 0.5f + progress * 0.3f), Main.rand.Next(20, 40));
+                    MagnumParticleHandler.SpawnParticle(bloom);
+                }
+                
+                // Rising ember sparks accelerating upward as hero dissolves
+                if (progress > 0.4f)
+                {
+                    int sparkCount = (int)((progress - 0.4f) * 8);
+                    for (int i = 0; i < sparkCount; i++)
+                    {
+                        Vector2 vel = new Vector2(Main.rand.NextFloat(-3f, 3f), Main.rand.NextFloat(-8f, -3f));
+                        var spark = new GlowSparkParticle(NPC.Center + Main.rand.NextVector2Circular(30f, 30f), vel, 
+                            Color.Lerp(new Color(255, 140, 30), EroicaGold, Main.rand.NextFloat()), 
+                            Main.rand.NextFloat(0.2f, 0.4f), Main.rand.Next(25, 50));
+                        MagnumParticleHandler.SpawnParticle(spark);
+                    }
+                }
             }
             
             if (deathTimer >= 180)
             {
-                // Ultimate death VFX
+                // === ULTIMATE DEATH VFX: The Hero's Finale ===
                 VFXIntegration.OnBossDeath("Eroica", NPC.Center);
                 
+                // Maximum screen impact
                 MagnumScreenEffects.AddScreenShake(30f);
+                EroicaSkySystem.TriggerAttackFlash(1f, EroicaWhite);
                 SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f, Volume = 2f }, NPC.Center);
                 
+                // Layer 1: Central white-hot flare
                 CustomParticles.GenericFlare(NPC.Center, Color.White, 2f, 30);
                 
+                // Layer 2: 12 cascading halo rings in theme colors
                 for (int i = 0; i < 12; i++)
                 {
                     float scale = 0.4f + i * 0.2f;
@@ -1724,6 +1782,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     CustomParticles.HaloRing(NPC.Center, ringColor, scale, 25 + i * 3);
                 }
                 
+                // Layer 3: 20 radial flares
                 for (int i = 0; i < 20; i++)
                 {
                     float angle = MathHelper.TwoPi * i / 20f;
@@ -1731,9 +1790,30 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     CustomParticles.GenericFlare(NPC.Center + angle.ToRotationVector2() * 100f, flareColor, 0.8f, 30);
                 }
                 
+                // Layer 4: Massive sakura cascade
                 ThemedParticles.SakuraPetals(NPC.Center, 60, 200f);
                 
-                // PHASE 10: Grand musical finale
+                // Layer 5: Dense bloom particle explosion
+                for (int i = 0; i < 24; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 24f + Main.rand.NextFloat(-0.1f, 0.1f);
+                    Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 12f);
+                    Color col = Color.Lerp(EroicaGold, EroicaWhite, Main.rand.NextFloat());
+                    var bloom = new BloomParticle(NPC.Center, vel, col, Main.rand.NextFloat(0.4f, 1f), Main.rand.Next(30, 60));
+                    MagnumParticleHandler.SpawnParticle(bloom);
+                }
+                
+                // Layer 6: Ascending ember column (hero's soul rising)
+                for (int i = 0; i < 15; i++)
+                {
+                    Vector2 vel = new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-12f, -5f));
+                    var spark = new GlowSparkParticle(NPC.Center + Main.rand.NextVector2Circular(40f, 20f), vel, 
+                        Color.Lerp(new Color(255, 140, 30), EroicaGold, Main.rand.NextFloat()), 
+                        Main.rand.NextFloat(0.3f, 0.7f), Main.rand.Next(40, 80));
+                    MagnumParticleHandler.SpawnParticle(spark);
+                }
+                
+                // Layer 7: Musical finale
                 Phase10Integration.Universal.DeathFinale(NPC.Center, EroicaGold, EroicaScarlet);
                 Phase10BossVFX.CodaFinale(NPC.Center, EroicaGold, EroicaScarlet, 2f);
                 Phase10BossVFX.TuttiFullEnsemble(NPC.Center, new[] { EroicaGold, EroicaScarlet, Color.White }, 2f);
@@ -1777,33 +1857,49 @@ namespace MagnumOpus.Content.Eroica.Bosses
             Vector2 origin = new Vector2(frameWidth / 2f, frameHeight / 2f);
             Vector2 drawPos = NPC.Center - screenPos;
             SpriteEffects effects = NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+            float lifeRatio = (float)NPC.life / NPC.lifeMax;
             
-            // === SHADER LAYER 1: Valor Aura (behind everything) ===
+            // === LAYER 0: Multi-layered NPC bloom (Calamity SCal-style radiant presence) ===
+            if (phase2Started)
+            {
+                EroicaBossShaderSystem.DrawBossGlow(spriteBatch, NPC, screenPos, lifeRatio, isEnraged);
+            }
+            
+            // === LAYER 1: Valor Aura (behind everything) ===
             if (phase2Started)
             {
                 EroicaBossShaderSystem.DrawValorAura(spriteBatch, NPC, screenPos,
                     aggressionLevel, difficultyTier, isEnraged);
             }
             
-            // === SHADER LAYER 2: Heroic Trail (shader-driven afterimages) ===
+            // === LAYER 1.5: Phoenix Wings (during enrage or PhoenixDive) ===
+            if (isEnraged || (State == BossPhase.Phase2_Attack && CurrentAttack == AttackPattern.PhoenixDive))
+            {
+                float wingIntensity = isEnraged ? 0.7f + aggressionLevel * 0.3f : 0.5f;
+                EroicaBossShaderSystem.DrawPhoenixWings(spriteBatch, NPC, screenPos, wingIntensity);
+            }
+            
+            // === LAYER 2: Heroic Trail (shader-driven afterimages) ===
             if (phase2Started && NPC.velocity.Length() > 6f)
             {
                 EroicaBossShaderSystem.DrawHeroicTrail(spriteBatch, NPC, screenPos,
                     tex, sourceRect, origin, isEnraged);
             }
-            // Fallback: standard afterimages for lower velocities
+            // Fallback: standard afterimages with bloom overlay for lower velocities
             else if (phase2Started && NPC.velocity.Length() > 3f)
             {
                 for (int i = 0; i < NPC.oldPos.Length; i++)
                 {
+                    if (NPC.oldPos[i] == Vector2.Zero) continue;
                     float progress = (float)i / NPC.oldPos.Length;
                     Color trailColor = Color.Lerp(EroicaScarlet, EroicaGold, progress) * (1f - progress) * 0.4f;
+                    trailColor.A = 0;
                     Vector2 trailPos = NPC.oldPos[i] + NPC.Size / 2f - screenPos;
                     spriteBatch.Draw(tex, trailPos, sourceRect, trailColor, NPC.rotation, origin, NPC.scale * (1f - progress * 0.15f), effects, 0f);
                 }
             }
             
-            // === SHADER LAYER 3: Death Dissolve (replaces normal drawing when dying) ===
+            // === LAYER 3: Death Dissolve (replaces normal drawing when dying) ===
             if (State == BossPhase.Dying && deathTimer > 0)
             {
                 float dissolveProgress = Math.Clamp(deathTimer / 180f, 0f, 1f);
@@ -1811,7 +1907,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     tex, sourceRect, origin, dissolveProgress);
             }
             
-            // === SHADER LAYER 4: Phase Transition Flash ===
+            // === LAYER 4: Phase Transition Flash ===
             if (State == BossPhase.Phase1_Transition)
             {
                 float transitionProgress = Math.Clamp(Timer / 90f, 0f, 1f);
@@ -1819,14 +1915,21 @@ namespace MagnumOpus.Content.Eroica.Bosses
                     transitionProgress, true);
             }
             
-            // Glow outline layer
+            // Multi-layered glow outline (inner bright + outer soft)
             Color glowColor = isEnraged ? EroicaCrimson : Color.Lerp(EroicaGold, EroicaScarlet, (float)Math.Sin(Timer * 0.05f) * 0.5f + 0.5f);
-            glowColor.A = 0;
-            spriteBatch.Draw(tex, drawPos, sourceRect, glowColor * 0.35f, NPC.rotation, origin, NPC.scale * 1.12f, effects, 0f);
+            // Outer soft halo
+            Color outerGlow = glowColor * 0.18f;
+            outerGlow.A = 0;
+            spriteBatch.Draw(tex, drawPos, sourceRect, outerGlow, NPC.rotation, origin, NPC.scale * 1.18f, effects, 0f);
+            // Inner bright edge
+            Color innerGlow = glowColor * 0.4f;
+            innerGlow.A = 0;
+            spriteBatch.Draw(tex, drawPos, sourceRect, innerGlow, NPC.rotation, origin, NPC.scale * 1.08f, effects, 0f);
             
-            // Main sprite
+            // Main sprite with health-driven warmth boost
             Color mainColor = NPC.IsABestiaryIconDummy ? Color.White : Lighting.GetColor((int)(NPC.Center.X / 16), (int)(NPC.Center.Y / 16));
-            mainColor = Color.Lerp(mainColor, Color.White, 0.35f);
+            float warmthBoost = MathHelper.Lerp(0.35f, 0.6f, 1f - lifeRatio);
+            mainColor = Color.Lerp(mainColor, Color.White, warmthBoost);
             spriteBatch.Draw(tex, drawPos, sourceRect, mainColor * ((255 - NPC.alpha) / 255f), NPC.rotation, origin, NPC.scale, effects, 0f);
             
             return false;

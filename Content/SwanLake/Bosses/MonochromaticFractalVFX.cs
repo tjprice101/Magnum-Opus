@@ -5,6 +5,7 @@ using Terraria.ID;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Content.SwanLake.Bosses.Systems;
 
 namespace MagnumOpus.Content.SwanLake.Bosses
 {
@@ -24,16 +25,19 @@ namespace MagnumOpus.Content.SwanLake.Bosses
         /// <summary>
         /// Per-frame boss ambient aura: intense dual-polarity particles,
         /// fractal crack particles, prismatic bleed-through, and heavy feather drift.
+        /// HP-driven density: particles intensify as boss takes damage.
         /// Call every frame during the boss fight.
         /// </summary>
-        public static void AmbientAura(Vector2 center)
+        public static void AmbientAura(Vector2 center, float hpRatio = 1f)
         {
             if (Main.dedServ) return;
 
             float time = (float)Main.timeForVisualEffects;
+            float hpDrive = 1f - hpRatio;
 
-            // Heavy dual-polarity motes (every frame, 1-in-3)
-            if (Main.rand.NextBool(3))
+            // Heavy dual-polarity motes — HP-driven chance (3→1)
+            int moteChance = Math.Max(1, (int)MathHelper.Lerp(3, 1, hpDrive));
+            if (Main.rand.NextBool(moteChance))
             {
                 Vector2 motePos = center + Main.rand.NextVector2Circular(60f, 60f);
                 bool isWhite = Main.rand.NextBool();
@@ -44,8 +48,9 @@ namespace MagnumOpus.Content.SwanLake.Bosses
                 d.noGravity = true;
             }
 
-            // Fractal crack particles — light leaking through broken reality (1-in-4)
-            if (Main.rand.NextBool(4))
+            // Fractal crack particles — HP-driven chance (4→2)
+            int crackChance = Math.Max(1, (int)MathHelper.Lerp(4, 2, hpDrive));
+            if (Main.rand.NextBool(crackChance))
             {
                 float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
                 Vector2 crackPos = center + angle.ToRotationVector2() * Main.rand.NextFloat(20f, 50f);
@@ -55,16 +60,18 @@ namespace MagnumOpus.Content.SwanLake.Bosses
                 MagnumParticleHandler.SpawnParticle(glow);
             }
 
-            // Prismatic bleed-through (1-in-6)
-            if (Main.rand.NextBool(6))
+            // Prismatic bleed-through — HP-driven (6→3)
+            int prismChance = Math.Max(1, (int)MathHelper.Lerp(6, 3, hpDrive));
+            if (Main.rand.NextBool(prismChance))
             {
                 Color rainbow = SwanLakePalette.GetVividRainbow(Main.rand.NextFloat());
                 Vector2 bleedPos = center + Main.rand.NextVector2Circular(40f, 40f);
                 try { CustomParticles.GenericFlare(bleedPos, rainbow * 0.5f, 0.3f, 14); } catch { }
             }
 
-            // Heavy feather drift (1-in-8)
-            if (Main.rand.NextBool(8))
+            // Heavy feather drift — HP-driven (8→4)
+            int featherChance = Math.Max(1, (int)MathHelper.Lerp(8, 4, hpDrive));
+            if (Main.rand.NextBool(featherChance))
             {
                 Color featherCol = Main.rand.NextBool() ? SwanLakePalette.FeatherWhite : SwanLakePalette.FeatherBlack;
                 try { CustomParticles.SwanFeatherDrift(center + Main.rand.NextVector2Circular(50f, 50f), featherCol, 0.25f); } catch { }
@@ -73,6 +80,26 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             // Music notes (1-in-10)
             if (Main.rand.NextBool(10))
                 SwanLakeVFXLibrary.SpawnMusicNotes(center, 1, 40f, 0.8f, 1.0f, 30);
+
+            // Bloom orbiting motes
+            if ((int)time % 12 == 0)
+            {
+                float angle = time * 0.05f;
+                float radius = MathHelper.Lerp(50f, 80f, hpDrive);
+                Vector2 orbitPos = center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
+                Color orbitColor = SwanLakePalette.GetVividRainbow(angle / MathHelper.TwoPi);
+                var bloom = new BloomParticle(orbitPos, Vector2.Zero, orbitColor, 0.25f + hpDrive * 0.15f, 14);
+                MagnumParticleHandler.SpawnParticle(bloom);
+            }
+
+            // Low-HP ascending feather wisps
+            if (hpDrive > 0.5f && Main.rand.NextBool(6))
+            {
+                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-2f, -1f));
+                Color sparkColor = Main.rand.NextBool() ? SwanLakePalette.PureWhite : SwanLakePalette.GetRainbow(Main.rand.NextFloat());
+                var sparkle = new SparkleParticle(center + Main.rand.NextVector2Circular(60f, 30f), vel, sparkColor, 0.2f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
 
             // Intense dual-polarity light
             SwanLakeVFXLibrary.AddDualPolarityLight(center, time, 0.8f);
@@ -89,6 +116,9 @@ namespace MagnumOpus.Content.SwanLake.Bosses
         public static void PhaseTransition(Vector2 pos, bool toBlackPhase)
         {
             if (Main.dedServ) return;
+
+            // Sky flash
+            SwanLakeSkySystem.TriggerPrismaticFlash(15f);
 
             // Screen shake
             MagnumScreenEffects.AddScreenShake(12f);
@@ -128,6 +158,16 @@ namespace MagnumOpus.Content.SwanLake.Bosses
 
             // Music burst
             SwanLakeVFXLibrary.SpawnMusicNotes(pos, 8, 50f, 0.9f, 1.3f, 45);
+
+            // Bloom supernova at transition
+            for (int i = 0; i < 8; i++)
+            {
+                float bAngle = MathHelper.TwoPi * i / 8f;
+                Vector2 vel = bAngle.ToRotationVector2() * 4f;
+                Color bloomCol = toBlackPhase ? SwanLakePalette.ObsidianBlack : SwanLakePalette.PureWhite;
+                var bloom = new BloomParticle(pos, vel, bloomCol, 0.5f, 18);
+                MagnumParticleHandler.SpawnParticle(bloom);
+            }
 
             // Fractal gem burst
             try { ThemedParticles.SwanLakeFractalGemBurst(pos, flashCol, 1.5f); } catch { }
@@ -197,6 +237,9 @@ namespace MagnumOpus.Content.SwanLake.Bosses
         public static void MonochromaticApocalypse(Vector2 pos)
         {
             if (Main.dedServ) return;
+
+            // Sky flash — monochrome to prismatic
+            SwanLakeSkySystem.TriggerMonochromeFlash(18f);
 
             // Heavy screen shake
             MagnumScreenEffects.AddScreenShake(16f);
@@ -290,6 +333,9 @@ namespace MagnumOpus.Content.SwanLake.Bosses
         {
             if (Main.dedServ) return;
 
+            // Death flash — the ultimate white-out
+            SwanLakeSkySystem.TriggerDeathFlash(25f);
+
             // Heavy screen shake
             MagnumScreenEffects.AddScreenShake(20f);
 
@@ -327,6 +373,22 @@ namespace MagnumOpus.Content.SwanLake.Bosses
 
             // Massive music note celebration
             SwanLakeVFXLibrary.SpawnMusicNotes(pos, 12, 70f, 1.0f, 1.5f, 60);
+
+            // Death bloom supernova ring + ascending sparkles
+            for (int i = 0; i < 16; i++)
+            {
+                float bAngle = MathHelper.TwoPi * i / 16f;
+                Vector2 vel = bAngle.ToRotationVector2() * 6f;
+                Color bloomCol = SwanLakePalette.GetVividRainbow(i / 16f);
+                var bloom = new BloomParticle(pos, vel, bloomCol, 0.7f, 25);
+                MagnumParticleHandler.SpawnParticle(bloom);
+            }
+            for (int i = 0; i < 10; i++)
+            {
+                Vector2 vel = new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-4f, -2f));
+                var sparkle = new SparkleParticle(pos + Main.rand.NextVector2Circular(50f, 50f), vel, SwanLakePalette.PureWhite, 0.4f, 30);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
 
             // Fractal dissolution
             try { ThemedParticles.SwanLakeFractalGemBurst(pos, SwanLakePalette.MonochromaticFlash, 3.0f); } catch { }

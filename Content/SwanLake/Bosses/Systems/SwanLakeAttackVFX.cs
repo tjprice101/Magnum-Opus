@@ -7,6 +7,8 @@ using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems;
 
+using static MagnumOpus.Content.SwanLake.Bosses.Systems.SwanLakeSkySystem;
+
 namespace MagnumOpus.Content.SwanLake.Bosses.Systems
 {
     /// <summary>
@@ -74,10 +76,13 @@ namespace MagnumOpus.Content.SwanLake.Bosses.Systems
         public static void DualSwanArcSlashesImpact(Vector2 position, bool isWhite)
         {
             Color color = isWhite ? PureWhite : JetBlack;
+            TriggerWhiteFlash(8f);
             CustomParticles.SwanFeatherBurst(position, 8, 0.4f);
             CustomParticles.HaloRing(position, color, 0.5f, 16);
             ThemedParticles.SwanLakeSparks(position, Vector2.UnitX, 6, 5f);
             BossSignatureVFX.SwanLakeGracefulStrike(position, Vector2.UnitX, 0.8f);
+            var bloom = new BloomParticle(position, Vector2.Zero, color, 0.5f, 12);
+            MagnumParticleHandler.SpawnParticle(bloom);
         }
 
         /// <summary>GracefulDash: Elegant gliding charge with feather trail.</summary>
@@ -123,11 +128,20 @@ namespace MagnumOpus.Content.SwanLake.Bosses.Systems
 
         public static void TempestDashImpact(Vector2 position)
         {
+            TriggerPrismaticFlash(10f);
             MagnumScreenEffects.AddScreenShake(12f);
             CustomParticles.SwanFeatherExplosion(position, 15, 0.5f);
             ThemedParticles.SwanLakeRainbowExplosion(position, 1.0f);
             CustomParticles.HaloRing(position, PureWhite, 0.7f, 18);
             CustomParticles.HaloRing(position, JetBlack, 0.5f, 20);
+            // Bloom burst at impact
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                Vector2 vel = angle.ToRotationVector2() * 3f;
+                var bloom = new BloomParticle(position, vel, GetPrismatic(i / 6f), 0.4f, 15);
+                MagnumParticleHandler.SpawnParticle(bloom);
+            }
         }
 
         /// <summary>PrismaticBarrage: Streams of rainbow projectiles.</summary>
@@ -148,10 +162,13 @@ namespace MagnumOpus.Content.SwanLake.Bosses.Systems
         /// <summary>FeatherStorm: Massive burst of black and white feathers.</summary>
         public static void FeatherStormRelease(Vector2 center)
         {
+            TriggerWhiteFlash(8f);
             MagnumScreenEffects.AddScreenShake(8f);
             CustomParticles.SwanFeatherExplosion(center, 20, 0.45f);
             CustomParticles.SwanFeatherDuality(center, 10, 0.4f);
             ThemedParticles.SwanLakeShockwave(center, 1.0f);
+            var bloom = new BloomParticle(center, Vector2.Zero, PureWhite, 0.6f, 18);
+            MagnumParticleHandler.SpawnParticle(bloom);
         }
 
         /// <summary>MirrorDance: Mirrored attack patterns from twin positions.</summary>
@@ -174,6 +191,7 @@ namespace MagnumOpus.Content.SwanLake.Bosses.Systems
         /// <summary>MonochromaticApocalypse: The ultimate rotating beam of pure destruction.</summary>
         public static void MonochromaticApocalypseTelegraph(Vector2 center)
         {
+            TriggerMonochromeFlash(15f);
             TelegraphSystem.ConvergingRing(center, 250f, 16, PureWhite);
             Phase10BossVFX.ChordBuildupSpiral(center, new[] { PureWhite, JetBlack, GetPrismatic() }, 0.8f);
             Phase10BossVFX.FortissimoFlashWarning(center, PureWhite, 1.5f);
@@ -189,9 +207,17 @@ namespace MagnumOpus.Content.SwanLake.Bosses.Systems
         /// <summary>DyingSwanLament: Fading feather bursts that slow and dissipate.</summary>
         public static void DyingSwanLamentRelease(Vector2 center)
         {
+            TriggerMonochromeFlash(8f);
             CustomParticles.SwanFeatherExplosion(center, 12, 0.35f);
             ThemedParticles.SwanLakeSparkles(center, 10, 50f);
             Phase10BossVFX.DiminuendoFade(center, PureWhite, 0.5f);
+            // Ascending sparkle wisps — elegance in decay
+            for (int i = 0; i < 4; i++)
+            {
+                Vector2 vel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-3f, -1.5f));
+                var sparkle = new SparkleParticle(center + Main.rand.NextVector2Circular(30f, 30f), vel, PureWhite, 0.3f, 18);
+                MagnumParticleHandler.SpawnParticle(sparkle);
+            }
         }
 
         /// <summary>FinalSerenade: The death attack  Eall-encompassing prismatic explosion.</summary>
@@ -203,10 +229,19 @@ namespace MagnumOpus.Content.SwanLake.Bosses.Systems
 
         public static void FinalSerenadeRelease(Vector2 center)
         {
+            TriggerDeathFlash(20f);
             MagnumScreenEffects.AddScreenShake(25f);
             CustomParticles.GenericFlare(center, PureWhite, 2.0f, 30);
             ThemedParticles.SwanLakeRainbowExplosion(center, 2.0f);
             CustomParticles.PrismaticSparkleRainbow(center, 20);
+            // Massive bloom supernova ring
+            for (int i = 0; i < 16; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 16f;
+                Vector2 vel = angle.ToRotationVector2() * 5f;
+                var bloom = new BloomParticle(center, vel, GetPrismatic(i / 16f), 0.7f, 25);
+                MagnumParticleHandler.SpawnParticle(bloom);
+            }
             for (int i = 0; i < 20; i++)
             {
                 float angle = MathHelper.TwoPi * i / 20f;
@@ -230,6 +265,7 @@ namespace MagnumOpus.Content.SwanLake.Bosses.Systems
         /// <summary>ShatteredReflection: Fragments of the fractal boss fly outward.</summary>
         public static void ShatteredReflectionBurst(Vector2 center, int fragmentCount)
         {
+            TriggerPrismaticFlash(12f);
             for (int i = 0; i < fragmentCount; i++)
             {
                 float angle = MathHelper.TwoPi * i / fragmentCount;
@@ -237,6 +273,8 @@ namespace MagnumOpus.Content.SwanLake.Bosses.Systems
                 Color color = i % 2 == 0 ? PureWhite : JetBlack;
                 CustomParticles.GenericFlare(pos, color, 0.5f, 18);
                 CustomParticles.SwanFeatherBurst(pos, 3, 0.3f);
+                var bloom = new BloomParticle(pos, angle.ToRotationVector2() * 2f, color, 0.35f, 15);
+                MagnumParticleHandler.SpawnParticle(bloom);
             }
             CustomParticles.PrismaticSparkleBurst(center, PureWhite, 12);
         }

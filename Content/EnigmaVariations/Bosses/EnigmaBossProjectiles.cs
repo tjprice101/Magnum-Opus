@@ -257,6 +257,42 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             Lighting.AddLight(Projectile.Center, EnigmaGreen.ToVector3() * 0.5f * shimmerPulse);
         }
         
+        public override bool PreDraw(ref Color lightColor)
+        {
+            var spriteBatch = Main.spriteBatch;
+            var tex = (Texture2D)ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad);
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            Vector2 origin = tex.Size() * 0.5f;
+            float pulse = (float)Math.Sin(Projectile.timeLeft * 0.12f) * 0.15f + 0.85f;
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Bloom underlay
+            var bloomTex = MagnumTextureRegistry.GetSoftGlow();
+            if (bloomTex != null)
+            {
+                Vector2 bloomOrigin = new Vector2(bloomTex.Width, bloomTex.Height) * 0.5f;
+                Color outerGlow = EnigmaGreen with { A = 0 } * 0.25f * pulse;
+                spriteBatch.Draw(bloomTex, drawPos, null, outerGlow, 0f, bloomOrigin, 0.6f * Projectile.scale, SpriteEffects.None, 0f);
+            }
+
+            // Green core glow
+            Color coreColor = EnigmaGreen with { A = 0 } * 0.8f * pulse;
+            spriteBatch.Draw(tex, drawPos, null, coreColor, Projectile.rotation, origin, Projectile.scale * 1.1f, SpriteEffects.None, 0f);
+
+            // Bright inner
+            Color innerColor = Color.White with { A = 0 } * 0.4f * pulse;
+            spriteBatch.Draw(tex, drawPos, null, innerColor, Projectile.rotation, origin, Projectile.scale * 0.7f, SpriteEffects.None, 0f);
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            return false;
+        }
+
         public override void OnHitPlayer(Player target, Player.HurtInfo info)
         {
             target.AddBuff(ModContent.BuffType<ParadoxBrand>(), 300);
@@ -563,8 +599,16 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                     new Vector2(0.2f, 0.1f), SpriteEffects.None, 0f);
             }
             
-            // Source orb
+            // Source orb with bloom underlay
             Vector2 sourcePos = Projectile.Center - Main.screenPosition;
+            var bloomTex = MagnumTextureRegistry.GetSoftGlow();
+            if (bloomTex != null)
+            {
+                Vector2 bloomOrigin = new Vector2(bloomTex.Width, bloomTex.Height) * 0.5f;
+                Color bloomColor = EnigmaGreen;
+                bloomColor.A = 0;
+                spriteBatch.Draw(bloomTex, sourcePos, null, bloomColor * 0.3f * intensity, 0f, bloomOrigin, 0.7f, SpriteEffects.None, 0f);
+            }
             spriteBatch.Draw(glow, sourcePos, null, EnigmaGreen * intensity, 0f, glow.Size() / 2f, 0.6f, SpriteEffects.None, 0f);
             spriteBatch.Draw(glow, sourcePos, null, EnigmaPurple * 0.5f * intensity, 0f, glow.Size() / 2f, 0.8f, SpriteEffects.None, 0f);
 

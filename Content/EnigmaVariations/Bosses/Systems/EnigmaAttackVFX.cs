@@ -6,6 +6,7 @@ using MagnumOpus.Common.Systems.Bosses;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.VFX.Screen;
 
 namespace MagnumOpus.Content.EnigmaVariations.Bosses.Systems
 {
@@ -44,9 +45,20 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses.Systems
         public static void VoidLungeImpact(Vector2 position)
         {
             MagnumScreenEffects.AddScreenShake(8f);
+            EnigmaSkySystem.TriggerVoidFlash(0.4f);
             ThemedParticles.EnigmaImpact(position, 0.8f);
             CustomParticles.EnigmaEyeImpact(position, position, EerieGreen, 0.5f);
             CustomParticles.HaloRing(position, DeepPurple, 0.5f, 16);
+            
+            // Bloom cascade
+            MagnumParticleHandler.SpawnParticle(new BloomParticle(
+                position, Vector2.Zero, DeepPurple, 0.8f, 25));
+            for (int i = 0; i < 4; i++)
+            {
+                MagnumParticleHandler.SpawnParticle(new SparkleParticle(
+                    position, Main.rand.NextVector2Circular(3f, 3f),
+                    EerieGreen, 0.3f, 20));
+            }
         }
 
         /// <summary>EyeVolley: Launches tracking eye projectiles at the player.</summary>
@@ -59,9 +71,13 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses.Systems
 
         public static void EyeVolleyRelease(Vector2 position, Vector2 direction)
         {
+            EnigmaSkySystem.TriggerGreenFlash(0.3f);
             CustomParticles.EnigmaEyeGaze(position, EerieGreen, 0.5f, direction);
             CustomParticles.GenericFlare(position, EerieGreen, 0.4f, 12);
             ThemedParticles.EnigmaMusicNotes(position, 2, 25f);
+            
+            MagnumParticleHandler.SpawnParticle(new BloomParticle(
+                position, direction * 0.5f, EerieGreen, 0.5f, 20));
         }
 
         /// <summary>ParadoxRing: Expanding ring of paradox energy.</summary>
@@ -73,6 +89,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses.Systems
 
         public static void ParadoxRingRelease(Vector2 center, float radius)
         {
+            EnigmaSkySystem.TriggerPurpleFlash(0.4f);
             int count = 12;
             for (int i = 0; i < count; i++)
             {
@@ -80,8 +97,16 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses.Systems
                 Vector2 pos = center + angle.ToRotationVector2() * radius;
                 Color color = ThemedParticles.GetEnigmaGradient(i / (float)count);
                 CustomParticles.GenericFlare(pos, color, 0.35f, 14);
+                
+                // Bloom spark at each ring point
+                MagnumParticleHandler.SpawnParticle(new SparkleParticle(
+                    pos, angle.ToRotationVector2() * 1.5f, color, 0.3f, 25));
             }
             ThemedParticles.EnigmaShockwave(center, radius / 80f);
+            
+            // Center bloom burst
+            MagnumParticleHandler.SpawnParticle(new BloomParticle(
+                center, Vector2.Zero, DeepPurple, 0.7f, 20));
         }
 
         /// <summary>ShadowDash: Quick teleport-dash through void space.</summary>
@@ -95,9 +120,19 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses.Systems
         public static void ShadowDashImpact(Vector2 position)
         {
             MagnumScreenEffects.AddScreenShake(6f);
+            EnigmaSkySystem.TriggerVoidFlash(0.5f);
             CustomParticles.EnigmaEyeExplosion(position, EerieGreen, 5, 4f);
             CustomParticles.GlyphBurst(position, DeepPurple, 6, 4f);
             ThemedParticles.EnigmaShockwave(position, 0.8f);
+            
+            // Radial bloom sparks
+            for (int i = 0; i < 6; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 6f;
+                MagnumParticleHandler.SpawnParticle(new SparkleParticle(
+                    position, angle.ToRotationVector2() * 2f,
+                    DeepPurple, 0.35f, 25));
+            }
         }
 
         /// <summary>GlyphCircle: Summoning circle of rotating glyphs.</summary>
@@ -111,8 +146,16 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses.Systems
         {
             float angle = MathHelper.TwoPi * glyphIndex / 8f;
             Vector2 pos = center + angle.ToRotationVector2() * 80f;
+            
+            // Flash every other glyph
+            if (glyphIndex % 2 == 0)
+                EnigmaSkySystem.TriggerPurpleFlash(0.25f);
+            
             CustomParticles.GlyphBurst(pos, EerieGreen, 4, 5f);
             CustomParticles.GenericFlare(pos, DeepPurple, 0.5f, 14);
+            
+            MagnumParticleHandler.SpawnParticle(new BloomParticle(
+                pos, Vector2.Zero, EerieGreen, 0.4f, 18));
         }
 
         #endregion
@@ -128,6 +171,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses.Systems
 
         public static void TendrilRiseRelease(Vector2 position)
         {
+            EnigmaSkySystem.TriggerGreenFlash(0.35f);
             for (int i = 0; i < 6; i++)
             {
                 Vector2 tendrilPos = position + new Vector2(Main.rand.NextFloat(-20f, 20f), i * -25f);
@@ -136,6 +180,14 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses.Systems
                 CustomParticles.GenericGlow(tendrilPos, EerieGreen * 0.6f, 0.25f, 18);
             }
             ThemedParticles.EnigmaMusicNotes(position, 3, 30f);
+            
+            // Ascending bloom sparks
+            for (int i = 0; i < 4; i++)
+            {
+                MagnumParticleHandler.SpawnParticle(new SparkleParticle(
+                    position, new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-3f, -1.5f)),
+                    EerieGreen, 0.3f, 30));
+            }
         }
 
         /// <summary>ParadoxWeb: Network of paradox lines trapping the player.</summary>
@@ -165,9 +217,19 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses.Systems
 
         public static void RealityFractureRelease(Vector2 start, Vector2 end)
         {
+            EnigmaSkySystem.TriggerGreenFlash(0.5f);
             Phase10BossVFX.StaffLineLaser(start, end, EerieGreen, 20f);
             FateRealityDistortion.TriggerScreenSlice(start, end, 0.5f, 20);
             ThemedParticles.EnigmaMusicNoteBurst(Vector2.Lerp(start, end, 0.5f), 6, 3f);
+            
+            // Bloom along fracture line
+            for (int i = 0; i < 5; i++)
+            {
+                Vector2 pos = Vector2.Lerp(start, end, i / 4f);
+                MagnumParticleHandler.SpawnParticle(new BloomParticle(
+                    pos, Main.rand.NextVector2Circular(1f, 1f),
+                    EerieGreen, 0.4f, 20));
+            }
         }
 
         /// <summary>EyeOfTheVoid: Massive eye materializes and fires a beam.</summary>
@@ -181,9 +243,14 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses.Systems
         public static void EyeOfTheVoidRelease(Vector2 center, Vector2 target)
         {
             MagnumScreenEffects.AddScreenShake(15f);
+            EnigmaSkySystem.TriggerGreenFlash(0.7f);
             BossSignatureVFX.EnigmaVoidGaze(center, (target - center).SafeNormalize(Vector2.UnitX), 1.2f);
             Phase10BossVFX.HarmonicOvertoneBeam(center, target, DeepPurple);
             CustomParticles.EnigmaEyeGaze(center, EerieGreen, 0.8f, (target - center).SafeNormalize(Vector2.UnitX));
+            
+            // Massive bloom at eye center
+            MagnumParticleHandler.SpawnParticle(new BloomParticle(
+                center, Vector2.Zero, EerieGreen, 1.2f, 30));
         }
 
         #endregion
@@ -193,17 +260,29 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses.Systems
         /// <summary>ParadoxMirror: Clone illusions  Emultiple fake bosses appear.</summary>
         public static void ParadoxMirrorSpawn(Vector2 clonePosition)
         {
+            EnigmaSkySystem.TriggerVoidFlash(0.3f);
             ThemedParticles.EnigmaShockwave(clonePosition, 0.8f);
             CustomParticles.EnigmaEyeExplosion(clonePosition, DeepPurple, 4, 3f);
             CustomParticles.GlyphBurst(clonePosition, EerieGreen, 4, 3f);
             Phase10BossVFX.KeyChangeFlash(clonePosition, VoidBlack, DeepPurple, 0.6f);
+            
+            MagnumParticleHandler.SpawnParticle(new BloomParticle(
+                clonePosition, Vector2.Zero, DeepPurple, 0.6f, 20));
         }
 
         public static void ParadoxMirrorDeath(Vector2 clonePosition)
         {
+            EnigmaSkySystem.TriggerPurpleFlash(0.35f);
             CustomParticles.EnigmaEyeExplosion(clonePosition, EerieGreen, 6, 5f);
             ThemedParticles.EnigmaImpact(clonePosition, 0.6f);
             Phase10BossVFX.DiminuendoFade(clonePosition, DeepPurple, 0.7f);
+            
+            for (int i = 0; i < 4; i++)
+            {
+                MagnumParticleHandler.SpawnParticle(new SparkleParticle(
+                    clonePosition, Main.rand.NextVector2Circular(2f, 2f),
+                    EerieGreen, 0.3f, 25));
+            }
         }
 
         /// <summary>VoidImplosion: Collapsing void that pulls everything inward.</summary>
@@ -217,10 +296,20 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses.Systems
         public static void VoidImplosionRelease(Vector2 center)
         {
             MagnumScreenEffects.AddScreenShake(18f);
+            EnigmaSkySystem.TriggerRevelationFlash(0.6f);
             CustomParticles.GenericFlare(center, MysteryWhite, 1.5f, 25);
             ThemedParticles.EnigmaImpact(center, 1.5f);
             CustomParticles.GlyphBurst(center, EerieGreen, 10, 6f);
             Phase10BossVFX.SforzandoSpike(center, DeepPurple, 1.2f);
+            
+            // Radial bloom supernova
+            for (int i = 0; i < 10; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 10f;
+                MagnumParticleHandler.SpawnParticle(new BloomParticle(
+                    center, angle.ToRotationVector2() * 3f,
+                    Color.Lerp(DeepPurple, EerieGreen, i / 10f), 0.5f, 25));
+            }
         }
 
         /// <summary>RealityUnravel: Ultimate attack  Ereality collapses with eyes and glyphs everywhere.</summary>
@@ -235,6 +324,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses.Systems
         public static void RealityUnravelRelease(Vector2 center)
         {
             MagnumScreenEffects.AddScreenShake(25f);
+            EnigmaSkySystem.TriggerRevelationFlash(0.9f);
             FateRealityDistortion.TriggerRealityShatter(center, 8, 1.0f, 30);
             CustomParticles.GenericFlare(center, MysteryWhite, 2.0f, 30);
             for (int i = 0; i < 16; i++)
@@ -243,10 +333,25 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses.Systems
                 Color color = ThemedParticles.GetEnigmaGradient(i / 16f);
                 CustomParticles.GenericFlare(center + angle.ToRotationVector2() * 120f, color, 0.9f, 25);
                 CustomParticles.EnigmaEyeGaze(center + angle.ToRotationVector2() * 100f, EerieGreen, 0.4f);
+                
+                // Bloom supernova ring
+                MagnumParticleHandler.SpawnParticle(new BloomParticle(
+                    center, angle.ToRotationVector2() * 4f,
+                    color, 0.6f, 30));
             }
             Phase10BossVFX.CodaFinale(center, DeepPurple, EerieGreen, 2.0f);
             Phase10BossVFX.TuttiFullEnsemble(center, new[] { DeepPurple, EerieGreen, MysteryWhite }, 1.8f);
             BossSignatureVFX.EnigmaParadoxJudgment(center, 5, 5, 2.0f);
+            
+            // 12 ascending revelation sparks
+            for (int i = 0; i < 12; i++)
+            {
+                MagnumParticleHandler.SpawnParticle(new SparkleParticle(
+                    center + Main.rand.NextVector2Circular(60f, 60f),
+                    new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-4f, -2f)),
+                    Color.Lerp(EerieGreen, MysteryWhite, Main.rand.NextFloat()),
+                    MathHelper.Lerp(0.4f, 0.7f, Main.rand.NextFloat()), 40));
+            }
         }
 
         #endregion

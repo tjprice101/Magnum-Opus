@@ -180,6 +180,15 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+
+            // Bloom underlay
+            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+            Vector2 glowOrigin = glow.Size() / 2f;
+            Vector2 glowPos = Projectile.Center - Main.screenPosition;
+            Color glowC = FatePalette.DarkPink * 0.2f;
+            glowC.A = 0;
+            sb.Draw(glow, glowPos, null, glowC, 0f, glowOrigin, 0.6f, SpriteEffects.None, 0f);
+
             try
             {
             IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.Fate, ref _strip);
@@ -377,6 +386,13 @@ namespace MagnumOpus.Content.Fate.Projectiles
             // Graduated orb bloom head (Incisor of Moonlight pattern)
             MagnumVFX.DrawGraduatedOrbHead(spriteBatch, drawPos, FatePalette.DarkPink, FatePalette.BrightCrimson, 0.8f);
 
+            // Bloom underlay for cosmic energy ball core
+            Texture2D softGlow = MagnumTextureRegistry.GetSoftGlow();
+            Vector2 softGlowOrigin = softGlow.Size() / 2f;
+            Color coreGlow = FatePalette.BrightCrimson * (0.15f * pulse);
+            coreGlow.A = 0;
+            spriteBatch.Draw(softGlow, drawPos, null, coreGlow, 0f, softGlowOrigin, 0.5f, SpriteEffects.None, 0f);
+
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
@@ -499,6 +515,15 @@ namespace MagnumOpus.Content.Fate.Projectiles
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
+
+            // Bloom underlay for seeker ball
+            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+            Vector2 glowOrigin = glow.Size() / 2f;
+            Vector2 glowPos = Projectile.Center - Main.screenPosition;
+            Color glowC = FatePalette.DarkPink * 0.18f;
+            glowC.A = 0;
+            sb.Draw(glow, glowPos, null, glowC, 0f, glowOrigin, 0.5f, SpriteEffects.None, 0f);
+
             try
             {
             IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.Fate, ref _strip);

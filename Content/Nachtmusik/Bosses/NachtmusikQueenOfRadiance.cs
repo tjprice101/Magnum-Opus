@@ -29,6 +29,7 @@ using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Nachtmusik.Bosses.Systems;
 using MagnumOpus.Common.Systems.Bosses;
+using static MagnumOpus.Content.Nachtmusik.Bosses.Systems.NachtmusikSkySystem;
 using MagnumOpus.Content.Nachtmusik.Enemies;
 using ReLogic.Content;
 
@@ -369,6 +370,11 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             
             BossIndexTracker.NachtmusikQueen = NPC.whoAmI;
             BossIndexTracker.NachtmusikPhase = difficultyTier;
+            
+            // Feed sky system
+            NachtmusikSkySystem.BossLifeRatio = (float)NPC.life / NPC.lifeMax;
+            NachtmusikSkySystem.BossCenter = NPC.Center;
+            NachtmusikSkySystem.BossIsPhase2 = isPhase2;
             
             if (State != BossPhase.Spawning)
                 NachtmusikBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier, isPhase2);
@@ -2242,7 +2248,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             deathTimer++;
             NPC.velocity *= 0.95f;
             
-            // Building intensity
+            // Building intensity — escalating sky flashes
             if (deathTimer < 120)
             {
                 float progress = deathTimer / 120f;
@@ -2262,6 +2268,12 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                 if (deathTimer % 15 == 0)
                 {
                     MagnumScreenEffects.AddScreenShake(progress * 8f);
+                }
+                
+                // Escalating sky flashes every 30 frames
+                if (deathTimer % 30 == 0)
+                {
+                    TriggerCosmicStormFlash(6f + progress * 8f);
                 }
             }
             // Final explosion
@@ -2302,6 +2314,29 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                 if (Main.netMode != NetmodeID.Server)
                 {
                     Main.NewText("The Queen of Radiance returns to the stars...", Gold);
+                }
+                
+                // Supernova sky flash at climax
+                TriggerSupernovaFlash(25f);
+                
+                // 16 bloom supernova ring
+                for (int i = 0; i < 16; i++)
+                {
+                    float bAngle = MathHelper.TwoPi * i / 16f;
+                    Vector2 bVel = bAngle.ToRotationVector2() * 6f;
+                    Color bColor = Color.Lerp(new Color(80, 120, 200), StarWhite, i / 16f);
+                    var bloom = new BloomParticle(NPC.Center, bVel, bColor * 0.7f, 0.7f, 30);
+                    MagnumParticleHandler.SpawnParticle(bloom);
+                }
+                
+                // 10 ascending sparkles
+                for (int i = 0; i < 10; i++)
+                {
+                    var sparkle = new SparkleParticle(
+                        NPC.Center + Main.rand.NextVector2Circular(50f, 50f),
+                        new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-3f, -1f)),
+                        StarWhite, 0.4f, 30);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
                 }
             }
             // Fade out
@@ -2413,6 +2448,9 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             Vector2 drawPos = NPC.Center - screenPos;
             Vector2 origin = texture.Size() / 2f;
             
+            // === SHADER LAYER 0: Boss Glow Underlay ===
+            NachtmusikBossShaderSystem.DrawBossGlow(spriteBatch, NPC, screenPos, isPhase2);
+            
             // === Shader: Starfield Aura ===
             if (State != BossPhase.Spawning)
                 NachtmusikBossShaderSystem.DrawStarfieldAura(spriteBatch, NPC, screenPos, aggressionLevel, difficultyTier, isEnraged);
@@ -2452,8 +2490,9 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                 }
             }
             
-            // Glow effect
+            // Glow effect — additive-correct
             Color glowColor = (isPhase2 ? Gold : Violet) * 0.3f;
+            glowColor.A = 0;
             for (int i = 0; i < 4; i++)
             {
                 Vector2 offset = (MathHelper.PiOver2 * i).ToRotationVector2() * 4f;

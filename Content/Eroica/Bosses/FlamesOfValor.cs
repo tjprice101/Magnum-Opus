@@ -906,6 +906,16 @@ namespace MagnumOpus.Content.Eroica.Bosses
             if (isGlowing)
             {
                 ThemedParticles.EroicaAura(NPC.Center, NPC.width * 0.6f);
+
+                // Bloom particle orbiting during attack state
+                if (Main.GameUpdateCount % 12 == 0)
+                {
+                    float orbitAng = Main.GameUpdateCount * 0.05f;
+                    Vector2 bloomPos = NPC.Center + orbitAng.ToRotationVector2() * 30f;
+                    Vector2 bloomVel = (orbitAng + MathHelper.PiOver2).ToRotationVector2() * 1.5f;
+                    Color bloomColor = Color.Lerp(new Color(255, 140, 30), new Color(255, 200, 80), Main.rand.NextFloat());
+                    MagnumParticleHandler.SpawnParticle(new BloomParticle(bloomPos, bloomVel, bloomColor, 0.25f, 30));
+                }
             }
             else if (Main.rand.NextBool(6))
             {
@@ -947,7 +957,10 @@ namespace MagnumOpus.Content.Eroica.Bosses
 
         public override void OnKill()
         {
-            // Enhanced death burst with multi-layer bloom - red and gold
+            // Sky flash when a flame is extinguished
+            EroicaSkySystem.TriggerAttackFlash(0.35f);
+
+            // Enhanced death burst with multi-layer bloom
             UnifiedVFXBloom.Eroica.ImpactEnhanced(NPC.Center, 2.5f);
             EnhancedThemedParticles.EroicaBloomBurstEnhanced(NPC.Center, 1.8f);
             ThemedParticles.EroicaShockwave(NPC.Center, 1.5f);
@@ -961,6 +974,22 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 float gradientProgress = (float)i / 8f;
                 Color flareColor = Color.Lerp(new Color(220, 50, 50), new Color(255, 215, 0), gradientProgress);
                 EnhancedParticles.BloomFlare(NPC.Center + offset, flareColor, 0.5f, 20, 3, 0.85f);
+            }
+
+            // Bloom particle cascade
+            for (int i = 0; i < 8; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(4f, 4f) + new Vector2(0, -2f);
+                Color bloomColor = Color.Lerp(new Color(255, 140, 30), new Color(255, 200, 80), Main.rand.NextFloat());
+                MagnumParticleHandler.SpawnParticle(new BloomParticle(NPC.Center + Main.rand.NextVector2Circular(20f, 20f), vel, bloomColor, 0.5f + Main.rand.NextFloat() * 0.3f, 45 + Main.rand.Next(25)));
+            }
+
+            // Ascending ember sparks
+            for (int i = 0; i < 5; i++)
+            {
+                Vector2 sparkVel = new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), -4f - Main.rand.NextFloat() * 3f);
+                Color sparkColor = Color.Lerp(new Color(200, 50, 50), new Color(255, 200, 80), Main.rand.NextFloat());
+                MagnumParticleHandler.SpawnParticle(new GlowSparkParticle(NPC.Center, sparkVel, sparkColor, 0.35f, 40));
             }
             
             // Music notes cascade
@@ -985,33 +1014,64 @@ namespace MagnumOpus.Content.Eroica.Bosses
             Vector2 drawOrigin = new Vector2(frameWidth / 2, frameHeight / 2);
             
             SpriteEffects effects = NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+            Vector2 drawCenter = NPC.Center - screenPos;
+            float breathe = (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.5f + 0.5f;
 
-            // Draw trail
+            // Layer 0: Bloom underlay — fiery radiant presence
+            Texture2D bloomTex = MagnumTextureRegistry.GetSoftGlow();
+            if (bloomTex != null)
+            {
+                Vector2 bloomOrigin = new Vector2(bloomTex.Width, bloomTex.Height) * 0.5f;
+                float bloomBase = 0.25f + glowIntensity * 0.2f;
+                Color outerBloom = new Color(255, 140, 30) * (0.1f + glowIntensity * 0.08f);
+                outerBloom.A = 0;
+                spriteBatch.Draw(bloomTex, drawCenter, null, outerBloom, 0f, bloomOrigin, bloomBase + breathe * 0.04f, SpriteEffects.None, 0f);
+                Color innerBloom = new Color(255, 200, 80) * (0.15f + glowIntensity * 0.1f);
+                innerBloom.A = 0;
+                spriteBatch.Draw(bloomTex, drawCenter, null, innerBloom, 0f, bloomOrigin, bloomBase * 0.45f, SpriteEffects.None, 0f);
+            }
+
+            // Layer 1: Afterimage trail with proper additive blending
             for (int k = 0; k < NPC.oldPos.Length; k++)
             {
                 Vector2 drawPos = NPC.oldPos[k] - screenPos + new Vector2(NPC.width / 2, NPC.height / 2);
-                Color trailColor = new Color(255, 150, 50, 80) * ((float)(NPC.oldPos.Length - k) / NPC.oldPos.Length);
+                float trailProgress = (float)(NPC.oldPos.Length - k) / NPC.oldPos.Length;
+                Color trailColor;
                 if (isGlowing)
-                    trailColor = new Color(255, 200, 100, 100) * ((float)(NPC.oldPos.Length - k) / NPC.oldPos.Length);
-                float scale = NPC.scale * (1f - k * 0.08f);
+                    trailColor = Color.Lerp(new Color(255, 140, 30), new Color(255, 200, 100), trailProgress) * trailProgress;
+                else
+                    trailColor = Color.Lerp(new Color(200, 100, 30), new Color(255, 150, 50), trailProgress) * trailProgress;
+                trailColor.A = 0;
+                float scale = NPC.scale * MathHelper.Lerp(0.7f, 1f, trailProgress);
                 spriteBatch.Draw(texture, drawPos, sourceRect, trailColor, NPC.rotation, drawOrigin, scale, effects, 0f);
             }
             
-            // Glow effect when attacking
+            // Layer 2: Multi-layer glow when attacking
             if (glowIntensity > 0)
             {
-                Color glowColor = new Color(255, 200, 100, 0) * glowIntensity * 0.5f;
+                // Outer halo
+                Color outerGlow = new Color(255, 140, 30) * glowIntensity * 0.2f;
+                outerGlow.A = 0;
+                spriteBatch.Draw(texture, drawCenter, sourceRect, outerGlow, NPC.rotation, drawOrigin, NPC.scale * 1.25f, effects, 0f);
+                // Mid glow
+                Color midGlow = new Color(255, 200, 80) * glowIntensity * 0.35f;
+                midGlow.A = 0;
+                spriteBatch.Draw(texture, drawCenter, sourceRect, midGlow, NPC.rotation, drawOrigin, NPC.scale * 1.12f, effects, 0f);
+                // Inner bright directional edge
+                Color innerGlow = new Color(255, 240, 200) * glowIntensity * 0.4f;
+                innerGlow.A = 0;
                 for (int i = 0; i < 4; i++)
                 {
-                    Vector2 offset = new Vector2(4f, 0).RotatedBy(MathHelper.PiOver2 * i);
-                    spriteBatch.Draw(texture, NPC.Center - screenPos + offset, sourceRect, glowColor, NPC.rotation, drawOrigin, NPC.scale * 1.1f, effects, 0f);
+                    Vector2 offset = new Vector2(3f, 0).RotatedBy(MathHelper.PiOver2 * i);
+                    spriteBatch.Draw(texture, drawCenter + offset, sourceRect, innerGlow, NPC.rotation, drawOrigin, NPC.scale * 1.04f, effects, 0f);
                 }
             }
             
-            // Draw main sprite
+            // Layer 3: Main sprite with warmth boost
             Vector2 mainDrawPos = NPC.Center - screenPos;
             Color mainColor = NPC.GetAlpha(drawColor);
-            spriteBatch.Draw(texture, mainDrawPos, sourceRect, mainColor, NPC.rotation, drawOrigin, NPC.scale, effects, 0f);
+            Color warmth = Color.Lerp(mainColor, Color.White, glowIntensity * 0.25f);
+            spriteBatch.Draw(texture, mainDrawPos, sourceRect, warmth, NPC.rotation, drawOrigin, NPC.scale, effects, 0f);
 
             return false;
         }

@@ -27,6 +27,7 @@ using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.DiesIrae.Bosses.Systems;
 using MagnumOpus.Common.Systems.Bosses;
+using static MagnumOpus.Content.DiesIrae.Bosses.Systems.DiesIraeSkySystem;
 
 namespace MagnumOpus.Content.DiesIrae.Bosses
 {
@@ -265,6 +266,11 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
             
             BossIndexTracker.DiesIraeHerald = NPC.whoAmI;
             BossIndexTracker.DiesIraePhase = difficultyTier;
+
+            // Feed sky system
+            DiesIraeSky.BossLifeRatio = NPC.life / (float)NPC.lifeMax;
+            DiesIraeSky.BossCenter = NPC.Center;
+            DiesIraeSky.BossIsEnraged = isEnraged;
             
             if (State != BossPhase.Spawning && State != BossPhase.Death)
                 DiesIraeBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier, isEnraged);
@@ -1310,6 +1316,12 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
             // === ESCALATING DEATH VFX ===
             float deathProgress = deathTimer / 180f;
             
+            // Escalating sky flashes every 30 frames
+            if (deathTimer % 30 == 0)
+            {
+                TriggerWrathFlash(6f + deathProgress * 10f);
+            }
+            
             // Continuous fire eruptions
             if (deathTimer % 8 == 0)
             {
@@ -1343,6 +1355,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
             {
                 SoundEngine.PlaySound(SoundID.Item14 with { Volume = 2.5f, Pitch = -0.3f }, NPC.Center);
                 MagnumScreenEffects.AddScreenShake(30f);
+                TriggerApocalypseFlash(25f);
                 
                 // MASSIVE death explosion
                 DiesIraeVFX.DeathExplosion(NPC.Center, 2f);
@@ -1350,6 +1363,23 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                 // === PHASE 10 MUSICAL VFX: Death Finale - The Herald Falls ===
                 Phase10Integration.Universal.DeathFinale(NPC.Center, BloodRed, EmberOrange);
                 VFXIntegration.OnBossDeath("DiesIrae", NPC.Center);
+                
+                // Supernova bloom ring
+                for (int i = 0; i < 16; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 16f;
+                    Vector2 vel = angle.ToRotationVector2() * 6f;
+                    Color bloomColor = Color.Lerp(EmberOrange, new Color(255, 220, 180), i / 16f);
+                    MagnumParticleHandler.SpawnParticle(new BloomParticle(NPC.Center, vel, bloomColor, 0.8f, 30));
+                }
+                
+                // Ascending hellfire sparkles
+                for (int i = 0; i < 10; i++)
+                {
+                    Vector2 sparkPos = NPC.Center + Main.rand.NextVector2Circular(50f, 50f);
+                    Vector2 sparkVel = new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), -Main.rand.NextFloat(3f, 5f));
+                    MagnumParticleHandler.SpawnParticle(new SparkleParticle(sparkPos, sparkVel, new Color(255, 220, 180), 0.4f, 30));
+                }
             }
             
             if (deathTimer >= 180)
@@ -1420,6 +1450,10 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
             Vector2 drawPos = NPC.Center - screenPos;
             Vector2 origin = texture.Size() / 2f;
             
+            // === SHADER LAYER 0: Boss Glow Underlay ===
+            if (State != BossPhase.Spawning)
+                DiesIraeBossShaderSystem.DrawBossGlow(spriteBatch, NPC, screenPos, isEnraged);
+
             // === Shader: Hellfire Aura ===
             if (State != BossPhase.Spawning)
                 DiesIraeBossShaderSystem.DrawHellfireAura(spriteBatch, NPC, screenPos, aggressionLevel, difficultyTier, isEnraged);

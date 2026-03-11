@@ -19,6 +19,7 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Bosses;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Screen;
 using MagnumOpus.Content.LaCampanella.Bosses.Systems;
 using static MagnumOpus.Common.Systems.BossDialogueSystem;
 using ReLogic.Content;
@@ -2036,8 +2037,11 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             if (BossVFXOptimizer.IsCriticalLoad) return;
             bool isHighLoad = BossVFXOptimizer.IsHighLoad;
             
-            // Flame particles - reduce under load
+            float hpRatio = NPC.life / (float)NPC.lifeMax;
+            
+            // Flame particles - reduce under load, increase at low HP
             int flameChance = isHighLoad ? (6 - difficultyTier) : (4 - difficultyTier);
+            if (hpRatio < 0.5f) flameChance = Math.Max(1, flameChance - 1);
             if (Main.rand.NextBool(flameChance))
             {
                 Vector2 pos = NPC.Center + Main.rand.NextVector2Circular(NPC.width * 0.4f, NPC.height * 0.4f);
@@ -2062,6 +2066,26 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 Vector2 pos = NPC.Center + Main.rand.NextVector2Circular(70f, 70f);
                 CustomParticles.GenericFlare(pos, CampanellaCrimson, 0.4f, 8);
             }
+            
+            // Bloom orbiting particles — HP-driven density
+            int bloomInterval = (int)MathHelper.Lerp(8, 20, hpRatio);
+            if (!isHighLoad && Timer % bloomInterval == 0)
+            {
+                float angle = Timer * 0.04f;
+                float radius = 60f + (float)Math.Sin(Timer * 0.02f) * 20f;
+                Vector2 orbitPos = NPC.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * radius;
+                Vector2 orbitVel = new Vector2(-(float)Math.Sin(angle), (float)Math.Cos(angle)) * 0.8f;
+                Color bloomCol = Color.Lerp(CampanellaGold, CampanellaOrange, Main.rand.NextFloat());
+                MagnumParticleHandler.SpawnParticle(new BloomParticle(orbitPos, orbitVel, bloomCol, 0.2f, 25));
+            }
+            
+            // Low-HP ascending sparks
+            if (hpRatio < 0.35f && Timer % 12 == 0 && !isHighLoad)
+            {
+                Vector2 sparkPos = NPC.Center + Main.rand.NextVector2Circular(40f, 20f);
+                Vector2 sparkVel = new Vector2(Main.rand.NextFloat(-1f, 1f), -2.5f - Main.rand.NextFloat(1f));
+                MagnumParticleHandler.SpawnParticle(new SparkleParticle(sparkPos, sparkVel, CampanellaOrange, 0.18f, 20));
+            }
         }
         
         private void UpdateDeathAnimation()
@@ -2084,6 +2108,26 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     var smoke = new HeavySmokeParticle(burstPos + Main.rand.NextVector2Circular(30f, 30f), vel, CampanellaBlack, Main.rand.Next(35, 50), 0.4f, 0.8f, 0.012f, false);
                     MagnumParticleHandler.SpawnParticle(smoke);
                 }
+                
+                // Escalating sky flashes
+                if (progress > 0.3f)
+                    LaCampanellaSkySystem.TriggerInfernalFlash(progress * 0.6f);
+                
+                // Bloom particle bursts escalate
+                int bloomCount = (int)(2 + progress * 6);
+                for (int i = 0; i < bloomCount; i++)
+                {
+                    Vector2 vel = Main.rand.NextVector2Circular(4f, 4f) + new Vector2(0, -1.5f);
+                    Color col = Color.Lerp(CampanellaOrange, CampanellaWhite, progress * Main.rand.NextFloat());
+                    MagnumParticleHandler.SpawnParticle(new BloomParticle(burstPos + Main.rand.NextVector2Circular(20f, 20f), vel, col, 0.25f + progress * 0.2f, 25));
+                }
+                
+                // Ascending sparks
+                for (int i = 0; i < 3; i++)
+                {
+                    Vector2 sparkVel = new Vector2(Main.rand.NextFloat(-2f, 2f), -3f - progress * 2f);
+                    MagnumParticleHandler.SpawnParticle(new SparkleParticle(burstPos, sparkVel, CampanellaGold, 0.2f, 30));
+                }
             }
             
             if (deathTimer >= 200)
@@ -2095,6 +2139,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 VFXIntegration.OnBossDeath("LaCampanella", NPC.Center);
                 
                 MagnumScreenEffects.AddScreenShake(35f);
+                LaCampanellaSkySystem.TriggerWhiteFlash(1.0f);
                 SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode with { Pitch = -0.5f, Volume = 2f }, NPC.Center);
                 
                 CustomParticles.GenericFlare(NPC.Center, Color.White, 2.2f, 35);
@@ -2116,6 +2161,20 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     Vector2 vel = Main.rand.NextVector2Circular(15f, 10f);
                     var smoke = new HeavySmokeParticle(NPC.Center + Main.rand.NextVector2Circular(100f, 100f), vel, CampanellaBlack, Main.rand.Next(50, 80), 0.7f, 1.4f, 0.012f, false);
                     MagnumParticleHandler.SpawnParticle(smoke);
+                }
+                
+                // Final bloom supernova — 16 radial + 10 ascending
+                for (int i = 0; i < 16; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 16f;
+                    Vector2 vel = angle.ToRotationVector2() * (5f + Main.rand.NextFloat(3f));
+                    Color col = Color.Lerp(CampanellaOrange, CampanellaWhite, Main.rand.NextFloat() * 0.5f);
+                    MagnumParticleHandler.SpawnParticle(new BloomParticle(NPC.Center, vel, col, 0.5f, 40));
+                }
+                for (int i = 0; i < 10; i++)
+                {
+                    Vector2 vel = new Vector2(Main.rand.NextFloat(-3f, 3f), -4f - Main.rand.NextFloat(3f));
+                    MagnumParticleHandler.SpawnParticle(new SparkleParticle(NPC.Center + Main.rand.NextVector2Circular(30f, 30f), vel, CampanellaGold, 0.35f, 45));
                 }
                 
                 // Death dialogue
@@ -2159,6 +2218,11 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             Vector2 origin = new Vector2(frameWidth / 2f, frameHeight / 2f);
             Vector2 drawPos = NPC.Center - screenPos;
             
+            float lifeRatio = NPC.life / (float)NPC.lifeMax;
+            
+            // === LAYER 0: Boss Glow Underlay ===
+            LaCampanellaBossShaderSystem.DrawBossGlow(spriteBatch, NPC, screenPos, lifeRatio, isEnraged);
+            
             // === SHADER LAYER 1: Bell Aura ===
             if (State != BossPhase.Spawning)
             {
@@ -2174,10 +2238,12 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             }
             else if ((State == BossPhase.Slam && SubPhase >= 3) || isEnraged)
             {
+                // Additive-correct afterimages
                 for (int i = 0; i < NPC.oldPos.Length; i++)
                 {
                     float progress = (float)i / NPC.oldPos.Length;
                     Color trailColor = Color.Lerp(CampanellaOrange, CampanellaCrimson, progress) * (1f - progress) * 0.4f;
+                    trailColor.A = 0;
                     Vector2 trailPos = NPC.oldPos[i] + NPC.Size / 2f - screenPos;
                     spriteBatch.Draw(tex, trailPos, sourceRect, trailColor, NPC.rotation, origin, NPC.scale * (1f - progress * 0.1f), SpriteEffects.None, 0f);
                 }
@@ -2191,14 +2257,34 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     tex, sourceRect, origin, dissolveProgress);
             }
             
+            // === Multi-layer glow outline ===
             float pulse = (float)Math.Sin(Timer * 0.07f) * 0.3f + 0.7f;
-            Color glowColor = isEnraged ? CampanellaCrimson : Color.Lerp(CampanellaOrange, CampanellaGold, pulse);
-            glowColor.A = 0;
-            spriteBatch.Draw(tex, drawPos, sourceRect, glowColor * 0.4f, NPC.rotation, origin, NPC.scale * 1.08f, SpriteEffects.None, 0f);
+            float hpDrive = 1f - lifeRatio;
             
+            // Outer halo
+            Color outerGlow = Color.Lerp(CampanellaOrange, CampanellaCrimson, hpDrive) * (0.12f + hpDrive * 0.08f);
+            outerGlow.A = 0;
+            spriteBatch.Draw(tex, drawPos, sourceRect, outerGlow, NPC.rotation, origin, NPC.scale * 1.14f, SpriteEffects.None, 0f);
+            
+            // Mid glow
+            Color midGlow = Color.Lerp(CampanellaOrange, CampanellaGold, pulse) * (0.2f + hpDrive * 0.1f);
+            midGlow.A = 0;
+            spriteBatch.Draw(tex, drawPos, sourceRect, midGlow, NPC.rotation, origin, NPC.scale * 1.08f, SpriteEffects.None, 0f);
+            
+            // Inner bright edge
+            Color innerGlow = isEnraged ? CampanellaWhite * 0.15f : CampanellaGold * 0.1f;
+            innerGlow.A = 0;
+            spriteBatch.Draw(tex, drawPos, sourceRect, innerGlow, NPC.rotation, origin, NPC.scale * 1.03f, SpriteEffects.None, 0f);
+            
+            // === Main Sprite ===
             Color mainColor = NPC.IsABestiaryIconDummy ? Color.White : Lighting.GetColor((int)(NPC.Center.X / 16), (int)(NPC.Center.Y / 16));
             mainColor = Color.Lerp(mainColor, Color.White, 0.4f);
             spriteBatch.Draw(tex, drawPos, sourceRect, mainColor, NPC.rotation, origin, NPC.scale, SpriteEffects.None, 0f);
+            
+            // === Warmth boost overlay ===
+            Color warmth = CampanellaOrange * (0.06f + hpDrive * 0.04f);
+            warmth.A = 0;
+            spriteBatch.Draw(tex, drawPos, sourceRect, warmth, NPC.rotation, origin, NPC.scale, SpriteEffects.None, 0f);
             
             return false;
         }

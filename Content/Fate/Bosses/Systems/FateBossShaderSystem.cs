@@ -7,6 +7,7 @@ using MagnumOpus.Common.Systems.Bosses;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems;
+using MagnumOpus.Content.Fate;
 
 namespace MagnumOpus.Content.Fate.Bosses.Systems
 {
@@ -48,6 +49,27 @@ namespace MagnumOpus.Content.Fate.Bosses.Systems
             BossRenderHelper.DrawShaderAura(sb, npc, screenPos,
                 BossShaderManager.FateCosmicAura, primary, secondary,
                 baseRadius, intensity, (float)Main.timeForVisualEffects * 0.015f);
+
+            // === BLOOM STACKING: 3-layer cosmic glow ===
+            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+            Vector2 glowOrigin = glow.Size() / 2f;
+            Vector2 drawPos = npc.Center - screenPos;
+
+            // Outer: dark pink cosmic halo
+            Color outerGlow = primary * (0.15f * intensity);
+            outerGlow.A = 0;
+            sb.Draw(glow, drawPos, null, outerGlow, 0f, glowOrigin, baseRadius / glow.Width * 3.5f, SpriteEffects.None, 0f);
+
+            // Mid: crimson pulse
+            float pulse = 0.8f + 0.2f * (float)Math.Sin(Main.timeForVisualEffects * 0.03f);
+            Color midGlow = BrightCrimson * (0.12f * intensity * pulse);
+            midGlow.A = 0;
+            sb.Draw(glow, drawPos, null, midGlow, 0f, glowOrigin, baseRadius / glow.Width * 2.2f, SpriteEffects.None, 0f);
+
+            // Core: celestial white hot center
+            Color coreGlow = CelestialWhite * (0.1f * intensity);
+            coreGlow.A = 0;
+            sb.Draw(glow, drawPos, null, coreGlow, 0f, glowOrigin, baseRadius / glow.Width * 1.0f, SpriteEffects.None, 0f);
 
             // Orbiting constellation glyphs during aura
             if (isAwakened)
@@ -123,37 +145,114 @@ namespace MagnumOpus.Content.Fate.Bosses.Systems
                 texture, sourceRect, origin,
                 BossShaderManager.FateCosmicDeathRift, dissolveProgress,
                 DarkPink, 0.04f);
+
+            // Widening edge glow as dissolution progresses
+            if (dissolveProgress > 0.2f)
+            {
+                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+                Vector2 glowOrigin = glow.Size() / 2f;
+                Vector2 drawPos = npc.Center - screenPos;
+                float edgeIntensity = (dissolveProgress - 0.2f) / 0.8f;
+                Color edgeColor = Color.Lerp(DarkPink, CelestialWhite, edgeIntensity) * (0.25f * edgeIntensity);
+                edgeColor.A = 0;
+                sb.Draw(glow, drawPos, null, edgeColor, 0f, glowOrigin, 1.5f + edgeIntensity * 1.5f, SpriteEffects.None, 0f);
+            }
         }
 
         /// <summary>
-        /// Spawns musical VFX particles  Ecosmic chord progressions,
+        /// Draws multilayer boss glow underlay — cosmic bloom aura beneath the sprite.
+        /// 3-layer: outer cosmic void, mid crimson heartbeat, core celestial radiance.
+        /// </summary>
+        public static void DrawBossGlow(SpriteBatch sb, NPC npc, Vector2 screenPos, bool isAwakened)
+        {
+            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
+            Vector2 glowOrigin = glow.Size() / 2f;
+            Vector2 drawPos = npc.Center - screenPos;
+            float time = (float)Main.timeForVisualEffects;
+            float pulse = 0.85f + 0.15f * (float)Math.Sin(time * 0.025f);
+
+            if (isAwakened)
+            {
+                // Awakened: fierce crimson + celestial core
+                Color outer = FatePalette.BrightCrimson * (0.18f * pulse);
+                outer.A = 0;
+                sb.Draw(glow, drawPos, null, outer, 0f, glowOrigin, 2.0f, SpriteEffects.None, 0f);
+
+                Color mid = FatePalette.DarkPink * (0.14f * pulse);
+                mid.A = 0;
+                sb.Draw(glow, drawPos, null, mid, 0f, glowOrigin, 1.3f, SpriteEffects.None, 0f);
+
+                Color core = FatePalette.WhiteCelestial * (0.12f * pulse);
+                core.A = 0;
+                sb.Draw(glow, drawPos, null, core, 0f, glowOrigin, 0.6f, SpriteEffects.None, 0f);
+            }
+            else
+            {
+                // Phase 1: subdued dark pink glow
+                Color outer = FatePalette.DarkPink * (0.12f * pulse);
+                outer.A = 0;
+                sb.Draw(glow, drawPos, null, outer, 0f, glowOrigin, 1.6f, SpriteEffects.None, 0f);
+
+                Color core = FatePalette.ConstellationSilver * (0.08f * pulse);
+                core.A = 0;
+                sb.Draw(glow, drawPos, null, core, 0f, glowOrigin, 0.8f, SpriteEffects.None, 0f);
+            }
+        }
+
+        /// <summary>
+        /// Spawns musical VFX particles — cosmic chord progressions,
         /// constellation arpeggios, and celestial rhythm pulses.
+        /// HP-driven density: intervals shrink as boss weakens.
         /// </summary>
         public static void SpawnMusicalAccents(NPC npc, int timer, int fatePhase, bool isAwakened)
         {
-            // Constellation glyph orbits every 1.5 seconds
-            if (timer % 90 == 0)
+            float hpDrive = 1f - ((float)npc.life / npc.lifeMax);
+
+            // Constellation glyph orbits — HP-driven interval (90→45)
+            int glyphInterval = Math.Max(1, (int)(90 - hpDrive * 45));
+            if (timer % glyphInterval == 0)
             {
                 Phase10BossVFX.StaffLineConvergence(npc.Center, DarkPink, 0.6f + fatePhase * 0.2f);
             }
 
-            // Cosmic chord progression on attack beats
-            if (timer % 60 == 0 && fatePhase >= 1)
+            // Cosmic chord progression on attack beats — HP-driven (60→30)
+            int chordInterval = Math.Max(1, (int)(60 - hpDrive * 30));
+            if (timer % chordInterval == 0 && fatePhase >= 1)
             {
                 Phase10Integration.Fate.CosmicChordProgression(npc.Center, timer / 60);
             }
 
-            // Celestial fortissimo pulses during awakened state
-            if (timer % 45 == 0 && isAwakened)
+            // Celestial fortissimo pulses during awakened state — HP-driven (45→20)
+            int fortissimoInterval = Math.Max(1, (int)(45 - hpDrive * 25));
+            if (timer % fortissimoInterval == 0 && isAwakened)
             {
                 Phase10BossVFX.FortissimoFlashWarning(npc.Center, CelestialWhite, 1.0f);
                 CustomParticles.FateCosmicBurst(npc.Center, 6);
             }
 
-            // Ancient glyph ring in True Form
-            if (timer % 120 == 0 && isAwakened)
+            // Ancient glyph ring in True Form — HP-driven (120→60)
+            int glyphRingInterval = Math.Max(1, (int)(120 - hpDrive * 60));
+            if (timer % glyphRingInterval == 0 && isAwakened)
             {
                 CustomParticles.GlyphCircle(npc.Center, DarkPink, 8, 80f, 0.02f);
+            }
+
+            // === NEW: Bloom orbiting motes every 12 frames ===
+            if (timer % 12 == 0)
+            {
+                float angle = timer * 0.08f;
+                Vector2 orbitPos = npc.Center + angle.ToRotationVector2() * (60f + hpDrive * 30f);
+                Color orbitColor = isAwakened ? FatePalette.BrightCrimson : FatePalette.DarkPink;
+                var bloom = new BloomParticle(orbitPos, Vector2.Zero, orbitColor, 0.25f + hpDrive * 0.15f, 18);
+                MagnumParticleHandler.SpawnParticle(bloom);
+            }
+
+            // === NEW: Ascending celestial wisps at high hpDrive ===
+            if (hpDrive > 0.5f && timer % 20 == 0)
+            {
+                Vector2 sparkVel = new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-3f, -1.5f));
+                var sparkle = new SparkleParticle(npc.Center + Main.rand.NextVector2Circular(40f, 40f), sparkVel, FatePalette.WhiteCelestial, 0.3f, 25);
+                MagnumParticleHandler.SpawnParticle(sparkle);
             }
         }
     }

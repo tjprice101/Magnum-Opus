@@ -3,8 +3,10 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
 using Terraria.Graphics.Effects;
+using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems.Bosses;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.Fate.Bosses.Systems
 {
@@ -19,6 +21,12 @@ namespace MagnumOpus.Content.Fate.Bosses.Systems
         private bool _isActive;
         private float _opacity;
         private float _awakening; // 0 = phase 1, 1 = True Form
+
+        // Boss state tracking for HP-driven intensity
+        private float _bossLifeRatio = 1f;
+        private Vector2 _bossCenter;
+        private bool _bossIsAwakened;
+        private float _vignetteStrength;
 
         private struct CosmicStar
         {
@@ -99,6 +107,22 @@ namespace MagnumOpus.Content.Fate.Bosses.Systems
 
         public override bool IsActive() => _isActive || _opacity > 0.001f;
 
+        private void UpdateBossState()
+        {
+            _bossLifeRatio = FateSkySystem.BossLifeRatio;
+            _bossCenter = FateSkySystem.BossCenter;
+            _bossIsAwakened = FateSkySystem.BossIsAwakened;
+        }
+
+        private float GetEffectiveIntensity()
+        {
+            if (_bossCenter == Vector2.Zero) return _opacity;
+            Vector2 playerCenter = Main.LocalPlayer.Center;
+            float dist = Vector2.Distance(playerCenter, _bossCenter);
+            float falloff = MathHelper.SmoothStep(1f, 0.25f, MathHelper.Clamp(dist / 3500f, 0f, 1f));
+            return _opacity * falloff;
+        }
+
         public override void Update(GameTime gameTime)
         {
             if (_isActive)
@@ -106,24 +130,35 @@ namespace MagnumOpus.Content.Fate.Bosses.Systems
             else
                 _opacity = Math.Max(0f, _opacity - 0.015f);
 
+            UpdateBossState();
+
             // Determine awakened state from BossIndexTracker
             _awakening = BossIndexTracker.FateAwakened ? 
                 Math.Min(1f, _awakening + 0.01f) : 
                 Math.Max(0f, _awakening - 0.01f);
 
-            // Animate stars
+            // HP-driven vignette: intensifies as boss weakens
+            float targetVignette = _bossIsAwakened ? 0.4f : 0.15f;
+            float hpDrive = 1f - _bossLifeRatio;
+            targetVignette += hpDrive * 0.25f;
+            _vignetteStrength += (_vignetteStrength < targetVignette ? 0.003f : -0.003f);
+            _vignetteStrength = MathHelper.Clamp(_vignetteStrength, 0f, 0.7f);
+
+            // Animate stars — HP-driven pulse speed
+            float pulseMult = 1f + hpDrive * 0.8f;
             if (_stars != null)
             {
                 for (int i = 0; i < MaxStars; i++)
                 {
-                    float pulse = (float)Math.Sin(Main.timeForVisualEffects * _stars[i].PulseSpeed + _stars[i].PulseOffset);
-                    _stars[i].Brightness = 0.3f + pulse * 0.35f + _awakening * 0.3f;
+                    float pulse = (float)Math.Sin(Main.timeForVisualEffects * _stars[i].PulseSpeed * pulseMult + _stars[i].PulseOffset);
+                    _stars[i].Brightness = 0.3f + pulse * 0.35f + _awakening * 0.3f + hpDrive * 0.2f;
 
-                    // In True Form, stars drift slowly toward center
+                    // In True Form, stars drift toward center — faster at low HP
                     if (_awakening > 0.1f)
                     {
                         Vector2 center = new Vector2(Main.screenWidth * 0.5f, Main.screenHeight * 0.5f);
-                        Vector2 toCenter = (center - _stars[i].Position) * 0.0003f * _awakening;
+                        float driftSpeed = 0.0003f + hpDrive * 0.0004f;
+                        Vector2 toCenter = (center - _stars[i].Position) * driftSpeed * _awakening;
                         _stars[i].Position += toCenter;
                     }
                 }
@@ -149,14 +184,16 @@ namespace MagnumOpus.Content.Fate.Bosses.Systems
                     spriteBatch.Draw(pixel, new Rectangle(0, y, Main.screenWidth, 4), lineColor);
                 }
 
-                // Draw stars
+                // Draw stars — HP-driven visibility (more visible at low HP)
+                float hpDrive = 1f - _bossLifeRatio;
+                int visibleStars = (int)(MaxStars * (0.6f + hpDrive * 0.4f));
                 if (_stars != null && _opacity > 0.1f)
                 {
-                    for (int i = 0; i < MaxStars; i++)
+                    for (int i = 0; i < visibleStars; i++)
                     {
                         Color c = _stars[i].Tint * (_opacity * _stars[i].Brightness);
                         c.A = 0; // Additive
-                        float s = _stars[i].Scale * (1f + _awakening * 0.5f);
+                        float s = _stars[i].Scale * (1f + _awakening * 0.5f + hpDrive * 0.3f);
                         spriteBatch.Draw(pixel,
                             _stars[i].Position,
                             new Rectangle(0, 0, 1, 1),
@@ -193,16 +230,114 @@ namespace MagnumOpus.Content.Fate.Bosses.Systems
                             SpriteEffects.None, 0f);
                     }
                 }
+
+                // Vignette rendering — cosmic void creeping from edges
+                if (_vignetteStrength > 0.01f)
+                {
+                    float eff = GetEffectiveIntensity();
+                    for (int ring = 0; ring < 12; ring++)
+                    {
+                        float t = ring / 12f;
+                        float alpha = t * t * _vignetteStrength * eff;
+                        Color vigColor = Color.Lerp(new Color(15, 5, 20), new Color(180, 50, 100), _awakening * 0.3f) * alpha;
+                        int inset = (int)(Main.screenWidth * 0.5f * (1f - t));
+                        int insetY = (int)(Main.screenHeight * 0.5f * (1f - t));
+                        spriteBatch.Draw(pixel, new Rectangle(0, 0, Main.screenWidth, insetY), vigColor);
+                        spriteBatch.Draw(pixel, new Rectangle(0, Main.screenHeight - insetY, Main.screenWidth, insetY), vigColor);
+                        spriteBatch.Draw(pixel, new Rectangle(0, 0, inset, Main.screenHeight), vigColor);
+                        spriteBatch.Draw(pixel, new Rectangle(Main.screenWidth - inset, 0, inset, Main.screenHeight), vigColor);
+                    }
+                }
             }
         }
 
         public override Color OnTileColor(Color inColor)
         {
+            float eff = GetEffectiveIntensity();
+            float tintStrength = _bossIsAwakened ? 0.5f : 0.35f;
             Color tint = Color.Lerp(Color.White,
-                new Color(200, 180, 220), _opacity * 0.3f * (1f + _awakening * 0.3f));
+                new Color(180, 160, 200), eff * tintStrength);
             return inColor.MultiplyRGBA(tint);
         }
 
         public override float GetCloudAlpha() => 1f - _opacity * 0.8f;
+    }
+
+    /// <summary>
+    /// Companion ModSystem for FateSky — feeds boss state and provides cosmic flash APIs.
+    /// </summary>
+    public class FateSkySystem : ModSystem
+    {
+        // Boss state fed from main boss AI
+        public static float BossLifeRatio { get; set; } = 1f;
+        public static Vector2 BossCenter { get; set; }
+        public static bool BossIsAwakened { get; set; }
+
+        // Flash system
+        private static float _flashIntensity;
+        private static Color _flashColor;
+        private static float _flashDecay;
+
+        public static void TriggerCosmicFlash(float intensity)
+        {
+            _flashIntensity = intensity;
+            _flashColor = new Color(180, 50, 100); // Dark pink cosmic
+            _flashDecay = 0.92f;
+        }
+
+        public static void TriggerCrimsonFlash(float intensity)
+        {
+            _flashIntensity = intensity;
+            _flashColor = new Color(255, 60, 80); // Bright crimson
+            _flashDecay = 0.90f;
+        }
+
+        public static void TriggerCelestialFlash(float intensity)
+        {
+            _flashIntensity = intensity;
+            _flashColor = new Color(230, 220, 255); // Celestial white
+            _flashDecay = 0.88f;
+        }
+
+        public static void TriggerSupernovaFlash(float intensity)
+        {
+            _flashIntensity = intensity;
+            _flashColor = Color.White;
+            _flashDecay = 0.85f;
+        }
+
+        public static (float intensity, Color color) GetFlashState() => (_flashIntensity, _flashColor);
+
+        public override void PostUpdateEverything()
+        {
+            // Decay flash
+            if (_flashIntensity > 0.01f)
+                _flashIntensity *= _flashDecay;
+            else
+                _flashIntensity = 0f;
+
+            // Ambient world dust around boss — cosmic motes + crimson sparks
+            if (BossCenter != Vector2.Zero && BossLifeRatio > 0f)
+            {
+                float hpDrive = 1f - BossLifeRatio;
+                int moteChance = Math.Max(1, (int)(12 - hpDrive * 8));
+                if (Main.rand.NextBool(moteChance))
+                {
+                    Vector2 offset = Main.rand.NextVector2Circular(200f, 200f);
+                    Dust d = Dust.NewDustPerfect(BossCenter + offset, DustID.PinkTorch,
+                        new Vector2(0f, Main.rand.NextFloat(-1f, -0.3f)), 0, default, 0.8f);
+                    d.noGravity = true;
+                    d.fadeIn = 1.2f;
+                }
+
+                if (BossIsAwakened && Main.rand.NextBool(Math.Max(1, (int)(8 - hpDrive * 5))))
+                {
+                    Vector2 offset = Main.rand.NextVector2Circular(150f, 150f);
+                    Dust d = Dust.NewDustPerfect(BossCenter + offset, DustID.FireworkFountain_Red,
+                        new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1.5f, -0.5f)), 0, default, 0.6f);
+                    d.noGravity = true;
+                }
+            }
+        }
     }
 }

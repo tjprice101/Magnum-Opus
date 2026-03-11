@@ -6,13 +6,15 @@ using Terraria;
 using Terraria.Graphics.Effects;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Common.Systems
 {
     /// <summary>
     /// Custom sky background effect for La Campanella boss fight.
-    /// Features massive black and orange wavy heat distortion effect.
-    /// Animated heatwave ripples, rising embers, and infernal atmosphere.
+    /// Features massive black and orange wavy heat distortion effect,
+    /// Yharon-style OnTileColor tinting, health-driven intensity,
+    /// distance-based falloff, and attack flash integration.
     /// </summary>
     public class LaCampanellaSkyEffect : CustomSky
     {
@@ -22,7 +24,7 @@ namespace MagnumOpus.Common.Systems
         
         // Background ember particles
         private List<InfernalParticle> backgroundParticles = new List<InfernalParticle>();
-        private const int MaxBackgroundParticles = 150;
+        private const int MaxBackgroundParticles = 200;
         
         // Heat wave distortion parameters
         private float heatWavePhase = 0f;
@@ -35,6 +37,11 @@ namespace MagnumOpus.Common.Systems
         // Pulse effect for dramatic moments
         private float pulseIntensity = 0f;
         private float pulseTimer = 0f;
+        
+        // Boss state tracking — Yharon-style health-driven intensity
+        private float bossLifeRatio = 1f;
+        private Vector2 bossCenter = Vector2.Zero;
+        private bool bossIsEnraged = false;
         
         private struct InfernalParticle
         {
@@ -55,6 +62,47 @@ namespace MagnumOpus.Common.Systems
         {
             backgroundParticles = new List<InfernalParticle>();
         }
+        
+        /// <summary>
+        /// Feed boss state each frame for health-driven visuals.
+        /// </summary>
+        public void UpdateBossState(float lifeRatio, Vector2 center, bool enraged)
+        {
+            bossLifeRatio = lifeRatio;
+            bossCenter = center;
+            bossIsEnraged = enraged;
+        }
+        
+        /// <summary>
+        /// Yharon-style distance-based falloff — effect weakens far from boss.
+        /// </summary>
+        private float GetEffectiveIntensity()
+        {
+            if (bossCenter == Vector2.Zero) return intensity;
+            float dist = Vector2.Distance(Main.LocalPlayer.Center, bossCenter);
+            float distanceFade = 1f - MathHelper.SmoothStep(2500f, 5500f, dist);
+            return intensity * distanceFade;
+        }
+        
+        /// <summary>
+        /// Yharon-style world lighting tint — infernal orange/crimson based on HP.
+        /// </summary>
+        public override Color OnTileColor(Color inColor)
+        {
+            float eff = GetEffectiveIntensity();
+            if (eff <= 0f) return inColor;
+            
+            // High HP: warm amber tint. Low HP: deep crimson suffocation.
+            float hpDrive = 1f - bossLifeRatio;
+            Color tintHigh = new Color(255, 180, 100); // warm amber
+            Color tintLow = new Color(200, 60, 20);    // deep crimson
+            Color tint = Color.Lerp(tintHigh, tintLow, hpDrive);
+            
+            float tintStrength = eff * MathHelper.Lerp(0.15f, 0.4f, hpDrive);
+            if (bossIsEnraged) tintStrength *= 1.4f;
+            
+            return Color.Lerp(inColor, tint, tintStrength);
+        }
 
         public override void Update(GameTime gameTime)
         {
@@ -63,7 +111,7 @@ namespace MagnumOpus.Common.Systems
             
             if (isActive && intensity < 1f)
             {
-                intensity += 0.008f; // Slower fade in for dramatic effect
+                intensity += 0.008f;
             }
             else if (!isActive && intensity > 0f)
             {
@@ -71,14 +119,17 @@ namespace MagnumOpus.Common.Systems
             }
             
             intensity = MathHelper.Clamp(intensity, 0f, 1f);
-            heatIntensity = intensity;
             
-            // Update pulse effect - creates breathing atmosphere
-            pulseTimer += 0.025f;
+            // Heat intensity scales with boss HP loss
+            float hpDrive = 1f - bossLifeRatio;
+            heatIntensity = intensity * MathHelper.Lerp(0.6f, 1.3f, hpDrive);
+            
+            // Pulse speeds up as HP drops
+            pulseTimer += MathHelper.Lerp(0.02f, 0.04f, hpDrive);
             pulseIntensity = (float)Math.Sin(pulseTimer) * 0.2f + 0.8f;
             
             // Decay flash intensity
-            flashIntensity *= 0.9f;
+            flashIntensity *= 0.88f;
             if (flashIntensity < 0.01f)
                 flashIntensity = 0f;
             
@@ -359,23 +410,30 @@ namespace MagnumOpus.Common.Systems
         
         private void DrawVignette(SpriteBatch spriteBatch, Texture2D pixel)
         {
-            int vignetteSize = 250;
-            float vignetteStrength = 0.5f * intensity;
+            float eff = GetEffectiveIntensity();
+            float hpDrive = 1f - bossLifeRatio;
+            int vignetteSize = (int)MathHelper.Lerp(200, 350, hpDrive);
+            float vignetteStrength = MathHelper.Lerp(0.4f, 0.7f, hpDrive) * eff;
+            if (bossIsEnraged) vignetteStrength *= 1.3f;
             
-            // Corners - darker
+            // Infernal orange tint bleeding in from edges at low HP
+            Color vignetteBase = new Color(0, 0, 0);
+            Color infernalTint = new Color(80, 30, 5);
+            Color vignetteColor = Color.Lerp(vignetteBase, infernalTint, hpDrive * 0.5f);
+            
             for (int i = 0; i < vignetteSize; i++)
             {
                 float opacity = (1f - (float)i / vignetteSize) * vignetteStrength;
-                Color vignetteColor = new Color(0, 0, 0) * opacity;
+                Color vc = vignetteColor * opacity;
                 
                 // Top
-                spriteBatch.Draw(pixel, new Rectangle(0, i, Main.screenWidth, 1), vignetteColor * 0.6f);
-                // Bottom  
-                spriteBatch.Draw(pixel, new Rectangle(0, Main.screenHeight - i - 1, Main.screenWidth, 1), vignetteColor);
+                spriteBatch.Draw(pixel, new Rectangle(0, i, Main.screenWidth, 1), vc * 0.6f);
+                // Bottom — heavier (fire rises)
+                spriteBatch.Draw(pixel, new Rectangle(0, Main.screenHeight - i - 1, Main.screenWidth, 1), vc * 1.2f);
                 // Left
-                spriteBatch.Draw(pixel, new Rectangle(i, 0, 1, Main.screenHeight), vignetteColor * 0.4f);
+                spriteBatch.Draw(pixel, new Rectangle(i, 0, 1, Main.screenHeight), vc * 0.5f);
                 // Right
-                spriteBatch.Draw(pixel, new Rectangle(Main.screenWidth - i - 1, 0, 1, Main.screenHeight), vignetteColor * 0.4f);
+                spriteBatch.Draw(pixel, new Rectangle(Main.screenWidth - i - 1, 0, 1, Main.screenHeight), vc * 0.5f);
             }
         }
 
@@ -398,6 +456,112 @@ namespace MagnumOpus.Common.Systems
         public override bool IsActive() => isActive || intensity > 0f;
     }
     
+    /// <summary>
+    /// ModSystem companion — manages sky activation, boss state feeding,
+    /// and provides static flash/particle APIs for attack VFX integration.
+    /// </summary>
+    public class LaCampanellaSkySystem : ModSystem
+    {
+        // Boss state for feeding to sky
+        public static float BossLifeRatio { get; set; } = 1f;
+        public static Vector2 BossCenter { get; set; } = Vector2.Zero;
+        public static bool BossEnraged { get; set; } = false;
+        public static int BossPhaseIndex { get; set; } = 0;
+        
+        // Flash tracking
+        private static float pendingFlashStrength = 0f;
+        private static Color pendingFlashColor = Color.Orange;
+        
+        // Ambient world particle tracking
+        private static int ambientTimer = 0;
+        
+        /// <summary>Trigger an infernal orange flash — bell slam impacts.</summary>
+        public static void TriggerInfernalFlash(float strength = 0.6f)
+        {
+            pendingFlashStrength = Math.Max(pendingFlashStrength, strength);
+            pendingFlashColor = new Color(255, 140, 40);
+        }
+        
+        /// <summary>Trigger a white-hot flash — grand finale / phase transition.</summary>
+        public static void TriggerWhiteFlash(float strength = 0.8f)
+        {
+            pendingFlashStrength = Math.Max(pendingFlashStrength, strength);
+            pendingFlashColor = new Color(255, 240, 220);
+        }
+        
+        /// <summary>Trigger a crimson flash — enrage attacks.</summary>
+        public static void TriggerCrimsonFlash(float strength = 0.5f)
+        {
+            pendingFlashStrength = Math.Max(pendingFlashStrength, strength);
+            pendingFlashColor = new Color(200, 50, 30);
+        }
+        
+        /// <summary>Trigger a custom bell toll flash — visible bell chime effect.</summary>
+        public static void TriggerBellTollFlash(float strength = 0.4f)
+        {
+            pendingFlashStrength = Math.Max(pendingFlashStrength, strength);
+            pendingFlashColor = new Color(220, 180, 80);
+        }
+        
+        public override void PostUpdateEverything()
+        {
+            if (Main.dedServ) return;
+            
+            var skyObj = SkyManager.Instance["MagnumOpus:LaCampanellaSky"];
+            if (skyObj is LaCampanellaSkyEffect sky && sky.IsActive())
+            {
+                // Feed boss state to sky
+                sky.UpdateBossState(BossLifeRatio, BossCenter, BossEnraged);
+                
+                // Deliver pending flash
+                if (pendingFlashStrength > 0f)
+                {
+                    sky.TriggerFlash(pendingFlashStrength, pendingFlashColor);
+                    pendingFlashStrength = 0f;
+                }
+                
+                // Ambient world-space particles near boss
+                ambientTimer++;
+                if (BossCenter != Vector2.Zero && ambientTimer % 3 == 0)
+                {
+                    float hpDrive = 1f - BossLifeRatio;
+                    int emberChance = (int)MathHelper.Lerp(8, 2, hpDrive);
+                    
+                    if (Main.rand.NextBool(Math.Max(1, emberChance)))
+                    {
+                        Vector2 dustPos = BossCenter + Main.rand.NextVector2Circular(300f, 200f);
+                        Dust ember = Dust.NewDustDirect(dustPos, 4, 4, Terraria.ID.DustID.Torch, 0f, -2f, 100, default, 1.5f);
+                        ember.noGravity = true;
+                        ember.velocity = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(1f, 3f));
+                        ember.color = Color.Lerp(new Color(255, 140, 40), new Color(255, 80, 20), Main.rand.NextFloat());
+                    }
+                    
+                    // Heavy smoke below boss at low HP
+                    if (hpDrive > 0.4f && Main.rand.NextBool(4))
+                    {
+                        Vector2 smokePos = BossCenter + new Vector2(Main.rand.NextFloat(-150f, 150f), 60f);
+                        Dust smoke = Dust.NewDustDirect(smokePos, 8, 8, Terraria.ID.DustID.Smoke, 0f, -1f, 200, new Color(30, 20, 15), 2f);
+                        smoke.noGravity = true;
+                        smoke.velocity = new Vector2(Main.rand.NextFloat(-1f, 1f), -Main.rand.NextFloat(0.5f, 1.5f));
+                    }
+                    
+                    // Bloom particles during enrage
+                    if (BossEnraged && ambientTimer % 8 == 0)
+                    {
+                        Vector2 bloomPos = BossCenter + Main.rand.NextVector2Circular(80f, 80f);
+                        Vector2 bloomVel = new Vector2(0, -1.5f) + Main.rand.NextVector2Circular(1f, 0.5f);
+                        Color bloomColor = Color.Lerp(new Color(255, 140, 40), new Color(200, 50, 30), Main.rand.NextFloat());
+                        MagnumParticleHandler.SpawnParticle(new BloomParticle(bloomPos, bloomVel, bloomColor, 0.4f, 35));
+                    }
+                }
+            }
+            else
+            {
+                ambientTimer = 0;
+            }
+        }
+    }
+
     /// <summary>
     /// ModSystem to register the La Campanella sky effect.
     /// </summary>

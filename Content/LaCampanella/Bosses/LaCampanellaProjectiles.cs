@@ -106,14 +106,26 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 
                 float progress = (float)i / Projectile.oldPos.Length;
                 Color trailColor = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaYellow, progress) * (1f - progress);
+                trailColor.A = 0;
                 float scale = Projectile.scale * (1f - progress * 0.5f);
                 
                 Vector2 drawPos = Projectile.oldPos[i] + Projectile.Size / 2 - Main.screenPosition;
                 Main.EntitySpriteDraw(texture, drawPos, null, trailColor, Projectile.oldRot[i], origin, scale, SpriteEffects.None, 0);
             }
             
+            // Bloom underlay
+            Texture2D bloomTex = MagnumTextureRegistry.GetSoftGlow();
+            if (bloomTex != null)
+            {
+                Vector2 bloomOrigin = new Vector2(bloomTex.Width, bloomTex.Height) * 0.5f;
+                Color bloomColor = ThemedParticles.CampanellaOrange * 0.15f;
+                bloomColor.A = 0;
+                Main.EntitySpriteDraw(bloomTex, Projectile.Center - Main.screenPosition, null, bloomColor, 0f, bloomOrigin, 0.06f, SpriteEffects.None, 0);
+            }
+            
             // Main projectile glow
             Color mainColor = Color.Lerp(ThemedParticles.CampanellaOrange, Color.White, 0.3f);
+            mainColor.A = 0;
             Main.EntitySpriteDraw(texture, Projectile.Center - Main.screenPosition, null, mainColor, 
                 Projectile.rotation, origin, Projectile.scale * 1.2f, SpriteEffects.None, 0);
 
@@ -245,6 +257,17 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             // Glow effect
             float pulse = (float)Math.Sin(Projectile.ai[0] * 0.15f) * 0.3f + 0.7f;
             Color glowColor = ThemedParticles.CampanellaOrange * 0.5f * pulse;
+            glowColor.A = 0;
+            
+            // Bloom underlay
+            Texture2D bloomTex = MagnumTextureRegistry.GetSoftGlow();
+            if (bloomTex != null)
+            {
+                Vector2 bloomOrigin = new Vector2(bloomTex.Width, bloomTex.Height) * 0.5f;
+                Color bloomColor = ThemedParticles.CampanellaOrange * (0.1f * pulse);
+                bloomColor.A = 0;
+                Main.EntitySpriteDraw(bloomTex, Projectile.Center - Main.screenPosition, null, bloomColor, 0f, bloomOrigin, 0.08f, SpriteEffects.None, 0);
+            }
             
             for (int i = 0; i < 4; i++)
             {

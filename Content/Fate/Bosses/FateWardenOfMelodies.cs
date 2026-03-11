@@ -284,6 +284,11 @@ namespace MagnumOpus.Content.Fate.Bosses
             BossIndexTracker.FateWardenOfMelodies = NPC.whoAmI;
             BossIndexTracker.FatePhase = difficultyTier;
             BossIndexTracker.FateAwakened = hasAwakened;
+
+            // Feed sky system with boss state
+            FateSkySystem.BossLifeRatio = (float)NPC.life / NPC.lifeMax;
+            FateSkySystem.BossCenter = NPC.Center;
+            FateSkySystem.BossIsAwakened = hasAwakened;
             
             if (State != BossPhase.Spawning && State != BossPhase.Dying)
                 FateBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier, hasAwakened);
@@ -1542,6 +1547,9 @@ namespace MagnumOpus.Content.Fate.Bosses
             Vector2 origin = new Vector2(texture.Width / 2f, frameHeight / 2f);
             SpriteEffects effects = NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             
+            // === SHADER LAYER 0: Boss Glow Underlay ===
+            FateBossShaderSystem.DrawBossGlow(spriteBatch, NPC, screenPos, hasAwakened);
+
             // === Shader: Cosmic Aura ===
             if (State != BossPhase.Spawning)
                 FateBossShaderSystem.DrawCosmicAura(spriteBatch, NPC, screenPos, aggressionLevel, difficultyTier, isEnraged);
@@ -1576,7 +1584,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                 spriteBatch.Draw(texture, trailPos, frame, trailColor, NPC.rotation, origin, NPC.scale * (1f - progress * 0.2f), effects, 0f);
             }
             
-            // Glow underlayer
+            // Glow underlayer — additive-correct
             Color glowColor = FatePalette.BrightCrimson * 0.3f;
             glowColor.A = 0;
             spriteBatch.Draw(texture, drawPos, frame, glowColor, NPC.rotation, origin, NPC.scale * 1.1f, effects, 0f);
@@ -1834,6 +1842,10 @@ namespace MagnumOpus.Content.Fate.Bosses
             // Building cosmic energy
             if (deathTimer < 120)
             {
+                // Sky flash: cosmic flash every 30 frames, escalating
+                if (deathTimer % 30 == 0)
+                    FateSkySystem.TriggerCosmicFlash(6f + progress * 6f);
+
                 if (deathTimer % 5 == 0)
                 {
                     int particleCount = (int)(8 + progress * 16);
@@ -1856,6 +1868,7 @@ namespace MagnumOpus.Content.Fate.Bosses
             // Climax
             else if (deathTimer == 150)
             {
+                FateSkySystem.TriggerSupernovaFlash(25f);
                 MagnumScreenEffects.AddScreenShake(30f);
                 SoundEngine.PlaySound(SoundID.Item122 with { Volume = 2f, Pitch = -0.3f }, NPC.Center);
                 
@@ -1903,6 +1916,23 @@ namespace MagnumOpus.Content.Fate.Bosses
                 
                 // === PHASE 10 MUSICAL VFX: Death Finale - Cosmic Celestial Symphony Ends ===
                 Phase10Integration.Universal.DeathFinale(NPC.Center, FatePalette.WhiteCelestial, FatePalette.DarkPink);
+
+                // Bloom supernova ring at death climax
+                for (int i = 0; i < 16; i++)
+                {
+                    float bloomAngle = MathHelper.TwoPi * i / 16f;
+                    Vector2 bloomVel = bloomAngle.ToRotationVector2() * 6f;
+                    Color bloomColor = Color.Lerp(FatePalette.DarkPink, FatePalette.WhiteCelestial, i / 16f);
+                    var bloomPart = new BloomParticle(NPC.Center, bloomVel, bloomColor, 0.7f, 30);
+                    MagnumParticleHandler.SpawnParticle(bloomPart);
+                }
+                // Ascending celestial sparkle wisps
+                for (int i = 0; i < 10; i++)
+                {
+                    Vector2 sparkVel = new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-4f, -2f));
+                    var sparkle = new SparkleParticle(NPC.Center + Main.rand.NextVector2Circular(60f, 60f), sparkVel, FatePalette.WhiteCelestial, 0.4f, 30);
+                    MagnumParticleHandler.SpawnParticle(sparkle);
+                }
             }
             
             if (deathTimer >= 180)

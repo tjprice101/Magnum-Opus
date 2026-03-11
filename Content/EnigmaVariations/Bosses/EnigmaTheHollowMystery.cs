@@ -24,6 +24,7 @@ using MagnumOpus.Common.Systems.Bosses;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.EnigmaVariations.Bosses.Systems;
+using MagnumOpus.Common.Systems.VFX.Screen;
 using static MagnumOpus.Common.Systems.BossDialogueSystem;
 using ReLogic.Content;
 
@@ -269,6 +270,11 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             Timer++;
             UpdateAnimation();
             SpawnAmbientParticles();
+            
+            // Feed boss state to sky system
+            EnigmaSkySystem.BossLifeRatio = (float)NPC.life / NPC.lifeMax;
+            EnigmaSkySystem.BossCenter = NPC.Center;
+            EnigmaSkySystem.BossEnraged = isEnraged;
             
             BossIndexTracker.EnigmaHollowMystery = NPC.whoAmI;
             BossIndexTracker.EnigmaPhase = difficultyTier;
@@ -3064,9 +3070,12 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             if (BossVFXOptimizer.IsCriticalLoad) return;
             bool isHighLoad = BossVFXOptimizer.IsHighLoad;
             
-            // Void particles - reduce under load
-            int voidChance = isHighLoad ? (8 - difficultyTier) : (5 - difficultyTier);
-            if (Main.rand.NextBool(voidChance))
+            float hpDrive = 1f - (float)NPC.life / NPC.lifeMax;
+            
+            // Void particles - HP-driven density
+            int voidChance = isHighLoad ? (int)MathHelper.Lerp(8, 4, hpDrive) : (int)MathHelper.Lerp(5, 2, hpDrive);
+            voidChance -= difficultyTier;
+            if (Main.rand.NextBool(Math.Max(1, voidChance)))
             {
                 Vector2 pos = NPC.Center + Main.rand.NextVector2Circular(NPC.width * 0.5f, NPC.height * 0.4f);
                 Vector2 vel = Main.rand.NextVector2Circular(1f, 1f);
@@ -3074,16 +3083,17 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 CustomParticles.GenericFlare(pos, color * 0.7f, 0.28f, Main.rand.Next(15, 25));
             }
             
-            // Glyphs - reduce under load
-            int glyphChance = isHighLoad ? (25 - difficultyTier * 3) : (15 - difficultyTier * 3);
-            if (Main.rand.NextBool(glyphChance))
+            // Glyphs - HP-driven density
+            int glyphChance = isHighLoad ? (int)MathHelper.Lerp(25, 12, hpDrive) : (int)MathHelper.Lerp(15, 6, hpDrive);
+            glyphChance -= difficultyTier * 3;
+            if (Main.rand.NextBool(Math.Max(1, glyphChance)))
             {
                 Vector2 pos = NPC.Center + Main.rand.NextVector2Circular(60f, 60f);
                 CustomParticles.Glyph(pos, EnigmaPurple * 0.6f, 0.3f, -1);
             }
             
             // Eyes - skip under high load
-            if (!isHighLoad && difficultyTier >= 1 && Main.rand.NextBool(25 - difficultyTier * 5))
+            if (!isHighLoad && difficultyTier >= 1 && Main.rand.NextBool(Math.Max(1, 25 - difficultyTier * 5)))
             {
                 Vector2 eyePos = NPC.Center + Main.rand.NextVector2Circular(100f, 100f);
                 CustomParticles.EnigmaEyeGaze(eyePos, EnigmaPurple * 0.5f, 0.35f, Main.player[NPC.target].Center);
@@ -3094,6 +3104,28 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             {
                 Vector2 pos = NPC.Center + Main.rand.NextVector2Circular(60f, 60f);
                 CustomParticles.GenericFlare(pos, EnigmaGreen, 0.4f, 10);
+            }
+            
+            // Bloom particles orbiting boss
+            if (!isHighLoad && Timer % 10 == 0)
+            {
+                float angle = Timer * 0.04f;
+                float orbitRadius = MathHelper.Lerp(60f, 100f, hpDrive);
+                Vector2 orbitPos = NPC.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * orbitRadius;
+                Color bloomColor = Color.Lerp(EnigmaPurple, EnigmaGreen, hpDrive);
+                MagnumParticleHandler.SpawnParticle(new BloomParticle(
+                    orbitPos, Main.rand.NextVector2Circular(0.3f, 0.3f),
+                    bloomColor, MathHelper.Lerp(0.25f, 0.5f, hpDrive), 25));
+            }
+            
+            // Low-HP ascending void sparks
+            if (!isHighLoad && hpDrive > 0.5f && Timer % 8 == 0)
+            {
+                Vector2 sparkPos = NPC.Center + Main.rand.NextVector2Circular(80f, 80f);
+                MagnumParticleHandler.SpawnParticle(new SparkleParticle(
+                    sparkPos, new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-2f, -1f)),
+                    Color.Lerp(EnigmaPurple, EnigmaGreen, Main.rand.NextFloat()),
+                    0.3f, 35));
             }
         }
         
@@ -3107,16 +3139,34 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 float progress = deathTimer / 180f;
                 MagnumScreenEffects.AddScreenShake(4f + progress * 18f);
                 
+                // Escalating sky flashes
+                EnigmaSkySystem.TriggerPurpleFlash(0.2f + progress * 0.4f);
+                
                 Vector2 burstPos = NPC.Center + Main.rand.NextVector2Circular(50f * (1f - progress * 0.4f), 50f * (1f - progress * 0.4f));
                 Color burstColor = Color.Lerp(EnigmaPurple, EnigmaGreen, progress);
                 CustomParticles.GenericFlare(burstPos, burstColor, 0.5f + progress * 0.5f, 16);
                 CustomParticles.HaloRing(burstPos, EnigmaPurple, 0.3f + progress * 0.3f, 12);
                 CustomParticles.GlyphBurst(burstPos, EnigmaPurple, (int)(3 + progress * 6), 4f);
                 
+                // Bloom burst particles
+                MagnumParticleHandler.SpawnParticle(new BloomParticle(
+                    burstPos, Main.rand.NextVector2Circular(2f, 2f),
+                    burstColor, 0.5f + progress * 0.5f, 20));
+                
                 for (int i = 0; i < 2; i++)
                 {
                     Vector2 eyePos = NPC.Center + Main.rand.NextVector2Circular(70f, 70f);
                     CustomParticles.EnigmaEyeGaze(eyePos, EnigmaPurple * 0.6f, 0.4f, eyePos + Main.rand.NextVector2Unit() * 50f);
+                }
+                
+                // Ascending sparks escalating
+                int sparkCount = (int)(1 + progress * 3);
+                for (int i = 0; i < sparkCount; i++)
+                {
+                    MagnumParticleHandler.SpawnParticle(new SparkleParticle(
+                        NPC.Center + Main.rand.NextVector2Circular(40f, 40f),
+                        new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-3f, -1.5f)),
+                        burstColor, 0.3f + progress * 0.3f, 30));
                 }
             }
             
@@ -3129,6 +3179,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 Phase10Integration.Universal.DeathFinale(NPC.Center, EnigmaPurple, EnigmaGreen);
                 
                 MagnumScreenEffects.AddScreenShake(30f);
+                EnigmaSkySystem.TriggerRevelationFlash(1.0f);
                 SoundEngine.PlaySound(SoundID.NPCDeath52 with { Pitch = -0.5f, Volume = 1.8f }, NPC.Center);
                 
                 CustomParticles.GenericFlare(NPC.Center, Color.White, 2f, 35);
@@ -3151,6 +3202,23 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 {
                     Vector2 eyePos = NPC.Center + Main.rand.NextVector2Circular(100f, 100f);
                     CustomParticles.EnigmaEyeGaze(eyePos, EnigmaPurple, 0.6f, eyePos + Main.rand.NextVector2Unit() * 150f);
+                }
+                
+                // Bloom supernova: 16 radial + 10 ascending
+                for (int i = 0; i < 16; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 16f;
+                    MagnumParticleHandler.SpawnParticle(new BloomParticle(
+                        NPC.Center, angle.ToRotationVector2() * 4f,
+                        Color.Lerp(EnigmaPurple, EnigmaGreen, i / 16f), 0.8f, 35));
+                }
+                for (int i = 0; i < 10; i++)
+                {
+                    MagnumParticleHandler.SpawnParticle(new SparkleParticle(
+                        NPC.Center + Main.rand.NextVector2Circular(50f, 50f),
+                        new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-5f, -2f)),
+                        Color.Lerp(EnigmaGreen, new Color(200, 255, 220), Main.rand.NextFloat()),
+                        MathHelper.Lerp(0.5f, 0.8f, Main.rand.NextFloat()), 45));
                 }
                 
                 // Death dialogue
@@ -3195,6 +3263,12 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             Vector2 drawPos = NPC.Center - screenPos;
             SpriteEffects effects = NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             
+            // Layer 0: Boss glow underlay
+            if (State != BossPhase.Spawning)
+            {
+                EnigmaBossShaderSystem.DrawBossGlow(spriteBatch, NPC, screenPos, isEnraged);
+            }
+            
             // Shader: Void aura behind boss (skip during spawn)
             if (State != BossPhase.Spawning)
             {
@@ -3210,11 +3284,12 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             }
             else if (NPC.velocity.Length() > 6f)
             {
-                // Lighter vanilla afterimage fallback for moderate speed
+                // Additive-correct afterimage fallback for moderate speed
                 for (int i = 0; i < NPC.oldPos.Length; i++)
                 {
                     float progress = (float)i / NPC.oldPos.Length;
                     Color trailColor = Color.Lerp(EnigmaPurple, EnigmaGreen, progress) * (1f - progress) * 0.4f;
+                    trailColor.A = 0;
                     Vector2 trailPos = NPC.oldPos[i] + NPC.Size / 2f - screenPos;
                     spriteBatch.Draw(tex, trailPos, sourceRect, trailColor, NPC.rotation, origin, NPC.scale * (1f - progress * 0.12f), effects, 0f);
                 }
@@ -3236,13 +3311,26 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 EnigmaBossShaderSystem.DrawTeleportWarp(spriteBatch, NPC, screenPos, warpProgress, difficultyTier >= 2);
             }
             
-            // Existing glow pulse
+            // 3-layer glow
             float pulse = (float)Math.Sin(Timer * 0.08f) * 0.3f + 0.7f;
-            Color glowColor = isEnraged ? EnigmaGreen : Color.Lerp(EnigmaPurple, EnigmaGreen, pulse);
-            glowColor.A = 0;
-            spriteBatch.Draw(tex, drawPos, sourceRect, glowColor * 0.35f, NPC.rotation, origin, NPC.scale * 1.1f, effects, 0f);
+            Color glowBase = isEnraged ? EnigmaGreen : Color.Lerp(EnigmaPurple, EnigmaGreen, pulse);
             
-            // Existing main sprite draw
+            // Layer 1: Outer halo
+            Color outerGlow = Color.Lerp(EnigmaDeepPurple, glowBase, 0.3f);
+            outerGlow.A = 0;
+            spriteBatch.Draw(tex, drawPos, sourceRect, outerGlow * 0.2f, NPC.rotation, origin, NPC.scale * 1.16f, effects, 0f);
+            
+            // Layer 2: Mid glow
+            Color midGlow = glowBase;
+            midGlow.A = 0;
+            spriteBatch.Draw(tex, drawPos, sourceRect, midGlow * 0.3f, NPC.rotation, origin, NPC.scale * 1.08f, effects, 0f);
+            
+            // Layer 3: Inner bright edge
+            Color innerGlow = Color.Lerp(glowBase, new Color(200, 255, 220), 0.3f);
+            innerGlow.A = 0;
+            spriteBatch.Draw(tex, drawPos, sourceRect, innerGlow * 0.25f, NPC.rotation, origin, NPC.scale * 1.03f, effects, 0f);
+            
+            // Main sprite draw
             Color mainColor = NPC.IsABestiaryIconDummy ? Color.White : Lighting.GetColor((int)(NPC.Center.X / 16), (int)(NPC.Center.Y / 16));
             mainColor = Color.Lerp(mainColor, Color.White, 0.3f);
             spriteBatch.Draw(tex, drawPos, sourceRect, mainColor * ((255 - NPC.alpha) / 255f), NPC.rotation, origin, NPC.scale, effects, 0f);

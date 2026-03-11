@@ -631,6 +631,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
 
         public override void OnKill()
         {
+            // Sky flash on finale movement conclusion
+            EroicaSkySystem.TriggerGoldenFlash(0.5f);
+
             UnifiedVFXBloom.Eroica.ImpactEnhanced(NPC.Center, 1.6f);
             EnhancedThemedParticles.EroicaBloomBurstEnhanced(NPC.Center, 1.3f);
             
@@ -641,7 +644,23 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 Color flareColor = Color.Lerp(EroicaGold, EroicaScarlet, (float)i / 10f);
                 EnhancedParticles.BloomFlare(NPC.Center + offset, flareColor, 0.5f, 22, 4, 0.95f);
             }
-            
+
+            // Bloom particle cascade — more dramatic for Movement III
+            for (int i = 0; i < 8; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(4f, 4f) + new Vector2(0, -2f);
+                Color bloomColor = Color.Lerp(SakuraPink, EroicaGold, Main.rand.NextFloat());
+                MagnumParticleHandler.SpawnParticle(new BloomParticle(NPC.Center + Main.rand.NextVector2Circular(25f, 25f), vel, bloomColor, 0.5f + Main.rand.NextFloat() * 0.35f, 45 + Main.rand.Next(25)));
+            }
+
+            // Ascending spark column
+            for (int i = 0; i < 6; i++)
+            {
+                Vector2 sparkVel = new Vector2(Main.rand.NextFloat(-0.8f, 0.8f), -4f - Main.rand.NextFloat() * 2.5f);
+                Color sparkColor = Color.Lerp(EroicaGold, new Color(255, 240, 220), Main.rand.NextFloat());
+                MagnumParticleHandler.SpawnParticle(new GlowSparkParticle(NPC.Center, sparkVel, sparkColor, 0.35f, 40));
+            }
+
             EnhancedThemedParticles.SakuraPetalsEnhanced(NPC.Center, 15, 60f);
             EnhancedThemedParticles.EroicaMusicNotesEnhanced(NPC.Center, 10, 55f);
 
@@ -655,26 +674,50 @@ namespace MagnumOpus.Content.Eroica.Bosses
         {
             Texture2D texture = Terraria.GameContent.TextureAssets.Npc[Type].Value;
             Vector2 drawOrigin = new Vector2(texture.Width / 2, texture.Height / 2);
-            
-            // Trail
+            Vector2 drawCenter = NPC.Center - screenPos;
+            float breathe = (float)Math.Sin(Main.GameUpdateCount * 0.09f) * 0.5f + 0.5f;
+
+            // Layer 0: Bloom underlay — sakura radiance
+            Texture2D bloomTex = MagnumTextureRegistry.GetSoftGlow();
+            if (bloomTex != null)
+            {
+                Vector2 bloomOrigin = new Vector2(bloomTex.Width, bloomTex.Height) * 0.5f;
+                float bloomBase = 0.35f + glowIntensity * 0.25f;
+                Color outerBloom = SakuraPink * (0.09f + glowIntensity * 0.07f);
+                outerBloom.A = 0;
+                spriteBatch.Draw(bloomTex, drawCenter, null, outerBloom, 0f, bloomOrigin, bloomBase + breathe * 0.05f, SpriteEffects.None, 0f);
+                Color innerBloom = EroicaGold * (0.14f + glowIntensity * 0.1f);
+                innerBloom.A = 0;
+                spriteBatch.Draw(bloomTex, drawCenter, null, innerBloom, 0f, bloomOrigin, bloomBase * 0.5f, SpriteEffects.None, 0f);
+            }
+
+            // Layer 1: Afterimage trail
             for (int k = 0; k < NPC.oldPos.Length; k++)
             {
                 Vector2 drawPos = NPC.oldPos[k] - screenPos + new Vector2(NPC.width / 2, NPC.height / 2);
                 float trailProgress = (float)(NPC.oldPos.Length - k) / NPC.oldPos.Length;
-                Color trailColor = Color.Lerp(EroicaGold * 0.3f, SakuraPink * 0.5f, trailProgress) * trailProgress;
-                float trailScale = NPC.scale * (glowIntensity > 0.5f ? 1f : 0.8f) * trailProgress;
+                Color trailColor = Color.Lerp(EroicaGold * 0.35f, SakuraPink * 0.55f, trailProgress) * trailProgress;
+                trailColor.A = 0;
+                float trailScale = NPC.scale * (glowIntensity > 0.5f ? 1f : 0.85f) * MathHelper.Lerp(0.6f, 1f, trailProgress);
                 spriteBatch.Draw(texture, drawPos, null, trailColor, NPC.oldRot[k], drawOrigin, trailScale, SpriteEffects.None, 0f);
             }
-            
-            // Glow during attacks
+
+            // Layer 2: Multi-layer glow during attacks
             if (glowIntensity > 0.1f)
             {
-                Color glowColor = Color.Lerp(EroicaGold, SakuraPink, (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.5f + 0.5f) * glowIntensity * 0.4f;
-                for (int i = 0; i < 3; i++)
-                {
-                    float glowScale = NPC.scale * (1.1f + i * 0.12f);
-                    spriteBatch.Draw(texture, NPC.Center - screenPos, null, glowColor * (1f - i * 0.3f), NPC.rotation, drawOrigin, glowScale, SpriteEffects.None, 0f);
-                }
+                Color glowColor = Color.Lerp(EroicaGold, SakuraPink, breathe) * glowIntensity;
+                // Outer soft halo
+                Color outerGlow = glowColor * 0.22f;
+                outerGlow.A = 0;
+                spriteBatch.Draw(texture, drawCenter, null, outerGlow, NPC.rotation, drawOrigin, NPC.scale * 1.3f, SpriteEffects.None, 0f);
+                // Mid glow
+                Color midGlow = glowColor * 0.35f;
+                midGlow.A = 0;
+                spriteBatch.Draw(texture, drawCenter, null, midGlow, NPC.rotation, drawOrigin, NPC.scale * 1.15f, SpriteEffects.None, 0f);
+                // Inner bright edge
+                Color innerGlow = Color.Lerp(glowColor, Color.White, 0.25f) * 0.4f;
+                innerGlow.A = 0;
+                spriteBatch.Draw(texture, drawCenter, null, innerGlow, NPC.rotation, drawOrigin, NPC.scale * 1.06f, SpriteEffects.None, 0f);
             }
 
             return true;
