@@ -278,6 +278,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             
             BossIndexTracker.EnigmaHollowMystery = NPC.whoAmI;
             BossIndexTracker.EnigmaPhase = difficultyTier;
+            BossIndexTracker.EnigmaEnraged = isEnraged;
             
             if (State != BossPhase.Spawning && State != BossPhase.Dying)
                 EnigmaBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier);
@@ -804,6 +805,11 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             NPC.velocity.Y += 0.4f;
             if (NPC.velocity.Y > 12f) NPC.velocity.Y = 12f;
             ApplyGroundCollision();
+
+            // === VFX: Enrage ambient — screaming vortex + green flame orbit ===
+            EnigmaAttackVFX.ScreamingVortex(NPC.Center, 400f);
+            EnigmaAttackVFX.GreenFlameOrbit(NPC.Center, Timer, difficultyTier);
+            EnigmaAttackVFX.EnrageAmbientConsumption(NPC.Center);
             
             int fireRate = 12 - difficultyTier * 2;
             if (Timer % fireRate == 0 && Main.netMode != NetmodeID.MultiplayerClient)
@@ -845,6 +851,10 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                     SoundEngine.PlaySound(SoundID.NPCHit54 with { Pitch = 0.2f }, NPC.Center);
                 }
                 
+                // Phase-aware glyph telegraph — scattered particles assembling
+                if (Timer % 4 == 0 && Timer > 3)
+                    EnigmaAttackVFX.VoidLungeTelegraph(NPC.Center, target.Center);
+                
                 if (Timer > 10)
                 {
                     float lineLength = 350f + difficultyTier * 50f;
@@ -881,8 +891,10 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                     CustomParticles.HaloRing(NPC.Center, EnigmaPurple, 0.4f, 10);
                 }
                 
+                // Phase-aware trail — flickering void wisps
                 if (Timer % 2 == 0)
                 {
+                    EnigmaAttackVFX.VoidLungeTrail(NPC.Center, NPC.velocity);
                     for (int i = 0; i < 3; i++)
                     {
                         Vector2 offset = Main.rand.NextVector2Circular(18f, 18f);
@@ -920,6 +932,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             else
             {
                 NPC.velocity *= 0.88f;
+                // Impact VFX at lunge end
+                if (Timer == 1)
+                    EnigmaAttackVFX.VoidLungeImpact(NPC.Center);
                 if (Timer >= 13)
                 {
                     EndAttack();
@@ -938,6 +953,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             {
                 if (Timer < 12)
                 {
+                    // Phase-aware glyph assembly telegraph
+                    if (Timer == 1)
+                        EnigmaAttackVFX.EyeVolleyTelegraph(NPC.Center);
                     if (Timer % 3 == 0)
                     {
                         for (int i = 0; i < 4; i++)
@@ -951,6 +969,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 if (Timer == 12 && Main.netMode != NetmodeID.MultiplayerClient)
                 {
                     Vector2 toPlayer = (target.Center - NPC.Center).SafeNormalize(Vector2.Zero);
+                    EnigmaAttackVFX.EyeVolleyRelease(NPC.Center, toPlayer);
                     float baseAngle = toPlayer.ToRotation();
                     
                     int projCount = 3 + difficultyTier; // Reduced from 5+2
@@ -998,6 +1017,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             {
                 if (Timer < 18)
                 {
+                    // Phase-aware counter-rotating glyph lock
+                    if (Timer == 1)
+                        EnigmaAttackVFX.ParadoxRingTelegraph(NPC.Center);
                     if (Timer % 3 == 0)
                     {
                         float progress = Timer / 18f;
@@ -1012,6 +1034,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 
                 if (Timer == 18 && Main.netMode != NetmodeID.MultiplayerClient)
                 {
+                    EnigmaAttackVFX.ParadoxRingRelease(NPC.Center, 80f + SubPhase * 30f, SubPhase);
                     int projCount = 8 + difficultyTier * 2; // Reduced from 12+4
                     float angleOffset = SubPhase * MathHelper.ToRadians(20);
                     
@@ -1067,6 +1090,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 {
                     SoundEngine.PlaySound(SoundID.Item8 with { Pitch = -0.3f }, NPC.Center);
                     CustomParticles.GlyphBurst(NPC.Center, EnigmaPurple, 5, 4f);
+                    EnigmaAttackVFX.ShadowDashTelegraph(NPC.Center, target.Center);
                 }
                 
                 if (Timer % 3 == 0)
@@ -1093,6 +1117,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 {
                     NPC.alpha = 0;
                     SoundEngine.PlaySound(SoundID.DD2_DarkMageHealImpact with { Pitch = 0.4f, Volume = 1.2f }, NPC.Center);
+                    EnigmaAttackVFX.ShadowDashImpact(NPC.Center);
                     CustomParticles.GenericFlare(NPC.Center, EnigmaGreen, 0.85f, 16);
                     
                     for (int i = 0; i < 4; i++)
@@ -1150,6 +1175,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             {
                 if (Timer < 25)
                 {
+                    // Phase-aware glyph assembly
+                    if (Timer == 1)
+                        EnigmaAttackVFX.GlyphCircleTelegraph(target.Center);
                     if (Timer % 4 == 0)
                     {
                         int glyphCount = 8 + difficultyTier * 2;
@@ -1171,6 +1199,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 
                 if (Timer == 30 && Main.netMode != NetmodeID.MultiplayerClient)
                 {
+                    EnigmaAttackVFX.GlyphCircleRelease(target.Center, SubPhase);
                     int projCount = 6 + difficultyTier * 2; // Reduced from 10+3
                     float radius = 150f + SubPhase * 50f;
                     
@@ -1218,6 +1247,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             {
                 if (Timer < 20)
                 {
+                    // Phase-aware ground warning
+                    if (Timer == 1)
+                        EnigmaAttackVFX.TendrilRiseTelegraph(target.Center);
                     if (Timer % 4 == 0)
                     {
                         int markerCount = 8 + difficultyTier * 2;
@@ -1238,6 +1270,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 
                 if (Timer == 25 && Main.netMode != NetmodeID.MultiplayerClient)
                 {
+                    EnigmaAttackVFX.TendrilRiseRelease(target.Center);
                     int tendrilCount = 6 + difficultyTier * 2; // Reduced from 10+3
                     float spread = 450f + difficultyTier * 60f; // Slightly narrower
                     
@@ -1286,6 +1319,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 }
                 
                 float progress = Timer / (float)chargeTime;
+                EnigmaAttackVFX.EntropicSurgeTelegraph(NPC.Center, progress);
                 
                 if (Timer % 3 == 0)
                 {
@@ -1313,6 +1347,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                     SubPhase = 1;
                     
                     MagnumScreenEffects.AddScreenShake(14f);
+                    EnigmaAttackVFX.EntropicSurgeRelease(NPC.Center);
                     SoundEngine.PlaySound(SoundID.NPCDeath52 with { Pitch = -0.4f, Volume = 1.4f }, NPC.Center);
                     CustomParticles.GenericFlare(NPC.Center, EnigmaGreen, 1.3f, 25);
                     CustomParticles.GlyphBurst(NPC.Center, EnigmaPurple, 12, 8f);
@@ -1373,6 +1408,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 if (Timer == 1)
                 {
                     SoundEngine.PlaySound(SoundID.NPCDeath52 with { Pitch = 0.2f }, NPC.Center);
+                    EnigmaAttackVFX.EyeOfTheVoidTelegraph(target.Center);
                 }
                 
                 if (Timer % 5 == 0)
@@ -1392,6 +1428,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                     Timer = 0;
                     SubPhase = 1;
                     
+                    EnigmaAttackVFX.EyeOfTheVoidRelease(target.Center, (NPC.Center - target.Center).SafeNormalize(Vector2.UnitX));
                     MagnumScreenEffects.AddScreenShake(12f);
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f, Volume = 1.3f }, target.Center);
                     
@@ -1431,6 +1468,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 {
                     Main.NewText("TﾌｷHﾌｴEﾌｵ ﾌｴVﾌｸOﾌｷIﾌｸDﾌｵ ﾌｴSﾌｷPﾌｷEﾌｸAﾌｶKﾌｵSﾌｴ", EnigmaGreen);
                     SoundEngine.PlaySound(SoundID.NPCDeath52 with { Pitch = -0.5f, Volume = 1.5f }, NPC.Center);
+                    EnigmaAttackVFX.UltimateEnigmaTelegraph(NPC.Center);
                 }
                 
                 if (Timer % 4 == 0)
@@ -1521,6 +1559,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 
                 if (Timer == 20)
                 {
+                    EnigmaAttackVFX.UltimateEnigmaRelease(NPC.Center);
                     MagnumScreenEffects.AddScreenShake(18f);
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.3f, Volume = 1.5f }, NPC.Center);
                     
@@ -1580,6 +1619,15 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 // Warning buildup - show web pattern
                 if (Timer < 15)
                 {
+                    // === VFX: Paradox Web telegraph — web nodes pulse with void light ===
+                    if (Timer % 4 == 0)
+                    {
+                        Vector2[] webNodes = new Vector2[strands];
+                        for (int n = 0; n < strands; n++)
+                            webNodes[n] = NPC.Center + (MathHelper.TwoPi * n / strands + SubPhase * 0.2f).ToRotationVector2() * 130f;
+                        EnigmaAttackVFX.ParadoxWebTelegraph(NPC.Center, webNodes);
+                    }
+
                     float progress = Timer / 15f;
                     for (int strand = 0; strand < strands; strand++)
                     {
@@ -1598,6 +1646,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 if (Timer == 15)
                 {
                     SoundEngine.PlaySound(SoundID.DD2_SkyDragonsFuryShot with { Pitch = -0.2f + SubPhase * 0.1f }, NPC.Center);
+
+                    // === VFX: Paradox Web activate — web snaps taut ===
+                    EnigmaAttackVFX.ParadoxWebActivate(NPC.Center);
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
@@ -1691,6 +1742,10 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                     SoundEngine.PlaySound(SoundID.DD2_EtherianPortalSpawnEnemy with { Pitch = -0.3f, Volume = 1.2f }, NPC.Center);
                     zoneCenter = target.Center; // Lock zone center to player at start
                 }
+
+                // === VFX: Reality Zones telegraph — zone perimeters flicker ===
+                if (Timer % 5 == 0)
+                    EnigmaAttackVFX.RealityZonesTelegraph(zoneCenter, 200f);
                 
                 // Show zone pattern preview
                 float progress = Timer / (float)warningTime;
@@ -1714,6 +1769,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 {
                     currentZonePattern = (currentZonePattern + 1) % 4;
                     SoundEngine.PlaySound(SoundID.DD2_DarkMageCastHeal with { Pitch = 0.2f + currentCycle * 0.1f }, zoneCenter);
+
+                    // === VFX: Reality Zones activate — zone detonates ===
+                    EnigmaAttackVFX.RealityZonesActivate(zoneCenter, 200f);
                     
                     // Flash effect on pattern shift
                     CustomParticles.GenericFlare(zoneCenter, EnigmaGreen, 0.7f, 15);
@@ -1906,6 +1964,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                     
                     // === TELEGRAPH SYSTEM: Set up converging ring warning ===
                     TelegraphSystem.ConvergingRing(NPC.Center, 300f, chargeTime, EnigmaPurple);
+
+                    // === VFX: Paradox Judgment telegraph — judgment formation assembles ===
+                    EnigmaAttackVFX.ParadoxJudgmentTelegraph(NPC.Center);
                 }
                 
                 float progress = Timer / (float)chargeTime;
@@ -1966,6 +2027,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                     
                     // OPTIMIZED: Use BossVFXOptimizer for release burst
                     BossVFXOptimizer.AttackReleaseBurst(NPC.Center, EnigmaPurple, EnigmaGreen, 1.2f);
+
+                    // === VFX: Paradox Judgment release — void halo wave ===
+                    EnigmaAttackVFX.ParadoxJudgmentRelease(NPC.Center, SubPhase, waveCount);
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
@@ -2057,6 +2121,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                         // === TELEGRAPH SYSTEM: Show laser paths ===
                         Vector2 laserEnd = NPC.Center + voidLaserAngles[i].ToRotationVector2() * 1500f;
                         TelegraphSystem.LaserPath(NPC.Center, laserEnd, 30f, 25, EnigmaPurple);
+
+                        // === VFX: Void Laser Web telegraph — green fire along laser paths ===
+                        EnigmaAttackVFX.VoidLaserWebTelegraph(NPC.Center, laserEnd);
                     }
                 }
                 
@@ -2091,6 +2158,18 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 {
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0f, Volume = 1.4f }, NPC.Center);
                     MagnumScreenEffects.AddScreenShake(12f);
+                }
+
+                // === VFX: Void Laser active beams — green fire trails ===
+                if (Timer % 5 == 0 && voidLaserAngles != null)
+                {
+                    float currentSweep = (Timer / (float)sweepDuration) * MathHelper.Pi * 1.2f;
+                    for (int i = 0; i < voidLaserAngles.Length; i++)
+                    {
+                        float angle = voidLaserAngles[i] + currentSweep * (i % 2 == 0 ? 1 : -1);
+                        Vector2 beamEnd = NPC.Center + angle.ToRotationVector2() * 1800f;
+                        EnigmaAttackVFX.VoidLaserWebBeam(NPC.Center, beamEnd);
+                    }
                 }
                 
                 float sweepProgress = Timer / (float)sweepDuration;
@@ -2176,6 +2255,10 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 }
                 
                 float progress = Timer / (float)chargeTime;
+
+                // === VFX: Entropic Surge telegraph — void coalesces ===
+                if (Timer % 6 == 0)
+                    EnigmaAttackVFX.EntropicSurgeTelegraph(NPC.Center, progress);
                 
                 // OPTIMIZED: Use ElectricalBuildupWarning
                 if (Timer % 5 == 0)
@@ -2218,6 +2301,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                     
                     // OPTIMIZED: Use BossVFXOptimizer burst
                     BossVFXOptimizer.AttackReleaseBurst(NPC.Center, EnigmaPurple, EnigmaGreen, 1.0f);
+
+                    // === VFX: Entropic Surge release — expanding void wave ===
+                    EnigmaAttackVFX.EntropicSurgeRelease(NPC.Center);
                     
                     // Spawn expanding ring
                     if (Main.netMode != NetmodeID.MultiplayerClient)
@@ -2299,6 +2385,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 // Spawn and intensify glyphs
                 if (Timer % 4 == 0)
                 {
+                    // === VFX: Sigil Snare telegraph — converging glyph trap ===
+                    EnigmaAttackVFX.SigilSnareTelegraph(target.Center, initialRadius * (1f - progress * 0.3f));
+
                     for (int i = 0; i < glyphCount; i++)
                     {
                         float angle = MathHelper.TwoPi * i / glyphCount + Timer * 0.01f;
@@ -2367,6 +2456,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 {
                     MagnumScreenEffects.AddScreenShake(12f);
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.4f, Volume = 1.3f }, target.Center);
+
+                    // === VFX: Sigil Snare activate — void implosion ===
+                    EnigmaAttackVFX.SigilSnareActivate(target.Center);
                     
                     // Big VFX burst
                     BossVFXOptimizer.AttackReleaseBurst(target.Center, EnigmaPurple, EnigmaGreen, 1.2f);
@@ -2454,6 +2546,10 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                     if (Timer % 3 == 0)
                     {
                         Vector2 orbTargetPos = target.Center + new Vector2((float)Math.Cos(orbAngle), (float)Math.Sin(orbAngle)) * orbDistance;
+
+                        // === VFX: Void Beam Pincer telegraph — energy crackles ===
+                        EnigmaAttackVFX.VoidBeamPincerTelegraph(orbTargetPos, NPC.Center);
+
                         float swirlRadius = 60f * (1f - spawnProgress);
                         
                         for (int p = 0; p < 4; p++)
@@ -2550,6 +2646,17 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 {
                     MagnumScreenEffects.AddScreenShake(15f);
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.5f, Volume = 1.5f }, target.Center);
+
+                    // === VFX: Void Beam Pincer fire — beams launch ===
+                    for (int orbVfx = 0; orbVfx < orbCount; orbVfx++)
+                    {
+                        float orbAngleVfx = orbCount == 2
+                            ? (orbVfx == 0 ? MathHelper.PiOver2 : -MathHelper.PiOver2)
+                            : (orbVfx == 0 ? MathHelper.PiOver2 : (orbVfx == 1 ? -MathHelper.PiOver2 : MathHelper.Pi));
+                        Vector2 orbPosVfx = target.Center + new Vector2((float)Math.Cos(orbAngleVfx), (float)Math.Sin(orbAngleVfx)) * orbDistance;
+                        Vector2 fireDir = (target.Center - orbPosVfx).SafeNormalize(Vector2.Zero);
+                        EnigmaAttackVFX.VoidBeamPincerFire(orbPosVfx, fireDir);
+                    }
                     
                     // Spawn beam projectiles from each orb
                     if (Main.netMode != NetmodeID.MultiplayerClient)
@@ -2651,6 +2758,10 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                     // Eyes spawn one by one with dramatic effect
                     float spawnProgress = Timer / (float)spawnTime;
                     int eyesToShow = (int)(eyeCount * spawnProgress);
+
+                    // === VFX: Watching Gaze telegraph — eyes materialize in formation ===
+                    if (Timer % 6 == 0)
+                        EnigmaAttackVFX.WatchingGazeTelegraph(NPC.Center, target.Center, eyesToShow);
                     
                     if (Timer % 4 == 0)
                     {
@@ -2711,6 +2822,15 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                     // FIRE!
                     MagnumScreenEffects.AddScreenShake(10f);
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f, Volume = 1.2f }, target.Center);
+
+                    // === VFX: Watching Gaze fire — all eyes fire with green afterglow ===
+                    for (int eyeVfx = 0; eyeVfx < eyeCount; eyeVfx++)
+                    {
+                        float eyeAngle = MathHelper.TwoPi * eyeVfx / eyeCount + SubPhase * MathHelper.PiOver4;
+                        Vector2 eyeFirePos = target.Center + eyeAngle.ToRotationVector2() * eyeRadius;
+                        Vector2 eyeFireDir = (target.Center - eyeFirePos).SafeNormalize(Vector2.Zero);
+                        EnigmaAttackVFX.WatchingGazeFire(eyeFirePos, eyeFireDir);
+                    }
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
@@ -2803,6 +2923,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                             CustomParticles.Glyph(pos, EnigmaPurple, 0.4f, -1);
                             CustomParticles.GenericFlare(pos, EnigmaGreen * 0.5f, 0.25f, 10);
                         }
+
+                        // === VFX: Mystery Maze telegraph — glyph wall hints ===
+                        EnigmaAttackVFX.MysteryMazeTelegraph(wallStart, wallEnd);
                         
                         SoundEngine.PlaySound(SoundID.Item100 with { Pitch = 0.2f + wallIndex * 0.1f, Volume = 0.6f }, wallStart);
                     }
@@ -2826,6 +2949,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 if (Timer == 1)
                 {
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f }, target.Center);
+
+                    // === VFX: Mystery Maze wall activate — green fire solidifies ===
+                    EnigmaAttackVFX.MysteryMazeWallActivate(target.Center);
                 }
                 
                 // Spawn wandering eye projectiles inside maze
@@ -2907,6 +3033,10 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                         if (setupProgress > 0.5f)
                         {
                             CustomParticles.Glyph(clonePos + Main.rand.NextVector2Circular(25f, 25f), EnigmaPurple, 0.3f, -1);
+
+                            // === VFX: Paradox Mirror clone spawn — void portal tear ===
+                            if (Timer % 10 == 0)
+                                EnigmaAttackVFX.ParadoxMirrorSpawn(clonePos);
                         }
                     }
                 }
@@ -2991,6 +3121,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                             // Fake clone dissipation
                             CustomParticles.GenericFlare(clonePos, EnigmaPurple * 0.5f, 0.4f, 15);
                             CustomParticles.GlyphBurst(clonePos, EnigmaPurple, 4, 3f);
+
+                            // === VFX: Paradox Mirror death — clone collapses to void dust ===
+                            EnigmaAttackVFX.ParadoxMirrorDeath(clonePos);
                         }
                         else
                         {
@@ -3091,6 +3224,10 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 Vector2 pos = NPC.Center + Main.rand.NextVector2Circular(60f, 60f);
                 CustomParticles.Glyph(pos, EnigmaPurple * 0.6f, 0.3f, -1);
             }
+
+            // === VFX: Green flame orbit — Phase 2+ ambient (HP > 30% lost) ===
+            if (!isHighLoad && hpDrive > 0.3f && Timer % 3 == 0)
+                EnigmaAttackVFX.GreenFlameOrbit(NPC.Center, Timer, difficultyTier);
             
             // Eyes - skip under high load
             if (!isHighLoad && difficultyTier >= 1 && Main.rand.NextBool(Math.Max(1, 25 - difficultyTier * 5)))

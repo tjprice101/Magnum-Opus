@@ -15,6 +15,7 @@ using MagnumOpus.Content.Summer.Materials;
 using MagnumOpus.Content.Summer.Bosses.Systems;
 using MagnumOpus.Common.Systems.Bosses;
 using ReLogic.Content;
+using static MagnumOpus.Content.Summer.Bosses.Systems.LEstateSkySystem;
 
 namespace MagnumOpus.Content.Summer.Bosses
 {
@@ -102,6 +103,9 @@ namespace MagnumOpus.Content.Summer.Bosses
         
         #region Instance Variables
         private int difficultyTier = 0;
+        
+        /// <summary>Maps difficultyTier + enrage to VFX phase (1=Stillness, 2=Storm, 3=Tempest, 4=Eclipse).</summary>
+        private int CurrentPhase => State == BossPhase.Enraged ? 4 : difficultyTier + 1;
         private int attackCooldown = 0;
         private AttackPattern lastAttack = AttackPattern.SolarFlare;
         private int consecutiveAttacks = 0;
@@ -199,14 +203,21 @@ namespace MagnumOpus.Content.Summer.Bosses
             
             BossIndexTracker.LEstate = NPC.whoAmI;
             
+            // Feed sky system
+            LEstateSky.BossLifeRatio = NPC.life / (float)NPC.lifeMax;
+            LEstateSky.BossCenter = NPC.Center;
+            LEstateSky.BossIsEnraged = State == BossPhase.Enraged;
+            LEstateSky.CurrentPhase = CurrentPhase;
+            
             if (State != BossPhase.Spawning && State != BossPhase.Dying)
-                LEstateBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier);
+                LEstateBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier, CurrentPhase);
             
             float distToTarget = Vector2.Distance(NPC.Center, target.Center);
             if (distToTarget > EnrageDistance && State != BossPhase.Enraged)
             {
                 // === VFX INTEGRATION: Boss enrage ===
                 VFXIntegration.OnBossEnrage("Summer", NPC.Center);
+                LEstateAttackVFX.EnrageTransitionVFX(NPC.Center);
                 
                 State = BossPhase.Enraged;
                 Timer = 0;
@@ -252,27 +263,20 @@ namespace MagnumOpus.Content.Summer.Bosses
             
             if (newTier > difficultyTier)
             {
+                int oldPhase = difficultyTier + 1;
                 difficultyTier = newTier;
-                PhaseTransitionVFX();
+                int newPhase = difficultyTier + 1;
+                PhaseTransitionVFX(oldPhase, newPhase);
             }
         }
         
-        private void PhaseTransitionVFX()
+        private void PhaseTransitionVFX(int fromPhase, int toPhase)
         {
             SoundEngine.PlaySound(SoundID.Item74, NPC.Center);
             
-            // Solar flare halos
-            for (int i = 0; i < 10; i++)
-            {
-                float progress = i / 10f;
-                Color haloColor = Color.Lerp(SummerOrange, FlameRed, progress);
-                CustomParticles.HaloRing(NPC.Center, haloColor, 0.5f + i * 0.15f, 18 + i * 3);
-            }
+            // Delegate to the new 4-phase attack VFX system
+            LEstateAttackVFX.PhaseTransitionVFX(NPC.Center, fromPhase, toPhase);
             
-            CustomParticles.GenericFlare(NPC.Center, SummerWhite, 2f, 35);
-            CustomParticles.GenericFlare(NPC.Center, SolarGold, 1.6f, 30);
-            
-            SpawnSolarBurst(NPC.Center, 25, 10f);
             MagnumScreenEffects.AddScreenShake(12f);
         }
         
@@ -567,37 +571,16 @@ namespace MagnumOpus.Content.Summer.Bosses
             
             if (deathTimer < 100)
             {
-                float intensity = (float)deathTimer / 100f;
+                // Delegate escalation to the new VFX system
+                LEstateAttackVFX.DeathEscalation(NPC.Center, deathTimer);
                 
-                if (deathTimer % 4 == 0)
-                {
-                    SpawnSolarBurst(NPC.Center, (int)(10 + intensity * 15), 6f + intensity * 6f);
-                    
-                    for (int i = 0; i < 8; i++)
-                    {
-                        float angle = MathHelper.TwoPi * i / 8f + deathTimer * 0.05f;
-                        Vector2 offset = angle.ToRotationVector2() * (40f + intensity * 60f);
-                        Color flareColor = Color.Lerp(SummerOrange, FlameRed, (float)i / 8f);
-                        CustomParticles.GenericFlare(NPC.Center + offset, flareColor, 0.5f + intensity * 0.4f, 15);
-                    }
-                }
-                
-                MagnumScreenEffects.AddScreenShake(intensity * 6f);
+                MagnumScreenEffects.AddScreenShake((float)deathTimer / 100f * 6f);
             }
             else if (deathTimer == 100)
             {
-                // Final explosion
-                CustomParticles.GenericFlare(NPC.Center, SummerWhite, 3f, 50);
-                CustomParticles.GenericFlare(NPC.Center, SolarGold, 2.5f, 45);
-                CustomParticles.GenericFlare(NPC.Center, SummerOrange, 2f, 40);
+                // Delegate finale to the new VFX system
+                LEstateAttackVFX.DeathFinale(NPC.Center);
                 
-                for (int i = 0; i < 18; i++)
-                {
-                    Color ringColor = Color.Lerp(SummerOrange, FlameRed, i / 18f);
-                    CustomParticles.HaloRing(NPC.Center, ringColor, 0.5f + i * 0.18f, 22 + i * 3);
-                }
-                
-                SpawnSolarBurst(NPC.Center, 60, 18f);
                 MagnumScreenEffects.AddScreenShake(25f);
                 
                 // === PHASE 10 MUSICAL VFX: Death Finale - Summer's Solar Symphony Ends ===
@@ -625,6 +608,9 @@ namespace MagnumOpus.Content.Summer.Bosses
             if (SubPhase == 0)
             {
                 float progress = (float)Timer / chargeTime;
+                
+                if (Timer == 1)
+                    LEstateAttackVFX.SolarFlareTelegraph(NPC.Center, (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX));
                 
                 if (Timer % 3 == 0)
                 {
@@ -665,6 +651,7 @@ namespace MagnumOpus.Content.Summer.Bosses
                     }
                     
                     SpawnSolarBurst(NPC.Center, 18, 9f);
+                    LEstateAttackVFX.SolarFlareImpact(NPC.Center);
                 }
                 
                 if (Timer >= 35)
@@ -685,7 +672,7 @@ namespace MagnumOpus.Content.Summer.Bosses
                 if (Timer == 8)
                 {
                     Vector2 direction = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX);
-                    BossVFXOptimizer.WarningLine(NPC.Center, direction, 450f, 10, WarningType.Danger);
+                    LEstateAttackVFX.HeatWaveTelegraph(NPC.Center, direction);
                 }
                 
                 if (Timer == 18 && Main.netMode != NetmodeID.MultiplayerClient)
@@ -703,7 +690,7 @@ namespace MagnumOpus.Content.Summer.Bosses
                         SpawnFireProjectile(NPC.Center, vel, 50, true);
                     }
                     
-                    CustomParticles.GenericFlare(NPC.Center, SolarGold, 0.9f, 18);
+                    LEstateAttackVFX.HeatWaveTrail(NPC.Center, direction);
                 }
                 
                 if (Timer >= waveDelay)
@@ -735,14 +722,7 @@ namespace MagnumOpus.Content.Summer.Bosses
             }
             
             if (Timer % 12 == 0)
-            {
-                for (int i = 0; i < 4 + difficultyTier; i++)
-                {
-                    float xOffset = Main.rand.NextFloat(-300f, 300f);
-                    Vector2 warningPos = target.Center + new Vector2(xOffset, -500f);
-                    CustomParticles.GenericFlare(warningPos, SummerOrange * 0.5f, 0.3f, 10);
-                }
-            }
+                LEstateAttackVFX.SunshowerBombardTelegraph(target.Center);
             
             if (Timer % fireInterval == 0 && Timer > 25 && Main.netMode != NetmodeID.MultiplayerClient)
             {
@@ -755,7 +735,7 @@ namespace MagnumOpus.Content.Summer.Bosses
                     Vector2 vel = new Vector2(Main.rand.NextFloat(-2f, 2f), ySpeed);
                     
                     SpawnFireProjectile(spawnPos, vel, 50);
-                    CustomParticles.GenericFlare(spawnPos, SolarGold, 0.35f, 8);
+                    LEstateAttackVFX.SunshowerBombardParticle(spawnPos);
                 }
             }
             
@@ -775,7 +755,7 @@ namespace MagnumOpus.Content.Summer.Bosses
                 NPC.velocity *= 0.9f;
                 
                 dashDirection = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX);
-                BossVFXOptimizer.WarningLine(NPC.Center, dashDirection, 500f, 10, WarningType.Danger);
+                LEstateAttackVFX.ScorchingDashTelegraph(NPC.Center, target.Center);
                 
                 float progress = (float)Timer / telegraphTime;
                 BossVFXOptimizer.ConvergingWarning(NPC.Center, 50f, progress, FlameRed, 6);
@@ -807,7 +787,7 @@ namespace MagnumOpus.Content.Summer.Bosses
                     }
                 }
                 
-                SpawnFlameParticle(NPC.Center);
+                LEstateAttackVFX.ScorchingDashAfterimage(NPC.Center, dashCount);
                 
                 if (Timer >= dashDuration)
                 {
@@ -846,6 +826,8 @@ namespace MagnumOpus.Content.Summer.Bosses
                 float progress = (float)Timer / chargeTime;
                 
                 Vector2 direction = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX);
+                if (Timer == 1)
+                    LEstateAttackVFX.ZenithBeamTelegraph(NPC.Center, target.Center);
                 BossVFXOptimizer.LaserBeamWarning(NPC.Center, direction.ToRotation(), 600f, progress);
                 
                 if (Timer % 4 == 0)
@@ -884,14 +866,7 @@ namespace MagnumOpus.Content.Summer.Bosses
                     }
                     
                     // Beam VFX
-                    CustomParticles.GenericFlare(NPC.Center, SummerWhite, 1.5f, 25);
-                    for (int i = 0; i < 8; i++)
-                    {
-                        Vector2 beamPos = NPC.Center + direction * (80f + i * 60f);
-                        CustomParticles.GenericFlare(beamPos, SolarGold, 0.6f - i * 0.05f, 15);
-                    }
-                    
-                    MagnumScreenEffects.AddScreenShake(10f);
+                    LEstateAttackVFX.ZenithBeamImpact(NPC.Center);
                 }
                 
                 if (Timer >= 40)
@@ -910,7 +885,7 @@ namespace MagnumOpus.Content.Summer.Bosses
             {
                 if (Timer == 10)
                 {
-                    BossVFXOptimizer.DangerZoneRing(NPC.Center, 150f + SubPhase * 80f, 16);
+                    LEstateAttackVFX.InfernoRingTelegraph(NPC.Center);
                 }
                 
                 if (Timer == ringDelay && Main.netMode != NetmodeID.MultiplayerClient)
@@ -927,8 +902,7 @@ namespace MagnumOpus.Content.Summer.Bosses
                         SpawnFireProjectile(NPC.Center, vel, 50);
                     }
                     
-                    CustomParticles.HaloRing(NPC.Center, SummerOrange, 0.6f + SubPhase * 0.2f, 20);
-                    CustomParticles.GenericFlare(NPC.Center, SolarGold, 0.8f, 15);
+                    LEstateAttackVFX.InfernoRingBurst(NPC.Center, SubPhase);
                 }
                 
                 if (Timer >= ringDelay + 5)
@@ -955,6 +929,7 @@ namespace MagnumOpus.Content.Summer.Bosses
                 if (Timer == 1)
                 {
                     TelegraphSystem.ConvergingRing(NPC.Center, 300f, chargeTime, SummerOrange);
+                    LEstateAttackVFX.SummerSolsticeTelegraph(NPC.Center);
                 }
                 
                 NPC.velocity *= 0.94f;
@@ -1022,14 +997,7 @@ namespace MagnumOpus.Content.Summer.Bosses
                         }
                     }
                     
-                    // Cascading solar halos
-                    for (int i = 0; i < 12; i++)
-                    {
-                        Color ringColor = Color.Lerp(SummerOrange, FlameRed, i / 12f);
-                        CustomParticles.HaloRing(NPC.Center, ringColor, 0.5f + i * 0.14f, 20 + i * 3);
-                    }
-                    
-                    SpawnSolarBurst(NPC.Center, 25, 12f);
+                    LEstateAttackVFX.SummerSolsticeRelease(NPC.Center);
                 }
                 
                 if (Timer >= 30)
@@ -1047,6 +1015,9 @@ namespace MagnumOpus.Content.Summer.Bosses
         private void Attack_SolarStorm(Player target)
         {
             int duration = 160 + difficultyTier * 25;
+            
+            if (Timer == 1)
+                LEstateAttackVFX.SolarStormTelegraph(NPC.Center, target.Center);
             
             // Chaotic movement
             float spinSpeed = (0.03f + difficultyTier * 0.01f) * GetAggressionSpeedMult();
@@ -1094,7 +1065,7 @@ namespace MagnumOpus.Content.Summer.Bosses
                     }
                 }
                 
-                CustomParticles.GenericFlare(NPC.Center, SummerOrange, 0.4f, 10);
+                LEstateAttackVFX.HeatWaveTrail(NPC.Center, NPC.velocity);
             }
             
             if (Timer % 5 == 0)
@@ -1112,6 +1083,12 @@ namespace MagnumOpus.Content.Summer.Bosses
             if (SubPhase == 0) // Charge
             {
                 NPC.velocity *= 0.94f;
+                
+                if (Timer == 1)
+                    LEstateAttackVFX.SupernovaTelegraph(NPC.Center);
+                
+                if (Timer % 10 == 0 && Timer > 0)
+                    LEstateAttackVFX.SupernovaWave(NPC.Center, Timer / 10);
                 
                 float progress = (float)Timer / chargeTime;
                 
@@ -1151,18 +1128,8 @@ namespace MagnumOpus.Content.Summer.Bosses
                     SoundEngine.PlaySound(SoundID.Item122 with { Volume = 1.5f, Pitch = -0.3f }, NPC.Center);
                     MagnumScreenEffects.AddScreenShake(20f);
                     
-                    // Massive explosion VFX
-                    CustomParticles.GenericFlare(NPC.Center, SummerWhite, 3f, 40);
-                    CustomParticles.GenericFlare(NPC.Center, SolarGold, 2.5f, 35);
-                    CustomParticles.GenericFlare(NPC.Center, SummerOrange, 2f, 30);
-                    
-                    for (int i = 0; i < 20; i++)
-                    {
-                        Color ringColor = Color.Lerp(SolarGold, FlameRed, i / 20f);
-                        CustomParticles.HaloRing(NPC.Center, ringColor, 0.6f + i * 0.2f, 22 + i * 3);
-                    }
-                    
-                    SpawnSolarBurst(NPC.Center, 50, 18f);
+                    // Supernova explosion VFX
+                    LEstateAttackVFX.SolarStormImpact(NPC.Center);
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
@@ -1269,14 +1236,19 @@ namespace MagnumOpus.Content.Summer.Bosses
             Vector2 origin = texture.Size() / 2f;
             Rectangle sourceRect = texture.Bounds;
             
-            // Shader layer: Solar aura
-            LEstateBossShaderSystem.DrawSolarAura(spriteBatch, NPC, screenPos, aggressionLevel, difficultyTier, false);
+            int phase = CurrentPhase;
+            bool isEnraged = State == BossPhase.Enraged;
+            float phaseProgress = 1f - (NPC.life / (float)NPC.lifeMax);
             
-            // Heat trail
+            // Unified phase-routing VFX (glow, aura, corona, god rays, eclipse)
+            LEstateBossShaderSystem.DrawBossVFX(spriteBatch, NPC, screenPos,
+                phase, phaseProgress, isEnraged, aggressionLevel, difficultyTier);
+            
+            // Heat trail afterimages
             for (int i = 0; i < NPC.oldPos.Length - 1; i++)
             {
                 float progress = (float)i / NPC.oldPos.Length;
-                Color trailColor = Color.Lerp(SummerOrange, FlameRed, progress) * (1f - progress) * 0.6f;
+                Color trailColor = Color.Lerp(new Color(255, 140, 40), new Color(220, 60, 30), progress) * (1f - progress) * 0.6f;
                 Vector2 trailPos = NPC.oldPos[i] + NPC.Size / 2f - screenPos;
                 float trailScale = NPC.scale * (1f - progress * 0.25f);
                 
@@ -1285,18 +1257,7 @@ namespace MagnumOpus.Content.Summer.Bosses
             
             // Shader layer: Heat haze trail when moving fast
             if (NPC.velocity.Length() > 5f)
-                LEstateBossShaderSystem.DrawHeatHazeTrail(spriteBatch, NPC, screenPos, texture, sourceRect, origin, false);
-            
-            // Glow layers
-            float pulse = (float)Math.Sin(Timer * 0.1f) * 0.12f + 1f;
-            
-            Color outerGlow = SummerOrange * 0.35f;
-            outerGlow.A = 0;
-            spriteBatch.Draw(texture, drawPos, null, outerGlow, NPC.rotation, origin, NPC.scale * pulse * 1.2f, SpriteEffects.None, 0f);
-            
-            Color midGlow = SolarGold * 0.45f;
-            midGlow.A = 0;
-            spriteBatch.Draw(texture, drawPos, null, midGlow, NPC.rotation, origin, NPC.scale * pulse * 1.1f, SpriteEffects.None, 0f);
+                LEstateBossShaderSystem.DrawHeatHazeTrail(spriteBatch, NPC, screenPos, texture, sourceRect, origin, isEnraged);
             
             // Shader layer: Death dissolve
             if (State == BossPhase.Dying)

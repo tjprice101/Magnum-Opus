@@ -5,122 +5,96 @@ using Terraria;
 using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Common;
-using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Core;
 using MagnumOpus.Content.Nachtmusik;
-using MagnumOpus.Content.Nachtmusik.Debuffs;
+using MagnumOpus.Content.Nachtmusik.Weapons.ConductorOfConstellations.Utilities;
 
 namespace MagnumOpus.Content.Nachtmusik.Weapons.ConductorOfConstellations.Projectiles
 {
     /// <summary>
-    /// Stellar Conductor's star attack projectile.
-    /// Uses 4PointedStarSoft texture, has trail cache, light homing after 30 ticks,
-    /// spawns music notes and sparkle trail. Explodes into golden flare + notes on kill.
+    /// Conductor star sub-projectile -- scaffold based on BlackSwanFlareProj pattern.
+    /// Short-lived homing projectile fired by StellarConductorMinion.
     /// </summary>
     public class ConductorStarProjectile : ModProjectile
     {
-        private VertexStrip _vertexStrip;
+        private const float HomingRange = 350f;
+        private const float HomingStrength = 0.08f;
+        private const float MaxSpeed = 16f;
+        private Player Owner => Main.player[Projectile.owner];
+        private bool _initialized;
+        private VertexStrip _strip;
 
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
+        public override string Texture => "MagnumOpus/Content/Nachtmusik/Weapons/ConductorOfConstellations/StellarConductorMinion";
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
-            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
         public override void SetDefaults()
         {
-            Projectile.width = 14;
-            Projectile.height = 14;
+            Projectile.width = 16;
+            Projectile.height = 16;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Summon;
             Projectile.penetrate = 1;
-            Projectile.timeLeft = 150;
-            Projectile.tileCollide = true;
+            Projectile.timeLeft = 60;
+            Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
+            Projectile.extraUpdates = 1;
         }
 
         public override void AI()
         {
-            Projectile.rotation += 0.15f;
-
-            // Light homing after 30 ticks (0.04 lerp)
-            if (Projectile.timeLeft < 120)
+            if (!_initialized)
             {
-                NPC target = FindClosestEnemy(500f);
-                if (target != null)
-                {
-                    Vector2 toTarget = (target.Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
-                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * Projectile.velocity.Length(), 0.04f);
-                }
+                _initialized = true;
+                Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
-            // Star trail particles
-            if (Main.rand.NextBool(2))
+            // Homing
+            NPC target = ConductorOfConstellationsUtils.ClosestNPCAt(Projectile.Center, HomingRange);
+            if (target != null)
             {
-                var trail = new GenericGlowParticle(Projectile.Center, -Projectile.velocity * 0.1f,
-                    NachtmusikPalette.StarWhite * 0.5f, 0.15f, 10, true);
-                MagnumParticleHandler.SpawnParticle(trail);
+                Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
+                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
+            }
+            if (Projectile.velocity.Length() > MaxSpeed)
+                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
+
+            Projectile.rotation = Projectile.velocity.ToRotation();
+
+            // Trail dust (smaller counts for sub-proj)
+            if (Main.rand.NextBool(4))
+            {
+                int dustType = Main.rand.NextBool() ? DustID.WhiteTorch : DustID.BlueTorch;
+                Color dustColor = Main.rand.NextBool() ? new Color(180, 200, 255) : new Color(60, 70, 150);
+                Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(4f, 4f),
+                    dustType, -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(0.5f, 0.5f),
+                    0, dustColor, 0.6f);
+                d.noGravity = true;
+                d.fadeIn = 0.6f;
             }
 
-            // Musical notation — occasional music notes + star sparkle
-            if (Main.rand.NextBool(6))
-            {
-                NachtmusikVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 1f, 0.7f, 0.7f, 28);
-
-                Vector2 noteVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f);
-                var sparkle = new SparkleParticle(Projectile.Center, noteVel * 0.4f, NachtmusikPalette.RadianceGold * 0.5f, 0.2f, 16);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
-
-            Lighting.AddLight(Projectile.Center, NachtmusikPalette.StarWhite.ToVector3() * 0.4f);
+            // Pulsing light
+            float pulse = 1f + 0.15f * (float)Math.Sin(Projectile.timeLeft * 0.2f);
+            Lighting.AddLight(Projectile.Center, new Vector3(0.3f, 0.35f, 0.6f) * 0.25f * pulse);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(ModContent.BuffType<CelestialHarmony>(), 300);
-            target.GetGlobalNPC<CelestialHarmonyNPC>().AddStack(target, 1);
-            NachtmusikVFXLibrary.ProjectileImpact(target.Center, 0.6f);
-
-            // Musical impact — chord notes
-            NachtmusikVFXLibrary.SpawnMusicNotes(target.Center, 4, 3f, 0.7f, 0.9f, 25);
-
-            // Star sparkle burst
-            for (int i = 0; i < 3; i++)
-            {
-                var sparkle = new SparkleParticle(target.Center, Main.rand.NextVector2Circular(3f, 3f),
-                    NachtmusikPalette.RadianceGold * 0.6f, 0.22f, 15);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
-        }
-
-        public override void OnKill(int timeLeft)
-        {
-            // Golden flare
-            CustomParticles.GenericFlare(Projectile.Center, NachtmusikPalette.RadianceGold, 0.4f, 12);
-
-            // Burst particles with celestial gradient
-            for (int i = 0; i < 5; i++)
-            {
-                var burst = new GenericGlowParticle(Projectile.Center, Main.rand.NextVector2Circular(4f, 4f),
-                    NachtmusikPalette.GetCelestialGradient(Main.rand.NextFloat()) * 0.6f, 0.15f, 10, true);
-                MagnumParticleHandler.SpawnParticle(burst);
-            }
-
-            // Musical finale — burst of notes
-            NachtmusikVFXLibrary.SpawnMusicNotes(Projectile.Center, 5, 3.5f, 0.7f, 0.9f, 25);
-
-            // Finale sparkle cascade
+            Vector2 hitPos = target.Center;
             for (int i = 0; i < 4; i++)
             {
-                var sparkle = new SparkleParticle(Projectile.Center, Main.rand.NextVector2Circular(4f, 4f),
-                    NachtmusikPalette.StarWhite * 0.6f, 0.25f, 18);
-                MagnumParticleHandler.SpawnParticle(sparkle);
+                Vector2 sparkVel = Main.rand.NextVector2CircularEdge(3f, 3f);
+                Color col = i % 2 == 0 ? new Color(60, 70, 150) : new Color(180, 200, 255);
+                Dust d = Dust.NewDustPerfect(hitPos, DustID.WhiteTorch, sparkVel, 0, col, 0.4f);
+                d.noGravity = true;
             }
+            try { NachtmusikVFXLibrary.SpawnMusicNotes(hitPos, 1, 10f, 0.3f, 0.5f, 15); } catch { }
+            try { NachtmusikVFXLibrary.SpawnMixedSparkleImpact(hitPos, 0.4f, 3, 3); } catch { }
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -128,34 +102,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConductorOfConstellations.Projec
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Nachtmusik, ref _vertexStrip);
-
-                // Conductor Star accent: baton-wave directional sweep
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
-                    SamplerState.LinearClamp, DepthStencilState.None,
-                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-                Vector2 drawPos = Projectile.Center - Main.screenPosition;
-                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-                if (glow != null)
-                {
-                    Vector2 origin = glow.Size() / 2f;
-                    float velRot = Projectile.velocity.ToRotation();
-                    float sweep = 0.85f + 0.15f * MathF.Sin((float)Main.timeForVisualEffects * 0.1f);
-
-                    // Conductor's baton sweep — wide directional glow
-                    sb.Draw(glow, drawPos, null,
-                        (NachtmusikPalette.StarlightCore with { A = 0 }) * 0.2f * sweep,
-                        velRot, origin, new Vector2(0.14f, 0.03f), SpriteEffects.None, 0f);
-
-                    // Star point accent
-                    sb.Draw(glow, drawPos, null,
-                        (NachtmusikPalette.StarWhite with { A = 0 }) * 0.15f,
-                        0f, origin, 0.035f, SpriteEffects.None, 0f);
-                }
-
-                sb.End();
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Nachtmusik, ref _strip);
             }
             catch { }
             finally
@@ -164,28 +111,19 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConductorOfConstellations.Projec
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
 
-        private NPC FindClosestEnemy(float range)
+        public override void OnKill(int timeLeft)
         {
-            NPC closest = null;
-            float closestDist = range;
-            for (int i = 0; i < Main.maxNPCs; i++)
+            for (int i = 0; i < 3; i++)
             {
-                NPC npc = Main.npc[i];
-                if (npc.active && npc.CanBeChasedBy(Projectile))
-                {
-                    float dist = Vector2.Distance(Projectile.Center, npc.Center);
-                    if (dist < closestDist)
-                    {
-                        closestDist = dist;
-                        closest = npc;
-                    }
-                }
+                Vector2 sparkVel = Main.rand.NextVector2CircularEdge(2f, 2f);
+                Color col = Main.rand.NextBool() ? new Color(60, 70, 150) : new Color(180, 200, 255);
+                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.WhiteTorch, sparkVel, 0, col, 0.3f);
+                d.noGravity = true;
             }
-            return closest;
+            try { NachtmusikVFXLibrary.SpawnMixedSparkleImpact(Projectile.Center, 0.3f, 2, 2); } catch { }
         }
     }
 }

@@ -1,8 +1,3 @@
-using MagnumOpus.Common;
-using MagnumOpus.Common.Systems.VFX;
-using MagnumOpus.Common.Systems.VFX.Core;
-using MagnumOpus.Content.OdeToJoy;
-using MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Dusts;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -10,18 +5,27 @@ using Terraria;
 using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Content.OdeToJoy;
+using MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Utilities;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
 {
     /// <summary>
-    /// Petal Bomb — Lobbed by Symphony of Blossoms accessory on petal storm trigger.
-    /// Arcs toward target, detonates on contact or after 2s with a radial petal burst.
+    /// Petal cannonball projectile for PetalStormCannon.
+    /// BlackSwanFlareProj scaffold — homing sub-projectile with IncisorOrb rendering.
     /// </summary>
     public class PetalBombProjectile : ModProjectile
     {
-        private VertexStrip _vertexStrip;
+        private const float HomingRange = 350f;
+        private const float HomingStrength = 0.08f;
+        private const float MaxSpeed = 16f;
+        private Player Owner => Main.player[Projectile.owner];
+        private bool _initialized;
+        private VertexStrip _strip;
 
-        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Ode to Joy/Projectiles/OJ Rose Petal";
+        public override string Texture => "MagnumOpus/Content/OdeToJoy/Weapons/PetalStormCannon/PetalStormCannon";
 
         public override void SetStaticDefaults()
         {
@@ -34,57 +38,67 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
             Projectile.width = 16;
             Projectile.height = 16;
             Projectile.friendly = true;
-            Projectile.DamageType = DamageClass.Generic;
+            Projectile.DamageType = DamageClass.Ranged;
             Projectile.penetrate = 1;
             Projectile.timeLeft = 120;
             Projectile.tileCollide = true;
-            Projectile.ignoreWater = false;
+            Projectile.ignoreWater = true;
+            Projectile.extraUpdates = 1;
         }
 
         public override void AI()
         {
-            Projectile.rotation += Projectile.velocity.X * 0.04f;
-            Projectile.velocity.Y += 0.2f; // Gravity arc
+            if (!_initialized)
+            {
+                _initialized = true;
+                Projectile.rotation = Projectile.velocity.ToRotation();
+            }
 
-            // Petal dust trail — custom storm petal
+            NPC target = Projectile.Center.ClosestNPCAt(HomingRange);
+            if (target != null)
+            {
+                Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
+                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
+            }
+            if (Projectile.velocity.Length() > MaxSpeed)
+                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
+
+            Projectile.rotation = Projectile.velocity.ToRotation();
+
             if (Main.rand.NextBool(3))
             {
-                Color col = Main.rand.NextBool()
-                    ? new Color(220, 100, 120)  // PetalPink
-                    : new Color(255, 200, 50);  // BloomGold
-                Dust dust = Dust.NewDustPerfect(
-                    Projectile.Center + Main.rand.NextVector2Circular(4f, 4f),
-                    ModContent.DustType<StormPetalDust>(),
-                    Projectile.velocity * -0.2f + Main.rand.NextVector2Circular(1f, 1f),
-                    Scale: Main.rand.NextFloat(0.3f, 0.6f));
-                dust.color = col;
-                dust.noGravity = true;
-                dust.fadeIn = 0.4f;
+                int dustType = Main.rand.NextBool() ? DustID.GreenTorch : DustID.GoldFlame;
+                Color dustColor = Main.rand.NextBool() ? new Color(90, 200, 60) : new Color(255, 210, 60);
+                Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
+                    dustType, -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(0.5f, 0.5f),
+                    0, dustColor, 0.8f);
+                d.noGravity = true;
+                d.fadeIn = 0.6f;
             }
+
+            float pulse = 1f + 0.15f * (float)Math.Sin(Projectile.timeLeft * 0.2f);
+            Lighting.AddLight(Projectile.Center, new Vector3(0.4f, 0.55f, 0.2f) * 0.35f * pulse);
         }
 
-        public override void OnKill(int timeLeft)
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // Radial petal burst on detonation — custom storm petal
-            for (int i = 0; i < 16; i++)
+            Vector2 hitPos = target.Center;
+            for (int i = 0; i < 6; i++)
             {
-                float angle = MathHelper.TwoPi / 16f * i;
-                float speed = Main.rand.NextFloat(2f, 5f);
-                Vector2 vel = angle.ToRotationVector2() * speed;
-                Color col = (i % 3) switch
-                {
-                    0 => new Color(220, 100, 120),  // PetalPink
-                    1 => new Color(255, 200, 50),   // BloomGold
-                    _ => new Color(255, 250, 200)    // JubilantLight
-                };
-                Dust dust = Dust.NewDustPerfect(Projectile.Center,
-                    ModContent.DustType<StormPetalDust>(), vel,
-                    Scale: Main.rand.NextFloat(0.4f, 0.8f));
-                dust.color = col;
-                dust.noGravity = true;
+                Vector2 sparkVel = Main.rand.NextVector2CircularEdge(4f, 4f);
+                Color col = i % 2 == 0 ? new Color(90, 200, 60) : new Color(255, 210, 60);
+                Dust d = Dust.NewDustPerfect(hitPos, DustID.GreenTorch, sparkVel, 0, col, 0.5f);
+                d.noGravity = true;
             }
-            OdeToJoyVFXLibrary.SpawnGardenSparkleExplosion(Projectile.Center, 5, 4f, 1f);
-            OdeToJoyVFXLibrary.ScreenShake(5f, 10);
+            for (int i = 0; i < 2; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(2f, 2f) + new Vector2(0, -1f);
+                Dust d = Dust.NewDustPerfect(hitPos + Main.rand.NextVector2Circular(8f, 8f),
+                    DustID.GoldFlame, vel, 0, new Color(255, 210, 60), 0.5f);
+                d.noGravity = true;
+            }
+            try { OdeToJoyVFXLibrary.SpawnMusicNotes(hitPos, 1, 12f, 0.4f, 0.7f, 20); } catch { }
+            try { OdeToJoyVFXLibrary.SpawnMixedSparkleImpact(hitPos, 0.6f, 4, 4); } catch { }
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -92,28 +106,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _vertexStrip);
-
-                // Petal Bomb accent: rose-pink petal shimmer halo
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
-                    SamplerState.LinearClamp, DepthStencilState.None,
-                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-                Vector2 drawPos = Projectile.Center - Main.screenPosition;
-                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-                if (glow != null)
-                {
-                    Vector2 origin = glow.Size() / 2f;
-                    float pulse = 0.8f + 0.2f * MathF.Sin((float)Main.timeForVisualEffects * 0.12f);
-
-                    // Rose-pink bloom
-                    sb.Draw(glow, drawPos, null,
-                        (OdeToJoyPalette.RosePink with { A = 0 }) * 0.2f * pulse,
-                        0f, origin, 0.05f, SpriteEffects.None, 0f);
-                }
-
-                sb.End();
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _strip);
             }
             catch { }
             finally
@@ -122,8 +115,21 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
+        }
+
+        public override void OnKill(int timeLeft)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                Vector2 sparkVel = Main.rand.NextVector2CircularEdge(3f, 3f);
+                Color col = Main.rand.NextBool() ? new Color(90, 200, 60) : new Color(255, 210, 60);
+                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.GreenTorch, sparkVel, 0, col, 0.3f);
+                d.noGravity = true;
+            }
+            try { OdeToJoyVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 12f, 0.5f, 0.7f, 20); } catch { }
+            try { OdeToJoyVFXLibrary.SpawnMixedSparkleImpact(Projectile.Center, 0.5f, 4, 4); } catch { }
+            try { OdeToJoyVFXLibrary.SpawnJoyousSparkles(Projectile.Center, 3, 15f); } catch { }
         }
     }
 }

@@ -12,12 +12,11 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Nachtmusik.Weapons.ConductorOfConstellations.Projectiles;
 using MagnumOpus.Content.Nachtmusik.Weapons.ConductorOfConstellations.Buffs;
-using MagnumOpus.Content.Nachtmusik.Weapons.ConductorOfConstellations.Utilities;
 
 namespace MagnumOpus.Content.Nachtmusik.Weapons.ConductorOfConstellations
 {
     /// <summary>
-    /// Conductor of Constellations — The ultimate summon weapon from Nachtmusik.
+    /// Conductor of Constellations  EThe ultimate summon weapon from Nachtmusik.
     /// Summons a Stellar Conductor that commands star attacks.
     /// 2 minion slots, fires star barrages and periodic orchestra burst attacks.
     /// Uses a placeholder texture since no item PNG exists.
@@ -52,7 +51,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConductorOfConstellations
             Vector2 spawnPos = Main.MouseWorld;
 
             // Grand entrance VFX + screen shake
-            ConductorOfConstellationsVFX.SummonVFX(spawnPos);
+// VFX_GUTTED:             ConductorOfConstellationsVFX.SummonVFX(spawnPos);
             MagnumScreenEffects.AddScreenShake(4f);
 
             Projectile.NewProjectile(source, spawnPos, Vector2.Zero, type, damage, knockback, player.whoAmI);
@@ -63,7 +62,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConductorOfConstellations
         public override void HoldItem(Player player)
         {
             int minionCount = player.ownedProjectileCounts[ModContent.ProjectileType<StellarConductorMinion>()];
-            ConductorOfConstellationsVFX.HoldItemVFX(player, minionCount);
+// VFX_GUTTED:             ConductorOfConstellationsVFX.HoldItemVFX(player, minionCount);
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)

@@ -865,6 +865,54 @@ namespace MagnumOpus.Common.Systems.VFX
         
         #endregion
         
+        #region Ode to Joy - Chromatic Rose Conductor
+        
+        /// <summary>
+        /// Conductor's solo strike — Phase 1 single-instrument motif.
+        /// Dispatches to a specific instrument VFX based on the attack.
+        /// </summary>
+        public static void OdeToJoySoloStrike(Vector2 position, Vector2 direction, int instrumentType, float intensity = 1f)
+        {
+            switch (instrumentType % 3)
+            {
+                case 0: // Trumpet blast
+                    Content.OdeToJoy.Bosses.Systems.OdeToJoyBossVFXLibrary.TrumpetBlastCone(position, direction, intensity);
+                    break;
+                case 1: // Violin arc
+                    Content.OdeToJoy.Bosses.Systems.OdeToJoyBossVFXLibrary.ViolinBowArc(position - direction * 50f, position + direction * 50f, intensity);
+                    break;
+                case 2: // Cymbal crash
+                    Content.OdeToJoy.Bosses.Systems.OdeToJoyBossVFXLibrary.CymbalCrashImpact(position, intensity);
+                    break;
+            }
+        }
+        
+        /// <summary>
+        /// Conductor's ensemble strike — Phase 2 layered instrument motifs.
+        /// </summary>
+        public static void OdeToJoyEnsembleStrike(Vector2 center, Vector2 direction, float intensity = 1f)
+        {
+            Content.OdeToJoy.Bosses.Systems.OdeToJoyBossVFXLibrary.EnsembleStrike(center, direction, intensity);
+        }
+        
+        /// <summary>
+        /// Conductor's full orchestra release — Phase 3 cascading chromatic fan.
+        /// </summary>
+        public static void OdeToJoyOrchestraRelease(Vector2 center, float angle, float arcWidth, float intensity = 1f)
+        {
+            Content.OdeToJoy.Bosses.Systems.OdeToJoyBossVFXLibrary.ChromaticCascadeFan(center, angle, arcWidth, intensity);
+        }
+        
+        /// <summary>
+        /// Conductor's firework finale — Enrage celebratory explosion.
+        /// </summary>
+        public static void OdeToJoyFireworkFinale(Vector2 center, float intensity = 1f)
+        {
+            Content.OdeToJoy.Bosses.Systems.OdeToJoyBossVFXLibrary.FireworkBurst(center, intensity);
+        }
+        
+        #endregion
+        
         #region Helper Methods
         
         /// <summary>

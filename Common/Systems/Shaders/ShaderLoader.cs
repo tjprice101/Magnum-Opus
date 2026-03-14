@@ -232,6 +232,17 @@ namespace MagnumOpus.Common.Systems.Shaders
         public const string FugueVoiceTrailShader = "EnigmaVariations/FugueOfTheUnknown/FugueVoiceTrail";
         public const string FugueConvergenceShader = "EnigmaVariations/FugueOfTheUnknown/FugueConvergence";
 
+        // Dies Irae — per-weapon shaders
+        public const string InfernoTrailShader = "DiesIrae/WrathsCleaver/InfernoTrail";
+        public const string WrathCleaverSlashShader = "DiesIrae/WrathsCleaver/WrathCleaverSlash";
+        public const string GuillotineBladeShader = "DiesIrae/ExecutionersVerdict/GuillotineBlade";
+        public const string BellTollShader = "DiesIrae/DeathTollingBell/BellToll";
+        public const string EclipseOrbShader = "DiesIrae/EclipseOfWrath/EclipseOrb";
+
+        // Dies Irae — theme-wide shared shaders
+        public const string HellfireBloomShader = "DiesIrae/HellfireBloom";
+        public const string JudgmentAuraShader = "DiesIrae/JudgmentAura";
+
         // Ode to Joy  Etheme-wide shared shaders
         public const string OdeToJoyTriumphantTrailShader = "OdeToJoy/TriumphantTrail";
         public const string OdeToJoyGardenBloomShader = "OdeToJoy/GardenBloom";
@@ -491,6 +502,15 @@ namespace MagnumOpus.Common.Systems.Shaders
                 LoadShader(FugueVoiceTrailShader);
                 LoadShader(FugueConvergenceShader);
 
+                // Dies Irae — per-weapon shaders
+                LoadShader(InfernoTrailShader);
+                LoadShader(WrathCleaverSlashShader);
+                LoadShader(GuillotineBladeShader);
+                LoadShader(BellTollShader);
+                LoadShader(EclipseOrbShader);
+                LoadShader(HellfireBloomShader);
+                LoadShader(JudgmentAuraShader);
+
                 // Ode to Joy  Etheme-wide + weapon-class shaders
                 LoadShader(OdeToJoyTriumphantTrailShader);
                 LoadShader(OdeToJoyGardenBloomShader);
@@ -580,12 +600,24 @@ namespace MagnumOpus.Common.Systems.Shaders
                 LoadShader(BossShaderManager.EstateZenithBeam);
                 LoadShader(BossShaderManager.EstateSupernovaDissolve);
 
+                // L'Estate phase shaders (non-boss-path)
+                LoadShader(BossShaderManager.EstateHeatShimmer);
+                LoadShader(BossShaderManager.EstateLightningTelegraph);
+                LoadShader(BossShaderManager.EstateCoronaFlame);
+                LoadShader(BossShaderManager.EstateSolarEclipse);
+                LoadShader(BossShaderManager.EstateAfterburn);
+
                 // L'Inverno boss (seasonal)
                 LoadShader(BossShaderManager.InvernoFrostAura);
                 LoadShader(BossShaderManager.InvernoIceTrail);
                 LoadShader(BossShaderManager.InvernoBlizzardVortex);
                 LoadShader(BossShaderManager.InvernoFreezeRay);
                 LoadShader(BossShaderManager.InvernoAbsoluteZeroDissolve);
+
+                // L'Inverno phase-aware screen/environment shaders
+                LoadShader(BossShaderManager.InvernoFrostFloor);
+                LoadShader(BossShaderManager.InvernoFrostCreep);
+                LoadShader(BossShaderManager.InvernoWhiteout);
 
                 // ══════════════════════════════════════════════════════╁E
                 // ENEMY SHADERS  E2 per mini-boss enemy (Aura + Trail)

@@ -2,7 +2,7 @@ using Terraria;
 using Terraria.Graphics.Effects;
 using Terraria.ModLoader;
 using MagnumOpus.Content.SwanLake.Bosses.Systems;
-using MagnumOpus.Content.OdeToJoy.Bosses.Systems;
+// VFX_GUTTED: // VFX_GUTTED: using MagnumOpus.Content.OdeToJoy.Bosses.Systems;
 using MagnumOpus.Content.DiesIrae.Bosses.Systems;
 using MagnumOpus.Content.Autumn.Bosses.Systems;
 using MagnumOpus.Content.Spring.Bosses.Systems;
@@ -24,7 +24,7 @@ namespace MagnumOpus.Common.Systems.Bosses
     {
         // Sky registration keys — use these from boss AI code
         public const string SwanLakeKey = "MagnumOpus:SwanLakeSky";
-        public const string OdeToJoyKey = "MagnumOpus:OdeToJoySky";
+// VFX_GUTTED: public const string OdeToJoyKey = "MagnumOpus:OdeToJoySky";
         public const string DiesIraeKey = "MagnumOpus:DiesIraeSky";
         public const string AutunnoKey = "MagnumOpus:AutunnoSky";
         public const string PrimaveraKey = "MagnumOpus:PrimaveraSky";
@@ -37,7 +37,7 @@ namespace MagnumOpus.Common.Systems.Bosses
                 return;
 
             SkyManager.Instance[SwanLakeKey] = new SwanLakeSky();
-            SkyManager.Instance[OdeToJoyKey] = new OdeToJoySky();
+// VFX_GUTTED: SkyManager.Instance[OdeToJoyKey] = new OdeToJoySky();
             SkyManager.Instance[DiesIraeKey] = new DiesIraeSky();
             SkyManager.Instance[AutunnoKey] = new AutunnoSky();
             SkyManager.Instance[PrimaveraKey] = new PrimaveraSky();

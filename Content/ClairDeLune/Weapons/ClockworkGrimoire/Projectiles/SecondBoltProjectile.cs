@@ -1,93 +1,130 @@
-using MagnumOpus.Common;
-using MagnumOpus.Common.Systems.Particles;
-using MagnumOpus.Common.Systems.Shaders;
-using MagnumOpus.Common.Systems.VFX;
-using MagnumOpus.Common.Systems.VFX.Core;
-using MagnumOpus.Content.ClairDeLune;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ReLogic.Content;
 using System;
 using Terraria;
 using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Content.ClairDeLune;
+using MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire.Utilities;
 
 namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire.Projectiles
 {
     /// <summary>
-    /// Second Bolt — rapid-fire small piercing bolt for Second Mode (20/s).
-    /// 6px, Pearl Frost core → Soft Moonblue trail, pierces 1 enemy.
-    /// 2 render passes: (1) ClairDeLuneMoonlit MoonlitFlow shimmer body,
-    /// (2) Elongated bloom trail + core stacking.
-    /// Kept lightweight due to 20/s spawn rate.
+    /// Second Bolt — Homing magic sub-projectile fired by Clockwork Grimoire.
+    /// Tracks enemies with gentle homing. Clair de Lune moonlit theme.
+    /// Foundation-pattern rendering: safe SpriteBatch, IncisorOrbRenderer visuals.
     /// </summary>
     public class SecondBoltProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
+        #region Properties
 
-        private VertexStrip _vertexStrip;
-        private const int TrailLen = 6;
-        private Vector2[] _oldPos = new Vector2[TrailLen];
+        private const float HomingRange = 350f;
+        private const float HomingStrength = 0.08f;
+        private const float MaxSpeed = 16f;
+
+        private Player Owner => Main.player[Projectile.owner];
+        private bool _initialized;
+
+        private VertexStrip _strip;
+
+        #endregion
+
+        public override string Texture => "MagnumOpus/Content/ClairDeLune/Weapons/ClockworkGrimoire/ClockworkGrimoire";
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
-            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
         public override void SetDefaults()
         {
-            Projectile.width = 6;
-            Projectile.height = 6;
+            Projectile.width = 16;
+            Projectile.height = 16;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Magic;
-            Projectile.penetrate = 2;
-            Projectile.timeLeft = 60;
+            Projectile.penetrate = 1;
+            Projectile.timeLeft = 120;
             Projectile.tileCollide = true;
-            Projectile.extraUpdates = 2;
+            Projectile.ignoreWater = true;
+            Projectile.extraUpdates = 1;
         }
 
         public override void AI()
         {
+            if (!_initialized)
+            {
+                _initialized = true;
+                Projectile.rotation = Projectile.velocity.ToRotation();
+            }
+
+            // Homing AI
+            NPC target = ClockworkGrimoireUtils.ClosestNPCAt(Projectile.Center, HomingRange);
+            if (target != null)
+            {
+                Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
+                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
+            }
+
+            if (Projectile.velocity.Length() > MaxSpeed)
+                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
+
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            for (int i = TrailLen - 1; i > 0; i--)
-                _oldPos[i] = _oldPos[i - 1];
-            _oldPos[0] = Projectile.Center;
+            // Trail dust — moonlit theme
+            if (Main.rand.NextBool(3))
+            {
+                int dustType = Main.rand.NextBool() ? DustID.IceTorch : DustID.WhiteTorch;
+                Color dustColor = Main.rand.NextBool() ? new Color(150, 200, 255) : new Color(240, 240, 255);
+                Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
+                    dustType, -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(0.5f, 0.5f),
+                    0, dustColor, 0.8f);
+                d.noGravity = true;
+                d.fadeIn = 0.6f;
+            }
 
-            Lighting.AddLight(Projectile.Center, ClairDeLunePalette.PearlFrost.ToVector3() * 0.15f);
+            // Pulsing light
+            float pulse = 1f + 0.15f * (float)Math.Sin(Projectile.timeLeft * 0.2f);
+            Lighting.AddLight(Projectile.Center, new Vector3(0.35f, 0.45f, 0.6f) * 0.35f * pulse);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            var flash = new GenericGlowParticle(target.Center, Vector2.Zero,
-                ClairDeLunePalette.PearlFrost with { A = 0 } * 0.3f, 0.06f, 4, true);
-            MagnumParticleHandler.SpawnParticle(flash);
+            Vector2 hitPos = target.Center;
+
+            // Impact sparks — moonlit dual tone
+            for (int i = 0; i < 6; i++)
+            {
+                Vector2 sparkVel = Main.rand.NextVector2CircularEdge(4f, 4f);
+                Color col = i % 2 == 0 ? new Color(150, 200, 255) : new Color(240, 240, 255);
+                Dust d = Dust.NewDustPerfect(hitPos, DustID.IceTorch, sparkVel, 0, col, 0.5f);
+                d.noGravity = true;
+            }
+
+            // Pearl accent on impact
+            for (int i = 0; i < 2; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(2f, 2f) + new Vector2(0, -1f);
+                Dust d = Dust.NewDustPerfect(hitPos + Main.rand.NextVector2Circular(8f, 8f),
+                    DustID.WhiteTorch, vel, 0, new Color(240, 240, 255), 0.5f);
+                d.noGravity = true;
+            }
+
+            try { ClairDeLuneVFXLibrary.SpawnMusicNotes(hitPos, 1, 12f, 0.4f, 0.7f, 20); } catch { }
+            try { ClairDeLuneVFXLibrary.SpawnMixedSparkleImpact(hitPos, 0.6f, 4, 4); } catch { }
         }
+
+        #region Rendering
 
         public override bool PreDraw(ref Color lightColor)
         {
-            if (Main.dedServ) return false;
-
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.ClairDeLune, ref _vertexStrip);
-
-                // --- Rapid-fire frost streak accent ---
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-                var glowTex = MagnumTextureRegistry.GetSoftGlow();
-                Vector2 origin = glowTex.Size() / 2f;
-                Vector2 pos = Projectile.Center - Main.screenPosition;
-                float rot = Projectile.velocity.ToRotation();
-                Color frost = (ClairDeLunePalette.MoonlitFrost with { A = 0 }) * 0.55f;
-                sb.Draw(glowTex, pos, null, frost, rot, origin, new Vector2(0.06f, 0.02f), SpriteEffects.None, 0f);
-
-                sb.End();
+                IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.ClairDeLune, ref _strip);
             }
             catch { }
             finally
@@ -98,6 +135,24 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire.Projectiles
             }
 
             return false;
+        }
+
+        #endregion
+
+        public override void OnKill(int timeLeft)
+        {
+            // Death VFX — moonlit spark burst
+            for (int i = 0; i < 4; i++)
+            {
+                Vector2 sparkVel = Main.rand.NextVector2CircularEdge(3f, 3f);
+                Color col = Main.rand.NextBool() ? new Color(150, 200, 255) : new Color(240, 240, 255);
+                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.IceTorch, sparkVel, 0, col, 0.3f);
+                d.noGravity = true;
+            }
+
+            try { ClairDeLuneVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 12f, 0.5f, 0.7f, 20); } catch { }
+            try { ClairDeLuneVFXLibrary.SpawnMixedSparkleImpact(Projectile.Center, 0.5f, 4, 4); } catch { }
+            try { ClairDeLuneVFXLibrary.SpawnLunarSparkles(Projectile.Center, 3, 15f); } catch { }
         }
     }
 }

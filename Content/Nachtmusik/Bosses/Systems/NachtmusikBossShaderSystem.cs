@@ -12,37 +12,48 @@ using MagnumOpus.Common.Systems;
 namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
 {
     /// <summary>
-    /// Nachtmusik boss shader-driven rendering system.
-    /// Phase 1 (serene nocturnal) vs Phase 2 (violent cosmic storm) visual differentiation.
-    /// Enhanced with 3-layer bloom stacking, DrawBossGlow, HP-driven musical accents.
+    /// Nachtmusik boss shader-driven rendering — Queen of Radiance.
+    /// 4-phase system: Evening Star → Cosmic Dance → Celestial Crescendo → Supernova.
+    /// Phase-appropriate aura, dash trail, glow, musical accents.
+    /// Palette: deep indigo, starlight silver, cosmic blue, nebula purple, white radiance — NO gold.
     /// </summary>
     public static class NachtmusikBossShaderSystem
     {
-        // Theme colors
-        private static readonly Color DeepIndigo = new Color(40, 30, 100);
-        private static readonly Color StarlightSilver = new Color(200, 210, 230);
-        private static readonly Color CosmicBlue = new Color(80, 120, 200);
-        private static readonly Color NebulaGold = new Color(220, 180, 100);
-        private static readonly Color MidnightBlue = new Color(15, 15, 45);
-        private static readonly Color StarWhite = new Color(200, 210, 240);
+        // Theme palette
+        private static readonly Color DeepIndigo = new Color(25, 20, 65);
+        private static readonly Color StarlightSilver = new Color(200, 215, 240);
+        private static readonly Color CosmicBlue = new Color(60, 100, 190);
+        private static readonly Color NebulaPurple = new Color(70, 40, 120);
+        private static readonly Color WhiteRadiance = new Color(245, 245, 255);
+        private static readonly Color MidnightIndigo = new Color(15, 12, 40);
 
         /// <summary>
         /// Draws the starfield aura with 3-layer bloom stacking.
-        /// Phase 1: gentle indigo halo. Phase 2: fierce cosmic storm aura.
+        /// Evolves per phase: gentle indigo halo → orbiting cosmic → galaxy radiance → supernova blaze.
         /// </summary>
         public static void DrawStarfieldAura(SpriteBatch sb, NPC npc, Vector2 screenPos,
-            float aggressionLevel, int phase, bool isPhase2)
+            float aggressionLevel, int phase)
         {
-            float baseRadius = 90f + phase * 15f;
+            float baseRadius = 90f + phase * 20f;
             float intensity = 0.3f + aggressionLevel * 0.4f;
-            if (isPhase2)
+            if (phase >= 4)
             {
-                intensity *= 1.6f;
-                baseRadius *= 1.4f;
+                intensity *= 2.0f;
+                baseRadius *= 1.6f;
+            }
+            else if (phase >= 3)
+            {
+                intensity *= 1.5f;
+                baseRadius *= 1.3f;
+            }
+            else if (phase >= 2)
+            {
+                intensity *= 1.3f;
+                baseRadius *= 1.15f;
             }
 
-            Color primary = isPhase2 ? CosmicBlue : DeepIndigo;
-            Color secondary = isPhase2 ? NebulaGold : StarlightSilver;
+            Color primary = phase >= 4 ? WhiteRadiance : (phase >= 3 ? CosmicBlue : (phase >= 2 ? NebulaPurple : DeepIndigo));
+            Color secondary = phase >= 4 ? CosmicBlue : (phase >= 3 ? NebulaPurple : StarlightSilver);
 
             BossRenderHelper.DrawShaderAura(sb, npc, screenPos,
                 BossShaderManager.NachtmusikStarfieldAura, primary, secondary,
@@ -58,18 +69,22 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Outer halo
-            Color outerColor = (isPhase2 ? CosmicBlue : DeepIndigo) * 0.12f;
+            // Outer halo — phase-driven color
+            Color outerColor = phase >= 4
+                ? WhiteRadiance * 0.18f
+                : (phase >= 3 ? CosmicBlue * 0.15f : (phase >= 2 ? NebulaPurple * 0.13f : DeepIndigo * 0.12f));
             outerColor.A = 0;
             sb.Draw(glow, drawPos, null, outerColor, 0f, glowOrigin, baseRadius / glow.Width * 3.5f, SpriteEffects.None, 0f);
 
-            // Mid glow - pulsing
-            Color midColor = (isPhase2 ? NebulaGold : StarlightSilver) * (0.15f * pulse);
+            // Mid glow — pulsing
+            Color midColor = phase >= 4
+                ? CosmicBlue * (0.2f * pulse)
+                : (phase >= 3 ? NebulaPurple * (0.18f * pulse) : StarlightSilver * (0.15f * pulse));
             midColor.A = 0;
             sb.Draw(glow, drawPos, null, midColor, 0f, glowOrigin, baseRadius / glow.Width * 2.2f, SpriteEffects.None, 0f);
 
-            // Core - bright edge
-            Color coreColor = StarWhite * 0.2f;
+            // Core — bright
+            Color coreColor = WhiteRadiance * (phase >= 4 ? 0.3f : 0.2f);
             coreColor.A = 0;
             sb.Draw(glow, drawPos, null, coreColor, 0f, glowOrigin, baseRadius / glow.Width * 1.0f, SpriteEffects.None, 0f);
 
@@ -79,13 +94,13 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
         }
 
         /// <summary>
-        /// Draws the nebula dash trail.
+        /// Draws the nebula dash trail — silver-blue in early phases, prismatic in P3, blinding in P4.
         /// </summary>
         public static void DrawNebulaDashTrail(SpriteBatch sb, NPC npc, Vector2 screenPos,
-            Texture2D texture, Rectangle sourceRect, Vector2 origin, bool isPhase2)
+            Texture2D texture, Rectangle sourceRect, Vector2 origin, int phase)
         {
-            Color trailColor = isPhase2 ? NebulaGold : StarlightSilver;
-            float width = isPhase2 ? 1.6f : 1.0f;
+            Color trailColor = phase >= 4 ? WhiteRadiance : (phase >= 3 ? CosmicBlue : StarlightSilver);
+            float width = phase >= 4 ? 2.0f : (phase >= 3 ? 1.5f : (phase >= 2 ? 1.2f : 1.0f));
 
             BossRenderHelper.DrawShaderTrail(sb, npc, screenPos,
                 texture, sourceRect, origin,
@@ -94,24 +109,24 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
         }
 
         /// <summary>
-        /// Draws the supernova blast during SupernovaCollapse.
+        /// Draws the supernova blast during SupernovaCollapse attack.
         /// </summary>
         public static void DrawSupernovaBlast(SpriteBatch sb, Vector2 position, Vector2 screenPos,
             float intensity)
         {
             BossRenderHelper.DrawAttackFlash(sb, position, screenPos,
-                BossShaderManager.NachtmusikSupernovaBlast, StarlightSilver, intensity,
+                BossShaderManager.NachtmusikSupernovaBlast, WhiteRadiance, intensity,
                 (float)Main.timeForVisualEffects * 0.035f);
         }
 
         /// <summary>
-        /// Draws the Phase 2 awakening transition.
+        /// Draws phase transition effect — used between any phase boundary.
         /// </summary>
-        public static void DrawPhase2Awakening(SpriteBatch sb, NPC npc, Vector2 screenPos,
-            float transitionProgress)
+        public static void DrawPhaseTransition(SpriteBatch sb, NPC npc, Vector2 screenPos,
+            float transitionProgress, int fromPhase, int toPhase)
         {
-            Color from = DeepIndigo;
-            Color to = NebulaGold;
+            Color from = fromPhase >= 3 ? CosmicBlue : (fromPhase >= 2 ? NebulaPurple : DeepIndigo);
+            Color to = toPhase >= 4 ? WhiteRadiance : (toPhase >= 3 ? CosmicBlue : (toPhase >= 2 ? NebulaPurple : StarlightSilver));
             float intensity = 1.0f + transitionProgress * 0.5f;
 
             BossRenderHelper.DrawPhaseTransition(sb, npc, screenPos,
@@ -142,7 +157,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
                 sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-                Color edgeColor = StarWhite * (0.25f * edgeIntensity);
+                Color edgeColor = WhiteRadiance * (0.25f * edgeIntensity);
                 edgeColor.A = 0;
                 float edgeScale = 0.8f + edgeIntensity * 1.2f;
                 sb.Draw(glow, drawPos, null, edgeColor, 0f, glowOrigin, edgeScale, SpriteEffects.None, 0f);
@@ -154,10 +169,10 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
         }
 
         /// <summary>
-        /// Draws the boss glow underlay - SHADER LAYER 0.
-        /// Phase 1: serene silver-indigo. Phase 2: fierce gold-blue cosmic storm.
+        /// Draws the boss glow underlay — SHADER LAYER 0.
+        /// 4-phase progression: serene silver-indigo → cosmic blue → deep purple → blinding white.
         /// </summary>
-        public static void DrawBossGlow(SpriteBatch sb, NPC npc, Vector2 screenPos, bool isPhase2)
+        public static void DrawBossGlow(SpriteBatch sb, NPC npc, Vector2 screenPos, int phase)
         {
             Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
             Vector2 drawPos = npc.Center - screenPos;
@@ -168,31 +183,59 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
             sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            if (isPhase2)
+            switch (phase)
             {
-                // Fierce cosmic storm glow
-                Color outer = NebulaGold * 0.18f;
-                outer.A = 0;
-                sb.Draw(glow, drawPos, null, outer, 0f, origin, 2.0f, SpriteEffects.None, 0f);
+                case 4: // Supernova — blinding white/silver core with cosmic blue halo
+                    Color outer4 = CosmicBlue * 0.22f;
+                    outer4.A = 0;
+                    sb.Draw(glow, drawPos, null, outer4, 0f, origin, 2.4f, SpriteEffects.None, 0f);
 
-                Color mid = CosmicBlue * (0.2f * pulse);
-                mid.A = 0;
-                sb.Draw(glow, drawPos, null, mid, 0f, origin, 1.3f, SpriteEffects.None, 0f);
+                    Color mid4 = StarlightSilver * (0.25f * pulse);
+                    mid4.A = 0;
+                    sb.Draw(glow, drawPos, null, mid4, 0f, origin, 1.5f, SpriteEffects.None, 0f);
 
-                Color core = StarWhite * 0.15f;
-                core.A = 0;
-                sb.Draw(glow, drawPos, null, core, 0f, origin, 0.6f, SpriteEffects.None, 0f);
-            }
-            else
-            {
-                // Serene nocturnal glow
-                Color outer = DeepIndigo * 0.14f;
-                outer.A = 0;
-                sb.Draw(glow, drawPos, null, outer, 0f, origin, 1.6f, SpriteEffects.None, 0f);
+                    Color core4 = WhiteRadiance * 0.2f;
+                    core4.A = 0;
+                    sb.Draw(glow, drawPos, null, core4, 0f, origin, 0.7f, SpriteEffects.None, 0f);
+                    break;
 
-                Color core = StarlightSilver * (0.12f * pulse);
-                core.A = 0;
-                sb.Draw(glow, drawPos, null, core, 0f, origin, 0.8f, SpriteEffects.None, 0f);
+                case 3: // Celestial Crescendo — deep cosmic blue + purple shimmer
+                    Color outer3 = CosmicBlue * 0.18f;
+                    outer3.A = 0;
+                    sb.Draw(glow, drawPos, null, outer3, 0f, origin, 2.0f, SpriteEffects.None, 0f);
+
+                    Color mid3 = NebulaPurple * (0.18f * pulse);
+                    mid3.A = 0;
+                    sb.Draw(glow, drawPos, null, mid3, 0f, origin, 1.3f, SpriteEffects.None, 0f);
+
+                    Color core3 = WhiteRadiance * 0.15f;
+                    core3.A = 0;
+                    sb.Draw(glow, drawPos, null, core3, 0f, origin, 0.6f, SpriteEffects.None, 0f);
+                    break;
+
+                case 2: // Cosmic Dance — nebula purple outer, cosmic blue core
+                    Color outer2 = NebulaPurple * 0.15f;
+                    outer2.A = 0;
+                    sb.Draw(glow, drawPos, null, outer2, 0f, origin, 1.8f, SpriteEffects.None, 0f);
+
+                    Color mid2 = CosmicBlue * (0.16f * pulse);
+                    mid2.A = 0;
+                    sb.Draw(glow, drawPos, null, mid2, 0f, origin, 1.1f, SpriteEffects.None, 0f);
+
+                    Color core2 = StarlightSilver * 0.12f;
+                    core2.A = 0;
+                    sb.Draw(glow, drawPos, null, core2, 0f, origin, 0.5f, SpriteEffects.None, 0f);
+                    break;
+
+                default: // Evening Star — serene indigo + silver
+                    Color outer1 = DeepIndigo * 0.14f;
+                    outer1.A = 0;
+                    sb.Draw(glow, drawPos, null, outer1, 0f, origin, 1.6f, SpriteEffects.None, 0f);
+
+                    Color core1 = StarlightSilver * (0.12f * pulse);
+                    core1.A = 0;
+                    sb.Draw(glow, drawPos, null, core1, 0f, origin, 0.8f, SpriteEffects.None, 0f);
+                    break;
             }
 
             sb.End();
@@ -201,57 +244,59 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
         }
 
         /// <summary>
-        /// HP-driven musical VFX. Lower HP = faster intervals, bloom orbit, ascending sparkles.
+        /// HP-driven musical VFX accents. Escalates per phase.
+        /// P1: gentle starlight convergence. P2: arpeggio + metronome. P3: prismatic bursts. P4: constant radiance.
         /// </summary>
-        public static void SpawnMusicalAccents(NPC npc, int timer, int phase, bool isPhase2)
+        public static void SpawnMusicalAccents(NPC npc, int timer, int phase)
         {
             float hpDrive = 1f - (float)npc.life / npc.lifeMax;
 
-            // Starlight convergence - interval shrinks: 100 to 50
+            // Starlight convergence — interval shrinks with HP: 100→50
             int convergenceInterval = Math.Max(1, (int)(100 - hpDrive * 50));
             if (timer % convergenceInterval == 0)
             {
-                Phase10BossVFX.StaffLineConvergence(npc.Center,
-                    isPhase2 ? CosmicBlue : StarlightSilver, 0.5f + phase * 0.15f);
+                Color convColor = phase >= 3 ? CosmicBlue : StarlightSilver;
+                Phase10BossVFX.StaffLineConvergence(npc.Center, convColor, 0.5f + phase * 0.15f);
             }
 
-            // Rhythmic metronome - interval: 60 to 30
+            // Rhythmic metronome — interval: 60→30, phase 2+
             int metronomeInterval = Math.Max(1, (int)(60 - hpDrive * 30));
-            if (timer % metronomeInterval == 0 && phase >= 1)
+            if (timer % metronomeInterval == 0 && phase >= 2)
             {
-                Phase10BossVFX.MetronomeTickWarning(npc.Center,
-                    isPhase2 ? NebulaGold : DeepIndigo, 3, 4);
+                Color metColor = phase >= 3 ? NebulaPurple : DeepIndigo;
+                Phase10BossVFX.MetronomeTickWarning(npc.Center, metColor, 3, 4);
             }
 
-            // Phase 2 cosmic storm flares - interval: 40 to 20
+            // Phase 3+: prismatic flares — interval: 40→20
             int flareInterval = Math.Max(1, (int)(40 - hpDrive * 20));
-            if (timer % flareInterval == 0 && isPhase2)
+            if (timer % flareInterval == 0 && phase >= 3)
             {
+                Color flareColor = Color.Lerp(CosmicBlue, NebulaPurple, Main.rand.NextFloat());
                 CustomParticles.GenericFlare(npc.Center + Main.rand.NextVector2Circular(60f, 60f),
-                    Color.Lerp(CosmicBlue, NebulaGold, Main.rand.NextFloat()), 0.3f, 15);
+                    flareColor, 0.3f, 15);
             }
 
-            // Phase 2 sforzando spikes - interval: 30 to 15
+            // Phase 4: sforzando spikes of white radiance — interval: 30→15
             int spikeInterval = Math.Max(1, (int)(30 - hpDrive * 15));
-            if (timer % spikeInterval == 0 && isPhase2)
+            if (timer % spikeInterval == 0 && phase >= 4)
             {
-                Phase10BossVFX.SforzandoSpike(npc.Center, NebulaGold, 0.6f);
+                Phase10BossVFX.SforzandoSpike(npc.Center, WhiteRadiance, 0.6f);
             }
 
-            // Bloom orbit every 12 frames
+            // Bloom orbit every 12 frames — phase-colored
             if (timer % 12 == 0)
             {
                 float orbitAngle = timer * 0.08f;
                 Vector2 orbitPos = npc.Center + orbitAngle.ToRotationVector2() * 70f;
-                Color orbitColor = isPhase2 ? NebulaGold : StarlightSilver;
+                Color orbitColor = phase >= 4 ? WhiteRadiance : (phase >= 3 ? CosmicBlue : StarlightSilver);
                 var bloom = new BloomParticle(orbitPos, Vector2.Zero, orbitColor * 0.4f, 0.3f, 15);
                 MagnumParticleHandler.SpawnParticle(bloom);
             }
 
-            // Ascending sparkles when HP < 50%
+            // Ascending sparkles when HP < 50% — silver/white, never gold
             if (hpDrive > 0.5f && timer % 20 == 0)
             {
-                Color sparkleColor = isPhase2 ? StarWhite : StarlightSilver;
+                Color sparkleColor = phase >= 4 ? WhiteRadiance : StarlightSilver;
                 var sparkle = new SparkleParticle(
                     npc.Center + Main.rand.NextVector2Circular(40f, 40f),
                     new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1.5f),

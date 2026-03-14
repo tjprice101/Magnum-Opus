@@ -37,9 +37,11 @@ namespace MagnumOpus.Common.Systems.Bosses
 
         // Boss phase tracking (set by boss AI)
         public static int EroicaPhase = 0;
+        public static bool EroicaEnraged = false;
         public static int LaCampanellaPhase = 0;
         public static int SwanLakeMood = 0; // 0=Graceful, 1=Tempest, 2=DyingSwan
         public static int EnigmaPhase = 0;
+        public static bool EnigmaEnraged = false;
         public static int FatePhase = 0;
         public static bool FateAwakened = false;
         public static int NachtmusikPhase = 0;
@@ -114,9 +116,12 @@ namespace MagnumOpus.Common.Systems.Bosses
             MovementIII = -1;
 
             EroicaPhase = 0;
+            EroicaEnraged = false;
             LaCampanellaPhase = 0;
             SwanLakeMood = 0;
             EnigmaPhase = 0;
+            EnigmaEnraged = false;
+            EnigmaHollowMystery = -1;
             FatePhase = 0;
             FateAwakened = false;
             NachtmusikPhase = 0;

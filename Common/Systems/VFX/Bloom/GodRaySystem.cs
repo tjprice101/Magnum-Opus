@@ -57,6 +57,7 @@ namespace MagnumOpus.Common.Systems.VFX
         
         public enum GodRayStyle
         {
+            Burst,          // Legacy alias for explosive burst behavior
             Explosion,      // Rays shoot outward then fade
             Sustained,      // Rays persist with jitter
             Pulsing,        // Rays pulse in and out

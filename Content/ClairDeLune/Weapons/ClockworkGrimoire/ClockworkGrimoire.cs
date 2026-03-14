@@ -1,35 +1,23 @@
-using MagnumOpus.Common;
-using MagnumOpus.Common.Systems.Particles;
-using MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire.Projectiles;
-using MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire.Utilities;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using MagnumOpus.Content.ClairDeLune;
+using MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire.Projectiles;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
-using Terraria.GameContent;
-using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire
 {
-    /// <summary>
-    /// Clockwork Grimoire — Magic weapon with 4 modes cycling through aspects of timekeeping.
-    /// Hour: sustained beam. Minute: 12 ticking orbs. Second: rapid bolts. Pendulum: AoE zone.
-    /// Temporal Synergy (H→M→S→P sequence) = 50% enhanced next cast.
-    /// "Hours of patience. Minutes of precision. Seconds of fury. And the pendulum swings eternal."
-    /// </summary>
     public class ClockworkGrimoire : ModItem
     {
-        private int _secondFireTimer;
-
         public override void SetDefaults()
         {
             Item.width = 32;
             Item.height = 32;
-            Item.damage = 3600; // Tier 10 (2800-4200 range), slow magic
+            Item.damage = 3600;
             Item.DamageType = DamageClass.Magic;
             Item.mana = 15;
             Item.useTime = 30;
@@ -46,140 +34,42 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire
             Item.crit = 12;
         }
 
-        public override bool AltFunctionUse(Player player) => true;
-
-        public override bool CanUseItem(Player player)
-        {
-            var gp = player.GetModPlayer<ClockworkGrimoirePlayer>();
-
-            if (player.altFunctionUse == 2)
-            {
-                // Alt = cycle mode
-                Item.useTime = 15;
-                Item.useAnimation = 15;
-                Item.mana = 0;
-                return true;
-            }
-
-            // Apply mode-specific use times
-            switch (gp.CurrentMode)
-            {
-                case 0: // Hour — sustained beam (channel)
-                    Item.useTime = 6;
-                    Item.useAnimation = 6;
-                    Item.mana = 8;
-                    Item.channel = true;
-                    break;
-                case 1: // Minute — fires 12 orbs at once
-                    Item.useTime = 45;
-                    Item.useAnimation = 45;
-                    Item.mana = 30;
-                    Item.channel = false;
-                    break;
-                case 2: // Second — rapid bolts
-                    Item.useTime = 3;
-                    Item.useAnimation = 3;
-                    Item.mana = 3;
-                    Item.channel = false;
-                    break;
-                case 3: // Pendulum — creates zone
-                    Item.useTime = 60;
-                    Item.useAnimation = 60;
-                    Item.mana = 40;
-                    Item.channel = false;
-                    break;
-            }
-
-            return base.CanUseItem(player);
-        }
-
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            var gp = player.GetModPlayer<ClockworkGrimoirePlayer>();
-
-            if (player.altFunctionUse == 2)
-            {
-                gp.CycleMode();
-                SoundEngine.PlaySound(SoundID.Item4 with { Pitch = 0.3f, Volume = 0.5f }, position);
-
-                // Mode change VFX
-                var flash = new BloomParticle(position, Vector2.Zero,
-                    gp.GetModeColor() with { A = 0 } * 0.4f, 0.3f, 6);
-                MagnumParticleHandler.SpawnParticle(flash);
-
-                // Synergy flash if activated
-                if (gp.SynergyActive)
-                {
-                    var synFlash = new BloomParticle(position, Vector2.Zero,
-                        ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.6f, 0.5f, 10);
-                    MagnumParticleHandler.SpawnParticle(synFlash);
-                }
-                return false;
-            }
-
-            bool synergy = gp.ConsumeSynergy();
-            float dmgMult = synergy ? 1.5f : 1f;
-            int enhancedDmg = (int)(damage * dmgMult);
-
-            switch (gp.CurrentMode)
-            {
-                case 0: // Hour Beam
-                    // Check if beam already exists
-                    bool beamExists = false;
-                    for (int i = 0; i < Main.maxProjectiles; i++)
-                    {
-                        if (Main.projectile[i].active && Main.projectile[i].type == ModContent.ProjectileType<HourBeamProjectile>()
-                            && Main.projectile[i].owner == player.whoAmI)
-                        {
-                            beamExists = true;
-                            break;
-                        }
-                    }
-                    if (!beamExists)
-                    {
-                        Projectile.NewProjectile(source, position, velocity.SafeNormalize(Vector2.UnitX),
-                            ModContent.ProjectileType<HourBeamProjectile>(),
-                            enhancedDmg, knockback, player.whoAmI, synergy ? 1 : 0);
-                    }
-                    break;
-
-                case 1: // Minute — 12 orbs
-                    for (int i = 0; i < 12; i++)
-                    {
-                        float spread = MathHelper.ToRadians(-30f + 60f * i / 11f);
-                        Vector2 orbVel = velocity.RotatedBy(spread) * Main.rand.NextFloat(0.7f, 1.1f);
-                        Projectile.NewProjectile(source, position, orbVel,
-                            ModContent.ProjectileType<MinuteOrbProjectile>(),
-                            (int)(enhancedDmg * 0.35f), knockback * 0.5f, player.whoAmI);
-                    }
-                    SoundEngine.PlaySound(SoundID.Item8 with { Pitch = 0.2f }, position);
-                    break;
-
-                case 2: // Second — rapid bolts
-                    Vector2 boltVel = velocity.RotatedByRandom(0.05f);
-                    Projectile.NewProjectile(source, position, boltVel,
-                        ModContent.ProjectileType<SecondBoltProjectile>(),
-                        (int)(enhancedDmg * 0.2f), knockback * 0.3f, player.whoAmI);
-                    break;
-
-                case 3: // Pendulum zone
-                    Vector2 targetPos = Main.MouseWorld;
-                    Projectile.NewProjectile(source, targetPos, Vector2.Zero,
-                        ModContent.ProjectileType<PendulumZoneProjectile>(),
-                        (int)(enhancedDmg * 0.8f), knockback, player.whoAmI, synergy ? 1 : 0);
-                    SoundEngine.PlaySound(SoundID.Item29 with { Pitch = -0.3f }, targetPos);
-                    break;
-            }
-
+            Projectile.NewProjectile(source, player.MountedCenter, velocity, type, damage, knockback, player.whoAmI);
             return false;
+        }
+
+        public override void HoldItem(Player player)
+        {
+            if (Main.rand.NextBool(4))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
+                Color col = ClairDeLunePalette.GetGradient(Main.rand.NextFloat());
+                Dust d = Dust.NewDustPerfect(player.Center + offset, DustID.WhiteTorch,
+                    new Vector2(0, -0.8f) + Main.rand.NextVector2Circular(0.4f, 0.4f), 0, col, 0.5f);
+                d.noGravity = true;
+            }
+
+            float pulse = 0.7f + 0.3f * MathF.Sin(Main.GlobalTimeWrappedHourly * 3f);
+            Lighting.AddLight(player.Center, ClairDeLunePalette.SoftBlue.ToVector3() * 0.35f * pulse);
+        }
+
+        public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
+        {
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 0.2f;
+            Texture2D tex = Terraria.GameContent.TextureAssets.Item[Type].Value;
+            Vector2 drawPos = Item.position - Main.screenPosition + new Vector2(Item.width / 2f, Item.height);
+            Vector2 origin = new Vector2(tex.Width / 2f, tex.Height);
+
+            spriteBatch.Draw(tex, drawPos, null, ClairDeLunePalette.SoftBlue with { A = 0 } * pulse,
+                rotation, origin, scale * 1.05f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, ClairDeLunePalette.PearlWhite with { A = 0 } * (pulse * 0.7f),
+                rotation, origin, scale * 1.02f, SpriteEffects.None, 0f);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Player player = Main.LocalPlayer;
-            var gp = player.GetModPlayer<ClockworkGrimoirePlayer>();
-
-            tooltips.Add(new TooltipLine(Mod, "Mode", $"Current mode: {gp.GetModeName()} — right click to cycle"));
             tooltips.Add(new TooltipLine(Mod, "Hour", "Hour Mode: sustained beam of temporal energy"));
             tooltips.Add(new TooltipLine(Mod, "Minute", "Minute Mode: launches 12 ticking orbs that detonate"));
             tooltips.Add(new TooltipLine(Mod, "Second", "Second Mode: rapid-fire piercing bolts"));
@@ -189,52 +79,6 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire
             {
                 OverrideColor = ClairDeLunePalette.LoreText
             });
-        }
-    
-        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
-        {
-            Texture2D tex = TextureAssets.Item[Item.type].Value;
-            Vector2 pos = Item.Center - Main.screenPosition;
-            Vector2 origin = tex.Size() * 0.5f;
-
-            float time = Main.GameUpdateCount * 0.05f;
-            float pulse = 1f + (float)Math.Sin(time * 2.2f) * 0.05f
-                + (float)Math.Sin(time * 3.8f) * 0.03f;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            ClairDeLunePalette.DrawItemBloom(spriteBatch, tex, pos, origin, rotation, scale, pulse);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            Lighting.AddLight(Item.Center, ClairDeLunePalette.SoftBlue.ToVector3() * 0.35f);
-            return true;
-        }
-
-        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
-        {
-            Texture2D tex = TextureAssets.Item[Item.type].Value;
-            float time = Main.GameUpdateCount * 0.04f;
-            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.06f;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
-
-            float cycle = (float)Math.Sin(time * 0.7f) * 0.5f + 0.5f;
-            Color glowColor = Color.Lerp(ClairDeLunePalette.SoftBlue, ClairDeLunePalette.PearlWhite, cycle) * 0.24f;
-            spriteBatch.Draw(tex, position, frame, glowColor with { A = 0 }, 0f, origin, scale * pulse * 1.1f, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
-
-            spriteBatch.Draw(tex, position, frame, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
-            return false;
         }
     }
 }

@@ -273,7 +273,18 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
             DiesIraeSky.BossIsEnraged = isEnraged;
             
             if (State != BossPhase.Spawning && State != BossPhase.Death)
-                DiesIraeBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier, isEnraged);
+            {
+                // Phase-specific ambient VFX
+                switch (difficultyTier)
+                {
+                    case 0: HeraldOfJudgementVFX.SummoningAmbience(NPC.Center, Timer); break;
+                    case 1: HeraldOfJudgementVFX.TrialAmbience(NPC.Center, Timer); break;
+                    default: HeraldOfJudgementVFX.VerdictAmbience(NPC.Center, Timer); break;
+                }
+                if (isEnraged)
+                    HeraldOfJudgementVFX.EnrageAmbience(NPC.Center, Timer);
+                HeraldOfJudgementVFX.UpdateSkyPhase(difficultyTier, isEnraged);
+            }
         }
 
         public override bool CheckDead()
@@ -584,7 +595,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
             
             // === ENHANCED TELEGRAPH VFX ===
             float chargeProgress = Math.Min(1f, Timer / 30f);
-            DiesIraeVFX.ChargeUp(NPC.Center, chargeProgress, 1.2f);
+            HeraldOfJudgementVFX.ChargeUp(NPC.Center, chargeProgress, 1.2f);
             
             if (SubPhase < burstCount)
             {
@@ -593,7 +604,8 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                     SoundEngine.PlaySound(SoundID.Item20 with { Pitch = -0.3f, Volume = 1.3f }, NPC.Center);
                     
                     // === MASSIVE MUZZLE FLASH ===
-                    DiesIraeVFX.FireImpact(NPC.Center, 0.9f);
+                    HeraldOfJudgementVFX.FireImpact(NPC.Center, 0.9f);
+                    HeraldOfJudgementVFX.GavelImpactRings(NPC.Center, 4, 0.8f);
                     MagnumScreenEffects.AddScreenShake(4f + difficultyTier * 2f);
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
@@ -638,17 +650,13 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                 
                 // === INTENSE CHARGE VFX ===
                 float progress = Timer / 50f;
-                DiesIraeVFX.ChargeUp(NPC.Center, progress, 1.5f);
+                HeraldOfJudgementVFX.ChargeUp(NPC.Center, progress, 1.5f);
                 
                 // Warning line toward player
                 if (Timer % 5 == 0)
                 {
                     Vector2 toTarget = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX);
-                    for (int i = 0; i < 20; i++)
-                    {
-                        Vector2 warningPos = NPC.Center + toTarget * (50f + i * 40f);
-                        DiesIraeVFX.WarningFlare(warningPos, 0.4f);
-                    }
+                    HeraldOfJudgementVFX.BurningScriptureTelegraph(NPC.Center, toTarget, 800f, 5);
                 }
                 
                 if (Timer >= 50)
@@ -657,7 +665,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                     SubPhase = 1;
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.3f, Volume = 1.5f }, NPC.Center);
                     MagnumScreenEffects.AddScreenShake(10f);
-                    DiesIraeVFX.FireImpact(NPC.Center, 1.3f);
+                    HeraldOfJudgementVFX.FireImpact(NPC.Center, 1.3f);
                 }
             }
             else if (SubPhase == 1) // Sweep - MASSIVE BEAM EFFECT
@@ -672,7 +680,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                 for (int i = 0; i < 30; i++)
                 {
                     Vector2 beamPos = NPC.Center + beamDir * (50f + i * 25f);
-                    Color beamColor = Color.Lerp(Color.White, DiesIraeColors.Crimson, i / 30f);
+                    Color beamColor = Color.Lerp(Color.White, Crimson, i / 30f);
                     beamColor.A = 0;
                     
                     var beam = new BloomParticle(beamPos, Vector2.Zero, beamColor * 0.8f, 0.4f, 5);
@@ -710,7 +718,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
             if (SubPhase < rings && Timer < 10)
             {
                 float progress = Timer / 10f + SubPhase * 0.2f;
-                DiesIraeVFX.ChargeUp(NPC.Center, Math.Min(1f, progress), 1f);
+                HeraldOfJudgementVFX.ChargeUp(NPC.Center, Math.Min(1f, progress), 1f);
             }
             
             if (SubPhase < rings)
@@ -720,7 +728,8 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                     SoundEngine.PlaySound(SoundID.Item45 with { Pitch = -0.2f + SubPhase * 0.1f, Volume = 1.4f }, NPC.Center);
                     
                     // === MASSIVE RING EXPLOSION VFX ===
-                    DiesIraeVFX.FireImpact(NPC.Center, 1.2f + SubPhase * 0.2f);
+                    HeraldOfJudgementVFX.FireImpact(NPC.Center, 1.2f + SubPhase * 0.2f);
+                    HeraldOfJudgementVFX.GavelImpactRings(NPC.Center, 5 + SubPhase, 1f + SubPhase * 0.15f);
                     MagnumScreenEffects.AddScreenShake(5f + SubPhase * 2f);
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
@@ -762,16 +771,12 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                 
                 // Warning line to target
                 float progress = Timer / 40f;
-                DiesIraeVFX.ChargeUp(NPC.Center, progress, 1.3f);
+                HeraldOfJudgementVFX.ChargeUp(NPC.Center, progress, 1.3f);
                 
                 if (Timer % 4 == 0)
                 {
                     Vector2 toTarget = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX);
-                    for (int i = 0; i < 15; i++)
-                    {
-                        Vector2 warningPos = NPC.Center + toTarget * (i * 50f);
-                        DiesIraeVFX.WarningFlare(warningPos, 0.5f);
-                    }
+                    HeraldOfJudgementVFX.BurningScriptureTelegraph(NPC.Center, toTarget, 750f, 4);
                 }
                 
                 if (Timer >= 40)
@@ -790,13 +795,13 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                         dashDirection = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX);
                         NPC.velocity = dashDirection * BaseSpeed * 1.8f;
                         SoundEngine.PlaySound(SoundID.Item73 with { Pitch = 0.2f, Volume = 1.3f }, NPC.Center);
-                        DiesIraeVFX.FireImpact(NPC.Center, 1f);
+                        HeraldOfJudgementVFX.FireImpact(NPC.Center, 1f);
                         MagnumScreenEffects.AddScreenShake(8f);
                     }
                     
                     // === FIRE TRAIL DURING DASH ===
-                    DiesIraeVFX.FireTrail(NPC.Center, NPC.velocity, 1.5f);
-                    DiesIraeVFX.FireTrail(NPC.Center + Main.rand.NextVector2Circular(20f, 20f), NPC.velocity, 1f);
+                    HeraldOfJudgementVFX.FireTrail(NPC.Center, NPC.velocity, 1.5f);
+                    HeraldOfJudgementVFX.FireTrail(NPC.Center + Main.rand.NextVector2Circular(20f, 20f), NPC.velocity, 1f);
                     
                     // Fire projectiles during dash
                     if (Timer % 4 == 0 && Main.netMode != NetmodeID.MultiplayerClient)
@@ -814,7 +819,8 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                         Timer = 0;
                         dashCount++;
                         NPC.velocity *= 0.25f;
-                        DiesIraeVFX.FireImpact(NPC.Center, 0.8f);
+                        HeraldOfJudgementVFX.FireImpact(NPC.Center, 0.8f);
+                        HeraldOfJudgementVFX.GavelImpactRings(NPC.Center, 3, 0.7f);
                     }
                 }
                 else
@@ -840,12 +846,12 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
             if (SubPhase == 0) // Spawn souls - DRAMATIC SUMMONING
             {
                 float progress = Timer / 25f;
-                DiesIraeVFX.ChargeUp(NPC.Center, progress, 1.2f);
+                HeraldOfJudgementVFX.ChargeUp(NPC.Center, progress, 1.2f);
                 
                 if (Timer == 25)
                 {
                     SoundEngine.PlaySound(SoundID.NPCDeath6 with { Pitch = -0.5f, Volume = 1.5f }, NPC.Center);
-                    DiesIraeVFX.FireImpact(NPC.Center, 1.5f);
+                    HeraldOfJudgementVFX.FireImpact(NPC.Center, 1.5f);
                     MagnumScreenEffects.AddScreenShake(12f);
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
@@ -860,7 +866,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                                 ProjectileID.LostSoulHostile, (int)(BaseDamage * 0.35f), 1f);
                             
                             // Spawn VFX at each soul location
-                            DiesIraeVFX.FireImpact(NPC.Center + spawnOffset, 0.5f);
+                            HeraldOfJudgementVFX.FireImpact(NPC.Center + spawnOffset, 0.5f);
                         }
                     }
                 }
@@ -886,7 +892,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                 Vector2 toRise = riseTarget - NPC.Center;
                 
                 // Fire trail while rising
-                DiesIraeVFX.FireTrail(NPC.Center, NPC.velocity, 1.2f);
+                HeraldOfJudgementVFX.FireTrail(NPC.Center, NPC.velocity, 1.2f);
                 
                 if (toRise.Length() > 50f)
                 {
@@ -907,7 +913,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                 
                 // Charge up above player
                 float progress = Timer / 30f;
-                DiesIraeVFX.ChargeUp(NPC.Center, progress, 1.5f);
+                HeraldOfJudgementVFX.ChargeUp(NPC.Center, progress, 1.5f);
                 
                 // Ground impact warning
                 if (Timer % 3 == 0)
@@ -916,7 +922,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                     {
                         float angle = MathHelper.TwoPi * i / 12f;
                         Vector2 warningPos = dashTarget + angle.ToRotationVector2() * 100f;
-                        DiesIraeVFX.WarningFlare(warningPos, 0.6f);
+                        HeraldOfJudgementVFX.WarningFlare(warningPos, 0.6f);
                     }
                 }
                 
@@ -935,7 +941,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                 // INTENSE fire trail during descent
                 for (int i = 0; i < 3; i++)
                 {
-                    DiesIraeVFX.FireTrail(NPC.Center + Main.rand.NextVector2Circular(30f, 30f), NPC.velocity, 1.5f);
+                    HeraldOfJudgementVFX.FireTrail(NPC.Center + Main.rand.NextVector2Circular(30f, 30f), NPC.velocity, 1.5f);
                 }
                 
                 if (Timer % 2 == 0 && Main.netMode != NetmodeID.MultiplayerClient)
@@ -952,7 +958,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                     NPC.velocity *= 0.15f;
                     
                     // === MASSIVE IMPACT EXPLOSION ===
-                    DiesIraeVFX.FireImpact(NPC.Center, 2f);
+                    HeraldOfJudgementVFX.FireImpact(NPC.Center, 2f);
                     MagnumScreenEffects.AddScreenShake(20f);
                     SoundEngine.PlaySound(SoundID.Item14 with { Volume = 1.5f }, NPC.Center);
                     
@@ -985,7 +991,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
             // Charge up
             if (SubPhase < chainLength && Timer < 10)
             {
-                DiesIraeVFX.ChargeUp(NPC.Center, Timer / 10f, 0.8f);
+                HeraldOfJudgementVFX.ChargeUp(NPC.Center, Timer / 10f, 0.8f);
             }
             
             if (SubPhase < chainLength)
@@ -993,7 +999,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                 if (Timer == 10)
                 {
                     SoundEngine.PlaySound(SoundID.Item8 with { Pitch = 0.2f + SubPhase * 0.1f }, NPC.Center);
-                    DiesIraeVFX.FireImpact(NPC.Center, 0.7f);
+                    HeraldOfJudgementVFX.FireImpact(NPC.Center, 0.7f);
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
@@ -1039,7 +1045,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
             }
             
             // Ambient fire aura while hovering
-            DiesIraeVFX.FireTrail(NPC.Center + Main.rand.NextVector2Circular(40f, 40f), Vector2.Zero, 0.8f);
+            HeraldOfJudgementVFX.FireTrail(NPC.Center + Main.rand.NextVector2Circular(40f, 40f), Vector2.Zero, 0.8f);
             
             // Rain fire
             if (Timer % fireRate == 0 && Timer > 20 && Main.netMode != NetmodeID.MultiplayerClient)
@@ -1055,7 +1061,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                         ProjectileID.InfernoHostileBolt, (int)(BaseDamage * 0.35f), 2f);
                     
                     // Spawn warning at ground level
-                    DiesIraeVFX.WarningFlare(new Vector2(spawnPos.X, target.Center.Y), 0.4f);
+                    HeraldOfJudgementVFX.WarningFlare(new Vector2(spawnPos.X, target.Center.Y), 0.4f);
                 }
             }
             
@@ -1082,7 +1088,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                 
                 // === MASSIVE CHARGE UP VFX ===
                 float progress = (float)Timer / chargeTime;
-                DiesIraeVFX.ChargeUp(NPC.Center, progress, 2f);
+                HeraldOfJudgementVFX.ChargeUp(NPC.Center, progress, 2f);
                 
                 // === PHASE 10 MUSICAL VFX: Crescendo Charge Up - Final Judgment Building ===
                 Phase10Integration.Universal.CrescendoChargeUp(NPC.Center, HellfireGold, progress);
@@ -1113,7 +1119,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                     Timer = 0;
                     SubPhase = 1;
                     MagnumScreenEffects.AddScreenShake(12f);
-                    DiesIraeVFX.FireImpact(NPC.Center, 1.5f);
+                    HeraldOfJudgementVFX.FireImpact(NPC.Center, 1.5f);
                 }
             }
             else if (SubPhase <= waveCount) // Radial bursts with safe arc - DEVASTATING WAVES
@@ -1124,7 +1130,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                     SoundEngine.PlaySound(SoundID.Item122 with { Volume = 1.6f, Pitch = -0.2f + SubPhase * 0.1f }, NPC.Center);
                     
                     // === MASSIVE WAVE EXPLOSION VFX ===
-                    DiesIraeVFX.FireImpact(NPC.Center, 1.3f + SubPhase * 0.15f);
+                    HeraldOfJudgementVFX.FireImpact(NPC.Center, 1.3f + SubPhase * 0.15f);
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
@@ -1180,7 +1186,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                 
                 // === ULTIMATE CHARGE VFX ===
                 float progress = Timer / 80f;
-                DiesIraeVFX.ChargeUp(NPC.Center, progress, 2.5f);
+                HeraldOfJudgementVFX.ChargeUp(NPC.Center, progress, 2.5f);
                 
                 // Fire aura during charge
                 if (Timer % 5 == 0)
@@ -1189,7 +1195,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                     {
                         float angle = MathHelper.TwoPi * i / 8f + Timer * 0.05f;
                         Vector2 auraPos = NPC.Center + angle.ToRotationVector2() * (80f + progress * 40f);
-                        DiesIraeVFX.FireImpact(auraPos, 0.4f);
+                        HeraldOfJudgementVFX.FireImpact(auraPos, 0.4f);
                     }
                 }
                 
@@ -1197,7 +1203,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                 {
                     Timer = 0;
                     SubPhase = 1;
-                    DiesIraeVFX.FireImpact(NPC.Center, 2f);
+                    HeraldOfJudgementVFX.FireImpact(NPC.Center, 2f);
                     MagnumScreenEffects.AddScreenShake(20f);
                 }
             }
@@ -1216,14 +1222,14 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                         dashDirection = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX);
                         NPC.velocity = dashDirection * BaseSpeed * 2.2f;
                         SoundEngine.PlaySound(SoundID.Item73 with { Pitch = 0.3f, Volume = 1.3f }, NPC.Center);
-                        DiesIraeVFX.FireImpact(NPC.Center, 0.9f);
+                        HeraldOfJudgementVFX.FireImpact(NPC.Center, 0.9f);
                         MagnumScreenEffects.AddScreenShake(8f);
                     }
                     
                     // INTENSE dash trail
                     for (int i = 0; i < 2; i++)
                     {
-                        DiesIraeVFX.FireTrail(NPC.Center + Main.rand.NextVector2Circular(25f, 25f), NPC.velocity, 1.3f);
+                        HeraldOfJudgementVFX.FireTrail(NPC.Center + Main.rand.NextVector2Circular(25f, 25f), NPC.velocity, 1.3f);
                     }
                     
                     if (Timer % 2 == 0 && Main.netMode != NetmodeID.MultiplayerClient)
@@ -1251,7 +1257,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                 float progress = Timer / 25f;
                 if (Timer < 25)
                 {
-                    DiesIraeVFX.ChargeUp(NPC.Center, progress, 2f);
+                    HeraldOfJudgementVFX.ChargeUp(NPC.Center, progress, 2f);
                 }
                 
                 if (Timer == 25)
@@ -1260,7 +1266,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                     SoundEngine.PlaySound(SoundID.Item14 with { Volume = 2f, Pitch = -0.3f }, NPC.Center);
                     
                     // === ULTIMATE EXPLOSION VFX ===
-                    DiesIraeVFX.DeathExplosion(NPC.Center, 1.2f);
+                    HeraldOfJudgementVFX.DeathExplosion(NPC.Center, 1.2f);
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
@@ -1325,7 +1331,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
             // Continuous fire eruptions
             if (deathTimer % 8 == 0)
             {
-                DiesIraeVFX.FireImpact(NPC.Center + Main.rand.NextVector2Circular(50f * deathProgress, 50f * deathProgress), 0.6f + deathProgress * 0.8f);
+                HeraldOfJudgementVFX.FireImpact(NPC.Center + Main.rand.NextVector2Circular(50f * deathProgress, 50f * deathProgress), 0.6f + deathProgress * 0.8f);
             }
             
             // Fire trail from body
@@ -1333,7 +1339,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
             {
                 for (int i = 0; i < 3; i++)
                 {
-                    DiesIraeVFX.FireTrail(NPC.Center + Main.rand.NextVector2Circular(80f, 80f), Main.rand.NextVector2Circular(3f, 3f), 1f + deathProgress);
+                    HeraldOfJudgementVFX.FireTrail(NPC.Center + Main.rand.NextVector2Circular(80f, 80f), Main.rand.NextVector2Circular(3f, 3f), 1f + deathProgress);
                 }
             }
             
@@ -1341,7 +1347,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
             if (deathTimer % 12 == 0)
             {
                 Vector2 noteVel = Main.rand.NextVector2CircularEdge(5f, 5f);
-                DiesIraeVFX.SpawnMusicNote(NPC.Center + Main.rand.NextVector2Circular(40f, 40f), noteVel, Color.White, 1f);
+                HeraldOfJudgementVFX.SpawnMusicNote(NPC.Center + Main.rand.NextVector2Circular(40f, 40f), noteVel, Color.White, 1f);
             }
             
             // Shake during death
@@ -1358,7 +1364,7 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                 TriggerApocalypseFlash(25f);
                 
                 // MASSIVE death explosion
-                DiesIraeVFX.DeathExplosion(NPC.Center, 2f);
+                HeraldOfJudgementVFX.DeathExplosion(NPC.Center, 2f);
                 
                 // === PHASE 10 MUSICAL VFX: Death Finale - The Herald Falls ===
                 Phase10Integration.Universal.DeathFinale(NPC.Center, BloodRed, EmberOrange);
@@ -1446,121 +1452,6 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
         
         public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
-            Texture2D texture = TextureAssets.Npc[Type].Value;
-            Vector2 drawPos = NPC.Center - screenPos;
-            Vector2 origin = texture.Size() / 2f;
-            
-            // === SHADER LAYER 0: Boss Glow Underlay ===
-            if (State != BossPhase.Spawning)
-                DiesIraeBossShaderSystem.DrawBossGlow(spriteBatch, NPC, screenPos, isEnraged);
-
-            // === Shader: Hellfire Aura ===
-            if (State != BossPhase.Spawning)
-                DiesIraeBossShaderSystem.DrawHellfireAura(spriteBatch, NPC, screenPos, aggressionLevel, difficultyTier, isEnraged);
-            
-            // === Shader: Judgment Trail (supplement existing trail during attacks) ===
-            if (State == BossPhase.Attack && NPC.velocity.Length() > 6f)
-                DiesIraeBossShaderSystem.DrawJudgmentTrail(spriteBatch, NPC, screenPos, texture, new Rectangle(0, 0, texture.Width, texture.Height), origin, isEnraged);
-            
-            // === Shader: Wrath Escalation (tied to difficulty tier) ===
-            if (difficultyTier > 0)
-                DiesIraeBossShaderSystem.DrawWrathEscalation(spriteBatch, NPC, screenPos, difficultyTier, difficultyTier / 3f);
-            
-            // === Shader: Final Judgment Dissolve (during Death) ===
-            if (State == BossPhase.Death)
-            {
-                float dissolveProgress = deathTimer / 180f;
-                DiesIraeBossShaderSystem.DrawFinalJudgmentDissolve(spriteBatch, NPC, screenPos, texture, new Rectangle(0, 0, texture.Width, texture.Height), origin, dissolveProgress);
-            }
-            
-            // === AMBIENT FIRE AURA - Constant burning presence ===
-            float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.15f;
-            float pulseWave2 = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.08f + 1f) * 0.1f;
-            
-            // Spawn ambient fire particles
-            if (Main.rand.NextBool(4) && State != BossPhase.Death)
-            {
-                Vector2 firePos = NPC.Center + Main.rand.NextVector2Circular(NPC.width * 0.5f, NPC.height * 0.5f);
-                DiesIraeVFX.FireTrail(firePos, Main.rand.NextVector2Circular(2f, 2f), 0.4f);
-            }
-            
-            // Draw trails during dash attacks - ENHANCED
-            if (State == BossPhase.Attack && 
-                (CurrentAttack == AttackPattern.CondemnationStrike || 
-                 CurrentAttack == AttackPattern.WrathfulDescent ||
-                 CurrentAttack == AttackPattern.DivinePunishment))
-            {
-                for (int i = 0; i < NPC.oldPos.Length; i++)
-                {
-                    Vector2 trailPos = NPC.oldPos[i] + NPC.Size / 2f - screenPos;
-                    float progress = (float)i / NPC.oldPos.Length;
-                    
-                    // Multi-layer trail - White core fading to red to black
-                    Color whiteLayer = Color.White * (1f - progress) * 0.4f;
-                    Color redLayer = BloodRed * (1f - progress) * 0.6f;
-                    Color blackLayer = CharredBlack * (1f - progress) * 0.3f;
-                    
-                    float trailScale = NPC.scale * (1f - progress * 0.4f);
-                    
-                    // Black outer
-                    spriteBatch.Draw(texture, trailPos, null, blackLayer with { A = 0 }, NPC.rotation, origin, trailScale * 1.1f, SpriteEffects.None, 0f);
-                    // Red middle
-                    spriteBatch.Draw(texture, trailPos, null, redLayer with { A = 0 }, NPC.rotation, origin, trailScale, SpriteEffects.None, 0f);
-                    // White core
-                    if (i < NPC.oldPos.Length / 2)
-                        spriteBatch.Draw(texture, trailPos, null, whiteLayer with { A = 0 }, NPC.rotation, origin, trailScale * 0.9f, SpriteEffects.None, 0f);
-                }
-            }
-            
-            // === BLOOM LAYERS - Multi-layer glow ===
-            Color baseGlow = isEnraged ? Crimson : EmberOrange;
-            
-            // Layer 1: Outer dark red bloom (largest, faintest)
-            for (int i = 0; i < 6; i++)
-            {
-                Vector2 offset = (MathHelper.TwoPi * i / 6f + Main.GameUpdateCount * 0.02f).ToRotationVector2() * (12f * pulse);
-                spriteBatch.Draw(texture, drawPos + offset, null, (BloodRed * 0.15f) with { A = 0 }, NPC.rotation, origin, NPC.scale * 1.15f, SpriteEffects.None, 0f);
-            }
-            
-            // Layer 2: Middle orange/crimson bloom
-            for (int i = 0; i < 5; i++)
-            {
-                Vector2 offset = (MathHelper.TwoPi * i / 5f - Main.GameUpdateCount * 0.015f).ToRotationVector2() * (7f * pulseWave2);
-                spriteBatch.Draw(texture, drawPos + offset, null, (baseGlow * 0.25f) with { A = 0 }, NPC.rotation, origin, NPC.scale * 1.08f, SpriteEffects.None, 0f);
-            }
-            
-            // Layer 3: Inner white-hot bloom during enrage or attacks
-            if (isEnraged || State == BossPhase.Attack)
-            {
-                for (int i = 0; i < 4; i++)
-                {
-                    Vector2 offset = (MathHelper.TwoPi * i / 4f).ToRotationVector2() * (4f * pulse);
-                    Color whiteGlow = (Color.White * 0.2f) with { A = 0 };
-                    spriteBatch.Draw(texture, drawPos + offset, null, whiteGlow, NPC.rotation, origin, NPC.scale * 1.02f, SpriteEffects.None, 0f);
-                }
-            }
-            
-            // Core glow layer
-            for (int i = 0; i < 4; i++)
-            {
-                Vector2 offset = (MathHelper.TwoPi * i / 4f).ToRotationVector2() * (3f * pulse);
-                spriteBatch.Draw(texture, drawPos + offset, null, (baseGlow * 0.35f) with { A = 0 }, NPC.rotation, origin, NPC.scale, SpriteEffects.None, 0f);
-            }
-            
-            // Main sprite
-            SpriteEffects effects = NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-            spriteBatch.Draw(texture, drawPos, null, drawColor, NPC.rotation, origin, NPC.scale, effects, 0f);
-            
-            // === FIRE OVERLAY during attacks ===
-            if (State == BossPhase.Attack && Main.rand.NextBool(6))
-            {
-                float fireScale = 0.08f + Main.rand.NextFloat(0.04f);
-                Vector2 fireOffset = Main.rand.NextVector2Circular(NPC.width * 0.3f, NPC.height * 0.3f);
-                Color fireColor = Main.rand.NextBool() ? EmberOrange : Crimson;
-                spriteBatch.Draw(texture, drawPos + fireOffset, null, (fireColor * 0.4f) with { A = 0 }, 
-                    Main.rand.NextFloat(MathHelper.TwoPi), origin, fireScale, SpriteEffects.None, 0f);
-            }
-            
             return false;
         }
         

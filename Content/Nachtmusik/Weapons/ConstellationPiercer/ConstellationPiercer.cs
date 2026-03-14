@@ -15,25 +15,27 @@ using MagnumOpus.Content.Nachtmusik;
 using MagnumOpus.Content.Nachtmusik.Debuffs;
 using MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer.Projectiles;
 using MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer.Utilities;
+using MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer.Systems;
 
 namespace MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer
 {
     /// <summary>
-    /// Constellation Piercer — Precision celestial rifle that fires triple constellation bolts.
-    /// Bolts pierce and chain between enemies, marking each as a Star Point.
-    /// Every 5 shots spawns 4 seeking Nachtmusik crystals.
-    /// Constellation Formation: 3+ Star Points auto-connect with luminous lines.
+    /// Constellation Piercer -- Precision celestial rifle that fires triple converging constellation bolts.
+    /// Bolts pierce and mark enemies as Star Points with Celestial Harmony.
+    /// 3+ Star Points connect with chain resonance arcs dealing passive damage.
+    /// 5+ Star Points trigger Stellar Conduit: flowing starlight rivers for 3 seconds.
+    /// Every 5th shot: Starfall -- light pillar strikes a Star Point, refreshing it.
     /// "Each star is an enemy. Each line of light between them is a death sentence."
     /// </summary>
     public class ConstellationPiercer : ModItem
     {
-        private int crystalCounter = 0;
+        private int starfallCounter = 0;
 
         public override void SetDefaults()
         {
             Item.width = 34;
             Item.height = 66;
-            Item.damage = 1250; // Tier 7 (1200-1800 range)
+            Item.damage = 1250;
             Item.DamageType = DamageClass.Ranged;
             Item.useTime = 12;
             Item.useAnimation = 12;
@@ -53,37 +55,58 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             Vector2 direction = velocity.SafeNormalize(Vector2.UnitX);
+            float centerAngle = velocity.ToRotation();
 
-            crystalCounter++;
+            starfallCounter++;
 
-            // Center bolt at full damage
+            // Center bolt at full damage (ai[0] = 0 means no convergence needed)
             Projectile.NewProjectile(source, position, velocity,
                 ModContent.ProjectileType<ConstellationBoltProjectile>(), damage, knockback, player.whoAmI);
 
-            // Two side bolts at ±8° with 0.7x damage
+            // Two side bolts at +/-8 degrees with 0.7x damage; ai[0] = center angle for convergence
             for (int i = -1; i <= 1; i += 2)
             {
                 float angleOffset = MathHelper.ToRadians(8f * i);
                 Vector2 sideVel = velocity.RotatedBy(angleOffset);
                 Projectile.NewProjectile(source, position, sideVel,
                     ModContent.ProjectileType<ConstellationBoltProjectile>(),
-                    (int)(damage * 0.7f), knockback * 0.5f, player.whoAmI);
+                    (int)(damage * 0.7f), knockback * 0.5f, player.whoAmI, ai0: centerAngle);
             }
 
-            // Spawn 4 seeking crystals every 5 shots
-            if (crystalCounter >= 5)
+            // Starfall every 5th shot: light pillar strikes a random Star Point
+            if (starfallCounter >= 5)
             {
-                crystalCounter = 0;
-                SeekingCrystalHelper.SpawnNachtmusikCrystals(
-                    source,
-                    position + direction * 30f,
-                    velocity * 0.8f,
-                    (int)(damage * 0.5f),
-                    knockback,
-                    player.whoAmI,
-                    4
-                );
-                SoundEngine.PlaySound(SoundID.Item25 with { Pitch = 0.4f, Volume = 0.7f }, position);
+                starfallCounter = 0;
+
+                int targetNpc = StarPointSystem.GetRandomStarPointNPC();
+                if (targetNpc >= 0 && Main.npc[targetNpc].active)
+                {
+                    // Refresh the Star Point and trigger starfall VFX
+                    StarPointSystem.RefreshStarPoint(targetNpc);
+                    ConstellationPiercerVFX.StarfallVFX(Main.npc[targetNpc].Center);
+
+                    // Deal AoE damage around the starfall point
+                    Vector2 starfallPos = Main.npc[targetNpc].Center;
+                    for (int n = 0; n < Main.maxNPCs; n++)
+                    {
+                        NPC npc = Main.npc[n];
+                        if (!npc.active || npc.friendly || npc.dontTakeDamage) continue;
+                        if (Vector2.Distance(npc.Center, starfallPos) <= 80f)
+                        {
+                            player.ApplyDamageToNPC(npc, (int)(damage * 0.4f), 0f, 0, false);
+                        }
+                    }
+
+                    SoundEngine.PlaySound(SoundID.Item25 with { Pitch = 0.6f, Volume = 0.7f }, starfallPos);
+                }
+                else
+                {
+                    // No Star Points exist -- spawn seeking crystals as fallback
+                    SeekingCrystalHelper.SpawnNachtmusikCrystals(
+                        source, position + direction * 30f, velocity * 0.8f,
+                        (int)(damage * 0.5f), knockback, player.whoAmI, 4);
+                    SoundEngine.PlaySound(SoundID.Item25 with { Pitch = 0.4f, Volume = 0.7f }, position);
+                }
             }
 
             // Muzzle flash VFX
@@ -156,14 +179,15 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Triple", "Fires three constellation bolts per shot"));
-            tooltips.Add(new TooltipLine(Mod, "Chain", "Piercing bolts chain to up to 4 enemies, marking each as a Star Point"));
-            tooltips.Add(new TooltipLine(Mod, "Formation", "3+ Star Points auto-connect with constellation lines"));
-            tooltips.Add(new TooltipLine(Mod, "Crystals", "Every 5th shot spawns 4 seeking Nachtmusik crystals"));
-            tooltips.Add(new TooltipLine(Mod, "Debuff", "Inflicts Celestial Harmony on all chained targets"));
+            tooltips.Add(new TooltipLine(Mod, "Triple", "Fires three converging constellation bolts per shot"));
+            tooltips.Add(new TooltipLine(Mod, "StarPoint", "Bolts pierce and mark enemies as Star Points"));
+            tooltips.Add(new TooltipLine(Mod, "ChainResonance", "3+ Star Points connect with chain resonance arcs that deal passive damage"));
+            tooltips.Add(new TooltipLine(Mod, "Conduit", "5+ Star Points trigger Stellar Conduit: flowing starlight rivers for 3 seconds"));
+            tooltips.Add(new TooltipLine(Mod, "Starfall", "Every 5th shot: Starfall strikes a Star Point, refreshing it with AoE damage"));
+            tooltips.Add(new TooltipLine(Mod, "Debuff", "Inflicts Celestial Harmony on all marked targets"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Each star is an enemy. Each line of light between them is a death sentence.'")
             {
-                OverrideColor = new Color(100, 120, 200)
+                OverrideColor = NachtmusikPalette.LoreText
             });
         }
     }

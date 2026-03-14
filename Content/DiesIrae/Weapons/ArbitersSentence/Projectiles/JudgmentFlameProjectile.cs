@@ -1,8 +1,3 @@
-using MagnumOpus.Common;
-using MagnumOpus.Common.Systems.VFX.Core;
-using MagnumOpus.Content.DiesIrae;
-using MagnumOpus.Content.DiesIrae.Weapons.ArbitersSentence.Buffs;
-using MagnumOpus.Content.DiesIrae.Weapons.ArbitersSentence.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -11,29 +6,27 @@ using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Content.DiesIrae;
+using MagnumOpus.Content.DiesIrae.Weapons.ArbitersSentence.Utilities;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.ArbitersSentence.Projectiles
 {
-    /// <summary>
-    /// Judgment Flame ? precision fire bullet with tight trail and focused bloom.
-    /// Short-range flamethrower shot. On hit: applies Judgment Flame stacking debuff.
-    /// At 5 stacks �� Sentence Cage (root + 2x next hit).
-    /// </summary>
     public class JudgmentFlameProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
+        private const float HomingRange = 350f;
+        private const float HomingStrength = 0.08f;
+        private const float MaxSpeed = 16f;
+        private Player Owner => Main.player[Projectile.owner];
+        private bool _initialized;
+        private VertexStrip _strip;
 
-        private const int TrailLength = 10;
-        private Vector2[] trailPositions = new Vector2[TrailLength];
-        private float[] trailRotations = new float[TrailLength];
-        private int trailHead = 0;
-        private bool trailInitialized = false;
-        private VertexStrip _vertexStrip;
+        public override string Texture => "MagnumOpus/Content/DiesIrae/Weapons/ArbitersSentence/ArbitersSentence";
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
-            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
         public override void SetDefaults()
@@ -42,63 +35,66 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ArbitersSentence.Projectiles
             Projectile.height = 16;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Ranged;
-            Projectile.penetrate = 3;
-            Projectile.timeLeft = 35;
+            Projectile.penetrate = 1;
+            Projectile.timeLeft = 120;
             Projectile.tileCollide = true;
-            Projectile.ignoreWater = false;
-            Projectile.alpha = 255;
-            Projectile.usesLocalNPCImmunity = true;
-            Projectile.localNPCHitCooldown = 6;
+            Projectile.ignoreWater = true;
+            Projectile.extraUpdates = 1;
         }
 
         public override void AI()
         {
+            if (!_initialized)
+            {
+                _initialized = true;
+                Projectile.rotation = Projectile.velocity.ToRotation();
+            }
+
+            NPC target = ArbitersSentenceUtils.ClosestNPCAt(Projectile.Center, HomingRange);
+            if (target != null)
+            {
+                Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
+                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
+            }
+            if (Projectile.velocity.Length() > MaxSpeed)
+                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
+
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // Record trail
-            if (!trailInitialized)
+            if (Main.rand.NextBool(3))
             {
-                for (int i = 0; i < TrailLength; i++)
-                {
-                    trailPositions[i] = Projectile.Center;
-                    trailRotations[i] = Projectile.rotation;
-                }
-                trailInitialized = true;
-            }
-            trailPositions[trailHead] = Projectile.Center;
-            trailRotations[trailHead] = Projectile.rotation;
-            trailHead = (trailHead + 1) % TrailLength;
-
-            // Precision fire dust trail ? tight, focused
-            if (Main.rand.NextBool(2))
-            {
-                Vector2 perpendicular = Projectile.velocity.SafeNormalize(Vector2.UnitX).RotatedBy(MathHelper.PiOver2);
-                Vector2 dustPos = Projectile.Center + perpendicular * Main.rand.NextFloat(-3f, 3f);
-                Dust d = Dust.NewDustPerfect(dustPos, DustID.Torch, -Projectile.velocity * 0.2f, 0, default, 0.8f);
+                int dustType = Main.rand.NextBool() ? DustID.Torch : DustID.SolarFlare;
+                Color dustColor = Main.rand.NextBool() ? new Color(255, 180, 50) : new Color(200, 40, 20);
+                Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
+                    dustType, -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(0.5f, 0.5f),
+                    0, dustColor, 0.8f);
                 d.noGravity = true;
-                d.fadeIn = 0.3f;
+                d.fadeIn = 0.6f;
             }
 
-            // Emit light
-            Lighting.AddLight(Projectile.Center, 0.6f, 0.15f, 0.05f);
+            float pulse = 1f + 0.15f * (float)Math.Sin(Projectile.timeLeft * 0.2f);
+            Lighting.AddLight(Projectile.Center, new Vector3(0.6f, 0.2f, 0.1f) * 0.35f * pulse);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(BuffID.OnFire3, 120);
-
-            // Apply Judgment Flame stacking debuff
-            var globalNPC = target.GetGlobalNPC<ArbitersSentenceGlobalNPC>();
-            globalNPC.IncrementFlameStack(target);
-            globalNPC.TrackConsecutiveHit(target);
-
-            // Precision impact VFX
-            ArbitersSentenceUtils.DoFlameImpact(target.Center, globalNPC.JudgmentFlameStacks);
-
-            // DiesIrae VFXLibrary: color-ramped sparkle explosion + directional ember scatter + contrast sparkle
-            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(target.Center, 6 + globalNPC.JudgmentFlameStacks, 4f, 0.25f);
-            DiesIraeVFXLibrary.SpawnEmberScatter(target.Center, 3 + globalNPC.JudgmentFlameStacks, 3f);
-            DiesIraeVFXLibrary.SpawnContrastSparkle(target.Center, Projectile.velocity.SafeNormalize(Vector2.UnitX));
+            Vector2 hitPos = target.Center;
+            for (int i = 0; i < 6; i++)
+            {
+                Vector2 sparkVel = Main.rand.NextVector2CircularEdge(4f, 4f);
+                Color col = i % 2 == 0 ? new Color(200, 40, 20) : new Color(255, 180, 50);
+                Dust d = Dust.NewDustPerfect(hitPos, DustID.Torch, sparkVel, 0, col, 0.5f);
+                d.noGravity = true;
+            }
+            for (int i = 0; i < 2; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(2f, 2f) + new Vector2(0, -1f);
+                Dust d = Dust.NewDustPerfect(hitPos + Main.rand.NextVector2Circular(8f, 8f),
+                    DustID.SolarFlare, vel, 0, new Color(200, 40, 20), 0.5f);
+                d.noGravity = true;
+            }
+            try { DiesIraeVFXLibrary.SpawnMusicNotes(hitPos, 1, 12f, 0.4f, 0.7f, 20); } catch { }
+            try { DiesIraeVFXLibrary.SpawnMixedSparkleImpact(hitPos, 0.6f, 4, 4); } catch { }
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -106,33 +102,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ArbitersSentence.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.DiesIrae, ref _vertexStrip);
-
-                // Judgment Flame accent: crimson directional flare along velocity
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
-                    SamplerState.LinearClamp, DepthStencilState.None,
-                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-                Vector2 drawPos = Projectile.Center - Main.screenPosition;
-                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-                if (glow != null)
-                {
-                    Vector2 origin = glow.Size() / 2f;
-                    float velRot = Projectile.velocity.ToRotation();
-
-                    // Crimson judgment streak
-                    sb.Draw(glow, drawPos, null,
-                        (DiesIraePalette.InfernalRed with { A = 0 }) * 0.25f,
-                        velRot, origin, new Vector2(0.12f, 0.025f), SpriteEffects.None, 0f);
-
-                    // Gold judgment cross accent
-                    sb.Draw(glow, drawPos, null,
-                        (DiesIraePalette.JudgmentGold with { A = 0 }) * 0.15f,
-                        velRot + MathHelper.PiOver2, origin, new Vector2(0.06f, 0.015f), SpriteEffects.None, 0f);
-                }
-
-                sb.End();
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.DiesIrae, ref _strip);
             }
             catch { }
             finally
@@ -141,102 +111,21 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ArbitersSentence.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
-    }
 
-    /// <summary>
-    /// Purgatory Ember ? lingering ground fire. Spawned occasionally by the flamethrower stream.
-    /// Sits on the ground, damages enemies that walk through, slowly fades.
-    /// </summary>
-    public class PurgatoryEmberProjectile : ModProjectile
-    {
-        public override string Texture => "MagnumOpus/Assets/Textures/InvisibleProjectile";
-
-        private const int MaxLifetime = 180; // 3 seconds
-
-        public override void SetDefaults()
+        public override void OnKill(int timeLeft)
         {
-            Projectile.width = 40;
-            Projectile.height = 20;
-            Projectile.friendly = true;
-            Projectile.DamageType = DamageClass.Ranged;
-            Projectile.penetrate = -1;
-            Projectile.timeLeft = MaxLifetime;
-            Projectile.tileCollide = false;
-            Projectile.ignoreWater = true;
-            Projectile.usesLocalNPCImmunity = true;
-            Projectile.localNPCHitCooldown = 20;
-        }
-
-        public override void AI()
-        {
-            // Decelerate quickly and stick to ground
-            Projectile.velocity *= 0.92f;
-            if (Projectile.velocity.Length() < 0.1f)
-                Projectile.velocity = Vector2.Zero;
-
-            // Ember dust
-            ArbitersSentenceUtils.SpawnPurgatoryEmberDust(Projectile.Center, 20f);
-
-            // Lighting
-            float life = (float)Projectile.timeLeft / MaxLifetime;
-            Lighting.AddLight(Projectile.Center, 0.4f * life, 0.1f * life, 0.02f * life);
-        }
-
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            target.AddBuff(BuffID.OnFire3, 90);
-
-            // Also apply Judgment Flame stacking
-            var globalNPC = target.GetGlobalNPC<ArbitersSentenceGlobalNPC>();
-            globalNPC.IncrementFlameStack(target);
-
-            // Dies Irae VFX: ground fire impact sparkles
-            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(target.Center, 4, 3f, 0.2f);
-        }
-
-        public override bool PreDraw(ref Color lightColor)
-        {
-            SpriteBatch sb = Main.spriteBatch;
-            try
+            for (int i = 0; i < 4; i++)
             {
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-            if (glow != null)
-            {
-                Vector2 origin = glow.Size() / 2f;
-                Vector2 pos = Projectile.Center - Main.screenPosition;
-                float life = (float)Projectile.timeLeft / MaxLifetime;
-                float pulse = 0.7f + 0.3f * (float)Math.Sin(Projectile.ai[0] * 0.15f);
-                Projectile.ai[0]++;
-
-                // Ground fire glow ? crimson outer
-                sb.Draw(glow, pos, null, ArbitersSentenceUtils.PrecisionCrimson * 0.3f * life * pulse, 0f, origin,
-                    new Vector2(0.06f, 0.025f), SpriteEffects.None, 0f);
-                // Ember mid
-                sb.Draw(glow, pos, null, ArbitersSentenceUtils.JudgmentEmber * 0.4f * life * pulse, 0f, origin,
-                    new Vector2(0.035f, 0.015f), SpriteEffects.None, 0f);
-                // Hot core
-                sb.Draw(glow, pos, null, ArbitersSentenceUtils.FocusWhite * 0.5f * life, 0f, origin,
-                    new Vector2(0.015f, 0.008f), SpriteEffects.None, 0f);
+                Vector2 sparkVel = Main.rand.NextVector2CircularEdge(3f, 3f);
+                Color col = Main.rand.NextBool() ? new Color(200, 40, 20) : new Color(255, 180, 50);
+                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.Torch, sparkVel, 0, col, 0.3f);
+                d.noGravity = true;
             }
-
-
-            }
-            catch { }
-            finally
-            {
-                try { sb.End(); } catch { }
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-            }
-
-            return false;
+            try { DiesIraeVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 12f, 0.5f, 0.7f, 20); } catch { }
+            try { DiesIraeVFXLibrary.SpawnMixedSparkleImpact(Projectile.Center, 0.5f, 4, 4); } catch { }
+            try { DiesIraeVFXLibrary.SpawnInfernalSparkles(Projectile.Center, 3, 15f); } catch { }
         }
     }
 }

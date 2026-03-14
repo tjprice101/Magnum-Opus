@@ -1,33 +1,23 @@
-using MagnumOpus.Common;
-using MagnumOpus.Common.Systems.Particles;
+using System;
+using System.Collections.Generic;
+using MagnumOpus.Content.ClairDeLune;
 using MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
 using Terraria;
-using Terraria.GameContent;
-using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime
 {
-    /// <summary>
-    /// Requiem of Time — Magic weapon with Forward/Reverse time fields.
-    /// Left click: Forward Field (speeds allies 30%, PerlinFlow, 6s, 12 tiles)
-    /// Right click: Reverse Field (slows enemies 40%, MarbleSwirl, costs 5% HP)
-    /// Overlap = Temporal Paradox (VoronoiCell, massive AoE, screen distortion)
-    /// "Time is not a river — it is an ocean, and you are the tide."
-    /// </summary>
     public class RequiemOfTime : ModItem
     {
         public override void SetDefaults()
         {
             Item.width = 32;
             Item.height = 32;
-            Item.damage = 4000; // Tier 10 (2800-4200 range), very slow heavy magic
+            Item.damage = 4000;
             Item.DamageType = DamageClass.Magic;
             Item.mana = 25;
             Item.useTime = 50;
@@ -39,63 +29,43 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime
             Item.UseSound = SoundID.Item117;
             Item.autoReuse = true;
             Item.noMelee = true;
-            Item.shoot = ModContent.ProjectileType<ForwardFieldProjectile>();
-            Item.shootSpeed = 0f;
+            Item.shoot = ModContent.ProjectileType<TimeFreezeSlashProjectile>();
+            Item.shootSpeed = 12f;
             Item.crit = 8;
-        }
-
-        public override bool AltFunctionUse(Player player) => true;
-
-        public override bool CanUseItem(Player player)
-        {
-            if (player.altFunctionUse == 2)
-            {
-                // Reverse Field costs 5% HP
-                int hpCost = Math.Max(1, (int)(player.statLifeMax2 * 0.05f));
-                if (player.statLife <= hpCost)
-                    return false;
-
-                Item.mana = 15;
-            }
-            else
-            {
-                Item.mana = 25;
-            }
-            return base.CanUseItem(player);
         }
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            if (player.altFunctionUse == 2)
-            {
-                // Reverse Field — slows enemies, costs HP
-                int hpCost = Math.Max(1, (int)(player.statLifeMax2 * 0.05f));
-                player.statLife -= hpCost;
-                if (player.statLife < 1) player.statLife = 1;
-                player.HealEffect(-hpCost);
-
-                Projectile.NewProjectile(source, Main.MouseWorld, Vector2.Zero,
-                    ModContent.ProjectileType<ReverseFieldProjectile>(),
-                    (int)(damage * 0.6f), knockback, player.whoAmI);
-
-                SoundEngine.PlaySound(SoundID.Item117 with { Pitch = -0.5f, Volume = 0.6f }, Main.MouseWorld);
-
-                // Blood cost particle
-                var blood = new BloomParticle(player.Center, Vector2.Zero,
-                    ClairDeLunePalette.TemporalCrimson with { A = 0 } * 0.5f, 0.3f, 15);
-                MagnumParticleHandler.SpawnParticle(blood);
-            }
-            else
-            {
-                // Forward Field — speeds allies
-                Projectile.NewProjectile(source, Main.MouseWorld, Vector2.Zero,
-                    ModContent.ProjectileType<ForwardFieldProjectile>(),
-                    damage, knockback, player.whoAmI);
-
-                SoundEngine.PlaySound(SoundID.Item117 with { Pitch = 0.3f, Volume = 0.5f }, Main.MouseWorld);
-            }
-
+            Projectile.NewProjectile(source, player.MountedCenter, velocity, type, damage, knockback, player.whoAmI);
             return false;
+        }
+
+        public override void HoldItem(Player player)
+        {
+            if (Main.rand.NextBool(4))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
+                Color col = ClairDeLunePalette.GetGradient(Main.rand.NextFloat());
+                Dust d = Dust.NewDustPerfect(player.Center + offset, DustID.WhiteTorch,
+                    new Vector2(0, -0.8f) + Main.rand.NextVector2Circular(0.4f, 0.4f), 0, col, 0.5f);
+                d.noGravity = true;
+            }
+
+            float pulse = 0.7f + 0.3f * MathF.Sin(Main.GlobalTimeWrappedHourly * 3f);
+            Lighting.AddLight(player.Center, ClairDeLunePalette.SoftBlue.ToVector3() * 0.35f * pulse);
+        }
+
+        public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
+        {
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 0.2f;
+            Texture2D tex = Terraria.GameContent.TextureAssets.Item[Type].Value;
+            Vector2 drawPos = Item.position - Main.screenPosition + new Vector2(Item.width / 2f, Item.height);
+            Vector2 origin = new Vector2(tex.Width / 2f, tex.Height);
+
+            spriteBatch.Draw(tex, drawPos, null, ClairDeLunePalette.SoftBlue with { A = 0 } * pulse,
+                rotation, origin, scale * 1.05f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, ClairDeLunePalette.PearlWhite with { A = 0 } * (pulse * 0.7f),
+                rotation, origin, scale * 1.02f, SpriteEffects.None, 0f);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -108,52 +78,6 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime
             {
                 OverrideColor = ClairDeLunePalette.LoreText
             });
-        }
-    
-        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
-        {
-            Texture2D tex = TextureAssets.Item[Item.type].Value;
-            Vector2 pos = Item.Center - Main.screenPosition;
-            Vector2 origin = tex.Size() * 0.5f;
-
-            float time = Main.GameUpdateCount * 0.05f;
-            float pulse = 1f + (float)Math.Sin(time * 2.2f) * 0.05f
-                + (float)Math.Sin(time * 3.8f) * 0.03f;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            ClairDeLunePalette.DrawItemBloom(spriteBatch, tex, pos, origin, rotation, scale, pulse);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            Lighting.AddLight(Item.Center, ClairDeLunePalette.SoftBlue.ToVector3() * 0.35f);
-            return true;
-        }
-
-        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
-        {
-            Texture2D tex = TextureAssets.Item[Item.type].Value;
-            float time = Main.GameUpdateCount * 0.04f;
-            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.06f;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
-
-            float cycle = (float)Math.Sin(time * 0.7f) * 0.5f + 0.5f;
-            Color glowColor = Color.Lerp(ClairDeLunePalette.SoftBlue, ClairDeLunePalette.PearlWhite, cycle) * 0.24f;
-            spriteBatch.Draw(tex, position, frame, glowColor with { A = 0 }, 0f, origin, scale * pulse * 1.1f, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
-
-            spriteBatch.Draw(tex, position, frame, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
-            return false;
         }
     }
 }

@@ -1,8 +1,9 @@
-// ══════════════════════════════════════════════════════════╁E
-// PrimaveraPetalTrail.fx  ESeasons/Primavera boss trail
-// Spring petal movement trail with cherry blossom-like petals
-// drifting along the path, green-to-pink gradient.
-// ══════════════════════════════════════════════════════════╁E
+// ══════════════════════════════════════════════════════════
+// PrimaveraPetalTrail.fx — Vivaldi's Spring boss trail
+// Phase-reactive trail: flowing ribbon core with petal
+// silhouettes, wind dispersion, and harmonic energy pulse.
+// Parameters set by BossRenderHelper.DrawShaderTrail()
+// ══════════════════════════════════════════════════════════
 
 sampler uImage0 : register(s0);
 sampler uNoiseTex : register(s1);
@@ -18,37 +19,68 @@ float hash(float2 p)
 
 float4 PS_PetalTrail(float2 uv : TEXCOORD0) : COLOR0
 {
-    float trailProgress = uv.x;
-    float trailWidth = abs(uv.y - 0.5) * 2.0;
+    float trailProgress = uv.x;   // 0 = head, 1 = tail
+    float trailWidth = abs(uv.y - 0.5) * 2.0;   // 0 = center, 1 = edge
 
-    // Soft petal cloud core
-    float2 cloudUV = float2(uv.x * 2.5 - uTime * 1.5, uv.y * 2.0 + uTime * 0.2);
+    // === RIBBON CORE: bright hot center with smooth falloff ===
+    float coreWidth = smoothstep(0.6, 0.0, trailWidth);
+    float hotCenter = exp(-trailWidth * trailWidth * 8.0);
+
+    // Noise-driven cloud shape (organic undulation)
+    float2 cloudUV = float2(uv.x * 2.0 - uTime * 1.8, uv.y * 1.5 + uTime * 0.15);
     float cloud = tex2D(uNoiseTex, cloudUV).r;
-    float coreSoft = smoothstep(0.7, 0.2, trailWidth) * cloud;
+    float cloudShape = cloud * coreWidth;
 
-    // Individual petal shapes floating along trail
-    float2 petalUV = float2(uv.x * 8.0 - uTime * 2.5, uv.y * 6.0 + sin(uv.x * 10.0 + uTime) * 0.3);
+    // === PETAL SILHOUETTES: scattered along trail ===
+    float2 petalUV = float2(uv.x * 6.0 - uTime * 3.0, uv.y * 5.0 + sin(uv.x * 8.0 + uTime * 1.5) * 0.25);
     float petalNoise = tex2D(uNoiseTex, petalUV).r;
-    float petals = smoothstep(0.72, 0.88, petalNoise);
+    float petals = smoothstep(0.70, 0.90, petalNoise);
 
-    // Tiny pollen sparkle dots
-    float pollenSeed = hash(floor(uv * 40.0 + float2(-uTime * 2.0, uTime * 0.5)));
-    float pollen = step(0.94, pollenSeed);
+    // Second petal layer — smaller, faster (musical double-time)
+    float2 petal2UV = float2(uv.x * 10.0 - uTime * 4.0, uv.y * 8.0 - sin(uv.x * 12.0 + uTime * 2.0) * 0.15);
+    float petal2Noise = tex2D(uNoiseTex, petal2UV).r;
+    float petals2 = smoothstep(0.78, 0.92, petal2Noise) * 0.5;
 
-    // Age fade
+    // === WIND DISPERSION: edge particles blown outward ===
+    float2 windUV = float2(uv.x * 3.0 - uTime * 2.0, uv.y * 4.0);
+    float windNoise = tex2D(uNoiseTex, windUV).r;
+    float windEdge = smoothstep(0.3, 0.8, trailWidth) * smoothstep(1.0, 0.6, trailWidth);
+    float windParticles = smoothstep(0.80, 0.95, windNoise) * windEdge * 0.6;
+
+    // === HARMONIC ENERGY PULSE: standing wave along trail ===
+    float wave = sin(uv.x * 25.0 - uTime * 4.0) * 0.5 + 0.5;
+    float wavePulse = smoothstep(0.7, 1.0, wave) * coreWidth * 0.3;
+
+    // === POLLEN SPARKLE DOTS ===
+    float pollenSeed = hash(floor(uv * 50.0 + float2(-uTime * 2.5, uTime * 0.3)));
+    float pollen = step(0.95, pollenSeed) * coreWidth;
+    float pollenFlicker = sin(uTime * 6.0 + pollenSeed * 50.0) * 0.3 + 0.7;
+
+    // === AGE FADE: trail fades along length ===
     float ageFade = pow(1.0 - trailProgress, uFadeRate * 2.0);
 
-    // Colors: soft pink petals, green undertone, yellow pollen
-    float4 pinkPetal = uColor;
-    float4 greenBase = float4(0.3, 0.65, 0.25, 1.0);
-    float4 yellowPollen = float4(1.0, 0.9, 0.4, 1.0);
+    // === EDGE FADE: soft edges, no hard cutoff ===
+    float edgeFade = smoothstep(1.0, 0.7, trailWidth);
 
-    float trailMix = smoothstep(0.0, 1.0, trailWidth);
-    float4 color = lerp(pinkPetal, greenBase, trailMix * 0.5) * coreSoft;
-    color += pinkPetal * petals * 0.9;
-    color += yellowPollen * pollen * 0.5;
+    // === COLOR COMPOSITION ===
+    // Core: bright user color -> white-hot center
+    float4 coreCol = lerp(uColor, float4(1.0, 0.98, 0.94, 1.0), hotCenter * 0.6);
+    // Petal: slightly shifted hue toward pink
+    float4 petalCol = uColor * 1.1;
+    // Pollen: warm highlight
+    float4 pollenCol = float4(1.0, 0.95, 0.85, 1.0);
+    // Wind: dimmer version of main color
+    float4 windCol = uColor * 0.7;
 
-    float alpha = (coreSoft * 0.5 + petals * 0.6 + pollen * 0.3) * ageFade * uTrailWidth;
+    float4 color = coreCol * cloudShape * 0.6;
+    color += petalCol * petals * 0.8;
+    color += petalCol * petals2;
+    color += coreCol * wavePulse;
+    color += windCol * windParticles;
+    color += pollenCol * pollen * pollenFlicker * 0.4;
+
+    float alpha = (cloudShape * 0.6 + petals * 0.5 + petals2 * 0.3 +
+                   wavePulse + windParticles + pollen * 0.3) * ageFade * edgeFade * uTrailWidth;
 
     return color * saturate(alpha);
 }

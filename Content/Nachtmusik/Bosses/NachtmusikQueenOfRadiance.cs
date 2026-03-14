@@ -30,7 +30,7 @@ using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Nachtmusik.Bosses.Systems;
 using MagnumOpus.Common.Systems.Bosses;
 using static MagnumOpus.Content.Nachtmusik.Bosses.Systems.NachtmusikSkySystem;
-using MagnumOpus.Content.Nachtmusik.Enemies;
+// VFX_GUTTED: using MagnumOpus.Content.Nachtmusik.Enemies;
 using ReLogic.Content;
 
 namespace MagnumOpus.Content.Nachtmusik.Bosses
@@ -208,7 +208,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             NPC.height = 216;
             NPC.damage = BaseDamage;
             NPC.defense = 180; // Tier 7 defense - above Fate (140)
-            NPC.lifeMax = 4000000; // Tier 7 - 4M per phase × 2 = 8M total Normal (Expert 16M, Master 24M via auto-scaling)
+            NPC.lifeMax = 4000000; // Tier 7 - 4M per phase ÁE2 = 8M total Normal (Expert 16M, Master 24M via auto-scaling)
             NPC.HitSound = SoundID.NPCHit5;
             NPC.DeathSound = SoundID.NPCDeath7;
             NPC.knockBackResist = 0f;
@@ -374,10 +374,10 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             // Feed sky system
             NachtmusikSkySystem.BossLifeRatio = (float)NPC.life / NPC.lifeMax;
             NachtmusikSkySystem.BossCenter = NPC.Center;
-            NachtmusikSkySystem.BossIsPhase2 = isPhase2;
+            NachtmusikSkySystem.BossPhase = BossIndexTracker.NachtmusikPhase;
             
             if (State != BossPhase.Spawning)
-                NachtmusikBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier, isPhase2);
+                NachtmusikBossShaderSystem.SpawnMusicalAccents(NPC, Timer, BossIndexTracker.NachtmusikPhase);
         }
 
         public override bool CheckDead()
@@ -576,10 +576,10 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                     CustomParticles.GenericFlare(NPC.Center, StarWhite, 2.0f, 30);
                     
                     // Star burst explosion at center
-                    NachtmusikVFXLibrary.SpawnStarBurst(NPC.Center, 6, 0.4f);
+// VFX_GUTTED:                     NachtmusikVFXLibrary.SpawnStarBurst(NPC.Center, 6, 0.4f);
                     
                     // Massive shattered starlight explosion
-                    NachtmusikVFXLibrary.SpawnShatteredStarlight(NPC.Center, 30, 12f, 1.0f, true);
+// VFX_GUTTED:                     NachtmusikVFXLibrary.SpawnShatteredStarlight(NPC.Center, 30, 12f, 1.0f, true);
                     
                     for (int i = 0; i < 16; i++)
                     {
@@ -599,8 +599,8 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                     }
                     
                     // Glyphs and music notes
-                    NachtmusikVFXLibrary.SpawnGlyphBurst(NPC.Center, 12, 8f, 0.5f);
-                    NachtmusikVFXLibrary.SpawnMusicNotes(NPC.Center, 16, 30f, 0.8f, 1.0f, 30);
+// VFX_GUTTED:                     NachtmusikVFXLibrary.SpawnGlyphBurst(NPC.Center, 12, 8f, 0.5f);
+// VFX_GUTTED:                     NachtmusikVFXLibrary.SpawnMusicNotes(NPC.Center, 16, 30f, 0.8f, 1.0f, 30);
                     
                     Main.NewText("NACHTMUSIK, CELESTIAL FURY awakens!", Gold);
                 }
@@ -2248,7 +2248,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             deathTimer++;
             NPC.velocity *= 0.95f;
             
-            // Building intensity — escalating sky flashes
+            // Building intensity  Eescalating sky flashes
             if (deathTimer < 120)
             {
                 float progress = deathTimer / 120f;
@@ -2273,7 +2273,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                 // Escalating sky flashes every 30 frames
                 if (deathTimer % 30 == 0)
                 {
-                    TriggerCosmicStormFlash(6f + progress * 8f);
+                    NachtmusikSkySystem.TriggerCosmicFlash(6f + progress * 8f);
                 }
             }
             // Final explosion
@@ -2449,21 +2449,21 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             Vector2 origin = texture.Size() / 2f;
             
             // === SHADER LAYER 0: Boss Glow Underlay ===
-            NachtmusikBossShaderSystem.DrawBossGlow(spriteBatch, NPC, screenPos, isPhase2);
+            NachtmusikBossShaderSystem.DrawBossGlow(spriteBatch, NPC, screenPos, BossIndexTracker.NachtmusikPhase);
             
             // === Shader: Starfield Aura ===
             if (State != BossPhase.Spawning)
-                NachtmusikBossShaderSystem.DrawStarfieldAura(spriteBatch, NPC, screenPos, aggressionLevel, difficultyTier, isEnraged);
+                NachtmusikBossShaderSystem.DrawStarfieldAura(spriteBatch, NPC, screenPos, aggressionLevel, BossIndexTracker.NachtmusikPhase);
             
             // === Shader: Nebula Dash Trail (when moving fast) ===
             if (NPC.velocity.Length() > BaseSpeed)
-                NachtmusikBossShaderSystem.DrawNebulaDashTrail(spriteBatch, NPC, screenPos, texture, new Rectangle(0, 0, texture.Width, texture.Height), origin, isEnraged);
+                NachtmusikBossShaderSystem.DrawNebulaDashTrail(spriteBatch, NPC, screenPos, texture, new Rectangle(0, 0, texture.Width, texture.Height), origin, BossIndexTracker.NachtmusikPhase);
             
-            // === Shader: Phase2 Awakening (during Phase2_Awakening) ===
+            // === Shader: Phase Transition (during Phase2_Awakening) ===
             if (State == BossPhase.Phase2_Awakening)
             {
                 float transitionProgress = Timer / 90f;
-                NachtmusikBossShaderSystem.DrawPhase2Awakening(spriteBatch, NPC, screenPos, transitionProgress);
+                NachtmusikBossShaderSystem.DrawPhaseTransition(spriteBatch, NPC, screenPos, transitionProgress, 1, 2);
             }
             
             // === Shader: Stellar Dissolve (during TrueDeath) ===
@@ -2490,7 +2490,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                 }
             }
             
-            // Glow effect — additive-correct
+            // Glow effect  Eadditive-correct
             Color glowColor = (isPhase2 ? Gold : Violet) * 0.3f;
             glowColor.A = 0;
             for (int i = 0; i < 4; i++)

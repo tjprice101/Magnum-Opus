@@ -522,6 +522,19 @@ namespace MagnumOpus.Common.Systems.Particles
                 Time = Main.rand.Next(lifetime / 4);
         }
 
+        // Legacy compatibility overload where opacity was omitted.
+        public HeavySmokeParticle(Vector2 position, Vector2 velocity, Color color, int lifetime, float scale,
+            float rotationSpeed, bool glowing, float hueShift, bool randomDelay)
+            : this(position, velocity, color, lifetime, scale, 0.65f, rotationSpeed, glowing, hueShift, randomDelay)
+        {
+        }
+
+        // Legacy compatibility overload in (position, velocity, color, scale, lifetime) order.
+        public HeavySmokeParticle(Vector2 position, Vector2 velocity, Color color, float scale, int lifetime)
+            : this(position, velocity, color, lifetime, scale, 0.65f)
+        {
+        }
+
         public override void Update()
         {
             // Store previous position for interpolation
@@ -704,6 +717,12 @@ namespace MagnumOpus.Common.Systems.Particles
             Lifetime = lifetime;
             Rotation = velocity.ToRotation();
         }
+
+        // Legacy compatibility overload where lifetime was omitted.
+        public LineParticle(Vector2 position, Vector2 velocity, Color color, float length, float thickness)
+            : this(position, velocity, color, length, thickness, 20)
+        {
+        }
         
         public override void Update()
         {
@@ -773,6 +792,23 @@ namespace MagnumOpus.Common.Systems.Particles
             Spin = Main.rand.NextFloat(-0.03f, 0.03f);
             Wobble = Main.rand.NextFloat(0f, MathHelper.TwoPi);
             WobbleSpeed = Main.rand.NextFloat(0.05f, 0.12f);
+        }
+
+        // Legacy compatibility overload where note type was provided as a numeric variant.
+        public MusicNoteParticle(Vector2 position, Vector2 velocity, Color color, Color bloomColor, float scale, int lifetime, int noteTypeVariant)
+            : this(position, velocity, color, bloomColor, scale, lifetime, NoteVariantToName(noteTypeVariant))
+        {
+        }
+
+        private static string NoteVariantToName(int variant)
+        {
+            return variant switch
+            {
+                1 => "MusicNoteEighth",
+                2 => "MusicNoteSixteenth",
+                3 => "MusicNoteDouble",
+                _ => "MusicNoteQuarter"
+            };
         }
         
         /// <summary>

@@ -146,7 +146,7 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
             }
 
             // Music note accent
-            NachtmusikVFXLibrary.SpawnMusicNotes(target.Center, 3, 12f, 0.7f, 0.9f, 25);
+// VFX_GUTTED:             NachtmusikVFXLibrary.SpawnMusicNotes(target.Center, 3, 12f, 0.7f, 0.9f, 25);
 
             // Find nearby enemies for shards to target
             int shardDamage = (int)(baseDamage * 0.4f);

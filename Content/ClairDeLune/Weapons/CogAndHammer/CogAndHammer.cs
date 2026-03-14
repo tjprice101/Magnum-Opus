@@ -1,34 +1,23 @@
-using MagnumOpus.Common;
-using MagnumOpus.Common.Systems.Particles;
+using System;
+using System.Collections.Generic;
+using MagnumOpus.Content.ClairDeLune;
 using MagnumOpus.Content.ClairDeLune.Weapons.CogAndHammer.Projectiles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
 using Terraria;
-using Terraria.GameContent;
-using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace MagnumOpus.Content.ClairDeLune.Weapons.CogAndHammer
 {
-    /// <summary>
-    /// Cog and Hammer — Ranged launcher that lobs clockwork bombs.
-    /// 3-tick countdown → detonation spraying gear shrapnel.
-    /// Alt fire = Sticky Bomb. Every 8th shot = Master Mechanism (2x radius, spawns 4 sub-bombs).
-    /// "The precision of a watchmaker. The philosophy of a demolitions expert."
-    /// </summary>
     public class CogAndHammer : ModItem
     {
-        private int _shotCounter;
-
         public override void SetDefaults()
         {
             Item.width = 64;
             Item.height = 32;
-            Item.damage = 3500; // Tier 10 (2800-4200 range), slow ranged
+            Item.damage = 3500;
             Item.DamageType = DamageClass.Ranged;
             Item.useTime = 35;
             Item.useAnimation = 35;
@@ -45,41 +34,38 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.CogAndHammer
             Item.crit = 18;
         }
 
-        public override bool AltFunctionUse(Player player) => true;
-
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            _shotCounter++;
-
-            if (player.altFunctionUse == 2)
-            {
-                // Alt fire: Sticky Bomb
-                Projectile.NewProjectile(source, position, velocity * 0.8f,
-                    ModContent.ProjectileType<StickyBombProjectile>(),
-                    damage, knockback, player.whoAmI);
-                return false;
-            }
-
-            // Every 8th shot: Master Mechanism
-            if (_shotCounter % 8 == 0)
-            {
-                Projectile.NewProjectile(source, position, velocity * 0.7f,
-                    ModContent.ProjectileType<MasterMechanismBombProjectile>(),
-                    (int)(damage * 1.5f), knockback * 1.5f, player.whoAmI);
-
-                SoundEngine.PlaySound(SoundID.Item62 with { Pitch = -0.3f, Volume = 0.8f }, position);
-
-                var flash = new BloomParticle(position, Vector2.Zero,
-                    ClairDeLunePalette.MoonbeamGold with { A = 0 } * 0.5f, 0.4f, 6);
-                MagnumParticleHandler.SpawnParticle(flash);
-                return false;
-            }
-
-            // Normal clockwork bomb
-            Projectile.NewProjectile(source, position, velocity,
-                ModContent.ProjectileType<ClockworkBombProjectile>(),
-                damage, knockback, player.whoAmI);
+            Projectile.NewProjectile(source, player.MountedCenter, velocity, type, damage, knockback, player.whoAmI);
             return false;
+        }
+
+        public override void HoldItem(Player player)
+        {
+            if (Main.rand.NextBool(4))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
+                Color col = ClairDeLunePalette.GetClockworkGradient(Main.rand.NextFloat());
+                Dust d = Dust.NewDustPerfect(player.Center + offset, DustID.WhiteTorch,
+                    new Vector2(0, -0.8f) + Main.rand.NextVector2Circular(0.4f, 0.4f), 0, col, 0.5f);
+                d.noGravity = true;
+            }
+
+            float pulse = 0.7f + 0.3f * MathF.Sin(Main.GlobalTimeWrappedHourly * 3f);
+            Lighting.AddLight(player.Center, ClairDeLunePalette.SoftBlue.ToVector3() * 0.35f * pulse);
+        }
+
+        public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
+        {
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 0.2f;
+            Texture2D tex = Terraria.GameContent.TextureAssets.Item[Type].Value;
+            Vector2 drawPos = Item.position - Main.screenPosition + new Vector2(Item.width / 2f, Item.height);
+            Vector2 origin = new Vector2(tex.Width / 2f, tex.Height);
+
+            spriteBatch.Draw(tex, drawPos, null, ClairDeLunePalette.SoftBlue with { A = 0 } * pulse,
+                rotation, origin, scale * 1.05f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, ClairDeLunePalette.PearlWhite with { A = 0 } * (pulse * 0.7f),
+                rotation, origin, scale * 1.02f, SpriteEffects.None, 0f);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -92,52 +78,6 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.CogAndHammer
             {
                 OverrideColor = ClairDeLunePalette.LoreText
             });
-        }
-    
-        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
-        {
-            Texture2D tex = TextureAssets.Item[Item.type].Value;
-            Vector2 pos = Item.Center - Main.screenPosition;
-            Vector2 origin = tex.Size() * 0.5f;
-
-            float time = Main.GameUpdateCount * 0.05f;
-            float pulse = 1f + (float)Math.Sin(time * 2.2f) * 0.05f
-                + (float)Math.Sin(time * 3.8f) * 0.03f;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            ClairDeLunePalette.DrawItemBloom(spriteBatch, tex, pos, origin, rotation, scale, pulse);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            Lighting.AddLight(Item.Center, ClairDeLunePalette.SoftBlue.ToVector3() * 0.35f);
-            return true;
-        }
-
-        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
-        {
-            Texture2D tex = TextureAssets.Item[Item.type].Value;
-            float time = Main.GameUpdateCount * 0.04f;
-            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.06f;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
-
-            float cycle = (float)Math.Sin(time * 0.7f) * 0.5f + 0.5f;
-            Color glowColor = Color.Lerp(ClairDeLunePalette.SoftBlue, ClairDeLunePalette.PearlWhite, cycle) * 0.24f;
-            spriteBatch.Draw(tex, position, frame, glowColor with { A = 0 }, 0f, origin, scale * pulse * 1.1f, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
-
-            spriteBatch.Draw(tex, position, frame, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
-            return false;
         }
     }
 }

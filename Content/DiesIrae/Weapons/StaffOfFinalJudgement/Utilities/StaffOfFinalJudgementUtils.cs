@@ -1,189 +1,230 @@
-using MagnumOpus.Common.Systems.VFX;
-using MagnumOpus.Content.DiesIrae;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using MagnumOpus.Content.DiesIrae;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.StaffOfFinalJudgement.Utilities
 {
     /// <summary>
-    /// Static VFX utility for Staff of Final Judgement.
-    /// Fire mine aesthetic — orbs with state-driven rendering, detonation effects.
+    /// Self-contained utility class for Staff of Final Judgement.
+    /// Palette, easings, animation curves, SpriteBatch helpers, geometry helpers.
+    /// Divine condemnation, holy wrath — every cast is a final sentence.
     /// </summary>
     public static class StaffOfFinalJudgementUtils
     {
-        public static Color MineEmber => DiesIraePalette.EmberOrange;
-        public static Color MineArmed => new Color(220, 80, 20);
-        public static Color DetCrimson => DiesIraePalette.BloodRed;
-        public static Color FlashGold => DiesIraePalette.JudgmentGold;
-        public static Color CoreWhite => DiesIraePalette.WrathWhite;
+        #region Color Palette
 
-        /// <summary>
-        /// Get mine color based on state.
-        /// 0 = unarmed (dim ember), 1 = armed (bright ember), 2 = near-trigger (pulsing gold).
-        /// </summary>
-        public static Color GetMineColor(int state, float timer)
+        /// <summary>Staff of Final Judgement cast palette — divine condemnation, holy wrath.</summary>
+        public static readonly Color[] WeaponPalette = DiesIraePalette.StaffOfFinalJudgementCast;
+
+        /// <summary>Lore text color for ModifyTooltips.</summary>
+        public static readonly Color LoreColor = DiesIraePalette.LoreText;
+
+        /// <summary>Cycling wrath color — red hue range oscillation for shimmer effects.</summary>
+        public static Color GetWrathCycle(float offset = 0f)
         {
-            return state switch
-            {
-                0 => Color.Lerp(DiesIraePalette.CharcoalBlack, MineEmber, 0.4f),
-                1 => Color.Lerp(MineEmber, MineArmed, 0.5f + 0.2f * (float)Math.Sin(timer * 0.1f)),
-                2 => Color.Lerp(MineArmed, FlashGold, 0.5f + 0.5f * (float)Math.Sin(timer * 0.5f)),
-                _ => MineEmber,
-            };
+            float hue = (Main.GameUpdateCount * 0.015f + offset) % 1f;
+            hue = hue * 0.08f;
+            return Main.hslToRgb(hue, 0.95f, 0.50f);
         }
 
-        /// <summary>
-        /// Draws a mine body orb — 3-layer bloom with state-driven scaling.
-        /// </summary>
-        public static void DrawMineBody(SpriteBatch sb, Vector2 worldPos, int state, float timer)
+        /// <summary>Smoothly interpolate through a color array.</summary>
+        public static Color MulticolorLerp(float t, params Color[] colors)
         {
-            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-            if (glow == null) return;
-            Vector2 origin = glow.Size() / 2f;
-            Vector2 pos = worldPos - Main.screenPosition;
+            t = MathHelper.Clamp(t, 0f, 0.999f);
+            int count = colors.Length;
+            float scaled = t * (count - 1);
+            int index = (int)scaled;
+            float frac = scaled - index;
+            if (index >= count - 1) return colors[count - 1];
+            return Color.Lerp(colors[index], colors[index + 1], frac);
+        }
 
-            Color color = GetMineColor(state, timer);
+        /// <summary>Gets a color along the weapon gradient (0=shadow, 1=divine white).</summary>
+        public static Color GetWeaponGradient(float t) => MulticolorLerp(t, WeaponPalette);
 
-            // Scale bloom by state: unarmed small, armed medium, near-trigger large + pulsing
-            float baseScale = state switch { 0 => 0.05f, 1 => 0.08f, _ => 0.10f };
-            float pulse = state == 2 ? (0.85f + 0.15f * (float)Math.Sin(timer * 0.5f)) : 1f;
+        /// <summary>Make a color additive-friendly (A=0) with opacity.</summary>
+        public static Color Additive(Color c, float opacity = 1f)
+            => new Color(c.R, c.G, c.B, 0) * opacity;
 
-            // Outer glow
-            sb.Draw(glow, pos, null, color * 0.3f * pulse, 0f, origin,
-                baseScale * 1.8f, SpriteEffects.None, 0f);
-            // Mid glow
-            sb.Draw(glow, pos, null, Color.Lerp(color, FlashGold, 0.3f) * 0.5f * pulse, 0f, origin,
-                baseScale, SpriteEffects.None, 0f);
-            // Core
-            sb.Draw(glow, pos, null, CoreWhite * 0.6f * pulse, 0f, origin,
-                baseScale * 0.4f, SpriteEffects.None, 0f);
+        #endregion
 
-            // Spinning flare for armed/triggered mines
-            if (state >= 1)
+        #region Easing Functions
+
+        public delegate float EasingFunction(float t, int degree);
+
+        public static float LinearEasing(float t, int degree) => t;
+        public static float SineInEasing(float t, int degree) => 1f - (float)Math.Cos(t * MathHelper.PiOver2);
+        public static float SineOutEasing(float t, int degree) => (float)Math.Sin(t * MathHelper.PiOver2);
+        public static float SineInOutEasing(float t, int degree) => -(float)(Math.Cos(Math.PI * t) - 1) / 2f;
+        public static float SineBumpEasing(float t, int degree) => (float)Math.Sin(t * Math.PI);
+
+        public static float PolyInEasing(float t, int degree)
+        {
+            return (float)Math.Pow(t, degree);
+        }
+
+        public static float PolyOutEasing(float t, int degree)
+        {
+            return 1f - (float)Math.Pow(1f - t, degree);
+        }
+
+        public static float PolyInOutEasing(float t, int degree)
+        {
+            if (t < 0.5f)
+                return (float)Math.Pow(2f * t, degree) / 2f;
+            return 1f - (float)Math.Pow(-2f * t + 2f, degree) / 2f;
+        }
+
+        public static float ExpInEasing(float t, int degree) =>
+            t == 0f ? 0f : (float)Math.Pow(2f, 10f * t - 10f);
+
+        public static float ExpOutEasing(float t, int degree) =>
+            t >= 1f ? 1f : 1f - (float)Math.Pow(2f, -10f * t);
+
+        public static float CircInEasing(float t, int degree) =>
+            1f - (float)Math.Sqrt(1f - t * t);
+
+        public static float CircOutEasing(float t, int degree) =>
+            (float)Math.Sqrt(1f - (t - 1f) * (t - 1f));
+
+        #endregion
+
+        #region CurveSegment — Piecewise Animation
+
+        public struct CurveSegment
+        {
+            public EasingFunction Easing;
+            public float StartX;
+            public float StartHeight;
+            public float ElevationShift;
+            public int Degree;
+
+            public CurveSegment(EasingFunction easing, float startX, float startHeight, float elevationShift, int degree = 2)
             {
-                Texture2D flare = MagnumTextureRegistry.GetShineFlare4Point();
-                if (flare != null)
+                Easing = easing;
+                StartX = startX;
+                StartHeight = startHeight;
+                ElevationShift = elevationShift;
+                Degree = degree;
+            }
+        }
+
+        public static float PiecewiseAnimation(float progress, CurveSegment[] segments)
+        {
+            progress = MathHelper.Clamp(progress, 0f, 1f);
+
+            int segIdx = 0;
+            for (int i = segments.Length - 1; i >= 0; i--)
+            {
+                if (progress >= segments[i].StartX)
                 {
-                    Vector2 fOrigin = flare.Size() / 2f;
-                    float rot = timer * (state == 2 ? 0.08f : 0.03f);
-                    sb.Draw(flare, pos, null, FlashGold * 0.3f * pulse, rot, fOrigin,
-                        baseScale * 0.6f, SpriteEffects.None, 0f);
+                    segIdx = i;
+                    break;
                 }
             }
+
+            CurveSegment seg = segments[segIdx];
+            float segEnd = (segIdx < segments.Length - 1) ? segments[segIdx + 1].StartX : 1f;
+            float segDuration = segEnd - seg.StartX;
+
+            if (segDuration <= 0f)
+                return seg.StartHeight;
+
+            float localProgress = MathHelper.Clamp((progress - seg.StartX) / segDuration, 0f, 1f);
+            float easedProgress = seg.Easing(localProgress, seg.Degree);
+
+            return seg.StartHeight + easedProgress * seg.ElevationShift;
         }
 
-        /// <summary>
-        /// Draws connecting beams between mines (purgatory field lines).
-        /// Simple point-to-point glow line.
-        /// </summary>
-        public static void DrawFieldLine(SpriteBatch sb, Vector2 from, Vector2 to, float timer)
+        #endregion
+
+        #region SpriteBatch Helpers
+
+        public static void EnterShaderRegion(this SpriteBatch sb)
         {
-            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-            if (glow == null) return;
-            Vector2 origin = glow.Size() / 2f;
-
-            Vector2 dir = to - from;
-            float dist = dir.Length();
-            if (dist < 1f) return;
-            dir /= dist;
-
-            int segments = (int)(dist / 12f);
-            for (int i = 0; i <= segments; i++)
-            {
-                float t = (float)i / segments;
-                Vector2 pos = Vector2.Lerp(from, to, t) - Main.screenPosition;
-                float wave = (float)Math.Sin(t * MathHelper.TwoPi * 2f + timer * 0.2f) * 3f;
-                Vector2 perp = new Vector2(-dir.Y, dir.X) * wave;
-                pos += perp;
-
-                Color c = Color.Lerp(MineEmber, FlashGold, t) * 0.4f;
-                sb.Draw(glow, pos, null, c, 0f, origin, 0.012f, SpriteEffects.None, 0f);
-            }
+            sb.End();
+            sb.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
-        /// <summary>
-        /// Mine detonation VFX — radial spark burst + smoke ring.
-        /// </summary>
-        public static void DoDetonation(Vector2 position, bool isChain = false)
+        public static void ExitShaderRegion(this SpriteBatch sb)
         {
-            // === Color-ramped sparkle explosion VFX ===
-            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(position, 12, 7f, 0.4f);
-
-            if (Main.dedServ) return;
-
-            int sparkCount = isChain ? 50 : 40;
-            float speedMult = isChain ? 1.3f : 1f;
-
-            // Radial fire sparks
-            for (int i = 0; i < sparkCount; i++)
-            {
-                float angle = MathHelper.TwoPi / sparkCount * i + Main.rand.NextFloat() * 0.2f;
-                float speed = (3f + Main.rand.NextFloat() * 5f) * speedMult;
-                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * speed;
-                vel.Y -= 1f; // Slight upward bias
-
-                Dust d = Dust.NewDustPerfect(position, Terraria.ID.DustID.Torch, vel, 0, default, 1.4f);
-                d.noGravity = true;
-                d.fadeIn = 0.6f;
-            }
-
-            // Smoke ring
-            for (int i = 0; i < 20; i++)
-            {
-                float angle = MathHelper.TwoPi / 20f * i;
-                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 2f;
-                Dust d = Dust.NewDustPerfect(position, Terraria.ID.DustID.Smoke, vel, 150, default, 1.5f);
-                d.noGravity = true;
-            }
-
-            // Center gold flash
-            for (int i = 0; i < 8; i++)
-            {
-                Dust d = Dust.NewDustPerfect(position, Terraria.ID.DustID.GoldFlame,
-                    Main.rand.NextVector2Circular(2f, 2f), 0, default, 1.5f);
-                d.noGravity = true;
-            }
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
-        /// <summary>
-        /// Judgment Storm VFX — massive screen-wide fire rain effect.
-        /// Called when 3+ mines detonate within 1s.
-        /// </summary>
-        public static void DoJudgmentStorm(Vector2 epicenter)
+        public static void BeginAdditive(this SpriteBatch sb)
         {
-            if (Main.dedServ) return;
-
-            // Massive spark shower from above
-            for (int i = 0; i < 60; i++)
-            {
-                Vector2 spawnPos = epicenter + new Vector2(Main.rand.NextFloat(-400f, 400f), -Main.rand.NextFloat(200f, 400f));
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(4f, 8f));
-                Dust d = Dust.NewDustPerfect(spawnPos, Terraria.ID.DustID.Torch, vel, 0, default, 1.8f);
-                d.noGravity = false;
-                d.fadeIn = 1f;
-            }
-
-            // Center blast
-            for (int i = 0; i < 15; i++)
-            {
-                Dust d = Dust.NewDustPerfect(epicenter, Terraria.ID.DustID.GoldFlame,
-                    Main.rand.NextVector2Circular(6f, 6f), 0, default, 2f);
-                d.noGravity = true;
-            }
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
-        // ─────────── THEME TEXTURE ACCENTS ───────────
+        public static void BeginShaderAdditive(this SpriteBatch sb)
+        {
+            sb.End();
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        }
 
-        /// <summary>
-        /// Draws theme-textured staff accents. Call under Additive blend.
-        /// </summary>
+        public static void RestoreSpriteBatch(this SpriteBatch sb)
+        {
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        #endregion
+
+        #region Geometry Helpers
+
+        public static Vector2 SafeDirectionTo(this Vector2 from, Vector2 to, Vector2 fallback = default)
+        {
+            Vector2 diff = to - from;
+            float length = diff.Length();
+            if (length < 0.0001f) return fallback;
+            return diff / length;
+        }
+
+        public static NPC ClosestNPCAt(Vector2 position, float maxRange, bool requireLineOfSight = false)
+        {
+            NPC closest = null;
+            float closestDist = maxRange;
+
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (!npc.active || npc.friendly || npc.dontTakeDamage || npc.immortal)
+                    continue;
+
+                float dist = Vector2.Distance(position, npc.Center);
+                if (dist < closestDist)
+                {
+                    if (requireLineOfSight && !Collision.CanHitLine(position, 1, 1, npc.position, npc.width, npc.height))
+                        continue;
+                    closestDist = dist;
+                    closest = npc;
+                }
+            }
+
+            return closest;
+        }
+
+        public static float AngleTowards(float currentAngle, float targetAngle, float maxTurn)
+        {
+            float diff = MathHelper.WrapAngle(targetAngle - currentAngle);
+            return currentAngle + MathHelper.Clamp(diff, -maxTurn, maxTurn);
+        }
+
+        #endregion
+
         public static void DrawThemeAccents(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)
         {
-            DiesIraeVFXLibrary.DrawThemeStarFlare(sb, worldPos, scale, intensity * 0.5f);
-            float rot = (float)Main.GameUpdateCount * 0.02f;
-            DiesIraeVFXLibrary.DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.4f, rot);
+            try { DiesIraeVFXLibrary.DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.4f, (float)Main.GameUpdateCount * 0.02f); }
+            catch { }
         }
     }
 }

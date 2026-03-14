@@ -1,13 +1,10 @@
 using MagnumOpus.Common;
+using MagnumOpus.Content.ClairDeLune;
 using MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer.Projectiles;
-using MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer.Utilities;
 using MagnumOpus.Content.SandboxExoblade.Utilities;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
-using System;
 using Terraria;
-using Terraria.GameContent;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -15,59 +12,51 @@ using Terraria.ModLoader;
 namespace MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer
 {
     /// <summary>
-    /// Temporal Piercer — Rapier that punctures through time.
-    /// Ultra-precise thrusts leave Temporal Puncture marks (max 5).
-    /// At 5 marks → Frozen Moment (stun + massive burst).
-    /// Alt fire launches a time-pierce boomerang through marked enemies.
+    /// Temporal Piercer — Clair de Lune's precision rapier that punctures time itself.
+    /// Exoblade-architecture weapon with frost shimmer VFX.
     /// </summary>
     public class TemporalPiercer : ModItem
     {
-        public override void SetDefaults()
+
+        public override void SetStaticDefaults()
         {
-            Item.width = 84;
-            Item.height = 84;
-            Item.DamageType = DamageClass.Melee;
-            Item.damage = 3600; // Tier 10 (2800-4200 range)
-            Item.useTime = 20;
-            Item.useAnimation = 20;
-            Item.useStyle = ItemUseStyleID.Shoot;
-            Item.knockBack = 7f;
-            Item.value = Item.sellPrice(platinum: 5);
-            Item.rare = ModContent.RarityType<ClairDeLuneRarity>();
-            Item.UseSound = null;
-            Item.channel = true;
-            Item.autoReuse = true;
-            Item.noMelee = true;
-            Item.noUseGraphic = true;
-            Item.crit = 22;
-            Item.shoot = ModContent.ProjectileType<TemporalThrustProjectile>();
-            Item.shootSpeed = 6f;
+            Item.ResearchUnlockCount = 1;
         }
 
-        public override bool AltFunctionUse(Player player)
+        public override void SetDefaults()
         {
-            return true;
+            Item.width = 65;
+            Item.height = 65;
+            Item.scale = 0.09f;
+            Item.damage = 260;
+            Item.useStyle = ItemUseStyleID.Swing;
+            Item.useTime = 20;
+            Item.useAnimation = 20;
+            Item.useTurn = true;
+            Item.DamageType = DamageClass.MeleeNoSpeed;
+            Item.knockBack = 7.5f;
+            Item.autoReuse = true;
+            Item.noUseGraphic = true;
+            Item.noMelee = true;
+            Item.channel = true;
+            Item.value = Item.sellPrice(gold: 45);
+            Item.shoot = ModContent.ProjectileType<TemporalThrustProjectile>();
+            Item.shootSpeed = 8f;
+            Item.rare = ModContent.RarityType<ClairDeLuneRarity>();
         }
 
         public override bool CanShoot(Player player)
         {
-            // Only allow re-swing during ExoBlade post-dash stasis
-            foreach (Projectile p in Main.ActiveProjectiles)
+            bool isDash = player.altFunctionUse == 2;
+            for (int i = 0; i < Main.maxProjectiles; i++)
             {
-                if (p.owner == player.whoAmI && p.type == Item.shoot)
-                {
-                    if (!(p.ai[0] == 1 && p.ai[1] == 1))
-                        return false;
-                }
+                Projectile p = Main.projectile[i];
+                if (!p.active || p.owner != player.whoAmI || p.type != Item.shoot)
+                    continue;
+                if (isDash) return false;
+                if (!(p.ai[0] == 1 && p.ai[1] == 1)) return false;
             }
             return true;
-        }
-
-        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
-        {
-            float state = player.altFunctionUse == 2 ? 1f : 0f;
-            Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI, state);
-            return false;
         }
 
         public override void HoldItem(Player player)
@@ -76,64 +65,32 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer
             player.ExoBlade().mouseWorldListener = true;
         }
 
+        public override bool AltFunctionUse(Player player) => true;
         public override bool? CanHitNPC(Player player, NPC target) => false;
         public override bool CanHitPvp(Player player, Player target) => false;
 
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
+            Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        {
+            float state = player.altFunctionUse == 2 ? 1f : 0f;
+            Projectile.NewProjectile(source, player.MountedCenter,
+                (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
+                type, damage, knockback, player.whoAmI, state, 0);
+
+            return false;
+        }
+
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Ultra-precise rapier thrusts inflict Temporal Puncture marks"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Five marks trigger Frozen Moment — a burst of shattered time"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Right click to perform a Time-Pierce Lunge that inflicts two marks"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Five marks upon the hours. And when the fifth chimes — the moment freezes.'")
-            {
-                OverrideColor = ClairDeLunePalette.LoreText
-            });
-        }
-    
-        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
-        {
-            Texture2D tex = TextureAssets.Item[Item.type].Value;
-            Vector2 pos = Item.Center - Main.screenPosition;
-            Vector2 origin = tex.Size() * 0.5f;
-
-            float time = Main.GameUpdateCount * 0.05f;
-            float pulse = 1f + (float)Math.Sin(time * 2.2f) * 0.05f
-                + (float)Math.Sin(time * 3.8f) * 0.03f;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            ClairDeLunePalette.DrawItemBloom(spriteBatch, tex, pos, origin, rotation, scale, pulse);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            Lighting.AddLight(Item.Center, ClairDeLunePalette.SoftBlue.ToVector3() * 0.35f);
-            return true;
-        }
-
-        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
-        {
-            Texture2D tex = TextureAssets.Item[Item.type].Value;
-            float time = Main.GameUpdateCount * 0.04f;
-            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.06f;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
-
-            float cycle = (float)Math.Sin(time * 0.7f) * 0.5f + 0.5f;
-            Color glowColor = Color.Lerp(ClairDeLunePalette.SoftBlue, ClairDeLunePalette.PearlWhite, cycle) * 0.24f;
-            spriteBatch.Draw(tex, position, frame, glowColor with { A = 0 }, 0f, origin, scale * pulse * 1.1f, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
-
-            spriteBatch.Draw(tex, position, frame, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
-            return false;
+            tooltips.Add(new TooltipLine(Mod, "Effect1",
+            "Temporal Puncture — ultra-precise rapier thrusts that pierce the veil of time"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2",
+            "Successive hits build temporal marks that shatter into frozen moments"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3",
+            "Right-click to perform a Time-Pierce Lunge through enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Lore",
+            "'Five marks upon the hours. And when the fifth chimes — the moment freezes.'")
+            { OverrideColor = new Color(150, 200, 255) });
         }
     }
 }

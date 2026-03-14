@@ -59,6 +59,11 @@ namespace MagnumOpus.Common.BaseClasses
         /// Return null (default) to use simple rotation drawing instead.</summary>
         protected virtual string SquareTexturePath => null;
 
+        /// <summary>Color gradient LUT texture path for theme-specific slash coloring.
+        /// Return null (default) to use SlashPrimaryColor/SecondaryColor/AccentColor.
+        /// When set, the slash trail samples colors from this gradient ramp texture.</summary>
+        protected virtual string GradientLUTPath => null;
+
         /// <summary>Swing arc width. Default 1.8 produces a ~162° arc (PiOver2 * 1.8).</summary>
         protected virtual float SwingArcMultiplier => 1.8f;
 
@@ -576,12 +581,25 @@ namespace MagnumOpus.Common.BaseClasses
 
             Main.spriteBatch.EnterShaderRegion();
 
-            GameShaders.Misc["MagnumOpus:ExobladeSlash"].UseImage1(ModContent.Request<Texture2D>(NoiseTexturePath));
-            GameShaders.Misc["MagnumOpus:ExobladeSlash"].UseColor(SlashPrimaryColor);
-            GameShaders.Misc["MagnumOpus:ExobladeSlash"].UseSecondaryColor(SlashSecondaryColor);
-            GameShaders.Misc["MagnumOpus:ExobladeSlash"].Shader.Parameters["fireColor"].SetValue(SlashAccentColor.ToVector3());
-            GameShaders.Misc["MagnumOpus:ExobladeSlash"].Shader.Parameters["flipped"].SetValue(Direction == 1);
-            GameShaders.Misc["MagnumOpus:ExobladeSlash"].Apply();
+            var slashShader = GameShaders.Misc["MagnumOpus:ExobladeSlash"];
+            slashShader.UseImage1(ModContent.Request<Texture2D>(NoiseTexturePath));
+            slashShader.UseColor(SlashPrimaryColor);
+            slashShader.UseSecondaryColor(SlashSecondaryColor);
+            slashShader.Shader.Parameters["fireColor"].SetValue(SlashAccentColor.ToVector3());
+            slashShader.Shader.Parameters["flipped"].SetValue(Direction == 1);
+
+            // Enable gradient LUT mode if a theme gradient path is provided
+            if (GradientLUTPath != null)
+            {
+                slashShader.UseImage2(ModContent.Request<Texture2D>(GradientLUTPath));
+                slashShader.Shader.Parameters["uShaderSpecificData"].SetValue(new Vector4(1f, 0f, 0f, 0f));
+            }
+            else
+            {
+                slashShader.Shader.Parameters["uShaderSpecificData"].SetValue(Vector4.Zero);
+            }
+
+            slashShader.Apply();
 
             PrimitiveRenderer.RenderTrail(GenerateSlashPoints(),
                 new(SlashWidthFunction, SlashColorFunction,

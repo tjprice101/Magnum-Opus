@@ -18,7 +18,6 @@ using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.OdeToJoy.Bosses.Systems;
 using MagnumOpus.Common.Systems.Bosses;
 using static MagnumOpus.Common.Systems.BossDialogueSystem;
-using static MagnumOpus.Content.OdeToJoy.Bosses.Systems.OdeToJoySkySystem;
 
 namespace MagnumOpus.Content.OdeToJoy.Bosses
 {
@@ -318,13 +317,33 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
             BossIndexTracker.OdeToJoyConductor = NPC.whoAmI;
             BossIndexTracker.OdeToJoyPhase = difficultyTier;
             
-            // Feed sky system with boss state
-            OdeToJoySky.BossLifeRatio = (float)NPC.life / NPC.lifeMax;
-            OdeToJoySky.BossCenter = NPC.Center;
-            OdeToJoySky.BossIsPhase2 = isPhase2;
+            // Feed arena visuals with current fight state
+            int visualPhase = isEnraged ? 2 : (isPhase2 ? (difficultyTier >= 2 ? 2 : 1) : 0);
+            OdeToJoyBossFightVisuals.SetFightState(true, visualPhase, isEnraged);
             
             if (State != BossPhase.Spawning && State != BossPhase.Dying)
-                OdeToJoyBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier, isPhase2);
+            {
+                // Musical accents — conductor gestures and ambient VFX scaled to phase
+                OdeToJoyBossVFXLibrary.BossAmbientGlow(NPC.Center, visualPhase, isEnraged);
+                
+                if (Timer % 20 == 0 && !isEnraged)
+                {
+                    float sweepAngle = Main.GameUpdateCount * 0.04f;
+                    OdeToJoyBossVFXLibrary.SoloConductorGesture(NPC.Center, sweepAngle, isPhase2 ? 0.8f : 0.5f);
+                }
+                
+                // Phase 2+: Rhythmic harmonic resonance pulses
+                if (isPhase2 && Timer % 45 == 0)
+                {
+                    OdeToJoyBossVFXLibrary.HarmonicResonancePulse(NPC.Center, 0.5f + difficultyTier * 0.2f);
+                }
+                
+                // Phase 3 (difficulty tier 2): Full orchestra shimmer
+                if (difficultyTier >= 2 && Timer % 10 == 0)
+                {
+                    OdeToJoyBossVFXLibrary.FullOrchestraShimmer(NPC.Center, 0.4f);
+                }
+            }
         }
         
         #region Phase Transition System
@@ -347,8 +366,9 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
             // Dramatic screen shake
             MagnumScreenEffects.AddScreenShake(12f);
             
-            // VFX burst
-            OdeToJoyVFXLibrary.SpawnRosePetals(NPC.Center, 24, 12f * 2f);
+            // VFX burst — rose petals scattering as the solo voice fades
+            OdeToJoyBossVFXLibrary.SpawnRosePetals(NPC.Center, 24, 12f);
+            OdeToJoyBossVFXLibrary.CymbalCrashImpact(NPC.Center, 1.2f);
         }
         
         private void UpdatePhaseTransition()
@@ -377,11 +397,17 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 
                 // Music fades (handled by Terraria naturally when we switch)
                 
-                // Rose buds blooming around the boss
+                // Rose buds blooming around the boss — petals shedding into the vortex
                 if (Timer % 8 == 0)
                 {
                     Vector2 rosePos = NPC.Center + Main.rand.NextVector2Circular(120f, 120f);
                     RoseBudParticle.SpawnBurst(rosePos, 3, 3f, RosePink, GoldenPollen, 0.4f, 30);
+                }
+                
+                // Petal shedding vortex — spiraling inward
+                if (Timer % 6 == 0)
+                {
+                    OdeToJoyBossVFXLibrary.PetalSheddingVortex(NPC.Center, transitionProgress, 0.8f);
                 }
             }
             // Silence and darkness (90-120 frames)
@@ -389,9 +415,9 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
             {
                 if (Timer == 91)
                 {
-                    // Pulse effect
+                    // Pulse effect — the silence before the chorus
                     MagnumScreenEffects.AddScreenShake(8f);
-                    OdeToJoyVFXLibrary.GardenImpact(NPC.Center, 1.5f);
+                    OdeToJoyBossVFXLibrary.GardenImpact(NPC.Center, 1.5f);
                 }
                 
                 // Brief fade
@@ -452,10 +478,10 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                     }
                 }
                 
-                // Rose buds blooming everywhere
+                // Rose buds blooming everywhere — the chorus joining
                 if (Timer % 6 == 0)
                 {
-                    OdeToJoyVFXLibrary.BlossomImpact(NPC.Center + Main.rand.NextVector2Circular(100f, 100f), 0.6f);
+                    OdeToJoyBossVFXLibrary.BlossomImpact(NPC.Center + Main.rand.NextVector2Circular(100f, 100f), 0.6f);
                 }
             }
             // Power surge (60-90 frames)
@@ -463,9 +489,8 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
             {
                 if (Timer == 61)
                 {
-                    // MASSIVE chromatic explosion
-                    OdeToJoyVFXLibrary.SpawnRosePetals(NPC.Center, 32, 14f * 2.5f);
-                    MagnumScreenEffects.AddScreenShake(15f);
+                    // CHORUS AWAKENING — massive triumphant burst
+                    OdeToJoyBossVFXLibrary.ChorusAwakeningBurst(NPC.Center, 1.5f);
                 }
                 
                 // Radiant glow
@@ -564,14 +589,16 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
         {
             Vector2 teleportPos = target.Center + Main.rand.NextVector2CircularEdge(300f, 300f);
             
-            // Departure VFX
-            OdeToJoyVFXLibrary.SpawnRosePetals(NPC.Center, 16, 8f);
+            // Departure VFX — golden flash as conductor vanishes
+            OdeToJoyBossVFXLibrary.SpawnRosePetals(NPC.Center, 16, 8f);
+            OdeToJoyBossVFXLibrary.CymbalCrashImpact(NPC.Center, 0.6f);
 
             NPC.Center = teleportPos;
             NPC.velocity = Vector2.Zero;
             
-            // Arrival VFX
-            OdeToJoyVFXLibrary.SpawnRosePetals(NPC.Center, 16, 8f);
+            // Arrival VFX — golden entrance with rose petals
+            OdeToJoyBossVFXLibrary.SpawnRosePetals(NPC.Center, 16, 8f);
+            OdeToJoyBossVFXLibrary.GardenImpact(NPC.Center, 0.8f);
         }
         
         #endregion
@@ -584,10 +611,10 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
             {
                 NPC.alpha = (int)(255 * (1f - Timer / 60f));
                 
-                // Spawn VFX
+                // Spawn VFX — blossoms appearing from nothing
                 if (Timer % 5 == 0)
                 {
-                    OdeToJoyVFXLibrary.BlossomImpact(NPC.Center + Main.rand.NextVector2Circular(80f, 80f), 0.5f);
+                    OdeToJoyBossVFXLibrary.BlossomImpact(NPC.Center + Main.rand.NextVector2Circular(80f, 80f), 0.5f);
                 }
             }
             else
@@ -692,10 +719,35 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 // Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, projVel, ModContent.ProjectileType<OdeToJoyPetalProjectile>(), GetAttackDamage(40), 0f);
             }
             
-            // VFX rage effect
-            if (Timer % 5 == 0)
+            // ENRAGE VFX — Freude, schöner Götterfunken! Celebration, not aggression.
+            // Firework bursts on every attack cycle
+            if (Timer % 30 == 0)
             {
-                CustomParticles.GenericFlare(NPC.Center + Main.rand.NextVector2Circular(60f, 60f), PetalPink, 0.6f, 15);
+                OdeToJoyBossVFXLibrary.FireworkBurst(NPC.Center, 1.2f);
+            }
+            
+            // Confetti note cascades raining from EVERY strike
+            if (Timer % 8 == 0)
+            {
+                OdeToJoyBossVFXLibrary.SpawnConfettiNoteCascade(NPC.Center, 4, 80f);
+            }
+            
+            // Jubilant golden overflow — the warmth of a thousand candles
+            if (Timer % 4 == 0)
+            {
+                OdeToJoyBossVFXLibrary.JubilantGoldenOverflow(NPC.Center, 0.6f);
+            }
+            
+            // Rose petals scatter with every movement — celebration everywhere
+            if (Timer % 6 == 0)
+            {
+                OdeToJoyBossVFXLibrary.RosePetalDownbeat(NPC.Center, 6, 8f);
+            }
+            
+            // Harmonic resonance rings pulsing outward rhythmically
+            if (Timer % 15 == 0)
+            {
+                OdeToJoyBossVFXLibrary.HarmonicResonancePulse(NPC.Center, 0.8f, 1.2f);
             }
         }
         
@@ -845,7 +897,10 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 if (Timer == 1)
                 {
                     MagnumScreenEffects.AddScreenShake(6f);
-                    OdeToJoyVFXLibrary.SpawnRosePetals(NPC.Center, 18, 10f * 1.2f);
+                    // Phase 1: Trumpet-blast cone in attack direction
+                    Vector2 attackDir = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX);
+                    OdeToJoyBossVFXLibrary.TrumpetBlastCone(NPC.Center, attackDir, 1.2f);
+                    OdeToJoyBossVFXLibrary.SpawnRosePetals(NPC.Center, 18, 10f);
                     
                     // TODO: Spawn petal projectiles in arc
                     if (Main.netMode != NetmodeID.MultiplayerClient)
@@ -908,7 +963,9 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
             {
                 if (Timer == 1)
                 {
-                    OdeToJoyVFXLibrary.BlossomImpact(NPC.Center, 1f);
+                    // Violin-bow arc from boss to impact point
+                    OdeToJoyBossVFXLibrary.ViolinBowArc(NPC.Center, NPC.Center + (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX) * 100f, 0.8f);
+                    OdeToJoyBossVFXLibrary.BlossomImpact(NPC.Center, 1f);
                     
                     // TODO: Spawn rose bud projectiles
                 }
@@ -969,7 +1026,11 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 if (Timer == 1)
                 {
                     MagnumScreenEffects.AddScreenShake(8f);
-                    OdeToJoyVFXLibrary.SpawnRosePetals(NPC.Center, 22, 12f * 1.5f);
+                    // Phase 2: Ensemble strike — multiple instrument motifs layered
+                    Vector2 attackDir = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX);
+                    OdeToJoyBossVFXLibrary.EnsembleStrike(NPC.Center, attackDir, 1.0f);
+                    OdeToJoyBossVFXLibrary.SpawnRosePetals(NPC.Center, 22, 12f);
+                    OdeToJoyBossVFXLibrary.RosePetalDownbeat(NPC.Center, 8, 6f);
                     
                     // TODO: Spawn chromatic petal wave
                 }
@@ -1048,7 +1109,8 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 if (Timer == 1)
                 {
                     MagnumScreenEffects.AddScreenShake(12f);
-                    OdeToJoyVFXLibrary.TriumphantCelebration(NPC.Center, 1.8f);
+                    // Garden Symphony release — triumphant golden celebration
+                    OdeToJoyBossVFXLibrary.TriumphantCelebration(NPC.Center, 1.8f);
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
@@ -1127,7 +1189,7 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                     for (int i = 0; i < 4; i++)
                     {
                         Vector2 rosePos = NPC.Center + Main.rand.NextVector2Circular(150f, 150f);
-                        OdeToJoyVFXLibrary.BlossomImpact(rosePos, 0.5f);
+                        OdeToJoyBossVFXLibrary.BlossomImpact(rosePos, 0.5f);
                     }
                 }
                 
@@ -1147,9 +1209,10 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
             {
                 if (Timer == 1)
                 {
-                    // MASSIVE EXPLOSION
+                    // JUBILANT FINALE — massive firework explosion
                     MagnumScreenEffects.AddScreenShake(20f);
-                    OdeToJoyVFXLibrary.TriumphantCelebration(NPC.Center, 2f);
+                    OdeToJoyBossVFXLibrary.TriumphantCelebration(NPC.Center, 2f);
+                    OdeToJoyBossVFXLibrary.FireworkBurst(NPC.Center, 1.5f);
                     
                     // TODO: Spawn massive projectile storm
                 }
@@ -1218,7 +1281,10 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 if (deathTimer % 30 == 0 && deathTimer > 0)
                 {
                     float flashIntensity = 4f + intensity * 8f;
-                    TriggerPetalFlash(flashIntensity);
+                    // Escalating golden flash — each flash bigger as the finale builds
+                    DynamicSkyboxSystem.TriggerFlash(OdeToJoyPalette.GoldenPollen, 0.3f + intensity * 0.5f);
+                    OdeToJoyBossVFXLibrary.CymbalCrashImpact(NPC.Center, flashIntensity * 0.15f);
+                    OdeToJoyBossVFXLibrary.SpawnMusicNoteCascade(NPC.Center, Vector2.Zero, OdeToJoyPalette.GoldenPollen, (int)(3 + intensity * 5), 60f);
                 }
                 
                 // Petals swirling and gathering
@@ -1238,7 +1304,7 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 // Rose buds blooming in finale
                 if (deathTimer % 8 == 0)
                 {
-                    OdeToJoyVFXLibrary.BlossomImpact(NPC.Center + Main.rand.NextVector2Circular(80f, 80f), 0.6f);
+                    OdeToJoyBossVFXLibrary.BlossomImpact(NPC.Center + Main.rand.NextVector2Circular(80f, 80f), 0.6f + intensity * 0.4f);
                 }
                 
                 MagnumScreenEffects.AddScreenShake(intensity * 4f);
@@ -1246,9 +1312,11 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
             // Phase 2: Climax (120-150 frames)
             else if (deathTimer == 140)
             {
-                // FINAL EXPLOSION
-                TriggerEternalBloomFlash(25f);
-                OdeToJoyVFXLibrary.DeathGardenFlash(NPC.Center, 2.5f);
+                // FINAL EXPLOSION — The Garden's Triumphant Last Note
+                OdeToJoyBossVFXLibrary.TriumphantCelebration(NPC.Center, 2.5f);
+                OdeToJoyBossVFXLibrary.FireworkBurst(NPC.Center, 2f);
+                OdeToJoyBossVFXLibrary.SpawnConfettiNoteCascade(NPC.Center, 12, 120f);
+                DynamicSkyboxSystem.TriggerFlash(OdeToJoyPalette.WhiteBloom, 1.0f);
                 MagnumScreenEffects.AddScreenShake(25f);
                 
                 // === PHASE 10 MUSICAL VFX: Death Finale - The Garden's Final Song ===
@@ -1319,49 +1387,73 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
         
         public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
-            Texture2D texture = Terraria.GameContent.TextureAssets.Npc[Type].Value;
+            Texture2D tex = Terraria.GameContent.TextureAssets.Npc[Type].Value;
+            Vector2 drawPos = NPC.Center - screenPos;
             Rectangle frame = NPC.frame;
             Vector2 origin = frame.Size() / 2f;
-            
-            // === SHADER LAYER 0: Boss ambient glow ===
-            if (State != BossPhase.Spawning)
-                OdeToJoyBossShaderSystem.DrawBossGlow(spriteBatch, NPC, screenPos, isPhase2);
-            
-            // === Shader: Garden Aura ===
-            if (State != BossPhase.Spawning)
-                OdeToJoyBossShaderSystem.DrawGardenAura(spriteBatch, NPC, screenPos, aggressionLevel, difficultyTier, isEnraged);
-            
-            // === Shader: Vine Trail (when moving fast) ===
-            if (NPC.velocity.Length() > 6f)
-                OdeToJoyBossShaderSystem.DrawVineTrail(spriteBatch, NPC, screenPos, texture, frame, origin, isEnraged);
-            
-            // === Shader: Chromatic Bloom (during PhaseTransition) ===
-            if (State == BossPhase.PhaseTransition)
+            SpriteEffects effects = NPC.spriteDirection == 1 ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
+
+            float time = Main.GameUpdateCount * 0.04f;
+            float pulse = 1f + MathF.Sin(time) * 0.08f;
+
+            // --- Phase-scaled aura: warm golden glow behind the boss ---
+            // Layer 1: Wide soft ambient glow (additive)
+            int auraLayers = isPhase2 ? (difficultyTier >= 2 ? 4 : 3) : 2;
+            if (isEnraged) auraLayers = 5;
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            for (int i = auraLayers; i >= 1; i--)
             {
-                float transitionProgress = Timer / 90f;
-                OdeToJoyBossShaderSystem.DrawChromaticBloom(spriteBatch, NPC, screenPos, transitionProgress);
+                float layerScale = NPC.scale * (1f + i * 0.12f) * pulse;
+                float layerAlpha = 0.12f / i;
+                if (isEnraged) layerAlpha *= 1.5f;
+
+                Color auraColor = Color.Lerp(OdeToJoyPalette.GoldenPollen, OdeToJoyPalette.RosePink, i / (float)auraLayers) * layerAlpha;
+                auraColor.A = 0;
+
+                spriteBatch.Draw(tex, drawPos, frame, auraColor, NPC.rotation, origin, layerScale, effects, 0f);
             }
-            
-            // === Shader: Jubilant Dissolve (during Dying) ===
-            if (State == BossPhase.Dying)
+
+            // --- Phase 2+: Conductor's baton sweep afterimage ---
+            if (isPhase2)
             {
-                float dissolveProgress = deathTimer / 180f;
-                OdeToJoyBossShaderSystem.DrawJubilantDissolve(spriteBatch, NPC, screenPos, texture, frame, origin, dissolveProgress);
+                int afterimageCount = difficultyTier >= 2 ? 4 : 2;
+                if (isEnraged) afterimageCount = 6;
+
+                for (int i = 1; i <= afterimageCount; i++)
+                {
+                    float trailAlpha = 0.08f * (1f - (float)i / (afterimageCount + 1));
+                    if (isEnraged) trailAlpha *= 1.4f;
+                    Vector2 trailOffset = -NPC.velocity * i * 1.5f;
+
+                    Color trailColor = Color.Lerp(OdeToJoyPalette.GoldenPollen, OdeToJoyPalette.WhiteBloom, (float)i / afterimageCount) * trailAlpha;
+                    trailColor.A = 0;
+
+                    spriteBatch.Draw(tex, drawPos + trailOffset, frame, trailColor, NPC.rotation, origin, NPC.scale * (1f + i * 0.03f), effects, 0f);
+                }
             }
-            
-            // Trail afterimages
-            for (int i = 0; i < NPC.oldPos.Length - 1; i++)
+
+            // --- Enrage: pulsing white-hot inner glow ---
+            if (isEnraged)
             {
-                float progress = (float)i / NPC.oldPos.Length;
-                float alpha = (1f - progress) * 0.3f;
-                Color trailColor = Color.Lerp(RosePink, GoldenPollen, progress) * alpha;
-                
-                Vector2 drawPos = NPC.oldPos[i] + NPC.Size / 2f - screenPos;
-                
-                spriteBatch.Draw(texture, drawPos, frame, trailColor, NPC.rotation, origin, NPC.scale * (1f - progress * 0.2f), NPC.spriteDirection == 1 ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0f);
+                float enragePulse = 0.15f + MathF.Sin(time * 3f) * 0.08f;
+                Color hotColor = OdeToJoyPalette.WhiteBloom * enragePulse;
+                hotColor.A = 0;
+                spriteBatch.Draw(tex, drawPos, frame, hotColor, NPC.rotation, origin, NPC.scale * 1.02f, effects, 0f);
             }
-            
-            return true;
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Draw the actual boss sprite
+            Color adjustedColor = NPC.GetAlpha(drawColor);
+            spriteBatch.Draw(tex, drawPos, frame, adjustedColor, NPC.rotation, origin, NPC.scale, effects, 0f);
+
+            return false;
         }
         
         public override void PostDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)

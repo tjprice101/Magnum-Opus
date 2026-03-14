@@ -206,6 +206,8 @@ namespace MagnumOpus.Content.Eroica.Bosses
             // Register with global boss index tracker
             BossIndexTracker.EroicaRetribution = NPC.whoAmI;
             BossIndexTracker.EroicaPhase = phase2Started ? (difficultyTier + 1) : 0;
+            BossIndexTracker.EroicaEnraged = isEnraged;
+            EroicaAttackVFX.UpdateMovement(difficultyTier, isEnraged, aggressionLevel);
             
             if (State == BossPhase.Dying)
             {
@@ -276,7 +278,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             
             // Enhanced shader-driven musical accents
             if (phase2Started)
-                EroicaBossShaderSystem.SpawnMusicalAccents(NPC, fightTimer, difficultyTier);
+                EroicaBossShaderSystem.SpawnMusicalAccents(NPC, fightTimer, difficultyTier, aggressionLevel, isEnraged);
             
             // Boss dialogue system - combat taunts and player HP checks
             if (phase2Started)
@@ -397,7 +399,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
                 VFXIntegration.OnPhaseTransition("Eroica", NPC.Center);
                 
                 // SHADER: Sakura transition VFX with shader overlay
-                EroicaBossShaderSystem.DrawPhaseTransition(Main.spriteBatch, NPC, Main.screenPosition, 1f, true);
+                EroicaBossShaderSystem.DrawPhaseTransition(Main.spriteBatch, NPC, Main.screenPosition, 1f, difficultyTier + 1, aggressionLevel);
                 
                 CustomParticles.GenericFlare(NPC.Center, Color.White, 1.5f, 25);
                 for (int i = 0; i < 12; i++)
@@ -1704,11 +1706,11 @@ namespace MagnumOpus.Content.Eroica.Bosses
             
             // SHADER: Phoenix flame burst intensifies as death approaches
             if (progress > 0.3f)
-                EroicaBossShaderSystem.DrawPhoenixFlame(Main.spriteBatch, NPC.Center, Main.screenPosition, progress);
+                EroicaBossShaderSystem.DrawPhoenixFlame(Main.spriteBatch, NPC.Center, Main.screenPosition, progress, difficultyTier, isEnraged, aggressionLevel);
             
             // Phoenix wings grow as death builds (hero ascending)
             if (progress > 0.2f)
-                EroicaBossShaderSystem.DrawPhoenixWings(Main.spriteBatch, NPC, Main.screenPosition, (progress - 0.2f) * 1.25f);
+                EroicaBossShaderSystem.DrawPhoenixWings(Main.spriteBatch, NPC, Main.screenPosition, (progress - 0.2f) * 1.25f, difficultyTier, isEnraged);
             
             // Escalating sky flashes synchronized to death buildup
             if (deathTimer % 20 == 0 && progress > 0.3f)
@@ -1862,7 +1864,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             // === LAYER 0: Multi-layered NPC bloom (Calamity SCal-style radiant presence) ===
             if (phase2Started)
             {
-                EroicaBossShaderSystem.DrawBossGlow(spriteBatch, NPC, screenPos, lifeRatio, isEnraged);
+                EroicaBossShaderSystem.DrawBossGlow(spriteBatch, NPC, screenPos, lifeRatio, isEnraged, difficultyTier);
             }
             
             // === LAYER 1: Valor Aura (behind everything) ===
@@ -1876,14 +1878,14 @@ namespace MagnumOpus.Content.Eroica.Bosses
             if (isEnraged || (State == BossPhase.Phase2_Attack && CurrentAttack == AttackPattern.PhoenixDive))
             {
                 float wingIntensity = isEnraged ? 0.7f + aggressionLevel * 0.3f : 0.5f;
-                EroicaBossShaderSystem.DrawPhoenixWings(spriteBatch, NPC, screenPos, wingIntensity);
+                EroicaBossShaderSystem.DrawPhoenixWings(spriteBatch, NPC, screenPos, wingIntensity, difficultyTier, isEnraged);
             }
             
             // === LAYER 2: Heroic Trail (shader-driven afterimages) ===
             if (phase2Started && NPC.velocity.Length() > 6f)
             {
                 EroicaBossShaderSystem.DrawHeroicTrail(spriteBatch, NPC, screenPos,
-                    tex, sourceRect, origin, isEnraged);
+                    tex, sourceRect, origin, isEnraged, difficultyTier, aggressionLevel);
             }
             // Fallback: standard afterimages with bloom overlay for lower velocities
             else if (phase2Started && NPC.velocity.Length() > 3f)
@@ -1912,7 +1914,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             {
                 float transitionProgress = Math.Clamp(Timer / 90f, 0f, 1f);
                 EroicaBossShaderSystem.DrawPhaseTransition(spriteBatch, NPC, screenPos,
-                    transitionProgress, true);
+                    transitionProgress, difficultyTier + 1, aggressionLevel);
             }
             
             // Multi-layered glow outline (inner bright + outer soft)

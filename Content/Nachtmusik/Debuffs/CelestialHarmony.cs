@@ -123,10 +123,10 @@ namespace MagnumOpus.Content.Nachtmusik.Debuffs
                 if (CrescendoChargeTime % 5 == 0)
                 {
                     float chargeProgress = CrescendoChargeTime / 90f;
-                    NachtmusikCosmicVFX.SpawnConstellationCircle(npc.Center, 
-                        40f + chargeProgress * 30f, 
-                        6, 
-                        Main.GameUpdateCount * 0.03f);
+// VFX_GUTTED:                     NachtmusikCosmicVFX.SpawnConstellationCircle(npc.Center, 
+// VFX_GUTTED:                         40f + chargeProgress * 30f, 
+// VFX_GUTTED:                         6, 
+// VFX_GUTTED:                         Main.GameUpdateCount * 0.03f);
                 }
                 
                 // Trigger crescendo after charge
@@ -156,15 +156,15 @@ namespace MagnumOpus.Content.Nachtmusik.Debuffs
                 {
                     float angle = MathHelper.TwoPi * i / 4f + Main.rand.NextFloat(-0.3f, 0.3f);
                     Vector2 vel = angle.ToRotationVector2() * 4f;
-                    Color stackColor = NachtmusikCosmicVFX.GetCelestialGradient((float)HarmonyStacks / CelestialHarmony.MaxStacks);
-                    var spark = new GlowSparkParticle(npc.Center, vel, stackColor, 0.25f, 12);
-                    MagnumParticleHandler.SpawnParticle(spark);
+// VFX_GUTTED:                     Color stackColor = NachtmusikCosmicVFX.GetCelestialGradient((float)HarmonyStacks / CelestialHarmony.MaxStacks);
+// VFX_GUTTED:                     var spark = new GlowSparkParticle(npc.Center, vel, stackColor, 0.25f, 12);
+// VFX_GUTTED:                     MagnumParticleHandler.SpawnParticle(spark);
                 }
                 
                 // Near max stacks warning
                 if (HarmonyStacks >= CelestialHarmony.MaxStacks - 2)
                 {
-                    CustomParticles.GenericFlare(npc.Center, NachtmusikCosmicVFX.Gold, 0.6f, 15);
+// VFX_GUTTED:                     CustomParticles.GenericFlare(npc.Center, NachtmusikCosmicVFX.Gold, 0.6f, 15);
                     SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.4f + HarmonyStacks * 0.05f, Volume = 0.5f }, npc.Center);
                 }
             }
@@ -202,7 +202,7 @@ namespace MagnumOpus.Content.Nachtmusik.Debuffs
                     
                     // Echo explosion VFX
                     CustomParticles.GenericFlare(echo.Position, echo.EchoColor, 0.6f, 15);
-                    CustomParticles.GenericFlare(echo.Position, NachtmusikCosmicVFX.StarWhite, 0.4f, 12);
+// VFX_GUTTED:                     CustomParticles.GenericFlare(echo.Position, NachtmusikCosmicVFX.StarWhite, 0.4f, 12);
                     var echoBurst = new StarBurstParticle(echo.Position, Vector2.Zero, echo.EchoColor * 0.7f, 0.3f, 14);
                     MagnumParticleHandler.SpawnParticle(echoBurst);
                     
@@ -210,9 +210,9 @@ namespace MagnumOpus.Content.Nachtmusik.Debuffs
                     for (int j = 0; j < 6; j++)
                     {
                         Vector2 offset = Main.rand.NextVector2Circular(15f, 15f);
-                        var star = new GenericGlowParticle(echo.Position + offset, Main.rand.NextVector2Circular(2f, 2f),
-                            NachtmusikCosmicVFX.StarWhite, 0.2f, 15, true);
-                        MagnumParticleHandler.SpawnParticle(star);
+// VFX_GUTTED:                         var star = new GenericGlowParticle(echo.Position + offset, Main.rand.NextVector2Circular(2f, 2f),
+// VFX_GUTTED:                             NachtmusikCosmicVFX.StarWhite, 0.2f, 15, true);
+// VFX_GUTTED:                         MagnumParticleHandler.SpawnParticle(star);
                     }
                     
                     pendingEchos.RemoveAt(i);
@@ -225,21 +225,21 @@ namespace MagnumOpus.Content.Nachtmusik.Debuffs
             IsCrescendoActive = true;
             
             // === MASSIVE CELESTIAL EXPLOSION ===
-            NachtmusikCosmicVFX.SpawnCelestialExplosion(npc.Center, 2f);
+// VFX_GUTTED:             NachtmusikCosmicVFX.SpawnCelestialExplosion(npc.Center, 2f);
             
             // Additional VFX layers - starburst cascade
             for (int ring = 0; ring < 10; ring++)
             {
                 float progress = ring / 10f;
-                Color burstColor = NachtmusikCosmicVFX.GetCelestialGradient(progress);
-                var crescendoBurst = new StarBurstParticle(npc.Center, Vector2.Zero, burstColor, 0.45f + ring * 0.15f, 20 + ring * 3, ring % 2);
-                MagnumParticleHandler.SpawnParticle(crescendoBurst);
+// VFX_GUTTED:                 Color burstColor = NachtmusikCosmicVFX.GetCelestialGradient(progress);
+// VFX_GUTTED:                 var crescendoBurst = new StarBurstParticle(npc.Center, Vector2.Zero, burstColor, 0.45f + ring * 0.15f, 20 + ring * 3, ring % 2);
+// VFX_GUTTED:                 MagnumParticleHandler.SpawnParticle(crescendoBurst);
                 
                 // Shattered starlight fragments
                 float fragAngle = MathHelper.TwoPi * ring / 10f;
                 Vector2 fragVel = fragAngle.ToRotationVector2() * (8f + ring);
-                var fragment = new ShatteredStarlightParticle(npc.Center, fragVel, burstColor, 0.35f, 25, true, 0.08f);
-                MagnumParticleHandler.SpawnParticle(fragment);
+// VFX_GUTTED:                 var fragment = new ShatteredStarlightParticle(npc.Center, fragVel, burstColor, 0.35f, 25, true, 0.08f);
+// VFX_GUTTED:                 MagnumParticleHandler.SpawnParticle(fragment);
             }
             
             // Lightning strikes in radius
@@ -247,7 +247,7 @@ namespace MagnumOpus.Content.Nachtmusik.Debuffs
             {
                 float angle = MathHelper.TwoPi * i / 6f;
                 Vector2 strikePos = npc.Center + angle.ToRotationVector2() * Main.rand.NextFloat(60f, 120f);
-                NachtmusikCosmicVFX.SpawnCelestialLightningStrike(strikePos, 0.8f);
+// VFX_GUTTED:                 NachtmusikCosmicVFX.SpawnCelestialLightningStrike(strikePos, 0.8f);
             }
             
             // Screen effects
@@ -285,9 +285,9 @@ namespace MagnumOpus.Content.Nachtmusik.Debuffs
                         {
                             float lerp = j / 8f;
                             Vector2 beamPos = Vector2.Lerp(npc.Center, other.Center, lerp);
-                            Color beamColor = NachtmusikCosmicVFX.GetCelestialGradient(lerp);
-                            var beam = new GenericGlowParticle(beamPos, direction * 2f, beamColor, 0.3f, 15, true);
-                            MagnumParticleHandler.SpawnParticle(beam);
+// VFX_GUTTED:                             Color beamColor = NachtmusikCosmicVFX.GetCelestialGradient(lerp);
+// VFX_GUTTED:                             var beam = new GenericGlowParticle(beamPos, direction * 2f, beamColor, 0.3f, 15, true);
+// VFX_GUTTED:                             MagnumParticleHandler.SpawnParticle(beam);
                         }
                     }
                 }
@@ -307,24 +307,24 @@ namespace MagnumOpus.Content.Nachtmusik.Debuffs
             if (Main.rand.NextBool((int)MathHelper.Lerp(12, 3, intensity)))
             {
                 Vector2 offset = Main.rand.NextVector2Circular(npc.width * 0.6f, npc.height * 0.6f);
-                Color particleColor = NachtmusikCosmicVFX.GetCelestialGradient(Main.rand.NextFloat());
-                var particle = new GenericGlowParticle(npc.Center + offset, new Vector2(0, -1.5f), 
-                    particleColor * 0.6f, 0.2f + intensity * 0.15f, 20, true);
-                MagnumParticleHandler.SpawnParticle(particle);
+// VFX_GUTTED:                 Color particleColor = NachtmusikCosmicVFX.GetCelestialGradient(Main.rand.NextFloat());
+// VFX_GUTTED:                 var particle = new GenericGlowParticle(npc.Center + offset, new Vector2(0, -1.5f), 
+// VFX_GUTTED:                     particleColor * 0.6f, 0.2f + intensity * 0.15f, 20, true);
+// VFX_GUTTED:                 MagnumParticleHandler.SpawnParticle(particle);
             }
             
             // Star sparkles at higher stacks
             if (HarmonyStacks >= 5 && Main.rand.NextBool(8))
             {
                 Vector2 starOffset = Main.rand.NextVector2Circular(npc.width * 0.5f, npc.height * 0.5f);
-                CustomParticles.GenericFlare(npc.Center + starOffset, NachtmusikCosmicVFX.StarWhite, 0.25f, 10);
+// VFX_GUTTED:                 CustomParticles.GenericFlare(npc.Center + starOffset, NachtmusikCosmicVFX.StarWhite, 0.25f, 10);
             }
             
             // Glyph accents at high stacks
             if (HarmonyStacks >= 7 && Main.rand.NextBool(15))
             {
-                CustomParticles.Glyph(npc.Center + Main.rand.NextVector2Circular(20f, 20f), 
-                    NachtmusikCosmicVFX.Violet, 0.3f, -1);
+// VFX_GUTTED:                 CustomParticles.Glyph(npc.Center + Main.rand.NextVector2Circular(20f, 20f), 
+// VFX_GUTTED:                     NachtmusikCosmicVFX.Violet, 0.3f, -1);
             }
             
             // Orbiting constellation at max stacks during charge
@@ -335,16 +335,16 @@ namespace MagnumOpus.Content.Nachtmusik.Debuffs
                 {
                     float angle = orbitAngle + MathHelper.TwoPi * i / 4f;
                     Vector2 orbitPos = npc.Center + angle.ToRotationVector2() * 35f;
-                    var orbit = new GenericGlowParticle(orbitPos, Vector2.Zero, 
-                        NachtmusikCosmicVFX.Gold, 0.2f, 5, true);
-                    MagnumParticleHandler.SpawnParticle(orbit);
+// VFX_GUTTED:                     var orbit = new GenericGlowParticle(orbitPos, Vector2.Zero, 
+// VFX_GUTTED:                         NachtmusikCosmicVFX.Gold, 0.2f, 5, true);
+// VFX_GUTTED:                     MagnumParticleHandler.SpawnParticle(orbit);
                 }
             }
             
             // Dynamic lighting based on stacks
             Vector3 lightColor = Vector3.Lerp(
-                NachtmusikCosmicVFX.DeepPurple.ToVector3(),
-                NachtmusikCosmicVFX.Gold.ToVector3(),
+                new Color(40, 0, 80).ToVector3(),
+                Color.Gold.ToVector3(),
                 intensity
             );
             Lighting.AddLight(npc.Center, lightColor * (0.3f + intensity * 0.4f));

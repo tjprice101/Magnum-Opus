@@ -79,6 +79,12 @@ namespace MagnumOpus.Common.Systems
         {
             CurrentScreenShakePower = Math.Max(CurrentScreenShakePower, power);
         }
+
+        // Legacy compatibility overload: older call sites pass a frame count.
+        public static void AddScreenShake(float power, int frames)
+        {
+            AddScreenShake(power);
+        }
         
         /// <summary>
         /// Sets screen shake to a specific value (won't decrease if already higher).

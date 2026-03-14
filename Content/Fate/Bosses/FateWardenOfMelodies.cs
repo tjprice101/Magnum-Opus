@@ -289,6 +289,8 @@ namespace MagnumOpus.Content.Fate.Bosses
             FateSkySystem.BossLifeRatio = (float)NPC.life / NPC.lifeMax;
             FateSkySystem.BossCenter = NPC.Center;
             FateSkySystem.BossIsAwakened = hasAwakened;
+            FateSkySystem.BossPhase = difficultyTier;
+            FateSkySystem.BossIsEnraged = isEnraged;
             
             if (State != BossPhase.Spawning && State != BossPhase.Dying)
                 FateBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier, hasAwakened);
@@ -1506,24 +1508,37 @@ namespace MagnumOpus.Content.Fate.Bosses
             // Performance gate - skip under critical load
             if (BossVFXOptimizer.IsCriticalLoad) return;
             
-            // Orbiting glyphs
-            if (Main.GameUpdateCount % 20 == 0)
+            // Phase-aware orbiting glyphs -- handled by DrawGlyphRings in PreDraw,
+            // but we still spawn occasional standalone glyph particles for ambient depth.
+            int glyphInterval = difficultyTier >= 2 ? 10 : (difficultyTier >= 1 ? 15 : 20);
+            if (Main.GameUpdateCount % glyphInterval == 0)
             {
-                for (int i = 0; i < 3; i++)
+                int glyphCount = 3 + difficultyTier;
+                for (int i = 0; i < glyphCount; i++)
                 {
-                    float angle = glyphOrbitAngle + MathHelper.TwoPi * i / 3f;
+                    float angle = glyphOrbitAngle + MathHelper.TwoPi * i / glyphCount;
                     float radius = 70f + (float)Math.Sin(Main.GameUpdateCount * 0.03f + i) * 15f;
+                    // Phase 3: glyphs collapse inward
+                    if (difficultyTier >= 2)
+                        radius *= 0.6f;
                     Vector2 glyphPos = NPC.Center + angle.ToRotationVector2() * radius;
                     CustomParticles.Glyph(glyphPos, FatePalette.DarkPink * 0.6f, 0.35f, -1);
                 }
             }
+            
+            // Boss fragment echoes (Phase 1+ ambient theme references)
+            if (State != BossPhase.Spawning)
+                FateBossShaderSystem.SpawnBossFragmentEchoes(NPC, (int)Main.GameUpdateCount, difficultyTier);
             
             // Star sparkles - reduce under high load
             int sparkleChance = BossVFXOptimizer.IsHighLoad ? 16 : 8;
             if (Main.rand.NextBool(sparkleChance))
             {
                 Vector2 starOffset = Main.rand.NextVector2Circular(100f, 100f);
-                CustomParticles.GenericFlare(NPC.Center + starOffset, FatePalette.WhiteCelestial * 0.4f, 0.2f, 12);
+                Color starColor = difficultyTier >= 2
+                    ? FatePalette.WhiteCelestial * 0.6f
+                    : FatePalette.WhiteCelestial * 0.4f;
+                CustomParticles.GenericFlare(NPC.Center + starOffset, starColor, 0.2f, 12);
             }
             
             // Cosmic cloud trail - reduce under high load
@@ -1533,6 +1548,17 @@ namespace MagnumOpus.Content.Fate.Bosses
                 Vector2 cloudOffset = Main.rand.NextVector2Circular(20f, 20f);
                 var cloud = new GenericGlowParticle(NPC.Center + cloudOffset, -NPC.velocity * 0.1f, FatePalette.FatePurple * 0.4f, 0.3f, 20, true);
                 MagnumParticleHandler.SpawnParticle(cloud);
+            }
+            
+            // Phase 3+: Inward-streaming star particles (singularity pull)
+            if (difficultyTier >= 2 && Main.GameUpdateCount % 4 == 0 && !BossVFXOptimizer.IsHighLoad)
+            {
+                float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                float dist = 180f + Main.rand.NextFloat(120f);
+                Vector2 spawnPos = NPC.Center + angle.ToRotationVector2() * dist;
+                Vector2 inwardVel = (NPC.Center - spawnPos).SafeNormalize(Vector2.Zero) * 3f;
+                var star = new SparkleParticle(spawnPos, inwardVel, FatePalette.WhiteCelestial * 0.7f, 0.2f, 18);
+                MagnumParticleHandler.SpawnParticle(star);
             }
         }
         
@@ -1547,16 +1573,16 @@ namespace MagnumOpus.Content.Fate.Bosses
             Vector2 origin = new Vector2(texture.Width / 2f, frameHeight / 2f);
             SpriteEffects effects = NPC.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             
-            // === SHADER LAYER 0: Boss Glow Underlay ===
-            FateBossShaderSystem.DrawBossGlow(spriteBatch, NPC, screenPos, hasAwakened);
+            // === SHADER LAYER 0: Glyph Rings ===
+            FateBossShaderSystem.DrawGlyphRings(spriteBatch, NPC, screenPos, difficultyTier, hasAwakened, aggressionLevel);
 
             // === Shader: Cosmic Aura ===
             if (State != BossPhase.Spawning)
-                FateBossShaderSystem.DrawCosmicAura(spriteBatch, NPC, screenPos, aggressionLevel, difficultyTier, isEnraged);
+                FateBossShaderSystem.DrawCosmicAura(spriteBatch, NPC, screenPos, aggressionLevel, difficultyTier, hasAwakened);
             
             // === Shader: Constellation Trail (when moving fast) ===
             if (NPC.velocity.Length() > 6f)
-                FateBossShaderSystem.DrawConstellationTrail(spriteBatch, NPC, screenPos, texture, frame, origin, isEnraged);
+                FateBossShaderSystem.DrawConstellationTrail(spriteBatch, NPC, screenPos, texture, frame, origin, difficultyTier, hasAwakened);
             
             // === Shader: Awakening Shatter (during Awakening phase) ===
             if (State == BossPhase.Awakening)

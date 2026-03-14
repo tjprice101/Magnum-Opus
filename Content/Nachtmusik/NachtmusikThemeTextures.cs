@@ -19,12 +19,12 @@ namespace MagnumOpus.Content.Nachtmusik
         // ══════════════════════════════════════════════════════
 
         private static Asset<Texture2D> _nkEnergyMotionBeam;
-        /// <summary>Nachtmusik energy motion beam — stellar flowing beam.</summary>
+        /// <summary>Nachtmusik energy motion beam — flowing cosmic beam body.</summary>
         public static Asset<Texture2D> NKEnergyMotionBeam =>
             _nkEnergyMotionBeam ??= LoadTex($"{ThemePath}/Beam Textures/NK Energy Motion Beam");
 
         private static Asset<Texture2D> _nkEnergySurgeBeam;
-        /// <summary>Nachtmusik energy surge beam — cosmic star-charged beam burst.</summary>
+        /// <summary>Nachtmusik energy surge beam — intense stellar beam burst.</summary>
         public static Asset<Texture2D> NKEnergySurgeBeam =>
             _nkEnergySurgeBeam ??= LoadTex($"{ThemePath}/Beam Textures/NK Energy Surge Beam");
 
@@ -32,66 +32,66 @@ namespace MagnumOpus.Content.Nachtmusik
         //  IMPACT EFFECTS
         // ══════════════════════════════════════════════════════
 
+        private static Asset<Texture2D> _nkPowerEffectRing;
+        /// <summary>Nachtmusik power effect ring — stellar expanding ring.</summary>
+        public static Asset<Texture2D> NKPowerEffectRing =>
+            _nkPowerEffectRing ??= LoadTex($"{ThemePath}/Particles/NK Power Effect Ring");
+
+        private static Asset<Texture2D> _nkRadialSlashImpact;
+        /// <summary>Nachtmusik radial slash star impact — nocturnal slash burst.</summary>
+        public static Asset<Texture2D> NKRadialSlashImpact =>
+            _nkRadialSlashImpact ??= LoadTex($"{ThemePath}/Impact Effects/NK Radial Slash Star Impact");
+
         private static Asset<Texture2D> _nkComet;
-        /// <summary>Nachtmusik comet — stellar impact comet burst.</summary>
+        /// <summary>Nachtmusik comet — streaking celestial impact projectile.</summary>
         public static Asset<Texture2D> NKComet =>
             _nkComet ??= LoadTex($"{ThemePath}/Impact Effects/NK Comet");
-
-        private static Asset<Texture2D> _nkRadialSlashStar;
-        /// <summary>Nachtmusik radial slash star impact — stellar slash burst.</summary>
-        public static Asset<Texture2D> NKRadialSlashStar =>
-            _nkRadialSlashStar ??= LoadTex($"{ThemePath}/Impact Effects/NK Radial Slash Star Impact");
 
         // ══════════════════════════════════════════════════════
         //  PARTICLES
         // ══════════════════════════════════════════════════════
 
         private static Asset<Texture2D> _nkLensFlare;
-        /// <summary>Nachtmusik lens flare — starlight point flare.</summary>
+        /// <summary>Nachtmusik lens flare — starlight bloom particle.</summary>
         public static Asset<Texture2D> NKLensFlare =>
             _nkLensFlare ??= LoadTex($"{ThemePath}/Particles/NK Lens Flare");
-
-        private static Asset<Texture2D> _nkPowerEffectRing;
-        /// <summary>Nachtmusik power effect ring — cosmic ring particle.</summary>
-        public static Asset<Texture2D> NKPowerEffectRing =>
-            _nkPowerEffectRing ??= LoadTex($"{ThemePath}/Particles/NK Power Effect Ring");
-
-        // ══════════════════════════════════════════════════════
-        //  NOISE TEXTURES
-        // ══════════════════════════════════════════════════════
-
-        private static Asset<Texture2D> _nkConstellationFragmentNoise;
-        /// <summary>Nachtmusik constellation fragment noise — stellar shatter pattern.</summary>
-        public static Asset<Texture2D> NKConstellationNoise =>
-            _nkConstellationFragmentNoise ??= LoadTex($"{ThemePath}/Noise/NK Constellation Fragment Noise");
-
-        private static Asset<Texture2D> _nkUniqueNoise;
-        /// <summary>Nachtmusik unique theme noise — nocturnal star field pattern.</summary>
-        public static Asset<Texture2D> NKUniqueNoise =>
-            _nkUniqueNoise ??= LoadTex($"{ThemePath}/Noise/NK Unique Theme Noise");
 
         // ══════════════════════════════════════════════════════
         //  TRAILS AND RIBBONS
         // ══════════════════════════════════════════════════════
 
         private static Asset<Texture2D> _nkBasicTrail;
-        /// <summary>Nachtmusik basic trail — cosmic indigo trail strip.</summary>
+        /// <summary>Nachtmusik basic trail — indigo-to-silver trail strip.</summary>
         public static Asset<Texture2D> NKBasicTrail =>
             _nkBasicTrail ??= LoadTex($"{ThemePath}/Trails and Ribbons/NK Basic Trail");
 
-        private static Asset<Texture2D> _nkHarmonicRibbon;
-        /// <summary>Nachtmusik harmonic standing wave ribbon — stellar flowing ribbon.</summary>
+        private static Asset<Texture2D> _nkHarmonicStandingWaveRibbon;
+        /// <summary>Nachtmusik harmonic standing wave ribbon — flowing nocturnal ribbon.</summary>
         public static Asset<Texture2D> NKHarmonicRibbon =>
-            _nkHarmonicRibbon ??= LoadTex($"{ThemePath}/Trails and Ribbons/NK Harmonic Standing Wave Ribbon");
+            _nkHarmonicStandingWaveRibbon ??= LoadTex($"{ThemePath}/Trails and Ribbons/NK Harmonic Standing Wave Ribbon");
+
+        // ══════════════════════════════════════════════════════
+        //  NOISE TEXTURES
+        // ══════════════════════════════════════════════════════
+
+        private static Asset<Texture2D> _nkConstellationNoise;
+        /// <summary>Nachtmusik constellation fragment noise — scattered star cluster pattern.</summary>
+        public static Asset<Texture2D> NKConstellationNoise =>
+            _nkConstellationNoise ??= LoadTex($"{ThemePath}/Noise/NK Constellation Fragment Noise");
+
+        private static Asset<Texture2D> _nkUniqueNoise;
+        /// <summary>Nachtmusik unique theme noise — nocturnal distortion pattern.</summary>
+        public static Asset<Texture2D> NKUniqueNoise =>
+            _nkUniqueNoise ??= LoadTex($"{ThemePath}/Noise/NK Unique Theme Noise");
 
         // ══════════════════════════════════════════════════════
         //  COLOR GRADIENTS
         // ══════════════════════════════════════════════════════
 
-        private static Asset<Texture2D> _nkGradientLUT;
-        /// <summary>Nachtmusik gradient LUT — deep indigo to starlight silver to cosmic blue.</summary>
-        public static Asset<Texture2D> NKGradientLUT =>
-            _nkGradientLUT ??= LoadTex($"{GradientPath}/NachtmusikGradientLUTandRAMP");
+        private static Asset<Texture2D> _nkGradient;
+        /// <summary>Nachtmusik gradient LUT — deep indigo to starlight silver ramp.</summary>
+        public static Asset<Texture2D> NKGradient =>
+            _nkGradient ??= LoadTex($"{GradientPath}/NachtmusikGradientLUTandRAMP");
 
         // ══════════════════════════════════════════════════════
         //  LOADER

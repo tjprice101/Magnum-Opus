@@ -1,215 +1,95 @@
 using MagnumOpus.Common;
 using MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles;
-using MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Utilities;
+using MagnumOpus.Content.SandboxExoblade.Utilities;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
-using System;
 using Terraria;
-using Terraria.GameContent;
-using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Content.Fate.CraftingStations;
-using MagnumOpus.Content.OdeToJoy.HarmonicCores;
-using MagnumOpus.Content.OdeToJoy.ResonanceEnergies;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning
 {
     /// <summary>
-    /// Thornbound Reckoning — The opening chord of Ode to Joy's garden.
-    /// A greatsword wreathed in living thorns that channels nature's triumphant fury.
-    ///
-    /// 3-Phase Botanical Combo:
-    ///   Phase 1 — Vine Wave: Horizontal sweep + traveling vine wave projectile
-    ///   Phase 2 — Thorn Lash: Rising diagonal + V-pattern thorn lash projectiles
-    ///   Phase 3 — Botanical Burst: Overhead slam + thorn wall zone denial
-    ///
-    /// Reckoning Charge builds through hits. At full charge, Phase 3 creates
-    /// double-width thorn wall + golden botanical burst explosion.
+    /// Thornbound Reckoning — Ode to Joy's botanical broadsword.
+    /// Exoblade-architecture melee with verdant green slash arcs and golden pollen accents.
     /// </summary>
     public class ThornboundReckoning : ModItem
     {
+
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
             Item.width = 70;
             Item.height = 70;
-            Item.damage = 3100; // Tier 9 (2100-3200 range)
-            Item.DamageType = DamageClass.Melee;
-            Item.useTime = 22;
-            Item.useAnimation = 22;
-            Item.useStyle = ItemUseStyleID.Shoot;
-            Item.knockBack = 8f;
-            Item.value = Item.sellPrice(platinum: 3, gold: 50);
-            Item.rare = ModContent.RarityType<OdeToJoyRarity>();
-            Item.UseSound = SoundID.Item71;
+            Item.scale = 0.09f;
+            Item.damage = 290;
+            Item.useStyle = ItemUseStyleID.Swing;
+            Item.useTime = 20;
+            Item.useAnimation = 20;
+            Item.useTurn = true;
+            Item.DamageType = DamageClass.MeleeNoSpeed;
+            Item.knockBack = 7.5f;
             Item.autoReuse = true;
-            Item.scale = 1.5f;
-            Item.crit = 18;
-            Item.shoot = ModContent.ProjectileType<ThornboundSwingProj>();
-            Item.shootSpeed = 1f;
-            Item.noMelee = true;
             Item.noUseGraphic = true;
+            Item.noMelee = true;
+            Item.channel = true;
+            Item.value = Item.sellPrice(gold: 45);
+            Item.shoot = ModContent.ProjectileType<ThornboundSwingProj>();
+            Item.shootSpeed = 8f;
+            Item.rare = ModContent.RarityType<OdeToJoyRarity>();
         }
 
-        public override bool CanUseItem(Player player)
+        public override bool CanShoot(Player player)
         {
-            // Prevent overlapping swings
-            int projType = ModContent.ProjectileType<ThornboundSwingProj>();
+            bool isDash = player.altFunctionUse == 2;
             for (int i = 0; i < Main.maxProjectiles; i++)
             {
-                if (Main.projectile[i].active && Main.projectile[i].type == projType
-                    && Main.projectile[i].owner == player.whoAmI)
-                    return false;
+                Projectile p = Main.projectile[i];
+                if (!p.active || p.owner != player.whoAmI || p.type != Item.shoot)
+                    continue;
+                if (isDash) return false;
+                if (!(p.ai[0] == 1 && p.ai[1] == 1)) return false;
             }
-
-            // Adjust timing per combo phase
-            var tbp = player.GetModPlayer<ThornboundPlayer>();
-            switch (tbp.ComboPhase)
-            {
-                case 0: // Vine Wave — horizontal sweep
-                    Item.useTime = 22;
-                    Item.useAnimation = 22;
-                    break;
-                case 1: // Thorn Lash — faster diagonal
-                    Item.useTime = 18;
-                    Item.useAnimation = 18;
-                    break;
-                case 2: // Botanical Burst — overhead slam (slower, heavier)
-                    Item.useTime = 28;
-                    Item.useAnimation = 28;
-                    break;
-            }
-
             return true;
         }
+
+        public override void HoldItem(Player player)
+        {
+            player.ExoBlade().rightClickListener = true;
+            player.ExoBlade().mouseWorldListener = true;
+        }
+
+        public override bool AltFunctionUse(Player player) => true;
+        public override bool? CanHitNPC(Player player, NPC target) => false;
+        public override bool CanHitPvp(Player player, Player target) => false;
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
             Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            var tbp = player.GetModPlayer<ThornboundPlayer>();
-            int phase = tbp.ComboPhase;
+            float state = player.altFunctionUse == 2 ? 1f : 0f;
+            Projectile.NewProjectile(source, player.MountedCenter,
+                (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
+                type, damage, knockback, player.whoAmI, state, 0);
 
-            Vector2 aimDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
-
-            // ai[0] = combo phase, ai[1] = reckoning charge (0 or 1 for empowered)
-            float empowered = (phase == 2 && tbp.ReckoningCharge >= 100f) ? 1f : 0f;
-
-            Projectile.NewProjectile(source, player.MountedCenter, aimDir, type,
-                damage, knockback, player.whoAmI, ai0: phase, ai1: empowered);
-
-            // Spawn sub-projectiles based on combo phase
-            if (phase == 0)
-            {
-                // Phase 1: Vine Wave projectile
-                Vector2 waveDir = aimDir * 10f;
-                Projectile.NewProjectile(source, player.MountedCenter, waveDir,
-                    ModContent.ProjectileType<VineWaveProjectile>(),
-                    (int)(damage * 0.6f), knockback * 0.5f, player.whoAmI);
-            }
-            else if (phase == 1)
-            {
-                // Phase 2: Thorn Lash V-pattern (2 projectiles)
-                float spread = MathHelper.ToRadians(18f);
-                for (int i = -1; i <= 1; i += 2)
-                {
-                    Vector2 lashDir = aimDir.RotatedBy(spread * i) * 12f;
-                    Projectile.NewProjectile(source, player.MountedCenter, lashDir,
-                        ModContent.ProjectileType<ThornLashProjectile>(),
-                        (int)(damage * 0.45f), knockback * 0.3f, player.whoAmI);
-                }
-            }
-            else if (phase == 2)
-            {
-                // Phase 3: Thorn Wall zone + optional botanical burst
-                bool isEmpowered = empowered >= 1f;
-                Vector2 wallPos = Main.MouseWorld;
-
-                Projectile.NewProjectile(source, wallPos, Vector2.Zero,
-                    ModContent.ProjectileType<ThornWallProjectile>(),
-                    (int)(damage * 0.35f), knockback * 0.8f, player.whoAmI,
-                    ai0: isEmpowered ? 1f : 0f);
-
-                if (isEmpowered)
-                {
-                    // Botanical Burst explosion at full charge
-                    Projectile.NewProjectile(source, wallPos, Vector2.Zero,
-                        ModContent.ProjectileType<BotanicalBurstProjectile>(),
-                        (int)(damage * 0.8f), knockback * 1.2f, player.whoAmI);
-
-                    tbp.ReckoningCharge = 0f;
-
-                    SoundEngine.PlaySound(SoundID.Item119 with { Volume = 0.9f, Pitch = -0.2f },
-                        player.MountedCenter);
-                }
-            }
-
-            tbp.AdvanceCombo();
             return false;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1",
-                "3-phase botanical combo: Vine Wave → Thorn Lash → Botanical Burst"));
+            "Botanical Reckoning — sweeping vine slashes with thorn-laced arcs"));
             tooltips.Add(new TooltipLine(Mod, "Effect2",
-                "Vine waves leave thorn residue that amplifies thorn wall damage by 25%"));
+            "Right-click to dash through enemies with a verdant blade charge"));
             tooltips.Add(new TooltipLine(Mod, "Effect3",
-                "Embedded thorns inflict Rose Thorn Bleed (stacks up to 5x)"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4",
-                "Reckoning Charge builds through hits — at full charge, unleash a devastating botanical burst"));
+            "Successive hits scatter golden pollen that amplifies damage"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
-                "'The vine does not ask permission to grow. It simply overcomes.'")
-            {
-                OverrideColor = ThornboundTextures.LoreColor
-            });
-        }
-    
-        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
-        {
-            Texture2D tex = TextureAssets.Item[Item.type].Value;
-            Vector2 pos = Item.Center - Main.screenPosition;
-            Vector2 origin = tex.Size() * 0.5f;
-
-            float time = Main.GameUpdateCount * 0.05f;
-            float pulse = 1f + (float)Math.Sin(time * 2.2f) * 0.05f
-                + (float)Math.Sin(time * 3.8f) * 0.03f;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            OdeToJoyPalette.DrawItemBloom(spriteBatch, tex, pos, origin, rotation, scale, pulse);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            Lighting.AddLight(Item.Center, OdeToJoyPalette.GoldenPollen.ToVector3() * 0.35f);
-            return true;
-        }
-
-        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
-        {
-            Texture2D tex = TextureAssets.Item[Item.type].Value;
-            float time = Main.GameUpdateCount * 0.04f;
-            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.06f;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
-
-            float cycle = (float)Math.Sin(time * 0.7f) * 0.5f + 0.5f;
-            Color glowColor = Color.Lerp(OdeToJoyPalette.GoldenPollen, OdeToJoyPalette.RosePink, cycle) * 0.24f;
-            spriteBatch.Draw(tex, position, frame, glowColor with { A = 0 }, 0f, origin, scale * pulse * 1.1f, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
-
-            spriteBatch.Draw(tex, position, frame, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
-            return false;
+            "'The vine does not ask permission to grow. It simply overcomes.'")
+            { OverrideColor = new Color(255, 200, 50) });
         }
     }
 }

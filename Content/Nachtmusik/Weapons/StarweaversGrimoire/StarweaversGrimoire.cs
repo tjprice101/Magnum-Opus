@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.GameContent;
@@ -8,8 +8,9 @@ using Terraria.ModLoader;
 using System;
 using System.Collections.Generic;
 using MagnumOpus.Common;
+using MagnumOpus.Content.Nachtmusik;
 using MagnumOpus.Content.Nachtmusik.Weapons.StarweaversGrimoire.Projectiles;
-using MagnumOpus.Content.Nachtmusik.Weapons.StarweaversGrimoire.Utilities;
+
 
 namespace MagnumOpus.Content.Nachtmusik.Weapons.StarweaversGrimoire
 {
@@ -36,6 +37,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.StarweaversGrimoire
             Item.useAnimation = 14;
             Item.useStyle = ItemUseStyleID.Shoot;
             Item.noMelee = true;
+            Item.noUseGraphic = true;
             Item.knockBack = 4f;
             Item.rare = ModContent.RarityType<NachtmusikRarity>();
             Item.value = Item.sellPrice(gold: 25);
@@ -53,7 +55,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.StarweaversGrimoire
             if (player.altFunctionUse == 2)
             {
                 // Tapestry Weave: activate all placed nodes into a damaging constellation web
-                StarweaversGrimoireVFX.TapestryWeaveVFX(player.Center);
+// VFX_GUTTED:                 StarweaversGrimoireVFX.TapestryWeaveVFX(player.Center);
                 weaveNodeCount = 0;
             }
             return base.UseItem(player);
@@ -64,32 +66,34 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.StarweaversGrimoire
             if (player.altFunctionUse == 2)
             {
                 // Tapestry Weave: fire a cluster of 6 seeking star bolts
+                int projType = ModContent.ProjectileType<StarweaverOrbProjectile>();
                 for (int i = 0; i < 6; i++)
                 {
                     float angle = MathHelper.TwoPi / 6f * i;
                     Vector2 dir = angle.ToRotationVector2() * 10f;
-                    Projectile.NewProjectile(source, player.Center, dir, type, (int)(damage * 1.5f), knockback, player.whoAmI, ai0: 1f);
+                    Projectile.NewProjectile(source, player.Center, dir, projType, (int)(damage * 1.5f), knockback, player.whoAmI, ai0: 1f);
                 }
                 return false;
             }
 
             castCount++;
-            
+
             // Normal cast: fire orb that places a weave node on impact
             Vector2 toMouse = Main.MouseWorld - player.Center;
             toMouse.Normalize();
             toMouse *= Item.shootSpeed;
-            
-            Projectile.NewProjectile(source, position, toMouse, type, damage, knockback, player.whoAmI);
-            
+
+            int orbType = ModContent.ProjectileType<StarweaverOrbProjectile>();
+            Projectile.NewProjectile(source, position, toMouse, orbType, damage, knockback, player.whoAmI);
+
             // Every 4th cast: bonus seeking orb
             if (castCount % 4 == 0)
             {
                 Vector2 offset = toMouse.RotatedByRandom(MathHelper.ToRadians(15));
-                Projectile.NewProjectile(source, position, offset, type, (int)(damage * 0.6f), knockback, player.whoAmI, ai0: 2f);
+                Projectile.NewProjectile(source, position, offset, orbType, (int)(damage * 0.6f), knockback, player.whoAmI, ai0: 2f);
             }
             
-            StarweaversGrimoireVFX.CastVFX(position, toMouse);
+// VFX_GUTTED:             StarweaversGrimoireVFX.CastVFX(position, toMouse);
             
             if (weaveNodeCount < MaxWeaveNodes)
                 weaveNodeCount++;
@@ -99,7 +103,22 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.StarweaversGrimoire
 
         public override void HoldItem(Player player)
         {
-            StarweaversGrimoireVFX.HoldItemVFX(player, weaveNodeCount / (float)MaxWeaveNodes);
+            // Ambient arcane dust — 2 every 5 frames
+            if (Main.GameUpdateCount % 5 == 0)
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(20f, 20f);
+                    Color col = NachtmusikPalette.PaletteLerp(NachtmusikPalette.StarweaversGrimoireCast, Main.rand.NextFloat());
+                    Dust d = Dust.NewDustPerfect(dustPos, DustID.WhiteTorch,
+                        new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -0.8f), 0, col, 0.5f);
+                    d.noGravity = true;
+                }
+            }
+
+            // Pulsing ambient light — violet for arcane theme
+            float pulse = 0.7f + 0.3f * MathF.Sin(Main.GlobalTimeWrappedHourly * 3f);
+            Lighting.AddLight(player.Center, NachtmusikPalette.Violet.ToVector3() * 0.25f * pulse);
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
@@ -148,14 +167,39 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.StarweaversGrimoire
             return false;
         }
 
+        public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
+        {
+            Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
+            Vector2 pos = Item.Center - Main.screenPosition;
+            Vector2 origin = texture.Size() * 0.5f;
+
+            float time = Main.GameUpdateCount * 0.04f;
+            float pulse = 1f + 0.08f * MathF.Sin(time * 2f);
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Violet arcane bloom overlay
+            spriteBatch.Draw(texture, pos, null, NachtmusikPalette.Violet with { A = 0 } * 0.2f,
+                rotation, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
+            // SerenadeGlow highlight
+            spriteBatch.Draw(texture, pos, null, NachtmusikPalette.SerenadeGlow with { A = 0 } * 0.15f,
+                rotation, origin, scale * pulse * 1.05f, SpriteEffects.None, 0f);
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        }
+
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires weaving star orbs that place arcane constellation nodes"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Every 4th cast fires a bonus seeking orb"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Right click unleashes Tapestry Weave — a burst of 6 star bolts at 150% damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Right click unleashes Tapestry Weave ? a burst of 6 star bolts at 150% damage"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'She opened the book and read the sky. Every star rearranged itself to listen.'")
             {
-                OverrideColor = new Color(100, 120, 200)
+                OverrideColor = NachtmusikPalette.LoreText
             });
         }
     }

@@ -15,6 +15,7 @@ using MagnumOpus.Content.Autumn.Materials;
 using MagnumOpus.Content.Autumn.Bosses.Systems;
 using MagnumOpus.Common.Systems.Bosses;
 using ReLogic.Content;
+using static MagnumOpus.Content.Autumn.Bosses.Systems.AutunnoSkySystem;
 
 namespace MagnumOpus.Content.Autumn.Bosses
 {
@@ -193,8 +194,13 @@ namespace MagnumOpus.Content.Autumn.Bosses
             
             BossIndexTracker.Autunno = NPC.whoAmI;
             
+            // Feed sky system with boss state
+            AutunnoSky.BossLifeRatio = (float)NPC.life / NPC.lifeMax;
+            AutunnoSky.BossCenter = NPC.Center;
+            AutunnoSky.BossIsEnraged = State == BossPhase.Enraged;
+            
             if (State != BossPhase.Spawning && State != BossPhase.Dying)
-                AutunnoBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier);
+                AutunnoBossShaderSystem.SpawnMusicalAccents(NPC, Timer, (int)State, difficultyTier);
             
             float distToTarget = Vector2.Distance(NPC.Center, target.Center);
             if (distToTarget > EnrageDistance && State != BossPhase.Enraged)
@@ -480,6 +486,13 @@ namespace MagnumOpus.Content.Autumn.Bosses
             {
                 float intensity = (float)deathTimer / 110f;
                 
+                // Escalating sky flashes every 25 frames
+                if (deathTimer % 25 == 0 && deathTimer > 0)
+                {
+                    float flashIntensity = 4f + intensity * 8f;
+                    TriggerWitheringFlash(flashIntensity);
+                }
+                
                 if (deathTimer % 4 == 0)
                 {
                     SpawnLeafBurst(NPC.Center, (int)(12 + intensity * 18), 5f + intensity * 7f);
@@ -498,6 +511,7 @@ namespace MagnumOpus.Content.Autumn.Bosses
             else if (deathTimer == 110)
             {
                 // Final withering explosion
+                TriggerFinalFlash(25f);
                 CustomParticles.GenericFlare(NPC.Center, AutumnWhite, 2.8f, 48);
                 CustomParticles.GenericFlare(NPC.Center, FadingGold, 2.3f, 42);
                 CustomParticles.GenericFlare(NPC.Center, DecayPurple, 1.8f, 36);
@@ -513,6 +527,23 @@ namespace MagnumOpus.Content.Autumn.Bosses
                 
                 // === PHASE 10 MUSICAL VFX: Death Finale - Autumn's Final Requiem ===
                 Phase10Integration.Universal.DeathFinale(NPC.Center, AutumnWhite, FadingGold);
+                
+                // Bloom supernova ring - 14 radiating particles
+                for (int i = 0; i < 14; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 14f;
+                    Vector2 vel = angle.ToRotationVector2() * 5.5f;
+                    Color bloomColor = Color.Lerp(AutumnOrange, FadingGold, i / 14f);
+                    MagnumParticleHandler.SpawnParticle(new BloomParticle(NPC.Center, vel, bloomColor, 0.7f, 28));
+                }
+                
+                // Ascending sparkles
+                for (int i = 0; i < 8; i++)
+                {
+                    Vector2 sparkPos = NPC.Center + Main.rand.NextVector2Circular(40f, 40f);
+                    Vector2 sparkVel = new Vector2(Main.rand.NextFloat(-1f, 1f), -Main.rand.NextFloat(2.5f, 5f));
+                    MagnumParticleHandler.SpawnParticle(new SparkleParticle(sparkPos, sparkVel, new Color(255, 240, 220), 0.4f, 30));
+                }
                 
                 NPC.life = 0;
                 NPC.checkDead();
@@ -1144,8 +1175,9 @@ namespace MagnumOpus.Content.Autumn.Bosses
             Vector2 origin = texture.Size() / 2f;
             Rectangle sourceRect = texture.Bounds;
             
-            // Shader layer: Decay aura
-            AutunnoBossShaderSystem.DrawDecayAura(spriteBatch, NPC, screenPos, aggressionLevel, difficultyTier, false);
+            // === SHADER LAYERS: All phase-aware VFX via DrawAllLayers ===
+            if (State != BossPhase.Spawning)
+                AutunnoBossShaderSystem.DrawAllLayers(spriteBatch, NPC, screenPos, (int)State, aggressionLevel, difficultyTier, State == BossPhase.Enraged);
             
             // Withering trail
             for (int i = 0; i < NPC.oldPos.Length - 1; i++)
@@ -1157,10 +1189,6 @@ namespace MagnumOpus.Content.Autumn.Bosses
                 
                 spriteBatch.Draw(texture, trailPos, null, trailColor, NPC.rotation, origin, trailScale, SpriteEffects.None, 0f);
             }
-            
-            // Shader layer: Leaf trail when moving fast
-            if (NPC.velocity.Length() > 5f)
-                AutunnoBossShaderSystem.DrawLeafTrail(spriteBatch, NPC, screenPos, texture, sourceRect, origin, false);
             
             // Glow layers
             float pulse = (float)Math.Sin(Timer * 0.085f) * 0.11f + 1f;
@@ -1175,7 +1203,7 @@ namespace MagnumOpus.Content.Autumn.Bosses
             
             // Shader layer: Death dissolve
             if (State == BossPhase.Dying)
-                AutunnoBossShaderSystem.DrawFinalHarvestDissolve(spriteBatch, NPC, screenPos, texture, sourceRect, origin, deathTimer / 110f);
+                AutunnoBossShaderSystem.DrawDeathDissolve(spriteBatch, NPC, screenPos, texture, sourceRect, origin, deathTimer / 110f);
             
             // Main sprite
             SpriteEffects effects = NPC.spriteDirection == 1 ? SpriteEffects.None : SpriteEffects.FlipHorizontally;

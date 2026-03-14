@@ -4657,7 +4657,7 @@ Items: {
 	}
 
 	GrandPianoItem: {
-		DisplayName: Grand Piano Item
+		DisplayName: Grand Piano
 		Tooltip: ""
 	}
 
@@ -7194,12 +7194,12 @@ Items: {
 	}
 
 	TheUnresolvedCadenceItem: {
-		DisplayName: The Unresolved Cadence Item
+		DisplayName: The Unresolved Cadence
 		Tooltip: ""
 	}
 
 	VariationsOfTheVoidItem: {
-		DisplayName: Variations Of The Void Item
+		DisplayName: Variations of the Void
 		Tooltip: ""
 	}
 
@@ -7529,17 +7529,17 @@ Items: {
 	}
 
 	AutomatonsTuningForkItem: {
-		DisplayName: Automatons Tuning Fork Item
+		DisplayName: Automaton's Tuning Fork
 		Tooltip: ""
 	}
 
 	GearDrivenArbiterItem: {
-		DisplayName: Gear Driven Arbiter Item
+		DisplayName: Gear-Driven Arbiter
 		Tooltip: ""
 	}
 
 	LunarPhylacteryItem: {
-		DisplayName: Lunar Phylactery Item
+		DisplayName: Lunar Phylactery
 		Tooltip: ""
 	}
 
@@ -8484,4 +8484,11 @@ Projectiles: {
 	AnimeSwingProjectile.DisplayName: Anime Swing Projectile
 	IncisorOrbSwingProj.DisplayName: Incisor Orb Swing Proj
 	IncisorOrbProj.DisplayName: Incisor Orb Proj
+	ThornSprayProjectile.DisplayName: Thorn Spray Projectile
+	PollinatorProjectile.DisplayName: Pollinator Projectile
+	HymnVictoriousSwing.DisplayName: Hymn Victorious Swing
+	FountainProjectile.DisplayName: Fountain Projectile
+	ElysianVerdictSwing.DisplayName: Elysian Verdict Swing
+	AnthemGloryProjectile.DisplayName: Anthem Glory Projectile
+	TimeFreezeSlashProjectile.DisplayName: Time Freeze Slash Projectile
 }

@@ -100,12 +100,24 @@ namespace MagnumOpus.Common.Systems.Bosses
         public const string EstateZenithBeam = "Seasons/Boss/EstateZenithBeam";
         public const string EstateSupernovaDissolve = "Seasons/Boss/EstateSupernovaDissolve";
 
+        // ─── L'Estate (non-boss-path phase shaders) ─────────
+        public const string EstateHeatShimmer = "Seasons/EstateHeatShimmer";
+        public const string EstateLightningTelegraph = "Seasons/EstateLightningTelegraph";
+        public const string EstateCoronaFlame = "Seasons/EstateCoronaFlame";
+        public const string EstateSolarEclipse = "Seasons/EstateSolarEclipse";
+        public const string EstateAfterburn = "Seasons/EstateAfterburn";
+
         // ─── L'Inverno ─────────────────────────────────────────
         public const string InvernoFrostAura = "Seasons/Boss/InvernoFrostAura";
         public const string InvernoIceTrail = "Seasons/Boss/InvernoIceTrail";
         public const string InvernoBlizzardVortex = "Seasons/Boss/InvernoBlizzardVortex";
         public const string InvernoFreezeRay = "Seasons/Boss/InvernoFreezeRay";
         public const string InvernoAbsoluteZeroDissolve = "Seasons/Boss/InvernoAbsoluteZeroDissolve";
+
+        // L'Inverno phase-aware screen/environment shaders
+        public const string InvernoFrostFloor = "Seasons/Boss/InvernoFrostFloor";
+        public const string InvernoFrostCreep = "Seasons/Boss/InvernoFrostCreep";
+        public const string InvernoWhiteout = "Seasons/Boss/InvernoWhiteout";
 
         #endregion
 
@@ -127,6 +139,18 @@ namespace MagnumOpus.Common.Systems.Bosses
         #endregion
 
         #region Common Shader Parameter Helpers
+
+        /// <summary>
+        /// Pre-applies movement phase uniforms (uMovement, uHeroIntensity) to an Eroica shader.
+        /// Call before the render helper so these values are present when the pass is applied.
+        /// </summary>
+        public static void ApplyMovementParams(Effect shader, float movement, float heroIntensity)
+        {
+            if (shader == null) return;
+            var p = shader.Parameters;
+            p["uMovement"]?.SetValue(movement);
+            p["uHeroIntensity"]?.SetValue(heroIntensity);
+        }
 
         /// <summary>
         /// Applies standard boss aura shader parameters.

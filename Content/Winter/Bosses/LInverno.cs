@@ -15,6 +15,7 @@ using MagnumOpus.Content.Winter.Materials;
 using MagnumOpus.Content.Winter.Bosses.Systems;
 using MagnumOpus.Common.Systems.Bosses;
 using ReLogic.Content;
+using static MagnumOpus.Content.Winter.Bosses.Systems.LInvernoSkySystem;
 
 namespace MagnumOpus.Content.Winter.Bosses
 {
@@ -194,6 +195,11 @@ namespace MagnumOpus.Content.Winter.Bosses
             SpawnAmbientParticles();
             
             BossIndexTracker.LInverno = NPC.whoAmI;
+            
+            // Feed sky system
+            LInvernoSky.BossLifeRatio = NPC.life / (float)NPC.lifeMax;
+            LInvernoSky.BossCenter = NPC.Center;
+            LInvernoSky.BossIsEnraged = State == BossPhase.Enraged || (NPC.life / (float)NPC.lifeMax) <= 0.15f;
             
             if (State != BossPhase.Spawning && State != BossPhase.Dying)
                 LInvernoBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier);
@@ -501,6 +507,15 @@ namespace MagnumOpus.Content.Winter.Bosses
             {
                 float intensity = (float)deathTimer / 115f;
                 
+                // Escalating sky flashes — alternating frost and crystal flashes
+                if (deathTimer % 25 == 0 && deathTimer > 0)
+                {
+                    if (deathTimer % 50 == 0)
+                        TriggerCrystalFlash(4f + intensity * 10f);
+                    else
+                        TriggerFrostFlash(4f + intensity * 8f);
+                }
+                
                 if (deathTimer % 4 == 0)
                 {
                     SpawnIceBurst(NPC.Center, (int)(14 + intensity * 20), 5.5f + intensity * 8f);
@@ -519,6 +534,7 @@ namespace MagnumOpus.Content.Winter.Bosses
             else if (deathTimer == 115)
             {
                 // Final crystalline shatter
+                TriggerAbsoluteZeroFlash(25f);
                 CustomParticles.GenericFlare(NPC.Center, WinterWhite, 3f, 50);
                 CustomParticles.GenericFlare(NPC.Center, FrostBlue, 2.5f, 45);
                 CustomParticles.GenericFlare(NPC.Center, CrystalCyan, 2f, 38);
@@ -531,6 +547,23 @@ namespace MagnumOpus.Content.Winter.Bosses
                     Vector2 sparklePos = NPC.Center + angle.ToRotationVector2() * (35f + i * 14f);
                     var frostSparkle = new SparkleParticle(sparklePos, Vector2.Zero, sparkleColor, (0.55f + i * 0.18f) * 0.6f, 22 + i * 3);
                     MagnumParticleHandler.SpawnParticle(frostSparkle);
+                }
+                
+                // Bloom supernova ring
+                for (int i = 0; i < 16; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 16f;
+                    Vector2 vel = angle.ToRotationVector2() * 5.5f;
+                    MagnumParticleHandler.SpawnParticle(new BloomParticle(NPC.Center, vel,
+                        Color.Lerp(WinterIce, CrystalCyan, i / 16f), 0.7f, 28));
+                }
+                
+                // Ascending ice sparkles
+                for (int i = 0; i < 10; i++)
+                {
+                    Vector2 sparkPos = NPC.Center + Main.rand.NextVector2Circular(35f, 35f);
+                    Vector2 sparkVel = new Vector2(Main.rand.NextFloat(-1f, 1f), -Main.rand.NextFloat(2f, 4.5f));
+                    MagnumParticleHandler.SpawnParticle(new SparkleParticle(sparkPos, sparkVel, GlacialPurple, 0.4f, 30));
                 }
                 
                 SpawnIceBurst(NPC.Center, 60, 18f);
@@ -1217,41 +1250,103 @@ namespace MagnumOpus.Content.Winter.Bosses
             Vector2 drawPos = NPC.Center - screenPos;
             Vector2 origin = texture.Size() / 2f;
             Rectangle sourceRect = texture.Bounds;
+            bool isEnraged = State == BossPhase.Enraged;
+            int phase = LInvernoSky.GetVFXPhase();
             
-            // Shader layer: Frost aura
-            LInvernoBossShaderSystem.DrawFrostAura(spriteBatch, NPC, screenPos, aggressionLevel, difficultyTier, false);
+            // LAYER 0: Phase-aware boss glow (behind everything)
+            LInvernoBossShaderSystem.DrawBossGlow(spriteBatch, NPC, screenPos, isEnraged);
             
-            // Frost trail
+            // LAYER 1: Phase-aware frost aura
+            LInvernoBossShaderSystem.DrawFrostAura(spriteBatch, NPC, screenPos, aggressionLevel, difficultyTier, isEnraged);
+            
+            // LAYER 2: Phase-aware frost trail from oldPos
+            Color trailColorA, trailColorB;
+            float trailAlphaBase;
+            switch (phase)
+            {
+                case 1: // First Frost — subtle crystalline afterimages
+                    trailColorA = new Color(190, 210, 230);
+                    trailColorB = new Color(168, 216, 234);
+                    trailAlphaBase = 0.35f;
+                    break;
+                case 2: // Frozen Expanse — heavier permafrost wake
+                    trailColorA = new Color(168, 216, 234);
+                    trailColorB = CrystalCyan;
+                    trailAlphaBase = 0.50f;
+                    break;
+                case 3: // Blizzard — chaotic wind-torn shards
+                    trailColorA = CrystalCyan;
+                    trailColorB = new Color(240, 248, 255);
+                    trailAlphaBase = 0.65f;
+                    break;
+                default: // Absolute Zero — stark frozen wake
+                    trailColorA = new Color(200, 230, 255);
+                    trailColorB = Color.White;
+                    trailAlphaBase = 0.50f;
+                    break;
+            }
+            
             for (int i = 0; i < NPC.oldPos.Length - 1; i++)
             {
                 float progress = (float)i / NPC.oldPos.Length;
-                Color trailColor = Color.Lerp(WinterIce, CrystalCyan, progress) * (1f - progress) * 0.6f;
+                Color trailColor = Color.Lerp(trailColorA, trailColorB, progress) * (1f - progress) * trailAlphaBase;
+                trailColor.A = 0;
                 Vector2 trailPos = NPC.oldPos[i] + NPC.Size / 2f - screenPos;
                 float trailScale = NPC.scale * (1f - progress * 0.25f);
                 
                 spriteBatch.Draw(texture, trailPos, null, trailColor, NPC.rotation, origin, trailScale, SpriteEffects.None, 0f);
             }
             
-            // Shader layer: Ice trail when moving fast
-            if (NPC.velocity.Length() > 5f)
-                LInvernoBossShaderSystem.DrawIceTrail(spriteBatch, NPC, screenPos, texture, sourceRect, origin, false);
+            // LAYER 3: Shader ice trail when moving fast
+            float speedThreshold = phase == 3 ? 3f : 5f; // Lower threshold in blizzard phase
+            if (NPC.velocity.Length() > speedThreshold)
+                LInvernoBossShaderSystem.DrawIceTrail(spriteBatch, NPC, screenPos, texture, sourceRect, origin, isEnraged);
             
-            // Glow layers
+            // LAYER 4: Storm obscuration (Phase 3+ only)
+            LInvernoBossShaderSystem.DrawStormObscuration(spriteBatch, NPC, screenPos);
+            
+            // LAYER 5: Phase-aware glow layers
             float pulse = (float)Math.Sin(Timer * 0.08f) * 0.12f + 1f;
             
-            Color outerGlow = WinterIce * 0.35f;
+            Color outerGlowColor, midGlowColor;
+            float outerGlowAlpha, midGlowAlpha;
+            switch (phase)
+            {
+                case 1:
+                    outerGlowColor = new Color(190, 210, 230);
+                    midGlowColor = new Color(168, 216, 234);
+                    outerGlowAlpha = 0.25f; midGlowAlpha = 0.30f;
+                    break;
+                case 2:
+                    outerGlowColor = WinterIce;
+                    midGlowColor = CrystalCyan;
+                    outerGlowAlpha = 0.30f; midGlowAlpha = 0.38f;
+                    break;
+                case 3:
+                    outerGlowColor = CrystalCyan;
+                    midGlowColor = new Color(240, 248, 255);
+                    outerGlowAlpha = 0.40f; midGlowAlpha = 0.48f;
+                    break;
+                default:
+                    outerGlowColor = new Color(200, 230, 255);
+                    midGlowColor = Color.White;
+                    outerGlowAlpha = 0.35f; midGlowAlpha = 0.45f;
+                    break;
+            }
+            
+            Color outerGlow = outerGlowColor * outerGlowAlpha;
             outerGlow.A = 0;
             spriteBatch.Draw(texture, drawPos, null, outerGlow, NPC.rotation, origin, NPC.scale * pulse * 1.2f, SpriteEffects.None, 0f);
             
-            Color midGlow = CrystalCyan * 0.45f;
+            Color midGlow = midGlowColor * midGlowAlpha;
             midGlow.A = 0;
             spriteBatch.Draw(texture, drawPos, null, midGlow, NPC.rotation, origin, NPC.scale * pulse * 1.1f, SpriteEffects.None, 0f);
             
-            // Shader layer: Death dissolve
+            // LAYER 6: Death dissolve
             if (State == BossPhase.Dying)
                 LInvernoBossShaderSystem.DrawAbsoluteZeroDissolve(spriteBatch, NPC, screenPos, texture, sourceRect, origin, deathTimer / 115f);
             
-            // Main sprite
+            // LAYER 7: Main sprite
             SpriteEffects effects = NPC.spriteDirection == 1 ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
             spriteBatch.Draw(texture, drawPos, null, drawColor, NPC.rotation, origin, NPC.scale, effects, 0f);
             

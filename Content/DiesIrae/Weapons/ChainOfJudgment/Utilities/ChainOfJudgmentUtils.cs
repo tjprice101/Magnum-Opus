@@ -1,218 +1,243 @@
-using MagnumOpus.Common.Systems.VFX.Core;
-using MagnumOpus.Content.DiesIrae;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
-using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.DiesIrae;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Utilities
 {
     /// <summary>
-    /// Static VFX utility class for Chain of Judgment.
-    /// Metallic chain palette  Edark iron body with ember-orange heat glow between links.
-    /// Heavier, industrial aesthetic compared to the fiery Wrath's Cleaver.
+    /// Self-contained utility class for Chain of Judgment.
+    /// Palette, easings, animation curves, SpriteBatch helpers, geometry helpers.
+    /// Shackled fire, judgment links — methodical, binding, inescapable.
     /// </summary>
     public static class ChainOfJudgmentUtils
     {
-        // ══════════════════════════════════════════════════════════════╁E
-        //  CHAIN-SPECIFIC PALETTE  EIron + Heat + Gold judgment
-        // ══════════════════════════════════════════════════════════════╁E
+        #region Color Palette
 
-        /// <summary>Dark iron  Ethe cold metal body of chain links.</summary>
-        public static readonly Color IronGrey = new Color(60, 55, 50);
+        /// <summary>Chain of Judgment blade palette — shackled fire, judgment links.</summary>
+        public static readonly Color[] WeaponPalette = DiesIraePalette.ChainOfJudgmentBlade;
 
-        /// <summary>Heated iron  Elinks glowing from friction and hellfire.</summary>
-        public static readonly Color HeatedIron = new Color(120, 70, 40);
+        /// <summary>Lore text color for ModifyTooltips.</summary>
+        public static readonly Color LoreColor = DiesIraePalette.LoreText;
 
-        /// <summary>Swing palette: iron ↁEheated ↁEember ↁEgold ↁEbone ↁEwrath core.</summary>
-        public static readonly Color[] ChainPalette = new Color[]
+        /// <summary>Cycling wrath color — red hue range oscillation for shimmer effects.</summary>
+        public static Color GetWrathCycle(float offset = 0f)
         {
-            IronGrey,
-            HeatedIron,
-            DiesIraePalette.EmberOrange,
-            DiesIraePalette.JudgmentGold,
-            DiesIraePalette.BoneWhite,
-            DiesIraePalette.WrathWhite
-        };
-
-        // Convenience
-        public static Color EmberOrange => DiesIraePalette.EmberOrange;
-        public static Color JudgmentGold => DiesIraePalette.JudgmentGold;
-        public static Color BloodRed => DiesIraePalette.BloodRed;
-
-        // ══════════════════════════════════════════════════════════════╁E
-        //  PALETTE INTERPOLATION
-        // ══════════════════════════════════════════════════════════════╁E
-
-        /// <summary>Sample Dies Irae gradient LUT. t=0 → dark edge, t=1 → bright edge.</summary>
-        public static Color GetPaletteColor(float t)
-        {
-            return DiesIraeVFXLibrary.SampleLUT(t);
+            float hue = (Main.GameUpdateCount * 0.015f + offset) % 1f;
+            hue = hue * 0.08f;
+            return Main.hslToRgb(hue, 0.95f, 0.50f);
         }
 
-        // ══════════════════════════════════════════════════════════════╁E
-        //  VFX DRAWING HELPERS
-        // ══════════════════════════════════════════════════════════════╁E
-
-        /// <summary>
-        /// Draws a multi-layer bloom stack centered at worldPosition.
-        /// 4 layers: outer iron aura ↁEblood red mid ↁEember body ↁEgold core.
-        /// </summary>
-        public static void DrawBloomStack(SpriteBatch sb, Vector2 worldPosition, float intensity = 1f, float baseScale = 0.10f)
+        /// <summary>Smoothly interpolate through a color array.</summary>
+        public static Color MulticolorLerp(float t, params Color[] colors)
         {
-            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-            if (glow == null) return;
-            Vector2 origin = glow.Size() / 2f;
-            Vector2 pos = worldPosition - Main.screenPosition;
-
-            sb.Draw(glow, pos, null, IronGrey * 0.25f * intensity, 0f, origin, baseScale * 1.6f, SpriteEffects.None, 0f);
-            sb.Draw(glow, pos, null, BloodRed * 0.35f * intensity, 0f, origin, baseScale * 1.2f, SpriteEffects.None, 0f);
-            sb.Draw(glow, pos, null, EmberOrange * 0.55f * intensity, 0f, origin, baseScale * 0.85f, SpriteEffects.None, 0f);
-            sb.Draw(glow, pos, null, JudgmentGold * 0.7f * intensity, 0f, origin, baseScale * 0.45f, SpriteEffects.None, 0f);
+            t = MathHelper.Clamp(t, 0f, 0.999f);
+            int count = colors.Length;
+            float scaled = t * (count - 1);
+            int index = (int)scaled;
+            float frac = scaled - index;
+            if (index >= count - 1) return colors[count - 1];
+            return Color.Lerp(colors[index], colors[index + 1], frac);
         }
 
-        /// <summary>
-        /// Draws a tip glow with radial flare at the chain's end.
-        /// </summary>
-        public static void DrawTipBloom(SpriteBatch sb, Vector2 worldPosition, float timer, float pulse = 1f)
+        /// <summary>Gets a color along the weapon gradient (0=shadow, 1=purifying flash).</summary>
+        public static Color GetWeaponGradient(float t) => MulticolorLerp(t, WeaponPalette);
+
+        /// <summary>Make a color additive-friendly (A=0) with opacity.</summary>
+        public static Color Additive(Color c, float opacity = 1f)
+            => new Color(c.R, c.G, c.B, 0) * opacity;
+
+        #endregion
+
+        #region Easing Functions
+
+        public delegate float EasingFunction(float t, int degree);
+
+        public static float LinearEasing(float t, int degree) => t;
+        public static float SineInEasing(float t, int degree) => 1f - (float)Math.Cos(t * MathHelper.PiOver2);
+        public static float SineOutEasing(float t, int degree) => (float)Math.Sin(t * MathHelper.PiOver2);
+        public static float SineInOutEasing(float t, int degree) => -(float)(Math.Cos(Math.PI * t) - 1) / 2f;
+        public static float SineBumpEasing(float t, int degree) => (float)Math.Sin(t * Math.PI);
+
+        public static float PolyInEasing(float t, int degree)
         {
-            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-            Texture2D radial = MagnumTextureRegistry.GetRadialBloom();
-            if (glow == null) return;
+            return (float)Math.Pow(t, degree);
+        }
 
-            Vector2 glowOrigin = glow.Size() / 2f;
-            Vector2 drawPos = worldPosition - Main.screenPosition;
+        public static float PolyOutEasing(float t, int degree)
+        {
+            return 1f - (float)Math.Pow(1f - t, degree);
+        }
 
-            float p = 0.7f + 0.3f * (float)Math.Sin(timer * 0.15f) * pulse;
+        public static float PolyInOutEasing(float t, int degree)
+        {
+            if (t < 0.5f)
+                return (float)Math.Pow(2f * t, degree) / 2f;
+            return 1f - (float)Math.Pow(-2f * t + 2f, degree) / 2f;
+        }
 
-            // Outer iron radiance
-            sb.Draw(glow, drawPos, null, IronGrey * 0.3f * p, 0f, glowOrigin, 0.08f, SpriteEffects.None, 0f);
-            // Mid ember
-            sb.Draw(glow, drawPos, null, EmberOrange * 0.55f * p, 0f, glowOrigin, 0.05f, SpriteEffects.None, 0f);
-            // Gold core
-            sb.Draw(glow, drawPos, null, JudgmentGold * 0.7f * p, 0f, glowOrigin, 0.03f, SpriteEffects.None, 0f);
+        public static float ExpInEasing(float t, int degree) =>
+            t == 0f ? 0f : (float)Math.Pow(2f, 10f * t - 10f);
 
-            // Radial flare
-            if (radial != null)
+        public static float ExpOutEasing(float t, int degree) =>
+            t >= 1f ? 1f : 1f - (float)Math.Pow(2f, -10f * t);
+
+        public static float CircInEasing(float t, int degree) =>
+            1f - (float)Math.Sqrt(1f - t * t);
+
+        public static float CircOutEasing(float t, int degree) =>
+            (float)Math.Sqrt(1f - (t - 1f) * (t - 1f));
+
+        #endregion
+
+        #region CurveSegment — Piecewise Animation
+
+        /// <summary>
+        /// A segment of a piecewise animation curve, inspired by Calamity's CurveSegment.
+        /// </summary>
+        public struct CurveSegment
+        {
+            public EasingFunction Easing;
+            public float StartX;
+            public float StartHeight;
+            public float ElevationShift;
+            public int Degree;
+
+            public CurveSegment(EasingFunction easing, float startX, float startHeight, float elevationShift, int degree = 2)
             {
-                Vector2 radOrigin = radial.Size() / 2f;
-                sb.Draw(radial, drawPos, null, EmberOrange * 0.4f * p, timer * 0.02f, radOrigin, 0.04f, SpriteEffects.None, 0f);
+                Easing = easing;
+                StartX = startX;
+                StartHeight = startHeight;
+                ElevationShift = elevationShift;
+                Degree = degree;
             }
         }
 
-        /// <summary>
-        /// Renders the chain body as segmented glow points between two world positions.
-        /// Jitter offsets simulate chain links rattling.
-        /// </summary>
-        public static void DrawChainBody(SpriteBatch sb, Vector2 startWorld, Vector2 endWorld, float timer)
+        /// <summary>Evaluate a piecewise animation curve at the given progress (0-1).</summary>
+        public static float PiecewiseAnimation(float progress, CurveSegment[] segments)
         {
-            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-            if (glow == null) return;
-            Vector2 origin = glow.Size() / 2f;
+            progress = MathHelper.Clamp(progress, 0f, 1f);
 
-            float totalDist = Vector2.Distance(startWorld, endWorld);
-            int segCount = Math.Max(3, (int)(totalDist / 14f));
-
-            for (int i = 0; i < segCount; i++)
+            int segIdx = 0;
+            for (int i = segments.Length - 1; i >= 0; i--)
             {
-                float t = i / (float)segCount;
-                Vector2 basePos = Vector2.Lerp(startWorld, endWorld, t);
-
-                // Chain link jitter
-                float jX = (float)Math.Sin(t * 15f + timer * 0.3f) * 3f;
-                float jY = (float)Math.Cos(t * 12f + timer * 0.25f) * 3f;
-                Vector2 pos = basePos + new Vector2(jX, jY) - Main.screenPosition;
-
-                float sizeMult = MathHelper.Lerp(1.0f, 0.55f, t);
-                float heatPulse = 0.6f + 0.4f * (float)Math.Sin(t * 8f + timer * 0.2f);
-
-                Color ironColor = Color.Lerp(IronGrey, EmberOrange, heatPulse * 0.3f);
-                Color emberColor = Color.Lerp(EmberOrange, JudgmentGold, t * 0.3f);
-
-                // Outer segment
-                sb.Draw(glow, pos, null, ironColor * 0.5f * sizeMult, 0f, origin, 0.04f * sizeMult, SpriteEffects.None, 0f);
-                // Inner ember
-                sb.Draw(glow, pos, null, emberColor * 0.65f * heatPulse * sizeMult, 0f, origin, 0.025f * sizeMult, SpriteEffects.None, 0f);
-                // Hot core
-                sb.Draw(glow, pos, null, JudgmentGold * 0.4f * heatPulse * sizeMult, 0f, origin, 0.015f * sizeMult, SpriteEffects.None, 0f);
+                if (progress >= segments[i].StartX)
+                {
+                    segIdx = i;
+                    break;
+                }
             }
+
+            CurveSegment seg = segments[segIdx];
+            float segEnd = (segIdx < segments.Length - 1) ? segments[segIdx + 1].StartX : 1f;
+            float segDuration = segEnd - seg.StartX;
+
+            if (segDuration <= 0f)
+                return seg.StartHeight;
+
+            float localProgress = MathHelper.Clamp((progress - seg.StartX) / segDuration, 0f, 1f);
+            float easedProgress = seg.Easing(localProgress, seg.Degree);
+
+            return seg.StartHeight + easedProgress * seg.ElevationShift;
         }
 
-        /// <summary>
-        /// Spawns a chain impact burst  Emetallic sparks + binding ring feedback.
-        /// </summary>
-        public static void DoChainImpact(Vector2 worldPosition, Vector2 hitDirection)
+        #endregion
+
+        #region SpriteBatch Helpers
+
+        /// <summary>Enter immediate-mode for shader rendering.</summary>
+        public static void EnterShaderRegion(this SpriteBatch sb)
         {
-            // === Color-ramped sparkle explosion VFX ===
-            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(worldPosition, 8, 5f, 0.3f);
-
-            // === Color-ramped sparkle explosion VFX ===
-            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(worldPosition, 8, 5f, 0.3f);
-
-            if (Main.dedServ) return;
-
-            for (int i = 0; i < 12; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 12f;
-                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f) + hitDirection * 0.3f;
-                Color sparkColor = Main.rand.NextBool() ? EmberOrange : IronGrey;
-                Dust d = Dust.NewDustPerfect(worldPosition, Terraria.ID.DustID.Torch, vel, 0, sparkColor, 1.2f);
-                d.noGravity = true;
-                d.fadeIn = 0.8f;
-            }
-
-            // Gold flash
-            for (int i = 0; i < 4; i++)
-            {
-                Vector2 vel = Main.rand.NextVector2Circular(2f, 2f);
-                Dust g = Dust.NewDustPerfect(worldPosition, Terraria.ID.DustID.GoldFlame, vel, 0, JudgmentGold, 1.5f);
-                g.noGravity = true;
-            }
+            sb.End();
+            sb.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
-        /// <summary>
-        /// Spawns shrapnel burst for Fully Bound enemy death  E
-        /// metal debris + ember sparks in spiral pattern.
-        /// </summary>
-        public static void DoShrapnelBurst(Vector2 worldPosition, int sparkCount = 30)
+        /// <summary>Exit immediate-mode back to deferred.</summary>
+        public static void ExitShaderRegion(this SpriteBatch sb)
         {
-            if (Main.dedServ) return;
-
-            Color[] shrapColors = { IronGrey, EmberOrange, JudgmentGold, DiesIraePalette.CharcoalBlack };
-
-            for (int i = 0; i < sparkCount; i++)
-            {
-                float angle = MathHelper.TwoPi * i / sparkCount + Main.rand.NextFloat(-0.15f, 0.15f);
-                float speed = Main.rand.NextFloat(3f, 8f);
-                Vector2 vel = angle.ToRotationVector2() * speed;
-                Color c = shrapColors[Main.rand.Next(shrapColors.Length)];
-
-                Dust d = Dust.NewDustPerfect(worldPosition + Main.rand.NextVector2Circular(6, 6),
-                    Terraria.ID.DustID.Torch, vel, 0, c, Main.rand.NextFloat(0.8f, 1.6f));
-                d.noGravity = Main.rand.NextBool(3); // Some fall, some float
-                d.fadeIn = 1.0f;
-            }
-
-            // Central flash
-            for (int i = 0; i < 6; i++)
-            {
-                Dust f = Dust.NewDustPerfect(worldPosition, Terraria.ID.DustID.GoldFlame,
-                    Main.rand.NextVector2Circular(3f, 3f), 0, JudgmentGold, 2.0f);
-                f.noGravity = true;
-            }
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
-        // ─────────── THEME TEXTURE ACCENTS ───────────
+        /// <summary>Begin additive blending for glow effects.</summary>
+        public static void BeginAdditive(this SpriteBatch sb)
+        {
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        }
 
-        /// <summary>
-        /// Draws theme-textured chain VFX accents. Call under Additive blend.
-        /// </summary>
+        /// <summary>Begin additive + immediate for shader glow passes.</summary>
+        public static void BeginShaderAdditive(this SpriteBatch sb)
+        {
+            sb.End();
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        /// <summary>Restore standard SpriteBatch state.</summary>
+        public static void RestoreSpriteBatch(this SpriteBatch sb)
+        {
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        #endregion
+
+        #region Geometry Helpers
+
+        /// <summary>Safe direction calculation that won't return NaN.</summary>
+        public static Vector2 SafeDirectionTo(this Vector2 from, Vector2 to, Vector2 fallback = default)
+        {
+            Vector2 diff = to - from;
+            float length = diff.Length();
+            if (length < 0.0001f) return fallback;
+            return diff / length;
+        }
+
+        /// <summary>Find the closest NPC within range of a position.</summary>
+        public static NPC ClosestNPCAt(Vector2 position, float maxRange, bool requireLineOfSight = false)
+        {
+            NPC closest = null;
+            float closestDist = maxRange;
+
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (!npc.active || npc.friendly || npc.dontTakeDamage || npc.immortal)
+                    continue;
+
+                float dist = Vector2.Distance(position, npc.Center);
+                if (dist < closestDist)
+                {
+                    if (requireLineOfSight && !Collision.CanHitLine(position, 1, 1, npc.position, npc.width, npc.height))
+                        continue;
+                    closestDist = dist;
+                    closest = npc;
+                }
+            }
+
+            return closest;
+        }
+
+        /// <summary>Angle-limited rotation toward a target angle.</summary>
+        public static float AngleTowards(float currentAngle, float targetAngle, float maxTurn)
+        {
+            float diff = MathHelper.WrapAngle(targetAngle - currentAngle);
+            return currentAngle + MathHelper.Clamp(diff, -maxTurn, maxTurn);
+        }
+
+        #endregion
+
+        /// <summary>Draw Dies Irae themed impact ring accent. Call under additive blend.</summary>
         public static void DrawThemeAccents(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)
         {
-            DiesIraeVFXLibrary.DrawThemeStarFlare(sb, worldPos, scale, intensity * 0.4f);
-            float rot = (float)Main.GameUpdateCount * 0.02f;
-            DiesIraeVFXLibrary.DrawThemeImpactRing(sb, worldPos, scale * 0.8f, intensity * 0.35f, rot);
+            try { DiesIraeVFXLibrary.DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.4f, (float)Main.GameUpdateCount * 0.02f); }
+            catch { }
         }
     }
 }

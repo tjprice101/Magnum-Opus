@@ -1,54 +1,52 @@
-// ══════════════════════════════════════════════════════════╁E
-// EstateHeatHazeTrail.fx  ESeasons/Estate boss movement trail
-// Heat distortion movement trail with shimmering mirages,
-// rising hot air wisps and scorched ground glow.
-// ══════════════════════════════════════════════════════════╁E
+// L'Estate - Localized Heat Haze Trail
+// Distortion offset applied to screen pixels near boss trail positions
+// uPersistence controls how long distortion lingers, uVerticalBias makes heat rise
 
 sampler uImage0 : register(s0);
-sampler uNoiseTex : register(s1);
-float4 uColor;
-float uTrailWidth;
-float uFadeRate;
+float2 uCenter;
+float uRadius;
+float uPersistence;
+float uVerticalBias;
 float uTime;
+
+float hash12(float2 p)
+{
+    float3 p3 = frac(float3(p.xyx) * 0.1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return frac((p3.x + p3.y) * p3.z);
+}
+
+float noise2D(float2 p)
+{
+    float2 i = floor(p);
+    float2 f = frac(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float a = hash12(i);
+    float b = hash12(i + float2(1.0, 0.0));
+    float c = hash12(i + float2(0.0, 1.0));
+    float d = hash12(i + float2(1.0, 1.0));
+    return lerp(lerp(a, b, f.x), lerp(c, d, f.x), f.y);
+}
 
 float4 PS_HeatHazeTrail(float2 uv : TEXCOORD0) : COLOR0
 {
-    float trailProgress = uv.x;
-    float trailWidth = abs(uv.y - 0.5) * 2.0;
+    float dist = length(uv - uCenter);
+    float mask = smoothstep(uRadius, uRadius * 0.3, dist);
 
-    // Heat distortion  Ewavy displacement noise
-    float2 hazeUV1 = float2(uv.x * 3.0 - uTime * 1.0, uv.y * 4.0 + uTime * 3.0);
-    float haze1 = tex2D(uNoiseTex, hazeUV1).r;
-    float2 hazeUV2 = float2(uv.x * 5.0 + uTime * 0.5, uv.y * 6.0 + uTime * 4.0);
-    float haze2 = tex2D(uNoiseTex, hazeUV2).r;
-    float hazeComposite = haze1 * 0.6 + haze2 * 0.4;
+    // Layered rising noise for organic distortion
+    float n1 = noise2D(uv * 12.0 + float2(0.0, uTime * 1.5));
+    float n2 = noise2D(uv * 24.0 + float2(uTime * 0.3, uTime * 2.5));
 
-    // Rising hot air columns from trail center
-    float risingAir = smoothstep(0.6, 0.1, trailWidth) * hazeComposite;
+    // Vertical bias: heat rises
+    float2 offset;
+    offset.x = (n1 - 0.5) * 0.008 * mask;
+    offset.y = ((n1 + n2) * 0.5 - 0.5) * 0.012 * mask * uVerticalBias;
 
-    // Scorched ground glow  Ehot core at trail center
-    float scorchGlow = smoothstep(0.4, 0.0, trailWidth);
-    float scorchFlicker = haze1 * 0.3 + 0.7;
+    // Persistence decay from center outward
+    float decay = pow(mask, uPersistence);
+    offset *= decay;
 
-    // Mirage shimmer at edges  Etransparent heat distortion
-    float mirageEdge = smoothstep(0.3, 0.7, trailWidth) * smoothstep(1.0, 0.7, trailWidth);
-    float mirage = mirageEdge * hazeComposite * 0.5;
-
-    // Age fade
-    float ageFade = pow(1.0 - trailProgress, uFadeRate * 2.0);
-
-    // Colors: golden scorched core, orange rising heat, faint mirage
-    float4 scorchGold = uColor;
-    float4 orangeHeat = float4(1.0, 0.55, 0.1, 1.0);
-    float4 whiteHot = float4(1.0, 0.95, 0.8, 1.0);
-
-    float4 color = scorchGold * scorchGlow * scorchFlicker;
-    color += orangeHeat * risingAir * 0.7;
-    color += whiteHot * mirage * 0.3;
-
-    float alpha = (scorchGlow * 0.5 + risingAir * 0.4 + mirage * 0.2) * ageFade * uTrailWidth;
-
-    return color * saturate(alpha);
+    return tex2D(uImage0, uv + offset);
 }
 
 technique Technique1

@@ -127,6 +127,11 @@ Moon Lord ↁEMoonlight Sonata ↁEEroica ↁELa Campanella ↁEEnigma Variation
 | Dies Irae | `Content/DiesIrae/` |
 | Clair de Lune | `Content/ClairDeLune/` |
 
+### Theme Arsenal Style Guides (LOCKED)
+| Theme | Style Guide |
+|-------|-------------|
+| Nachtmusik | [Documentation/Nachtmusik_Arsenal_Style_Guide.md](Documentation/Nachtmusik_Arsenal_Style_Guide.md) — Emotional core, palette, motion, motifs, per-class differentiation axes, mandatory markers |
+
 ---
 
 ## 🐉 BOSS DESIGN REFERENCES

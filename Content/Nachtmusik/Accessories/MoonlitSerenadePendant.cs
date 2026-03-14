@@ -135,7 +135,7 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
             CustomParticles.HaloRing(initialTarget.Center, Violet, 0.4f, 15);
 
             // Music note burst on harmonic wave proc
-            NachtmusikVFXLibrary.SpawnMusicNotes(initialTarget.Center, 4, 14f, 0.7f, 0.9f, 25);
+// VFX_GUTTED:             NachtmusikVFXLibrary.SpawnMusicNotes(initialTarget.Center, 4, 14f, 0.7f, 0.9f, 25);
 
             // Star sparkle accents
             for (int i = 0; i < 3; i++)

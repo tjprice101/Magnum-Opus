@@ -14,12 +14,12 @@ using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Nachtmusik;
 using MagnumOpus.Content.Nachtmusik.Debuffs;
 using MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars.Projectiles;
-using MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars.Utilities;
+
 
 namespace MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars
 {
     /// <summary>
-    /// Serenade of Distant Stars — Romantic homing star rifle.
+    /// Serenade of Distant Stars  ERomantic homing star rifle.
     /// Fires homing star projectiles with 80-tile range and moderate homing.
     /// Serenade Rhythm: firing at consistent intervals builds stacks (max 5).
     /// +10% homing per stack. At 5 stacks: perfect homing.
@@ -49,6 +49,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars
             Item.UseSound = SoundID.Item91 with { Pitch = 0.2f, Volume = 0.8f };
             Item.autoReuse = true;
             Item.noMelee = true;
+            Item.noUseGraphic = true;
             Item.shoot = ModContent.ProjectileType<SerenadeStarProjectile>();
             Item.shootSpeed = 16f;
             Item.useAmmo = AmmoID.Bullet;
@@ -63,7 +64,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars
             // === SERENADE RHYTHM SYSTEM ===
             if (timeSinceLast >= RhythmWindowMin && timeSinceLast <= RhythmWindowMax)
             {
-                // In rhythm — build stacks
+                // In rhythm  Ebuild stacks
                 rhythmStacks = Math.Min(rhythmStacks + 1, MaxRhythmStacks);
 
                 if (rhythmStacks >= MaxRhythmStacks)
@@ -73,7 +74,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars
             }
             else if (lastFireTime > 0)
             {
-                // Out of rhythm — reset
+                // Out of rhythm  Ereset
                 rhythmStacks = 0;
             }
 
@@ -86,14 +87,29 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars
                 damage, knockback, player.whoAmI, ai0: rhythmStacks);
 
             // Muzzle flash
-            SerenadeOfDistantStarsVFX.MuzzleFlashVFX(position + direction * 25f, direction);
+// VFX_GUTTED:             SerenadeOfDistantStarsVFX.MuzzleFlashVFX(position + direction * 25f, direction);
 
             return false;
         }
 
         public override void HoldItem(Player player)
         {
-            SerenadeOfDistantStarsVFX.HoldItemVFX(player, rhythmStacks);
+            // Ambient starlit dust — 2 every 5 frames
+            if (Main.GameUpdateCount % 5 == 0)
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    Vector2 dustPos = player.Center + Main.rand.NextVector2Circular(20f, 20f);
+                    Color col = NachtmusikPalette.PaletteLerp(NachtmusikPalette.SerenadeOfDistantStarsShot, Main.rand.NextFloat());
+                    Dust d = Dust.NewDustPerfect(dustPos, DustID.WhiteTorch,
+                        new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -0.8f), 0, col, 0.5f);
+                    d.noGravity = true;
+                }
+            }
+
+            // Pulsing ambient light — warmer for serenade theme
+            float pulse = 0.7f + 0.3f * MathF.Sin(Main.GlobalTimeWrappedHourly * 3f);
+            Lighting.AddLight(player.Center, NachtmusikPalette.StarGold.ToVector3() * 0.25f * pulse);
         }
 
         public override Vector2? HoldoutOffset() => new Vector2(-6f, 0f);
@@ -155,16 +171,41 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars
             return false;
         }
 
+        public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
+        {
+            Texture2D tex = TextureAssets.Item[Item.type].Value;
+            Vector2 pos = Item.Center - Main.screenPosition;
+            Vector2 origin = tex.Size() * 0.5f;
+
+            float time = Main.GameUpdateCount * 0.05f;
+            float pulse = 1f + 0.06f * MathF.Sin(time * 2.5f);
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Warm star gold bloom overlay
+            spriteBatch.Draw(tex, pos, null, NachtmusikPalette.StarGold with { A = 0 } * 0.2f,
+                rotation, origin, scale * pulse * 1.12f, SpriteEffects.None, 0f);
+            // Moonlit silver highlight
+            spriteBatch.Draw(tex, pos, null, NachtmusikPalette.MoonlitSilver with { A = 0 } * 0.15f,
+                rotation, origin, scale * pulse * 1.05f, SpriteEffects.None, 0f);
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        }
+
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Homing", "Fires a homing star projectile with 80-tile range"));
             tooltips.Add(new TooltipLine(Mod, "Rhythm", "Serenade Rhythm: fire at consistent intervals to build stacks (max 5)"));
-            tooltips.Add(new TooltipLine(Mod, "RhythmBonus", "+10% homing strength per stack — at 5 stacks: perfect homing"));
+            tooltips.Add(new TooltipLine(Mod, "RhythmBonus", "+10% homing strength per stack  Eat 5 stacks: perfect homing"));
             tooltips.Add(new TooltipLine(Mod, "Memory", "Star Memory: stars remember enemies passed within 5 tiles and fire echoes back"));
             tooltips.Add(new TooltipLine(Mod, "Debuff", "Inflicts Celestial Harmony"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The light left a star ages ago, just to find you. And it never missed.'")
             {
-                OverrideColor = new Color(100, 120, 200)
+                OverrideColor = NachtmusikPalette.LoreText
             });
         }
     }

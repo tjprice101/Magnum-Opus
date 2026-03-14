@@ -227,6 +227,23 @@ namespace MagnumOpus.Common.Systems.VFX
                 Intensity = 1f
             });
         }
+
+        // Legacy compatibility overload used by older boss VFX call sites.
+        public static void ImpactPoint(Vector2 position, float radius, int duration, Color color)
+        {
+            if (_instance == null) return;
+
+            _instance._activeTelegraphs.Add(new ActiveTelegraph
+            {
+                Type = TelegraphType.ImpactPoint,
+                Position = position,
+                Size = radius,
+                Duration = duration,
+                Timer = 0,
+                Color = color,
+                Intensity = 1f
+            });
+        }
         
         /// <summary>
         /// Shows a cone-shaped danger zone (for sweeping attacks).

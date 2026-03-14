@@ -1,48 +1,35 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
 using Terraria;
-using Terraria.Audio;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.GameContent;
-using Terraria.Graphics;
-using MagnumOpus.Common;
-using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.Particles;
-using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Core;
-using MagnumOpus.Common.Systems.VFX.Trails;
 using MagnumOpus.Content.Nachtmusik;
-using MagnumOpus.Content.Nachtmusik.Debuffs;
-using MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer.Utilities;
 
 namespace MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer.Projectiles
 {
     /// <summary>
-    /// Constellation Bolt — Piercing star bolt that chains between enemies.
-    /// Marks each struck enemy as a Star Point. Gentle homing after 15 ticks.
-    /// Dense cosmic dust trail with orbiting constellation motes and dot-spaced star points.
+    /// Constellation bolt projectile -- scaffold based on BlackSwanFlareProj pattern.
+    /// Homing sub-projectile with IncisorOrbRenderer visuals.
     /// </summary>
     public class ConstellationBoltProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
+        private const float HomingRange = 350f;
+        private const float HomingStrength = 0.08f;
+        private const float MaxSpeed = 16f;
+        private Player Owner => Main.player[Projectile.owner];
+        private bool _initialized;
+        private VertexStrip _strip;
 
-        // Nachtmusik hue range — deep indigo to starlight silver spectrum
-        private const float HueMin = 0.60f;
-        private const float HueMax = 0.72f;
-
-        private int chainCount = 0;
-        private const int MaxChains = 4;
-        private readonly List<int> hitEnemies = new List<int>();
-        private VertexStrip _vertexStrip;
+        public override string Texture => "MagnumOpus/Content/Nachtmusik/Weapons/ConstellationPiercer/ConstellationPiercer";
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
-            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
         public override void SetDefaults()
@@ -51,154 +38,69 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer.Projectiles
             Projectile.height = 16;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Ranged;
-            Projectile.penetrate = 4;
-            Projectile.timeLeft = 200;
-            Projectile.tileCollide = false;
+            Projectile.penetrate = 1;
+            Projectile.timeLeft = 120;
+            Projectile.tileCollide = true;
             Projectile.ignoreWater = true;
-            Projectile.usesLocalNPCImmunity = true;
-            Projectile.localNPCHitCooldown = 10;
             Projectile.extraUpdates = 1;
         }
 
         public override void AI()
         {
-            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
-            int ticksAlive = 200 - Projectile.timeLeft;
-
-            // === GENTLE HOMING AFTER 15 TICKS ===
-            if (ticksAlive > 15)
+            if (!_initialized)
             {
-                NPC target = FindClosestTarget(600f);
-                if (target != null)
-                {
-                    Vector2 toTarget = (target.Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
-                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * Projectile.velocity.Length(), 0.04f);
-                }
+                _initialized = true;
+                Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
-            // === DENSE COSMIC DUST TRAIL — alternating Deep Indigo and Starlight Silver ===
-            for (int i = 0; i < 2; i++)
+            // Homing
+            NPC target = ClosestNPCAt(Projectile.Center, HomingRange);
+            if (target != null)
             {
-                Vector2 dustPos = Projectile.Center + Main.rand.NextVector2Circular(6f, 6f);
-                Vector2 dustVel = -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(1.5f, 1.5f);
-                bool isIndigo = i % 2 == 0;
-                int dustType = isIndigo ? DustID.PurpleTorch : DustID.BlueTorch;
-                Dust dust = Dust.NewDustPerfect(dustPos, dustType, dustVel, 0, default, 1.2f);
-                dust.noGravity = true;
-                dust.fadeIn = 1.1f;
+                Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
+                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
             }
+            if (Projectile.velocity.Length() > MaxSpeed)
+                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
 
-            // === STARLIGHT SILVER SPARKLE ACCENTS ===
-            if (Main.rand.NextBool(2))
-            {
-                Vector2 sparkPos = Projectile.Center + Main.rand.NextVector2Circular(5f, 5f);
-                Dust silver = Dust.NewDustPerfect(sparkPos, DustID.SilverCoin,
-                    -Projectile.velocity * 0.08f, 0, NachtmusikPalette.StarWhite, 0.9f);
-                silver.noGravity = true;
-            }
+            Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // === DOT-SPACED STAR POINT PARTICLES — lingering every 8 ticks ===
-            if (ticksAlive % 8 == 0)
-            {
-                var starPoint = new GenericGlowParticle(
-                    Projectile.Center, Vector2.Zero,
-                    NachtmusikPalette.StarlightCore * 0.7f, 0.25f, 40, true);
-                MagnumParticleHandler.SpawnParticle(starPoint);
-            }
-
-            // === 4 ORBITING CONSTELLATION MOTES ===
-            if (ticksAlive % 5 == 0)
-            {
-                float orbitAngle = Main.GameUpdateCount * 0.08f;
-                for (int i = 0; i < 4; i++)
-                {
-                    float angle = orbitAngle + MathHelper.TwoPi * i / 4f;
-                    Vector2 motePos = Projectile.Center + angle.ToRotationVector2() * 14f;
-                    Color moteColor = Color.Lerp(NachtmusikPalette.ConstellationPiercerShot[1], NachtmusikPalette.ConstellationPiercerShot[4], i / 3f);
-                    CustomParticles.GenericFlare(motePos, moteColor, 0.2f, 10);
-                }
-            }
-
-            // === FLARE OSCILLATION ===
-            if (Main.rand.NextBool(2))
-            {
-                Color flareColor = Color.Lerp(NachtmusikPalette.ConstellationPiercerShot[1], NachtmusikPalette.ConstellationPiercerShot[3], Main.rand.NextFloat());
-                CustomParticles.GenericFlare(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f),
-                    flareColor, 0.3f, 14);
-            }
-
-            // Palette-ramped trail sparkles
+            // Trail dust
             if (Main.rand.NextBool(3))
-                NachtmusikVFXLibrary.SpawnGradientSparkles(Projectile.Center, Projectile.velocity, 1, 0.25f, 16, 6f);
+            {
+                int dustType = Main.rand.NextBool() ? DustID.WhiteTorch : DustID.BlueTorch;
+                Color dustColor = Main.rand.NextBool() ? new Color(180, 200, 255) : new Color(60, 70, 150);
+                Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
+                    dustType, -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(0.5f, 0.5f),
+                    0, dustColor, 0.8f);
+                d.noGravity = true;
+                d.fadeIn = 0.6f;
+            }
 
-            Lighting.AddLight(Projectile.Center, NachtmusikPalette.ConstellationBlue.ToVector3() * 0.6f);
+            // Pulsing light
+            float pulse = 1f + 0.15f * (float)Math.Sin(Projectile.timeLeft * 0.2f);
+            Lighting.AddLight(Projectile.Center, new Vector3(0.3f, 0.35f, 0.6f) * 0.35f * pulse);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // Apply CelestialHarmony debuff
-            target.AddBuff(ModContent.BuffType<CelestialHarmony>(), 300);
-            if (target.TryGetGlobalNPC(out CelestialHarmonyNPC harmonyNPC))
-                harmonyNPC.AddStack(target, 1);
-
-            // === 3-LAYER IMPACT FLASH ===
-            CustomParticles.GenericFlare(target.Center, Color.White, 0.55f, 18);
-            CustomParticles.GenericFlare(target.Center, NachtmusikPalette.ConstellationBlue, 0.45f, 16);
-            CustomParticles.GenericFlare(target.Center, NachtmusikPalette.StarGold, 0.35f, 14);
-
-            // === STAR CHAIN BURST — music notes scatter ===
-            NachtmusikVFXLibrary.SpawnMusicNotes(target.Center, 3, 14f, 0.5f, 0.8f, 24);
-
-            // === SPARKLE SCATTER (palette-ramped) ===
-            NachtmusikVFXLibrary.SpawnGradientSparkleExplosion(target.Center, 8, 5f, 0.3f);
-
-            // Star Point creation VFX
-            ConstellationPiercerVFX.StarPointCreationVFX(target.Center);
-
-            hitEnemies.Add(target.whoAmI);
-
-            // === CHAIN TO NEXT ENEMY within 300f ===
-            if (chainCount < MaxChains)
-            {
-                NPC nextTarget = FindNextChainTarget(target.Center, 300f);
-                if (nextTarget != null)
-                {
-                    chainCount++;
-                    Vector2 toNext = (nextTarget.Center - target.Center).SafeNormalize(Vector2.UnitX);
-                    Projectile.velocity = toNext * Projectile.velocity.Length() * 0.95f;
-                    Projectile.Center = target.Center;
-
-                    // Constellation line VFX between star points
-                    ConstellationPiercerVFX.ConstellationLineVFX(target.Center, nextTarget.Center);
-
-                    // Chain line glow particles
-                    for (int i = 0; i < 8; i++)
-                    {
-                        Vector2 linePos = Vector2.Lerp(target.Center, target.Center + toNext * 60f, i / 8f);
-                        Color lineColor = Color.Lerp(NachtmusikPalette.ConstellationPiercerShot[1], NachtmusikPalette.ConstellationPiercerShot[4], i / 7f);
-                        var line = new GenericGlowParticle(linePos, Vector2.Zero,
-                            lineColor * 0.8f, 0.22f, 12, true);
-                        MagnumParticleHandler.SpawnParticle(line);
-                    }
-                }
-            }
-        }
-
-        public override void OnKill(int timeLeft)
-        {
-            // === STAR SPARKLE DISSIPATION BURST ===
-            NachtmusikVFXLibrary.SpawnShatteredStarlight(Projectile.Center, 4, 3.5f, 0.6f, true);
-            NachtmusikVFXLibrary.SpawnStarBurst(Projectile.Center, 6, 0.35f);
-
+            Vector2 hitPos = target.Center;
             for (int i = 0; i < 6; i++)
             {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
-                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.BlueTorch, vel, 0, default, 0.7f);
+                Vector2 sparkVel = Main.rand.NextVector2CircularEdge(4f, 4f);
+                Color col = i % 2 == 0 ? new Color(60, 70, 150) : new Color(180, 200, 255);
+                Dust d = Dust.NewDustPerfect(hitPos, DustID.WhiteTorch, sparkVel, 0, col, 0.5f);
                 d.noGravity = true;
             }
-
-            Lighting.AddLight(Projectile.Center, NachtmusikPalette.ConstellationBlue.ToVector3() * 0.8f);
+            for (int i = 0; i < 2; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(2f, 2f) + new Vector2(0, -1f);
+                Dust d = Dust.NewDustPerfect(hitPos + Main.rand.NextVector2Circular(8f, 8f),
+                    DustID.BlueTorch, vel, 0, new Color(60, 70, 150), 0.5f);
+                d.noGravity = true;
+            }
+            try { NachtmusikVFXLibrary.SpawnMusicNotes(hitPos, 1, 12f, 0.4f, 0.7f, 20); } catch { }
+            try { NachtmusikVFXLibrary.SpawnMixedSparkleImpact(hitPos, 0.6f, 4, 4); } catch { }
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -206,63 +108,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-                // Layer 1: Shader-driven beam trail + enhanced bloom head via IncisorOrbRenderer
-                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Nachtmusik, ref _vertexStrip);
-
-                // Layer 2: StarChainBeam shader-driven constellation crosshair
-                float time = (float)Main.timeForVisualEffects * 0.03f;
-                Vector2 drawPos = Projectile.Center - Main.screenPosition;
-                float life = MathHelper.Clamp((float)Projectile.timeLeft / 200f, 0f, 1f);
-                float chainFade = 1f - chainCount * 0.15f;
-                float pulse = 0.85f + 0.15f * MathF.Sin(Main.GameUpdateCount * 0.12f);
-
-                Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-                if (glow != null && NachtmusikShaderManager.HasStarChainBeam)
-                {
-                    NachtmusikShaderManager.BeginShaderAdditive(sb);
-                    NachtmusikShaderManager.ApplyStarChainBeam(time);
-
-                    float crossRot = Projectile.velocity.ToRotation();
-                    Color crossColor = NachtmusikPalette.ConstellationPiercerShot[3] with { A = 0 } * 0.35f * life * chainFade * pulse;
-                    sb.Draw(glow, drawPos, null, crossColor,
-                        crossRot, glow.Size() * 0.5f, new Vector2(0.18f, 0.04f), SpriteEffects.None, 0f);
-                    sb.Draw(glow, drawPos, null, crossColor,
-                        crossRot + MathHelper.PiOver2, glow.Size() * 0.5f, new Vector2(0.18f, 0.04f), SpriteEffects.None, 0f);
-
-                    // Inner core glow pass
-                    NachtmusikShaderManager.ApplyStarChainBeamGlow(time);
-                    Color coreColor = NachtmusikPalette.ConstellationPiercerShot[5] with { A = 0 } * 0.2f * life * chainFade;
-                    sb.Draw(glow, drawPos, null, coreColor,
-                        0f, glow.Size() * 0.5f, 0.05f * pulse, SpriteEffects.None, 0f);
-
-                    // NK Lens Flare accent at head
-                    Texture2D flareTex = NachtmusikThemeTextures.NKLensFlare?.Value;
-                    if (flareTex != null)
-                    {
-                        Vector2 flareOrigin = flareTex.Size() / 2f;
-                        Color flareColor = NachtmusikPalette.ConstellationPiercerShot[2] with { A = 0 } * 0.25f * life * chainFade * pulse;
-                        sb.Draw(flareTex, drawPos, null, flareColor,
-                            time * 0.6f, flareOrigin, 0.06f * pulse, SpriteEffects.None, 0f);
-                    }
-
-                    NachtmusikShaderManager.RestoreSpriteBatch(sb);
-                }
-                else if (glow != null)
-                {
-                    // Fallback without shader
-                    sb.End();
-                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
-                        SamplerState.LinearClamp, DepthStencilState.None,
-                        RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-                    float crossRot = Projectile.velocity.ToRotation();
-                    sb.Draw(glow, drawPos, null,
-                        (NachtmusikPalette.StarGold with { A = 0 }) * 0.3f * life * chainFade * pulse,
-                        crossRot, glow.Size() * 0.5f, new Vector2(0.15f, 0.04f), SpriteEffects.None, 0f);
-                    sb.Draw(glow, drawPos, null,
-                        (NachtmusikPalette.StarGold with { A = 0 }) * 0.3f * life * chainFade * pulse,
-                        crossRot + MathHelper.PiOver2, glow.Size() * 0.5f, new Vector2(0.15f, 0.04f), SpriteEffects.None, 0f);
-                }
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Nachtmusik, ref _strip);
             }
             catch { }
             finally
@@ -271,46 +117,36 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
 
-        private NPC FindClosestTarget(float range)
+        public override void OnKill(int timeLeft)
         {
-            NPC closest = null;
-            float closestDist = range;
-            for (int i = 0; i < Main.maxNPCs; i++)
+            for (int i = 0; i < 4; i++)
             {
-                NPC npc = Main.npc[i];
-                if (npc.active && npc.CanBeChasedBy(Projectile))
-                {
-                    float dist = Vector2.Distance(Projectile.Center, npc.Center);
-                    if (dist < closestDist)
-                    {
-                        closestDist = dist;
-                        closest = npc;
-                    }
-                }
+                Vector2 sparkVel = Main.rand.NextVector2CircularEdge(3f, 3f);
+                Color col = Main.rand.NextBool() ? new Color(60, 70, 150) : new Color(180, 200, 255);
+                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.WhiteTorch, sparkVel, 0, col, 0.3f);
+                d.noGravity = true;
             }
-            return closest;
+            try { NachtmusikVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 12f, 0.5f, 0.7f, 20); } catch { }
+            try { NachtmusikVFXLibrary.SpawnMixedSparkleImpact(Projectile.Center, 0.5f, 4, 4); } catch { }
+            try { NachtmusikVFXLibrary.SpawnCelestialSparkles(Projectile.Center, 3, 15f); } catch { }
         }
 
-        private NPC FindNextChainTarget(Vector2 from, float range)
+        private static NPC ClosestNPCAt(Vector2 pos, float range)
         {
             NPC closest = null;
             float closestDist = range;
             for (int i = 0; i < Main.maxNPCs; i++)
             {
-                if (hitEnemies.Contains(i)) continue;
                 NPC npc = Main.npc[i];
-                if (npc.active && npc.CanBeChasedBy(Projectile))
+                if (!npc.active || npc.friendly || npc.dontTakeDamage) continue;
+                float dist = Vector2.Distance(pos, npc.Center);
+                if (dist < closestDist)
                 {
-                    float dist = Vector2.Distance(from, npc.Center);
-                    if (dist < closestDist)
-                    {
-                        closestDist = dist;
-                        closest = npc;
-                    }
+                    closestDist = dist;
+                    closest = npc;
                 }
             }
             return closest;

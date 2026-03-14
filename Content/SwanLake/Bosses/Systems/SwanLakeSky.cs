@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
@@ -10,26 +10,31 @@ using MagnumOpus.Common.Systems.VFX;
 namespace MagnumOpus.Content.SwanLake.Bosses.Systems
 {
     /// <summary>
-    /// Custom sky effect for the Swan Lake boss fight.
-    /// Transitions between three moods:
-    ///   Graceful: elegant silver moonlight, drifting feather motes
-    ///   Tempest: stormy prismatic lightning flashes, swirling clouds
-    ///   DyingSwan: monochrome fading to white, final rainbow shatter
-    /// Uses BossIndexTracker.SwanLakeMood to determine current mood.
+    /// Custom sky for the Monochromatic Fractal boss fight — Swan Lake's dying grace.
+    /// 
+    /// Phase 1 (White Swan): Stark void-black sky with precisely drifting white feathers.
+    ///          Clean, geometric. Moonlit silence. White-on-black contrast.
+    /// Phase 2 (Black Swan): Sky begins cracking — white fracture lines appear.
+    ///          Black feathers emerge mirroring white. Faint prismatic bleed at cracks.
+    ///          Sky fragments begin to form kaleidoscope geometry.
+    /// Phase 3 (Duality War): Full kaleidoscope fractal pattern — sky is tiled/mirrored
+    ///          geometric fragments rotating slowly. Black and white alternate in panels.
+    ///          The fractal rotates and fragments.
+    /// Enrage (Death of Swan): Color drains from sky. Feathers slow to near-stillness.
+    ///          Kaleidoscope dims. Only faint desperate prismatic flickers survive.
     /// </summary>
     public class SwanLakeSky : CustomSky
     {
         private bool _isActive;
         private float _opacity;
         private int _currentMood; // 0=Graceful, 1=Tempest, 2=DyingSwan
-        private float _moodBlend; // 0-1 transition progress
         private float _intensity;
 
         // Boss state tracking
         private float _bossLifeRatio = 1f;
         private Vector2 _bossCenter;
-        private bool _bossIsDyingSwan;
 
+        // Feather particles
         private struct SkyFeather
         {
             public Vector2 Position;
@@ -38,32 +43,26 @@ namespace MagnumOpus.Content.SwanLake.Bosses.Systems
             public float Rotation;
             public float RotSpeed;
             public float SwayPhase;
-            public bool IsBlack; // black vs white feather
+            public bool IsBlack;
         }
 
         private SkyFeather[] _feathers;
-        private const int MaxFeathers = 50;
+        private const int MaxFeathers = 60;
 
-        // Lightning flash for Tempest mood
-        private float _lightningTimer;
-        private float _lightningIntensity;
+        // Fractal/kaleidoscope state
+        private float _fractalCrackProgress; // 0=none, 1=full kaleidoscope
+        private float _kaleidoscopeRotation;
+        private float _colorDrain; // 0=full color, 1=completely drained
 
         // Vignette
         private float _vignetteStrength;
 
-        /// <summary>
-        /// Updates boss state for HP-driven effects. Called from companion ModSystem.
-        /// </summary>
         public void UpdateBossState(float lifeRatio, Vector2 center, bool isDyingSwan)
         {
             _bossLifeRatio = lifeRatio;
             _bossCenter = center;
-            _bossIsDyingSwan = isDyingSwan;
         }
 
-        /// <summary>
-        /// Distance-based intensity falloff. Full intensity near boss, fading to 0.3 at 3000px away.
-        /// </summary>
         private float GetEffectiveIntensity()
         {
             if (_bossCenter == Vector2.Zero) return _opacity;
@@ -87,27 +86,18 @@ namespace MagnumOpus.Content.SwanLake.Bosses.Systems
                     Position = new Vector2(
                         (float)rand.NextDouble() * Main.screenWidth,
                         (float)rand.NextDouble() * Main.screenHeight),
-                    Speed = 0.2f + (float)rand.NextDouble() * 0.8f,
-                    Scale = 0.3f + (float)rand.NextDouble() * 0.5f,
+                    Speed = 0.15f + (float)rand.NextDouble() * 0.6f,
+                    Scale = 0.3f + (float)rand.NextDouble() * 0.4f,
                     Rotation = (float)rand.NextDouble() * MathHelper.TwoPi,
-                    RotSpeed = ((float)rand.NextDouble() - 0.5f) * 0.02f,
+                    RotSpeed = ((float)rand.NextDouble() - 0.5f) * 0.015f,
                     SwayPhase = (float)rand.NextDouble() * MathHelper.TwoPi,
-                    IsBlack = rand.NextDouble() > 0.7 // 30% black feathers
+                    IsBlack = false // Phase 1: all white. Black emerge in Phase 2.
                 };
             }
         }
 
-        public override void Deactivate(params object[] args)
-        {
-            _isActive = false;
-        }
-
-        public override void Reset()
-        {
-            _isActive = false;
-            _opacity = 0f;
-        }
-
+        public override void Deactivate(params object[] args) => _isActive = false;
+        public override void Reset() { _isActive = false; _opacity = 0f; }
         public override bool IsActive() => _isActive || _opacity > 0.001f;
 
         public override void Update(GameTime gameTime)
@@ -123,61 +113,81 @@ namespace MagnumOpus.Content.SwanLake.Bosses.Systems
                 float hpRatio = boss.life / (float)boss.lifeMax;
                 _intensity = 1f - hpRatio;
 
-                // Track mood transitions
                 int targetMood = BossIndexTracker.SwanLakeMood;
-                if (targetMood != _currentMood)
-                {
-                    _moodBlend += 0.01f;
-                    if (_moodBlend >= 1f)
-                    {
-                        _currentMood = targetMood;
-                        _moodBlend = 0f;
-                    }
-                }
+                _currentMood = targetMood;
 
-                // Tempest lightning flashes — more frequent at lower HP
-                if (_currentMood == 1)
-                {
-                    _lightningTimer -= 1f;
-                    float lightningMinCooldown = MathHelper.Lerp(30f, 10f, _intensity);
-                    float lightningMaxCooldown = MathHelper.Lerp(90f, 40f, _intensity);
-                    if (_lightningTimer <= 0)
-                    {
-                        _lightningIntensity = 0.5f + Main.rand.NextFloat(0.5f);
-                        _lightningTimer = lightningMinCooldown + Main.rand.NextFloat(lightningMaxCooldown - lightningMinCooldown);
-                    }
-                    _lightningIntensity *= 0.92f;
-                }
+                // Phase-driven fractal crack progression
+                // Phase 1 (>60%): 0 cracks. Phase 2 (60-45%): cracks emerge 0->0.4.
+                // Phase 3 (45-30%): full kaleidoscope 0.4->1.0. Enrage (<30%): holds at 1.0 but dims.
+                float targetCrack;
+                if (hpRatio > 0.6f)
+                    targetCrack = 0f;
+                else if (hpRatio > 0.45f)
+                    targetCrack = MathHelper.Lerp(0f, 0.4f, (0.6f - hpRatio) / 0.15f);
+                else if (hpRatio > 0.3f)
+                    targetCrack = MathHelper.Lerp(0.4f, 1f, (0.45f - hpRatio) / 0.15f);
                 else
+                    targetCrack = 1f;
+                _fractalCrackProgress = MathHelper.Lerp(_fractalCrackProgress, targetCrack, 0.015f);
+
+                // Kaleidoscope rotation — Phase 3+ only, speeds up at lower HP
+                if (_fractalCrackProgress > 0.4f)
                 {
-                    _lightningIntensity *= 0.95f;
+                    float rotSpeed = MathHelper.Lerp(0.0005f, 0.002f, (_fractalCrackProgress - 0.4f) / 0.6f);
+                    _kaleidoscopeRotation += rotSpeed;
                 }
 
-                // Vignette — builds through fight, strongest in DyingSwan
+                // Color drain — Enrage phase only
+                float targetDrain = hpRatio < 0.3f ? MathHelper.Lerp(0f, 0.85f, (0.3f - hpRatio) / 0.3f) : 0f;
+                _colorDrain = MathHelper.Lerp(_colorDrain, targetDrain, 0.01f);
+
+                // Phase-dependent feather black ratio
+                float blackRatio = hpRatio > 0.6f ? 0f : // Phase 1: all white
+                                   hpRatio > 0.45f ? MathHelper.Lerp(0f, 0.5f, (0.6f - hpRatio) / 0.15f) : // Phase 2: black emerging
+                                   0.5f; // Phase 3+: equal
+
+                // Vignette — builds through phases
                 float targetVignette = _currentMood switch
                 {
-                    0 => 0.15f + _intensity * 0.15f,
-                    1 => 0.35f + _intensity * 0.2f,
-                    _ => 0.5f + _intensity * 0.3f
+                    0 => 0.1f + _intensity * 0.1f,
+                    1 => 0.25f + _intensity * 0.15f,
+                    _ => 0.35f + _intensity * 0.25f
                 };
                 _vignetteStrength = MathHelper.Lerp(_vignetteStrength, targetVignette, 0.02f);
 
-                // Update feather drift — HP-driven speed multiplier
+                // Update feathers
                 if (_feathers != null)
                 {
-                    float speedMult = _currentMood == 1 ? 2.5f : (_currentMood == 2 ? 0.5f : 1f);
-                    speedMult *= MathHelper.Lerp(1f, 1.6f, _intensity);
+                    // Enrage: slow to half speed (beauty in slow motion)
+                    float speedMult = hpRatio < 0.3f ? 0.35f :
+                                      _currentMood == 1 ? 1.5f : 1f;
+
                     for (int i = 0; i < MaxFeathers; i++)
                     {
+                        // Phase 2+: convert some feathers to black
+                        if (i < MaxFeathers * blackRatio && !_feathers[i].IsBlack)
+                            _feathers[i].IsBlack = true;
+
                         _feathers[i].Position.Y += _feathers[i].Speed * speedMult;
-                        float swaySpeed = MathHelper.Lerp(0.008f, 0.016f, _intensity);
-                        _feathers[i].Position.X += (float)Math.Sin(Main.timeForVisualEffects * swaySpeed + _feathers[i].SwayPhase) * 0.5f * speedMult;
+                        float swaySpeed = MathHelper.Lerp(0.006f, 0.012f, _intensity);
+                        _feathers[i].Position.X += (float)Math.Sin(Main.timeForVisualEffects * swaySpeed + _feathers[i].SwayPhase) * 0.4f * speedMult;
                         _feathers[i].Rotation += _feathers[i].RotSpeed * speedMult;
 
                         if (_feathers[i].Position.Y > Main.screenHeight + 20)
                         {
                             _feathers[i].Position.Y = -20;
                             _feathers[i].Position.X = Main.rand.NextFloat() * Main.screenWidth;
+                        }
+
+                        // Black feathers in Phase 2+ also drift upward (mirror)
+                        if (_feathers[i].IsBlack && _fractalCrackProgress > 0.1f)
+                        {
+                            _feathers[i].Position.Y -= _feathers[i].Speed * speedMult * 0.6f;
+                            if (_feathers[i].Position.Y < -20)
+                            {
+                                _feathers[i].Position.Y = Main.screenHeight + 20;
+                                _feathers[i].Position.X = Main.rand.NextFloat() * Main.screenWidth;
+                            }
                         }
                     }
                 }
@@ -189,146 +199,255 @@ namespace MagnumOpus.Content.SwanLake.Bosses.Systems
             if (maxDepth >= 0f && minDepth < 0f)
             {
                 Texture2D pixel = Terraria.GameContent.TextureAssets.MagicPixel.Value;
+                float eff = GetEffectiveIntensity();
 
-                // Mood-dependent sky colors
-                Color topColor, bottomColor;
+                // === PHASE 1: Stark void-black background ===
+                // Pure black — the void stage upon which the white swan dances
+                Color skyBlack = Color.Black * _opacity * 0.85f;
+                spriteBatch.Draw(pixel, new Rectangle(0, 0, Main.screenWidth, Main.screenHeight), skyBlack);
 
-                switch (_currentMood)
+                // === PHASE 2+: Fracture lines / kaleidoscope ===
+                if (_fractalCrackProgress > 0.01f)
                 {
-                    case 0: // Graceful: silver moonlight
-                        topColor = Color.Lerp(new Color(20, 20, 35), new Color(40, 40, 60), _intensity);
-                        bottomColor = Color.Lerp(new Color(50, 55, 70), new Color(100, 105, 130), _intensity);
-                        break;
-                    case 1: // Tempest: stormy dark
-                        topColor = Color.Lerp(new Color(15, 15, 25), new Color(30, 20, 40), _intensity);
-                        bottomColor = Color.Lerp(new Color(30, 30, 45), new Color(60, 50, 80), _intensity);
-                        break;
-                    default: // DyingSwan: fading to white
-                        float fade = _intensity * 0.5f;
-                        topColor = Color.Lerp(new Color(40, 40, 50), new Color(180, 180, 190), fade);
-                        bottomColor = Color.Lerp(new Color(60, 60, 70), new Color(220, 220, 230), fade);
-                        break;
+                    DrawFractalCracks(spriteBatch, pixel, eff);
                 }
 
-                topColor *= _opacity * 0.7f;
-                bottomColor *= _opacity * 0.7f;
-
-                // Draw gradient
-                for (int y = 0; y < Main.screenHeight; y += 4)
+                // === KALEIDOSCOPE GEOMETRY (Phase 3+) ===
+                if (_fractalCrackProgress > 0.4f)
                 {
-                    float t = (float)y / Main.screenHeight;
-                    Color lineColor = Color.Lerp(topColor, bottomColor, t);
-                    spriteBatch.Draw(pixel, new Rectangle(0, y, Main.screenWidth, 4), lineColor);
+                    DrawKaleidoscope(spriteBatch, pixel, eff);
                 }
 
-                // Lightning flash overlay (Tempest)
-                if (_lightningIntensity > 0.01f)
+                // === FEATHER PARTICLES ===
+                DrawFeathers(spriteBatch, pixel, eff);
+
+                // === ENRAGE: Color drain overlay ===
+                if (_colorDrain > 0.01f)
                 {
-                    float hue = ((float)Main.timeForVisualEffects * 0.01f) % 1f;
-                    Color flashColor = Main.hslToRgb(hue, 0.3f, 0.9f) * _opacity * _lightningIntensity * 0.3f;
-                    flashColor.A = 0;
-                    spriteBatch.Draw(pixel, new Rectangle(0, 0, Main.screenWidth, Main.screenHeight), flashColor);
+                    // Gray wash that drains all remaining color
+                    Color drainOverlay = new Color(120, 120, 125) * _colorDrain * _opacity * 0.3f;
+                    drainOverlay.A = (byte)(drainOverlay.A * 0.4f);
+                    spriteBatch.Draw(pixel, new Rectangle(0, 0, Main.screenWidth, Main.screenHeight), drainOverlay);
                 }
 
-                // DyingSwan white fade overlay
-                if (_currentMood == 2 && _intensity > 0.5f)
-                {
-                    float whiteFade = (_intensity - 0.5f) * 2f * 0.15f;
-                    Color whiteOverlay = Color.White * _opacity * whiteFade;
-                    whiteOverlay.A = (byte)(whiteOverlay.A * 0.5f);
-                    spriteBatch.Draw(pixel, new Rectangle(0, 0, Main.screenWidth, Main.screenHeight), whiteOverlay);
-                }
-
-                // Draw feather particles — more feathers appear at lower HP
-                if (_feathers != null && _opacity > 0.1f)
-                {
-                    int visibleFeathers = (int)MathHelper.Lerp(MaxFeathers * 0.5f, MaxFeathers, _intensity);
-                    for (int i = 0; i < visibleFeathers; i++)
-                    {
-                        Color c;
-                        if (_currentMood == 2)
-                        {
-                            // DyingSwan: feathers fade to grey with faint prismatic shimmer
-                            float prismatic = (float)Math.Sin(Main.timeForVisualEffects * 0.02f + i * 0.4f) * 0.1f;
-                            c = Color.Lerp(new Color(150, 150, 155), new Color(200, 210, 240), Math.Max(0f, prismatic)) * _opacity * 0.5f;
-                        }
-                        else
-                        {
-                            c = _feathers[i].IsBlack
-                                ? new Color(20, 20, 25) * _opacity * 0.5f
-                                : new Color(230, 230, 240) * _opacity * 0.4f;
-                        }
-                        c.A = 0;
-                        float s = _feathers[i].Scale * (1f + _intensity * 0.4f);
-                        spriteBatch.Draw(pixel,
-                            _feathers[i].Position,
-                            new Rectangle(0, 0, 1, 1),
-                            c,
-                            _feathers[i].Rotation,
-                            new Vector2(0.5f),
-                            new Vector2(s * 2f, s * 4f), // Elongated like feathers
-                            SpriteEffects.None, 0f);
-                    }
-                }
-
-                // Vignette — darkens edges, intensifies through fight
+                // === VIGNETTE ===
                 if (_vignetteStrength > 0.01f)
                 {
-                    float effectiveVignette = _vignetteStrength * GetEffectiveIntensity();
-                    float vignetteSize = MathHelper.Lerp(400f, 550f, _intensity);
-                    Vector2 screenCenter = new Vector2(Main.screenWidth, Main.screenHeight) * 0.5f;
+                    DrawVignette(spriteBatch, pixel, eff);
+                }
+            }
+        }
 
-                    for (int ring = 0; ring < 12; ring++)
+        /// <summary>
+        /// Phase 2: White fracture lines crack across the void-black sky.
+        /// Lines of pure white that split the darkness, with faint prismatic bleed at edges.
+        /// </summary>
+        private void DrawFractalCracks(SpriteBatch spriteBatch, Texture2D pixel, float eff)
+        {
+            float crackAlpha = _fractalCrackProgress * eff * _opacity;
+            float time = (float)Main.timeForVisualEffects;
+            int crackCount = (int)(_fractalCrackProgress * 12);
+            Vector2 screenCenter = new Vector2(Main.screenWidth, Main.screenHeight) * 0.5f;
+
+            for (int i = 0; i < crackCount; i++)
+            {
+                // Deterministic crack angles radiating from center
+                float baseAngle = MathHelper.TwoPi * i / 12f + _kaleidoscopeRotation;
+                float crackLength = 200f + (i % 3) * 150f;
+
+                // White crack line
+                Vector2 crackDir = new Vector2((float)Math.Cos(baseAngle), (float)Math.Sin(baseAngle));
+                for (int seg = 0; seg < (int)(crackLength / 6f); seg++)
+                {
+                    Vector2 segPos = screenCenter + crackDir * seg * 6f;
+                    // Add slight jaggedness
+                    float jitter = (float)Math.Sin(seg * 0.8f + i * 2.3f + time * 0.003f) * 3f;
+                    segPos += crackDir.RotatedBy(MathHelper.PiOver2) * jitter;
+
+                    if (segPos.X < -10 || segPos.X > Main.screenWidth + 10 ||
+                        segPos.Y < -10 || segPos.Y > Main.screenHeight + 10) continue;
+
+                    // White core
+                    Color crackColor = new Color(240, 240, 255) * crackAlpha * 0.6f;
+                    crackColor.A = 0;
+                    spriteBatch.Draw(pixel, new Rectangle((int)segPos.X - 1, (int)segPos.Y - 1, 3, 3), crackColor);
+
+                    // Faint prismatic bleed at crack edges (Phase 2+)
+                    if (_fractalCrackProgress > 0.2f && seg % 5 == 0)
                     {
-                        float ringT = ring / 12f;
-                        float ringRadius = vignetteSize + ring * 60f;
-                        float ringAlpha = ringT * ringT * effectiveVignette * 0.6f;
-
-                        Color vignetteColor = _currentMood == 2
-                            ? Color.Lerp(new Color(10, 10, 15), new Color(40, 40, 50), ringT) * ringAlpha
-                            : new Color(5, 5, 10) * ringAlpha;
-
-                        // Draw as 4-side edge rectangles
-                        int thickness = 60 + ring * 40;
-                        spriteBatch.Draw(pixel, new Rectangle(0, 0, Main.screenWidth, thickness), vignetteColor);
-                        spriteBatch.Draw(pixel, new Rectangle(0, Main.screenHeight - thickness, Main.screenWidth, thickness), vignetteColor);
-                        spriteBatch.Draw(pixel, new Rectangle(0, 0, thickness, Main.screenHeight), vignetteColor);
-                        spriteBatch.Draw(pixel, new Rectangle(Main.screenWidth - thickness, 0, thickness, Main.screenHeight), vignetteColor);
+                        float hue = (seg * 0.05f + time * 0.002f + i * 0.3f) % 1f;
+                        Color prism = Main.hslToRgb(hue, 0.8f, 0.7f) * crackAlpha * 0.2f;
+                        prism.A = 0;
+                        spriteBatch.Draw(pixel, new Rectangle((int)segPos.X - 3, (int)segPos.Y - 3, 7, 7), prism);
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Phase 3: Full kaleidoscope fractal pattern — mirrored geometric panels
+        /// of alternating black and white rotating slowly across the sky.
+        /// </summary>
+        private void DrawKaleidoscope(SpriteBatch spriteBatch, Texture2D pixel, float eff)
+        {
+            float kaleidoAlpha = MathHelper.Clamp((_fractalCrackProgress - 0.4f) / 0.6f, 0f, 1f);
+            // Dim during enrage — color/brightness drains
+            float drainMult = 1f - _colorDrain * 0.7f;
+            kaleidoAlpha *= eff * _opacity * 0.35f * drainMult;
+
+            if (kaleidoAlpha < 0.01f) return;
+
+            Vector2 center = new Vector2(Main.screenWidth, Main.screenHeight) * 0.5f;
+            int segments = 8;
+            float segmentAngle = MathHelper.TwoPi / segments;
+
+            // Draw alternating black/white triangular segments radiating from center
+            for (int seg = 0; seg < segments; seg++)
+            {
+                float angle1 = seg * segmentAngle + _kaleidoscopeRotation;
+                float angle2 = angle1 + segmentAngle;
+                bool isWhiteSegment = seg % 2 == 0;
+
+                Color segColor = isWhiteSegment
+                    ? new Color(220, 220, 235) * kaleidoAlpha
+                    : new Color(10, 10, 15) * kaleidoAlpha;
+                segColor.A = 0;
+
+                // Draw as radiating bands
+                float maxRadius = Math.Max(Main.screenWidth, Main.screenHeight) * 0.7f;
+                for (float r = 80f; r < maxRadius; r += 20f)
+                {
+                    float midAngle = (angle1 + angle2) * 0.5f;
+                    Vector2 bandPos = center + new Vector2((float)Math.Cos(midAngle), (float)Math.Sin(midAngle)) * r;
+
+                    if (bandPos.X < -40 || bandPos.X > Main.screenWidth + 40 ||
+                        bandPos.Y < -40 || bandPos.Y > Main.screenHeight + 40) continue;
+
+                    // Band thickness decreases with distance
+                    float thickness = MathHelper.Lerp(12f, 2f, r / maxRadius);
+                    float arcWidth = r * segmentAngle * 0.6f;
+
+                    // Vary panel opacity for fragmented look
+                    float fragmentation = (float)Math.Sin(r * 0.02f + seg * 1.5f + (float)Main.timeForVisualEffects * 0.001f);
+                    float panelAlpha = 0.5f + fragmentation * 0.3f;
+
+                    Color panelColor = segColor * panelAlpha;
+                    spriteBatch.Draw(pixel,
+                        new Rectangle((int)(bandPos.X - arcWidth * 0.5f), (int)(bandPos.Y - thickness * 0.5f),
+                            (int)arcWidth, (int)thickness),
+                        panelColor);
+                }
+
+                // Prismatic edge between segments — only at destruction boundaries
+                if (_fractalCrackProgress > 0.6f)
+                {
+                    float edgeHue = (seg * 0.125f + (float)Main.timeForVisualEffects * 0.003f) % 1f;
+                    Color edgeColor = Main.hslToRgb(edgeHue, 0.9f, 0.8f) * kaleidoAlpha * 0.4f;
+                    edgeColor.A = 0;
+
+                    for (float r = 60f; r < maxRadius * 0.8f; r += 15f)
+                    {
+                        Vector2 edgePos = center + new Vector2((float)Math.Cos(angle1), (float)Math.Sin(angle1)) * r;
+                        if (edgePos.X >= 0 && edgePos.X <= Main.screenWidth &&
+                            edgePos.Y >= 0 && edgePos.Y <= Main.screenHeight)
+                        {
+                            spriteBatch.Draw(pixel, new Rectangle((int)edgePos.X - 1, (int)edgePos.Y - 1, 3, 3), edgeColor);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Draw sky feather particles — phase-aware coloring and behavior.
+        /// </summary>
+        private void DrawFeathers(SpriteBatch spriteBatch, Texture2D pixel, float eff)
+        {
+            if (_feathers == null || _opacity < 0.1f) return;
+
+            int visibleFeathers = (int)MathHelper.Lerp(MaxFeathers * 0.4f, MaxFeathers, _intensity);
+            for (int i = 0; i < visibleFeathers && i < MaxFeathers; i++)
+            {
+                Color c;
+                if (_colorDrain > 0.3f)
+                {
+                    // Enrage: feathers drain to uniform gray — beauty fading
+                    float gray = MathHelper.Lerp(0.5f, 0.35f, _colorDrain);
+                    c = new Color(gray, gray, gray + 0.02f) * _opacity * 0.5f;
+                }
+                else if (_feathers[i].IsBlack)
+                {
+                    c = new Color(15, 15, 20) * _opacity * 0.5f;
+                }
+                else
+                {
+                    c = new Color(235, 235, 245) * _opacity * 0.4f;
+                }
+                c.A = 0;
+
+                float s = _feathers[i].Scale * (1f + _intensity * 0.3f);
+                spriteBatch.Draw(pixel,
+                    _feathers[i].Position,
+                    new Rectangle(0, 0, 1, 1),
+                    c,
+                    _feathers[i].Rotation,
+                    new Vector2(0.5f),
+                    new Vector2(s * 2f, s * 4.5f), // Elongated feather shape
+                    SpriteEffects.None, 0f);
+            }
+        }
+
+        /// <summary>
+        /// Darkens edges of screen — builds through the fight.
+        /// </summary>
+        private void DrawVignette(SpriteBatch spriteBatch, Texture2D pixel, float eff)
+        {
+            float effectiveVignette = _vignetteStrength * eff;
+            for (int ring = 0; ring < 10; ring++)
+            {
+                float ringT = ring / 10f;
+                float ringAlpha = ringT * ringT * effectiveVignette * 0.5f;
+
+                Color vignetteColor = new Color(2, 2, 5) * ringAlpha;
+                int thickness = 50 + ring * 35;
+                spriteBatch.Draw(pixel, new Rectangle(0, 0, Main.screenWidth, thickness), vignetteColor);
+                spriteBatch.Draw(pixel, new Rectangle(0, Main.screenHeight - thickness, Main.screenWidth, thickness), vignetteColor);
+                spriteBatch.Draw(pixel, new Rectangle(0, 0, thickness, Main.screenHeight), vignetteColor);
+                spriteBatch.Draw(pixel, new Rectangle(Main.screenWidth - thickness, 0, thickness, Main.screenHeight), vignetteColor);
             }
         }
 
         public override Color OnTileColor(Color inColor)
         {
             float eff = GetEffectiveIntensity();
-            Color tint = _currentMood switch
+            Color tint;
+            if (_colorDrain > 0.1f)
             {
-                // Graceful: cool silver moonlight wash
-                0 => Color.Lerp(Color.White, new Color(190, 195, 220), eff * 0.45f),
-                // Tempest: darker, stormy desaturation
-                1 => Color.Lerp(Color.White, new Color(170, 170, 195), eff * 0.5f),
-                // DyingSwan: fading toward monochrome white
-                _ => Color.Lerp(Color.White, new Color(210, 210, 215), eff * 0.4f)
-            };
+                // Enrage: tiles drain toward monochrome gray
+                float gray = MathHelper.Lerp(0.85f, 0.55f, _colorDrain);
+                tint = Color.Lerp(Color.White, new Color(gray, gray, gray), eff * 0.5f);
+            }
+            else
+            {
+                // Normal: cool silver moonlight wash — stark, clean
+                tint = Color.Lerp(Color.White, new Color(200, 200, 215), eff * 0.4f);
+            }
             return inColor.MultiplyRGBA(tint);
         }
 
-        public override float GetCloudAlpha() => 1f - _opacity * (_currentMood == 1 ? 0.8f : 0.5f);
+        public override float GetCloudAlpha() => 1f - _opacity * 0.7f;
     }
 
     /// <summary>
-    /// Companion ModSystem for the Swan Lake sky. 
+    /// Companion ModSystem for the Swan Lake sky.
     /// Feeds boss state, provides screen flash APIs, and spawns ambient world particles.
     /// </summary>
     public class SwanLakeSkySystem : ModSystem
     {
-        // Flash system
         private static float _flashTimer;
         private static float _flashDuration;
         private static Color _flashColor;
 
-        // Boss state (set by boss AI loop)
         public static float BossLifeRatio { get; set; } = 1f;
         public static Vector2 BossCenter { get; set; }
         public static bool BossIsDyingSwan { get; set; }
@@ -363,47 +482,72 @@ namespace MagnumOpus.Content.SwanLake.Bosses.Systems
 
         public override void PostUpdateEverything()
         {
-            // Feed boss state to sky
             if (SkyManager.Instance["MagnumOpus:SwanLakeSky"] is SwanLakeSky sky)
             {
                 sky.UpdateBossState(BossLifeRatio, BossCenter, BossIsDyingSwan);
             }
 
-            // Flash timer
             if (_flashTimer > 0)
                 _flashTimer--;
 
-            // Ambient feather dust near boss
+            // Phase-aware ambient feather dust near boss
             if (BossCenter != Vector2.Zero && BossLifeRatio < 1f)
             {
                 float hpDrive = 1f - BossLifeRatio;
 
-                // Drifting white feather motes
-                int featherChance = Math.Max(1, (int)MathHelper.Lerp(5, 2, hpDrive));
-                if (Main.rand.NextBool(featherChance))
+                if (BossIsDyingSwan)
                 {
-                    Vector2 pos = BossCenter + Main.rand.NextVector2Circular(300f, 300f);
-                    Dust d = Dust.NewDustPerfect(pos, Terraria.ID.DustID.SilverCoin, Main.rand.NextVector2Circular(0.5f, -1.5f) + new Vector2(0f, -0.5f), 120, Color.White, 0.6f);
-                    d.noGravity = true;
-                    d.fadeIn = 1.2f;
-                }
+                    // Enrage: slow gray feathers drifting down, mourning
+                    if (Main.rand.NextBool(3))
+                    {
+                        Vector2 pos = BossCenter + Main.rand.NextVector2Circular(250f, 250f);
+                        Dust d = Dust.NewDustPerfect(pos, Terraria.ID.DustID.SilverCoin,
+                            new Vector2(Main.rand.NextFloat(-0.2f, 0.2f), Main.rand.NextFloat(0.05f, 0.2f)),
+                            100, new Color(180, 180, 190), 0.4f);
+                        d.noGravity = true;
+                        d.fadeIn = 1.5f;
+                    }
 
-                // DyingSwan: faint prismatic sparkle dust
-                if (BossIsDyingSwan && Main.rand.NextBool(3))
+                    // Desperate prismatic sparkle — rare
+                    if (Main.rand.NextBool(12))
+                    {
+                        Vector2 pos = BossCenter + Main.rand.NextVector2Circular(150f, 150f);
+                        float hue = Main.rand.NextFloat();
+                        Color sparkleColor = Main.hslToRgb(hue, 0.9f, 0.85f);
+                        Dust d = Dust.NewDustPerfect(pos, Terraria.ID.DustID.RainbowMk2,
+                            Main.rand.NextVector2Circular(0.5f, 0.5f), 80, sparkleColor, 0.35f);
+                        d.noGravity = true;
+                    }
+                }
+                else
                 {
-                    Vector2 pos = BossCenter + Main.rand.NextVector2Circular(200f, 200f);
-                    float hue = Main.rand.NextFloat();
-                    Color sparkleColor = Main.hslToRgb(hue, 0.6f, 0.9f);
-                    Dust d = Dust.NewDustPerfect(pos, Terraria.ID.DustID.RainbowMk2, Main.rand.NextVector2Circular(1f, 1f), 80, sparkleColor, 0.5f);
-                    d.noGravity = true;
-                    d.fadeIn = 1f;
+                    // Normal: white feather motes drifting
+                    int featherChance = Math.Max(1, (int)MathHelper.Lerp(5, 2, hpDrive));
+                    if (Main.rand.NextBool(featherChance))
+                    {
+                        Vector2 pos = BossCenter + Main.rand.NextVector2Circular(300f, 300f);
+                        Dust d = Dust.NewDustPerfect(pos, Terraria.ID.DustID.WhiteTorch,
+                            new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-0.5f, 0.5f)),
+                            0, Color.White, 0.5f);
+                        d.noGravity = true;
+                        d.fadeIn = 1.2f;
+                    }
+
+                    // Phase 2+: black feathers mirroring
+                    if (BossLifeRatio < 0.6f && Main.rand.NextBool(featherChance + 1))
+                    {
+                        Vector2 pos = BossCenter + Main.rand.NextVector2Circular(300f, 300f);
+                        Dust d = Dust.NewDustPerfect(pos, Terraria.ID.DustID.Shadowflame,
+                            new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-0.5f, 0.5f)),
+                            120, new Color(15, 15, 20), 0.45f);
+                        d.noGravity = true;
+                    }
                 }
             }
         }
 
         public override void ModifyScreenPosition()
         {
-            // Screen flash rendering via UI
             if (_flashTimer > 0 && _flashDuration > 0)
             {
                 float progress = _flashTimer / _flashDuration;

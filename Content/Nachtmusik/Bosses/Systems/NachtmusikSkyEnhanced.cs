@@ -11,21 +11,23 @@ using MagnumOpus.Common.Systems.VFX;
 namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
 {
     /// <summary>
-    /// Enhanced sky effect for the Nachtmusik boss fight.
-    /// Phase 1: serene starlit night — gentle pulse, soft indigo vignette.
-    /// Phase 2: violent cosmic storm — rapid flicker, nebula overlay, intense vignette.
-    /// HP-driven intensity scaling on stars, vignette, and tile tint.
+    /// Enhanced sky overlay for the Nachtmusik boss fight — 4 phases of nocturnal wonder.
+    /// Phase 1: Planetarium — serene starlit dome, gentle indigo vignette.
+    /// Phase 2: Cosmic Dance — rotating starfield, nebula tint intensifies.
+    /// Phase 3: Celestial Crescendo — galaxy spiral visible, deep vignette.
+    /// Phase 4: Supernova — blinding silver-white wash, aurora overlay.
+    /// HP-driven intensity scaling on stars, vignette, tile tint.
     /// </summary>
     public class NachtmusikSkyEnhanced : CustomSky
     {
         private bool _isActive;
         private float _opacity;
-        private float _stormIntensity; // 0 = serene, 1 = cosmic storm
+        private float _phaseBlend; // 0-1 blending to current phase visual state
 
         // Boss state fed from NachtmusikSkySystem
         private float _bossLifeRatio = 1f;
         private Vector2 _bossCenter;
-        private bool _bossIsPhase2;
+        private int _bossPhase = 1;
         private float _vignetteStrength;
 
         private struct NightStar
@@ -39,7 +41,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
         }
 
         private NightStar[] _stars;
-        private const int MaxStars = 70;
+        private const int MaxStars = 80;
 
         private struct ShootingStar
         {
@@ -51,7 +53,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
         }
 
         private ShootingStar[] _shootingStars;
-        private const int MaxShootingStars = 8;
+        private const int MaxShootingStars = 10;
 
         public override void OnLoad() { }
 
@@ -64,6 +66,10 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
 
             for (int i = 0; i < MaxStars; i++)
             {
+                // Silver/blue palette — no gold
+                Color tint = Color.Lerp(new Color(200, 215, 240), new Color(60, 100, 190),
+                    (float)rand.NextDouble() * 0.4f);
+
                 _stars[i] = new NightStar
                 {
                     Position = new Vector2(
@@ -73,8 +79,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
                     PulseSpeed = 0.008f + (float)rand.NextDouble() * 0.02f,
                     PulseOffset = (float)rand.NextDouble() * MathHelper.TwoPi,
                     Scale = 0.2f + (float)rand.NextDouble() * 0.7f,
-                    Tint = Color.Lerp(new Color(200, 210, 230), new Color(80, 120, 200),
-                        (float)rand.NextDouble() * 0.5f)
+                    Tint = tint
                 };
             }
 
@@ -88,12 +93,16 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
                 (float)rand.NextDouble() * Main.screenWidth,
                 (float)rand.NextDouble() * Main.screenHeight * 0.5f);
             float angle = MathHelper.ToRadians(120f + (float)rand.NextDouble() * 60f);
-            float speed = 2f + (float)rand.NextDouble() * 4f + _stormIntensity * 6f;
+            // Phase 3+ = faster shooting stars
+            float phaseSpeed = _bossPhase >= 3 ? 6f : 0f;
+            float speed = 2f + (float)rand.NextDouble() * 4f + phaseSpeed;
             star.Velocity = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * speed;
             star.MaxLife = 30f + (float)rand.NextDouble() * 40f;
             star.Life = star.MaxLife;
-            star.Color = Color.Lerp(new Color(200, 210, 230), new Color(220, 180, 100),
-                (float)rand.NextDouble() * _stormIntensity);
+            // Phase 4 = brighter shooting stars
+            star.Color = _bossPhase >= 4
+                ? Color.Lerp(new Color(245, 245, 255), new Color(200, 215, 240), (float)rand.NextDouble())
+                : Color.Lerp(new Color(200, 215, 240), new Color(60, 100, 190), (float)rand.NextDouble() * 0.5f);
         }
 
         public override void Deactivate(params object[] args)
@@ -109,7 +118,6 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
 
         public override bool IsActive() => _isActive || _opacity > 0.001f;
 
-        /// <summary>Distance-based intensity falloff from boss center.</summary>
         private float GetEffectiveIntensity()
         {
             if (_bossCenter == Vector2.Zero) return 1f;
@@ -122,7 +130,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
         {
             _bossLifeRatio = NachtmusikSkySystem.BossLifeRatio;
             _bossCenter = NachtmusikSkySystem.BossCenter;
-            _bossIsPhase2 = NachtmusikSkySystem.BossIsPhase2;
+            _bossPhase = NachtmusikSkySystem.BossPhase;
         }
 
         public override void Update(GameTime gameTime)
@@ -134,31 +142,36 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
 
             UpdateBossState();
 
-            // Phase 2 = storm intensity
-            float targetStorm = BossIndexTracker.NachtmusikPhase >= 2 ? 1f : 0f;
-            _stormIntensity += (targetStorm - _stormIntensity) * 0.02f;
+            // Phase blend tracks current phase
+            float targetBlend = (_bossPhase - 1) / 3f; // 0 for P1, 0.33 P2, 0.66 P3, 1.0 P4
+            _phaseBlend += (targetBlend - _phaseBlend) * 0.02f;
 
-            // HP-driven intensity: lower HP = fiercer sky
             float hpDrive = 1f - _bossLifeRatio;
 
-            // Vignette: phase 2 = intense, phase 1 = subtle
-            float targetVignette = _bossIsPhase2 ? (0.35f + hpDrive * 0.25f) : (_opacity > 0.1f ? 0.12f + hpDrive * 0.15f : 0f);
+            // Vignette: escalates per phase
+            float targetVignette = _bossPhase switch
+            {
+                4 => 0.1f + hpDrive * 0.15f,   // Supernova — lighter (sky is bright)
+                3 => 0.3f + hpDrive * 0.2f,     // Crescendo — deep
+                2 => 0.2f + hpDrive * 0.15f,    // Cosmic Dance
+                _ => _opacity > 0.1f ? 0.12f + hpDrive * 0.1f : 0f  // Evening Star — subtle
+            };
             _vignetteStrength += (targetVignette - _vignetteStrength) * 0.03f;
 
-            // Update stars — HP drives pulse speed and brightness
+            // Update stars
             if (_stars != null)
             {
-                float pulseMult = 1f + hpDrive * 0.6f;
+                float pulseMult = 1f + hpDrive * 0.6f + (_bossPhase >= 4 ? 0.5f : 0f);
                 for (int i = 0; i < MaxStars; i++)
                 {
                     float pulse = (float)Math.Sin(Main.timeForVisualEffects * _stars[i].PulseSpeed * pulseMult + _stars[i].PulseOffset);
-                    _stars[i].Brightness = 0.2f + (pulse * 0.3f + 0.3f) + _stormIntensity * 0.3f + hpDrive * 0.2f;
+                    _stars[i].Brightness = 0.2f + (pulse * 0.3f + 0.3f) + _phaseBlend * 0.2f + hpDrive * 0.2f;
 
-                    // Storm: stars flicker rapidly
-                    if (_stormIntensity > 0.5f)
+                    // Phase 3+: stars shimmer more rapidly
+                    if (_bossPhase >= 3)
                     {
-                        float flicker = (float)Math.Sin(Main.timeForVisualEffects * 0.2f + i * 1.3f);
-                        _stars[i].Brightness *= 0.7f + flicker * 0.3f;
+                        float flicker = (float)Math.Sin(Main.timeForVisualEffects * 0.15f + i * 1.3f);
+                        _stars[i].Brightness *= 0.75f + flicker * 0.25f;
                     }
                 }
             }
@@ -186,10 +199,30 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
             if (maxDepth >= 0f && minDepth < 0f)
             {
                 Texture2D pixel = Terraria.GameContent.TextureAssets.MagicPixel.Value;
+                float hpDrive = 1f - _bossLifeRatio;
 
-                // Sky gradient — deep indigo night, intensifying to nebula purple in Phase 2
-                Color topColor = Color.Lerp(new Color(10, 8, 30), new Color(40, 15, 60), _stormIntensity);
-                Color bottomColor = Color.Lerp(new Color(20, 15, 50), new Color(60, 30, 90), _stormIntensity);
+                // Sky gradient — phase-driven palette
+                Color topColor, bottomColor;
+                switch (_bossPhase)
+                {
+                    case 4: // Supernova — washed silver-white
+                        float pulse4 = (float)Math.Sin(Main.timeForVisualEffects * 0.003f) * 0.1f;
+                        topColor = Color.Lerp(new Color(15, 12, 40), new Color(100, 105, 130), 0.3f + pulse4);
+                        bottomColor = Color.Lerp(new Color(20, 15, 50), new Color(80, 80, 110), 0.2f + pulse4);
+                        break;
+                    case 3: // Celestial Crescendo — deeper void
+                        topColor = Color.Lerp(new Color(8, 6, 22), new Color(20, 18, 50), _phaseBlend);
+                        bottomColor = Color.Lerp(new Color(15, 12, 40), new Color(35, 25, 65), _phaseBlend);
+                        break;
+                    case 2: // Cosmic Dance — subtle nebula tint
+                        topColor = Color.Lerp(new Color(8, 6, 22), new Color(12, 10, 32), _phaseBlend);
+                        bottomColor = Color.Lerp(new Color(15, 12, 40), new Color(25, 20, 55), _phaseBlend);
+                        break;
+                    default: // Evening Star — deep dark indigo
+                        topColor = new Color(8, 6, 22);
+                        bottomColor = new Color(15, 12, 40);
+                        break;
+                }
                 topColor *= _opacity * 0.8f;
                 bottomColor *= _opacity * 0.8f;
 
@@ -201,9 +234,8 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
                 }
 
                 float alpha = _opacity;
-                float hpDrive = 1f - _bossLifeRatio;
 
-                // Stars — HP drives visibility threshold
+                // Stars
                 if (_stars != null && alpha > 0.1f)
                 {
                     float visibleFraction = 0.6f + hpDrive * 0.4f;
@@ -212,12 +244,9 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
                     {
                         Color c = _stars[i].Tint * (alpha * _stars[i].Brightness);
                         c.A = 0;
-                        float s = _stars[i].Scale * (1f + _stormIntensity * 0.3f);
-                        spriteBatch.Draw(pixel,
-                            _stars[i].Position,
-                            new Rectangle(0, 0, 1, 1),
-                            c, 0f, new Vector2(0.5f),
-                            s * 2.5f, SpriteEffects.None, 0f);
+                        float s = _stars[i].Scale * (1f + _phaseBlend * 0.3f);
+                        spriteBatch.Draw(pixel, _stars[i].Position, new Rectangle(0, 0, 1, 1),
+                            c, 0f, new Vector2(0.5f), s * 2.5f, SpriteEffects.None, 0f);
                     }
                 }
 
@@ -233,47 +262,19 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
                         Vector2 dir = _shootingStars[i].Velocity;
                         dir.Normalize();
                         float rot = (float)Math.Atan2(dir.Y, dir.X);
-                        float tailLen = 8f + (1f - lifeRatio) * 15f + _stormIntensity * 10f;
+                        float tailLen = 8f + (1f - lifeRatio) * 15f + _phaseBlend * 10f;
 
-                        spriteBatch.Draw(pixel,
-                            _shootingStars[i].Position,
-                            new Rectangle(0, 0, 1, 1),
-                            c, rot, Vector2.Zero,
-                            new Vector2(tailLen, 1.5f),
-                            SpriteEffects.None, 0f);
+                        spriteBatch.Draw(pixel, _shootingStars[i].Position, new Rectangle(0, 0, 1, 1),
+                            c, rot, Vector2.Zero, new Vector2(tailLen, 1.5f), SpriteEffects.None, 0f);
                     }
                 }
 
-                // Phase 2: nebula cloud overlay
-                if (_stormIntensity > 0.1f && alpha > 0.1f)
-                {
-                    float nebulaAlpha = _stormIntensity * alpha * 0.15f;
-                    float time = (float)Main.timeForVisualEffects * 0.001f;
-
-                    for (int i = 0; i < 5; i++)
-                    {
-                        float x = (float)Math.Sin(time + i * 1.2f) * Main.screenWidth * 0.3f + Main.screenWidth * 0.5f;
-                        float y = (float)Math.Cos(time * 0.7f + i * 0.9f) * Main.screenHeight * 0.2f + Main.screenHeight * 0.3f;
-                        Color nebulaColor = Color.Lerp(new Color(80, 120, 200), new Color(220, 180, 100),
-                            (float)Math.Sin(time + i) * 0.5f + 0.5f) * nebulaAlpha;
-                        nebulaColor.A = 0;
-
-                        spriteBatch.Draw(pixel,
-                            new Vector2(x, y),
-                            new Rectangle(0, 0, 1, 1),
-                            nebulaColor, time * 0.5f + i,
-                            new Vector2(0.5f),
-                            80f + i * 20f,
-                            SpriteEffects.None, 0f);
-                    }
-                }
-
-                // Vignette — indigo edges in P1, deep cosmic in P2
+                // Vignette — indigo edges, lighter in supernova
                 if (_vignetteStrength > 0.01f)
                 {
-                    Color vignetteColor = _bossIsPhase2
-                        ? Color.Lerp(new Color(15, 15, 45), new Color(30, 50, 120), hpDrive * 0.5f)
-                        : new Color(15, 15, 45);
+                    Color vignetteColor = _bossPhase >= 4
+                        ? Color.Lerp(new Color(15, 12, 40), new Color(70, 40, 120), hpDrive * 0.3f)
+                        : new Color(15, 12, 40);
                     int steps = 12;
                     for (int ring = 0; ring < steps; ring++)
                     {
@@ -292,10 +293,12 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
         public override Color OnTileColor(Color inColor)
         {
             float eff = GetEffectiveIntensity();
-            float strength = _bossIsPhase2 ? 0.45f : 0.30f;
-            Color tint = Color.Lerp(Color.White,
-                Color.Lerp(new Color(180, 190, 220), new Color(160, 140, 200), _stormIntensity),
-                _opacity * strength * eff);
+            // Phase-driven tinting: deeper indigo in early phases, silver wash in supernova
+            float strength = _bossPhase >= 4 ? 0.25f : (0.25f + _phaseBlend * 0.15f);
+            Color tintTarget = _bossPhase >= 4
+                ? Color.Lerp(new Color(180, 195, 220), new Color(220, 220, 240), _phaseBlend)
+                : Color.Lerp(new Color(160, 175, 210), new Color(120, 130, 190), _phaseBlend);
+            Color tint = Color.Lerp(Color.White, tintTarget, _opacity * strength * eff);
             return inColor.MultiplyRGBA(tint);
         }
 
@@ -304,41 +307,46 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
 
     /// <summary>
     /// Companion ModSystem for NachtmusikSkyEnhanced.
-    /// Feeds boss state to the sky, provides sky flash APIs, and spawns ambient world particles.
+    /// Feeds boss state to sky, provides flash APIs and ambient world particles.
+    /// Updated for 4-phase system: Evening Star → Cosmic Dance → Crescendo → Supernova.
     /// </summary>
     public class NachtmusikSkySystem : ModSystem
     {
         // Boss state — written by boss AI, read by sky
         public static float BossLifeRatio { get; set; } = 1f;
         public static Vector2 BossCenter { get; set; }
-        public static bool BossIsPhase2 { get; set; }
+        public static int BossPhase { get; set; } = 1;
 
         // Flash state
         private static Color _flashColor;
         private static float _flashIntensity;
         private static float _flashDecay;
 
+        /// <summary>Soft silver flash — gentle starlight impacts.</summary>
         public static void TriggerStarlightFlash(float intensity = 8f)
         {
-            _flashColor = new Color(200, 210, 240); // StarWhite
+            _flashColor = new Color(200, 215, 240);
             _flashIntensity = intensity;
             _flashDecay = 0.92f;
         }
 
-        public static void TriggerCosmicStormFlash(float intensity = 10f)
+        /// <summary>Cosmic blue flash — nebula pulse, constellation fire.</summary>
+        public static void TriggerCosmicFlash(float intensity = 10f)
         {
-            _flashColor = new Color(80, 120, 200); // StarlitBlue
+            _flashColor = new Color(60, 100, 190);
             _flashIntensity = intensity;
             _flashDecay = 0.90f;
         }
 
-        public static void TriggerRadianceFlash(float intensity = 12f)
+        /// <summary>Prismatic white flash — starlight beam refractions, crescendo attacks.</summary>
+        public static void TriggerPrismaticFlash(float intensity = 12f)
         {
-            _flashColor = new Color(255, 215, 0); // RadianceGold
+            _flashColor = new Color(220, 225, 245);
             _flashIntensity = intensity;
             _flashDecay = 0.88f;
         }
 
+        /// <summary>Blinding supernova flash — the night explodes.</summary>
         public static void TriggerSupernovaFlash(float intensity = 18f)
         {
             _flashColor = Color.White;
@@ -362,8 +370,9 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
                 for (int i = 0; i < 2; i++)
                 {
                     Vector2 pos = BossCenter + Main.rand.NextVector2Circular(250f, 250f);
-                    Color dustColor = BossIsPhase2 ? new Color(255, 215, 0) : new Color(200, 210, 240);
-                    int dustType = BossIsPhase2 ? DustID.GoldFlame : DustID.BlueTorch;
+                    // Silver starlight dust, not gold
+                    Color dustColor = BossPhase >= 4 ? new Color(245, 245, 255) : new Color(200, 215, 240);
+                    int dustType = BossPhase >= 4 ? DustID.SilverCoin : DustID.BlueTorch;
                     var d = Dust.NewDustDirect(pos, 1, 1, dustType, 0f, -1f, 150, dustColor, 0.8f);
                     d.noGravity = true;
                     d.velocity *= 0.3f;

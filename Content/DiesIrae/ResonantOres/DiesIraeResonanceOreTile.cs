@@ -102,28 +102,6 @@ namespace MagnumOpus.Content.DiesIrae.ResonantOres
 
         public override bool PreDraw(int i, int j, SpriteBatch spriteBatch)
         {
-            // The texture is a 4x4 sprite sheet (64x64 total with 16x16 tiles)
-            // We use a seeded random based on tile position to pick a consistent frame
-            Texture2D texture = TextureAssets.Tile[Type].Value;
-            Vector2 zero = Main.drawToScreen ? Vector2.Zero : new Vector2(Main.offScreenRange);
-            Vector2 position = new Vector2(i * 16, j * 16) - Main.screenPosition + zero;
-            
-            // Get lighting at this tile position
-            Color lightColor = Lighting.GetColor(i, j);
-            
-            // Use tile coordinates as seed for consistent random per-tile
-            int seed = i * 7919 + j * 6997;
-            var tileRandom = new System.Random(seed);
-            
-            // Pick random frame from 4x4 grid (0-3 for X, 0-3 for Y)
-            int frameX = tileRandom.Next(4);
-            int frameY = tileRandom.Next(4);
-            
-            // Each frame is 16x16 pixels
-            Rectangle sourceRect = new Rectangle(frameX * 16, frameY * 16, 16, 16);
-            
-            spriteBatch.Draw(texture, position, sourceRect, lightColor, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
-            
             return false;
         }
     }

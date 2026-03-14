@@ -10,7 +10,6 @@ using MagnumOpus.Content.OdeToJoy.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Content.OdeToJoy;
-using MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles;
 
 namespace MagnumOpus.Content.OdeToJoy.Accessories
 {
@@ -88,7 +87,7 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
                 // Enhanced chromatic petal VFX
                 if (Main.rand.NextBool(3))
                 {
-                    OdeToJoyVFXLibrary.SpawnRosePetals(target.Center, 6, 1.8f);
+// VFX_GUTTED:                     OdeToJoyVFXLibrary.SpawnRosePetals(target.Center, 6, 1.8f);
                 }
                 
                 // Every 10th hit: joyous bloom explosion with full signature effect
@@ -96,7 +95,7 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
                 if (magicHitCounter >= 10)
                 {
                     magicHitCounter = 0;
-                    OdeToJoyVFXLibrary.GardenImpact(target.Center, 0.9f);
+// VFX_GUTTED:                     OdeToJoyVFXLibrary.GardenImpact(target.Center, 0.9f);
                     
                     // Deal bonus damage in area
                     for (int i = 0; i < Main.maxNPCs; i++)
@@ -189,14 +188,14 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
                     }
                     
                     // Enhanced chromatic rose petal burst and harmonic sparkle
-                    OdeToJoyVFXLibrary.SpawnRosePetals(target.Center, 8, 2.5f);
-                    OdeToJoyVFXLibrary.SpawnMusicNotes(target.Center, 4, 1.2f);
+// VFX_GUTTED:                     OdeToJoyVFXLibrary.SpawnRosePetals(target.Center, 8, 2.5f);
+// VFX_GUTTED:                     OdeToJoyVFXLibrary.SpawnMusicNotes(target.Center, 4, 1.2f);
                 }
                 
                 // Enhanced chromatic vine trail VFX
                 if (Main.rand.NextBool(4))
                 {
-                    OdeToJoyVFXLibrary.SpawnVineTrailDust(proj.Center, Vector2.Zero);
+// VFX_GUTTED:                     OdeToJoyVFXLibrary.SpawnVineTrailDust(proj.Center, Vector2.Zero);
                 }
             }
         }
@@ -299,13 +298,13 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
             }
             
             // Enhanced chromatic vine trail on hit
-            OdeToJoyVFXLibrary.SpawnVineTrailDust(target.Center, Vector2.Zero);
+// VFX_GUTTED:             OdeToJoyVFXLibrary.SpawnVineTrailDust(target.Center, Vector2.Zero);
             
             // Critical strikes cause blooming explosions that heal nearby allies
             if (hit.Crit)
             {
                 // Full chromatic rose petal explosion on crits
-                OdeToJoyVFXLibrary.SpawnRosePetals(target.Center, 12, 4.8f);
+// VFX_GUTTED:                 OdeToJoyVFXLibrary.SpawnRosePetals(target.Center, 12, 4.8f);
                 
                 // Heal nearby allies (multiplayer)
                 for (int i = 0; i < Main.maxPlayers; i++)
@@ -397,7 +396,7 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
                 // Enhanced chromatic vine VFX on mark
                 if (Main.rand.NextBool(3))
                 {
-                    OdeToJoyVFXLibrary.SpawnVineTrailDust(target.Center, Vector2.Zero);
+// VFX_GUTTED:                     OdeToJoyVFXLibrary.SpawnVineTrailDust(target.Center, Vector2.Zero);
                 }
                 
                 // Shot counter for bonus petal storm
@@ -414,7 +413,7 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
                             Player.GetSource_Accessory(Player.armor.FirstOrDefault(i => i.type == ModContent.ItemType<SymphonyOfBlossoms>())),
                             Player.Center, 
                             direction * 12f,
-                            ModContent.ProjectileType<PetalBombProjectile>(),
+                            ProjectileID.FlowerPetal,
                             (int)(damageDone * 0.6f),
                             3f,
                             Player.whoAmI
@@ -422,7 +421,7 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
                     }
                     
                     // Enhanced harmonic note sparkle on petal storm trigger
-                    OdeToJoyVFXLibrary.MusicNoteBurst(Player.Center, OdeToJoyPalette.GoldenPollen, 8, 5f);
+// VFX_GUTTED:                     OdeToJoyVFXLibrary.MusicNoteBurst(Player.Center, OdeToJoyPalette.GoldenPollen, 8, 5f);
                 }
             }
         }

@@ -1,24 +1,16 @@
-using MagnumOpus.Common;
-using MagnumOpus.Common.Systems.Particles;
+using System;
+using System.Collections.Generic;
+using MagnumOpus.Content.ClairDeLune;
 using MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
-using System;
 using Terraria;
-using Terraria.GameContent;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery
 {
-    /// <summary>
-    /// Lunar Phylactery — Summon weapon. Moonlight sentinel crystal minion.
-    /// VoronoiCell-style body, sustained beam (40px range), Soul-Link HP scaling,
-    /// Phylactery Pulse healing every 10s (3% max HP), Beam Crossing AoE.
-    /// "A vessel for souls lost to time."
-    /// </summary>
     public class LunarPhylacteryItem : ModItem
     {
         public override string Texture => "MagnumOpus/Content/ClairDeLune/Weapons/LunarPhylactery/LunarPhylactery";
@@ -27,7 +19,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery
         {
             Item.width = 40;
             Item.height = 40;
-            Item.damage = 3100; // Tier 10 (2800-4200 range)
+            Item.damage = 3100;
             Item.DamageType = DamageClass.Summon;
             Item.mana = 18;
             Item.useTime = 28;
@@ -45,13 +37,36 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             player.AddBuff(Item.buffType, 2);
-
-            // Scale damage based on player HP (Soul-Link)
-            float hpRatio = player.statLife / (float)player.statLifeMax2;
-            int scaledDamage = (int)(damage * (0.7f + hpRatio * 0.3f)); // 70%-100% based on HP
-
-            Projectile.NewProjectile(source, position, velocity, type, scaledDamage, knockback, player.whoAmI);
+            Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
             return false;
+        }
+
+        public override void HoldItem(Player player)
+        {
+            if (Main.rand.NextBool(4))
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
+                Color col = ClairDeLunePalette.GetGradient(Main.rand.NextFloat());
+                Dust d = Dust.NewDustPerfect(player.Center + offset, DustID.WhiteTorch,
+                    new Vector2(0, -0.8f) + Main.rand.NextVector2Circular(0.4f, 0.4f), 0, col, 0.5f);
+                d.noGravity = true;
+            }
+
+            float pulse = 0.7f + 0.3f * MathF.Sin(Main.GlobalTimeWrappedHourly * 3f);
+            Lighting.AddLight(player.Center, ClairDeLunePalette.SoftBlue.ToVector3() * 0.35f * pulse);
+        }
+
+        public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
+        {
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 0.2f;
+            Texture2D tex = Terraria.GameContent.TextureAssets.Item[Type].Value;
+            Vector2 drawPos = Item.position - Main.screenPosition + new Vector2(Item.width / 2f, Item.height);
+            Vector2 origin = new Vector2(tex.Width / 2f, tex.Height);
+
+            spriteBatch.Draw(tex, drawPos, null, ClairDeLunePalette.SoftBlue with { A = 0 } * pulse,
+                rotation, origin, scale * 1.05f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, ClairDeLunePalette.PearlWhite with { A = 0 } * (pulse * 0.7f),
+                rotation, origin, scale * 1.02f, SpriteEffects.None, 0f);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -66,57 +81,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery
                 OverrideColor = ClairDeLunePalette.LoreText
             });
         }
-
-        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
-        {
-            Texture2D tex = TextureAssets.Item[Item.type].Value;
-            Vector2 pos = Item.Center - Main.screenPosition;
-            Vector2 origin = tex.Size() * 0.5f;
-
-            float time = Main.GameUpdateCount * 0.05f;
-            float pulse = 1f + (float)Math.Sin(time * 2.2f) * 0.05f
-                + (float)Math.Sin(time * 3.8f) * 0.03f;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            ClairDeLunePalette.DrawItemBloom(spriteBatch, tex, pos, origin, rotation, scale, pulse);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            Lighting.AddLight(Item.Center, ClairDeLunePalette.SoftBlue.ToVector3() * 0.35f);
-            return true;
-        }
-
-        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
-        {
-            Texture2D tex = TextureAssets.Item[Item.type].Value;
-            float time = Main.GameUpdateCount * 0.04f;
-            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.06f;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
-
-            float cycle = (float)Math.Sin(time * 0.7f) * 0.5f + 0.5f;
-            Color glowColor = Color.Lerp(ClairDeLunePalette.SoftBlue, ClairDeLunePalette.PearlWhite, cycle) * 0.24f;
-            spriteBatch.Draw(tex, position, frame, glowColor with { A = 0 }, 0f, origin, scale * pulse * 1.1f, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
-
-            spriteBatch.Draw(tex, position, frame, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
-            return false;
-        }
     }
 
-    /// <summary>
-    /// Lunar Phylactery minion buff.
-    /// </summary>
     public class LunarPhylacteryBuff : ModBuff
     {
         public override string Texture => "Terraria/Images/Buff_24";

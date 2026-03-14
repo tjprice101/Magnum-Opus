@@ -15,6 +15,7 @@ using MagnumOpus.Content.Spring.Materials;
 using MagnumOpus.Content.Spring.Bosses.Systems;
 using MagnumOpus.Common.Systems.Bosses;
 using ReLogic.Content;
+using static MagnumOpus.Content.Spring.Bosses.Systems.PrimaveraSkySystem;
 
 namespace MagnumOpus.Content.Spring.Bosses
 {
@@ -197,6 +198,11 @@ namespace MagnumOpus.Content.Spring.Bosses
             SpawnAmbientParticles();
             
             BossIndexTracker.Primavera = NPC.whoAmI;
+            
+            // Feed sky system
+            PrimaveraSky.BossLifeRatio = NPC.life / (float)NPC.lifeMax;
+            PrimaveraSky.BossCenter = NPC.Center;
+            PrimaveraSky.BossIsEnraged = State == BossPhase.Enraged;
             
             if (State != BossPhase.Spawning && State != BossPhase.Dying)
                 PrimaveraBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier);
@@ -576,6 +582,10 @@ namespace MagnumOpus.Content.Spring.Bosses
             {
                 float intensity = (float)deathTimer / 120f;
                 
+                // Escalating sky flashes every 25 frames
+                if (deathTimer % 25 == 0 && deathTimer > 0)
+                    TriggerBlossomFlash(4f + intensity * 8f);
+                
                 if (deathTimer % 5 == 0)
                 {
                     int petalCount = (int)(8 + intensity * 12);
@@ -595,6 +605,7 @@ namespace MagnumOpus.Content.Spring.Bosses
             else if (deathTimer == 120)
             {
                 // Final explosion
+                TriggerRebirthFlash(25f);
                 CustomParticles.GenericFlare(NPC.Center, SpringWhite, 2.5f, 40);
                 CustomParticles.GenericFlare(NPC.Center, SpringPink, 2f, 35);
                 CustomParticles.GenericFlare(NPC.Center, SpringBlue, 1.5f, 30);
@@ -603,6 +614,23 @@ namespace MagnumOpus.Content.Spring.Bosses
                 {
                     Color ringColor = Color.Lerp(SpringPink, SpringBlue, i / 15f);
                     CustomParticles.HaloRing(NPC.Center, ringColor, 0.4f + i * 0.15f, 20 + i * 3);
+                }
+                
+                // Bloom supernova ring
+                for (int i = 0; i < 14; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 14f;
+                    Vector2 vel = angle.ToRotationVector2() * 5.5f;
+                    MagnumParticleHandler.SpawnParticle(new BloomParticle(NPC.Center, vel,
+                        Color.Lerp(SpringPink, SpringBlue, i / 14f), 0.7f, 28));
+                }
+                
+                // Ascending sparkles
+                for (int i = 0; i < 8; i++)
+                {
+                    Vector2 sparkPos = NPC.Center + Main.rand.NextVector2Circular(35f, 35f);
+                    Vector2 sparkVel = new Vector2(Main.rand.NextFloat(-1f, 1f), -Main.rand.NextFloat(2f, 4.5f));
+                    MagnumParticleHandler.SpawnParticle(new SparkleParticle(sparkPos, sparkVel, BlossomGold, 0.4f, 30));
                 }
                 
                 SpawnPetalBurst(NPC.Center, 50, 15f);
@@ -1230,6 +1258,9 @@ namespace MagnumOpus.Content.Spring.Bosses
             Vector2 drawPos = NPC.Center - screenPos;
             Vector2 origin = texture.Size() / 2f;
             Rectangle sourceRect = texture.Bounds;
+            
+            // Shader layer: Boss glow (LAYER 0 - behind everything)
+            PrimaveraBossShaderSystem.DrawBossGlow(spriteBatch, NPC, screenPos, State == BossPhase.Enraged);
             
             // Shader layer: Bloom aura
             PrimaveraBossShaderSystem.DrawBloomAura(spriteBatch, NPC, screenPos, aggressionLevel, difficultyTier, false);

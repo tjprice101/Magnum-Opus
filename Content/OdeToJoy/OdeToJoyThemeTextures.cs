@@ -19,12 +19,12 @@ namespace MagnumOpus.Content.OdeToJoy
         // ══════════════════════════════════════════════════════
 
         private static Asset<Texture2D> _ojEnergyMotionBeam;
-        /// <summary>Ode to Joy energy motion beam — jubilant flowing beam.</summary>
+        /// <summary>Ode to Joy energy motion beam — radiant golden beam body.</summary>
         public static Asset<Texture2D> OJEnergyMotionBeam =>
             _ojEnergyMotionBeam ??= LoadTex($"{ThemePath}/Beam Textures/OJ Energy Motion Beam");
 
         private static Asset<Texture2D> _ojEnergySurgeBeam;
-        /// <summary>Ode to Joy energy surge beam — triumphant beam burst.</summary>
+        /// <summary>Ode to Joy energy surge beam — jubilant beam burst.</summary>
         public static Asset<Texture2D> OJEnergySurgeBeam =>
             _ojEnergySurgeBeam ??= LoadTex($"{ThemePath}/Beam Textures/OJ Energy Surge Beam");
 
@@ -32,46 +32,37 @@ namespace MagnumOpus.Content.OdeToJoy
         //  IMPACT EFFECTS
         // ══════════════════════════════════════════════════════
 
-        private static Asset<Texture2D> _ojHarmonicBeamSurge;
-        /// <summary>Ode to Joy harmonic resonance beam surge impact — radiant burst.</summary>
-        public static Asset<Texture2D> OJHarmonicBeamSurge =>
-            _ojHarmonicBeamSurge ??= LoadTex($"{ThemePath}/Impact Effects/OJ Harmonic Resonance Beam Surge Impact");
-
-        private static Asset<Texture2D> _ojHarmonicWaveFloral;
-        /// <summary>Ode to Joy harmonic resonance wave impact (floral variant) — petal-shaped burst.</summary>
-        public static Asset<Texture2D> OJHarmonicWaveFloral =>
-            _ojHarmonicWaveFloral ??= LoadTex($"{ThemePath}/Impact Effects/OJ Harmonic Resonance Wave Impact 2 (Floral)");
-
-        private static Asset<Texture2D> _ojHarmonicWaveImpact;
-        /// <summary>Ode to Joy harmonic resonance wave impact — joyful ripple burst.</summary>
-        public static Asset<Texture2D> OJHarmonicImpact =>
-            _ojHarmonicWaveImpact ??= LoadTex($"{ThemePath}/Impact Effects/OJ Harmonic Resonance Wave Impact");
-
         private static Asset<Texture2D> _ojPowerEffectRing;
         /// <summary>Ode to Joy power effect ring — golden expanding ring.</summary>
         public static Asset<Texture2D> OJPowerEffectRing =>
             _ojPowerEffectRing ??= LoadTex($"{ThemePath}/Impact Effects/OJ Power Effect Ring");
 
-        // ══════════════════════════════════════════════════════
-        //  NOISE TEXTURES
-        // ══════════════════════════════════════════════════════
+        private static Asset<Texture2D> _ojHarmonicImpact;
+        /// <summary>Ode to Joy harmonic resonance wave impact — triumphant ripple burst.</summary>
+        public static Asset<Texture2D> OJHarmonicImpact =>
+            _ojHarmonicImpact ??= LoadTex($"{ThemePath}/Impact Effects/OJ Harmonic Resonance Wave Impact");
 
-        private static Asset<Texture2D> _ojPetalScatterNoise;
-        /// <summary>Ode to Joy petal scatter pattern — unique floral noise.</summary>
-        public static Asset<Texture2D> OJPetalScatterNoise =>
-            _ojPetalScatterNoise ??= LoadTex($"{ThemePath}/Noise/OJ Unique Theme Noise \u2014 Petal Scatter Pattern");
+        private static Asset<Texture2D> _ojBeamSurgeImpact;
+        /// <summary>Ode to Joy harmonic resonance beam surge impact — concentrated radiant blast.</summary>
+        public static Asset<Texture2D> OJBeamSurgeImpact =>
+            _ojBeamSurgeImpact ??= LoadTex($"{ThemePath}/Impact Effects/OJ Harmonic Resonance Beam Surge Impact");
+
+        private static Asset<Texture2D> _ojFloralImpact;
+        /// <summary>Ode to Joy floral harmonic wave impact — rose-patterned resonance burst.</summary>
+        public static Asset<Texture2D> OJFloralImpact =>
+            _ojFloralImpact ??= LoadTex($"{ThemePath}/Impact Effects/OJ Harmonic Resonance Wave Impact 2 (Floral)");
 
         // ══════════════════════════════════════════════════════
         //  PARTICLES
         // ══════════════════════════════════════════════════════
 
         private static Asset<Texture2D> _ojBlossomSparkle;
-        /// <summary>Ode to Joy blossom sparkle — radiant flower sparkle particle.</summary>
+        /// <summary>Ode to Joy blossom sparkle — radiant floral particle.</summary>
         public static Asset<Texture2D> OJBlossomSparkle =>
             _ojBlossomSparkle ??= LoadTex($"{ThemePath}/Particles/OJ Blossom Sparkle");
 
         private static Asset<Texture2D> _ojThornFragment;
-        /// <summary>Ode to Joy thorn fragment — sharp thorn debris particle.</summary>
+        /// <summary>Ode to Joy thorn fragment — sharp botanical shard particle.</summary>
         public static Asset<Texture2D> OJThornFragment =>
             _ojThornFragment ??= LoadTex($"{ThemePath}/Particles/OJ Thorn Fragment");
 
@@ -79,13 +70,8 @@ namespace MagnumOpus.Content.OdeToJoy
         //  PROJECTILES
         // ══════════════════════════════════════════════════════
 
-        private static Asset<Texture2D> _ojBlossomSparkleProj;
-        /// <summary>Ode to Joy blossom sparkle projectile — radiant floral projectile sprite.</summary>
-        public static Asset<Texture2D> OJBlossomSparkleProj =>
-            _ojBlossomSparkleProj ??= LoadTex($"{ThemePath}/Projectiles/OJ Blossom Sparkle");
-
         private static Asset<Texture2D> _ojRosePetal;
-        /// <summary>Ode to Joy rose petal projectile — graceful petal projectile sprite.</summary>
+        /// <summary>Ode to Joy rose petal — drifting floral projectile sprite.</summary>
         public static Asset<Texture2D> OJRosePetal =>
             _ojRosePetal ??= LoadTex($"{ThemePath}/Projectiles/OJ Rose Petal");
 
@@ -94,18 +80,27 @@ namespace MagnumOpus.Content.OdeToJoy
         // ══════════════════════════════════════════════════════
 
         private static Asset<Texture2D> _ojBasicTrail;
-        /// <summary>Ode to Joy basic trail — golden jubilant trail strip.</summary>
+        /// <summary>Ode to Joy basic trail — warm golden trail strip.</summary>
         public static Asset<Texture2D> OJBasicTrail =>
             _ojBasicTrail ??= LoadTex($"{ThemePath}/Trails and Ribbons/OJ Basic Trail");
+
+        // ══════════════════════════════════════════════════════
+        //  NOISE TEXTURES
+        // ══════════════════════════════════════════════════════
+
+        private static Asset<Texture2D> _ojPetalScatterNoise;
+        /// <summary>Ode to Joy unique petal scatter noise — organic floral distortion pattern.</summary>
+        public static Asset<Texture2D> OJPetalScatterNoise =>
+            _ojPetalScatterNoise ??= LoadTex($"{ThemePath}/Noise/OJ Unique Theme Noise \u2014 Petal Scatter Pattern");
 
         // ══════════════════════════════════════════════════════
         //  COLOR GRADIENTS
         // ══════════════════════════════════════════════════════
 
-        private static Asset<Texture2D> _ojGradientLUT;
-        /// <summary>Ode to Joy gradient LUT — warm gold to radiant amber to jubilant light.</summary>
-        public static Asset<Texture2D> OJGradientLUT =>
-            _ojGradientLUT ??= LoadTex($"{GradientPath}/OdeToJoyGradientLUTandRAMP");
+        private static Asset<Texture2D> _ojGradient;
+        /// <summary>Ode to Joy gradient LUT — warm gold to radiant amber ramp.</summary>
+        public static Asset<Texture2D> OJGradient =>
+            _ojGradient ??= LoadTex($"{GradientPath}/OdeToJoyGradientLUTandRAMP");
 
         // ══════════════════════════════════════════════════════
         //  LOADER

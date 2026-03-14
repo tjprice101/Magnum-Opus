@@ -2,11 +2,12 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Audio;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
-using ReLogic.Content;
-using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
 using MagnumOpus.Content.Nachtmusik;
 using MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture.Buffs;
 using MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture.Utilities;
@@ -14,22 +15,30 @@ using MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture.Utilities;
 namespace MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture.Projectiles
 {
     /// <summary>
-    /// Celestial Muse minion — a musical spirit that hovers near the player
-    /// and fires MuseNoteProjectile at enemies. Ranged-attack minion.
+    /// Celestial Muse minion -- scaffold based on BlackSwanFlareProj pattern.
+    /// Hovers near player, fires MuseNoteProjectile at enemies.
+    /// IncisorOrbRenderer visuals.
     /// </summary>
     public class CelestialMuseMinion : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Content/Nachtmusik/Weapons/GalacticOverture/CelestialMuseMinion";
+        private const float HomingRange = 700f;
+        private Player Owner => Main.player[Projectile.owner];
+        private bool _initialized;
+        private VertexStrip _strip;
 
         private float hoverAngle;
         private int attackCooldown;
 
+        public override string Texture => "MagnumOpus/Content/Nachtmusik/Weapons/GalacticOverture/CelestialMuseMinion";
+
         public override void SetStaticDefaults()
         {
-            Main.projPet[Projectile.type] = true;
-            ProjectileID.Sets.MinionSacrificable[Projectile.type] = true;
-            ProjectileID.Sets.CultistIsResistantTo[Projectile.type] = true;
-            ProjectileID.Sets.MinionTargettingFeature[Projectile.type] = true;
+            Main.projPet[Type] = true;
+            ProjectileID.Sets.MinionSacrificable[Type] = true;
+            ProjectileID.Sets.CultistIsResistantTo[Type] = true;
+            ProjectileID.Sets.MinionTargettingFeature[Type] = true;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
         public override void SetDefaults()
@@ -51,24 +60,27 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture.Projectiles
 
         public override void AI()
         {
-            Player owner = Main.player[Projectile.owner];
-
-            if (!CheckActive(owner))
+            if (!CheckActive(Owner))
                 return;
+
+            if (!_initialized)
+            {
+                _initialized = true;
+            }
 
             hoverAngle += 0.02f;
             attackCooldown = Math.Max(0, attackCooldown - 1);
 
             // Hover near player with sinusoidal bob
             float hoverOffset = (float)Math.Sin(hoverAngle) * 30f;
-            Vector2 idealPos = owner.Center + new Vector2(owner.direction * -60f, -50f + hoverOffset);
+            Vector2 idealPos = Owner.Center + new Vector2(Owner.direction * -60f, -50f + hoverOffset);
             Vector2 toIdeal = idealPos - Projectile.Center;
             Projectile.velocity = Vector2.Lerp(Projectile.velocity, toIdeal * 0.1f, 0.08f);
 
-            Projectile.spriteDirection = owner.direction;
+            Projectile.spriteDirection = Owner.direction;
 
             // Find and attack target
-            NPC target = FindTarget(owner, 700f);
+            NPC target = FindTarget(Owner, HomingRange);
             if (target != null && attackCooldown == 0)
             {
                 // Fire musical projectile
@@ -77,25 +89,23 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture.Projectiles
                     ModContent.ProjectileType<MuseNoteProjectile>(), Projectile.damage, Projectile.knockBack, Projectile.owner);
 
                 attackCooldown = 20;
-
-                // Fire VFX
-                GalacticOvertureVFX.MinionAttackVFX(Projectile.Center, toTarget);
             }
 
-            // Ambient VFX
-            GalacticOvertureVFX.MinionAmbientVFX(Projectile.Center, 1f);
-
-            // Occasional ambient music notes
-            if (Main.rand.NextBool(12))
+            // Trail dust
+            if (Main.rand.NextBool(3))
             {
-                NachtmusikVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 10f, 0.3f, 0.5f, 16);
+                int dustType = Main.rand.NextBool() ? DustID.WhiteTorch : DustID.BlueTorch;
+                Color dustColor = Main.rand.NextBool() ? new Color(180, 200, 255) : new Color(60, 70, 150);
+                Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
+                    dustType, -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(0.5f, 0.5f),
+                    0, dustColor, 0.8f);
+                d.noGravity = true;
+                d.fadeIn = 0.6f;
             }
 
-            // Ambient palette-ramped sparkles around hovering spirit
-            if (Main.rand.NextBool(8))
-                NachtmusikVFXLibrary.SpawnGradientSparkles(Projectile.Center, Projectile.velocity, 1, 0.15f, 14, 12f);
-
-            Lighting.AddLight(Projectile.Center, NachtmusikPalette.RadianceGold.ToVector3() * 0.4f);
+            // Pulsing light
+            float pulse = 1f + 0.15f * (float)Math.Sin(Main.GlobalTimeWrappedHourly * 4f);
+            Lighting.AddLight(Projectile.Center, new Vector3(0.3f, 0.35f, 0.6f) * 0.4f * pulse);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -103,107 +113,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            Texture2D tex = ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value;
-            Vector2 origin = tex.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            SpriteEffects effects = Projectile.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-
-            float time = (float)Main.timeForVisualEffects * 0.03f;
-            float pulse = MathF.Sin(Main.GameUpdateCount * 0.12f) * 0.15f + 0.85f;
-
-            // ==============================================================
-            //  SHADER LAYER: OvertureAura — musical spirit's radiant presence
-            //  Uses dedicated shader for orchestral wave effect.
-            // ==============================================================
-            float phase = (float)(Main.timeForVisualEffects * 0.008f) % 1f;
-
-            if (NachtmusikShaderManager.HasOvertureAura)
-            {
-                Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
-                if (glowTex != null)
-                {
-                    NachtmusikShaderManager.BeginShaderAdditive(sb);
-                    NachtmusikShaderManager.ApplyOvertureAura(time, phase);
-
-                    // Outer radiant aura
-                    sb.Draw(glowTex, drawPos, null,
-                        NachtmusikPalette.RadianceGold with { A = 0 } * 0.3f,
-                        0f, glowTex.Size() / 2f, 0.35f * pulse, SpriteEffects.None, 0f);
-
-                    // Subtle inner deep-blue core glow
-                    sb.Draw(glowTex, drawPos, null,
-                        NachtmusikPalette.DeepBlue with { A = 0 } * 0.15f,
-                        0f, glowTex.Size() / 2f, 0.15f * pulse, SpriteEffects.None, 0f);
-
-                    NachtmusikShaderManager.RestoreSpriteBatch(sb);
-                }
-
-                // NK Lens Flare — radiant center accent
-                Texture2D flareTex = NachtmusikThemeTextures.NKLensFlare?.Value;
-                if (flareTex != null)
-                {
-                    NachtmusikShaderManager.BeginAdditive(sb);
-                    float flareAlpha = 0.1f + MathF.Sin(Main.GameUpdateCount * 0.15f) * 0.04f;
-                    sb.Draw(flareTex, drawPos, null,
-                        NachtmusikPalette.RadianceGold with { A = 0 } * flareAlpha,
-                        time * 0.4f, flareTex.Size() / 2f, 0.05f * pulse, SpriteEffects.None, 0f);
-                    NachtmusikShaderManager.RestoreSpriteBatch(sb);
-                }
-
-                // NK Constellation Noise — ambient magical haze
-                Texture2D noiseTex = NachtmusikThemeTextures.NKConstellationNoise?.Value;
-                if (noiseTex != null)
-                {
-                    NachtmusikShaderManager.BeginAdditive(sb);
-                    sb.Draw(noiseTex, drawPos, null,
-                        NachtmusikPalette.Violet with { A = 0 } * 0.06f,
-                        time * 0.15f, noiseTex.Size() / 2f, 0.08f * pulse, SpriteEffects.None, 0f);
-                    NachtmusikShaderManager.RestoreSpriteBatch(sb);
-                }
-            }
-            else
-            {
-                // Non-shader fallback — TrueAdditive bloom only
-                Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
-                if (glowTex != null)
-                {
-                    NachtmusikShaderManager.BeginAdditive(sb);
-                    sb.Draw(glowTex, drawPos, null,
-                        NachtmusikPalette.RadianceGold with { A = 0 } * 0.25f,
-                        0f, glowTex.Size() / 2f, 0.35f * pulse, SpriteEffects.None, 0f);
-                    sb.Draw(glowTex, drawPos, null,
-                        NachtmusikPalette.DeepBlue with { A = 0 } * 0.12f,
-                        0f, glowTex.Size() / 2f, 0.15f * pulse, SpriteEffects.None, 0f);
-                    NachtmusikShaderManager.RestoreSpriteBatch(sb);
-                }
-            }
-
-            // ═══════════════════════════════════════════════════════════════
-            //  BLOOM LAYER: Multi-scale golden glow behind sprite
-            // ═══════════════════════════════════════════════════════════════
-            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-            if (glow != null)
-            {
-                Vector2 glowOrigin = glow.Size() / 2f;
-                // Outer warm halo
-                sb.Draw(glow, drawPos, null, NachtmusikPalette.RadianceGold with { A = 0 } * 0.3f,
-                    0f, glowOrigin, 0.6f * pulse, SpriteEffects.None, 0f);
-                // Inner violet accent
-                sb.Draw(glow, drawPos, null, NachtmusikPalette.Violet with { A = 0 } * 0.2f,
-                    0f, glowOrigin, 0.4f * pulse, SpriteEffects.None, 0f);
-                // Core white
-                sb.Draw(glow, drawPos, null, NachtmusikPalette.StarWhite with { A = 0 } * 0.1f,
-                    0f, glowOrigin, 0.2f * pulse, SpriteEffects.None, 0f);
-            }
-
-            // Main sprite
-            sb.Draw(tex, drawPos, null, Color.White, 0f, origin, Projectile.scale, effects, 0f);
-
-            // Nachtmusik theme star flare accent
-            NachtmusikShaderManager.BeginAdditive(sb);
-            NachtmusikVFXLibrary.DrawThemeStarFlare(sb, Projectile.Center, 1f, 0.5f);
-            NachtmusikShaderManager.RestoreSpriteBatch(sb);
-
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Nachtmusik, ref _strip);
             }
             catch { }
             finally
@@ -212,8 +122,21 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
+        }
+
+        public override void OnKill(int timeLeft)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                Vector2 sparkVel = Main.rand.NextVector2CircularEdge(3f, 3f);
+                Color col = Main.rand.NextBool() ? new Color(60, 70, 150) : new Color(180, 200, 255);
+                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.WhiteTorch, sparkVel, 0, col, 0.3f);
+                d.noGravity = true;
+            }
+            try { NachtmusikVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 12f, 0.5f, 0.7f, 20); } catch { }
+            try { NachtmusikVFXLibrary.SpawnMixedSparkleImpact(Projectile.Center, 0.5f, 4, 4); } catch { }
+            try { NachtmusikVFXLibrary.SpawnCelestialSparkles(Projectile.Center, 3, 15f); } catch { }
         }
 
         private bool CheckActive(Player owner)

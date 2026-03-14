@@ -258,7 +258,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
 
             // Enhanced shader-driven musical accents
             if (State != BossPhase.Spawning && State != BossPhase.Dying)
-                LaCampanellaBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier);
+                LaCampanellaBossShaderSystem.SpawnMusicalAccents(NPC, Timer, difficultyTier, isEnraged);
             
             // Dialogue triggers at HP thresholds only
             
@@ -619,6 +619,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 {
                     slamTarget = target.Center;
                     SoundEngine.PlaySound(SoundID.DD2_BetsyFlameBreath with { Pitch = -0.2f }, NPC.Center);
+                    LaCampanellaAttackVFX.BellSlamTelegraph(NPC.Center, slamTarget);
                 }
                 
                 if (Timer % 4 == 0)
@@ -716,27 +717,15 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 
                 if (Timer == 1)
                 {
-                    MagnumScreenEffects.AddScreenShake(16f + difficultyTier * 4f);
                     SoundEngine.PlaySound(SoundID.DD2_ExplosiveTrapExplode with { Pitch = -0.3f, Volume = 1.5f }, NPC.Center);
                     
-                    CustomParticles.GenericFlare(NPC.Bottom, Color.White, 1.2f, 20);
-                    for (int r = 0; r < 8; r++)
-                    {
-                        CustomParticles.HaloRing(NPC.Bottom, Color.Lerp(CampanellaGold, CampanellaCrimson, r / 8f), 0.25f + r * 0.12f, 16 + r * 2);
-                    }
-                    
-                    for (int i = 0; i < 12; i++)
-                    {
-                        float angle = MathHelper.TwoPi * i / 12f;
-                        CustomParticles.GenericFlare(NPC.Bottom + angle.ToRotationVector2() * 80f, CampanellaOrange, 0.5f, 15);
-                    }
-                    
-                    for (int i = 0; i < 10; i++)
-                    {
-                        Vector2 vel = Main.rand.NextVector2Circular(8f, 4f);
-                        var smoke = new HeavySmokeParticle(NPC.Bottom + Main.rand.NextVector2Circular(60f, 15f), vel, CampanellaBlack, Main.rand.Next(30, 45), 0.5f, 0.9f, 0.012f, false);
-                        MagnumParticleHandler.SpawnParticle(smoke);
-                    }
+                    // Phase-aware slam VFX — replaces generic flares with layered impact
+                    if (CurrentAttack == AttackPattern.TripleSlam)
+                        LaCampanellaAttackVFX.TripleSlamImpact(NPC.Bottom, 3 - slamCount);
+                    else if (isEnraged)
+                        LaCampanellaAttackVFX.FracturedTollRing(NPC.Bottom, 2);
+                    else
+                        LaCampanellaAttackVFX.BellSlamImpact(NPC.Bottom);
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
@@ -865,6 +854,10 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             {
                 if (Timer < 20)
                 {
+                    // Telegraph: gathering energy before each toll
+                    if (Timer == 1)
+                        LaCampanellaAttackVFX.TollWaveTelegraph(NPC.Center);
+                    
                     if (Timer % 3 == 0)
                     {
                         float progress = Timer / 20f;
@@ -883,13 +876,12 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
-                        int projCount = 8 + difficultyTier * 2; // Reduced from 12+4
+                        int projCount = 8 + difficultyTier * 2;
                         for (int i = 0; i < projCount; i++)
                         {
                             float angle = MathHelper.TwoPi * i / projCount;
-                            float speed = 11f + difficultyTier * 2f + SubPhase * 0.8f; // Faster
+                            float speed = 11f + difficultyTier * 2f + SubPhase * 0.8f;
                             Vector2 vel = angle.ToRotationVector2() * speed;
-                            // Alternate between Wave and AcceleratingBolt for variety
                             if (i % 2 == 0)
                                 BossProjectileHelper.SpawnWaveProjectile(NPC.Center, vel, 70, CampanellaGold, 4f);
                             else
@@ -897,11 +889,13 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                         }
                     }
                     
-                    CustomParticles.GenericFlare(NPC.Center, Color.White, 0.8f, 18);
-                    for (int r = 0; r < 5; r++)
-                    {
-                        CustomParticles.HaloRing(NPC.Center, CampanellaOrange * (1f - r * 0.15f), 0.3f + r * 0.1f, 14 + r * 2);
-                    }
+                    // Phase-aware VFX: expanding shockwave rings + smoke + fire
+                    if (difficultyTier >= 2)
+                        LaCampanellaAttackVFX.VirtuosoTollWall(NPC.Center, SubPhase);
+                    else if (difficultyTier >= 1)
+                        LaCampanellaAttackVFX.AccelerandoTollRing(NPC.Center, SubPhase, totalTolls);
+                    else
+                        LaCampanellaAttackVFX.TollWaveRelease(NPC.Center, SubPhase);
                 }
                 
                 if (Timer >= tollDelay)
@@ -938,6 +932,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             
             if (Timer % 25 == 0)
             {
+                LaCampanellaAttackVFX.EmberShowerTelegraph(target.Center);
                 for (int i = 0; i < 4 + difficultyTier; i++)
                 {
                     float xOffset = Main.rand.NextFloat(-350f, 350f);
@@ -956,7 +951,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     Vector2 vel = new Vector2(Main.rand.NextFloat(-2f, 2f), 7f + difficultyTier * 2f);
                     BossProjectileHelper.SpawnAcceleratingBolt(spawnPos, vel, 75 + difficultyTier * 5, CampanellaCrimson, 18f);
                     
-                    CustomParticles.GenericFlare(spawnPos, CampanellaOrange, 0.45f, 12);
+                    LaCampanellaAttackVFX.EmberShowerParticle(spawnPos);
                 }
             }
             
@@ -978,6 +973,10 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 if (Timer == 1)
                 {
                     SoundEngine.PlaySound(SoundID.Item73 with { Pitch = -0.1f + SubPhase * 0.1f }, NPC.Center);
+                    int side = (SubPhase % 2 == 0) ? -1 : 1;
+                    Vector2 wallStart = target.Center + new Vector2(side * 650f, -350f);
+                    Vector2 wallEnd = target.Center + new Vector2(side * 650f, 350f);
+                    LaCampanellaAttackVFX.FireWallSweepTelegraph(wallStart, wallEnd);
                 }
                 
                 if (Timer >= 7 && Timer < 21)
@@ -998,6 +997,8 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     int side = (SubPhase % 2 == 0) ? -1 : 1;
                     Vector2 wallStart = target.Center + new Vector2(side * 650f, -350f);
                     Vector2 wallDir = new Vector2(-side, 0);
+                    
+                    LaCampanellaAttackVFX.FireWallSweepTrail(wallStart, wallDir * 14f);
                     
                     int projCount = 10 + difficultyTier * 2; // Reduced from 18+4
                     for (int i = 0; i < projCount; i++)
@@ -1039,6 +1040,9 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             
             if (SubPhase < ringCount)
             {
+                if (Timer == 1)
+                    LaCampanellaAttackVFX.ChimeRingsTelegraph(NPC.Center);
+                
                 if (Timer == 8)
                 {
                     SoundEngine.PlaySound(SoundID.Item28 with { Pitch = 0.3f + SubPhase * 0.03f }, NPC.Center);
@@ -1064,6 +1068,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     
                     CustomParticles.GenericFlare(NPC.Center, Color.White, 0.65f, 14);
                     CustomParticles.HaloRing(NPC.Center, CampanellaGold, 0.35f, 12);
+                    LaCampanellaAttackVFX.ChimeRingsRelease(NPC.Center, SubPhase);
                 }
                 
                 if (Timer >= ringDelay)
@@ -1091,6 +1096,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             
             if (Timer < 21)
             {
+                LaCampanellaAttackVFX.InfernoCircleTelegraph(NPC.Center, 50f + Timer * 2f);
                 if (Timer % 4 == 0)
                 {
                     for (int i = 0; i < arms; i++)
@@ -1121,6 +1127,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     }
                     
                     CustomParticles.GenericFlare(NPC.Center, CampanellaGold, 0.35f, 8);
+                    LaCampanellaAttackVFX.InfernoCircleRelease(NPC.Center, Timer * spinSpeed * 50f);
                 }
             }
             
@@ -1142,6 +1149,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 if (Timer == 1)
                 {
                     SoundEngine.PlaySound(SoundID.DD2_BetsyFlameBreath with { Pitch = -0.4f }, NPC.Center);
+                    LaCampanellaAttackVFX.InfernalTorrentTelegraph(NPC.Center);
                 }
                 
                 float progress = Timer / (float)chargeTime;
@@ -1196,6 +1204,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     }
                     
                     CustomParticles.GenericFlare(NPC.Center + toPlayer * 40f, CampanellaGold, 0.4f, 8);
+                    LaCampanellaAttackVFX.InfernalTorrentRelease(NPC.Center, Timer / interval);
                 }
                 
                 if (Timer >= barrageTime)
@@ -1215,6 +1224,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 {
                     Main.NewText("HEAR THE FINAL TOLL!", CampanellaCrimson);
                     SoundEngine.PlaySound(SoundID.Roar with { Pitch = -0.2f, Volume = 1.5f }, NPC.Center);
+                    LaCampanellaAttackVFX.GrandFinaleTelegraph(NPC.Center);
                 }
                 
                 if (Timer % 4 == 0)
@@ -1289,6 +1299,8 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     
                     CustomParticles.GenericFlare(NPC.Bottom, Color.White, 1.4f, 22);
                     
+                    LaCampanellaAttackVFX.TripleSlamImpact(NPC.Bottom, SubPhase - 1);
+                    
                     for (int r = 0; r < 10; r++)
                     {
                         CustomParticles.HaloRing(NPC.Bottom, Color.Lerp(CampanellaGold, CampanellaCrimson, r / 10f), 0.3f + r * 0.15f, 18 + r * 3);
@@ -1330,6 +1342,8 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.5f, Volume = 1.8f }, NPC.Center);
                     
                     CustomParticles.GenericFlare(NPC.Center, Color.White, 1.8f, 30);
+                    
+                    LaCampanellaAttackVFX.GrandFinaleRelease(NPC.Center);
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
@@ -1391,6 +1405,9 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 // Warning buildup - geometric pattern preview
                 if (phaseTimer < 20)
                 {
+                    if (phaseTimer == 1)
+                        LaCampanellaAttackVFX.RhythmicTollTelegraph(NPC.Center);
+                    
                     float progress = phaseTimer / 20f;
                     int previewCount = 8 + currentPhase * 2;
                     
@@ -1454,6 +1471,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     
                     // VFX - symmetric halo burst
                     CustomParticles.GenericFlare(NPC.Center, Color.White, 0.7f, 16);
+                    LaCampanellaAttackVFX.RhythmicTollStrike(NPC.Center, currentPhase);
                     for (int r = 0; r < 4; r++)
                     {
                         CustomParticles.HaloRing(NPC.Center, Color.Lerp(CampanellaGold, CampanellaOrange, r / 4f), 0.25f + r * 0.1f, 12 + r * 2);
@@ -1508,6 +1526,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 {
                     SoundEngine.PlaySound(SoundID.Item73 with { Pitch = -0.3f, Volume = 1.2f }, NPC.Center);
                     cageCenter = target.Center; // Lock cage to player position at start
+                    LaCampanellaAttackVFX.InfernoCageTelegraph(cageCenter, maxCageSize);
                 }
                 
                 // Draw cage warning outline
@@ -1620,6 +1639,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     MagnumScreenEffects.AddScreenShake(12f);
                     
                     CustomParticles.GenericFlare(cageCenter, Color.White, 1.0f, 20);
+                    LaCampanellaAttackVFX.InfernoCageRelease(cageCenter, minCageSize);
                     for (int r = 0; r < 6; r++)
                     {
                         CustomParticles.HaloRing(cageCenter, Color.Lerp(CampanellaGold, CampanellaCrimson, r / 6f), 0.3f + r * 0.15f, 14 + r * 3);
@@ -1673,6 +1693,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 {
                     SoundEngine.PlaySound(SoundID.Item28 with { Pitch = -0.6f, Volume = 1.3f }, NPC.Center);
                     Main.NewText("THE BELL TOLLS FOR THEE!", CampanellaGold);
+                    LaCampanellaAttackVFX.InfernalJudgmentTelegraph(NPC.Center);
                     
                     // TelegraphSystem - Converging ring visual warning
                     TelegraphSystem.ConvergingRing(NPC.Center, 300f, chargeTime, CampanellaOrange);
@@ -1724,6 +1745,8 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 {
                     MagnumScreenEffects.AddScreenShake(18f);
                     SoundEngine.PlaySound(SoundID.Item28 with { Pitch = 0.1f + SubPhase * 0.12f, Volume = 1.5f }, NPC.Center);
+                    
+                    LaCampanellaAttackVFX.InfernalJudgmentRelease(NPC.Center, SubPhase, waveCount);
                     
                     // OPTIMIZED: Use BossVFXOptimizer for release burst
                     BossVFXOptimizer.AttackReleaseBurst(NPC.Center, CampanellaGold, CampanellaOrange, 1.2f);
@@ -1801,6 +1824,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                         float angle = MathHelper.TwoPi * i / laserCount;
                         Vector2 laserEnd = NPC.Center + angle.ToRotationVector2() * 1200f;
                         TelegraphSystem.LaserPath(NPC.Center, laserEnd, 25f, 25, CampanellaOrange);
+                        LaCampanellaAttackVFX.BellLaserGridTelegraph(NPC.Center, laserEnd);
                     }
                 }
                 
@@ -1834,6 +1858,12 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 {
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f, Volume = 1.4f }, NPC.Center);
                     MagnumScreenEffects.AddScreenShake(12f);
+                    for (int i = 0; i < laserCount; i++)
+                    {
+                        float angle = laserStartAngles[i];
+                        Vector2 laserEnd = NPC.Center + angle.ToRotationVector2() * 1200f;
+                        LaCampanellaAttackVFX.BellLaserGridBeam(NPC.Center, laserEnd);
+                    }
                 }
                 
                 float sweepProgress = Timer / (float)sweepDuration;
@@ -1914,6 +1944,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 if (Timer == 1)
                 {
                     SoundEngine.PlaySound(SoundID.Item93 with { Pitch = -0.3f }, NPC.Center);
+                    LaCampanellaAttackVFX.ResonantShockTelegraph(NPC.Center);
                 }
                 
                 float progress = Timer / (float)chargeTime;
@@ -1953,6 +1984,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     
                     // OPTIMIZED: Use BossVFXOptimizer burst
                     BossVFXOptimizer.AttackReleaseBurst(NPC.Center, CampanellaGold, CampanellaOrange, 1.0f);
+                    LaCampanellaAttackVFX.ResonantShockRelease(NPC.Center, 180f + SubPhase * 40f);
                     
                     // Spawn expanding shock ring projectiles
                     if (Main.netMode != NetmodeID.MultiplayerClient)
@@ -2060,9 +2092,11 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 MagnumParticleHandler.SpawnParticle(smoke);
             }
             
-            // Enrage particles - reduce under load
+            // Enrage particles - consume the arena in smoke and fire
             if (isEnraged && Timer % (isHighLoad ? 4 : 2) == 0)
             {
+                LaCampanellaAttackVFX.EnrageSmokeConsumption(NPC.Center, 600f);
+                LaCampanellaAttackVFX.FranticFireTrail(NPC.Center, NPC.velocity);
                 Vector2 pos = NPC.Center + Main.rand.NextVector2Circular(70f, 70f);
                 CustomParticles.GenericFlare(pos, CampanellaCrimson, 0.4f, 8);
             }
@@ -2234,7 +2268,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             if (NPC.velocity.Length() > 5f)
             {
                 LaCampanellaBossShaderSystem.DrawInfernalTrail(spriteBatch, NPC, screenPos,
-                    tex, sourceRect, origin, isEnraged);
+                    tex, sourceRect, origin, isEnraged, difficultyTier);
             }
             else if ((State == BossPhase.Slam && SubPhase >= 3) || isEnraged)
             {
@@ -2280,6 +2314,12 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             Color mainColor = NPC.IsABestiaryIconDummy ? Color.White : Lighting.GetColor((int)(NPC.Center.X / 16), (int)(NPC.Center.Y / 16));
             mainColor = Color.Lerp(mainColor, Color.White, 0.4f);
             spriteBatch.Draw(tex, drawPos, sourceRect, mainColor, NPC.rotation, origin, NPC.scale, SpriteEffects.None, 0f);
+            
+            // === ENRAGE: Fracture Overlay ===
+            if (isEnraged)
+            {
+                LaCampanellaBossShaderSystem.DrawEnrageFractureOverlay(spriteBatch, NPC, screenPos);
+            }
             
             // === Warmth boost overlay ===
             Color warmth = CampanellaOrange * (0.06f + hpDrive * 0.04f);

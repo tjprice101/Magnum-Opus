@@ -1,373 +1,792 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using Terraria;
 using Terraria.ID;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.VFX;
-using MagnumOpus.Common.Systems.VFX.Core;
-using MagnumOpus.Common.Systems.VFX.Trails;
+using MagnumOpus.Common.Systems.VFX.Bloom;
+using MagnumOpus.Common.Systems.Shaders;
 using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.OdeToJoy
 {
     /// <summary>
-    /// Shared Ode to Joy VFX library used by bosses, accessories, and tools.
-    /// Weapons have their own per-weapon particle systems in their self-contained folders.
-    /// Includes: bloom stacking, screen effects, musical VFX, trail draw helpers.
+    /// Shared Ode to Joy VFX library — canonical palette, bloom stacking,
+    /// shader setup, trail helpers, music notes, dust, petal spawns,
+    /// garden effects, and impact VFX used by ALL Ode to Joy weapons,
+    /// accessories, projectiles, minions, enemies, and bosses.
+    ///
+    /// Ode to Joy identity: Universal brotherhood, joyous celebration,
+    /// garden triumph, roses, thorns, petals, pollen, verdant growth,
+    /// warm golden radiance — Beethoven's Ninth made visual.
     /// </summary>
     public static class OdeToJoyVFXLibrary
     {
-        public static void SpawnRosePetals(Vector2 position, int count, float speed)
+        // ─────────── CANONICAL PALETTE (forwarded from OdeToJoyPalette) ───────────
+
+        // Greens and Foliage
+        public static readonly Color MossShadow    = OdeToJoyPalette.MossShadow;
+        public static readonly Color DeepForest     = OdeToJoyPalette.DeepForest;
+        public static readonly Color LeafGreen      = OdeToJoyPalette.LeafGreen;
+        public static readonly Color BudGreen       = OdeToJoyPalette.BudGreen;
+        public static readonly Color VerdantGreen   = OdeToJoyPalette.VerdantGreen;
+
+        // Pinks and Roses
+        public static readonly Color RosePink       = OdeToJoyPalette.RosePink;
+        public static readonly Color PetalPink      = OdeToJoyPalette.PetalPink;
+
+        // Golds and Ambers
+        public static readonly Color WarmAmber      = OdeToJoyPalette.WarmAmber;
+        public static readonly Color GoldenPollen   = OdeToJoyPalette.GoldenPollen;
+        public static readonly Color PollenGold     = OdeToJoyPalette.PollenGold;
+        public static readonly Color SunlightYellow = OdeToJoyPalette.SunlightYellow;
+
+        // Whites
+        public static readonly Color WhiteBloom     = OdeToJoyPalette.WhiteBloom;
+
+        // Master 6-stop palette array for indexed access (musical dynamics scale)
+        private static readonly Color[] Palette = { MossShadow, DeepForest, LeafGreen, GoldenPollen, SunlightYellow, WhiteBloom };
+
+        // Hue range for HueShiftingMusicNoteParticle (gold-green range)
+        private const float HueMin = 0.08f;
+        private const float HueMax = 0.18f;
+        private const float NoteSaturation = 0.85f;
+        private const float NoteLuminosity = 0.80f;
+
+        // Ode to Joy glow profile for GlowRenderer
+        public static readonly GlowRenderer.GlowLayer[] OdeToJoyGlowProfile = new[]
+        {
+            new GlowRenderer.GlowLayer(1.0f, 1.0f, WhiteBloom),                  // Core: warm white bloom
+            new GlowRenderer.GlowLayer(1.6f, 0.65f, SunlightYellow),             // Inner: sunlight yellow
+            new GlowRenderer.GlowLayer(2.5f, 0.4f, GoldenPollen),                // Mid: golden pollen
+            new GlowRenderer.GlowLayer(4.0f, 0.2f, LeafGreen)                    // Outer: verdant green
+        };
+
+        // ─────────── PALETTE INTERPOLATION ───────────
+
+        /// <summary>
+        /// Lerp through the 6-colour Ode to Joy palette. t=0 -> MossShadow, t=1 -> WhiteBloom.
+        /// </summary>
+        public static Color GetPaletteColor(float t)
+        {
+            t = MathHelper.Clamp(t, 0f, 1f);
+            float scaled = t * (Palette.Length - 1);
+            int idx = (int)scaled;
+            int next = Math.Min(idx + 1, Palette.Length - 1);
+            return Color.Lerp(Palette[idx], Palette[next], scaled - idx);
+        }
+
+        /// <summary>
+        /// Palette colour with white push for perceived brilliance.
+        /// </summary>
+        public static Color GetPaletteColorWithWhitePush(float t, float push)
+        {
+            Color baseCol = GetPaletteColor(t);
+            return Color.Lerp(baseCol, Color.White, MathHelper.Clamp(push, 0f, 1f));
+        }
+
+        /// <summary>
+        /// Drop-in replacement for garden gradient calls in weapon files.
+        /// MossShadow -> LeafGreen -> WhiteBloom over 0->1.
+        /// </summary>
+        public static Color GetOdeToJoyGradient(float progress)
+            => OdeToJoyPalette.GetGardenGradient(progress);
+
+        /// <summary>
+        /// Get a cycling green-gold color for garden hue effects.
+        /// </summary>
+        public static Color GetGardenHue(float offset = 0f)
+        {
+            float hue = (HueMin + HueMax) * 0.5f + MathF.Sin(Main.GlobalTimeWrappedHourly * 2f + offset) * (HueMax - HueMin) * 0.5f;
+            return Main.hslToRgb(hue, 0.85f, 0.75f);
+        }
+
+        /// <summary>
+        /// Get a vivid garden color (higher saturation, brighter).
+        /// </summary>
+        public static Color GetVividGardenHue(float offset = 0f)
+        {
+            float hue = (HueMin + HueMax) * 0.5f + MathF.Sin(Main.GlobalTimeWrappedHourly * 2f + offset) * (HueMax - HueMin) * 0.5f;
+            return Main.hslToRgb(hue, 1f, 0.85f);
+        }
+
+        // ─────────── SPRITEBATCH STATE HELPERS ───────────
+
+        /// <summary>
+        /// Switch SpriteBatch to additive blend for Ode to Joy VFX rendering.
+        /// </summary>
+        public static void BeginOdeToJoyAdditive(SpriteBatch sb)
+        {
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
+                null, Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        /// <summary>
+        /// Restore SpriteBatch to standard AlphaBlend after additive rendering.
+        /// </summary>
+        public static void EndOdeToJoyAdditive(SpriteBatch sb)
+        {
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone,
+                null, Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        /// <summary>
+        /// Switch SpriteBatch to Immediate + Additive for shader-driven drawing.
+        /// </summary>
+        public static void BeginShaderAdditive(SpriteBatch sb)
+        {
+            sb.End();
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
+                SamplerState.LinearClamp, DepthStencilState.None,
+                Main.Rasterizer, null,
+                Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        /// <summary>
+        /// Restore SpriteBatch to normal deferred alpha-blend mode.
+        /// </summary>
+        public static void RestoreSpriteBatch(SpriteBatch sb)
+        {
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                Main.Rasterizer, null,
+                Main.GameViewMatrix.TransformationMatrix);
+        }
+
+
+        /// <summary>
+        /// Counter-rotating double flare — golden pollen and verdant green spinning in opposite directions.
+        /// Creates the signature warm garden radiance at projectile centers.
+        /// </summary>
+        public static void DrawCounterRotatingFlares(SpriteBatch sb, Vector2 worldPos,
+            float scale, float time, float opacity = 1f)
+        {
+            Texture2D flare = MagnumTextureRegistry.GetFlare();
+            if (flare == null) return;
+
+            // 1024px flare — cap so largest layer (scale*0.7) does not exceed 300px
+            scale = MathHelper.Min(scale, 0.419f);
+
+            Vector2 drawPos = worldPos - Main.screenPosition;
+            Vector2 origin = flare.Size() * 0.5f;
+
+            float rot1 = time * 2.5f;
+            float rot2 = -time * 1.8f;
+
+            sb.Draw(flare, drawPos, null,
+                (GoldenPollen with { A = 0 }) * 0.6f * opacity, rot1, origin, scale * 0.7f, SpriteEffects.None, 0f);
+            sb.Draw(flare, drawPos, null,
+                (LeafGreen with { A = 0 }) * 0.5f * opacity, rot2, origin, scale * 0.5f, SpriteEffects.None, 0f);
+        }
+
+
+        // ─────────── GLOW RENDERER INTEGRATION ───────────
+
+        /// <summary>
+        /// Draw Ode to Joy-themed multi-layer glow via GlowRenderer.
+        /// </summary>
+        public static void DrawOdeToJoyGlow(SpriteBatch sb, Vector2 worldPos,
+            float scale = 1f, float intensity = 1f, string rotationId = null)
+        {
+            GlowRenderer.DrawGlow(sb, worldPos, OdeToJoyGlowProfile, WhiteBloom, intensity * scale, rotationId);
+        }
+
+        /// <summary>
+        /// Draw Ode to Joy glow with automatic SpriteBatch state management.
+        /// </summary>
+        public static void DrawOdeToJoyGlowManaged(SpriteBatch sb, Vector2 worldPos,
+            float scale = 1f, float intensity = 1f, string rotationId = null)
+        {
+            GlowRenderer.DrawGlowManaged(sb, worldPos, OdeToJoyGlowProfile, WhiteBloom, intensity * scale, rotationId);
+        }
+
+        // ─────────── TRAIL WIDTH/COLOR FUNCTIONS ───────────
+
+        /// <summary>
+        /// Standard Ode to Joy trail width: warm, organic taper.
+        /// </summary>
+        public static float OdeToJoyTrailWidth(float completionRatio, float baseWidth = 18f)
+        {
+            float tipFade = MathF.Pow(1f - completionRatio, 0.6f);
+            float headFade = MathF.Pow(completionRatio, 3f);
+            return baseWidth * tipFade * (1f - headFade);
+        }
+
+        /// <summary>
+        /// Thin precision trail for ranged weapons — golden pollen shot.
+        /// </summary>
+        public static float PrecisionTrailWidth(float completionRatio, float baseWidth = 6f)
+        {
+            float taper = 1f - completionRatio;
+            return baseWidth * taper * taper;
+        }
+
+        /// <summary>
+        /// Wide verdant trail for melee weapons — organic, sweeping arc.
+        /// </summary>
+        public static float VerdantTrailWidth(float completionRatio, float baseWidth = 16f)
+        {
+            float tipFade = MathF.Pow(1f - completionRatio, 0.4f);
+            return baseWidth * tipFade;
+        }
+
+        /// <summary>
+        /// Trail color function with {A=0} for additive rendering.
+        /// Green-gold gradient with white push along trail.
+        /// </summary>
+        public static Color OdeToJoyTrailColor(float completionRatio, float whitePush = 0.45f)
+        {
+            float t = 0.3f + completionRatio * 0.5f;
+            Color baseCol = GetPaletteColorWithWhitePush(t, whitePush * (1f - completionRatio));
+            float fade = 1f - MathF.Pow(completionRatio, 1.5f);
+            return (baseCol * fade) with { A = 0 };
+        }
+
+        /// <summary>
+        /// Returns a pair of Vector3 colours for shader gradient uniforms.
+        /// </summary>
+        public static (Vector3 primary, Vector3 secondary) GetShaderGradient(int passIndex)
+        {
+            return passIndex switch
+            {
+                0 => (MossShadow.ToVector3(), DeepForest.ToVector3()),
+                1 => (LeafGreen.ToVector3(), GoldenPollen.ToVector3()),
+                2 => (SunlightYellow.ToVector3(), WhiteBloom.ToVector3()),
+                _ => (GoldenPollen.ToVector3(), SunlightYellow.ToVector3()),
+            };
+        }
+
+        // ─────────── MUSIC NOTES ───────────
+
+        /// <summary>
+        /// Spawn visible, hue-shifting Ode to Joy music notes at the given position.
+        /// Notes cycle through the gold-green range (0.08-0.18) for garden warmth.
+        /// </summary>
+        public static void SpawnMusicNotes(Vector2 pos, int count = 3, float spread = 20f,
+            float minScale = 0.7f, float maxScale = 1.0f, int lifetime = 35)
         {
             for (int i = 0; i < count; i++)
             {
-                Vector2 vel = Main.rand.NextVector2Circular(speed, speed);
-                Color col = Color.Lerp(OdeToJoyPalette.RosePink, OdeToJoyPalette.PetalPink, Main.rand.NextFloat());
-                Dust d = Dust.NewDustPerfect(position, DustID.PinkFairy, vel, 0, col, Main.rand.NextFloat(0.8f, 1.4f));
-                d.noGravity = true;
-                d.fadeIn = 1.2f;
+                Vector2 offset = Main.rand.NextVector2Circular(spread, spread);
+                Vector2 vel = new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), -1.5f - Main.rand.NextFloat(1.5f));
+                float scale = Main.rand.NextFloat(minScale, maxScale);
+
+                var note = new HueShiftingMusicNoteParticle(
+                    pos + offset, vel,
+                    HueMin, HueMax,
+                    NoteSaturation, NoteLuminosity,
+                    scale, lifetime, hueSpeed: 0.03f
+                );
+                MagnumParticleHandler.SpawnParticle(note);
             }
         }
 
-        public static void SpawnMusicNotes(Vector2 position, int count, float speed, float scale = 1f)
+        /// <summary>
+        /// Spawn orbiting music notes locked to a centre point.
+        /// </summary>
+        public static void SpawnOrbitingNotes(Vector2 centre, Vector2 hostVelocity,
+            int noteCount = 3, float orbitRadius = 15f, float baseAngle = 0f)
         {
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < noteCount; i++)
             {
-                Vector2 vel = Main.rand.NextVector2Circular(speed, speed) + new Vector2(0, -2f);
-                Color col = Color.Lerp(OdeToJoyPalette.GoldenPollen, OdeToJoyPalette.SunlightYellow, Main.rand.NextFloat());
-                Dust d = Dust.NewDustPerfect(position, DustID.YellowStarDust, vel, 0, col, scale * Main.rand.NextFloat(0.6f, 1f));
-                d.noGravity = true;
-                d.fadeIn = 1.1f;
+                float angle = baseAngle + MathHelper.TwoPi * i / noteCount;
+                Vector2 notePos = centre + angle.ToRotationVector2() * orbitRadius;
+                Vector2 vel = hostVelocity * 0.8f;
+                float scale = Main.rand.NextFloat(0.7f, 0.9f);
+
+                var note = new HueShiftingMusicNoteParticle(
+                    notePos, vel,
+                    HueMin, HueMax,
+                    NoteSaturation, NoteLuminosity,
+                    scale, 30, hueSpeed: 0.03f
+                );
+                MagnumParticleHandler.SpawnParticle(note);
             }
         }
 
-        public static void SpawnVineTrailDust(Vector2 position, Vector2 velocity)
-        {
-            Color col = Color.Lerp(OdeToJoyPalette.LeafGreen, OdeToJoyPalette.VerdantGreen, Main.rand.NextFloat());
-            Dust d = Dust.NewDustPerfect(position, DustID.GreenFairy, velocity, 0, col, 0.8f);
-            d.noGravity = true;
-        }
+        // ─────────── DUST HELPERS ───────────
 
-        public static void SpawnPetalMusicNotes(Vector2 position, int count, float speed)
+        /// <summary>
+        /// Dense Ode to Joy swing dust trail at a blade tip during a swing.
+        /// Green-gold torch dust for the signature garden warmth effect.
+        /// </summary>
+        public static void SpawnSwingDust(Vector2 pos, Vector2 awayDirection, int dustType = DustID.GreenTorch)
         {
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < 2; i++)
             {
-                Vector2 vel = Main.rand.NextVector2Circular(speed, speed) + new Vector2(0, -3f);
-                Color col = Color.Lerp(OdeToJoyPalette.RosePink, OdeToJoyPalette.GoldenPollen, Main.rand.NextFloat());
-                Dust d = Dust.NewDustPerfect(position, DustID.PinkFairy, vel, 0, col, Main.rand.NextFloat(0.5f, 0.9f));
-                d.noGravity = true;
-                d.fadeIn = 0.9f;
-            }
-        }
-
-        public static void SpawnPetalHaloRings(Vector2 position, int rings, float scale)
-        {
-            for (int r = 0; r < rings; r++)
-            {
-                float radius = 30f * (r + 1) * scale;
-                int dustCount = 8 + r * 4;
-                for (int i = 0; i < dustCount; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / dustCount;
-                    Vector2 offset = angle.ToRotationVector2() * radius;
-                    Color col = OdeToJoyPalette.GetBlossomGradient((float)i / dustCount);
-                    Dust d = Dust.NewDustPerfect(position + offset, DustID.PinkFairy, offset * 0.02f, 0, col, 0.6f * scale);
-                    d.noGravity = true;
-                }
-            }
-        }
-
-        public static void SpawnPollenSparkles(Vector2 position, int count, float radius)
-        {
-            for (int i = 0; i < count; i++)
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(radius, radius);
-                Dust d = Dust.NewDustPerfect(position + offset, DustID.YellowStarDust, Vector2.Zero, 0, OdeToJoyPalette.GoldenPollen, 0.5f);
-                d.noGravity = true;
-                d.fadeIn = 0.8f;
-            }
-        }
-
-        public static void SpawnGradientHaloRings(Vector2 position, int count, float scale)
-        {
-            for (int r = 0; r < count; r++)
-            {
-                float radius = 40f * (r + 1) * scale;
-                int dustCount = 10 + r * 4;
-                for (int i = 0; i < dustCount; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / dustCount;
-                    Vector2 offset = angle.ToRotationVector2() * radius;
-                    Color col = OdeToJoyPalette.GetGardenGradient((float)i / dustCount);
-                    Dust d = Dust.NewDustPerfect(position + offset, DustID.GreenFairy, offset * 0.01f, 0, col, 0.5f * scale);
-                    d.noGravity = true;
-                }
-            }
-        }
-
-        public static void SpawnGardenAura(Vector2 position, float radius)
-        {
-            int count = (int)(radius / 5f);
-            for (int i = 0; i < count; i++)
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(radius, radius);
-                Color col = OdeToJoyPalette.GetGardenGradient(Main.rand.NextFloat());
-                Dust d = Dust.NewDustPerfect(position + offset, DustID.GreenFairy, new Vector2(0, -0.5f), 0, col, 0.4f);
-                d.noGravity = true;
-                d.fadeIn = 0.7f;
-            }
-        }
-
-        public static void GardenImpact(Vector2 position, float scale)
-        {
-            int count = (int)(10 * scale);
-            for (int i = 0; i < count; i++)
-            {
-                Vector2 vel = Main.rand.NextVector2Circular(6f * scale, 6f * scale);
-                Color col = OdeToJoyPalette.GetGardenGradient(Main.rand.NextFloat());
-                Dust d = Dust.NewDustPerfect(position, DustID.GreenFairy, vel, 0, col, scale * 0.8f);
+                Vector2 vel = awayDirection * Main.rand.NextFloat(1f, 3f) + Main.rand.NextVector2Circular(0.5f, 0.5f);
+                Color col = GetPaletteColor(Main.rand.NextFloat(0.3f, 0.9f));
+                Dust d = Dust.NewDustPerfect(pos, dustType, vel, 0, col, 1.5f);
                 d.noGravity = true;
             }
-            SpawnPollenSparkles(position, (int)(4 * scale), 20f * scale);
-
-            // Color-ramped sparkle explosion
-            SpawnGardenSparkleExplosion(position, (int)(8 * scale), 5f * scale, 0.3f);
         }
 
-        public static void BlossomImpact(Vector2 position, float scale)
+        /// <summary>
+        /// Ode to Joy petal dust — alternating Flower and PinkSlime for botanical identity.
+        /// Pink and green interleaved for the rose-garden duality.
+        /// </summary>
+        public static void SpawnPetalDust(Vector2 pos, Vector2 awayDirection)
         {
-            int count = (int)(12 * scale);
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < 2; i++)
             {
-                Vector2 vel = Main.rand.NextVector2Circular(8f * scale, 8f * scale);
-                Color col = OdeToJoyPalette.GetBlossomGradient(Main.rand.NextFloat());
-                Dust d = Dust.NewDustPerfect(position, DustID.PinkFairy, vel, 0, col, scale * 0.9f);
+                Vector2 vel = awayDirection * Main.rand.NextFloat(1f, 3f) + Main.rand.NextVector2Circular(0.5f, 0.5f);
+                bool isPink = Main.rand.NextBool();
+                int dustType = isPink ? DustID.PinkSlime : DustID.PinkTorch;
+                Color col = isPink ? RosePink : LeafGreen;
+                Dust d = Dust.NewDustPerfect(pos, dustType, vel, isPink ? 0 : 100, col, 1.5f);
                 d.noGravity = true;
-                d.fadeIn = 1.1f;
+                d.fadeIn = 1.3f;
             }
-            SpawnPetalMusicNotes(position, (int)(3 * scale), 4f * scale);
-
-            // Blossom sparkle explosion
-            SpawnBlossomSparkleExplosion(position, (int)(6 * scale), 4f * scale, 0.25f);
         }
 
-        public static void BloomBurst(Vector2 position, float scale)
+        /// <summary>
+        /// Radial dust burst for on-hit / impact VFX.
+        /// Alternating GreenTorch and Flower around the burst ring.
+        /// </summary>
+        public static void SpawnRadialDustBurst(Vector2 pos, int count = 12,
+            float speed = 5f)
         {
-            int count = (int)(16 * scale);
             for (int i = 0; i < count; i++)
             {
                 float angle = MathHelper.TwoPi * i / count;
-                Vector2 vel = angle.ToRotationVector2() * (6f * scale);
-                Color col = Color.Lerp(OdeToJoyPalette.GoldenPollen, OdeToJoyPalette.WhiteBloom, Main.rand.NextFloat());
-                Dust d = Dust.NewDustPerfect(position, DustID.YellowStarDust, vel, 0, col, scale * 1.1f);
+                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(speed * 0.6f, speed);
+                bool isGreen = i % 2 == 0;
+                int dustType = isGreen ? DustID.GreenTorch : DustID.PinkTorch;
+                Color col = isGreen ? LeafGreen : RosePink;
+                Dust d = Dust.NewDustPerfect(pos, dustType, vel, isGreen ? 0 : 100, col, 1.3f);
                 d.noGravity = true;
-            }
-            BlossomImpact(position, scale * 0.6f);
-        }
-
-        public static void TriumphantCelebration(Vector2 position, float scale)
-        {
-            BloomBurst(position, scale);
-            SpawnRosePetals(position, (int)(20 * scale), 12f * scale);
-            SpawnMusicNotes(position, (int)(8 * scale), 8f * scale);
-            SpawnPetalHaloRings(position, 3, scale * 0.5f);
-
-            // Triumphant sparkle cascade
-            SpawnTriumphantStarburst(position, scale * 0.8f);
-
-            for (int i = 0; i < (int)(8 * scale); i++)
-            {
-                Vector2 vel = Main.rand.NextVector2Circular(10f * scale, 10f * scale);
-                Dust d = Dust.NewDustPerfect(position, DustID.GoldFlame, vel, 0, OdeToJoyPalette.GoldenPollen, scale);
-                d.noGravity = true;
-            }
-        }
-
-        public static void DeathGardenFlash(Vector2 position, float scale)
-        {
-            TriumphantCelebration(position, scale * 1.5f);
-            for (int i = 0; i < (int)(24 * scale); i++)
-            {
-                float angle = MathHelper.TwoPi * i / (int)(24 * scale);
-                Vector2 vel = angle.ToRotationVector2() * (14f * scale);
-                Dust d = Dust.NewDustPerfect(position, DustID.GoldFlame, vel, 0, OdeToJoyPalette.WhiteBloom, scale * 1.5f);
-                d.noGravity = true;
-            }
-        }
-
-        public static void MusicNoteBurst(Vector2 position, Color color, int count, float speed)
-        {
-            for (int i = 0; i < count; i++)
-            {
-                Vector2 vel = Main.rand.NextVector2Circular(speed, speed) + new Vector2(0, -2f);
-                Dust d = Dust.NewDustPerfect(position, DustID.YellowStarDust, vel, 0, color, Main.rand.NextFloat(0.5f, 1f));
-                d.noGravity = true;
-                d.fadeIn = 1f;
-            }
-        }
-
-        public static void MeleeImpact(Vector2 position, int variant)
-        {
-            float scale = 0.8f + variant * 0.2f;
-            GardenImpact(position, scale);
-            SpawnRosePetals(position, 4 + variant * 2, 5f * scale);
-
-            // Tiered sparkle based on combo step
-            if (variant >= 2)
-                SpawnTriumphantStarburst(position, 0.3f + variant * 0.15f);
-        }
-
-        public static void MusicalImpact(Vector2 position, float scale, bool withNotes)
-        {
-            BlossomImpact(position, scale);
-            if (withNotes)
-                SpawnMusicNotes(position, (int)(4 * scale), 6f * scale);
-        }
-
-        public static void ProjectileImpact(Vector2 position, float scale)
-        {
-            GardenImpact(position, scale * 0.7f);
-            SpawnPollenSparkles(position, (int)(5 * scale), 15f * scale);
-
-            // Color-ramped sparkle burst on every projectile impact
-            SpawnGardenSparkleExplosion(position, (int)(6 * scale), 4f * scale, 0.25f);
-        }
-
-        public static void FinisherSlam(Vector2 position, float scale)
-        {
-            TriumphantCelebration(position, scale);
-
-            // Massive triumphant starburst for finisher
-            SpawnTriumphantStarburst(position, scale * 1.5f);
-
-            for (int i = 0; i < (int)(12 * scale); i++)
-            {
-                Vector2 vel = Main.rand.NextVector2Circular(8f * scale, 8f * scale);
-                Color col = OdeToJoyPalette.GetPetalGradient(Main.rand.NextFloat());
-                Dust d = Dust.NewDustPerfect(position, DustID.PinkFairy, vel, 0, col, scale * 1.2f);
-                d.noGravity = true;
-            }
-        }
-
-        public static Color GetPaletteColor(float t)
-        {
-            return OdeToJoyPalette.GetGradient(t);
-        }
-
-        // ─────────── COLOR-RAMPED SPARKLE EXPLOSIONS ───────────
-
-        /// <summary>
-        /// Spawns a color-ramped sparkle explosion using the Ode to Joy garden gradient.
-        /// Particles range from deep forest green through golden pollen to white bloom.
-        /// </summary>
-        public static void SpawnGardenSparkleExplosion(Vector2 position, int count, float speed, float baseScale)
-        {
-            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-            if (glow == null) return;
-
-            for (int i = 0; i < count; i++)
-            {
-                float t = (float)i / Math.Max(1, count - 1);
-                Color sparkleColor = OdeToJoyPalette.GetGardenGradient(t);
-                sparkleColor = Color.Lerp(sparkleColor, Color.White, 0.15f);
-
-                Vector2 vel = Main.rand.NextVector2Circular(speed, speed);
-                float scale = baseScale * Main.rand.NextFloat(0.6f, 1.2f);
-
-                try
-                {
-                    var particle = new GlowSparkParticle(
-                        position + Main.rand.NextVector2Circular(4f, 4f),
-                        vel,
-                        sparkleColor with { A = 0 },
-                        scale,
-                        Main.rand.Next(15, 30));
-                    MagnumParticleHandler.SpawnParticle(particle);
-                }
-                catch
-                {
-                    Dust d = Dust.NewDustPerfect(position, DustID.GreenFairy, vel, 0, sparkleColor, scale * 3f);
-                    d.noGravity = true;
-                }
             }
         }
 
         /// <summary>
-        /// Spawns a blossom sparkle explosion using pink-to-gold-to-white gradient.
+        /// Golden pollen shimmer dust — gentle golden sparkle drift.
         /// </summary>
-        public static void SpawnBlossomSparkleExplosion(Vector2 position, int count, float speed, float baseScale)
+        public static void SpawnPollenShimmer(Vector2 pos, Vector2 awayDirection)
         {
-            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-            if (glow == null) return;
+            if (!Main.rand.NextBool(2)) return;
+            float hue = Main.rand.NextFloat(HueMin, HueMax);
+            Color golden = Main.hslToRgb(hue, 0.9f, 0.8f);
+            Dust d = Dust.NewDustPerfect(pos, DustID.GoldFlame,
+                awayDirection * 0.5f + Main.rand.NextVector2Circular(1.5f, 1.5f), 0, golden, 1.2f);
+            d.noGravity = true;
+        }
 
+        /// <summary>
+        /// Green-gold radial dust burst — verdant explosion ring.
+        /// </summary>
+        public static void SpawnGardenBurst(Vector2 pos, int count = 10, float speed = 5f)
+        {
             for (int i = 0; i < count; i++)
             {
-                float t = (float)i / Math.Max(1, count - 1);
-                Color sparkleColor = OdeToJoyPalette.GetBlossomGradient(t);
-                sparkleColor = Color.Lerp(sparkleColor, Color.White, 0.2f);
+                float hue = MathHelper.Lerp(HueMin, HueMax, (float)i / count);
+                float angle = MathHelper.TwoPi * i / count;
+                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(speed * 0.6f, speed);
+                Color col = Main.hslToRgb(hue, 0.9f, 0.75f);
+                Dust d = Dust.NewDustPerfect(pos, DustID.GreenTorch, vel, 0, col, 1.4f);
+                d.noGravity = true;
+            }
+        }
 
-                Vector2 vel = Main.rand.NextVector2Circular(speed, speed);
-                float scale = baseScale * Main.rand.NextFloat(0.5f, 1.1f);
+        // ─────────── ODE TO JOY-SPECIFIC VFX: PETALS ───────────
 
-                try
-                {
-                    var particle = new GlowSparkParticle(
-                        position + Main.rand.NextVector2Circular(3f, 3f),
-                        vel,
-                        sparkleColor with { A = 0 },
-                        scale,
-                        Main.rand.Next(12, 25));
-                    MagnumParticleHandler.SpawnParticle(particle);
-                }
-                catch
-                {
-                    Dust d = Dust.NewDustPerfect(position, DustID.PinkFairy, vel, 0, sparkleColor, scale * 3f);
-                    d.noGravity = true;
-                }
+        /// <summary>
+        /// Spawn floating rose petal particles around a position.
+        /// The signature Ode to Joy visual identity — drifting petals of celebration.
+        /// </summary>
+        public static void SpawnPetalScatter(Vector2 pos, int count = 3, float radius = 30f, float scale = 0.25f)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(radius, radius);
+                Vector2 vel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(0.3f, 1.5f));
+                Color petalColor = Color.Lerp(RosePink, PetalPink, Main.rand.NextFloat()) with { A = 0 };
+
+                var glow = new GenericGlowParticle(pos + offset, vel, petalColor, scale, 30, true);
+                MagnumParticleHandler.SpawnParticle(glow);
             }
         }
 
         /// <summary>
-        /// Triumphant starburst — the biggest sparkle effect. Full palette explosion
-        /// with concentric rings of garden green → blossom pink → golden pollen → white bloom.
+        /// Spawn gentle golden pollen floating particles.
+        /// Warm, luminous specks drifting upward like sunlit pollen.
         /// </summary>
-        public static void SpawnTriumphantStarburst(Vector2 position, float intensity = 1f)
+        public static void SpawnPollenDrift(Vector2 pos, int count = 3)
         {
-            // Inner ring: golden pollen
-            SpawnGardenSparkleExplosion(position, (int)(12 * intensity), 8f * intensity, 0.4f);
-
-            // Middle ring: blossom pink
-            SpawnBlossomSparkleExplosion(position, (int)(10 * intensity), 6f * intensity, 0.35f);
-
-            // Outer ring: wide soft green
-            for (int i = 0; i < (int)(8 * intensity); i++)
+            for (int i = 0; i < count; i++)
             {
-                Vector2 vel = Main.rand.NextVector2Circular(10f * intensity, 10f * intensity);
-                Color col = Color.Lerp(OdeToJoyPalette.GoldenPollen, OdeToJoyPalette.WhiteBloom, Main.rand.NextFloat(0.3f, 0.8f));
+                Vector2 offset = Main.rand.NextVector2Circular(25f, 25f);
+                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1.2f, -0.3f));
+                Color pollenColor = Color.Lerp(GoldenPollen, SunlightYellow, Main.rand.NextFloat()) with { A = 0 };
 
-                try
+                var glow = new GenericGlowParticle(pos + offset, vel, pollenColor, 0.15f + Main.rand.NextFloat(0.1f), 25, true);
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+        }
+
+        /// <summary>
+        /// Spawn green-gold thorny sparkle particles.
+        /// Sharp botanical sparkles with verdant energy.
+        /// </summary>
+        public static void SpawnVineSparkle(Vector2 pos, int count = 3)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
+                Vector2 vel = Main.rand.NextVector2Circular(2f, 2f);
+                Color sparkColor = Color.Lerp(LeafGreen, GoldenPollen, Main.rand.NextFloat()) with { A = 0 };
+
+                Dust d = Dust.NewDustPerfect(pos + offset, DustID.GreenTorch, vel, 0, sparkColor, 1.1f);
+                d.noGravity = true;
+            }
+        }
+
+        /// <summary>
+        /// Spawn a flower bloom burst explosion at a position.
+        /// Radiating petals, pollen, and golden light — the garden in full bloom.
+        /// </summary>
+        public static void SpawnBloomBurst(Vector2 pos, int count = 8, float scale = 1f)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                float angle = MathHelper.TwoPi * i / count;
+                float speed = Main.rand.NextFloat(3f, 7f) * scale;
+                Vector2 vel = angle.ToRotationVector2() * speed;
+
+                Color bloomColor = (i % 3) switch
                 {
-                    var particle = new GlowSparkParticle(
-                        position + Main.rand.NextVector2Circular(8f, 8f),
-                        vel,
-                        col with { A = 0 },
-                        0.45f * intensity,
-                        Main.rand.Next(20, 35));
-                    MagnumParticleHandler.SpawnParticle(particle);
-                }
-                catch
+                    0 => Color.Lerp(RosePink, PetalPink, Main.rand.NextFloat()),
+                    1 => Color.Lerp(GoldenPollen, SunlightYellow, Main.rand.NextFloat()),
+                    _ => Color.Lerp(LeafGreen, VerdantGreen, Main.rand.NextFloat())
+                };
+                bloomColor.A = 0;
+
+                var glow = new GenericGlowParticle(pos, vel, bloomColor, 0.25f * scale, 22, true);
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+
+            // Central bloom flash
+            try { CustomParticles.GenericFlare(pos, WhiteBloom, 0.8f * scale, 15); } catch { }
+            try { CustomParticles.GenericFlare(pos, GoldenPollen, 0.6f * scale, 20); } catch { }
+        }
+
+        // ─────────── ODE TO JOY-SPECIFIC VFX: JOYOUS SPARKLES ───────────
+
+        /// <summary>
+        /// Spawn joyous sparkle particles — green-gold-pink hue cycling points of light.
+        /// Creates the jubilant shimmer effect at the boundary of nature and celebration.
+        /// </summary>
+        public static void SpawnJoyousSparkles(Vector2 pos, int count = 6, float radius = 25f)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                // Cycle through green -> gold -> pink
+                float hueT = (float)i / count;
+                Color sparkColor = hueT < 0.33f
+                    ? Color.Lerp(LeafGreen, GoldenPollen, hueT / 0.33f)
+                    : hueT < 0.66f
+                        ? Color.Lerp(GoldenPollen, RosePink, (hueT - 0.33f) / 0.33f)
+                        : Color.Lerp(RosePink, LeafGreen, (hueT - 0.66f) / 0.34f);
+
+                Vector2 vel = Main.rand.NextVector2Circular(2f, 2f);
+                Dust d = Dust.NewDustPerfect(pos + Main.rand.NextVector2Circular(radius, radius),
+                    DustID.RainbowTorch, vel, 0, sparkColor, 1.1f);
+                d.noGravity = true;
+            }
+        }
+
+        /// <summary>
+        /// Combined green-gold-pink sparkle + GreenTorch/Flower mixed explosion.
+        /// Ode to Joy signature impact: botanical jubilance colliding with golden radiance.
+        /// This is the canonical impact effect for ALL Ode to Joy weapon projectile hits.
+        /// </summary>
+        public static void SpawnMixedSparkleImpact(Vector2 pos, float intensity = 1f, int gardenCount = 6, int petalCount = 6)
+        {
+            // INNER: GreenTorch + Flower alternating burst — tight botanical duality
+            for (int i = 0; i < petalCount; i++)
+            {
+                float angle = MathHelper.TwoPi * i / petalCount + Main.rand.NextFloat(-0.15f, 0.15f);
+                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(1.5f, 3.5f) * intensity;
+                bool isGreen = i % 2 == 0;
+                int dustType = isGreen ? DustID.GreenTorch : DustID.PinkTorch;
+                Color col = isGreen ? LeafGreen : RosePink;
+                Dust d = Dust.NewDustPerfect(pos, dustType, vel, isGreen ? 0 : 100, col, 1.3f * intensity);
+                d.noGravity = true;
+                d.fadeIn = 1.2f;
+            }
+
+            // OUTER: Green-gold RainbowTorch burst — wide verdant radiance
+            for (int i = 0; i < gardenCount; i++)
+            {
+                float hue = MathHelper.Lerp(HueMin, HueMax, (float)i / gardenCount);
+                float angle = MathHelper.TwoPi * i / gardenCount + Main.rand.NextFloat(-0.2f, 0.2f);
+                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f) * intensity;
+                Color col = Main.hslToRgb(hue, 0.9f, 0.75f);
+                Dust d = Dust.NewDustPerfect(pos, DustID.RainbowTorch, vel, 0, col, 1.1f * intensity);
+                d.noGravity = true;
+            }
+
+            // Pollen sparkle accents (dust-based, scattered between inner and outer)
+            int accentCount = Math.Max(1, (int)(3 * intensity));
+            for (int i = 0; i < accentCount; i++)
+            {
+                Color sparkColor = Color.Lerp(GoldenPollen, SunlightYellow, Main.rand.NextFloat());
+                Vector2 accentVel = Main.rand.NextVector2Circular(2f, 2f) * intensity;
+                Dust accent = Dust.NewDustPerfect(pos + Main.rand.NextVector2Circular(15f * intensity, 15f * intensity),
+                    DustID.GoldFlame, accentVel, 0, sparkColor, 0.9f * intensity);
+                accent.noGravity = true;
+            }
+        }
+
+        /// <summary>
+        /// Spawn a garden bloom explosion — verdant burst of golden-green-pink particles.
+        /// </summary>
+        public static void SpawnGardenExplosion(Vector2 pos, float intensity = 1f)
+        {
+            SpawnBloomBurst(pos, (int)(12 * intensity), intensity);
+            SpawnPetalScatter(pos, (int)(6 * intensity), 40f * intensity, 0.3f * intensity);
+            SpawnPollenDrift(pos, (int)(4 * intensity));
+        }
+
+        /// <summary>
+        /// Spawn golden glow particles swirling inward toward a center.
+        /// Creates the jubilant convergence effect.
+        /// </summary>
+        public static void SpawnGoldenSwirl(Vector2 center, int count = 6, float radius = 60f, float opacity = 0.65f)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                float angle = Main.rand.NextFloat() * MathHelper.TwoPi;
+                float dist = radius + Main.rand.NextFloat(30f);
+                Vector2 particlePos = center + angle.ToRotationVector2() * dist;
+                Vector2 vel = (center - particlePos).SafeNormalize(Vector2.Zero) * 3f;
+
+                Color gardenCol = GetGardenHue((float)i / count);
+                var glow = new GenericGlowParticle(particlePos, vel,
+                    gardenCol * opacity,
+                    0.28f, 22, true);
+                MagnumParticleHandler.SpawnParticle(glow);
+            }
+        }
+
+        // ─────────── GRADIENT HALO RINGS ───────────
+
+        /// <summary>
+        /// Cascading gradient halo rings — garden palette (MossShadow -> WhiteBloom).
+        /// </summary>
+        public static void SpawnGradientHaloRings(Vector2 pos, int count = 5, float baseScale = 0.3f)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                float progress = (float)i / count;
+                Color ringCol = Color.Lerp(MossShadow, WhiteBloom, progress);
+                CustomParticles.HaloRing(pos, ringCol, baseScale + i * 0.12f, 14);
+            }
+        }
+
+        /// <summary>
+        /// Garden halo rings — green-gold hue cycling ring cascade.
+        /// </summary>
+        public static void SpawnGardenHaloRings(Vector2 pos, int count = 5, float baseScale = 0.3f)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                float hue = MathHelper.Lerp(HueMin, HueMax, (float)i / count);
+                Color ringCol = Main.hslToRgb(hue, 0.85f, 0.8f);
+                CustomParticles.HaloRing(pos, ringCol, baseScale + i * 0.12f, 14);
+            }
+        }
+
+        // ─────────── IMPACTS ───────────
+
+        /// <summary>
+        /// Full Ode to Joy melee impact VFX — petal scatter, halo cascade,
+        /// thorn dust burst, music note burst, and garden sparkles.
+        /// Scales with combo step.
+        /// </summary>
+        public static void MeleeImpact(Vector2 pos, int comboStep = 0)
+        {
+            int rings = 2 + Math.Min(comboStep, 2);
+            SpawnGradientHaloRings(pos, rings);
+
+            int dustCount = 6 + comboStep * 2;
+            SpawnRadialDustBurst(pos, dustCount, 4f + comboStep);
+
+            int noteCount = 1 + Math.Min(comboStep, 2);
+            SpawnMusicNotes(pos, noteCount, 18f);
+
+            // Mixed green-gold + petal sparkle impact (Ode to Joy signature)
+            float impactIntensity = 0.6f + comboStep * 0.1f;
+            SpawnMixedSparkleImpact(pos, impactIntensity, 4 + comboStep, 4 + comboStep);
+
+            // Petal scatter
+            SpawnPetalScatter(pos, 2 + Math.Min(comboStep, 2), 20f, 0.2f);
+
+            // Garden halo rings
+            try { CustomParticles.HaloRing(pos, GoldenPollen, 0.35f, 14); } catch { }
+            try { CustomParticles.HaloRing(pos, LeafGreen, 0.25f, 12); } catch { }
+
+            Lighting.AddLight(pos, WhiteBloom.ToVector3() * (0.6f + comboStep * 0.1f));
+        }
+
+        /// <summary>
+        /// Projectile death / on-kill VFX — bigger, flashier version of MeleeImpact.
+        /// Includes bloom burst, pollen drift, and enhanced garden glow.
+        /// </summary>
+        public static void ProjectileImpact(Vector2 pos, float intensity = 1f)
+        {
+            SpawnGradientHaloRings(pos, 3, 0.2f * intensity);
+            SpawnMusicNotes(pos, 3, 20f * intensity, 0.6f, 0.9f, 25);
+            SpawnRadialDustBurst(pos, 8, 5f * intensity);
+            SpawnMixedSparkleImpact(pos, intensity, 6, 6);
+            SpawnPetalScatter(pos, 3, 25f * intensity, 0.2f);
+            Lighting.AddLight(pos, WhiteBloom.ToVector3() * 0.8f * intensity);
+        }
+
+        // ─────────── SWING HELPERS ───────────
+
+        /// <summary>
+        /// Per-frame VFX to call from a swing projectile's AI().
+        /// Handles petal dust trail, pollen shimmer, periodic music notes.
+        /// </summary>
+        public static void SwingFrameVFX(Vector2 tipPos, Vector2 swordDirection, int comboStep,
+            int timer, int dustType = DustID.GreenTorch)
+        {
+            SpawnPetalDust(tipPos, -swordDirection);
+            SpawnPollenShimmer(tipPos, -swordDirection);
+
+            if (timer % 5 == 0)
+                SpawnMusicNotes(tipPos, 1, 10f, 0.7f, 0.9f, 25);
+
+            Lighting.AddLight(tipPos, GetPaletteColor(0.4f + comboStep * 0.15f).ToVector3() * 0.6f);
+        }
+
+        // ─────────── FINISHER EFFECTS ───────────
+
+        /// <summary>
+        /// Phase-3 / finisher slam VFX — screen shake, massive bloom burst, petal shower,
+        /// garden explosion, golden swirl, music note scatter.
+        /// </summary>
+        public static void FinisherSlam(Vector2 pos, float intensity = 1f)
+        {
+            MagnumScreenEffects.AddScreenShake(6f * intensity);
+            SpawnGradientHaloRings(pos, 4, 0.25f * intensity);
+            SpawnGardenHaloRings(pos, 3, 0.2f * intensity);
+            SpawnMusicNotes(pos, 4, 30f, 0.7f, 1.0f, 35);
+            SpawnRadialDustBurst(pos, 12, 6f * intensity);
+            SpawnGardenBurst(pos, 10, 6f * intensity);
+            SpawnMixedSparkleImpact(pos, 1.2f * intensity, 8, 8);
+            SpawnBloomBurst(pos, 10, intensity);
+            SpawnPetalScatter(pos, 6, 40f * intensity, 0.3f);
+            SpawnGoldenSwirl(pos, 6, 60f * intensity);
+            Lighting.AddLight(pos, WhiteBloom.ToVector3() * 1.0f * intensity);
+        }
+
+        // ─────────── DYNAMIC LIGHTING ───────────
+
+        /// <summary>
+        /// Add standard Ode to Joy ambient light at a position.
+        /// </summary>
+        public static void AddOdeToJoyLight(Vector2 worldPos, float intensity = 0.6f)
+        {
+            Lighting.AddLight(worldPos, WhiteBloom.ToVector3() * intensity);
+        }
+
+        /// <summary>
+        /// Add palette-interpolated dynamic light. Higher t = brighter, warmer.
+        /// </summary>
+        public static void AddPaletteLighting(Vector2 worldPos, float paletteT, float intensity = 0.8f)
+        {
+            Color col = GetPaletteColor(paletteT);
+            Lighting.AddLight(worldPos, col.ToVector3() * intensity);
+        }
+
+        /// <summary>
+        /// Add pulsing warm golden light.
+        /// </summary>
+        public static void AddPulsingLight(Vector2 worldPos, float time, float intensity = 0.6f)
+        {
+            Color golden = Color.Lerp(GoldenPollen, SunlightYellow, 0.3f);
+            float pulse = (float)Math.Sin(time * 0.08f) * 0.15f + 0.85f;
+            Lighting.AddLight(worldPos, golden.ToVector3() * pulse * intensity);
+        }
+
+        /// <summary>
+        /// Add garden light — oscillates between LeafGreen and GoldenPollen.
+        /// </summary>
+        public static void AddGardenLight(Vector2 worldPos, float time, float intensity = 0.6f)
+        {
+            float shift = (float)Math.Sin(time * 0.06f) * 0.5f + 0.5f;
+            Color lightColor = Color.Lerp(LeafGreen, GoldenPollen, shift);
+            Lighting.AddLight(worldPos, lightColor.ToVector3() * intensity);
+        }
+
+        // ─────────── JOYOUS SPARKLE IMPACT (REPLACES NOISE ZONES) ───────────
+
+        /// <summary>
+        /// Draws a joyous sparkle impact burst — multiple rotating Star4Soft sparkles
+        /// with green-gold-pink cycling, a small clamped bloom core, and optional HaloRing edge.
+        /// This replaces the old DrawNoiseScrolledZone for impact effects.
+        /// Must be called with an active SpriteBatch (TrueAdditive blend recommended).
+        /// </summary>
+        public static void DrawJoyousSparkleImpact(SpriteBatch sb, Vector2 worldPos, float radius,
+            float time, float opacity = 1f, int sparkleCount = 8)
+        {
+            Vector2 drawPos = worldPos - Main.screenPosition;
+
+            // Star4Soft sparkle ring — scattered at varied angles/distances
+            Texture2D star = MagnumTextureRegistry.GetStar4Soft();
+            if (star != null)
+            {
+                Vector2 sOrigin = star.Size() * 0.5f;
+                for (int i = 0; i < sparkleCount; i++)
                 {
-                    Dust d = Dust.NewDustPerfect(position, DustID.GoldFlame, vel, 0, col, 1.2f * intensity);
-                    d.noGravity = true;
+                    float angle = MathHelper.TwoPi * i / sparkleCount + time * 0.015f;
+                    float dist = radius * (0.4f + 0.5f * MathF.Sin(i * 1.7f + time * 0.03f));
+                    Vector2 offset = new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * dist;
+                    float starRot = time * (0.02f + i * 0.005f) + i * 0.8f;
+                    float starScale = MathHelper.Lerp(0.15f, 0.4f, (MathF.Sin(i * 2.1f + time * 0.04f) + 1f) * 0.5f);
+
+                    // Cycle through green -> gold -> pink
+                    float hueT = (time * 0.02f + i / (float)sparkleCount) % 1f;
+                    Color starColor = hueT < 0.33f
+                        ? Color.Lerp(LeafGreen, GoldenPollen, hueT / 0.33f)
+                        : hueT < 0.66f
+                            ? Color.Lerp(GoldenPollen, RosePink, (hueT - 0.33f) / 0.33f)
+                            : Color.Lerp(RosePink, LeafGreen, (hueT - 0.66f) / 0.34f);
+
+                    sb.Draw(star, drawPos + offset, null, (starColor with { A = 0 }) * 0.3f * opacity,
+                        starRot, sOrigin, starScale, SpriteEffects.None, 0f);
                 }
+                // Center star — brighter, larger
+                float centerRot = time * 0.035f;
+                Color centerColor = Color.Lerp(GoldenPollen, WhiteBloom, 0.4f);
+                sb.Draw(star, drawPos, null, (centerColor with { A = 0 }) * 0.45f * opacity,
+                    centerRot, sOrigin, 0.35f, SpriteEffects.None, 0f);
+            }
+
+            // Garden edge ring
+            Texture2D ring = MagnumTextureRegistry.GetHaloRing();
+            if (ring != null)
+            {
+                Vector2 rOrigin = ring.Size() * 0.5f;
+                float rScale = radius * 2f / ring.Width;
+                Color rc = Color.Lerp(LeafGreen, GoldenPollen, (MathF.Sin(time * 0.03f) + 1f) * 0.5f);
+                sb.Draw(ring, drawPos, null, (rc with { A = 0 }) * 0.2f * opacity,
+                    time * 0.02f, rOrigin, rScale, SpriteEffects.None, 0f);
             }
         }
 
         // ─────────── THEME TEXTURE VFX ───────────
-        // Uses OdeToJoyThemeTextures for garden/blossom-themed visuals.
+        // Uses OdeToJoyThemeTextures for theme-specific visuals.
 
         /// <summary>
-        /// Draws a themed power ring using OJ Power Effect Ring + Harmonic Impact.
+        /// Draws a themed triumphant impact ring using Ode to Joy Power Effect Ring + Harmonic Impact.
         /// Must be called in Additive blend mode (or {A=0} pattern).
         /// </summary>
         public static void DrawThemeImpactRing(SpriteBatch sb, Vector2 worldPos,
@@ -380,10 +799,10 @@ namespace MagnumOpus.Content.OdeToJoy
             {
                 Vector2 origin = ring.Size() * 0.5f;
                 sb.Draw(ring, drawPos, null,
-                    (OdeToJoyPalette.GoldenPollen with { A = 0 }) * 0.5f * intensity, rotation, origin,
-                    scale * 0.14f, SpriteEffects.None, 0f);
+                    (GoldenPollen with { A = 0 }) * 0.5f * intensity, rotation, origin,
+                    scale * 0.15f, SpriteEffects.None, 0f);
                 sb.Draw(ring, drawPos, null,
-                    (OdeToJoyPalette.RosePink with { A = 0 }) * 0.35f * intensity, -rotation * 0.6f, origin,
+                    (LeafGreen with { A = 0 }) * 0.3f * intensity, -rotation * 0.7f, origin,
                     scale * 0.10f, SpriteEffects.None, 0f);
             }
 
@@ -392,337 +811,43 @@ namespace MagnumOpus.Content.OdeToJoy
             {
                 Vector2 impOrigin = impact.Size() * 0.5f;
                 sb.Draw(impact, drawPos, null,
-                    (OdeToJoyPalette.WhiteBloom with { A = 0 }) * 0.4f * intensity, rotation * 1.3f, impOrigin,
+                    (SunlightYellow with { A = 0 }) * 0.45f * intensity, rotation * 1.3f, impOrigin,
                     scale * 0.12f, SpriteEffects.None, 0f);
             }
         }
 
         /// <summary>
-        /// Draws a themed blossom sparkle accent at a position.
-        /// Perfect for melee impacts and projectile hit effects.
+        /// Draws a themed blossom sparkle particle accent at a position.
+        /// Must be called in Additive blend mode.
         /// </summary>
-        public static void DrawThemeBlossomSparkle(SpriteBatch sb, Vector2 worldPos,
+        public static void DrawThemeBlossomAccent(SpriteBatch sb, Vector2 worldPos,
             float scale, float intensity = 1f)
         {
-            Texture2D sparkle = OdeToJoyThemeTextures.OJBlossomSparkle?.Value;
-            if (sparkle == null) return;
-
             Vector2 drawPos = worldPos - Main.screenPosition;
-            Vector2 origin = sparkle.Size() * 0.5f;
-            float rot = (float)Main.GameUpdateCount * 0.035f;
 
-            sb.Draw(sparkle, drawPos, null,
-                (OdeToJoyPalette.PetalPink with { A = 0 }) * 0.5f * intensity, rot, origin,
-                scale * 0.08f, SpriteEffects.None, 0f);
-            sb.Draw(sparkle, drawPos, null,
-                (OdeToJoyPalette.SunlightYellow with { A = 0 }) * 0.35f * intensity, -rot * 0.5f, origin,
-                scale * 0.06f, SpriteEffects.None, 0f);
+            Texture2D blossom = OdeToJoyThemeTextures.OJBlossomSparkle?.Value;
+            if (blossom != null)
+            {
+                Vector2 origin = blossom.Size() * 0.5f;
+                float rot = (float)Main.GameUpdateCount * 0.04f;
+                sb.Draw(blossom, drawPos, null,
+                    (GoldenPollen with { A = 0 }) * 0.45f * intensity, rot, origin,
+                    scale * 0.07f, SpriteEffects.None, 0f);
+                sb.Draw(blossom, drawPos, null,
+                    (RosePink with { A = 0 }) * 0.3f * intensity, -rot * 0.6f, origin,
+                    scale * 0.05f, SpriteEffects.None, 0f);
+            }
         }
 
         /// <summary>
-        /// Draws a themed thorn fragment burst accent.
-        /// Great for melee weapon slash impacts.
-        /// </summary>
-        public static void DrawThemeThornAccent(SpriteBatch sb, Vector2 worldPos,
-            float scale, float intensity = 1f)
-        {
-            Texture2D thorn = OdeToJoyThemeTextures.OJThornFragment?.Value;
-            if (thorn == null) return;
-
-            Vector2 drawPos = worldPos - Main.screenPosition;
-            Vector2 origin = thorn.Size() * 0.5f;
-            float rot = (float)Main.GameUpdateCount * 0.04f;
-
-            sb.Draw(thorn, drawPos, null,
-                (OdeToJoyPalette.LeafGreen with { A = 0 }) * 0.4f * intensity, rot, origin,
-                scale * 0.07f, SpriteEffects.None, 0f);
-        }
-
-        /// <summary>
-        /// Draws a themed floral wave overlay using harmonic wave texture.
-        /// </summary>
-        public static void DrawThemeFloralWave(SpriteBatch sb, Vector2 worldPos,
-            float scale, float intensity = 1f)
-        {
-            Texture2D wave = OdeToJoyThemeTextures.OJHarmonicWaveFloral?.Value;
-            if (wave == null) return;
-
-            Vector2 drawPos = worldPos - Main.screenPosition;
-            Vector2 origin = wave.Size() * 0.5f;
-            float rot = (float)Main.GameUpdateCount * 0.015f;
-
-            sb.Draw(wave, drawPos, null,
-                (OdeToJoyPalette.GoldenPollen with { A = 0 }) * 0.3f * intensity, rot, origin,
-                scale * 0.12f, SpriteEffects.None, 0f);
-        }
-
-        /// <summary>
-        /// Combined theme impact: blossom sparkle + impact ring + thorn accent.
+        /// Combined theme impact: universal bloom + theme ring + blossom accents.
         /// </summary>
         public static void DrawThemeImpactFull(SpriteBatch sb, Vector2 worldPos,
             float scale, float intensity = 1f)
         {
-            DrawThemeBlossomSparkle(sb, worldPos, scale, intensity * 0.7f);
+            DrawThemeBlossomAccent(sb, worldPos, scale, intensity * 0.7f);
             float rot = (float)Main.GameUpdateCount * 0.02f;
-            DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.5f, rot);
-            DrawThemeThornAccent(sb, worldPos, scale * 0.8f, intensity * 0.4f);
-        }
-
-        // ═════════════════════════════════════════════════════════════════
-        //  BLOOM STACKING — Multi-layer additive bloom with {A=0} pattern
-        // ═════════════════════════════════════════════════════════════════
-
-        /// <summary>
-        /// Draws a multi-layer additive bloom stack at a world position.
-        /// Uses the {A=0} premultiplied alpha pattern for correct additive blending.
-        /// Call while SpriteBatch is in additive blend mode (TrueAdditive or ShaderAdditive).
-        /// </summary>
-        /// <param name="sb">SpriteBatch (must be in additive mode).</param>
-        /// <param name="worldPos">World position for the bloom center.</param>
-        /// <param name="coreColor">Brightest inner color.</param>
-        /// <param name="outerColor">Dimmer outer glow color.</param>
-        /// <param name="scale">Base scale (1.0 = texture native size).</param>
-        /// <param name="intensity">Overall intensity multiplier 0-1.</param>
-        /// <param name="layers">Number of bloom layers (3-6 recommended).</param>
-        public static void DrawBloomStack(SpriteBatch sb, Vector2 worldPos,
-            Color coreColor, Color outerColor, float scale, float intensity = 1f, int layers = 4)
-        {
-            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-            if (glow == null) return;
-
-            Vector2 drawPos = worldPos - Main.screenPosition;
-            Vector2 origin = glow.Size() * 0.5f;
-
-            for (int i = layers - 1; i >= 0; i--)
-            {
-                float t = (float)i / Math.Max(1, layers - 1);
-                float layerScale = scale * MathHelper.Lerp(0.4f, 2.2f, t);
-                float layerOpacity = MathHelper.Lerp(0.7f, 0.15f, t) * intensity;
-                Color layerColor = Color.Lerp(coreColor, outerColor, t) with { A = 0 };
-
-                sb.Draw(glow, drawPos, null, layerColor * layerOpacity, 0f,
-                    origin, layerScale, SpriteEffects.None, 0f);
-            }
-        }
-
-        /// <summary>
-        /// Draws a directional lens flare at a world position.
-        /// Perfect for melee blade tips and magic projectile heads.
-        /// </summary>
-        public static void DrawLensFlare(SpriteBatch sb, Vector2 worldPos,
-            Color color, float scale, float rotation, float intensity = 1f)
-        {
-            Texture2D flare = MagnumTextureRegistry.GetSoftGlow();
-            if (flare == null) return;
-
-            Vector2 drawPos = worldPos - Main.screenPosition;
-            Vector2 origin = flare.Size() * 0.5f;
-            Color flareColor = color with { A = 0 };
-
-            // Horizontal bar
-            sb.Draw(flare, drawPos, null, flareColor * 0.6f * intensity,
-                rotation, origin, new Vector2(scale * 2f, scale * 0.3f), SpriteEffects.None, 0f);
-            // Vertical bar
-            sb.Draw(flare, drawPos, null, flareColor * 0.4f * intensity,
-                rotation + MathHelper.PiOver2, origin, new Vector2(scale * 1.5f, scale * 0.2f), SpriteEffects.None, 0f);
-            // Core dot
-            sb.Draw(flare, drawPos, null, (Color.White with { A = 0 }) * 0.5f * intensity,
-                0f, origin, scale * 0.4f, SpriteEffects.None, 0f);
-        }
-
-        // ═════════════════════════════════════════════════════════════════
-        //  SCREEN EFFECTS — Shake, flash, pulse
-        // ═════════════════════════════════════════════════════════════════
-
-        /// <summary>
-        /// Triggers screen shake via player's ScreenPosition offset.
-        /// Strength is in pixels of maximum displacement.
-        /// </summary>
-        public static void ScreenShake(float strength, int durationTicks = 8)
-        {
-            if (Main.LocalPlayer.dead) return;
-
-            // Use Terraria's built-in screen shake system
-            if (strength > 0f)
-            {
-                // PunchCameraModifier is the preferred tModLoader way
-                var shake = new Terraria.Graphics.CameraModifiers.PunchCameraModifier(
-                    Main.LocalPlayer.Center, Main.rand.NextVector2CircularEdge(1f, 1f),
-                    strength, 6f, durationTicks, 1000f);
-                Main.instance.CameraModifiers.Add(shake);
-            }
-        }
-
-        /// <summary>
-        /// Triggers a screen flash effect by spawning a large additive bloom at the player's center.
-        /// </summary>
-        public static void ScreenFlash(Color color, float intensity = 1f, int lifetime = 12)
-        {
-            try
-            {
-                var flash = new BloomParticle(
-                    Main.LocalPlayer.Center,
-                    Vector2.Zero,
-                    color with { A = 0 },
-                    8f * intensity, 12f * intensity,
-                    lifetime, true);
-                MagnumParticleHandler.SpawnParticle(flash);
-            }
-            catch { }
-        }
-
-        // ═════════════════════════════════════════════════════════════════
-        //  TRAIL DRAWING — High-level wrappers around CalamityStyleTrailRenderer
-        // ═════════════════════════════════════════════════════════════════
-
-        /// <summary>
-        /// Draws a VertexStrip trail for a projectile using CalamityStyleTrailRenderer
-        /// with Ode to Joy colors. Uses the Nature trail style by default (green-gold).
-        /// </summary>
-        public static void DrawProjectileTrail(Projectile proj, float width = 30f,
-            Color? primary = null, Color? secondary = null, float intensity = 1f)
-        {
-            Color p = primary ?? OdeToJoyPalette.VerdantGreen;
-            Color s = secondary ?? OdeToJoyPalette.GoldenPollen;
-            CalamityStyleTrailRenderer.DrawProjectileTrail(proj, CalamityStyleTrailRenderer.TrailStyle.Nature,
-                width, p, s, intensity);
-        }
-
-        /// <summary>
-        /// Draws a VertexStrip trail with multi-pass bloom for a projectile.
-        /// Creates the "body + glow halo" look.
-        /// </summary>
-        public static void DrawProjectileTrailWithBloom(Projectile proj, float width = 30f,
-            Color? primary = null, Color? secondary = null,
-            float intensity = 1f, float bloomMult = 2.5f)
-        {
-            Color p = primary ?? OdeToJoyPalette.VerdantGreen;
-            Color s = secondary ?? OdeToJoyPalette.GoldenPollen;
-            CalamityStyleTrailRenderer.DrawProjectileTrailWithBloom(proj, CalamityStyleTrailRenderer.TrailStyle.Nature,
-                width, p, s, intensity, bloomMult);
-        }
-
-        /// <summary>
-        /// Draws a custom trail from a position buffer (not tied to a projectile).
-        /// Useful for swing trails and custom effect paths.
-        /// </summary>
-        public static void DrawTrailFromPositions(Vector2[] positions, float width = 30f,
-            Color? primary = null, Color? secondary = null, float intensity = 1f,
-            CalamityStyleTrailRenderer.TrailStyle style = CalamityStyleTrailRenderer.TrailStyle.Nature)
-        {
-            Color p = primary ?? OdeToJoyPalette.VerdantGreen;
-            Color s = secondary ?? OdeToJoyPalette.GoldenPollen;
-            CalamityStyleTrailRenderer.DrawTrail(positions, style, width, p, s, intensity);
-        }
-
-        // ═════════════════════════════════════════════════════════════════
-        //  MUSICAL VFX — Note particles, harmonic pulses, rhythmic effects
-        // ═════════════════════════════════════════════════════════════════
-
-        /// <summary>
-        /// Spawns a ring of expanding music note particles.
-        /// Used at combo phase transitions and finishers.
-        /// </summary>
-        public static void HarmonicPulseRing(Vector2 position, float radius, int noteCount,
-            Color? color = null, float speed = 3f)
-        {
-            Color col = color ?? OdeToJoyPalette.GoldenPollen;
-
-            for (int i = 0; i < noteCount; i++)
-            {
-                float angle = MathHelper.TwoPi * i / noteCount;
-                Vector2 vel = angle.ToRotationVector2() * speed;
-                Vector2 offset = angle.ToRotationVector2() * radius * 0.3f;
-
-                try
-                {
-                    var sparkle = new GlowSparkParticle(
-                        position + offset, vel,
-                        col with { A = 0 },
-                        0.3f, Main.rand.Next(20, 35));
-                    MagnumParticleHandler.SpawnParticle(sparkle);
-                }
-                catch
-                {
-                    Dust d = Dust.NewDustPerfect(position + offset, DustID.GoldFlame, vel, 0, col, 0.8f);
-                    d.noGravity = true;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Spawns a cascade of music note dust rising upward.
-        /// Perfect for celebration/finisher moments.
-        /// </summary>
-        public static void MusicNoteCascade(Vector2 position, int count, float spread,
-            Color? primary = null, Color? secondary = null)
-        {
-            Color p = primary ?? OdeToJoyPalette.GoldenPollen;
-            Color s = secondary ?? OdeToJoyPalette.SunlightYellow;
-
-            for (int i = 0; i < count; i++)
-            {
-                float t = (float)i / Math.Max(1, count - 1);
-                Color col = Color.Lerp(p, s, t);
-                Vector2 vel = new Vector2(
-                    Main.rand.NextFloat(-spread, spread),
-                    Main.rand.NextFloat(-6f, -2f));
-
-                try
-                {
-                    var note = new SparkleParticle(
-                        position + Main.rand.NextVector2Circular(spread * 2f, 8f),
-                        vel, col with { A = 0 },
-                        Main.rand.NextFloat(0.2f, 0.5f),
-                        Main.rand.Next(25, 50));
-                    MagnumParticleHandler.SpawnParticle(note);
-                }
-                catch
-                {
-                    Dust d = Dust.NewDustPerfect(position, DustID.YellowStarDust, vel, 0, col, 0.7f);
-                    d.noGravity = true;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Spawns a rhythmic pulsing bloom ring that expands outward.
-        /// </summary>
-        public static void RhythmicPulse(Vector2 position, float scale, Color? color = null)
-        {
-            Color col = color ?? OdeToJoyPalette.GoldenPollen;
-
-            try
-            {
-                var ring = new BloomRingParticle(
-                    position, Vector2.Zero,
-                    col with { A = 0 },
-                    scale * 0.3f, 25);
-                MagnumParticleHandler.SpawnParticle(ring);
-            }
-            catch { }
-        }
-
-        /// <summary>
-        /// Full celebration burst — combines harmonic pulse ring, music note cascade,
-        /// rhythmic pulse, bloom stack, and screen effects.
-        /// </summary>
-        public static void CelebrationBurst(Vector2 position, float scale, bool withScreenEffects = true)
-        {
-            HarmonicPulseRing(position, 40f * scale, 12 + (int)(8 * scale));
-            MusicNoteCascade(position, 8 + (int)(6 * scale), 4f * scale);
-            RhythmicPulse(position, scale);
-
-            // Layered garden + blossom sparkle bursts
-            SpawnGardenSparkleExplosion(position, (int)(12 * scale), 6f * scale, 0.35f);
-            SpawnBlossomSparkleExplosion(position, (int)(10 * scale), 5f * scale, 0.3f);
-            SpawnTriumphantStarburst(position, scale * 0.8f);
-
-            if (withScreenEffects)
-            {
-                ScreenShake(4f * scale, 10);
-                ScreenFlash(OdeToJoyPalette.GoldenPollen, 0.6f * scale);
-            }
+            DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.6f, rot);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -10,12 +10,11 @@ using Terraria.ModLoader;
 using MagnumOpus.Common;
 using MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture.Projectiles;
 using MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture.Buffs;
-using MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture.Utilities;
 
 namespace MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture
 {
     /// <summary>
-    /// Galactic Overture — Summons a Celestial Muse.
+    /// Galactic Overture ? Summons a Celestial Muse.
     /// The muse hovers near the player and fires musical projectiles at enemies.
     /// A ranged-attack minion with golden/indigo cosmic aesthetic.
     /// </summary>
@@ -47,7 +46,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture
             Vector2 spawnPos = Main.MouseWorld;
 
             // Musical entrance VFX
-            GalacticOvertureVFX.SummonVFX(spawnPos);
+// VFX_GUTTED:             GalacticOvertureVFX.SummonVFX(spawnPos);
 
             Projectile.NewProjectile(source, spawnPos, Vector2.Zero, type, damage, knockback, player.whoAmI);
 
@@ -57,7 +56,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture
         public override void HoldItem(Player player)
         {
             int minionCount = player.ownedProjectileCounts[ModContent.ProjectileType<CelestialMuseMinion>()];
-            GalacticOvertureVFX.HoldItemVFX(player, minionCount);
+// VFX_GUTTED:             GalacticOvertureVFX.HoldItemVFX(player, minionCount);
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)

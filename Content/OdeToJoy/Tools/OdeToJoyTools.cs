@@ -209,7 +209,7 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
                     Main.rand.Next(hitbox.Left, hitbox.Right),
                     Main.rand.Next(hitbox.Top, hitbox.Bottom)
                 );
-                OdeToJoyVFXLibrary.SpawnMusicNotes(notePos, 1, 20f, 0.75f);
+// VFX_GUTTED:                 OdeToJoyVFXLibrary.SpawnMusicNotes(notePos, 1, 20f, 0.75f);
             }
 
             Lighting.AddLight(hitbox.Center.ToVector2(), OdeToJoyPalette.VerdantGreen.ToVector3() * 0.4f);
@@ -217,27 +217,8 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
         {
-            Texture2D texture = TextureAssets.Item[Item.type].Value;
-            Vector2 position = Item.Center - Main.screenPosition;
-            Vector2 origin = texture.Size() / 2f;
-
-            float time = Main.GameUpdateCount * 0.06f;
-            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.08f;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            spriteBatch.Draw(texture, position, null, OdeToJoyPalette.VerdantGreen * 0.3f, rotation, origin, scale * pulse * 1.25f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, position, null, OdeToJoyPalette.RosePink * 0.25f, rotation, origin, scale * pulse * 1.12f, SpriteEffects.None, 0f);
-            
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            Lighting.AddLight(Item.Center, OdeToJoyPalette.VerdantGreen.ToVector3() * 0.4f);
-            
-            return true;
+            // VFX_GUTTED: PreDraw rendering removed
+            return false;
         }
 
         public override void AddRecipes()
@@ -336,7 +317,7 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
                     Main.rand.Next(hitbox.Left, hitbox.Right),
                     Main.rand.Next(hitbox.Top, hitbox.Bottom)
                 );
-                OdeToJoyVFXLibrary.SpawnMusicNotes(notePos, 1, 20f, 0.8f);
+// VFX_GUTTED:                 OdeToJoyVFXLibrary.SpawnMusicNotes(notePos, 1, 20f, 0.8f);
             }
             
             Lighting.AddLight(hitbox.Center.ToVector2(), OdeToJoyPalette.RosePink.ToVector3() * 0.5f);
@@ -344,30 +325,8 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
         
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
         {
-            Texture2D texture = TextureAssets.Item[Item.type].Value;
-            Vector2 position = Item.Center - Main.screenPosition;
-            Vector2 origin = texture.Size() / 2f;
-            
-            float time = Main.GameUpdateCount * 0.06f;
-            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.1f;
-            
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            spriteBatch.Draw(texture, position, null, OdeToJoyPalette.RosePink * 0.35f, rotation, origin, scale * pulse * 1.3f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, position, null, OdeToJoyPalette.VerdantGreen * 0.28f, rotation, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
-            
-            float shimmer = (float)Math.Sin(time * 3f) * 0.5f + 0.5f;
-            spriteBatch.Draw(texture, position, null, OdeToJoyPalette.GoldenPollen * 0.2f * shimmer, rotation, origin, scale * pulse * 1.05f, SpriteEffects.None, 0f);
-            
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            
-            Lighting.AddLight(Item.Center, OdeToJoyPalette.RosePink.ToVector3() * 0.45f);
-            
-            return true;
+            // VFX_GUTTED: PreDraw rendering removed
+            return false;
         }
 
         public override void AddRecipes()

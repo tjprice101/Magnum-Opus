@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -10,12 +10,11 @@ using Terraria.ModLoader;
 using MagnumOpus.Common;
 using MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton.Projectiles;
 using MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton.Buffs;
-using MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton.Utilities;
 
 namespace MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton
 {
     /// <summary>
-    /// Celestial Chorus Baton — Summons a Nocturnal Guardian.
+    /// Celestial Chorus Baton ? Summons a Nocturnal Guardian.
     /// The guardian orbits the player and dashes to attack enemies.
     /// An aggressive melee minion that conducts the symphony of the night.
     /// </summary>
@@ -46,8 +45,8 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton
 
             Vector2 spawnPos = Main.MouseWorld;
 
-            // Entrance VFX — cosmic summoning burst
-            CelestialChorusBatonVFX.SummonVFX(spawnPos);
+            // Entrance VFX ? cosmic summoning burst
+// VFX_GUTTED:             CelestialChorusBatonVFX.SummonVFX(spawnPos);
 
             Projectile.NewProjectile(source, spawnPos, Vector2.Zero, type, damage, knockback, player.whoAmI);
 
@@ -57,7 +56,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton
         public override void HoldItem(Player player)
         {
             int minionCount = player.ownedProjectileCounts[ModContent.ProjectileType<NocturnalGuardianMinion>()];
-            CelestialChorusBatonVFX.HoldItemVFX(player, minionCount);
+// VFX_GUTTED:             CelestialChorusBatonVFX.HoldItemVFX(player, minionCount);
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)

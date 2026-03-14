@@ -1,204 +1,238 @@
-using MagnumOpus.Common.Systems.VFX.Core;
-using MagnumOpus.Content.DiesIrae;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
-using Terraria.ID;
-using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.DiesIrae;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Utilities
 {
     /// <summary>
-    /// Static VFX utility for Eclipse of Wrath.
-    /// Dual-render eclipse aesthetic  Edark disc center with ragged fire corona.
-    /// Most visually dramatic magic weapon in Dies Irae.
+    /// Self-contained utility class for Eclipse of Wrath.
+    /// Palette, easings, animation curves, SpriteBatch helpers, geometry helpers.
+    /// Solar judgment, darkened fury — the eclipse burns what light cannot reach.
     /// </summary>
     public static class EclipseOfWrathUtils
     {
-        public static Color EclipseDark => new Color(15, 5, 5);
-        public static Color CoronaEmber => DiesIraePalette.EmberOrange;
-        public static Color CoronaGold => DiesIraePalette.JudgmentGold;
-        public static Color ShardCrimson => DiesIraePalette.BloodRed;
-        public static Color FlashWhite => DiesIraePalette.WrathWhite;
+        #region Color Palette
 
-        /// <summary>
-        /// Draws the eclipse orb  Edual render: dark disc (alpha blend) + fire corona (additive).
-        /// Must be called in two passes.
-        /// Pass 1 (AlphaBlend): DrawEclipseDisc()
-        /// Pass 2 (Additive): DrawEclipseCorona()
-        /// </summary>
-        public static void DrawEclipseDisc(SpriteBatch sb, Vector2 worldPos, float timer, float scale = 1f)
+        /// <summary>Eclipse of Wrath palette — solar judgment, darkened fury.</summary>
+        public static readonly Color[] WeaponPalette = new Color[]
         {
-            Texture2D glow = MagnumTextureRegistry.GetHardCircle();
-            if (glow == null) glow = MagnumTextureRegistry.GetSoftGlow();
-            if (glow == null) return;
-            Vector2 origin = glow.Size() / 2f;
-            Vector2 pos = worldPos - Main.screenPosition;
+            DiesIraePalette.CharcoalBlack,  // [0] Pianissimo — eclipse shadow
+            DiesIraePalette.DarkBlood,      // [1] Piano — dark blood corona
+            DiesIraePalette.InfernalRed,    // [2] Mezzo — infernal eclipse body
+            DiesIraePalette.EmberOrange,    // [3] Forte — ember corona flare
+            DiesIraePalette.HellfireGold,   // [4] Fortissimo — hellfire gold rim
+            DiesIraePalette.WrathWhite,     // [5] Sforzando — solar wrath flash
+        };
 
-            // Dark disc  Enear-black, occludes background
-            sb.Draw(glow, pos, null, EclipseDark * 0.95f, timer * 0.01f, origin,
-                0.04f * scale, SpriteEffects.None, 0f);
+        /// <summary>Lore text color for ModifyTooltips.</summary>
+        public static readonly Color LoreColor = DiesIraePalette.LoreText;
+
+        /// <summary>Cycling wrath color — red hue range oscillation for shimmer effects.</summary>
+        public static Color GetWrathCycle(float offset = 0f)
+        {
+            float hue = (Main.GameUpdateCount * 0.015f + offset) % 1f;
+            hue = hue * 0.08f;
+            return Main.hslToRgb(hue, 0.95f, 0.50f);
         }
 
-        /// <summary>
-        /// Draws the fire corona ring around the eclipse (additive pass).
-        /// </summary>
-        public static void DrawEclipseCorona(SpriteBatch sb, Vector2 worldPos, float timer, float scale = 1f)
+        /// <summary>Smoothly interpolate through a color array.</summary>
+        public static Color MulticolorLerp(float t, params Color[] colors)
         {
-            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-            if (glow == null) return;
-            Vector2 origin = glow.Size() / 2f;
-            Vector2 pos = worldPos - Main.screenPosition;
-
-            float pulse = 0.8f + 0.2f * (float)Math.Sin(timer * 0.2f);
-
-            // Corona ring  Elarger than disc, ember-gold
-            Texture2D halo = MagnumTextureRegistry.GetHaloRing();
-            if (halo != null)
-            {
-                Vector2 hOrigin = halo.Size() / 2f;
-                sb.Draw(halo, pos, null, CoronaEmber * 0.6f * pulse, timer * 0.015f, hOrigin,
-                    0.06f * scale, SpriteEffects.None, 0f);
-                sb.Draw(halo, pos, null, CoronaGold * 0.3f * pulse, -timer * 0.01f, hOrigin,
-                    0.075f * scale, SpriteEffects.None, 0f);
-            }
-
-            // Outer flare wisps
-            sb.Draw(glow, pos, null, CoronaEmber * 0.3f * pulse, 0f, origin,
-                0.08f * scale, SpriteEffects.None, 0f);
-
-            // Spinning cross flare
-            Texture2D flare = MagnumTextureRegistry.GetShineFlare4Point();
-            if (flare != null)
-            {
-                Vector2 fOrigin = flare.Size() / 2f;
-                sb.Draw(flare, pos, null, CoronaGold * 0.2f * pulse, timer * 0.05f, fOrigin,
-                    0.04f * scale, SpriteEffects.None, 0f);
-            }
+            t = MathHelper.Clamp(t, 0f, 0.999f);
+            int count = colors.Length;
+            float scaled = t * (count - 1);
+            int index = (int)scaled;
+            float frac = scaled - index;
+            if (index >= count - 1) return colors[count - 1];
+            return Color.Lerp(colors[index], colors[index + 1], frac);
         }
 
-        /// <summary>
-        /// Draws a wrath shard  Esmall piercing fragment with tight trail.
-        /// </summary>
-        public static void DrawWrathShardBody(SpriteBatch sb, Vector2 worldPos, float rotation, float timer)
+        /// <summary>Gets a color along the weapon gradient (0=eclipse shadow, 1=solar wrath).</summary>
+        public static Color GetWeaponGradient(float t) => MulticolorLerp(t, WeaponPalette);
+
+        /// <summary>Make a color additive-friendly (A=0) with opacity.</summary>
+        public static Color Additive(Color c, float opacity = 1f)
+            => new Color(c.R, c.G, c.B, 0) * opacity;
+
+        #endregion
+
+        #region Easing Functions
+
+        public delegate float EasingFunction(float t, int degree);
+
+        public static float LinearEasing(float t, int degree) => t;
+        public static float SineInEasing(float t, int degree) => 1f - (float)Math.Cos(t * MathHelper.PiOver2);
+        public static float SineOutEasing(float t, int degree) => (float)Math.Sin(t * MathHelper.PiOver2);
+        public static float SineInOutEasing(float t, int degree) => -(float)(Math.Cos(Math.PI * t) - 1) / 2f;
+        public static float SineBumpEasing(float t, int degree) => (float)Math.Sin(t * Math.PI);
+
+        public static float PolyInEasing(float t, int degree)
         {
-            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-            if (glow == null) return;
-            Vector2 origin = glow.Size() / 2f;
-            Vector2 pos = worldPos - Main.screenPosition;
-
-            float pulse = 0.85f + 0.15f * (float)Math.Sin(timer * 0.3f);
-
-            // Ember outer
-            sb.Draw(glow, pos, null, CoronaEmber * 0.5f * pulse, 0f, origin,
-                0.025f, SpriteEffects.None, 0f);
-            // Hot core
-            sb.Draw(glow, pos, null, FlashWhite * 0.6f * pulse, 0f, origin,
-                0.012f, SpriteEffects.None, 0f);
+            return (float)Math.Pow(t, degree);
         }
 
-        /// <summary>
-        /// Eclipse orb split  Eburst VFX when orb fragments.
-        /// </summary>
-        public static void DoEclipseSplit(Vector2 center)
+        public static float PolyOutEasing(float t, int degree)
         {
-            // === Color-ramped sparkle explosion VFX ===
-            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(center, 10, 6f, 0.35f);
+            return 1f - (float)Math.Pow(1f - t, degree);
+        }
 
-            if (Main.dedServ) return;
+        public static float PolyInOutEasing(float t, int degree)
+        {
+            if (t < 0.5f)
+                return (float)Math.Pow(2f * t, degree) / 2f;
+            return 1f - (float)Math.Pow(-2f * t + 2f, degree) / 2f;
+        }
 
-            // Spiral shrapnel burst
-            for (int i = 0; i < 30; i++)
+        public static float ExpInEasing(float t, int degree) =>
+            t == 0f ? 0f : (float)Math.Pow(2f, 10f * t - 10f);
+
+        public static float ExpOutEasing(float t, int degree) =>
+            t >= 1f ? 1f : 1f - (float)Math.Pow(2f, -10f * t);
+
+        public static float CircInEasing(float t, int degree) =>
+            1f - (float)Math.Sqrt(1f - t * t);
+
+        public static float CircOutEasing(float t, int degree) =>
+            (float)Math.Sqrt(1f - (t - 1f) * (t - 1f));
+
+        #endregion
+
+        #region CurveSegment — Piecewise Animation
+
+        public struct CurveSegment
+        {
+            public EasingFunction Easing;
+            public float StartX;
+            public float StartHeight;
+            public float ElevationShift;
+            public int Degree;
+
+            public CurveSegment(EasingFunction easing, float startX, float startHeight, float elevationShift, int degree = 2)
             {
-                float angle = MathHelper.TwoPi / 30 * i + Main.rand.NextFloat() * 0.2f;
-                float speed = 3f + Main.rand.NextFloat() * 4f;
-                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * speed;
-
-                int dustType = Main.rand.NextBool() ? DustID.Torch : DustID.Smoke;
-                Dust d = Dust.NewDustPerfect(center, dustType, vel, dustType == DustID.Smoke ? 150 : 0, default, 1.3f);
-                d.noGravity = true;
-                d.fadeIn = 0.5f;
-            }
-
-            // Center flash
-            for (int i = 0; i < 6; i++)
-            {
-                Dust d = Dust.NewDustPerfect(center, DustID.GoldFlame,
-                    Main.rand.NextVector2Circular(2f, 2f), 0, default, 1.5f);
-                d.noGravity = true;
+                Easing = easing;
+                StartX = startX;
+                StartHeight = startHeight;
+                ElevationShift = elevationShift;
+                Degree = degree;
             }
         }
 
-        /// <summary>
-        /// Eclipse field darkness zone  Elingering dark area.
-        /// </summary>
-        public static void DrawEclipseField(SpriteBatch sb, Vector2 center, float radius, float life, float timer)
+        public static float PiecewiseAnimation(float progress, CurveSegment[] segments)
         {
-            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-            if (glow == null) return;
-            Vector2 origin = glow.Size() / 2f;
-            Vector2 pos = center - Main.screenPosition;
+            progress = MathHelper.Clamp(progress, 0f, 1f);
 
-            // Dark overlay  Edrawn in alpha blend mode to actually darken
-            // Here we draw a dimming layer
-            float pulse = 0.9f + 0.1f * (float)Math.Sin(timer * 0.1f);
-
-            // Ember fire rim at edges
-            Texture2D halo = MagnumTextureRegistry.GetHaloRing();
-            if (halo != null)
+            int segIdx = 0;
+            for (int i = segments.Length - 1; i >= 0; i--)
             {
-                Vector2 hOrigin = halo.Size() / 2f;
-                float hScale = radius / (halo.Width * 0.5f);
-                sb.Draw(halo, pos, null, CoronaEmber * 0.3f * life * pulse, timer * 0.01f, hOrigin,
-                    hScale, SpriteEffects.None, 0f);
-            }
-
-            // Center dark glow (additive dark hint)
-            sb.Draw(glow, pos, null, ShardCrimson * 0.15f * life, 0f, origin,
-                radius / (glow.Width * 0.5f), SpriteEffects.None, 0f);
-        }
-
-        /// <summary>
-        /// Corona Flare crit explosion  EXSlash fire nova on crit hits.
-        /// </summary>
-        public static void DoCoronaFlare(Vector2 center)
-        {
-            if (Main.dedServ) return;
-
-            // Big radial spark burst
-            for (int i = 0; i < 20; i++)
-            {
-                float angle = MathHelper.TwoPi / 20 * i;
-                Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * (4f + Main.rand.NextFloat() * 4f);
-                Dust d = Dust.NewDustPerfect(center, DustID.GoldFlame, vel, 0, default, 1.8f);
-                d.noGravity = true;
-            }
-
-            // X-pattern flash
-            for (int i = 0; i < 4; i++)
-            {
-                float angle = MathHelper.PiOver4 + MathHelper.PiOver2 * i;
-                for (int j = 0; j < 5; j++)
+                if (progress >= segments[i].StartX)
                 {
-                    Vector2 vel = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * (2f + j * 2f);
-                    Dust d = Dust.NewDustPerfect(center, DustID.Torch, vel, 0, default, 1.5f);
-                    d.noGravity = true;
+                    segIdx = i;
+                    break;
                 }
             }
+
+            CurveSegment seg = segments[segIdx];
+            float segEnd = (segIdx < segments.Length - 1) ? segments[segIdx + 1].StartX : 1f;
+            float segDuration = segEnd - seg.StartX;
+
+            if (segDuration <= 0f)
+                return seg.StartHeight;
+
+            float localProgress = MathHelper.Clamp((progress - seg.StartX) / segDuration, 0f, 1f);
+            float easedProgress = seg.Easing(localProgress, seg.Degree);
+
+            return seg.StartHeight + easedProgress * seg.ElevationShift;
         }
 
-        // ─────────── THEME TEXTURE ACCENTS ───────────
+        #endregion
 
-        /// <summary>
-        /// Draws theme-textured eclipse accents. Call under Additive blend.
-        /// </summary>
+        #region SpriteBatch Helpers
+
+        public static void EnterShaderRegion(this SpriteBatch sb)
+        {
+            sb.End();
+            sb.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        public static void ExitShaderRegion(this SpriteBatch sb)
+        {
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        public static void BeginAdditive(this SpriteBatch sb)
+        {
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        public static void BeginShaderAdditive(this SpriteBatch sb)
+        {
+            sb.End();
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        public static void RestoreSpriteBatch(this SpriteBatch sb)
+        {
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        #endregion
+
+        #region Geometry Helpers
+
+        public static Vector2 SafeDirectionTo(this Vector2 from, Vector2 to, Vector2 fallback = default)
+        {
+            Vector2 diff = to - from;
+            float length = diff.Length();
+            if (length < 0.0001f) return fallback;
+            return diff / length;
+        }
+
+        public static NPC ClosestNPCAt(Vector2 position, float maxRange, bool requireLineOfSight = false)
+        {
+            NPC closest = null;
+            float closestDist = maxRange;
+
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (!npc.active || npc.friendly || npc.dontTakeDamage || npc.immortal)
+                    continue;
+
+                float dist = Vector2.Distance(position, npc.Center);
+                if (dist < closestDist)
+                {
+                    if (requireLineOfSight && !Collision.CanHitLine(position, 1, 1, npc.position, npc.width, npc.height))
+                        continue;
+                    closestDist = dist;
+                    closest = npc;
+                }
+            }
+
+            return closest;
+        }
+
+        public static float AngleTowards(float currentAngle, float targetAngle, float maxTurn)
+        {
+            float diff = MathHelper.WrapAngle(targetAngle - currentAngle);
+            return currentAngle + MathHelper.Clamp(diff, -maxTurn, maxTurn);
+        }
+
+        #endregion
+
         public static void DrawThemeAccents(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)
         {
-            DiesIraeVFXLibrary.DrawThemeStarFlare(sb, worldPos, scale, intensity * 0.6f);
-            float rot = (float)Main.GameUpdateCount * 0.02f;
-            DiesIraeVFXLibrary.DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.5f, rot);
-            DiesIraeVFXLibrary.DrawCrackedEarthOverlay(sb, worldPos, scale * 0.6f, intensity * 0.3f);
+            try { DiesIraeVFXLibrary.DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.4f, (float)Main.GameUpdateCount * 0.02f); }
+            catch { }
         }
     }
 }

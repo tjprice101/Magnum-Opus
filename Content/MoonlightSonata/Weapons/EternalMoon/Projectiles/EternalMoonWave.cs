@@ -182,7 +182,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                 innerColor * 0.6f, 0f, bloom.Size() / 2f, bloomScale, SpriteEffects.None, 0f);
 
             // Trail rendering with shader
-            Main.spriteBatch.EnterShaderRegion(MagnumBlendStates.TrueAdditive);
+            global::MagnumOpus.Common.Systems.MagnumDrawingUtils.EnterShaderRegion(Main.spriteBatch, MagnumBlendStates.TrueAdditive);
 
             var shader = GameShaders.Misc["MagnumOpus:EternalMoonTidalGlow"];
             shader.UseImage1(_noiseTex);
@@ -204,7 +204,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                 (_, _) => Projectile.Size * 0.5f,
                 shader: shader), 20);
 
-            Main.spriteBatch.ExitShaderRegion();
+            global::MagnumOpus.Common.Systems.MagnumDrawingUtils.ExitShaderRegion(Main.spriteBatch);
 
             // Bloom circle overlayer
             Color outerColor = EternalMoonUtils.IceBlue;

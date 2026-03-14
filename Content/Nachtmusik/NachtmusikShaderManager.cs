@@ -7,65 +7,115 @@ using MagnumOpus.Common.Systems.Shaders;
 namespace MagnumOpus.Content.Nachtmusik
 {
     /// <summary>
-    /// Per-weapon shader manager for all Nachtmusik VFX.
-    /// Each weapon has its own dedicated shader with unique visual identity.
-    /// Wraps ShaderLoader for easy Apply* calls from weapon VFX files.
+    /// Compartmentalized shader manager for all Nachtmusik weapon VFX.
+    /// Provides availability checks, noise texture binding, generic Apply methods,
+    /// and weapon-specific presets for each Nachtmusik shader.
     ///
-    /// Core shaders (shared):
-    ///   NachtmusikStarTrail   ETwinkling star point field trail (melee base)
-    ///   NachtmusikSerenade    EHarmonic wave aura/bloom (all weapons)
+    /// Shared theme-wide shaders:
+    ///   NachtmusikStarTrail, NachtmusikSerenade
     ///
-    /// Per-weapon shaders (unique):
-    ///   ExecutionDecree        ENocturnalExecutioner: void-rip slash
-    ///   CrescendoRise          EMidnightsCrescendo: intensity-building trail
-    ///   DimensionalRift        ETwilightSeverance: dimensional tear slash
-    ///   StarChainBeam          EConstellationPiercer: precision bullet trail
-    ///   NebulaScatter          ENebulasWhisper: gaseous nebula cloud trail
-    ///   StarHomingTrail        ESerenadeOfDistantStars: arcing star ribbon
-    ///   ConstellationWeave     EStarweaversGrimoire: star map charge orb
-    ///   CosmicRequiem          ERequiemOfTheCosmos: channeled nebula beam
-    ///   ChorusSummonAura       ECelestialChorusBaton: musical note aura
-    ///   OvertureAura           EGalacticOverture: orchestral wave aura
-    ///   StellarConductorAura   EConductorOfConstellations: constellation ring
+    /// Fully-implemented weapons (presets NOT provided here — see weapon files):
+    ///   NocturnalExecutioner:  ExecutionDecree
+    ///   MidnightsCrescendo:   CrescendoRise
+    ///   TwilightSeverance:    DimensionalRift
+    ///   ConstellationPiercer: StarChainBeam
+    ///
+    /// Gutted weapons (presets provided here for VFX restoration):
+    ///   NebulasWhisper:              NebulaScatter (trail)
+    ///   SerenadeOfDistantStars:      StarHomingTrail (trail)
+    ///   StarweaversGrimoire:         ConstellationWeave (trail)
+    ///   RequiemOfTheCosmos:          CosmicRequiem (trail)
+    ///   CelestialChorusBaton:        ChorusSummonAura (radial)
+    ///   GalacticOverture:            OvertureAura (radial)
+    ///   ConductorOfConstellations:   StellarConductorAura (radial)
+    ///
+    /// Usage (in PreDraw):
+    ///   NachtmusikShaderManager.BeginShaderAdditive(sb);
+    ///   NachtmusikShaderManager.BindNoiseTexture(device);
+    ///   NachtmusikShaderManager.ApplyNebulaScatterTrail(time, glow: false);
+    ///   // ... draw trail geometry ...
+    ///   NachtmusikShaderManager.RestoreSpriteBatch(sb);
+    ///
+    /// All Apply* methods gracefully return false if the shader is null,
+    /// allowing VFX code to fall back to particle-based rendering.
     /// </summary>
     public static class NachtmusikShaderManager
     {
         // =====================================================================
-        //  Shader Availability  EPer-Weapon
+        //  Shader Availability — Theme-Wide Shared
         // =====================================================================
 
         public static bool HasStarTrail => ShaderLoader.HasShader(ShaderLoader.NachtmusikStarTrailShader);
         public static bool HasSerenade => ShaderLoader.HasShader(ShaderLoader.NachtmusikSerenadeShader);
+
+        // =====================================================================
+        //  Shader Availability — Fully Implemented Weapons (no presets here)
+        // =====================================================================
+
+        // NocturnalExecutioner
         public static bool HasExecutionDecree => ShaderLoader.HasShader(ShaderLoader.ExecutionDecreeShader);
+
+        // MidnightsCrescendo
         public static bool HasCrescendoRise => ShaderLoader.HasShader(ShaderLoader.CrescendoRiseShader);
+
+        // TwilightSeverance
         public static bool HasDimensionalRift => ShaderLoader.HasShader(ShaderLoader.DimensionalRiftShader);
+
+        // ConstellationPiercer
         public static bool HasStarChainBeam => ShaderLoader.HasShader(ShaderLoader.StarChainBeamShader);
+
+        // =====================================================================
+        //  Shader Availability — Gutted Weapons (presets below)
+        // =====================================================================
+
+        // NebulasWhisper
         public static bool HasNebulaScatter => ShaderLoader.HasShader(ShaderLoader.NebulaScatterShader);
+
+        // SerenadeOfDistantStars
         public static bool HasStarHomingTrail => ShaderLoader.HasShader(ShaderLoader.StarHomingTrailShader);
+
+        // StarweaversGrimoire
         public static bool HasConstellationWeave => ShaderLoader.HasShader(ShaderLoader.ConstellationWeaveShader);
+
+        // RequiemOfTheCosmos
         public static bool HasCosmicRequiem => ShaderLoader.HasShader(ShaderLoader.CosmicRequiemShader);
+
+        // CelestialChorusBaton
         public static bool HasChorusSummonAura => ShaderLoader.HasShader(ShaderLoader.ChorusSummonAuraShader);
+
+        // GalacticOverture
         public static bool HasOvertureAura => ShaderLoader.HasShader(ShaderLoader.OvertureAuraShader);
+
+        // ConductorOfConstellations
         public static bool HasStellarConductorAura => ShaderLoader.HasShader(ShaderLoader.StellarConductorAuraShader);
 
         /// <summary>True if any Nachtmusik shader is available.</summary>
-        public static bool IsAvailable => HasStarTrail || HasSerenade || HasExecutionDecree;
+        public static bool IsAvailable =>
+            HasStarTrail || HasSerenade ||
+            HasExecutionDecree || HasCrescendoRise ||
+            HasDimensionalRift || HasStarChainBeam ||
+            HasNebulaScatter || HasStarHomingTrail ||
+            HasConstellationWeave || HasCosmicRequiem ||
+            HasChorusSummonAura || HasOvertureAura ||
+            HasStellarConductorAura;
 
-        /// <summary>True if the shared scrolling trail shader is available (fallback).</summary>
+        /// <summary>True if any trail shader is usable (dedicated or shared fallback).</summary>
         public static bool HasFallbackTrail => ShaderLoader.HasShader(ShaderLoader.ScrollingTrailShader);
+        public static bool CanRenderTrails => HasNebulaScatter || HasStarHomingTrail || HasStarTrail || HasFallbackTrail;
 
         // =====================================================================
         //  Noise Texture Binding
         // =====================================================================
 
         /// <summary>
-        /// Binds StarFieldScatter noise to sampler slot 1 for twinkling star distortion.
+        /// Binds CosmicEnergyVortex to sampler slot 1 — Nachtmusik's primary noise.
+        /// Swirling cosmic vortex ideal for stellar trails and nebula effects.
         /// </summary>
-        public static void BindStarfieldNoise(GraphicsDevice device)
+        public static void BindNoiseTexture(GraphicsDevice device)
         {
-            Texture2D noise = ShaderLoader.GetNoiseTexture("StarFieldScatter")
-                           ?? ShaderLoader.GetNoiseTexture("SimplexNoise")
-                           ?? ShaderLoader.GetNoiseTexture("PerlinNoise");
+            Texture2D noise = ShaderLoader.GetNoiseTexture("CosmicEnergyVortex");
+            if (noise == null)
+                noise = ShaderLoader.GetNoiseTexture("PerlinNoise");
             if (noise != null)
             {
                 device.Textures[1] = noise;
@@ -74,13 +124,14 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         /// <summary>
-        /// Binds CosmicNebulaClouds noise for nebula/cosmic weapon effects.
+        /// Binds SimplexNoise to sampler slot 1 for weaving constellation patterns.
+        /// Used by StarweaversGrimoire and intricate star-thread effects.
         /// </summary>
-        public static void BindCosmicNoise(GraphicsDevice device)
+        public static void BindSimplexNoise(GraphicsDevice device)
         {
-            Texture2D noise = ShaderLoader.GetNoiseTexture("CosmicNebulaClouds")
-                           ?? ShaderLoader.GetNoiseTexture("NebulaWispNoise")
-                           ?? ShaderLoader.GetNoiseTexture("StarFieldScatter");
+            Texture2D noise = ShaderLoader.GetNoiseTexture("SimplexNoise");
+            if (noise == null)
+                noise = ShaderLoader.GetNoiseTexture("PerlinNoise");
             if (noise != null)
             {
                 device.Textures[1] = noise;
@@ -89,13 +140,14 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         /// <summary>
-        /// Binds CosmicEnergyVortex noise for high-energy effects (execution, requiem).
+        /// Binds RealityCrackPattern to sampler slot 1 for dimensional rift shattering.
+        /// Used by void-piercing and reality-tearing effects.
         /// </summary>
-        public static void BindVortexNoise(GraphicsDevice device)
+        public static void BindCrackNoiseTexture(GraphicsDevice device)
         {
-            Texture2D noise = ShaderLoader.GetNoiseTexture("CosmicEnergyVortex")
-                           ?? ShaderLoader.GetNoiseTexture("CosmicNebulaClouds")
-                           ?? ShaderLoader.GetNoiseTexture("PerlinNoise");
+            Texture2D noise = ShaderLoader.GetNoiseTexture("RealityCrackPattern");
+            if (noise == null)
+                noise = ShaderLoader.GetNoiseTexture("PerlinNoise");
             if (noise != null)
             {
                 device.Textures[1] = noise;
@@ -104,422 +156,80 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         // =====================================================================
-        //  Common Uniform Setter
+        //  Generic Apply Methods — Trail Shaders
         // =====================================================================
 
-        private static void SetCommonUniforms(Effect shader, float time, Color primary, Color secondary,
-            float opacity = 1f, float intensity = 1.5f, float overbrightMult = 2.5f,
-            float scrollSpeed = 1f, float distortionAmt = 0.06f,
-            float hasSecondaryTex = 1f, float secondaryTexScale = 3f, float secondaryTexScroll = 0.5f)
+        /// <summary>
+        /// Apply a trail shader with standard uniforms. Returns true if shader was applied.
+        /// </summary>
+        private static bool ApplyTrailShader(string shaderName, string technique,
+            float time, Color primary, Color secondary,
+            float scrollSpeed, float distortionAmt, float overbrightMult,
+            float phase = 0f, float noiseScale = 3f, float noiseScroll = 0.5f,
+            bool hasNoiseBound = false)
         {
+            Effect shader = ShaderLoader.GetShader(shaderName);
+            if (shader == null) return false;
+
             shader.Parameters["uColor"]?.SetValue(primary.ToVector3());
             shader.Parameters["uSecondaryColor"]?.SetValue(secondary.ToVector3());
             shader.Parameters["uTime"]?.SetValue(time);
-            shader.Parameters["uOpacity"]?.SetValue(opacity);
-            shader.Parameters["uIntensity"]?.SetValue(intensity);
+            shader.Parameters["uOpacity"]?.SetValue(1f);
+            shader.Parameters["uIntensity"]?.SetValue(1.5f);
             shader.Parameters["uOverbrightMult"]?.SetValue(overbrightMult);
             shader.Parameters["uScrollSpeed"]?.SetValue(scrollSpeed);
             shader.Parameters["uDistortionAmt"]?.SetValue(distortionAmt);
-            shader.Parameters["uHasSecondaryTex"]?.SetValue(hasSecondaryTex);
-            shader.Parameters["uSecondaryTexScale"]?.SetValue(secondaryTexScale);
-            shader.Parameters["uSecondaryTexScroll"]?.SetValue(secondaryTexScroll);
-        }
-
-        private static void SetPhaseUniform(Effect shader, float phase)
-        {
+            shader.Parameters["uNoiseScale"]?.SetValue(noiseScale);
             shader.Parameters["uPhase"]?.SetValue(phase);
-        }
+            shader.Parameters["uHasSecondaryTex"]?.SetValue(hasNoiseBound ? 1f : 0f);
+            shader.Parameters["uSecondaryTexScale"]?.SetValue(noiseScale);
+            shader.Parameters["uSecondaryTexScroll"]?.SetValue(noiseScroll);
 
-        // =====================================================================
-        //  CORE: NachtmusikStarTrail  Eshared twinkling star trail
-        // =====================================================================
-
-        /// <summary>Apply the core NachtmusikStarTrail shader (technique: NachtmusikStarFlow).</summary>
-        public static void ApplyStarTrail(float time, Color primary, Color secondary,
-            float scrollSpeed = 1f, float distortionAmt = 0.06f, float overbrightMult = 2.5f)
-        {
-            Effect shader = ShaderLoader.NachtmusikStarTrail;
-            if (shader == null) return;
-
-            BindStarfieldNoise(Main.graphics.GraphicsDevice);
-            SetCommonUniforms(shader, time, primary, secondary,
-                scrollSpeed: scrollSpeed, distortionAmt: distortionAmt, overbrightMult: overbrightMult);
-
-            shader.CurrentTechnique = shader.Techniques["NachtmusikStarFlow"];
+            shader.CurrentTechnique = shader.Techniques[technique];
             shader.CurrentTechnique.Passes[0].Apply();
+            return true;
         }
 
-        /// <summary>Apply the core NachtmusikStarTrail glow pass (technique: NachtmusikStarGlow).</summary>
-        public static void ApplyStarTrailGlow(float time, Color primary, Color secondary,
-            float scrollSpeed = 1f, float overbrightMult = 2.5f)
+        /// <summary>
+        /// Apply a radial/aura shader with standard uniforms. Returns true if shader was applied.
+        /// </summary>
+        private static bool ApplyRadialShader(string shaderName, string technique,
+            float time, Color primary, Color secondary,
+            float explosionAge, float intensity, float overbrightMult,
+            float noiseScale = 3f, float noiseScroll = 0.3f,
+            bool hasNoiseBound = false)
         {
-            Effect shader = ShaderLoader.NachtmusikStarTrail;
-            if (shader == null) return;
+            Effect shader = ShaderLoader.GetShader(shaderName);
+            if (shader == null) return false;
 
-            SetCommonUniforms(shader, time, primary, secondary,
-                scrollSpeed: scrollSpeed, overbrightMult: overbrightMult);
+            shader.Parameters["uColor"]?.SetValue(new Vector4(primary.ToVector3(), 1f));
+            shader.Parameters["uSecondaryColor"]?.SetValue(new Vector4(secondary.ToVector3(), 1f));
+            shader.Parameters["uTime"]?.SetValue(time);
+            shader.Parameters["uOpacity"]?.SetValue(1f);
+            shader.Parameters["uIntensity"]?.SetValue(intensity);
+            shader.Parameters["uOverbrightMult"]?.SetValue(overbrightMult);
+            shader.Parameters["uScrollSpeed"]?.SetValue(1f);
+            shader.Parameters["uNoiseScale"]?.SetValue(noiseScale);
+            shader.Parameters["uDistortionAmt"]?.SetValue(0.1f);
+            shader.Parameters["uPhase"]?.SetValue(explosionAge);
+            shader.Parameters["uHasSecondaryTex"]?.SetValue(hasNoiseBound);
+            shader.Parameters["uSecondaryTexScale"]?.SetValue(noiseScale);
+            shader.Parameters["uSecondaryTexScroll"]?.SetValue(noiseScroll);
 
-            shader.CurrentTechnique = shader.Techniques["NachtmusikStarGlow"];
+            shader.CurrentTechnique = shader.Techniques[technique];
             shader.CurrentTechnique.Passes[0].Apply();
+            return true;
         }
-
-        // =====================================================================
-        //  CORE: NachtmusikSerenade  Eshared aura/bloom
-        // =====================================================================
-
-        /// <summary>Apply the NachtmusikSerenade aura shader.</summary>
-        public static void ApplySerenade(float time, Color primary, Color secondary,
-            float phase = 1f, float overbrightMult = 2.5f)
-        {
-            Effect shader = ShaderLoader.NachtmusikSerenade;
-            if (shader == null) return;
-
-            BindStarfieldNoise(Main.graphics.GraphicsDevice);
-            SetCommonUniforms(shader, time, primary, secondary, overbrightMult: overbrightMult);
-            SetPhaseUniform(shader, phase);
-
-            shader.CurrentTechnique = shader.Techniques["NachtmusikSerenadePass"];
-            shader.CurrentTechnique.Passes[0].Apply();
-        }
-
-        // =====================================================================
-        //  WEAPON: NocturnalExecutioner  EExecutionDecree
-        // =====================================================================
-
-        /// <summary>Heavy void-rip slash trail for NocturnalExecutioner.</summary>
-        public static void ApplyExecutionDecree(float time, float intensity = 1.8f)
-        {
-            Effect shader = ShaderLoader.ExecutionDecree;
-            if (shader == null) { ApplyStarTrail(time, NachtmusikPalette.MidnightBlue, NachtmusikPalette.Violet); return; }
-
-            BindVortexNoise(Main.graphics.GraphicsDevice);
-            SetCommonUniforms(shader, time, NachtmusikPalette.CosmicVoid, NachtmusikPalette.Violet,
-                intensity: intensity, overbrightMult: 3.5f, scrollSpeed: 1.2f,
-                distortionAmt: 0.12f, secondaryTexScale: 2.5f, secondaryTexScroll: 0.8f);
-
-            shader.CurrentTechnique = shader.Techniques["ExecutionDecreeSlash"];
-            shader.CurrentTechnique.Passes[0].Apply();
-        }
-
-        /// <summary>Glow pass for Execution Decree.</summary>
-        public static void ApplyExecutionDecreeGlow(float time)
-        {
-            Effect shader = ShaderLoader.ExecutionDecree;
-            if (shader == null) return;
-
-            SetCommonUniforms(shader, time, NachtmusikPalette.CosmicVoid, NachtmusikPalette.Violet,
-                overbrightMult: 3.0f);
-
-            shader.CurrentTechnique = shader.Techniques["ExecutionDecreeGlow"];
-            shader.CurrentTechnique.Passes[0].Apply();
-        }
-
-        // =====================================================================
-        //  WEAPON: MidnightsCrescendo  ECrescendoRise
-        // =====================================================================
-
-        /// <summary>Intensity-building trail for MidnightsCrescendo. crescendoLevel 0..1.</summary>
-        public static void ApplyCrescendoRise(float time, float crescendoLevel)
-        {
-            Effect shader = ShaderLoader.CrescendoRise;
-            if (shader == null) { ApplyStarTrail(time, NachtmusikPalette.DeepBlue, NachtmusikPalette.StarWhite); return; }
-
-            BindStarfieldNoise(Main.graphics.GraphicsDevice);
-            float intensity = 1.2f + crescendoLevel * 1.8f;
-            float overbrightMult = 2.0f + crescendoLevel * 2.0f;
-            SetCommonUniforms(shader, time, NachtmusikPalette.DeepBlue, NachtmusikPalette.StarWhite,
-                intensity: intensity, overbrightMult: overbrightMult, scrollSpeed: 1.5f,
-                distortionAmt: 0.05f, secondaryTexScale: 3f, secondaryTexScroll: 0.6f);
-            SetPhaseUniform(shader, crescendoLevel);
-
-            shader.CurrentTechnique = shader.Techniques["CrescendoRise"];
-            shader.CurrentTechnique.Passes[0].Apply();
-        }
-
-        /// <summary>Glow pass for Crescendo Rise.</summary>
-        public static void ApplyCrescendoRiseGlow(float time, float crescendoLevel)
-        {
-            Effect shader = ShaderLoader.CrescendoRise;
-            if (shader == null) return;
-
-            SetCommonUniforms(shader, time, NachtmusikPalette.DeepBlue, NachtmusikPalette.StarWhite,
-                overbrightMult: 2.5f + crescendoLevel * 1.5f);
-            SetPhaseUniform(shader, crescendoLevel);
-
-            shader.CurrentTechnique = shader.Techniques["CrescendoRiseGlow"];
-            shader.CurrentTechnique.Passes[0].Apply();
-        }
-
-        // =====================================================================
-        //  WEAPON: TwilightSeverance  EDimensionalRift
-        // =====================================================================
-
-        /// <summary>Ultra-sharp dimensional tear trail for TwilightSeverance.</summary>
-        public static void ApplyDimensionalRift(float time)
-        {
-            Effect shader = ShaderLoader.DimensionalRift;
-            if (shader == null) { ApplyStarTrail(time, NachtmusikPalette.DuskViolet, NachtmusikPalette.MoonlitSilver); return; }
-
-            BindStarfieldNoise(Main.graphics.GraphicsDevice);
-            SetCommonUniforms(shader, time, NachtmusikPalette.DuskViolet, NachtmusikPalette.MoonlitSilver,
-                intensity: 2.0f, overbrightMult: 3.5f, scrollSpeed: 3.0f,
-                distortionAmt: 0.04f, secondaryTexScale: 4f, secondaryTexScroll: 1.0f);
-
-            shader.CurrentTechnique = shader.Techniques["DimensionalRiftSlash"];
-            shader.CurrentTechnique.Passes[0].Apply();
-        }
-
-        /// <summary>Glow pass for Dimensional Rift.</summary>
-        public static void ApplyDimensionalRiftGlow(float time)
-        {
-            Effect shader = ShaderLoader.DimensionalRift;
-            if (shader == null) return;
-
-            SetCommonUniforms(shader, time, NachtmusikPalette.DuskViolet, NachtmusikPalette.MoonlitSilver,
-                overbrightMult: 3.0f);
-
-            shader.CurrentTechnique = shader.Techniques["DimensionalRiftGlow"];
-            shader.CurrentTechnique.Passes[0].Apply();
-        }
-
-        // =====================================================================
-        //  WEAPON: ConstellationPiercer  EStarChainBeam
-        // =====================================================================
-
-        /// <summary>Precision constellation bullet trail for ConstellationPiercer.</summary>
-        public static void ApplyStarChainBeam(float time)
-        {
-            Effect shader = ShaderLoader.StarChainBeam;
-            if (shader == null) { ApplyStarTrail(time, NachtmusikPalette.ConstellationBlue, NachtmusikPalette.StarGold); return; }
-
-            BindStarfieldNoise(Main.graphics.GraphicsDevice);
-            SetCommonUniforms(shader, time, NachtmusikPalette.ConstellationBlue, NachtmusikPalette.StarGold,
-                intensity: 1.8f, overbrightMult: 3.0f, scrollSpeed: 2.5f,
-                distortionAmt: 0.03f, secondaryTexScale: 3f, secondaryTexScroll: 0.5f);
-
-            shader.CurrentTechnique = shader.Techniques["StarChainBeam"];
-            shader.CurrentTechnique.Passes[0].Apply();
-        }
-
-        /// <summary>Glow pass for Star Chain Beam.</summary>
-        public static void ApplyStarChainBeamGlow(float time)
-        {
-            Effect shader = ShaderLoader.StarChainBeam;
-            if (shader == null) return;
-
-            SetCommonUniforms(shader, time, NachtmusikPalette.ConstellationBlue, NachtmusikPalette.StarGold,
-                overbrightMult: 2.5f);
-
-            shader.CurrentTechnique = shader.Techniques["StarChainBeamGlow"];
-            shader.CurrentTechnique.Passes[0].Apply();
-        }
-
-        // =====================================================================
-        //  WEAPON: NebulasWhisper  ENebulaScatter
-        // =====================================================================
-
-        /// <summary>Gaseous nebula cloud trail for NebulasWhisper.</summary>
-        public static void ApplyNebulaScatter(float time)
-        {
-            Effect shader = ShaderLoader.NebulaScatter;
-            if (shader == null) { ApplyStarTrail(time, NachtmusikPalette.CosmicPurple, NachtmusikPalette.NebulaPink); return; }
-
-            BindCosmicNoise(Main.graphics.GraphicsDevice);
-            SetCommonUniforms(shader, time, NachtmusikPalette.CosmicPurple, NachtmusikPalette.NebulaPink,
-                intensity: 1.5f, overbrightMult: 2.5f, scrollSpeed: 0.8f,
-                distortionAmt: 0.09f, secondaryTexScale: 2.5f, secondaryTexScroll: 0.4f);
-
-            shader.CurrentTechnique = shader.Techniques["NebulaScatterTrail"];
-            shader.CurrentTechnique.Passes[0].Apply();
-        }
-
-        /// <summary>Glow pass for Nebula Scatter.</summary>
-        public static void ApplyNebulaScatterGlow(float time)
-        {
-            Effect shader = ShaderLoader.NebulaScatter;
-            if (shader == null) return;
-
-            SetCommonUniforms(shader, time, NachtmusikPalette.CosmicPurple, NachtmusikPalette.NebulaPink,
-                overbrightMult: 2.0f);
-
-            shader.CurrentTechnique = shader.Techniques["NebulaScatterGlow"];
-            shader.CurrentTechnique.Passes[0].Apply();
-        }
-
-        // =====================================================================
-        //  WEAPON: SerenadeOfDistantStars  EStarHomingTrail
-        // =====================================================================
-
-        /// <summary>Graceful arcing star ribbon trail for SerenadeOfDistantStars.</summary>
-        public static void ApplyStarHomingTrail(float time)
-        {
-            Effect shader = ShaderLoader.StarHomingTrail;
-            if (shader == null) { ApplyStarTrail(time, NachtmusikPalette.DeepBlue, NachtmusikPalette.MoonlitSilver); return; }
-
-            BindStarfieldNoise(Main.graphics.GraphicsDevice);
-            SetCommonUniforms(shader, time, NachtmusikPalette.DeepBlue, NachtmusikPalette.StarGold,
-                intensity: 1.6f, overbrightMult: 2.6f, scrollSpeed: 1.2f,
-                distortionAmt: 0.05f, secondaryTexScale: 3f, secondaryTexScroll: 0.5f);
-
-            shader.CurrentTechnique = shader.Techniques["StarHomingTrail"];
-            shader.CurrentTechnique.Passes[0].Apply();
-        }
-
-        /// <summary>Glow pass for Star Homing Trail.</summary>
-        public static void ApplyStarHomingTrailGlow(float time)
-        {
-            Effect shader = ShaderLoader.StarHomingTrail;
-            if (shader == null) return;
-
-            SetCommonUniforms(shader, time, NachtmusikPalette.DeepBlue, NachtmusikPalette.StarGold,
-                overbrightMult: 2.2f);
-
-            shader.CurrentTechnique = shader.Techniques["StarHomingGlow"];
-            shader.CurrentTechnique.Passes[0].Apply();
-        }
-
-        // =====================================================================
-        //  WEAPON: StarweaversGrimoire  EConstellationWeave
-        // =====================================================================
-
-        /// <summary>Constellation star map orb for StarweaversGrimoire. chargeLevel 0..1.</summary>
-        public static void ApplyConstellationWeave(float time, float chargeLevel)
-        {
-            Effect shader = ShaderLoader.ConstellationWeave;
-            if (shader == null) return;
-
-            BindStarfieldNoise(Main.graphics.GraphicsDevice);
-            SetCommonUniforms(shader, time, NachtmusikPalette.CosmicPurple, NachtmusikPalette.StarGold,
-                intensity: 1.5f + chargeLevel * 1.0f, overbrightMult: 2.5f + chargeLevel * 1.5f,
-                scrollSpeed: 1.3f, secondaryTexScale: 2f, secondaryTexScroll: 0.3f);
-            SetPhaseUniform(shader, chargeLevel);
-
-            shader.CurrentTechnique = shader.Techniques["ConstellationWeaveOrb"];
-            shader.CurrentTechnique.Passes[0].Apply();
-        }
-
-        /// <summary>Glow pass for Constellation Weave.</summary>
-        public static void ApplyConstellationWeaveGlow(float time, float chargeLevel)
-        {
-            Effect shader = ShaderLoader.ConstellationWeave;
-            if (shader == null) return;
-
-            SetCommonUniforms(shader, time, NachtmusikPalette.CosmicPurple, NachtmusikPalette.StarGold,
-                overbrightMult: 2.0f);
-            SetPhaseUniform(shader, chargeLevel);
-
-            shader.CurrentTechnique = shader.Techniques["ConstellationWeaveGlow"];
-            shader.CurrentTechnique.Passes[0].Apply();
-        }
-
-        // =====================================================================
-        //  WEAPON: RequiemOfTheCosmos  ECosmicRequiem
-        // =====================================================================
-
-        /// <summary>Channeled nebula-swirl beam for RequiemOfTheCosmos. phase 0..1 channel intensity.</summary>
-        public static void ApplyCosmicRequiem(float time, float phase)
-        {
-            Effect shader = ShaderLoader.CosmicRequiem;
-            if (shader == null) return;
-
-            BindCosmicNoise(Main.graphics.GraphicsDevice);
-            SetCommonUniforms(shader, time, NachtmusikPalette.CosmicVoid, NachtmusikPalette.RadianceGold,
-                intensity: 1.5f + phase * 2.0f, overbrightMult: 3.0f + phase * 1.5f,
-                scrollSpeed: 0.7f, distortionAmt: 0.12f,
-                secondaryTexScale: 2f, secondaryTexScroll: 0.3f);
-            SetPhaseUniform(shader, phase);
-
-            shader.CurrentTechnique = shader.Techniques["CosmicRequiemBeam"];
-            shader.CurrentTechnique.Passes[0].Apply();
-        }
-
-        /// <summary>Glow pass for Cosmic Requiem.</summary>
-        public static void ApplyCosmicRequiemGlow(float time, float phase)
-        {
-            Effect shader = ShaderLoader.CosmicRequiem;
-            if (shader == null) return;
-
-            SetCommonUniforms(shader, time, NachtmusikPalette.CosmicVoid, NachtmusikPalette.RadianceGold,
-                overbrightMult: 2.5f + phase * 1.0f);
-            SetPhaseUniform(shader, phase);
-
-            shader.CurrentTechnique = shader.Techniques["CosmicRequiemBeamGlow"];
-            shader.CurrentTechnique.Passes[0].Apply();
-        }
-
-        // =====================================================================
-        //  WEAPON: CelestialChorusBaton  EChorusSummonAura
-        // =====================================================================
-
-        /// <summary>Musical note constellation aura for CelestialChorusBaton minion.</summary>
-        public static void ApplyChorusSummonAura(float time, float phase = 1f)
-        {
-            Effect shader = ShaderLoader.ChorusSummonAura;
-            if (shader == null) return;
-
-            BindStarfieldNoise(Main.graphics.GraphicsDevice);
-            SetCommonUniforms(shader, time, NachtmusikPalette.ConstellationBlue, NachtmusikPalette.StarGold,
-                intensity: 1.4f, overbrightMult: 2.5f, scrollSpeed: 1.0f,
-                secondaryTexScale: 3f, secondaryTexScroll: 0.4f);
-            SetPhaseUniform(shader, phase);
-
-            shader.CurrentTechnique = shader.Techniques["ChorusSummonAura"];
-            shader.CurrentTechnique.Passes[0].Apply();
-        }
-
-        // =====================================================================
-        //  WEAPON: GalacticOverture  EOvertureAura
-        // =====================================================================
-
-        /// <summary>Orchestral wave aura for GalacticOverture minion.</summary>
-        public static void ApplyOvertureAura(float time, float phase = 1f)
-        {
-            Effect shader = ShaderLoader.OvertureAura;
-            if (shader == null) return;
-
-            BindCosmicNoise(Main.graphics.GraphicsDevice);
-            SetCommonUniforms(shader, time, NachtmusikPalette.DeepBlue, NachtmusikPalette.StarGold,
-                intensity: 1.5f, overbrightMult: 2.8f, scrollSpeed: 1.4f,
-                secondaryTexScale: 2.5f, secondaryTexScroll: 0.5f);
-            SetPhaseUniform(shader, phase);
-
-            shader.CurrentTechnique = shader.Techniques["OvertureAura"];
-            shader.CurrentTechnique.Passes[0].Apply();
-        }
-
-        // =====================================================================
-        //  WEAPON: ConductorOfConstellations  EStellarConductorAura
-        // =====================================================================
-
-        /// <summary>Orbiting constellation ring aura for ConductorOfConstellations minion.</summary>
-        public static void ApplyStellarConductorAura(float time, float phase = 1f)
-        {
-            Effect shader = ShaderLoader.StellarConductorAura;
-            if (shader == null) return;
-
-            BindStarfieldNoise(Main.graphics.GraphicsDevice);
-            SetCommonUniforms(shader, time, NachtmusikPalette.MidnightBlue, NachtmusikPalette.StarWhite,
-                intensity: 1.6f, overbrightMult: 3.0f, scrollSpeed: 1.6f,
-                secondaryTexScale: 3.5f, secondaryTexScroll: 0.5f);
-            SetPhaseUniform(shader, phase);
-
-            shader.CurrentTechnique = shader.Techniques["StellarConductorAura"];
-            shader.CurrentTechnique.Passes[0].Apply();
-        }
-
-        // =====================================================================
-        //  FALLBACK: Use shared ScrollingTrailShader
-        // =====================================================================
 
         /// <summary>
         /// Fallback trail rendering using the shared ScrollingTrailShader.
-        /// Used when weapon-specific shaders are unavailable.
         /// </summary>
         public static void ApplyFallbackTrail(float time, Color primary, Color secondary,
-            float scrollSpeed = 1f, float overbrightMult = 2.5f)
+            float scrollSpeed = 1.0f, float overbrightMult = 2.5f)
         {
             Effect shader = ShaderLoader.ScrollingTrail;
-            if (shader == null) shader = ShaderLoader.Trail;
+            if (shader == null)
+                shader = ShaderLoader.Trail;
             if (shader == null) return;
 
             shader.Parameters["uColor"]?.SetValue(primary.ToVector3());
@@ -534,34 +244,228 @@ namespace MagnumOpus.Content.Nachtmusik
         }
 
         // =====================================================================
+        //  WEAPON PRESETS — NebulasWhisper (Ranged — Nebula Scatter Gun)
+        // =====================================================================
+
+        /// <summary>
+        /// Apply NebulaScatter trail for NebulasWhisper projectiles.
+        /// Soft cosmic whisper through nebula mist — gentle purple-pink dissipating trails.
+        /// Colors: NebulasWhisperShot palette (deep nebula -> nebula pink -> whisper white).
+        /// </summary>
+        public static bool ApplyNebulaScatterTrail(float time, bool glow = false)
+        {
+            string technique = glow ? "NebulaScatterGlow" : "NebulaScatterMain";
+            if (HasNebulaScatter)
+            {
+                BindNoiseTexture(Main.graphics.GraphicsDevice);
+                return ApplyTrailShader(ShaderLoader.NebulaScatterShader, technique,
+                    time, NachtmusikPalette.NebulaPink, NachtmusikPalette.SerenadeGlow,
+                    scrollSpeed: 1.0f, distortionAmt: 0.06f, overbrightMult: 2.5f,
+                    noiseScale: 3.5f, noiseScroll: 0.4f, hasNoiseBound: true);
+            }
+
+            ApplyFallbackTrail(time, NachtmusikPalette.NebulaPink, NachtmusikPalette.SerenadeGlow,
+                scrollSpeed: 1.0f, overbrightMult: 2.5f);
+            return HasFallbackTrail;
+        }
+
+        // =====================================================================
+        //  WEAPON PRESETS — SerenadeOfDistantStars (Ranged — Homing Bow)
+        // =====================================================================
+
+        /// <summary>
+        /// Apply StarHomingTrail for SerenadeOfDistantStars homing star projectiles.
+        /// Warm starlight melody through night sky — romantic sweeping trails.
+        /// Colors: SerenadeOfDistantStarsShot palette (midnight -> starlit blue -> warm starlight).
+        /// </summary>
+        public static bool ApplyStarHomingTrail(float time, bool glow = false)
+        {
+            string technique = glow ? "StarHomingGlow" : "StarHomingMain";
+            if (HasStarHomingTrail)
+            {
+                BindNoiseTexture(Main.graphics.GraphicsDevice);
+                return ApplyTrailShader(ShaderLoader.StarHomingTrailShader, technique,
+                    time, NachtmusikPalette.StarlitBlue, NachtmusikPalette.MoonlitSilver,
+                    scrollSpeed: 1.4f, distortionAmt: 0.05f, overbrightMult: 2.8f,
+                    noiseScale: 3f, noiseScroll: 0.6f, hasNoiseBound: true);
+            }
+
+            ApplyFallbackTrail(time, NachtmusikPalette.StarlitBlue, NachtmusikPalette.MoonlitSilver,
+                scrollSpeed: 1.4f, overbrightMult: 2.8f);
+            return HasFallbackTrail;
+        }
+
+        // =====================================================================
+        //  WEAPON PRESETS — StarweaversGrimoire (Magic — Star-Weaving Tome)
+        // =====================================================================
+
+        /// <summary>
+        /// Apply ConstellationWeave trail for StarweaversGrimoire projectile orbits.
+        /// Intricate star-weaving through arcane night — violet threads binding stars.
+        /// Colors: StarweaversGrimoireCast palette (arcane void -> violet thread -> star pattern white).
+        /// </summary>
+        public static bool ApplyConstellationWeaveTrail(float time, bool glow = false)
+        {
+            string technique = glow ? "ConstellationWeaveGlow" : "ConstellationWeaveMain";
+            if (HasConstellationWeave)
+            {
+                BindSimplexNoise(Main.graphics.GraphicsDevice);
+                return ApplyTrailShader(ShaderLoader.ConstellationWeaveShader, technique,
+                    time, NachtmusikPalette.Violet, NachtmusikPalette.SerenadeGlow,
+                    scrollSpeed: 0.9f, distortionAmt: 0.10f, overbrightMult: 2.6f,
+                    noiseScale: 2.5f, noiseScroll: 0.5f, hasNoiseBound: true);
+            }
+
+            ApplyFallbackTrail(time, NachtmusikPalette.Violet, NachtmusikPalette.SerenadeGlow,
+                scrollSpeed: 0.9f, overbrightMult: 2.6f);
+            return HasFallbackTrail;
+        }
+
+        // =====================================================================
+        //  WEAPON PRESETS — RequiemOfTheCosmos (Magic — Cosmic Finale Staff)
+        // =====================================================================
+
+        /// <summary>
+        /// Apply CosmicRequiem trail for RequiemOfTheCosmos channeled projectiles.
+        /// Somber cosmic finale from void to supernova — grand echoing trails.
+        /// Colors: RequiemOfTheCosmosCast palette (cosmic void -> radiance gold -> cosmic white).
+        /// </summary>
+        public static bool ApplyCosmicRequiemTrail(float time, bool glow = false)
+        {
+            string technique = glow ? "CosmicRequiemGlow" : "CosmicRequiemMain";
+            if (HasCosmicRequiem)
+            {
+                BindNoiseTexture(Main.graphics.GraphicsDevice);
+                return ApplyTrailShader(ShaderLoader.CosmicRequiemShader, technique,
+                    time, NachtmusikPalette.StarlitBlue, NachtmusikPalette.RadianceGold,
+                    scrollSpeed: 1.1f, distortionAmt: 0.08f, overbrightMult: 3.0f,
+                    noiseScale: 3f, noiseScroll: 0.5f, hasNoiseBound: true);
+            }
+
+            ApplyFallbackTrail(time, NachtmusikPalette.StarlitBlue, NachtmusikPalette.RadianceGold,
+                scrollSpeed: 1.1f, overbrightMult: 3.0f);
+            return HasFallbackTrail;
+        }
+
+        // =====================================================================
+        //  WEAPON PRESETS — CelestialChorusBaton (Summoner — Choral Baton)
+        // =====================================================================
+
+        /// <summary>
+        /// Apply ChorusSummonAura for CelestialChorusBaton minion formation aura.
+        /// Graceful celestial harmony — the baton commands celestial voices.
+        /// Colors: CelestialChorusMinion palette (night void -> violet harmony -> chorus white).
+        /// </summary>
+        public static bool ApplyChorusSummonAura(float time, float activeSummons = 1f, bool glow = false)
+        {
+            string technique = glow ? "ChorusAuraGlow" : "ChorusAuraMain";
+            if (HasChorusSummonAura)
+            {
+                BindNoiseTexture(Main.graphics.GraphicsDevice);
+                return ApplyRadialShader(ShaderLoader.ChorusSummonAuraShader, technique,
+                    time, NachtmusikPalette.Violet, NachtmusikPalette.StarWhite,
+                    activeSummons, intensity: 1.0f, overbrightMult: 2.2f,
+                    noiseScale: 2.5f, noiseScroll: 0.3f, hasNoiseBound: true);
+            }
+            return false;
+        }
+
+        // =====================================================================
+        //  WEAPON PRESETS — GalacticOverture (Summoner — Grand Opening)
+        // =====================================================================
+
+        /// <summary>
+        /// Apply OvertureAura for GalacticOverture minion formation aura.
+        /// Sweeping dramatic overture — the grand opening that announces the queen.
+        /// Colors: GalacticOvertureMinion palette (galactic void -> radiance gold -> overture white).
+        /// </summary>
+        public static bool ApplyOvertureAura(float time, float activeSummons = 1f, bool glow = false)
+        {
+            string technique = glow ? "OvertureAuraGlow" : "OvertureAuraMain";
+            if (HasOvertureAura)
+            {
+                BindNoiseTexture(Main.graphics.GraphicsDevice);
+                return ApplyRadialShader(ShaderLoader.OvertureAuraShader, technique,
+                    time, NachtmusikPalette.StarlitBlue, NachtmusikPalette.RadianceGold,
+                    activeSummons, intensity: 1.2f, overbrightMult: 2.5f,
+                    noiseScale: 3f, noiseScroll: 0.35f, hasNoiseBound: true);
+            }
+            return false;
+        }
+
+        // =====================================================================
+        //  WEAPON PRESETS — ConductorOfConstellations (Summoner — Star Commander)
+        // =====================================================================
+
+        /// <summary>
+        /// Apply StellarConductorAura for ConductorOfConstellations minion formation aura.
+        /// Precise commanding authority — stars bow to the conductor's will.
+        /// Colors: ConductorOfConstellationsMinion palette (midnight void -> star gold baton -> conductor's white).
+        /// </summary>
+        public static bool ApplyStellarConductorAura(float time, float activeSummons = 1f, bool glow = false)
+        {
+            string technique = glow ? "StellarConductorGlow" : "StellarConductorMain";
+            if (HasStellarConductorAura)
+            {
+                BindNoiseTexture(Main.graphics.GraphicsDevice);
+                return ApplyRadialShader(ShaderLoader.StellarConductorAuraShader, technique,
+                    time, NachtmusikPalette.ConstellationBlue, NachtmusikPalette.StarGold,
+                    activeSummons, intensity: 1.1f, overbrightMult: 2.4f,
+                    noiseScale: 2.5f, noiseScroll: 0.3f, hasNoiseBound: true);
+            }
+            return false;
+        }
+
+        // =====================================================================
         //  SpriteBatch State Helpers
         // =====================================================================
 
-        /// <summary>Begins SpriteBatch in Immediate + Additive mode for shader drawing.</summary>
+        /// <summary>
+        /// Begins a SpriteBatch in Immediate + Additive mode for shader drawing.
+        /// </summary>
         public static void BeginShaderAdditive(SpriteBatch sb)
         {
             sb.End();
-            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
-                SamplerState.LinearClamp, DepthStencilState.None,
-                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            sb.Begin(
+                SpriteSortMode.Immediate,
+                MagnumBlendStates.ShaderAdditive,
+                SamplerState.LinearClamp,
+                DepthStencilState.None,
+                Main.Rasterizer,
+                null,
+                Main.GameViewMatrix.TransformationMatrix);
         }
 
-        /// <summary>Restores SpriteBatch to normal deferred alpha-blend mode.</summary>
+        /// <summary>
+        /// Restores the SpriteBatch to normal deferred alpha-blend mode.
+        /// </summary>
         public static void RestoreSpriteBatch(SpriteBatch sb)
         {
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                Main.DefaultSamplerState, DepthStencilState.None,
-                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            sb.Begin(
+                SpriteSortMode.Deferred,
+                BlendState.AlphaBlend,
+                Main.DefaultSamplerState,
+                DepthStencilState.None,
+                Main.Rasterizer,
+                null,
+                Main.GameViewMatrix.TransformationMatrix);
         }
 
-        /// <summary>Begins SpriteBatch in Deferred + Additive mode (no shader, for bloom stacking).</summary>
+        /// <summary>
+        /// Begins a SpriteBatch in Deferred + Additive mode (no shader, for bloom stacking).
+        /// </summary>
         public static void BeginAdditive(SpriteBatch sb)
         {
             sb.End();
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
-                SamplerState.LinearClamp, DepthStencilState.None,
-                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            sb.Begin(
+                SpriteSortMode.Deferred,
+                MagnumBlendStates.TrueAdditive,
+                SamplerState.LinearClamp,
+                DepthStencilState.None,
+                Main.Rasterizer,
+                null,
+                Main.GameViewMatrix.TransformationMatrix);
         }
     }
 }

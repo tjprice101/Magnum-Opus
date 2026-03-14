@@ -113,28 +113,48 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
     // ========================================
     // COLOR MIXING
     // ========================================
-    
-    // Fade to primary color based on noise
-    color = lerp(color, float4(uColor, 1), noise2);
-    
-    // Dark color weight: stronger further along trail and near bottom
-    float darkColorWeight = saturate(coords.y * 1.8 + coords.x * 0.45 + noise * 0.1);
-    color = lerp(color, float4(uSecondaryColor, 1), darkColorWeight);
-    
-    // Fire edge effect: applies to top 30% of trail, fades with trail progress
-    float fireColorWeight = InverseLerp(0.3, 0, coords.y) * pow(1 - coords.x, 1.56);
-    color = lerp(color, float4(fireColor, 1), fireColorWeight);
+
+    // uShaderSpecificData.x > 0.5 enables gradient LUT mode (uImage2 = gradient texture)
+    if (uShaderSpecificData.x > 0.5)
+    {
+        // Gradient LUT mode: sample color from the theme's gradient ramp texture
+        // Bright (near blade, low x) maps to right side of LUT; dark (far, high x) maps to left
+        float intensity = saturate(noise2 * 0.4 + (1 - coords.x) * 0.4 + InverseLerp(0.5, 0, coords.y) * 0.2);
+        float4 gradColor = tex2D(uImage2, float2(intensity, 0.5));
+        color = gradColor;
+
+        // White-hot edge near blade core (same fire edge zone)
+        float fireColorWeight = InverseLerp(0.3, 0, coords.y) * pow(1 - coords.x, 1.56);
+        color = lerp(color, float4(1, 1, 1, 1), fireColorWeight * 0.35);
+    }
+    else
+    {
+        // Original 3-color mode (backwards compatible)
+        // Fade to primary color based on noise
+        color = lerp(color, float4(uColor, 1), noise2);
+
+        // Dark color weight: stronger further along trail and near bottom
+        float darkColorWeight = saturate(coords.y * 1.8 + coords.x * 0.45 + noise * 0.1);
+        color = lerp(color, float4(uSecondaryColor, 1), darkColorWeight);
+
+        // Fire edge effect: applies to top 30% of trail, fades with trail progress
+        float fireColorWeight = InverseLerp(0.3, 0, coords.y) * pow(1 - coords.x, 1.56);
+        color = lerp(color, float4(fireColor, 1), fireColorWeight);
+    }
     
     // ========================================
     // FINAL OUTPUT
     // ========================================
-    
+
+    // Fire edge weight for alpha (computed here for both branches)
+    float finalFireWeight = InverseLerp(0.3, 0, coords.y) * pow(abs(1 - coords.x), 1.56);
+
     // Combine all effects
     float4 noiseColor = color * opacity * (noise3 * 2.4 + 2.4);
-    
+
     // Fire edge has reduced alpha for additive-like blend
-    noiseColor.a = lerp(noiseColor.a, 0, 1 - fireColorWeight);
-    
+    noiseColor.a = lerp(noiseColor.a, 0, 1 - finalFireWeight);
+
     // Apply input alpha
     return noiseColor * input.Color.a;
 }

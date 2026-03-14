@@ -1,227 +1,146 @@
-using MagnumOpus.Common.Systems.VFX;
-using MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Buffs;
-using MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Particles;
-using MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
-using Terraria.Audio;
-using Terraria.DataStructures;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.VFX.Core;
+using MagnumOpus.Content.DiesIrae;
+using MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Buffs;
+using MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Utilities;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Projectiles
 {
-    /// <summary>
-    /// Death Tolling Bell minion — spectral bell that hovers near the player.
-    /// Tolls every 2 seconds, releasing expanding shockwave rings.
-    /// Every 10th toll triggers Funeral March — enhanced 6-ring toll.
-    /// ai[0] = state (0=idle, 1=charging, 2=toll, 3=funeral march flash)
-    /// ai[1] = general timer
-    /// localAI[0] = toll counter (for Funeral March tracking)
-    /// localAI[1] = state sub-timer
-    /// </summary>
     public class BellTollingMinion : ModProjectile
     {
-        private const int TollCycleFrames = 120; // 2 seconds between tolls
-        private const int ChargeFrames = 30;     // 0.5s charge-up
-        private const int TollFrames = 15;       // Toll moment
-        private const int FuneralMarchInterval = 10; // Every 10th toll
+        private const float HomingRange = 350f;
+        private const float HomingStrength = 0.08f;
+        private const float MaxSpeed = 16f;
+        private Player Owner => Main.player[Projectile.owner];
+        private bool _initialized;
+        private VertexStrip _strip;
 
-        private int State { get => (int)Projectile.ai[0]; set => Projectile.ai[0] = value; }
-        private float Timer { get => Projectile.ai[1]; set => Projectile.ai[1] = value; }
-        private float TollCount { get => Projectile.localAI[0]; set => Projectile.localAI[0] = value; }
-        private float SubTimer { get => Projectile.localAI[1]; set => Projectile.localAI[1] = value; }
+        public override string Texture => "MagnumOpus/Content/DiesIrae/Weapons/DeathTollingBell/DeathTollingBell";
 
         public override void SetStaticDefaults()
         {
-            Main.projPet[Projectile.type] = true;
-            ProjectileID.Sets.MinionSacrificable[Projectile.type] = true;
-            ProjectileID.Sets.CultistIsResistantTo[Projectile.type] = true;
+            Main.projPet[Type] = true;
+            ProjectileID.Sets.MinionSacrificable[Type] = true;
+            ProjectileID.Sets.CultistIsResistantTo[Type] = true;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
         public override void SetDefaults()
         {
-            Projectile.width = 40;
-            Projectile.height = 40;
-            Projectile.friendly = false;
-            Projectile.hostile = false;
-            Projectile.minion = true;
+            Projectile.width = 16;
+            Projectile.height = 16;
+            Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Summon;
+            Projectile.minion = true;
             Projectile.minionSlots = 1f;
             Projectile.penetrate = -1;
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
-            Projectile.timeLeft = 2;
             Projectile.netImportant = true;
         }
+
+        public override bool? CanCutTiles() => false;
+        public override bool MinionContactDamage() => true;
 
         public override void AI()
         {
             Player player = Main.player[Projectile.owner];
+            if (!CheckActive(player)) return;
 
-            // Standard minion buff check
-            if (!player.active || player.dead)
+            if (!_initialized)
             {
-                player.ClearBuff(ModContent.BuffType<DeathTollingBellBuff>());
-                Projectile.Kill();
-                return;
+                _initialized = true;
+                Projectile.rotation = Projectile.velocity.ToRotation();
             }
-            if (player.HasBuff(ModContent.BuffType<DeathTollingBellBuff>()))
-                Projectile.timeLeft = 2;
 
-            Timer++;
-
-            // Hover near player — float above and slightly behind
-            Vector2 targetPos = player.Center + new Vector2(player.direction * -40f, -80f);
-            float bobOffset = (float)Math.Sin(Timer * 0.04f) * 6f;
-            targetPos.Y += bobOffset;
-
-            Vector2 toTarget = targetPos - Projectile.Center;
-            float dist = toTarget.Length();
-            if (dist > 800f)
+            // Find and attack enemies
+            NPC target = DeathTollingBellUtils.ClosestNPCAt(Projectile.Center, HomingRange);
+            if (target != null)
             {
-                // Teleport if too far
-                Projectile.Center = targetPos;
-            }
-            else if (dist > 4f)
-            {
-                float speed = MathHelper.Clamp(dist * 0.08f, 1f, 16f);
-                Projectile.velocity = toTarget.SafeNormalize(Vector2.Zero) * speed;
+                Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
+                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * MaxSpeed, HomingStrength);
             }
             else
             {
-                Projectile.velocity *= 0.9f;
+                // Hover near player when no target
+                Vector2 targetPos = player.Center + new Vector2(player.direction * -40f, -80f);
+                float bobOffset = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 6f;
+                targetPos.Y += bobOffset;
+
+                Vector2 toTarget = targetPos - Projectile.Center;
+                float dist = toTarget.Length();
+                if (dist > 800f)
+                    Projectile.Center = targetPos;
+                else if (dist > 4f)
+                {
+                    float speed = MathHelper.Clamp(dist * 0.08f, 1f, 16f);
+                    Projectile.velocity = toTarget.SafeNormalize(Vector2.Zero) * speed;
+                }
+                else
+                    Projectile.velocity *= 0.9f;
             }
 
-            Projectile.Center += Projectile.velocity;
-            Projectile.velocity *= 0.85f;
+            if (Projectile.velocity.Length() > MaxSpeed)
+                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
 
-            // State machine for toll cycle
-            SubTimer++;
+            Projectile.rotation = Projectile.velocity.ToRotation();
 
-            switch (State)
+            // Trail dust
+            if (Main.rand.NextBool(3))
             {
-                case 0: // Idle — wait for next toll cycle
-                    if (SubTimer >= TollCycleFrames - ChargeFrames)
-                    {
-                        State = 1; // Begin charging
-                        SubTimer = 0;
-                    }
-                    // Ambient dust — subtle crimson motes
-                    if (Main.rand.NextBool(8) && !Main.dedServ)
-                    {
-                        Dust d = Dust.NewDustPerfect(
-                            Projectile.Center + Main.rand.NextVector2Circular(20f, 20f),
-                            DustID.Torch, Vector2.UnitY * -0.5f, 0, default, 0.6f);
-                        d.noGravity = true;
-                        d.fadeIn = 0.3f;
-                    }
-                    // Ambient ash flake drift
-                    if (Main.rand.NextBool(20) && !Main.dedServ)
-                    {
-                        Vector2 ashVel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-1f, -0.3f));
-                        BellParticleHandler.Spawn(new AshFlakeParticle(
-                            Projectile.Center + Main.rand.NextVector2Circular(25f, 25f),
-                            ashVel, 0.2f + Main.rand.NextFloat() * 0.1f, 60 + Main.rand.Next(40)));
-                    }
-                    break;
-
-                case 1: // Charging — bell glows brighter
-                    if (SubTimer >= ChargeFrames)
-                    {
-                        TollCount++;
-                        bool isFuneralMarch = TollCount % FuneralMarchInterval == 0;
-
-                        if (isFuneralMarch)
-                        {
-                            State = 3; // Funeral March flash
-                        }
-                        else
-                        {
-                            State = 2; // Normal toll
-                        }
-                        SubTimer = 0;
-                        FireTollWaves(isFuneralMarch);
-                    }
-                    // Charge-up dust — intensifying embers
-                    if (!Main.dedServ)
-                    {
-                        float chargeProgress = SubTimer / (float)ChargeFrames;
-                        if (Main.rand.NextFloat() < chargeProgress * 0.5f)
-                        {
-                            Vector2 vel = Main.rand.NextVector2Circular(1f, 1f);
-                            Dust d = Dust.NewDustPerfect(
-                                Projectile.Center + Main.rand.NextVector2Circular(16f, 16f),
-                                DustID.GoldFlame, vel, 0, default, 0.8f + chargeProgress * 0.5f);
-                            d.noGravity = true;
-                        }
-                        // Converging ember particles during charge
-                        if (Main.rand.NextFloat() < chargeProgress * 0.3f)
-                        {
-                            float angle = Main.rand.NextFloat(MathHelper.TwoPi);
-                            float chargeDist = 30f + Main.rand.NextFloat() * 20f;
-                            Vector2 spawnPos = Projectile.Center + angle.ToRotationVector2() * chargeDist;
-                            Vector2 convergeVel = (Projectile.Center - spawnPos).SafeNormalize(Vector2.Zero) * (1.5f + chargeProgress * 2f);
-                            Color col = Color.Lerp(DiesIraePalette.EmberOrange, DiesIraePalette.JudgmentGold, chargeProgress);
-                            BellParticleHandler.Spawn(new TollEmberParticle(
-                                spawnPos, convergeVel, col, 0.1f + chargeProgress * 0.08f, 15 + Main.rand.Next(10)));
-                        }
-                    }
-                    break;
-
-                case 2: // Toll moment — brief flash
-                    if (SubTimer >= TollFrames)
-                    {
-                        State = 0;
-                        SubTimer = 0;
-                    }
-                    break;
-
-                case 3: // Funeral March flash — extended dramatic flash
-                    if (SubTimer >= TollFrames * 2)
-                    {
-                        State = 0;
-                        SubTimer = 0;
-                    }
-                    // Funeral March smoke burst on first frame
-                    if (SubTimer == 1)
-                    {
-                        DeathTollingBellUtils.DoFuneralMarch(Projectile.Center);
-                        SoundEngine.PlaySound(SoundID.DD2_BetsyFireballImpact, Projectile.Center);
-                    }
-                    break;
+                int dustType = Main.rand.NextBool() ? DustID.Torch : DustID.SolarFlare;
+                Color dustColor = Main.rand.NextBool() ? new Color(255, 180, 50) : new Color(200, 40, 20);
+                Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
+                    dustType, -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(0.5f, 0.5f),
+                    0, dustColor, 0.8f);
+                d.noGravity = true;
+                d.fadeIn = 0.6f;
             }
+
+            float pulse = 1f + 0.15f * (float)Math.Sin(Main.GameUpdateCount * 0.2f);
+            Lighting.AddLight(Projectile.Center, new Vector3(0.6f, 0.2f, 0.1f) * 0.35f * pulse);
         }
 
-        /// <summary>
-        /// Fire toll wave projectiles — 3 concentric rings (or 6 for Funeral March).
-        /// </summary>
-        private void FireTollWaves(bool isFuneralMarch)
+        private bool CheckActive(Player player)
         {
-            if (Main.myPlayer != Projectile.owner) return;
-
-            int ringCount = isFuneralMarch ? 6 : 3;
-            float damageMultiplier = isFuneralMarch ? 1.5f : 1f;
-
-            for (int ring = 0; ring < ringCount; ring++)
+            if (player.dead || !player.active)
             {
-                // Stagger ring spawn with slight delay via velocity encoding
-                float ringDelay = ring * 0.15f; // Encoded in ai[1] of the wave
-
-                int projType = ModContent.ProjectileType<BellTollWaveProjectile>();
-                int damage = (int)(Projectile.damage * damageMultiplier);
-
-                var source = Projectile.GetSource_FromAI();
-                int proj = Projectile.NewProjectile(source, Projectile.Center, Vector2.Zero,
-                    projType, damage, Projectile.knockBack, Projectile.owner,
-                    isFuneralMarch ? 1f : 0f, ringDelay);
+                player.ClearBuff(ModContent.BuffType<DeathTollingBellBuff>());
+                Projectile.Kill();
+                return false;
             }
+            if (player.HasBuff(ModContent.BuffType<DeathTollingBellBuff>()))
+                Projectile.timeLeft = 2;
+            return true;
+        }
 
-            // Toll sound
-            SoundEngine.PlaySound(SoundID.Item29, Projectile.Center);
-            DeathTollingBellUtils.DoTollWaveDust(Projectile.Center, 30f, isFuneralMarch);
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            Vector2 hitPos = target.Center;
+            for (int i = 0; i < 6; i++)
+            {
+                Vector2 sparkVel = Main.rand.NextVector2CircularEdge(4f, 4f);
+                Color col = i % 2 == 0 ? new Color(200, 40, 20) : new Color(255, 180, 50);
+                Dust d = Dust.NewDustPerfect(hitPos, DustID.Torch, sparkVel, 0, col, 0.5f);
+                d.noGravity = true;
+            }
+            for (int i = 0; i < 2; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(2f, 2f) + new Vector2(0, -1f);
+                Dust d = Dust.NewDustPerfect(hitPos + Main.rand.NextVector2Circular(8f, 8f),
+                    DustID.SolarFlare, vel, 0, new Color(200, 40, 20), 0.5f);
+                d.noGravity = true;
+            }
+            try { DiesIraeVFXLibrary.SpawnMusicNotes(hitPos, 1, 12f, 0.4f, 0.7f, 20); } catch { }
+            try { DiesIraeVFXLibrary.SpawnMixedSparkleImpact(hitPos, 0.6f, 4, 4); } catch { }
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -229,27 +148,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-
-            // Load bell texture for sprite rendering
-            Texture2D bellTex = null;
-            try
-            {
-                bellTex = ModContent.Request<Texture2D>(Texture, ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
-            }
-            catch { }
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
-
-            // Draw harmonic standing wave tether to player
-            Player player = Main.player[Projectile.owner];
-            DeathTollingBellUtils.DrawHarmonicTether(sb, Projectile.Center, player.Center, Timer);
-
-            // Draw bell body with state-driven layered glow + bell sprite
-            DeathTollingBellUtils.DrawBellBody(sb, Projectile.Center, State, Timer, bellTex);
-
-
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.DiesIrae, ref _strip);
             }
             catch { }
             finally
@@ -258,11 +157,21 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
 
-        public override bool? CanCutTiles() => false;
-        public override bool MinionContactDamage() => false;
+        public override void OnKill(int timeLeft)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                Vector2 sparkVel = Main.rand.NextVector2CircularEdge(3f, 3f);
+                Color col = Main.rand.NextBool() ? new Color(200, 40, 20) : new Color(255, 180, 50);
+                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.Torch, sparkVel, 0, col, 0.3f);
+                d.noGravity = true;
+            }
+            try { DiesIraeVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 12f, 0.5f, 0.7f, 20); } catch { }
+            try { DiesIraeVFXLibrary.SpawnMixedSparkleImpact(Projectile.Center, 0.5f, 4, 4); } catch { }
+            try { DiesIraeVFXLibrary.SpawnInfernalSparkles(Projectile.Center, 3, 15f); } catch { }
+        }
     }
 }

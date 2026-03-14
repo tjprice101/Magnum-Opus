@@ -909,7 +909,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             if (State != SwingState.Swinging || Progression < 0.4f)
                 return;
 
-            Main.spriteBatch.EnterShaderRegion(MagnumBlendStates.TrueAdditive);
+            global::MagnumOpus.Common.Systems.MagnumDrawingUtils.EnterShaderRegion(Main.spriteBatch, MagnumBlendStates.TrueAdditive);
 
             var shader = GameShaders.Misc["MagnumOpus:EternalMoonTidalGlow"];
             _noiseTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/MusicalWavePattern");
@@ -935,7 +935,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                 (_, _) => Projectile.Center,
                 shader: shader), 40);
 
-            Main.spriteBatch.ExitShaderRegion();
+            global::MagnumOpus.Common.Systems.MagnumDrawingUtils.ExitShaderRegion(Main.spriteBatch);
         }
 
         /// <summary>Layer 2: Core tidal trail with caustic highlights and standing wave crests.</summary>
@@ -944,7 +944,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             if (State != SwingState.Swinging || Progression < 0.42f)
                 return;
 
-            Main.spriteBatch.EnterShaderRegion();
+            global::MagnumOpus.Common.Systems.MagnumDrawingUtils.EnterShaderRegion(Main.spriteBatch);
 
             var shader = GameShaders.Misc["MagnumOpus:EternalMoonTidalTrail"];
             _noiseTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/MusicalWavePattern");
@@ -971,7 +971,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                 (_, _) => Projectile.Center,
                 shader: shader), 40);
 
-            Main.spriteBatch.ExitShaderRegion();
+            global::MagnumOpus.Common.Systems.MagnumDrawingUtils.ExitShaderRegion(Main.spriteBatch);
         }
 
         /// <summary>Layer 3: Surge (dash) trail using trailing positions.</summary>
@@ -980,7 +980,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             if (State != SwingState.LunarSurge)
                 return;
 
-            Main.spriteBatch.EnterShaderRegion(MagnumBlendStates.TrueAdditive);
+            global::MagnumOpus.Common.Systems.MagnumDrawingUtils.EnterShaderRegion(Main.spriteBatch, MagnumBlendStates.TrueAdditive);
 
             var shader = GameShaders.Misc["MagnumOpus:EternalMoonSurgeTrail"];
             _noiseTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/MusicalWavePattern");
@@ -1015,7 +1015,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                 (_, _) => trailOffset,
                 shader: shader), 25);
 
-            Main.spriteBatch.ExitShaderRegion();
+            global::MagnumOpus.Common.Systems.MagnumDrawingUtils.ExitShaderRegion(Main.spriteBatch);
         }
 
         /// <summary>Layer 4: Blade sprite with UV rotation shader + lens flare at tip.</summary>

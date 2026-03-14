@@ -1,97 +1,98 @@
 using MagnumOpus.Common;
+using MagnumOpus.Content.DiesIrae;
+using MagnumOpus.Content.SandboxExoblade.Utilities;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
+using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
-using System;
-using Terraria;
-using Terraria.GameContent;
+
 namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment
 {
+    /// <summary>
+    /// Chain of Judgment — Dies Irae's burning chain weapon that binds and judges.
+    /// Exoblade-architecture weapon item with channel-hold swing and dash attack.
+    /// </summary>
     public class ChainOfJudgment : ModItem
     {
+
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 1;
+        }
+
         public override void SetDefaults()
         {
-            Item.width = 50;
-            Item.height = 50;
-            Item.damage = 2400;
-            Item.DamageType = DamageClass.Melee;
-            Item.useTime = 22;
-            Item.useAnimation = 22;
+            Item.width = 65;
+            Item.height = 65;
+            Item.scale = 0.10f;
+            Item.damage = 280;
             Item.useStyle = ItemUseStyleID.Swing;
-            Item.knockBack = 6f;
-            Item.value = Item.sellPrice(platinum: 2, gold: 50);
-            Item.rare = ModContent.RarityType<global::MagnumOpus.Common.DiesIraeRarity>();
-            Item.UseSound = SoundID.Item153;
+            Item.useTime = 20;
+            Item.useAnimation = 20;
+            Item.useTurn = true;
+            Item.DamageType = DamageClass.MeleeNoSpeed;
+            Item.knockBack = 7.5f;
             Item.autoReuse = true;
-            Item.useTurn = false;
-            Item.scale = 1.3f;
-            Item.crit = 15;
-            Item.shoot = ModContent.ProjectileType<Projectiles.JudgmentChainProjectile>();
-            Item.shootSpeed = 16f;
-            Item.noMelee = true;
             Item.noUseGraphic = true;
+            Item.noMelee = true;
+            Item.channel = true;
+            Item.value = Item.sellPrice(gold: 45);
+            Item.shoot = ModContent.ProjectileType<Projectiles.JudgmentChainProjectile>();
+            Item.shootSpeed = 8f;
+            Item.rare = ModContent.RarityType<DiesIraeRarity>();
+        }
+
+        public override bool CanShoot(Player player)
+        {
+            bool isDash = player.altFunctionUse == 2;
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile p = Main.projectile[i];
+                if (!p.active || p.owner != player.whoAmI || p.type != Item.shoot)
+                    continue;
+                if (isDash) return false;
+                if (!(p.ai[0] == 1 && p.ai[1] == 1)) return false;
+            }
+            return true;
+        }
+
+        public override void HoldItem(Player player)
+        {
+            player.ExoBlade().rightClickListener = true;
+            player.ExoBlade().mouseWorldListener = true;
+        }
+
+        public override bool AltFunctionUse(Player player) => true;
+        public override bool? CanHitNPC(Player player, NPC target) => false;
+        public override bool CanHitPvp(Player player, Player target) => false;
+
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
+            Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        {
+            float state = player.altFunctionUse == 2 ? 1f : 0f;
+            Projectile.NewProjectile(source, player.MountedCenter,
+                (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
+                type, damage, knockback, player.whoAmI, state, 0);
+
+            return false;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Hurls a blazing chain whip with 12-tile reach"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Hits build Chain Link stacks — at 5 stacks, enemies become Fully Bound"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Every 5th hit triggers chain lightning that arcs between nearby foes"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'No sinner escapes the chain. It finds them in the dark.'")
-            {
-                OverrideColor = new Color(200, 50, 30)
-            });
-        }
-    
-        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
-        {
-            Texture2D tex = TextureAssets.Item[Item.type].Value;
-            Vector2 pos = Item.Center - Main.screenPosition;
-            Vector2 origin = tex.Size() * 0.5f;
-
-            float time = Main.GameUpdateCount * 0.05f;
-            float pulse = 1f + (float)Math.Sin(time * 2.2f) * 0.05f
-                + (float)Math.Sin(time * 3.8f) * 0.03f;
-
-            // Switch to additive blend for glow layers
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            DiesIraePalette.DrawItemBloom(spriteBatch, tex, pos, origin, rotation, scale, pulse);
-
-            // Restore alpha blend for vanilla drawing
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            Lighting.AddLight(Item.Center, DiesIraePalette.InfernalRed.ToVector3() * 0.35f);
-            return true;
-        }
-
-        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
-        {
-            Texture2D tex = TextureAssets.Item[Item.type].Value;
-            float time = Main.GameUpdateCount * 0.04f;
-            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.06f;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
-
-            float cycle = (float)Math.Sin(time * 0.7f) * 0.5f + 0.5f;
-            Color glowColor = Color.Lerp(DiesIraePalette.InfernalRed, DiesIraePalette.JudgmentGold, cycle) * 0.24f;
-            spriteBatch.Draw(tex, position, frame, glowColor with { A = 0 }, 0f, origin, scale * pulse * 1.1f, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
-
-            spriteBatch.Draw(tex, position, frame, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
-            return false;
+            tooltips.Add(new TooltipLine(Mod, "Effect1",
+            "Burning chain swings that bind and judge all who are struck"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2",
+            "Each swing trails ember dust and solar flare sparks"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3",
+            "Hits spawn fire and solar flare bursts at impact point"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4",
+            "Right-click dash attack unleashes a massive infernal chain burst")
+            { OverrideColor = DiesIraePalette.JudgmentGold });
+            tooltips.Add(new TooltipLine(Mod, "Lore",
+            "'No sinner escapes the chain. It finds them in the dark.'")
+            { OverrideColor = new Color(200, 50, 30) });
         }
     }
 }

@@ -62,27 +62,8 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
         {
-            _groundTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Content/OdeToJoy/Bosses/OdeToJoyTreasureBag_Ground");
-
-            if (_groundTexture.State == AssetState.Loaded)
-            {
-                Texture2D texture = _groundTexture.Value;
-                Vector2 drawPos = Item.position - Main.screenPosition + new Vector2(Item.width / 2f, Item.height / 2f);
-                Vector2 origin = new Vector2(texture.Width / 2f, texture.Height / 2f);
-
-                // Warm golden-green glow shimmer
-                float cycle = (float)System.Math.Sin(Main.GameUpdateCount * 0.04f) * 0.5f + 0.5f;
-                Color glowColor = Color.Lerp(new Color(76, 175, 80, 0), new Color(255, 215, 0, 0), cycle) * 0.3f;
-                for (int i = 0; i < 4; i++)
-                {
-                    Vector2 offset = new Vector2(2f, 0f).RotatedBy(MathHelper.PiOver2 * i);
-                    spriteBatch.Draw(texture, drawPos + offset, null, glowColor, rotation, origin, scale, SpriteEffects.None, 0f);
-                }
-
-                spriteBatch.Draw(texture, drawPos, null, lightColor, rotation, origin, scale, SpriteEffects.None, 0f);
-                return false;
-            }
-            return true;
+            // VFX_GUTTED: PreDraw rendering removed
+            return false;
         }
 
         public override void ModifyItemLoot(ItemLoot itemLoot)

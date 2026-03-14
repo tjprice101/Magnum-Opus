@@ -588,6 +588,40 @@ namespace MagnumOpus.Common.Systems.Particles
             Wobble = Main.rand.NextFloat(0f, MathHelper.TwoPi);
             WobbleSpeed = Main.rand.NextFloat(0.05f, 0.12f);
         }
+
+        // Legacy compatibility overload driven by explicit colors rather than HSL bounds.
+        public HueShiftingMusicNoteParticle(Vector2 position, Vector2 velocity,
+            Color color, Color bloomColor, float scale, int lifetime, float hueSpeed = 0.02f, string noteType = null)
+            : this(
+                  position,
+                  velocity,
+                  WrapHue(Main.rgbToHsl(color).X - 0.04f),
+                  WrapHue(Main.rgbToHsl(color).X + 0.04f),
+                  MathHelper.Clamp(Main.rgbToHsl(color).Y, 0f, 1f),
+                  MathHelper.Clamp(Math.Max(Main.rgbToHsl(color).Z, Main.rgbToHsl(bloomColor).Z), 0f, 1f),
+                  scale,
+                  lifetime,
+                  hueSpeed,
+                  noteType)
+        {
+        }
+
+        // Legacy compatibility overload where scale was omitted.
+        public HueShiftingMusicNoteParticle(Vector2 position, Vector2 velocity,
+            float hueMin, float hueMax, float saturation, float luminosity,
+            int lifetime, float hueSpeed = 0.02f, string noteType = null)
+            : this(position, velocity, hueMin, hueMax, saturation, luminosity, 0.35f, lifetime, hueSpeed, noteType)
+        {
+        }
+
+        private static float WrapHue(float hue)
+        {
+            while (hue < 0f)
+                hue += 1f;
+            while (hue > 1f)
+                hue -= 1f;
+            return hue;
+        }
         
         private static string GetRandomNoteType()
         {
@@ -851,6 +885,20 @@ namespace MagnumOpus.Common.Systems.Particles
                 Main.rand.NextFloat(0.02f, 0.04f)
             };
         }
+
+        // Legacy compatibility overload with a single scale parameter.
+        public DramaticFlareParticle(Vector2 position, Vector2 velocity, Color coreColor, Color glowColor,
+            Color flashColor, float scale, int lifetime, int flareVariant = -1)
+            : this(position, velocity, coreColor, glowColor, flashColor,
+                  scale * 0.4f, scale, scale * 1.8f, lifetime, flareVariant)
+        {
+        }
+
+        // Legacy compatibility overload: (position, velocity, color, scale, lifetime).
+        public DramaticFlareParticle(Vector2 position, Vector2 velocity, Color color, float scale, int lifetime)
+            : this(position, velocity, color, color * 0.7f, Color.White, scale, lifetime)
+        {
+        }
         
         /// <summary>
         /// Simple constructor.
@@ -1094,6 +1142,14 @@ namespace MagnumOpus.Common.Systems.Particles
         /// </summary>
         public CometParticle(Vector2 position, Vector2 velocity, Color color, float scale, int lifetime)
             : this(position, velocity, color, color * 0.4f, scale, 8, lifetime)
+        {
+        }
+
+        // Legacy compatibility overload where the final parameter controlled tail scale.
+        public CometParticle(Vector2 position, Vector2 velocity, Color headColor, Color tailColor,
+            float headScale, int lifetime, float tailScale)
+            : this(position, velocity, headColor, tailColor, headScale,
+                  Math.Max(3, (int)MathF.Round(8f * Math.Max(0.25f, tailScale))), lifetime)
         {
         }
         

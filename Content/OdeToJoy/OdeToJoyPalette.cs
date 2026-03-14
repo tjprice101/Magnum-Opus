@@ -32,6 +32,9 @@ namespace MagnumOpus.Content.OdeToJoy
         // Whites
         public static readonly Color WhiteBloom = new Color(255, 250, 235);
 
+        // Lore / UI
+        public static readonly Color LoreText = new Color(255, 200, 50);
+
         // ═══════════════════════════════════════════════════════
         //  LUT TEXTURE SAMPLING
         // ═══════════════════════════════════════════════════════

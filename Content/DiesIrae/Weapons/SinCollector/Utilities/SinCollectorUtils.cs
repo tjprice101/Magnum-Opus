@@ -1,146 +1,243 @@
-using MagnumOpus.Common.Systems.VFX;
-using MagnumOpus.Content.DiesIrae;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
-using Terraria.ID;
+using MagnumOpus.Content.DiesIrae;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.SinCollector.Utilities
 {
     /// <summary>
-    /// Static VFX utility class for Sin Collector.
-    /// Palette progression: as sin count rises, colors shift from muted crimson to
-    /// blazing corruption orange-gold. Sin corrupts the visuals.
+    /// Self-contained utility class for Sin Collector.
+    /// Palette, easings, animation curves, SpriteBatch helpers, geometry helpers.
+    /// Sin-seeking bullet, divine trajectory — every shot collects a sin.
     /// </summary>
     public static class SinCollectorUtils
     {
-        // ═══════════════════════════════════════════════════════════════
-        //  SIN PALETTE — escalates with sin count
-        // ═══════════════════════════════════════════════════════════════
+        #region Color Palette
 
-        public static Color SinCrimson => DiesIraePalette.BloodRed;
-        public static Color EmberOrange => DiesIraePalette.EmberOrange;
-        public static Color JudgmentGold => DiesIraePalette.JudgmentGold;
-        public static Color CorruptionVein => new Color(100, 10, 10);
+        /// <summary>Sin Collector beam palette — sin-seeking bullet, divine trajectory.</summary>
+        public static readonly Color[] WeaponPalette = DiesIraePalette.SinCollectorBeam;
 
-        /// <summary>
-        /// Gets a color that intensifies with sin count.
-        /// Low sin: muted crimson. High sin: blazing gold.
-        /// </summary>
-        public static Color GetSinColor(int sinCount, float extraPulse = 0f)
+        /// <summary>Lore text color for ModifyTooltips.</summary>
+        public static readonly Color LoreColor = DiesIraePalette.LoreText;
+
+        /// <summary>Cycling wrath color — red hue range oscillation for shimmer effects.</summary>
+        public static Color GetWrathCycle(float offset = 0f)
         {
-            float t = MathHelper.Clamp(sinCount / 30f, 0f, 1f) + extraPulse;
-            t = MathHelper.Clamp(t, 0f, 1f);
-
-            if (t < 0.33f)
-                return Color.Lerp(DiesIraePalette.CharcoalBlack, SinCrimson, t / 0.33f);
-            if (t < 0.66f)
-                return Color.Lerp(SinCrimson, EmberOrange, (t - 0.33f) / 0.33f);
-            return Color.Lerp(EmberOrange, JudgmentGold, (t - 0.66f) / 0.34f);
+            float hue = (Main.GameUpdateCount * 0.015f + offset) % 1f;
+            hue = hue * 0.08f;
+            return Main.hslToRgb(hue, 0.95f, 0.50f);
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        //  VFX DRAWING HELPERS
-        // ═══════════════════════════════════════════════════════════════
-
-        /// <summary>
-        /// Draws a multi-layer bloom for a sin bullet.
-        /// Tight, focused — precision weapon aesthetic.
-        /// </summary>
-        public static void DrawBulletBloom(SpriteBatch sb, Vector2 worldPos, float timer, int sinCount = 0)
+        /// <summary>Smoothly interpolate through a color array.</summary>
+        public static Color MulticolorLerp(float t, params Color[] colors)
         {
-            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-            if (glow == null) return;
-            Vector2 origin = glow.Size() / 2f;
-            Vector2 pos = worldPos - Main.screenPosition;
-
-            float sinIntensity = 1f + sinCount / 30f * 0.5f;
-            float pulse = 0.8f + 0.2f * (float)Math.Sin(timer * 0.2f);
-            float i = sinIntensity * pulse;
-
-            // Outer crimson
-            sb.Draw(glow, pos, null, SinCrimson * 0.35f * i, 0f, origin, 0.05f * sinIntensity, SpriteEffects.None, 0f);
-            // Mid ember
-            sb.Draw(glow, pos, null, EmberOrange * 0.5f * i, 0f, origin, 0.03f * sinIntensity, SpriteEffects.None, 0f);
-            // Gold core
-            sb.Draw(glow, pos, null, JudgmentGold * 0.7f * i, 0f, origin, 0.015f * sinIntensity, SpriteEffects.None, 0f);
+            t = MathHelper.Clamp(t, 0f, 0.999f);
+            int count = colors.Length;
+            float scaled = t * (count - 1);
+            int index = (int)scaled;
+            float frac = scaled - index;
+            if (index >= count - 1) return colors[count - 1];
+            return Color.Lerp(colors[index], colors[index + 1], frac);
         }
 
-        /// <summary>
-        /// Spawns sin fragment wisps from enemy to player — visual for sin collection.
-        /// </summary>
-        public static void SpawnSinFragmentDust(Vector2 enemyPos, Vector2 playerPos)
-        {
-            if (Main.dedServ) return;
+        /// <summary>Gets a color along the weapon gradient (0=shadow, 1=flash core).</summary>
+        public static Color GetWeaponGradient(float t) => MulticolorLerp(t, WeaponPalette);
 
-            Vector2 toPlayer = (playerPos - enemyPos).SafeNormalize(Vector2.UnitX);
-            for (int i = 0; i < 6; i++)
+        /// <summary>Make a color additive-friendly (A=0) with opacity.</summary>
+        public static Color Additive(Color c, float opacity = 1f)
+            => new Color(c.R, c.G, c.B, 0) * opacity;
+
+        #endregion
+
+        #region Easing Functions
+
+        public delegate float EasingFunction(float t, int degree);
+
+        public static float LinearEasing(float t, int degree) => t;
+        public static float SineInEasing(float t, int degree) => 1f - (float)Math.Cos(t * MathHelper.PiOver2);
+        public static float SineOutEasing(float t, int degree) => (float)Math.Sin(t * MathHelper.PiOver2);
+        public static float SineInOutEasing(float t, int degree) => -(float)(Math.Cos(Math.PI * t) - 1) / 2f;
+        public static float SineBumpEasing(float t, int degree) => (float)Math.Sin(t * Math.PI);
+
+        public static float PolyInEasing(float t, int degree)
+        {
+            return (float)Math.Pow(t, degree);
+        }
+
+        public static float PolyOutEasing(float t, int degree)
+        {
+            return 1f - (float)Math.Pow(1f - t, degree);
+        }
+
+        public static float PolyInOutEasing(float t, int degree)
+        {
+            if (t < 0.5f)
+                return (float)Math.Pow(2f * t, degree) / 2f;
+            return 1f - (float)Math.Pow(-2f * t + 2f, degree) / 2f;
+        }
+
+        public static float ExpInEasing(float t, int degree) =>
+            t == 0f ? 0f : (float)Math.Pow(2f, 10f * t - 10f);
+
+        public static float ExpOutEasing(float t, int degree) =>
+            t >= 1f ? 1f : 1f - (float)Math.Pow(2f, -10f * t);
+
+        public static float CircInEasing(float t, int degree) =>
+            1f - (float)Math.Sqrt(1f - t * t);
+
+        public static float CircOutEasing(float t, int degree) =>
+            (float)Math.Sqrt(1f - (t - 1f) * (t - 1f));
+
+        #endregion
+
+        #region CurveSegment — Piecewise Animation
+
+        /// <summary>
+        /// A segment of a piecewise animation curve, inspired by Calamity's CurveSegment.
+        /// </summary>
+        public struct CurveSegment
+        {
+            public EasingFunction Easing;
+            public float StartX;
+            public float StartHeight;
+            public float ElevationShift;
+            public int Degree;
+
+            public CurveSegment(EasingFunction easing, float startX, float startHeight, float elevationShift, int degree = 2)
             {
-                Vector2 vel = toPlayer * Main.rand.NextFloat(4f, 8f) + Main.rand.NextVector2Circular(1.5f, 1.5f);
-                Dust d = Dust.NewDustPerfect(
-                    enemyPos + Main.rand.NextVector2Circular(10, 10),
-                    DustID.Torch, vel, 0,
-                    Color.Lerp(SinCrimson, EmberOrange, Main.rand.NextFloat()), 1.0f);
-                d.noGravity = true;
-                d.fadeIn = 1.2f;
+                Easing = easing;
+                StartX = startX;
+                StartHeight = startHeight;
+                ElevationShift = elevationShift;
+                Degree = degree;
             }
         }
 
-        /// <summary>
-        /// Draws a bloom stack for expenditure projectiles (larger presence).
-        /// </summary>
-        public static void DrawExpendBloom(SpriteBatch sb, Vector2 worldPos, float scale, float intensity)
+        /// <summary>Evaluate a piecewise animation curve at the given progress (0-1).</summary>
+        public static float PiecewiseAnimation(float progress, CurveSegment[] segments)
         {
-            Texture2D glow = MagnumTextureRegistry.GetSoftGlow();
-            Texture2D radial = MagnumTextureRegistry.GetRadialBloom();
-            if (glow == null) return;
-            Vector2 origin = glow.Size() / 2f;
-            Vector2 pos = worldPos - Main.screenPosition;
+            progress = MathHelper.Clamp(progress, 0f, 1f);
 
-            sb.Draw(glow, pos, null, DiesIraePalette.BloodRed * 0.3f * intensity, 0f, origin, scale * 1.5f, SpriteEffects.None, 0f);
-            sb.Draw(glow, pos, null, EmberOrange * 0.5f * intensity, 0f, origin, scale * 1.0f, SpriteEffects.None, 0f);
-            sb.Draw(glow, pos, null, JudgmentGold * 0.7f * intensity, 0f, origin, scale * 0.55f, SpriteEffects.None, 0f);
-            sb.Draw(glow, pos, null, DiesIraePalette.WrathWhite * 0.4f * intensity, 0f, origin, scale * 0.25f, SpriteEffects.None, 0f);
-
-            if (radial != null)
+            int segIdx = 0;
+            for (int i = segments.Length - 1; i >= 0; i--)
             {
-                Vector2 rOrigin = radial.Size() / 2f;
-                sb.Draw(radial, pos, null, EmberOrange * 0.35f * intensity,
-                    (float)Main.timeForVisualEffects * 0.02f, rOrigin, scale * 0.8f, SpriteEffects.None, 0f);
+                if (progress >= segments[i].StartX)
+                {
+                    segIdx = i;
+                    break;
+                }
             }
+
+            CurveSegment seg = segments[segIdx];
+            float segEnd = (segIdx < segments.Length - 1) ? segments[segIdx + 1].StartX : 1f;
+            float segDuration = segEnd - seg.StartX;
+
+            if (segDuration <= 0f)
+                return seg.StartHeight;
+
+            float localProgress = MathHelper.Clamp((progress - seg.StartX) / segDuration, 0f, 1f);
+            float easedProgress = seg.Easing(localProgress, seg.Degree);
+
+            return seg.StartHeight + easedProgress * seg.ElevationShift;
         }
 
-        /// <summary>
-        /// Impact burst for sin bullet hits — directional crimson sparks.
-        /// </summary>
-        public static void DoBulletImpact(Vector2 worldPos, Vector2 hitDir)
+        #endregion
+
+        #region SpriteBatch Helpers
+
+        /// <summary>Enter immediate-mode for shader rendering.</summary>
+        public static void EnterShaderRegion(this SpriteBatch sb)
         {
-            // === Color-ramped sparkle explosion VFX ===
-            DiesIraeVFXLibrary.SpawnColorRampedSparkleExplosion(worldPos, 8, 5f, 0.3f);
-
-            if (Main.dedServ) return;
-
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = hitDir.ToRotation() + Main.rand.NextFloat(-0.6f, 0.6f);
-                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 5f);
-                Dust d = Dust.NewDustPerfect(worldPos, DustID.Torch, vel, 0,
-                    Main.rand.NextBool() ? SinCrimson : EmberOrange, 0.9f);
-                d.noGravity = true;
-            }
+            sb.End();
+            sb.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
-        // ─────────── THEME TEXTURE ACCENTS ───────────
+        /// <summary>Exit immediate-mode back to deferred.</summary>
+        public static void ExitShaderRegion(this SpriteBatch sb)
+        {
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        }
 
-        /// <summary>
-        /// Draws theme-textured bullet impact accents. Call under Additive blend.
-        /// </summary>
+        /// <summary>Begin additive blending for glow effects.</summary>
+        public static void BeginAdditive(this SpriteBatch sb)
+        {
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        /// <summary>Begin additive + immediate for shader glow passes.</summary>
+        public static void BeginShaderAdditive(this SpriteBatch sb)
+        {
+            sb.End();
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        /// <summary>Restore standard SpriteBatch state.</summary>
+        public static void RestoreSpriteBatch(this SpriteBatch sb)
+        {
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        }
+
+        #endregion
+
+        #region Geometry Helpers
+
+        /// <summary>Safe direction calculation that won't return NaN.</summary>
+        public static Vector2 SafeDirectionTo(this Vector2 from, Vector2 to, Vector2 fallback = default)
+        {
+            Vector2 diff = to - from;
+            float length = diff.Length();
+            if (length < 0.0001f) return fallback;
+            return diff / length;
+        }
+
+        /// <summary>Find the closest NPC within range of a position.</summary>
+        public static NPC ClosestNPCAt(Vector2 position, float maxRange, bool requireLineOfSight = false)
+        {
+            NPC closest = null;
+            float closestDist = maxRange;
+
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (!npc.active || npc.friendly || npc.dontTakeDamage || npc.immortal)
+                    continue;
+
+                float dist = Vector2.Distance(position, npc.Center);
+                if (dist < closestDist)
+                {
+                    if (requireLineOfSight && !Collision.CanHitLine(position, 1, 1, npc.position, npc.width, npc.height))
+                        continue;
+                    closestDist = dist;
+                    closest = npc;
+                }
+            }
+
+            return closest;
+        }
+
+        /// <summary>Angle-limited rotation toward a target angle.</summary>
+        public static float AngleTowards(float currentAngle, float targetAngle, float maxTurn)
+        {
+            float diff = MathHelper.WrapAngle(targetAngle - currentAngle);
+            return currentAngle + MathHelper.Clamp(diff, -maxTurn, maxTurn);
+        }
+
+        #endregion
+
+        /// <summary>Draw Dies Irae themed impact ring accent. Call under additive blend.</summary>
         public static void DrawThemeAccents(SpriteBatch sb, Vector2 worldPos, float scale, float intensity = 1f)
         {
-            DiesIraeVFXLibrary.DrawThemeStarFlare(sb, worldPos, scale, intensity * 0.4f);
-            float rot = (float)Main.GameUpdateCount * 0.025f;
-            DiesIraeVFXLibrary.DrawThemeImpactRing(sb, worldPos, scale * 0.8f, intensity * 0.35f, rot);
+            try { DiesIraeVFXLibrary.DrawThemeImpactRing(sb, worldPos, scale, intensity * 0.4f, (float)Main.GameUpdateCount * 0.02f); }
+            catch { }
         }
     }
 }

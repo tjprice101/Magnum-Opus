@@ -322,7 +322,7 @@ namespace MagnumOpus.Content.DiesIrae
         /// </summary>
         public static Color GetPaletteColor(float t)
         {
-            return DiesIraeVFXLibrary.SampleLUT(t);
+            return PaletteLerp(MasterPalette, t);
         }
 
         /// <summary>
