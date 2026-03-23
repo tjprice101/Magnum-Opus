@@ -1,9 +1,11 @@
 using MagnumOpus.Common;
 using MagnumOpus.Content.DiesIrae;
+using MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Utilities;
 using MagnumOpus.Content.SandboxExoblade.Utilities;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -62,6 +64,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment
         {
             player.ExoBlade().rightClickListener = true;
             player.ExoBlade().mouseWorldListener = true;
+            player.GetModPlayer<ChainOfJudgmentPlayer>().IsHoldingChainOfJudgment = true;
         }
 
         public override bool AltFunctionUse(Player player) => true;
@@ -71,11 +74,29 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
             Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            float state = player.altFunctionUse == 2 ? 1f : 0f;
+            if (player.altFunctionUse == 2)
+            {
+                var wp = player.GetModPlayer<ChainOfJudgmentPlayer>();
+                if (wp.IsChargeFull)
+                {
+                    wp.ConsumeCharge();
+                    SoundEngine.PlaySound(SoundID.Item45 with { Pitch = -0.2f }, player.Center);
+                    Projectile.NewProjectile(source, player.MountedCenter, Vector2.Zero,
+                        ModContent.ProjectileType<Projectiles.ChainJudgmentSpecialProj>(),
+                        0, 0f, player.whoAmI);
+                }
+                else
+                {
+                    SoundEngine.PlaySound(SoundID.Item16 with { Pitch = 0.5f, Volume = 0.5f }, player.Center);
+                }
+                return false;
+            }
+
+            // Normal left-click swing
+            float state = 0f;
             Projectile.NewProjectile(source, player.MountedCenter,
                 (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
                 type, damage, knockback, player.whoAmI, state, 0);
-
             return false;
         }
 

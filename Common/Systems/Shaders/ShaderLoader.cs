@@ -92,6 +92,7 @@ namespace MagnumOpus.Common.Systems.Shaders
         public const string StellarConductorAuraShader = "Nachtmusik/ConductorOfConstellations/StellarConductorAura";
         public const string IncisorResonanceShader = "MoonlightSonata/IncisorOfMoonlight/IncisorResonance";
         public const string ConstellationFieldShader = "MoonlightSonata/IncisorOfMoonlight/ConstellationField";
+        public const string LunarZoneShader = "MoonlightSonata/IncisorOfMoonlight/LunarZone";
 
         // Eroica  ESakurasBlossom weapon-specific shaders
         public const string SakuraSwingTrailShader = "Eroica/SakurasBlossom/SakuraSwingTrail";
@@ -398,6 +399,7 @@ namespace MagnumOpus.Common.Systems.Shaders
                 LoadShader(StellarConductorAuraShader);
                 LoadShader(IncisorResonanceShader);
                 LoadShader(ConstellationFieldShader);
+                LoadShader(LunarZoneShader);
 
                 // Eroica  ESakurasBlossom shaders
                 LoadShader(SakuraSwingTrailShader);
@@ -883,6 +885,9 @@ namespace MagnumOpus.Common.Systems.Shaders
 
         /// <summary>Gets the Constellation Field shader for parallax starfield overlays on Incisor of Moonlight.</summary>
         public static Effect ConstellationField => GetShader(ConstellationFieldShader);
+
+        /// <summary>Gets the Lunar Zone shader for persistent lunar damage zones on Incisor of Moonlight.</summary>
+        public static Effect LunarZone => GetShader(LunarZoneShader);
 
         /// <summary>Gets the Sakura Swing Trail shader for flowing petal-energy melee swing trails on SakurasBlossom.</summary>
         public static Effect SakuraSwingTrail => GetShader(SakuraSwingTrailShader);

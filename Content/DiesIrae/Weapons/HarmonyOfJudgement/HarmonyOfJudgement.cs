@@ -7,11 +7,15 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.UI;
+using MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Utilities;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement
 {
-    public class HarmonyOfJudgement : ModItem
+    public class HarmonyOfJudgement : ModItem, IOverdriveItem
     {
+        public IResonantOverdrive GetOverdrivePlayer(Player player) => player.GetModPlayer<ChainOfJudgmentPlayer>();
+
         public override void SetDefaults()
         {
             Item.width = 40;

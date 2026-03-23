@@ -9,6 +9,8 @@ using Terraria.ModLoader;
 using MagnumOpus.Common;
 using MagnumOpus.Content.SandboxExoblade.Utilities;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCadence.Utilities;
+using MagnumOpus.Common.Systems.UI;
 
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCadence
 {
@@ -17,8 +19,10 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
     /// Exoblade-architecture swing with right-click dash.
     /// Every swing stacks Inevitability on all enemies; at 10, triggers Paradox Collapse.
     /// </summary>
-    public class TheUnresolvedCadenceItem : ModItem
+    public class TheUnresolvedCadenceItem : ModItem, IOverdriveItem
     {
+        public IResonantOverdrive GetOverdrivePlayer(Player player) => player.GetModPlayer<CadencePlayer>();
+
         public override string Texture => "MagnumOpus/Content/EnigmaVariations/ResonantWeapons/TheUnresolvedCadence/TheUnresolvedCadence";
 
         #region Theme Colors
@@ -86,6 +90,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
         {
             player.ExoBlade().rightClickListener = true;
             player.ExoBlade().mouseWorldListener = true;
+            player.GetModPlayer<CadencePlayer>().IsHoldingUnresolvedCadence = true;
 
             // Inevitability aura VFX
             float intensity = 0.25f + inevitabilityStacks * 0.04f;
@@ -101,35 +106,53 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
             Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            float state = player.altFunctionUse == 2 ? 1f : 0f;
+            // Right-click: charge-gated detonation at player center
+            if (player.altFunctionUse == 2)
+            {
+                var cp = player.GetModPlayer<CadencePlayer>();
+
+                if (cp.IsChargeFull)
+                {
+                    cp.ConsumeCharge();
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.6f, Volume = 1.3f }, player.Center);
+
+                    Projectile.NewProjectile(source, player.Center, Vector2.Zero,
+                        ModContent.ProjectileType<Projectiles.CadenceSpecialProj>(),
+                        (int)(damage * 3.0f), knockback * 3f, player.whoAmI);
+                }
+                else
+                {
+                    SoundEngine.PlaySound(SoundID.Item27 with { Pitch = -0.3f, Volume = 0.4f }, player.MountedCenter);
+                }
+                return false;
+            }
+
+            float state = 0f;
             Projectile.NewProjectile(source, player.MountedCenter,
                 (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
                 type, damage, knockback, player.whoAmI, state, 0);
 
             // Inevitability stacking on swing (only for normal swings, not dash)
-            if (state == 0f)
+            bool anyEnemies = false;
+            foreach (NPC npc in Main.ActiveNPCs)
             {
-                bool anyEnemies = false;
-                foreach (NPC npc in Main.ActiveNPCs)
+                if (!npc.friendly && Vector2.Distance(npc.Center, player.Center) < 1200f)
                 {
-                    if (!npc.friendly && Vector2.Distance(npc.Center, player.Center) < 1200f)
-                    {
-                        anyEnemies = true;
-                        npc.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
-                        var brandNPC = npc.GetGlobalNPC<ParadoxBrandNPC>();
-                        brandNPC.AddParadoxStack(npc, 3);
-                    }
+                    anyEnemies = true;
+                    npc.AddBuff(ModContent.BuffType<ParadoxBrand>(), 480);
+                    var brandNPC = npc.GetGlobalNPC<ParadoxBrandNPC>();
+                    brandNPC.AddParadoxStack(npc, 3);
                 }
-
-                if (anyEnemies)
-                {
-                    for (int i = 0; i < 3; i++)
-                        AddInevitabilityStack();
-                }
-
-                if (inevitabilityStacks >= MaxInevitabilityStacks)
-                    TriggerParadoxCollapse(player, source);
             }
+
+            if (anyEnemies)
+            {
+                for (int i = 0; i < 3; i++)
+                    AddInevitabilityStack();
+            }
+
+            if (inevitabilityStacks >= MaxInevitabilityStacks)
+                TriggerParadoxCollapse(player, source);
 
             return false;
         }

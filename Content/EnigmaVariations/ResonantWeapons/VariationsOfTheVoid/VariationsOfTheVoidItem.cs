@@ -2,11 +2,14 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
 using MagnumOpus.Content.SandboxExoblade.Utilities;
+using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoid.Utilities;
+using MagnumOpus.Common.Systems.UI;
 
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoid
 {
@@ -15,8 +18,10 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
     /// Exoblade-architecture swing with right-click dash.
     /// Every 3rd swing spawns VoidConvergenceBeamSet.
     /// </summary>
-    public class VariationsOfTheVoidItem : ModItem
+    public class VariationsOfTheVoidItem : ModItem, IOverdriveItem
     {
+        public IResonantOverdrive GetOverdrivePlayer(Player player) => player.GetModPlayer<VoidVariationPlayer>();
+
         public override string Texture => "MagnumOpus/Content/EnigmaVariations/ResonantWeapons/VariationsOfTheVoid/VariationsOfTheVoid";
 
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
@@ -64,6 +69,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
         {
             player.ExoBlade().rightClickListener = true;
             player.ExoBlade().mouseWorldListener = true;
+            player.GetModPlayer<VoidVariationPlayer>().IsHoldingVariationsOfTheVoid = true;
         }
 
         public override bool AltFunctionUse(Player player) => true;
@@ -73,7 +79,30 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
             Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            float state = player.altFunctionUse == 2 ? 1f : 0f;
+            // Right-click: charge-gated special — spawn 1 massive energy wave
+            if (player.altFunctionUse == 2)
+            {
+                var vvp = player.GetModPlayer<VoidVariationPlayer>();
+
+                if (vvp.IsChargeFull)
+                {
+                    vvp.ConsumeCharge();
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.4f, Volume = 1.1f }, player.MountedCenter);
+
+                    Vector2 dir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
+                    Projectile.NewProjectile(source, player.MountedCenter, dir * 6f,
+                        ModContent.ProjectileType<Projectiles.VoidSpecialProj>(),
+                        (int)(damage * 2.0f), knockback * 2f, player.whoAmI);
+                }
+                else
+                {
+                    SoundEngine.PlaySound(SoundID.Item27 with { Pitch = -0.3f, Volume = 0.4f }, player.MountedCenter);
+                }
+                return false;
+            }
+
+            // Normal left-click: spawn swing projectile
+            float state = 0f;
             Projectile.NewProjectile(source, player.MountedCenter,
                 (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
                 type, damage, knockback, player.whoAmI, state, 0);

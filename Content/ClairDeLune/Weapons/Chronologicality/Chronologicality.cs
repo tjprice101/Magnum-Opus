@@ -1,10 +1,13 @@
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.UI;
 using MagnumOpus.Content.ClairDeLune;
 using MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles;
+using MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Utilities;
 using MagnumOpus.Content.SandboxExoblade.Utilities;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -15,8 +18,9 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality
     /// Chronologicality — Clair de Lune's signature melee blade that cuts through time.
     /// Exoblade-architecture weapon with moonlit clockwork VFX.
     /// </summary>
-    public class Chronologicality : ModItem
+    public class Chronologicality : ModItem, IOverdriveItem
     {
+        public IResonantOverdrive GetOverdrivePlayer(Player player) => player.GetModPlayer<ChronologicalityPlayer>();
 
         public override void SetStaticDefaults()
         {
@@ -63,6 +67,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality
         {
             player.ExoBlade().rightClickListener = true;
             player.ExoBlade().mouseWorldListener = true;
+            player.GetModPlayer<ChronologicalityPlayer>().IsHoldingChronologicality = true;
         }
 
         public override bool AltFunctionUse(Player player) => true;
@@ -72,11 +77,25 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
             Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            float state = player.altFunctionUse == 2 ? 1f : 0f;
+            if (player.altFunctionUse == 2)
+            {
+                var cp = player.GetModPlayer<ChronologicalityPlayer>();
+                if (cp.IsChargeFull)
+                {
+                    cp.ConsumeCharge();
+                    SoundEngine.PlaySound(SoundID.Item29 with { Pitch = -0.4f }, player.Center);
+                    Projectile.NewProjectile(source, player.Center, Vector2.Zero,
+                        ModContent.ProjectileType<ChronologicalitySpecialProj>(),
+                        damage * 3, knockback, player.whoAmI);
+                }
+                else
+                    SoundEngine.PlaySound(SoundID.Item16 with { Pitch = 0.5f, Volume = 0.5f }, player.Center);
+                return false;
+            }
+
             Projectile.NewProjectile(source, player.MountedCenter,
                 (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
-                type, damage, knockback, player.whoAmI, state, 0);
-
+                type, damage, knockback, player.whoAmI, 0f, 0);
             return false;
         }
 

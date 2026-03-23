@@ -13,6 +13,8 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Projectiles
     /// </summary>
     public class JudgmentChainProjectile : ExobladeStyleSwing
     {
+        protected override bool SupportsDash => false;
+
         protected override float BladeLength => 95f;
         protected override int BaseSwingFrames => 72;
         protected override float TextureDrawScale => 0.93f;

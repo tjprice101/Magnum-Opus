@@ -13,6 +13,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Projectiles
     /// </summary>
     public class RoseThornChainsawProjectile : ExobladeStyleSwing
     {
+        protected override bool SupportsDash => false;
+
         protected override float BladeLength => 95f;
         protected override int BaseSwingFrames => 72;
         protected override float TextureDrawScale => 1.0f;

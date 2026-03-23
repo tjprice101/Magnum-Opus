@@ -13,6 +13,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
     /// </summary>
     public class ConductorSwingProjectile : ExobladeStyleSwing
     {
+        protected override bool SupportsDash => false;
+
         protected override float BladeLength => 115f;
         protected override int BaseSwingFrames => 78;
         protected override Color SlashPrimaryColor => new Color(180, 60, 120);

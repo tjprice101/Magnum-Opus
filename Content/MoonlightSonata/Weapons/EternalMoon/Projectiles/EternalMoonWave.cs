@@ -229,10 +229,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 
         private float TrailWidth(float completion, Vector2 pos)
         {
-            // Scale trail width with tidal phase for more dramatic waves
+            // Scale trail width with charge for more dramatic waves
             float tidalMult = 1f;
             if (Projectile.owner >= 0 && Projectile.owner < Main.maxPlayers && Main.player[Projectile.owner].active)
-                tidalMult = Main.player[Projectile.owner].EternalMoon().TidalPhaseMultiplier;
+                tidalMult = Main.player[Projectile.owner].EternalMoon().ChargeIntensityMultiplier;
             float w = MaxWidth * tidalMult * (1f - completion) * Projectile.scale;
             return w * (0.3f + 0.7f * Utils.GetLerpValue(0f, 0.15f, completion, true));
         }

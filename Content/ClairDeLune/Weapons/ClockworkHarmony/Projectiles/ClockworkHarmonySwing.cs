@@ -13,6 +13,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Projectiles
     /// </summary>
     public class ClockworkHarmonySwing : ExobladeStyleSwing
     {
+        protected override bool SupportsDash => false;
+
         protected override float BladeLength => 100f;
         protected override int BaseSwingFrames => 76;
         protected override float TextureDrawScale => 0.89f;

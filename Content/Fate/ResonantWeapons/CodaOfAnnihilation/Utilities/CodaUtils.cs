@@ -111,6 +111,17 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Utilities
             return null;
         }
 
+        /// <summary>
+        /// Gets a normalized draw scale so that all weapon textures (regardless of source size)
+        /// render at a consistent visual size (~50px). Oversized sprites get scaled down.
+        /// </summary>
+        public static float GetNormalizedDrawScale(Texture2D tex, float targetSize = 50f)
+        {
+            float maxDim = MathHelper.Max(tex.Width, tex.Height);
+            if (maxDim <= targetSize) return 1f;
+            return targetSize / maxDim;
+        }
+
         private static void EnsureTexturesLoaded()
         {
             if (_texturesLoaded) return;

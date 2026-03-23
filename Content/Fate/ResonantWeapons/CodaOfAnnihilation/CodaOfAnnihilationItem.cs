@@ -8,6 +8,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.UI;
 using MagnumOpus.Content.Fate.Debuffs;
 using MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Utilities;
 using MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Particles;
@@ -44,8 +45,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation
     /// Cycles through 14 weapon indices. Each swing spawns 2-3 flying homing swords + 1 held swing.
     /// Self-contained — uses only Coda systems (CodaParticleHandler, CodaTrailRenderer, CodaUtils).
     /// </summary>
-    public class CodaOfAnnihilationItem : ModItem
+    public class CodaOfAnnihilationItem : ModItem, IOverdriveItem
     {
+        public IResonantOverdrive GetOverdrivePlayer(Player player) => player.GetModPlayer<CodaPlayer>();
+
         public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/CodaOfAnnihilation";
 
         // Track the held swing projectile
@@ -95,8 +98,12 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation
             noHitbox = true;
         }
 
+        public override bool AltFunctionUse(Player player) => true;
+
         public override void HoldItem(Player player)
         {
+            player.Coda().IsHoldingCodaOfAnnihilation = true;
+
             // Reset spawn flag when animation ends or new cycle starts
             if (player.itemAnimation <= 0)
             {
@@ -188,6 +195,28 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            // Right-click: Spectral Sword Ring (6 orbiting swords)
+            if (player.altFunctionUse == 2)
+            {
+                var cp = player.Coda();
+                if (cp.IsChargeFull)
+                {
+                    cp.ConsumeCharge();
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.5f, Volume = 1.2f }, player.Center);
+                    for (int i = 0; i < 6; i++)
+                    {
+                        float angle = MathHelper.TwoPi / 6f * i;
+                        Vector2 vel = angle.ToRotationVector2() * 8f;
+                        Projectile.NewProjectile(source, player.Center, vel,
+                            ModContent.ProjectileType<CodaSpecialProj>(),
+                            (int)(damage * 0.6f), knockback * 0.5f, player.whoAmI, i);
+                    }
+                }
+                else
+                    SoundEngine.PlaySound(SoundID.Item16 with { Pitch = 0.5f, Volume = 0.5f }, player.Center);
+                return false;
+            }
+
             // Increment weapon cycle index (mod 14)
             var codaPlayer = player.Coda();
             int currentIndex = codaPlayer.WeaponCycleIndex;

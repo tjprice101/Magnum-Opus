@@ -92,7 +92,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
         {
             Player owner = Main.player[Projectile.owner];
             var emPlayer = owner.EternalMoon();
-            float tidalMult = emPlayer.TidalPhaseMultiplier;
+            float tidalMult = emPlayer.ChargeIntensityMultiplier;
 
             // === FOUNDATION VFX: XSlashEffect — Blazing tidal X-cross ===
             if (Main.myPlayer == Projectile.owner)
@@ -129,10 +129,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             // === GRAVITATIONAL PULL at detonation center ===
             emPlayer.StartGravitationalPull(Projectile.Center);
 
-            // Tidal Phase Ring — shows what phase the detonation occurred at
-            if (emPlayer.TidalPhase >= 1)
+            // Tidal Phase Ring — shows what charge level the detonation occurred at
+            int chargeTier = (int)(emPlayer.Charge * 3);
+            if (chargeTier >= 1)
             {
-                Color phaseColor = EternalMoonPlayer.TidalPhaseColors[emPlayer.TidalPhase];
+                Color phaseColor = Color.Lerp(EternalMoonUtils.IceBlue, EternalMoonUtils.Violet, emPlayer.Charge);
                 LunarParticleHandler.SpawnParticle(new TidalPhaseRingParticle(
                     Projectile.Center, 1.5f * tidalMult, phaseColor, 35));
                 LunarParticleHandler.SpawnParticle(new TidalPhaseRingParticle(
@@ -146,8 +147,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             LunarParticleHandler.SpawnParticle(new LunarBloomParticle(Projectile.Center, 2.2f * tidalMult, EternalMoonUtils.Violet, 35, 0.04f));
             LunarParticleHandler.SpawnParticle(new LunarBloomParticle(Projectile.Center, 2.5f * tidalMult, EternalMoonUtils.DarkPurple, 45, 0.035f));
 
-            // Radial crescent spark explosion (count scales with tidal phase)
-            int sparkCount = 20 + emPlayer.TidalPhase * 5;
+            // Radial crescent spark explosion (count scales with charge)
+            int sparkCount = 20 + chargeTier * 5;
             for (int i = 0; i < sparkCount; i++)
             {
                 float angle = MathHelper.TwoPi * i / sparkCount + Main.rand.NextFloat(-0.1f, 0.1f);
@@ -160,7 +161,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             }
 
             // Wave spray ring — water-like spray radiating outward
-            int sprayCount = 12 + emPlayer.TidalPhase * 4;
+            int sprayCount = 12 + chargeTier * 4;
             for (int i = 0; i < sprayCount; i++)
             {
                 float angle = MathHelper.TwoPi * i / sprayCount + Main.rand.NextFloat(-0.15f, 0.15f);
@@ -172,7 +173,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             }
 
             // Tidal droplets falling from blast — gravity-affected water drops
-            for (int i = 0; i < 10 + emPlayer.TidalPhase * 3; i++)
+            for (int i = 0; i < 10 + chargeTier * 3; i++)
             {
                 Vector2 dropVel = Main.rand.NextVector2Unit() * Main.rand.NextFloat(3f, 8f);
                 dropVel.Y -= Main.rand.NextFloat(2f, 5f); // Bias upward first
@@ -212,8 +213,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                     Main.rand.Next(35, 55)));
             }
 
-            // Music note cascade — rising from the destruction (more at higher tidal phase)
-            int noteCount = 8 + emPlayer.TidalPhase * 2;
+            // Music note cascade — rising from the destruction (more at higher charge)
+            int noteCount = 8 + chargeTier * 2;
             for (int i = 0; i < noteCount; i++)
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-3.5f, -1f));

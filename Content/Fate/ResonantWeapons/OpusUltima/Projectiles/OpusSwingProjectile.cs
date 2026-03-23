@@ -13,6 +13,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles
     /// </summary>
     public class OpusSwingProjectile : ExobladeStyleSwing
     {
+        protected override bool SupportsDash => false;
+
         protected override float BladeLength => 118f;
         protected override int BaseSwingFrames => 78;
         protected override Color SlashPrimaryColor => new Color(255, 160, 80);

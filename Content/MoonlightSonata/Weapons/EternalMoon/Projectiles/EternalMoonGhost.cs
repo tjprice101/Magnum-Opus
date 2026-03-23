@@ -23,6 +23,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
         private const float OrbitHeightOffset = -70f; // Above player's head
         private const float OrbitSpeed = MathHelper.TwoPi * 1.8f; // Radians per second equivalent
 
+        /// <summary>Base draw scale for the oversized blade sprite (source texture is very large).</summary>
+        private const float BladeDrawScale = 0.12f;
+
         public Player Owner => Main.player[Projectile.owner];
         public int LunarPhase => (int)Projectile.ai[0];
         public int GhostSide => (int)Projectile.ai[1]; // -1 or +1, determines initial orbit angle offset
@@ -152,17 +155,17 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             Color outerGlow = EternalMoonUtils.DarkPurple with { A = 0 };
             Main.EntitySpriteDraw(texture, drawPos, null,
                 outerGlow * Projectile.Opacity * 0.12f, bladeRotation, texture.Size() / 2f,
-                2.6f * Projectile.scale, effects, 0);
+                BladeDrawScale * 1.3f * Projectile.scale, effects, 0);
 
             // Layer 2: Ghost blade body
             Main.EntitySpriteDraw(texture, drawPos, null,
-                ghostColor, bladeRotation, texture.Size() / 2f, 2.0f * Projectile.scale, effects, 0);
+                ghostColor, bladeRotation, texture.Size() / 2f, BladeDrawScale * Projectile.scale, effects, 0);
 
             // Layer 3: Core glow overlay (additive)
             Color glowColor = EternalMoonUtils.IceBlue with { A = 0 };
             Main.EntitySpriteDraw(texture, drawPos, null,
                 glowColor * Projectile.Opacity * phaseGlow, bladeRotation, texture.Size() / 2f,
-                2.2f * Projectile.scale, effects, 0);
+                BladeDrawScale * 1.1f * Projectile.scale, effects, 0);
 
             // Restore to AlphaBlend
             Main.spriteBatch.End();

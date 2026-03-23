@@ -15,6 +15,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
     /// </summary>
     public class VariationsOfTheVoidSwing : ExobladeStyleSwing
     {
+        protected override bool SupportsDash => false;
+
         protected override float BladeLength => 108f;
         protected override int BaseSwingFrames => 78;
         protected override Color SlashPrimaryColor => new Color(100, 255, 150);

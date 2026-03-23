@@ -1,7 +1,9 @@
 using System;
 using MagnumOpus.Common.BaseClasses;
+using MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Utilities;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -10,9 +12,15 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
     /// <summary>
     /// Call of the Black Swan — Swan Lake theme melee. Exoblade-architecture swing.
     /// Monochrome white/black trail with prismatic rainbow edge shimmer and feather drift.
+    /// 3-phase Swan Dance combo that advances each swing (including hold re-swings).
     /// </summary>
     public class BlackSwanSwingProj : ExobladeStyleSwing
     {
+        protected override bool SupportsDash => false;
+
+        /// <summary>Swan Dance combo phase (0-2). Advances each swing including hold re-swings.</summary>
+        private int dancePhase = 0;
+
         protected override float BladeLength => 108f;
         protected override int BaseSwingFrames => 82;
         protected override Color SlashPrimaryColor => new Color(230, 230, 255);
@@ -33,6 +41,70 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Project
                 return Color.Lerp(new Color(180, 140, 255), new Color(140, 200, 255), Main.rand.NextFloat());
             else
                 return Color.Lerp(new Color(255, 180, 220), new Color(180, 255, 220), Main.rand.NextFloat());
+        }
+
+        protected override void OnSwingStart(bool isFirstSwing)
+        {
+            if (Main.myPlayer != Projectile.owner) return;
+
+            Player player = Owner;
+            int damage = Projectile.damage;
+            float knockback = Projectile.knockBack;
+            Vector2 aimDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
+            IEntitySource source = Projectile.GetSource_FromThis();
+
+            int phase = dancePhase % 3;
+            dancePhase++;
+            int flareType = ModContent.ProjectileType<BlackSwanFlareProj>();
+            int flareDmg = (int)(damage * 0.3f);
+
+            var bsp = player.BlackSwan();
+            bool maxGrace = bsp.IsMaxGrace;
+
+            switch (phase)
+            {
+                case 0: // Entrechat — 3 feathers in fan arc
+                    for (int i = -1; i <= 1; i++)
+                    {
+                        Vector2 flareVel = aimDir.RotatedBy(MathHelper.ToRadians(20 * i)) * 10f;
+                        float polarity = (i + 1) % 2;
+                        Projectile.NewProjectile(source, player.MountedCenter, flareVel,
+                            flareType, flareDmg, knockback * 0.4f, player.whoAmI,
+                            maxGrace ? 1f : 0f, polarity);
+                    }
+                    break;
+
+                case 1: // Fouetté — 4 flares in spinning radial burst
+                    for (int i = 0; i < 4; i++)
+                    {
+                        Vector2 flareVel = aimDir.RotatedBy(MathHelper.ToRadians(90 * i - 135)) * 9f;
+                        Projectile.NewProjectile(source, player.MountedCenter, flareVel,
+                            flareType, flareDmg, knockback * 0.4f, player.whoAmI,
+                            maxGrace ? 1f : 0f, i % 2);
+                    }
+                    break;
+
+                case 2: // Grand Jeté — 5 empowered raining flares + 2 shockwave seeds
+                    for (int i = 0; i < 5; i++)
+                    {
+                        float spread = MathHelper.ToRadians(-40 + 20 * i);
+                        Vector2 flareVel = aimDir.RotatedBy(spread) * 11f;
+                        Projectile.NewProjectile(source, player.MountedCenter, flareVel,
+                            flareType, (int)(damage * 0.4f), knockback * 0.6f, player.whoAmI,
+                            1f, i % 2);
+                    }
+                    for (int i = -1; i <= 1; i += 2)
+                    {
+                        Vector2 shockVel = aimDir.RotatedBy(MathHelper.ToRadians(50 * i)) * 6f;
+                        Projectile.NewProjectile(source, player.MountedCenter, shockVel,
+                            flareType, (int)(damage * 0.5f), knockback, player.whoAmI,
+                            2f, 0f);
+                    }
+                    break;
+            }
+
+            // Rainbow sparkle burst at player on each swing
+            try { SwanLakeVFXLibrary.SpawnPrismaticSparkles(player.MountedCenter, 4, 20f); } catch { }
         }
 
         protected override void OnSwingFrame()

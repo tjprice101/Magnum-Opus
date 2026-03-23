@@ -1,6 +1,10 @@
+using System;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.UI;
+using MagnumOpus.Common.Utilities;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Utilities
 {
@@ -9,7 +13,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Utilities
     /// 3-movement combo cycle: Exposition → Development → Recapitulation.
     /// Extension method: player.Opus()
     /// </summary>
-    public class OpusPlayer : ModPlayer
+    public class OpusPlayer : ModPlayer, IResonantOverdrive
     {
         /// <summary>Current swing count for combo tracking (0-2, cycles through 3 movements).</summary>
         public int SwingCounter;
@@ -50,8 +54,28 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Utilities
         /// <summary>Whether the Grand Finale was just triggered this frame.</summary>
         public bool GrandFinaleTriggered;
 
+        // === Charge Meter ===
+        public float Charge = 0f;
+        public const float ChargePerHit = 0.05f;
+        public const float MaxCharge = 1.0f;
+        public bool IsHoldingOpusUltima = false;
+        public bool IsChargeFull => Charge >= MaxCharge;
+
+        private int _overdriveBarrageTimer;
+
+        public void AddCharge(float amount)
+        {
+            Charge = MathHelper.Clamp(Charge + amount, 0f, MaxCharge);
+        }
+
+        public void ConsumeCharge()
+        {
+            Charge = 0f;
+        }
+
         public override void ResetEffects()
         {
+            IsHoldingOpusUltima = false;
             JustTriggeredRecap = false;
             GrandFinaleTriggered = false;
         }
@@ -79,6 +103,22 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Utilities
                 {
                     OpusResonanceStacks--;
                     ResonanceDecayTimer = 120; // Lose 1 stack every 2s after decay starts
+                }
+            }
+
+            // === Overdrive Timer ===
+            if (_overdriveBarrageTimer > 0)
+            {
+                _overdriveBarrageTimer--;
+                if (_overdriveBarrageTimer % 10 == 0 && Player.whoAmI == Main.myPlayer)
+                {
+                    int damage = Math.Max(1, (int)(Player.HeldItem.damage * 2.3f));
+                    for (int i = 0; i < 7; i++)
+                    {
+                        Vector2 spawn = Player.Center + Main.rand.NextVector2Circular(100f, 100f);
+                        Vector2 velocity = Main.rand.NextVector2Circular(1f, 1f) + new Vector2(Main.rand.NextFloat(-7f, 7f), Main.rand.NextFloat(-7f, 7f));
+                        Projectile.NewProjectile(Player.GetSource_FromThis(), spawn, velocity, ProjectileID.Grenade, damage, 4f, Player.whoAmI);
+                    }
                 }
             }
         }
@@ -110,6 +150,35 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Utilities
             }
 
             return movement;
+        }
+
+        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (proj.type == ModContent.ProjectileType<Projectiles.OpusSwingProjectile>())
+                AddCharge(target.life <= 0 ? 0.15f : ChargePerHit);
+        }
+
+        // === IResonantOverdrive ===
+        bool IResonantOverdrive.IsHoldingOverdriveWeapon => IsHoldingOpusUltima;
+        float IResonantOverdrive.OverdriveCharge => Charge;
+        bool IResonantOverdrive.IsOverdriveReady => IsChargeFull;
+        Color IResonantOverdrive.OverdriveLowColor => new Color(130, 45, 110);
+        Color IResonantOverdrive.OverdriveHighColor => new Color(255, 165, 225);
+
+        bool IResonantOverdrive.ActivateOverdrive(Player player)
+        {
+            if (player.whoAmI != Main.myPlayer) return true;
+
+            int baseDamage = Math.Max(1, (int)(player.HeldItem.damage * 3f));
+
+            // Slam nearby enemies
+            foreach (NPC npc in NpcTargetingUtils.EnumerateHostiles(player.Center, 360f))
+                npc.SimpleStrikeNPC(baseDamage, 0, false, 0f, DamageClass.Melee, false, 0f, true);
+
+            _overdriveBarrageTimer = 120;
+
+            ConsumeCharge();
+            return true;
         }
     }
 

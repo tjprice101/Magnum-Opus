@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Buffs;
 using MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Dusts;
 using MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Particles;
@@ -23,11 +22,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 {
     /// <summary>
     /// The Eternal Moon's swing projectile — "The Eternal Tide"
-    /// 
+    ///
     /// This is the central rendering and combat file for the Eternal Moon melee weapon.
     /// It handles all swing animation, collision, trail rendering, blade drawing, particle spawning,
     /// combo phase tracking, special mechanics, and sub-projectile creation.
-    /// 
+    ///
     /// --- COMBO SYSTEM: LUNAR CYCLE ---
     /// 5-phase combo that cycles through lunar phases with escalating VFX:
     ///   Phase 0: New Moon      — Subtle dark purple trail, minimal particles
@@ -35,23 +34,18 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
     ///   Phase 2: Half Moon     — Ghost reflection echoes appear offset from main swing
     ///   Phase 3: Waning        — Intense trail with tidal wave crests, music notes scatter
     ///   Phase 4: Full Moon     — Massive empowered slash, tidal detonation on hit, lifesteal
-    /// 
+    ///
     /// --- SPECIAL ATTACKS ---
-    ///   Alt-click: Lunar Surge — Dash attack surfing on a wave of moonlight
-    ///                           On hit: applies Lunar Stasis, spawns crescent slash VFX
-    ///                           If a surge hit connects, next swing is empowered (Full Moon override)
-    ///   
     ///   Full Moon Swing        — 1.5x scale, spawns TidalDetonation explosion on hit with lifesteal
-    ///   
+    ///
     ///   Half Moon Ghost        — Spawns 2 delayed ghost reflections that repeat the swing
     ///
     /// --- VISUAL LAYERS (render order) ---
     ///   0. Smear Overlay       — SwordSmearFoundation SmearDistortShader: 3-sublayer arc distortion
     ///   1. Tidal Glow Pass     — Wide, soft bloom underlayer using TidalTrailGlow shader
     ///   2. Tidal Trail Pass    — Core arc trail using TidalTrailMain shader with caustic highlights
-    ///   3. Surge Trail         — During dash: trailing positions with TidalTrailGlow shader
-    ///   4. Blade Sprite        — UV-rotated via SwingSprite shader + lens flare at tip
-    ///   5. Crescent Bloom      — Procedural crescent moon overlay at blade tip (during Waxing+)
+    ///   3. Blade Sprite        — UV-rotated via SwingSprite shader + lens flare at tip
+    ///   4. Crescent Bloom      — Procedural crescent moon overlay at blade tip (during Waxing+)
     /// </summary>
     public class EternalMoonSwing : ModProjectile
     {
@@ -62,55 +56,22 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
         private const float BladeLength = 160f;
         private const int BaseSwingTime = 72;
         private const float MaxSwingAngle = MathHelper.PiOver2 * 1.7f;
-        private const float SurgeSpeed = 50f;
-        private const float SurgePercentage = 0.55f;
         private const float FullMoonUpscale = 1.5f;
-        private const float ReboundSpeed = 5f;
-        private const int SurgeCooldown = 60 * 3;
-        private const int FullMoonOpportunity = 37 * 3;
         private const float NotMeleeDamagePenalty = 0.3f;
         private const float DetonationDamageFactor = 2.0f;
         private const float TextureDrawScale = 0.136f;
 
-        public int GetSwingTime
-        {
-            get
-            {
-                if (State == SwingState.LunarSurge)
-                    return EternalMoon.SurgeDashTime * Projectile.extraUpdates;
-                return BaseSwingTime;
-            }
-        }
+        public int GetSwingTime => BaseSwingTime;
 
         public float Timer => SwingTime - Projectile.timeLeft;
         public float Progression => Timer / (float)SwingTime;
-
-        public float SurgeProgression => Progression < (1 - SurgePercentage)
-            ? 0 : (Progression - (1 - SurgePercentage)) / SurgePercentage;
 
         #endregion
 
         #region State Machine
 
-        public enum SwingState
-        {
-            Swinging,
-            LunarSurge
-        }
-
-        public SwingState State
-        {
-            get => Projectile.ai[0] == 1 ? SwingState.LunarSurge : SwingState.Swinging;
-            set => Projectile.ai[0] = (int)value;
-        }
-
-        public bool PerformingFullMoonSlash => Projectile.ai[0] > 1;
-
-        public bool InPostSurgeStasis
-        {
-            get => Projectile.ai[1] > 0;
-            set => Projectile.ai[1] = value ? 1 : 0;
-        }
+        /// <summary>Whether this is a Full Moon empowered slash (lunar phase == 4).</summary>
+        public bool PerformingFullMoonSlash => _lunarPhase == 4;
 
         public ref float SwingTime => ref Projectile.localAI[0];
         public ref float SquishFactor => ref Projectile.localAI[1];
@@ -137,20 +98,16 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
         public CurveSegment MoonlitSettle = new(PolyOutEasing, 0.82f, 0.9f, 0.1f, 2);
 
         public float SwingAngleShiftAtProgress(float progress) =>
-            State == SwingState.LunarSurge ? 0 :
             MaxSwingAngle * PiecewiseAnimation(progress, GentleRise, TidalSweep, MoonlitSettle);
 
         public float SwordRotationAtProgress(float progress) =>
-            State == SwingState.LunarSurge ? BaseRotation :
             BaseRotation + SwingAngleShiftAtProgress(progress) * Direction;
 
         public float SquishAtProgress(float progress) =>
-            State == SwingState.LunarSurge ? 1 :
             MathHelper.Lerp(SquishVector.X, SquishVector.Y,
                 (float)Math.Abs(Math.Sin(SwingAngleShiftAtProgress(progress))));
 
         public Vector2 DirectionAtProgress(float progress) =>
-            State == SwingState.LunarSurge ? Projectile.velocity :
             SwordRotationAtProgress(progress).ToRotationVector2() * SquishAtProgress(progress);
 
         public float SwingAngleShift => SwingAngleShiftAtProgress(Progression);
@@ -187,11 +144,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             angleShift = anglePoint.ToRotation();
             return (BaseRotation + angleShift * Direction).ToRotationVector2() * SquishAtProgress(progress);
         }
-
-        // Surge dash curves
-        public CurveSegment SurgeWindback = new(SineBumpEasing, 0f, -8f, -12f);
-        public CurveSegment SurgeThrust => new(PolyOutEasing, 1 - SurgePercentage, -8, 10f, 4);
-        public float SurgeDashDisplace => PiecewiseAnimation(Progression, SurgeWindback, SurgeThrust);
 
         #endregion
 
@@ -269,25 +221,16 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 
         #region Collision
 
-        public override bool ShouldUpdatePosition() => State == SwingState.LunarSurge && !InPostSurgeStasis;
+        public override bool ShouldUpdatePosition() => false;
 
-        public override bool? CanDamage()
-        {
-            if (State != SwingState.LunarSurge)
-                return null;
-            if (InPostSurgeStasis)
-                return false;
-            if (Projectile.timeLeft > SwingTime * SurgePercentage)
-                return false;
-            return null;
-        }
+        public override bool? CanDamage() => null;
 
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
         {
             float _ = 0f;
             Vector2 start = Projectile.Center;
             Vector2 end = start + SwordDirection * (BladeLength + 40) * Projectile.scale;
-            float width = State == SwingState.LunarSurge ? Projectile.scale * 42f : Projectile.scale * 28f;
+            float width = Projectile.scale * 28f;
             return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), start, end, width, ref _);
         }
 
@@ -304,18 +247,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             _lunarPhase = Owner.EternalMoon().LunarPhase;
             _phaseIntensity = GetPhaseIntensity(_lunarPhase);
 
-            if (startInit && State != SwingState.LunarSurge)
+            if (startInit)
                 Projectile.scale = 0.02f;
             else
-            {
                 Projectile.scale = 1f;
-                if (PerformingFullMoonSlash)
-                {
-                    State = SwingState.Swinging;
-                    _lunarPhase = 4;
-                    _phaseIntensity = 1f;
-                }
-            }
 
             if (PerformingFullMoonSlash)
                 SquishFactor = 0.72f;
@@ -331,21 +266,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 
         public override void AI()
         {
-            if (InPostSurgeStasis || Projectile.timeLeft == 0)
+            if (Projectile.timeLeft == 0)
                 return;
 
-            if (Projectile.timeLeft >= 9999 || (Projectile.timeLeft == 1 && Owner.channel && State != SwingState.LunarSurge))
+            if (Projectile.timeLeft >= 9999 || (Projectile.timeLeft == 1 && Owner.channel))
                 InitializationEffects(Projectile.timeLeft >= 9999);
 
-            switch (State)
-            {
-                case SwingState.Swinging:
-                    DoBehavior_Swinging();
-                    break;
-                case SwingState.LunarSurge:
-                    DoBehavior_LunarSurge();
-                    break;
-            }
+            DoBehavior_Swinging();
 
             // Anchor to owner
             Projectile.Center = Owner.RotatedRelativePoint(Owner.MountedCenter, true);
@@ -356,15 +283,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             // Arm rotation
             float armRotation = SwordRotation - MathHelper.PiOver2;
             Owner.SetCompositeArmFront(Math.Abs(armRotation) > 0.01f, Player.CompositeArmStretchAmount.Full, armRotation);
-
-            // Surge cooldown freeze
-            if (Projectile.timeLeft == 1 && State == SwingState.LunarSurge && !InPostSurgeStasis)
-            {
-                Projectile.timeLeft = SurgeCooldown;
-                InPostSurgeStasis = true;
-                Owner.fullRotation = 0f;
-                Owner.EternalMoon().SurgingForward = false;
-            }
         }
 
         #endregion
@@ -495,7 +413,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             float tipX = BladeLength * Projectile.scale;
             Vector2 tipPos = Owner.MountedCenter + SwordDirection * tipX;
             var emPlayer = Owner.EternalMoon();
-            float tidalMult = emPlayer.TidalPhaseMultiplier;
+            float tidalMult = emPlayer.ChargeIntensityMultiplier;
 
             // Tidal motes alongside the blade — density scales with phase AND tidal meter
             if (Main.rand.NextFloat() < 0.3f * _phaseIntensity * tidalMult && Progression > 0.2f && Progression < 0.85f)
@@ -526,8 +444,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                     EternalMoonUtils.MoonWhite, Main.rand.Next(15, 25)));
             }
 
-            // Tidal droplets — water-like particles falling from swing arc (Phase 2+, Flood+)
-            if (emPlayer.TidalPhase >= 1 && Progression > 0.3f && Progression < 0.8f && Main.rand.NextBool(5))
+            // Tidal droplets — water-like particles falling from swing arc (Phase 2+, Charge > 0.33)
+            int chargeTier = (int)(emPlayer.Charge * 3);
+            if (chargeTier >= 1 && Progression > 0.3f && Progression < 0.8f && Main.rand.NextBool(5))
             {
                 float bladePos = Main.rand.NextFloat(0.4f, 1f);
                 Vector2 dropPos = Owner.MountedCenter + SwordDirection * BladeLength * bladePos * Projectile.scale;
@@ -538,10 +457,10 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                     dropColor, Main.rand.Next(20, 35)));
             }
 
-            // Wave spray burst on swing peak (High Tide+)
-            if (emPlayer.TidalPhase >= 2 && Math.Abs(Progression - 0.55f) < 0.03f)
+            // Wave spray burst on swing peak (Charge > 0.66)
+            if (chargeTier >= 2 && Math.Abs(Progression - 0.55f) < 0.03f)
             {
-                int sprayCount = 6 + emPlayer.TidalPhase * 3;
+                int sprayCount = 6 + chargeTier * 3;
                 for (int i = 0; i < sprayCount; i++)
                 {
                     Vector2 sprayVel = SwordDirection.RotatedByRandom(0.6f) * Main.rand.NextFloat(3f, 8f);
@@ -553,11 +472,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                 }
             }
 
-            // Tidal phase ring pulse — shows the tidal meter building
-            if (emPlayer.TidalPhase >= 1 && Progression > 0.5f && Progression < 0.55f)
+            // Tidal phase ring pulse — shows the charge meter building
+            if (chargeTier >= 1 && Progression > 0.5f && Progression < 0.55f)
             {
-                Color phaseColor = EternalMoonPlayer.TidalPhaseColors[emPlayer.TidalPhase];
-                float ringScale = 0.5f + emPlayer.TidalPhase * 0.3f;
+                Color phaseColor = Color.Lerp(EternalMoonUtils.IceBlue, EternalMoonUtils.Violet, emPlayer.Charge);
+                float ringScale = 0.5f + chargeTier * 0.3f;
                 LunarParticleHandler.SpawnParticle(new TidalPhaseRingParticle(
                     Owner.MountedCenter, ringScale, phaseColor, 25));
             }
@@ -589,8 +508,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                 MoonlightVFXLibrary.SpawnMusicNotes(tipPos, count: 1, spread: 15f, minScale: 0.6f, maxScale: 0.85f, lifetime: 35);
             }
 
-            // Tsunami phase: dense tidal smoke + additional wave spray continuously
-            if (emPlayer.IsTsunami && Progression > 0.3f && Progression < 0.8f && Main.rand.NextBool(3))
+            // Full charge phase: dense tidal smoke + additional wave spray continuously
+            if (emPlayer.IsChargeFull && Progression > 0.3f && Progression < 0.8f && Main.rand.NextBool(3))
             {
                 Vector2 smokePos = tipPos + Main.rand.NextVector2Circular(25f, 25f);
                 Vector2 smokeVel = SwordDirection.RotatedByRandom(1f) * Main.rand.NextFloat(1f, 2.5f);
@@ -603,85 +522,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
 
         #endregion
 
-        #region Lunar Surge (Dash) Behavior
-
-        public void DoBehavior_LunarSurge()
-        {
-            Owner.mount?.Dismount(Owner);
-            Owner.RemoveAllGrapplingHooks();
-
-            if (SurgeProgression == 0)
-            {
-                // Sound cue before dash
-                if (Projectile.timeLeft == 1 + (int)(SwingTime * SurgePercentage))
-                    SoundEngine.PlaySound(SoundID.Item66 with { Volume = 0.7f, Pitch = 0.2f }, Projectile.Center);
-
-                Projectile.velocity = Owner.MountedCenter.DirectionTo(Main.MouseWorld);
-                Projectile.oldPos = new Vector2[Projectile.oldPos.Length];
-                for (int i = 0; i < Projectile.oldPos.Length; ++i)
-                    Projectile.oldPos[i] = Projectile.position;
-            }
-            else
-            {
-                // Gentle course correction during surge
-                float correctionStrength = MathHelper.PiOver4 * 0.04f * (float)Math.Pow(SurgeProgression, 3);
-                float currentRotation = Projectile.velocity.ToRotation();
-                float idealRotation = Owner.MountedCenter.DirectionTo(Main.MouseWorld).ToRotation();
-                Projectile.velocity = currentRotation.AngleTowards(idealRotation, correctionStrength).ToRotationVector2();
-
-                Owner.fallStart = (int)(Owner.position.Y / 16f);
-
-                float velocityPower = (float)Math.Sin(MathHelper.Pi * SurgeProgression);
-                velocityPower = (float)Math.Pow(Math.Abs(velocityPower), 0.6f);
-                Vector2 newVelocity = Projectile.velocity * SurgeSpeed * (0.2f + 0.8f * velocityPower);
-                Owner.velocity = newVelocity;
-                Owner.EternalMoon().SurgingForward = true;
-
-                // Tidal dust during surge
-                if (Main.rand.NextBool())
-                {
-                    Dust d = Dust.NewDustPerfect(Owner.MountedCenter + Main.rand.NextVector2Circular(20f, 20f),
-                        ModContent.DustType<TidalDust>(), SwordDirection * -2.6f);
-                    d.scale = 0.5f;
-                    d.noGravity = true;
-                }
-
-                // Tidal mote particles during surge
-                if (Main.rand.NextBool(4) && SurgeProgression < 0.85f && !Main.dedServ)
-                {
-                    Vector2 particleSpeed = SwordDirection * -1 * Main.rand.NextFloat(5f, 9f);
-                    LunarParticleHandler.SpawnParticle(new TidalMoteParticle(
-                        Owner.MountedCenter + Main.rand.NextVector2Circular(20f, 20f) + Owner.velocity * 4,
-                        particleSpeed, Main.rand.NextFloat(0.3f, 0.6f), IceBlue, 30));
-                }
-
-                // Crescent sparks trailing the surge
-                if (Main.rand.NextBool(5) && !Main.dedServ)
-                {
-                    Vector2 sparkSpeed = SwordDirection * -1 * Main.rand.NextFloat(6f, 10f);
-                    LunarParticleHandler.SpawnParticle(new CrescentSparkParticle(
-                        Owner.MountedCenter + Main.rand.NextVector2Circular(30f, 30f),
-                        sparkSpeed, Main.rand.NextFloat(0.4f, 0.7f), CrescentGlow, 20));
-                }
-
-                // Moonlight along surge path
-                Lighting.AddLight(Owner.MountedCenter, IceBlue.ToVector3() * 0.8f);
-            }
-
-            // Stop the surge on last frame
-            if (Projectile.timeLeft == 1)
-                Owner.velocity *= 0.15f;
-
-            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver4 * Direction;
-        }
-
-        #endregion
-
         #region Trail Width/Color Functions
 
         public float SlashWidthFunction(float completionRatio, Vector2 vertexPos)
         {
-            float tidalMult = Owner.EternalMoon().TidalPhaseMultiplier;
+            float tidalMult = Owner.EternalMoon().ChargeIntensityMultiplier;
             return SquishAtProgress(RealProgressionAtTrailCompletion(completionRatio)) * Projectile.scale * 55f * _phaseIntensity * tidalMult;
         }
 
@@ -694,7 +539,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
         }
 
         public float GlowWidthFunction(float completionRatio, Vector2 vertexPos) =>
-            SlashWidthFunction(completionRatio, vertexPos) * (1.5f + Owner.EternalMoon().TidalPhase * 0.15f);
+            SlashWidthFunction(completionRatio, vertexPos) * (1.5f + (int)(Owner.EternalMoon().Charge * 3) * 0.15f);
 
         public Color GlowColorFunction(float completionRatio, Vector2 vertexPos)
         {
@@ -702,20 +547,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             Color glowColor = Color.Lerp(NightPurple, Violet, completionRatio * 0.5f);
             glowColor.A = 0;
             return glowColor * fade * 0.5f * Projectile.Opacity;
-        }
-
-        public float SurgeWidthFunction(float completionRatio, Vector2 vertexPos)
-        {
-            float width = Utils.GetLerpValue(0f, 0.2f, completionRatio, true) * Projectile.scale * 45f;
-            width *= (1 - (float)Math.Pow(SurgeProgression, 5));
-            return width;
-        }
-
-        public Color SurgeColorFunction(float completionRatio, Vector2 vertexPos)
-        {
-            Color c = Color.Lerp(IceBlue, CrescentGlow, completionRatio * 0.5f);
-            c.A = 0;
-            return c * Projectile.Opacity;
         }
 
         #endregion
@@ -742,13 +573,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            if (Projectile.Opacity <= 0f || InPostSurgeStasis)
+            if (Projectile.Opacity <= 0f)
                 return false;
 
             DrawSmearOverlay();
             DrawTidalGlow();
             DrawTidalTrail();
-            DrawSurgeTrail();
             DrawBlade();
             DrawCrescentBloom();
             }
@@ -771,7 +601,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
         /// </summary>
         public void DrawSmearOverlay()
         {
-            if (State != SwingState.Swinging || Progression < 0.25f)
+            if (Progression < 0.25f)
                 return;
 
             // Lazy-load smear shader and textures
@@ -906,7 +736,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
         /// <summary>Layer 1: Wide, soft tidal glow underlayer.</summary>
         public void DrawTidalGlow()
         {
-            if (State != SwingState.Swinging || Progression < 0.4f)
+            if (Progression < 0.4f)
                 return;
 
             global::MagnumOpus.Common.Systems.MagnumDrawingUtils.EnterShaderRegion(Main.spriteBatch, MagnumBlendStates.TrueAdditive);
@@ -941,7 +771,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
         /// <summary>Layer 2: Core tidal trail with caustic highlights and standing wave crests.</summary>
         public void DrawTidalTrail()
         {
-            if (State != SwingState.Swinging || Progression < 0.42f)
+            if (Progression < 0.42f)
                 return;
 
             global::MagnumOpus.Common.Systems.MagnumDrawingUtils.EnterShaderRegion(Main.spriteBatch);
@@ -974,127 +804,52 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
             global::MagnumOpus.Common.Systems.MagnumDrawingUtils.ExitShaderRegion(Main.spriteBatch);
         }
 
-        /// <summary>Layer 3: Surge (dash) trail using trailing positions.</summary>
-        public void DrawSurgeTrail()
-        {
-            if (State != SwingState.LunarSurge)
-                return;
-
-            global::MagnumOpus.Common.Systems.MagnumDrawingUtils.EnterShaderRegion(Main.spriteBatch, MagnumBlendStates.TrueAdditive);
-
-            var shader = GameShaders.Misc["MagnumOpus:EternalMoonSurgeTrail"];
-            _noiseTexture ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/MusicalWavePattern");
-            _gradientRamp ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/ColorGradients/MoonlightSonataGradientLUTandRAMP");
-
-            // Tidal color cycling during surge
-            Color mainColor = Color.Lerp(IceBlue, CrescentGlow,
-                (float)Math.Sin(Main.GlobalTimeWrappedHourly * 3f) * 0.5f + 0.5f);
-            Color secondaryColor = Color.Lerp(Violet, IceBlue,
-                (float)Math.Cos(Main.GlobalTimeWrappedHourly * 3f) * 0.5f + 0.5f);
-
-            shader.UseImage1(_noiseTexture);
-            shader.UseImage2(_gradientRamp);
-            shader.UseColor(mainColor);
-            shader.UseSecondaryColor(secondaryColor);
-            shader.Shader.Parameters["uTime"]?.SetValue(Main.GlobalTimeWrappedHourly * 2f);
-            shader.Shader.Parameters["uIntensity"]?.SetValue(0.8f);
-            shader.Shader.Parameters["uOpacity"]?.SetValue(0.9f);
-            shader.Shader.Parameters["uOverbrightMult"]?.SetValue(2.5f);
-            shader.Shader.Parameters["uScrollSpeed"]?.SetValue(1.5f);
-            shader.Shader.Parameters["uDistortionAmt"]?.SetValue(0.1f);
-            shader.Shader.Parameters["uHasSecondaryTex"]?.SetValue(1.0f);
-            shader.Shader.Parameters["uSecondaryTexScale"]?.SetValue(2.5f);
-            shader.Shader.Parameters["uSecondaryTexScroll"]?.SetValue(0.4f);
-            shader.Apply();
-
-            Vector2 trailOffset = (Projectile.rotation - Direction * MathHelper.PiOver4).ToRotationVector2() * 80f + Projectile.Size * 0.5f;
-            var positionsToUse = Projectile.oldPos.Take(50).ToArray();
-
-            LunarTrailRenderer.RenderTrail(positionsToUse, new(
-                SurgeWidthFunction, SurgeColorFunction,
-                (_, _) => trailOffset,
-                shader: shader), 25);
-
-            global::MagnumOpus.Common.Systems.MagnumDrawingUtils.ExitShaderRegion(Main.spriteBatch);
-        }
-
         /// <summary>Layer 4: Blade sprite with UV rotation shader + lens flare at tip.</summary>
         public void DrawBlade()
         {
             var texture = Terraria.GameContent.TextureAssets.Projectile[Type].Value;
             SpriteEffects direction = Direction == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 
-            if (State == SwingState.Swinging)
-            {
-                // Apply UV rotation shader for the blade sprite
-                Effect swingFX = Filters.Scene["MagnumOpus:EternalMoonSwingSprite"].GetShader().Shader;
-                swingFX.Parameters["rotation"]?.SetValue(SwingAngleShift + MathHelper.PiOver4 + (Direction == -1 ? MathHelper.Pi : 0f));
-                swingFX.Parameters["pommelToOriginPercent"]?.SetValue(0.05f);
-                swingFX.Parameters["color"]?.SetValue(Color.White.ToVector4());
+            // Apply UV rotation shader for the blade sprite
+            Effect swingFX = Filters.Scene["MagnumOpus:EternalMoonSwingSprite"].GetShader().Shader;
+            swingFX.Parameters["rotation"]?.SetValue(SwingAngleShift + MathHelper.PiOver4 + (Direction == -1 ? MathHelper.Pi : 0f));
+            swingFX.Parameters["pommelToOriginPercent"]?.SetValue(0.05f);
+            swingFX.Parameters["color"]?.SetValue(Color.White.ToVector4());
 
-                Main.spriteBatch.End();
-                Main.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend,
-                    Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, swingFX,
-                    Main.GameViewMatrix.TransformationMatrix);
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, swingFX,
+                Main.GameViewMatrix.TransformationMatrix);
 
-                Main.EntitySpriteDraw(texture, Owner.MountedCenter - Main.screenPosition, null,
-                    Color.White, BaseRotation, texture.Size() / 2f,
-                    SquishVector * 2.8f * Projectile.scale * TextureDrawScale, direction, 0);
+            Main.EntitySpriteDraw(texture, Owner.MountedCenter - Main.screenPosition, null,
+                Color.White, BaseRotation, texture.Size() / 2f,
+                SquishVector * 2.8f * Projectile.scale * TextureDrawScale, direction, 0);
 
-                Main.spriteBatch.End();
-                Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                    Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null,
-                    Main.GameViewMatrix.TransformationMatrix);
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null,
+                Main.GameViewMatrix.TransformationMatrix);
 
-                // === LENS FLARE AT BLADE TIP ===
-                _lensFlare ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/ThinTall4PointedStar");
-                Texture2D shineTex = _lensFlare.Value;
-                Vector2 shineScale = new Vector2(1f, 2.5f);
+            // === LENS FLARE AT BLADE TIP ===
+            _lensFlare ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/ThinTall4PointedStar");
+            Texture2D shineTex = _lensFlare.Value;
+            Vector2 shineScale = new Vector2(1f, 2.5f);
 
-                float flareOpacity = (Progression < 0.25f ? 0f : 0.15f + 0.85f * (float)Math.Sin(MathHelper.Pi * (Progression - 0.25f) / 0.75f))
-                    * 0.5f * _phaseIntensity;
-                Color flareColor = Color.Lerp(Violet, CrescentGlow, (float)Math.Pow(Progression, 2));
-                flareColor.A = 0;
+            float flareOpacity = (Progression < 0.25f ? 0f : 0.15f + 0.85f * (float)Math.Sin(MathHelper.Pi * (Progression - 0.25f) / 0.75f))
+                * 0.5f * _phaseIntensity;
+            Color flareColor = Color.Lerp(Violet, CrescentGlow, (float)Math.Pow(Progression, 2));
+            flareColor.A = 0;
 
-                Main.EntitySpriteDraw(shineTex,
-                    Owner.MountedCenter + DirectionAtProgressSmoothed(Progression) * Projectile.scale * BladeLength - Main.screenPosition,
-                    null, flareColor * flareOpacity, MathHelper.PiOver2,
-                    shineTex.Size() / 2f, shineScale * Projectile.scale, 0, 0);
+            Main.EntitySpriteDraw(shineTex,
+                Owner.MountedCenter + DirectionAtProgressSmoothed(Progression) * Projectile.scale * BladeLength - Main.screenPosition,
+                null, flareColor * flareOpacity, MathHelper.PiOver2,
+                shineTex.Size() / 2f, shineScale * Projectile.scale, 0, 0);
 
-                // Second flare rotated perpendicular for cross-star effect
-                Main.EntitySpriteDraw(shineTex,
-                    Owner.MountedCenter + DirectionAtProgressSmoothed(Progression) * Projectile.scale * BladeLength - Main.screenPosition,
-                    null, flareColor * flareOpacity * 0.6f, 0f,
-                    shineTex.Size() / 2f, shineScale * Projectile.scale * 0.7f, 0, 0);
-            }
-            else
-            {
-                // During Lunar Surge: standard sprite draw with energy glow copies
-                float rotation = BaseRotation + MathHelper.PiOver4;
-                Vector2 origin = new Vector2(0, texture.Height);
-                Vector2 drawPosition = Projectile.Center + Projectile.velocity * Projectile.scale * SurgeDashDisplace - Main.screenPosition;
-
-                if (Direction == -1)
-                {
-                    rotation += MathHelper.PiOver2;
-                    origin.X = texture.Width;
-                }
-
-                Projectile.scale = MathHelper.Lerp(1f, 0.25f, MathF.Pow(SurgeProgression, 6));
-
-                Main.EntitySpriteDraw(texture, drawPosition, null, Color.White, rotation, origin, Projectile.scale * TextureDrawScale, direction, 0);
-
-                // Additive energy glow copies (ice blue moonlight)
-                float energyPower = Utils.GetLerpValue(0f, 0.3f, Progression, true) * Utils.GetLerpValue(1f, 0.85f, Progression, true);
-                for (int i = 0; i < 4; i++)
-                {
-                    Vector2 drawOffset = (MathHelper.TwoPi * i / 4f + BaseRotation).ToRotationVector2() * energyPower * Projectile.scale * 6f;
-                    Color glowColor = Color.Lerp(IceBlue, CrescentGlow, Progression);
-                    glowColor.A = 0;
-                    Main.spriteBatch.Draw(texture, drawPosition + drawOffset, null,
-                        glowColor * 0.14f, rotation, origin, Projectile.scale * TextureDrawScale, direction, 0);
-                }
-            }
+            // Second flare rotated perpendicular for cross-star effect
+            Main.EntitySpriteDraw(shineTex,
+                Owner.MountedCenter + DirectionAtProgressSmoothed(Progression) * Projectile.scale * BladeLength - Main.screenPosition,
+                null, flareColor * flareOpacity * 0.6f, 0f,
+                shineTex.Size() / 2f, shineScale * Projectile.scale * 0.7f, 0, 0);
         }
 
         /// <summary>Layer 5: Multi-layer crescent bloom overlay at blade tip (Waxing phase+).
@@ -1102,7 +857,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
         /// with palette-driven color interpolation for richer tidal gradients.</summary>
         public void DrawCrescentBloom()
         {
-            if (State != SwingState.Swinging || _lunarPhase < 1 || Progression < 0.3f || Progression > 0.85f)
+            if (_lunarPhase < 1 || Progression < 0.3f || Progression > 0.85f)
                 return;
 
             _bloomCircle ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
@@ -1191,8 +946,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                 }
             }
 
-            // === FOUNDATION VFX: Impact Effects on Regular Swings ===
-            if (Main.myPlayer == Projectile.owner && State == SwingState.Swinging)
+            // === FOUNDATION VFX: Impact Effects on Swings ===
+            if (Main.myPlayer == Projectile.owner)
             {
                 // TidalThinSlash — razor-thin slash mark at hit direction angle
                 float hitAngle = (target.Center - Owner.MountedCenter).ToRotation();
@@ -1212,72 +967,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
                 }
             }
 
-            // === LUNAR SURGE HIT ===
-            if (State == SwingState.LunarSurge)
-            {
-                Owner.itemAnimation = 0;
-                Owner.velocity = Owner.SafeDirectionTo(target.Center) * -ReboundSpeed;
-                Projectile.timeLeft = FullMoonOpportunity + SurgeCooldown;
-                InPostSurgeStasis = true;
-                Projectile.netUpdate = true;
-
-                SoundEngine.PlaySound(SoundID.Item125 with { Volume = 0.8f }, target.Center);
-
-                // Apply lunar stasis freeze
-                target.AddBuff(ModContent.BuffType<LunarStasis>(), 90);
-
-                // Spawn crescent slash VFX at target
-                if (Main.myPlayer == Projectile.owner)
-                {
-                    int slashDamage = (int)(Projectile.damage * 0.6f);
-                    for (int i = 0; i < 3; i++)
-                    {
-                        int proj = Projectile.NewProjectile(Projectile.GetSource_FromAI(),
-                            target.Center, Projectile.velocity * 0.05f,
-                            ModContent.ProjectileType<EternalMoonCrescentSlash>(),
-                            slashDamage, 0f, Projectile.owner, target.whoAmI);
-                        if (Main.projectile.IndexInRange(proj))
-                            Main.projectile[proj].timeLeft -= i * 5;
-                    }
-                }
-
-                // Impact particles
-                if (!Main.dedServ)
-                {
-                    for (int i = 0; i < 8; i++)
-                    {
-                        Vector2 sparkVel = Main.rand.NextVector2Unit() * Main.rand.NextFloat(5f, 12f);
-                        LunarParticleHandler.SpawnParticle(new CrescentSparkParticle(
-                            target.Center, sparkVel, Main.rand.NextFloat(0.5f, 1f), IceBlue, 20));
-                    }
-
-                    LunarParticleHandler.SpawnParticle(new LunarBloomParticle(
-                        target.Center, 1f, CrescentGlow, 25, 0.06f));
-                }
-
-                // Foundation VFX: Cross-slash thin lines on Surge impact
-                if (Main.myPlayer == Projectile.owner)
-                {
-                    float surgeAngle = Projectile.velocity.ToRotation();
-                    for (int i = 0; i < 2; i++)
-                    {
-                        float slashAngle = surgeAngle + MathHelper.PiOver4 * (i == 0 ? 1 : -1);
-                        Projectile.NewProjectile(Projectile.GetSource_FromAI(),
-                            target.Center, Vector2.Zero,
-                            ModContent.ProjectileType<TidalThinSlash>(),
-                            0, 0f, Projectile.owner, slashAngle, 1); // Style 1: Violet Cut (Surge intensity)
-                    }
-
-                    // Ripple expanding rings at surge impact
-                    Projectile.NewProjectile(Projectile.GetSource_FromAI(),
-                        target.Center, Vector2.Zero,
-                        ModContent.ProjectileType<TidalRippleEffect>(),
-                        0, 0f, Projectile.owner, 1.2f); // Enhanced tidal strength for Surge
-                }
-            }
-
             // === FULL MOON EMPOWERED SLASH HIT ===
-            if (State == SwingState.Swinging && PerformingFullMoonSlash &&
+            if (PerformingFullMoonSlash &&
                 Owner.ownedProjectileCounts[ModContent.ProjectileType<EternalMoonTidalDetonation>()] < 1)
             {
                 SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.2f }, Projectile.Center);
@@ -1351,7 +1042,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles
         public override void OnKill(int timeLeft)
         {
             Owner.fullRotation = 0f;
-            Owner.EternalMoon().SurgingForward = false;
         }
 
         #endregion

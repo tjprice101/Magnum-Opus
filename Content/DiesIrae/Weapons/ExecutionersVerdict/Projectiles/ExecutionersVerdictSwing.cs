@@ -13,6 +13,8 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Projectiles
     /// </summary>
     public class ExecutionersVerdictSwing : ExobladeStyleSwing
     {
+        protected override bool SupportsDash => false;
+
         protected override float BladeLength => 108f;
         protected override int BaseSwingFrames => 76;
         protected override float TextureDrawScale => 0.98f;

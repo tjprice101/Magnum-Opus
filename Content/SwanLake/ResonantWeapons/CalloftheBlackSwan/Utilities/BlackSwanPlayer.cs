@@ -1,7 +1,10 @@
 using System;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.UI;
+using MagnumOpus.Common.Utilities;
 
 namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Utilities
 {
@@ -17,8 +20,10 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Utiliti
     /// 
     /// Also tracks combo state and the legacy empowerment system (flare hits).
     /// </summary>
-    public class BlackSwanPlayer : ModPlayer
+    public class BlackSwanPlayer : ModPlayer, IResonantOverdrive
     {
+        private int _overdriveSwarmTimer;
+
         #region Grace / Dark Mirror System
 
         /// <summary>Grace stacks — built by hitting without being hit. Max 5.</summary>
@@ -82,8 +87,28 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Utiliti
 
         #endregion
 
+        #region Charge Meter
+        public float Charge = 0f;
+        public const float ChargePerHit = 0.05f;
+        public const float MaxCharge = 1.0f;
+        public bool IsHoldingBlackSwan = false;
+        public bool IsChargeFull => Charge >= MaxCharge;
+
+        public void AddCharge(float amount)
+        {
+            Charge = MathHelper.Clamp(Charge + amount, 0f, MaxCharge);
+        }
+
+        public void ConsumeCharge()
+        {
+            Charge = 0f;
+        }
+        #endregion
+
         public override void ResetEffects()
         {
+            IsHoldingBlackSwan = false;
+
             // Tick down empowerment
             if (EmpowermentTimer > 0)
             {
@@ -201,6 +226,72 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Utiliti
         {
             IsEmpowered = false;
             EmpowermentTimer = 0;
+        }
+
+        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (proj.type == ModContent.ProjectileType<Projectiles.BlackSwanSwingProj>())
+                AddCharge(target.life <= 0 ? 0.15f : ChargePerHit);
+        }
+
+        #region IResonantOverdrive
+
+        bool IResonantOverdrive.IsHoldingOverdriveWeapon => IsHoldingBlackSwan;
+        float IResonantOverdrive.OverdriveCharge => Charge;
+        bool IResonantOverdrive.IsOverdriveReady => IsChargeFull;
+        Color IResonantOverdrive.OverdriveLowColor => new Color(85, 85, 100);
+        Color IResonantOverdrive.OverdriveHighColor => new Color(220, 220, 255);
+
+        bool IResonantOverdrive.ActivateOverdrive(Player player)
+        {
+            if (player.whoAmI != Main.myPlayer) return true;
+            _overdriveSwarmTimer = 600;
+
+            // Give all nearby allies Swiftness
+            for (int p = 0; p < Main.maxPlayers; p++)
+            {
+                Player ally = Main.player[p];
+                if (ally.active && !ally.dead && ally.Distance(player.Center) <= 900f)
+                    ally.AddBuff(BuffID.Swiftness, 600);
+            }
+
+            ConsumeCharge();
+            return true;
+        }
+
+        #endregion
+
+        public override void PostUpdate()
+        {
+            if (_overdriveSwarmTimer > 0)
+            {
+                _overdriveSwarmTimer--;
+                if (_overdriveSwarmTimer % 12 == 0 && Player.whoAmI == Main.myPlayer)
+                {
+                    int damage = Math.Max(1, (int)(Player.HeldItem.damage * 0.65f));
+                    for (int p = 0; p < Main.maxPlayers; p++)
+                    {
+                        Player ally = Main.player[p];
+                        if (!ally.active || ally.dead || ally.Distance(Player.Center) > 900f)
+                            continue;
+
+                        NPC target = NpcTargetingUtils.FindClosestNpc(ally.Center, 900f);
+                        if (target == null)
+                            continue;
+
+                        Vector2 spawnPos = ally.Center + Main.rand.NextVector2Circular(30f, 30f);
+                        Vector2 velocity = spawnPos.DirectionTo(target.Center) * Main.rand.NextFloat(8f, 13f);
+                        Projectile.NewProjectile(Player.GetSource_FromThis(), spawnPos, velocity, ProjectileID.HallowStar, damage, 1.2f, Player.whoAmI);
+
+                        Color rainbow = Main.hslToRgb((float)(Main.GameUpdateCount % 360) / 360f, 0.8f, 0.7f);
+                        for (int k = 0; k < 3; k++)
+                        {
+                            Dust d = Dust.NewDustPerfect(spawnPos, DustID.RainbowTorch, Main.rand.NextVector2Circular(1.5f, 1.5f), 0, rainbow, 1f);
+                            d.noGravity = true;
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>Advance the combo step and reset the timer.</summary>

@@ -17,6 +17,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
     /// </summary>
     public class TheUnresolvedCadenceSwing : ExobladeStyleSwing
     {
+        protected override bool SupportsDash => false;
+
         protected override float BladeLength => 104f;
         protected override int BaseSwingFrames => 76;
         protected override Color SlashPrimaryColor => new Color(80, 230, 120);

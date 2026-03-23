@@ -2,6 +2,7 @@ using System;
 using MagnumOpus.Common.BaseClasses;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -10,9 +11,15 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
     /// <summary>
     /// Dual Fated Chime — La Campanella theme melee. Exoblade-architecture swing.
     /// Infernal orange/gold trail with black smoke edges and bell-fire highlights.
+    /// 5-phase Inferno Waltz toll combo that advances each swing (including hold re-swings).
     /// </summary>
     public class DualFatedChimeSwingProj : ExobladeStyleSwing
     {
+        protected override bool SupportsDash => false;
+
+        /// <summary>Inferno Waltz toll phase (0-4). Advances each swing including hold re-swings.</summary>
+        private int tollPhase = 0;
+
         protected override float BladeLength => 105f;
         protected override int BaseSwingFrames => 78;
         protected override Color SlashPrimaryColor => new Color(255, 140, 40);
@@ -30,6 +37,73 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Project
             return t < 0.5f
                 ? Color.Lerp(new Color(255, 120, 20), new Color(255, 200, 60), Main.rand.NextFloat())
                 : Color.Lerp(new Color(180, 80, 10), new Color(255, 160, 40), Main.rand.NextFloat());
+        }
+
+        protected override void OnSwingStart(bool isFirstSwing)
+        {
+            if (Main.myPlayer != Projectile.owner) return;
+
+            Player player = Owner;
+            int damage = Projectile.damage;
+            float knockback = Projectile.knockBack;
+            Vector2 aimDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
+            IEntitySource source = Projectile.GetSource_FromThis();
+
+            int toll = tollPhase % 5;
+            tollPhase++;
+            int flameType = ModContent.ProjectileType<BellFlameWaveProj>();
+            int flameDmg = (int)(damage * 0.35f);
+
+            switch (toll)
+            {
+                case 0: // Opening Peal — single forward flame wave
+                    Projectile.NewProjectile(source, player.MountedCenter, aimDir * 12f,
+                        flameType, flameDmg, knockback * 0.5f, player.whoAmI);
+                    break;
+
+                case 1: // Answer — 2 waves in narrow spread
+                    for (int i = -1; i <= 1; i += 2)
+                    {
+                        Vector2 flameVel = aimDir.RotatedBy(MathHelper.ToRadians(10 * i)) * 13f;
+                        Projectile.NewProjectile(source, player.MountedCenter, flameVel,
+                            flameType, flameDmg, knockback * 0.5f, player.whoAmI);
+                    }
+                    break;
+
+                case 2: // Escalation — 3 waves in wide fan
+                    for (int i = -1; i <= 1; i++)
+                    {
+                        Vector2 flameVel = aimDir.RotatedBy(MathHelper.ToRadians(25 * i)) * 11f;
+                        Projectile.NewProjectile(source, player.MountedCenter, flameVel,
+                            flameType, (int)(damage * 0.4f), knockback * 0.6f, player.whoAmI);
+                    }
+                    break;
+
+                case 3: // Resonance — 2 forward + 2 ground-level flanking waves
+                    for (int i = -1; i <= 1; i += 2)
+                    {
+                        Vector2 flameVel = aimDir.RotatedBy(MathHelper.ToRadians(8 * i)) * 14f;
+                        Projectile.NewProjectile(source, player.MountedCenter, flameVel,
+                            flameType, flameDmg, knockback * 0.5f, player.whoAmI);
+                    }
+                    for (int i = -1; i <= 1; i += 2)
+                    {
+                        Vector2 groundVel = new Vector2(i * 10f, 0.5f);
+                        Projectile.NewProjectile(source, player.MountedCenter + new Vector2(0, 20),
+                            groundVel, flameType, flameDmg, knockback * 0.3f, player.whoAmI);
+                    }
+                    break;
+
+                case 4: // Grand Toll — 8 directional bell flame waves burst
+                    for (int i = 0; i < 8; i++)
+                    {
+                        float angle = MathHelper.TwoPi / 8f * i;
+                        Vector2 flameVel = angle.ToRotationVector2() * 10f;
+                        Projectile.NewProjectile(source, player.MountedCenter, flameVel,
+                            flameType, (int)(damage * 0.5f), knockback, player.whoAmI);
+                    }
+                    break;
+            }
         }
 
         protected override void OnSwingFrame()

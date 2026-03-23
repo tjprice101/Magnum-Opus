@@ -9,6 +9,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.UI;
 using MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation.Utilities;
 using MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation.Particles;
 using MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation.Projectiles;
@@ -36,8 +37,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
     ///   On hit: DestinyCollapse (5s), 3 cosmic lightning strikes, 5 seeking crystal shards at 25% dmg
     ///   On 3rd combo: Convergence — all active beams converge with cosmic lightning storm
     /// </summary>
-    public class TheConductorsLastConstellationItem : ModItem
+    public class TheConductorsLastConstellationItem : ModItem, IOverdriveItem
     {
+        public IResonantOverdrive GetOverdrivePlayer(Player player) => player.GetModPlayer<ConstellationConductorPlayer>();
+
         public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/TheConductorsLastConstellation";
 
         private static Asset<Texture2D> _glowTex;
@@ -105,6 +108,24 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            // Right-click: Spectral Blade throw toward mouse
+            if (player.altFunctionUse == 2)
+            {
+                var cp = player.Conductor();
+                if (cp.IsChargeFull)
+                {
+                    cp.ConsumeCharge();
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.2f }, player.Center);
+                    Vector2 toMouse = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX) * 14f;
+                    Projectile.NewProjectile(source, player.MountedCenter, toMouse,
+                        ModContent.ProjectileType<ConductorSpecialProj>(),
+                        (int)(damage * 1.5f), knockback, player.whoAmI);
+                }
+                else
+                    SoundEngine.PlaySound(SoundID.Item16 with { Pitch = 0.5f, Volume = 0.5f }, player.Center);
+                return false;
+            }
+
             float state = player.altFunctionUse == 2 ? 1f : 0f;
             Projectile.NewProjectile(source, player.MountedCenter,
                 (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
@@ -114,6 +135,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
 
         public override void HoldItem(Player player)
         {
+            player.Conductor().IsHoldingConductorsConstellation = true;
             player.ExoBlade().rightClickListener = true;
             player.ExoBlade().mouseWorldListener = true;
 

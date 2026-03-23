@@ -1,6 +1,9 @@
+using System;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.UI;
+using MagnumOpus.Common.Utilities;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Utilities
 {
@@ -8,7 +11,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Utilities
     /// Per-weapon ModPlayer tracking 3-phase combo state, swing counter,
     /// star fracture cooldown, and orbit blade tracking for Fractal of the Stars.
     /// </summary>
-    public class FractalPlayer : ModPlayer
+    public class FractalPlayer : ModPlayer, IResonantOverdrive
     {
         /// <summary>Current combo phase (0 = Horizontal Sweep, 1 = Rising Uppercut, 2 = Gravity Slam).</summary>
         public int ComboPhase;
@@ -42,8 +45,26 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Utilities
         /// <summary>Direction alternator for swing variety.</summary>
         public int SwingDirection => SwingCounter % 2 == 0 ? 1 : -1;
 
+        // === Charge Meter ===
+        public float Charge = 0f;
+        public const float ChargePerHit = 0.05f;
+        public const float MaxCharge = 1.0f;
+        public bool IsHoldingFractalOfTheStars = false;
+        public bool IsChargeFull => Charge >= MaxCharge;
+
+        public void AddCharge(float amount)
+        {
+            Charge = MathHelper.Clamp(Charge + amount, 0f, MaxCharge);
+        }
+
+        public void ConsumeCharge()
+        {
+            Charge = 0f;
+        }
+
         public override void ResetEffects()
         {
+            IsHoldingFractalOfTheStars = false;
             JustTriggeredStarFracture = false;
         }
 
@@ -96,6 +117,35 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Utilities
             }
 
             return currentPhase;
+        }
+
+        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (proj.type == ModContent.ProjectileType<Projectiles.FractalSwingProjectile>())
+                AddCharge(target.life <= 0 ? 0.15f : ChargePerHit);
+        }
+
+        // === IResonantOverdrive ===
+        bool IResonantOverdrive.IsHoldingOverdriveWeapon => IsHoldingFractalOfTheStars;
+        float IResonantOverdrive.OverdriveCharge => Charge;
+        bool IResonantOverdrive.IsOverdriveReady => IsChargeFull;
+        Color IResonantOverdrive.OverdriveLowColor => new Color(100, 50, 140);
+        Color IResonantOverdrive.OverdriveHighColor => new Color(240, 220, 255);
+
+        bool IResonantOverdrive.ActivateOverdrive(Player player)
+        {
+            if (player.whoAmI != Main.myPlayer)
+                return true;
+
+            int baseDamage = Math.Max(1, player.HeldItem.damage);
+            foreach (NPC npc in NpcTargetingUtils.EnumerateHostiles(player.Center, 1800f))
+            {
+                npc.SimpleStrikeNPC(baseDamage * 2, 0, false, 0f, DamageClass.Melee, false, 0f, true);
+                npc.GetGlobalNPC<ResonantOverdriveGlobalNpc>().ApplyFractalDot(baseDamage);
+            }
+
+            ConsumeCharge();
+            return true;
         }
     }
 

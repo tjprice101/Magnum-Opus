@@ -1,12 +1,15 @@
 using MagnumOpus.Common;
 using MagnumOpus.Content.DiesIrae;
+using MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Utilities;
 using MagnumOpus.Content.SandboxExoblade.Utilities;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.UI;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver
 {
@@ -14,8 +17,9 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver
     /// Wrath's Cleaver — Dies Irae's brutal melee cleaver embodying fury incarnate.
     /// Exoblade-architecture weapon item with channel-hold swing and dash attack.
     /// </summary>
-    public class WrathsCleaver : ModItem
+    public class WrathsCleaver : ModItem, IOverdriveItem
     {
+        public IResonantOverdrive GetOverdrivePlayer(Player player) => player.GetModPlayer<WrathsCleaverPlayer>();
 
         public override void SetStaticDefaults()
         {
@@ -62,6 +66,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver
         {
             player.ExoBlade().rightClickListener = true;
             player.ExoBlade().mouseWorldListener = true;
+            player.GetModPlayer<WrathsCleaverPlayer>().IsHoldingWrathsCleaver = true;
         }
 
         public override bool AltFunctionUse(Player player) => true;
@@ -71,11 +76,34 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
             Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            float state = player.altFunctionUse == 2 ? 1f : 0f;
+            if (player.altFunctionUse == 2)
+            {
+                var wp = player.GetModPlayer<WrathsCleaverPlayer>();
+                if (wp.IsChargeFull)
+                {
+                    wp.ConsumeCharge();
+                    SoundEngine.PlaySound(SoundID.Item45 with { Pitch = -0.3f }, player.Center);
+                    Vector2 aimDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
+                    for (int i = 0; i < 8; i++)
+                    {
+                        Vector2 vel = aimDir.RotatedBy(MathHelper.ToRadians(-28 + 8 * i)) * 14f;
+                        Projectile.NewProjectile(source, player.MountedCenter, vel,
+                            ModContent.ProjectileType<Projectiles.WrathsCleaverSpecialProj>(),
+                            (int)(damage * 0.5f), knockback * 0.5f, player.whoAmI);
+                    }
+                }
+                else
+                {
+                    SoundEngine.PlaySound(SoundID.Item16 with { Pitch = 0.5f, Volume = 0.5f }, player.Center);
+                }
+                return false;
+            }
+
+            // Normal left-click swing
+            float state = 0f;
             Projectile.NewProjectile(source, player.MountedCenter,
                 (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
                 type, damage, knockback, player.whoAmI, state, 0);
-
             return false;
         }
 

@@ -1,15 +1,15 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using ReLogic.Content;
 using Terraria;
 using Terraria.ModLoader;
+using MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Projectiles;
 
 namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Utilities
 {
     /// <summary>
     /// Tracks per-player state for the Eternal Moon weapon system.
-    /// Manages lunar combo phase, tidal phase meter, echoing tides, dash state, and mouse targeting.
+    /// Manages lunar combo phase, charge meter, echoing tides, and gravitational pull.
     /// </summary>
     public class EternalMoonPlayer : ModPlayer
     {
@@ -19,39 +19,22 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Utilities
         /// <summary>Timer that resets the combo if the player stops swinging.</summary>
         public int ComboResetTimer;
 
-        /// <summary>Whether the player is currently surging (dash attack).</summary>
-        public bool SurgingForward;
-
-        /// <summary>Right-click listener state for alt-fire.</summary>
-        public bool RightClickListener;
-
-        /// <summary>Tracked mouse position for targeting.</summary>
-        public bool MouseWorldListener;
-
         /// <summary>Maximum ticks before combo resets.</summary>
         public const int ComboResetTime = 120;
 
-        // === TIDAL PHASE METER ===
-        /// <summary>Tidal phase: 0=Low Tide, 1=Flood, 2=High Tide, 3=Tsunami.</summary>
-        public int TidalPhase;
+        // === CHARGE METER ===
+        /// <summary>Charge level from 0 to 1. Replaces the old tidal energy system.</summary>
+        public float Charge = 0f;
 
-        /// <summary>Tidal energy accumulated from swings (0 to MaxTidalEnergy).</summary>
-        public float TidalEnergy;
+        public const float ChargePerHit = 0.04f;
+        public const float ChargePerKill = 0.15f;
+        public const float MaxCharge = 1.0f;
 
-        /// <summary>Maximum tidal energy before reaching Tsunami phase.</summary>
-        public const float MaxTidalEnergy = 100f;
+        /// <summary>Whether the player is currently holding Eternal Moon.</summary>
+        public bool IsHoldingEternalMoon = false;
 
-        /// <summary>Energy thresholds for each tidal phase.</summary>
-        public static readonly float[] TidalThresholds = { 0f, 25f, 55f, 85f };
-
-        /// <summary>Timer for tidal energy decay when not swinging.</summary>
-        public int TidalDecayTimer;
-
-        /// <summary>Tidal decay delay in ticks before energy starts draining.</summary>
-        public const int TidalDecayDelay = 90;
-
-        /// <summary>Tidal energy decay rate per tick.</summary>
-        public const float TidalDecayRate = 0.5f;
+        /// <summary>Whether charge is at maximum.</summary>
+        public bool IsChargeFull => Charge >= MaxCharge;
 
         // === ECHOING TIDES ===
         /// <summary>Count of consecutive swings (resets with combo).</summary>
@@ -61,32 +44,36 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Utilities
         public bool ShouldEchoTides => SwingCount > 0 && SwingCount % 4 == 0;
 
         // === GRAVITATIONAL PULL ===
-        /// <summary>Active gravitational pull centers with remaining duration.</summary>
         public Vector2 GravityPullCenter;
         public int GravityPullTimer;
         public const int GravityPullDuration = 60;
         public const float GravityPullRadius = 200f;
         public const float GravityPullStrength = 0.8f;
 
-        /// <summary>Tidal phase names for UI display.</summary>
-        public static readonly string[] TidalPhaseNames = { "Low Tide", "Flood", "High Tide", "Tsunami" };
+        /// <summary>
+        /// VFX intensity multiplier derived from charge level (1.0 to 2.0).
+        /// Replaces the old TidalPhaseMultiplier. Higher charge = more intense VFX.
+        /// </summary>
+        public float ChargeIntensityMultiplier => 1f + Charge;
 
-        /// <summary>Tidal phase colors for UI display.</summary>
-        public static readonly Color[] TidalPhaseColors =
+        public bool IsFullMoon => LunarPhase == 4;
+        public bool IsHalfMoon => LunarPhase == 2;
+
+        private static HashSet<int> _eternalMoonProjectileTypes;
+
+        public void AddCharge(float amount)
         {
-            new Color(75, 0, 130),     // Low Tide — dark purple
-            new Color(138, 43, 226),   // Flood — violet
-            new Color(135, 206, 250),  // High Tide — ice blue
-            new Color(240, 235, 255),  // Tsunami — moon white
-        };
+            Charge = MathHelper.Clamp(Charge + amount, 0f, MaxCharge);
+        }
+
+        public void ConsumeCharge()
+        {
+            Charge = 0f;
+        }
 
         public override void ResetEffects()
         {
-            if (!RightClickListener)
-                SurgingForward = false;
-
-            RightClickListener = false;
-            MouseWorldListener = false;
+            IsHoldingEternalMoon = false;
         }
 
         public override void PostUpdate()
@@ -101,15 +88,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Utilities
                 }
             }
 
-            // Tidal energy decay
-            if (TidalDecayTimer > 0)
-                TidalDecayTimer--;
-            else if (TidalEnergy > 0)
-            {
-                TidalEnergy = Math.Max(0, TidalEnergy - TidalDecayRate);
-                UpdateTidalPhase();
-            }
-
             // Gravitational pull effect on nearby NPCs
             if (GravityPullTimer > 0)
             {
@@ -120,7 +98,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Utilities
 
         /// <summary>
         /// Advances the lunar combo phase by 1, wrapping at 5 (back to 0 after Full Moon).
-        /// Resets the combo timer. Adds tidal energy from the swing.
+        /// Resets the combo timer. Adds charge from the swing.
         /// </summary>
         public void AdvancePhase()
         {
@@ -128,26 +106,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Utilities
             ComboResetTimer = ComboResetTime;
             SwingCount++;
 
-            // Add tidal energy per swing (more at higher lunar phases)
-            float energyGain = 8f + LunarPhase * 3f;
-            TidalEnergy = Math.Min(TidalEnergy + energyGain, MaxTidalEnergy);
-            TidalDecayTimer = TidalDecayDelay;
-            UpdateTidalPhase();
-        }
-
-        /// <summary>Updates tidal phase based on current energy level.</summary>
-        private void UpdateTidalPhase()
-        {
-            int newPhase = 0;
-            for (int i = TidalThresholds.Length - 1; i >= 0; i--)
-            {
-                if (TidalEnergy >= TidalThresholds[i])
-                {
-                    newPhase = i;
-                    break;
-                }
-            }
-            TidalPhase = newPhase;
+            // Add charge per swing (more at higher lunar phases)
+            float chargeGain = ChargePerHit + LunarPhase * 0.01f;
+            AddCharge(chargeGain);
         }
 
         /// <summary>Starts a gravitational pull effect at the given center.</summary>
@@ -157,7 +118,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Utilities
             GravityPullTimer = GravityPullDuration;
         }
 
-        /// <summary>Applies gravitational pull to nearby NPCs.</summary>
         private void ApplyGravitationalPull()
         {
             float pullFactor = GravityPullTimer / (float)GravityPullDuration;
@@ -173,30 +133,39 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Utilities
             }
         }
 
-        /// <summary>
-        /// Tidal phase multiplier for trail width and VFX intensity (1.0 to 2.0).
-        /// </summary>
-        public float TidalPhaseMultiplier => 1f + TidalPhase * 0.33f;
+        private static HashSet<int> GetEternalMoonProjectileTypes()
+        {
+            if (_eternalMoonProjectileTypes == null)
+            {
+                _eternalMoonProjectileTypes = new HashSet<int>
+                {
+                    ModContent.ProjectileType<EternalMoonSwing>(),
+                    ModContent.ProjectileType<EternalMoonWave>(),
+                    ModContent.ProjectileType<EternalMoonGhost>(),
+                    ModContent.ProjectileType<EternalMoonCrescentSlash>(),
+                    ModContent.ProjectileType<EternalMoonTidalDetonation>(),
+                };
+            }
+            return _eternalMoonProjectileTypes;
+        }
 
-        /// <summary>
-        /// Returns whether the current phase is Full Moon (final combo step).
-        /// </summary>
-        public bool IsFullMoon => LunarPhase == 4;
+        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (!GetEternalMoonProjectileTypes().Contains(proj.type)) return;
 
-        /// <summary>
-        /// Returns whether the current phase spawns ghost reflections (Half Moon).
-        /// </summary>
-        public bool IsHalfMoon => LunarPhase == 2;
+            float charge = ChargePerHit;
+            if (target.life <= 0)
+                charge = ChargePerKill;
 
-        /// <summary>
-        /// Returns whether tidal phase is at Tsunami (max power).
-        /// </summary>
-        public bool IsTsunami => TidalPhase == 3;
+            AddCharge(charge);
+        }
+
+        public override void Unload()
+        {
+            _eternalMoonProjectileTypes = null;
+        }
     }
 
-    /// <summary>
-    /// Extension methods for accessing EternalMoonPlayer data.
-    /// </summary>
     public static class EternalMoonPlayerExtensions
     {
         public static EternalMoonPlayer EternalMoon(this Player player) =>

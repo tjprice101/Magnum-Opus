@@ -1,9 +1,12 @@
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.UI;
 using MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles;
+using MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Utilities;
 using MagnumOpus.Content.SandboxExoblade.Utilities;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -14,8 +17,9 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury
     /// The Gardener's Fury — Ode to Joy's nature fury melee weapon.
     /// Exoblade-architecture melee with leaf green slash arcs and sun gold accents.
     /// </summary>
-    public class TheGardenersFury : ModItem
+    public class TheGardenersFury : ModItem, IOverdriveItem
     {
+        public IResonantOverdrive GetOverdrivePlayer(Player player) => player.GetModPlayer<TheGardenersFuryPlayer>();
 
         public override void SetStaticDefaults()
         {
@@ -62,6 +66,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury
         {
             player.ExoBlade().rightClickListener = true;
             player.ExoBlade().mouseWorldListener = true;
+            player.GetModPlayer<TheGardenersFuryPlayer>().IsHoldingTheGardenersFury = true;
         }
 
         public override bool AltFunctionUse(Player player) => true;
@@ -71,10 +76,52 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
             Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            float state = player.altFunctionUse == 2 ? 1f : 0f;
+            // Right-click: charge-gated special — spawn 5 light pillars at nearby enemy positions
+            if (player.altFunctionUse == 2)
+            {
+                var gfp = player.GetModPlayer<TheGardenersFuryPlayer>();
+
+                if (gfp.IsChargeFull)
+                {
+                    gfp.ConsumeCharge();
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f, Volume = 0.9f }, player.MountedCenter);
+
+                    // Gather up to 5 nearby enemy positions
+                    int pillarCount = 5;
+                    int spawned = 0;
+
+                    foreach (NPC npc in Main.ActiveNPCs)
+                    {
+                        if (spawned >= pillarCount) break;
+                        if (!npc.CanBeChasedBy()) continue;
+                        if (Vector2.Distance(player.MountedCenter, npc.Center) > 800f) continue;
+
+                        Projectile.NewProjectile(source, npc.Center, Vector2.Zero,
+                            ModContent.ProjectileType<GardenerFurySpecialProj>(),
+                            (int)(damage * 1.5f), knockback, player.whoAmI);
+                        spawned++;
+                    }
+
+                    // If fewer than 5 enemies found, spawn remaining pillars at mouse cursor area
+                    for (int i = spawned; i < pillarCount; i++)
+                    {
+                        Vector2 offset = Main.rand.NextVector2Circular(100f, 100f);
+                        Projectile.NewProjectile(source, Main.MouseWorld + offset, Vector2.Zero,
+                            ModContent.ProjectileType<GardenerFurySpecialProj>(),
+                            (int)(damage * 1.5f), knockback, player.whoAmI);
+                    }
+                }
+                else
+                {
+                    SoundEngine.PlaySound(SoundID.Item27 with { Pitch = -0.3f, Volume = 0.4f }, player.MountedCenter);
+                }
+                return false;
+            }
+
+            // Normal left-click: spawn swing projectile
             Projectile.NewProjectile(source, player.MountedCenter,
                 (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
-                type, damage, knockback, player.whoAmI, state, 0);
+                type, damage, knockback, player.whoAmI, 0f, 0);
 
             return false;
         }

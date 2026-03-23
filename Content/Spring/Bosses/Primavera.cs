@@ -1308,14 +1308,22 @@ namespace MagnumOpus.Content.Spring.Bosses
         
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
+            // Expert/Master: Treasure Bag
+            npcLoot.Add(ItemDropRule.BossBag(ModContent.ItemType<PrimaveraTreasureBag>()));
+
+            // Normal mode drops
+            LeadingConditionRule notExpert = new LeadingConditionRule(new Conditions.NotExpert());
+
             // Spring Resonant Energy (100%)
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<SpringResonantEnergy>(), 1, 3, 5));
-            
+            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<SpringResonantEnergy>(), 1, 3, 5));
+
             // Vernal Bar materials
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<PetalOfRebirth>(), 1, 15, 25));
-            
+            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<PetalOfRebirth>(), 1, 15, 25));
+
             // Dormant Spring Core (for summoning again)
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<DormantSpringCore>(), 3));
+            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<DormantSpringCore>(), 3));
+
+            npcLoot.Add(notExpert);
         }
         
         public override void OnKill()

@@ -8491,4 +8491,13 @@ Projectiles: {
 	ElysianVerdictSwing.DisplayName: Elysian Verdict Swing
 	AnthemGloryProjectile.DisplayName: Anthem Glory Projectile
 	TimeFreezeSlashProjectile.DisplayName: Time Freeze Slash Projectile
+	SuperLunarOrbProj.DisplayName: Super Lunar Orb Proj
+	LunarZoneProj.DisplayName: Lunar Zone Proj
+	ClockworkHarmonySwing.DisplayName: Clockwork Harmony Swing
+	EternalMoonOrbRing.DisplayName: Eternal Moon Orb Ring
+	SakuraSpectralTurret.DisplayName: Sakura Spectral Turret
+	SakuraSparkLaser.DisplayName: Sakura Spark Laser
+	CelestialValorZoneOrb.DisplayName: Celestial Valor Zone Orb
+	CelestialValorNoiseZone.DisplayName: Celestial Valor Noise Zone
+	CelestialValorFlyingBlade.DisplayName: Celestial Valor Flying Blade
 }

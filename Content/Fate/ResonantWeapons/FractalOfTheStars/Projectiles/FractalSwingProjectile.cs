@@ -13,6 +13,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles
     /// </summary>
     public class FractalSwingProjectile : ExobladeStyleSwing
     {
+        protected override bool SupportsDash => false;
+
         protected override float BladeLength => 106f;
         protected override int BaseSwingFrames => 76;
         protected override Color SlashPrimaryColor => new Color(160, 200, 255);

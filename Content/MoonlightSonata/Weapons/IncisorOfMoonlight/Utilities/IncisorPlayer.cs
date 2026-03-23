@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
+using MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projectiles;
 using Terraria;
 using Terraria.ModLoader;
 
@@ -7,7 +8,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Utilitie
 {
     /// <summary>
     /// Per-player state tracker for the Incisor of Moonlight.
-    /// Manages dash lunging, input listeners, and staccato hit tracking.
+    /// Manages input listeners, staccato hit tracking, and lunar charge meter.
     /// </summary>
     public class IncisorPlayer : ModPlayer
     {
@@ -15,6 +16,26 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Utilitie
         public bool rightClickListener = false;
         public bool mouseWorldListener = false;
         public Vector2 mouseWorld => Main.MouseWorld;
+
+        // Lunar Charge Meter
+        public float LunarCharge = 0f;
+        public const float ChargePerHit = 0.06f;
+        public const float ChargePerKill = 0.20f;
+        public const float MaxCharge = 1.0f;
+        public bool IsHoldingIncisor = false;
+        public bool IsChargeFull => LunarCharge >= MaxCharge;
+
+        private static HashSet<int> _incisorProjectileTypes;
+
+        public void AddCharge(float amount)
+        {
+            LunarCharge = MathHelper.Clamp(LunarCharge + amount, 0f, MaxCharge);
+        }
+
+        public void ConsumeCharge()
+        {
+            LunarCharge = 0f;
+        }
 
         /// <summary>
         /// Tracks staccato note hits per NPC for detonation mechanics.
@@ -27,6 +48,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Utilitie
             LungingDown = false;
             rightClickListener = false;
             mouseWorldListener = false;
+            IsHoldingIncisor = false;
         }
 
         public override void PostUpdate()
@@ -34,6 +56,44 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Utilitie
             if (!LungingDown)
                 return;
             Player.fullRotation = 0f;
+        }
+
+        private static HashSet<int> GetIncisorProjectileTypes()
+        {
+            if (_incisorProjectileTypes == null)
+            {
+                _incisorProjectileTypes = new HashSet<int>
+                {
+                    ModContent.ProjectileType<IncisorSwingProj>(),
+                    ModContent.ProjectileType<LunarBeamProj>(),
+                    ModContent.ProjectileType<SuperLunarOrbProj>(),
+                    ModContent.ProjectileType<LunarZoneProj>(),
+                    ModContent.ProjectileType<ConstellationSlash>(),
+                    ModContent.ProjectileType<ConstellationSlashCreator>(),
+                    ModContent.ProjectileType<CrescentMoonProj>(),
+                    ModContent.ProjectileType<CrescentWaveProj>(),
+                    ModContent.ProjectileType<LunarNova>(),
+                    ModContent.ProjectileType<OrbitingNoteProj>(),
+                    ModContent.ProjectileType<StaccatoNoteProj>(),
+                };
+            }
+            return _incisorProjectileTypes;
+        }
+
+        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (!GetIncisorProjectileTypes().Contains(proj.type)) return;
+
+            float charge = ChargePerHit;
+            if (target.life <= 0)
+                charge = ChargePerKill;
+
+            AddCharge(charge);
+        }
+
+        public override void Unload()
+        {
+            _incisorProjectileTypes = null;
         }
 
         /// <summary>

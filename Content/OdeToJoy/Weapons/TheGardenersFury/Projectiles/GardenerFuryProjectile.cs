@@ -13,6 +13,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
     /// </summary>
     public class GardenerFuryProjectile : ExobladeStyleSwing
     {
+        protected override bool SupportsDash => false;
+
         protected override float BladeLength => 100f;
         protected override int BaseSwingFrames => 76;
         protected override float TextureDrawScale => 0.94f;

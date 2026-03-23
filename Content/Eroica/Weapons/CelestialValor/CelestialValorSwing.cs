@@ -19,6 +19,7 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
         /// <summary>Heroic Crescendo combo phase (0-3). Advances each swing including hold re-swings.</summary>
         private int comboPhase = 0;
 
+        protected override bool SupportsDash => false;
         protected override float BladeLength => 110f;
         protected override int BaseSwingFrames => 78;
         protected override float TextureDrawScale => 0.116f;

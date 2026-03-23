@@ -13,6 +13,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Projectiles
     /// </summary>
     public class ThornboundSwingProj : ExobladeStyleSwing
     {
+        protected override bool SupportsDash => false;
+
         protected override float BladeLength => 105f;
         protected override int BaseSwingFrames => 78;
         protected override float TextureDrawScale => 0.96f;

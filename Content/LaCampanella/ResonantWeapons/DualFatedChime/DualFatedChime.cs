@@ -14,6 +14,7 @@ using MagnumOpus.Content.SandboxExoblade.Utilities;
 using MagnumOpus.Content.FoundationWeapons.ImpactFoundation;
 using MagnumOpus.Content.FoundationWeapons.ExplosionParticlesFoundation;
 using MagnumOpus.Content.FoundationWeapons.RibbonFoundation;
+using MagnumOpus.Common.Systems.UI;
 
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime
 {
@@ -33,11 +34,13 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime
     /// 
     /// PRESERVED STATS: Damage 380, UseTime 16, Knockback 6.5, MeleeNoSpeed, Sell 50g
     /// </summary>
-    public class DualFatedChime : ModItem
+    public class DualFatedChime : ModItem, IOverdriveItem
     {
+        public IResonantOverdrive GetOverdrivePlayer(Player player) => player.GetModPlayer<DualFatedChimePlayer>();
+
         /// <summary>Tracks the Inferno Waltz toll phase (0-4). Each swing advances the toll,
         /// with Grand Toll (phase 4) firing a devastating radial flame wave burst.</summary>
-        private int tollCounter = 0;
+        // Toll combo tracking moved to DualFatedChimeSwingProj.OnSwingStart()
 
         public override string Texture => "MagnumOpus/Content/LaCampanella/ResonantWeapons/DualFatedChime/DualFatedChime";
 
@@ -107,75 +110,29 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
             Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            float state = player.altFunctionUse == 2 ? 1f : 0f;
+            if (player.altFunctionUse == 2)
+            {
+                var dp = player.GetModPlayer<DualFatedChimePlayer>();
+                if (dp.IsChargeFull)
+                {
+                    dp.ConsumeCharge();
+                    SoundEngine.PlaySound(SoundID.Item45 with { Pitch = -0.2f }, player.Center);
+                    for (int i = 0; i < 4; i++)
+                    {
+                        Projectile.NewProjectile(source, player.Center, Vector2.Zero,
+                            ModContent.ProjectileType<Projectiles.DualFatedChimeSpecialProj>(),
+                            (int)(damage * 0.4f), knockback * 0.3f, player.whoAmI, i);
+                    }
+                }
+                else
+                    SoundEngine.PlaySound(SoundID.Item16 with { Pitch = 0.5f, Volume = 0.5f }, player.Center);
+                return false;
+            }
+
+            float state = 0f;
             Projectile.NewProjectile(source, player.MountedCenter,
                 (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
                 type, damage, knockback, player.whoAmI, state, 0);
-
-            // --- Inferno Waltz toll system ---
-            // Toll 0 "Opening Peal": 1 flame wave forward
-            // Toll 1 "Answer": 2 flame waves in narrow spread
-            // Toll 2 "Escalation": 3 flame waves in wide fan
-            // Toll 3 "Resonance": 2 flame waves + ground-level waves
-            // Toll 4 "Grand Toll": 8 directional flame waves in radial burst
-            Vector2 aimDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
-            int toll = tollCounter % 5;
-            tollCounter++;
-            int flameType = ModContent.ProjectileType<BellFlameWaveProj>();
-            int flameDmg = (int)(damage * 0.35f);
-
-            switch (toll)
-            {
-                case 0: // Opening Peal — single forward flame wave
-                    Projectile.NewProjectile(source, player.MountedCenter, aimDir * 12f,
-                        flameType, flameDmg, knockback * 0.5f, player.whoAmI);
-                    break;
-
-                case 1: // Answer — 2 waves in narrow spread
-                    for (int i = -1; i <= 1; i += 2)
-                    {
-                        Vector2 flameVel = aimDir.RotatedBy(MathHelper.ToRadians(10 * i)) * 13f;
-                        Projectile.NewProjectile(source, player.MountedCenter, flameVel,
-                            flameType, flameDmg, knockback * 0.5f, player.whoAmI);
-                    }
-                    break;
-
-                case 2: // Escalation — 3 waves in wide fan
-                    for (int i = -1; i <= 1; i++)
-                    {
-                        Vector2 flameVel = aimDir.RotatedBy(MathHelper.ToRadians(25 * i)) * 11f;
-                        Projectile.NewProjectile(source, player.MountedCenter, flameVel,
-                            flameType, (int)(damage * 0.4f), knockback * 0.6f, player.whoAmI);
-                    }
-                    break;
-
-                case 3: // Resonance — 2 forward + 2 ground-level flanking waves
-                    for (int i = -1; i <= 1; i += 2)
-                    {
-                        Vector2 flameVel = aimDir.RotatedBy(MathHelper.ToRadians(8 * i)) * 14f;
-                        Projectile.NewProjectile(source, player.MountedCenter, flameVel,
-                            flameType, flameDmg, knockback * 0.5f, player.whoAmI);
-                    }
-                    // Ground-level flanking waves
-                    for (int i = -1; i <= 1; i += 2)
-                    {
-                        Vector2 groundVel = new Vector2(i * 10f, 0.5f);
-                        Projectile.NewProjectile(source, player.MountedCenter + new Vector2(0, 20),
-                            groundVel, flameType, flameDmg, knockback * 0.3f, player.whoAmI);
-                    }
-                    break;
-
-                case 4: // Grand Toll — 8 directional bell flame waves burst
-                    for (int i = 0; i < 8; i++)
-                    {
-                        float angle = MathHelper.TwoPi / 8f * i;
-                        Vector2 flameVel = angle.ToRotationVector2() * 10f;
-                        Projectile.NewProjectile(source, player.MountedCenter, flameVel,
-                            flameType, (int)(damage * 0.5f), knockback, player.whoAmI);
-                    }
-                    break;
-            }
-
             return false;
         }
 
@@ -183,6 +140,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime
         {
             player.ExoBlade().rightClickListener = true;
             player.ExoBlade().mouseWorldListener = true;
+            player.GetModPlayer<DualFatedChimePlayer>().IsHoldingDualFatedChime = true;
 
             var dfc = player.DualFatedChime();
 

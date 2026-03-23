@@ -21,44 +21,24 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight
     ///
     /// Left-click: Channelled resonance swing — shader-driven slash arc,
     ///             fires homing Lunar Beams, can be held to chain swings.
-    /// Right-click: Lunar Dash — pierce through enemies with constellation trail.
-    /// After dash-hit: Next swing is empowered → Lunar Nova explosion + lifesteal.
+    /// Right-click: Super Lunar Orb — requires full Lunar Charge meter.
+    ///             Homing orb with 3 orbiting sub-orbs, creates lunar zone on impact.
     /// </summary>
     public class IncisorOfMoonlight : ModItem
     {
         // =====================================================================
-        // TUNING CONSTANTS — adjust balance here
+        // TUNING CONSTANTS
         // =====================================================================
 
         /// <summary>Damage multiplier for non-true-melee projectiles (beams, slashes).</summary>
         public const float NotTrueMeleePenalty = 0.45f;
-        /// <summary>Damage multiplier for Lunar Nova explosion.</summary>
-        public const float ExplosionDamageFactor = 2.5f;
-        /// <summary>Damage multiplier for dash constellation slashes.</summary>
-        public const float LungeDamageFactor = 0.65f;
-        /// <summary>Travel speed during the lunge portion of a dash.</summary>
-        public const float LungeSpeed = 28f;
-        /// <summary>Fraction of DashTime spent in the forward lunge.</summary>
-        public const float LungePercent = 0.6f;
-        /// <summary>Total dash duration in frames (before MaxUpdates multiplier).</summary>
-        public const int DashTime = 26;
-        /// <summary>Cooldown frames after dash ends before next action.</summary>
-        public const int LungeCooldown = 18;
-        /// <summary>Frames after dash-hit during which empowered swing is available.</summary>
-        public const int OpportunityForBigSlash = 40;
-        /// <summary>Rebound velocity magnitude when rebounding off a dash-hit NPC.</summary>
-        public const float ReboundSpeed = 8f;
-        /// <summary>Scale multiplier for empowered swing arc.</summary>
-        public const float BigSlashUpscale = 1.3f;
         /// <summary>Number of homing beams fired per swing.</summary>
         public const int BeamsPerSwing = 3;
+        /// <summary>Damage multiplier for the Super Lunar Orb.</summary>
+        public const float SuperOrbDamageFactor = 2.0f;
 
         // Sounds
         private static readonly SoundStyle SwingSound = SoundID.Item71 with { PitchVariance = 0.3f, Volume = 0.65f };
-        private static readonly SoundStyle DashSound = SoundID.Item163 with { Volume = 0.6f, PitchVariance = 0.2f };
-
-        // Empowered window tracking
-        private int empoweredTimer;
 
         // =====================================================================
         // SETUP
@@ -101,9 +81,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight
             tooltips.Add(new TooltipLine(Mod, "Effect1",
                 "Channelled swing fires homing lunar beams"));
             tooltips.Add(new TooltipLine(Mod, "Effect2",
-                "Right-click to dash through enemies with a constellation pierce"));
+                "Hits build lunar charge — kills charge significantly more"));
             tooltips.Add(new TooltipLine(Mod, "Effect3",
-                "After a successful dash-hit, your next swing is empowered with a Lunar Nova"));
+                "Right-click at full charge to unleash a devastating Super Lunar Orb"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4",
+                "The orb homes in and creates a persistent lunar damage zone on impact"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
                 "'A blade forged from crystallized moonlight — each swing traces a constellation'")
             { OverrideColor = new Color(140, 100, 200) });
@@ -117,10 +99,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight
 
         public override bool CanUseItem(Player player)
         {
-            // Block use during dash cooldown
+            // Block use during existing swing
             if (player.ownedProjectileCounts[ModContent.ProjectileType<IncisorSwingProj>()] > 0)
             {
-                // Allow channelling existing projectiles
                 var proj = Main.projectile.FirstOrDefault(p =>
                     p.active && p.owner == player.whoAmI && p.type == Item.shoot);
                 if (proj != default && proj.active)
@@ -131,7 +112,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight
 
         public override bool CanShoot(Player player)
         {
-            // Prevent spawning duplicates — swing projectile is channelled
+            // Right-click: always allow (handled in Shoot)
+            if (player.altFunctionUse == 2)
+                return true;
+
+            // Left-click: prevent spawning duplicate swing projectiles
             return player.ownedProjectileCounts[ModContent.ProjectileType<IncisorSwingProj>()] <= 0;
         }
 
@@ -140,41 +125,43 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight
             var ip = player.Incisor();
             ip.rightClickListener = true;
             ip.mouseWorldListener = true;
-
-            // Tick empowered window
-            if (empoweredTimer > 0)
-                empoweredTimer--;
+            ip.IsHoldingIncisor = true;
         }
 
         // =====================================================================
-        // SHOOT — decides swing state: normal / dash / empowered
+        // SHOOT — decides action: normal swing or Super Lunar Orb
         // =====================================================================
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
             Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            // Determine state
-            float state = 0; // Normal swing
-            if (player.altFunctionUse == 2)
-                state = 1; // Lunar Dash
+            var ip = player.Incisor();
 
-            // Empowered swing (after dash-hit window)
-            if (empoweredTimer > 0 && player.altFunctionUse != 2)
+            if (player.altFunctionUse == 2)
             {
-                state = 2; // Empowered big swing
-                empoweredTimer = 0;
+                // Right-click: fire Super Lunar Orb if charge is full
+                if (ip.IsChargeFull)
+                {
+                    ip.ConsumeCharge();
+                    int orbDmg = (int)(damage * SuperOrbDamageFactor);
+                    Vector2 orbVel = velocity.SafeNormalize(Vector2.UnitX) * 12f;
+                    Projectile.NewProjectile(source, position, orbVel,
+                        ModContent.ProjectileType<SuperLunarOrbProj>(),
+                        orbDmg, knockback, player.whoAmI);
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f, Volume = 0.9f }, position);
+                }
+                else
+                {
+                    SoundEngine.PlaySound(SoundID.Item27 with { Pitch = -0.3f, Volume = 0.4f }, position);
+                }
+                return false;
             }
 
+            // Normal swing
             Projectile.NewProjectile(source, position, velocity, type, damage, knockback,
-                player.whoAmI, state, 0f);
+                player.whoAmI, 0f, 0f);
 
             return false;
-        }
-
-        /// <summary>Called from dash-hit to grant empowered window.</summary>
-        public void GrantEmpoweredWindow()
-        {
-            empoweredTimer = OpportunityForBigSlash;
         }
 
         // =====================================================================
@@ -185,7 +172,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight
         public override bool CanHitPvp(Player player, Player target) => false;
 
         // =====================================================================
-        // RECIPE — same as before
+        // RECIPE
         // =====================================================================
 
         public override void AddRecipes()

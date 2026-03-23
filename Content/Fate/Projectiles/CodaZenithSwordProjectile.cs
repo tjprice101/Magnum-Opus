@@ -177,13 +177,25 @@ namespace MagnumOpus.Content.Fate.Projectiles
         private Texture2D GetWeaponTexture()
         {
             LoadWeaponTextures();
-            
+
             int index = WeaponIndex;
             if (index >= 0 && index < cachedTextures.Length && cachedTextures[index] != null)
                 return cachedTextures[index].Value;
-            
+
             // Fallback to default texture
             return TextureAssets.Projectile[Projectile.type].Value;
+        }
+
+        /// <summary>
+        /// Gets a normalized draw scale so that all weapon textures (regardless of source size)
+        /// render at a consistent visual size (~50px). Oversized sprites get scaled down.
+        /// </summary>
+        private float GetNormalizedDrawScale(Texture2D tex)
+        {
+            const float TargetSize = 50f;
+            float maxDim = MathHelper.Max(tex.Width, tex.Height);
+            if (maxDim <= TargetSize) return 1f;
+            return TargetSize / maxDim;
         }
         
         public override void AI()
@@ -416,25 +428,26 @@ namespace MagnumOpus.Content.Fate.Projectiles
             Color weaponColor = GetWeaponColor();
             
             if (weaponTex == null) return false;
-            
+
             Vector2 origin = weaponTex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            
+            float baseScale = GetNormalizedDrawScale(weaponTex);
+
             // Draw trail (Zenith-style afterimages)
             for (int i = 0; i < trailPositions.Length; i++)
             {
                 int actualIndex = (trailIndex - i + trailPositions.Length) % trailPositions.Length;
                 Vector2 trailPos = trailPositions[actualIndex] - Main.screenPosition;
                 float trailRot = trailRotations[actualIndex];
-                
+
                 float progress = (float)i / trailPositions.Length;
                 float trailAlpha = (1f - progress) * 0.5f;
-                float trailScale = 1f - progress * 0.3f;
-                
+                float trailScale = baseScale * (1f - progress * 0.3f);
+
                 // Trail color gradient
                 Color trailColor = Color.Lerp(weaponColor, FatePalette.WhiteCelestial, progress * 0.3f) * trailAlpha;
                 trailColor.A = 0; // Additive
-                
+
                 spriteBatch.Draw(
                     weaponTex,
                     trailPos,
@@ -447,17 +460,17 @@ namespace MagnumOpus.Content.Fate.Projectiles
                     0f
                 );
             }
-            
+
             // Outer glow layer
             Color outerGlow = weaponColor with { A = 0 } * 0.3f;
-            spriteBatch.Draw(weaponTex, drawPos, null, outerGlow, Projectile.rotation, origin, 1.15f, SpriteEffects.None, 0f);
-            
+            spriteBatch.Draw(weaponTex, drawPos, null, outerGlow, Projectile.rotation, origin, baseScale * 1.15f, SpriteEffects.None, 0f);
+
             // Main weapon sprite
-            spriteBatch.Draw(weaponTex, drawPos, null, Color.White, Projectile.rotation, origin, 1f, SpriteEffects.None, 0f);
-            
+            spriteBatch.Draw(weaponTex, drawPos, null, Color.White, Projectile.rotation, origin, baseScale, SpriteEffects.None, 0f);
+
             // Inner glow bloom
             Color innerGlow = Color.Lerp(weaponColor, Color.White, 0.5f) with { A = 0 } * 0.4f;
-            spriteBatch.Draw(weaponTex, drawPos, null, innerGlow, Projectile.rotation, origin, 0.9f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(weaponTex, drawPos, null, innerGlow, Projectile.rotation, origin, baseScale * 0.9f, SpriteEffects.None, 0f);
             
             }
             catch { }

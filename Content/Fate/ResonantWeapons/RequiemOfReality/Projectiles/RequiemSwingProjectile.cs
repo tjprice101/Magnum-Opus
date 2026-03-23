@@ -13,6 +13,8 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles
     /// </summary>
     public class RequiemSwingProjectile : ExobladeStyleSwing
     {
+        protected override bool SupportsDash => false;
+
         protected override float BladeLength => 112f;
         protected override int BaseSwingFrames => 80;
         protected override Color SlashPrimaryColor => new Color(180, 40, 100);

@@ -13,6 +13,8 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Projectiles
     /// </summary>
     public class TwilightSeveranceSwing : ExobladeStyleSwing
     {
+        protected override bool SupportsDash => false;
+
         protected override float BladeLength => 105f;
         protected override int BaseSwingFrames => 78;
         protected override float TextureDrawScale => 0.85f;

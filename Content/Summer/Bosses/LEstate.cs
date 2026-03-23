@@ -1276,9 +1276,17 @@ namespace MagnumOpus.Content.Summer.Bosses
         
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<SummerResonantEnergy>(), 1, 3, 5));
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<EmberOfIntensity>(), 1, 18, 28));
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<DormantSummerCore>(), 3));
+            // Expert/Master: Treasure Bag
+            npcLoot.Add(ItemDropRule.BossBag(ModContent.ItemType<LEstateTreasureBag>()));
+
+            // Normal mode drops
+            LeadingConditionRule notExpert = new LeadingConditionRule(new Conditions.NotExpert());
+
+            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<SummerResonantEnergy>(), 1, 3, 5));
+            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<EmberOfIntensity>(), 1, 18, 28));
+            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<DormantSummerCore>(), 3));
+
+            npcLoot.Add(notExpert);
         }
         
         public override void OnKill()

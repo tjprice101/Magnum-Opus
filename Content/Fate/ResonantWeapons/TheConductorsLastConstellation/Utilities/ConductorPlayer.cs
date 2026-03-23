@@ -1,6 +1,10 @@
+using System;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.UI;
+using MagnumOpus.Common.Utilities;
 
 namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation.Utilities
 {
@@ -13,7 +17,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
     /// Phase 1 = Crescendo (rising sweep)
     /// Phase 2 = Forte (wide horizontal + convergence)
     /// </summary>
-    public class ConstellationConductorPlayer : ModPlayer
+    public class ConstellationConductorPlayer : ModPlayer, IResonantOverdrive
     {
         /// <summary>Current combo phase (0=Downbeat, 1=Crescendo, 2=Forte).</summary>
         public int ComboPhase;
@@ -61,8 +65,28 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
         /// <summary>Cooldown for Constellation Shatter (prevents spam).</summary>
         public int ShatterCooldown;
 
+        // === Charge Meter ===
+        public float Charge = 0f;
+        public const float ChargePerHit = 0.05f;
+        public const float MaxCharge = 1.0f;
+        public bool IsHoldingConductorsConstellation = false;
+        public bool IsChargeFull => Charge >= MaxCharge;
+
+        private int _overdriveConductorTimer;
+
+        public void AddCharge(float amount)
+        {
+            Charge = MathHelper.Clamp(Charge + amount, 0f, MaxCharge);
+        }
+
+        public void ConsumeCharge()
+        {
+            Charge = 0f;
+        }
+
         public override void ResetEffects()
         {
+            IsHoldingConductorsConstellation = false;
             JustTriggeredConvergence = false;
             ConstellationShatterTriggered = false;
         }
@@ -91,6 +115,24 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
 
             // Decay combo intensity slowly
             ComboIntensity *= 0.993f;
+
+            // === Overdrive Timer ===
+            if (_overdriveConductorTimer > 0)
+            {
+                _overdriveConductorTimer--;
+                if (_overdriveConductorTimer % 12 == 0 && Player.whoAmI == Main.myPlayer)
+                {
+                    int damage = Math.Max(1, (int)(Player.HeldItem.damage * 1.2f));
+                    NPC target = NpcTargetingUtils.FindClosestNpc(Player.Center, 1400f);
+                    if (target != null)
+                    {
+                        Vector2 spawn = Player.Center + Main.rand.NextVector2Circular(80f, 80f);
+                        Vector2 velocity = spawn.DirectionTo(target.Center) * 11f;
+                        Projectile.NewProjectile(Player.GetSource_FromThis(), spawn, velocity, ProjectileID.HallowStar, damage, 2f, Player.whoAmI);
+                        target.AddBuff(BuffID.OnFire3, 120);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -122,6 +164,35 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
             }
 
             return currentPhase;
+        }
+
+        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (proj.type == ModContent.ProjectileType<Projectiles.ConductorSwingProjectile>())
+                AddCharge(target.life <= 0 ? 0.15f : ChargePerHit);
+        }
+
+        // === IResonantOverdrive ===
+        bool IResonantOverdrive.IsHoldingOverdriveWeapon => IsHoldingConductorsConstellation;
+        float IResonantOverdrive.OverdriveCharge => Charge;
+        bool IResonantOverdrive.IsOverdriveReady => IsChargeFull;
+        Color IResonantOverdrive.OverdriveLowColor => new Color(125, 40, 90);
+        Color IResonantOverdrive.OverdriveHighColor => new Color(255, 175, 220);
+
+        bool IResonantOverdrive.ActivateOverdrive(Player player)
+        {
+            if (player.whoAmI != Main.myPlayer) return true;
+
+            int baseDamage = Math.Max(1, (int)(player.HeldItem.damage * 1.5f));
+
+            // Fire aimed dagger toward mouse
+            Vector2 velToMouse = player.Center.DirectionTo(Main.MouseWorld) * 15f;
+            Projectile.NewProjectile(player.GetSource_FromThis(), player.Center, velToMouse, ProjectileID.MagicDagger, (int)(baseDamage * 1.5f), 2f, player.whoAmI);
+
+            _overdriveConductorTimer = 240;
+
+            ConsumeCharge();
+            return true;
         }
     }
 

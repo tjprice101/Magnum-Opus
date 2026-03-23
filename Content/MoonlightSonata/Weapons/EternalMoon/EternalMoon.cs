@@ -19,30 +19,18 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon
 {
     /// <summary>
     /// EternalMoon — "The Eternal Tide"
-    /// 
+    ///
     /// Moonlight Sonata's signature melee weapon. A blade forged from crystallized moonlight
     /// that channels the lunar cycle itself. Each swing advances through a 5-phase lunar combo
     /// (New Moon → Waxing → Half Moon → Waning → Full Moon) with escalating VFX intensity,
     /// homing tidal wave projectiles, ghost reflection echoes, and a devastating Full Moon
     /// tidal detonation on the final phase.
-    /// 
-    /// Special Attack (Alt): Lunar Surge — a dash attack where the player surges forward
-    /// on a wave of moonlight. On hit, applies Lunar Stasis and spawns crescent slash VFX.
-    /// If a surge connects, the next swing becomes an empowered Full Moon slash regardless
-    /// of current combo position.
-    /// 
-    /// Architecture: Self-contained weapon system with own primitive renderer, particle system,
-    /// shader loader, utility library, buff types, and ModPlayer. Inspired by the Sandbox
-    /// Exoblade architecture but themed for Moonlight Sonata's lunar tidal identity.
+    ///
+    /// Special Attack (Alt): At full charge, releases a ring of sparkly lunar orbs that
+    /// shimmer and explode on contact with enemies or tiles.
     /// </summary>
     public class EternalMoon : ModItem
     {
-        // === SOUND DEFINITIONS ===
-        // Placeholder — use vanilla sounds until custom sounds are created
-        // Future: "MagnumOpus/Content/MoonlightSonata/Weapons/EternalMoon/Sounds/..."
-
-        // === BALANCE CONSTANTS ===
-        public static int SurgeDashTime = 45;
         public static int BaseUseTime = 38;
 
         public override void SetStaticDefaults()
@@ -73,19 +61,17 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon
 
         public override bool CanShoot(Player player)
         {
-            // Alt-click (Lunar Surge): only one swing projectile at a time
+            // Right-click: always allow (Shoot handles deny logic)
             if (player.altFunctionUse == 2)
-                return !Main.projectile.Any(n => n.active && n.owner == player.whoAmI && n.type == ProjectileType<EternalMoonSwing>());
+                return true;
 
-            // Normal swing: don't overlap with an active non-stasis swing
-            return !Main.projectile.Any(n => n.active && n.owner == player.whoAmI && n.type == ProjectileType<EternalMoonSwing>()
-                && !(n.ai[0] == 1 && n.ai[1] == 1));
+            // Normal swing: don't overlap with an active swing
+            return !Main.projectile.Any(n => n.active && n.owner == player.whoAmI && n.type == ProjectileType<EternalMoonSwing>());
         }
 
         public override void HoldItem(Player player)
         {
-            player.EternalMoon().RightClickListener = true;
-            player.EternalMoon().MouseWorldListener = true;
+            player.EternalMoon().IsHoldingEternalMoon = true;
         }
 
         public override bool AltFunctionUse(Player player) => true;
@@ -95,52 +81,42 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            float state = 0;
-
-            // Check for empowered Full Moon slash opportunity (after successful surge hit)
-            bool empoweredSlash = false;
-            foreach (Projectile p in Main.ActiveProjectiles)
-            {
-                if (p.owner == player.whoAmI && p.type == Item.shoot &&
-                    p.ai[0] == 1 && p.ai[1] == 1 &&
-                    p.timeLeft > 60 * 3) // SurgeCooldown
-                {
-                    empoweredSlash = true;
-                    break;
-                }
-            }
-
-            if (empoweredSlash)
-            {
-                state = 2; // Empowered Full Moon slash
-                foreach (Projectile p in Main.ActiveProjectiles)
-                {
-                    if (p.owner != player.whoAmI || p.type != Item.shoot || p.ai[0] != 1 || p.ai[1] != 1)
-                        continue;
-                    p.timeLeft = 60 * 3; // End the opportunity
-                    p.netUpdate = true;
-                }
-            }
-
+            // Right-click: charge-gated special
             if (player.altFunctionUse == 2)
-                state = 1; // Lunar Surge
+            {
+                var emp = player.EternalMoon();
+                if (emp.IsChargeFull)
+                {
+                    emp.ConsumeCharge();
+                    int orbDmg = (int)(damage * 1.5f);
+                    Projectile.NewProjectile(source, player.MountedCenter, Vector2.Zero,
+                        ProjectileType<EternalMoonOrbRing>(),
+                        orbDmg, knockback, player.whoAmI);
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f, Volume = 0.9f }, player.MountedCenter);
+                }
+                else
+                {
+                    SoundEngine.PlaySound(SoundID.Item27 with { Pitch = -0.3f, Volume = 0.4f }, player.MountedCenter);
+                }
+                return false;
+            }
 
-            Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI, state, 0);
+            // Normal left-click: spawn swing projectile
+            Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI, 0f, 0);
             return false;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            // Get current phase for display
             var player = Main.LocalPlayer;
             string phaseName = EternalMoonUtils.GetLunarPhaseName(player.EternalMoon().LunarPhase);
 
             tooltips.Add(new TooltipLine(Mod, "Effect1",
-                $"5-phase Tidal Lunar Cycle combo with escalating crescent waves"));
+                "5-phase Tidal Lunar Cycle combo with escalating crescent waves"));
             tooltips.Add(new TooltipLine(Mod, "Effect2",
-                "Right-click for Lunar Surge dash attack"));
+                "Hits build tidal charge — kills charge significantly more"));
             tooltips.Add(new TooltipLine(Mod, "Effect3",
-                "Surge hits empower the next swing to Full Moon crescendo"));
+                "Right-click at full charge to unleash a ring of homing lunar orbs"));
             tooltips.Add(new TooltipLine(Mod, "Effect4",
                 "Ghost reflections echo at Half Moon, tidal detonation at Full Moon"));
             tooltips.Add(new TooltipLine(Mod, "Phase",

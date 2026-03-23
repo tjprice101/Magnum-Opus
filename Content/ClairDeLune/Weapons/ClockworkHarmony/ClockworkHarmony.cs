@@ -1,12 +1,15 @@
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.UI;
 using MagnumOpus.Content.ClairDeLune;
 using MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Projectiles;
+using MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Utilities;
 using MagnumOpus.Content.SandboxExoblade.Utilities;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -17,8 +20,10 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony
     /// Clockwork Harmony — Clair de Lune's gear-driven melee weapon.
     /// Exoblade-architecture weapon with moonlit clockwork VFX.
     /// </summary>
-    public class ClockworkHarmony : ModItem
+    public class ClockworkHarmony : ModItem, IOverdriveItem
     {
+        public IResonantOverdrive GetOverdrivePlayer(Player player) => player.GetModPlayer<ClockworkHarmonyPlayer>();
+
         public override void SetStaticDefaults()
         {
             Item.ResearchUnlockCount = 1;
@@ -77,6 +82,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony
 
             float pulse = 0.7f + 0.3f * MathF.Sin(Main.GlobalTimeWrappedHourly * 3f);
             Lighting.AddLight(player.Center, ClairDeLunePalette.SoftBlue.ToVector3() * 0.35f * pulse);
+            player.GetModPlayer<ClockworkHarmonyPlayer>().IsHoldingClockworkHarmony = true;
         }
 
         public override bool AltFunctionUse(Player player) => true;
@@ -86,11 +92,30 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
             Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            float state = player.altFunctionUse == 2 ? 1f : 0f;
+            if (player.altFunctionUse == 2)
+            {
+                var cp = player.GetModPlayer<ClockworkHarmonyPlayer>();
+                if (cp.IsChargeFull)
+                {
+                    cp.ConsumeCharge();
+                    SoundEngine.PlaySound(SoundID.Item29 with { Pitch = -0.4f }, player.Center);
+                    for (int i = 0; i < 8; i++)
+                    {
+                        float angle = MathHelper.TwoPi / 8f * i;
+                        Vector2 bombVel = new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * 6f;
+                        Projectile.NewProjectile(source, player.Center, bombVel,
+                            ModContent.ProjectileType<ClockworkHarmonySpecialProj>(),
+                            damage * 2, knockback, player.whoAmI);
+                    }
+                }
+                else
+                    SoundEngine.PlaySound(SoundID.Item16 with { Pitch = 0.5f, Volume = 0.5f }, player.Center);
+                return false;
+            }
+
             Projectile.NewProjectile(source, player.MountedCenter,
                 (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
-                type, damage, knockback, player.whoAmI, state, 0);
-
+                type, damage, knockback, player.whoAmI, 0f, 0);
             return false;
         }
 

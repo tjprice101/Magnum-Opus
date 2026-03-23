@@ -15,6 +15,8 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Projectiles
     /// </summary>
     public class NocturnalExecutionerSwing : ExobladeStyleSwing
     {
+        protected override bool SupportsDash => false;
+
         /// <summary>Combo phase (0-3). Advances each swing including hold re-swings.</summary>
         private int comboPhase = 0;
 

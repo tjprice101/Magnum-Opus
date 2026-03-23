@@ -1218,9 +1218,17 @@ namespace MagnumOpus.Content.Autumn.Bosses
         
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<AutumnResonantEnergy>(), 1, 3, 5));
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<LeafOfEnding>(), 1, 18, 28));
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<DormantAutumnCore>(), 3));
+            // Expert/Master: Treasure Bag
+            npcLoot.Add(ItemDropRule.BossBag(ModContent.ItemType<AutunnoTreasureBag>()));
+
+            // Normal mode drops
+            LeadingConditionRule notExpert = new LeadingConditionRule(new Conditions.NotExpert());
+
+            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<AutumnResonantEnergy>(), 1, 3, 5));
+            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<LeafOfEnding>(), 1, 18, 28));
+            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<DormantAutumnCore>(), 3));
+
+            npcLoot.Add(notExpert);
         }
         
         public override void OnKill()

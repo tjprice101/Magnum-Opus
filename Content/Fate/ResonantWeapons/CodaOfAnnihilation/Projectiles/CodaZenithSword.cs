@@ -387,6 +387,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
 
             Vector2 origin = weaponTex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            float baseScale = CodaUtils.GetNormalizedDrawScale(weaponTex);
 
             try
             {
@@ -491,11 +492,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
                 RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             // Draw weapon sprite
-            sb.Draw(weaponTex, drawPos, null, Color.White, Projectile.rotation, origin, 1f, SpriteEffects.None, 0f);
+            sb.Draw(weaponTex, drawPos, null, Color.White, Projectile.rotation, origin, baseScale, SpriteEffects.None, 0f);
 
             // Additive weapon glow overlay (A=0 trick under AlphaBlend = pure additive)
             Color weaponGlow = CodaUtils.Additive(weaponColor, 0.15f);
-            sb.Draw(weaponTex, drawPos, null, weaponGlow, Projectile.rotation, origin, 0.84f, SpriteEffects.None, 0f);
+            sb.Draw(weaponTex, drawPos, null, weaponGlow, Projectile.rotation, origin, baseScale * 0.84f, SpriteEffects.None, 0f);
 
             // Restore SpriteBatch to the state Terraria expects (matching Main.DefaultSamplerState + Main.Rasterizer)
             sb.End();

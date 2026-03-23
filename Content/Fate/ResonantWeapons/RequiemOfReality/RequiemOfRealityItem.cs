@@ -9,6 +9,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.UI;
 using MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Utilities;
 using MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Particles;
 using MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Projectiles;
@@ -32,8 +33,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality
     ///   3-5 seeking music notes spawn per swing.
     ///   Every 4th swing = Finale movement + RequiemSpectralBlade autonomous combo.
     /// </summary>
-    public class RequiemOfRealityItem : ModItem
+    public class RequiemOfRealityItem : ModItem, IOverdriveItem
     {
+        public IResonantOverdrive GetOverdrivePlayer(Player player) => player.GetModPlayer<RequiemPlayer>();
+
         // Texture path: sprite is in this folder alongside this .cs file
         public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/RequiemOfReality";
 
@@ -43,6 +46,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality
         /// <summary>Tracks the 4-movement combo: Adagio → Allegro → Scherzo → Finale.
         /// Finale (every 4th swing) summons the autonomous RequiemSpectralBlade.</summary>
         private int movementCounter = 0;
+
+        /// <summary>Cooldown timer for freeze aura right-click (30 second cooldown = 1800 ticks).</summary>
+        private static int freezeAuraCooldown = 0;
+        private const int FreezeAuraCooldownMax = 1800;
 
         public override void SetStaticDefaults()
         {
@@ -106,6 +113,24 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            // Right-click: Freeze Aura (30s cooldown)
+            if (player.altFunctionUse == 2)
+            {
+                var rp = player.Requiem();
+                if (rp.IsChargeFull && freezeAuraCooldown <= 0)
+                {
+                    rp.ConsumeCharge();
+                    freezeAuraCooldown = FreezeAuraCooldownMax;
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f }, player.Center);
+                    Projectile.NewProjectile(source, player.Center, Vector2.Zero,
+                        ModContent.ProjectileType<RequiemSpecialProj>(),
+                        0, 0f, player.whoAmI);
+                }
+                else
+                    SoundEngine.PlaySound(SoundID.Item16 with { Pitch = 0.5f, Volume = 0.5f }, player.Center);
+                return false;
+            }
+
             float state = player.altFunctionUse == 2 ? 1f : 0f;
             Projectile.NewProjectile(source, player.MountedCenter,
                 (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
@@ -185,8 +210,13 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality
 
         public override void HoldItem(Player player)
         {
+            player.Requiem().IsHoldingRequiemOfReality = true;
             player.ExoBlade().rightClickListener = true;
             player.ExoBlade().mouseWorldListener = true;
+
+            // Tick down cooldown
+            if (freezeAuraCooldown > 0)
+                freezeAuraCooldown--;
 
             // Ambient weapon glow while held
             if (Main.dedServ) return;

@@ -1,10 +1,13 @@
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.UI;
 using MagnumOpus.Content.ClairDeLune;
 using MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer.Projectiles;
+using MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer.Utilities;
 using MagnumOpus.Content.SandboxExoblade.Utilities;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -15,8 +18,9 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer
     /// Temporal Piercer — Clair de Lune's precision rapier that punctures time itself.
     /// Exoblade-architecture weapon with frost shimmer VFX.
     /// </summary>
-    public class TemporalPiercer : ModItem
+    public class TemporalPiercer : ModItem, IOverdriveItem
     {
+        public IResonantOverdrive GetOverdrivePlayer(Player player) => player.GetModPlayer<TemporalPiercerPlayer>();
 
         public override void SetStaticDefaults()
         {
@@ -63,6 +67,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer
         {
             player.ExoBlade().rightClickListener = true;
             player.ExoBlade().mouseWorldListener = true;
+            player.GetModPlayer<TemporalPiercerPlayer>().IsHoldingTemporalPiercer = true;
         }
 
         public override bool AltFunctionUse(Player player) => true;
@@ -72,11 +77,41 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
             Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            float state = player.altFunctionUse == 2 ? 1f : 0f;
+            if (player.altFunctionUse == 2)
+            {
+                var cp = player.GetModPlayer<TemporalPiercerPlayer>();
+                if (cp.IsChargeFull)
+                {
+                    cp.ConsumeCharge();
+                    SoundEngine.PlaySound(SoundID.Item29 with { Pitch = -0.4f }, player.Center);
+
+                    // Find nearest enemy
+                    NPC target = null;
+                    float closestDist = 800f;
+                    foreach (NPC npc in Main.ActiveNPCs)
+                    {
+                        if (!npc.CanBeChasedBy()) continue;
+                        float dist = Vector2.Distance(player.Center, npc.Center);
+                        if (dist < closestDist) { closestDist = dist; target = npc; }
+                    }
+                    if (target != null)
+                    {
+                        player.Teleport(target.Center - new Vector2(0, 40), -1);
+                        Projectile.NewProjectile(source, target.Center, Vector2.Zero,
+                            ModContent.ProjectileType<TemporalPiercerSpecialProj>(),
+                            (int)(damage * 1.5f), knockback, player.whoAmI);
+                        player.statLife = System.Math.Min(player.statLife + player.statLifeMax2 * 15 / 100, player.statLifeMax2);
+                        player.HealEffect(player.statLifeMax2 * 15 / 100);
+                    }
+                }
+                else
+                    SoundEngine.PlaySound(SoundID.Item16 with { Pitch = 0.5f, Volume = 0.5f }, player.Center);
+                return false;
+            }
+
             Projectile.NewProjectile(source, player.MountedCenter,
                 (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
-                type, damage, knockback, player.whoAmI, state, 0);
-
+                type, damage, knockback, player.whoAmI, 0f, 0);
             return false;
         }
 

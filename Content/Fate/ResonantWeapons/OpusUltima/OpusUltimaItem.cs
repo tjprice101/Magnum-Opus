@@ -9,6 +9,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.UI;
 using MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Utilities;
 using MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Particles;
 using MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Projectiles;
@@ -36,8 +37,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima
     ///   On melee hit: DestinyCollapse (4s) + 3-5 seeking crystal shards at 40% damage.
     ///   Weapon GLOWS with increasing intensity through the combo.
     /// </summary>
-    public class OpusUltimaItem : ModItem
+    public class OpusUltimaItem : ModItem, IOverdriveItem
     {
+        public IResonantOverdrive GetOverdrivePlayer(Player player) => player.GetModPlayer<OpusPlayer>();
+
         public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/OpusUltima";
 
         // Glow texture for hold VFX
@@ -108,6 +111,29 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            // Right-click: Explosive Sparkle Spread (10 projectiles)
+            if (player.altFunctionUse == 2)
+            {
+                var op = player.Opus();
+                if (op.IsChargeFull)
+                {
+                    op.ConsumeCharge();
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.1f }, player.Center);
+                    Vector2 aimDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
+                    for (int i = 0; i < 10; i++)
+                    {
+                        float spreadAngle = MathHelper.ToRadians(-45f + 10f * i);
+                        Vector2 sparkVel = aimDir.RotatedBy(spreadAngle) * Main.rand.NextFloat(8f, 14f);
+                        Projectile.NewProjectile(source, player.MountedCenter, sparkVel,
+                            ModContent.ProjectileType<OpusUltimaSpecialProj>(),
+                            (int)(damage * 0.8f), knockback * 0.5f, player.whoAmI);
+                    }
+                }
+                else
+                    SoundEngine.PlaySound(SoundID.Item16 with { Pitch = 0.5f, Volume = 0.5f }, player.Center);
+                return false;
+            }
+
             float state = player.altFunctionUse == 2 ? 1f : 0f;
             Projectile.NewProjectile(source, player.MountedCenter,
                 (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
@@ -117,7 +143,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima
             // Movement I  (Exposition): Single energy ball forward
             // Movement II (Development): Twin energy balls in narrow spread
             // Movement III (Recapitulation): Massive energy ball (1.5x) + flanking seekers
-            Vector2 aimDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
+            Vector2 comboAimDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
             int movement = movementCounter % 3;
             movementCounter++;
             int energyBallType = ModContent.ProjectileType<OpusEnergyBallProjectile>();
@@ -125,7 +151,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima
             switch (movement)
             {
                 case 0: // Exposition — single energy ball
-                    Projectile.NewProjectile(source, player.MountedCenter, aimDir * 12f,
+                    Projectile.NewProjectile(source, player.MountedCenter, comboAimDir * 12f,
                         energyBallType, (int)(damage * 0.4f), knockback * 0.5f, player.whoAmI,
                         0f, 1f); // mode=EnergyBall, size=1.0
                     break;
@@ -133,7 +159,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima
                 case 1: // Development — twin energy balls
                     for (int i = -1; i <= 1; i += 2)
                     {
-                        Vector2 ballVel = aimDir.RotatedBy(MathHelper.ToRadians(12 * i)) * 13f;
+                        Vector2 ballVel = comboAimDir.RotatedBy(MathHelper.ToRadians(12 * i)) * 13f;
                         Projectile.NewProjectile(source, player.MountedCenter, ballVel,
                             energyBallType, (int)(damage * 0.35f), knockback * 0.5f, player.whoAmI,
                             0f, 1f);
@@ -141,14 +167,14 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima
                     break;
 
                 case 2: // Recapitulation — massive energy ball + 2 crystal shards
-                    Projectile.NewProjectile(source, player.MountedCenter, aimDir * 10f,
+                    Projectile.NewProjectile(source, player.MountedCenter, comboAimDir * 10f,
                         energyBallType, (int)(damage * 0.6f), knockback, player.whoAmI,
                         0f, 1.5f); // size=1.5x massive
 
                     // Flanking crystal shards
                     for (int i = -1; i <= 1; i += 2)
                     {
-                        Vector2 shardVel = aimDir.RotatedBy(MathHelper.ToRadians(35 * i)) * 8f;
+                        Vector2 shardVel = comboAimDir.RotatedBy(MathHelper.ToRadians(35 * i)) * 8f;
                         Projectile.NewProjectile(source, player.MountedCenter, shardVel,
                             energyBallType, (int)(damage * 0.25f), knockback * 0.3f, player.whoAmI,
                             2f, 1f); // mode=CrystalShard
@@ -161,6 +187,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima
 
         public override void HoldItem(Player player)
         {
+            player.Opus().IsHoldingOpusUltima = true;
             player.ExoBlade().rightClickListener = true;
             player.ExoBlade().mouseWorldListener = true;
 

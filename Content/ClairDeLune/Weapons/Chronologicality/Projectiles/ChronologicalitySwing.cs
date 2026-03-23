@@ -13,6 +13,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles
     /// </summary>
     public class ChronologicalitySwing : ExobladeStyleSwing
     {
+        protected override bool SupportsDash => false;
+
         protected override float BladeLength => 102f;
         protected override int BaseSwingFrames => 76;
         protected override float TextureDrawScale => 0.91f;

@@ -14,6 +14,8 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Projectiles
     /// </summary>
     public class WrathsCleaverSwing : ExobladeStyleSwing
     {
+        protected override bool SupportsDash => false;
+
         /// <summary>Wrath combo phase (0-3). Advances each swing including hold re-swings.</summary>
         private int comboPhase = 0;
 

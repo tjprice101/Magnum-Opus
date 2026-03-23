@@ -1359,9 +1359,17 @@ namespace MagnumOpus.Content.Winter.Bosses
         
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<WinterResonantEnergy>(), 1, 3, 5));
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<ShardOfStillness>(), 1, 18, 28));
-            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<DormantWinterCore>(), 3));
+            // Expert/Master: Treasure Bag
+            npcLoot.Add(ItemDropRule.BossBag(ModContent.ItemType<LInvernoTreasureBag>()));
+
+            // Normal mode drops
+            LeadingConditionRule notExpert = new LeadingConditionRule(new Conditions.NotExpert());
+
+            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<WinterResonantEnergy>(), 1, 3, 5));
+            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ShardOfStillness>(), 1, 18, 28));
+            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<DormantWinterCore>(), 3));
+
+            npcLoot.Add(notExpert);
         }
         
         public override void OnKill()

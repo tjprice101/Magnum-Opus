@@ -1,9 +1,12 @@
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.UI;
 using MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Projectiles;
+using MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Utilities;
 using MagnumOpus.Content.SandboxExoblade.Utilities;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -14,8 +17,9 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw
     /// Rose Thorn Chainsaw — Ode to Joy's rose-themed melee weapon.
     /// Exoblade-architecture melee with rose pink slash arcs and golden pollen accents.
     /// </summary>
-    public class RoseThornChainsaw : ModItem
+    public class RoseThornChainsaw : ModItem, IOverdriveItem
     {
+        public IResonantOverdrive GetOverdrivePlayer(Player player) => player.GetModPlayer<RoseThornChainsawPlayer>();
 
         public override void SetStaticDefaults()
         {
@@ -62,6 +66,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw
         {
             player.ExoBlade().rightClickListener = true;
             player.ExoBlade().mouseWorldListener = true;
+            player.GetModPlayer<RoseThornChainsawPlayer>().IsHoldingRoseThornChainsaw = true;
         }
 
         public override bool AltFunctionUse(Player player) => true;
@@ -71,10 +76,31 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
             Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            float state = player.altFunctionUse == 2 ? 1f : 0f;
+            // Right-click: charge-gated special — spawn 1 empowerment aura (tracks player, 10s duration)
+            if (player.altFunctionUse == 2)
+            {
+                var rtp = player.GetModPlayer<RoseThornChainsawPlayer>();
+
+                if (rtp.IsChargeFull)
+                {
+                    rtp.ConsumeCharge();
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.1f, Volume = 0.8f }, player.MountedCenter);
+
+                    Projectile.NewProjectile(source, player.MountedCenter, Vector2.Zero,
+                        ModContent.ProjectileType<RoseThornChainsawSpecialProj>(),
+                        0, 0f, player.whoAmI);
+                }
+                else
+                {
+                    SoundEngine.PlaySound(SoundID.Item27 with { Pitch = -0.3f, Volume = 0.4f }, player.MountedCenter);
+                }
+                return false;
+            }
+
+            // Normal left-click: spawn swing projectile
             Projectile.NewProjectile(source, player.MountedCenter,
                 (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
-                type, damage, knockback, player.whoAmI, state, 0);
+                type, damage, knockback, player.whoAmI, 0f, 0);
 
             return false;
         }

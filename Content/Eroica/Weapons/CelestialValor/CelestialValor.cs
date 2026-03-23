@@ -1,9 +1,12 @@
 ﻿using MagnumOpus.Common;
 using MagnumOpus.Content.Eroica;
+using MagnumOpus.Content.Eroica.Weapons.CelestialValor.Projectiles;
+using MagnumOpus.Content.Eroica.Weapons.CelestialValor.Utilities;
 using MagnumOpus.Content.SandboxExoblade.Utilities;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -12,13 +15,12 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 {
     /// <summary>
     /// Celestial Valor — Eroica's signature melee broadsword embodying the hero's triumphant first movement.
-    /// Features a 4-phase Heroic Crescendo combo with escalating valor slash arcs, beam projectiles,
-    /// a Valor Gauge that builds toward a devastating Gloria finale, and Hero's Resolve empowerment below 30% HP.
-    /// Combo tracking lives in CelestialValorSwing so it advances on hold re-swings.
+    /// Features a 4-phase Heroic Crescendo combo with escalating valor slash arcs and beam projectiles.
+    /// Hits build a Valor Charge meter — at full, right-click launches the blade skyward.
+    /// Right-click again to ignite and hurl the blade at the nearest enemy, creating a devastating inferno zone.
     /// </summary>
     public class CelestialValor : ModItem
     {
-
         public override void SetStaticDefaults()
         {
             Item.ResearchUnlockCount = 1;
@@ -48,20 +50,24 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
 
         public override bool CanShoot(Player player)
         {
-            bool isDash = player.altFunctionUse == 2;
+            // Right-click: always allow (Shoot handles deny/flying blade logic)
+            if (player.altFunctionUse == 2)
+                return true;
+
+            // Normal swing: don't overlap with an active swing
             for (int i = 0; i < Main.maxProjectiles; i++)
             {
                 Projectile p = Main.projectile[i];
                 if (!p.active || p.owner != player.whoAmI || p.type != Item.shoot)
                     continue;
-                if (isDash) return false;
-                if (!(p.ai[0] == 1 && p.ai[1] == 1)) return false;
+                return false;
             }
             return true;
         }
 
         public override void HoldItem(Player player)
         {
+            player.CelestialValor().IsHoldingCelestialValor = true;
             player.ExoBlade().rightClickListener = true;
             player.ExoBlade().mouseWorldListener = true;
         }
@@ -73,13 +79,38 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
             Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            float state = player.altFunctionUse == 2 ? 1f : 0f;
+            // Right-click: charge-gated special
+            if (player.altFunctionUse == 2)
+            {
+                var cvp = player.CelestialValor();
+
+                if (cvp.HasActiveFlyingBlade)
+                {
+                    // Second right-click: signal the flying blade to ignite and hurl
+                    cvp.TriggerBladeHurl = true;
+                    SoundEngine.PlaySound(SoundID.Item74 with { Pitch = 0.2f }, player.MountedCenter);
+                }
+                else if (cvp.IsChargeFull)
+                {
+                    // First right-click at full charge: spawn flying blade
+                    cvp.ConsumeCharge();
+                    int bladeDmg = (int)(damage * 1.5f);
+                    Projectile.NewProjectile(source, player.MountedCenter, Vector2.UnitY * -4f,
+                        ModContent.ProjectileType<CelestialValorFlyingBlade>(),
+                        bladeDmg, knockback, player.whoAmI);
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f, Volume = 0.9f }, player.MountedCenter);
+                }
+                else
+                {
+                    SoundEngine.PlaySound(SoundID.Item27 with { Pitch = -0.3f, Volume = 0.4f }, player.MountedCenter);
+                }
+                return false;
+            }
+
+            // Normal left-click: spawn swing projectile
             Projectile.NewProjectile(source, player.MountedCenter,
                 (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
-                type, damage, knockback, player.whoAmI, state, 0);
-
-            // Combo projectiles are now spawned by CelestialValorSwing.OnSwingStart()
-            // so they advance on hold re-swings, not just on initial click.
+                type, damage, knockback, player.whoAmI, 0f, 0);
 
             return false;
         }
@@ -87,16 +118,16 @@ namespace MagnumOpus.Content.Eroica.Weapons.CelestialValor
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1",
-            "Heroic Crescendo — 4-phase combo that builds to a devastating Finale Fortissimo"));
+                "Heroic Crescendo — 4-phase combo that builds to a devastating Finale Fortissimo"));
             tooltips.Add(new TooltipLine(Mod, "Effect2",
-            "Combo spawns valor beams and culminates in a massive heroic detonation"));
+                "Combo spawns valor beams and culminates in a massive heroic detonation"));
             tooltips.Add(new TooltipLine(Mod, "Effect3",
-            "Valor Gauge builds on successive hits — at maximum, Finale becomes Gloria"));
+                "Hits build valor charge — at maximum, right-click to launch the blade skyward"));
             tooltips.Add(new TooltipLine(Mod, "Effect4",
-            "Hero's Resolve: below 30% HP, all swings deal 25% more damage")
+                "Right-click again to ignite and hurl the blade, creating a devastating inferno zone")
             { OverrideColor = EroicaPalette.Gold });
             tooltips.Add(new TooltipLine(Mod, "Lore",
-            "'Rise, even when the world says fall.'")
+                "'Rise, even when the world says fall.'")
             { OverrideColor = new Color(200, 50, 50) });
         }
     }

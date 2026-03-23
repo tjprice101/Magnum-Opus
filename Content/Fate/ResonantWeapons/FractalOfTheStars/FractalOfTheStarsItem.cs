@@ -9,6 +9,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.UI;
 using MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Utilities;
 using MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Particles;
 using MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Projectiles;
@@ -34,8 +35,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars
     ///   Every 3rd hit (Gravity Slam): Star Fracture — geometric fractal explosion
     ///   Orbit blades periodically fire prismatic beams
     /// </summary>
-    public class FractalOfTheStarsItem : ModItem
+    public class FractalOfTheStarsItem : ModItem, IOverdriveItem
     {
+        public IResonantOverdrive GetOverdrivePlayer(Player player) => player.GetModPlayer<FractalPlayer>();
+
         public override string Texture => "MagnumOpus/Content/Fate/ResonantWeapons/FractalOfTheStars";
 
         private static Asset<Texture2D> _glowTex;
@@ -109,6 +112,30 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            // Right-click: Fractal Slash — slash all on-screen enemies
+            if (player.altFunctionUse == 2)
+            {
+                var fp = player.GetModPlayer<FractalPlayer>();
+                if (fp.IsChargeFull)
+                {
+                    fp.ConsumeCharge();
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.3f }, player.Center);
+                    // Slash all on-screen enemies
+                    foreach (NPC npc in Main.ActiveNPCs)
+                    {
+                        if (!npc.CanBeChasedBy()) continue;
+                        if (System.Math.Abs(npc.Center.X - player.Center.X) > Main.screenWidth / 2 + 100) continue;
+                        if (System.Math.Abs(npc.Center.Y - player.Center.Y) > Main.screenHeight / 2 + 100) continue;
+                        Projectile.NewProjectile(source, npc.Center, Vector2.Zero,
+                            ModContent.ProjectileType<Projectiles.FractalSpecialProj>(),
+                            damage * 2, knockback, player.whoAmI);
+                    }
+                }
+                else
+                    SoundEngine.PlaySound(SoundID.Item16 with { Pitch = 0.5f, Volume = 0.5f }, player.Center);
+                return false;
+            }
+
             float state = player.altFunctionUse == 2 ? 1f : 0f;
             Projectile.NewProjectile(source, player.MountedCenter,
                 (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
@@ -173,6 +200,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars
 
         public override void HoldItem(Player player)
         {
+            player.GetModPlayer<FractalPlayer>().IsHoldingFractalOfTheStars = true;
             player.ExoBlade().rightClickListener = true;
             player.ExoBlade().mouseWorldListener = true;
 
