@@ -174,18 +174,18 @@ namespace MagnumOpus.Content.Fate.Enemies
             // Spawn in Corruption/Crimson after Moon Lord
             if (!NPC.downedMoonlord) return 0f;
             if (!spawnInfo.Player.ZoneCorrupt && !spawnInfo.Player.ZoneCrimson) return 0f;
-            if (spawnInfo.Player.ZoneTowerNebula || spawnInfo.Player.ZoneTowerSolar || 
+            if (spawnInfo.Player.ZoneTowerNebula || spawnInfo.Player.ZoneTowerSolar ||
                 spawnInfo.Player.ZoneTowerStardust || spawnInfo.Player.ZoneTowerVortex) return 0f;
-            
+
             // Only one at a time
             foreach (NPC npc in Main.npc)
             {
                 if (npc.active && npc.type == Type)
                     return 0f;
             }
-            
-            // 3% chance - rare but findable
-            return 0.03f;
+
+            // 5% chance - standard encounter like other post-ML mini-bosses
+            return 0.05f;
         }
 
         public override void OnSpawn(Terraria.DataStructures.IEntitySource source)

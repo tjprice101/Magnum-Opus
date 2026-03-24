@@ -898,14 +898,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
 
         public override float SpawnChance(NPCSpawnInfo spawnInfo)
         {
-            // Mini-boss spawn in snow biome after Moon Lord - rare
-            if (NPC.downedMoonlord && 
+            // Mini-boss spawn in snow biome after Moon Lord - standard encounter
+            if (NPC.downedMoonlord &&
                 spawnInfo.Player.ZoneSnow &&
                 spawnInfo.Player.ZoneOverworldHeight &&
                 !spawnInfo.PlayerSafe &&
                 !NPC.AnyNPCs(Type))
             {
-                return 0.08f;
+                return 0.05f;
             }
             return 0f;
         }
