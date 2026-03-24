@@ -125,7 +125,7 @@ namespace MagnumOpus.Content.Fate.Bosses.Systems
                 // Phase 3: Black hole aura -- dark void ring with bright inner accretion
                 Color voidOuter = FatePalette.CosmicVoid * (0.25f * baseIntensity * pulse);
                 voidOuter.A = 0;
-                sb.Draw(glow, drawPos, null, voidOuter, 0f, glowOrigin, 3.5f, SpriteEffects.None, 0f);
+                sb.Draw(glow, drawPos, null, voidOuter, 0f, glowOrigin, 2.28f, SpriteEffects.None, 0f);
 
                 Color accretion = FatePalette.BrightCrimson * (0.2f * baseIntensity * pulse);
                 accretion.A = 0;
@@ -141,7 +141,7 @@ namespace MagnumOpus.Content.Fate.Bosses.Systems
                 float shimmer = 0.7f + 0.3f * (float)Math.Sin(time * 0.04f);
                 Color outerGlow = FatePalette.DarkPink * (0.18f * baseIntensity * shimmer);
                 outerGlow.A = 0;
-                sb.Draw(glow, drawPos, null, outerGlow, 0f, glowOrigin, 2.8f, SpriteEffects.None, 0f);
+                sb.Draw(glow, drawPos, null, outerGlow, 0f, glowOrigin, 1.82f, SpriteEffects.None, 0f);
 
                 Color midGlow = FatePalette.BrightCrimson * (0.14f * baseIntensity * pulse);
                 midGlow.A = 0;

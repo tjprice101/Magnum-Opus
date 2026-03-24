@@ -792,7 +792,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses.Systems
             LaCampanellaSkySystem.TriggerWhiteFlash(0.9f);
 
             // Massive bloom supernova core
-            CustomParticles.GenericFlare(center, FlameWhite, 2.0f, 30);
+            CustomParticles.GenericFlare(center, FlameWhite, 1.2f, 30);
 
             // Ring of fractured toll blasts
             for (int i = 0; i < 8; i++)

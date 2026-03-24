@@ -379,7 +379,7 @@ namespace MagnumOpus.Content.Winter.Bosses.Systems
             MagnumScreenEffects.AddScreenShake(25f + phase * 4f);
             TriggerAbsoluteZeroFlash(16f + phase * 3f);
 
-            CustomParticles.GenericFlare(center, BlizzardWhite, 2.2f + phase * 0.3f, 30 + phase * 5);
+            CustomParticles.GenericFlare(center, BlizzardWhite, 1.2f, 30 + phase * 5);
 
             // Expanding ring of theme-colored flares
             for (int i = 0; i < 20; i++)

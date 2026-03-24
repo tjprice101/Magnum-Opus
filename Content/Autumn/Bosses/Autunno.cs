@@ -266,8 +266,8 @@ namespace MagnumOpus.Content.Autumn.Bosses
                 CustomParticles.HaloRing(NPC.Center, haloColor, 0.45f + i * 0.14f, 18 + i * 3);
             }
             
-            CustomParticles.GenericFlare(NPC.Center, AutumnWhite, 1.8f, 32);
-            CustomParticles.GenericFlare(NPC.Center, FadingGold, 1.4f, 28);
+            CustomParticles.GenericFlare(NPC.Center, AutumnWhite, 1.2f, 32);
+            CustomParticles.GenericFlare(NPC.Center, FadingGold, 1.2f, 28);
             
             SpawnLeafBurst(NPC.Center, 30, 10f);
             MagnumScreenEffects.AddScreenShake(11f);
@@ -289,7 +289,7 @@ namespace MagnumOpus.Content.Autumn.Bosses
             if (Timer == 1)
             {
                 SoundEngine.PlaySound(SoundID.NPCDeath6 with { Pitch = 0.3f }, NPC.Center);
-                CustomParticles.GenericFlare(NPC.Center, AutumnWhite, 2.2f, 42);
+                CustomParticles.GenericFlare(NPC.Center, AutumnWhite, 1.2f, 42);
                 
                 for (int i = 0; i < 14; i++)
                 {
@@ -512,9 +512,9 @@ namespace MagnumOpus.Content.Autumn.Bosses
             {
                 // Final withering explosion
                 TriggerFinalFlash(25f);
-                CustomParticles.GenericFlare(NPC.Center, AutumnWhite, 2.8f, 48);
-                CustomParticles.GenericFlare(NPC.Center, FadingGold, 2.3f, 42);
-                CustomParticles.GenericFlare(NPC.Center, DecayPurple, 1.8f, 36);
+                CustomParticles.GenericFlare(NPC.Center, AutumnWhite, 1.2f, 48);
+                CustomParticles.GenericFlare(NPC.Center, FadingGold, 1.2f, 42);
+                CustomParticles.GenericFlare(NPC.Center, DecayPurple, 1.2f, 36);
                 
                 for (int i = 0; i < 16; i++)
                 {
@@ -1053,9 +1053,9 @@ namespace MagnumOpus.Content.Autumn.Bosses
                     MagnumScreenEffects.AddScreenShake(18f);
                     
                     // Massive withering explosion VFX
-                    CustomParticles.GenericFlare(NPC.Center, AutumnWhite, 2.8f, 42);
-                    CustomParticles.GenericFlare(NPC.Center, FadingGold, 2.4f, 38);
-                    CustomParticles.GenericFlare(NPC.Center, DecayPurple, 1.9f, 32);
+                    CustomParticles.GenericFlare(NPC.Center, AutumnWhite, 1.2f, 42);
+                    CustomParticles.GenericFlare(NPC.Center, FadingGold, 1.2f, 38);
+                    CustomParticles.GenericFlare(NPC.Center, DecayPurple, 1.2f, 32);
                     
                     for (int i = 0; i < 18; i++)
                     {
@@ -1232,7 +1232,7 @@ namespace MagnumOpus.Content.Autumn.Bosses
         
         public override void OnKill()
         {
-            CustomParticles.GenericFlare(NPC.Center, AutumnWhite, 2.5f, 45);
+            CustomParticles.GenericFlare(NPC.Center, AutumnWhite, 1.2f, 45);
             for (int i = 0; i < 13; i++)
             {
                 CustomParticles.HaloRing(NPC.Center, Color.Lerp(AutumnOrange, DecayPurple, i / 13f), 0.48f + i * 0.14f, 19 + i * 3);

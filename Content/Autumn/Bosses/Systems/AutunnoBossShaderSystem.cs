@@ -83,7 +83,7 @@ namespace MagnumOpus.Content.Autumn.Bosses.Systems
 
             Color outer = TwilightAmber * 0.15f * intensity;
             outer.A = 0;
-            sb.Draw(glow, drawPos, null, outer, 0f, origin, 2.8f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(glow, drawPos, null, outer, 0f, origin, 1.82f * pulse, SpriteEffects.None, 0f);
 
             Color mid = HarvestGold * 0.22f * intensity;
             mid.A = 0;
@@ -122,11 +122,11 @@ namespace MagnumOpus.Content.Autumn.Bosses.Systems
 
             Color outer = DecayBrown * 0.2f * intensity;
             outer.A = 0;
-            sb.Draw(glow, drawPos, null, outer, 0f, origin, 3.5f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(glow, drawPos, null, outer, 0f, origin, 2.28f * pulse, SpriteEffects.None, 0f);
 
             Color mid = Color.Lerp(WitheredRed, TwilightAmber, 0.3f) * 0.28f * intensity;
             mid.A = 0;
-            sb.Draw(glow, drawPos, null, mid, 0f, origin, 2.0f, SpriteEffects.None, 0f);
+            sb.Draw(glow, drawPos, null, mid, 0f, origin, 1.3f, SpriteEffects.None, 0f);
 
             Color core = TwilightAmber * 0.35f * intensity;
             core.A = 0;

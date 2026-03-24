@@ -297,7 +297,7 @@ namespace MagnumOpus.Content.Fate.Bosses.Systems
             TriggerCelestialFlash(18f);
             MagnumScreenEffects.AddScreenShake(25f);
             ChromaticImpactRipple(center, 2.0f);
-            CustomParticles.GenericFlare(center, FatePalette.WhiteCelestial, 2.0f, 28);
+            CustomParticles.GenericFlare(center, FatePalette.WhiteCelestial, 1.2f, 28);
             // Theme-color ring: each ring segment a different theme
             for (int i = 0; i < 16; i++)
             {
@@ -379,7 +379,7 @@ namespace MagnumOpus.Content.Fate.Bosses.Systems
             TriggerRealityPunch();
             MagnumScreenEffects.AddScreenShake(30f);
             ChromaticImpactRipple(center, 3.0f);
-            CustomParticles.GenericFlare(center, FatePalette.WhiteCelestial, 2.5f, 35);
+            CustomParticles.GenericFlare(center, FatePalette.WhiteCelestial, 1.2f, 35);
 
             // 10-theme supernova ring -- each segment a different conquered theme
             for (int i = 0; i < 24; i++)

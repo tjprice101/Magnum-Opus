@@ -274,8 +274,8 @@ namespace MagnumOpus.Content.Winter.Bosses
                 MagnumParticleHandler.SpawnParticle(frostSparkle);
             }
             
-            CustomParticles.GenericFlare(NPC.Center, WinterWhite, 2f, 35);
-            CustomParticles.GenericFlare(NPC.Center, FrostBlue, 1.6f, 30);
+            CustomParticles.GenericFlare(NPC.Center, WinterWhite, 1.2f, 35);
+            CustomParticles.GenericFlare(NPC.Center, FrostBlue, 1.2f, 30);
             
             SpawnIceBurst(NPC.Center, 35, 11f);
             MagnumScreenEffects.AddScreenShake(12f);
@@ -535,9 +535,9 @@ namespace MagnumOpus.Content.Winter.Bosses
             {
                 // Final crystalline shatter
                 TriggerAbsoluteZeroFlash(25f);
-                CustomParticles.GenericFlare(NPC.Center, WinterWhite, 3f, 50);
-                CustomParticles.GenericFlare(NPC.Center, FrostBlue, 2.5f, 45);
-                CustomParticles.GenericFlare(NPC.Center, CrystalCyan, 2f, 38);
+                CustomParticles.GenericFlare(NPC.Center, WinterWhite, 1.2f, 50);
+                CustomParticles.GenericFlare(NPC.Center, FrostBlue, 1.2f, 45);
+                CustomParticles.GenericFlare(NPC.Center, CrystalCyan, 1.2f, 38);
                 
                 // Frost sparkle burst 
                 for (int i = 0; i < 18; i++)
@@ -1032,9 +1032,9 @@ namespace MagnumOpus.Content.Winter.Bosses
                     MagnumScreenEffects.AddScreenShake(20f);
                     
                     // Massive frost explosion VFX
-                    CustomParticles.GenericFlare(NPC.Center, WinterWhite, 3f, 45);
-                    CustomParticles.GenericFlare(NPC.Center, FrostBlue, 2.6f, 40);
-                    CustomParticles.GenericFlare(NPC.Center, CrystalCyan, 2.1f, 35);
+                    CustomParticles.GenericFlare(NPC.Center, WinterWhite, 1.2f, 45);
+                    CustomParticles.GenericFlare(NPC.Center, FrostBlue, 1.2f, 40);
+                    CustomParticles.GenericFlare(NPC.Center, CrystalCyan, 1.2f, 35);
                     
                     // Frost sparkle burst 
                     for (int i = 0; i < 20; i++)
@@ -1114,8 +1114,8 @@ namespace MagnumOpus.Content.Winter.Bosses
                     SoundEngine.PlaySound(SoundID.Item122 with { Volume = 1.55f, Pitch = -0.3f }, NPC.Center);
                     MagnumScreenEffects.AddScreenShake(22f);
                     
-                    CustomParticles.GenericFlare(NPC.Center, WinterWhite, 2.8f + SubPhase * 0.3f, 40);
-                    CustomParticles.GenericFlare(NPC.Center, CrystalCyan, 2.3f + SubPhase * 0.25f, 35);
+                    CustomParticles.GenericFlare(NPC.Center, WinterWhite, 1.2f, 40);
+                    CustomParticles.GenericFlare(NPC.Center, CrystalCyan, 1.2f, 35);
                     
                     // Frost sparkle burst 
                     for (int i = 0; i < 16; i++)
@@ -1373,7 +1373,7 @@ namespace MagnumOpus.Content.Winter.Bosses
         
         public override void OnKill()
         {
-            CustomParticles.GenericFlare(NPC.Center, WinterWhite, 2.7f, 48);
+            CustomParticles.GenericFlare(NPC.Center, WinterWhite, 1.2f, 48);
             // Frost sparkle burst 
             for (int i = 0; i < 14; i++)
             {

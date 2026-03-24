@@ -9,28 +9,6 @@ using Terraria.ModLoader;
 
 namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Systems
 {
-    public sealed class TwilightSeverancePlayer : ModPlayer
-    {
-        private const int BeatPeriod = 20;
-        private const int BeatWindow = 4;
-
-        public int LastSwingFrame { get; private set; }
-
-        public void RecordSwing()
-        {
-            LastSwingFrame = (int)Main.GameUpdateCount;
-        }
-
-        public bool IsOnBeatWindow()
-        {
-            if (LastSwingFrame <= 0)
-                return false;
-
-            int delta = (int)Main.GameUpdateCount - LastSwingFrame;
-            return delta >= BeatPeriod - BeatWindow && delta <= BeatPeriod + BeatWindow;
-        }
-    }
-
     public sealed class TwilightSeveranceMarkedNPC : GlobalNPC
     {
         public override bool InstancePerEntity => true;

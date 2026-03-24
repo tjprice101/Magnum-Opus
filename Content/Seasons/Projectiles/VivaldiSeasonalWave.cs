@@ -369,23 +369,22 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             // Layer 6: Bright white-hot core
             spriteBatch.Draw(flareTexture, drawPos, null, whiteBloom * 0.72f, 0f, flareOrigin, 0.15f, SpriteEffects.None, 0f);
 
-            // === MAIN ARC LAYERS ===
-            // Massive outer ethereal glow
-            spriteBatch.Draw(arcTexture, drawPos, null, secondaryBloom * 0.25f, Projectile.rotation, arcOrigin, 2.0f * pulse, SpriteEffects.None, 0f);
-            
-            // Main outer glow
-            spriteBatch.Draw(arcTexture, drawPos, null, primaryBloom * 0.4f, Projectile.rotation, arcOrigin, 1.5f * pulse, SpriteEffects.None, 0f);
-            
-            // Vibrant middle layer
-            spriteBatch.Draw(arcTexture, drawPos, null, primaryBloom * 0.55f, Projectile.rotation, arcOrigin, 1.0f, SpriteEffects.None, 0f);
-            
-            // Bright inner glow
-            Color innerGlow = Color.Lerp(primaryBloom, whiteBloom, 0.5f);
-            spriteBatch.Draw(arcTexture, drawPos, null, innerGlow * 0.7f, Projectile.rotation, arcOrigin, 0.65f * shimmer, SpriteEffects.None, 0f);
-            
-            // White-hot center core
-            spriteBatch.Draw(arcTexture, drawPos, null, whiteBloom * 0.85f, Projectile.rotation, arcOrigin, 0.4f, SpriteEffects.None, 0f);
-            
+            // === BLOOM LAYERS (PROPERLY SIZED, REPLACED OVERSIZED ARC) ===
+            // Calculate baseScale with proper capping (0.18f-0.26f range)
+            float baseScale = 0.18f + MathF.Sin(Main.GlobalTimeWrappedHourly * 2.5f) * 0.08f;
+
+            // Layer 1: Diffuse outer glow (1.8x multiplier max = ~47px total)
+            spriteBatch.Draw(softGlow, drawPos, null, secondaryBloom * 0.3f, 0f, glowOrigin, baseScale * 1.8f, SpriteEffects.None, 0f);
+
+            // Layer 2: Primary bloom (1.4x multiplier = ~37px total)
+            spriteBatch.Draw(softGlow, drawPos, null, primaryBloom * 0.5f, 0f, glowOrigin, baseScale * 1.4f, SpriteEffects.None, 0f);
+
+            // Layer 3: Inner bright (0.8x multiplier = ~21px total)
+            spriteBatch.Draw(softGlow, drawPos, null, primaryBloom * 0.7f, 0f, glowOrigin, baseScale * 0.8f, SpriteEffects.None, 0f);
+
+            // Layer 4: Hot core (0.35x multiplier = ~9px total)
+            spriteBatch.Draw(softGlow, drawPos, null, Color.White * 0.8f, 0f, glowOrigin, baseScale * 0.35f, SpriteEffects.None, 0f);
+
             // === 4 ORBITING SPARK POINTS ===
             float sparkOrbitAngle = time * 1.4f;
             for (int i = 0; i < 4; i++)

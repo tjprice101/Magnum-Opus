@@ -576,9 +576,9 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses.Systems
         public static void ChorusAwakeningBurst(Vector2 center, float intensity = 1f)
         {
             // Massive golden core flash
-            CustomParticles.GenericFlare(center, Color.White, 2.5f * intensity, 20);
-            CustomParticles.GenericFlare(center, WarmGold, 2.0f * intensity, 25);
-            CustomParticles.GenericFlare(center, ChorusRose, 1.5f * intensity, 28);
+            CustomParticles.GenericFlare(center, Color.White, 1.2f, 20);
+            CustomParticles.GenericFlare(center, WarmGold, 1.2f, 25);
+            CustomParticles.GenericFlare(center, ChorusRose, 1.2f, 28);
 
             // 8 expanding halos — the chorus joining
             for (int ring = 0; ring < 8; ring++)
@@ -611,8 +611,8 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses.Systems
         public static void TriumphantCelebration(Vector2 center, float intensity = 1f)
         {
             // Core supernova
-            CustomParticles.GenericFlare(center, Color.White, 3f * intensity, 22);
-            CustomParticles.GenericFlare(center, WarmGold, 2.2f * intensity, 26);
+            CustomParticles.GenericFlare(center, Color.White, 1.2f, 22);
+            CustomParticles.GenericFlare(center, WarmGold, 1.2f, 26);
 
             // 10 cascading halos
             for (int ring = 0; ring < 10; ring++)

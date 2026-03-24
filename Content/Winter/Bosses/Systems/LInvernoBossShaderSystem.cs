@@ -49,25 +49,25 @@ namespace MagnumOpus.Content.Winter.Bosses.Systems
                     outerC = PaleSilverBlue * 0.10f;
                     midC = IceBlue * 0.15f;
                     coreC = FrostWhite * 0.22f;
-                    outerS = 1.5f; midS = 0.9f; coreS = 0.45f;
+                    outerS = 0.975f; midS = 0.585f; coreS = 0.293f;
                     break;
                 case 2: // Frozen Expanse — stronger cold presence
                     outerC = IceBlue * 0.15f;
                     midC = CrystalCyan * 0.20f;
                     coreC = FrostWhite * 0.28f;
-                    outerS = 1.8f; midS = 1.1f; coreS = 0.55f;
+                    outerS = 1.17f; midS = 0.715f; coreS = 0.358f;
                     break;
                 case 3: // Blizzard — storm-wreathed
                     outerC = DeepGlacialBlue * 0.20f;
                     midC = IceBlue * 0.25f;
                     coreC = BlizzardWhite * 0.33f;
-                    outerS = 2.2f; midS = 1.4f; coreS = 0.65f;
+                    outerS = 1.43f; midS = 0.91f; coreS = 0.423f;
                     break;
                 default: // Absolute Zero — stark, blinding core
                     outerC = new Color(15, 25, 50) * 0.25f;
                     midC = AbsoluteZeroBlue * 0.30f;
                     coreC = Color.White * 0.40f;
-                    outerS = 2.5f; midS = 1.6f; coreS = 0.75f;
+                    outerS = 1.625f; midS = 1.04f; coreS = 0.488f;
                     break;
             }
 

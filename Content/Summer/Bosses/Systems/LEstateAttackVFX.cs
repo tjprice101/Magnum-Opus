@@ -265,7 +265,7 @@ namespace MagnumOpus.Content.Summer.Bosses.Systems
                 MagnumParticleHandler.SpawnParticle(new BloomParticle(center, vel, color, 0.5f, 20));
             }
 
-            CustomParticles.GenericFlare(center, WhiteHot, 2.5f, 40);
+            CustomParticles.GenericFlare(center, WhiteHot, 1.2f, 40);
             Phase10BossVFX.CodaFinale(center, WhiteHot, SunGold, 1.5f);
         }
 
@@ -301,9 +301,9 @@ namespace MagnumOpus.Content.Summer.Bosses.Systems
             LEstateSky.TriggerSupernovaFlash(20f);
             MagnumScreenEffects.AddScreenShake(25f);
 
-            CustomParticles.GenericFlare(center, WhiteHot, 2.5f, 45);
-            CustomParticles.GenericFlare(center, SunGold, 2f, 40);
-            CustomParticles.GenericFlare(center, BlazingOrange, 1.5f, 35);
+            CustomParticles.GenericFlare(center, WhiteHot, 1.2f, 45);
+            CustomParticles.GenericFlare(center, SunGold, 1.2f, 40);
+            CustomParticles.GenericFlare(center, BlazingOrange, 1.2f, 35);
 
             for (int i = 0; i < 16; i++)
             {

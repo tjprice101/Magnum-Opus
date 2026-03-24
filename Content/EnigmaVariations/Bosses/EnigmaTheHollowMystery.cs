@@ -1563,7 +1563,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                     MagnumScreenEffects.AddScreenShake(18f);
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.3f, Volume = 1.5f }, NPC.Center);
                     
-                    CustomParticles.GenericFlare(NPC.Center, Color.White, 1.6f, 28);
+                    CustomParticles.GenericFlare(NPC.Center, Color.White, 1.2f, 28);
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {

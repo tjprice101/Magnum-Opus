@@ -1341,7 +1341,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                     MagnumScreenEffects.AddScreenShake(25f);
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.5f, Volume = 1.8f }, NPC.Center);
                     
-                    CustomParticles.GenericFlare(NPC.Center, Color.White, 1.8f, 30);
+                    CustomParticles.GenericFlare(NPC.Center, Color.White, 1.2f, 30);
                     
                     LaCampanellaAttackVFX.GrandFinaleRelease(NPC.Center);
                     

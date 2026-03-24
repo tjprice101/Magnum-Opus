@@ -132,11 +132,11 @@ namespace MagnumOpus.Content.Eroica.Bosses.Systems
                 // M1: Bright gold halo + scarlet ambient
                 Color mid = ValorGold * (0.14f * intensity * pulse);
                 mid.A = 0;
-                sb.Draw(glow, drawPos, null, mid, 0f, glowOrigin, baseRadius * 2.8f * pulse / glow.Width, SpriteEffects.None, 0f);
+                sb.Draw(glow, drawPos, null, mid, 0f, glowOrigin, baseRadius * 1.82f * pulse / glow.Width, SpriteEffects.None, 0f);
 
                 Color outer = ValorScarlet * (0.06f * intensity);
                 outer.A = 0;
-                sb.Draw(glow, drawPos, null, outer, 0f, glowOrigin, baseRadius * 4.5f * pulse / glow.Width, SpriteEffects.None, 0f);
+                sb.Draw(glow, drawPos, null, outer, 0f, glowOrigin, baseRadius * 2.93f * pulse / glow.Width, SpriteEffects.None, 0f);
             }
             else if (movement < 2.5f)
             {
@@ -152,7 +152,7 @@ namespace MagnumOpus.Content.Eroica.Bosses.Systems
                     float btIntensity = (breakthrough - 0.7f) / 0.3f;
                     Color btColor = ValorGold * (0.1f * btIntensity);
                     btColor.A = 0;
-                    sb.Draw(glow, drawPos, null, btColor, 0f, glowOrigin, baseRadius * 3f / glow.Width, SpriteEffects.None, 0f);
+                    sb.Draw(glow, drawPos, null, btColor, 0f, glowOrigin, baseRadius * 1.95f / glow.Width, SpriteEffects.None, 0f);
                 }
             }
             else if (movement < 3.5f)
@@ -162,23 +162,23 @@ namespace MagnumOpus.Content.Eroica.Bosses.Systems
                 Color flickerColor = flicker > 0 ? ValorGold : ValorScarlet;
                 Color mid = flickerColor * (0.12f * intensity * Math.Abs(flicker));
                 mid.A = 0;
-                sb.Draw(glow, drawPos, null, mid, 0f, glowOrigin, baseRadius * 2.5f / glow.Width, SpriteEffects.None, 0f);
+                sb.Draw(glow, drawPos, null, mid, 0f, glowOrigin, baseRadius * 1.63f / glow.Width, SpriteEffects.None, 0f);
             }
             else
             {
                 // M4: White-hot core + scarlet corona + crimson outer ring
                 Color core = PhoenixWhite * (0.25f * intensity * pulse);
                 core.A = 0;
-                sb.Draw(glow, drawPos, null, core, 0f, glowOrigin, baseRadius * 1.5f * pulse / glow.Width, SpriteEffects.None, 0f);
+                sb.Draw(glow, drawPos, null, core, 0f, glowOrigin, baseRadius * 0.98f * pulse / glow.Width, SpriteEffects.None, 0f);
 
                 Color corona = new Color(255, 100, 50) * (0.15f * intensity);
                 corona.A = 0;
-                sb.Draw(glow, drawPos, null, corona, 0f, glowOrigin, baseRadius * 3.5f * pulse / glow.Width, SpriteEffects.None, 0f);
+                sb.Draw(glow, drawPos, null, corona, 0f, glowOrigin, baseRadius * 2.28f * pulse / glow.Width, SpriteEffects.None, 0f);
 
                 float enragePulse = 1f + (float)Math.Sin(time * 5f) * 0.15f;
                 Color outerRing = FuneralCrimson * (0.1f * enragePulse);
                 outerRing.A = 0;
-                sb.Draw(glow, drawPos, null, outerRing, 0f, glowOrigin, baseRadius * 5.5f * enragePulse / glow.Width, SpriteEffects.None, 0f);
+                sb.Draw(glow, drawPos, null, outerRing, 0f, glowOrigin, baseRadius * 3.58f * enragePulse / glow.Width, SpriteEffects.None, 0f);
             }
         }
 

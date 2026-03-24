@@ -673,7 +673,7 @@ namespace MagnumOpus.Content.SwanLake.Bosses.Systems
             MagnumScreenEffects.AddScreenShake(25f);
 
             // Core white flash
-            CustomParticles.GenericFlare(center, PureWhite, 2.0f, 30);
+            CustomParticles.GenericFlare(center, PureWhite, 1.2f, 30);
 
             // Prismatic eruption — the swan's true colors breaking through
             ThemedParticles.SwanLakeRainbowExplosion(center, 2.0f);

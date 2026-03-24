@@ -74,19 +74,19 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
                 ? WhiteRadiance * 0.18f
                 : (phase >= 3 ? CosmicBlue * 0.15f : (phase >= 2 ? NebulaPurple * 0.13f : DeepIndigo * 0.12f));
             outerColor.A = 0;
-            sb.Draw(glow, drawPos, null, outerColor, 0f, glowOrigin, baseRadius / glow.Width * 3.5f, SpriteEffects.None, 0f);
+            sb.Draw(glow, drawPos, null, outerColor, 0f, glowOrigin, baseRadius / glow.Width * 2.275f, SpriteEffects.None, 0f);
 
             // Mid glow — pulsing
             Color midColor = phase >= 4
                 ? CosmicBlue * (0.2f * pulse)
                 : (phase >= 3 ? NebulaPurple * (0.18f * pulse) : StarlightSilver * (0.15f * pulse));
             midColor.A = 0;
-            sb.Draw(glow, drawPos, null, midColor, 0f, glowOrigin, baseRadius / glow.Width * 2.2f, SpriteEffects.None, 0f);
+            sb.Draw(glow, drawPos, null, midColor, 0f, glowOrigin, baseRadius / glow.Width * 1.43f, SpriteEffects.None, 0f);
 
             // Core — bright
             Color coreColor = WhiteRadiance * (phase >= 4 ? 0.3f : 0.2f);
             coreColor.A = 0;
-            sb.Draw(glow, drawPos, null, coreColor, 0f, glowOrigin, baseRadius / glow.Width * 1.0f, SpriteEffects.None, 0f);
+            sb.Draw(glow, drawPos, null, coreColor, 0f, glowOrigin, baseRadius / glow.Width * 0.65f, SpriteEffects.None, 0f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,

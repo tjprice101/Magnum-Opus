@@ -1225,7 +1225,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                     MagnumScreenEffects.AddScreenShake(18f);
                     SoundEngine.PlaySound(SoundID.Item122 with { Volume = 1.5f }, NPC.Center);
                     
-                    CustomParticles.GenericFlare(NPC.Center, FatePalette.WhiteCelestial, 1.8f, 28);
+                    CustomParticles.GenericFlare(NPC.Center, FatePalette.WhiteCelestial, 1.2f, 28);
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
@@ -1431,7 +1431,7 @@ namespace MagnumOpus.Content.Fate.Bosses
                     MagnumScreenEffects.AddScreenShake(25f);
                     SoundEngine.PlaySound(SoundID.Item122 with { Volume = 2f, Pitch = -0.2f }, NPC.Center);
                     
-                    CustomParticles.GenericFlare(NPC.Center, FatePalette.WhiteCelestial, 2.5f, 35);
+                    CustomParticles.GenericFlare(NPC.Center, FatePalette.WhiteCelestial, 1.2f, 35);
                     
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
@@ -1899,9 +1899,9 @@ namespace MagnumOpus.Content.Fate.Bosses
                 SoundEngine.PlaySound(SoundID.Item122 with { Volume = 2f, Pitch = -0.3f }, NPC.Center);
                 
                 // Massive cosmic explosion - white core flash
-                CustomParticles.GenericFlare(NPC.Center, FatePalette.WhiteCelestial, 3f, 40);
-                CustomParticles.GenericFlare(NPC.Center, FatePalette.DarkPink, 2.5f, 35);
-                CustomParticles.GenericFlare(NPC.Center, FatePalette.BrightCrimson, 2f, 30);
+                CustomParticles.GenericFlare(NPC.Center, FatePalette.WhiteCelestial, 1.2f, 40);
+                CustomParticles.GenericFlare(NPC.Center, FatePalette.DarkPink, 1.2f, 35);
+                CustomParticles.GenericFlare(NPC.Center, FatePalette.BrightCrimson, 1.2f, 30);
                 
                 // Cascading star burst explosion 
                 for (int ring = 0; ring < 16; ring++)

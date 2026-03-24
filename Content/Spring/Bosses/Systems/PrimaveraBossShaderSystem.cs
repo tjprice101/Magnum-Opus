@@ -142,14 +142,14 @@ namespace MagnumOpus.Content.Spring.Bosses.Systems
             float pulse = 1f + (float)Math.Sin(time * pulseSpeed) * 0.1f;
 
             Color outerBloom = outer * (0.18f * intensity); outerBloom.A = 0;
-            sb.Draw(glow, drawPos, null, outerBloom, 0f, origin, 3.0f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(glow, drawPos, null, outerBloom, 0f, origin, 1.95f * pulse, SpriteEffects.None, 0f);
 
             Color midBloom = mid * (0.22f * intensity); midBloom.A = 0;
             float mp = 1f + (float)Math.Sin(time * pulseSpeed * 1.3f) * 0.12f;
-            sb.Draw(glow, drawPos, null, midBloom, 0f, origin, 2.0f * mp, SpriteEffects.None, 0f);
+            sb.Draw(glow, drawPos, null, midBloom, 0f, origin, 1.3f * mp, SpriteEffects.None, 0f);
 
             Color coreBloom = core * (0.28f * intensity); coreBloom.A = 0;
-            sb.Draw(glow, drawPos, null, coreBloom, 0f, origin, 0.9f, SpriteEffects.None, 0f);
+            sb.Draw(glow, drawPos, null, coreBloom, 0f, origin, 0.585f, SpriteEffects.None, 0f);
         }
 
         /// <summary>

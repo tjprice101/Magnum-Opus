@@ -296,7 +296,7 @@ namespace MagnumOpus.Content.Summer.Bosses
             if (Timer == 1)
             {
                 SoundEngine.PlaySound(SoundID.Item74 with { Pitch = 0.2f }, NPC.Center);
-                CustomParticles.GenericFlare(NPC.Center, SummerWhite, 2.5f, 45);
+                CustomParticles.GenericFlare(NPC.Center, SummerWhite, 1.2f, 45);
                 
                 for (int i = 0; i < 15; i++)
                 {
@@ -1290,7 +1290,7 @@ namespace MagnumOpus.Content.Summer.Bosses
         
         public override void OnKill()
         {
-            CustomParticles.GenericFlare(NPC.Center, SummerWhite, 2.5f, 45);
+            CustomParticles.GenericFlare(NPC.Center, SummerWhite, 1.2f, 45);
             for (int i = 0; i < 12; i++)
             {
                 CustomParticles.HaloRing(NPC.Center, Color.Lerp(SummerOrange, FlameRed, i / 12f), 0.5f + i * 0.15f, 20 + i * 3);

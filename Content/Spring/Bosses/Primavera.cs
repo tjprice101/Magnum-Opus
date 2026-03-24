@@ -606,9 +606,9 @@ namespace MagnumOpus.Content.Spring.Bosses
             {
                 // Final explosion
                 TriggerRebirthFlash(25f);
-                CustomParticles.GenericFlare(NPC.Center, SpringWhite, 2.5f, 40);
-                CustomParticles.GenericFlare(NPC.Center, SpringPink, 2f, 35);
-                CustomParticles.GenericFlare(NPC.Center, SpringBlue, 1.5f, 30);
+                CustomParticles.GenericFlare(NPC.Center, SpringWhite, 1.2f, 40);
+                CustomParticles.GenericFlare(NPC.Center, SpringPink, 1.2f, 35);
+                CustomParticles.GenericFlare(NPC.Center, SpringBlue, 1.2f, 30);
                 
                 for (int i = 0; i < 15; i++)
                 {

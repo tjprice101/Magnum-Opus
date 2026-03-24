@@ -252,7 +252,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
         public static void GalacticJudgmentRelease(Vector2 center)
         {
             MagnumScreenEffects.AddScreenShake(20f);
-            CustomParticles.GenericFlare(center, WhiteRadiance, 1.8f, 25);
+            CustomParticles.GenericFlare(center, WhiteRadiance, 1.2f, 25);
             for (int i = 0; i < 12; i++)
             {
                 float angle = MathHelper.TwoPi * i / 12f;
@@ -370,7 +370,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses.Systems
         public static void SupernovaCollapseRelease(Vector2 center)
         {
             MagnumScreenEffects.AddScreenShake(25f);
-            CustomParticles.GenericFlare(center, WhiteRadiance, 2.5f, 30);
+            CustomParticles.GenericFlare(center, WhiteRadiance, 1.2f, 30);
             CustomParticles.ExplosionBurst(center, CosmicBlue, 20, 8f);
             for (int i = 0; i < 16; i++)
             {

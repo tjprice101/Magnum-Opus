@@ -162,15 +162,15 @@ namespace MagnumOpus.Content.SwanLake.Bosses.Systems
 
                 // Outer aura
                 Color outerColor = ApplyDrain(secondary, drain) with { A = 0 } * 0.15f * intensity * pulse;
-                sb.Draw(bloomTex, drawPos, null, outerColor, 0f, bloomOrigin, radiusScale * 1.8f, SpriteEffects.None, 0f);
+                sb.Draw(bloomTex, drawPos, null, outerColor, 0f, bloomOrigin, radiusScale * 1.17f, SpriteEffects.None, 0f);
 
                 // Mid layer
                 Color midColor = ApplyDrain(primary, drain) with { A = 0 } * 0.2f * intensity * pulse;
-                sb.Draw(bloomTex, drawPos, null, midColor, 0f, bloomOrigin, radiusScale * 1.1f, SpriteEffects.None, 0f);
+                sb.Draw(bloomTex, drawPos, null, midColor, 0f, bloomOrigin, radiusScale * 0.715f, SpriteEffects.None, 0f);
 
                 // Core
                 Color coreColor = ApplyDrain(PearlShimmer, drain) with { A = 0 } * 0.25f * intensity * pulse;
-                sb.Draw(bloomTex, drawPos, null, coreColor, 0f, bloomOrigin, radiusScale * 0.5f, SpriteEffects.None, 0f);
+                sb.Draw(bloomTex, drawPos, null, coreColor, 0f, bloomOrigin, radiusScale * 0.325f, SpriteEffects.None, 0f);
 
                 // Phase 2: Black counter-aura emerging behind the white
                 if (phase == 2)
@@ -414,17 +414,17 @@ namespace MagnumOpus.Content.SwanLake.Bosses.Systems
                     outerColor = SilverMist with { A = 0 } * 0.12f * pulse;
                     midColor = PureWhite with { A = 0 } * 0.18f * pulse;
                     innerColor = PearlShimmer with { A = 0 } * 0.2f * pulse;
-                    outerScale = 1.6f;
-                    midScale = 1.0f;
-                    innerScale = 0.5f;
+                    outerScale = 1.04f;
+                    midScale = 0.65f;
+                    innerScale = 0.325f;
                     break;
                 case 2: // Black Swan — white glow with dark counter-glow
                     outerColor = GhostWhite with { A = 0 } * 0.15f * pulse;
                     midColor = PureWhite with { A = 0 } * 0.2f * pulse;
                     innerColor = PearlShimmer with { A = 0 } * 0.22f * pulse;
-                    outerScale = 1.7f;
-                    midScale = 1.05f;
-                    innerScale = 0.55f;
+                    outerScale = 1.105f;
+                    midScale = 0.683f;
+                    innerScale = 0.358f;
                     break;
                 case 3: // Duality War — alternating pulse
                     float alt = (float)Math.Sin(Main.timeForVisualEffects * 0.04f);
@@ -432,17 +432,17 @@ namespace MagnumOpus.Content.SwanLake.Bosses.Systems
                     outerColor = activeColor with { A = 0 } * 0.18f * pulse;
                     midColor = activeColor with { A = 0 } * 0.22f * pulse;
                     innerColor = PearlShimmer with { A = 0 } * 0.25f * pulse;
-                    outerScale = 1.8f;
-                    midScale = 1.1f;
-                    innerScale = 0.6f;
+                    outerScale = 1.17f;
+                    midScale = 0.715f;
+                    innerScale = 0.39f;
                     break;
                 default: // Death of Swan — drained, fading
                     outerColor = ApplyDrain(SilverMist, drain) with { A = 0 } * 0.08f * pulse;
                     midColor = ApplyDrain(GhostWhite, drain) with { A = 0 } * 0.1f * pulse;
                     innerColor = DrainedGray with { A = 0 } * 0.06f * pulse;
-                    outerScale = 1.3f;
-                    midScale = 0.8f;
-                    innerScale = 0.35f;
+                    outerScale = 0.845f;
+                    midScale = 0.52f;
+                    innerScale = 0.228f;
                     break;
             }
 

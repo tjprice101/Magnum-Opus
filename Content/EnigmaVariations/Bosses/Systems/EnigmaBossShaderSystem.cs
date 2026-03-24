@@ -73,13 +73,13 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses.Systems
             // Layer 1: Wide void ambient — deeper in later phases
             Color voidOuter = VoidBlack;
             voidOuter.A = 0;
-            float outerScale = baseRadius * 2.5f / bloomTex.Width * pulse;
+            float outerScale = baseRadius * 1.625f / bloomTex.Width * pulse;
             sb.Draw(bloomTex, drawPos, null, voidOuter * phaseIntensity * 0.25f, 0f, bloomOrigin, outerScale, SpriteEffects.None, 0f);
 
             // Layer 2: Purple mid glow — shifts green in Phase 3+
             Color midGlow = difficultyTier >= 2 ? Color.Lerp(DeepPurple, EerieGreen, 0.3f) : DeepPurple;
             midGlow.A = 0;
-            float midScale = baseRadius * 1.6f / bloomTex.Width * pulse;
+            float midScale = baseRadius * 1.04f / bloomTex.Width * pulse;
             sb.Draw(bloomTex, drawPos, null, midGlow * phaseIntensity * 0.35f, 0f, bloomOrigin, midScale, SpriteEffects.None, 0f);
 
             // Layer 3: Core — green when Phase 2+, arcane green when enraged
@@ -91,7 +91,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses.Systems
             };
             if (isEnraged) coreColor = ArcaneGreen;
             coreColor.A = 0;
-            float coreScale = baseRadius * 0.9f / bloomTex.Width * pulse;
+            float coreScale = baseRadius * 0.585f / bloomTex.Width * pulse;
             sb.Draw(bloomTex, drawPos, null, coreColor * phaseIntensity * 0.4f, 0f, bloomOrigin, coreScale, SpriteEffects.None, 0f);
         }
 

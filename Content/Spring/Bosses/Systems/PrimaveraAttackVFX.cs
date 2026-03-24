@@ -541,7 +541,7 @@ namespace MagnumOpus.Content.Spring.Bosses.Systems
             CustomParticles.ExplosionBurst(position, burstColor, 16);
 
             // White-hot center
-            CustomParticles.GenericFlare(position, WarmWhite, 1.8f, 25);
+            CustomParticles.GenericFlare(position, WarmWhite, 1.2f, 25);
 
             // Radial halo ring — bloom cascade
             for (int i = 0; i < 10; i++)
@@ -653,7 +653,7 @@ namespace MagnumOpus.Content.Spring.Bosses.Systems
             else TriggerRebirthFlash(18f);
 
             // Supernova center flare
-            CustomParticles.GenericFlare(center, WarmWhite, 2.2f, 30);
+            CustomParticles.GenericFlare(center, WarmWhite, 1.2f, 30);
 
             // 20-point radial bloom starburst
             for (int i = 0; i < 20; i++)

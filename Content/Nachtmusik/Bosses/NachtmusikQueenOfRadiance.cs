@@ -573,7 +573,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                 if (Timer == 91)
                 {
                     // Ultimate reveal flash with star bursts and shattered starlight
-                    CustomParticles.GenericFlare(NPC.Center, StarWhite, 2.0f, 30);
+                    CustomParticles.GenericFlare(NPC.Center, StarWhite, 1.2f, 30);
                     
                     // Star burst explosion at center
 // VFX_GUTTED:                     NachtmusikVFXLibrary.SpawnStarBurst(NPC.Center, 6, 0.4f);
@@ -2031,9 +2031,9 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                     MagnumScreenEffects.AddScreenShake(25f);
                     
                     // Core flash
-                    CustomParticles.GenericFlare(NPC.Center, StarWhite, 2.5f, 30);
-                    CustomParticles.GenericFlare(NPC.Center, Gold, 2.0f, 28);
-                    CustomParticles.GenericFlare(NPC.Center, Violet, 1.8f, 25);
+                    CustomParticles.GenericFlare(NPC.Center, StarWhite, 1.2f, 30);
+                    CustomParticles.GenericFlare(NPC.Center, Gold, 1.2f, 28);
+                    CustomParticles.GenericFlare(NPC.Center, Violet, 1.2f, 25);
                     
                     // Cascading halos
                     for (int i = 0; i < 8; i++)
@@ -2283,7 +2283,7 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                 SoundEngine.PlaySound(SoundID.Item122 with { Volume = 1.5f }, NPC.Center);
                 
                 // Massive star explosion
-                CustomParticles.GenericFlare(NPC.Center, StarWhite, 3.0f, 40);
+                CustomParticles.GenericFlare(NPC.Center, StarWhite, 1.2f, 40);
                 
                 // === PHASE 10 MUSICAL VFX: Death Finale - Celestial Queen's Final Note ===
                 Phase10Integration.Universal.DeathFinale(NPC.Center, StarWhite, Gold);

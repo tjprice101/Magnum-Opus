@@ -3975,6 +3975,7 @@ Mods: {
 		}
 
 		Keybinds.ToggleHarmonicCoreUI.DisplayName: Toggle Harmonic Core UI
+
 		Prefixes: {
 			ResonanceSlicedPrefix.DisplayName: Resonance Sliced
 			ResonanceSearedPrefix.DisplayName: Resonance Seared
@@ -7562,6 +7563,26 @@ Items: {
 		Tooltip: ""
 		DisplayName: Foundation Incisor Orbs
 	}
+
+	AutunnoTreasureBag: {
+		DisplayName: Autunno Treasure Bag
+		Tooltip: ""
+	}
+
+	PrimaveraTreasureBag: {
+		DisplayName: Primavera Treasure Bag
+		Tooltip: ""
+	}
+
+	LEstateTreasureBag: {
+		DisplayName: L Estate Treasure Bag
+		Tooltip: ""
+	}
+
+	LInvernoTreasureBag: {
+		DisplayName: L Inverno Treasure Bag
+		Tooltip: ""
+	}
 }
 
 NPCs: {
@@ -8510,4 +8531,25 @@ Projectiles: {
 	CelestialValorZoneOrb.DisplayName: Celestial Valor Zone Orb
 	CelestialValorNoiseZone.DisplayName: Celestial Valor Noise Zone
 	CelestialValorFlyingBlade.DisplayName: Celestial Valor Flying Blade
+	ChronologicalitySpecialProj.DisplayName: Chronologicality Special Proj
+	ClockworkHarmonySpecialProj.DisplayName: Clockwork Harmony Special Proj
+	TemporalPiercerSpecialProj.DisplayName: Temporal Piercer Special Proj
+	ChainJudgmentSpecialProj.DisplayName: Chain Judgment Special Proj
+	ExecutionersVerdictSpecialProj.DisplayName: Executioners Verdict Special Proj
+	WrathsCleaverSpecialProj.DisplayName: Wraths Cleaver Special Proj
+	CadenceSpecialProj.DisplayName: Cadence Special Proj
+	VoidSpecialProj.DisplayName: Void Special Proj
+	CodaSpecialProj.DisplayName: Coda Special Proj
+	FractalSpecialProj.DisplayName: Fractal Special Proj
+	OpusUltimaSpecialProj.DisplayName: Opus Ultima Special Proj
+	RequiemSpecialProj.DisplayName: Requiem Special Proj
+	ConductorSpecialProj.DisplayName: Conductor Special Proj
+	DualFatedChimeSpecialProj.DisplayName: Dual Fated Chime Special Proj
+	MidnightsCrescendoSpecialProj.DisplayName: Midnights Crescendo Special Proj
+	NocturnalExecutionerSpecialProj.DisplayName: Nocturnal Executioner Special Proj
+	TwilightSeveranceSpecialProj.DisplayName: Twilight Severance Special Proj
+	RoseThornChainsawSpecialProj.DisplayName: Rose Thorn Chainsaw Special Proj
+	GardenerFurySpecialProj.DisplayName: Gardener Fury Special Proj
+	ThornboundReckoningSpecialProj.DisplayName: Thornbound Reckoning Special Proj
+	BlackSwanSpecialProj.DisplayName: Black Swan Special Proj
 }

@@ -560,7 +560,7 @@ namespace MagnumOpus.Content.Autumn.Bosses.Systems
             else TriggerWitheringFlash(15f);
 
             // White-hot center flare
-            CustomParticles.GenericFlare(center, AutumnWhite, 1.8f, 25);
+            CustomParticles.GenericFlare(center, AutumnWhite, 1.2f, 25);
 
             // 16-point radial halo starburst
             for (int i = 0; i < 16; i++)
@@ -674,8 +674,8 @@ namespace MagnumOpus.Content.Autumn.Bosses.Systems
             }
 
             // Center flares — dying light
-            CustomParticles.GenericFlare(center, EmberOrange, 2.5f, 35);
-            CustomParticles.GenericFlare(center, AutumnWhite, 1.8f, 30);
+            CustomParticles.GenericFlare(center, EmberOrange, 1.2f, 35);
+            CustomParticles.GenericFlare(center, AutumnWhite, 1.2f, 30);
 
             // Coda — the beginning of the end
             Phase10BossVFX.CodaFinale(center, EmberOrange, WitheredRed, 1.5f);
@@ -735,9 +735,9 @@ namespace MagnumOpus.Content.Autumn.Bosses.Systems
             MagnumScreenEffects.AddScreenShake(25f);
 
             // Triple-layer center flares
-            CustomParticles.GenericFlare(center, AutumnWhite, 2.5f, 45);
-            CustomParticles.GenericFlare(center, EmberOrange, 2f, 40);
-            CustomParticles.GenericFlare(center, WitheredRed, 1.5f, 35);
+            CustomParticles.GenericFlare(center, AutumnWhite, 1.2f, 45);
+            CustomParticles.GenericFlare(center, EmberOrange, 1.2f, 40);
+            CustomParticles.GenericFlare(center, WitheredRed, 1.2f, 35);
 
             // 16-ring halo cascade
             for (int i = 0; i < 16; i++)

@@ -72,7 +72,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses.Systems
             Vector2 bloomOrigin = new Vector2(bloomTex.Width, bloomTex.Height) * 0.5f;
 
             // Layer 1: Wide dark smoke shroud — always present, thickens with phase
-            float smokeScale = MathHelper.Lerp(0.45f, 0.7f, phaseFireBleed) + breathe * 0.04f;
+            float smokeScale = MathHelper.Lerp(0.293f, 0.455f, phaseFireBleed) + breathe * 0.04f;
             float smokeAlpha = MathHelper.Lerp(0.07f, 0.14f, phaseFireBleed);
             Color smokeShroud = SootBlack * smokeAlpha;
             smokeShroud.A = 0;
@@ -83,7 +83,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses.Systems
             if (isEnraged)
                 fireFlicker = 0.5f + (float)Math.Sin(time * 0.08f) * 0.3f + (float)Math.Sin(time * 0.13f) * 0.2f;
 
-            float fireScale = MathHelper.Lerp(0.25f, 0.5f, phaseFireBleed) + fireFlicker * 0.05f;
+            float fireScale = MathHelper.Lerp(0.163f, 0.325f, phaseFireBleed) + fireFlicker * 0.05f;
             float fireAlpha = MathHelper.Lerp(0.04f, 0.15f, phaseFireBleed) * (0.7f + fireFlicker * 0.3f);
             Color fireGlow = InfernalOrange * fireAlpha;
             fireGlow.A = 0;
@@ -125,21 +125,21 @@ namespace MagnumOpus.Content.LaCampanella.Bosses.Systems
                 enrageFlicker = 0.6f + (float)Math.Sin(time * 0.07f) * 0.2f + (float)Math.Sin(time * 0.15f) * 0.2f;
 
             // Layer 1: Wide smoky outer
-            float outerScale = MathHelper.Lerp(0.35f, 0.55f, hpDrive) + breathe * 0.03f;
-            Color outerColor = Color.Lerp(SootBlack, DeepEmber, hpDrive * 0.4f) 
+            float outerScale = MathHelper.Lerp(0.228f, 0.358f, hpDrive) + breathe * 0.03f;
+            Color outerColor = Color.Lerp(SootBlack, DeepEmber, hpDrive * 0.4f)
                 * MathHelper.Lerp(0.06f, 0.14f, hpDrive) * enrageFlicker;
             outerColor.A = 0;
             sb.Draw(bloomTex, drawCenter, null, outerColor, 0f, bloomOrigin, outerScale, SpriteEffects.None, 0f);
 
             // Layer 2: Orange mid — fire intensity grows with damage
-            float midScale = MathHelper.Lerp(0.2f, 0.35f, hpDrive) + breathe * 0.02f;
+            float midScale = MathHelper.Lerp(0.13f, 0.228f, hpDrive) + breathe * 0.02f;
             Color midColor = Color.Lerp(InfernalOrange, FlameYellow, hpDrive * 0.3f)
                 * MathHelper.Lerp(0.08f, 0.18f, hpDrive) * enrageFlicker;
             midColor.A = 0;
             sb.Draw(bloomTex, drawCenter, null, midColor, 0f, bloomOrigin, midScale, SpriteEffects.None, 0f);
 
             // Layer 3: White-hot core
-            float coreScale = MathHelper.Lerp(0.08f, 0.18f, hpDrive);
+            float coreScale = MathHelper.Lerp(0.052f, 0.117f, hpDrive);
             Color coreColor = Color.Lerp(BellGold, FlameWhite, hpDrive)
                 * MathHelper.Lerp(0.1f, 0.22f, hpDrive);
             if (isEnraged)
