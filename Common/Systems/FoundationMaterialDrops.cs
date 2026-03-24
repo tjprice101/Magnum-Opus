@@ -39,17 +39,13 @@ namespace MagnumOpus.Common.Systems
             // SPRING ENEMY DROPS (Hardmode)
             // ========================================
 
-            // Petal of Rebirth - Plantera's Tentacles (8%), Jungle HM enemies (3%)
-            if (npc.type == NPCID.PlanterasTentacle)
-            {
-                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<PetalOfRebirth>(), 12)); // ~8%
-            }
-            else if (IsHardmodeJungleEnemy(npc.type))
+            // Petal of Rebirth - Jungle surface enemies (3%) - moved from boss drops
+            if (IsSurfaceJungleEnemy(npc.type))
             {
                 npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<PetalOfRebirth>(), 33)); // 3%
             }
 
-            // Vernal Dust - Jungle enemies (HM) - 5%
+            // Vernal Dust - Jungle HM enemies (5%) - kept for natural progression
             if (IsHardmodeJungleEnemy(npc.type))
             {
                 npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<VernalDust>(), 20)); // 5%
@@ -71,12 +67,8 @@ namespace MagnumOpus.Common.Systems
             // SUMMER ENEMY DROPS (Hardmode)
             // ========================================
 
-            // Ember of Intensity - Solar Pillar enemies (5%), Lava enemies (3%)
-            if (IsSolarPillarEnemy(npc.type))
-            {
-                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<EmberOfIntensity>(), 20)); // 5%
-            }
-            else if (IsLavaEnemy(npc.type))
+            // Ember of Intensity - Desert surface enemies (3%) - moved from boss drops
+            if (IsSurfaceDesertEnemy(npc.type))
             {
                 npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<EmberOfIntensity>(), 33)); // 3%
             }
@@ -87,7 +79,7 @@ namespace MagnumOpus.Common.Systems
                 npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<SunfireCore>(), 7)); // ~15%
             }
 
-            // Heat Scale - Lava Bat, Fire Imp, Hell enemies - 6%
+            // Heat Scale - Lava Bat, Fire Imp, Hell enemies - 6% - kept for natural progression
             if (IsHellEnemy(npc.type))
             {
                 npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<HeatScale>(), 17)); // 6%
@@ -103,12 +95,8 @@ namespace MagnumOpus.Common.Systems
             // AUTUMN ENEMY DROPS (Hardmode)
             // ========================================
 
-            // Leaf of Ending - Pumpking (12%), Eclipse enemies (3%)
-            if (npc.type == NPCID.Pumpking)
-            {
-                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<LeafOfEnding>(), 8)); // ~12%
-            }
-            else if (IsEclipseEnemy(npc.type))
+            // Leaf of Ending - Surface forest/plains/ocean enemies (3%) - moved from boss drops
+            if (IsSurfaceForestPlainsOceanEnemy(npc.type))
             {
                 npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<LeafOfEnding>(), 33)); // 3%
             }
@@ -125,7 +113,7 @@ namespace MagnumOpus.Common.Systems
                 npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<DeathsNote>(), 12)); // ~8%
             }
 
-            // Decay Fragment - Any Eclipse enemy - 4%
+            // Decay Fragment - Any Eclipse enemy - 4% - kept for natural progression
             if (IsEclipseEnemy(npc.type))
             {
                 npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<DecayFragment>(), 25)); // 4%
@@ -141,14 +129,10 @@ namespace MagnumOpus.Common.Systems
             // WINTER ENEMY DROPS (Hardmode)
             // ========================================
 
-            // Shard of Stillness - Ice Queen (15%), HM Ice enemies (2%)
-            if (npc.type == NPCID.IceQueen)
+            // Shard of Stillness - Snow surface enemies (3%) - moved from boss drops
+            if (IsSurfaceSnowEnemy(npc.type))
             {
-                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<ShardOfStillness>(), 7)); // ~15%
-            }
-            else if (IsHardmodeIceEnemy(npc.type))
-            {
-                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<ShardOfStillness>(), 50)); // 2%
+                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<ShardOfStillness>(), 33)); // 3%
             }
 
             // Frozen Core - Ice Golem - 20%
@@ -163,7 +147,7 @@ namespace MagnumOpus.Common.Systems
                 npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<IcicleCoronet>(), 10)); // 10%
             }
 
-            // Permafrost Shard - Any HM Ice enemy - 3%
+            // Permafrost Shard - Any HM Ice enemy - 3% - kept for natural progression
             if (IsHardmodeIceEnemy(npc.type))
             {
                 npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<PermafrostShard>(), 33)); // 3%
@@ -281,6 +265,48 @@ namespace MagnumOpus.Common.Systems
                    type == NPCID.IceMimic ||
                    type == NPCID.ArmoredViking ||
                    type == NPCID.IceBat;
+        }
+
+        private static bool IsSurfaceJungleEnemy(int type)
+        {
+            // Surface-level jungle enemies (Pre-Hardmode and early Hardmode)
+            return type == NPCID.JungleBat ||
+                   type == NPCID.JungleSlime ||
+                   type == NPCID.Hornet ||
+                   type == NPCID.HornetFatty ||
+                   type == NPCID.ManEater ||
+                   type == NPCID.JungleCreeperWall;
+        }
+
+        private static bool IsSurfaceDesertEnemy(int type)
+        {
+            // Surface-level desert enemies
+            return type == NPCID.Vulture ||
+                   type == NPCID.Antlion;
+        }
+
+        private static bool IsSurfaceForestPlainsOceanEnemy(int type)
+        {
+            // Common surface enemies from forest/plains/ocean biomes
+            return type == NPCID.BlueSlime ||
+                   type == NPCID.GreenSlime ||
+                   type == NPCID.PurpleSlime ||
+                   type == NPCID.Zombie ||
+                   type == NPCID.DemonEye ||
+                   type == NPCID.Harpy ||
+                   type == NPCID.Gastropod ||
+                   type == NPCID.Shark ||
+                   type == NPCID.Squid ||
+                   type == NPCID.CorruptSlime;
+        }
+
+        private static bool IsSurfaceSnowEnemy(int type)
+        {
+            // Surface-level snow/ice enemies
+            return type == NPCID.IceSlime ||
+                   type == NPCID.IceBat ||
+                   type == NPCID.UndeadViking ||
+                   type == NPCID.SnowFlinx;
         }
 
         #endregion

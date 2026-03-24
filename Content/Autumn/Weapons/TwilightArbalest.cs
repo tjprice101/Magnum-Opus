@@ -235,6 +235,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
             CreateRecipe()
                 .AddIngredient(ModContent.ItemType<HarvestBar>(), 16)
                 .AddIngredient(ModContent.ItemType<AutumnResonantEnergy>(), 1)
+                .AddIngredient(ModContent.ItemType<DormantAutumnCore>(), 1)
                 .AddIngredient(ItemID.SoulofFright, 8)
                 .AddTile(TileID.MythrilAnvil)
                 .Register();

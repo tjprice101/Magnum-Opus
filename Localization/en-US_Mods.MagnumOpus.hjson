@@ -3975,7 +3975,12 @@ Mods: {
 		}
 
 		Keybinds.ToggleHarmonicCoreUI.DisplayName: Toggle Harmonic Core UI
-		Prefixes.ResonantScarPrefix.DisplayName: Resonance Scarred
+		Prefixes: {
+			ResonanceSlicedPrefix.DisplayName: Resonance Sliced
+			ResonanceSearedPrefix.DisplayName: Resonance Seared
+			ResonancePiercedPrefix.DisplayName: Resonance Pierced
+			ResonanceBornPrefix.DisplayName: Resonance Born
+		}
 	}
 }
 
@@ -7587,7 +7592,12 @@ NPCs: {
 	OdeToJoyChromaticRoseConductor.DisplayName: Ode To Joy Chromatic Rose Conductor
 }
 
-Prefixes.ResonantScarPrefix.DisplayName: Resonance Scarred
+Prefixes: {
+	ResonanceSlicedPrefix.DisplayName: Resonance Sliced
+	ResonanceSearedPrefix.DisplayName: Resonance Seared
+	ResonancePiercedPrefix.DisplayName: Resonance Pierced
+	ResonanceBornPrefix.DisplayName: Resonance Born
+}
 
 Projectiles: {
 	SparkleCrystalProjectile.DisplayName: Sparkle Crystal

@@ -114,12 +114,7 @@ namespace MagnumOpus.Common.Systems
             // with ornate visuals, so we skip it here to avoid duplicate meters.
             
             // ===== DEFENSE: RESONANT SHIELD =====
-            var shieldPlayer = player.GetModPlayer<ResonantShieldPlayer>();
-            if (shieldPlayer.MaxShield > 0)
-            {
-                DrawShieldMeter(spriteBatch, basePos + new Vector2(0, currentYOffset), shieldPlayer, player);
-                currentYOffset += BAR_SPACING;
-            }
+            // Intentionally hidden to avoid chain meter UI complexity.
             
             // ===== MAGE: MANA OVERFLOW =====
             var overflowPlayer = player.GetModPlayer<OverflowPlayer>();
@@ -146,12 +141,7 @@ namespace MagnumOpus.Common.Systems
             }
             
             // ===== MOBILITY: MOMENTUM =====
-            var momentumPlayer = player.GetModPlayer<MomentumPlayer>();
-            if (momentumPlayer.MaxMomentum > 0)
-            {
-                DrawMomentumMeter(spriteBatch, basePos + new Vector2(0, currentYOffset), momentumPlayer);
-                currentYOffset += BAR_SPACING;
-            }
+            // Intentionally hidden to avoid chain meter UI complexity.
         }
         
         /// <summary>
@@ -163,7 +153,7 @@ namespace MagnumOpus.Common.Systems
             Color barColor = Color.Lerp(MeleeResonancePurple * 0.5f, MeleeResonancePurple, percent);
             
             // Icon (musical note symbol)
-            DrawMeterIcon(spriteBatch, position, "♪", MeleeResonancePurple);
+            DrawMeterIcon(spriteBatch, position, "M", MeleeResonancePurple);
             
             // Background bar
             Vector2 barPos = position + new Vector2(ICON_SIZE + 4, 0);
@@ -197,7 +187,7 @@ namespace MagnumOpus.Common.Systems
             Color barColor = Color.Lerp(DefenseShieldBlue * 0.5f, DefenseShieldBlue, percent);
             
             // Shield icon
-            DrawMeterIcon(spriteBatch, position, "◆", DefenseShieldBlue);
+            DrawMeterIcon(spriteBatch, position, "D", DefenseShieldBlue);
             
             // Background bar
             Vector2 barPos = position + new Vector2(ICON_SIZE + 4, 0);
@@ -226,7 +216,7 @@ namespace MagnumOpus.Common.Systems
             Color barColor = Color.Lerp(new Color(100, 100, 255), MageOverflowPink, percent);
             
             // Warning icon when in overflow
-            string icon = player.isInOverflow ? "⚡" : "✧";
+            string icon = player.isInOverflow ? "!" : "*";
             Color iconColor = player.isInOverflow ? MageOverflowPink : new Color(100, 150, 255);
             DrawMeterIcon(spriteBatch, position, icon, iconColor);
             
@@ -254,7 +244,7 @@ namespace MagnumOpus.Common.Systems
         private void DrawConductorMeter(SpriteBatch spriteBatch, Vector2 position, ConductorPlayer player)
         {
             // Conductor baton icon
-            string icon = player.IsConducting ? "♫" : "♪";
+            string icon = player.IsConducting ? "C" : "c";
             Color iconColor = player.IsConducting ? SummonerConductGold : SummonerConductGold * 0.6f;
             DrawMeterIcon(spriteBatch, position, icon, iconColor);
             
@@ -297,7 +287,7 @@ namespace MagnumOpus.Common.Systems
             float percent = (float)markedCount / player.maxMarkedEnemies;
             
             // Crosshair icon
-            string icon = markedCount > 0 ? "⊕" : "○";
+            string icon = markedCount > 0 ? "+" : "o";
             Color iconColor = markedCount > 0 ? RangerMarkRed : RangerMarkRed * 0.5f;
             DrawMeterIcon(spriteBatch, position, icon, iconColor);
             
@@ -343,7 +333,7 @@ namespace MagnumOpus.Common.Systems
                 barColor = Color.Lerp(MobilityMomentumGold, new Color(255, 100, 50), (percent - 0.5f) * 2f);
             
             // Speed icon
-            string icon = percent >= 0.8f ? "»»" : (percent >= 0.5f ? "»" : "›");
+            string icon = percent >= 0.8f ? ">>" : (percent >= 0.5f ? ">" : ".");
             DrawMeterIcon(spriteBatch, position, icon, barColor);
             
             // Background bar

@@ -102,10 +102,9 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
 
         public override void SetDefaults()
         {
-            // MINI-BOSS STATS
-            // Hitbox = (1660/6) ・・・(868/6) ・・・1.15 ・・・0.8 = 276.6 ・・・144.6 ・・・1.15 ・・・0.8 = 254 ・・・133
-            NPC.width = 254;
-            NPC.height = 133;
+            // MINI-BOSS STATS - Scaled to appropriate size (120×65 px, similar to other mini-bosses)
+            NPC.width = 120;
+            NPC.height = 65;
             NPC.damage = 170;
             NPC.defense = 85;
             NPC.lifeMax = 70000;
@@ -114,7 +113,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.StolenValor
             NPC.knockBackResist = 0.02f;
             NPC.value = Item.buyPrice(gold: 45);
             NPC.aiStyle = -1;
-            NPC.scale = 1.15f;
+            NPC.scale = 1.0f;
             NPC.npcSlots = 5f;
 
             NPC.noGravity = false;

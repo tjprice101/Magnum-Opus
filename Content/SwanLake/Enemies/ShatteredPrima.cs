@@ -138,9 +138,9 @@ namespace MagnumOpus.Content.SwanLake.Enemies
         public override void SetDefaults()
         {
             // SWAN LAKE MINI-BOSS STATS - Graceful but deadly
-            // Hitbox = (90/6) ・・・(51/6) ・・・0.8 = 15 ・・・8.5 ・・・0.8 = 12 ・・・6
-            NPC.width = 12;
-            NPC.height = 6;
+            // Sprite: 90×51 pixels, scaled to reasonable mini-boss hitbox (similar to WaningDeer)
+            NPC.width = 80;
+            NPC.height = 45;
             NPC.damage = 140; // Slightly lower than other minibosses
             NPC.defense = 55; // Graceful = less armored
             NPC.lifeMax = 75000; // Mini-boss HP
@@ -1258,23 +1258,20 @@ namespace MagnumOpus.Content.SwanLake.Enemies
 
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
-            // Essence drops only after killing the main Swan Lake boss
+            // Ore + Shard drops only after killing the main Swan Lake boss
             LeadingConditionRule afterBossRule = new LeadingConditionRule(new DownedSwanLakeCondition());
-            
-            // Mini-boss tier drops - matching other themes
-            // Swan Lake materials
-            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<SwansResonanceEnergy>(), 1, 8, 12));
-            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<RemnantOfSwansHarmony>(), 1, 12, 18));
-            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ShardOfTheFeatheredTempo>(), 1, 3, 6));
-            
-            // Small chance for Resonant Core
-            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ResonantCoreOfSwanLake>(), 10));
-            
+
+            // Ore for crafting bars (2-4)
+            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<SwanLakeResonanceOre>(), 1, 2, 4));
+
+            // Shards of the Feathered Tempo for accessories/weapons (1-2)
+            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ShardOfTheFeatheredTempo>(), 1, 1, 2));
+
             npcLoot.Add(afterBossRule);
-            
+
             // Money always drops
             npcLoot.Add(ItemDropRule.Common(ItemID.GoldCoin, 1, 8, 15));
-            
+
             // Grace Essence - theme essence drop (15%)
             npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<GraceEssence>(), 7));
         }

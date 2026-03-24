@@ -176,6 +176,11 @@ namespace MagnumOpus.Common.Systems.VFX.Sparkle
                     SparkleTheme.LaCampanella => Main.rand.NextFloat(0.975f, 0.995f), // Hot, persistent
                     SparkleTheme.EnigmaVariations => Main.rand.NextFloat(0.950f, 0.980f), // Chaotic scatter
                     SparkleTheme.Fate => Main.rand.NextFloat(0.965f, 0.990f), // Cosmic drift
+                    SparkleTheme.Spring => Main.rand.NextFloat(0.962f, 0.988f), // Floating petals
+                    SparkleTheme.Summer => Main.rand.NextFloat(0.972f, 0.994f), // Fast hot streaks
+                    SparkleTheme.Autumn => Main.rand.NextFloat(0.958f, 0.986f), // Drifting leaves
+                    SparkleTheme.Winter => Main.rand.NextFloat(0.948f, 0.978f), // Crisp, icy scatter
+                    SparkleTheme.Seasons => Main.rand.NextFloat(0.960f, 0.990f), // Balanced four-season blend
                     _ => Main.rand.NextFloat(0.965f, 0.990f),
                 };
 
@@ -187,6 +192,11 @@ namespace MagnumOpus.Common.Systems.VFX.Sparkle
                     SparkleTheme.LaCampanella => Main.rand.NextFloat(0.04f, 0.10f), // Rising embers
                     SparkleTheme.EnigmaVariations => Main.rand.NextFloat(-0.03f, 0.05f), // Anti-gravity chaos
                     SparkleTheme.Fate => Main.rand.NextFloat(0.01f, 0.03f), // Zero-g cosmic
+                    SparkleTheme.Spring => Main.rand.NextFloat(0.00f, 0.03f), // Petal-like float
+                    SparkleTheme.Summer => Main.rand.NextFloat(0.03f, 0.09f), // Fiery falloff
+                    SparkleTheme.Autumn => Main.rand.NextFloat(0.02f, 0.06f), // Leaf drop
+                    SparkleTheme.Winter => Main.rand.NextFloat(-0.01f, 0.02f), // Snow-like hover
+                    SparkleTheme.Seasons => Main.rand.NextFloat(0.00f, 0.05f), // Mixed seasonal motion
                     _ => Main.rand.NextFloat(0.02f, 0.06f),
                 };
 

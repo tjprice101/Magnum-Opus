@@ -8,38 +8,49 @@ using MagnumOpus.Content.Spring.Materials;
 using MagnumOpus.Content.Summer.Materials;
 using MagnumOpus.Content.Autumn.Materials;
 using MagnumOpus.Content.Winter.Materials;
+using MagnumOpus.Content.Seasons.Accessories;
 
 namespace MagnumOpus.Content.Common.Accessories.MageChain
 {
     /// <summary>
-    /// Resonant Overflow Gem - Base tier magic chain accessory
-    /// Can cast spells up to -20 mana. While negative: -25% magic damage, +50% mana regen
+    /// Resonant Overflow Gem - Base tier magic chain accessory.
+    /// Simple effect: +5% magic damage, +20 max mana.
     /// </summary>
     public class ResonantOverflowGem : ModItem
     {
+        private static readonly Color BasePurple = new Color(100, 150, 255);
+
         public override void SetDefaults()
         {
             Item.width = 32;
             Item.height = 32;
             Item.accessory = true;
-            Item.value = Item.sellPrice(0, 1, 0, 0);
+            Item.value = Item.sellPrice(gold: 1);
             Item.rare = ItemRarityID.Blue;
         }
-        
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var overflowPlayer = player.GetModPlayer<OverflowPlayer>();
-            overflowPlayer.hasResonantOverflowGem = true;
-            
-            // +50% mana regen while in overflow is handled by the OverflowPlayer
+            var modPlayer = player.GetModPlayer<OverflowPlayer>();
+            modPlayer.hasResonantOverflowGem = true;
         }
-        
+
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables Mana Overflow: cast spells into negative mana"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can overflow to -20 mana"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "While in negative mana: -25% magic damage, +50% mana regeneration"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The first step into the void between notes'") { OverrideColor = new Color(150, 200, 100) });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+5% magic damage")
+            {
+                OverrideColor = new Color(255, 200, 255)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+20 max mana")
+            {
+                OverrideColor = new Color(200, 220, 255)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The first step into harmonic resonance'")
+            {
+                OverrideColor = BasePurple * 0.8f
+            });
         }
 
         public override void AddRecipes()
@@ -51,180 +62,212 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
                 .Register();
         }
     }
-    
+
     /// <summary>
-    /// Spring Arcane Conduit - Tier 2 magic chain accessory
-    /// Overflow to -40 mana. While negative: spells leave healing petal trails
+    /// Spring Arcane Conduit - Spring tier magic chain accessory.
+    /// Simple effect: +10% magic damage, 5% chance to spawn healing petal on spell cast.
     /// </summary>
     public class SpringArcaneConduit : ModItem
     {
+        private static readonly Color SpringPink = new Color(255, 183, 197);
+
         public override void SetDefaults()
         {
             Item.width = 32;
             Item.height = 32;
             Item.accessory = true;
-            Item.value = Item.sellPrice(0, 3, 0, 0);
+            Item.value = Item.sellPrice(gold: 3);
             Item.rare = ItemRarityID.Green;
         }
-        
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var overflowPlayer = player.GetModPlayer<OverflowPlayer>();
-            overflowPlayer.hasResonantOverflowGem = true;
-            overflowPlayer.hasSpringArcaneConduit = true;
+            var modPlayer = player.GetModPlayer<OverflowPlayer>();
+            modPlayer.hasSpringArcaneConduit = true;
         }
-        
+
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables Mana Overflow: cast spells into negative mana"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can overflow to -40 mana"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "While in negative mana: spells leave healing petal trails"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Spring's renewal flows even through emptiness'") { OverrideColor = new Color(150, 200, 100) });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+10% magic damage")
+            {
+                OverrideColor = new Color(255, 200, 255)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "5% chance to spawn healing petal on spell cast")
+            {
+                OverrideColor = SpringPink
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Spring's renewal flows through arcane channels'")
+            {
+                OverrideColor = SpringPink * 0.8f
+            });
         }
 
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<ResonantOverflowGem>()
+                .AddIngredient<ResonantOverflowGem>(1)
+                .AddIngredient<ResonantCrystalShard>(5)
                 .AddIngredient<VernalBar>(15)
-                // .AddIngredient<PrimaveraTrophy>() // Primavera drop
+                .AddIngredient<SpringResonantEnergy>(1)
                 .AddTile(TileID.TinkerersWorkbench)
                 .Register();
         }
     }
-    
+
     /// <summary>
-    /// Solar Mana Crucible - Tier 3 magic chain accessory
-    /// Overflow to -60 mana. While negative: spells inflict "Sunburn" debuff
+    /// Solar Mana Crucible - Summer tier magic chain accessory.
+    /// Simple effect: Magic attacks inflict On Fire! for 5 seconds.
     /// </summary>
     public class SolarManaCrucible : ModItem
     {
+        private static readonly Color SummerOrange = new Color(255, 140, 0);
+
         public override void SetDefaults()
         {
             Item.width = 32;
             Item.height = 32;
             Item.accessory = true;
-            Item.value = Item.sellPrice(0, 5, 0, 0);
+            Item.value = Item.sellPrice(gold: 5);
             Item.rare = ItemRarityID.Orange;
         }
-        
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var overflowPlayer = player.GetModPlayer<OverflowPlayer>();
-            overflowPlayer.hasResonantOverflowGem = true;
-            overflowPlayer.hasSpringArcaneConduit = true;
-            overflowPlayer.hasSolarManaCrucible = true;
+            var modPlayer = player.GetModPlayer<OverflowPlayer>();
+            modPlayer.hasSolarManaCrucible = true;
         }
-        
+
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables Mana Overflow: cast spells into negative mana"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can overflow to -60 mana"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "While in negative mana: spells inflict 'Sunburn' debuff on enemies"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Summer's heat burns brightest in the depths of absence'") { OverrideColor = new Color(150, 200, 100) });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Magic attacks inflict On Fire! for 5 seconds")
+            {
+                OverrideColor = SummerOrange
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Summer's heat burns through arcane channels'")
+            {
+                OverrideColor = SummerOrange * 0.8f
+            });
         }
 
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<SpringArcaneConduit>()
+                .AddIngredient<SpringArcaneConduit>(1)
+                .AddIngredient<ResonantCrystalShard>(5)
                 .AddIngredient<SolsticeBar>(15)
-                // .AddIngredient<LEstateTrophy>() // L'Estate drop
+                .AddIngredient<SummerResonantEnergy>(1)
                 .AddTile(TileID.MythrilAnvil)
                 .Register();
         }
     }
-    
+
     /// <summary>
-    /// Harvest Soul Vessel - Tier 4 magic chain accessory
-    /// Overflow to -80 mana. Killing enemies while negative restores +15 mana instantly
+    /// Harvest Soul Vessel - Autumn tier magic chain accessory.
+    /// Simple effect: Killing enemies restores 15 mana.
     /// </summary>
     public class HarvestSoulVessel : ModItem
     {
+        private static readonly Color AutumnOrange = new Color(255, 100, 30);
+
         public override void SetDefaults()
         {
             Item.width = 32;
             Item.height = 32;
             Item.accessory = true;
-            Item.value = Item.sellPrice(0, 8, 0, 0);
+            Item.value = Item.sellPrice(gold: 8);
             Item.rare = ItemRarityID.LightRed;
         }
-        
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var overflowPlayer = player.GetModPlayer<OverflowPlayer>();
-            overflowPlayer.hasResonantOverflowGem = true;
-            overflowPlayer.hasSpringArcaneConduit = true;
-            overflowPlayer.hasSolarManaCrucible = true;
-            overflowPlayer.hasHarvestSoulVessel = true;
+            var modPlayer = player.GetModPlayer<OverflowPlayer>();
+            modPlayer.hasHarvestSoulVessel = true;
         }
-        
+
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables Mana Overflow: cast spells into negative mana"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can overflow to -80 mana"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Killing enemies while in negative mana restores +15 mana instantly"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Autumn reaps what spring has sown, even from the void'") { OverrideColor = new Color(150, 200, 100) });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Killing enemies restores 15 mana")
+            {
+                OverrideColor = new Color(200, 220, 255)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Autumn reaps what spring has sown'")
+            {
+                OverrideColor = AutumnOrange * 0.8f
+            });
         }
 
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<SolarManaCrucible>()
+                .AddIngredient<SolarManaCrucible>(1)
+                .AddIngredient<ResonantCrystalShard>(5)
                 .AddIngredient<HarvestBar>(20)
-                // .AddIngredient<AutunnoTrophy>() // Autunno drop
+                .AddIngredient<AutumnResonantEnergy>(1)
                 .AddTile(TileID.MythrilAnvil)
                 .Register();
         }
     }
-    
+
     /// <summary>
-    /// Permafrost Void Heart - Tier 5 magic chain accessory
-    /// Overflow to -100 mana. While negative: spells have +15% damage (risk/reward!)
+    /// Permafrost Void Heart - Winter tier magic chain accessory.
+    /// Simple effect: +15% magic damage, +50 max mana.
     /// </summary>
     public class PermafrostVoidHeart : ModItem
     {
+        private static readonly Color WinterBlue = new Color(150, 220, 255);
+
         public override void SetDefaults()
         {
             Item.width = 32;
             Item.height = 32;
             Item.accessory = true;
-            Item.value = Item.sellPrice(0, 12, 0, 0);
+            Item.value = Item.sellPrice(gold: 12);
             Item.rare = ItemRarityID.Pink;
         }
-        
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var overflowPlayer = player.GetModPlayer<OverflowPlayer>();
-            overflowPlayer.hasResonantOverflowGem = true;
-            overflowPlayer.hasSpringArcaneConduit = true;
-            overflowPlayer.hasSolarManaCrucible = true;
-            overflowPlayer.hasHarvestSoulVessel = true;
-            overflowPlayer.hasPermafrostVoidHeart = true;
+            var modPlayer = player.GetModPlayer<OverflowPlayer>();
+            modPlayer.hasPermafrostVoidHeart = true;
         }
-        
+
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables Mana Overflow: cast spells into negative mana"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can overflow to -100 mana"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "While in negative mana: spells deal +15% damage"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Winter's heart beats coldest where mana cannot reach'") { OverrideColor = new Color(150, 200, 100) });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+15% magic damage")
+            {
+                OverrideColor = new Color(255, 200, 255)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+50 max mana")
+            {
+                OverrideColor = new Color(200, 220, 255)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Winter's void holds immense power'")
+            {
+                OverrideColor = WinterBlue * 0.8f
+            });
         }
 
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<HarvestSoulVessel>()
+                .AddIngredient<HarvestSoulVessel>(1)
+                .AddIngredient<ResonantCrystalShard>(5)
                 .AddIngredient<PermafrostBar>(25)
-                // .AddIngredient<LInvernoTrophy>() // L'Inverno drop
+                .AddIngredient<WinterResonantEnergy>(1)
                 .AddTile(TileID.MythrilAnvil)
                 .Register();
         }
     }
-    
+
     /// <summary>
-    /// Vivaldi's Harmonic Core - Tier 6 magic chain accessory (Post-Plantera)
-    /// Overflow to -120 mana. Recovering from negative mana releases a seasonal burst
+    /// Vivaldi's Harmonic Core - Vivaldi (all seasons) tier magic chain accessory.
+    /// Simple effect: +20% magic damage, biome-dependent debuff on magic hit.
     /// </summary>
     public class VivaldisHarmonicCore : ModItem
     {
@@ -233,34 +276,47 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             Item.width = 32;
             Item.height = 32;
             Item.accessory = true;
-            Item.value = Item.sellPrice(0, 20, 0, 0);
+            Item.value = Item.sellPrice(gold: 20);
             Item.rare = ItemRarityID.Lime;
         }
-        
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var overflowPlayer = player.GetModPlayer<OverflowPlayer>();
-            overflowPlayer.hasResonantOverflowGem = true;
-            overflowPlayer.hasSpringArcaneConduit = true;
-            overflowPlayer.hasSolarManaCrucible = true;
-            overflowPlayer.hasHarvestSoulVessel = true;
-            overflowPlayer.hasPermafrostVoidHeart = true;
-            overflowPlayer.hasVivaldisHarmonicCore = true;
+            var modPlayer = player.GetModPlayer<OverflowPlayer>();
+            modPlayer.hasVivaldisHarmonicCore = true;
         }
-        
+
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables Mana Overflow: cast spells into negative mana"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Can overflow to -120 mana"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Recovering from negative mana releases a seasonal burst of energy"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Four seasons dance as one within the spaces between sound'") { OverrideColor = new Color(150, 200, 100) });
+            float hue = (Main.GameUpdateCount * 0.01f) % 1f;
+            Color cyclingColor = Main.hslToRgb(hue, 0.8f, 0.6f);
+
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+20% magic damage")
+            {
+                OverrideColor = new Color(255, 200, 255)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Magic attacks inflict biome-based debuffs")
+            {
+                OverrideColor = cyclingColor
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "BiomeNote", "Snow: Frostburn | Desert: On Fire! | Jungle: Poisoned | Other: Confused")
+            {
+                OverrideColor = new Color(180, 180, 180)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The Four Seasons harmonize in arcane unity'")
+            {
+                OverrideColor = cyclingColor * 0.8f
+            });
         }
 
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<PermafrostVoidHeart>()
-                // .AddIngredient<CycleOfSeasons>() // Post-Plantera crafting item
+                .AddIngredient<PermafrostVoidHeart>(1)
+                .AddIngredient<CycleOfSeasons>(1)
                 .AddTile(TileID.MythrilAnvil)
                 .Register();
         }

@@ -104,10 +104,9 @@ namespace MagnumOpus.Content.Eroica.Enemies.EroicanCenturion
 
         public override void SetDefaults()
         {
-            // MINI-BOSS STATS - Significantly boosted
-            // Hitbox = (3828/6) ÁE(1944/6) ÁE0.8 = 638 ÁE324 ÁE0.8 = 510 ÁE259
-            NPC.width = 510;
-            NPC.height = 259;
+            // MINI-BOSS STATS - Scaled to appropriate size (150×76 px)
+            NPC.width = 150;
+            NPC.height = 76;
             NPC.damage = 180;
             NPC.defense = 90;
             NPC.lifeMax = 75000; // Mini-boss HP
@@ -122,7 +121,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.EroicanCenturion
             NPC.noGravity = false;
             NPC.noTileCollide = false;
 
-            DrawOffsetY = -52f;
+            DrawOffsetY = -15f;
         }
 
         public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)

@@ -168,11 +168,11 @@ namespace MagnumOpus.Content.Autumn.Accessories
         {
             Color autumnOrange = new Color(255, 100, 30);
             Color harvestGold = new Color(218, 165, 32);
-            
+
             tooltips.Add(new TooltipLine(Mod, "Season", "Autumn Accessory") { OverrideColor = autumnOrange });
             tooltips.Add(new TooltipLine(Mod, "Defense", "+12 defense") { OverrideColor = harvestGold });
             tooltips.Add(new TooltipLine(Mod, "DR", "+8% damage reduction") { OverrideColor = harvestGold });
-            tooltips.Add(new TooltipLine(Mod, "Thorns", "Attackers take damage") { OverrideColor = autumnOrange });
+            tooltips.Add(new TooltipLine(Mod, "Thorns", "Attackers take 10 damage per hit") { OverrideColor = autumnOrange });
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The harvest provides both bounty and protection'") { OverrideColor = Color.Lerp(harvestGold, Color.White, 0.3f) });
         }
 

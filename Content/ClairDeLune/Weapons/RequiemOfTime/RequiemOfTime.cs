@@ -73,7 +73,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Deploys a Forward Field that speeds allies by 30%"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Right click deploys a Reverse Field that slows enemies by 40%"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Reverse Field costs 5% of max HP instead of extra mana"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Overlapping fields create a Temporal Paradox — massive damage burst"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Overlapping fields create a Temporal Paradox that deals doubled damage"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Time is not a river — it is an ocean, and you are the tide.'")
             {
                 OverrideColor = ClairDeLunePalette.LoreText

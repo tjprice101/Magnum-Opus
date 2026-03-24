@@ -10,6 +10,8 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.LaCampanella.ResonanceEnergies;
 using MagnumOpus.Content.LaCampanella.HarmonicCores;
+using MagnumOpus.Content.LaCampanella.ResonantOres;
+using MagnumOpus.Content.LaCampanella.Bosses;
 using MagnumOpus.Content.Materials.EnemyDrops;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
@@ -636,15 +638,17 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
 
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
-            // Essence drops only after killing the main La Campanella boss
+            // Ore + Shard drops only after killing the main La Campanella boss
             LeadingConditionRule afterBossRule = new LeadingConditionRule(new DownedLaCampanellaCondition());
-            
-            // Mini-boss tier drops - matching other themes
-            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<LaCampanellaResonantEnergy>(), 1, 8, 15));
-            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ResonantCoreOfLaCampanella>(), 1, 3, 6));
-            
+
+            // Ore for crafting bars (2-4)
+            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<LaCampanellaResonanceOre>(), 1, 2, 4));
+
+            // Shards of Burning Tempo for accessories/weapons (1-2)
+            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ShardOfTheBurningTempo>(), 1, 1, 2));
+
             npcLoot.Add(afterBossRule);
-            
+
             // Bell Essence - theme essence drop (15%)
             npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<BellEssence>(), 7));
         }

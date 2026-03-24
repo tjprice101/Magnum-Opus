@@ -38,6 +38,11 @@ namespace MagnumOpus.Common.Systems.VFX.Sparkle
             ("MagnumOpus.Content.LaCampanella", SparkleTheme.LaCampanella),
             ("MagnumOpus.Content.EnigmaVariations", SparkleTheme.EnigmaVariations),
             ("MagnumOpus.Content.Fate", SparkleTheme.Fate),
+            ("MagnumOpus.Content.Spring", SparkleTheme.Spring),
+            ("MagnumOpus.Content.Summer", SparkleTheme.Summer),
+            ("MagnumOpus.Content.Autumn", SparkleTheme.Autumn),
+            ("MagnumOpus.Content.Winter", SparkleTheme.Winter),
+            ("MagnumOpus.Content.Seasons", SparkleTheme.Seasons),
         };
 
         /// <summary>

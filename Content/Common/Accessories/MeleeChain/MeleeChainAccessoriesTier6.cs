@@ -38,96 +38,31 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-            
-            // Enable all previous tiers
-            resonancePlayer.hasResonantRhythmBand = true;
-            resonancePlayer.hasSpringTempoCharm = true;
-            resonancePlayer.hasSolarCrescendoRing = true;
-            resonancePlayer.hasHarvestRhythmSignet = true;
-            resonancePlayer.hasPermafrostCadenceSeal = true;
-            resonancePlayer.hasVivaldisTempoMaster = true;
-            resonancePlayer.hasMoonlitSonataBand = true;
-            resonancePlayer.hasHeroicCrescendo = true;
-            resonancePlayer.hasInfernalFortissimo = true;
-            resonancePlayer.hasEnigmasDissonance = true;
-            resonancePlayer.hasSwansPerfectMeasure = true;
-            resonancePlayer.hasFatesCosmicSymphony = true;
-            
-            // Enable T7
-            resonancePlayer.hasNocturnalSymphonyBand = true;
+            var modPlayer = player.GetModPlayer<ResonanceComboPlayer>();
+            modPlayer.hasNocturnalSymphonyBand = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Player player = Main.LocalPlayer;
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-
-            float phase = Main.GameUpdateCount * 0.02f;
-            float gradient = (float)Math.Sin(phase) * 0.5f + 0.5f;
-            Color titleColor = Color.Lerp(NachtmusikDeepPurple, NachtmusikGold, gradient);
-
-            tooltips.Add(new TooltipLine(Mod, "NocturnalTitle", "★ STELLAR RESONANCE ★")
-            {
-                OverrideColor = titleColor
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Max Resonance: 70")
-            {
-                OverrideColor = NachtmusikViolet
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Resonance builds +2 per hit at night")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+20% melee damage at night")
             {
                 OverrideColor = NachtmusikGold
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "At 50+ Resonance: Attacks leave constellation trails")
-            {
-                OverrideColor = NachtmusikStarWhite
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Starfall", "Consume 60 Resonance: Starfall Slash")
-            {
-                OverrideColor = NachtmusikGold
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "StarfallEffect", "Summons a crescent of starlight that rains star projectiles")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Melee attacks leave constellation trails")
             {
                 OverrideColor = new Color(200, 180, 255)
             });
 
-            if (resonancePlayer.hasNocturnalSymphonyBand)
-            {
-                bool canBurst = resonancePlayer.resonanceStacks >= 60 && !resonancePlayer.IsBurstOnCooldown;
-                Color stackColor = canBurst ? Color.Yellow :
-                                   resonancePlayer.resonanceStacks >= 50 ? NachtmusikGold :
-                                   Color.Lerp(Color.Gray, NachtmusikViolet, resonancePlayer.GetResonancePercent());
-
-                tooltips.Add(new TooltipLine(Mod, "Stacks", $"Current Resonance: {resonancePlayer.resonanceStacks}/{resonancePlayer.maxResonance}")
-                {
-                    OverrideColor = stackColor
-                });
-
-                if (canBurst)
-                {
-                    tooltips.Add(new TooltipLine(Mod, "Ready", "★ STARFALL SLASH READY ★")
-                    {
-                        OverrideColor = Color.Yellow
-                    });
-                }
-            }
-
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The night sky conducts its eternal symphony'")
             {
-                OverrideColor = NachtmusikDeepPurple * 0.9f
+                OverrideColor = new Color(45, 27, 78) * 1.5f
             });
         }
 
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<FatesCosmicSymphony>(1)
                 .AddIngredient<NachtmusikResonantEnergy>(15)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
@@ -162,97 +97,36 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-
-            // Enable all previous tiers
-            resonancePlayer.hasResonantRhythmBand = true;
-            resonancePlayer.hasSpringTempoCharm = true;
-            resonancePlayer.hasSolarCrescendoRing = true;
-            resonancePlayer.hasHarvestRhythmSignet = true;
-            resonancePlayer.hasPermafrostCadenceSeal = true;
-            resonancePlayer.hasVivaldisTempoMaster = true;
-            resonancePlayer.hasMoonlitSonataBand = true;
-            resonancePlayer.hasHeroicCrescendo = true;
-            resonancePlayer.hasInfernalFortissimo = true;
-            resonancePlayer.hasEnigmasDissonance = true;
-            resonancePlayer.hasSwansPerfectMeasure = true;
-            resonancePlayer.hasFatesCosmicSymphony = true;
-            resonancePlayer.hasNocturnalSymphonyBand = true;
-            
-            // Enable T8
-            resonancePlayer.hasInfernalFortissimoBandT8 = true;
+            var modPlayer = player.GetModPlayer<ResonanceComboPlayer>();
+            modPlayer.hasInfernalFortissimoBandT8 = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Player player = Main.LocalPlayer;
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-
-            float phase = Main.GameUpdateCount * 0.025f;
-            float flicker = (float)Math.Sin(phase * 3f) * 0.3f + 0.7f;
-            Color titleColor = Color.Lerp(DiesIraeCrimson, DiesIraeOrange, flicker);
-
-            tooltips.Add(new TooltipLine(Mod, "InfernalTitle", "★ INFERNAL RESONANCE ★")
-            {
-                OverrideColor = titleColor
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Max Resonance: 80")
-            {
-                OverrideColor = DiesIraeOrange
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "At 60+ Resonance: Attacks inflict Judgment Burn (3% max HP/s)")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Melee attacks inflict Judgment Burn")
             {
                 OverrideColor = DiesIraeCrimson
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Resonance doesn't decay during boss fights")
+            tooltips.Add(new TooltipLine(Mod, "BurnNote", "Judgment Burn: 3% of enemy max HP per second")
             {
-                OverrideColor = DiesIraeGold
+                OverrideColor = new Color(255, 120, 40)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Hellfire", "Consume 70 Resonance: Hellfire Crescendo")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+25% melee damage during boss fights")
             {
-                OverrideColor = DiesIraeOrange
+                OverrideColor = new Color(255, 200, 80)
             });
-
-            tooltips.Add(new TooltipLine(Mod, "HellfireEffect", "Unleashes a massive explosion leaving burning ground for 5s")
-            {
-                OverrideColor = new Color(255, 180, 120)
-            });
-
-            if (resonancePlayer.hasInfernalFortissimoBandT8)
-            {
-                bool canBurst = resonancePlayer.resonanceStacks >= 70 && !resonancePlayer.IsBurstOnCooldown;
-                Color stackColor = canBurst ? Color.Yellow :
-                                   resonancePlayer.resonanceStacks >= 60 ? DiesIraeCrimson :
-                                   Color.Lerp(Color.Gray, DiesIraeOrange, resonancePlayer.GetResonancePercent());
-
-                tooltips.Add(new TooltipLine(Mod, "Stacks", $"Current Resonance: {resonancePlayer.resonanceStacks}/{resonancePlayer.maxResonance}")
-                {
-                    OverrideColor = stackColor
-                });
-
-                if (canBurst)
-                {
-                    tooltips.Add(new TooltipLine(Mod, "Ready", "★ HELLFIRE CRESCENDO READY ★")
-                    {
-                        OverrideColor = Color.Yellow
-                    });
-                }
-            }
 
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The day of wrath burns with righteous fury'")
             {
-                OverrideColor = DiesIraeCrimson * 0.9f
+                OverrideColor = DiesIraeCrimson * 0.8f
             });
         }
 
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<NocturnalSymphonyBand>(1)
                 .AddIngredient<DiesIraeResonantEnergy>(15)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
@@ -286,102 +160,31 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-
-            // Enable all previous tiers
-            resonancePlayer.hasResonantRhythmBand = true;
-            resonancePlayer.hasSpringTempoCharm = true;
-            resonancePlayer.hasSolarCrescendoRing = true;
-            resonancePlayer.hasHarvestRhythmSignet = true;
-            resonancePlayer.hasPermafrostCadenceSeal = true;
-            resonancePlayer.hasVivaldisTempoMaster = true;
-            resonancePlayer.hasMoonlitSonataBand = true;
-            resonancePlayer.hasHeroicCrescendo = true;
-            resonancePlayer.hasInfernalFortissimo = true;
-            resonancePlayer.hasEnigmasDissonance = true;
-            resonancePlayer.hasSwansPerfectMeasure = true;
-            resonancePlayer.hasFatesCosmicSymphony = true;
-            resonancePlayer.hasNocturnalSymphonyBand = true;
-            resonancePlayer.hasInfernalFortissimoBandT8 = true;
-            
-            // Enable T9
-            resonancePlayer.hasJubilantCrescendoBand = true;
+            var modPlayer = player.GetModPlayer<ResonanceComboPlayer>();
+            modPlayer.hasJubilantCrescendoBand = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Player player = Main.LocalPlayer;
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-
-            float hue = (Main.GameUpdateCount * 0.015f) % 1f;
-            Color titleColor = Main.hslToRgb(hue, 0.7f, 0.8f);
-
-            tooltips.Add(new TooltipLine(Mod, "JubilantTitle", "★ JUBILANT RESONANCE ★")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "3% lifesteal on melee attacks")
             {
-                OverrideColor = titleColor
+                OverrideColor = new Color(180, 255, 180)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Max Resonance: 90")
-            {
-                OverrideColor = OdeIridescent
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "At 70+ Resonance: 2% lifesteal on all melee attacks")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Killing enemies restores 15 HP")
             {
                 OverrideColor = OdeRose
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Kills grant +5 Resonance instantly")
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Freude, schoener Goetterfunken - Joy, beautiful spark of divinity'")
             {
-                OverrideColor = OdeGold
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "At max Resonance: Nearby allies gain +10% melee damage")
-            {
-                OverrideColor = OdeWhite
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Blooming", "Consume 80 Resonance: Blooming Fury")
-            {
-                OverrideColor = OdeRose
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "BloomingEffect", "A nature explosion that heals allies and damages enemies")
-            {
-                OverrideColor = new Color(220, 255, 220)
-            });
-
-            if (resonancePlayer.hasJubilantCrescendoBand)
-            {
-                bool canBurst = resonancePlayer.resonanceStacks >= 80 && !resonancePlayer.IsBurstOnCooldown;
-                Color stackColor = canBurst ? Color.Yellow :
-                                   resonancePlayer.resonanceStacks >= 70 ? OdeRose :
-                                   Color.Lerp(Color.Gray, OdeIridescent, resonancePlayer.GetResonancePercent());
-
-                tooltips.Add(new TooltipLine(Mod, "Stacks", $"Current Resonance: {resonancePlayer.resonanceStacks}/{resonancePlayer.maxResonance}")
-                {
-                    OverrideColor = stackColor
-                });
-
-                if (canBurst)
-                {
-                    tooltips.Add(new TooltipLine(Mod, "Ready", "★ BLOOMING FURY READY ★")
-                    {
-                        OverrideColor = Color.Yellow
-                    });
-                }
-            }
-
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Freude, schöner Götterfunken - Joy, beautiful spark of divinity'")
-            {
-                OverrideColor = OdeGold * 0.9f
+                OverrideColor = OdeGold * 0.8f
             });
         }
 
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<InfernalFortissimoBandT8>(1)
                 .AddIngredient<OdeToJoyResonantEnergy>(15)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
@@ -415,104 +218,31 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-
-            // Enable all previous tiers
-            resonancePlayer.hasResonantRhythmBand = true;
-            resonancePlayer.hasSpringTempoCharm = true;
-            resonancePlayer.hasSolarCrescendoRing = true;
-            resonancePlayer.hasHarvestRhythmSignet = true;
-            resonancePlayer.hasPermafrostCadenceSeal = true;
-            resonancePlayer.hasVivaldisTempoMaster = true;
-            resonancePlayer.hasMoonlitSonataBand = true;
-            resonancePlayer.hasHeroicCrescendo = true;
-            resonancePlayer.hasInfernalFortissimo = true;
-            resonancePlayer.hasEnigmasDissonance = true;
-            resonancePlayer.hasSwansPerfectMeasure = true;
-            resonancePlayer.hasFatesCosmicSymphony = true;
-            resonancePlayer.hasNocturnalSymphonyBand = true;
-            resonancePlayer.hasInfernalFortissimoBandT8 = true;
-            resonancePlayer.hasJubilantCrescendoBand = true;
-            
-            // Enable T10
-            resonancePlayer.hasEternalResonanceBand = true;
+            var modPlayer = player.GetModPlayer<ResonanceComboPlayer>();
+            modPlayer.hasEternalResonanceBand = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Player player = Main.LocalPlayer;
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-
-            float phase = Main.GameUpdateCount * 0.015f;
-            float gradient = (float)Math.Sin(phase) * 0.5f + 0.5f;
-            Color titleColor = Color.Lerp(ClairGray, ClairCrimson, gradient);
-
-            tooltips.Add(new TooltipLine(Mod, "EternalTitle", "★ ETERNAL RESONANCE ★")
-            {
-                OverrideColor = titleColor
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Max Resonance: 100 (Ultimate)")
-            {
-                OverrideColor = ClairCrimson
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Resonance never decays (persists until consumed)")
-            {
-                OverrideColor = ClairBrass
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "At 80+ Resonance: Attacks hit twice (temporal echo at 50% damage)")
-            {
-                OverrideColor = ClairIridescent
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "At 100 Resonance: Time slows 15% for nearby enemies")
-            {
-                OverrideColor = ClairWhite
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Temporal", "Consume 90 Resonance: Temporal Finale")
-            {
-                OverrideColor = ClairCrimson
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "TemporalEffect", "A slash that hits all on-screen enemies in past, present, and future (3 hits)")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Melee attacks hit twice")
             {
                 OverrideColor = new Color(255, 220, 230)
             });
 
-            if (resonancePlayer.hasEternalResonanceBand)
+            tooltips.Add(new TooltipLine(Mod, "DoubleNote", "Second hit deals 50% damage")
             {
-                bool canBurst = resonancePlayer.resonanceStacks >= 90 && !resonancePlayer.IsBurstOnCooldown;
-                Color stackColor = canBurst ? Color.Yellow :
-                                   resonancePlayer.resonanceStacks >= 80 ? ClairCrimson :
-                                   Color.Lerp(Color.Gray, ClairIridescent, resonancePlayer.GetResonancePercent());
-
-                tooltips.Add(new TooltipLine(Mod, "Stacks", $"Current Resonance: {resonancePlayer.resonanceStacks}/{resonancePlayer.maxResonance}")
-                {
-                    OverrideColor = stackColor
-                });
-
-                if (canBurst)
-                {
-                    tooltips.Add(new TooltipLine(Mod, "Ready", "★ TEMPORAL FINALE READY ★")
-                    {
-                        OverrideColor = Color.Yellow
-                    });
-                }
-            }
+                OverrideColor = new Color(200, 180, 220)
+            });
 
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Time bends to the rhythm of eternity itself'")
             {
-                OverrideColor = ClairGray * 0.9f
+                OverrideColor = ClairBrass * 0.8f
             });
         }
 
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<JubilantCrescendoBand>(1)
                 .AddIngredient<ClairDeLuneResonantEnergy>(15)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
@@ -544,87 +274,52 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
+            var modPlayer = player.GetModPlayer<ResonanceComboPlayer>();
+            modPlayer.hasStarfallJudgmentGauntlet = true;
 
-            // Enable all previous tiers including both fusion sources
-            resonancePlayer.hasResonantRhythmBand = true;
-            resonancePlayer.hasSpringTempoCharm = true;
-            resonancePlayer.hasSolarCrescendoRing = true;
-            resonancePlayer.hasHarvestRhythmSignet = true;
-            resonancePlayer.hasPermafrostCadenceSeal = true;
-            resonancePlayer.hasVivaldisTempoMaster = true;
-            resonancePlayer.hasMoonlitSonataBand = true;
-            resonancePlayer.hasHeroicCrescendo = true;
-            resonancePlayer.hasInfernalFortissimo = true;
-            resonancePlayer.hasEnigmasDissonance = true;
-            resonancePlayer.hasSwansPerfectMeasure = true;
-            resonancePlayer.hasFatesCosmicSymphony = true;
-            resonancePlayer.hasNocturnalSymphonyBand = true;
-            resonancePlayer.hasInfernalFortissimoBandT8 = true;
-            
-            // Enable Fusion
-            resonancePlayer.hasStarfallJudgmentGauntlet = true;
+            // Combined night bonus
+            if (!Main.dayTime)
+            {
+                player.GetDamage(DamageClass.Melee) += 0.20f;
+            }
+
+            player.GetAttackSpeed(DamageClass.Melee) += 0.08f;
+            player.GetArmorPenetration(DamageClass.Melee) += 12f;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Player player = Main.LocalPlayer;
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-
-            float phase = Main.GameUpdateCount * 0.02f;
-            float blend = (float)Math.Sin(phase) * 0.5f + 0.5f;
+            float blend = (float)System.Math.Sin(Main.GameUpdateCount * 0.02f) * 0.5f + 0.5f;
             Color titleColor = Color.Lerp(StarfallPurple, StarfallCrimson, blend);
-
-            tooltips.Add(new TooltipLine(Mod, "FusionTitle", "★ STARFALL JUDGMENT ★")
-            {
-                OverrideColor = titleColor
-            });
 
             tooltips.Add(new TooltipLine(Mod, "FusionDesc", "Fuses the power of Nachtmusik and Dies Irae")
             {
-                OverrideColor = StarfallGold
+                OverrideColor = new Color(255, 200, 100)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Max Resonance: 85")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+20% melee damage at night")
             {
-                OverrideColor = StarfallPurple
+                OverrideColor = new Color(255, 215, 0)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Combines constellation trails with judgment burn")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Melee attacks inflict Judgment Burn")
             {
                 OverrideColor = StarfallCrimson
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+2 Resonance per hit at night, no decay during bosses")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Attacks leave constellation trails")
+            {
+                OverrideColor = new Color(200, 180, 255)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+8% melee speed and +12 armor penetration")
             {
                 OverrideColor = StarfallGold
             });
 
-            tooltips.Add(new TooltipLine(Mod, "FusionBurst", "Consume 75 Resonance: Starfall Judgment")
-            {
-                OverrideColor = Color.Lerp(StarfallPurple, StarfallCrimson, 0.5f)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "FusionBurstEffect", "Stars and hellfire rain together in devastating unison")
-            {
-                OverrideColor = new Color(220, 180, 220)
-            });
-
-            if (resonancePlayer.hasStarfallJudgmentGauntlet)
-            {
-                bool canBurst = resonancePlayer.resonanceStacks >= 75 && !resonancePlayer.IsBurstOnCooldown;
-                Color stackColor = canBurst ? Color.Yellow :
-                                   Color.Lerp(Color.Gray, StarfallGold, resonancePlayer.GetResonancePercent());
-
-                tooltips.Add(new TooltipLine(Mod, "Stacks", $"Current Resonance: {resonancePlayer.resonanceStacks}/{resonancePlayer.maxResonance}")
-                {
-                    OverrideColor = stackColor
-                });
-            }
-
             tooltips.Add(new TooltipLine(Mod, "Lore", "'When stars fall, judgment follows'")
             {
-                OverrideColor = StarfallPurple * 0.9f
+                OverrideColor = titleColor * 0.8f
             });
         }
 
@@ -666,88 +361,58 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
+            var modPlayer = player.GetModPlayer<ResonanceComboPlayer>();
+            modPlayer.hasTriumphantCosmosGauntlet = true;
 
-            // Enable all previous tiers
-            resonancePlayer.hasResonantRhythmBand = true;
-            resonancePlayer.hasSpringTempoCharm = true;
-            resonancePlayer.hasSolarCrescendoRing = true;
-            resonancePlayer.hasHarvestRhythmSignet = true;
-            resonancePlayer.hasPermafrostCadenceSeal = true;
-            resonancePlayer.hasVivaldisTempoMaster = true;
-            resonancePlayer.hasMoonlitSonataBand = true;
-            resonancePlayer.hasHeroicCrescendo = true;
-            resonancePlayer.hasInfernalFortissimo = true;
-            resonancePlayer.hasEnigmasDissonance = true;
-            resonancePlayer.hasSwansPerfectMeasure = true;
-            resonancePlayer.hasFatesCosmicSymphony = true;
-            resonancePlayer.hasNocturnalSymphonyBand = true;
-            resonancePlayer.hasInfernalFortissimoBandT8 = true;
-            resonancePlayer.hasJubilantCrescendoBand = true;
-            resonancePlayer.hasStarfallJudgmentGauntlet = true;
-            
-            // Enable Fusion Tier 2
-            resonancePlayer.hasTriumphantCosmosGauntlet = true;
+            // Combined night bonus
+            if (!Main.dayTime)
+            {
+                player.GetDamage(DamageClass.Melee) += 0.20f;
+            }
+
+            player.GetAttackSpeed(DamageClass.Melee) += 0.10f;
+            player.GetArmorPenetration(DamageClass.Melee) += 18f;
+            player.statLifeMax2 += 30;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Player player = Main.LocalPlayer;
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-
             float hue = (Main.GameUpdateCount * 0.012f) % 1f;
             Color titleColor = Main.hslToRgb(hue, 0.6f, 0.75f);
 
-            tooltips.Add(new TooltipLine(Mod, "FusionTitle", "★★ TRIUMPHANT COSMOS ★★")
-            {
-                OverrideColor = titleColor
-            });
-
             tooltips.Add(new TooltipLine(Mod, "FusionDesc", "Fuses Nachtmusik, Dies Irae, and Ode to Joy")
             {
-                OverrideColor = TriumphGold
+                OverrideColor = new Color(255, 220, 120)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Max Resonance: 95")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+20% melee damage at night")
             {
-                OverrideColor = TriumphPurple
+                OverrideColor = new Color(255, 215, 0)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "All Tier 1-2 fusion effects combined")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Melee attacks inflict Judgment Burn")
             {
-                OverrideColor = TriumphCrimson
+                OverrideColor = new Color(180, 40, 40)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "2% lifesteal, +5 resonance on kill, judgment burn")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "3% lifesteal on melee attacks")
+            {
+                OverrideColor = new Color(180, 255, 180)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Melee attacks hit twice (50% second hit)")
             {
                 OverrideColor = TriumphRose
             });
 
-            tooltips.Add(new TooltipLine(Mod, "FusionBurst", "Consume 85 Resonance: Triumphant Cosmos")
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "+10% melee speed, +18 armor penetration, +30 max life")
             {
                 OverrideColor = TriumphGold
             });
 
-            tooltips.Add(new TooltipLine(Mod, "FusionBurstEffect", "Stars, hellfire, and blooming nature erupt in cosmic harmony")
-            {
-                OverrideColor = new Color(240, 220, 255)
-            });
-
-            if (resonancePlayer.hasTriumphantCosmosGauntlet)
-            {
-                bool canBurst = resonancePlayer.resonanceStacks >= 85 && !resonancePlayer.IsBurstOnCooldown;
-                Color stackColor = canBurst ? Color.Yellow :
-                                   Color.Lerp(Color.Gray, TriumphGold, resonancePlayer.GetResonancePercent());
-
-                tooltips.Add(new TooltipLine(Mod, "Stacks", $"Current Resonance: {resonancePlayer.resonanceStacks}/{resonancePlayer.maxResonance}")
-                {
-                    OverrideColor = stackColor
-                });
-            }
-
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Three symphonies become one cosmic triumph'")
             {
-                OverrideColor = TriumphPurple * 0.9f
+                OverrideColor = titleColor * 0.8f
             });
         }
 
@@ -789,106 +454,58 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
+            var modPlayer = player.GetModPlayer<ResonanceComboPlayer>();
+            modPlayer.hasGauntletOfTheEternalSymphony = true;
 
-            // Enable ALL tiers
-            resonancePlayer.hasResonantRhythmBand = true;
-            resonancePlayer.hasSpringTempoCharm = true;
-            resonancePlayer.hasSolarCrescendoRing = true;
-            resonancePlayer.hasHarvestRhythmSignet = true;
-            resonancePlayer.hasPermafrostCadenceSeal = true;
-            resonancePlayer.hasVivaldisTempoMaster = true;
-            resonancePlayer.hasMoonlitSonataBand = true;
-            resonancePlayer.hasHeroicCrescendo = true;
-            resonancePlayer.hasInfernalFortissimo = true;
-            resonancePlayer.hasEnigmasDissonance = true;
-            resonancePlayer.hasSwansPerfectMeasure = true;
-            resonancePlayer.hasFatesCosmicSymphony = true;
-            resonancePlayer.hasNocturnalSymphonyBand = true;
-            resonancePlayer.hasInfernalFortissimoBandT8 = true;
-            resonancePlayer.hasJubilantCrescendoBand = true;
-            resonancePlayer.hasEternalResonanceBand = true;
-            resonancePlayer.hasStarfallJudgmentGauntlet = true;
-            resonancePlayer.hasTriumphantCosmosGauntlet = true;
-            
-            // Enable Ultimate Fusion
-            resonancePlayer.hasGauntletOfTheEternalSymphony = true;
+            player.GetAttackSpeed(DamageClass.Melee) += 0.12f;
+            player.GetArmorPenetration(DamageClass.Melee) += 25f;
+            player.GetKnockback(DamageClass.Melee) += 0.20f;
+            player.statLifeMax2 += 50;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Player player = Main.LocalPlayer;
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-
-            float phase = Main.GameUpdateCount * 0.01f;
-            float hue = (phase * 0.2f) % 1f;
+            float hue = (Main.GameUpdateCount * 0.01f * 0.2f) % 1f;
             Color titleColor = Main.hslToRgb(hue, 0.7f, 0.85f);
-
-            tooltips.Add(new TooltipLine(Mod, "UltimateTitle", "★★★ GAUNTLET OF THE ETERNAL SYMPHONY ★★★")
-            {
-                OverrideColor = titleColor
-            });
 
             tooltips.Add(new TooltipLine(Mod, "UltimateDesc", "The ultimate fusion of all four Post-Fate themes")
             {
                 OverrideColor = EternalWhite
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Max Resonance: 100 (Eternal)")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+40% melee damage")
             {
-                OverrideColor = EternalCrimson
+                OverrideColor = new Color(255, 200, 200)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "All previous fusion and tier effects combined")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Melee attacks hit three times")
             {
-                OverrideColor = EternalPurple
+                OverrideColor = new Color(255, 220, 255)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Temporal echoes, time slow, never-decaying resonance")
+            tooltips.Add(new TooltipLine(Mod, "TripleNote", "Second hit: 50% damage | Third hit: 25% damage")
             {
-                OverrideColor = EternalBrass
+                OverrideColor = new Color(200, 180, 220)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Attacks hit THREE times at max resonance")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "4% lifesteal on melee attacks")
             {
-                OverrideColor = EternalRose
+                OverrideColor = new Color(180, 255, 180)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "UltimateBurst", "Consume 95 Resonance: Eternal Symphony Finale")
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "All previous fusion effects included")
+            {
+                OverrideColor = new Color(200, 200, 200)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "+12% melee speed, +25 armor penetration, +20% knockback, +50 max life")
             {
                 OverrideColor = EternalWhite
             });
 
-            tooltips.Add(new TooltipLine(Mod, "UltimateBurstEffect", "All four themes erupt in the ultimate temporal-cosmic explosion")
-            {
-                OverrideColor = new Color(255, 240, 255)
-            });
-
-            if (resonancePlayer.hasGauntletOfTheEternalSymphony)
-            {
-                bool canBurst = resonancePlayer.resonanceStacks >= 95 && !resonancePlayer.IsBurstOnCooldown;
-                bool isMax = resonancePlayer.resonanceStacks >= 100;
-                Color stackColor = canBurst ? Color.Yellow :
-                                   isMax ? EternalWhite :
-                                   Color.Lerp(Color.Gray, EternalCrimson, resonancePlayer.GetResonancePercent());
-
-                tooltips.Add(new TooltipLine(Mod, "Stacks", $"Current Resonance: {resonancePlayer.resonanceStacks}/{resonancePlayer.maxResonance}")
-                {
-                    OverrideColor = stackColor
-                });
-
-                if (canBurst)
-                {
-                    tooltips.Add(new TooltipLine(Mod, "Ready", "★★★ ETERNAL SYMPHONY FINALE READY ★★★")
-                    {
-                        OverrideColor = Color.Yellow
-                    });
-                }
-            }
-
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Four movements become one eternal masterpiece'")
             {
-                OverrideColor = EternalBrass * 0.9f
+                OverrideColor = new Color(205, 170, 125) * 0.8f
             });
         }
 

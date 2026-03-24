@@ -1,12 +1,8 @@
 using Microsoft.Xna.Framework;
-using System;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Common;
-using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Materials.Foundation;
 using MagnumOpus.Content.Spring.Materials;
 using MagnumOpus.Content.Summer.Materials;
@@ -19,14 +15,13 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
     #region Tier 1: Pre-Hardmode Foundation
 
     /// <summary>
-    /// Resonant Rhythm Band - Base tier melee chain accessory.
-    /// Enables the Resonance Combo System: hitting enemies builds Resonance stacks (max 10).
-    /// Lose 1 stack every 2 seconds of not hitting.
+    /// Resonant Rhythm Band - Entry-level melee accessory.
+    /// Simple effect: +5% melee damage, +3% melee speed.
     /// </summary>
     public class ResonantRhythmBand : ModItem
     {
         private static readonly Color BasePurple = new Color(180, 130, 255);
-        
+
         public override void SetDefaults()
         {
             Item.width = 38;
@@ -38,42 +33,25 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-            resonancePlayer.hasResonantRhythmBand = true;
+            var modPlayer = player.GetModPlayer<ResonanceComboPlayer>();
+            modPlayer.hasResonantRhythmBand = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Player player = Main.LocalPlayer;
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-            
-            tooltips.Add(new TooltipLine(Mod, "System", "Enables the Resonance Combo System")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+5% melee damage")
             {
-                OverrideColor = BasePurple
+                OverrideColor = new Color(255, 200, 200)
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Melee hits build Resonance stacks (max 10)")
+
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+3% melee attack speed")
             {
-                OverrideColor = new Color(200, 180, 255)
+                OverrideColor = new Color(200, 255, 200)
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Lose 1 stack every 2 seconds without hitting")
-            {
-                OverrideColor = new Color(180, 160, 220)
-            });
-            
-            // Show current stacks if equipped
-            if (resonancePlayer.hasResonantRhythmBand)
-            {
-                tooltips.Add(new TooltipLine(Mod, "Stacks", $"Current Resonance: {resonancePlayer.resonanceStacks}/{resonancePlayer.maxResonance}")
-                {
-                    OverrideColor = Color.Lerp(Color.Gray, BasePurple, resonancePlayer.GetResonancePercent())
-                });
-            }
-            
+
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The rhythm of battle begins with a single beat'")
             {
-                OverrideColor = new Color(150, 150, 150)
+                OverrideColor = BasePurple * 0.8f
             });
         }
 
@@ -87,15 +65,19 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         }
     }
 
+    #endregion
+
+    #region Tier 2: Spring
+
     /// <summary>
-    /// Spring Tempo Charm - Post-Primavera tier.
-    /// Increases max Resonance to 15. At 10+ stacks: +8% melee speed.
+    /// Spring Tempo Charm - Post-Primavera accessory.
+    /// Simple effect: +10% melee speed, 5% chance to heal 1 HP on hit.
+    /// No longer requires Tier 1.
     /// </summary>
     public class SpringTempoCharm : ModItem
     {
         private static readonly Color SpringPink = new Color(255, 183, 197);
-        private static readonly Color SpringGreen = new Color(144, 238, 144);
-        
+
         public override void SetDefaults()
         {
             Item.width = 38;
@@ -107,52 +89,25 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-            resonancePlayer.hasResonantRhythmBand = true;
-            resonancePlayer.hasSpringTempoCharm = true;
+            var modPlayer = player.GetModPlayer<ResonanceComboPlayer>();
+            modPlayer.hasSpringTempoCharm = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Player player = Main.LocalPlayer;
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-            
-            tooltips.Add(new TooltipLine(Mod, "Upgrade", "Resonance Combo System (Upgraded)")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+10% melee attack speed")
+            {
+                OverrideColor = new Color(200, 255, 200)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "5% chance to heal 1 HP on melee hit")
             {
                 OverrideColor = SpringPink
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Max Resonance increased to 15")
-            {
-                OverrideColor = new Color(255, 200, 210)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "At 10+ stacks: +8% melee speed")
-            {
-                OverrideColor = SpringGreen
-            });
-            
-            // Show current stacks if equipped
-            if (resonancePlayer.hasSpringTempoCharm)
-            {
-                bool thresholdMet = resonancePlayer.resonanceStacks >= 10;
-                tooltips.Add(new TooltipLine(Mod, "Stacks", $"Current Resonance: {resonancePlayer.resonanceStacks}/{resonancePlayer.maxResonance}")
-                {
-                    OverrideColor = thresholdMet ? SpringGreen : Color.Lerp(Color.Gray, SpringPink, resonancePlayer.GetResonancePercent())
-                });
-                
-                if (thresholdMet)
-                {
-                    tooltips.Add(new TooltipLine(Mod, "Active", "✓ Speed bonus active!")
-                    {
-                        OverrideColor = SpringGreen
-                    });
-                }
-            }
-            
+
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Spring awakens the tempo of new beginnings'")
             {
-                OverrideColor = new Color(150, 150, 150)
+                OverrideColor = SpringPink * 0.8f
             });
         }
 
@@ -160,6 +115,7 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         {
             CreateRecipe()
                 .AddIngredient<ResonantRhythmBand>(1)
+                .AddIngredient<ResonantCrystalShard>(5)
                 .AddIngredient<VernalBar>(15)
                 .AddIngredient<SpringResonantEnergy>(1)
                 .AddTile(TileID.Anvils)
@@ -169,17 +125,17 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
     #endregion
 
-    #region Tier 2: Mid Pre-Hardmode (Post-L'Estate)
+    #region Tier 3: Summer
 
     /// <summary>
-    /// Solar Crescendo Ring - Post-L'Estate tier.
-    /// Max Resonance 20. At 15+ stacks: melee attacks inflict "Scorched" (fire DoT that stacks).
+    /// Solar Crescendo Ring - Post-L'Estate accessory.
+    /// Simple effect: Melee attacks inflict On Fire! for 5 seconds.
+    /// No longer requires Tier 2.
     /// </summary>
     public class SolarCrescendoRing : ModItem
     {
         private static readonly Color SummerOrange = new Color(255, 140, 0);
-        private static readonly Color SummerGold = new Color(255, 215, 0);
-        
+
         public override void SetDefaults()
         {
             Item.width = 38;
@@ -191,55 +147,20 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-            resonancePlayer.hasResonantRhythmBand = true;
-            resonancePlayer.hasSpringTempoCharm = true;
-            resonancePlayer.hasSolarCrescendoRing = true;
+            var modPlayer = player.GetModPlayer<ResonanceComboPlayer>();
+            modPlayer.hasSolarCrescendoRing = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Player player = Main.LocalPlayer;
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-            
-            tooltips.Add(new TooltipLine(Mod, "Upgrade", "Resonance Combo System (Solar)")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Melee attacks inflict On Fire! for 5 seconds")
             {
                 OverrideColor = SummerOrange
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Max Resonance increased to 20")
-            {
-                OverrideColor = new Color(255, 180, 100)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "At 10+ stacks: +8% melee speed")
-            {
-                OverrideColor = new Color(255, 200, 150)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "At 15+ stacks: melee attacks inflict Scorched")
-            {
-                OverrideColor = SummerGold
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Scorched", "Scorched: Stacking fire damage over time")
-            {
-                OverrideColor = new Color(255, 100, 50)
-            });
-            
-            // Show current stacks if equipped
-            if (resonancePlayer.hasSolarCrescendoRing)
-            {
-                bool thresholdMet = resonancePlayer.resonanceStacks >= 15;
-                tooltips.Add(new TooltipLine(Mod, "Stacks", $"Current Resonance: {resonancePlayer.resonanceStacks}/{resonancePlayer.maxResonance}")
-                {
-                    OverrideColor = thresholdMet ? SummerGold : Color.Lerp(Color.Gray, SummerOrange, resonancePlayer.GetResonancePercent())
-                });
-            }
-            
+
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The summer sun fuels an ever-rising crescendo'")
             {
-                OverrideColor = new Color(150, 150, 150)
+                OverrideColor = SummerOrange * 0.8f
             });
         }
 
@@ -247,6 +168,7 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         {
             CreateRecipe()
                 .AddIngredient<SpringTempoCharm>(1)
+                .AddIngredient<ResonantCrystalShard>(5)
                 .AddIngredient<SolsticeBar>(15)
                 .AddIngredient<SummerResonantEnergy>(1)
                 .AddTile(TileID.Anvils)
@@ -256,17 +178,17 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
     #endregion
 
-    #region Tier 3: Early Hardmode (Post-Autunno)
+    #region Tier 4: Autumn
 
     /// <summary>
-    /// Harvest Rhythm Signet - Post-Autunno tier.
-    /// Max Resonance 25. At 20+ stacks: 1% lifesteal. Losing stacks grants brief regen.
+    /// Harvest Rhythm Signet - Post-Autunno accessory.
+    /// Simple effect: 2% lifesteal on melee attacks.
+    /// No longer requires Tier 3.
     /// </summary>
     public class HarvestRhythmSignet : ModItem
     {
         private static readonly Color AutumnOrange = new Color(255, 100, 30);
-        private static readonly Color AutumnBrown = new Color(139, 69, 19);
-        
+
         public override void SetDefaults()
         {
             Item.width = 38;
@@ -278,56 +200,20 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-            resonancePlayer.hasResonantRhythmBand = true;
-            resonancePlayer.hasSpringTempoCharm = true;
-            resonancePlayer.hasSolarCrescendoRing = true;
-            resonancePlayer.hasHarvestRhythmSignet = true;
+            var modPlayer = player.GetModPlayer<ResonanceComboPlayer>();
+            modPlayer.hasHarvestRhythmSignet = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Player player = Main.LocalPlayer;
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-            
-            tooltips.Add(new TooltipLine(Mod, "Upgrade", "Resonance Combo System (Harvest)")
-            {
-                OverrideColor = AutumnOrange
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Max Resonance increased to 25")
-            {
-                OverrideColor = new Color(255, 150, 80)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "At 10+ stacks: +8% melee speed")
-            {
-                OverrideColor = new Color(255, 180, 120)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "At 15+ stacks: melee attacks inflict Scorched")
-            {
-                OverrideColor = new Color(255, 140, 0)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "At 20+ stacks: 1% lifesteal on melee hits")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "2% lifesteal on melee attacks")
             {
                 OverrideColor = new Color(180, 255, 180)
             });
-            
-            // Show current stacks if equipped
-            if (resonancePlayer.hasHarvestRhythmSignet)
-            {
-                bool thresholdMet = resonancePlayer.resonanceStacks >= 20;
-                tooltips.Add(new TooltipLine(Mod, "Stacks", $"Current Resonance: {resonancePlayer.resonanceStacks}/{resonancePlayer.maxResonance}")
-                {
-                    OverrideColor = thresholdMet ? new Color(180, 255, 180) : Color.Lerp(Color.Gray, AutumnOrange, resonancePlayer.GetResonancePercent())
-                });
-            }
-            
+
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The harvest reaps what the rhythm sows'")
             {
-                OverrideColor = new Color(150, 150, 150)
+                OverrideColor = AutumnOrange * 0.8f
             });
         }
 
@@ -335,6 +221,7 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         {
             CreateRecipe()
                 .AddIngredient<SolarCrescendoRing>(1)
+                .AddIngredient<ResonantCrystalShard>(5)
                 .AddIngredient<HarvestBar>(20)
                 .AddIngredient<AutumnResonantEnergy>(1)
                 .AddTile(TileID.MythrilAnvil)
@@ -344,17 +231,17 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
     #endregion
 
-    #region Tier 4: Post-Mech (Post-L'Inverno)
+    #region Tier 5: Winter
 
     /// <summary>
-    /// Permafrost Cadence Seal - Post-L'Inverno tier.
-    /// Max Resonance 30. At 25+ stacks: hits freeze nearby enemies briefly.
+    /// Permafrost Cadence Seal - Post-L'Inverno accessory.
+    /// Simple effect: 10% chance to freeze enemies for 1 second on melee hit.
+    /// No longer requires Tier 4.
     /// </summary>
     public class PermafrostCadenceSeal : ModItem
     {
         private static readonly Color WinterBlue = new Color(150, 220, 255);
-        private static readonly Color WinterWhite = new Color(230, 240, 255);
-        
+
         public override void SetDefaults()
         {
             Item.width = 38;
@@ -366,62 +253,20 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-            resonancePlayer.hasResonantRhythmBand = true;
-            resonancePlayer.hasSpringTempoCharm = true;
-            resonancePlayer.hasSolarCrescendoRing = true;
-            resonancePlayer.hasHarvestRhythmSignet = true;
-            resonancePlayer.hasPermafrostCadenceSeal = true;
+            var modPlayer = player.GetModPlayer<ResonanceComboPlayer>();
+            modPlayer.hasPermafrostCadenceSeal = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Player player = Main.LocalPlayer;
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-            
-            tooltips.Add(new TooltipLine(Mod, "Upgrade", "Resonance Combo System (Permafrost)")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "10% chance to freeze enemies for 1 second")
             {
                 OverrideColor = WinterBlue
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Max Resonance increased to 30")
-            {
-                OverrideColor = new Color(180, 230, 255)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "At 10+ stacks: +8% melee speed")
-            {
-                OverrideColor = new Color(200, 235, 255)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "At 15+ stacks: melee attacks inflict Scorched")
-            {
-                OverrideColor = new Color(255, 140, 0)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "At 20+ stacks: 1% lifesteal on melee hits")
-            {
-                OverrideColor = new Color(180, 255, 180)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "At 25+ stacks: melee hits freeze enemies briefly")
-            {
-                OverrideColor = WinterWhite
-            });
-            
-            // Show current stacks if equipped
-            if (resonancePlayer.hasPermafrostCadenceSeal)
-            {
-                bool thresholdMet = resonancePlayer.resonanceStacks >= 25;
-                tooltips.Add(new TooltipLine(Mod, "Stacks", $"Current Resonance: {resonancePlayer.resonanceStacks}/{resonancePlayer.maxResonance}")
-                {
-                    OverrideColor = thresholdMet ? WinterWhite : Color.Lerp(Color.Gray, WinterBlue, resonancePlayer.GetResonancePercent())
-                });
-            }
-            
+
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Winter's cadence freezes time itself'")
             {
-                OverrideColor = new Color(150, 150, 150)
+                OverrideColor = WinterBlue * 0.8f
             });
         }
 
@@ -429,6 +274,7 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         {
             CreateRecipe()
                 .AddIngredient<HarvestRhythmSignet>(1)
+                .AddIngredient<ResonantCrystalShard>(5)
                 .AddIngredient<PermafrostBar>(25)
                 .AddIngredient<WinterResonantEnergy>(1)
                 .AddTile(TileID.MythrilAnvil)
@@ -437,8 +283,9 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
     }
 
     /// <summary>
-    /// Vivaldi's Tempo Master - Post-Plantera tier (All Seasons).
-    /// Max Resonance 40. Consume 30 stacks to unleash a seasonal elemental burst.
+    /// Vivaldi's Tempo Master - Post-Plantera accessory (All Seasons combined).
+    /// Simple effect: +12% melee damage, biome-dependent debuff on hit.
+    /// Requires CycleOfSeasons, not previous tier.
     /// </summary>
     public class VivaldisTempoMaster : ModItem
     {
@@ -446,7 +293,7 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         private static readonly Color SummerOrange = new Color(255, 140, 0);
         private static readonly Color AutumnBrown = new Color(180, 100, 40);
         private static readonly Color WinterBlue = new Color(150, 220, 255);
-        
+
         public override void SetDefaults()
         {
             Item.width = 38;
@@ -458,18 +305,12 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-            resonancePlayer.hasResonantRhythmBand = true;
-            resonancePlayer.hasSpringTempoCharm = true;
-            resonancePlayer.hasSolarCrescendoRing = true;
-            resonancePlayer.hasHarvestRhythmSignet = true;
-            resonancePlayer.hasPermafrostCadenceSeal = true;
-            resonancePlayer.hasVivaldisTempoMaster = true;
+            var modPlayer = player.GetModPlayer<ResonanceComboPlayer>();
+            modPlayer.hasVivaldisTempoMaster = true;
         }
-        
+
         private Color GetCurrentSeasonColor()
         {
-            // Cycle through seasons based on game time
             int season = (int)((Main.time / 15000) % 4);
             return season switch
             {
@@ -482,59 +323,27 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Player player = Main.LocalPlayer;
-            var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-            
-            // Cycling rainbow color for title
             float hue = (Main.GameUpdateCount * 0.01f) % 1f;
             Color titleColor = Main.hslToRgb(hue, 0.8f, 0.6f);
-            
-            tooltips.Add(new TooltipLine(Mod, "Upgrade", "Resonance Combo System (Four Seasons)")
+
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+12% melee damage")
+            {
+                OverrideColor = new Color(255, 200, 200)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Melee attacks inflict biome-based debuffs")
             {
                 OverrideColor = titleColor
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Max Resonance increased to 40")
-            {
-                OverrideColor = new Color(220, 200, 255)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Includes all previous tier bonuses")
-            {
-                OverrideColor = new Color(200, 180, 255)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Burst", "Consume 30 Resonance: Seasonal elemental burst")
-            {
-                OverrideColor = GetCurrentSeasonColor()
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "BurstNote", "(Burst changes element based on current biome)")
+
+            tooltips.Add(new TooltipLine(Mod, "BiomeNote", "Snow: Frostburn | Desert: On Fire! | Jungle: Poisoned | Other: Confused")
             {
                 OverrideColor = new Color(180, 180, 180)
             });
-            
-            // Show current stacks if equipped
-            if (resonancePlayer.hasVivaldisTempoMaster)
-            {
-                bool canBurst = resonancePlayer.resonanceStacks >= 30 && !resonancePlayer.IsBurstOnCooldown;
-                tooltips.Add(new TooltipLine(Mod, "Stacks", $"Current Resonance: {resonancePlayer.resonanceStacks}/{resonancePlayer.maxResonance}")
-                {
-                    OverrideColor = canBurst ? Color.Yellow : Color.Lerp(Color.Gray, GetCurrentSeasonColor(), resonancePlayer.GetResonancePercent())
-                });
-                
-                if (canBurst)
-                {
-                    tooltips.Add(new TooltipLine(Mod, "Ready", "✓ Seasonal Burst ready!")
-                    {
-                        OverrideColor = Color.Yellow
-                    });
-                }
-            }
-            
+
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The Four Seasons unite under the maestro's baton'")
             {
-                OverrideColor = new Color(150, 150, 150)
+                OverrideColor = GetCurrentSeasonColor() * 0.8f
             });
         }
 

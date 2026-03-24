@@ -62,14 +62,19 @@ namespace MagnumOpus.Content.Common.Accessories
             bool isNight = !Main.dayTime;
             
             // === SEASONAL BONUSES (from Vivaldi's Masterwork) ===
-            player.GetDamage(DamageClass.Generic) += 0.20f;
-            player.GetCritChance(DamageClass.Generic) += 15;
-            player.GetAttackSpeed(DamageClass.Generic) += 0.12f;
+            player.GetDamage(DamageClass.Melee) += 0.10f;
+            player.GetDamage(DamageClass.Ranged) += 0.10f;
+            player.GetDamage(DamageClass.Magic) += 0.10f;
+            player.GetDamage(DamageClass.Summon) += 0.10f;
             player.statDefense += 20;
+            player.statLifeMax2 += 60;
+            player.statManaMax2 += 80;
             player.lifeRegen += 8;
             player.manaRegen += 4;
-            player.endurance += 0.12f;
+            player.endurance += 0.10f;
             player.moveSpeed += 0.15f;
+            player.maxMinions += 1;
+            player.maxTurrets += 1;
             player.magmaStone = true;
             player.frostBurn = true;
             player.thorns = 1.5f;
@@ -78,28 +83,34 @@ namespace MagnumOpus.Content.Common.Accessories
             // Moonlight
             if (isNight)
             {
-                player.GetDamage(DamageClass.Generic) += 0.20f;
-                player.GetCritChance(DamageClass.Generic) += 22;
+                player.GetCritChance(DamageClass.Melee) += 6;
+                player.GetCritChance(DamageClass.Ranged) += 6;
+                player.GetCritChance(DamageClass.Magic) += 6;
+                player.GetCritChance(DamageClass.Summon) += 6;
                 player.statDefense += 15;
+                player.moveSpeed += 0.08f;
             }
             
             // Eroica
-            player.GetDamage(DamageClass.Melee) += 0.22f;
-            player.GetAttackSpeed(DamageClass.Melee) += 0.18f;
-            player.GetCritChance(DamageClass.Melee) += 12;
+            player.GetDamage(DamageClass.Melee) += 0.14f;
+            player.GetAttackSpeed(DamageClass.Melee) += 0.15f;
+            player.GetCritChance(DamageClass.Melee) += 10;
+            player.GetArmorPenetration(DamageClass.Melee) += 12;
             
             // La Campanella
-            player.GetDamage(DamageClass.Magic) += 0.25f;
-            player.GetCritChance(DamageClass.Magic) += 12;
-            player.manaCost -= 0.15f;
+            player.GetDamage(DamageClass.Magic) += 0.16f;
+            player.GetCritChance(DamageClass.Magic) += 10;
+            player.manaCost -= 0.10f;
             
             // Enigma
-            player.GetDamage(DamageClass.Generic) += 0.20f;
-            player.GetCritChance(DamageClass.Generic) += 10;
+            player.GetDamage(DamageClass.Ranged) += 0.14f;
+            player.GetCritChance(DamageClass.Ranged) += 8;
+            player.ammoCost80 = true;
             
             // Swan Lake
-            player.GetDamage(DamageClass.Generic) += 0.18f;
-            player.GetCritChance(DamageClass.Generic) += 10;
+            player.GetDamage(DamageClass.Summon) += 0.14f;
+            player.GetCritChance(DamageClass.Summon) += 8;
+            player.whipRangeMultiplier += 0.12f;
             player.moveSpeed += 0.25f;
             
             // Immunities
@@ -137,15 +148,15 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 OverrideColor = opusColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+8 life regen, +4 mana regen, +12% damage reduction, 150% thorns")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+60 max life, +80 max mana, +1 minion, +1 sentry")
             {
                 OverrideColor = opusColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Theme bonuses: Moonlight (night +20%/+22 crit/+15 def), Eroica (+22% melee), Campanella (+25% magic, -15% mana), Enigma (+20%), Swan (+18%, +25% move)")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Theme bonuses: Eroica (melee speed/armor penetration), Campanella (magic power/mana efficiency), Enigma (ranged + ammo economy), Swan (summon + whip reach)")
             {
                 OverrideColor = opusColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "8% lifesteal (max 20 HP), heroic surge on kill, 14-18% dodge chance")
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+8 life regen, +4 mana regen, +12% damage reduction, 150% thorns")
             {
                 OverrideColor = opusColor
             });
@@ -186,7 +197,11 @@ namespace MagnumOpus.Content.Common.Accessories
             if (heroicSurgeTimer > 0)
             {
                 heroicSurgeTimer--;
-                Player.GetDamage(DamageClass.Generic) += 0.35f;
+                Player.GetAttackSpeed(DamageClass.Melee) += 0.10f;
+                Player.GetAttackSpeed(DamageClass.Ranged) += 0.08f;
+                Player.GetAttackSpeed(DamageClass.Magic) += 0.08f;
+                Player.GetAttackSpeed(DamageClass.Summon) += 0.10f;
+                Player.endurance += 0.06f;
             }
             
             if (dodgeCooldown > 0) dodgeCooldown--;
@@ -441,19 +456,23 @@ namespace MagnumOpus.Content.Common.Accessories
             modPlayer.regaliaEquipped = true;
             
             // === PARADOX CHRONOMETER (Melee) ===
-            player.GetDamage(DamageClass.Melee) += 0.20f;
-            player.GetAttackSpeed(DamageClass.Melee) += 0.22f;
-            player.GetCritChance(DamageClass.Melee) += 12;
+            player.GetDamage(DamageClass.Melee) += 0.14f;
+            player.GetAttackSpeed(DamageClass.Melee) += 0.18f;
+            player.GetCritChance(DamageClass.Melee) += 10;
+            player.GetArmorPenetration(DamageClass.Melee) += 15;
             
             // === CONSTELLATION COMPASS (Ranged) ===
-            player.GetDamage(DamageClass.Ranged) += 0.28f;
-            player.GetCritChance(DamageClass.Ranged) += 15;
+            player.GetDamage(DamageClass.Ranged) += 0.16f;
+            player.GetCritChance(DamageClass.Ranged) += 10;
+            player.GetArmorPenetration(DamageClass.Ranged) += 14;
+            player.ammoBox = true;
             
             // === ASTRAL CONDUIT (Magic) ===
-            player.GetDamage(DamageClass.Magic) += 0.28f;
-            player.GetCritChance(DamageClass.Magic) += 12;
-            player.manaCost -= 0.22f;
-            player.manaRegen += 5;
+            player.GetDamage(DamageClass.Magic) += 0.16f;
+            player.GetCritChance(DamageClass.Magic) += 8;
+            player.manaCost -= 0.14f;
+            player.manaRegen += 6;
+            player.statManaMax2 += 60;
             
             // === MACHINATION OF THE EVENT HORIZON (Mobility) ===
             player.moveSpeed += 0.30f;
@@ -461,10 +480,14 @@ namespace MagnumOpus.Content.Common.Accessories
             player.maxRunSpeed *= 1.25f;
             player.wingTimeMax += 60;
             player.noFallDmg = true;
+            player.endurance += 0.06f;
+            player.statLifeMax2 += 40;
             
             // === ORRERY OF INFINITE ORBITS (Summon) ===
-            player.maxMinions += 4;
-            player.GetDamage(DamageClass.Summon) += 0.25f;
+            player.maxMinions += 3;
+            player.maxTurrets += 1;
+            player.GetDamage(DamageClass.Summon) += 0.15f;
+            player.whipRangeMultiplier += 0.15f;
             
             // Cosmic immunities
             player.buffImmune[BuffID.OnFire] = true;
@@ -500,15 +523,15 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 OverrideColor = cosmicColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Massive all-class damage, crit, and attack speed bonuses")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Melee/ranged/magic/summon each gain tuned class-specific bonuses")
             {
                 OverrideColor = cosmicColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+4 minions, +30% movement, +60 wing time, no fall damage")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+3 minions, +1 sentry, +30% movement, +60 wing time, no fall damage")
             {
                 OverrideColor = cosmicColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Temporal echoes on melee, constellation marks, mana burst")
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+40 max life, +60 max mana, +6% damage reduction, Ammo Box and mana economy")
             {
                 OverrideColor = cosmicColor
             });
@@ -666,19 +689,24 @@ namespace MagnumOpus.Content.Common.Accessories
             modPlayer.seasonalDestinyEquipped = true;
             
             // Vivaldi bonuses
-            player.GetDamage(DamageClass.Generic) += 0.22f;
-            player.GetCritChance(DamageClass.Generic) += 16;
-            player.GetAttackSpeed(DamageClass.Generic) += 0.14f;
+            player.GetDamage(DamageClass.Melee) += 0.10f;
+            player.GetDamage(DamageClass.Ranged) += 0.08f;
+            player.GetDamage(DamageClass.Magic) += 0.08f;
+            player.GetDamage(DamageClass.Summon) += 0.08f;
             player.statDefense += 22;
+            player.statLifeMax2 += 40;
+            player.statManaMax2 += 40;
             player.lifeRegen += 8;
             player.manaRegen += 5;
-            player.endurance += 0.14f;
+            player.endurance += 0.10f;
             player.moveSpeed += 0.18f;
+            player.maxMinions += 1;
             
             // Chronometer bonuses
-            player.GetDamage(DamageClass.Melee) += 0.18f;
-            player.GetAttackSpeed(DamageClass.Melee) += 0.20f;
-            player.GetCritChance(DamageClass.Melee) += 10;
+            player.GetDamage(DamageClass.Melee) += 0.14f;
+            player.GetAttackSpeed(DamageClass.Melee) += 0.16f;
+            player.GetCritChance(DamageClass.Melee) += 8;
+            player.GetArmorPenetration(DamageClass.Melee) += 10;
             
             // Elemental
             player.magmaStone = true;
@@ -710,15 +738,15 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 OverrideColor = destinyColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+22% damage, +16 crit, +14% attack speed, +22 defense, +18% movement")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "All-class seasonal support: +defense, regen, movement, and durability")
             {
                 OverrideColor = destinyColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+18% melee damage, +20% melee attack speed, +10 melee crit")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Chronometer: +18% melee damage, +20% melee speed, +10 melee crit, +12 armor penetration")
             {
                 OverrideColor = destinyColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+14% damage reduction, +8 life regen, +5 mana regen, 150% thorns")
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+40 max life, +40 max mana, +1 minion, +10% damage reduction, 150% thorns")
             {
                 OverrideColor = destinyColor
             });
@@ -818,17 +846,22 @@ namespace MagnumOpus.Content.Common.Accessories
             // Complete Harmony bonuses (condensed)
             if (isNight)
             {
-                player.GetDamage(DamageClass.Generic) += 0.20f;
-                player.GetCritChance(DamageClass.Generic) += 22;
+                player.GetCritChance(DamageClass.Melee) += 6;
+                player.GetCritChance(DamageClass.Ranged) += 6;
+                player.GetCritChance(DamageClass.Magic) += 6;
+                player.GetCritChance(DamageClass.Summon) += 6;
                 player.statDefense += 15;
             }
             
-            player.GetDamage(DamageClass.Melee) += 0.22f;
-            player.GetAttackSpeed(DamageClass.Melee) += 0.18f;
-            player.GetDamage(DamageClass.Magic) += 0.25f;
-            player.manaCost -= 0.15f;
-            player.GetDamage(DamageClass.Generic) += 0.38f;
-            player.GetCritChance(DamageClass.Generic) += 20;
+            player.GetDamage(DamageClass.Melee) += 0.12f;
+            player.GetAttackSpeed(DamageClass.Melee) += 0.15f;
+            player.GetDamage(DamageClass.Ranged) += 0.12f;
+            player.GetCritChance(DamageClass.Ranged) += 6;
+            player.ammoCost80 = true;
+            player.GetDamage(DamageClass.Magic) += 0.14f;
+            player.manaCost -= 0.10f;
+            player.GetDamage(DamageClass.Summon) += 0.12f;
+            player.maxMinions += 1;
             
             // Event Horizon bonuses
             player.moveSpeed += 0.35f;
@@ -836,6 +869,7 @@ namespace MagnumOpus.Content.Common.Accessories
             player.maxRunSpeed *= 1.3f;
             player.wingTimeMax += 80;
             player.noFallDmg = true;
+            player.endurance += 0.08f;
             
             // Immunities
             player.buffImmune[BuffID.OnFire] = true;
@@ -862,7 +896,7 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 OverrideColor = wandererColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "All five theme bonuses with enhanced night damage")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "All five theme bonuses tuned for class utility and night crit support")
             {
                 OverrideColor = wandererColor
             });
@@ -870,7 +904,7 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 OverrideColor = wandererColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Theme debuff procs on hits, bell confusion effect")
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+8% damage reduction, ammo economy, mana efficiency, +1 minion")
             {
                 OverrideColor = wandererColor
             });
@@ -982,17 +1016,20 @@ namespace MagnumOpus.Content.Common.Accessories
             // Complete Harmony bonuses (condensed)
             if (isNight)
             {
-                player.GetDamage(DamageClass.Generic) += 0.20f;
-                player.GetCritChance(DamageClass.Generic) += 20;
+                player.GetDamage(DamageClass.Summon) += 0.12f;
+                player.GetCritChance(DamageClass.Summon) += 6;
             }
             
-            player.GetDamage(DamageClass.Generic) += 0.35f;
-            player.GetCritChance(DamageClass.Generic) += 18;
+            player.GetDamage(DamageClass.Summon) += 0.24f;
+            player.GetCritChance(DamageClass.Summon) += 8;
             
             // Orrery bonuses (enhanced)
-            player.maxMinions += 5;
-            player.GetDamage(DamageClass.Summon) += 0.30f;
-            player.GetCritChance(DamageClass.Summon) += 10;
+            player.maxMinions += 4;
+            player.maxTurrets += 1;
+            player.whipRangeMultiplier += 0.20f;
+            player.statManaMax2 += 60;
+            player.manaCost -= 0.10f;
+            player.lifeRegen += 3;
             
             // Minion theme abilities via player hook
             
@@ -1019,15 +1056,15 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 OverrideColor = summonColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+35% damage, +18% crit, enhanced night bonuses")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Summoner-focused scaling: +24% summon damage, +8 summon crit, strong night bonus")
             {
                 OverrideColor = summonColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+5 minions, +30% summon damage, +10% summon crit")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+4 minions, +1 sentry, +20% whip range")
             {
                 OverrideColor = summonColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Minions trigger random theme effects on hits")
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+60 max mana, 10% mana cost reduction, +3 life regen")
             {
                 OverrideColor = summonColor
             });

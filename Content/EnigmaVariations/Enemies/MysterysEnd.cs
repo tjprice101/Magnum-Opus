@@ -108,10 +108,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
 
         public override void SetDefaults()
         {
-            // MINI-BOSS STATS - Similar to Eroica mini-bosses
-            // Hitbox = (4200/6) ﾃ・(2880/6) ﾃ・0.8 = 700 ﾃ・480 ﾃ・0.8 = 560 ﾃ・384
-            NPC.width = 560;
-            NPC.height = 384;
+            // MINI-BOSS STATS - Scaled to reasonable size (140×100 px, similar to other mini-bosses)
+            NPC.width = 140;
+            NPC.height = 100;
             NPC.damage = 140;
             NPC.defense = 65;
             NPC.lifeMax = 45000; // Mini-boss HP tier
@@ -708,22 +707,15 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
 
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
-            // Essence drops only after killing the main Enigma boss
+            // Ore + Shard drops only after killing the main Enigma boss
             LeadingConditionRule afterBossRule = new LeadingConditionRule(new DownedEnigmaCondition());
-            
-            // Mini-boss tier drops - matching Eroica mini-bosses
-            // Remnant of Mysteries (theme-specific crafting material like ShardOfTriumphsTempo)
-            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<RemnantOfMysteries>(), 1, 5, 10));
-            
-            // Enigma Resonance Energy (guaranteed)
-            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<EnigmaResonantEnergy>(), 1, 8, 15));
-            
-            // Resonant Core of Enigma (guaranteed)
-            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ResonanceEnergies.ResonantCoreOfEnigma>(), 1, 3, 6));
-            
-            // Enigma Ore bonus
-            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<EnigmaResonanceOre>(), 2, 5, 12));
-            
+
+            // Ore for crafting bars (2-4)
+            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<EnigmaResonanceOre>(), 1, 2, 4));
+
+            // Remnant of Mysteries (acts as tempo shard) for accessories/weapons (1-2)
+            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<RemnantOfMysteries>(), 1, 1, 2));
+
             npcLoot.Add(afterBossRule);
             
             // Mystery Essence - theme essence drop (15%)

@@ -102,9 +102,9 @@ namespace MagnumOpus.Content.Eroica.Bosses
 
         public override void SetDefaults()
         {
-            // Hitbox = 80% of visual size (544x736 frame × 0.35 scale)
-            NPC.width = 152;
-            NPC.height = 206;
+            // Hitbox scaled proportionally to visual size (544x736 frame × 0.85 scale)
+            NPC.width = 370;
+            NPC.height = 520;
             NPC.damage = 70;
             NPC.defense = 60;
             NPC.lifeMax = 187000; // Eroica sub-boss (proportional to main boss 350K)
@@ -115,7 +115,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
             NPC.noTileCollide = true;
             NPC.value = 0;
             NPC.aiStyle = -1;
-            NPC.scale = 0.35f; // 65% size reduction (35% of original)
+            NPC.scale = 0.85f; // Scaled to reasonable sub-boss size
         }
         
         public void SetOrbitOffset(float offset)

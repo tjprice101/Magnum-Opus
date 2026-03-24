@@ -98,10 +98,10 @@ namespace MagnumOpus.Content.Eroica.Enemies.BehemothOfValor
 
         public override void SetDefaults()
         {
-            // MINI-BOSS STATS - Massive and tanky
-            // Hitbox = (3780/6) ÁE(2124/6) ÁE0.8 = 630 ÁE354 ÁE0.8 = 504 ÁE283
-            NPC.width = 504;
-            NPC.height = 283;
+            // MINI-BOSS STATS - Scaled to appropriate mini-boss tier
+            // Hitbox scaled from 504×283 → 160×90 (scaling factor 0.317)
+            NPC.width = 160;
+            NPC.height = 90;
             NPC.damage = 200;
             NPC.defense = 100;
             NPC.lifeMax = 90000; // Highest HP mini-boss
@@ -115,7 +115,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.BehemothOfValor
             NPC.noGravity = false;
             NPC.noTileCollide = false;
 
-            DrawOffsetY = -98f;
+            DrawOffsetY = -31f;
         }
 
         public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)

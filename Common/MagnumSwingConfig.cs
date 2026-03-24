@@ -54,6 +54,36 @@ namespace MagnumOpus.Common
             PrimaryColor = new Color(180, 50, 100),
             SecondaryColor = new Color(255, 60, 80)
         };
+
+        public static readonly MagnumSwingConfig Spring = new MagnumSwingConfig
+        {
+            PrimaryColor = new Color(255, 183, 197),
+            SecondaryColor = new Color(144, 238, 144)
+        };
+
+        public static readonly MagnumSwingConfig Summer = new MagnumSwingConfig
+        {
+            PrimaryColor = new Color(255, 140, 40),
+            SecondaryColor = new Color(255, 200, 80)
+        };
+
+        public static readonly MagnumSwingConfig Autumn = new MagnumSwingConfig
+        {
+            PrimaryColor = new Color(215, 120, 55),
+            SecondaryColor = new Color(255, 190, 90)
+        };
+
+        public static readonly MagnumSwingConfig Winter = new MagnumSwingConfig
+        {
+            PrimaryColor = new Color(140, 190, 255),
+            SecondaryColor = new Color(200, 235, 255)
+        };
+
+        public static readonly MagnumSwingConfig Seasons = new MagnumSwingConfig
+        {
+            PrimaryColor = new Color(170, 205, 255),
+            SecondaryColor = new Color(255, 205, 140)
+        };
     }
 
     /// <summary>

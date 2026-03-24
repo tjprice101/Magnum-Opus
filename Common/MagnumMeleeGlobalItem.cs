@@ -103,6 +103,16 @@ namespace MagnumOpus.Common
                 return MagnumSwingConfigs.EnigmaVariations;
             if (fullName.Contains("Fate"))
                 return MagnumSwingConfigs.Fate;
+            if (fullName.Contains("Spring"))
+                return MagnumSwingConfigs.Spring;
+            if (fullName.Contains("Summer"))
+                return MagnumSwingConfigs.Summer;
+            if (fullName.Contains("Autumn") || fullName.Contains("Fall"))
+                return MagnumSwingConfigs.Autumn;
+            if (fullName.Contains("Winter"))
+                return MagnumSwingConfigs.Winter;
+            if (fullName.Contains("Seasons"))
+                return MagnumSwingConfigs.Seasons;
             
             // Check rarity as fallback
             if (item.rare == ModContent.RarityType<SwanRarity>())
@@ -118,6 +128,10 @@ namespace MagnumOpus.Common
             if (item.rare == ModContent.RarityType<FateRarity>())
                 return MagnumSwingConfigs.Fate;
             
+            // Seasonal namespaces without explicit tag still get a seasonal fallback.
+            if (fullName.Contains("Season"))
+                return MagnumSwingConfigs.Seasons;
+
             // Default to Swan Lake (most neutral visually)
             return MagnumSwingConfigs.SwanLake;
         }

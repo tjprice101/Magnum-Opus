@@ -121,36 +121,31 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         {
             if (playerIndex < 0 || playerIndex >= Main.maxPlayers)
                 return;
-            
+
             Player player = Main.player[playerIndex];
             if (player == null || !player.active)
                 return;
-            
+
             var resonancePlayer = player.GetModPlayer<ResonanceComboPlayer>();
-            if (!resonancePlayer.hasResonantRhythmBand)
-                return;
-            
-            // Add resonance stacks
-            resonancePlayer.OnMeleeHit(npc, crit);
-            
-            // Solar Crescendo Ring: Scorched debuff at 15+ stacks
-            if (resonancePlayer.hasSolarCrescendoRing && resonancePlayer.resonanceStacks >= 15)
+
+            // Solar Crescendo Ring: Inflict Scorched stacks
+            if (resonancePlayer.hasSolarCrescendoRing)
             {
                 scorchedStacks = Math.Min(scorchedStacks + 1, 15); // Cap at 15 stacks (60 DPS)
-                
+
                 // Fire burst particle
                 if (scorchedStacks == 1 || Main.rand.NextBool(3))
                 {
                     CustomParticles.GenericFlare(npc.Center, SummerOrange, 0.3f, 12);
                 }
             }
-            
-            // Harvest Rhythm Signet: 1% lifesteal at 20+ stacks
-            if (resonancePlayer.hasHarvestRhythmSignet && resonancePlayer.resonanceStacks >= 20)
+
+            // Harvest Rhythm Signet: 2% lifesteal
+            if (resonancePlayer.hasHarvestRhythmSignet)
             {
-                int healAmount = Math.Max(1, damageDone / 100); // 1% lifesteal
+                int healAmount = Math.Max(1, (int)(damageDone * 0.02f));
                 player.Heal(healAmount);
-                
+
                 // Healing particle
                 if (Main.rand.NextBool(4))
                 {
@@ -158,13 +153,13 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
                     CustomParticles.GenericGlow(healPos, Vector2.UnitY * -1f, new Color(180, 100, 40) * 0.8f, 0.2f, 15, true);
                 }
             }
-            
-            // Permafrost Cadence Seal: Freeze nearby enemies at 25+ stacks
-            if (resonancePlayer.hasPermafrostCadenceSeal && resonancePlayer.resonanceStacks >= 25)
+
+            // Permafrost Cadence Seal: 10% freeze chance
+            if (resonancePlayer.hasPermafrostCadenceSeal && Main.rand.NextBool(10))
             {
                 // Freeze the hit target briefly
                 freezeTimer = Math.Max(freezeTimer, 30); // 0.5 seconds
-                
+
                 // Freeze particles
                 for (int i = 0; i < 3; i++)
                 {
@@ -172,18 +167,26 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
                     CustomParticles.GenericFlare(pos, WinterBlue, 0.25f, 15);
                 }
             }
-            
-            // Enigma's Dissonance: Paradox DoT at 45+ stacks
-            if (resonancePlayer.hasEnigmasDissonance && resonancePlayer.resonanceStacks >= 45)
+
+            // Enigma's Dissonance: Paradox DoT
+            if (resonancePlayer.hasEnigmasDissonance)
             {
                 hasParadox = true;
                 paradoxDuration = 180; // 3 seconds
-                
+
                 // Paradox particles
                 if (!hasParadox || Main.rand.NextBool(4))
                 {
                     CustomParticles.GlyphBurst(npc.Center, EnigmaPurple, 3, 2f);
                 }
+            }
+
+            // Apply general lifesteal from the helper
+            float lifestealPercent = resonancePlayer.GetLifestealPercent();
+            if (lifestealPercent > 0)
+            {
+                int extraHeal = Math.Max(1, (int)(damageDone * lifestealPercent));
+                player.Heal(extraHeal);
             }
         }
         

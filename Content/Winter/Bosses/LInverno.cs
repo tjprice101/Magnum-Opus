@@ -1366,7 +1366,6 @@ namespace MagnumOpus.Content.Winter.Bosses
             LeadingConditionRule notExpert = new LeadingConditionRule(new Conditions.NotExpert());
 
             notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<WinterResonantEnergy>(), 1, 3, 5));
-            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ShardOfStillness>(), 1, 18, 28));
             notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<DormantWinterCore>(), 3));
 
             npcLoot.Add(notExpert);

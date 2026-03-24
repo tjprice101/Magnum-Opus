@@ -98,10 +98,9 @@ namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
 
         public override void SetDefaults()
         {
-            // MINI-BOSS STATS
-            // Hitbox = (3384/6) ÁE(2496/6) ÁE0.8 = 564 ÁE416 ÁE0.8 = 451 ÁE332
-            NPC.width = 451;
-            NPC.height = 332;
+            // MINI-BOSS STATS - Scaled to appropriate size (140×103 px)
+            NPC.width = 140;
+            NPC.height = 103;
             NPC.damage = 160;
             NPC.defense = 80;
             NPC.lifeMax = 65000; // Mini-boss HP
@@ -115,7 +114,7 @@ namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
             NPC.noGravity = false;
             NPC.noTileCollide = false;
 
-            DrawOffsetY = -23f;
+            DrawOffsetY = -7f;
         }
 
         public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)

@@ -321,7 +321,6 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             CreateRecipe()
                 .AddIngredient<JubilantZephyrTreads>()
                 .AddIngredient<ClairDeLuneResonantEnergy>(15)
-                .AddIngredient<ResonantCoreOfClairDeLune>()
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
         }

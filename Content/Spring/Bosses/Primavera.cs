@@ -1317,9 +1317,6 @@ namespace MagnumOpus.Content.Spring.Bosses
             // Spring Resonant Energy (100%)
             notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<SpringResonantEnergy>(), 1, 3, 5));
 
-            // Vernal Bar materials
-            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<PetalOfRebirth>(), 1, 15, 25));
-
             // Dormant Spring Core (for summoning again)
             notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<DormantSpringCore>(), 3));
 

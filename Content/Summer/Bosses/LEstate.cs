@@ -148,8 +148,8 @@ namespace MagnumOpus.Content.Summer.Bosses
             NPC.width = 432;
             NPC.height = 408;
             NPC.damage = BaseDamage;
-            NPC.defense = 25; // Post-Skeletron tier
-            NPC.lifeMax = 15000; // Post-Skeletron tier (comparable to Queen Bee 3.4k Classic, WoF 8k Classic)
+            NPC.defense = 45; // Post-Mechanical Bosses defense
+            NPC.lifeMax = 250000; // Post-Mechanical Bosses tier (comparable to Plantera ~30k+, adjusted for 4-phase system)
             NPC.HitSound = SoundID.NPCHit3;
             NPC.DeathSound = SoundID.NPCDeath14;
             NPC.knockBackResist = 0f;
@@ -1283,7 +1283,6 @@ namespace MagnumOpus.Content.Summer.Bosses
             LeadingConditionRule notExpert = new LeadingConditionRule(new Conditions.NotExpert());
 
             notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<SummerResonantEnergy>(), 1, 3, 5));
-            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<EmberOfIntensity>(), 1, 18, 28));
             notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<DormantSummerCore>(), 3));
 
             npcLoot.Add(notExpert);

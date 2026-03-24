@@ -362,6 +362,7 @@ namespace MagnumOpus.Content.Summer.Weapons
             CreateRecipe()
                 .AddIngredient(ModContent.ItemType<SolsticeBar>(), 16)
                 .AddIngredient(ModContent.ItemType<SummerResonantEnergy>(), 1)
+                .AddIngredient(ModContent.ItemType<DormantSummerCore>(), 1)
                 .AddIngredient(ItemID.SoulofMight, 8)
                 .AddTile(TileID.MythrilAnvil)
                 .Register();

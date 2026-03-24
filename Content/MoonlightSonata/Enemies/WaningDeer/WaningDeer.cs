@@ -911,15 +911,17 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
 
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
-            // Essence drops only after killing the main Moonlit Maestro boss
+            // Ore + Shard drops only after killing the main Moonlit Maestro boss
             LeadingConditionRule afterBossRule = new LeadingConditionRule(new DownedMoonlitMaestroCondition());
-            
-            // Primary source of Shards of Moonlit Tempo
-            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ShardsOfMoonlitTempo>(), 1, 8, 15));
-            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ResonanceEnergies.ResonantCoreOfMoonlightSonata>(), 2, 1, 3));
-            
+
+            // Ore for crafting bars (2-4)
+            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<MoonlitResonanceOre>(), 1, 2, 4));
+
+            // Shards of Moonlit Tempo for accessories/weapons (1-2)
+            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ShardsOfMoonlitTempo>(), 1, 1, 2));
+
             npcLoot.Add(afterBossRule);
-            
+
             // Lunar Essence - theme essence drop (15%)
             npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<LunarEssence>(), 7));
         }

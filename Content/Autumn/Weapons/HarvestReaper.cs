@@ -58,7 +58,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
         protected override void AddWeaponTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "ReapingStrike", "Large sweeping arcs with decay particles") { OverrideColor = AutumnOrange });
-            tooltips.Add(new TooltipLine(Mod, "SoulHarvest", "Kills generate soul wisps that heal player") { OverrideColor = DecayPurple });
+            tooltips.Add(new TooltipLine(Mod, "SoulHarvest", "Kill enemies to spawn soul wisps that restore 12 HP when picked up") { OverrideColor = DecayPurple });
             tooltips.Add(new TooltipLine(Mod, "AutumnsDecay", "Every 5th hit applies stacking decay debuff") { OverrideColor = AutumnRed });
             tooltips.Add(new TooltipLine(Mod, "TwilightSlash", "Every 8th swing unleashes a massive crescent wave") { OverrideColor = AutumnGold });
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The harvest moon's final reaping'") { OverrideColor = GetLoreColor() });
@@ -127,6 +127,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
             CreateRecipe()
                 .AddIngredient(ModContent.ItemType<HarvestBar>(), 18)
                 .AddIngredient(ModContent.ItemType<AutumnResonantEnergy>(), 1)
+                .AddIngredient(ModContent.ItemType<DormantAutumnCore>(), 1)
                 .AddIngredient(ItemID.SoulofFright, 8)
                 .AddTile(TileID.MythrilAnvil)
                 .Register();

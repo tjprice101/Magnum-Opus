@@ -90,6 +90,36 @@ namespace MagnumOpus.Common.Systems
                 secondary = new Color(140, 50, 160);  // Purple
                 return true;
             }
+            if (typeName.Contains("Spring"))
+            {
+                primary = new Color(255, 183, 197);   // Blossom pink
+                secondary = new Color(144, 238, 144); // Spring green
+                return true;
+            }
+            if (typeName.Contains("Summer"))
+            {
+                primary = new Color(255, 140, 40);    // Solar orange
+                secondary = new Color(255, 200, 80);  // Sun gold
+                return true;
+            }
+            if (typeName.Contains("Autumn") || typeName.Contains("Fall"))
+            {
+                primary = new Color(215, 120, 55);    // Burnt amber
+                secondary = new Color(255, 190, 90);  // Harvest gold
+                return true;
+            }
+            if (typeName.Contains("Winter"))
+            {
+                primary = new Color(130, 190, 255);   // Frost blue
+                secondary = new Color(190, 230, 255); // Crystal ice
+                return true;
+            }
+            if (typeName.Contains("Seasons") || typeName.Contains("Season"))
+            {
+                primary = new Color(170, 205, 255);   // Seasonal sky blend
+                secondary = new Color(255, 205, 140); // Solstice amber
+                return true;
+            }
             
             // Default - still allow lens flares for other mod projectiles with neutral colors
             return true;

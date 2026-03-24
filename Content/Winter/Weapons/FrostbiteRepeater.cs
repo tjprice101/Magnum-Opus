@@ -286,6 +286,7 @@ namespace MagnumOpus.Content.Winter.Weapons
             CreateRecipe()
                 .AddIngredient(ModContent.ItemType<PermafrostBar>(), 18)
                 .AddIngredient(ModContent.ItemType<WinterResonantEnergy>(), 1)
+                .AddIngredient(ModContent.ItemType<DormantWinterCore>(), 1)
                 .AddIngredient(ItemID.SoulofMight, 8)
                 .AddTile(TileID.MythrilAnvil)
                 .Register();

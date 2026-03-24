@@ -49,7 +49,7 @@ namespace MagnumOpus.Common.Systems.VFX.Sparkle
         private static Asset<Texture2D> _starFlare;
 
         // ---- SHADER CACHE (one per theme) ----
-        private static readonly Effect[] _themeShaders = new Effect[6];
+        private static readonly Effect[] _themeShaders = new Effect[11];
         private static bool _texturesLoaded;
 
         /// <summary>
@@ -95,6 +95,11 @@ namespace MagnumOpus.Common.Systems.VFX.Sparkle
                 SparkleTheme.LaCampanella => "MagnumOpus/Effects/LaCampanella/Sparkle/BellfireSparkleShader",
                 SparkleTheme.EnigmaVariations => "MagnumOpus/Effects/EnigmaVariations/Sparkle/VoidSparkleShader",
                 SparkleTheme.Fate => "MagnumOpus/Effects/Fate/Sparkle/CelestialSparkleShader",
+                SparkleTheme.Spring => "MagnumOpus/Effects/Eroica/Sparkle/HeroicSparkleShader",
+                SparkleTheme.Summer => "MagnumOpus/Effects/LaCampanella/Sparkle/BellfireSparkleShader",
+                SparkleTheme.Autumn => "MagnumOpus/Effects/EnigmaVariations/Sparkle/VoidSparkleShader",
+                SparkleTheme.Winter => "MagnumOpus/Effects/MoonlightSonata/Sparkle/LunarSparkleShader",
+                SparkleTheme.Seasons => "MagnumOpus/Effects/SwanLake/Sparkle/PrismaticSparkleShader",
                 _ => "MagnumOpus/Effects/SwanLake/Sparkle/PrismaticSparkleShader",
             };
 
@@ -469,5 +474,10 @@ namespace MagnumOpus.Common.Systems.VFX.Sparkle
         LaCampanella = 3,
         EnigmaVariations = 4,
         Fate = 5,
+        Spring = 6,
+        Summer = 7,
+        Autumn = 8,
+        Winter = 9,
+        Seasons = 10,
     }
 }

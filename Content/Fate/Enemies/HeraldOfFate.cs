@@ -127,9 +127,9 @@ namespace MagnumOpus.Content.Fate.Enemies
         {
             // FATE MINI-BOSS STATS - STRONGER than Swan Lake (950k boss, 170 damage)
             // This is endgame content - terrifying power
-            // Hitbox = 292 ・・・164 ・・・0.8 = 233 ・・・131 (single frame sprite)
-            NPC.width = 233;
-            NPC.height = 131;
+            // Hitbox scaled from 233×131 → 120×68 (scaling factor 0.515)
+            NPC.width = 120;
+            NPC.height = 68;
             NPC.damage = 220; // Higher than Swan Lake boss (170)
             NPC.defense = 85; // Solid defense
             NPC.lifeMax = 85000; // Mini-boss HP - higher than Enigma's 45k
@@ -144,7 +144,7 @@ namespace MagnumOpus.Content.Fate.Enemies
             NPC.npcSlots = 8f; // Major threat
             NPC.boss = false; // Mini-boss, not full boss
             NPC.Opacity = 0.95f;
-            
+
             // Boss-like behavior
             NPC.dontTakeDamage = false;
         }
@@ -1060,23 +1060,15 @@ namespace MagnumOpus.Content.Fate.Enemies
 
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
-            // Essence drops only after killing the main Fate boss
+            // Ore + Shard drops only after killing the main Fate boss
             LeadingConditionRule afterBossRule = new LeadingConditionRule(new DownedFateCondition());
-            
-            // FATE MINI-BOSS DROPS - More valuable than other mini-bosses
-            
-            // Fate Resonant Energy (guaranteed, generous amount)
-            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<FateResonantEnergy>(), 1, 12, 20));
-            
-            // Resonant Core of Fate (guaranteed)
-            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ResonantCoreOfFate>(), 1, 4, 8));
-            
-            // Fate Resonance Ore bonus
-            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<FateResonanceOre>(), 1, 8, 16));
-            
-            // Small chance for Harmonic Core of Fate (normally boss-only)
-            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<HarmonicCoreOfFate>(), 5)); // 20% chance
-            
+
+            // Ore for crafting bars (2-4)
+            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<FateResonanceOre>(), 1, 2, 4));
+
+            // Shards of Fate's Tempo for accessories/weapons (1-2)
+            afterBossRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ShardOfFatesTempo>(), 1, 1, 2));
+
             npcLoot.Add(afterBossRule);
             
             // Money always drops

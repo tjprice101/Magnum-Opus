@@ -245,6 +245,7 @@ namespace MagnumOpus.Content.Spring.Weapons
             CreateRecipe()
                 .AddIngredient(ModContent.ItemType<VernalBar>(), 12)
                 .AddIngredient(ModContent.ItemType<SpringResonantEnergy>(), 1)
+                .AddIngredient(ModContent.ItemType<DormantSpringCore>(), 1)
                 .AddIngredient(ItemID.SoulofLight, 8)
                 .AddTile(TileID.MythrilAnvil)
                 .Register();

@@ -70,11 +70,11 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Hour", "Hour Mode: sustained beam of temporal energy"));
-            tooltips.Add(new TooltipLine(Mod, "Minute", "Minute Mode: launches 12 ticking orbs that detonate"));
-            tooltips.Add(new TooltipLine(Mod, "Second", "Second Mode: rapid-fire piercing bolts"));
-            tooltips.Add(new TooltipLine(Mod, "Pendulum", "Pendulum Mode: creates swinging temporal damage zone"));
-            tooltips.Add(new TooltipLine(Mod, "Synergy", "Using all 4 modes in sequence enhances the next cast by 50%"));
+            tooltips.Add(new TooltipLine(Mod, "Hour", "Hour Mode: sustained temporal beam"));
+            tooltips.Add(new TooltipLine(Mod, "Minute", "Minute Mode: launches rotating orbs"));
+            tooltips.Add(new TooltipLine(Mod, "Second", "Second Mode: rapid piercing bolts"));
+            tooltips.Add(new TooltipLine(Mod, "Pendulum", "Pendulum Mode: creates a swinging damage aura"));
+            tooltips.Add(new TooltipLine(Mod, "Synergy", "Casting all 4 modes in sequence increases the next cast's damage by 50%"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Hours of patience. Minutes of precision. Seconds of fury. And the pendulum swings eternal.'")
             {
                 OverrideColor = ClairDeLunePalette.LoreText

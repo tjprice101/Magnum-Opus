@@ -491,8 +491,9 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             player.thorns = 0.36f;
             player.blackBelt = true;
             
-            // Combined damage boost
-            player.GetDamage(DamageClass.Generic) += 0.15f;
+            // Fusion identity: tankier health pool and mitigation instead of generic damage scaling
+            player.statLifeMax2 += 40;
+            player.endurance += 0.05f;
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -520,6 +521,11 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Stellar hellfire: +50% thorns damage as fire")
             {
                 OverrideColor = DiesIraeCrimson
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+40 max life, 5% damage reduction")
+            {
+                OverrideColor = FusionGold
             });
             
             tooltips.Add(new TooltipLine(Mod, "Inherit", "Inherits ALL abilities from both component accessories")
@@ -597,8 +603,9 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             player.thorns = 0.40f;
             player.blackBelt = true;
             
-            // Maximum damage boost
-            player.GetDamage(DamageClass.Generic) += 0.17f;
+            // Fusion identity: stronger guard profile, not a generic offense spike
+            player.statLifeMax2 += 60;
+            player.endurance += 0.07f;
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -624,6 +631,11 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             });
             
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Shield hits heal 8% of damage absorbed")
+            {
+                OverrideColor = FusionTriumph
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+60 max life, 7% damage reduction")
             {
                 OverrideColor = FusionTriumph
             });
@@ -703,8 +715,9 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             player.thorns = 0.50f;
             player.blackBelt = true;
             
-            // Maximum damage boost
-            player.GetDamage(DamageClass.Generic) += 0.20f;
+            // Ultimate identity: extreme durability profile
+            player.statLifeMax2 += 100;
+            player.endurance += 0.10f;
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -734,7 +747,7 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
                 OverrideColor = OdeToJoyWhite
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+55 defense, +20% damage, 50% thorns")
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+55 defense, +100 max life, 10% damage reduction, 50% thorns")
             {
                 OverrideColor = ClairDeLuneBrass
             });

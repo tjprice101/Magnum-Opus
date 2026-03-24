@@ -71,7 +71,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.StarfallWhisper
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires crystal arrows that create Temporal Fractures on impact"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Fractures replay the hit after a brief delay for bonus damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Fractures replay hits after a brief delay for extra damage"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Right click to fire 5 fracture arrows simultaneously"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Nearby fractures resonate for chain reaction bursts"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'You hear the whisper only after the arrow has already arrived.'")

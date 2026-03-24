@@ -3,8 +3,6 @@ using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-
-// Material imports
 using MagnumOpus.Content.Materials.Foundation;
 using MagnumOpus.Content.Spring.Materials;
 using MagnumOpus.Content.Summer.Materials;
@@ -14,14 +12,9 @@ using MagnumOpus.Content.Seasons.Accessories;
 
 namespace MagnumOpus.Content.Common.Accessories.SummonerChain
 {
-    // ==========================================
-    // TIER 1: PRE-HARDMODE FOUNDATION
-    // ==========================================
-    
     /// <summary>
-    /// Tier 1: Resonant Conductor's Wand
-    /// Right-click to Conduct: all minions focus one enemy for 3s (+20% damage)
-    /// 15s cooldown
+    /// Resonant Conductor's Wand - Base tier summoner accessory.
+    /// Simple effect: +1 minion slot.
     /// </summary>
     public class ResonantConductorsWand : ModItem
     {
@@ -33,27 +26,26 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             Item.rare = ItemRarityID.Blue;
             Item.value = Item.sellPrice(silver: 50);
         }
-        
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             var conductor = player.GetModPlayer<ConductorPlayer>();
             conductor.HasConductorsWand = true;
-            
-            // Handle right-click conduct
-            if (Main.mouseRight && Main.mouseRightRelease && player.whoAmI == Main.myPlayer)
-            {
-                conductor.TryConduct();
-            }
         }
-        
+
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Right-click to Conduct: focus all minions on one target"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Conducted minions deal +20% damage for 3 seconds"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "15 second cooldown"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The first step in mastering the orchestra'") { OverrideColor = new Color(150, 200, 100) });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+1 minion slot")
+            {
+                OverrideColor = new Color(200, 180, 255)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The first step in mastering the orchestra'")
+            {
+                OverrideColor = new Color(150, 200, 100) * 0.8f
+            });
         }
-        
+
         public override void AddRecipes()
         {
             CreateRecipe()
@@ -63,13 +55,15 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
                 .Register();
         }
     }
-    
+
     /// <summary>
-    /// Tier 2: Spring Maestro's Badge
-    /// Conduct cooldown 12s. Conducted minions heal you 1HP/hit during focus
+    /// Spring Maestro's Badge - Spring tier summoner accessory.
+    /// Simple effect: +1 minion slot, +10% summon damage.
     /// </summary>
     public class SpringMaestrosBadge : ModItem
     {
+        private static readonly Color SpringGreen = new Color(144, 238, 144);
+
         public override void SetDefaults()
         {
             Item.width = 30;
@@ -78,49 +72,51 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             Item.rare = ItemRarityID.Green;
             Item.value = Item.sellPrice(gold: 1);
         }
-        
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             var conductor = player.GetModPlayer<ConductorPlayer>();
-            conductor.HasConductorsWand = true;
             conductor.HasSpringMaestrosBadge = true;
-            
-            if (Main.mouseRight && Main.mouseRightRelease && player.whoAmI == Main.myPlayer)
-            {
-                conductor.TryConduct();
-            }
         }
-        
+
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Right-click to Conduct: focus all minions on one target"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Conducted minions deal +20% damage for 3 seconds"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "12 second cooldown"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Conducted minions heal you 1 HP per hit during focus"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Spring awakens the conductor within'") { OverrideColor = new Color(150, 200, 100) });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+1 minion slot")
+            {
+                OverrideColor = new Color(200, 180, 255)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+10% summon damage")
+            {
+                OverrideColor = new Color(255, 200, 200)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Spring awakens the conductor within'")
+            {
+                OverrideColor = SpringGreen * 0.8f
+            });
         }
-        
+
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<ResonantConductorsWand>()
+                .AddIngredient<ResonantConductorsWand>(1)
+                .AddIngredient<ResonantCrystalShard>(5)
                 .AddIngredient<VernalBar>(15)
-                // TODO: Add Primavera drop when boss is implemented
+                .AddIngredient<SpringResonantEnergy>(1)
                 .AddTile(TileID.Anvils)
                 .Register();
         }
     }
-    
-    // ==========================================
-    // TIER 2: MID PRE-HARDMODE (POST-L'ESTATE)
-    // ==========================================
-    
+
     /// <summary>
-    /// Tier 3: Solar Director's Crest
-    /// Conduct cooldown 10s. Focus target takes "Performed" debuff: -5 defense
+    /// Solar Director's Crest - Summer tier summoner accessory.
+    /// Simple effect: +1 minion slot, +15% summon damage.
     /// </summary>
     public class SolarDirectorsCrest : ModItem
     {
+        private static readonly Color SummerOrange = new Color(255, 140, 0);
+
         public override void SetDefaults()
         {
             Item.width = 30;
@@ -129,52 +125,51 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             Item.rare = ItemRarityID.Orange;
             Item.value = Item.sellPrice(gold: 2);
         }
-        
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             var conductor = player.GetModPlayer<ConductorPlayer>();
-            conductor.HasConductorsWand = true;
-            conductor.HasSpringMaestrosBadge = true;
             conductor.HasSolarDirectorsCrest = true;
-            
-            if (Main.mouseRight && Main.mouseRightRelease && player.whoAmI == Main.myPlayer)
-            {
-                conductor.TryConduct();
-            }
         }
-        
+
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Right-click to Conduct: focus all minions on one target"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Conducted minions deal +20% damage for 3 seconds"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "10 second cooldown"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Conducted minions heal you 1 HP per hit during focus"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Focused target receives Broken Armor (halved defense)"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The summer sun empowers your command'") { OverrideColor = new Color(150, 200, 100) });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+1 minion slot")
+            {
+                OverrideColor = new Color(200, 180, 255)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+15% summon damage")
+            {
+                OverrideColor = new Color(255, 200, 200)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The summer sun empowers your command'")
+            {
+                OverrideColor = SummerOrange * 0.8f
+            });
         }
-        
+
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<SpringMaestrosBadge>()
+                .AddIngredient<SpringMaestrosBadge>(1)
+                .AddIngredient<ResonantCrystalShard>(5)
                 .AddIngredient<SolsticeBar>(15)
-                // TODO: Add L'Estate drop when boss is implemented
+                .AddIngredient<SummerResonantEnergy>(1)
                 .AddTile(TileID.Anvils)
                 .Register();
         }
     }
-    
-    // ==========================================
-    // TIER 3: EARLY HARDMODE (POST-AUTUNNO)
-    // ==========================================
-    
+
     /// <summary>
-    /// Tier 4: Harvest Beastlord's Horn
-    /// Conduct grants minions +30% damage during focus
-    /// Killing conducted target extends buff 2s
+    /// Harvest Beastlord's Horn - Autumn tier summoner accessory.
+    /// Simple effect: +1 minion slot, +5% summon crit.
     /// </summary>
     public class HarvestBeastlordsHorn : ModItem
     {
+        private static readonly Color AutumnBrown = new Color(180, 100, 40);
+
         public override void SetDefaults()
         {
             Item.width = 30;
@@ -183,52 +178,51 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             Item.rare = ItemRarityID.LightRed;
             Item.value = Item.sellPrice(gold: 4);
         }
-        
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             var conductor = player.GetModPlayer<ConductorPlayer>();
-            conductor.HasConductorsWand = true;
-            conductor.HasSpringMaestrosBadge = true;
-            conductor.HasSolarDirectorsCrest = true;
             conductor.HasHarvestBeastlordsHorn = true;
-            
-            if (Main.mouseRight && Main.mouseRightRelease && player.whoAmI == Main.myPlayer)
-            {
-                conductor.TryConduct();
-            }
         }
-        
+
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Right-click to Conduct: focus all minions on one target"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Conducted minions deal +30% damage during focus"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Conducted minions heal you 1 HP per hit during focus"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Focused target receives Broken Armor (halved defense)"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Killing conducted target extends focus duration by 2 seconds"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Command the beasts of the harvest'") { OverrideColor = new Color(150, 200, 100) });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+1 minion slot")
+            {
+                OverrideColor = new Color(200, 180, 255)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+5% summon critical strike chance")
+            {
+                OverrideColor = new Color(255, 220, 180)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Command the beasts of the harvest'")
+            {
+                OverrideColor = AutumnBrown * 0.8f
+            });
         }
-        
+
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<SolarDirectorsCrest>()
+                .AddIngredient<SolarDirectorsCrest>(1)
+                .AddIngredient<ResonantCrystalShard>(5)
                 .AddIngredient<HarvestBar>(20)
-                // TODO: Add Autunno drop when boss is implemented
+                .AddIngredient<AutumnResonantEnergy>(1)
                 .AddTile(TileID.MythrilAnvil)
                 .Register();
         }
     }
-    
-    // ==========================================
-    // TIER 4: POST-MECH (POST-L'INVERNO)
-    // ==========================================
-    
+
     /// <summary>
-    /// Tier 5: Permafrost Commander's Crown
-    /// Conduct cooldown 8s. Conducted target is slowed 25%
+    /// Permafrost Commander's Crown - Winter tier summoner accessory.
+    /// Simple effect: +2 minion slots, +20% summon damage.
     /// </summary>
     public class PermafrostCommandersCrown : ModItem
     {
+        private static readonly Color WinterBlue = new Color(150, 220, 255);
+
         public override void SetDefaults()
         {
             Item.width = 30;
@@ -237,48 +231,46 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             Item.rare = ItemRarityID.Pink;
             Item.value = Item.sellPrice(gold: 8);
         }
-        
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             var conductor = player.GetModPlayer<ConductorPlayer>();
-            conductor.HasConductorsWand = true;
-            conductor.HasSpringMaestrosBadge = true;
-            conductor.HasSolarDirectorsCrest = true;
-            conductor.HasHarvestBeastlordsHorn = true;
             conductor.HasPermafrostCommandersCrown = true;
-            
-            if (Main.mouseRight && Main.mouseRightRelease && player.whoAmI == Main.myPlayer)
-            {
-                conductor.TryConduct();
-            }
         }
-        
+
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Right-click to Conduct: focus all minions on one target"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Conducted minions deal +30% damage during focus"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "8 second cooldown"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Conducted minions heal you 1 HP per hit during focus"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Focused target receives Broken Armor (halved defense)"));
-            tooltips.Add(new TooltipLine(Mod, "Effect6", "Conducted target is slowed by 25%"));
-            tooltips.Add(new TooltipLine(Mod, "Effect7", "Killing conducted target extends focus duration by 2 seconds"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Winter's chill commands absolute obedience'") { OverrideColor = new Color(150, 200, 100) });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+2 minion slots")
+            {
+                OverrideColor = new Color(200, 180, 255)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+20% summon damage")
+            {
+                OverrideColor = new Color(255, 200, 200)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Winter's chill commands absolute obedience'")
+            {
+                OverrideColor = WinterBlue * 0.8f
+            });
         }
-        
+
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<HarvestBeastlordsHorn>()
+                .AddIngredient<HarvestBeastlordsHorn>(1)
+                .AddIngredient<ResonantCrystalShard>(5)
                 .AddIngredient<PermafrostBar>(25)
-                // TODO: Add L'Inverno drop when boss is implemented
+                .AddIngredient<WinterResonantEnergy>(1)
                 .AddTile(TileID.MythrilAnvil)
                 .Register();
         }
     }
-    
+
     /// <summary>
-    /// Tier 6: Vivaldi's Orchestra Baton
-    /// New "Scatter" command: Double-tap Conduct to spread minions to all nearby enemies
+    /// Vivaldi's Orchestra Baton - Vivaldi (all seasons) tier summoner accessory.
+    /// Simple effect: +2 minion slots, +25% summon damage.
     /// </summary>
     public class VivaldisOrchestraBaton : ModItem
     {
@@ -290,41 +282,39 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             Item.rare = ItemRarityID.Lime;
             Item.value = Item.sellPrice(gold: 15);
         }
-        
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             var conductor = player.GetModPlayer<ConductorPlayer>();
-            conductor.HasConductorsWand = true;
-            conductor.HasSpringMaestrosBadge = true;
-            conductor.HasSolarDirectorsCrest = true;
-            conductor.HasHarvestBeastlordsHorn = true;
-            conductor.HasPermafrostCommandersCrown = true;
             conductor.HasVivaldisOrchestraBaton = true;
-            
-            if (Main.mouseRight && Main.mouseRightRelease && player.whoAmI == Main.myPlayer)
-            {
-                conductor.TryConduct();
-            }
         }
-        
+
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Right-click to Conduct: focus all minions on one target"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Double-tap Conduct to Scatter: spread minions to all nearby enemies"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Conducted minions deal +30% damage during focus"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "8 second cooldown"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Conducted minions heal you 1 HP per hit during focus"));
-            tooltips.Add(new TooltipLine(Mod, "Effect6", "Focused target receives Broken Armor (halved defense)"));
-            tooltips.Add(new TooltipLine(Mod, "Effect7", "Conducted target is slowed by 25%"));
-            tooltips.Add(new TooltipLine(Mod, "Effect8", "Killing conducted target extends focus duration by 2 seconds"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The four seasons unite under your baton'") { OverrideColor = new Color(150, 200, 100) });
+            float hue = (Main.GameUpdateCount * 0.01f) % 1f;
+            Color cyclingColor = Main.hslToRgb(hue, 0.8f, 0.6f);
+
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+2 minion slots")
+            {
+                OverrideColor = new Color(200, 180, 255)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+25% summon damage")
+            {
+                OverrideColor = new Color(255, 200, 200)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The four seasons unite under your baton'")
+            {
+                OverrideColor = cyclingColor * 0.8f
+            });
         }
-        
+
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<PermafrostCommandersCrown>()
-                .AddIngredient<CycleOfSeasons>()
+                .AddIngredient<PermafrostCommandersCrown>(1)
+                .AddIngredient<CycleOfSeasons>(1)
                 .AddTile(TileID.MythrilAnvil)
                 .Register();
         }

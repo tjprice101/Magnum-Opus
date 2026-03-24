@@ -208,9 +208,9 @@ namespace MagnumOpus.Content.Autumn.Weapons
         {
             tooltips.Add(new TooltipLine(Mod, "MinionSlots", "Uses 1 minion slot") { OverrideColor = Color.Gray });
             tooltips.Add(new TooltipLine(Mod, "HarvestWraith", "Summons spectral harvest wraiths that reap enemies") { OverrideColor = WraithGreen });
-            tooltips.Add(new TooltipLine(Mod, "DeathToll", "Wraiths periodically toll, dealing AoE damage") { OverrideColor = DecayPurple });
-            tooltips.Add(new TooltipLine(Mod, "SoulReap", "Enemies killed by wraiths drop healing orbs") { OverrideColor = SoulWhite });
-            tooltips.Add(new TooltipLine(Mod, "DecaySynchrony", "3+ wraiths create a withering aura around you") { OverrideColor = AutumnOrange });
+            tooltips.Add(new TooltipLine(Mod, "DeathToll", "Wraiths toll every 3 seconds, dealing 50% weapon damage in a 150-tile radius") { OverrideColor = DecayPurple });
+            tooltips.Add(new TooltipLine(Mod, "SoulReap", "Enemies killed by wraiths drop healing orbs that restore 15 HP") { OverrideColor = SoulWhite });
+            tooltips.Add(new TooltipLine(Mod, "DecaySynchrony", "3+ wraiths create an aura (200-tile radius) that inflicts Cursed Inferno") { OverrideColor = AutumnOrange });
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The bell tolls for all who stand in your way'") { OverrideColor = Color.Lerp(DecayPurple, WraithGreen, 0.5f) });
         }
 
@@ -219,6 +219,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
             CreateRecipe()
                 .AddIngredient(ModContent.ItemType<HarvestBar>(), 16)
                 .AddIngredient(ModContent.ItemType<AutumnResonantEnergy>(), 1)
+                .AddIngredient(ModContent.ItemType<DormantAutumnCore>(), 1)
                 .AddIngredient(ItemID.SoulofFright, 8)
                 .AddTile(TileID.MythrilAnvil)
                 .Register();

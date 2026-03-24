@@ -1225,7 +1225,6 @@ namespace MagnumOpus.Content.Autumn.Bosses
             LeadingConditionRule notExpert = new LeadingConditionRule(new Conditions.NotExpert());
 
             notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<AutumnResonantEnergy>(), 1, 3, 5));
-            notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<LeafOfEnding>(), 1, 18, 28));
             notExpert.OnSuccess(ItemDropRule.Common(ModContent.ItemType<DormantAutumnCore>(), 3));
 
             npcLoot.Add(notExpert);

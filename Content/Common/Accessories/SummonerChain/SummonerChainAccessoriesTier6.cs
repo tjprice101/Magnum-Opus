@@ -469,6 +469,9 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             {
                 player.GetDamage(DamageClass.Summon) += 0.20f; // Enhanced from 15%
             }
+
+            player.maxMinions += 1;
+            player.whipRangeMultiplier += 0.10f;
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -496,6 +499,11 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Stellar hellfire: Minion burn deals +50% damage")
             {
                 OverrideColor = DiesIraeCrimson
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+1 max minion and +10% whip range")
+            {
+                OverrideColor = FusionGold
             });
             
             tooltips.Add(new TooltipLine(Mod, "Inherit", "Inherits ALL abilities from both component accessories")
@@ -578,6 +586,9 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
                 player.GetDamage(DamageClass.Summon) += 0.22f;
             }
             player.GetAttackSpeed(DamageClass.Summon) += 0.12f;
+            player.maxMinions += 2;
+            player.maxTurrets += 1;
+            player.whipRangeMultiplier += 0.18f;
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -603,6 +614,11 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             });
             
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Minion healing triggers starfall-hellfire bursts")
+            {
+                OverrideColor = FusionTriumph
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+2 max minions, +1 max sentry, +18% whip range")
             {
                 OverrideColor = FusionTriumph
             });
@@ -686,6 +702,9 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             // Always has enhanced bonuses (mastered)
             player.GetDamage(DamageClass.Summon) += 0.25f;
             player.GetAttackSpeed(DamageClass.Summon) += 0.15f;
+            player.maxMinions += 3;
+            player.maxTurrets += 2;
+            player.whipRangeMultiplier += 0.25f;
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -719,8 +738,13 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             {
                 OverrideColor = ClairDeLuneBrass
             });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "+3 max minions, +2 max sentries, +25% whip range")
+            {
+                OverrideColor = UltimatePrismatic
+            });
             
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "All minion effects trigger simultaneously across time")
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "All minion effects trigger simultaneously across time")
             {
                 OverrideColor = UltimatePrismatic
             });

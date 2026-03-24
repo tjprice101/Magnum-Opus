@@ -412,7 +412,7 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+80% magic damage"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+50% magic critical strike chance"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "-45% mana cost"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Magic attacks create temporal echoes that deal 50% damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Magic attacks create temporal echoes that deal 50% of hit damage (30-frame cooldown)"));
             tooltips.Add(new TooltipLine(Mod, "Effect5", "+200 max mana"));
             tooltips.Add(new TooltipLine(Mod, "Effect6", "When mana drops below 20%, gain Temporal Clarity for 8 seconds"));
             tooltips.Add(new TooltipLine(Mod, "Effect7", "Temporal Clarity: +30% damage, +20% crit, +15% attack speed, +20% movement"));
