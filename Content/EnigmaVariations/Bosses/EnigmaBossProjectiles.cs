@@ -26,8 +26,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override void SetDefaults()
         {
-            Projectile.width = 8;
-            Projectile.height = 8;
+            Projectile.width = 36;
+            Projectile.height = 36;
             Projectile.hostile = true;
             Projectile.friendly = false;
             Projectile.tileCollide = true;
@@ -35,7 +35,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             Projectile.alpha = 0;
             Projectile.penetrate = 1;
             Projectile.extraUpdates = 1; // Faster movement
-            Projectile.scale = 0.5f;
+            Projectile.scale = 0.85f;
         }
         
         public override void AI()
@@ -124,14 +124,14 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override void SetDefaults()
         {
-            Projectile.width = 10;
-            Projectile.height = 10;
+            Projectile.width = 40;
+            Projectile.height = 40;
             Projectile.hostile = true;
             Projectile.friendly = false;
             Projectile.tileCollide = false;
             Projectile.timeLeft = 100;
             Projectile.penetrate = -1;
-            Projectile.scale = 0.5f;
+            Projectile.scale = 0.90f;
         }
         
         public override void AI()
@@ -213,14 +213,14 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
         
         public override void SetDefaults()
         {
-            Projectile.width = 8;
-            Projectile.height = 8;
+            Projectile.width = 32;
+            Projectile.height = 32;
             Projectile.hostile = true;
             Projectile.friendly = false;
             Projectile.tileCollide = false;
             Projectile.timeLeft = 240;
             Projectile.penetrate = 1;
-            Projectile.scale = 0.55f;
+            Projectile.scale = 0.90f;
         }
         
         public override void AI()

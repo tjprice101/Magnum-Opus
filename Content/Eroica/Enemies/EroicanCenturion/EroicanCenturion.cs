@@ -104,9 +104,10 @@ namespace MagnumOpus.Content.Eroica.Enemies.EroicanCenturion
 
         public override void SetDefaults()
         {
-            // MINI-BOSS STATS - Scaled to appropriate size (150×76 px)
+            // MINI-BOSS STATS - Scaled to appropriate size (150×76 px hitbox at 0.45x scale)
             NPC.width = 150;
             NPC.height = 76;
+            NPC.scale = 0.45f;
             NPC.damage = 180;
             NPC.defense = 90;
             NPC.lifeMax = 75000; // Mini-boss HP

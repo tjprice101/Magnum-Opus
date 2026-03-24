@@ -98,9 +98,10 @@ namespace MagnumOpus.Content.Eroica.Enemies.FuneralBlitzer
 
         public override void SetDefaults()
         {
-            // MINI-BOSS STATS - Scaled to appropriate size (140×103 px)
+            // MINI-BOSS STATS - Scaled to appropriate size (140×103 px hitbox at 0.42x scale)
             NPC.width = 140;
             NPC.height = 103;
+            NPC.scale = 0.42f;
             NPC.damage = 160;
             NPC.defense = 80;
             NPC.lifeMax = 65000; // Mini-boss HP

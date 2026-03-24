@@ -29,8 +29,8 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
 
         public override void SetDefaults()
         {
-            Projectile.width = 6;
-            Projectile.height = 6;
+            Projectile.width = 40;
+            Projectile.height = 40;
             Projectile.hostile = true;
             Projectile.friendly = false;
             Projectile.penetrate = 3;
@@ -39,7 +39,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             Projectile.ignoreWater = true;
             Projectile.extraUpdates = 2; // Faster movement with more updates
             Projectile.alpha = 255;
-            Projectile.scale = 0.7f;
+            Projectile.scale = 0.85f;
         }
 
         public override void AI()
@@ -163,15 +163,15 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
 
         public override void SetDefaults()
         {
-            Projectile.width = 10;
-            Projectile.height = 10;
+            Projectile.width = 40;
+            Projectile.height = 40;
             Projectile.hostile = true;
             Projectile.friendly = false;
             Projectile.penetrate = 1;
             Projectile.timeLeft = 240;
             Projectile.tileCollide = true;
             Projectile.ignoreWater = false;
-            Projectile.scale = 0.55f;
+            Projectile.scale = 0.95f;
         }
 
         public override void AI()
@@ -308,8 +308,8 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
 
         public override void SetDefaults()
         {
-            Projectile.width = 12;
-            Projectile.height = 12;
+            Projectile.width = 40;
+            Projectile.height = 40;
             Projectile.hostile = true;
             Projectile.friendly = false;
             Projectile.penetrate = -1;
@@ -317,7 +317,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             Projectile.tileCollide = true;
             Projectile.ignoreWater = false;
             Projectile.alpha = 100;
-            Projectile.scale = 0.5f;
+            Projectile.scale = 0.85f;
         }
 
         public override void AI()
@@ -432,8 +432,8 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
 
         public override void SetDefaults()
         {
-            Projectile.width = 16;
-            Projectile.height = 30;
+            Projectile.width = 50;
+            Projectile.height = 75;
             Projectile.hostile = true;
             Projectile.friendly = false;
             Projectile.penetrate = -1;
@@ -441,7 +441,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
             Projectile.alpha = 100;
-            Projectile.scale = 0.5f;
+            Projectile.scale = 0.80f;
         }
 
         public override void AI()
@@ -595,14 +595,15 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
 
         public override void SetDefaults()
         {
-            Projectile.width = 10;
-            Projectile.height = 10;
+            Projectile.width = 50;
+            Projectile.height = 50;
             Projectile.hostile = true;
             Projectile.friendly = false;
             Projectile.penetrate = -1;
             Projectile.timeLeft = 90;
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
+            Projectile.scale = 1.0f;
         }
 
         public override void AI()
