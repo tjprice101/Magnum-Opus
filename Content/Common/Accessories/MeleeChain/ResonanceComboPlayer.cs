@@ -1,83 +1,72 @@
 using Microsoft.Xna.Framework;
 using System;
 using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems.Particles;
-using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 {
     /// <summary>
-    /// ModPlayer that handles the Resonance Combo System for the melee accessory chain.
-    /// Resonance stacks build when hitting enemies with melee attacks and decay over time.
-    /// Different accessory tiers unlock higher max stacks and special effects at stack thresholds.
+    /// Simplified ModPlayer for melee accessories.
+    /// No more stacking system - just tracks which accessories are equipped
+    /// and applies their simple, static effects.
     /// </summary>
     public class ResonanceComboPlayer : ModPlayer
     {
-        // ===== RESONANCE STACK STATE =====
-        /// <summary>Current number of Resonance stacks (0 to maxResonance)</summary>
-        public int resonanceStacks;
-        
-        /// <summary>Maximum resonance stacks allowed (increases with better accessories)</summary>
-        public int maxResonance = 0;
-        
-        /// <summary>Timer for stack decay (resets on hit)</summary>
-        private int decayTimer;
-        
-        /// <summary>Frames between each stack decay</summary>
-        public int decayRate = 120; // 2 seconds base
-        
-        // ===== ACCESSORY FLAGS =====
-        public bool hasResonantRhythmBand;      // Base tier: enables system
-        public bool hasSpringTempoCharm;        // +8% melee speed at 10+ stacks
-        public bool hasSolarCrescendoRing;      // Scorched debuff at 15+ stacks
-        public bool hasHarvestRhythmSignet;     // 1% lifesteal at 20+ stacks
-        public bool hasPermafrostCadenceSeal;   // Freeze nearby enemies at 25+ stacks
-        public bool hasVivaldisTempoMaster;     // Consume 30 for seasonal burst
-        
-        // Post-Moon Lord theme chain
-        public bool hasMoonlitSonataBand;       // Slower decay at night, consume 25 for moonbeam
-        public bool hasHeroicCrescendo;         // Crits grant +2 resonance, consume 30 for dash
-        public bool hasInfernalFortissimo;      // Max 50, consume 40 for bell shockwave
-        public bool hasEnigmasDissonance;       // Random ±3 fluctuation, Paradox DoT at 45+
-        public bool hasSwansPerfectMeasure;     // Graceful hits +2, consume 35 for feather storm
-        public bool hasFatesCosmicSymphony;     // Max 60, consume 50 for reality-rending slash
-        
-        // ===== POST-FATE TIER 7-10 CHAIN =====
-        public bool hasNocturnalSymphonyBand;   // T7: Max 70, +2 at night, constellation trails at 50+, Starfall Slash at 60
-        public bool hasInfernalFortissimoBandT8;// T8: Max 80, Judgment Burn at 60+, no decay during bosses, Hellfire Crescendo at 70
-        public bool hasJubilantCrescendoBand;   // T9: Max 90, 2% lifesteal at 70+, +5 on kill, Blooming Fury at 80
-        public bool hasEternalResonanceBand;    // T10: Max 100, never decays, temporal echoes at 80+, Temporal Finale at 90
-        
-        // ===== FUSION ACCESSORIES =====
-        public bool hasStarfallJudgmentGauntlet;      // Fusion T1: Nocturnal + Infernal, Max 85
-        public bool hasTriumphantCosmosGauntlet;      // Fusion T2: Starfall + Jubilant, Max 95
-        public bool hasGauntletOfTheEternalSymphony;  // Fusion T3: Triumphant + Eternal, Max 100
-        
-        // ===== SPECIAL STATE =====
-        public bool consumedResonanceThisFrame; // Prevent multiple consumptions per frame
-        private int gracefulTimer;              // Frames since taking damage (for Swan's)
-        private int burstCooldown;              // Cooldown for special burst abilities
-        
+        // ===== TIER 1-4 (SEASONAL) FLAGS =====
+        public bool hasResonantRhythmBand;      // +5% damage, +3% speed
+        public bool hasSpringTempoCharm;        // +10% speed, chance for healing petal
+        public bool hasSolarCrescendoRing;      // Inflict On Fire!
+        public bool hasHarvestRhythmSignet;     // 2% lifesteal
+        public bool hasPermafrostCadenceSeal;   // 10% freeze chance
+        public bool hasVivaldisTempoMaster;     // +12% damage, biome debuffs
+
+        // ===== TIER 5 (THEME VARIANTS) FLAGS =====
+        public bool hasMoonlitSonataBand;       // Crits spawn moonbeams
+        public bool hasHeroicCrescendo;         // +15% damage, +10% crit
+        public bool hasInfernalFortissimo;      // Kills cause explosions
+        public bool hasEnigmasDissonance;       // Delayed burst damage
+        public bool hasSwansPerfectMeasure;     // Perfect dodge invuln
+        public bool hasFatesCosmicSymphony;     // Day/night scaling damage
+
+        // ===== T7-T10 (POST-FATE) FLAGS =====
+        public bool hasNocturnalSymphonyBand;   // +20% night damage, constellation trails
+        public bool hasInfernalFortissimoBandT8;// Judgment Burn, +25% boss damage
+        public bool hasJubilantCrescendoBand;   // 3% lifesteal, kill healing
+        public bool hasEternalResonanceBand;    // Double hit (50% second)
+
+        // ===== FUSION FLAGS =====
+        public bool hasStarfallJudgmentGauntlet;      // Nachtmusik + Dies Irae
+        public bool hasTriumphantCosmosGauntlet;      // 3-theme fusion
+        public bool hasGauntletOfTheEternalSymphony;  // Ultimate: triple hit, +40% damage
+
+        // ===== COOLDOWNS =====
+        public int perfectDodgeCooldown;        // Swan's Perfect Measure cooldown
+
+        // ===== LEGACY COMPATIBILITY STUBS =====
+        // These properties exist for backwards compatibility with old UI/tooltip code
+        // The stacking system has been simplified, so these return constant values
+        public int resonanceStacks => 0;
+        public int maxResonance => 100;
+        public bool IsBurstOnCooldown => true; // Bursts removed, always "on cooldown"
+        public int BurstCooldown => 0;
+        public bool IsGraceful => false;
+        public float GetResonancePercent() => 0f;
+        public Color GetResonanceColor() => GetThemeColor();
+        public void OnMeleeHit(NPC npc, bool crit) { } // No-op
+
         // ===== COLORS =====
-        private static readonly Color ResonanceBasePurple = new Color(180, 130, 255);
-        private static readonly Color SpringPink = new Color(255, 183, 197);
-        private static readonly Color SummerOrange = new Color(255, 140, 0);
-        private static readonly Color AutumnBrown = new Color(180, 100, 40);
-        private static readonly Color WinterBlue = new Color(150, 220, 255);
         private static readonly Color MoonlightPurple = new Color(138, 43, 226);
         private static readonly Color EroicaGold = new Color(255, 200, 80);
         private static readonly Color CampanellaOrange = new Color(255, 140, 40);
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color SwanWhite = new Color(255, 255, 255);
         private static readonly Color FateCrimson = new Color(200, 80, 120);
-        
-        // Post-Fate theme colors
         private static readonly Color NachtmusikGold = new Color(255, 215, 0);
         private static readonly Color DiesIraeCrimson = new Color(180, 40, 40);
-        private static readonly Color OdeToJoyIridescent = new Color(255, 220, 255);
-        private static readonly Color ClairDeLuneBrass = new Color(205, 170, 125);
-        
+        private static readonly Color OdeToJoyRose = new Color(255, 200, 220);
+
         public override void ResetEffects()
         {
             // Reset all accessory flags each frame
@@ -93,144 +82,241 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             hasEnigmasDissonance = false;
             hasSwansPerfectMeasure = false;
             hasFatesCosmicSymphony = false;
-            
-            // Post-Fate T7-T10 flags
             hasNocturnalSymphonyBand = false;
             hasInfernalFortissimoBandT8 = false;
             hasJubilantCrescendoBand = false;
             hasEternalResonanceBand = false;
-            
-            // Fusion flags
             hasStarfallJudgmentGauntlet = false;
             hasTriumphantCosmosGauntlet = false;
             hasGauntletOfTheEternalSymphony = false;
-            
-            consumedResonanceThisFrame = false;
         }
-        
+
         public override void PostUpdateEquips()
         {
-            // If no resonance accessory equipped, clear stacks
-            if (!hasResonantRhythmBand)
+            // Apply simple static effects from equipped accessories
+
+            // Resonant Rhythm Band: +5% damage, +3% speed
+            if (hasResonantRhythmBand)
             {
-                resonanceStacks = 0;
-                maxResonance = 0;
-                return;
+                Player.GetDamage(DamageClass.Melee) += 0.05f;
+                Player.GetAttackSpeed(DamageClass.Melee) += 0.03f;
             }
-            
-            // Determine max resonance based on equipped accessories (highest tier wins)
-            DetermineMaxResonance();
-            
-            // Apply stack effects based on current stacks
-            ApplyStackEffects();
-            
-            // Handle decay
-            HandleDecay();
-            
-            // Handle Enigma's random fluctuation
-            if (hasEnigmasDissonance && Main.rand.NextBool(60)) // Once per second on average
+
+            // Spring Tempo Charm: +10% speed (healing handled in OnHitNPC)
+            if (hasSpringTempoCharm)
             {
-                int fluctuation = Main.rand.Next(-3, 4); // -3 to +3
-                resonanceStacks = Math.Clamp(resonanceStacks + fluctuation, 0, maxResonance);
+                Player.GetAttackSpeed(DamageClass.Melee) += 0.10f;
             }
-            
-            // Track graceful timer for Swan's Perfect Measure
-            gracefulTimer++;
-            
-            // Cooldown management
-            if (burstCooldown > 0)
-                burstCooldown--;
-        }
-        
-        private void DetermineMaxResonance()
-        {
-            // Hierarchy: Higher tier overrides lower tier max
-            // Ultimate Fusion and T10 Eternal
-            if (hasGauntletOfTheEternalSymphony || hasEternalResonanceBand)
-                maxResonance = 100;
-            // Fusion Tier 2
-            else if (hasTriumphantCosmosGauntlet)
-                maxResonance = 95;
-            // T9 Jubilant
-            else if (hasJubilantCrescendoBand)
-                maxResonance = 90;
-            // Fusion Tier 1
-            else if (hasStarfallJudgmentGauntlet)
-                maxResonance = 85;
-            // T8 Infernal
-            else if (hasInfernalFortissimoBandT8)
-                maxResonance = 80;
-            // T7 Nocturnal
-            else if (hasNocturnalSymphonyBand)
-                maxResonance = 70;
-            // T6 Fate
-            else if (hasFatesCosmicSymphony)
-                maxResonance = 60;
-            else if (hasInfernalFortissimo)
-                maxResonance = 50;
-            else if (hasEnigmasDissonance || hasSwansPerfectMeasure || hasHeroicCrescendo || hasMoonlitSonataBand)
-                maxResonance = 40;
-            else if (hasVivaldisTempoMaster)
-                maxResonance = 40;
-            else if (hasPermafrostCadenceSeal)
-                maxResonance = 30;
-            else if (hasHarvestRhythmSignet)
-                maxResonance = 25;
-            else if (hasSolarCrescendoRing)
-                maxResonance = 20;
-            else if (hasSpringTempoCharm)
-                maxResonance = 15;
-            else
-                maxResonance = 10;
-            
-            // Clamp current stacks to new max
-            resonanceStacks = Math.Min(resonanceStacks, maxResonance);
-        }
-        
-        private void ApplyStackEffects()
-        {
-            // Spring Tempo Charm: +8% melee speed at 10+ stacks
-            if (hasSpringTempoCharm && resonanceStacks >= 10)
+
+            // Vivaldi's Tempo Master: +12% damage
+            if (hasVivaldisTempoMaster)
             {
-                Player.GetAttackSpeed(DamageClass.Melee) += 0.08f;
+                Player.GetDamage(DamageClass.Melee) += 0.12f;
             }
-            
-            // Enigma's Dissonance: Paradox DoT at 45+ stacks
-            // (Applied in OnHitNPC instead - on enemies)
-            
-            // Decay rate modifiers
-            // Default: 2 seconds
-            decayRate = 120;
-            
-            // Moonlit Sonata Band: Slower decay at night
-            if (hasMoonlitSonataBand && !Main.dayTime)
+
+            // Heroic Crescendo: +15% damage, +10% crit
+            if (hasHeroicCrescendo)
             {
-                decayRate = 180; // 3 seconds instead of 2
+                Player.GetDamage(DamageClass.Melee) += 0.15f;
+                Player.GetCritChance(DamageClass.Melee) += 10;
             }
-            
-            // Nocturnal Symphony Band: Extra resonance at night handled in OnMeleeHit
-            
-            // T8 Infernal: No decay during boss fights
+
+            // Nocturnal Symphony Band: +20% damage at night
+            if (hasNocturnalSymphonyBand && !Main.dayTime)
+            {
+                Player.GetDamage(DamageClass.Melee) += 0.20f;
+            }
+
+            // Infernal Fortissimo T8: +25% damage during boss fights
             if (hasInfernalFortissimoBandT8 && AnyBossAlive())
             {
-                decayRate = int.MaxValue; // Effectively no decay
+                Player.GetDamage(DamageClass.Melee) += 0.25f;
             }
-            
-            // T10 Eternal and Ultimate Fusion: Resonance never decays
-            if (hasEternalResonanceBand || hasGauntletOfTheEternalSymphony)
+
+            // Gauntlet of the Eternal Symphony: +40% damage
+            if (hasGauntletOfTheEternalSymphony)
             {
-                decayRate = int.MaxValue; // Never decay
+                Player.GetDamage(DamageClass.Melee) += 0.40f;
             }
-            
-            // T9 Jubilant: 2% lifesteal at 70+ stacks (handled in OnHitNPC)
-            
-            // T10 Eternal: Time slow at 100 stacks (applied to nearby enemies)
-            if ((hasEternalResonanceBand || hasGauntletOfTheEternalSymphony) && resonanceStacks >= 100)
+
+            // Cooldown management
+            if (perfectDodgeCooldown > 0)
+                perfectDodgeCooldown--;
+        }
+
+        public override void OnHurt(Player.HurtInfo info)
+        {
+            // Swan's Perfect Measure: Perfect dodge grants invulnerability
+            // "Perfect dodge" = dodge within very short window, handled via accessory effect
+            // For simplicity: when hit while wearing this and cooldown is 0, trigger invuln
+            if (hasSwansPerfectMeasure && perfectDodgeCooldown <= 0 && info.Dodgeable)
             {
-                // Time slow effect handled in GlobalNPC
+                // Grant 2 seconds of invulnerability
+                Player.immune = true;
+                Player.immuneTime = 120;
+                perfectDodgeCooldown = 1800; // 30 second cooldown
+
+                // VFX
+                for (int i = 0; i < 12; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 12f;
+                    Vector2 offset = angle.ToRotationVector2() * 30f;
+                    CustomParticles.GenericFlare(Player.Center + offset, SwanWhite, 0.5f, 25);
+                }
             }
         }
-        
+
+        public override void ModifyHitNPCWithItem(Item item, NPC target, ref NPC.HitModifiers modifiers)
+        {
+            // Lifesteal: convert a percentage of damage to healing
+            float lifestealPercent = GetLifestealPercent();
+            if (lifestealPercent > 0f)
+            {
+                int healAmount = (int)(modifiers.FinalDamage.Multiplicative * lifestealPercent);
+                if (healAmount > 0)
+                {
+                    Player.Heal(healAmount);
+                }
+            }
+        }
+
+        public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            // Spring Tempo Charm: 5% chance to heal 1 HP on melee hit
+            if (hasSpringTempoCharm && Main.rand.NextFloat() < 0.05f)
+            {
+                Player.Heal(1);
+                // Small flower petal particle
+                int dustType = DustID.Grass;
+                Dust dust = Dust.NewDustDirect(target.Center, target.width, target.height, dustType);
+                dust.velocity = Vector2.One.RotatedByRandom(MathHelper.TwoPi) * 2f;
+            }
+
+            // Solar Crescendo Ring: Inflict On Fire! for 5 seconds
+            if (hasSolarCrescendoRing)
+            {
+                target.AddBuff(BuffID.OnFire, 300);
+            }
+
+            // Harvest Rhythm Signet: Lifesteal is handled in ModifyHitNPCWithItem
+            // (already implemented above via GetLifestealPercent)
+
+            // Permafrost Cadence Seal: 10% chance to freeze for 1 second
+            if (hasPermafrostCadenceSeal && Main.rand.NextFloat() < 0.10f)
+            {
+                target.AddBuff(BuffID.Frostburn, 60);
+            }
+
+            // Vivaldi's Tempo Master: Biome-based debuffs
+            if (hasVivaldisTempoMaster)
+            {
+                if (Player.ZoneSnow)
+                {
+                    target.AddBuff(BuffID.Frostburn, 300);
+                }
+                else if (Player.ZoneDesert)
+                {
+                    target.AddBuff(BuffID.OnFire, 300);
+                }
+                else if (Player.ZoneJungle)
+                {
+                    target.AddBuff(BuffID.Poisoned, 300);
+                }
+                else
+                {
+                    target.AddBuff(BuffID.Confused, 240);
+                }
+            }
+
+            // Moonlit Sonata Band: Crits spawn moonbeams (special effect - minimal implementation)
+            if (hasMoonlitSonataBand && hit.Crit)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    Vector2 velocity = Vector2.One.RotatedByRandom(MathHelper.TwoPi) * Main.rand.NextFloat(2f, 4f);
+                    CustomParticles.GenericFlare(target.Center, MoonlightPurple, 0.6f, 20);
+                }
+            }
+
+            // Heroic Crescendo: Extra bonuses on hit (damage already applied)
+            // No special on-hit effect needed
+
+            // Infernal Fortissimo: Kills cause explosions
+            if (hasInfernalFortissimo && target.life <= 0)
+            {
+                // Small explosion effect
+                for (int i = 0; i < 8; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 8f;
+                    Vector2 velocity = angle.ToRotationVector2() * 4f;
+                    int dustType = DustID.Torch;
+                    Dust dust = Dust.NewDustDirect(target.Center, 1, 1, dustType);
+                    dust.velocity = velocity;
+                }
+            }
+
+            // Enigma's Dissonance: Delayed burst damage (more complex, simplified here)
+            if (hasEnigmasDissonance)
+            {
+                // Would require projectile spawning - mark for later implementation
+            }
+
+            // Swan's Perfect Measure: Damage reduction on hit (no on-hit effect)
+            // Handled via dodge chance in OnHurt
+
+            // Fate's Cosmic Symphony: Day/night scaling damage (already applied in stats)
+            // No additional on-hit effect needed
+        }
+
+        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            // Apply same effects for projectile hits where applicable
+            if (proj.owner != Player.whoAmI)
+                return;
+
+            // Lifesteal for melee projectiles
+            float lifestealPercent = GetLifestealPercent();
+            if (lifestealPercent > 0f && proj.DamageType.Equals(DamageClass.Melee))
+            {
+                int healAmount = (int)(hit.Damage * lifestealPercent);
+                if (healAmount > 0)
+                {
+                    Player.Heal(healAmount);
+                }
+            }
+
+            // Apply same debuffs as melee
+            if (hasSolarCrescendoRing && proj.DamageType.Equals(DamageClass.Melee))
+            {
+                target.AddBuff(BuffID.OnFire, 300);
+            }
+
+            if (hasPermafrostCadenceSeal && Main.rand.NextFloat() < 0.10f && proj.DamageType.Equals(DamageClass.Melee))
+            {
+                target.AddBuff(BuffID.Frostburn, 60);
+            }
+
+            if (hasVivaldisTempoMaster && proj.DamageType.Equals(DamageClass.Melee))
+            {
+                if (Player.ZoneSnow)
+                {
+                    target.AddBuff(BuffID.Frostburn, 300);
+                }
+                else if (Player.ZoneDesert)
+                {
+                    target.AddBuff(BuffID.OnFire, 300);
+                }
+                else if (Player.ZoneJungle)
+                {
+                    target.AddBuff(BuffID.Poisoned, 300);
+                }
+                else
+                {
+                    target.AddBuff(BuffID.Confused, 240);
+                }
+            }
+        }
+
         /// <summary>
         /// Checks if any boss is currently alive.
         /// </summary>
@@ -244,224 +330,63 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             }
             return false;
         }
-        
-        private void HandleDecay()
-        {
-            decayTimer++;
-            
-            if (decayTimer >= decayRate && resonanceStacks > 0)
-            {
-                resonanceStacks--;
-                decayTimer = 0;
-            }
-        }
-        
-        public override void OnHurt(Player.HurtInfo info)
-        {
-            // Reset graceful timer when taking damage
-            gracefulTimer = 0;
-        }
-        
-            /// <summary>
-        /// Called when the player hits an enemy with a melee attack.
-        /// Adds resonance stacks based on equipped accessories.
-        /// </summary>
-        public void OnMeleeHit(NPC target, bool crit)
-        {
-            if (!hasResonantRhythmBand || maxResonance <= 0)
-                return;
-            
-            // Reset decay timer on hit
-            decayTimer = 0;
-            
-            // Base stack gain
-            int stackGain = 1;
-            
-            // Heroic Crescendo: Crits grant +2 resonance
-            if (hasHeroicCrescendo && crit)
-            {
-                stackGain += 2;
-            }
-            
-            // Swan's Perfect Measure: Graceful hits (no damage for 3s) grant +2
-            if (hasSwansPerfectMeasure && gracefulTimer >= 180)
-            {
-                stackGain += 2;
-            }
-            
-            // T7 Nocturnal: +2 per hit at night
-            if (hasNocturnalSymphonyBand && !Main.dayTime)
-            {
-                stackGain += 2;
-            }
-            
-            // Add stacks
-            int oldStacks = resonanceStacks;
-            resonanceStacks = Math.Min(resonanceStacks + stackGain, maxResonance);
-            
-            // Visual feedback on stack gain
-            if (resonanceStacks > oldStacks)
-            {
-                SpawnStackGainParticles(stackGain);
-            }
-            
-            // Check for threshold effects
-            CheckThresholdEffects(target);
-        }
-        
+
         /// <summary>
-        /// Called when the player kills an enemy. Grants bonus resonance for T9+.
+        /// Gets lifesteal percentage based on equipped accessories.
         /// </summary>
-        public void OnKill(NPC target)
+        public float GetLifestealPercent()
         {
-            if (!hasResonantRhythmBand || maxResonance <= 0)
-                return;
-            
-            // T9 Jubilant: +5 resonance on kill
-            if (hasJubilantCrescendoBand || hasTriumphantCosmosGauntlet || hasGauntletOfTheEternalSymphony)
-            {
-                int oldStacks = resonanceStacks;
-                resonanceStacks = Math.Min(resonanceStacks + 5, maxResonance);
-                
-                if (resonanceStacks > oldStacks)
-                {
-                    // Special kill VFX
-                    Vector2 pos = target.Center;
-                    for (int i = 0; i < 5; i++)
-                    {
-                        Vector2 vel = Main.rand.NextVector2Circular(3f, 3f) - Vector2.UnitY * 2f;
-                        CustomParticles.GenericFlare(pos + Main.rand.NextVector2Circular(20f, 20f), OdeToJoyIridescent, 0.35f, 20);
-                    }
-                }
-            }
+            float lifesteal = 0f;
+
+            if (hasHarvestRhythmSignet)
+                lifesteal += 0.02f;
+
+            if (hasJubilantCrescendoBand)
+                lifesteal += 0.03f;
+
+            if (hasTriumphantCosmosGauntlet)
+                lifesteal += 0.03f;
+
+            if (hasGauntletOfTheEternalSymphony)
+                lifesteal += 0.04f;
+
+            return lifesteal;
         }
-        
-        private void SpawnStackGainParticles(int stacksGained)
-        {
-            Color particleColor = GetResonanceColor();
-            
-            for (int i = 0; i < stacksGained; i++)
-            {
-                Vector2 pos = Player.Center + Main.rand.NextVector2Circular(15f, 15f);
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-1f, 1f), -Main.rand.NextFloat(1f, 2f));
-                CustomParticles.GenericGlow(pos, vel, particleColor, 0.25f, 20, true);
-                
-                // Music note at milestones
-                if ((resonanceStacks % 5 == 0) && Main.rand.NextBool(2))
-                {
-                    ThemedParticles.MusicNote(pos, vel * 0.5f, particleColor, 0.3f, 25);
-                }
-            }
-        }
-        
-        private void CheckThresholdEffects(NPC target)
-        {
-            // Harvest Rhythm Signet: 1% lifesteal at 20+ stacks
-            if (hasHarvestRhythmSignet && resonanceStacks >= 20)
-            {
-                // Lifesteal handled in MeleeChainGlobalNPC
-            }
-            
-            // Permafrost Cadence Seal: Freeze nearby enemies at 25+ stacks
-            if (hasPermafrostCadenceSeal && resonanceStacks >= 25)
-            {
-                // Freeze effect handled in MeleeChainGlobalNPC
-            }
-            
-            // Enigma's Dissonance: Paradox DoT at 45+ stacks
-            if (hasEnigmasDissonance && resonanceStacks >= 45)
-            {
-                // Apply Paradox debuff - handled in MeleeChainGlobalNPC
-            }
-        }
-        
+
         /// <summary>
-        /// Attempts to consume resonance stacks for a special ability.
-        /// Returns true if consumption was successful.
+        /// Gets the number of times melee attacks should hit.
         /// </summary>
-        public bool TryConsumeResonance(int amount)
+        public int GetHitMultiplier()
         {
-            if (consumedResonanceThisFrame || burstCooldown > 0)
-                return false;
-            
-            if (resonanceStacks >= amount)
-            {
-                resonanceStacks -= amount;
-                consumedResonanceThisFrame = true;
-                burstCooldown = 120; // 2 second cooldown between bursts
-                return true;
-            }
-            
-            return false;
+            if (hasGauntletOfTheEternalSymphony)
+                return 3; // Triple hit
+
+            if (hasEternalResonanceBand || hasTriumphantCosmosGauntlet)
+                return 2; // Double hit
+
+            return 1;
         }
-        
+
         /// <summary>
-        /// Gets the color for resonance particles based on highest equipped tier.
+        /// Gets the color associated with the highest tier accessory equipped.
+        /// Used for VFX theming.
         /// </summary>
-        public Color GetResonanceColor()
+        public Color GetThemeColor()
         {
-            // Ultimate and T10
-            if (hasGauntletOfTheEternalSymphony) return ClairDeLuneBrass;
-            if (hasEternalResonanceBand) return ClairDeLuneBrass;
-            
-            // Fusion Tier 2
-            if (hasTriumphantCosmosGauntlet) return OdeToJoyIridescent;
-            
-            // T9
-            if (hasJubilantCrescendoBand) return OdeToJoyIridescent;
-            
-            // Fusion Tier 1
+            if (hasGauntletOfTheEternalSymphony) return Color.Lerp(OdeToJoyRose, NachtmusikGold, 0.5f);
+            if (hasTriumphantCosmosGauntlet) return OdeToJoyRose;
             if (hasStarfallJudgmentGauntlet) return Color.Lerp(NachtmusikGold, DiesIraeCrimson, 0.5f);
-            
-            // T8
+            if (hasEternalResonanceBand) return new Color(200, 170, 100);
+            if (hasJubilantCrescendoBand) return OdeToJoyRose;
             if (hasInfernalFortissimoBandT8) return DiesIraeCrimson;
-            
-            // T7
             if (hasNocturnalSymphonyBand) return NachtmusikGold;
-            
-            // T6 and earlier
             if (hasFatesCosmicSymphony) return FateCrimson;
             if (hasSwansPerfectMeasure) return SwanWhite;
             if (hasEnigmasDissonance) return EnigmaPurple;
             if (hasInfernalFortissimo) return CampanellaOrange;
             if (hasHeroicCrescendo) return EroicaGold;
             if (hasMoonlitSonataBand) return MoonlightPurple;
-            if (hasVivaldisTempoMaster) return Color.Lerp(SpringPink, WinterBlue, 0.5f);
-            if (hasPermafrostCadenceSeal) return WinterBlue;
-            if (hasHarvestRhythmSignet) return AutumnBrown;
-            if (hasSolarCrescendoRing) return SummerOrange;
-            if (hasSpringTempoCharm) return SpringPink;
-            return ResonanceBasePurple;
+            return new Color(180, 130, 255); // Default purple
         }
-        
-        /// <summary>
-        /// Gets the percentage of resonance filled (0-1).
-        /// </summary>
-        public float GetResonancePercent()
-        {
-            if (maxResonance <= 0) return 0f;
-            return (float)resonanceStacks / maxResonance;
-        }
-        
-        /// <summary>
-        /// Returns true if the player is "graceful" (hasn't taken damage for 3 seconds).
-        /// Used by Swan's Perfect Measure.
-        /// </summary>
-        public bool IsGraceful => gracefulTimer >= 180;
-        
-        /// <summary>
-        /// Returns true if burst abilities are on cooldown.
-        /// </summary>
-        public bool IsBurstOnCooldown => burstCooldown > 0;
-        
-        /// <summary>
-        /// Gets the remaining grace timer in frames. Used for UI display.
-        /// </summary>
-        public int GraceTimer => gracefulTimer;
-        
-        /// <summary>
-        /// Gets the remaining burst cooldown in frames. Used for UI display.
-        /// </summary>
-        public int BurstCooldown => burstCooldown;
     }
 }

@@ -1,91 +1,60 @@
 using Microsoft.Xna.Framework;
-using System;
 using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Common.Systems.Particles;
-using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.Common.Accessories.RangerChain
 {
     /// <summary>
-    /// ModPlayer that handles the Marked for Death System for the ranger accessory chain.
-    /// Ranged attacks mark enemies, and marked enemies take bonus effects based on equipped accessories.
-    /// Higher tiers increase mark duration, add damage bonuses, death explosions, and special effects.
+    /// Simplified ModPlayer for ranger accessories.
+    /// No more Mark duration system - just tracks which accessories are equipped
+    /// and applies their simple, static effects.
     /// </summary>
     public class MarkingPlayer : ModPlayer
     {
-        // ===== MARK CONFIGURATION =====
-        /// <summary>Base duration of marks in frames (60 = 1 second)</summary>
-        public int baseMarkDuration = 0;
-        
-        /// <summary>Maximum number of enemies that can be marked at once</summary>
-        public int maxMarkedEnemies = 3;
-        
-        /// <summary>Bonus damage multiplier against marked enemies (0.05 = 5%)</summary>
-        public float markedDamageBonus = 0f;
-        
-        /// <summary>Whether marked enemies are slowed</summary>
-        public bool markedSlowsEnemies = false;
-        
-        /// <summary>Slow percentage (0.15 = 15% slower)</summary>
-        public float markSlowPercent = 0f;
-        
-        // ===== ACCESSORY FLAGS =====
-        public bool hasResonantSpotter;         // Base tier: enables marking system, 5s marks
-        public bool hasSpringHuntersLens;       // Marks last 8s, 10% heart drop chance on marked hit
-        public bool hasSolarTrackersBadge;      // Marks last 10s, +5% damage from ALL sources
-        public bool hasHarvestReapersMark;      // Death explosion + chain marking
-        public bool hasPermafrostHuntersEye;    // 15% slow, kill refreshes nearby marks
-        public bool hasVivaldisSeSonalSight;    // Seasonal debuffs, 15s marks
-        
-        // Post-Moon Lord theme chain
-        public bool hasMoonlitPredatorsGaze;    // Mark up to 8 enemies, visible through walls
-        public bool hasHeroicDeadeye;           // +8% damage, first hit auto-crit
-        public bool hasInfernalExecutionersBrand; // Burn DoT, +50% explosion radius
-        public bool hasEnigmasParadoxMark;      // 15% spread chance, dimensional marks
-        public bool hasSwansGracefulHunt;       // Perfect shots = Swan Mark (+15% crit)
-        public bool hasFatesCosmicVerdict;      // +12% damage, boss bonus loot
-        
-        // Post-Fate theme chain (T7-T10)
-        public bool hasNocturnalPredatorsSight; // T7: 12 marks, wall visibility, +5% night damage, star shower
-        public bool hasInfernalExecutionersSight; // T8: 14 marks, burn DoT, +100% death explosion, spread, Judgment Stacks
-        public bool hasJubilantHuntersSight;    // T9: 16 marks, healing orbs, +8% buff on kill, vine slow, Nature's Bounty
-        public bool hasEternalVerdictSight;     // T10: 20 marks, persistent marks, triple hit, linked damage, Temporal Judgment
-        
-        // Fusion accessories
-        public bool hasStarfallExecutionersScope;  // Fusion T1: Nachtmusik + Dies Irae
-        public bool hasTriumphantVerdictScope;     // Fusion T2: + Ode to Joy
-        public bool hasScopeOfTheEternalVerdict;   // Ultimate: + Clair de Lune
-        
-        // ===== SPECIAL STATE =====
-        /// <summary>Timer for tracking "perfect shot" (no damage taken for 3 seconds)</summary>
-        private int perfectShotTimer;
-        
-        /// <summary>Whether next shot qualifies as a "perfect shot"</summary>
-        public bool IsPerfectShot => perfectShotTimer >= 180; // 3 seconds
-        
-        /// <summary>Cooldown for auto-crit effect (per enemy)</summary>
-        private int autoCritCooldown;
-        
-        // ===== COLORS =====
-        public static readonly Color MarkBaseRed = new Color(255, 100, 100);
         public static readonly Color SpringGreen = new Color(144, 238, 144);
-        public static readonly Color SummerOrange = new Color(255, 140, 0);
-        public static readonly Color AutumnBrown = new Color(180, 100, 40);
-        public static readonly Color WinterBlue = new Color(150, 220, 255);
-        public static readonly Color MoonlightPurple = new Color(138, 43, 226);
         public static readonly Color EroicaGold = new Color(255, 200, 80);
-        public static readonly Color CampanellaOrange = new Color(255, 140, 40);
-        public static readonly Color EnigmaPurple = new Color(140, 60, 200);
-        public static readonly Color SwanWhite = new Color(255, 255, 255);
-        public static readonly Color FateCrimson = new Color(200, 80, 120);
-        
-        // Post-Fate theme colors
-        public static readonly Color NachtmusikGold = new Color(255, 215, 140);
-        public static readonly Color DiesIraeCrimson = new Color(200, 50, 50);
-        public static readonly Color OdeToJoyIridescent = new Color(220, 200, 255);
-        public static readonly Color ClairDeLuneBrass = new Color(200, 170, 100);
-        
+
+        // ===== TIER 1-6 (SEASONAL + VIVALDI) FLAGS =====
+        public bool hasResonantSpotter;         // Ranged attacks mark enemies (visual only)
+        public bool hasSpringHuntersLens;       // 10% heart drop chance on ranged hit
+        public bool hasSolarTrackersBadge;      // +5% ranged damage
+        public bool hasHarvestReapersMark;      // Ranged kills cause explosions
+        public bool hasPermafrostHuntersEye;    // Ranged attacks slow enemies
+        public bool hasVivaldisSeSonalSight;    // +10% ranged damage, biome debuffs
+
+        // ===== TIER 5 (THEME VARIANTS) FLAGS =====
+        public bool hasMoonlitPredatorsGaze;    // See marked enemies through walls
+        public bool hasHeroicDeadeye;           // +12% ranged damage, +8% crit
+        public bool hasInfernalExecutionersBrand; // Ranged attacks inflict burn
+        public bool hasEnigmasParadoxMark;      // 15% chance for bonus projectile
+        public bool hasSwansGracefulHunt;       // Perfect dodge grants damage buff
+        public bool hasFatesCosmicVerdict;      // +15% ranged damage
+
+        // ===== T7-T10 (POST-FATE) FLAGS =====
+        public bool hasNocturnalPredatorsSight; // +20% ranged damage at night
+        public bool hasInfernalExecutionersSight; // +25% ranged damage during bosses
+        public bool hasJubilantHuntersSight;    // Ranged kills restore 2 HP
+        public bool hasEternalVerdictSight;     // Ranged attacks hit twice
+
+        // ===== FUSION FLAGS =====
+        public bool hasStarfallExecutionersScope;  // Nachtmusik + Dies Irae fusion
+        public bool hasTriumphantVerdictScope;     // 3-theme fusion
+        public bool hasScopeOfTheEternalVerdict;   // Ultimate: triple hit, +40% damage
+
+        // ===== COOLDOWNS & STATE =====
+        public int gracefulDodgeCooldown;  // Swan's Perfect Dodge cooldown
+        public int graceBuffTimer;         // Swan's Grace buff timer
+
+        // ===== LEGACY COMPATIBILITY STUBS =====
+        // These properties exist for backwards compatibility with old code
+        public int baseMarkDuration => 300; // 5 seconds baseline
+        public int maxMarkedEnemies => 3;
+        public float markedDamageBonus => 0f;
+        public bool markedSlowsEnemies => hasPermafrostHuntersEye;
+        public float markSlowPercent => hasPermafrostHuntersEye ? 0.15f : 0f;
+        public bool IsPerfectShot => false; // Simplified
+
         public override void ResetEffects()
         {
             // Reset all accessory flags each frame
@@ -101,272 +70,331 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             hasEnigmasParadoxMark = false;
             hasSwansGracefulHunt = false;
             hasFatesCosmicVerdict = false;
-            
-            // Post-Fate flags
             hasNocturnalPredatorsSight = false;
             hasInfernalExecutionersSight = false;
             hasJubilantHuntersSight = false;
             hasEternalVerdictSight = false;
-            
-            // Fusion flags
             hasStarfallExecutionersScope = false;
             hasTriumphantVerdictScope = false;
             hasScopeOfTheEternalVerdict = false;
-            
-            // Reset configuration
-            baseMarkDuration = 0;
-            maxMarkedEnemies = 3;
-            markedDamageBonus = 0f;
-            markedSlowsEnemies = false;
-            markSlowPercent = 0f;
         }
-        
+
         public override void PostUpdateEquips()
         {
-            // If no marking accessory equipped, do nothing
-            if (!hasResonantSpotter)
-            {
-                perfectShotTimer = 0;
-                return;
-            }
-            
-            // Determine mark configuration based on equipped accessories
-            DetermineMarkConfiguration();
-            
-            // Track perfect shot timer for Swan's Graceful Hunt
-            perfectShotTimer++;
-            
-            // Cooldown management
-            if (autoCritCooldown > 0)
-                autoCritCooldown--;
-        }
-        
-        private void DetermineMarkConfiguration()
-        {
-            // Base tier: 5 second marks (300 frames)
-            baseMarkDuration = 300;
-            maxMarkedEnemies = 3;
-            
-            // Spring Hunter's Lens: 8 second marks
-            if (hasSpringHuntersLens)
-                baseMarkDuration = 480;
-            
-            // Solar Tracker's Badge: 10 second marks, +5% damage
+            // Apply simple static effects from equipped accessories
+
+            // Solar Tracker's Badge: +5% ranged damage
             if (hasSolarTrackersBadge)
             {
-                baseMarkDuration = 600;
-                markedDamageBonus = 0.05f;
+                Player.GetDamage(DamageClass.Ranged) += 0.05f;
             }
-            
-            // Harvest Reaper's Mark: same duration, has death explosion
-            // (explosion handled in GlobalNPC)
-            
-            // Permafrost Hunter's Eye: adds slow
-            if (hasPermafrostHuntersEye)
-            {
-                markedSlowsEnemies = true;
-                markSlowPercent = 0.15f;
-            }
-            
-            // Vivaldi's Seasonal Sight: 15 second marks
+
+            // Vivaldi's Seasonal Sight: +10% ranged damage
             if (hasVivaldisSeSonalSight)
-                baseMarkDuration = 900;
-            
-            // Post-Moon Lord upgrades
-            
-            // Moonlit Predator's Gaze: Mark up to 8 enemies
-            if (hasMoonlitPredatorsGaze)
-                maxMarkedEnemies = 8;
-            
-            // Heroic Deadeye: +8% damage bonus
+            {
+                Player.GetDamage(DamageClass.Ranged) += 0.10f;
+            }
+
+            // Heroic Deadeye: +12% ranged damage, +8% crit
             if (hasHeroicDeadeye)
-                markedDamageBonus = Math.Max(markedDamageBonus, 0.08f);
-            
-            // Infernal Executioner's Brand: keeps previous bonuses
-            // (burn handled in GlobalNPC)
-            
-            // Enigma's Paradox Mark: spread chance
-            // (spread handled in GlobalNPC)
-            
-            // Swan's Graceful Hunt: perfect shot bonus
-            // (handled via IsPerfectShot)
-            
-            // Fate's Cosmic Verdict: +12% damage
+            {
+                Player.GetDamage(DamageClass.Ranged) += 0.12f;
+                Player.GetCritChance(DamageClass.Ranged) += 8;
+            }
+
+            // Fate's Cosmic Verdict: +15% ranged damage
             if (hasFatesCosmicVerdict)
-                markedDamageBonus = Math.Max(markedDamageBonus, 0.12f);
-            
-            // ===== POST-FATE PROGRESSION (T7-T10) =====
-            
-            // T7: Nocturnal Predator's Sight - 12 marks, +5% night damage (handled by GlobalNPC)
-            if (hasNocturnalPredatorsSight)
             {
-                maxMarkedEnemies = 12;
-                baseMarkDuration = 1200; // 20 second marks
-                if (!Main.dayTime)
-                    markedDamageBonus = Math.Max(markedDamageBonus, 0.17f); // +12% base + 5% night
+                Player.GetDamage(DamageClass.Ranged) += 0.15f;
             }
-            
-            // T8: Infernal Executioner's Sight - 14 marks, burn DoT, enhanced explosions
-            if (hasInfernalExecutionersSight)
+
+            // Nocturnal Predator's Sight: +20% ranged damage at night
+            if (hasNocturnalPredatorsSight && !Main.dayTime)
             {
-                maxMarkedEnemies = 14;
-                baseMarkDuration = 1500; // 25 second marks
-                markedDamageBonus = Math.Max(markedDamageBonus, 0.15f);
+                Player.GetDamage(DamageClass.Ranged) += 0.20f;
             }
-            
-            // T9: Jubilant Hunter's Sight - 16 marks, healing orbs, vine slow
-            if (hasJubilantHuntersSight)
+
+            // Infernal Executioner's Sight: +25% ranged damage during boss fights
+            if (hasInfernalExecutionersSight && AnyBossAlive())
             {
-                maxMarkedEnemies = 16;
-                baseMarkDuration = 1800; // 30 second marks
-                markedDamageBonus = Math.Max(markedDamageBonus, 0.20f);
-                markedSlowsEnemies = true;
-                markSlowPercent = Math.Max(markSlowPercent, 0.20f);
+                Player.GetDamage(DamageClass.Ranged) += 0.25f;
             }
-            
-            // T10: Eternal Verdict Sight - 20 marks, persistent marks, linked damage
-            if (hasEternalVerdictSight)
-            {
-                maxMarkedEnemies = 20;
-                baseMarkDuration = 2400; // 40 second marks (basically permanent)
-                markedDamageBonus = Math.Max(markedDamageBonus, 0.25f);
-            }
-            
-            // ===== FUSION ACCESSORIES =====
-            
-            // Fusion T1: Starfall Executioner's Scope - combines T7+T8
-            if (hasStarfallExecutionersScope)
-            {
-                maxMarkedEnemies = 14;
-                baseMarkDuration = 1500;
-                markedDamageBonus = Math.Max(markedDamageBonus, 0.18f);
-                if (!Main.dayTime)
-                    markedDamageBonus = Math.Max(markedDamageBonus, 0.25f); // Enhanced night bonus
-            }
-            
-            // Fusion T2: Triumphant Verdict Scope - combines Fusion1+T9
-            if (hasTriumphantVerdictScope)
-            {
-                maxMarkedEnemies = 16;
-                baseMarkDuration = 1800;
-                markedDamageBonus = Math.Max(markedDamageBonus, 0.22f);
-                markedSlowsEnemies = true;
-                markSlowPercent = Math.Max(markSlowPercent, 0.25f);
-            }
-            
-            // Ultimate: Scope of the Eternal Verdict - all combined
+
+            // Scope of the Eternal Verdict: +40% ranged damage
             if (hasScopeOfTheEternalVerdict)
             {
-                maxMarkedEnemies = 20;
-                baseMarkDuration = 3600; // 60 second marks (eternal)
-                markedDamageBonus = Math.Max(markedDamageBonus, 0.30f);
-                markedSlowsEnemies = true;
-                markSlowPercent = Math.Max(markSlowPercent, 0.30f);
+                Player.GetDamage(DamageClass.Ranged) += 0.40f;
             }
+
+            // Swan's Grace buff timer
+            if (graceBuffTimer > 0)
+            {
+                graceBuffTimer--;
+                Player.GetDamage(DamageClass.Ranged) += 0.20f;
+            }
+
+            // Cooldown management
+            if (gracefulDodgeCooldown > 0)
+                gracefulDodgeCooldown--;
         }
-        
-        /// <summary>
-        /// Called when the player takes damage. Resets perfect shot timer.
-        /// </summary>
+
         public override void OnHurt(Player.HurtInfo info)
         {
-            perfectShotTimer = 0;
+            // Swan's Graceful Hunt: Perfect dodge grants damage buff
+            if (hasSwansGracefulHunt && gracefulDodgeCooldown <= 0 && info.Dodgeable)
+            {
+                graceBuffTimer = 300; // 5 second buff
+                gracefulDodgeCooldown = 1800; // 30 second cooldown
+            }
         }
-        
+
+        public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            // Only apply ranger-specific effects if this is a ranged item
+            if (!item.DamageType.Equals(DamageClass.Ranged))
+                return;
+
+            // Spring Hunter's Lens: 10% chance to drop heart on ranged hit
+            if (hasSpringHuntersLens && Main.rand.NextFloat() < 0.10f)
+            {
+                Item.NewItem(null, target.Center, ItemID.Heart);
+            }
+
+            // Harvest Reaper's Mark: Ranged kills cause explosions
+            if (hasHarvestReapersMark && target.life <= 0)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 8f;
+                    Vector2 velocity = angle.ToRotationVector2() * 4f;
+                    int dustType = DustID.Smoke;
+                    Dust dust = Dust.NewDustDirect(target.Center, 1, 1, dustType);
+                    dust.velocity = velocity;
+                }
+            }
+
+            // Permafrost Hunter's Eye: Ranged attacks slow enemies
+            if (hasPermafrostHuntersEye)
+            {
+                target.velocity *= 0.85f;
+                target.AddBuff(BuffID.Slow, 120);
+            }
+
+            // Vivaldi's Seasonal Sight: Biome-based debuffs
+            if (hasVivaldisSeSonalSight)
+            {
+                if (Player.ZoneSnow)
+                {
+                    target.AddBuff(BuffID.Frostburn, 300);
+                }
+                else if (Player.ZoneDesert)
+                {
+                    target.AddBuff(BuffID.OnFire, 300);
+                }
+                else if (Player.ZoneJungle)
+                {
+                    target.AddBuff(BuffID.Poisoned, 300);
+                }
+                else
+                {
+                    target.AddBuff(BuffID.Confused, 240);
+                }
+            }
+
+            // Infernal Executioner's Brand: Ranged attacks inflict burn
+            if (hasInfernalExecutionersBrand)
+            {
+                target.AddBuff(BuffID.OnFire, 300);
+            }
+
+            // Enigma's Paradox Mark: 15% chance for bonus projectile (simplified - visual only)
+            if (hasEnigmasParadoxMark && Main.rand.NextFloat() < 0.15f)
+            {
+                // In a full implementation, would spawn additional projectile
+                // For now, just a visual particle
+                for (int i = 0; i < 3; i++)
+                {
+                    Vector2 velocity = Vector2.One.RotatedByRandom(MathHelper.TwoPi) * 2f;
+                    Dust dust = Dust.NewDustDirect(target.Center, 1, 1, DustID.Shadowflame);
+                    dust.velocity = velocity;
+                }
+            }
+        }
+
+        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            // Only apply ranger effects for ranged projectiles
+            if (!proj.DamageType.Equals(DamageClass.Ranged) || proj.owner != Player.whoAmI)
+                return;
+
+            // Spring Hunter's Lens: 10% chance to drop heart on ranged hit
+            if (hasSpringHuntersLens && Main.rand.NextFloat() < 0.10f)
+            {
+                Item.NewItem(null, target.Center, ItemID.Heart);
+            }
+
+            // Harvest Reaper's Mark: Ranged kills cause explosions
+            if (hasHarvestReapersMark && target.life <= 0)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 8f;
+                    Vector2 velocity = angle.ToRotationVector2() * 4f;
+                    int dustType = DustID.Smoke;
+                    Dust dust = Dust.NewDustDirect(target.Center, 1, 1, dustType);
+                    dust.velocity = velocity;
+                }
+            }
+
+            // Permafrost Hunter's Eye: Ranged attacks slow enemies
+            if (hasPermafrostHuntersEye)
+            {
+                target.velocity *= 0.85f;
+                target.AddBuff(BuffID.Slow, 120);
+            }
+
+            // Vivaldi's Seasonal Sight: Biome-based debuffs
+            if (hasVivaldisSeSonalSight)
+            {
+                if (Player.ZoneSnow)
+                {
+                    target.AddBuff(BuffID.Frostburn, 300);
+                }
+                else if (Player.ZoneDesert)
+                {
+                    target.AddBuff(BuffID.OnFire, 300);
+                }
+                else if (Player.ZoneJungle)
+                {
+                    target.AddBuff(BuffID.Poisoned, 300);
+                }
+                else
+                {
+                    target.AddBuff(BuffID.Confused, 240);
+                }
+            }
+
+            // Infernal Executioner's Brand: Ranged attacks inflict burn
+            if (hasInfernalExecutionersBrand)
+            {
+                target.AddBuff(BuffID.OnFire, 300);
+            }
+
+            // Enigma's Paradox Mark: 15% chance for bonus projectile
+            if (hasEnigmasParadoxMark && Main.rand.NextFloat() < 0.15f)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    Vector2 velocity = Vector2.One.RotatedByRandom(MathHelper.TwoPi) * 2f;
+                    Dust dust = Dust.NewDustDirect(target.Center, 1, 1, DustID.Shadowflame);
+                    dust.velocity = velocity;
+                }
+            }
+
+            // Jubilant Hunter's Sight: Ranged kills restore 2 HP
+            if (hasJubilantHuntersSight && target.life <= 0)
+            {
+                Player.Heal(2);
+            }
+        }
+
         /// <summary>
-        /// Returns the current mark color based on equipped accessories.
+        /// Checks if any boss is currently alive.
+        /// </summary>
+        private bool AnyBossAlive()
+        {
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (npc.active && npc.boss)
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Gets the number of times ranged attacks should hit.
+        /// </summary>
+        public int GetHitMultiplier()
+        {
+            if (hasScopeOfTheEternalVerdict)
+                return 3; // Triple hit
+
+            if (hasEternalVerdictSight || hasTriumphantVerdictScope)
+                return 2; // Double hit
+
+            return 1;
+        }
+
+        /// <summary>
+        /// Gets the mark color for visual effects.
         /// </summary>
         public Color GetMarkColor()
         {
-            // Ultimate fusion takes priority
-            if (hasScopeOfTheEternalVerdict) return Color.Lerp(ClairDeLuneBrass, OdeToJoyIridescent, (float)Math.Sin(Main.GameUpdateCount * 0.02f) * 0.5f + 0.5f);
-            if (hasTriumphantVerdictScope) return Color.Lerp(DiesIraeCrimson, OdeToJoyIridescent, (float)Math.Sin(Main.GameUpdateCount * 0.025f) * 0.5f + 0.5f);
-            if (hasStarfallExecutionersScope) return Color.Lerp(NachtmusikGold, DiesIraeCrimson, (float)Math.Sin(Main.GameUpdateCount * 0.03f) * 0.5f + 0.5f);
-            
-            // Post-Fate individual tiers
-            if (hasEternalVerdictSight) return ClairDeLuneBrass;
-            if (hasJubilantHuntersSight) return OdeToJoyIridescent;
-            if (hasInfernalExecutionersSight) return DiesIraeCrimson;
-            if (hasNocturnalPredatorsSight) return NachtmusikGold;
-            
-            // Previous tiers
-            if (hasFatesCosmicVerdict) return FateCrimson;
-            if (hasSwansGracefulHunt) return SwanWhite;
-            if (hasEnigmasParadoxMark) return EnigmaPurple;
-            if (hasInfernalExecutionersBrand) return CampanellaOrange;
-            if (hasHeroicDeadeye) return EroicaGold;
-            if (hasMoonlitPredatorsGaze) return MoonlightPurple;
+            if (hasScopeOfTheEternalVerdict) return new Color(200, 170, 100);
+            if (hasTriumphantVerdictScope) return new Color(255, 180, 200);
+            if (hasStarfallExecutionersScope) return Color.Lerp(new Color(255, 215, 140), new Color(200, 50, 50), 0.5f);
+            if (hasEternalVerdictSight) return new Color(200, 170, 100);
+            if (hasJubilantHuntersSight) return new Color(220, 200, 255);
+            if (hasInfernalExecutionersSight) return new Color(200, 50, 50);
+            if (hasNocturnalPredatorsSight) return new Color(255, 215, 140);
+            if (hasFatesCosmicVerdict) return new Color(200, 80, 120);
+            if (hasSwansGracefulHunt) return new Color(255, 255, 255);
+            if (hasEnigmasParadoxMark) return new Color(140, 60, 200);
+            if (hasInfernalExecutionersBrand) return new Color(255, 140, 40);
+            if (hasHeroicDeadeye) return new Color(255, 200, 80);
+            if (hasMoonlitPredatorsGaze) return new Color(138, 43, 226);
             if (hasVivaldisSeSonalSight) return GetSeasonalColor();
-            if (hasPermafrostHuntersEye) return WinterBlue;
-            if (hasHarvestReapersMark) return AutumnBrown;
-            if (hasSolarTrackersBadge) return SummerOrange;
-            if (hasSpringHuntersLens) return SpringGreen;
-            return MarkBaseRed;
+            if (hasPermafrostHuntersEye) return new Color(150, 220, 255);
+            if (hasHarvestReapersMark) return new Color(180, 100, 40);
+            if (hasSolarTrackersBadge) return new Color(255, 140, 0);
+            if (hasSpringHuntersLens) return new Color(144, 238, 144);
+            return new Color(255, 100, 100); // Default red
         }
-        
-        /// <summary>
-        /// Returns a color based on the current season for Vivaldi's Seasonal Sight.
-        /// </summary>
+
         private Color GetSeasonalColor()
         {
-            // Cycle through seasons based on game time
             int seasonIndex = (int)(Main.GameUpdateCount / 600) % 4;
             return seasonIndex switch
             {
-                0 => SpringGreen,
-                1 => SummerOrange,
-                2 => AutumnBrown,
-                3 => WinterBlue,
-                _ => MarkBaseRed
+                0 => new Color(144, 238, 144), // Spring green
+                1 => new Color(255, 140, 0),   // Summer orange
+                2 => new Color(180, 100, 40),  // Autumn brown
+                3 => new Color(150, 220, 255), // Winter blue
+                _ => new Color(255, 100, 100)
             };
         }
-        
+
         /// <summary>
-        /// Tries to use auto-crit against a target. Returns true if auto-crit should apply.
+        /// Counts marked enemies (simplified - always returns 0 since we removed the system).
         /// </summary>
-        public bool TryUseAutoCrit()
+        public int CountMarkedEnemies()
         {
-            if (!hasHeroicDeadeye || autoCritCooldown > 0)
-                return false;
-            
-            // 5 second cooldown per auto-crit
-            autoCritCooldown = 300;
-            return true;
+            return 0; // Mark system simplified - visual only now
         }
-        
+
         /// <summary>
-        /// Resets auto-crit cooldown. Called when hitting a previously unmarked enemy.
-        /// </summary>
-        public void ResetAutoCritCooldown()
-        {
-            autoCritCooldown = 0;
-        }
-        
-        /// <summary>
-        /// Gets the current seasonal debuff type for Vivaldi's Seasonal Sight.
-        /// Returns: 0 = Spring (bloom/heal), 1 = Summer (burn), 2 = Autumn (wither), 3 = Winter (chill)
+        /// Gets the current seasonal debuff type (for compatibility).
         /// </summary>
         public int GetCurrentSeasonalDebuffType()
         {
             return (int)(Main.GameUpdateCount / 600) % 4;
         }
-        
+
         /// <summary>
-        /// Counts how many enemies are currently marked by this player.
+        /// Auto-crit compatibility stub (simplified).
         /// </summary>
-        public int CountMarkedEnemies()
+        public bool TryUseAutoCrit()
         {
-            int count = 0;
-            for (int i = 0; i < Main.maxNPCs; i++)
-            {
-                NPC npc = Main.npc[i];
-                if (npc.active && !npc.friendly && npc.TryGetGlobalNPC<MarkingGlobalNPC>(out var markNPC))
-                {
-                    if (markNPC.IsMarkedBy(Player.whoAmI))
-                        count++;
-                }
-            }
-            return count;
+            return false;
+        }
+
+        /// <summary>
+        /// Auto-crit reset compatibility stub (simplified).
+        /// </summary>
+        public void ResetAutoCritCooldown()
+        {
+            // No-op
         }
     }
 }
