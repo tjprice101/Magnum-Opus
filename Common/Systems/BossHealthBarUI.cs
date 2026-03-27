@@ -178,36 +178,43 @@ namespace MagnumOpus.Common.Systems
         private void DrawBossHealthBars(On_Main.orig_DrawInterface orig, Main self, GameTime gameTime)
         {
             orig(self, gameTime);
-            
+
             if (trackedBosses == null || trackedBosses.Count == 0) return;
-            
+
             SpriteBatch spriteBatch = Main.spriteBatch;
-            
+
             try
             {
+                // Ensure SpriteBatch is in a closed state before we begin
+                // (previous hooks may have left it open)
+                try { spriteBatch.End(); } catch { }
+
                 // Begin drawing with safe state handling
-                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                     DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
-                
+
                 int barIndex = 0;
                 foreach (var kvp in trackedBosses)
                 {
                     if (kvp.Key < 0 || kvp.Key >= Main.maxNPCs) continue;
-                    
+
                     NPC npc = Main.npc[kvp.Key];
                     if (!npc.active) continue;
-                    
+
                     var data = kvp.Value;
                     DrawSingleBossBar(spriteBatch, npc, data, barIndex);
                     barIndex++;
                 }
-                
+
                 spriteBatch.End();
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
-                // If spritebatch was already active, try ending it first and redrawing
+                // Proper error recovery: ensure SpriteBatch is closed
                 try { spriteBatch.End(); } catch { }
+
+                // Log the error for debugging
+                ModLoader.GetMod("MagnumOpus")?.Logger.Warn($"BossHealthBarUI error: {ex.Message}");
             }
         }
         

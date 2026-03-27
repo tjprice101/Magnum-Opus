@@ -3,7 +3,6 @@ using Terraria;
 
 namespace MagnumOpus.Content.DiesIrae.Accessories
 {
-    // VFX_GUTTED: Stub — all effects pending VFX reimplementation.
 
     public static class EmberOfTheCondemnedVFX
     {

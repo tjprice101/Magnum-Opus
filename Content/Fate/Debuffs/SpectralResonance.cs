@@ -17,8 +17,6 @@ namespace MagnumOpus.Content.Fate.Debuffs
         public const int BurstDelay = 60; // 1 second
         public const float BurstDamageMultiplier = 2.5f;
 
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.Obstructed;
-
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;

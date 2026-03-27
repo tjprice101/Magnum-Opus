@@ -89,10 +89,10 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 Main.DefaultSamplerState, DepthStencilState.None,
                 Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
-            // Core
-            sb.Draw(glow, pos, null, (EnigmaGreen with { A = 0 }), 0f, glow.Size() / 2, 0.5f, SpriteEffects.None, 0f);
-            sb.Draw(glow, pos, null, (EnigmaPurple with { A = 0 }) * 0.6f, 0f, glow.Size() / 2, 0.7f, SpriteEffects.None, 0f);
-            sb.Draw(glow, pos, null, Color.White with { A = 0 } * 0.4f, 0f, glow.Size() / 2, 0.3f, SpriteEffects.None, 0f);
+            // Core (347px texture - use small scales for player-sized projectile)
+            sb.Draw(glow, pos, null, (EnigmaGreen with { A = 0 }), 0f, glow.Size() / 2, 0.1f, SpriteEffects.None, 0f);
+            sb.Draw(glow, pos, null, (EnigmaPurple with { A = 0 }) * 0.6f, 0f, glow.Size() / 2, 0.14f, SpriteEffects.None, 0f);
+            sb.Draw(glow, pos, null, Color.White with { A = 0 } * 0.4f, 0f, glow.Size() / 2, 0.06f, SpriteEffects.None, 0f);
             
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
@@ -220,7 +220,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             Projectile.tileCollide = false;
             Projectile.timeLeft = 240;
             Projectile.penetrate = 1;
-            Projectile.scale = 0.90f;
+            Projectile.scale = 0.13f;
         }
         
         public override void AI()
@@ -437,7 +437,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
             Texture2D glow = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad).Value;
             Vector2 pos = Projectile.Center - Main.screenPosition;
             
-            // Shockwave effect - scaled for player-sized projectile
+            // Shockwave effect - scaled for player-sized projectile (2160px texture)
             float progress = 1f - Projectile.timeLeft / (90f - DelayFrames);
             float alpha = 1f - progress;
             
@@ -446,8 +446,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Bosses
                 Main.DefaultSamplerState, DepthStencilState.None,
                 Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
-            sb.Draw(glow, pos, null, (EnigmaPurple with { A = 0 }) * alpha, 0f, glow.Size() / 2, new Vector2(0.5f, 0.6f), SpriteEffects.None, 0f);
-            sb.Draw(glow, pos, null, (EnigmaGreen with { A = 0 }) * alpha * 0.6f, 0f, glow.Size() / 2, new Vector2(0.35f, 0.45f), SpriteEffects.None, 0f);
+            sb.Draw(glow, pos, null, (EnigmaPurple with { A = 0 }) * alpha, 0f, glow.Size() / 2, new Vector2(0.09f, 0.11f), SpriteEffects.None, 0f);
+            sb.Draw(glow, pos, null, (EnigmaGreen with { A = 0 }) * alpha * 0.6f, 0f, glow.Size() / 2, new Vector2(0.065f, 0.08f), SpriteEffects.None, 0f);
             
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,

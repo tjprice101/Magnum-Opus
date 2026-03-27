@@ -87,7 +87,6 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars
                 damage, knockback, player.whoAmI, ai0: rhythmStacks);
 
             // Muzzle flash
-// VFX_GUTTED:             SerenadeOfDistantStarsVFX.MuzzleFlashVFX(position + direction * 25f, direction);
 
             return false;
         }

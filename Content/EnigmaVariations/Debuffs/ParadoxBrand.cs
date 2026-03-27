@@ -11,8 +11,6 @@ namespace MagnumOpus.Content.EnigmaVariations.Debuffs
 {
     public class ParadoxBrand : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.Confused;
-        
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;

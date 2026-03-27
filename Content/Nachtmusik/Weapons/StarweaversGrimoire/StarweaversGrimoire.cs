@@ -55,7 +55,6 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.StarweaversGrimoire
             if (player.altFunctionUse == 2)
             {
                 // Tapestry Weave: activate all placed nodes into a damaging constellation web
-// VFX_GUTTED:                 StarweaversGrimoireVFX.TapestryWeaveVFX(player.Center);
                 weaveNodeCount = 0;
             }
             return base.UseItem(player);
@@ -93,7 +92,6 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.StarweaversGrimoire
                 Projectile.NewProjectile(source, position, offset, orbType, (int)(damage * 0.6f), knockback, player.whoAmI, ai0: 2f);
             }
             
-// VFX_GUTTED:             StarweaversGrimoireVFX.CastVFX(position, toMouse);
             
             if (weaveNodeCount < MaxWeaveNodes)
                 weaveNodeCount++;

@@ -14,8 +14,6 @@ namespace MagnumOpus.Content.EnigmaVariations.Debuffs
     /// </summary>
     public class MysteryVaporDebuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.Weak;
-        
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;

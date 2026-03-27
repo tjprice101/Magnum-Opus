@@ -62,7 +62,6 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
         {
-            // VFX_GUTTED: PreDraw rendering removed
             return false;
         }
 

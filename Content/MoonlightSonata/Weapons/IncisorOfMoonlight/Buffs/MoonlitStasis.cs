@@ -10,9 +10,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Buffs
     /// </summary>
     public class MoonlitStasis : ModBuff
     {
-        // Use a vanilla ice-themed buff icon
-        public override string Texture => "Terraria/Images/Buff_46";
-
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;

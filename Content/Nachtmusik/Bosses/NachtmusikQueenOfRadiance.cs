@@ -22,7 +22,6 @@ using MagnumOpus.Content.Nachtmusik.Weapons.StarweaversGrimoire;
 using MagnumOpus.Content.Nachtmusik.Weapons.RequiemOfTheCosmos;
 using MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton;
 using MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture;
-using MagnumOpus.Content.Nachtmusik.Weapons.ConductorOfConstellations;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
@@ -30,7 +29,6 @@ using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Nachtmusik.Bosses.Systems;
 using MagnumOpus.Common.Systems.Bosses;
 using static MagnumOpus.Content.Nachtmusik.Bosses.Systems.NachtmusikSkySystem;
-// VFX_GUTTED: using MagnumOpus.Content.Nachtmusik.Enemies;
 using ReLogic.Content;
 
 namespace MagnumOpus.Content.Nachtmusik.Bosses
@@ -576,10 +574,8 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                     CustomParticles.GenericFlare(NPC.Center, StarWhite, 1.2f, 30);
                     
                     // Star burst explosion at center
-// VFX_GUTTED:                     NachtmusikVFXLibrary.SpawnStarBurst(NPC.Center, 6, 0.4f);
                     
                     // Massive shattered starlight explosion
-// VFX_GUTTED:                     NachtmusikVFXLibrary.SpawnShatteredStarlight(NPC.Center, 30, 12f, 1.0f, true);
                     
                     for (int i = 0; i < 16; i++)
                     {
@@ -599,8 +595,6 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                     }
                     
                     // Glyphs and music notes
-// VFX_GUTTED:                     NachtmusikVFXLibrary.SpawnGlyphBurst(NPC.Center, 12, 8f, 0.5f);
-// VFX_GUTTED:                     NachtmusikVFXLibrary.SpawnMusicNotes(NPC.Center, 16, 30f, 0.8f, 1.0f, 30);
                     
                     Main.NewText("NACHTMUSIK, CELESTIAL FURY awakens!", Gold);
                 }
@@ -2547,16 +2541,11 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
                 ModContent.ItemType<StarweaversGrimoire>(),
                 ModContent.ItemType<RequiemOfTheCosmos>(),
                 ModContent.ItemType<CelestialChorusBaton>(),
-                ModContent.ItemType<GalacticOverture>(),
-                ModContent.ItemType<ConductorOfConstellations>()
+                ModContent.ItemType<GalacticOverture>()
             ));
             
             npcLoot.Add(notExpert);
             
-            // Trophy and mask (drop in all modes)
-            // TODO: Create trophy and mask items
-            // npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<NachtmusikTrophy>(), 10));
-            // npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<NachtmusikMask>(), 7));
         }
         
         public override void OnKill()

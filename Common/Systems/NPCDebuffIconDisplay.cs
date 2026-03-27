@@ -50,6 +50,15 @@ namespace MagnumOpus.Common.Systems
 
             try
             {
+                // Ensure SpriteBatch is in a clean state before drawing
+                // orig() may have left it in an open state, so close it first
+                spriteBatch.End();
+
+                // Begin a new batch for icon drawing
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
                 // Draw debuff icons for all active NPCs
                 for (int i = 0; i < Main.maxNPCs; i++)
                 {
@@ -67,10 +76,26 @@ namespace MagnumOpus.Common.Systems
 
                     DrawNPCDebuffIcons(spriteBatch, npc, activeDebuffs);
                 }
+
+                // Close the batch before returning to allow next systems to manage their own state
+                spriteBatch.End();
+
+                // Restore the default game SpriteBatch state for subsequent drawing
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    SamplerState.LinearClamp, DepthStencilState.None,
+                    RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             }
             catch (Exception)
             {
-                // Silently ignore drawing errors
+                // If something goes wrong, try to restore SpriteBatch state
+                try { spriteBatch.End(); } catch { }
+                try
+                {
+                    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                        SamplerState.LinearClamp, DepthStencilState.None,
+                        RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+                catch { }
             }
         }
 

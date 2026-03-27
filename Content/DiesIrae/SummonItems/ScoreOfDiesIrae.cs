@@ -12,7 +12,7 @@ using MagnumOpus.Content.Fate.CraftingStations;
 namespace MagnumOpus.Content.DiesIrae.SummonItems
 {
     /// <summary>
-    /// Score of Dies Irae - Summon item for Dies Irae, Herald of Judgment.
+    /// Score of Dies Irae - Summon item for Dies Irae, Herald of Judgement.
     /// Used in the Underworld after defeating Nachtmusik.
     /// </summary>
     public class ScoreOfDiesIrae : ModItem
@@ -35,7 +35,7 @@ namespace MagnumOpus.Content.DiesIrae.SummonItems
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Summons Dies Irae, Herald of Judgment"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Summons Dies Irae, Herald of Judgement"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Use in the Underworld"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The final score that heralds the end of all things'") 
             { 

@@ -159,12 +159,17 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
                 OverrideColor = new Color(255, 150, 100)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Resonant Burn DoT increased by 50%")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+15% melee damage vs enemies with 3+ Resonant Burn stacks")
             {
                 OverrideColor = SummerOrange
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Melee hits against burning enemies restore 2% of damage as HP")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "At max stacks: Next melee hit deals +200% damage")
+            {
+                OverrideColor = new Color(255, 200, 100)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Melee hits against burning enemies restore 2% of damage as HP")
             {
                 OverrideColor = new Color(150, 255, 150)
             });
@@ -231,6 +236,11 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Melee hits extend Resonant Burn duration by 2 seconds")
             {
                 OverrideColor = new Color(255, 150, 150)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "At max stacks: +30% attack speed for 2 seconds")
+            {
+                OverrideColor = new Color(255, 100, 100)
             });
 
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Each burning foe quickens the rhythm of battle'")

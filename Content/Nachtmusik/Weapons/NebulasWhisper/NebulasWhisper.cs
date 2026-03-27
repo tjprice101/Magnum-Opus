@@ -84,7 +84,6 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NebulasWhisper
                     ModContent.ProjectileType<NebulaWhisperShot>(),
                     stormDamage, knockback * 2f, player.whoAmI, ai0: 1f); // ai0 = 1 marks storm mode
 
-// VFX_GUTTED:                 NebulasWhisperVFX.WhisperStormVFX(cursorPos);
                 SoundEngine.PlaySound(SoundID.Item74 with { Pitch = -0.3f, Volume = 0.9f }, cursorPos);
 
                 whisperShotCount = 0;
@@ -98,7 +97,6 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NebulasWhisper
                 ModContent.ProjectileType<NebulaWhisperShot>(), damage, knockback, player.whoAmI);
 
             // Muzzle flash: soft nebula puff
-// VFX_GUTTED:             NebulasWhisperVFX.MuzzleFlashVFX(position + direction * 15f, direction);
 
             return false;
         }

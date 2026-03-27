@@ -46,7 +46,6 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton
             Vector2 spawnPos = Main.MouseWorld;
 
             // Entrance VFX ? cosmic summoning burst
-// VFX_GUTTED:             CelestialChorusBatonVFX.SummonVFX(spawnPos);
 
             Projectile.NewProjectile(source, spawnPos, Vector2.Zero, type, damage, knockback, player.whoAmI);
 
@@ -56,7 +55,6 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton
         public override void HoldItem(Player player)
         {
             int minionCount = player.ownedProjectileCounts[ModContent.ProjectileType<NocturnalGuardianMinion>()];
-// VFX_GUTTED:             CelestialChorusBatonVFX.HoldItemVFX(player, minionCount);
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)

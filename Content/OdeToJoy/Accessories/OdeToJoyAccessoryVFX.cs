@@ -4,7 +4,6 @@ using Terraria;
 
 namespace MagnumOpus.Content.OdeToJoy.Accessories
 {
-    // VFX_GUTTED: Stub — all effects pending VFX reimplementation.
     public static class OdeToJoyAccessoryVFX
     {
         public static void TheFloweringCodaAmbientVFX(Player player) { }

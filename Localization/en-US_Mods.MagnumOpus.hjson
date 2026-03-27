@@ -650,14 +650,6 @@ Mods: {
 					'''
 			}
 
-			Debug1Fractal: {
-				DisplayName: Debug1 Fractal
-				Tooltip:
-					'''
-					'Fractured reality in testing'
-					Development item
-					'''
-			}
 
 			RiddlemastersFlight: {
 				DisplayName: Riddlemasters Flight
@@ -706,14 +698,6 @@ Mods: {
 				Tooltip: ""
 			}
 
-			Debug2Ray: {
-				DisplayName: Debug2 Ray
-				Tooltip:
-					'''
-					'A ray of debugging light'
-					Development item
-					'''
-			}
 
 			EnigmaTreasureBag: {
 				DisplayName: Enigma Treasure Bag
@@ -1598,6 +1582,951 @@ Mods: {
 					'Burns with the fire of a thousand dying stars'
 					'''
 			}
+
+			HarvestMantle: {
+			}
+			ReapersCharm: {
+			}
+			TwilightRing: {
+			}
+			AutumnResonantEnergy: {
+			}
+			DeathsNote: {
+			}
+			DecayEssence: {
+			}
+			DecayFragment: {
+			}
+			DormantAutumnCore: {
+			}
+			HarvestBar: {
+			}
+			LeafOfEnding: {
+			}
+			TwilightWingFragment: {
+			}
+			AdagioOfRadiantValor: {
+			}
+			CodaOfAbsoluteHarmony: {
+			}
+			CompleteHarmony: {
+			}
+			ComposersNotebook: {
+			}
+			CosmicWardensRegalia: {
+			}
+			FantasiaOfBurningGrace: {
+			}
+			InfernoOfLostShadows: {
+			}
+			MelodicCharm: {
+			}
+			NocturneOfAzureFlames: {
+			}
+			OpusOfFourMovements: {
+			}
+			RequiemOfTheEnigmaticFlame: {
+			}
+			ResonantPendant: {
+			}
+			ReverieOfTheSilverSwan: {
+			}
+			SeasonalDestiny: {
+			}
+			SpringsMoonlitGarden: {
+			}
+			SummersInfernalPeak: {
+			}
+			SummonersMagnumOpus: {
+			}
+			ThemeWanderer: {
+			}
+			TrinityOfNight: {
+			}
+			TriumphantArabesque: {
+			}
+			ValseMacabre: {
+			}
+			WintersEnigmaticSilence: {
+			}
+			CodasEcho: {
+			}
+			ConductorsInsight: {
+			}
+			ElixirOfTheMaestro: {
+			}
+			FatesBlessing: {
+			}
+			FatesCosmicBrew: {
+			}
+			HarmonicElixir: {
+			}
+			HarmonicResonatorFragment: {
+			}
+			MinorResonanceTonic: {
+			}
+			SeasonalDraught: {
+			}
+			PuzzleFragment: {
+			}
+			RiddleOfTheVoid: {
+			}
+			BadgeOfValor: {
+			}
+			HerosSymphony: {
+			}
+			ChimeOfFlames: {
+			}
+			InfernalVirtuoso: {
+			}
+			BellEssence: {
+			}
+			FateEssence: {
+			}
+			GraceEssence: {
+			}
+			LunarEssence: {
+			}
+			MysteryEssence: {
+			}
+			ValorEssence: {
+			}
+			NachtmusikEssence: {
+				DisplayName: Nachtmusik Essence
+				Tooltip: ""
+			}
+			WrathEssence: {
+				DisplayName: Wrath Essence
+				Tooltip: ""
+			}
+			JoyEssence: {
+				DisplayName: Joy Essence
+				Tooltip: ""
+			}
+			LuneEssence: {
+				DisplayName: Lune Essence
+				Tooltip: ""
+			}
+			BrokenBaton: {
+			}
+			DullResonator: {
+			}
+			FadedSheetMusic: {
+			}
+			MinorMusicNote: {
+			}
+			OldMetronome: {
+			}
+			ResonantCrystalShard: {
+			}
+			RustedClef: {
+			}
+			TuningFork: {
+			}
+			AdagioPendant: {
+			}
+			SonatasEmbrace: {
+			}
+			ResurrectionOfTheMoon: {
+			}
+			CycleOfSeasons: {
+			}
+			RelicOfTheEquinox: {
+			}
+			SolsticeRing: {
+			}
+			VivaldisMasterwork: {
+			}
+			BloomCrest: {
+			}
+			GrowthBand: {
+			}
+			PetalShield: {
+			}
+			BlossomEssence: {
+			}
+			DormantSpringCore: {
+			}
+			PetalOfRebirth: {
+			}
+			RainbowPetal: {
+			}
+			SpringResonantEnergy: {
+			}
+			VernalBar: {
+			}
+			VernalDust: {
+			}
+			RadiantCrown: {
+			}
+			SunfirePendant: {
+			}
+			ZenithBand: {
+			}
+			DormantSummerCore: {
+			}
+			EmberOfIntensity: {
+			}
+			HeatScale: {
+			}
+			SolarEssence: {
+			}
+			SolsticeBar: {
+			}
+			SummerResonantEnergy: {
+			}
+			SunfireCore: {
+			}
+			PlumeOfElegance: {
+			}
+			SwansChromaticDiadem: {
+			}
+			FrostbiteAmulet: {
+			}
+			GlacialHeart: {
+			}
+			StillnessShrine: {
+			}
+			DormantWinterCore: {
+			}
+			FrostEssence: {
+			}
+			FrozenCore: {
+			}
+			IcicleCoronet: {
+			}
+			PermafrostBar: {
+			}
+			PermafrostShard: {
+			}
+			ShardOfStillness: {
+			}
+			WinterResonantEnergy: {
+			}
+			DecayBell: {
+			}
+			HarvestReaper: {
+			}
+			TwilightArbalest: {
+			}
+			WitheringGrimoire: {
+			}
+			EnigmasVoidShell: {
+			}
+			FatesCosmicAegis: {
+			}
+			HarvestThornedGuard: {
+			}
+			HeroicValorsAegis: {
+			}
+			InfernalBellsFortress: {
+			}
+			MoonlitGuardiansVeil: {
+			}
+			PermafrostCrystalWard: {
+			}
+			ResonantBarrierCore: {
+			}
+			SolarFlareAegis: {
+			}
+			SpringVitalityShell: {
+			}
+			SwansImmortalGrace: {
+			}
+			VivaldisSeasonalBulwark: {
+			}
+			EnigmasNegativeSpace: {
+			}
+			FatesCosmicReservoir: {
+			}
+			HarvestSoulVessel: {
+			}
+			HeroicArcaneSurge: {
+			}
+			InfernalManaInferno: {
+			}
+			MoonlitOverflowStar: {
+			}
+			PermafrostVoidHeart: {
+			}
+			ResonantOverflowGem: {
+			}
+			SolarManaCrucible: {
+			}
+			SpringArcaneConduit: {
+			}
+			SwansBalancedFlow: {
+			}
+			EnigmasDissonance: {
+			}
+			FatesCosmicSymphony: {
+			}
+			HarvestRhythmSignet: {
+			}
+			HeroicCrescendo: {
+			}
+			InfernalFortissimo: {
+			}
+			MoonlitSonataBand: {
+			}
+			PermafrostCadenceSeal: {
+			}
+			ResonantRhythmBand: {
+			}
+			SolarCrescendoRing: {
+			}
+			SpringTempoCharm: {
+			}
+			SwansPerfectMeasure: {
+			}
+			VivaldisTempoMaster: {
+			}
+			EnigmasPhaseShift: {
+			}
+			FatesCosmicVelocity: {
+			}
+			HarvestPhantomStride: {
+			}
+			HeroicChargeBoots: {
+			}
+			InfernalMeteorStride: {
+			}
+			MoonlitPhantomsRush: {
+			}
+			PermafrostAvalancheStep: {
+			}
+			ResonantVelocityBand: {
+			}
+			SolarBlitzTreads: {
+			}
+			SpringZephyrBoots: {
+			}
+			SwansEternalGlide: {
+			}
+			VivaldisSeasonalSprint: {
+			}
+			EnigmasParadoxMark: {
+			}
+			FatesCosmicVerdict: {
+			}
+			HarvestReapersMark: {
+			}
+			HeroicDeadeye: {
+			}
+			InfernalExecutionersBrand: {
+			}
+			MoonlitPredatorsGaze: {
+			}
+			PermafrostHuntersEye: {
+			}
+			ResonantSpotter: {
+			}
+			SolarTrackersBadge: {
+			}
+			SpringHuntersLens: {
+			}
+			SwansGracefulHunt: {
+			}
+			VivaldisSeSonalSight: {
+			}
+			EnigmasHivemindLink: {
+			}
+			FatesCosmicDominion: {
+			}
+			HarvestBeastlordsHorn: {
+			}
+			HeroicGeneralsBaton: {
+			}
+			InfernalChoirMastersRod: {
+			}
+			MoonlitSymphonyWand: {
+			}
+			PermafrostCommandersCrown: {
+			}
+			ResonantConductorsWand: {
+			}
+			SolarDirectorsCrest: {
+			}
+			SpringMaestrosBadge: {
+			}
+			SwansGracefulDirection: {
+			}
+			VivaldisOrchestraBaton: {
+			}
+			ArcaneHarmonicPrism: {
+			}
+			CrystallizedHarmony: {
+			}
+			CelestialChorusBaton: {
+			}
+			ConductorOfConstellations: {
+			}
+			ConstellationPiercer: {
+			}
+			GalacticOverture: {
+			}
+			MidnightsCrescendo: {
+			}
+			NebulasWhisper: {
+			}
+			NocturnalExecutioner: {
+			}
+			RequiemOfTheCosmos: {
+			}
+			SerenadeOfDistantStars: {
+			}
+			StarweaversGrimoire: {
+			}
+			TwilightSeverance: {
+			}
+			ConcertoOfSeasons: {
+			}
+			FourSeasonsBlade: {
+			}
+			SeasonalBow: {
+			}
+			VivaldisBaton: {
+			}
+			BlossomsEdge: {
+			}
+			PetalStormBow: {
+			}
+			PrimaverasBloom: {
+			}
+			VernalScepter: {
+			}
+			SolarCrest: {
+			}
+			SolarScorcher: {
+			}
+			SolsticeTome: {
+			}
+			ZenithCleaver: {
+			}
+			FrostbiteRepeater: {
+			}
+			FrozenHeart: {
+			}
+			GlacialExecutioner: {
+			}
+			PermafrostCodex: {
+			}
+			VivaldisHarmonicCore: {
+			}
+			VFX_ClairDeLune_DreamyMist: {
+			}
+			VFX_ClairDeLune_ImpressionistNotes: {
+			}
+			VFX_ClairDeLune_LunarArcs: {
+			}
+			VFX_ClairDeLune_MoonbeamRipples: {
+			}
+			VFX_ClairDeLune_WaterReflection: {
+			}
+			VFX_DiesIrae_ApocalypseVortex: {
+			}
+			VFX_DiesIrae_BrimstoneEmbers: {
+			}
+			VFX_DiesIrae_JudgmentArcs: {
+			}
+			VFX_DiesIrae_RequiemNotes: {
+			}
+			VFX_DiesIrae_WrathFlames: {
+			}
+			VFX_Enigma_ArcaneGlyphs: {
+			}
+			VFX_Enigma_GreenFlameSlash: {
+			}
+			VFX_Enigma_MysteryNotes: {
+			}
+			VFX_Enigma_VoidTendrils: {
+			}
+			VFX_Enigma_WatchingEyes: {
+			}
+			VFX_Eroica_HeroicArcs: {
+			}
+			VFX_Eroica_SakuraDrift: {
+			}
+			VFX_Eroica_SymphonyNotes: {
+			}
+			VFX_Eroica_TriumphSparks: {
+			}
+			VFX_Eroica_ValorCrescent: {
+			}
+			VFX_Fate_CelestialNotes: {
+			}
+			VFX_Fate_CosmicClouds: {
+			}
+			VFX_Fate_GlyphOrbit: {
+			}
+			VFX_Fate_RealitySlash: {
+			}
+			VFX_Fate_StarStream: {
+			}
+			VFX_Campanella_BellArcs: {
+			}
+			VFX_Campanella_CrescentFlame: {
+			}
+			VFX_Campanella_EmberSpray: {
+			}
+			VFX_Campanella_MusicNotes: {
+			}
+			VFX_Campanella_SmokeTrail: {
+			}
+			VFX_Moonlight_CrescentMoon: {
+			}
+			VFX_Moonlight_LunarMist: {
+			}
+			VFX_Moonlight_LunarVortex: {
+			}
+			VFX_Moonlight_NocturneNotes: {
+			}
+			VFX_Moonlight_StarlightTrail: {
+			}
+			VFX_Nachtmusik_EveningWaltz: {
+			}
+			VFX_Nachtmusik_MoonlitArcs: {
+			}
+			VFX_Nachtmusik_NightBreeze: {
+			}
+			VFX_Nachtmusik_NocturneNotes: {
+			}
+			VFX_Nachtmusik_StarlightSerenade: {
+			}
+			VFX_Seasons_AutumnHarvest: {
+			}
+			VFX_Seasons_SeasonalCycle: {
+			}
+			VFX_Seasons_SpringBlossom: {
+			}
+			VFX_Seasons_SummerBlaze: {
+			}
+			VFX_Seasons_WinterFrost: {
+			}
+			VFX_SwanLake_BalletNotes: {
+			}
+			VFX_SwanLake_DoubleHelix: {
+			}
+			VFX_SwanLake_FeatherWaltz: {
+			}
+			VFX_SwanLake_MonochromeArcs: {
+			}
+			VFX_SwanLake_PrismaticShimmer: {
+			}
+			ChainOfFinalJudgment: {
+			}
+			EmberOfTheCondemned: {
+			}
+			RequiemsShackle: {
+			}
+			SealOfDamnation: {
+			}
+			DiesIraeTreasureBag: {
+			}
+			HarmonicCoreOfDiesIrae: {
+			}
+			DiesIraeResonantEnergy: {
+			}
+			RemnantOfDiesIraesWrath: {
+			}
+			ShardOfDiesIraesTempo: {
+			}
+			ResonantCoreOfDiesIrae: {
+			}
+			DiesIraeResonanceOre: {
+			}
+			ArbitersSentence: {
+			}
+			ChainOfJudgment: {
+			}
+			DamnationsCannon: {
+			}
+			DeathTollingBell: {
+			}
+			EclipseOfWrath: {
+			}
+			ExecutionersVerdict: {
+			}
+			GrimoireOfCondemnation: {
+			}
+			HarmonyOfJudgement: {
+			}
+			SinCollector: {
+			}
+			StaffOfFinalJudgement: {
+			}
+			WrathfulContract: {
+			}
+			WrathsCleaver: {
+			}
+			ScoreOfDiesIrae: {
+			}
+			WingsOfDamnation: {
+			}
+			WrathsAxe: {
+			}
+			WrathsDrill: {
+			}
+			WrathsHammer: {
+			}
+			WrathsPickaxe: {
+			}
+			ConstellationQuiver: {
+			}
+			ShardOfNachtmusiksTempo: {
+			}
+			NightsMelodyAxe: {
+			}
+			NightsMelodyHammer: {
+			}
+			NightsMelodyPickaxe: {
+			}
+			SerenadeOfStars: {
+			}
+			ClockworkTargetingModule: {
+			}
+			ConductorsTemporalBaton: {
+			}
+			ResonantChronosphere: {
+			}
+			TemporalWrathGauntlet: {
+			}
+			HarmonicCoreOfClairDeLune: {
+			}
+			ClairDeLuneResonantEnergy: {
+			}
+			RemnantOfClairDeLunesHarmony: {
+			}
+			ResonantCoreOfClairDeLune: {
+			}
+			ClairDeLuneResonanceOre: {
+			}
+			ChronologistsExcavator: {
+			}
+			ClockworkExcavationDrill: {
+			}
+			HammerOfBrokenHours: {
+			}
+			TemporalCleaver: {
+			}
+			WingsOfShatteredTime: {
+			}
+			ClockworkGrimoire: {
+			}
+			OrreryOfDreams: {
+			}
+			RequiemOfTime: {
+			}
+			Chronologicality: {
+			}
+			ClockworkHarmony: {
+			}
+			TemporalPiercer: {
+			}
+			CogAndHammer: {
+			}
+			MidnightMechanism: {
+			}
+			StarfallWhisper: {
+			}
+			AutomatonsTuningFork: {
+			}
+			GearDrivenArbiter: {
+			}
+			LunarPhylactery: {
+			}
+			ConductorsCorsage: {
+			}
+			SymphonyOfBlossoms: {
+			}
+			TheFloweringCoda: {
+			}
+			TheVerdantRefrain: {
+			}
+			HarmonicCoreOfOdeToJoy: {
+			}
+			OdeToJoyResonantEnergy: {
+			}
+			RemnantOfOdeToJoysBloom: {
+			}
+			ResonantCoreOfOdeToJoy: {
+			}
+			ScoreOfOdeToJoy: {
+			}
+			OdeToJoyResonanceOre: {
+			}
+			JoysAxe: {
+			}
+			JoysDrill: {
+			}
+			JoysHammer: {
+			}
+			AnthemOfGlory: {
+			}
+			ElysianVerdict: {
+			}
+			HymnOfTheVictorious: {
+			}
+			RoseThornChainsaw: {
+			}
+			TheGardenersFury: {
+			}
+			ThornboundReckoning: {
+			}
+			PetalStormCannon: {
+			}
+			ThePollinator: {
+			}
+			ThornSprayRepeater: {
+			}
+			FountainOfJoyousHarmony: {
+			}
+			TheStandingOvation: {
+			}
+			TriumphantChorus: {
+			}
+			AegisOfTheEternalBastion: {
+			}
+			EternalBastionOfTheMoonlight: {
+			}
+			InfernalRampartOfDiesIrae: {
+			}
+			JubilantBulwarkOfJoy: {
+			}
+			NocturnalGuardiansWard: {
+			}
+			StarfallInfernalShield: {
+			}
+			TriumphantJubilantAegis: {
+			}
+			EternalOverflowMastery: {
+			}
+			InfernalManaCataclysm: {
+			}
+			JubilantArcaneCelebration: {
+			}
+			NocturnalHarmonicOverflow: {
+			}
+			PendantOfTheEternalOverflow: {
+			}
+			StarfallHarmonicPendant: {
+			}
+			TriumphantOverflowPendant: {
+			}
+			EternalResonanceBand: {
+			}
+			GauntletOfTheEternalSymphony: {
+			}
+			InfernalFortissimoBandT8: {
+			}
+			JubilantCrescendoBand: {
+			}
+			NocturnalSymphonyBand: {
+			}
+			StarfallJudgmentGauntlet: {
+			}
+			TriumphantCosmosGauntlet: {
+			}
+			EternalVelocityTreads: {
+			}
+			InfernalMeteorTreads: {
+			}
+			JubilantZephyrTreads: {
+			}
+			NocturnalPhantomTreads: {
+			}
+			EternalVerdictSight: {
+			}
+			InfernalExecutionersSight: {
+			}
+			JubilantHuntersSight: {
+			}
+			NocturnalPredatorsSight: {
+			}
+			ScopeOfTheEternalVerdict: {
+			}
+			StarfallExecutionersScope: {
+			}
+			TriumphantVerdictScope: {
+			}
+			EternalConductorsScepter: {
+			}
+			InfernalChoirmastersScepter: {
+			}
+			JubilantOrchestrasStaff: {
+			}
+			NocturnalMaestrosBaton: {
+			}
+			ScepterOfTheEternalConductor: {
+			}
+			StarfallInfernalBaton: {
+			}
+			TriumphantSymphonyBaton: {
+			}
+			InfernalCleaverItem: {
+			}
+			FrostbiteEdgeItem: {
+			}
+			CosmicRendBladeItem: {
+			}
+			VerdantCrescendoItem: {
+			}
+			ArcaneHarmonicsItem: {
+			}
+			TheUnresolvedCadenceItem: {
+			}
+			VariationsOfTheVoidItem: {
+			}
+			SandboxTerraBlade: {
+			}
+			SandboxLastPrism: {
+			}
+			Exoblade: {
+			}
+			CodaOfAnnihilationItem: {
+			}
+			DestinysCrescendoItem: {
+			}
+			FractalOfTheStarsItem: {
+			}
+			LightOfTheFutureItem: {
+			}
+			OpusUltimaItem: {
+			}
+			RequiemOfRealityItem: {
+			}
+			ResonanceOfABygoneRealityItem: {
+			}
+			SymphonysEndItem: {
+			}
+			TheConductorsLastConstellationItem: {
+			}
+			TheFinalFermataItem: {
+			}
+			LaserFoundation: {
+			}
+			SparkleProjectileFoundation: {
+			}
+			ThinLaserFoundation: {
+			}
+			MaskFoundation: {
+			}
+			ImpactFoundation: {
+			}
+			ThinSlashFoundation: {
+			}
+			MagicOrbFoundation: {
+			}
+			AttackAnimationFoundation: {
+			}
+			AttackFoundation: {
+			}
+			ExplosionParticlesFoundation: {
+			}
+			InfernalBeamFoundation: {
+			}
+			SmokeFoundation: {
+			}
+			SwordSmearFoundation: {
+			}
+			Foundation4PointSparkle: {
+			}
+			XSlashFoundation: {
+			}
+			RibbonFoundation: {
+			}
+			EroicasBanner: {
+			}
+			BlossomsFury: {
+			}
+			RiddlesRepeater: {
+			}
+			ElgarsPendulum: {
+			}
+			CiphersEdge: {
+			}
+			ArcanumCodex: {
+			}
+			WrathsExecutioner: {
+			}
+			RequiemCannon: {
+			}
+			InfernalRequiem: {
+			}
+			HeraldOfRuin: {
+			}
+			FuneralHymn: {
+			}
+			HeroicAnthem: {
+			}
+			DestinysCleaver: {
+			}
+			FatumLongbow: {
+			}
+			MoiraiGrimoire: {
+			}
+			SpindleOfTheFates: {
+			}
+			BellStriker: {
+			}
+			CampanellasFlame: {
+			}
+			ChimeCannon: {
+			}
+			InfernalEtude: {
+			}
+			ConductorsLunarBaton: {
+			}
+			LunarElegy: {
+			}
+			MoonlightRequiem: {
+			}
+			SonataOfTheTides: {
+			}
+			ConstellationArbalest: {
+			}
+			NightConductorsBaton: {
+			}
+			NocturnalConcerto: {
+			}
+			SerenadeBlade: {
+			}
+			ConductorOfCelebration: {
+			}
+			HymnBallista: {
+			}
+			JubilantChorus: {
+			}
+			OdeEternal: {
+			}
+			CygnusBow: {
+			}
+			OdettesAria: {
+			}
+			SiegfriedsOath: {
+			}
+			SwansLament: {
+			}
+			AutomatonsTuningForkItem: {
+			}
+			GearDrivenArbiterItem: {
+			}
+			LunarPhylacteryItem: {
+			}
+			OdeToJoyTreasureBag: {
+			}
+			FoundationAnimeStyleAttackAnimation: {
+			}
+			FoundationIncisorOrbs: {
+			}
+			AutunnoTreasureBag: {
+			}
+			PrimaveraTreasureBag: {
+			}
+			LEstateTreasureBag: {
+			}
+			LInvernoTreasureBag: {
+			}
 		}
 
 		Tiles: {
@@ -1611,6 +2540,10 @@ Mods: {
 			NachtmusikResonanceOreTile.MapEntry: Nachtmusik Resonance Ore
 			FatesCosmicAnvilTile.MapEntry: Fate's Cosmic Anvil
 			FatesCosmicFurnaceTile.MapEntry: Fate's Cosmic Furnace
+
+			DiesIraeResonanceOreTile.MapEntry: Dies Irae Resonance Ore Tile
+			ClairDeLuneResonanceOreTile.MapEntry: Clair De Lune Resonance Ore Tile
+			OdeToJoyResonanceOreTile.MapEntry: Ode To Joy Resonance Ore Tile
 		}
 
 		Buffs: {
@@ -1785,28 +2718,239 @@ Mods: {
 			}
 
 			CosmicBrewBuff: {
-				DisplayName: Cosmic Brew Buff
-				Description: Mods.MagnumOpus.Buffs.CosmicBrewBuff.Description
+				DisplayName: Cosmic Brew
+				Description: Major stat boost: +50% damage, +30% critical strike chance, +25% attack speed
 			}
 
 			HarmonicElixirBuff: {
-				DisplayName: Harmonic Elixir Buff
-				Description: Mods.MagnumOpus.Buffs.HarmonicElixirBuff.Description
+				DisplayName: Harmonic Elixir
+				Description: Moderate stat boost: +20% damage, +10% critical strike chance
 			}
 
 			MaestroBuff: {
-				DisplayName: Maestro Buff
-				Description: Mods.MagnumOpus.Buffs.MaestroBuff.Description
+				DisplayName: Maestro
+				Description: Powerful stat boost: +35% damage, +20% critical strike chance, +15% attack speed
 			}
 
 			MinorResonanceBuff: {
-				DisplayName: Minor Resonance Buff
-				Description: Mods.MagnumOpus.Buffs.MinorResonanceBuff.Description
+				DisplayName: Minor Resonance
+				Description: Minor stat boost: +10% all damage
 			}
 
 			SeasonalDraughtBuff: {
-				DisplayName: Seasonal Draught Buff
-				Description: Mods.MagnumOpus.Buffs.SeasonalDraughtBuff.Description
+				DisplayName: Seasonal Draught
+				Description: Seasonal power: +25% seasonal accessory bonuses
+			}
+
+			HarvestWraithBuff: {
+				DisplayName: Harvest Wraith
+				Description: A spectral wraith fights for you
+			}
+			QueensRadianceBuff: {
+				DisplayName: Queen's Radiance
+				Description: +25% damage while radiance is active
+			}
+			CelestialHarmony: {
+				DisplayName: Celestial Harmony
+				Description: Harmonic energy tears at the enemy's essence
+			}
+			CelestialChorusBatonBuff: {
+				DisplayName: Celestial Chorus
+				Description: The nocturnal guardian fights for you
+			}
+			ConductorOfConstellationsBuff: {
+				DisplayName: Conductor of Constellations
+				Description: Stellar entities fight for you
+			}
+			GalacticOvertureBuff: {
+				DisplayName: Galactic Overture
+				Description: A celestial muse fights for you
+			}
+			VivaldiConductorBuff: {
+				DisplayName: Vivaldi Conductor
+				Description: Seasonal spirits fight for you
+			}
+			FlowerSpriteBuff: {
+				DisplayName: Flower Sprite
+				Description: A flower sprite fights for you
+			}
+			SunSpiritBuff: {
+				DisplayName: Sun Spirit
+				Description: A sun spirit fights for you
+			}
+			HypothermiaBuff: {
+				DisplayName: Hypothermia
+				Description: Encroaching cold slows movement
+			}
+			FrostSentinelBuff: {
+				DisplayName: Frost Sentinel
+				Description: A frost sentinel fights for you
+			}
+			DeathTollingBellBuff: {
+				DisplayName: Death Tolling Bell
+				Description: A tolling bell spirit fights for you
+			}
+			HarmonyOfJudgementBuff: {
+				DisplayName: Harmony of Judgement
+				Description: A judgment sigil fights for you
+			}
+			WrathfulContractBuff: {
+				DisplayName: Wrathful Contract
+				Description: A wrathful demon fights for you
+			}
+			TemporalClarityBuff: {
+				DisplayName: Temporal Clarity
+				Description: Time flows clearly around you
+			}
+			AutomatonsTuningForkBuff: {
+				DisplayName: Automaton's Tuning Fork
+				Description: An automaton fights for you
+			}
+			GearDrivenArbiterBuff: {
+				DisplayName: Gear Driven Arbiter
+				Description: An arbiter construct fights for you
+			}
+			LunarPhylacteryBuff: {
+				DisplayName: Lunar Phylactery
+				Description: A moonlight sentinel fights for you
+			}
+			TemporalJudgmentDebuff: {
+				DisplayName: Temporal Judgment
+				Description: Marked for temporal judgment
+			}
+			JoyousFountainBuff: {
+				DisplayName: Joyous Fountain
+				Description: A joyous fountain fights for you
+			}
+			StandingOvationBuff: {
+				DisplayName: Standing Ovation
+				Description: An encore spirit fights for you
+			}
+			TriumphantChorusBuff: {
+				DisplayName: Triumphant Chorus
+				Description: A triumphant spirit fights for you
+			}
+			ExoMiracleBlight: {
+				DisplayName: Exo Miracle Blight
+				Description: Miraculous energy ravages the body
+			}
+			ExoGlacialState: {
+				DisplayName: Exo Glacial State
+				Description: Frozen in absolute zero
+			}
+			LunarResonanceDebuff: {
+				DisplayName: Lunar Resonance
+				Description: Harmonic frequencies shatter from within
+			}
+			MoonlitStasis: {
+				DisplayName: Moonlit Stasis
+				Description: Frozen in moonlight
+			}
+			ExecutionBrand: {
+				DisplayName: Execution Brand
+				Description: Marked for execution
+			}
+			PyreImmolation: {
+				DisplayName: Pyre Immolation
+				Description: Consumed by wrathful flames
+			}
+			HellfireImmolation: {
+				DisplayName: Hellfire Immolation
+				Description: Engulfed in hellfire
+			}
+			WrathMark: {
+				DisplayName: Wrath Mark
+				Description: Marked by divine wrath
+			}
+			HeroicBurn: {
+				DisplayName: Heroic Burn
+				Description: Seared by heroic flames
+			}
+			ValorStagger: {
+				DisplayName: Valor Stagger
+				Description: Staggered by a valorous strike
+			}
+			PetalWound: {
+				DisplayName: Petal Wound
+				Description: Wounded by razor-sharp petals
+			}
+			SakuraBlight: {
+				DisplayName: Sakura Blight
+				Description: Withering under sakura poison
+			}
+			CrescendoDeityBuff: {
+				DisplayName: Crescendo Deity
+				Description: A celestial deity fights for you
+			}
+			LunarStasis: {
+				DisplayName: Lunar Stasis
+				Description: Slowed by lunar energy
+			}
+			TidalDrowning: {
+				DisplayName: Tidal Drowning
+				Description: Drowning in tidal moonlight
+			}
+			MusicalDissonance: {
+				DisplayName: Musical Dissonance
+				Description: Disrupted by harmonic dissonance
+			}
+			LunarImpact: {
+				DisplayName: Lunar Impact
+				Description: Weakened by accumulated lunar strikes
+			}
+			AnnihilationMark: {
+				DisplayName: Annihilation Mark
+				Description: Marked for annihilation
+			}
+			BygoneEcho: {
+				DisplayName: Bygone Echo
+				Description: Resonating with echoes of the past
+			}
+			RealityFrayed: {
+				DisplayName: Reality Frayed
+				Description: Reality unravels around the wound
+			}
+			SpectralResonance: {
+				DisplayName: Spectral Resonance
+				Description: Building toward a cosmic detonation
+			}
+			MoonlitSilenceDebuff: {
+			}
+			MournfulGaze: {
+			}
+			SwansMark: {
+			}
+			JudgmentFlameDebuff: {
+			}
+			SentenceCageDebuff: {
+			}
+			ChainLinkMark: {
+			}
+			FullyBound: {
+			}
+			DeathMarkDebuff: {
+			}
+			TolledDebuff: {
+			}
+			ElysianBurnDebuff: {
+			}
+			ElysianMarkDebuff: {
+			}
+			HymnResonanceDebuff: {
+			}
+			JubilantBurnDebuff: {
+			}
+			PollenSlowDebuff: {
+			}
+			PollinatedDebuff: {
+			}
+			ThornedDebuff: {
+			}
+			RoseThornBleedDebuff: {
+			}
+			VineRootDebuff: {
+			}
+			ThornAccumulationDebuff: {
 			}
 		}
 
@@ -1837,13 +2981,68 @@ Mods: {
 			LEstate.DisplayName: L Estate
 			LInverno.DisplayName: L Inverno
 			NachtmusikQueenOfRadiance.DisplayName: Nachtmusik, Queen of Radiance
+
+			DiesIraeHeraldOfJudgement.DisplayName: Dies Irae Herald Of Judgement
+			OdeToJoyChromaticRoseConductor.DisplayName: Ode To Joy Chromatic Rose Conductor
+
+			// Spring Enemies
+			Bloomweaver.DisplayName: Bloomweaver
+			Pollengust.DisplayName: Pollengust
+
+			// Summer Enemies
+			Solarforge.DisplayName: Solarforge
+			HeatstrikeCicada.DisplayName: Heatstrike Cicada
+
+			// Autumn Enemies
+			Harrowroot.DisplayName: Harrowroot
+			Fogwalker.DisplayName: Fogwalker
+
+			// Winter Enemies
+			Frostwalker.DisplayName: Frostwalker
+			GlacialDirge.DisplayName: Glacial Dirge
+
+			// Moonlight Sonata Enemies
+			TideboundRevenant.DisplayName: Tidebound Revenant
+			StillwaterPhantom.DisplayName: Stillwater Phantom
+
+			// La Campanella Enemies
+			BellforgeWraith.DisplayName: Bellforge Wraith
+			CinderVirtuoso.DisplayName: Cinder Virtuoso
+
+			// Enigma Variations Enemies
+			ParadoxGazer.DisplayName: Paradox Gazer
+			CipherStalker.DisplayName: Cipher Stalker
+
+			// Swan Lake Enemies
+			SwanbornPhantom.DisplayName: Swanborn Phantom
+			CygnusSentinel.DisplayName: Cygnus Sentinel
+
+			// Fate Enemies
+			CelestialArbiter.DisplayName: Celestial Arbiter
+			EpochWeaver.DisplayName: Epoch Weaver
+
+			// Nachtmusik Enemies
+			StarfallConductor.DisplayName: Starfall Conductor
+			TwilightProwler.DisplayName: Twilight Prowler
+
+			// Dies Irae Enemies
+			WrathHerald.DisplayName: Wrath Herald
+			PyreCantor.DisplayName: Pyre Cantor
+
+			// Ode to Joy Enemies
+			JubilantColossus.DisplayName: Jubilant Colossus
+			ChorusSprite.DisplayName: Chorus Sprite
+
+			// Clair de Lune Enemies
+			ReverieDrifter.DisplayName: Reverie Drifter
+			NocturneShade.DisplayName: Nocturne Shade
 		}
 
 		Projectiles: {
 			EnergyOfEroica.DisplayName: Energy Of Eroica
 			EroicasBeam.DisplayName: Eroica's Beam
 			PinkFlamingBolt.DisplayName: Pink Flaming Bolt
-			MoonlightWaveProjectile.DisplayName: Moonlight Wave Projectile
+			MoonlightWaveProjectile.DisplayName: Moonlight Wave
 			EternalMoonWave.DisplayName: Eternal Moon Wave
 			MoonlightBeam.DisplayName: Moonlight Beam
 			RazerOfMoonlightsShadow.DisplayName: Razer of Moonlight's Shadow
@@ -1857,10 +3056,10 @@ Mods: {
 			IncisorLunarDetonation.DisplayName: Lunar Detonation
 			SpectralChildBeam.DisplayName: Spectral Child Beam
 			PrismaticCrescendo.DisplayName: Prismatic Crescendo
-			BlossomOfTheSakuraBulletProjectile.DisplayName: Blossom Of The Sakura Bullet Projectile
-			FuneralPrayerProjectile.DisplayName: Funeral Prayer Projectile
+			BlossomOfTheSakuraBulletProjectile.DisplayName: Blossom Of The Sakura Bullet
+			FuneralPrayerProjectile.DisplayName: Funeral Prayer
 			SakurasBlossomSpectral.DisplayName: Sakura's Blossom Spectral
-			TriumphantFractalProjectile.DisplayName: Triumphant Fractal Projectile
+			TriumphantFractalProjectile.DisplayName: Triumphant Fractal
 			FuneralPrayerBeam.DisplayName: Funeral Prayer Beam
 			GoliathOfMoonlight.DisplayName: Goliath of Moonlight
 			GoliathMoonlightBeam.DisplayName: Goliath Moonlight Beam
@@ -1903,10 +3102,10 @@ Mods: {
 			StolenValorFlame.DisplayName: Stolen Valor Flame
 			StolenValorMinion.DisplayName: Stolen Valor Minion
 			BehemothFlameRain.DisplayName: Behemoth Flame Rain
-			BlitzerProjectile1.DisplayName: Blitzer Projectile1
-			BlitzerProjectile2.DisplayName: Blitzer Projectile2
+			BlitzerProjectile1.DisplayName: Blitzer Shot
+			BlitzerProjectile2.DisplayName: Blitzer Shockwave
 			CenturionLantern.DisplayName: Centurion Lantern
-			CenturionSwordProjectile.DisplayName: Centurion Sword Projectile
+			CenturionSwordProjectile.DisplayName: Centurion Sword
 			TriumphantColossusPet.DisplayName: Triumphant Colossus Pet
 			PiercingLightOfTheSakuraProjectile.DisplayName: Piercing Light of the Sakura
 			SakuraLightning.DisplayName: Sakura Lightning
@@ -1915,11 +3114,11 @@ Mods: {
 			HandOfValor.DisplayName: Hand Of Valor
 			FistOfEroica.DisplayName: Fist Of Eroica
 			BlackSwanFlare.DisplayName: Black Swan Flare
-			ChromaticSwanSongProjectile.DisplayName: Chromatic Swan Song Projectile
+			ChromaticSwanSongProjectile.DisplayName: Chromatic Swan Song
 			IridescentBeam.DisplayName: Iridescent Beam
 			IridescentCrystal.DisplayName: Iridescent Crystal
 			IridescentFlare.DisplayName: Iridescent Flare
-			IridescentWingspanProjectile.DisplayName: Iridescent Wingspan Projectile
+			IridescentWingspanProjectile.DisplayName: Iridescent Wingspan
 			PearlescentRocket.DisplayName: Pearlescent Rocket
 			SwansLamentBullet.DisplayName: Swan's Lament Bullet
 			HealingSwanHalo.DisplayName: Healing Swan Halo
@@ -1933,7 +3132,7 @@ Mods: {
 			BehemothShockwave.DisplayName: Behemoth Shockwave
 			BlitzerHomingSoul.DisplayName: Blitzer Homing Soul
 			BlitzerLightningBolt.DisplayName: Blitzer Lightning Bolt
-			BlitzerSalvoProjectile.DisplayName: Blitzer Salvo Projectile
+			BlitzerSalvoProjectile.DisplayName: Blitzer Salvo
 			BlitzerSorrowBomb.DisplayName: Blitzer Sorrow Bomb
 			CenturionCrimsonMeteor.DisplayName: Centurion Crimson Meteor
 			CenturionFireTrail.DisplayName: Centurion Fire Trail
@@ -1953,15 +3152,15 @@ Mods: {
 			BlazingMusicalWave.DisplayName: Blazing Musical Wave
 			BurningMusicalNote.DisplayName: Burning Musical Note
 			CampanellaChoirMinion.DisplayName: Campanella Choir Minion
-			CampanellaConflagrationProjectile.DisplayName: Campanella Conflagration Projectile
-			ChimeCycloneProjectile.DisplayName: Chime Cyclone Projectile
+			CampanellaConflagrationProjectile.DisplayName: Campanella Conflagration
+			ChimeCycloneProjectile.DisplayName: Chime Cyclone
 			ChoirFlameWave.DisplayName: Choir Flame Wave
-			DualFatedChimeProjectile.DisplayName: Dual Fated Chime Projectile
+			DualFatedChimeProjectile.DisplayName: Dual Fated Chime
 			GrandCrescendoWave.DisplayName: Grand Crescendo Wave
 			HarmonicPulse.DisplayName: Harmonic Pulse
-			IgnitionThrustProjectile.DisplayName: Ignition Thrust Projectile
-			InfernoWaltzProjectile.DisplayName: Inferno Waltz Projectile
-			ExplosiveBellProjectile.DisplayName: Explosive Bell Projectile
+			IgnitionThrustProjectile.DisplayName: Ignition Thrust
+			InfernoWaltzProjectile.DisplayName: Inferno Waltz
+			ExplosiveBellProjectile.DisplayName: Explosive Bell
 			InfernalBellLaser.DisplayName: Infernal Bell Laser
 			InfernalFireWave.DisplayName: Infernal Fire Wave
 			InfernalGroundFire.DisplayName: Infernal Ground Fire
@@ -1972,10 +3171,10 @@ Mods: {
 			OrbitingMusicNote.DisplayName: Orbiting Music Note
 			ResonantBellBlast.DisplayName: Resonant Bell Blast
 			TrailingMusicNote.DisplayName: Trailing Music Note
-			ChargedThunderStrikeProjectile.DisplayName: Charged Thunder Strike Projectile
-			FallingMusicNoteProjectile.DisplayName: Falling Music Note Projectile
-			InfiniteBellExplosiveProjectile.DisplayName: Infinite Bell Explosive Projectile
-			InfiniteBellSpiralProjectile.DisplayName: Infinite Bell Spiral Projectile
+			ChargedThunderStrikeProjectile.DisplayName: Charged Thunder Strike
+			FallingMusicNoteProjectile.DisplayName: Falling Music Note
+			InfiniteBellExplosiveProjectile.DisplayName: Infinite Bell Explosive
+			InfiniteBellSpiralProjectile.DisplayName: Infinite Bell Spiral
 			SpectralBarrageBlade.DisplayName: Spectral Barrage Blade
 			CipherBeam.DisplayName: Cipher Beam
 			CipherCascade.DisplayName: Cipher Cascade
@@ -2024,7 +3223,7 @@ Mods: {
 			ParadoxPendulumHead.DisplayName: Paradox Pendulum Head
 			ParadoxPiercingArrow.DisplayName: Paradox Piercing Arrow
 			ParadoxRift.DisplayName: Paradox Rift
-			ParadoxSpiralProjectile.DisplayName: Paradox Spiral Projectile
+			ParadoxSpiralProjectile.DisplayName: Paradox Spiral
 			PhantomBolt.DisplayName: Phantom Bolt
 			PhantomRift.DisplayName: Phantom Rift
 			QuantumSingularity.DisplayName: Quantum Singularity
@@ -2049,7 +3248,7 @@ Mods: {
 			VoidSingularity.DisplayName: Void Singularity
 			WatchingObelisk.DisplayName: Watching Obelisk
 			CosmicDecreeMarker.DisplayName: Cosmic Decree Marker
-			FateLineProjectile.DisplayName: Fate Line Projectile
+			FateLineProjectile.DisplayName: Fate Line
 			FateSeverSlash.DisplayName: Fate Sever Slash
 			InevitabilityArrow.DisplayName: Inevitability Arrow
 			TimelineGhostArrow.DisplayName: Timeline Ghost Arrow
@@ -2057,20 +3256,18 @@ Mods: {
 			QuestionSeekerBolt.DisplayName: Question Seeker Bolt
 			InevitabilityBolt.DisplayName: Inevitability Bolt
 			TimelineGhostBolt.DisplayName: Timeline Ghost Bolt
-			Debug1FractalFlare.DisplayName: Debug1 Fractal Flare
 			SplittingValorOrb.DisplayName: Splitting Valor Orb
-			Debug2RayBeam.DisplayName: Debug2 Ray Beam
-			EnigmaGlyphProjectile.DisplayName: Enigma Glyph Projectile
+			EnigmaGlyphProjectile.DisplayName: Enigma Glyph
 			EnigmaHomingEye.DisplayName: Enigma Homing Eye
 			EnigmaShockwave.DisplayName: Enigma Shockwave
 			EnigmaVoidWeb.DisplayName: Enigma Void Web
 			EnigmaWebShot.DisplayName: Enigma Web Shot
-			MysterysEndProjectile.DisplayName: Mysterys End Projectile
+			MysterysEndProjectile.DisplayName: Mysterys End
 			ParadoxGazeEye.DisplayName: Paradox Gaze Eye
 			CascadingGlyph.DisplayName: Cascading Glyph
-			WatchingEyeProjectile.DisplayName: Watching Eye Projectile
+			WatchingEyeProjectile.DisplayName: Watching Eye
 			MysteryVortexZone.DisplayName: Mystery Vortex Zone
-			RevelationEyeProjectile.DisplayName: Revelation Eye Projectile
+			RevelationEyeProjectile.DisplayName: Revelation Eye
 			BellTollFlame.DisplayName: Bell Toll Flame
 			InfernalCrawlTrail.DisplayName: Infernal Crawl Trail
 			SmokeCloudProjectile.DisplayName: Smoke Cloud
@@ -2104,7 +3301,7 @@ Mods: {
 			PhaseBullet.DisplayName: Phase Bullet
 			TimelineBulletRain.DisplayName: Timeline Bullet Rain
 			CapricornMinion.DisplayName: Capricorn Minion
-			GeminiTwinProjectile.DisplayName: Gemini Twin Projectile
+			GeminiTwinProjectile.DisplayName: Gemini Twin
 			LibraBalanceArrow.DisplayName: Libra Balance Arrow
 			SagittariusArrow.DisplayName: Sagittarius Arrow
 			SagittariusBeam.DisplayName: Sagittarius Beam
@@ -2123,26 +3320,26 @@ Mods: {
 			TaurusCosmicSlash.DisplayName: Taurus Cosmic Slash
 			VirgoCosmicBullet.DisplayName: Virgo Cosmic Bullet
 			VirgoHarvestRay.DisplayName: Virgo Harvest Ray
-			GalacticCosmicProjectile.DisplayName: Galactic Cosmic Projectile
+			GalacticCosmicProjectile.DisplayName: Galactic Cosmic
 			StarSpiralExplosion.DisplayName: Star Spiral Explosion
 			ConstellationBurst.DisplayName: Constellation Burst
-			CosmicStarProjectile.DisplayName: Cosmic Star Projectile
+			CosmicStarProjectile.DisplayName: Cosmic Star
 			AstrographConstellation.DisplayName: Astrograph Constellation
 			AquilaDiveStrike.DisplayName: Aquila Dive Strike
-			AquilaTalonProjectile.DisplayName: Aquila Talon Projectile
-			ChainingStarProjectile.DisplayName: Chaining Star Projectile
+			AquilaTalonProjectile.DisplayName: Aquila Talon
+			ChainingStarProjectile.DisplayName: Chaining Star
 			DragonBreathFireball.DisplayName: Dragon Breath Fireball
 			DragonBreathHeldSword.DisplayName: Dragon Breath Held Sword
-			HarmonicWaveProjectile.DisplayName: Harmonic Wave Projectile
+			HarmonicWaveProjectile.DisplayName: Harmonic Wave
 			HarmonyBurst.DisplayName: Harmony Burst
 			HydraHeadMinion.DisplayName: Hydra Head Minion
 			HydraVenomBolt.DisplayName: Hydra Venom Bolt
 			LionRoarShockwave.DisplayName: Lion Roar Shockwave
 			PhoenixExplosion.DisplayName: Phoenix Explosion
-			PhoenixFeatherProjectile.DisplayName: Phoenix Feather Projectile
+			PhoenixFeatherProjectile.DisplayName: Phoenix Feather
 			SagittariusHeldBow.DisplayName: Sagittarius Held Bow
 			ScorpionStingerLine.DisplayName: Scorpion Stinger Line
-			ScorpionStingerProjectile.DisplayName: Scorpion Stinger Projectile
+			ScorpionStingerProjectile.DisplayName: Scorpion Stinger
 			ZodiacExplosion.DisplayName: Zodiac Explosion
 			SpiralingSpectralBlade.DisplayName: Spiraling Spectral Blade
 			SpectralSwordBeam.DisplayName: Spectral Sword Beam
@@ -2154,28 +3351,28 @@ Mods: {
 			DeityCosmicBeam.DisplayName: Deity Cosmic Beam
 			CosmicSeekerBall.DisplayName: Cosmic Seeker Ball
 			CosmicRocket.DisplayName: Cosmic Rocket
-			CosmicMusicNoteProjectile.DisplayName: Cosmic Music Note Projectile
+			CosmicMusicNoteProjectile.DisplayName: Cosmic Music Note
 			CosmicEnergyBall.DisplayName: Cosmic Energy Ball
 			CosmicElectricityStaff.DisplayName: Cosmic Electricity Staff
 			CosmicDeityMinion.DisplayName: Cosmic Deity Minion
 			CosmicBeamHeldSword.DisplayName: Cosmic Beam Held Sword
 			AcceleratingCosmicRound.DisplayName: Accelerating Cosmic Round
 			CosmicStarCircleEffect.DisplayName: Cosmic Star Circle Effect
-			FugueVoiceProjectile.DisplayName: Fugue Voice Projectile
+			FugueVoiceProjectile.DisplayName: Fugue Voice
 			TacetEnigmaShot.DisplayName: Tacet Enigma Shot
 			TacetParadoxBolt.DisplayName: Tacet Paradox Bolt
 			VoidConvergenceBeamSet.DisplayName: Void Convergence Beam Set
 			VoidResonanceExplosion.DisplayName: Void Resonance Explosion
-			WaveProjectile.DisplayName: Wave Projectile
-			HostileOrbProjectile.DisplayName: Hostile Orb Projectile
-			ExplosiveOrbProjectile.DisplayName: Explosive Orb Projectile
-			DelayedDetonationProjectile.DisplayName: Delayed Detonation Projectile
-			BoomerangProjectile.DisplayName: Boomerang Projectile
-			AcceleratingBoltProjectile.DisplayName: Accelerating Bolt Projectile
+			WaveProjectile.DisplayName: Wave
+			HostileOrbProjectile.DisplayName: Hostile Orb
+			ExplosiveOrbProjectile.DisplayName: Explosive Orb
+			DelayedDetonationProjectile.DisplayName: Delayed Detonation
+			BoomerangProjectile.DisplayName: Boomerang
+			AcceleratingBoltProjectile.DisplayName: Accelerating Bolt
 			EnigmaMazeWall.DisplayName: Enigma Maze Wall
 			EnigmaVoidBeam.DisplayName: Enigma Void Beam
 			EroicaSplittingOrb.DisplayName: Eroica Splitting Orb
-			CodaZenithSwordProjectile.DisplayName: Coda Zenith Sword Projectile
+			CodaZenithSwordProjectile.DisplayName: Coda Zenith Sword
 			ConstellationBeam.DisplayName: Constellation Beam
 			CosmicRendSlash.DisplayName: Cosmic Rend Slash
 			FateSealedShard.DisplayName: Fate Sealed Shard
@@ -2187,8 +3384,8 @@ Mods: {
 			PrimaSoundWave.DisplayName: Prima Sound Wave
 			ShatteredPrimaShadow.DisplayName: Shattered Prima Shadow
 			FermataSpectralSword.DisplayName: Fermata Spectral Sword
-			RequiemHeldProjectile.DisplayName: Requiem Held Projectile
-			RequiemSpectralBladeProjectile.DisplayName: Requiem Spectral Blade Projectile
+			RequiemHeldProjectile.DisplayName: Requiem Held
+			RequiemSpectralBladeProjectile.DisplayName: Requiem Spectral Blade
 
 			// ========================================
 			// PHASE 1: FOUNDATION MATERIALS
@@ -3972,6 +5169,744 @@ Mods: {
 					'The cosmos itself becomes your aegis'
 					'''
 			}
+
+			SparkleCrystalProjectile.DisplayName: Sparkle Crystal
+			RibbonProjectile.DisplayName: Ribbon
+			CodaHeldSwingProjectile.DisplayName: Coda Held Swing
+			CodaHeldSwing.DisplayName: Coda Held Swing
+			CodaZenithSword.DisplayName: Coda Zenith Sword
+			RequiemSpectralBlade.DisplayName: Requiem Spectral Blade
+			ChimeCycloneProj.DisplayName: Chime Cyclone Proj
+			IgnitionThrustProj.DisplayName: Ignition Thrust Proj
+			InfernoWaltzProj.DisplayName: Inferno Waltz Proj
+			DecayBoltProjectile.DisplayName: Decay Bolt
+			DecayCrescentWave.DisplayName: Decay Crescent Wave
+			EntropicField.DisplayName: Entropic Field
+			HarvestMoonBolt.DisplayName: Harvest Moon Bolt
+			HarvestWraithMinion.DisplayName: Harvest Wraith Minion
+			HomingLeafShard.DisplayName: Homing Leaf Shard
+			SoulHarvestOrb.DisplayName: Soul Harvest Orb
+			SoulWisp.DisplayName: Soul Wisp
+			TwilightBolt.DisplayName: Twilight Bolt
+			WitheringWave.DisplayName: Withering Wave
+			CelestialMuseMinion.DisplayName: Celestial Muse Minion
+			ConductorStarProjectile.DisplayName: Conductor Star
+			ConstellationBoltProjectile.DisplayName: Constellation Bolt
+			CosmicRequiemBeamProjectile.DisplayName: Cosmic Requiem Beam
+			CrescendoWaveProjectile.DisplayName: Crescendo Wave
+			MuseNoteProjectile.DisplayName: Muse Note
+			NebulaArrowProjectile.DisplayName: Nebula Arrow
+			NocturnalBladeProjectile.DisplayName: Nocturnal Blade
+			NocturnalGuardianMinion.DisplayName: Nocturnal Guardian Minion
+			SerenadeStarProjectile.DisplayName: Serenade Star
+			StarweaverOrbProjectile.DisplayName: Starweaver Orb
+			StellarConductorMinion.DisplayName: Stellar Conductor Minion
+			TwilightSlashProjectile.DisplayName: Twilight Slash
+			AutumnPassageProjectile.DisplayName: Autumn Passage
+			AutumnSpiritMinion.DisplayName: Autumn Spirit Minion
+			DecayFieldProjectile.DisplayName: Decay Field
+			DecayZoneProjectile.DisplayName: Decay Zone
+			FinaleIceShardProjectile.DisplayName: Finale Ice Shard
+			HomingPetalProjectile.DisplayName: Homing Petal
+			HomingPetal.DisplayName: Homing Petal
+			SeasonalArrow.DisplayName: Seasonal Arrow
+			SolarPillarProjectile.DisplayName: Solar Pillar
+			SpiritIceBolt.DisplayName: Spirit Ice Bolt
+			SpiritPetalBolt.DisplayName: Spirit Petal Bolt
+			SpiritSolarBolt.DisplayName: Spirit Solar Bolt
+			SpringSpiritMinion.DisplayName: Spring Spirit Minion
+			SpringVerseProjectile.DisplayName: Spring Verse
+			SummerArrowFlareProjectile.DisplayName: Summer Arrow Flare
+			SummerMovementProjectile.DisplayName: Summer Movement
+			SummerSpiritMinion.DisplayName: Summer Spirit Minion
+			VersePetalProjectile.DisplayName: Verse Petal
+			VivaldiSeasonalWave.DisplayName: Vivaldi Seasonal Wave
+			WinterFinaleProjectile.DisplayName: Winter Finale
+			WinterSpiritMinion.DisplayName: Winter Spirit Minion
+			BloomArrow.DisplayName: Bloom Arrow
+			BlossomPetal.DisplayName: Blossom Petal
+			FlowerSpriteMinion.DisplayName: Flower Sprite Minion
+			HealingFlower.DisplayName: Healing Flower
+			HomingFlowerBolt.DisplayName: Homing Flower Bolt
+			HomingSpringPetal.DisplayName: Homing Spring Petal
+			PollenBolt.DisplayName: Pollen Bolt
+			PollenCloud.DisplayName: Pollen Cloud
+			SyncPetal.DisplayName: Sync Petal
+			VernalBolt.DisplayName: Vernal Bolt
+			HeatwavePulse.DisplayName: Heatwave Pulse
+			SolarFlameStream.DisplayName: Solar Flame Stream
+			SolarFlareProjectile.DisplayName: Solar Flare
+			SolarOrbProjectile.DisplayName: Solar Orb
+			SolarWave.DisplayName: Solar Wave
+			SunbeamProjectile.DisplayName: Sunbeam
+			SunSpiritMinion.DisplayName: Sun Spirit Minion
+			ZenithFlare.DisplayName: Zenith Flare
+			ZenithFlareProjectile.DisplayName: Zenith Flare
+			AvalancheWave.DisplayName: Avalanche Wave
+			BlizzardShardProjectile.DisplayName: Blizzard Shard
+			FrostSentinelMinion.DisplayName: Frost Sentinel Minion
+			AvalancheIceShardProjectile.DisplayName: Avalanche Ice Shard
+			IceShardProjectile.DisplayName: Ice Shard
+			IceStormProjectile.DisplayName: Ice Storm
+			IcicleBolt.DisplayName: Icicle Bolt
+			PermafrostBolt.DisplayName: Permafrost Bolt
+			SentinelFrostBolt.DisplayName: Sentinel Frost Bolt
+			StormIcicle.DisplayName: Storm Icicle
+			NebulaStarfallProjectile.DisplayName: Nebula Starfall
+			SeekingCrystalProjectile.DisplayName: Seeking Crystal
+			SeekingCrystalProj.DisplayName: Seeking Crystal Proj
+			ClairProj_MoonbeamSparkle.DisplayName: Clair Proj_ Moonbeam Sparkle
+			ClairProj_MoonlitNotes.DisplayName: Clair Proj_ Moonlit Notes
+			ClairProj_MoonlitRipple.DisplayName: Clair Proj_ Moonlit Ripple
+			ClairProj_ReflectionCrescent.DisplayName: Clair Proj_ Reflection Crescent
+			ClairProj_SereneArc.DisplayName: Clair Proj_ Serene Arc
+			DiesIraeProj_DamnationCrescent.DisplayName: Dies Irae Proj_ Damnation Crescent
+			DiesIraeProj_InfernoEmber.DisplayName: Dies Irae Proj_ Inferno Ember
+			DiesIraeProj_JudgmentArc.DisplayName: Dies Irae Proj_ Judgment Arc
+			DiesIraeProj_RequiemNotes.DisplayName: Dies Irae Proj_ Requiem Notes
+			DiesIraeProj_WrathSmoke.DisplayName: Dies Irae Proj_ Wrath Smoke
+			EnigmaProj_GlyphOrbit.DisplayName: Enigma Proj_ Glyph Orbit
+			EnigmaProj_GreenFlame.DisplayName: Enigma Proj_ Green Flame
+			EnigmaProj_MysteryNotes.DisplayName: Enigma Proj_ Mystery Notes
+			EnigmaProj_VoidSwirl.DisplayName: Enigma Proj_ Void Swirl
+			EnigmaProj_WatchingEye.DisplayName: Enigma Proj_ Watching Eye
+			EroicaProj_HeroicArcs.DisplayName: Eroica Proj_ Heroic Arcs
+			EroicaProj_SakuraDrift.DisplayName: Eroica Proj_ Sakura Drift
+			EroicaProj_SymphonyNotes.DisplayName: Eroica Proj_ Symphony Notes
+			EroicaProj_TriumphSparks.DisplayName: Eroica Proj_ Triumph Sparks
+			EroicaProj_ValorCrescent.DisplayName: Eroica Proj_ Valor Crescent
+			FateProj_CelestialNotes.DisplayName: Fate Proj_ Celestial Notes
+			FateProj_CosmicCloud.DisplayName: Fate Proj_ Cosmic Cloud
+			FateProj_GlyphOrbit.DisplayName: Fate Proj_ Glyph Orbit
+			FateProj_RealityCrescent.DisplayName: Fate Proj_ Reality Crescent
+			FateProj_StarStream.DisplayName: Fate Proj_ Star Stream
+			CampanellaProj_BellArc.DisplayName: Campanella Proj_ Bell Arc
+			CampanellaProj_CrescentFlame.DisplayName: Campanella Proj_ Crescent Flame
+			CampanellaProj_EmberSpray.DisplayName: Campanella Proj_ Ember Spray
+			CampanellaProj_MusicNotes.DisplayName: Campanella Proj_ Music Notes
+			CampanellaProj_SmokeTrail.DisplayName: Campanella Proj_ Smoke Trail
+			MoonlightProj_LunarCrescent.DisplayName: Moonlight Proj_ Lunar Crescent
+			MoonlightProj_LunarMist.DisplayName: Moonlight Proj_ Lunar Mist
+			MoonlightProj_MoonbeamArc.DisplayName: Moonlight Proj_ Moonbeam Arc
+			MoonlightProj_NocturneNotes.DisplayName: Moonlight Proj_ Nocturne Notes
+			MoonlightProj_StellarSparkle.DisplayName: Moonlight Proj_ Stellar Sparkle
+			NachtmusikProj_NightCrescent.DisplayName: Nachtmusik Proj_ Night Crescent
+			NachtmusikProj_NocturneNotes.DisplayName: Nachtmusik Proj_ Nocturne Notes
+			NachtmusikProj_SerenadeArc.DisplayName: Nachtmusik Proj_ Serenade Arc
+			NachtmusikProj_StarlightMist.DisplayName: Nachtmusik Proj_ Starlight Mist
+			NachtmusikProj_TwinklingStar.DisplayName: Nachtmusik Proj_ Twinkling Star
+			SeasonsProj_AutumnHarvest.DisplayName: Seasons Proj_ Autumn Harvest
+			SeasonsProj_SeasonalCycle.DisplayName: Seasons Proj_ Seasonal Cycle
+			SeasonsProj_SpringBlossom.DisplayName: Seasons Proj_ Spring Blossom
+			SeasonsProj_SummerBlaze.DisplayName: Seasons Proj_ Summer Blaze
+			SeasonsProj_WinterFrost.DisplayName: Seasons Proj_ Winter Frost
+			SwanLakeProj_BalletNotes.DisplayName: Swan Lake Proj_ Ballet Notes
+			SwanLakeProj_ContrastRipple.DisplayName: Swan Lake Proj_ Contrast Ripple
+			SwanLakeProj_FeatherDrift.DisplayName: Swan Lake Proj_ Feather Drift
+			SwanLakeProj_GracefulCrescent.DisplayName: Swan Lake Proj_ Graceful Crescent
+			SwanLakeProj_PrismaticArc.DisplayName: Swan Lake Proj_ Prismatic Arc
+			BlazingMusicShard.DisplayName: Blazing Music Shard
+			CrystallizedFlameProjectile.DisplayName: Crystallized Flame
+			EclipseOrb.DisplayName: Eclipse Orb
+			FloatingIgnition.DisplayName: Floating Ignition
+			IgnitedWrathBall.DisplayName: Ignited Wrath Ball
+			IgnitedWrathBolt.DisplayName: Ignited Wrath Bolt
+			JudgmentChainProjectile.DisplayName: Judgment Chain
+			JudgmentFlame.DisplayName: Judgment Flame
+			OrbitingShrapnel.DisplayName: Orbiting Shrapnel
+			SinBullet.DisplayName: Sin Bullet
+			SpectralVerdictSword.DisplayName: Spectral Verdict Sword
+			SpinningCleaverCopy.DisplayName: Spinning Cleaver Copy
+			WrathShard.DisplayName: Wrath Shard
+			WrathWaveProjectile.DisplayName: Wrath Wave
+			BellTollWave.DisplayName: Bell Toll Wave
+			DeathTollingBellMinion.DisplayName: Death Tolling Bell Minion
+			HarmonyOfJudgementMinion.DisplayName: Harmony Of Judgement Minion
+			JudgementRay.DisplayName: Judgement Ray
+			WrathFireball.DisplayName: Wrath Fireball
+			WrathfulContractMinion.DisplayName: Wrathful Contract Minion
+			WrathsDrillProjectile.DisplayName: Wraths Drill
+			ClockworkTargetingBolt.DisplayName: Clockwork Targeting Bolt
+			TemporalEchoProjectile.DisplayName: Temporal Echo
+			ClockworkDrillProjectile.DisplayName: Clockwork Drill
+			CosmicLaserProjectile.DisplayName: Cosmic Laser
+			GrimoireCrystalProjectile.DisplayName: Grimoire Crystal
+			GrimoireGearProjectile.DisplayName: Grimoire Gear
+			GrimoireLightningProjectile.DisplayName: Grimoire Lightning
+			GrimoireTimeFractureProjectile.DisplayName: Grimoire Time Fracture
+			OrreryBeamProjectile.DisplayName: Orrery Beam
+			OrreryControllerProjectile.DisplayName: Orrery Controller
+			OrreryOrbitProjectile.DisplayName: Orrery Orbit
+			TemporalSlashProjectile.DisplayName: Temporal Slash
+			TimeFreezeSweepProjectile.DisplayName: Time Freeze Sweep
+			ChronologicalityProjectile.DisplayName: Chronologicality
+			GearWaveProjectile.DisplayName: Gear Wave
+			SynchronizedGearExplosion.DisplayName: Synchronized Gear Explosion
+			TemporalPiercerProjectile.DisplayName: Temporal Piercer
+			TemporalRiftProjectile.DisplayName: Temporal Rift
+			TimeFractureExplosion.DisplayName: Time Fracture Explosion
+			ClockworkBombProjectile.DisplayName: Clockwork Bomb
+			GearShrapnelProjectile.DisplayName: Gear Shrapnel
+			MechanismBoltProjectile.DisplayName: Mechanism Bolt
+			StarfallBoltProjectile.DisplayName: Starfall Bolt
+			StarfallCrystalProjectile.DisplayName: Starfall Crystal
+			StarfallRiftProjectile.DisplayName: Starfall Rift
+			SynchronizedGearBoltProjectile.DisplayName: Synchronized Gear Bolt
+			TemporalSingularityProjectile.DisplayName: Temporal Singularity
+			ArbiterGearProjectile.DisplayName: Arbiter Gear
+			AutomatonsTuningForkMinionProjectile.DisplayName: Automatons Tuning Fork Minion
+			GearDrivenArbiterMinionProjectile.DisplayName: Gear Driven Arbiter Minion
+			LunarPhylacteryMinionProjectile.DisplayName: Lunar Phylactery Minion
+			PhylacteryBeamProjectile.DisplayName: Phylactery Beam
+			BlossomWaveProjectile.DisplayName: Blossom Wave
+			ChainsawThornSegment.DisplayName: Chainsaw Thorn Segment
+			GloryBeamProjectile.DisplayName: Glory Beam
+			PetalStormProjectile.DisplayName: Petal Storm
+			SmallPetalProjectile.DisplayName: Small Petal
+			ThornProjectile.DisplayName: Thorn
+			JoysDrillProjectile.DisplayName: Joys Drill
+			ElysianExplosionProjectile.DisplayName: Elysian Explosion
+			ElysianOrbProjectile.DisplayName: Elysian Orb
+			GloryShardProjectile.DisplayName: Glory Shard
+			OdeToJoyGloryBeamProjectile.DisplayName: Ode To Joy Glory Beam
+			SymphonicExplosionProjectile.DisplayName: Symphonic Explosion
+			VictoriousNoteProjectile.DisplayName: Victorious Note
+			VineMissileProjectile.DisplayName: Vine Missile
+			BloomExplosionProjectile.DisplayName: Bloom Explosion
+			GardenerFuryProjectile.DisplayName: Gardener Fury
+			RoseThornChainsawProjectile.DisplayName: Rose Thorn Chainsaw
+			ThornChainProjectile.DisplayName: Thorn Chain
+			VineWaveProjectile.DisplayName: Vine Wave
+			LingeringPetalStorm.DisplayName: Lingering Petal Storm
+			OdeToJoyHomingPetalProjectile.DisplayName: Ode To Joy Homing Petal
+			PetalBombProjectile.DisplayName: Petal Bomb
+			PollenSeedProjectile.DisplayName: Pollen Seed
+			ThornBoltProjectile.DisplayName: Thorn Bolt
+			FountainWaterProjectile.DisplayName: Fountain Water
+			GrandFinaleProjectile.DisplayName: Grand Finale
+			HarmonicBlastProjectile.DisplayName: Harmonic Blast
+			JoyousFountainMinion.DisplayName: Joyous Fountain Minion
+			JoyWaveProjectile.DisplayName: Joy Wave
+			StandingOvationMinion.DisplayName: Standing Ovation Minion
+			TriumphantChorusMinion.DisplayName: Triumphant Chorus Minion
+			ChromaticScaleSpiral.DisplayName: Chromatic Scale Spiral
+			CrescendoSwell.DisplayName: Crescendo Swell
+			ResonatingTrebleOrb.DisplayName: Resonating Treble Orb
+			SymphonyConductorBaton.DisplayName: Symphony Conductor Baton
+			TempoMetronome.DisplayName: Tempo Metronome
+			VinylRecordDisc.DisplayName: Vinyl Record Disc
+			EnigmaVoidBeamExample.DisplayName: Enigma Void Beam Example
+			EroicaDeathRayExample.DisplayName: Eroica Death Ray Example
+			FateCosmicLaserExample.DisplayName: Fate Cosmic Laser Example
+			LaCampanellaInfernoExample.DisplayName: La Campanella Inferno Example
+			MoonlightSonataRayExample.DisplayName: Moonlight Sonata Ray Example
+			SwanLakePrismExample.DisplayName: Swan Lake Prism Example
+			AdaptiveBezierProjectile.DisplayName: Adaptive Bezier
+			BezierCurveProjectile.DisplayName: Bezier Curve
+			ChromaticAfterimageProjectile.DisplayName: Chromatic Afterimage
+			UnifiedTrailProjectile.DisplayName: Unified Trail
+			VFXPlusBeamCutterProjectile.DisplayName: V F X Plus Beam Cutter
+			VFXPlusBloomStarProjectile.DisplayName: V F X Plus Bloom Star
+			VFXPlusGodRayBladeProjectile.DisplayName: V F X Plus God Ray Blade
+			VFXPlusImpactBladeProjectile.DisplayName: V F X Plus Impact Blade
+			VFXPlusSwordArcProjectile.DisplayName: V F X Plus Sword Arc
+			VFXPlusTrailBladeProjectile.DisplayName: V F X Plus Trail Blade
+			VFXTestAfterimageProjectile.DisplayName: V F X Test Afterimage
+			VFXTestBezierProjectile.DisplayName: V F X Test Bezier
+			VFXTestBillboardProjectile.DisplayName: V F X Test Billboard
+			VFXTestBloomProjectile.DisplayName: V F X Test Bloom
+			VFXTestChainProjectile.DisplayName: V F X Test Chain
+			VFXTestDistortionProjectile.DisplayName: V F X Test Distortion
+			VFXTestLightBeamProjectile.DisplayName: V F X Test Light Beam
+			VFXTestParticlePoolProjectile.DisplayName: V F X Test Particle Pool
+			VFXTestPixelTrailProjectile.DisplayName: V F X Test Pixel Trail
+			VFXTestSmokeProjectile.DisplayName: V F X Test Smoke
+			VFXTestTrailProjectile.DisplayName: V F X Test Trail
+			VFXPlusAfterimageKatanaProjectile.DisplayName: V F X Plus Afterimage Katana
+			VFXPlusConstellationBladeProjectile.DisplayName: V F X Plus Constellation Blade
+			VFXPlusNebulaStaffProjectile.DisplayName: V F X Plus Nebula Staff
+			CalamityTrailSlash.DisplayName: Calamity Trail Slash
+			ShaderTestProjectile.DisplayName: Shader Test
+			HarvestReaperSwing.DisplayName: Harvest Reaper Swing
+			TheUnresolvedCadenceSwing.DisplayName: The Unresolved Cadence Swing
+			VariationsOfTheVoidSwing.DisplayName: Variations Of The Void Swing
+			SakurasBlossomSwing.DisplayName: Sakuras Blossom Swing
+			CelestialValorSwing.DisplayName: Celestial Valor Swing
+			DualFatedChimeSwing.DisplayName: Dual Fated Chime Swing
+			IncisorOfMoonlightSwing.DisplayName: Incisor Of Moonlight Swing
+			EternalMoonSwing.DisplayName: Eternal Moon Swing
+			MidnightsCrescendoSwing.DisplayName: Midnights Crescendo Swing
+			NocturnalExecutionerSwing.DisplayName: Nocturnal Executioner Swing
+			TwilightSeveranceSwing.DisplayName: Twilight Severance Swing
+			FourSeasonsBladeSwing.DisplayName: Four Seasons Blade Swing
+			BlossomsEdgeSwing.DisplayName: Blossoms Edge Swing
+			ZenithCleaverSwing.DisplayName: Zenith Cleaver Swing
+			CalloftheBlackSwanSwing.DisplayName: Callofthe Black Swan Swing
+			EmberShardProjectile.DisplayName: Ember Shard
+			InfernalCleaverSwing.DisplayName: Infernal Cleaver Swing
+			MagmaPillarProjectile.DisplayName: Magma Pillar
+			FrostbiteEdgeSwing.DisplayName: Frostbite Edge Swing
+			FrostNovaProjectile.DisplayName: Frost Nova
+			CosmicRendBladeSwing.DisplayName: Cosmic Rend Blade Swing
+			VoidRiftProjectile.DisplayName: Void Rift
+			VoidShardProjectile.DisplayName: Void Shard
+			BloomBurstProjectile.DisplayName: Bloom Burst
+			ThornVolleyProjectile.DisplayName: Thorn Volley
+			VerdantCrescendoSwing.DisplayName: Verdant Crescendo Swing
+			ArcaneHarmonicsSwing.DisplayName: Arcane Harmonics Swing
+			HarmonicRingProjectile.DisplayName: Harmonic Ring
+			NoteProjectile.DisplayName: Note
+			ResonanceFieldProjectile.DisplayName: Resonance Field
+			SymphonyBurstProjectile.DisplayName: Symphony Burst
+			GlacialExecutionerSwing.DisplayName: Glacial Executioner Swing
+			SandboxTerraBladeSwing.DisplayName: Sandbox Terra Blade Swing
+			LightShardBeam.DisplayName: Light Shard Beam
+			LightShardExplosion.DisplayName: Light Shard Explosion
+			LightShardProjectile.DisplayName: Light Shard
+			CosmicImpactZone.DisplayName: Cosmic Impact Zone
+			CosmicSpinShard.DisplayName: Cosmic Spin Shard
+			SandboxTerraBladeComboSwing.DisplayName: Sandbox Terra Blade Combo Swing
+			SandboxTerraBladeSpinThrow.DisplayName: Sandbox Terra Blade Spin Throw
+			AnamorphicStreakVFX.DisplayName: Anamorphic Streak V F X
+			ImpactLightBeamVFX.DisplayName: Impact Light Beam V F X
+			LingeringFlameZone.DisplayName: Lingering Flame Zone
+			NeonEnergyBall.DisplayName: Neon Energy Ball
+			VerticalEnergyPillarVFX.DisplayName: Vertical Energy Pillar V F X
+			ClockworkGearProjectile.DisplayName: Clockwork Gear
+			CrispStarProjectile.DisplayName: Crisp Star
+			TerraBladeEnergyBolt.DisplayName: Terra Blade Energy Bolt
+			TerraBladeStarImpact.DisplayName: Terra Blade Star Impact
+			TerraBladeStarburstBeam.DisplayName: Terra Blade Starburst Beam
+			SandboxTerraBladeBeam.DisplayName: Sandbox Terra Blade Beam
+			SandboxTerraBladeFlareBeam.DisplayName: Sandbox Terra Blade Flare Beam
+			SandboxTerraBladePrismBeam.DisplayName: Sandbox Terra Blade Prism Beam
+			Exoboom.DisplayName: Exoboom
+			ExobladeProj.DisplayName: Exoblade Proj
+			ExobeamSlashCreator.DisplayName: Exobeam Slash Creator
+			ExobeamSlash.DisplayName: Exobeam Slash
+			Exobeam.DisplayName: Exobeam
+			ConstellationSlash.DisplayName: Constellation Slash
+			ConstellationSlashCreator.DisplayName: Constellation Slash Creator
+			IncisorSwingProj.DisplayName: Incisor Swing
+			LunarBeamProj.DisplayName: Lunar Beam Proj
+			LunarNova.DisplayName: Lunar Nova
+			JudgmentFlameProjectile.DisplayName: Judgment Flame
+			PurgatoryEmberProjectile.DisplayName: Purgatory Ember
+			IgnitedWrathBallProjectile.DisplayName: Ignited Wrath Ball
+			WrathShrapnelProjectile.DisplayName: Wrath Shrapnel
+			BellTollingMinion.DisplayName: Bell Tolling Minion
+			BellTollWaveProjectile.DisplayName: Bell Toll Wave
+			EclipseOrbProjectile.DisplayName: Eclipse Orb
+			EclipseWrathShard.DisplayName: Eclipse Wrath Shard
+			ExecutionersVerdictSwing.DisplayName: Executioners Verdict Swing
+			SpectralVerdictSlash.DisplayName: Spectral Verdict Slash
+			VerdictBolt.DisplayName: Verdict Bolt
+			BlazingShardProjectile.DisplayName: Blazing Shard
+			JudgmentRayProjectile.DisplayName: Judgment Ray
+			JudgmentSigilMinion.DisplayName: Judgment Sigil Minion
+			SinBulletProjectile.DisplayName: Sin Bullet
+			SpinningCleaverCopyProjectile.DisplayName: Spinning Cleaver Copy
+			FloatingIgnitionProjectile.DisplayName: Floating Ignition
+			WrathDemonMinion.DisplayName: Wrath Demon Minion
+			WrathFireballProjectile.DisplayName: Wrath Fireball
+			WrathCrystallizedFlame.DisplayName: Wrath Crystallized Flame
+			WrathsCleaverSwing.DisplayName: Wraths Cleaver Swing
+			ValorBeam.DisplayName: Valor Beam
+			ValorBoom.DisplayName: Valor Boom
+			ValorSlash.DisplayName: Valor Slash
+			ValorSlashCreator.DisplayName: Valor Slash Creator
+			CrescendoCosmicBeam.DisplayName: Crescendo Cosmic Beam
+			CrescendoDeityMinion.DisplayName: Crescendo Deity Minion
+			FractalOrbitBlade.DisplayName: Fractal Orbit Blade
+			FractalSwingProjectile.DisplayName: Fractal Swing
+			LightAcceleratingBullet.DisplayName: Light Accelerating Bullet
+			LightCosmicRocket.DisplayName: Light Cosmic Rocket
+			OpusEnergyBallProjectile.DisplayName: Opus Energy Ball
+			OpusSwingProjectile.DisplayName: Opus Swing
+			RequiemCosmicNote.DisplayName: Requiem Cosmic Note
+			RequiemSwingProjectile.DisplayName: Requiem Swing
+			ResonanceRapidBullet.DisplayName: Resonance Rapid Bullet
+			ResonanceSpectralBlade.DisplayName: Resonance Spectral Blade
+			SymphonyBladeFragment.DisplayName: Symphony Blade Fragment
+			SymphonySpiralBlade.DisplayName: Symphony Spiral Blade
+			ConductorSwingProjectile.DisplayName: Conductor Swing
+			ConductorSwordBeam.DisplayName: Conductor Sword Beam
+			FermataSlashWave.DisplayName: Fermata Slash Wave
+			FermataSpectralSwordNew.DisplayName: Fermata Spectral Sword New
+			BellFlameWaveProj.DisplayName: Bell Flame Wave Proj
+			DualFatedChimeSwingProj.DisplayName: Dual Fated Chime Swing
+			EmpoweredLightningProj.DisplayName: Empowered Lightning Proj
+			InfiniteBellOrbProj.DisplayName: Infinite Bell Orb Proj
+			BellfireNoteProj.DisplayName: Bellfire Note Proj
+			GrandioseBeamProj.DisplayName: Grandiose Beam Proj
+			KillEchoProj.DisplayName: Kill Echo Proj
+			NoteMineProj.DisplayName: Note Mine Proj
+			InfernalGeyserProj.DisplayName: Infernal Geyser Proj
+			MinionShockwaveProj.DisplayName: Minion Shockwave Proj
+			ResonantBlastProj.DisplayName: Resonant Blast Proj
+			ResonantNoteProj.DisplayName: Resonant Note Proj
+			StaccatoBulletProj.DisplayName: Staccato Bullet Proj
+			BellfireRocketProj.DisplayName: Bellfire Rocket Proj
+			GrandCrescendoWaveProj.DisplayName: Grand Crescendo Wave Proj
+			EternalMoonCrescentSlash.DisplayName: Eternal Moon Crescent Slash
+			EternalMoonGhost.DisplayName: Eternal Moon Ghost
+			PrismaticDetonation.DisplayName: Prismatic Detonation
+			SerenadeBeam.DisplayName: Serenade Beam
+			SerenadeHoldout.DisplayName: Serenade Holdout
+			ChainLightningBolt.DisplayName: Chain Lightning Bolt
+			FountainWaterBolt.DisplayName: Fountain Water Bolt
+			PetalSplashProjectile.DisplayName: Petal Splash
+			OrbitalNoteProjectile.DisplayName: Orbital Note
+			PetalShrapnelProjectile.DisplayName: Petal Shrapnel
+			PetalStormZone.DisplayName: Petal Storm Zone
+			ChainsawHoldoutProjectile.DisplayName: Chainsaw Holdout
+			JubilantPetalProjectile.DisplayName: Jubilant Petal
+			PollenBurstProjectile.DisplayName: Pollen Burst
+			StickyThornProjectile.DisplayName: Sticky Thorn
+			ThornSplinterProjectile.DisplayName: Thorn Splinter
+			SeasonalHomingPetalProjectile.DisplayName: Seasonal Homing Petal
+			BlackSwanFlareProj.DisplayName: Black Swan Flare Proj
+			BlackSwanSwingProj.DisplayName: Black Swan Swing
+			PearlescentRocketProj.DisplayName: Pearlescent Rocket Proj
+			AriaDetonationProj.DisplayName: Aria Detonation Proj
+			ChromaticBoltProj.DisplayName: Chromatic Bolt Proj
+			IridescentCrystalProj.DisplayName: Iridescent Crystal Proj
+			WingspanBoltProj.DisplayName: Wingspan Bolt Proj
+			DestructionHaloProj.DisplayName: Destruction Halo Proj
+			LamentBulletProj.DisplayName: Lament Bullet Proj
+			LaserFoundationBeam.DisplayName: Laser Foundation Beam
+			ThinLaserBeam.DisplayName: Thin Laser Beam
+			MaskOrbProjectile.DisplayName: Mask Orb
+			ImpactProjectile.DisplayName: Impact
+			RippleEffectProjectile.DisplayName: Ripple Effect
+			DamageZoneProjectile.DisplayName: Damage Zone
+			SlashMarkProjectile.DisplayName: Slash Mark
+			ThinSlashProjectile.DisplayName: Thin Slash
+			ThinSlashEffect.DisplayName: Thin Slash Effect
+			MagicOrb.DisplayName: Magic Orb
+			OrbBolt.DisplayName: Orb Bolt
+			AttackAnimationProjectile.DisplayName: Attack Animation
+			SlashVFXProjectile.DisplayName: Slash V F X
+			ThrowSlamProjectile.DisplayName: Throw Slam
+			ComboSwingProjectile.DisplayName: Combo Swing
+			AstralgraphProjectile.DisplayName: Astralgraph
+			FlamingRingProjectile.DisplayName: Flaming Ring
+			RangerShotProjectile.DisplayName: Ranger Shot
+			SparkCarrierProjectile.DisplayName: Spark Carrier
+			SparkExplosionProjectile.DisplayName: Spark Explosion
+			SparkleStarProjectile.DisplayName: Sparkle Star
+			SparkleStarExplosion.DisplayName: Sparkle Star Explosion
+			InfernalBeam.DisplayName: Infernal Beam
+			SmokeSwingProjectile.DisplayName: Smoke Swing
+			SmearSwingProjectile.DisplayName: Smear Swing
+			XSlashEffect.DisplayName: X Slash Effect
+			XSlashProjectile.DisplayName: X Slash
+			DIEmberShard.DisplayName: D I Ember Shard
+			HRCrimsonReaper.DisplayName: H R Crimson Reaper
+			HRDoomObelisk.DisplayName: H R Doom Obelisk
+			HRHellhound.DisplayName: H R Hellhound
+			HRPyreSentry.DisplayName: H R Pyre Sentry
+			IRBloodDrop.DisplayName: I R Blood Drop
+			IRDamnationBeam.DisplayName: I R Damnation Beam
+			IRHellfireBolt.DisplayName: I R Hellfire Bolt
+			IRJudgmentRing.DisplayName: I R Judgment Ring
+			RCApocalypseMortar.DisplayName: R C Apocalypse Mortar
+			RCBrimstoneEmber.DisplayName: R C Brimstone Ember
+			RCJudgmentArrow.DisplayName: R C Judgment Arrow
+			RCWrathShot.DisplayName: R C Wrath Shot
+			WEApocalypseSpin.DisplayName: W E Apocalypse Spin
+			WEDamnationSlam.DisplayName: W E Damnation Slam
+			WEJudgmentWave.DisplayName: W E Judgment Wave
+			WEPyreThrust.DisplayName: W E Pyre Thrust
+			ACDoomSigil.DisplayName: A C Doom Sigil
+			ACEldritchEye.DisplayName: A C Eldritch Eye
+			ACEyeBeam.DisplayName: A C Eye Beam
+			ACShadowOrb.DisplayName: A C Shadow Orb
+			ACVoidBolt.DisplayName: A C Void Bolt
+			CEDreadImpale.DisplayName: C E Dread Impale
+			CEEnigmaSpiral.DisplayName: C E Enigma Spiral
+			CESpectralStrike.DisplayName: C E Spectral Strike
+			CEVoidTear.DisplayName: C E Void Tear
+			EPArcaneAnchor.DisplayName: E P Arcane Anchor
+			EPPhantomTwin.DisplayName: E P Phantom Twin
+			EPShadowStalker.DisplayName: E P Shadow Stalker
+			EPVoidEyeSentry.DisplayName: E P Void Eye Sentry
+			RREerieTracer.DisplayName: R R Eerie Tracer
+			RRPhantomBolt.DisplayName: R R Phantom Bolt
+			RRShadowPellet.DisplayName: R R Shadow Pellet
+			RRVoidMortar.DisplayName: R R Void Mortar
+			RRVoidPool.DisplayName: R R Void Pool
+			BFFlameShot.DisplayName: B F Flame Shot
+			BFHeroArrow.DisplayName: B F Hero Arrow
+			BFPetalArrow.DisplayName: B F Petal Arrow
+			BFSakuraMortar.DisplayName: B F Sakura Mortar
+			EBFlameSentinel.DisplayName: E B Flame Sentinel
+			EBGoldenHerald.DisplayName: E B Golden Herald
+			EBHeraldBolt.DisplayName: E B Herald Bolt
+			EBPhoenixFamiliar.DisplayName: E B Phoenix Familiar
+			EBSakuraGuardian.DisplayName: E B Sakura Guardian
+			FHGoldenAria.DisplayName: F H Golden Aria
+			FHPetalTornado.DisplayName: F H Petal Tornado
+			FHPhoenixFlame.DisplayName: F H Phoenix Flame
+			FHScarletHelix.DisplayName: F H Scarlet Helix
+			HACrescendoLance.DisplayName: H A Crescendo Lance
+			HAPhoenixDive.DisplayName: H A Phoenix Dive
+			HASakuraPetal.DisplayName: H A Sakura Petal
+			HAValorWall.DisplayName: H A Valor Wall
+			DCCosmicRift.DisplayName: D C Cosmic Rift
+			DCGravityWell.DisplayName: D C Gravity Well
+			DCInevitableStrike.DisplayName: D C Inevitable Strike
+			DCStarShard.DisplayName: D C Star Shard
+			FLCelestialShard.DisplayName: F L Celestial Shard
+			FLCrimsonComet.DisplayName: F L Crimson Comet
+			FLDestinyArc.DisplayName: F L Destiny Arc
+			FLMiniSingularity.DisplayName: F L Mini Singularity
+			FLVoidArrow.DisplayName: F L Void Arrow
+			MGCosmicVortex.DisplayName: M G Cosmic Vortex
+			MGOblivionPulse.DisplayName: M G Oblivion Pulse
+			MGStarFall.DisplayName: M G Star Fall
+			MGThreadBeam.DisplayName: M G Thread Beam
+			SFAtroposBlade.DisplayName: S F Atropos Blade
+			SFClothoStar.DisplayName: S F Clotho Star
+			SFCosmicFamiliar.DisplayName: S F Cosmic Familiar
+			SFLachesisSentry.DisplayName: S F Lachesis Sentry
+			SFMeasureBolt.DisplayName: S F Measure Bolt
+			SFThreadBolt.DisplayName: S F Thread Bolt
+			BSBellShockwave.DisplayName: B S Bell Shockwave
+			BSEmberSlash.DisplayName: B S Ember Slash
+			BSInfernalWhip.DisplayName: B S Infernal Whip
+			BSResonanceRing.DisplayName: B S Resonance Ring
+			CCBellShot.DisplayName: C C Bell Shot
+			CCFireMortar.DisplayName: C C Fire Mortar
+			CCFlameSpray.DisplayName: C C Flame Spray
+			CCResonanceBolt.DisplayName: C C Resonance Bolt
+			CFBellSentry.DisplayName: C F Bell Sentry
+			CFConductorBolt.DisplayName: C F Conductor Bolt
+			CFEmberFamiliar.DisplayName: C F Ember Familiar
+			CFInfernalConductor.DisplayName: C F Infernal Conductor
+			CFSmokeWraith.DisplayName: C F Smoke Wraith
+			IEBellOrb.DisplayName: I E Bell Orb
+			IEFlameTrill.DisplayName: I E Flame Trill
+			IEInfernalFireball.DisplayName: I E Infernal Fireball
+			IESmokeVeil.DisplayName: I E Smoke Veil
+			CLBCrescentSentry.DisplayName: C L B Crescent Sentry
+			CLBLunarConstellation.DisplayName: C L B Lunar Constellation
+			CLBMoonlightEcho.DisplayName: C L B Moonlight Echo
+			CLBSentryBolt.DisplayName: C L B Sentry Bolt
+			CLBTidalFamiliar.DisplayName: C L B Tidal Familiar
+			LunarElegyCrescentWave.DisplayName: Lunar Elegy Crescent Wave
+			LunarElegyEclipseBoomerang.DisplayName: Lunar Elegy Eclipse Boomerang
+			LunarElegyMoonfallPillar.DisplayName: Lunar Elegy Moonfall Pillar
+			LunarElegyTidalThrust.DisplayName: Lunar Elegy Tidal Thrust
+			MRLunarBolt.DisplayName: M R Lunar Bolt
+			MRMoonbeamSnipe.DisplayName: M R Moonbeam Snipe
+			MRSilverNeedle.DisplayName: M R Silver Needle
+			MRSilverRainMarker.DisplayName: M R Silver Rain Marker
+			MRTidalBullet.DisplayName: M R Tidal Bullet
+			SOTCrescentShard.DisplayName: S O T Crescent Shard
+			SOTLunarCascadeOrb.DisplayName: S O T Lunar Cascade Orb
+			SOTMoonlightBeam.DisplayName: S O T Moonlight Beam
+			SOTMoonriseNote.DisplayName: S O T Moonrise Note
+			SOTTidalVortex.DisplayName: S O T Tidal Vortex
+			CACosmicRay.DisplayName: C A Cosmic Ray
+			CANebulaFrag.DisplayName: C A Nebula Frag
+			CAStarBolt.DisplayName: C A Star Bolt
+			CASupernovaShell.DisplayName: C A Supernova Shell
+			NCBConstellationSentry.DisplayName: N C B Constellation Sentry
+			NCBNebulaWraith.DisplayName: N C B Nebula Wraith
+			NCBNightGuardian.DisplayName: N C B Night Guardian
+			NCBStarBolt.DisplayName: N C B Star Bolt
+			NCBStarSprite.DisplayName: N C B Star Sprite
+			NCConstellationNode.DisplayName: N C Constellation Node
+			NCCosmicBeam.DisplayName: N C Cosmic Beam
+			NCNebulaCloud.DisplayName: N C Nebula Cloud
+			NCStarstream.DisplayName: N C Starstream
+			NMStarShard.DisplayName: N M Star Shard
+			SBMeteor.DisplayName: S B Meteor
+			SBNebulaRing.DisplayName: S B Nebula Ring
+			SBNocturneThrust.DisplayName: S B Nocturne Thrust
+			SBStarlightArc.DisplayName: S B Starlight Arc
+			COCChorusSpirit.DisplayName: C O C Chorus Spirit
+			COCGoldenHerald.DisplayName: C O C Golden Herald
+			COCJubilantSentry.DisplayName: C O C Jubilant Sentry
+			COCTriumphGuard.DisplayName: C O C Triumph Guard
+			HBAnthemBolt.DisplayName: H B Anthem Bolt
+			HBGoldenArrow.DisplayName: H B Golden Arrow
+			HBGrandFinale.DisplayName: H B Grand Finale
+			HBRadiantBurst.DisplayName: H B Radiant Burst
+			JCAnthemThrust.DisplayName: J C Anthem Thrust
+			JCCelebrationSpin.DisplayName: J C Celebration Spin
+			JCCrescendoSlam.DisplayName: J C Crescendo Slam
+			JCTriumphantArc.DisplayName: J C Triumphant Arc
+			OEHarmonyBeam.DisplayName: O E Harmony Beam
+			OEJoyCascade.DisplayName: O E Joy Cascade
+			OERadiantBolt.DisplayName: O E Radiant Bolt
+			OEUniversalChorus.DisplayName: O E Universal Chorus
+			OJNoteFragment.DisplayName: O J Note Fragment
+			OJShockwaveRing.DisplayName: O J Shockwave Ring
+			OJSparkleBolt.DisplayName: O J Sparkle Bolt
+			SmokeCarrierProjectile.DisplayName: Smoke Carrier
+			SmokeRingProjectile.DisplayName: Smoke Ring
+			CBBlackFeather.DisplayName: C B Black Feather
+			CBPrismaticArrow.DisplayName: C B Prismatic Arrow
+			CBPrismaticShard.DisplayName: C B Prismatic Shard
+			CBSwanSongOrb.DisplayName: C B Swan Song Orb
+			CBWhiteFeather.DisplayName: C B White Feather
+			OABlackSwanOrb.DisplayName: O A Black Swan Orb
+			OAFeatherRain.DisplayName: O A Feather Rain
+			OAMirrorLake.DisplayName: O A Mirror Lake
+			OAShadowFeather.DisplayName: O A Shadow Feather
+			OAWhiteRay.DisplayName: O A White Ray
+			SLDyingSwan.DisplayName: S L Dying Swan
+			SLFeatherShard.DisplayName: S L Feather Shard
+			SLGracefulCrescent.DisplayName: S L Graceful Crescent
+			SLPasDeDeux.DisplayName: S L Pas De Deux
+			SLPlumeDive.DisplayName: S L Plume Dive
+			SOCursedCygnet.DisplayName: S O Cursed Cygnet
+			SOFeatherGuard.DisplayName: S O Feather Guard
+			SOMirrorBolt.DisplayName: S O Mirror Bolt
+			SOMirrorSentry.DisplayName: S O Mirror Sentry
+			SOWhiteSwanSpirit.DisplayName: S O White Swan Spirit
+			RequiemRealityTear.DisplayName: Requiem Reality Tear
+			CrescentMoonProj.DisplayName: Crescent Moon Proj
+			CrescentWaveProj.DisplayName: Crescent Wave Proj
+			OrbitingNoteProj.DisplayName: Orbiting Note Proj
+			StaccatoNoteProj.DisplayName: Staccato Note Proj
+			SplashZoneProj.DisplayName: Splash Zone Proj
+			CrystalShardProj.DisplayName: Crystal Shard Proj
+			TidalRippleEffect.DisplayName: Tidal Ripple Effect
+			TidalThinSlash.DisplayName: Tidal Thin Slash
+			TidalXSlashEffect.DisplayName: Tidal X Slash Effect
+			MoonlightPuddle.DisplayName: Moonlight Puddle
+			PrismaticMaskOrb.DisplayName: Prismatic Mask Orb
+			SerenadeRipple.DisplayName: Serenade Ripple
+			SupernovaRipple.DisplayName: Supernova Ripple
+			SupernovaSmokeRing.DisplayName: Supernova Smoke Ring
+			SupernovaSparks.DisplayName: Supernova Sparks
+			TemporalEchoAccessoryProjectile.DisplayName: Temporal Echo Accessory
+			AutomatonMinionProjectile.DisplayName: Automaton Minion
+			ConductorFinalNoteProjectile.DisplayName: Conductor Final Note
+			FrequencyZoneProjectile.DisplayName: Frequency Zone
+			PerfectResonanceProjectile.DisplayName: Perfect Resonance
+			ChronologicalitySwing.DisplayName: Chronologicality Swing
+			ClockworkOverflowProjectile.DisplayName: Clockwork Overflow
+			TimeSlowFieldProjectile.DisplayName: Time Slow Field
+			HourBeamProjectile.DisplayName: Hour Beam
+			MinuteOrbProjectile.DisplayName: Minute Orb
+			PendulumZoneProjectile.DisplayName: Pendulum Zone
+			SecondBoltProjectile.DisplayName: Second Bolt
+			DriveGearProjectile.DisplayName: Drive Gear
+			GearMeshZoneProjectile.DisplayName: Gear Mesh Zone
+			MediumGearProjectile.DisplayName: Medium Gear
+			SmallGearProjectile.DisplayName: Small Gear
+			MasterMechanismBombProjectile.DisplayName: Master Mechanism Bomb
+			StickyBombProjectile.DisplayName: Sticky Bomb
+			ArbiterMinionProjectile.DisplayName: Arbiter Minion
+			ArbiterVerdictProjectile.DisplayName: Arbiter Verdict
+			MoonlightBeamProjectile.DisplayName: Moonlight Beam
+			MoonlightSentinelProjectile.DisplayName: Moonlight Sentinel
+			MechanismBulletProjectile.DisplayName: Mechanism Bullet
+			MechanismEjectGearProjectile.DisplayName: Mechanism Eject Gear
+			MidnightStrikeShotProjectile.DisplayName: Midnight Strike Shot
+			DreamAlignmentProjectile.DisplayName: Dream Alignment
+			DreamSphereProjectile.DisplayName: Dream Sphere
+			InnerSphereBoltProjectile.DisplayName: Inner Sphere Bolt
+			MiddleSphereOrbProjectile.DisplayName: Middle Sphere Orb
+			OuterSphereBombProjectile.DisplayName: Outer Sphere Bomb
+			ForwardFieldProjectile.DisplayName: Forward Field
+			ReverseFieldProjectile.DisplayName: Reverse Field
+			TemporalParadoxProjectile.DisplayName: Temporal Paradox
+			TemporalArrowProjectile.DisplayName: Temporal Arrow
+			TemporalFractureProjectile.DisplayName: Temporal Fracture
+			FrozenMomentProjectile.DisplayName: Frozen Moment
+			TemporalThrustProjectile.DisplayName: Temporal Thrust
+			TimePierceBoomerangProjectile.DisplayName: Time Pierce Boomerang
+			ChainLightningArc.DisplayName: Chain Lightning Arc
+			HellfireZoneProjectile.DisplayName: Hellfire Zone
+			EclipseFieldProjectile.DisplayName: Eclipse Field
+			DarkSermonSigilProjectile.DisplayName: Dark Sermon Sigil
+			PenanceShotProjectile.DisplayName: Penance Shot
+			GoliathMaskAura.DisplayName: Goliath Mask Aura
+			GoliathRipple.DisplayName: Goliath Ripple
+			NebulaWhisperShot.DisplayName: Nebula Whisper Shot
+			ExecutionFanBlade.DisplayName: Execution Fan Blade
+			CosmicRequiemOrbProjectile.DisplayName: Cosmic Requiem Orb
+			StarEchoProjectile.DisplayName: Star Echo
+			AnthemBeamProjectile.DisplayName: Anthem Beam
+			GloryNoteProjectile.DisplayName: Glory Note
+			VictoryFanfareProjectile.DisplayName: Victory Fanfare
+			ElysianVerdictExplosion.DisplayName: Elysian Verdict Explosion
+			GoldenDropletProjectile.DisplayName: Golden Droplet
+			JoyousGeyserBurstProjectile.DisplayName: Joyous Geyser Burst
+			ApexOrbProjectile.DisplayName: Apex Orb
+			ExordiumBoltProjectile.DisplayName: Exordium Bolt
+			GloriaBoltProjectile.DisplayName: Gloria Bolt
+			GloriaFragmentProjectile.DisplayName: Gloria Fragment
+			RisingBoltProjectile.DisplayName: Rising Bolt
+			HurricaneShotProjectile.DisplayName: Hurricane Shot
+			PetalClusterProjectile.DisplayName: Petal Cluster
+			PetalVortexZone.DisplayName: Petal Vortex Zone
+			ThornShrapnelProjectile.DisplayName: Thorn Shrapnel
+			GardenerSwingProj.DisplayName: Gardener Swing
+			PodDetonationProjectile.DisplayName: Pod Detonation
+			SeedPodProjectile.DisplayName: Seed Pod
+			GoldenFieldProjectile.DisplayName: Golden Field
+			HomingSeedProjectile.DisplayName: Homing Seed
+			MassBloomProjectile.DisplayName: Mass Bloom
+			PollenShotProjectile.DisplayName: Pollen Shot
+			OvationShockwaveProjectile.DisplayName: Ovation Shockwave
+			RoseRainPetalProjectile.DisplayName: Rose Rain Petal
+			ThrownRoseProjectile.DisplayName: Thrown Rose
+			BotanicalBurstProjectile.DisplayName: Botanical Burst
+			ThornboundSwingProj.DisplayName: Thornbound Swing
+			ThornLashProjectile.DisplayName: Thorn Lash
+			ThornWallProjectile.DisplayName: Thorn Wall
+			BloomThornProjectile.DisplayName: Bloom Thorn
+			CrystallineThornProjectile.DisplayName: Crystalline Thorn
+			ThornDetonationProjectile.DisplayName: Thorn Detonation
+			FuneralPrayerChanneledBeam.DisplayName: Funeral Prayer Channeled Beam
+			ThemeSparkleExplosion.DisplayName: Theme Sparkle Explosion
+			SakuraPetalProj.DisplayName: Sakura Petal Proj
+			AnimeSwingProjectile.DisplayName: Anime Swing
+			IncisorOrbSwingProj.DisplayName: Incisor Orb Swing
+			IncisorOrbProj.DisplayName: Incisor Orb Proj
+			ThornSprayProjectile.DisplayName: Thorn Spray
+			PollinatorProjectile.DisplayName: Pollinator
+			HymnVictoriousSwing.DisplayName: Hymn Victorious Swing
+			FountainProjectile.DisplayName: Fountain
+			ElysianVerdictSwing.DisplayName: Elysian Verdict Swing
+			AnthemGloryProjectile.DisplayName: Anthem Glory
+			TimeFreezeSlashProjectile.DisplayName: Time Freeze Slash
+			SuperLunarOrbProj.DisplayName: Super Lunar Orb Proj
+			LunarZoneProj.DisplayName: Lunar Zone Proj
+			ClockworkHarmonySwing.DisplayName: Clockwork Harmony Swing
+			EternalMoonOrbRing.DisplayName: Eternal Moon Orb Ring
+			SakuraSpectralTurret.DisplayName: Sakura Spectral Turret
+			SakuraSparkLaser.DisplayName: Sakura Spark Laser
+			CelestialValorZoneOrb.DisplayName: Celestial Valor Zone Orb
+			CelestialValorNoiseZone.DisplayName: Celestial Valor Noise Zone
+			CelestialValorFlyingBlade.DisplayName: Celestial Valor Flying Blade
+			ChronologicalitySpecialProj.DisplayName: Chronologicality Special Proj
+			ClockworkHarmonySpecialProj.DisplayName: Clockwork Harmony Special Proj
+			TemporalPiercerSpecialProj.DisplayName: Temporal Piercer Special Proj
+			ChainJudgmentSpecialProj.DisplayName: Chain Judgment Special Proj
+			ExecutionersVerdictSpecialProj.DisplayName: Executioners Verdict Special Proj
+			WrathsCleaverSpecialProj.DisplayName: Wraths Cleaver Special Proj
+			CadenceSpecialProj.DisplayName: Cadence Special Proj
+			VoidSpecialProj.DisplayName: Void Special Proj
+			CodaSpecialProj.DisplayName: Coda Special Proj
+			FractalSpecialProj.DisplayName: Fractal Special Proj
+			OpusUltimaSpecialProj.DisplayName: Opus Ultima Special Proj
+			RequiemSpecialProj.DisplayName: Requiem Special Proj
+			ConductorSpecialProj.DisplayName: Conductor Special Proj
+			DualFatedChimeSpecialProj.DisplayName: Dual Fated Chime Special Proj
+			MidnightsCrescendoSpecialProj.DisplayName: Midnights Crescendo Special Proj
+			NocturnalExecutionerSpecialProj.DisplayName: Nocturnal Executioner Special Proj
+			TwilightSeveranceSpecialProj.DisplayName: Twilight Severance Special Proj
+			RoseThornChainsawSpecialProj.DisplayName: Rose Thorn Chainsaw Special Proj
+			GardenerFurySpecialProj.DisplayName: Gardener Fury Special Proj
+			ThornboundReckoningSpecialProj.DisplayName: Thornbound Reckoning Special Proj
+			BlackSwanSpecialProj.DisplayName: Black Swan Special Proj
 		}
 
 		Keybinds.ToggleHarmonicCoreUI.DisplayName: Toggle Harmonic Core UI
@@ -3983,4573 +5918,4 @@ Mods: {
 			ResonanceBornPrefix.DisplayName: Resonance Born
 		}
 	}
-}
-
-Tiles: {
-	GrandPianoTile.MapEntry: Grand Piano Tile
-	EnigmaResonanceOreTile.MapEntry: Enigma Resonance Ore Tile
-	EroicaResonanceOreTile.MapEntry: Eroica Resonance Ore Tile
-	FateResonanceOreTile.MapEntry: Fate Resonance Ore Tile
-	LaCampanellaResonanceOreTile.MapEntry: La Campanella Resonance Ore Tile
-	MoonlitResonanceOreTile.MapEntry: Moonlit Resonance Ore Tile
-	SwanLakeResonanceOreTile.MapEntry: Swan Lake Resonance Ore Tile
-	NachtmusikResonanceOreTile.MapEntry: Nachtmusik Resonance Ore Tile
-	DiesIraeResonanceOreTile.MapEntry: Dies Irae Resonance Ore Tile
-	ClairDeLuneResonanceOreTile.MapEntry: Clair De Lune Resonance Ore Tile
-	OdeToJoyResonanceOreTile.MapEntry: Ode To Joy Resonance Ore Tile
-}
-
-Buffs: {
-	ResonantBurnDebuff: {
-		DisplayName: Resonant Burn Debuff
-		Description: Mods.MagnumOpus.Buffs.ResonantBurnDebuff.Description
-	}
-
-	CosmicBrewBuff: {
-		DisplayName: Cosmic Brew Buff
-		Description: Mods.MagnumOpus.Buffs.CosmicBrewBuff.Description
-	}
-
-	HarmonicElixirBuff: {
-		DisplayName: Harmonic Elixir Buff
-		Description: Mods.MagnumOpus.Buffs.HarmonicElixirBuff.Description
-	}
-
-	MaestroBuff: {
-		DisplayName: Maestro Buff
-		Description: Mods.MagnumOpus.Buffs.MaestroBuff.Description
-	}
-
-	MinorResonanceBuff: {
-		DisplayName: Minor Resonance Buff
-		Description: Mods.MagnumOpus.Buffs.MinorResonanceBuff.Description
-	}
-
-	SeasonalDraughtBuff: {
-		DisplayName: Seasonal Draught Buff
-		Description: Mods.MagnumOpus.Buffs.SeasonalDraughtBuff.Description
-	}
-
-	MysteryVaporDebuff: {
-		DisplayName: Mystery Vapor Debuff
-		Description: Mods.MagnumOpus.Buffs.MysteryVaporDebuff.Description
-	}
-
-	ParadoxBrand: {
-		DisplayName: Paradox Brand
-		Description: Mods.MagnumOpus.Buffs.ParadoxBrand.Description
-	}
-
-	WatchedDebuff: {
-		DisplayName: Watched Debuff
-		Description: Mods.MagnumOpus.Buffs.WatchedDebuff.Description
-	}
-
-	EchoMark: {
-		DisplayName: Echo Mark
-		Description: Mods.MagnumOpus.Buffs.EchoMark.Description
-	}
-
-	UnsolvedPhantomBuff: {
-		DisplayName: Unsolved Phantom Buff
-		Description: Mods.MagnumOpus.Buffs.UnsolvedPhantomBuff.Description
-	}
-
-	SakuraOfFateBuff: {
-		DisplayName: Sakura Of Fate Buff
-		Description: Mods.MagnumOpus.Buffs.SakuraOfFateBuff.Description
-	}
-
-	TriumphantColossusBuff: {
-		DisplayName: Triumphant Colossus Buff
-		Description: Mods.MagnumOpus.Buffs.TriumphantColossusBuff.Description
-	}
-
-	DestinyCollapse: {
-		DisplayName: Destiny Collapse
-		Description: Mods.MagnumOpus.Buffs.DestinyCollapse.Description
-	}
-
-	CosmicDeityBuff: {
-		DisplayName: Cosmic Deity Buff
-		Description: Mods.MagnumOpus.Buffs.CosmicDeityBuff.Description
-	}
-
-	ResonantToll: {
-		DisplayName: Resonant Toll
-		Description: Mods.MagnumOpus.Buffs.ResonantToll.Description
-	}
-
-	BellfireCrescendoBuff: {
-		DisplayName: Bellfire Crescendo Buff
-		Description: Mods.MagnumOpus.Buffs.BellfireCrescendoBuff.Description
-	}
-
-	CampanellaChoirBuff: {
-		DisplayName: Campanella Choir Buff
-		Description: Mods.MagnumOpus.Buffs.CampanellaChoirBuff.Description
-	}
-
-	GrandCrescendoBuff: {
-		DisplayName: Grand Crescendo Buff
-		Description: Mods.MagnumOpus.Buffs.GrandCrescendoBuff.Description
-	}
-
-	InfernoWaltzBuff: {
-		DisplayName: Inferno Waltz Buff
-		Description: Mods.MagnumOpus.Buffs.InfernoWaltzBuff.Description
-	}
-
-	InfiniteBellDamageBuff: {
-		DisplayName: Infinite Bell Damage Buff
-		Description: Mods.MagnumOpus.Buffs.InfiniteBellDamageBuff.Description
-	}
-
-	InfiniteBellEmpoweredBuff: {
-		DisplayName: Infinite Bell Empowered Buff
-		Description: Mods.MagnumOpus.Buffs.InfiniteBellEmpoweredBuff.Description
-	}
-
-	MusicsDissonance: {
-		DisplayName: Musics Dissonance
-		Description: Mods.MagnumOpus.Buffs.MusicsDissonance.Description
-	}
-
-	GoliathOfMoonlightBuff: {
-		DisplayName: Goliath Of Moonlight Buff
-		Description: Mods.MagnumOpus.Buffs.GoliathOfMoonlightBuff.Description
-	}
-
-	RazerOfMoonlightsShadowBuff: {
-		DisplayName: Razer Of Moonlights Shadow Buff
-		Description: Mods.MagnumOpus.Buffs.RazerOfMoonlightsShadowBuff.Description
-	}
-
-	FlameOfTheSwan: {
-		DisplayName: Flame Of The Swan
-		Description: Mods.MagnumOpus.Buffs.FlameOfTheSwan.Description
-	}
-
-	FeathersCallBuff: {
-		DisplayName: Feathers Call Buff
-		Description: Mods.MagnumOpus.Buffs.FeathersCallBuff.Description
-	}
-
-	IridescentFlockBuff: {
-		DisplayName: Iridescent Flock Buff
-		Description: Mods.MagnumOpus.Buffs.IridescentFlockBuff.Description
-	}
-
-	HarvestWraithBuff: {
-		DisplayName: Harvest Wraith Buff
-		Description: Mods.MagnumOpus.Buffs.HarvestWraithBuff.Description
-	}
-
-	QueensRadianceBuff: {
-		DisplayName: Queens Radiance Buff
-		Description: Mods.MagnumOpus.Buffs.QueensRadianceBuff.Description
-	}
-
-	CelestialHarmony: {
-		DisplayName: Celestial Harmony
-		Description: Mods.MagnumOpus.Buffs.CelestialHarmony.Description
-	}
-
-	CelestialChorusBatonBuff: {
-		DisplayName: Celestial Chorus Baton Buff
-		Description: Mods.MagnumOpus.Buffs.CelestialChorusBatonBuff.Description
-	}
-
-	ConductorOfConstellationsBuff: {
-		DisplayName: Conductor Of Constellations Buff
-		Description: Mods.MagnumOpus.Buffs.ConductorOfConstellationsBuff.Description
-	}
-
-	GalacticOvertureBuff: {
-		DisplayName: Galactic Overture Buff
-		Description: Mods.MagnumOpus.Buffs.GalacticOvertureBuff.Description
-	}
-
-	VivaldiConductorBuff: {
-		DisplayName: Vivaldi Conductor Buff
-		Description: Mods.MagnumOpus.Buffs.VivaldiConductorBuff.Description
-	}
-
-	FlowerSpriteBuff: {
-		DisplayName: Flower Sprite Buff
-		Description: Mods.MagnumOpus.Buffs.FlowerSpriteBuff.Description
-	}
-
-	SunSpiritBuff: {
-		DisplayName: Sun Spirit Buff
-		Description: Mods.MagnumOpus.Buffs.SunSpiritBuff.Description
-	}
-
-	HypothermiaBuff: {
-		DisplayName: Hypothermia Buff
-		Description: Mods.MagnumOpus.Buffs.HypothermiaBuff.Description
-	}
-
-	FrostSentinelBuff: {
-		DisplayName: Frost Sentinel Buff
-		Description: Mods.MagnumOpus.Buffs.FrostSentinelBuff.Description
-	}
-
-	DeathTollingBellBuff: {
-		DisplayName: Death Tolling Bell Buff
-		Description: Mods.MagnumOpus.Buffs.DeathTollingBellBuff.Description
-	}
-
-	HarmonyOfJudgementBuff: {
-		DisplayName: Harmony Of Judgement Buff
-		Description: Mods.MagnumOpus.Buffs.HarmonyOfJudgementBuff.Description
-	}
-
-	WrathfulContractBuff: {
-		DisplayName: Wrathful Contract Buff
-		Description: Mods.MagnumOpus.Buffs.WrathfulContractBuff.Description
-	}
-
-	TemporalClarityBuff: {
-		DisplayName: Temporal Clarity Buff
-		Description: Mods.MagnumOpus.Buffs.TemporalClarityBuff.Description
-	}
-
-	AutomatonsTuningForkBuff: {
-		DisplayName: Automatons Tuning Fork Buff
-		Description: Mods.MagnumOpus.Buffs.AutomatonsTuningForkBuff.Description
-	}
-
-	GearDrivenArbiterBuff: {
-		DisplayName: Gear Driven Arbiter Buff
-		Description: Mods.MagnumOpus.Buffs.GearDrivenArbiterBuff.Description
-	}
-
-	LunarPhylacteryBuff: {
-		DisplayName: Lunar Phylactery Buff
-		Description: Mods.MagnumOpus.Buffs.LunarPhylacteryBuff.Description
-	}
-
-	TemporalJudgmentDebuff: {
-		DisplayName: Temporal Judgment Debuff
-		Description: Mods.MagnumOpus.Buffs.TemporalJudgmentDebuff.Description
-	}
-
-	JoyousFountainBuff: {
-		DisplayName: Joyous Fountain Buff
-		Description: Mods.MagnumOpus.Buffs.JoyousFountainBuff.Description
-	}
-
-	StandingOvationBuff: {
-		DisplayName: Standing Ovation Buff
-		Description: Mods.MagnumOpus.Buffs.StandingOvationBuff.Description
-	}
-
-	TriumphantChorusBuff: {
-		DisplayName: Triumphant Chorus Buff
-		Description: Mods.MagnumOpus.Buffs.TriumphantChorusBuff.Description
-	}
-
-	ExoMiracleBlight: {
-		Description: Mods.MagnumOpus.Buffs.ExoMiracleBlight.Description
-		DisplayName: Exo Miracle Blight
-	}
-
-	ExoGlacialState: {
-		Description: Mods.MagnumOpus.Buffs.ExoGlacialState.Description
-		DisplayName: Exo Glacial State
-	}
-
-	LunarResonanceDebuff: {
-		DisplayName: Lunar Resonance Debuff
-		Description: Mods.MagnumOpus.Buffs.LunarResonanceDebuff.Description
-	}
-
-	MoonlitStasis: {
-		DisplayName: Moonlit Stasis
-		Description: Mods.MagnumOpus.Buffs.MoonlitStasis.Description
-	}
-
-	ExecutionBrand: {
-		DisplayName: Execution Brand
-		Description: Mods.MagnumOpus.Buffs.ExecutionBrand.Description
-	}
-
-	PyreImmolation: {
-		DisplayName: Pyre Immolation
-		Description: Mods.MagnumOpus.Buffs.PyreImmolation.Description
-	}
-
-	HellfireImmolation: {
-		DisplayName: Hellfire Immolation
-		Description: Mods.MagnumOpus.Buffs.HellfireImmolation.Description
-	}
-
-	WrathMark: {
-		DisplayName: Wrath Mark
-		Description: Mods.MagnumOpus.Buffs.WrathMark.Description
-	}
-
-	HeroicBurn: {
-		DisplayName: Heroic Burn
-		Description: Mods.MagnumOpus.Buffs.HeroicBurn.Description
-	}
-
-	ValorStagger: {
-		DisplayName: Valor Stagger
-		Description: Mods.MagnumOpus.Buffs.ValorStagger.Description
-	}
-
-	PetalWound: {
-		DisplayName: Petal Wound
-		Description: Mods.MagnumOpus.Buffs.PetalWound.Description
-	}
-
-	SakuraBlight: {
-		DisplayName: Sakura Blight
-		Description: Mods.MagnumOpus.Buffs.SakuraBlight.Description
-	}
-
-	CrescendoDeityBuff: {
-		DisplayName: Crescendo Deity Buff
-		Description: Mods.MagnumOpus.Buffs.CrescendoDeityBuff.Description
-	}
-
-	LunarStasis: {
-		DisplayName: Lunar Stasis
-		Description: Mods.MagnumOpus.Buffs.LunarStasis.Description
-	}
-
-	TidalDrowning: {
-		DisplayName: Tidal Drowning
-		Description: Mods.MagnumOpus.Buffs.TidalDrowning.Description
-	}
-
-	MusicalDissonance: {
-		DisplayName: Musical Dissonance
-		Description: Mods.MagnumOpus.Buffs.MusicalDissonance.Description
-	}
-
-	LunarImpact: {
-		DisplayName: Lunar Impact
-		Description: Mods.MagnumOpus.Buffs.LunarImpact.Description
-	}
-
-	AnnihilationMark: {
-		DisplayName: Annihilation Mark
-		Description: Mods.MagnumOpus.Buffs.AnnihilationMark.Description
-	}
-
-	BygoneEcho: {
-		DisplayName: Bygone Echo
-		Description: Mods.MagnumOpus.Buffs.BygoneEcho.Description
-	}
-
-	RealityFrayed: {
-		DisplayName: Reality Frayed
-		Description: Mods.MagnumOpus.Buffs.RealityFrayed.Description
-	}
-
-	SpectralResonance: {
-		DisplayName: Spectral Resonance
-		Description: Mods.MagnumOpus.Buffs.SpectralResonance.Description
-	}
-
-	MoonlitSilenceDebuff: {
-		DisplayName: Moonlit Silence Debuff
-		Description: Mods.MagnumOpus.Buffs.MoonlitSilenceDebuff.Description
-	}
-
-	MournfulGaze: {
-		DisplayName: Mournful Gaze
-		Description: Mods.MagnumOpus.Buffs.MournfulGaze.Description
-	}
-
-	SwansMark: {
-		DisplayName: Swans Mark
-		Description: Mods.MagnumOpus.Buffs.SwansMark.Description
-	}
-
-	JudgmentFlameDebuff: {
-		DisplayName: Judgment Flame Debuff
-		Description: Mods.MagnumOpus.Buffs.JudgmentFlameDebuff.Description
-	}
-
-	SentenceCageDebuff: {
-		DisplayName: Sentence Cage Debuff
-		Description: Mods.MagnumOpus.Buffs.SentenceCageDebuff.Description
-	}
-
-	ChainLinkMark: {
-		DisplayName: Chain Link Mark
-		Description: Mods.MagnumOpus.Buffs.ChainLinkMark.Description
-	}
-
-	FullyBound: {
-		DisplayName: Fully Bound
-		Description: Mods.MagnumOpus.Buffs.FullyBound.Description
-	}
-
-	DeathMarkDebuff: {
-		DisplayName: Death Mark Debuff
-		Description: Mods.MagnumOpus.Buffs.DeathMarkDebuff.Description
-	}
-
-	TolledDebuff: {
-		DisplayName: Tolled Debuff
-		Description: Mods.MagnumOpus.Buffs.TolledDebuff.Description
-	}
-
-	ElysianBurnDebuff: {
-		DisplayName: Elysian Burn Debuff
-		Description: Mods.MagnumOpus.Buffs.ElysianBurnDebuff.Description
-	}
-
-	ElysianMarkDebuff: {
-		DisplayName: Elysian Mark Debuff
-		Description: Mods.MagnumOpus.Buffs.ElysianMarkDebuff.Description
-	}
-
-	HymnResonanceDebuff: {
-		DisplayName: Hymn Resonance Debuff
-		Description: Mods.MagnumOpus.Buffs.HymnResonanceDebuff.Description
-	}
-
-	JubilantBurnDebuff: {
-		DisplayName: Jubilant Burn Debuff
-		Description: Mods.MagnumOpus.Buffs.JubilantBurnDebuff.Description
-	}
-
-	PollenSlowDebuff: {
-		DisplayName: Pollen Slow Debuff
-		Description: Mods.MagnumOpus.Buffs.PollenSlowDebuff.Description
-	}
-
-	PollinatedDebuff: {
-		DisplayName: Pollinated Debuff
-		Description: Mods.MagnumOpus.Buffs.PollinatedDebuff.Description
-	}
-
-	ThornedDebuff: {
-		DisplayName: Thorned Debuff
-		Description: Mods.MagnumOpus.Buffs.ThornedDebuff.Description
-	}
-
-	RoseThornBleedDebuff: {
-		DisplayName: Rose Thorn Bleed Debuff
-		Description: Mods.MagnumOpus.Buffs.RoseThornBleedDebuff.Description
-	}
-
-	VineRootDebuff: {
-		DisplayName: Vine Root Debuff
-		Description: Mods.MagnumOpus.Buffs.VineRootDebuff.Description
-	}
-
-	ThornAccumulationDebuff: {
-		DisplayName: Thorn Accumulation Debuff
-		Description: Mods.MagnumOpus.Buffs.ThornAccumulationDebuff.Description
-	}
-}
-
-Items: {
-	HarvestMantle: {
-		DisplayName: Harvest Mantle
-		Tooltip: ""
-	}
-
-	ReapersCharm: {
-		DisplayName: Reapers Charm
-		Tooltip: ""
-	}
-
-	TwilightRing: {
-		DisplayName: Twilight Ring
-		Tooltip: ""
-	}
-
-	AutumnResonantEnergy: {
-		DisplayName: Autumn Resonant Energy
-		Tooltip: ""
-	}
-
-	DeathsNote: {
-		DisplayName: Deaths Note
-		Tooltip: ""
-	}
-
-	DecayEssence: {
-		DisplayName: Decay Essence
-		Tooltip: ""
-	}
-
-	DecayFragment: {
-		DisplayName: Decay Fragment
-		Tooltip: ""
-	}
-
-	DormantAutumnCore: {
-		DisplayName: Dormant Autumn Core
-		Tooltip: ""
-	}
-
-	HarvestBar: {
-		DisplayName: Harvest Bar
-		Tooltip: ""
-	}
-
-	LeafOfEnding: {
-		DisplayName: Leaf Of Ending
-		Tooltip: ""
-	}
-
-	TwilightWingFragment: {
-		DisplayName: Twilight Wing Fragment
-		Tooltip: ""
-	}
-
-	AdagioOfRadiantValor: {
-		DisplayName: Adagio Of Radiant Valor
-		Tooltip: ""
-	}
-
-	CodaOfAbsoluteHarmony: {
-		DisplayName: Coda Of Absolute Harmony
-		Tooltip: ""
-	}
-
-	CompleteHarmony: {
-		DisplayName: Complete Harmony
-		Tooltip: ""
-	}
-
-	ComposersNotebook: {
-		DisplayName: Composers Notebook
-		Tooltip: ""
-	}
-
-	CosmicWardensRegalia: {
-		DisplayName: Cosmic Wardens Regalia
-		Tooltip: ""
-	}
-
-	FantasiaOfBurningGrace: {
-		DisplayName: Fantasia Of Burning Grace
-		Tooltip: ""
-	}
-
-	InfernoOfLostShadows: {
-		DisplayName: Inferno Of Lost Shadows
-		Tooltip: ""
-	}
-
-	MelodicCharm: {
-		DisplayName: Melodic Charm
-		Tooltip: ""
-	}
-
-	NocturneOfAzureFlames: {
-		DisplayName: Nocturne Of Azure Flames
-		Tooltip: ""
-	}
-
-	OpusOfFourMovements: {
-		DisplayName: Opus Of Four Movements
-		Tooltip: ""
-	}
-
-	RequiemOfTheEnigmaticFlame: {
-		DisplayName: Requiem Of The Enigmatic Flame
-		Tooltip: ""
-	}
-
-	ResonantPendant: {
-		DisplayName: Resonant Pendant
-		Tooltip: ""
-	}
-
-	ReverieOfTheSilverSwan: {
-		DisplayName: Reverie Of The Silver Swan
-		Tooltip: ""
-	}
-
-	SeasonalDestiny: {
-		DisplayName: Seasonal Destiny
-		Tooltip: ""
-	}
-
-	SpringsMoonlitGarden: {
-		DisplayName: Springs Moonlit Garden
-		Tooltip: ""
-	}
-
-	SummersInfernalPeak: {
-		DisplayName: Summers Infernal Peak
-		Tooltip: ""
-	}
-
-	SummonersMagnumOpus: {
-		DisplayName: Summoners Magnum Opus
-		Tooltip: ""
-	}
-
-	ThemeWanderer: {
-		DisplayName: Theme Wanderer
-		Tooltip: ""
-	}
-
-	TrinityOfNight: {
-		DisplayName: Trinity Of Night
-		Tooltip: ""
-	}
-
-	TriumphantArabesque: {
-		DisplayName: Triumphant Arabesque
-		Tooltip: ""
-	}
-
-	ValseMacabre: {
-		DisplayName: Valse Macabre
-		Tooltip: ""
-	}
-
-	WintersEnigmaticSilence: {
-		DisplayName: Winters Enigmatic Silence
-		Tooltip: ""
-	}
-
-	CodasEcho: {
-		DisplayName: Codas Echo
-		Tooltip: ""
-	}
-
-	ConductorsInsight: {
-		DisplayName: Conductors Insight
-		Tooltip: ""
-	}
-
-	ElixirOfTheMaestro: {
-		DisplayName: Elixir Of The Maestro
-		Tooltip: ""
-	}
-
-	FatesBlessing: {
-		DisplayName: Fates Blessing
-		Tooltip: ""
-	}
-
-	FatesCosmicBrew: {
-		DisplayName: Fates Cosmic Brew
-		Tooltip: ""
-	}
-
-	HarmonicElixir: {
-		DisplayName: Harmonic Elixir
-		Tooltip: ""
-	}
-
-	HarmonicResonatorFragment: {
-		DisplayName: Harmonic Resonator Fragment
-		Tooltip: ""
-	}
-
-	MinorResonanceTonic: {
-		DisplayName: Minor Resonance Tonic
-		Tooltip: ""
-	}
-
-	SeasonalDraught: {
-		DisplayName: Seasonal Draught
-		Tooltip: ""
-	}
-
-	GrandPianoItem: {
-		DisplayName: Grand Piano
-		Tooltip: ""
-	}
-
-	Debug1Fractal: {
-		DisplayName: Debug1 Fractal
-		Tooltip: ""
-	}
-
-	Debug2Ray: {
-		DisplayName: Debug2 Ray
-		Tooltip: ""
-	}
-
-	AlchemicalParadox: {
-		DisplayName: Alchemical Paradox
-		Tooltip: ""
-	}
-
-	IgnitionOfMystery: {
-		DisplayName: Ignition Of Mystery
-		Tooltip: ""
-	}
-
-	PendantOfAThousandPuzzles: {
-		DisplayName: Pendant Of A Thousand Puzzles
-		Tooltip: ""
-	}
-
-	PuzzleFragment: {
-		DisplayName: Puzzle Fragment
-		Tooltip: ""
-	}
-
-	RiddlemastersCauldron: {
-		DisplayName: Riddlemasters Cauldron
-		Tooltip: ""
-	}
-
-	RiddleOfTheVoid: {
-		DisplayName: Riddle Of The Void
-		Tooltip: ""
-	}
-
-	EnigmaTreasureBag: {
-		DisplayName: Enigma Treasure Bag
-		Tooltip: ""
-	}
-
-	HarmonicCoreOfEnigma: {
-		DisplayName: Harmonic Core Of Enigma
-		Tooltip: ""
-	}
-
-	EnigmaResonantEnergy: {
-		DisplayName: Enigma Resonant Energy
-		Tooltip: ""
-	}
-
-	RemnantOfMysteries: {
-		DisplayName: Remnant Of Mysteries
-		Tooltip: ""
-	}
-
-	ResonantCoreOfEnigma: {
-		DisplayName: Resonant Core Of Enigma
-		Tooltip: ""
-	}
-
-	ShardOfTheMysterysTempo: {
-		DisplayName: Shard Of The Mysterys Tempo
-		Tooltip: ""
-	}
-
-	EnigmaResonanceOre: {
-		DisplayName: Enigma Resonance Ore
-		Tooltip: ""
-	}
-
-	CipherNocturne: {
-		DisplayName: Cipher Nocturne
-		Tooltip: ""
-	}
-
-	DissonanceOfSecrets: {
-		DisplayName: Dissonance Of Secrets
-		Tooltip: ""
-	}
-
-	FugueOfTheUnknown: {
-		DisplayName: Fugue Of The Unknown
-		Tooltip: ""
-	}
-
-	TacetsEnigma: {
-		DisplayName: Tacets Enigma
-		Tooltip: ""
-	}
-
-	TheSilentMeasure: {
-		DisplayName: The Silent Measure
-		Tooltip: ""
-	}
-
-	TheUnresolvedCadence: {
-		DisplayName: The Unresolved Cadence
-		Tooltip: ""
-	}
-
-	TheWatchingRefrain: {
-		DisplayName: The Watching Refrain
-		Tooltip: ""
-	}
-
-	VariationsOfTheVoid: {
-		DisplayName: Variations Of The Void
-		Tooltip: ""
-	}
-
-	ScoreOfEnigma: {
-		DisplayName: Score Of Enigma
-		Tooltip: ""
-	}
-
-	EnigmasAxe: {
-		DisplayName: Enigmas Axe
-		Tooltip: ""
-	}
-
-	EnigmasHammer: {
-		DisplayName: Enigmas Hammer
-		Tooltip: ""
-	}
-
-	EnigmasPickaxe: {
-		DisplayName: Enigmas Pickaxe
-		Tooltip: ""
-	}
-
-	RiddlemastersFlight: {
-		DisplayName: Riddlemasters Flight
-		Tooltip: ""
-	}
-
-	BadgeOfValor: {
-		DisplayName: Badge Of Valor
-		Tooltip: ""
-	}
-
-	FuneralMarchInsignia: {
-		DisplayName: Funeral March Insignia
-		Tooltip: ""
-	}
-
-	HerosSymphony: {
-		DisplayName: Heros Symphony
-		Tooltip: ""
-	}
-
-	PyreOfTheFallenHero: {
-		DisplayName: Pyre Of The Fallen Hero
-		Tooltip: ""
-	}
-
-	SakurasBurningWill: {
-		DisplayName: Sakuras Burning Will
-		Tooltip: ""
-	}
-
-	SymphonyOfScarletFlames: {
-		DisplayName: Symphony Of Scarlet Flames
-		Tooltip: ""
-	}
-
-	EroicaTreasureBag: {
-		DisplayName: Eroica Treasure Bag
-		Tooltip: ""
-	}
-
-	ShardOfTriumphsTempo: {
-		DisplayName: Shard Of Triumphs Tempo
-		Tooltip: ""
-	}
-
-	HarmonicCoreOfEroica: {
-		DisplayName: Harmonic Core Of Eroica
-		Tooltip: ""
-	}
-
-	BellOfEroica: {
-		DisplayName: Bell Of Eroica
-		Tooltip: ""
-	}
-
-	EroicasResonantEnergy: {
-		DisplayName: Eroicas Resonant Energy
-		Tooltip: ""
-	}
-
-	RemnantOfEroicasTriumph: {
-		DisplayName: Remnant Of Eroicas Triumph
-		Tooltip: ""
-	}
-
-	ResonantCoreOfEroica: {
-		DisplayName: Resonant Core Of Eroica
-		Tooltip: ""
-	}
-
-	EroicaResonanceOre: {
-		DisplayName: Eroica Resonance Ore
-		Tooltip: ""
-	}
-
-	BlossomOfTheSakura: {
-		DisplayName: Blossom Of The Sakura
-		Tooltip: ""
-	}
-
-	CelestialValor: {
-		DisplayName: Celestial Valor
-		Tooltip: ""
-	}
-
-	FinalityOfTheSakura: {
-		DisplayName: Finality Of The Sakura
-		Tooltip: ""
-	}
-
-	FuneralPrayer: {
-		DisplayName: Funeral Prayer
-		Tooltip: ""
-	}
-
-	PiercingLightOfTheSakura: {
-		DisplayName: Piercing Light Of The Sakura
-		Tooltip: ""
-	}
-
-	SakurasBlossom: {
-		DisplayName: Sakuras Blossom
-		Tooltip: ""
-	}
-
-	TriumphantFractal: {
-		DisplayName: Triumphant Fractal
-		Tooltip: ""
-	}
-
-	ScoreOfEroica: {
-		DisplayName: Score Of Eroica
-		Tooltip: ""
-	}
-
-	EroicasAxe: {
-		DisplayName: Eroicas Axe
-		Tooltip: ""
-	}
-
-	EroicasHammer: {
-		DisplayName: Eroicas Hammer
-		Tooltip: ""
-	}
-
-	EroicasPickaxe: {
-		DisplayName: Eroicas Pickaxe
-		Tooltip: ""
-	}
-
-	ReincarnatedValor: {
-		DisplayName: Reincarnated Valor
-		Tooltip: ""
-	}
-
-	AstralConduit: {
-		DisplayName: Astral Conduit
-		Tooltip: ""
-	}
-
-	ConstellationCompass: {
-		DisplayName: Constellation Compass
-		Tooltip: ""
-	}
-
-	MachinationoftheEventHorizon: {
-		DisplayName: Machination of the Event Horizon
-		Tooltip: ""
-	}
-
-	OrreryofInfiniteOrbits: {
-		DisplayName: Orrery of Infinite Orbits
-		Tooltip: ""
-	}
-
-	ParadoxChronometer: {
-		DisplayName: Paradox Chronometer
-		Tooltip: ""
-	}
-
-	FateTreasureBag: {
-		DisplayName: Fate Treasure Bag
-		Tooltip: ""
-	}
-
-	HarmonicCoreOfFate: {
-		DisplayName: Harmonic Core Of Fate
-		Tooltip: ""
-	}
-
-	CelestialConductorsBaton: {
-		DisplayName: Celestial Conductors Baton
-		Tooltip: ""
-	}
-
-	FateResonantEnergy: {
-		DisplayName: Fate Resonant Energy
-		Tooltip: ""
-	}
-
-	RemnantOfTheGalaxysHarmony: {
-		DisplayName: Remnant Of The Galaxys Harmony
-		Tooltip: ""
-	}
-
-	ResonantCoreOfFate: {
-		DisplayName: Resonant Core Of Fate
-		Tooltip: ""
-	}
-
-	ShardOfFatesTempo: {
-		DisplayName: Shard Of Fates Tempo
-		Tooltip: ""
-	}
-
-	FateResonanceOre: {
-		DisplayName: Fate Resonance Ore
-		Tooltip: ""
-	}
-
-	CodaOfAnnihilation: {
-		DisplayName: Coda Of Annihilation
-		Tooltip: ""
-	}
-
-	DestinysCrescendo: {
-		DisplayName: Destinys Crescendo
-		Tooltip: ""
-	}
-
-	FractalOfTheStars: {
-		DisplayName: Fractal Of The Stars
-		Tooltip: ""
-	}
-
-	LightOfTheFuture: {
-		DisplayName: Light Of The Future
-		Tooltip: ""
-	}
-
-	OpusUltima: {
-		DisplayName: Opus Ultima
-		Tooltip: ""
-	}
-
-	RequiemOfReality: {
-		DisplayName: Requiem Of Reality
-		Tooltip: ""
-	}
-
-	ResonanceOfABygoneReality: {
-		DisplayName: Resonance Of A Bygone Reality
-		Tooltip: ""
-	}
-
-	SymphonysEnd: {
-		DisplayName: Symphonys End
-		Tooltip: ""
-	}
-
-	TheConductorsLastConstellation: {
-		DisplayName: The Conductors Last Constellation
-		Tooltip: ""
-	}
-
-	TheFinalFermata: {
-		DisplayName: The Final Fermata
-		Tooltip: ""
-	}
-
-	ScoreOfFate: {
-		DisplayName: Score Of Fate
-		Tooltip: ""
-	}
-
-	FatesAxe: {
-		DisplayName: Fates Axe
-		Tooltip: ""
-	}
-
-	FatesHammer: {
-		DisplayName: Fates Hammer
-		Tooltip: ""
-	}
-
-	FatesPickaxe: {
-		DisplayName: Fates Pickaxe
-		Tooltip: ""
-	}
-
-	SymphonyOfTheUniverse: {
-		DisplayName: Symphony Of The Universe
-		Tooltip: ""
-	}
-
-	HeartOfMusic: {
-		DisplayName: Heart Of Music
-		Tooltip: ""
-	}
-
-	ResonanceAwakener: {
-		DisplayName: Resonance Awakener
-		Tooltip: ""
-	}
-
-	SeedOfUniversalMelodies: {
-		DisplayName: Seed Of Universal Melodies
-		Tooltip: ""
-	}
-
-	CampanellasPyreMedallion: {
-		DisplayName: Campanellas Pyre Medallion
-		Tooltip: ""
-	}
-
-	ChamberOfBellfire: {
-		DisplayName: Chamber Of Bellfire
-		Tooltip: ""
-	}
-
-	ChimeOfFlames: {
-		DisplayName: Chime Of Flames
-		Tooltip: ""
-	}
-
-	InfernalBellOfTheMaestro: {
-		DisplayName: Infernal Bell Of The Maestro
-		Tooltip: ""
-	}
-
-	InfernalVirtuoso: {
-		DisplayName: Infernal Virtuoso
-		Tooltip: ""
-	}
-
-	SymphonyOfTheBlazingSanctuary: {
-		DisplayName: Symphony Of The Blazing Sanctuary
-		Tooltip: ""
-	}
-
-	LaCampanellaTreasureBag: {
-		DisplayName: La Campanella Treasure Bag
-		Tooltip: ""
-	}
-
-	RemnantOfTheInfernalBell: {
-		DisplayName: Remnant Of The Infernal Bell
-		Tooltip: ""
-	}
-
-	ShardOfTheBurningTempo: {
-		DisplayName: Shard Of The Burning Tempo
-		Tooltip: ""
-	}
-
-	HarmonicCoreOfLaCampanella: {
-		DisplayName: Harmonic Core Of La Campanella
-		Tooltip: ""
-	}
-
-	ResonantCoreOfLaCampanella: {
-		DisplayName: Resonant Core Of La Campanella
-		Tooltip: ""
-	}
-
-	LaCampanellaResonantEnergy: {
-		DisplayName: La Campanella Resonant Energy
-		Tooltip: ""
-	}
-
-	RemnantOfTheBellsHarmony: {
-		DisplayName: Remnant Of The Bells Harmony
-		Tooltip: ""
-	}
-
-	LaCampanellaResonanceOre: {
-		DisplayName: La Campanella Resonance Ore
-		Tooltip: ""
-	}
-
-	DualFatedChime: {
-		DisplayName: Dual Fated Chime
-		Tooltip: ""
-	}
-
-	FangOfTheInfiniteBell: {
-		DisplayName: Fang Of The Infinite Bell
-		Tooltip: ""
-	}
-
-	GrandioseChime: {
-		DisplayName: Grandiose Chime
-		Tooltip: ""
-	}
-
-	IgnitionOfTheBell: {
-		DisplayName: Ignition Of The Bell
-		Tooltip: ""
-	}
-
-	InfernalChimesCalling: {
-		DisplayName: Infernal Chimes Calling
-		Tooltip: ""
-	}
-
-	PiercingBellsResonance: {
-		DisplayName: Piercing Bells Resonance
-		Tooltip: ""
-	}
-
-	SymphonicBellfireAnnihilator: {
-		DisplayName: Symphonic Bellfire Annihilator
-		Tooltip: ""
-	}
-
-	InfernalBellFragment: {
-		DisplayName: Infernal Bell Fragment
-		Tooltip: ""
-	}
-
-	ScoreOfLaCampanella: {
-		DisplayName: Score Of La Campanella
-		Tooltip: ""
-	}
-
-	BellBornAxe: {
-		DisplayName: Bell Born Axe
-		Tooltip: ""
-	}
-
-	BellBornHammer: {
-		DisplayName: Bell Born Hammer
-		Tooltip: ""
-	}
-
-	BellBornPickaxe: {
-		DisplayName: Bell Born Pickaxe
-		Tooltip: ""
-	}
-
-	WingsOfTheBellbornDawn: {
-		DisplayName: Wings Of The Bellborn Dawn
-		Tooltip: ""
-	}
-
-	BellEssence: {
-		DisplayName: Bell Essence
-		Tooltip: ""
-	}
-
-	FateEssence: {
-		DisplayName: Fate Essence
-		Tooltip: ""
-	}
-
-	GraceEssence: {
-		DisplayName: Grace Essence
-		Tooltip: ""
-	}
-
-	LunarEssence: {
-		DisplayName: Lunar Essence
-		Tooltip: ""
-	}
-
-	MysteryEssence: {
-		DisplayName: Mystery Essence
-		Tooltip: ""
-	}
-
-	ValorEssence: {
-		DisplayName: Valor Essence
-		Tooltip: ""
-	}
-
-	BrokenBaton: {
-		DisplayName: Broken Baton
-		Tooltip: ""
-	}
-
-	DullResonator: {
-		DisplayName: Dull Resonator
-		Tooltip: ""
-	}
-
-	FadedSheetMusic: {
-		DisplayName: Faded Sheet Music
-		Tooltip: ""
-	}
-
-	MinorMusicNote: {
-		DisplayName: Minor Music Note
-		Tooltip: ""
-	}
-
-	OldMetronome: {
-		DisplayName: Old Metronome
-		Tooltip: ""
-	}
-
-	ResonantCrystalShard: {
-		DisplayName: Resonant Crystal Shard
-		Tooltip: ""
-	}
-
-	RustedClef: {
-		DisplayName: Rusted Clef
-		Tooltip: ""
-	}
-
-	TuningFork: {
-		DisplayName: Tuning Fork
-		Tooltip: ""
-	}
-
-	AdagioPendant: {
-		DisplayName: Adagio Pendant
-		Tooltip: ""
-	}
-
-	EmberOfTheMoon: {
-		DisplayName: Ember Of The Moon
-		Tooltip: ""
-	}
-
-	FractalOfMoonlight: {
-		DisplayName: Fractal Of Moonlight
-		Tooltip: ""
-	}
-
-	MoonlitEngine: {
-		DisplayName: Moonlit Engine
-		Tooltip: ""
-	}
-
-	MoonlitGyre: {
-		DisplayName: Moonlit Gyre
-		Tooltip: ""
-	}
-
-	SonatasEmbrace: {
-		DisplayName: Sonatas Embrace
-		Tooltip: ""
-	}
-
-	MoonlightAnvil: {
-		DisplayName: Moonlight Anvil
-		Tooltip: ""
-	}
-
-	MoonlightFurnace: {
-		DisplayName: Moonlight Furnace
-		Tooltip: ""
-	}
-
-	ShardsOfMoonlitTempo: {
-		DisplayName: Shards Of Moonlit Tempo
-		Tooltip: ""
-	}
-
-	HarmonicCoreOfMoonlightSonata: {
-		DisplayName: Harmonic Core Of Moonlight Sonata
-		Tooltip: ""
-	}
-
-	MoonlightsResonantEnergy: {
-		DisplayName: Moonlights Resonant Energy
-		Tooltip: ""
-	}
-
-	RemnantOfMoonlightsHarmony: {
-		DisplayName: Remnant Of Moonlights Harmony
-		Tooltip: ""
-	}
-
-	ResonantCoreOfMoonlightSonata: {
-		DisplayName: Resonant Core Of Moonlight Sonata
-		Tooltip: ""
-	}
-
-	MoonlitResonanceOre: {
-		DisplayName: Moonlit Resonance Ore
-		Tooltip: ""
-	}
-
-	IncisorOfMoonlight: {
-		DisplayName: Incisor Of Moonlight
-		Tooltip: ""
-	}
-
-	MoonlightsAxe: {
-		DisplayName: Moonlights Axe
-		Tooltip: ""
-	}
-
-	MoonlightsHammer: {
-		DisplayName: Moonlights Hammer
-		Tooltip: ""
-	}
-
-	MoonlightsPickaxe: {
-		DisplayName: Moonlights Pickaxe
-		Tooltip: ""
-	}
-
-	WingsOfTheMoon: {
-		DisplayName: Wings Of The Moon
-		Tooltip: ""
-	}
-
-	EternalMoon: {
-		DisplayName: Eternal Moon
-		Tooltip: ""
-	}
-
-	MoonlightsCalling: {
-		DisplayName: Moonlights Calling
-		Tooltip: ""
-	}
-
-	ResurrectionOfTheMoon: {
-		DisplayName: Resurrection of the Moon
-		Tooltip: ""
-	}
-
-	StaffOfTheLunarPhases: {
-		DisplayName: Staff of the Lunar Phases
-		Tooltip: ""
-	}
-
-	CycleOfSeasons: {
-		DisplayName: Cycle Of Seasons
-		Tooltip: ""
-	}
-
-	RelicOfTheEquinox: {
-		DisplayName: Relic Of The Equinox
-		Tooltip: ""
-	}
-
-	SolsticeRing: {
-		DisplayName: Solstice Ring
-		Tooltip: ""
-	}
-
-	VivaldisMasterwork: {
-		DisplayName: Vivaldis Masterwork
-		Tooltip: ""
-	}
-
-	BloomCrest: {
-		DisplayName: Bloom Crest
-		Tooltip: ""
-	}
-
-	GrowthBand: {
-		DisplayName: Growth Band
-		Tooltip: ""
-	}
-
-	PetalShield: {
-		DisplayName: Petal Shield
-		Tooltip: ""
-	}
-
-	BlossomEssence: {
-		DisplayName: Blossom Essence
-		Tooltip: ""
-	}
-
-	DormantSpringCore: {
-		DisplayName: Dormant Spring Core
-		Tooltip: ""
-	}
-
-	PetalOfRebirth: {
-		DisplayName: Petal Of Rebirth
-		Tooltip: ""
-	}
-
-	RainbowPetal: {
-		DisplayName: Rainbow Petal
-		Tooltip: ""
-	}
-
-	SpringResonantEnergy: {
-		DisplayName: Spring Resonant Energy
-		Tooltip: ""
-	}
-
-	VernalBar: {
-		DisplayName: Vernal Bar
-		Tooltip: ""
-	}
-
-	VernalDust: {
-		DisplayName: Vernal Dust
-		Tooltip: ""
-	}
-
-	RadiantCrown: {
-		DisplayName: Radiant Crown
-		Tooltip: ""
-	}
-
-	SunfirePendant: {
-		DisplayName: Sunfire Pendant
-		Tooltip: ""
-	}
-
-	ZenithBand: {
-		DisplayName: Zenith Band
-		Tooltip: ""
-	}
-
-	DormantSummerCore: {
-		DisplayName: Dormant Summer Core
-		Tooltip: ""
-	}
-
-	EmberOfIntensity: {
-		DisplayName: Ember Of Intensity
-		Tooltip: ""
-	}
-
-	HeatScale: {
-		DisplayName: Heat Scale
-		Tooltip: ""
-	}
-
-	SolarEssence: {
-		DisplayName: Solar Essence
-		Tooltip: ""
-	}
-
-	SolsticeBar: {
-		DisplayName: Solstice Bar
-		Tooltip: ""
-	}
-
-	SummerResonantEnergy: {
-		DisplayName: Summer Resonant Energy
-		Tooltip: ""
-	}
-
-	SunfireCore: {
-		DisplayName: Sunfire Core
-		Tooltip: ""
-	}
-
-	BlackWingsOfTheMonochromaticDawn: {
-		DisplayName: Black Wings Of The Monochromatic Dawn
-		Tooltip: ""
-	}
-
-	CrownOfTheSwan: {
-		DisplayName: Crown Of The Swan
-		Tooltip: ""
-	}
-
-	DualFeatherQuiver: {
-		DisplayName: Dual Feather Quiver
-		Tooltip: ""
-	}
-
-	PendantOfTheTwoSwans: {
-		DisplayName: Pendant Of The Two Swans
-		Tooltip: ""
-	}
-
-	PlumeOfElegance: {
-		DisplayName: Plume Of Elegance
-		Tooltip: ""
-	}
-
-	SwansChromaticDiadem: {
-		DisplayName: Swans Chromatic Diadem
-		Tooltip: ""
-	}
-
-	SwanLakeTreasureBag: {
-		DisplayName: Swan Lake Treasure Bag
-		Tooltip: ""
-	}
-
-	HarmonicCoreOfSwanLake: {
-		DisplayName: Harmonic Core Of Swan Lake
-		Tooltip: ""
-	}
-
-	FeathersCall: {
-		DisplayName: Feathers Call
-		Tooltip: ""
-	}
-
-	RemnantOfSwansHarmony: {
-		DisplayName: Remnant Of Swans Harmony
-		Tooltip: ""
-	}
-
-	ResonantCoreOfSwanLake: {
-		DisplayName: Resonant Core Of Swan Lake
-		Tooltip: ""
-	}
-
-	ShardOfTheFeatheredTempo: {
-		DisplayName: Shard Of The Feathered Tempo
-		Tooltip: ""
-	}
-
-	SwansResonanceEnergy: {
-		DisplayName: Swans Resonance Energy
-		Tooltip: ""
-	}
-
-	SwanLakeResonanceOre: {
-		DisplayName: Swan Lake Resonance Ore
-		Tooltip: ""
-	}
-
-	CalloftheBlackSwan: {
-		DisplayName: Call of the Black Swan
-		Tooltip: ""
-	}
-
-	CallofthePearlescentLake: {
-		DisplayName: Call of the Pearlescent Lake
-		Tooltip: ""
-	}
-
-	ChromaticSwanSong: {
-		DisplayName: Chromatic Swan Song
-		Tooltip: ""
-	}
-
-	FeatheroftheIridescentFlock: {
-		DisplayName: Feather of the Iridescent Flock
-		Tooltip: ""
-	}
-
-	IridescentWingspan: {
-		DisplayName: Iridescent Wingspan
-		Tooltip: ""
-	}
-
-	TheSwansLament: {
-		DisplayName: The Swans Lament
-		Tooltip: ""
-	}
-
-	ScoreOfSwanLake: {
-		DisplayName: Score Of Swan Lake
-		Tooltip: ""
-	}
-
-	IridescentDawn: {
-		DisplayName: Iridescent Dawn
-		Tooltip: ""
-	}
-
-	TheSwansAxe: {
-		DisplayName: The Swans Axe
-		Tooltip: ""
-	}
-
-	TheSwansHammer: {
-		DisplayName: The Swans Hammer
-		Tooltip: ""
-	}
-
-	TheSwansPickaxe: {
-		DisplayName: The Swans Pickaxe
-		Tooltip: ""
-	}
-
-	FrostbiteAmulet: {
-		DisplayName: Frostbite Amulet
-		Tooltip: ""
-	}
-
-	GlacialHeart: {
-		DisplayName: Glacial Heart
-		Tooltip: ""
-	}
-
-	StillnessShrine: {
-		DisplayName: Stillness Shrine
-		Tooltip: ""
-	}
-
-	DormantWinterCore: {
-		DisplayName: Dormant Winter Core
-		Tooltip: ""
-	}
-
-	FrostEssence: {
-		DisplayName: Frost Essence
-		Tooltip: ""
-	}
-
-	FrozenCore: {
-		DisplayName: Frozen Core
-		Tooltip: ""
-	}
-
-	IcicleCoronet: {
-		DisplayName: Icicle Coronet
-		Tooltip: ""
-	}
-
-	PermafrostBar: {
-		DisplayName: Permafrost Bar
-		Tooltip: ""
-	}
-
-	PermafrostShard: {
-		DisplayName: Permafrost Shard
-		Tooltip: ""
-	}
-
-	ShardOfStillness: {
-		DisplayName: Shard Of Stillness
-		Tooltip: ""
-	}
-
-	WinterResonantEnergy: {
-		DisplayName: Winter Resonant Energy
-		Tooltip: ""
-	}
-
-	DecayBell: {
-		DisplayName: Decay Bell
-		Tooltip: ""
-	}
-
-	HarvestReaper: {
-		DisplayName: Harvest Reaper
-		Tooltip: ""
-	}
-
-	TwilightArbalest: {
-		DisplayName: Twilight Arbalest
-		Tooltip: ""
-	}
-
-	WitheringGrimoire: {
-		DisplayName: Withering Grimoire
-		Tooltip: ""
-	}
-
-	EnigmasVoidShell: {
-		DisplayName: Enigmas Void Shell
-		Tooltip: ""
-	}
-
-	FatesCosmicAegis: {
-		DisplayName: Fates Cosmic Aegis
-		Tooltip: ""
-	}
-
-	HarvestThornedGuard: {
-		DisplayName: Harvest Thorned Guard
-		Tooltip: ""
-	}
-
-	HeroicValorsAegis: {
-		DisplayName: Heroic Valors Aegis
-		Tooltip: ""
-	}
-
-	InfernalBellsFortress: {
-		DisplayName: Infernal Bells Fortress
-		Tooltip: ""
-	}
-
-	MoonlitGuardiansVeil: {
-		DisplayName: Moonlit Guardians Veil
-		Tooltip: ""
-	}
-
-	PermafrostCrystalWard: {
-		DisplayName: Permafrost Crystal Ward
-		Tooltip: ""
-	}
-
-	ResonantBarrierCore: {
-		DisplayName: Resonant Barrier Core
-		Tooltip: ""
-	}
-
-	SolarFlareAegis: {
-		DisplayName: Solar Flare Aegis
-		Tooltip: ""
-	}
-
-	SpringVitalityShell: {
-		DisplayName: Spring Vitality Shell
-		Tooltip: ""
-	}
-
-	SwansImmortalGrace: {
-		DisplayName: Swans Immortal Grace
-		Tooltip: ""
-	}
-
-	VivaldisSeasonalBulwark: {
-		DisplayName: Vivaldis Seasonal Bulwark
-		Tooltip: ""
-	}
-
-	EnigmasNegativeSpace: {
-		DisplayName: Enigmas Negative Space
-		Tooltip: ""
-	}
-
-	FatesCosmicReservoir: {
-		DisplayName: Fates Cosmic Reservoir
-		Tooltip: ""
-	}
-
-	HarvestSoulVessel: {
-		DisplayName: Harvest Soul Vessel
-		Tooltip: ""
-	}
-
-	HeroicArcaneSurge: {
-		DisplayName: Heroic Arcane Surge
-		Tooltip: ""
-	}
-
-	InfernalManaInferno: {
-		DisplayName: Infernal Mana Inferno
-		Tooltip: ""
-	}
-
-	MoonlitOverflowStar: {
-		DisplayName: Moonlit Overflow Star
-		Tooltip: ""
-	}
-
-	PermafrostVoidHeart: {
-		DisplayName: Permafrost Void Heart
-		Tooltip: ""
-	}
-
-	ResonantOverflowGem: {
-		DisplayName: Resonant Overflow Gem
-		Tooltip: ""
-	}
-
-	SolarManaCrucible: {
-		DisplayName: Solar Mana Crucible
-		Tooltip: ""
-	}
-
-	SpringArcaneConduit: {
-		DisplayName: Spring Arcane Conduit
-		Tooltip: ""
-	}
-
-	SwansBalancedFlow: {
-		DisplayName: Swans Balanced Flow
-		Tooltip: ""
-	}
-
-	// VivaldisHarmonicCore defined elsewhere with full tooltip
-	
-	EnigmasDissonance: {
-		DisplayName: Enigmas Dissonance
-		Tooltip: ""
-	}
-
-	FatesCosmicSymphony: {
-		DisplayName: Fates Cosmic Symphony
-		Tooltip: ""
-	}
-
-	HarvestRhythmSignet: {
-		DisplayName: Harvest Rhythm Signet
-		Tooltip: ""
-	}
-
-	HeroicCrescendo: {
-		DisplayName: Heroic Crescendo
-		Tooltip: ""
-	}
-
-	InfernalFortissimo: {
-		DisplayName: Infernal Fortissimo
-		Tooltip: ""
-	}
-
-	MoonlitSonataBand: {
-		DisplayName: Moonlit Sonata Band
-		Tooltip: ""
-	}
-
-	PermafrostCadenceSeal: {
-		DisplayName: Permafrost Cadence Seal
-		Tooltip: ""
-	}
-
-	ResonantRhythmBand: {
-		DisplayName: Resonant Rhythm Band
-		Tooltip: ""
-	}
-
-	SolarCrescendoRing: {
-		DisplayName: Solar Crescendo Ring
-		Tooltip: ""
-	}
-
-	SpringTempoCharm: {
-		DisplayName: Spring Tempo Charm
-		Tooltip: ""
-	}
-
-	SwansPerfectMeasure: {
-		DisplayName: Swans Perfect Measure
-		Tooltip: ""
-	}
-
-	VivaldisTempoMaster: {
-		DisplayName: Vivaldis Tempo Master
-		Tooltip: ""
-	}
-
-	EnigmasPhaseShift: {
-		DisplayName: Enigmas Phase Shift
-		Tooltip: ""
-	}
-
-	FatesCosmicVelocity: {
-		DisplayName: Fates Cosmic Velocity
-		Tooltip: ""
-	}
-
-	HarvestPhantomStride: {
-		DisplayName: Harvest Phantom Stride
-		Tooltip: ""
-	}
-
-	HeroicChargeBoots: {
-		DisplayName: Heroic Charge Boots
-		Tooltip: ""
-	}
-
-	InfernalMeteorStride: {
-		DisplayName: Infernal Meteor Stride
-		Tooltip: ""
-	}
-
-	MoonlitPhantomsRush: {
-		DisplayName: Moonlit Phantoms Rush
-		Tooltip: ""
-	}
-
-	PermafrostAvalancheStep: {
-		DisplayName: Permafrost Avalanche Step
-		Tooltip: ""
-	}
-
-	ResonantVelocityBand: {
-		DisplayName: Resonant Velocity Band
-		Tooltip: ""
-	}
-
-	SolarBlitzTreads: {
-		DisplayName: Solar Blitz Treads
-		Tooltip: ""
-	}
-
-	SpringZephyrBoots: {
-		DisplayName: Spring Zephyr Boots
-		Tooltip: ""
-	}
-
-	SwansEternalGlide: {
-		DisplayName: Swans Eternal Glide
-		Tooltip: ""
-	}
-
-	VivaldisSeasonalSprint: {
-		DisplayName: Vivaldis Seasonal Sprint
-		Tooltip: ""
-	}
-
-	EnigmasParadoxMark: {
-		DisplayName: Enigmas Paradox Mark
-		Tooltip: ""
-	}
-
-	FatesCosmicVerdict: {
-		DisplayName: Fates Cosmic Verdict
-		Tooltip: ""
-	}
-
-	HarvestReapersMark: {
-		DisplayName: Harvest Reapers Mark
-		Tooltip: ""
-	}
-
-	HeroicDeadeye: {
-		DisplayName: Heroic Deadeye
-		Tooltip: ""
-	}
-
-	InfernalExecutionersBrand: {
-		DisplayName: Infernal Executioners Brand
-		Tooltip: ""
-	}
-
-	MoonlitPredatorsGaze: {
-		DisplayName: Moonlit Predators Gaze
-		Tooltip: ""
-	}
-
-	PermafrostHuntersEye: {
-		DisplayName: Permafrost Hunters Eye
-		Tooltip: ""
-	}
-
-	ResonantSpotter: {
-		DisplayName: Resonant Spotter
-		Tooltip: ""
-	}
-
-	SolarTrackersBadge: {
-		DisplayName: Solar Trackers Badge
-		Tooltip: ""
-	}
-
-	SpringHuntersLens: {
-		DisplayName: Spring Hunters Lens
-		Tooltip: ""
-	}
-
-	SwansGracefulHunt: {
-		DisplayName: Swans Graceful Hunt
-		Tooltip: ""
-	}
-
-	VivaldisSeSonalSight: {
-		DisplayName: Vivaldis Se Sonal Sight
-		Tooltip: ""
-	}
-
-	EnigmasHivemindLink: {
-		DisplayName: Enigmas Hivemind Link
-		Tooltip: ""
-	}
-
-	FatesCosmicDominion: {
-		DisplayName: Fates Cosmic Dominion
-		Tooltip: ""
-	}
-
-	HarvestBeastlordsHorn: {
-		DisplayName: Harvest Beastlords Horn
-		Tooltip: ""
-	}
-
-	HeroicGeneralsBaton: {
-		DisplayName: Heroic Generals Baton
-		Tooltip: ""
-	}
-
-	InfernalChoirMastersRod: {
-		DisplayName: Infernal Choir Masters Rod
-		Tooltip: ""
-	}
-
-	MoonlitSymphonyWand: {
-		DisplayName: Moonlit Symphony Wand
-		Tooltip: ""
-	}
-
-	PermafrostCommandersCrown: {
-		DisplayName: Permafrost Commanders Crown
-		Tooltip: ""
-	}
-
-	ResonantConductorsWand: {
-		DisplayName: Resonant Conductors Wand
-		Tooltip: ""
-	}
-
-	SolarDirectorsCrest: {
-		DisplayName: Solar Directors Crest
-		Tooltip: ""
-	}
-
-	SpringMaestrosBadge: {
-		DisplayName: Spring Maestros Badge
-		Tooltip: ""
-	}
-
-	SwansGracefulDirection: {
-		DisplayName: Swans Graceful Direction
-		Tooltip: ""
-	}
-
-	VivaldisOrchestraBaton: {
-		DisplayName: Vivaldis Orchestra Baton
-		Tooltip: ""
-	}
-
-	ArcaneHarmonicPrism: {
-		DisplayName: Arcane Harmonic Prism
-		Tooltip: ""
-	}
-
-	CrystallizedHarmony: {
-		DisplayName: Crystallized Harmony
-		Tooltip: ""
-	}
-
-	FatesCosmicAnvil: {
-		DisplayName: Fates Cosmic Anvil
-		Tooltip: ""
-	}
-
-	FatesCosmicFurnace: {
-		DisplayName: Fates Cosmic Furnace
-		Tooltip: ""
-	}
-
-	MoonlitSerenadePendant: {
-		DisplayName: Moonlit Serenade Pendant
-		Tooltip: ""
-	}
-
-	NocturnesEmbrace: {
-		DisplayName: Nocturnes Embrace
-		Tooltip: ""
-	}
-
-	RadianceOfTheNightQueen: {
-		DisplayName: Radiance Of The Night Queen
-		Tooltip: ""
-	}
-
-	StarweaversSignet: {
-		DisplayName: Starweavers Signet
-		Tooltip: ""
-	}
-
-	NachtmusikTreasureBag: {
-		DisplayName: Nachtmusik Treasure Bag
-		Tooltip: ""
-	}
-
-	HarmonicCoreOfNachtmusik: {
-		DisplayName: Harmonic Core Of Nachtmusik
-		Tooltip: ""
-	}
-
-	NachtmusikResonantCore: {
-		DisplayName: Nachtmusik Resonant Core
-		Tooltip: ""
-	}
-
-	NachtmusikResonantEnergy: {
-		DisplayName: Nachtmusik Resonant Energy
-		Tooltip: ""
-	}
-
-	RemnantOfNachtmusiksHarmony: {
-		DisplayName: Remnant Of Nachtmusiks Harmony
-		Tooltip: ""
-	}
-
-	NachtmusikResonanceOre: {
-		DisplayName: Nachtmusik Resonance Ore
-		Tooltip: ""
-	}
-
-	CelestialChorusBaton: {
-		DisplayName: Celestial Chorus Baton
-		Tooltip: ""
-	}
-
-	ConductorOfConstellations: {
-		DisplayName: Conductor Of Constellations
-		Tooltip: ""
-	}
-
-	ConstellationPiercer: {
-		DisplayName: Constellation Piercer
-		Tooltip: ""
-	}
-
-	GalacticOverture: {
-		DisplayName: Galactic Overture
-		Tooltip: ""
-	}
-
-	MidnightsCrescendo: {
-		DisplayName: Midnights Crescendo
-		Tooltip: ""
-	}
-
-	NebulasWhisper: {
-		DisplayName: Nebulas Whisper
-		Tooltip: ""
-	}
-
-	NocturnalExecutioner: {
-		DisplayName: Nocturnal Executioner
-		Tooltip: ""
-	}
-
-	RequiemOfTheCosmos: {
-		DisplayName: Requiem Of The Cosmos
-		Tooltip: ""
-	}
-
-	SerenadeOfDistantStars: {
-		DisplayName: Serenade Of Distant Stars
-		Tooltip: ""
-	}
-
-	StarweaversGrimoire: {
-		DisplayName: Starweavers Grimoire
-		Tooltip: ""
-	}
-
-	TwilightSeverance: {
-		DisplayName: Twilight Severance
-		Tooltip: ""
-	}
-
-	ScoreOfNachtmusik: {
-		DisplayName: Score Of Nachtmusik
-		Tooltip: ""
-	}
-
-	ConcertoOfSeasons: {
-		DisplayName: Concerto Of Seasons
-		Tooltip: ""
-	}
-
-	FourSeasonsBlade: {
-		DisplayName: Four Seasons Blade
-		Tooltip: ""
-	}
-
-	SeasonalBow: {
-		DisplayName: Seasonal Bow
-		Tooltip: ""
-	}
-
-	VivaldisBaton: {
-		DisplayName: Vivaldis Baton
-		Tooltip: ""
-	}
-
-	BlossomsEdge: {
-		DisplayName: Blossoms Edge
-		Tooltip: ""
-	}
-
-	PetalStormBow: {
-		DisplayName: Petal Storm Bow
-		Tooltip: ""
-	}
-
-	PrimaverasBloom: {
-		DisplayName: Primaveras Bloom
-		Tooltip: ""
-	}
-
-	VernalScepter: {
-		DisplayName: Vernal Scepter
-		Tooltip: ""
-	}
-
-	SolarCrest: {
-		DisplayName: Solar Crest
-		Tooltip: ""
-	}
-
-	SolarScorcher: {
-		DisplayName: Solar Scorcher
-		Tooltip: ""
-	}
-
-	SolsticeTome: {
-		DisplayName: Solstice Tome
-		Tooltip: ""
-	}
-
-	ZenithCleaver: {
-		DisplayName: Zenith Cleaver
-		Tooltip: ""
-	}
-
-	FrostbiteRepeater: {
-		DisplayName: Frostbite Repeater
-		Tooltip: ""
-	}
-
-	FrozenHeart: {
-		DisplayName: Frozen Heart
-		Tooltip: ""
-	}
-
-	GlacialExecutioner: {
-		DisplayName: Glacial Executioner
-		Tooltip: ""
-	}
-
-	PermafrostCodex: {
-		DisplayName: Permafrost Codex
-		Tooltip: ""
-	}
-
-	VivaldisHarmonicCore: {
-		DisplayName: Vivaldis Harmonic Core
-		Tooltip: ""
-	}
-
-	VFX_ClairDeLune_DreamyMist: {
-		DisplayName: V F X_ Clair De Lune_ Dreamy Mist
-		Tooltip: ""
-	}
-
-	VFX_ClairDeLune_ImpressionistNotes: {
-		DisplayName: V F X_ Clair De Lune_ Impressionist Notes
-		Tooltip: ""
-	}
-
-	VFX_ClairDeLune_LunarArcs: {
-		DisplayName: V F X_ Clair De Lune_ Lunar Arcs
-		Tooltip: ""
-	}
-
-	VFX_ClairDeLune_MoonbeamRipples: {
-		DisplayName: V F X_ Clair De Lune_ Moonbeam Ripples
-		Tooltip: ""
-	}
-
-	VFX_ClairDeLune_WaterReflection: {
-		DisplayName: V F X_ Clair De Lune_ Water Reflection
-		Tooltip: ""
-	}
-
-	VFX_DiesIrae_ApocalypseVortex: {
-		DisplayName: V F X_ Dies Irae_ Apocalypse Vortex
-		Tooltip: ""
-	}
-
-	VFX_DiesIrae_BrimstoneEmbers: {
-		DisplayName: V F X_ Dies Irae_ Brimstone Embers
-		Tooltip: ""
-	}
-
-	VFX_DiesIrae_JudgmentArcs: {
-		DisplayName: V F X_ Dies Irae_ Judgment Arcs
-		Tooltip: ""
-	}
-
-	VFX_DiesIrae_RequiemNotes: {
-		DisplayName: V F X_ Dies Irae_ Requiem Notes
-		Tooltip: ""
-	}
-
-	VFX_DiesIrae_WrathFlames: {
-		DisplayName: V F X_ Dies Irae_ Wrath Flames
-		Tooltip: ""
-	}
-
-	VFX_Enigma_ArcaneGlyphs: {
-		DisplayName: V F X_ Enigma_ Arcane Glyphs
-		Tooltip: ""
-	}
-
-	VFX_Enigma_GreenFlameSlash: {
-		DisplayName: V F X_ Enigma_ Green Flame Slash
-		Tooltip: ""
-	}
-
-	VFX_Enigma_MysteryNotes: {
-		DisplayName: V F X_ Enigma_ Mystery Notes
-		Tooltip: ""
-	}
-
-	VFX_Enigma_VoidTendrils: {
-		DisplayName: V F X_ Enigma_ Void Tendrils
-		Tooltip: ""
-	}
-
-	VFX_Enigma_WatchingEyes: {
-		DisplayName: V F X_ Enigma_ Watching Eyes
-		Tooltip: ""
-	}
-
-	VFX_Eroica_HeroicArcs: {
-		DisplayName: V F X_ Eroica_ Heroic Arcs
-		Tooltip: ""
-	}
-
-	VFX_Eroica_SakuraDrift: {
-		DisplayName: V F X_ Eroica_ Sakura Drift
-		Tooltip: ""
-	}
-
-	VFX_Eroica_SymphonyNotes: {
-		DisplayName: V F X_ Eroica_ Symphony Notes
-		Tooltip: ""
-	}
-
-	VFX_Eroica_TriumphSparks: {
-		DisplayName: V F X_ Eroica_ Triumph Sparks
-		Tooltip: ""
-	}
-
-	VFX_Eroica_ValorCrescent: {
-		DisplayName: V F X_ Eroica_ Valor Crescent
-		Tooltip: ""
-	}
-
-	VFX_Fate_CelestialNotes: {
-		DisplayName: V F X_ Fate_ Celestial Notes
-		Tooltip: ""
-	}
-
-	VFX_Fate_CosmicClouds: {
-		DisplayName: V F X_ Fate_ Cosmic Clouds
-		Tooltip: ""
-	}
-
-	VFX_Fate_GlyphOrbit: {
-		DisplayName: V F X_ Fate_ Glyph Orbit
-		Tooltip: ""
-	}
-
-	VFX_Fate_RealitySlash: {
-		DisplayName: V F X_ Fate_ Reality Slash
-		Tooltip: ""
-	}
-
-	VFX_Fate_StarStream: {
-		DisplayName: V F X_ Fate_ Star Stream
-		Tooltip: ""
-	}
-
-	VFX_Campanella_BellArcs: {
-		DisplayName: V F X_ Campanella_ Bell Arcs
-		Tooltip: ""
-	}
-
-	VFX_Campanella_CrescentFlame: {
-		DisplayName: V F X_ Campanella_ Crescent Flame
-		Tooltip: ""
-	}
-
-	VFX_Campanella_EmberSpray: {
-		DisplayName: V F X_ Campanella_ Ember Spray
-		Tooltip: ""
-	}
-
-	VFX_Campanella_MusicNotes: {
-		DisplayName: V F X_ Campanella_ Music Notes
-		Tooltip: ""
-	}
-
-	VFX_Campanella_SmokeTrail: {
-		DisplayName: V F X_ Campanella_ Smoke Trail
-		Tooltip: ""
-	}
-
-	VFX_Moonlight_CrescentMoon: {
-		DisplayName: V F X_ Moonlight_ Crescent Moon
-		Tooltip: ""
-	}
-
-	VFX_Moonlight_LunarMist: {
-		DisplayName: V F X_ Moonlight_ Lunar Mist
-		Tooltip: ""
-	}
-
-	VFX_Moonlight_LunarVortex: {
-		DisplayName: V F X_ Moonlight_ Lunar Vortex
-		Tooltip: ""
-	}
-
-	VFX_Moonlight_NocturneNotes: {
-		DisplayName: V F X_ Moonlight_ Nocturne Notes
-		Tooltip: ""
-	}
-
-	VFX_Moonlight_StarlightTrail: {
-		DisplayName: V F X_ Moonlight_ Starlight Trail
-		Tooltip: ""
-	}
-
-	VFX_Nachtmusik_EveningWaltz: {
-		DisplayName: V F X_ Nachtmusik_ Evening Waltz
-		Tooltip: ""
-	}
-
-	VFX_Nachtmusik_MoonlitArcs: {
-		DisplayName: V F X_ Nachtmusik_ Moonlit Arcs
-		Tooltip: ""
-	}
-
-	VFX_Nachtmusik_NightBreeze: {
-		DisplayName: V F X_ Nachtmusik_ Night Breeze
-		Tooltip: ""
-	}
-
-	VFX_Nachtmusik_NocturneNotes: {
-		DisplayName: V F X_ Nachtmusik_ Nocturne Notes
-		Tooltip: ""
-	}
-
-	VFX_Nachtmusik_StarlightSerenade: {
-		DisplayName: V F X_ Nachtmusik_ Starlight Serenade
-		Tooltip: ""
-	}
-
-	VFX_Seasons_AutumnHarvest: {
-		DisplayName: V F X_ Seasons_ Autumn Harvest
-		Tooltip: ""
-	}
-
-	VFX_Seasons_SeasonalCycle: {
-		DisplayName: V F X_ Seasons_ Seasonal Cycle
-		Tooltip: ""
-	}
-
-	VFX_Seasons_SpringBlossom: {
-		DisplayName: V F X_ Seasons_ Spring Blossom
-		Tooltip: ""
-	}
-
-	VFX_Seasons_SummerBlaze: {
-		DisplayName: V F X_ Seasons_ Summer Blaze
-		Tooltip: ""
-	}
-
-	VFX_Seasons_WinterFrost: {
-		DisplayName: V F X_ Seasons_ Winter Frost
-		Tooltip: ""
-	}
-
-	VFX_SwanLake_BalletNotes: {
-		DisplayName: V F X_ Swan Lake_ Ballet Notes
-		Tooltip: ""
-	}
-
-	VFX_SwanLake_DoubleHelix: {
-		DisplayName: V F X_ Swan Lake_ Double Helix
-		Tooltip: ""
-	}
-
-	VFX_SwanLake_FeatherWaltz: {
-		DisplayName: V F X_ Swan Lake_ Feather Waltz
-		Tooltip: ""
-	}
-
-	VFX_SwanLake_MonochromeArcs: {
-		DisplayName: V F X_ Swan Lake_ Monochrome Arcs
-		Tooltip: ""
-	}
-
-	VFX_SwanLake_PrismaticShimmer: {
-		DisplayName: V F X_ Swan Lake_ Prismatic Shimmer
-		Tooltip: ""
-	}
-
-	ChainOfFinalJudgment: {
-		DisplayName: Chain Of Final Judgment
-		Tooltip: ""
-	}
-
-	EmberOfTheCondemned: {
-		DisplayName: Ember Of The Condemned
-		Tooltip: ""
-	}
-
-	RequiemsShackle: {
-		DisplayName: Requiems Shackle
-		Tooltip: ""
-	}
-
-	SealOfDamnation: {
-		DisplayName: Seal Of Damnation
-		Tooltip: ""
-	}
-
-	DiesIraeTreasureBag: {
-		DisplayName: Dies Irae Treasure Bag
-		Tooltip: ""
-	}
-
-	HarmonicCoreOfDiesIrae: {
-		DisplayName: Harmonic Core Of Dies Irae
-		Tooltip: ""
-	}
-
-	DiesIraeResonantEnergy: {
-		DisplayName: Dies Irae Resonant Energy
-		Tooltip: ""
-	}
-
-	RemnantOfDiesIraesWrath: {
-		DisplayName: Remnant Of Dies Irae's Wrath
-		Tooltip: ""
-	}
-
-	ShardOfDiesIraesTempo: {
-		DisplayName: Shard Of Dies Irae's Tempo
-		Tooltip: ""
-	}
-
-	ResonantCoreOfDiesIrae: {
-		DisplayName: Resonant Core Of Dies Irae
-		Tooltip: ""
-	}
-
-	DiesIraeResonanceOre: {
-		DisplayName: Dies Irae Resonance Ore
-		Tooltip: ""
-	}
-
-	ArbitersSentence: {
-		DisplayName: Arbiters Sentence
-		Tooltip: ""
-	}
-
-	ChainOfJudgment: {
-		DisplayName: Chain Of Judgment
-		Tooltip: ""
-	}
-
-	DamnationsCannon: {
-		DisplayName: Damnations Cannon
-		Tooltip: ""
-	}
-
-	DeathTollingBell: {
-		DisplayName: Death Tolling Bell
-		Tooltip: ""
-	}
-
-	EclipseOfWrath: {
-		DisplayName: Eclipse Of Wrath
-		Tooltip: ""
-	}
-
-	ExecutionersVerdict: {
-		DisplayName: Executioners Verdict
-		Tooltip: ""
-	}
-
-	GrimoireOfCondemnation: {
-		DisplayName: Grimoire Of Condemnation
-		Tooltip: ""
-	}
-
-	HarmonyOfJudgement: {
-		DisplayName: Harmony Of Judgement
-		Tooltip: ""
-	}
-
-	SinCollector: {
-		DisplayName: Sin Collector
-		Tooltip: ""
-	}
-
-	StaffOfFinalJudgement: {
-		DisplayName: Staff Of Final Judgement
-		Tooltip: ""
-	}
-
-	WrathfulContract: {
-		DisplayName: Wrathful Contract
-		Tooltip: ""
-	}
-
-	WrathsCleaver: {
-		DisplayName: Wraths Cleaver
-		Tooltip: ""
-	}
-
-	ScoreOfDiesIrae: {
-		DisplayName: Score Of Dies Irae
-		Tooltip: ""
-	}
-
-	WingsOfDamnation: {
-		DisplayName: Wings Of Damnation
-		Tooltip: ""
-	}
-
-	WrathsAxe: {
-		DisplayName: Wraths Axe
-		Tooltip: ""
-	}
-
-	WrathsDrill: {
-		DisplayName: Wraths Drill
-		Tooltip: ""
-	}
-
-	WrathsHammer: {
-		DisplayName: Wraths Hammer
-		Tooltip: ""
-	}
-
-	WrathsPickaxe: {
-		DisplayName: Wraths Pickaxe
-		Tooltip: ""
-	}
-
-	ConstellationQuiver: {
-		DisplayName: Constellation Quiver
-		Tooltip: ""
-	}
-
-	ShardOfNachtmusiksTempo: {
-		DisplayName: Shard Of Nachtmusiks Tempo
-		Tooltip: ""
-	}
-
-	NightsMelodyAxe: {
-		DisplayName: Nights Melody Axe
-		Tooltip: ""
-	}
-
-	NightsMelodyHammer: {
-		DisplayName: Nights Melody Hammer
-		Tooltip: ""
-	}
-
-	NightsMelodyPickaxe: {
-		DisplayName: Nights Melody Pickaxe
-		Tooltip: ""
-	}
-
-	SerenadeOfStars: {
-		DisplayName: Serenade Of Stars
-		Tooltip: ""
-	}
-
-	ClockworkTargetingModule: {
-		DisplayName: Clockwork Targeting Module
-		Tooltip: ""
-	}
-
-	ConductorsTemporalBaton: {
-		DisplayName: Conductors Temporal Baton
-		Tooltip: ""
-	}
-
-	ResonantChronosphere: {
-		DisplayName: Resonant Chronosphere
-		Tooltip: ""
-	}
-
-	TemporalWrathGauntlet: {
-		DisplayName: Temporal Wrath Gauntlet
-		Tooltip: ""
-	}
-
-	HarmonicCoreOfClairDeLune: {
-		DisplayName: Harmonic Core Of Clair De Lune
-		Tooltip: ""
-	}
-
-	ClairDeLuneResonantEnergy: {
-		DisplayName: Clair De Lune Resonant Energy
-		Tooltip: ""
-	}
-
-	RemnantOfClairDeLunesHarmony: {
-		DisplayName: Remnant Of Clair De Lunes Harmony
-		Tooltip: ""
-	}
-
-	ResonantCoreOfClairDeLune: {
-		DisplayName: Resonant Core Of Clair De Lune
-		Tooltip: ""
-	}
-
-	ClairDeLuneResonanceOre: {
-		DisplayName: Clair De Lune Resonance Ore
-		Tooltip: ""
-	}
-
-	ChronologistsExcavator: {
-		DisplayName: Chronologists Excavator
-		Tooltip: ""
-	}
-
-	ClockworkExcavationDrill: {
-		DisplayName: Clockwork Excavation Drill
-		Tooltip: ""
-	}
-
-	HammerOfBrokenHours: {
-		DisplayName: Hammer Of Broken Hours
-		Tooltip: ""
-	}
-
-	TemporalCleaver: {
-		DisplayName: Temporal Cleaver
-		Tooltip: ""
-	}
-
-	WingsOfShatteredTime: {
-		DisplayName: Wings Of Shattered Time
-		Tooltip: ""
-	}
-
-	ClockworkGrimoire: {
-		DisplayName: Clockwork Grimoire
-		Tooltip: ""
-	}
-
-	OrreryOfDreams: {
-		DisplayName: Orrery Of Dreams
-		Tooltip: ""
-	}
-
-	RequiemOfTime: {
-		DisplayName: Requiem Of Time
-		Tooltip: ""
-	}
-
-	Chronologicality: {
-		DisplayName: Chronologicality
-		Tooltip: ""
-	}
-
-	ClockworkHarmony: {
-		DisplayName: Clockwork Harmony
-		Tooltip: ""
-	}
-
-	TemporalPiercer: {
-		DisplayName: Temporal Piercer
-		Tooltip: ""
-	}
-
-	CogAndHammer: {
-		DisplayName: Cog And Hammer
-		Tooltip: ""
-	}
-
-	MidnightMechanism: {
-		DisplayName: Midnight Mechanism
-		Tooltip: ""
-	}
-
-	StarfallWhisper: {
-		DisplayName: Starfall Whisper
-		Tooltip: ""
-	}
-
-	AutomatonsTuningFork: {
-		DisplayName: Automatons Tuning Fork
-		Tooltip: ""
-	}
-
-	GearDrivenArbiter: {
-		DisplayName: Gear Driven Arbiter
-		Tooltip: ""
-	}
-
-	LunarPhylactery: {
-		DisplayName: Lunar Phylactery
-		Tooltip: ""
-	}
-
-	ConductorsCorsage: {
-		DisplayName: Conductors Corsage
-		Tooltip: ""
-	}
-
-	SymphonyOfBlossoms: {
-		DisplayName: Symphony Of Blossoms
-		Tooltip: ""
-	}
-
-	TheFloweringCoda: {
-		DisplayName: The Flowering Coda
-		Tooltip: ""
-	}
-
-	TheVerdantRefrain: {
-		DisplayName: The Verdant Refrain
-		Tooltip: ""
-	}
-
-	HarmonicCoreOfOdeToJoy: {
-		DisplayName: Harmonic Core Of Ode To Joy
-		Tooltip: ""
-	}
-
-	OdeToJoyResonantEnergy: {
-		DisplayName: Ode To Joy Resonant Energy
-		Tooltip: ""
-	}
-
-	RemnantOfOdeToJoysBloom: {
-		DisplayName: Remnant Of Ode To Joys Bloom
-		Tooltip: ""
-	}
-
-	ResonantCoreOfOdeToJoy: {
-		DisplayName: Resonant Core Of Ode To Joy
-		Tooltip: ""
-	}
-
-	OdeToJoyResonanceOre: {
-		DisplayName: Ode To Joy Resonance Ore
-		Tooltip: ""
-	}
-
-	JoysAxe: {
-		DisplayName: Joys Axe
-		Tooltip: ""
-	}
-
-	JoysDrill: {
-		DisplayName: Joys Drill
-		Tooltip: ""
-	}
-
-	JoysHammer: {
-		DisplayName: Joys Hammer
-		Tooltip: ""
-	}
-
-	AnthemOfGlory: {
-		DisplayName: Anthem Of Glory
-		Tooltip: ""
-	}
-
-	ElysianVerdict: {
-		DisplayName: Elysian Verdict
-		Tooltip: ""
-	}
-
-	HymnOfTheVictorious: {
-		DisplayName: Hymn Of The Victorious
-		Tooltip: ""
-	}
-
-	RoseThornChainsaw: {
-		DisplayName: Rose Thorn Chainsaw
-		Tooltip: ""
-	}
-
-	TheGardenersFury: {
-		DisplayName: The Gardeners Fury
-		Tooltip: ""
-	}
-
-	ThornboundReckoning: {
-		DisplayName: Thornbound Reckoning
-		Tooltip: ""
-	}
-
-	PetalStormCannon: {
-		DisplayName: Petal Storm Cannon
-		Tooltip: ""
-	}
-
-	ThePollinator: {
-		DisplayName: The Pollinator
-		Tooltip: ""
-	}
-
-	ThornSprayRepeater: {
-		DisplayName: Thorn Spray Repeater
-		Tooltip: ""
-	}
-
-	FountainOfJoyousHarmony: {
-		DisplayName: Fountain Of Joyous Harmony
-		Tooltip: ""
-	}
-
-	TheStandingOvation: {
-		DisplayName: The Standing Ovation
-		Tooltip: ""
-	}
-
-	TriumphantChorus: {
-		DisplayName: Triumphant Chorus
-		Tooltip: ""
-	}
-
-	AegisOfTheEternalBastion: {
-		DisplayName: Aegis Of The Eternal Bastion
-		Tooltip: ""
-	}
-
-	EternalBastionOfTheMoonlight: {
-		DisplayName: Eternal Bastion Of The Moonlight
-		Tooltip: ""
-	}
-
-	InfernalRampartOfDiesIrae: {
-		DisplayName: Infernal Rampart Of Dies Irae
-		Tooltip: ""
-	}
-
-	JubilantBulwarkOfJoy: {
-		DisplayName: Jubilant Bulwark Of Joy
-		Tooltip: ""
-	}
-
-	NocturnalGuardiansWard: {
-		DisplayName: Nocturnal Guardians Ward
-		Tooltip: ""
-	}
-
-	StarfallInfernalShield: {
-		DisplayName: Starfall Infernal Shield
-		Tooltip: ""
-	}
-
-	TriumphantJubilantAegis: {
-		DisplayName: Triumphant Jubilant Aegis
-		Tooltip: ""
-	}
-
-	EternalOverflowMastery: {
-		DisplayName: Eternal Overflow Mastery
-		Tooltip: ""
-	}
-
-	InfernalManaCataclysm: {
-		DisplayName: Infernal Mana Cataclysm
-		Tooltip: ""
-	}
-
-	JubilantArcaneCelebration: {
-		DisplayName: Jubilant Arcane Celebration
-		Tooltip: ""
-	}
-
-	NocturnalHarmonicOverflow: {
-		DisplayName: Nocturnal Harmonic Overflow
-		Tooltip: ""
-	}
-
-	PendantOfTheEternalOverflow: {
-		DisplayName: Pendant Of The Eternal Overflow
-		Tooltip: ""
-	}
-
-	StarfallHarmonicPendant: {
-		DisplayName: Starfall Harmonic Pendant
-		Tooltip: ""
-	}
-
-	TriumphantOverflowPendant: {
-		DisplayName: Triumphant Overflow Pendant
-		Tooltip: ""
-	}
-
-	EternalResonanceBand: {
-		DisplayName: Eternal Resonance Band
-		Tooltip: ""
-	}
-
-	GauntletOfTheEternalSymphony: {
-		DisplayName: Gauntlet Of The Eternal Symphony
-		Tooltip: ""
-	}
-
-	InfernalFortissimoBandT8: {
-		DisplayName: Infernal Fortissimo Band T8
-		Tooltip: ""
-	}
-
-	JubilantCrescendoBand: {
-		DisplayName: Jubilant Crescendo Band
-		Tooltip: ""
-	}
-
-	NocturnalSymphonyBand: {
-		DisplayName: Nocturnal Symphony Band
-		Tooltip: ""
-	}
-
-	StarfallJudgmentGauntlet: {
-		DisplayName: Starfall Judgment Gauntlet
-		Tooltip: ""
-	}
-
-	TriumphantCosmosGauntlet: {
-		DisplayName: Triumphant Cosmos Gauntlet
-		Tooltip: ""
-	}
-
-	EternalVelocityTreads: {
-		DisplayName: Eternal Velocity Treads
-		Tooltip: ""
-	}
-
-	InfernalMeteorTreads: {
-		DisplayName: Infernal Meteor Treads
-		Tooltip: ""
-	}
-
-	JubilantZephyrTreads: {
-		DisplayName: Jubilant Zephyr Treads
-		Tooltip: ""
-	}
-
-	NocturnalPhantomTreads: {
-		DisplayName: Nocturnal Phantom Treads
-		Tooltip: ""
-	}
-
-	EternalVerdictSight: {
-		DisplayName: Eternal Verdict Sight
-		Tooltip: ""
-	}
-
-	InfernalExecutionersSight: {
-		DisplayName: Infernal Executioners Sight
-		Tooltip: ""
-	}
-
-	JubilantHuntersSight: {
-		DisplayName: Jubilant Hunters Sight
-		Tooltip: ""
-	}
-
-	NocturnalPredatorsSight: {
-		DisplayName: Nocturnal Predators Sight
-		Tooltip: ""
-	}
-
-	ScopeOfTheEternalVerdict: {
-		DisplayName: Scope Of The Eternal Verdict
-		Tooltip: ""
-	}
-
-	StarfallExecutionersScope: {
-		DisplayName: Starfall Executioners Scope
-		Tooltip: ""
-	}
-
-	TriumphantVerdictScope: {
-		DisplayName: Triumphant Verdict Scope
-		Tooltip: ""
-	}
-
-	EternalConductorsScepter: {
-		DisplayName: Eternal Conductors Scepter
-		Tooltip: ""
-	}
-
-	InfernalChoirmastersScepter: {
-		DisplayName: Infernal Choirmasters Scepter
-		Tooltip: ""
-	}
-
-	JubilantOrchestrasStaff: {
-		DisplayName: Jubilant Orchestras Staff
-		Tooltip: ""
-	}
-
-	NocturnalMaestrosBaton: {
-		DisplayName: Nocturnal Maestros Baton
-		Tooltip: ""
-	}
-
-	ScepterOfTheEternalConductor: {
-		DisplayName: Scepter Of The Eternal Conductor
-		Tooltip: ""
-	}
-
-	StarfallInfernalBaton: {
-		DisplayName: Starfall Infernal Baton
-		Tooltip: ""
-	}
-
-	TriumphantSymphonyBaton: {
-		DisplayName: Triumphant Symphony Baton
-		Tooltip: ""
-	}
-
-	InfernalCleaverItem: {
-		DisplayName: Infernal Cleaver
-		Tooltip: ""
-	}
-
-	FrostbiteEdgeItem: {
-		DisplayName: Frostbite Edge
-		Tooltip: ""
-	}
-
-	CosmicRendBladeItem: {
-		DisplayName: Cosmic Rend Blade
-		Tooltip: ""
-	}
-
-	VerdantCrescendoItem: {
-		DisplayName: Verdant Crescendo
-		Tooltip: ""
-	}
-
-	ArcaneHarmonicsItem: {
-		DisplayName: Arcane Harmonics
-		Tooltip: ""
-	}
-
-	TheUnresolvedCadenceItem: {
-		DisplayName: The Unresolved Cadence
-		Tooltip: ""
-	}
-
-	VariationsOfTheVoidItem: {
-		DisplayName: Variations of the Void
-		Tooltip: ""
-	}
-
-	SandboxTerraBlade: {
-		DisplayName: Sandbox Terra Blade
-		Tooltip: ""
-	}
-
-	SandboxLastPrism: {
-		Tooltip: ""
-		DisplayName: Sandbox Last Prism
-	}
-
-	Exoblade: {
-		Tooltip: ""
-		DisplayName: Exoblade
-	}
-
-	CodaOfAnnihilationItem: {
-		DisplayName: Coda of Annihilation
-		Tooltip: ""
-	}
-
-	DestinysCrescendoItem: {
-		DisplayName: Destiny's Crescendo
-		Tooltip: ""
-	}
-
-	FractalOfTheStarsItem: {
-		DisplayName: Fractal of the Stars
-		Tooltip: ""
-	}
-
-	LightOfTheFutureItem: {
-		DisplayName: Light of the Future
-		Tooltip: ""
-	}
-
-	OpusUltimaItem: {
-		DisplayName: Opus Ultima
-		Tooltip: ""
-	}
-
-	RequiemOfRealityItem: {
-		DisplayName: Requiem of Reality
-		Tooltip: ""
-	}
-
-	ResonanceOfABygoneRealityItem: {
-		DisplayName: Resonance of a Bygone Reality
-		Tooltip: ""
-	}
-
-	SymphonysEndItem: {
-		DisplayName: Symphony's End
-		Tooltip: ""
-	}
-
-	TheConductorsLastConstellationItem: {
-		DisplayName: The Conductor's Last Constellation
-		Tooltip: ""
-	}
-
-	TheFinalFermataItem: {
-		DisplayName: The Final Fermata
-		Tooltip: ""
-	}
-
-	LaserFoundation: {
-		DisplayName: Laser Foundation
-		Tooltip: ""
-	}
-
-	SparkleProjectileFoundation: {
-		DisplayName: Sparkle Projectile Foundation
-		Tooltip: ""
-	}
-
-	ThinLaserFoundation: {
-		DisplayName: Thin Laser Foundation
-		Tooltip: ""
-	}
-
-	MaskFoundation: {
-		DisplayName: Mask Foundation
-		Tooltip: ""
-	}
-
-	ImpactFoundation: {
-		DisplayName: Impact Foundation
-		Tooltip: ""
-	}
-
-	ThinSlashFoundation: {
-		DisplayName: Thin Slash Foundation
-		Tooltip: ""
-	}
-
-	MagicOrbFoundation: {
-		DisplayName: Magic Orb Foundation
-		Tooltip: ""
-	}
-
-	AttackAnimationFoundation: {
-		DisplayName: Attack Animation Foundation
-		Tooltip: ""
-	}
-
-	AttackFoundation: {
-		DisplayName: Attack Foundation
-		Tooltip: ""
-	}
-
-	ExplosionParticlesFoundation: {
-		DisplayName: Explosion Particles Foundation
-		Tooltip: ""
-	}
-
-	InfernalBeamFoundation: {
-		DisplayName: Infernal Beam Foundation
-		Tooltip: ""
-	}
-
-	SmokeFoundation: {
-		DisplayName: Smoke Foundation
-		Tooltip: ""
-	}
-
-	SwordSmearFoundation: {
-		DisplayName: Sword Smear Foundation
-		Tooltip: ""
-	}
-
-	Foundation4PointSparkle: {
-		DisplayName: Foundation 4-Point Sparkle
-		Tooltip: ""
-	}
-
-	XSlashFoundation: {
-		DisplayName: X Slash Foundation
-		Tooltip: ""
-	}
-
-	RibbonFoundation: {
-		DisplayName: Ribbon Foundation
-		Tooltip: ""
-	}
-
-	EroicasBanner: {
-		Tooltip: ""
-		DisplayName: Eroicas Banner
-	}
-
-	BlossomsFury: {
-		Tooltip: ""
-		DisplayName: Blossoms Fury
-	}
-
-	RiddlesRepeater: {
-		Tooltip: ""
-		DisplayName: Riddles Repeater
-	}
-
-	ElgarsPendulum: {
-		Tooltip: ""
-		DisplayName: Elgars Pendulum
-	}
-
-	CiphersEdge: {
-		Tooltip: ""
-		DisplayName: Ciphers Edge
-	}
-
-	ArcanumCodex: {
-		Tooltip: ""
-		DisplayName: Arcanum Codex
-	}
-
-	WrathsExecutioner: {
-		Tooltip: ""
-		DisplayName: Wraths Executioner
-	}
-
-	RequiemCannon: {
-		Tooltip: ""
-		DisplayName: Requiem Cannon
-	}
-
-	InfernalRequiem: {
-		Tooltip: ""
-		DisplayName: Infernal Requiem
-	}
-
-	HeraldOfRuin: {
-		Tooltip: ""
-		DisplayName: Herald Of Ruin
-	}
-
-	FuneralHymn: {
-		DisplayName: Funeral Hymn
-		Tooltip: ""
-	}
-
-	HeroicAnthem: {
-		DisplayName: Heroic Anthem
-		Tooltip: ""
-	}
-
-	DestinysCleaver: {
-		DisplayName: Destinys Cleaver
-		Tooltip: ""
-	}
-
-	FatumLongbow: {
-		DisplayName: Fatum Longbow
-		Tooltip: ""
-	}
-
-	MoiraiGrimoire: {
-		DisplayName: Moirai Grimoire
-		Tooltip: ""
-	}
-
-	SpindleOfTheFates: {
-		DisplayName: Spindle Of The Fates
-		Tooltip: ""
-	}
-
-	BellStriker: {
-		DisplayName: Bell Striker
-		Tooltip: ""
-	}
-
-	CampanellasFlame: {
-		DisplayName: Campanellas Flame
-		Tooltip: ""
-	}
-
-	ChimeCannon: {
-		DisplayName: Chime Cannon
-		Tooltip: ""
-	}
-
-	InfernalEtude: {
-		DisplayName: Infernal Etude
-		Tooltip: ""
-	}
-
-	ConductorsLunarBaton: {
-		DisplayName: Conductors Lunar Baton
-		Tooltip: ""
-	}
-
-	LunarElegy: {
-		DisplayName: Lunar Elegy
-		Tooltip: ""
-	}
-
-	MoonlightRequiem: {
-		DisplayName: Moonlight Requiem
-		Tooltip: ""
-	}
-
-	SonataOfTheTides: {
-		DisplayName: Sonata Of The Tides
-		Tooltip: ""
-	}
-
-	ConstellationArbalest: {
-		DisplayName: Constellation Arbalest
-		Tooltip: ""
-	}
-
-	NightConductorsBaton: {
-		DisplayName: Night Conductors Baton
-		Tooltip: ""
-	}
-
-	NocturnalConcerto: {
-		DisplayName: Nocturnal Concerto
-		Tooltip: ""
-	}
-
-	SerenadeBlade: {
-		DisplayName: Serenade Blade
-		Tooltip: ""
-	}
-
-	ConductorOfCelebration: {
-		DisplayName: Conductor Of Celebration
-		Tooltip: ""
-	}
-
-	HymnBallista: {
-		DisplayName: Hymn Ballista
-		Tooltip: ""
-	}
-
-	JubilantChorus: {
-		DisplayName: Jubilant Chorus
-		Tooltip: ""
-	}
-
-	OdeEternal: {
-		DisplayName: Ode Eternal
-		Tooltip: ""
-	}
-
-	CygnusBow: {
-		DisplayName: Cygnus Bow
-		Tooltip: ""
-	}
-
-	OdettesAria: {
-		DisplayName: Odettes Aria
-		Tooltip: ""
-	}
-
-	SiegfriedsOath: {
-		DisplayName: Siegfrieds Oath
-		Tooltip: ""
-	}
-
-	SwansLament: {
-		DisplayName: Swans Lament
-		Tooltip: ""
-	}
-
-	AutomatonsTuningForkItem: {
-		DisplayName: Automaton's Tuning Fork
-		Tooltip: ""
-	}
-
-	GearDrivenArbiterItem: {
-		DisplayName: Gear-Driven Arbiter
-		Tooltip: ""
-	}
-
-	LunarPhylacteryItem: {
-		DisplayName: Lunar Phylactery
-		Tooltip: ""
-	}
-
-	OdeToJoyTreasureBag: {
-		Tooltip: ""
-		DisplayName: Ode To Joy Treasure Bag
-	}
-
-	FoundationAnimeStyleAttackAnimation: {
-		DisplayName: Foundation Anime Style Attack Animation
-		Tooltip: ""
-	}
-
-	FoundationIncisorOrbs: {
-		Tooltip: ""
-		DisplayName: Foundation Incisor Orbs
-	}
-
-	AutunnoTreasureBag: {
-		DisplayName: Autunno Treasure Bag
-		Tooltip: ""
-	}
-
-	PrimaveraTreasureBag: {
-		DisplayName: Primavera Treasure Bag
-		Tooltip: ""
-	}
-
-	LEstateTreasureBag: {
-		DisplayName: L Estate Treasure Bag
-		Tooltip: ""
-	}
-
-	LInvernoTreasureBag: {
-		DisplayName: L Inverno Treasure Bag
-		Tooltip: ""
-	}
-}
-
-NPCs: {
-	Autunno.DisplayName: Autunno
-	EnigmaTheHollowMystery.DisplayName: Enigma, The Hollow Mystery
-	MysterysEnd.DisplayName: Mystery's End
-	EroicasRetribution.DisplayName: Eroica, God of Valor
-	FlamesOfValor.DisplayName: Flames of Valor
-	MovementI.DisplayName: Movement I
-	MovementII.DisplayName: Movement II
-	MovementIII.DisplayName: Movement III
-	BehemothOfValor.DisplayName: Behemoth of Valor
-	EroicanCenturion.DisplayName: Eroican Centurion
-	FuneralBlitzer.DisplayName: Funeral Blitzer
-	StolenValor.DisplayName: Stolen Valor
-	FateWardenOfMelodies.DisplayName: Fate Warden Of Melodies
-	HeraldOfFate.DisplayName: Herald Of Fate
-	LaCampanellaChimeOfLife.DisplayName: La Campanella Chime Of Life
-	CrawlerOfTheBell.DisplayName: Crawler Of The Bell
-	WaningDeer.DisplayName: Waning Deer
-	Primavera.DisplayName: Primavera
-	LEstate.DisplayName: L Estate
-	SwanLakeTheMonochromaticFractal.DisplayName: Swan Lake The Monochromatic Fractal
-	ShatteredPrima.DisplayName: Shattered Prima
-	LInverno.DisplayName: L Inverno
-	NachtmusikQueenOfRadiance.DisplayName: Nachtmusik Queen Of Radiance
-	DiesIraeHeraldOfJudgement.DisplayName: Dies Irae Herald Of Judgement
-	OdeToJoyChromaticRoseConductor.DisplayName: Ode To Joy Chromatic Rose Conductor
-}
-
-Prefixes: {
-	ResonanceSlicedPrefix.DisplayName: Resonance Sliced
-	ResonanceSearedPrefix.DisplayName: Resonance Seared
-	ResonancePiercedPrefix.DisplayName: Resonance Pierced
-	ResonanceBornPrefix.DisplayName: Resonance Born
-}
-
-Projectiles: {
-	SparkleCrystalProjectile.DisplayName: Sparkle Crystal
-	RibbonProjectile.DisplayName: Ribbon Projectile
-	AcceleratingBoltProjectile.DisplayName: Accelerating Bolt Projectile
-	BoomerangProjectile.DisplayName: Boomerang Projectile
-	DelayedDetonationProjectile.DisplayName: Delayed Detonation Projectile
-	ExplosiveOrbProjectile.DisplayName: Explosive Orb Projectile
-	HostileOrbProjectile.DisplayName: Hostile Orb Projectile
-	WaveProjectile.DisplayName: Wave Projectile
-	Debug1FractalFlare.DisplayName: Debug1 Fractal Flare
-	Debug2RayBeam.DisplayName: Debug2 Ray Beam
-	EnigmaGlyphProjectile.DisplayName: Enigma Glyph Projectile
-	EnigmaHomingEye.DisplayName: Enigma Homing Eye
-	EnigmaMazeWall.DisplayName: Enigma Maze Wall
-	EnigmaShockwave.DisplayName: Enigma Shockwave
-	EnigmaVoidBeam.DisplayName: Enigma Void Beam
-	EnigmaVoidWeb.DisplayName: Enigma Void Web
-	EnigmaWebShot.DisplayName: Enigma Web Shot
-	CascadingGlyph.DisplayName: Cascading Glyph
-	MysterysEndProjectile.DisplayName: Mysterys End Projectile
-	MysteryVortexZone.DisplayName: Mystery Vortex Zone
-	ParadoxGazeEye.DisplayName: Paradox Gaze Eye
-	RevelationEyeProjectile.DisplayName: Revelation Eye Projectile
-	WatchingEyeProjectile.DisplayName: Watching Eye Projectile
-	DimensionalSlash.DisplayName: Dimensional Slash
-	FugueVoiceProjectile.DisplayName: Fugue Voice Projectile
-	HomingQuestionSeeker.DisplayName: Homing Question Seeker
-	MysteryZone.DisplayName: Mystery Zone
-	ParadoxCollapseUltimate.DisplayName: Paradox Collapse Ultimate
-	ParadoxPiercingBolt.DisplayName: Paradox Piercing Bolt
-	PhantomBolt.DisplayName: Phantom Bolt
-	PhantomRift.DisplayName: Phantom Rift
-	QuestionSeekerBolt.DisplayName: Question Seeker Bolt
-	RealitySnapBack.DisplayName: Reality Snap Back
-	RealityUnravelerBeam.DisplayName: Reality Unraveler Beam
-	Riddlebolt.DisplayName: Riddlebolt
-	RiddleCascadeOrb.DisplayName: Riddle Cascade Orb
-	TacetEnigmaShot.DisplayName: Tacet Enigma Shot
-	TacetParadoxBolt.DisplayName: Tacet Paradox Bolt
-	UnsolvedPhantomMinion.DisplayName: Unsolved Phantom Minion
-	VoidConvergenceBeamSet.DisplayName: Void Convergence Beam Set
-	VoidResonanceExplosion.DisplayName: Void Resonance Explosion
-	HeroicSpiritMinion.DisplayName: Heroic Spirit Minion
-	HeroicSpiritSlash.DisplayName: Heroic Spirit Slash
-	PetalExplosion.DisplayName: Petal Explosion
-	PyreSlashWave.DisplayName: Pyre Slash Wave
-	BehemothBreathFlame.DisplayName: Behemoth Breath Flame
-	BehemothDebris.DisplayName: Behemoth Debris
-	BehemothEruptionWave.DisplayName: Behemoth Eruption Wave
-	BehemothFirePillar.DisplayName: Behemoth Fire Pillar
-	BehemothFlameRain.DisplayName: Behemoth Flame Rain
-	BehemothShockwave.DisplayName: Behemoth Shockwave
-	BlitzerHomingSoul.DisplayName: Blitzer Homing Soul
-	BlitzerLightningBolt.DisplayName: Blitzer Lightning Bolt
-	BlitzerProjectile1.DisplayName: Blitzer Projectile1
-	BlitzerProjectile2.DisplayName: Blitzer Projectile2
-	BlitzerSalvoProjectile.DisplayName: Blitzer Salvo Projectile
-	BlitzerSorrowBomb.DisplayName: Blitzer Sorrow Bomb
-	CenturionCrimsonMeteor.DisplayName: Centurion Crimson Meteor
-	CenturionFireTrail.DisplayName: Centurion Fire Trail
-	CenturionGoldenSword.DisplayName: Centurion Golden Sword
-	CenturionInfernoOrb.DisplayName: Centurion Inferno Orb
-	CenturionLantern.DisplayName: Centurion Lantern
-	CenturionNovaWave.DisplayName: Centurion Nova Wave
-	CenturionSwordProjectile.DisplayName: Centurion Sword Projectile
-	StolenValorCageOrb.DisplayName: Stolen Valor Cage Orb
-	StolenValorChargeWave.DisplayName: Stolen Valor Charge Wave
-	StolenValorFlame.DisplayName: Stolen Valor Flame
-	StolenValorMinion.DisplayName: Stolen Valor Minion
-	StolenValorMinionShot.DisplayName: Stolen Valor Minion Shot
-	StolenValorOrbitalShot.DisplayName: Stolen Valor Orbital Shot
-	StolenValorTriumphWave.DisplayName: Stolen Valor Triumph Wave
-	SakuraFlameProjectile.DisplayName: Sakura Flame Projectile
-	SakuraOfFate.DisplayName: Sakura Of Fate
-	TriumphantColossusPet.DisplayName: Triumphant Colossus Pet
-	BlossomOfTheSakuraBulletProjectile.DisplayName: Blossom Of The Sakura Bullet Projectile
-	CelestialValorProjectile.DisplayName: Celestial Valor Projectile
-	EnergyOfEroica.DisplayName: Energy Of Eroica
-	EroicasBeam.DisplayName: Eroicas Beam
-	EroicaSplittingOrb.DisplayName: Eroica Splitting Orb
-	FistOfEroica.DisplayName: Fist Of Eroica
-	FlameOfValorBeam.DisplayName: Flame Of Valor Beam
-	FuneralPrayerBeam.DisplayName: Funeral Prayer Beam
-	FuneralPrayerProjectile.DisplayName: Funeral Prayer Projectile
-	FuneralPrayerRicochetBeam.DisplayName: Funeral Prayer Ricochet Beam
-	HandOfValor.DisplayName: Hand Of Valor
-	PiercingLightOfTheSakuraProjectile.DisplayName: Piercing Light Of The Sakura Projectile
-	PinkFlamingBolt.DisplayName: Pink Flaming Bolt
-	SakuraLightning.DisplayName: Sakura Lightning
-	SakurasBlossomSpectral.DisplayName: Sakuras Blossom Spectral
-	SplittingValorOrb.DisplayName: Splitting Valor Orb
-	TriumphantFractalProjectile.DisplayName: Triumphant Fractal Projectile
-	AstrographConstellation.DisplayName: Astrograph Constellation
-	CosmicStarCircleEffect.DisplayName: Cosmic Star Circle Effect
-	ConstellationBeam.DisplayName: Constellation Beam
-	CosmicRendSlash.DisplayName: Cosmic Rend Slash
-	FateSealedShard.DisplayName: Fate Sealed Shard
-	RealityFractureTrail.DisplayName: Reality Fracture Trail
-	StellarBolt.DisplayName: Stellar Bolt
-	AcceleratingCosmicRound.DisplayName: Accelerating Cosmic Round
-	CodaHeldSwingProjectile.DisplayName: Coda Held Swing Projectile
-	CodaHeldSwing.DisplayName: Coda Held Swing
-	CodaZenithSwordProjectile.DisplayName: Coda Zenith Sword Projectile
-	CodaZenithSword.DisplayName: Coda Zenith Sword
-	CosmicBeamHeldSword.DisplayName: Cosmic Beam Held Sword
-	CosmicDeityMinion.DisplayName: Cosmic Deity Minion
-	CosmicElectricityStaff.DisplayName: Cosmic Electricity Staff
-	CosmicEnergyBall.DisplayName: Cosmic Energy Ball
-	CosmicMusicNoteProjectile.DisplayName: Cosmic Music Note Projectile
-	CosmicRocket.DisplayName: Cosmic Rocket
-	CosmicSeekerBall.DisplayName: Cosmic Seeker Ball
-	DeityCosmicBeam.DisplayName: Deity Cosmic Beam
-	FateRapidBullet.DisplayName: Fate Rapid Bullet
-	FermataSpectralSword.DisplayName: Fermata Spectral Sword
-	GlassDistortionEffect.DisplayName: Glass Distortion Effect
-	OrbitingSpectralBlade.DisplayName: Orbiting Spectral Blade
-	PrismaticBeam.DisplayName: Prismatic Beam
-	RequiemSpectralBladeProjectile.DisplayName: Requiem Spectral Blade Projectile
-	RequiemSpectralBlade.DisplayName: Requiem Spectral Blade
-	SpectralSlashingBlade.DisplayName: Spectral Slashing Blade
-	SpectralSwordBeam.DisplayName: Spectral Sword Beam
-	SpiralingSpectralBlade.DisplayName: Spiraling Spectral Blade
-	ZodiacExplosion.DisplayName: Zodiac Explosion
-	ExplosiveBellProjectile.DisplayName: Explosive Bell Projectile
-	InfernalBellLaser.DisplayName: Infernal Bell Laser
-	InfernalFireWave.DisplayName: Infernal Fire Wave
-	InfernalGroundFire.DisplayName: Infernal Ground Fire
-	MassiveInfernalLaser.DisplayName: Massive Infernal Laser
-	BellTollFlame.DisplayName: Bell Toll Flame
-	ChimePillar.DisplayName: Chime Pillar
-	CrescendoFireball.DisplayName: Crescendo Fireball
-	InfernalCrawlTrail.DisplayName: Infernal Crawl Trail
-	SmokeCloudProjectile.DisplayName: Smoke Cloud Projectile
-	SmokeFireball.DisplayName: Smoke Fireball
-	BellEnergyBeam.DisplayName: Bell Energy Beam
-	BellFireBullet.DisplayName: Bell Fire Bullet
-	BellFlameWave.DisplayName: Bell Flame Wave
-	BellRocket.DisplayName: Bell Rocket
-	BlazingMusicalWave.DisplayName: Blazing Musical Wave
-	BurningMusicalNote.DisplayName: Burning Musical Note
-	CampanellaChoirMinion.DisplayName: Campanella Choir Minion
-	ChimeCycloneProjectile.DisplayName: Chime Cyclone Projectile
-	ChimeCycloneProj.DisplayName: Chime Cyclone Proj
-	ChoirFlameWave.DisplayName: Choir Flame Wave
-	DualFatedChimeProjectile.DisplayName: Dual Fated Chime Projectile
-	GrandCrescendoWave.DisplayName: Grand Crescendo Wave
-	HarmonicPulse.DisplayName: Harmonic Pulse
-	HomingBellRocket.DisplayName: Homing Bell Rocket
-	HomingMusicNote.DisplayName: Homing Music Note
-	IgnitionThrustProjectile.DisplayName: Ignition Thrust Projectile
-	IgnitionThrustProj.DisplayName: Ignition Thrust Proj
-	InfernalBellMinion.DisplayName: Infernal Bell Minion
-	InfernalBellWave.DisplayName: Infernal Bell Wave
-	InfernoWaltzProjectile.DisplayName: Inferno Waltz Projectile
-	InfernoWaltzProj.DisplayName: Inferno Waltz Proj
-	InfiniteBellExplosiveProjectile.DisplayName: Infinite Bell Explosive Projectile
-	InfiniteBellSpiralProjectile.DisplayName: Infinite Bell Spiral Projectile
-	MusicNoteMine.DisplayName: Music Note Mine
-	OrbitingMusicNote.DisplayName: Orbiting Music Note
-	ResonantBellBlast.DisplayName: Resonant Bell Blast
-	TrailingMusicNote.DisplayName: Trailing Music Note
-	MoonlitEngineShockwave.DisplayName: Moonlit Engine Shockwave
-	MoonlitGyreSonicBoom.DisplayName: Moonlit Gyre Sonic Boom
-	SnowOfTheMoonProjectile.DisplayName: Snow Of The Moon Projectile
-	WaningDeerChandelierOrbiting.DisplayName: Waning Deer Chandelier Orbiting
-	WaningDeerHomingOrb.DisplayName: Waning Deer Homing Orb
-	GoliathOfMoonlight.DisplayName: Goliath Of Moonlight
-	RazerOfMoonlightsShadow.DisplayName: Razer Of Moonlights Shadow
-	EternalMoonBeam.DisplayName: Eternal Moon Beam
-	EternalMoonWave.DisplayName: Eternal Moon Wave
-	EternalMoonTidalWash.DisplayName: Eternal Moon Tidal Wash
-	EternalMoonReflection.DisplayName: Eternal Moon Reflection
-	EternalMoonTidalDetonation.DisplayName: Eternal Moon Tidal Detonation
-	IncisorStarFragment.DisplayName: Star Fragment
-	IncisorConstellationLock.DisplayName: Constellation Lock
-	IncisorHarmonicBurst.DisplayName: Harmonic Burst
-	IncisorLunarDetonation.DisplayName: Lunar Detonation
-	SpectralChildBeam.DisplayName: Spectral Child Beam
-	PrismaticCrescendo.DisplayName: Prismatic Crescendo
-	GoliathDevastatingBeam.DisplayName: Goliath Devastating Beam
-	GoliathMoonlightBeam.DisplayName: Goliath Moonlight Beam
-	MoonlightBeam.DisplayName: Moonlight Beam
-	ResurrectionProjectile.DisplayName: Moonlight Comet Round
-	CometCore.DisplayName: Comet Core
-	SupernovaShell.DisplayName: Supernova Shell
-	MoonlightWaveProjectile.DisplayName: Moonlight Wave Projectile
-	HealingFeatherPickup.DisplayName: Healing Feather Pickup
-	HomingSwanFeather.DisplayName: Homing Swan Feather
-	PrimaFeatherBlade.DisplayName: Prima Feather Blade
-	PrimaSoundWave.DisplayName: Prima Sound Wave
-	ShatteredPrimaShadow.DisplayName: Shattered Prima Shadow
-	FeathersCallFlare.DisplayName: Feathers Call Flare
-	BlackSwanFlare.DisplayName: Black Swan Flare
-	ChromaticSwanSongProjectile.DisplayName: Chromatic Swan Song Projectile
-	IridescentBeam.DisplayName: Iridescent Beam
-	IridescentCrystal.DisplayName: Iridescent Crystal
-	IridescentFlare.DisplayName: Iridescent Flare
-	IridescentWingspanProjectile.DisplayName: Iridescent Wingspan Projectile
-	PearlescentRocket.DisplayName: Pearlescent Rocket
-	SwansLamentBullet.DisplayName: Swans Lament Bullet
-	DecayBoltProjectile.DisplayName: Decay Bolt Projectile
-	DecayCrescentWave.DisplayName: Decay Crescent Wave
-	EntropicField.DisplayName: Entropic Field
-	HarvestMoonBolt.DisplayName: Harvest Moon Bolt
-	HarvestWraithMinion.DisplayName: Harvest Wraith Minion
-	HomingLeafShard.DisplayName: Homing Leaf Shard
-	SoulHarvestOrb.DisplayName: Soul Harvest Orb
-	SoulWisp.DisplayName: Soul Wisp
-	TwilightBolt.DisplayName: Twilight Bolt
-	WitheringWave.DisplayName: Withering Wave
-	CelestialMuseMinion.DisplayName: Celestial Muse Minion
-	ConductorStarProjectile.DisplayName: Conductor Star Projectile
-	ConstellationBoltProjectile.DisplayName: Constellation Bolt Projectile
-	CosmicRequiemBeamProjectile.DisplayName: Cosmic Requiem Beam Projectile
-	CrescendoWaveProjectile.DisplayName: Crescendo Wave Projectile
-	MuseNoteProjectile.DisplayName: Muse Note Projectile
-	NebulaArrowProjectile.DisplayName: Nebula Arrow Projectile
-	NocturnalBladeProjectile.DisplayName: Nocturnal Blade Projectile
-	NocturnalGuardianMinion.DisplayName: Nocturnal Guardian Minion
-	SerenadeStarProjectile.DisplayName: Serenade Star Projectile
-	StarweaverOrbProjectile.DisplayName: Starweaver Orb Projectile
-	StellarConductorMinion.DisplayName: Stellar Conductor Minion
-	TwilightSlashProjectile.DisplayName: Twilight Slash Projectile
-	AutumnPassageProjectile.DisplayName: Autumn Passage Projectile
-	AutumnSpiritMinion.DisplayName: Autumn Spirit Minion
-	DecayFieldProjectile.DisplayName: Decay Field Projectile
-	DecayZoneProjectile.DisplayName: Decay Zone Projectile
-	FinaleIceShardProjectile.DisplayName: Finale Ice Shard Projectile
-	HomingPetalProjectile.DisplayName: Homing Petal Projectile
-	HomingPetal.DisplayName: Homing Petal
-	SeasonalArrow.DisplayName: Seasonal Arrow
-	SolarPillarProjectile.DisplayName: Solar Pillar Projectile
-	SpiritIceBolt.DisplayName: Spirit Ice Bolt
-	SpiritPetalBolt.DisplayName: Spirit Petal Bolt
-	SpiritSolarBolt.DisplayName: Spirit Solar Bolt
-	SpringSpiritMinion.DisplayName: Spring Spirit Minion
-	SpringVerseProjectile.DisplayName: Spring Verse Projectile
-	SummerArrowFlareProjectile.DisplayName: Summer Arrow Flare Projectile
-	SummerMovementProjectile.DisplayName: Summer Movement Projectile
-	SummerSpiritMinion.DisplayName: Summer Spirit Minion
-	VersePetalProjectile.DisplayName: Verse Petal Projectile
-	VivaldiSeasonalWave.DisplayName: Vivaldi Seasonal Wave
-	WinterFinaleProjectile.DisplayName: Winter Finale Projectile
-	WinterSpiritMinion.DisplayName: Winter Spirit Minion
-	BloomArrow.DisplayName: Bloom Arrow
-	BlossomPetal.DisplayName: Blossom Petal
-	FlowerSpriteMinion.DisplayName: Flower Sprite Minion
-	HealingFlower.DisplayName: Healing Flower
-	HomingFlowerBolt.DisplayName: Homing Flower Bolt
-	HomingSpringPetal.DisplayName: Homing Spring Petal
-	PollenBolt.DisplayName: Pollen Bolt
-	PollenCloud.DisplayName: Pollen Cloud
-	SyncPetal.DisplayName: Sync Petal
-	VernalBolt.DisplayName: Vernal Bolt
-	HeatwavePulse.DisplayName: Heatwave Pulse
-	SolarFlameStream.DisplayName: Solar Flame Stream
-	SolarFlareProjectile.DisplayName: Solar Flare Projectile
-	SolarOrbProjectile.DisplayName: Solar Orb Projectile
-	SolarWave.DisplayName: Solar Wave
-	SunbeamProjectile.DisplayName: Sunbeam Projectile
-	SunSpiritMinion.DisplayName: Sun Spirit Minion
-	ZenithFlare.DisplayName: Zenith Flare
-	ZenithFlareProjectile.DisplayName: Zenith Flare Projectile
-	AvalancheWave.DisplayName: Avalanche Wave
-	BlizzardShardProjectile.DisplayName: Blizzard Shard Projectile
-	FrostSentinelMinion.DisplayName: Frost Sentinel Minion
-	AvalancheIceShardProjectile.DisplayName: Avalanche Ice Shard
-	IceShardProjectile.DisplayName: Ice Shard Projectile
-	IceStormProjectile.DisplayName: Ice Storm Projectile
-	IcicleBolt.DisplayName: Icicle Bolt
-	PermafrostBolt.DisplayName: Permafrost Bolt
-	SentinelFrostBolt.DisplayName: Sentinel Frost Bolt
-	StormIcicle.DisplayName: Storm Icicle
-	NebulaStarfallProjectile.DisplayName: Nebula Starfall Projectile
-	SeekingCrystalProjectile.DisplayName: Seeking Crystal Projectile
-	SeekingCrystalProj.DisplayName: Seeking Crystal Proj
-	ClairProj_MoonbeamSparkle.DisplayName: Clair Proj_ Moonbeam Sparkle
-	ClairProj_MoonlitNotes.DisplayName: Clair Proj_ Moonlit Notes
-	ClairProj_MoonlitRipple.DisplayName: Clair Proj_ Moonlit Ripple
-	ClairProj_ReflectionCrescent.DisplayName: Clair Proj_ Reflection Crescent
-	ClairProj_SereneArc.DisplayName: Clair Proj_ Serene Arc
-	DiesIraeProj_DamnationCrescent.DisplayName: Dies Irae Proj_ Damnation Crescent
-	DiesIraeProj_InfernoEmber.DisplayName: Dies Irae Proj_ Inferno Ember
-	DiesIraeProj_JudgmentArc.DisplayName: Dies Irae Proj_ Judgment Arc
-	DiesIraeProj_RequiemNotes.DisplayName: Dies Irae Proj_ Requiem Notes
-	DiesIraeProj_WrathSmoke.DisplayName: Dies Irae Proj_ Wrath Smoke
-	EnigmaProj_GlyphOrbit.DisplayName: Enigma Proj_ Glyph Orbit
-	EnigmaProj_GreenFlame.DisplayName: Enigma Proj_ Green Flame
-	EnigmaProj_MysteryNotes.DisplayName: Enigma Proj_ Mystery Notes
-	EnigmaProj_VoidSwirl.DisplayName: Enigma Proj_ Void Swirl
-	EnigmaProj_WatchingEye.DisplayName: Enigma Proj_ Watching Eye
-	EroicaProj_HeroicArcs.DisplayName: Eroica Proj_ Heroic Arcs
-	EroicaProj_SakuraDrift.DisplayName: Eroica Proj_ Sakura Drift
-	EroicaProj_SymphonyNotes.DisplayName: Eroica Proj_ Symphony Notes
-	EroicaProj_TriumphSparks.DisplayName: Eroica Proj_ Triumph Sparks
-	EroicaProj_ValorCrescent.DisplayName: Eroica Proj_ Valor Crescent
-	FateProj_CelestialNotes.DisplayName: Fate Proj_ Celestial Notes
-	FateProj_CosmicCloud.DisplayName: Fate Proj_ Cosmic Cloud
-	FateProj_GlyphOrbit.DisplayName: Fate Proj_ Glyph Orbit
-	FateProj_RealityCrescent.DisplayName: Fate Proj_ Reality Crescent
-	FateProj_StarStream.DisplayName: Fate Proj_ Star Stream
-	CampanellaProj_BellArc.DisplayName: Campanella Proj_ Bell Arc
-	CampanellaProj_CrescentFlame.DisplayName: Campanella Proj_ Crescent Flame
-	CampanellaProj_EmberSpray.DisplayName: Campanella Proj_ Ember Spray
-	CampanellaProj_MusicNotes.DisplayName: Campanella Proj_ Music Notes
-	CampanellaProj_SmokeTrail.DisplayName: Campanella Proj_ Smoke Trail
-	MoonlightProj_LunarCrescent.DisplayName: Moonlight Proj_ Lunar Crescent
-	MoonlightProj_LunarMist.DisplayName: Moonlight Proj_ Lunar Mist
-	MoonlightProj_MoonbeamArc.DisplayName: Moonlight Proj_ Moonbeam Arc
-	MoonlightProj_NocturneNotes.DisplayName: Moonlight Proj_ Nocturne Notes
-	MoonlightProj_StellarSparkle.DisplayName: Moonlight Proj_ Stellar Sparkle
-	NachtmusikProj_NightCrescent.DisplayName: Nachtmusik Proj_ Night Crescent
-	NachtmusikProj_NocturneNotes.DisplayName: Nachtmusik Proj_ Nocturne Notes
-	NachtmusikProj_SerenadeArc.DisplayName: Nachtmusik Proj_ Serenade Arc
-	NachtmusikProj_StarlightMist.DisplayName: Nachtmusik Proj_ Starlight Mist
-	NachtmusikProj_TwinklingStar.DisplayName: Nachtmusik Proj_ Twinkling Star
-	SeasonsProj_AutumnHarvest.DisplayName: Seasons Proj_ Autumn Harvest
-	SeasonsProj_SeasonalCycle.DisplayName: Seasons Proj_ Seasonal Cycle
-	SeasonsProj_SpringBlossom.DisplayName: Seasons Proj_ Spring Blossom
-	SeasonsProj_SummerBlaze.DisplayName: Seasons Proj_ Summer Blaze
-	SeasonsProj_WinterFrost.DisplayName: Seasons Proj_ Winter Frost
-	SwanLakeProj_BalletNotes.DisplayName: Swan Lake Proj_ Ballet Notes
-	SwanLakeProj_ContrastRipple.DisplayName: Swan Lake Proj_ Contrast Ripple
-	SwanLakeProj_FeatherDrift.DisplayName: Swan Lake Proj_ Feather Drift
-	SwanLakeProj_GracefulCrescent.DisplayName: Swan Lake Proj_ Graceful Crescent
-	SwanLakeProj_PrismaticArc.DisplayName: Swan Lake Proj_ Prismatic Arc
-	BlazingMusicShard.DisplayName: Blazing Music Shard
-	CrystallizedFlameProjectile.DisplayName: Crystallized Flame Projectile
-	EclipseOrb.DisplayName: Eclipse Orb
-	FloatingIgnition.DisplayName: Floating Ignition
-	IgnitedWrathBall.DisplayName: Ignited Wrath Ball
-	IgnitedWrathBolt.DisplayName: Ignited Wrath Bolt
-	JudgmentChainProjectile.DisplayName: Judgment Chain Projectile
-	JudgmentFlame.DisplayName: Judgment Flame
-	OrbitingShrapnel.DisplayName: Orbiting Shrapnel
-	SinBullet.DisplayName: Sin Bullet
-	SpectralVerdictSword.DisplayName: Spectral Verdict Sword
-	SpinningCleaverCopy.DisplayName: Spinning Cleaver Copy
-	WrathShard.DisplayName: Wrath Shard
-	WrathWaveProjectile.DisplayName: Wrath Wave Projectile
-	BellTollWave.DisplayName: Bell Toll Wave
-	DeathTollingBellMinion.DisplayName: Death Tolling Bell Minion
-	HarmonyOfJudgementMinion.DisplayName: Harmony Of Judgement Minion
-	JudgementRay.DisplayName: Judgement Ray
-	WrathFireball.DisplayName: Wrath Fireball
-	WrathfulContractMinion.DisplayName: Wrathful Contract Minion
-	WrathsDrillProjectile.DisplayName: Wraths Drill Projectile
-	ClockworkTargetingBolt.DisplayName: Clockwork Targeting Bolt
-	TemporalEchoProjectile.DisplayName: Temporal Echo Projectile
-	ClockworkDrillProjectile.DisplayName: Clockwork Drill Projectile
-	CosmicLaserProjectile.DisplayName: Cosmic Laser Projectile
-	GrimoireCrystalProjectile.DisplayName: Grimoire Crystal Projectile
-	GrimoireGearProjectile.DisplayName: Grimoire Gear Projectile
-	GrimoireLightningProjectile.DisplayName: Grimoire Lightning Projectile
-	GrimoireTimeFractureProjectile.DisplayName: Grimoire Time Fracture Projectile
-	OrreryBeamProjectile.DisplayName: Orrery Beam Projectile
-	OrreryControllerProjectile.DisplayName: Orrery Controller Projectile
-	OrreryOrbitProjectile.DisplayName: Orrery Orbit Projectile
-	TemporalSlashProjectile.DisplayName: Temporal Slash Projectile
-	TimeFreezeSweepProjectile.DisplayName: Time Freeze Sweep Projectile
-	ChronologicalityProjectile.DisplayName: Chronologicality Projectile
-	GearWaveProjectile.DisplayName: Gear Wave Projectile
-	SynchronizedGearExplosion.DisplayName: Synchronized Gear Explosion
-	TemporalPiercerProjectile.DisplayName: Temporal Piercer Projectile
-	TemporalRiftProjectile.DisplayName: Temporal Rift Projectile
-	TimeFractureExplosion.DisplayName: Time Fracture Explosion
-	ClockworkBombProjectile.DisplayName: Clockwork Bomb Projectile
-	GearShrapnelProjectile.DisplayName: Gear Shrapnel Projectile
-	MechanismBoltProjectile.DisplayName: Mechanism Bolt Projectile
-	StarfallBoltProjectile.DisplayName: Starfall Bolt Projectile
-	StarfallCrystalProjectile.DisplayName: Starfall Crystal Projectile
-	StarfallRiftProjectile.DisplayName: Starfall Rift Projectile
-	SynchronizedGearBoltProjectile.DisplayName: Synchronized Gear Bolt Projectile
-	TemporalSingularityProjectile.DisplayName: Temporal Singularity Projectile
-	ArbiterGearProjectile.DisplayName: Arbiter Gear Projectile
-	AutomatonsTuningForkMinionProjectile.DisplayName: Automatons Tuning Fork Minion Projectile
-	GearDrivenArbiterMinionProjectile.DisplayName: Gear Driven Arbiter Minion Projectile
-	LunarPhylacteryMinionProjectile.DisplayName: Lunar Phylactery Minion Projectile
-	PhylacteryBeamProjectile.DisplayName: Phylactery Beam Projectile
-	BlossomWaveProjectile.DisplayName: Blossom Wave Projectile
-	ChainsawThornSegment.DisplayName: Chainsaw Thorn Segment
-	GloryBeamProjectile.DisplayName: Glory Beam Projectile
-	PetalStormProjectile.DisplayName: Petal Storm Projectile
-	SmallPetalProjectile.DisplayName: Small Petal Projectile
-	ThornProjectile.DisplayName: Thorn Projectile
-	JoysDrillProjectile.DisplayName: Joys Drill Projectile
-	ElysianExplosionProjectile.DisplayName: Elysian Explosion Projectile
-	ElysianOrbProjectile.DisplayName: Elysian Orb Projectile
-	GloryShardProjectile.DisplayName: Glory Shard Projectile
-	OdeToJoyGloryBeamProjectile.DisplayName: Ode To Joy Glory Beam Projectile
-	SymphonicExplosionProjectile.DisplayName: Symphonic Explosion Projectile
-	VictoriousNoteProjectile.DisplayName: Victorious Note Projectile
-	VineMissileProjectile.DisplayName: Vine Missile Projectile
-	BloomExplosionProjectile.DisplayName: Bloom Explosion Projectile
-	GardenerFuryProjectile.DisplayName: Gardener Fury Projectile
-	RoseThornChainsawProjectile.DisplayName: Rose Thorn Chainsaw Projectile
-	ThornChainProjectile.DisplayName: Thorn Chain Projectile
-	VineWaveProjectile.DisplayName: Vine Wave Projectile
-	LingeringPetalStorm.DisplayName: Lingering Petal Storm
-	OdeToJoyHomingPetalProjectile.DisplayName: Ode To Joy Homing Petal Projectile
-	PetalBombProjectile.DisplayName: Petal Bomb Projectile
-	PollenSeedProjectile.DisplayName: Pollen Seed Projectile
-	ThornBoltProjectile.DisplayName: Thorn Bolt Projectile
-	FountainWaterProjectile.DisplayName: Fountain Water Projectile
-	GrandFinaleProjectile.DisplayName: Grand Finale Projectile
-	HarmonicBlastProjectile.DisplayName: Harmonic Blast Projectile
-	JoyousFountainMinion.DisplayName: Joyous Fountain Minion
-	JoyWaveProjectile.DisplayName: Joy Wave Projectile
-	StandingOvationMinion.DisplayName: Standing Ovation Minion
-	TriumphantChorusMinion.DisplayName: Triumphant Chorus Minion
-	ChromaticScaleSpiral.DisplayName: Chromatic Scale Spiral
-	CrescendoSwell.DisplayName: Crescendo Swell
-	ResonatingTrebleOrb.DisplayName: Resonating Treble Orb
-	SymphonyConductorBaton.DisplayName: Symphony Conductor Baton
-	TempoMetronome.DisplayName: Tempo Metronome
-	VinylRecordDisc.DisplayName: Vinyl Record Disc
-	EnigmaVoidBeamExample.DisplayName: Enigma Void Beam Example
-	EroicaDeathRayExample.DisplayName: Eroica Death Ray Example
-	FateCosmicLaserExample.DisplayName: Fate Cosmic Laser Example
-	LaCampanellaInfernoExample.DisplayName: La Campanella Inferno Example
-	MoonlightSonataRayExample.DisplayName: Moonlight Sonata Ray Example
-	SwanLakePrismExample.DisplayName: Swan Lake Prism Example
-	DebugARKConstellationBolt.DisplayName: Debug A R K Constellation Bolt
-	DebugARKSwungBlade.DisplayName: Debug A R K Swung Blade
-	DebugHEAVYSwungBlade.DisplayName: Debug H E A V Y Swung Blade
-	DebugSWINGProj.DisplayName: Debug S W I N G Proj
-	AdaptiveBezierProjectile.DisplayName: Adaptive Bezier Projectile
-	BezierCurveProjectile.DisplayName: Bezier Curve Projectile
-	ChromaticAfterimageProjectile.DisplayName: Chromatic Afterimage Projectile
-	UnifiedTrailProjectile.DisplayName: Unified Trail Projectile
-	VFXPlusBeamCutterProjectile.DisplayName: V F X Plus Beam Cutter Projectile
-	VFXPlusBloomStarProjectile.DisplayName: V F X Plus Bloom Star Projectile
-	VFXPlusGodRayBladeProjectile.DisplayName: V F X Plus God Ray Blade Projectile
-	VFXPlusImpactBladeProjectile.DisplayName: V F X Plus Impact Blade Projectile
-	VFXPlusSwordArcProjectile.DisplayName: V F X Plus Sword Arc Projectile
-	VFXPlusTrailBladeProjectile.DisplayName: V F X Plus Trail Blade Projectile
-	VFXTestAfterimageProjectile.DisplayName: V F X Test Afterimage Projectile
-	VFXTestBezierProjectile.DisplayName: V F X Test Bezier Projectile
-	VFXTestBillboardProjectile.DisplayName: V F X Test Billboard Projectile
-	VFXTestBloomProjectile.DisplayName: V F X Test Bloom Projectile
-	VFXTestChainProjectile.DisplayName: V F X Test Chain Projectile
-	VFXTestDistortionProjectile.DisplayName: V F X Test Distortion Projectile
-	VFXTestLightBeamProjectile.DisplayName: V F X Test Light Beam Projectile
-	VFXTestParticlePoolProjectile.DisplayName: V F X Test Particle Pool Projectile
-	VFXTestPixelTrailProjectile.DisplayName: V F X Test Pixel Trail Projectile
-	VFXTestSmokeProjectile.DisplayName: V F X Test Smoke Projectile
-	VFXTestTrailProjectile.DisplayName: V F X Test Trail Projectile
-	VFXPlusAfterimageKatanaProjectile.DisplayName: V F X Plus Afterimage Katana Projectile
-	VFXPlusConstellationBladeProjectile.DisplayName: V F X Plus Constellation Blade Projectile
-	VFXPlusNebulaStaffProjectile.DisplayName: V F X Plus Nebula Staff Projectile
-	CalamityTrailSlash.DisplayName: Calamity Trail Slash
-	ShaderTestProjectile.DisplayName: Shader Test Projectile
-	HarvestReaperSwing.DisplayName: Harvest Reaper Swing
-	TheUnresolvedCadenceSwing.DisplayName: The Unresolved Cadence Swing
-	VariationsOfTheVoidSwing.DisplayName: Variations Of The Void Swing
-	SakurasBlossomSwing.DisplayName: Sakuras Blossom Swing
-	CelestialValorSwing.DisplayName: Celestial Valor Swing
-	DualFatedChimeSwing.DisplayName: Dual Fated Chime Swing
-	IncisorOfMoonlightSwing.DisplayName: Incisor Of Moonlight Swing
-	EternalMoonSwing.DisplayName: Eternal Moon Swing
-	MidnightsCrescendoSwing.DisplayName: Midnights Crescendo Swing
-	NocturnalExecutionerSwing.DisplayName: Nocturnal Executioner Swing
-	TwilightSeveranceSwing.DisplayName: Twilight Severance Swing
-	FourSeasonsBladeSwing.DisplayName: Four Seasons Blade Swing
-	BlossomsEdgeSwing.DisplayName: Blossoms Edge Swing
-	ZenithCleaverSwing.DisplayName: Zenith Cleaver Swing
-	CalloftheBlackSwanSwing.DisplayName: Callofthe Black Swan Swing
-	EmberShardProjectile.DisplayName: Ember Shard Projectile
-	InfernalCleaverSwing.DisplayName: Infernal Cleaver Swing
-	MagmaPillarProjectile.DisplayName: Magma Pillar Projectile
-	FrostbiteEdgeSwing.DisplayName: Frostbite Edge Swing
-	FrostNovaProjectile.DisplayName: Frost Nova Projectile
-	CosmicRendBladeSwing.DisplayName: Cosmic Rend Blade Swing
-	VoidRiftProjectile.DisplayName: Void Rift Projectile
-	VoidShardProjectile.DisplayName: Void Shard Projectile
-	BloomBurstProjectile.DisplayName: Bloom Burst Projectile
-	ThornVolleyProjectile.DisplayName: Thorn Volley Projectile
-	VerdantCrescendoSwing.DisplayName: Verdant Crescendo Swing
-	ArcaneHarmonicsSwing.DisplayName: Arcane Harmonics Swing
-	HarmonicRingProjectile.DisplayName: Harmonic Ring Projectile
-	NoteProjectile.DisplayName: Note Projectile
-	ResonanceFieldProjectile.DisplayName: Resonance Field Projectile
-	SymphonyBurstProjectile.DisplayName: Symphony Burst Projectile
-	GlacialExecutionerSwing.DisplayName: Glacial Executioner Swing
-	SandboxTerraBladeSwing.DisplayName: Sandbox Terra Blade Swing
-	LightShardBeam.DisplayName: Light Shard Beam
-	LightShardExplosion.DisplayName: Light Shard Explosion
-	LightShardProjectile.DisplayName: Light Shard Projectile
-	CosmicImpactZone.DisplayName: Cosmic Impact Zone
-	CosmicSpinShard.DisplayName: Cosmic Spin Shard
-	SandboxTerraBladeComboSwing.DisplayName: Sandbox Terra Blade Combo Swing
-	SandboxTerraBladeSpinThrow.DisplayName: Sandbox Terra Blade Spin Throw
-	AnamorphicStreakVFX.DisplayName: Anamorphic Streak V F X
-	ImpactLightBeamVFX.DisplayName: Impact Light Beam V F X
-	LingeringFlameZone.DisplayName: Lingering Flame Zone
-	NeonEnergyBall.DisplayName: Neon Energy Ball
-	VerticalEnergyPillarVFX.DisplayName: Vertical Energy Pillar V F X
-	ClockworkGearProjectile.DisplayName: Clockwork Gear Projectile
-	CrispStarProjectile.DisplayName: Crisp Star Projectile
-	TerraBladeEnergyBolt.DisplayName: Terra Blade Energy Bolt
-	TerraBladeStarImpact.DisplayName: Terra Blade Star Impact
-	TerraBladeStarburstBeam.DisplayName: Terra Blade Starburst Beam
-	SandboxTerraBladeBeam.DisplayName: Sandbox Terra Blade Beam
-	SandboxTerraBladeFlareBeam.DisplayName: Sandbox Terra Blade Flare Beam
-	SandboxTerraBladePrismBeam.DisplayName: Sandbox Terra Blade Prism Beam
-	Exoboom.DisplayName: Exoboom
-	ExobladeProj.DisplayName: Exoblade Proj
-	ExobeamSlashCreator.DisplayName: Exobeam Slash Creator
-	ExobeamSlash.DisplayName: Exobeam Slash
-	Exobeam.DisplayName: Exobeam
-	ConstellationSlash.DisplayName: Constellation Slash
-	ConstellationSlashCreator.DisplayName: Constellation Slash Creator
-	IncisorSwingProj.DisplayName: Incisor Swing Proj
-	LunarBeamProj.DisplayName: Lunar Beam Proj
-	LunarNova.DisplayName: Lunar Nova
-	JudgmentFlameProjectile.DisplayName: Judgment Flame Projectile
-	PurgatoryEmberProjectile.DisplayName: Purgatory Ember Projectile
-	IgnitedWrathBallProjectile.DisplayName: Ignited Wrath Ball Projectile
-	WrathShrapnelProjectile.DisplayName: Wrath Shrapnel Projectile
-	BellTollingMinion.DisplayName: Bell Tolling Minion
-	BellTollWaveProjectile.DisplayName: Bell Toll Wave Projectile
-	EclipseOrbProjectile.DisplayName: Eclipse Orb Projectile
-	EclipseWrathShard.DisplayName: Eclipse Wrath Shard
-	ExecutionersVerdictSwing.DisplayName: Executioners Verdict Swing
-	SpectralVerdictSlash.DisplayName: Spectral Verdict Slash
-	VerdictBolt.DisplayName: Verdict Bolt
-	BlazingShardProjectile.DisplayName: Blazing Shard Projectile
-	JudgmentRayProjectile.DisplayName: Judgment Ray Projectile
-	JudgmentSigilMinion.DisplayName: Judgment Sigil Minion
-	SinBulletProjectile.DisplayName: Sin Bullet Projectile
-	SpinningCleaverCopyProjectile.DisplayName: Spinning Cleaver Copy Projectile
-	FloatingIgnitionProjectile.DisplayName: Floating Ignition Projectile
-	WrathDemonMinion.DisplayName: Wrath Demon Minion
-	WrathFireballProjectile.DisplayName: Wrath Fireball Projectile
-	WrathCrystallizedFlame.DisplayName: Wrath Crystallized Flame
-	WrathsCleaverSwing.DisplayName: Wraths Cleaver Swing
-	ValorBeam.DisplayName: Valor Beam
-	ValorBoom.DisplayName: Valor Boom
-	ValorSlash.DisplayName: Valor Slash
-	ValorSlashCreator.DisplayName: Valor Slash Creator
-	CrescendoCosmicBeam.DisplayName: Crescendo Cosmic Beam
-	CrescendoDeityMinion.DisplayName: Crescendo Deity Minion
-	FractalOrbitBlade.DisplayName: Fractal Orbit Blade
-	FractalSwingProjectile.DisplayName: Fractal Swing Projectile
-	LightAcceleratingBullet.DisplayName: Light Accelerating Bullet
-	LightCosmicRocket.DisplayName: Light Cosmic Rocket
-	OpusEnergyBallProjectile.DisplayName: Opus Energy Ball Projectile
-	OpusSwingProjectile.DisplayName: Opus Swing Projectile
-	RequiemCosmicNote.DisplayName: Requiem Cosmic Note
-	RequiemSwingProjectile.DisplayName: Requiem Swing Projectile
-	ResonanceRapidBullet.DisplayName: Resonance Rapid Bullet
-	ResonanceSpectralBlade.DisplayName: Resonance Spectral Blade
-	SymphonyBladeFragment.DisplayName: Symphony Blade Fragment
-	SymphonySpiralBlade.DisplayName: Symphony Spiral Blade
-	ConductorSwingProjectile.DisplayName: Conductor Swing Projectile
-	ConductorSwordBeam.DisplayName: Conductor Sword Beam
-	FermataSlashWave.DisplayName: Fermata Slash Wave
-	FermataSpectralSwordNew.DisplayName: Fermata Spectral Sword New
-	BellFlameWaveProj.DisplayName: Bell Flame Wave Proj
-	DualFatedChimeSwingProj.DisplayName: Dual Fated Chime Swing Proj
-	EmpoweredLightningProj.DisplayName: Empowered Lightning Proj
-	InfiniteBellOrbProj.DisplayName: Infinite Bell Orb Proj
-	BellfireNoteProj.DisplayName: Bellfire Note Proj
-	GrandioseBeamProj.DisplayName: Grandiose Beam Proj
-	KillEchoProj.DisplayName: Kill Echo Proj
-	NoteMineProj.DisplayName: Note Mine Proj
-	InfernalGeyserProj.DisplayName: Infernal Geyser Proj
-	MinionShockwaveProj.DisplayName: Minion Shockwave Proj
-	ResonantBlastProj.DisplayName: Resonant Blast Proj
-	ResonantNoteProj.DisplayName: Resonant Note Proj
-	StaccatoBulletProj.DisplayName: Staccato Bullet Proj
-	BellfireRocketProj.DisplayName: Bellfire Rocket Proj
-	GrandCrescendoWaveProj.DisplayName: Grand Crescendo Wave Proj
-	EternalMoonCrescentSlash.DisplayName: Eternal Moon Crescent Slash
-	EternalMoonGhost.DisplayName: Eternal Moon Ghost
-	PrismaticDetonation.DisplayName: Prismatic Detonation
-	SerenadeBeam.DisplayName: Serenade Beam
-	SerenadeHoldout.DisplayName: Serenade Holdout
-	ChainLightningBolt.DisplayName: Chain Lightning Bolt
-	FountainWaterBolt.DisplayName: Fountain Water Bolt
-	PetalSplashProjectile.DisplayName: Petal Splash Projectile
-	OrbitalNoteProjectile.DisplayName: Orbital Note Projectile
-	PetalShrapnelProjectile.DisplayName: Petal Shrapnel Projectile
-	PetalStormZone.DisplayName: Petal Storm Zone
-	ChainsawHoldoutProjectile.DisplayName: Chainsaw Holdout Projectile
-	JubilantPetalProjectile.DisplayName: Jubilant Petal Projectile
-	PollenBurstProjectile.DisplayName: Pollen Burst Projectile
-	StickyThornProjectile.DisplayName: Sticky Thorn Projectile
-	ThornSplinterProjectile.DisplayName: Thorn Splinter Projectile
-	SeasonalHomingPetalProjectile.DisplayName: Seasonal Homing Petal Projectile
-	BlackSwanFlareProj.DisplayName: Black Swan Flare Proj
-	BlackSwanSwingProj.DisplayName: Black Swan Swing Proj
-	PearlescentRocketProj.DisplayName: Pearlescent Rocket Proj
-	AriaDetonationProj.DisplayName: Aria Detonation Proj
-	ChromaticBoltProj.DisplayName: Chromatic Bolt Proj
-	IridescentCrystalProj.DisplayName: Iridescent Crystal Proj
-	WingspanBoltProj.DisplayName: Wingspan Bolt Proj
-	DestructionHaloProj.DisplayName: Destruction Halo Proj
-	LamentBulletProj.DisplayName: Lament Bullet Proj
-	LaserFoundationBeam.DisplayName: Laser Foundation Beam
-	ThinLaserBeam.DisplayName: Thin Laser Beam
-	MaskOrbProjectile.DisplayName: Mask Orb Projectile
-	ImpactProjectile.DisplayName: Impact Projectile
-	RippleEffectProjectile.DisplayName: Ripple Effect
-	DamageZoneProjectile.DisplayName: Damage Zone
-	SlashMarkProjectile.DisplayName: Slash Mark
-	ThinSlashProjectile.DisplayName: Thin Slash Projectile
-	ThinSlashEffect.DisplayName: Thin Slash Effect
-	MagicOrb.DisplayName: Magic Orb
-	OrbBolt.DisplayName: Orb Bolt
-	AttackAnimationProjectile.DisplayName: Attack Animation Projectile
-	SlashVFXProjectile.DisplayName: Slash V F X Projectile
-	ThrowSlamProjectile.DisplayName: Throw Slam Projectile
-	ComboSwingProjectile.DisplayName: Combo Swing Projectile
-	AstralgraphProjectile.DisplayName: Astralgraph Projectile
-	FlamingRingProjectile.DisplayName: Flaming Ring Projectile
-	RangerShotProjectile.DisplayName: Ranger Shot Projectile
-	SparkCarrierProjectile.DisplayName: Spark Carrier Projectile
-	SparkExplosionProjectile.DisplayName: Spark Explosion Projectile
-	SparkleStarProjectile.DisplayName: Sparkle Star Projectile
-	SparkleStarExplosion.DisplayName: Sparkle Star Explosion
-	InfernalBeam.DisplayName: Infernal Beam
-	SmokeSwingProjectile.DisplayName: Smoke Swing Projectile
-	SmearSwingProjectile.DisplayName: Smear Swing Projectile
-	XSlashEffect.DisplayName: X Slash Effect
-	XSlashProjectile.DisplayName: X Slash Projectile
-	DIEmberShard.DisplayName: D I Ember Shard
-	HRCrimsonReaper.DisplayName: H R Crimson Reaper
-	HRDoomObelisk.DisplayName: H R Doom Obelisk
-	HRHellhound.DisplayName: H R Hellhound
-	HRPyreSentry.DisplayName: H R Pyre Sentry
-	IRBloodDrop.DisplayName: I R Blood Drop
-	IRDamnationBeam.DisplayName: I R Damnation Beam
-	IRHellfireBolt.DisplayName: I R Hellfire Bolt
-	IRJudgmentRing.DisplayName: I R Judgment Ring
-	RCApocalypseMortar.DisplayName: R C Apocalypse Mortar
-	RCBrimstoneEmber.DisplayName: R C Brimstone Ember
-	RCJudgmentArrow.DisplayName: R C Judgment Arrow
-	RCWrathShot.DisplayName: R C Wrath Shot
-	WEApocalypseSpin.DisplayName: W E Apocalypse Spin
-	WEDamnationSlam.DisplayName: W E Damnation Slam
-	WEJudgmentWave.DisplayName: W E Judgment Wave
-	WEPyreThrust.DisplayName: W E Pyre Thrust
-	ACDoomSigil.DisplayName: A C Doom Sigil
-	ACEldritchEye.DisplayName: A C Eldritch Eye
-	ACEyeBeam.DisplayName: A C Eye Beam
-	ACShadowOrb.DisplayName: A C Shadow Orb
-	ACVoidBolt.DisplayName: A C Void Bolt
-	CEDreadImpale.DisplayName: C E Dread Impale
-	CEEnigmaSpiral.DisplayName: C E Enigma Spiral
-	CESpectralStrike.DisplayName: C E Spectral Strike
-	CEVoidTear.DisplayName: C E Void Tear
-	EPArcaneAnchor.DisplayName: E P Arcane Anchor
-	EPPhantomTwin.DisplayName: E P Phantom Twin
-	EPShadowStalker.DisplayName: E P Shadow Stalker
-	EPVoidEyeSentry.DisplayName: E P Void Eye Sentry
-	RREerieTracer.DisplayName: R R Eerie Tracer
-	RRPhantomBolt.DisplayName: R R Phantom Bolt
-	RRShadowPellet.DisplayName: R R Shadow Pellet
-	RRVoidMortar.DisplayName: R R Void Mortar
-	RRVoidPool.DisplayName: R R Void Pool
-	BFFlameShot.DisplayName: B F Flame Shot
-	BFHeroArrow.DisplayName: B F Hero Arrow
-	BFPetalArrow.DisplayName: B F Petal Arrow
-	BFSakuraMortar.DisplayName: B F Sakura Mortar
-	EBFlameSentinel.DisplayName: E B Flame Sentinel
-	EBGoldenHerald.DisplayName: E B Golden Herald
-	EBHeraldBolt.DisplayName: E B Herald Bolt
-	EBPhoenixFamiliar.DisplayName: E B Phoenix Familiar
-	EBSakuraGuardian.DisplayName: E B Sakura Guardian
-	FHGoldenAria.DisplayName: F H Golden Aria
-	FHPetalTornado.DisplayName: F H Petal Tornado
-	FHPhoenixFlame.DisplayName: F H Phoenix Flame
-	FHScarletHelix.DisplayName: F H Scarlet Helix
-	HACrescendoLance.DisplayName: H A Crescendo Lance
-	HAPhoenixDive.DisplayName: H A Phoenix Dive
-	HASakuraPetal.DisplayName: H A Sakura Petal
-	HAValorWall.DisplayName: H A Valor Wall
-	DCCosmicRift.DisplayName: D C Cosmic Rift
-	DCGravityWell.DisplayName: D C Gravity Well
-	DCInevitableStrike.DisplayName: D C Inevitable Strike
-	DCStarShard.DisplayName: D C Star Shard
-	FLCelestialShard.DisplayName: F L Celestial Shard
-	FLCrimsonComet.DisplayName: F L Crimson Comet
-	FLDestinyArc.DisplayName: F L Destiny Arc
-	FLMiniSingularity.DisplayName: F L Mini Singularity
-	FLVoidArrow.DisplayName: F L Void Arrow
-	MGCosmicVortex.DisplayName: M G Cosmic Vortex
-	MGOblivionPulse.DisplayName: M G Oblivion Pulse
-	MGStarFall.DisplayName: M G Star Fall
-	MGThreadBeam.DisplayName: M G Thread Beam
-	SFAtroposBlade.DisplayName: S F Atropos Blade
-	SFClothoStar.DisplayName: S F Clotho Star
-	SFCosmicFamiliar.DisplayName: S F Cosmic Familiar
-	SFLachesisSentry.DisplayName: S F Lachesis Sentry
-	SFMeasureBolt.DisplayName: S F Measure Bolt
-	SFThreadBolt.DisplayName: S F Thread Bolt
-	BSBellShockwave.DisplayName: B S Bell Shockwave
-	BSEmberSlash.DisplayName: B S Ember Slash
-	BSInfernalWhip.DisplayName: B S Infernal Whip
-	BSResonanceRing.DisplayName: B S Resonance Ring
-	CCBellShot.DisplayName: C C Bell Shot
-	CCFireMortar.DisplayName: C C Fire Mortar
-	CCFlameSpray.DisplayName: C C Flame Spray
-	CCResonanceBolt.DisplayName: C C Resonance Bolt
-	CFBellSentry.DisplayName: C F Bell Sentry
-	CFConductorBolt.DisplayName: C F Conductor Bolt
-	CFEmberFamiliar.DisplayName: C F Ember Familiar
-	CFInfernalConductor.DisplayName: C F Infernal Conductor
-	CFSmokeWraith.DisplayName: C F Smoke Wraith
-	IEBellOrb.DisplayName: I E Bell Orb
-	IEFlameTrill.DisplayName: I E Flame Trill
-	IEInfernalFireball.DisplayName: I E Infernal Fireball
-	IESmokeVeil.DisplayName: I E Smoke Veil
-	CLBCrescentSentry.DisplayName: C L B Crescent Sentry
-	CLBLunarConstellation.DisplayName: C L B Lunar Constellation
-	CLBMoonlightEcho.DisplayName: C L B Moonlight Echo
-	CLBSentryBolt.DisplayName: C L B Sentry Bolt
-	CLBTidalFamiliar.DisplayName: C L B Tidal Familiar
-	LunarElegyCrescentWave.DisplayName: Lunar Elegy Crescent Wave
-	LunarElegyEclipseBoomerang.DisplayName: Lunar Elegy Eclipse Boomerang
-	LunarElegyMoonfallPillar.DisplayName: Lunar Elegy Moonfall Pillar
-	LunarElegyTidalThrust.DisplayName: Lunar Elegy Tidal Thrust
-	MRLunarBolt.DisplayName: M R Lunar Bolt
-	MRMoonbeamSnipe.DisplayName: M R Moonbeam Snipe
-	MRSilverNeedle.DisplayName: M R Silver Needle
-	MRSilverRainMarker.DisplayName: M R Silver Rain Marker
-	MRTidalBullet.DisplayName: M R Tidal Bullet
-	SOTCrescentShard.DisplayName: S O T Crescent Shard
-	SOTLunarCascadeOrb.DisplayName: S O T Lunar Cascade Orb
-	SOTMoonlightBeam.DisplayName: S O T Moonlight Beam
-	SOTMoonriseNote.DisplayName: S O T Moonrise Note
-	SOTTidalVortex.DisplayName: S O T Tidal Vortex
-	CACosmicRay.DisplayName: C A Cosmic Ray
-	CANebulaFrag.DisplayName: C A Nebula Frag
-	CAStarBolt.DisplayName: C A Star Bolt
-	CASupernovaShell.DisplayName: C A Supernova Shell
-	NCBConstellationSentry.DisplayName: N C B Constellation Sentry
-	NCBNebulaWraith.DisplayName: N C B Nebula Wraith
-	NCBNightGuardian.DisplayName: N C B Night Guardian
-	NCBStarBolt.DisplayName: N C B Star Bolt
-	NCBStarSprite.DisplayName: N C B Star Sprite
-	NCConstellationNode.DisplayName: N C Constellation Node
-	NCCosmicBeam.DisplayName: N C Cosmic Beam
-	NCNebulaCloud.DisplayName: N C Nebula Cloud
-	NCStarstream.DisplayName: N C Starstream
-	NMStarShard.DisplayName: N M Star Shard
-	SBMeteor.DisplayName: S B Meteor
-	SBNebulaRing.DisplayName: S B Nebula Ring
-	SBNocturneThrust.DisplayName: S B Nocturne Thrust
-	SBStarlightArc.DisplayName: S B Starlight Arc
-	COCChorusSpirit.DisplayName: C O C Chorus Spirit
-	COCGoldenHerald.DisplayName: C O C Golden Herald
-	COCJubilantSentry.DisplayName: C O C Jubilant Sentry
-	COCTriumphGuard.DisplayName: C O C Triumph Guard
-	HBAnthemBolt.DisplayName: H B Anthem Bolt
-	HBGoldenArrow.DisplayName: H B Golden Arrow
-	HBGrandFinale.DisplayName: H B Grand Finale
-	HBRadiantBurst.DisplayName: H B Radiant Burst
-	JCAnthemThrust.DisplayName: J C Anthem Thrust
-	JCCelebrationSpin.DisplayName: J C Celebration Spin
-	JCCrescendoSlam.DisplayName: J C Crescendo Slam
-	JCTriumphantArc.DisplayName: J C Triumphant Arc
-	OEHarmonyBeam.DisplayName: O E Harmony Beam
-	OEJoyCascade.DisplayName: O E Joy Cascade
-	OERadiantBolt.DisplayName: O E Radiant Bolt
-	OEUniversalChorus.DisplayName: O E Universal Chorus
-	OJNoteFragment.DisplayName: O J Note Fragment
-	OJShockwaveRing.DisplayName: O J Shockwave Ring
-	OJSparkleBolt.DisplayName: O J Sparkle Bolt
-	SmokeCarrierProjectile.DisplayName: Smoke Carrier Projectile
-	SmokeRingProjectile.DisplayName: Smoke Ring Projectile
-	CBBlackFeather.DisplayName: C B Black Feather
-	CBPrismaticArrow.DisplayName: C B Prismatic Arrow
-	CBPrismaticShard.DisplayName: C B Prismatic Shard
-	CBSwanSongOrb.DisplayName: C B Swan Song Orb
-	CBWhiteFeather.DisplayName: C B White Feather
-	OABlackSwanOrb.DisplayName: O A Black Swan Orb
-	OAFeatherRain.DisplayName: O A Feather Rain
-	OAMirrorLake.DisplayName: O A Mirror Lake
-	OAShadowFeather.DisplayName: O A Shadow Feather
-	OAWhiteRay.DisplayName: O A White Ray
-	SLDyingSwan.DisplayName: S L Dying Swan
-	SLFeatherShard.DisplayName: S L Feather Shard
-	SLGracefulCrescent.DisplayName: S L Graceful Crescent
-	SLPasDeDeux.DisplayName: S L Pas De Deux
-	SLPlumeDive.DisplayName: S L Plume Dive
-	SOCursedCygnet.DisplayName: S O Cursed Cygnet
-	SOFeatherGuard.DisplayName: S O Feather Guard
-	SOMirrorBolt.DisplayName: S O Mirror Bolt
-	SOMirrorSentry.DisplayName: S O Mirror Sentry
-	SOWhiteSwanSpirit.DisplayName: S O White Swan Spirit
-	RequiemRealityTear.DisplayName: Requiem Reality Tear
-	CrescentMoonProj.DisplayName: Crescent Moon Proj
-	CrescentWaveProj.DisplayName: Crescent Wave Proj
-	OrbitingNoteProj.DisplayName: Orbiting Note Proj
-	StaccatoNoteProj.DisplayName: Staccato Note Proj
-	SplashZoneProj.DisplayName: Splash Zone Proj
-	CrystalShardProj.DisplayName: Crystal Shard Proj
-	TidalRippleEffect.DisplayName: Tidal Ripple Effect
-	TidalThinSlash.DisplayName: Tidal Thin Slash
-	TidalXSlashEffect.DisplayName: Tidal X Slash Effect
-	MoonlightPuddle.DisplayName: Moonlight Puddle
-	PrismaticMaskOrb.DisplayName: Prismatic Mask Orb
-	SerenadeRipple.DisplayName: Serenade Ripple
-	SupernovaRipple.DisplayName: Supernova Ripple
-	SupernovaSmokeRing.DisplayName: Supernova Smoke Ring
-	SupernovaSparks.DisplayName: Supernova Sparks
-	TemporalEchoAccessoryProjectile.DisplayName: Temporal Echo Accessory Projectile
-	AutomatonMinionProjectile.DisplayName: Automaton Minion Projectile
-	ConductorFinalNoteProjectile.DisplayName: Conductor Final Note Projectile
-	FrequencyZoneProjectile.DisplayName: Frequency Zone Projectile
-	PerfectResonanceProjectile.DisplayName: Perfect Resonance Projectile
-	ChronologicalitySwing.DisplayName: Chronologicality Swing
-	ClockworkOverflowProjectile.DisplayName: Clockwork Overflow Projectile
-	TimeSlowFieldProjectile.DisplayName: Time Slow Field Projectile
-	HourBeamProjectile.DisplayName: Hour Beam Projectile
-	MinuteOrbProjectile.DisplayName: Minute Orb Projectile
-	PendulumZoneProjectile.DisplayName: Pendulum Zone Projectile
-	SecondBoltProjectile.DisplayName: Second Bolt Projectile
-	DriveGearProjectile.DisplayName: Drive Gear Projectile
-	GearMeshZoneProjectile.DisplayName: Gear Mesh Zone Projectile
-	MediumGearProjectile.DisplayName: Medium Gear Projectile
-	SmallGearProjectile.DisplayName: Small Gear Projectile
-	MasterMechanismBombProjectile.DisplayName: Master Mechanism Bomb Projectile
-	StickyBombProjectile.DisplayName: Sticky Bomb Projectile
-	ArbiterMinionProjectile.DisplayName: Arbiter Minion Projectile
-	ArbiterVerdictProjectile.DisplayName: Arbiter Verdict Projectile
-	MoonlightBeamProjectile.DisplayName: Moonlight Beam Projectile
-	MoonlightSentinelProjectile.DisplayName: Moonlight Sentinel Projectile
-	MechanismBulletProjectile.DisplayName: Mechanism Bullet Projectile
-	MechanismEjectGearProjectile.DisplayName: Mechanism Eject Gear Projectile
-	MidnightStrikeShotProjectile.DisplayName: Midnight Strike Shot Projectile
-	DreamAlignmentProjectile.DisplayName: Dream Alignment Projectile
-	DreamSphereProjectile.DisplayName: Dream Sphere Projectile
-	InnerSphereBoltProjectile.DisplayName: Inner Sphere Bolt Projectile
-	MiddleSphereOrbProjectile.DisplayName: Middle Sphere Orb Projectile
-	OuterSphereBombProjectile.DisplayName: Outer Sphere Bomb Projectile
-	ForwardFieldProjectile.DisplayName: Forward Field Projectile
-	ReverseFieldProjectile.DisplayName: Reverse Field Projectile
-	TemporalParadoxProjectile.DisplayName: Temporal Paradox Projectile
-	TemporalArrowProjectile.DisplayName: Temporal Arrow Projectile
-	TemporalFractureProjectile.DisplayName: Temporal Fracture Projectile
-	FrozenMomentProjectile.DisplayName: Frozen Moment Projectile
-	TemporalThrustProjectile.DisplayName: Temporal Thrust Projectile
-	TimePierceBoomerangProjectile.DisplayName: Time Pierce Boomerang Projectile
-	ChainLightningArc.DisplayName: Chain Lightning Arc
-	HellfireZoneProjectile.DisplayName: Hellfire Zone Projectile
-	EclipseFieldProjectile.DisplayName: Eclipse Field Projectile
-	DarkSermonSigilProjectile.DisplayName: Dark Sermon Sigil Projectile
-	PenanceShotProjectile.DisplayName: Penance Shot Projectile
-	GoliathMaskAura.DisplayName: Goliath Mask Aura
-	GoliathRipple.DisplayName: Goliath Ripple
-	NebulaWhisperShot.DisplayName: Nebula Whisper Shot
-	ExecutionFanBlade.DisplayName: Execution Fan Blade
-	CosmicRequiemOrbProjectile.DisplayName: Cosmic Requiem Orb Projectile
-	StarEchoProjectile.DisplayName: Star Echo Projectile
-	AnthemBeamProjectile.DisplayName: Anthem Beam Projectile
-	GloryNoteProjectile.DisplayName: Glory Note Projectile
-	VictoryFanfareProjectile.DisplayName: Victory Fanfare Projectile
-	ElysianVerdictExplosion.DisplayName: Elysian Verdict Explosion
-	GoldenDropletProjectile.DisplayName: Golden Droplet Projectile
-	JoyousGeyserBurstProjectile.DisplayName: Joyous Geyser Burst Projectile
-	ApexOrbProjectile.DisplayName: Apex Orb Projectile
-	ExordiumBoltProjectile.DisplayName: Exordium Bolt Projectile
-	GloriaBoltProjectile.DisplayName: Gloria Bolt Projectile
-	GloriaFragmentProjectile.DisplayName: Gloria Fragment Projectile
-	RisingBoltProjectile.DisplayName: Rising Bolt Projectile
-	HurricaneShotProjectile.DisplayName: Hurricane Shot Projectile
-	PetalClusterProjectile.DisplayName: Petal Cluster Projectile
-	PetalVortexZone.DisplayName: Petal Vortex Zone
-	ThornShrapnelProjectile.DisplayName: Thorn Shrapnel Projectile
-	GardenerSwingProj.DisplayName: Gardener Swing Proj
-	PodDetonationProjectile.DisplayName: Pod Detonation Projectile
-	SeedPodProjectile.DisplayName: Seed Pod Projectile
-	GoldenFieldProjectile.DisplayName: Golden Field Projectile
-	HomingSeedProjectile.DisplayName: Homing Seed Projectile
-	MassBloomProjectile.DisplayName: Mass Bloom Projectile
-	PollenShotProjectile.DisplayName: Pollen Shot Projectile
-	OvationShockwaveProjectile.DisplayName: Ovation Shockwave Projectile
-	RoseRainPetalProjectile.DisplayName: Rose Rain Petal Projectile
-	ThrownRoseProjectile.DisplayName: Thrown Rose Projectile
-	BotanicalBurstProjectile.DisplayName: Botanical Burst Projectile
-	ThornboundSwingProj.DisplayName: Thornbound Swing Proj
-	ThornLashProjectile.DisplayName: Thorn Lash Projectile
-	ThornWallProjectile.DisplayName: Thorn Wall Projectile
-	BloomThornProjectile.DisplayName: Bloom Thorn Projectile
-	CrystallineThornProjectile.DisplayName: Crystalline Thorn Projectile
-	ThornDetonationProjectile.DisplayName: Thorn Detonation Projectile
-	FuneralPrayerChanneledBeam.DisplayName: Funeral Prayer Channeled Beam
-	ThemeSparkleExplosion.DisplayName: Theme Sparkle Explosion
-	SakuraPetalProj.DisplayName: Sakura Petal Proj
-	AnimeSwingProjectile.DisplayName: Anime Swing Projectile
-	IncisorOrbSwingProj.DisplayName: Incisor Orb Swing Proj
-	IncisorOrbProj.DisplayName: Incisor Orb Proj
-	ThornSprayProjectile.DisplayName: Thorn Spray Projectile
-	PollinatorProjectile.DisplayName: Pollinator Projectile
-	HymnVictoriousSwing.DisplayName: Hymn Victorious Swing
-	FountainProjectile.DisplayName: Fountain Projectile
-	ElysianVerdictSwing.DisplayName: Elysian Verdict Swing
-	AnthemGloryProjectile.DisplayName: Anthem Glory Projectile
-	TimeFreezeSlashProjectile.DisplayName: Time Freeze Slash Projectile
-	SuperLunarOrbProj.DisplayName: Super Lunar Orb Proj
-	LunarZoneProj.DisplayName: Lunar Zone Proj
-	ClockworkHarmonySwing.DisplayName: Clockwork Harmony Swing
-	EternalMoonOrbRing.DisplayName: Eternal Moon Orb Ring
-	SakuraSpectralTurret.DisplayName: Sakura Spectral Turret
-	SakuraSparkLaser.DisplayName: Sakura Spark Laser
-	CelestialValorZoneOrb.DisplayName: Celestial Valor Zone Orb
-	CelestialValorNoiseZone.DisplayName: Celestial Valor Noise Zone
-	CelestialValorFlyingBlade.DisplayName: Celestial Valor Flying Blade
-	ChronologicalitySpecialProj.DisplayName: Chronologicality Special Proj
-	ClockworkHarmonySpecialProj.DisplayName: Clockwork Harmony Special Proj
-	TemporalPiercerSpecialProj.DisplayName: Temporal Piercer Special Proj
-	ChainJudgmentSpecialProj.DisplayName: Chain Judgment Special Proj
-	ExecutionersVerdictSpecialProj.DisplayName: Executioners Verdict Special Proj
-	WrathsCleaverSpecialProj.DisplayName: Wraths Cleaver Special Proj
-	CadenceSpecialProj.DisplayName: Cadence Special Proj
-	VoidSpecialProj.DisplayName: Void Special Proj
-	CodaSpecialProj.DisplayName: Coda Special Proj
-	FractalSpecialProj.DisplayName: Fractal Special Proj
-	OpusUltimaSpecialProj.DisplayName: Opus Ultima Special Proj
-	RequiemSpecialProj.DisplayName: Requiem Special Proj
-	ConductorSpecialProj.DisplayName: Conductor Special Proj
-	DualFatedChimeSpecialProj.DisplayName: Dual Fated Chime Special Proj
-	MidnightsCrescendoSpecialProj.DisplayName: Midnights Crescendo Special Proj
-	NocturnalExecutionerSpecialProj.DisplayName: Nocturnal Executioner Special Proj
-	TwilightSeveranceSpecialProj.DisplayName: Twilight Severance Special Proj
-	RoseThornChainsawSpecialProj.DisplayName: Rose Thorn Chainsaw Special Proj
-	GardenerFurySpecialProj.DisplayName: Gardener Fury Special Proj
-	ThornboundReckoningSpecialProj.DisplayName: Thornbound Reckoning Special Proj
-	BlackSwanSpecialProj.DisplayName: Black Swan Special Proj
 }

@@ -148,9 +148,14 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
                 OverrideColor = new Color(255, 150, 100)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+50 mana regen when any enemy has Resonant Burn")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "-3% magic spell cost per Resonant Burn stack")
             {
                 OverrideColor = new Color(150, 200, 255)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "MaxBonus", "Max: -15% mana cost at 5 stacks")
+            {
+                OverrideColor = new Color(100, 180, 255)
             });
 
             tooltips.Add(new TooltipLine(Mod, "Effect3", "+4% magic damage per burning enemy (max 20% at 5)")
@@ -203,17 +208,22 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Magic attacks consume Resonant Burn for burst damage")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+6% magic damage per Resonant Burn stack on target")
             {
                 OverrideColor = new Color(255, 150, 100)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "BurstNote", "Burst deals 150% of remaining burn DoT as instant damage")
+            tooltips.Add(new TooltipLine(Mod, "MaxBonus", "Max: +30% at 5 stacks")
             {
                 OverrideColor = AutumnOrange
             });
 
-            tooltips.Add(new TooltipLine(Mod, "ManaNote", "Gain mana equal to 15% of burst damage (cap 30 per hit)")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "At max stacks: Release arcane shockwave (50% damage) to nearby enemies")
+            {
+                OverrideColor = new Color(150, 150, 255)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Shockwave applies Resonant Burn to unburned enemies")
             {
                 OverrideColor = new Color(150, 200, 255)
             });
@@ -280,7 +290,7 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<HarvestSoulVessel>(1)
+                .AddIngredient<ArcaneResonanceCatalyst>(1)
                 .AddIngredient<ResonantCrystalShard>(5)
                 .AddIngredient<PermafrostBar>(25)
                 .AddIngredient<WinterResonantEnergy>(1)

@@ -19,7 +19,6 @@ using MagnumOpus.Content.Nachtmusik.Weapons.StarweaversGrimoire;
 using MagnumOpus.Content.Nachtmusik.Weapons.RequiemOfTheCosmos;
 using MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton;
 using MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture;
-using MagnumOpus.Content.Nachtmusik.Weapons.ConductorOfConstellations;
 
 namespace MagnumOpus.Content.Nachtmusik.Bosses
 {
@@ -140,7 +139,6 @@ namespace MagnumOpus.Content.Nachtmusik.Bosses
             // Summon (3)
             ModContent.ItemType<CelestialChorusBaton>(),
             ModContent.ItemType<GalacticOverture>(),
-            ModContent.ItemType<ConductorOfConstellations>(),
         };
         
         public bool CanDrop(DropAttemptInfo info) => true;

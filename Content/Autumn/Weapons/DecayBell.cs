@@ -239,8 +239,6 @@ namespace MagnumOpus.Content.Autumn.Weapons
     /// </summary>
     public class HarvestWraithBuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.CursedInferno;
-        
         public override void SetStaticDefaults()
         {
             Main.buffNoSave[Type] = true;

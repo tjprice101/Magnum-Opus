@@ -87,8 +87,6 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.AutomatonsTuningFork
 
     public class AutomatonsTuningForkBuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_24";
-
         public override void SetStaticDefaults()
         {
             Main.buffNoSave[Type] = true;

@@ -255,4 +255,164 @@ namespace MagnumOpus.Content.Materials.EnemyDrops
             }
         }
     }
+
+    /// <summary>
+    /// Nachtmusik Essence - Post-Fate theme material.
+    /// Drops from Nachtmusik enemies.
+    /// </summary>
+    public class NachtmusikEssence : ModItem
+    {
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 25;
+            ItemID.Sets.ItemNoGravity[Type] = true;
+        }
+
+        public override void SetDefaults()
+        {
+            Item.width = 12;
+            Item.height = 12;
+            Item.maxStack = 9999;
+            Item.value = Item.sellPrice(gold: 6);
+            Item.rare = ItemRarityID.Purple;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A fragment of the night\'s serenade, still humming'") { OverrideColor = new Color(100, 120, 200) });
+        }
+
+        public override void PostUpdate()
+        {
+            float pulse = (float)System.Math.Sin(Main.GameUpdateCount * 0.04f) * 0.2f + 0.55f;
+            Lighting.AddLight(Item.Center, 0.3f * pulse, 0.35f * pulse, 0.7f * pulse);
+
+            if (Main.rand.NextBool(16))
+            {
+                Dust dust = Dust.NewDustDirect(Item.position, Item.width, Item.height, DustID.BlueTorch, 0f, -0.4f, 80, default, 0.6f);
+                dust.noGravity = true;
+                dust.velocity *= 0.3f;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Wrath Essence - Post-Fate theme material.
+    /// Drops from Dies Irae enemies.
+    /// </summary>
+    public class WrathEssence : ModItem
+    {
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 25;
+            ItemID.Sets.ItemNoGravity[Type] = true;
+        }
+
+        public override void SetDefaults()
+        {
+            Item.width = 12;
+            Item.height = 12;
+            Item.maxStack = 9999;
+            Item.value = Item.sellPrice(gold: 7);
+            Item.rare = ItemRarityID.Red;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Fury unbound, judgment incarnate'") { OverrideColor = new Color(200, 50, 30) });
+        }
+
+        public override void PostUpdate()
+        {
+            float flicker = Main.rand.NextFloat(0.85f, 1.15f);
+            float pulse = (float)System.Math.Sin(Main.GameUpdateCount * 0.07f) * 0.25f + 0.6f;
+            Lighting.AddLight(Item.Center, 0.8f * pulse * flicker, 0.2f * pulse * flicker, 0.1f * pulse * flicker);
+
+            if (Main.rand.NextBool(12))
+            {
+                Dust dust = Dust.NewDustDirect(Item.position, Item.width, Item.height, DustID.Torch, Main.rand.NextFloat(-0.3f, 0.3f), -0.6f, 60, default, 0.7f);
+                dust.noGravity = true;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Joy Essence - Post-Fate theme material.
+    /// Drops from Ode to Joy enemies.
+    /// </summary>
+    public class JoyEssence : ModItem
+    {
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 25;
+            ItemID.Sets.ItemNoGravity[Type] = true;
+        }
+
+        public override void SetDefaults()
+        {
+            Item.width = 12;
+            Item.height = 12;
+            Item.maxStack = 9999;
+            Item.value = Item.sellPrice(gold: 8);
+            Item.rare = ItemRarityID.Yellow;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Pure celebration, crystallized into golden light'") { OverrideColor = new Color(255, 200, 50) });
+        }
+
+        public override void PostUpdate()
+        {
+            float pulse = (float)System.Math.Sin(Main.GameUpdateCount * 0.05f) * 0.2f + 0.65f;
+            Lighting.AddLight(Item.Center, 0.8f * pulse, 0.65f * pulse, 0.2f * pulse);
+
+            if (Main.rand.NextBool(14))
+            {
+                Dust dust = Dust.NewDustDirect(Item.position, Item.width, Item.height, DustID.GoldFlame, 0f, -0.5f, 50, default, 0.65f);
+                dust.noGravity = true;
+                dust.velocity *= 0.35f;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Lune Essence - Post-Fate theme material.
+    /// Drops from Clair de Lune enemies.
+    /// </summary>
+    public class LuneEssence : ModItem
+    {
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 25;
+            ItemID.Sets.ItemNoGravity[Type] = true;
+        }
+
+        public override void SetDefaults()
+        {
+            Item.width = 12;
+            Item.height = 12;
+            Item.maxStack = 9999;
+            Item.value = Item.sellPrice(gold: 10);
+            Item.rare = ItemRarityID.Cyan;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Moonlit reverie made tangible, soft as a lullaby'") { OverrideColor = new Color(150, 200, 255) });
+        }
+
+        public override void PostUpdate()
+        {
+            float pulse = (float)System.Math.Sin(Main.GameUpdateCount * 0.03f) * 0.2f + 0.6f;
+            Lighting.AddLight(Item.Center, 0.45f * pulse, 0.6f * pulse, 0.8f * pulse);
+
+            if (Main.rand.NextBool(18))
+            {
+                Dust dust = Dust.NewDustDirect(Item.position, Item.width, Item.height, DustID.BlueTorch, 0f, -0.3f, 90, new Color(150, 200, 255), 0.55f);
+                dust.noGravity = true;
+                dust.velocity *= 0.25f;
+            }
+        }
+    }
 }

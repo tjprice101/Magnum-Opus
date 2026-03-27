@@ -63,8 +63,6 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         public bool IsGraceful => false;
         public float GetResonancePercent() => 0f;
         public Color GetResonanceColor() => GetThemeColor();
-        public void OnMeleeHit(NPC npc, bool crit) { } // No-op
-
         // ===== COLORS =====
         private static readonly Color MoonlightPurple = new Color(138, 43, 226);
         private static readonly Color EroicaGold = new Color(255, 200, 80);

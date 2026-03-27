@@ -84,8 +84,6 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.GearDrivenArbiter
 
     public class GearDrivenArbiterBuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_24";
-
         public override void SetStaticDefaults()
         {
             Main.buffNoSave[Type] = true;

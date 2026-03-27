@@ -229,8 +229,6 @@ namespace MagnumOpus.Content.Winter.Weapons
     /// </summary>
     public class FrostSentinelBuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.Frostburn;
-        
         public override void SetStaticDefaults()
         {
             Main.buffNoSave[Type] = true;

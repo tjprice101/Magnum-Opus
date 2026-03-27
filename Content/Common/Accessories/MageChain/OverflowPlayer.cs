@@ -1,7 +1,9 @@
+using System;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Prefixes;
 
 namespace MagnumOpus.Content.Common.Accessories.MageChain
 {
@@ -19,6 +21,10 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         public bool hasHarvestSoulVessel;        // Kills restore 15 mana
         public bool hasPermafrostVoidHeart;      // +15% magic damage, +50 max mana
         public bool hasVivaldisHarmonicCore;     // +20% magic damage, biome debuffs
+
+        // ===== T3-T4 RESONANCE SYNERGY FLAGS =====
+        public bool hasSearedManaConduit;        // T3: -3% mana cost per burn stack, free spell at max
+        public bool hasArcaneResonanceCatalyst;  // T4: +6% magic damage per stack, shockwave at max
 
         // ===== TIER 5 (THEME VARIANTS) FLAGS =====
         public bool hasMoonlitOverflowStar;      // At <50 mana: next spell costs 0
@@ -44,6 +50,10 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         public int graceBuffTimer;         // Swan's Grace buff timer
         public bool freeSpellReady;        // Moonlit Overflow Star state
 
+        // ===== RESONANCE SYNERGY STATE =====
+        public bool resonanceFreeSpellReady;     // T3: Free spell ready from max burn stacks
+        public bool resonanceShockwaveReady;     // T4: Shockwave ready from max burn stacks
+
         // ===== LEGACY COMPATIBILITY STUBS =====
         // These properties exist for backwards compatibility with old code
         public int currentOverflow => 0;
@@ -51,6 +61,38 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         public bool isInOverflow => false;
         public bool zeroManaFreeSpell => freeSpellReady;
         public bool justRecoveredFromOverflow => false;
+
+        public override void Initialize()
+        {
+            ResonantBurnNPC.OnMaxStacksReached += OnMaxBurnStacksReached;
+        }
+
+        public override void Unload()
+        {
+            ResonantBurnNPC.OnMaxStacksReached -= OnMaxBurnStacksReached;
+        }
+
+        /// <summary>
+        /// Handles max burn stack triggers for Resonance Synergy accessories.
+        /// </summary>
+        private void OnMaxBurnStacksReached(NPC npc, Player triggeringPlayer)
+        {
+            // Only respond to our own burn applications
+            if (triggeringPlayer?.whoAmI != Player.whoAmI)
+                return;
+
+            // T3 SearedManaConduit: Enable free spell
+            if (hasSearedManaConduit)
+            {
+                resonanceFreeSpellReady = true;
+            }
+
+            // T4 ArcaneResonanceCatalyst: Enable shockwave on next hit
+            if (hasArcaneResonanceCatalyst)
+            {
+                resonanceShockwaveReady = true;
+            }
+        }
 
         public override void ResetEffects()
         {
@@ -61,6 +103,8 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             hasHarvestSoulVessel = false;
             hasPermafrostVoidHeart = false;
             hasVivaldisHarmonicCore = false;
+            hasSearedManaConduit = false;
+            hasArcaneResonanceCatalyst = false;
             hasMoonlitOverflowStar = false;
             hasHeroicArcaneSurge = false;
             hasInfernalManaInferno = false;
@@ -91,6 +135,30 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             if (hasSpringArcaneConduit)
             {
                 Player.GetDamage(DamageClass.Magic) += 0.10f;
+            }
+
+            // ===== RESONANCE SYNERGY: T3 SearedManaConduit =====
+            // -3% mana cost per burn stack on any enemy (max -15% at 5 stacks)
+            if (hasSearedManaConduit)
+            {
+                int highestStacks = GetHighestBurnStacks();
+                if (highestStacks > 0)
+                {
+                    float manaCostReduction = 0.03f * highestStacks; // 3% per stack
+                    Player.manaCost -= manaCostReduction;
+                }
+            }
+
+            // ===== RESONANCE SYNERGY: T4 ArcaneResonanceCatalyst =====
+            // +6% magic damage per burn stack on any enemy (max +30% at 5 stacks)
+            if (hasArcaneResonanceCatalyst)
+            {
+                int highestStacks = GetHighestBurnStacks();
+                if (highestStacks > 0)
+                {
+                    float damageBonus = 0.06f * highestStacks; // 6% per stack
+                    Player.GetDamage(DamageClass.Magic) += damageBonus;
+                }
             }
 
             // Permafrost Void Heart: +15% magic damage, +50 max mana
@@ -295,6 +363,33 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
                 // Estimate:  assume average spell costs ~40 mana
                 Player.Heal(2);
             }
+
+            // ===== RESONANCE SYNERGY: T3 SearedManaConduit =====
+            // At max stacks: Next spell refunds its mana cost
+            if (hasSearedManaConduit && resonanceFreeSpellReady && ResonancePrefixHelper.IsEnemyBurning(target))
+            {
+                // Refund mana cost (estimate based on weapon)
+                int manaRefund = Player.HeldItem.mana > 0 ? Player.HeldItem.mana : 20;
+                Player.statMana = Math.Min(Player.statMana + manaRefund, Player.statManaMax2);
+                resonanceFreeSpellReady = false;
+
+                // Visual feedback: mana surge effect
+                for (int i = 0; i < 8; i++)
+                {
+                    Dust dust = Dust.NewDustDirect(Player.Center, 1, 1, DustID.MagicMirror);
+                    dust.velocity = Vector2.One.RotatedByRandom(MathHelper.TwoPi) * Main.rand.NextFloat(2f, 5f);
+                    dust.scale = Main.rand.NextFloat(1.2f, 1.8f);
+                    dust.noGravity = true;
+                }
+            }
+
+            // ===== RESONANCE SYNERGY: T4 ArcaneResonanceCatalyst =====
+            // At max stacks: Release arcane shockwave that damages all nearby enemies
+            if (hasArcaneResonanceCatalyst && resonanceShockwaveReady && ResonancePrefixHelper.IsEnemyBurning(target))
+            {
+                SpawnArcaneShockwave(target.Center, damageDone);
+                resonanceShockwaveReady = false;
+            }
         }
 
         public override void ModifyHitNPCWithItem(Item item, NPC target, ref NPC.HitModifiers modifiers)
@@ -347,6 +442,68 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
                 return 2; // Double hit
 
             return 1;
+        }
+
+        /// <summary>
+        /// Gets the highest burn stack count from any active NPC.
+        /// Used for Resonance Synergy accessories.
+        /// </summary>
+        private int GetHighestBurnStacks()
+        {
+            int highest = 0;
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (npc.active && !npc.friendly)
+                {
+                    int stacks = ResonancePrefixHelper.GetBurnStacks(npc);
+                    if (stacks > highest)
+                        highest = stacks;
+                }
+            }
+            return highest;
+        }
+
+        /// <summary>
+        /// Spawns an arcane shockwave effect for T4 ArcaneResonanceCatalyst.
+        /// Deals 50% of trigger damage to all enemies in range.
+        /// </summary>
+        private void SpawnArcaneShockwave(Vector2 center, int baseDamage)
+        {
+            float shockwaveRadius = 200f;
+            int shockwaveDamage = (int)(baseDamage * 0.5f);
+
+            // Visual: expanding ring of arcane particles
+            for (int i = 0; i < 24; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 24f;
+                Vector2 offset = Vector2.UnitX.RotatedBy(angle) * shockwaveRadius * 0.5f;
+                Dust dust = Dust.NewDustDirect(center + offset, 1, 1, DustID.PurpleTorch);
+                dust.velocity = Vector2.UnitX.RotatedBy(angle) * 4f;
+                dust.scale = Main.rand.NextFloat(1.5f, 2.5f);
+                dust.noGravity = true;
+            }
+
+            // Damage all enemies in range
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (npc.active && !npc.friendly && !npc.dontTakeDamage)
+                {
+                    float distance = Vector2.Distance(center, npc.Center);
+                    if (distance < shockwaveRadius)
+                    {
+                        // Apply damage
+                        Player.ApplyDamageToNPC(npc, shockwaveDamage, 0f, 0, false);
+
+                        // Apply Resonant Burn if not already burning
+                        if (!ResonancePrefixHelper.IsEnemyBurning(npc))
+                        {
+                            ResonancePrefixHelper.ApplyBurnDebuff(npc, 180, Player);
+                        }
+                    }
+                }
+            }
         }
     }
 }

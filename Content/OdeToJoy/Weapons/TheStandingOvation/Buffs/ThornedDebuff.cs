@@ -9,8 +9,6 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Buffs
     /// </summary>
     public class ThornedDebuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_24"; // Reuse vanilla bleeding icon
-
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;

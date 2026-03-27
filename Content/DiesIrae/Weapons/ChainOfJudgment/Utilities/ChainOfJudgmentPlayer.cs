@@ -59,7 +59,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Utilities
                 return true;
 
             ProjectileEmpowerTimer = 600;
-            CombatText.NewText(player.Hitbox, Color.Goldenrod, "Judgement Empowered", true);
+            CombatText.NewText(player.Hitbox, Color.Goldenrod, "Judgment Empowered", true);
 
             ConsumeCharge();
             return true;

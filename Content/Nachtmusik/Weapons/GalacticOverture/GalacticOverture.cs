@@ -46,7 +46,6 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture
             Vector2 spawnPos = Main.MouseWorld;
 
             // Musical entrance VFX
-// VFX_GUTTED:             GalacticOvertureVFX.SummonVFX(spawnPos);
 
             Projectile.NewProjectile(source, spawnPos, Vector2.Zero, type, damage, knockback, player.whoAmI);
 
@@ -56,7 +55,6 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture
         public override void HoldItem(Player player)
         {
             int minionCount = player.ownedProjectileCounts[ModContent.ProjectileType<CelestialMuseMinion>()];
-// VFX_GUTTED:             GalacticOvertureVFX.HoldItemVFX(player, minionCount);
         }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)

@@ -130,7 +130,7 @@ namespace MagnumOpus.Common.Systems
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 float progress = (float)i / Projectile.oldPos.Length;
-                float scale = 0.2f * (1f - progress) * pulse;
+                float scale = 0.02f * (1f - progress) * pulse;
                 Color trailColor = Color.Lerp(PrimaryColor, AccentColor, progress) * (1f - progress) * 0.65f;
                 trailColor.A = 0;
                 
@@ -147,22 +147,22 @@ namespace MagnumOpus.Common.Systems
             Color midGlow = SecondaryColor with { A = 0 };
             Color innerGlow = Color.White with { A = 0 };
             
-            // Outer ethereal layer - scaled for player-sized projectile
-            Main.spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null, outerGlow * 0.25f, 0f, glowOrigin, 0.5f * pulse, SpriteEffects.None, 0f);
+            // Outer ethereal layer - scaled for player-sized projectile (1024px texture)
+            Main.spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null, outerGlow * 0.25f, 0f, glowOrigin, 0.06f * pulse, SpriteEffects.None, 0f);
             // Middle energy layer
-            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, midGlow * 0.4f, Projectile.rotation, origin, 0.35f * pulse, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, midGlow * 0.4f, Projectile.rotation, origin, 0.045f * pulse, SpriteEffects.None, 0f);
             // Core flare layer
-            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, outerGlow * 0.55f, Projectile.rotation, origin, 0.25f * pulse, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, outerGlow * 0.55f, Projectile.rotation, origin, 0.03f * pulse, SpriteEffects.None, 0f);
             // White-hot center
-            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, innerGlow * 0.75f, Projectile.rotation, origin, 0.12f * pulse, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, innerGlow * 0.75f, Projectile.rotation, origin, 0.015f * pulse, SpriteEffects.None, 0f);
             
-            // Draw orbiting spark points - scaled for player-sized projectile
+            // Draw orbiting spark points - scaled for player-sized projectile (1024px texture)
             for (int i = 0; i < 3; i++)
             {
                 float sparkAngle = orbitAngle + MathHelper.TwoPi * i / 3f;
                 Vector2 sparkPos = Projectile.Center + sparkAngle.ToRotationVector2() * 10f - Main.screenPosition;
                 Color sparkColor = Color.Lerp(AccentColor, Color.White, 0.3f) with { A = 0 };
-                Main.spriteBatch.Draw(tex, sparkPos, null, sparkColor * 0.7f, 0f, origin, 0.1f * pulse, SpriteEffects.None, 0f);
+                Main.spriteBatch.Draw(tex, sparkPos, null, sparkColor * 0.7f, 0f, origin, 0.012f * pulse, SpriteEffects.None, 0f);
             }
             
             }
@@ -327,11 +327,11 @@ namespace MagnumOpus.Common.Systems
             float intensity = currentSpeed / (MaxSpeed > 0 ? MaxSpeed : 25f);
             float stretchX = 1.2f + intensity * 0.8f; // Elongates with speed
             
-            // Draw comet tail - elongated gradient trail - scaled for player-sized projectile
+            // Draw comet tail - elongated gradient trail - scaled for player-sized projectile (1024px texture)
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 float progress = (float)i / Projectile.oldPos.Length;
-                float tailScale = (0.15f + 0.15f * intensity) * (1f - progress);
+                float tailScale = (0.015f + 0.015f * intensity) * (1f - progress);
                 Color tailColor = Color.Lerp(HotCoreColor, SecondaryColor, progress) * (1f - progress) * 0.55f;
                 tailColor.A = 0;
                 
@@ -346,13 +346,13 @@ namespace MagnumOpus.Common.Systems
             Color hotCore = HotCoreColor with { A = 0 };
             
             // Outer flame corona
-            Main.spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null, outerFlame * 0.35f, Projectile.rotation, glowOrigin, new Vector2(stretchX * 0.5f, 0.35f), SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null, outerFlame * 0.35f, Projectile.rotation, glowOrigin, new Vector2(stretchX * 0.05f, 0.035f), SpriteEffects.None, 0f);
             // Mid energy layer
-            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, midFlame * 0.5f, Projectile.rotation, origin, new Vector2(stretchX * 0.4f, 0.25f), SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, midFlame * 0.5f, Projectile.rotation, origin, new Vector2(stretchX * 0.04f, 0.025f), SpriteEffects.None, 0f);
             // Hot compressed core
-            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, hotCore * 0.75f, Projectile.rotation, origin, new Vector2(stretchX * 0.25f, 0.15f), SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, hotCore * 0.75f, Projectile.rotation, origin, new Vector2(stretchX * 0.025f, 0.015f), SpriteEffects.None, 0f);
             // White-hot tip
-            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, Color.White with { A = 0 } * 0.85f, Projectile.rotation, origin, new Vector2(0.15f, 0.1f), SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, Color.White with { A = 0 } * 0.85f, Projectile.rotation, origin, new Vector2(0.015f, 0.01f), SpriteEffects.None, 0f);
             
             }
             catch { }
@@ -582,15 +582,15 @@ namespace MagnumOpus.Common.Systems
             Color coreArcane = PrimaryColor with { A = 0 };
             
             // Outer mystical glow
-            Main.spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null, outerArcane * (0.25f + lifeProgress * 0.35f), runeRotation, glowOrigin, 0.6f * pulse, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null, outerArcane * (0.25f + lifeProgress * 0.35f), runeRotation, glowOrigin, 0.06f * pulse, SpriteEffects.None, 0f);
             // Middle charging layer
-            Main.spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null, midArcane * (0.35f + lifeProgress * 0.25f), -runeRotation * 0.5f, glowOrigin, 0.45f * pulse, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null, midArcane * (0.35f + lifeProgress * 0.25f), -runeRotation * 0.5f, glowOrigin, 0.045f * pulse, SpriteEffects.None, 0f);
             // Core energy flare
-            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, coreArcane * 0.6f, Projectile.rotation, origin, 0.35f * pulse, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, coreArcane * 0.6f, Projectile.rotation, origin, 0.035f * pulse, SpriteEffects.None, 0f);
             // Hot inner core
-            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, Color.White with { A = 0 } * (0.65f + lifeProgress * 0.25f), Projectile.rotation, origin, 0.15f * pulse, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, Color.White with { A = 0 } * (0.65f + lifeProgress * 0.25f), Projectile.rotation, origin, 0.015f * pulse, SpriteEffects.None, 0f);
             
-            // Draw orbiting rune points - scaled for player-sized projectile
+            // Draw orbiting rune points - scaled for player-sized projectile (1024px texture)
             for (int i = 0; i < 4; i++)
             {
                 float runeAngle = runeRotation + MathHelper.TwoPi * i / 4f;
@@ -598,7 +598,7 @@ namespace MagnumOpus.Common.Systems
                 Vector2 runePos = Projectile.Center + runeAngle.ToRotationVector2() * runeRadius - Main.screenPosition;
                 Color runeColor = Color.Lerp(PrimaryColor, ArcaneAccent, (float)i / 4f) with { A = 0 };
                 
-                Main.spriteBatch.Draw(tex, runePos, null, runeColor * 0.7f, runeAngle, origin, 0.1f * pulse, SpriteEffects.None, 0f);
+                Main.spriteBatch.Draw(tex, runePos, null, runeColor * 0.7f, runeAngle, origin, 0.01f * pulse, SpriteEffects.None, 0f);
             }
             
             }
@@ -720,12 +720,12 @@ namespace MagnumOpus.Common.Systems
             Vector2 origin = tex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             
-            // === UNIQUE: Ribbon-like flowing trail with gradient - scaled for player-sized projectile ===
+            // === UNIQUE: Ribbon-like flowing trail with gradient - scaled for player-sized projectile (1024px texture) ===
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 float progress = (float)i / Projectile.oldPos.Length;
                 float wavePhase = (float)Math.Sin(waveTimer - i * 0.15f);
-                float scale = 0.18f * (1f - progress) * (1f + wavePhase * 0.15f);
+                float scale = 0.018f * (1f - progress) * (1f + wavePhase * 0.15f);
                 
                 // Gradient along ribbon
                 Color trailColor = Color.Lerp(PrimaryColor, SecondaryColor, progress) * (1f - progress) * 0.6f;
@@ -750,11 +750,11 @@ namespace MagnumOpus.Common.Systems
             Color coreGlow = Color.White with { A = 0 };
             
             // Outer flowing glow
-            Main.spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null, outerGlow * 0.35f, Projectile.rotation, glowOrigin, 0.4f, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null, outerGlow * 0.35f, Projectile.rotation, glowOrigin, 0.04f, SpriteEffects.None, 0f);
             // Middle energy
-            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, midGlow * 0.55f, Projectile.rotation, origin, 0.25f, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, midGlow * 0.55f, Projectile.rotation, origin, 0.025f, SpriteEffects.None, 0f);
             // Core
-            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, coreGlow * 0.75f, Projectile.rotation, origin, 0.12f, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, coreGlow * 0.75f, Projectile.rotation, origin, 0.012f, SpriteEffects.None, 0f);
             
             }
             catch { }
@@ -987,15 +987,15 @@ namespace MagnumOpus.Common.Systems
             Color warningGlow = Color.Lerp(PrimaryColor, WarningColor, progress) with { A = 0 };
             
             // Outer warning aura (grows with charge)
-            Main.spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null, outerGlow * (0.2f + progress * 0.35f), circleRotation, glowOrigin, 0.7f * warningScale * pulse, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null, outerGlow * (0.2f + progress * 0.35f), circleRotation, glowOrigin, 0.07f * warningScale * pulse, SpriteEffects.None, 0f);
             // Middle energy layer
-            Main.spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null, warningGlow * 0.4f, -circleRotation * 0.6f, glowOrigin, 0.5f * warningScale * pulse, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null, warningGlow * 0.4f, -circleRotation * 0.6f, glowOrigin, 0.05f * warningScale * pulse, SpriteEffects.None, 0f);
             // Core flare
-            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, midGlow * 0.55f, circleRotation, origin, 0.3f * warningScale * pulse, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, midGlow * 0.55f, circleRotation, origin, 0.03f * warningScale * pulse, SpriteEffects.None, 0f);
             // Hot center
-            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, Color.White with { A = 0 } * (0.5f + progress * 0.35f), 0f, origin, 0.12f * pulse, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, Color.White with { A = 0 } * (0.5f + progress * 0.35f), 0f, origin, 0.012f * pulse, SpriteEffects.None, 0f);
             
-            // Draw star point indicators - scaled for player-sized projectile
+            // Draw star point indicators - scaled for player-sized projectile (1024px texture)
             int starPoints = 6;
             for (int i = 0; i < starPoints; i++)
             {
@@ -1004,7 +1004,7 @@ namespace MagnumOpus.Common.Systems
                 Vector2 starPos = Projectile.Center + starAngle.ToRotationVector2() * radius - Main.screenPosition;
                 Color starColor = Color.Lerp(PrimaryColor, SecondaryColor, (float)i / starPoints) with { A = 0 };
                 
-                Main.spriteBatch.Draw(tex, starPos, null, starColor * (0.4f + progress * 0.35f), starAngle, origin, 0.08f * pulse, SpriteEffects.None, 0f);
+                Main.spriteBatch.Draw(tex, starPos, null, starColor * (0.4f + progress * 0.35f), starAngle, origin, 0.008f * pulse, SpriteEffects.None, 0f);
             }
             
             }
@@ -1149,11 +1149,11 @@ namespace MagnumOpus.Common.Systems
             Vector2 origin = tex.Size() / 2f;
             Vector2 glowOrigin = glowTex.Size() / 2f;
             
-            // === UNIQUE: Ghost blade trail with alternating opacity - scaled for player-sized projectile ===
+            // === UNIQUE: Ghost blade trail with alternating opacity - scaled for player-sized projectile (1024px texture) ===
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 float progress = (float)i / Projectile.oldPos.Length;
-                float scale = 0.2f * (1f - progress);
+                float scale = 0.02f * (1f - progress);
                 float ghostAlpha = (1f - progress) * (i % 2 == 0 ? 0.55f : 0.35f); // Alternating for ghostly effect
                 
                 Color trailColor = Color.Lerp(GhostColor, SecondaryColor, progress) * ghostAlpha;
@@ -1170,13 +1170,13 @@ namespace MagnumOpus.Common.Systems
             Color coreBlade = PrimaryColor with { A = 0 };
             
             // Outer spectral glow
-            Main.spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null, outerBlade * 0.35f, spinAngle, glowOrigin, 0.45f, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(glowTex, Projectile.Center - Main.screenPosition, null, outerBlade * 0.35f, spinAngle, glowOrigin, 0.045f, SpriteEffects.None, 0f);
             // Blade shape - stretched horizontally
-            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, midBlade * 0.5f, spinAngle, origin, new Vector2(0.4f, 0.15f), SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, midBlade * 0.5f, spinAngle, origin, new Vector2(0.04f, 0.015f), SpriteEffects.None, 0f);
             // Perpendicular blade edge
-            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, coreBlade * 0.55f, spinAngle + MathHelper.PiOver2, origin, new Vector2(0.3f, 0.12f), SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, coreBlade * 0.55f, spinAngle + MathHelper.PiOver2, origin, new Vector2(0.03f, 0.012f), SpriteEffects.None, 0f);
             // Center core
-            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, Color.White with { A = 0 } * 0.7f, spinAngle, origin, 0.12f, SpriteEffects.None, 0f);
+            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition, null, Color.White with { A = 0 } * 0.7f, spinAngle, origin, 0.012f, SpriteEffects.None, 0f);
             
             }
             catch { }

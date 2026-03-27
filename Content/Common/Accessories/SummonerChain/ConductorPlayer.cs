@@ -1,7 +1,9 @@
+using System;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Prefixes;
 
 namespace MagnumOpus.Content.Common.Accessories.SummonerChain
 {
@@ -19,6 +21,10 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         public bool HasHarvestBeastlordsHorn;           // +1 minion slot, 5% summon crit
         public bool HasPermafrostCommandersCrown;       // +2 minion slots, 20% summon damage
         public bool HasVivaldisOrchestraBaton;          // +2 minion slots, 25% summon damage
+
+        // ===== T3-T4 RESONANCE SYNERGY FLAGS =====
+        public bool HasConductorsBurningCrown;          // T3: +5% minion dmg per burn stack, +50% attack speed at max
+        public bool hasResonantBeastlordsHorn;          // T4: Minion crits add 2 stacks, homing at max stacks
 
         // ===== TIER 5 (THEME VARIANTS) FLAGS =====
         public bool HasMoonlitSymphonyWand;             // +10% summon damage at night
@@ -43,6 +49,14 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         public int gracefulDodgeCooldown;  // Swan's Perfect Dodge cooldown
         public int graceBuffTimer;         // Swan's Grace buff timer
 
+        // ===== RESONANCE SYNERGY STATE =====
+        public bool resonanceFrenzyActive;              // T3: +50% attack speed active at max stacks
+        public int resonanceFrenzyTimer;                // Timer for T3 attack speed buff
+        public int temporaryMinionSlots;                // T3: Temporary minion slots from max burn stacks
+        public int temporaryMinionSlotTimer;            // Timer for temporary minion slot bonus (8 seconds = 480 ticks)
+        public bool resonanceHomingActive;              // T4: Homing active at max stacks
+        public int resonanceHomingTimer;                // Timer for T4 homing buff
+
         // ===== LEGACY COMPATIBILITY STUBS =====
         // These properties exist for backwards compatibility with old code
         public bool IsConducting => false;
@@ -62,7 +76,63 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             HasEnigmasHivemindLink || HasSwansGracefulDirection || HasFatesCosmicDominion ||
             HasNocturnalMaestrosBaton || HasInfernalChoirmastersScepter || HasJubilantOrchestrasStaff ||
             HasEternalConductorsScepter || HasStarfallInfernalBaton || HasTriumphantSymphonyBaton ||
-            HasScepterOfTheEternalConductor;
+            HasScepterOfTheEternalConductor || HasConductorsBurningCrown || hasResonantBeastlordsHorn;
+
+        public override void Initialize()
+        {
+            ResonantBurnNPC.OnMaxStacksReached += OnMaxBurnStacksReached;
+        }
+
+        public override void Unload()
+        {
+            ResonantBurnNPC.OnMaxStacksReached -= OnMaxBurnStacksReached;
+        }
+
+        /// <summary>
+        /// Handles max burn stack triggers for Resonance Synergy accessories.
+        /// </summary>
+        private void OnMaxBurnStacksReached(NPC npc, Player triggeringPlayer)
+        {
+            // Only respond to our own burn applications
+            if (triggeringPlayer?.whoAmI != Player.whoAmI)
+                return;
+
+            // T3 ConductorsBurningCrown: Grant attack speed frenzy + temporary minion slots
+            if (HasConductorsBurningCrown)
+            {
+                resonanceFrenzyActive = true;
+                resonanceFrenzyTimer = 300; // 5 seconds
+
+                // Grant +2 temporary minion slots for 8 seconds
+                temporaryMinionSlots = 2;
+                temporaryMinionSlotTimer = 480; // 8 seconds
+
+                // Visual feedback
+                for (int i = 0; i < 10; i++)
+                {
+                    Dust dust = Dust.NewDustDirect(Player.Center, 1, 1, DustID.Torch);
+                    dust.velocity = Vector2.One.RotatedByRandom(MathHelper.TwoPi) * Main.rand.NextFloat(2f, 5f);
+                    dust.scale = Main.rand.NextFloat(1.0f, 1.5f);
+                    dust.noGravity = true;
+                }
+            }
+
+            // T4 HarvestBeastlordsHorn: Grant minion homing
+            if (hasResonantBeastlordsHorn)
+            {
+                resonanceHomingActive = true;
+                resonanceHomingTimer = 480; // 8 seconds
+
+                // Visual feedback
+                for (int i = 0; i < 8; i++)
+                {
+                    Dust dust = Dust.NewDustDirect(Player.Center, 1, 1, DustID.OrangeTorch);
+                    dust.velocity = Vector2.One.RotatedByRandom(MathHelper.TwoPi) * Main.rand.NextFloat(3f, 6f);
+                    dust.scale = Main.rand.NextFloat(1.2f, 1.8f);
+                    dust.noGravity = true;
+                }
+            }
+        }
 
         public override void ResetEffects()
         {
@@ -73,6 +143,8 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             HasHarvestBeastlordsHorn = false;
             HasPermafrostCommandersCrown = false;
             HasVivaldisOrchestraBaton = false;
+            HasConductorsBurningCrown = false;
+            hasResonantBeastlordsHorn = false;
             HasMoonlitSymphonyWand = false;
             HasHeroicGeneralsBaton = false;
             HasInfernalChoirMastersRod = false;
@@ -91,6 +163,17 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         public override void PostUpdateEquips()
         {
             // Apply simple static effects from equipped accessories
+
+            // Temporary minion slot bonus management
+            if (temporaryMinionSlotTimer > 0)
+            {
+                Player.maxMinions += temporaryMinionSlots;
+                temporaryMinionSlotTimer--;
+            }
+            else
+            {
+                temporaryMinionSlots = 0;
+            }
 
             // Conductor's Wand: +1 minion slot
             if (HasConductorsWand)
@@ -117,6 +200,51 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             {
                 Player.maxMinions += 1;
                 Player.GetCritChance(DamageClass.Summon) += 5;
+            }
+
+            // ===== RESONANCE SYNERGY: T3 ConductorsBurningCrown =====
+            // +5% minion damage per burn stack on any enemy (max +25% at 5 stacks)
+            if (HasConductorsBurningCrown)
+            {
+                int highestStacks = GetHighestBurnStacks();
+                if (highestStacks > 0)
+                {
+                    float damageBonus = 0.05f * highestStacks; // 5% per stack
+                    Player.GetDamage(DamageClass.Summon) += damageBonus;
+                }
+
+                // Frenzy mode: +50% minion attack speed for 5 seconds at max stacks
+                if (resonanceFrenzyActive)
+                {
+                    // Note: There's no direct minion attack speed stat in Terraria,
+                    // so we'll boost damage slightly more during frenzy as a proxy
+                    Player.GetDamage(DamageClass.Summon) += 0.25f;
+
+                    if (resonanceFrenzyTimer > 0)
+                        resonanceFrenzyTimer--;
+                    else
+                        resonanceFrenzyActive = false;
+                }
+            }
+
+            // ===== RESONANCE SYNERGY: T4 HarvestBeastlordsHorn =====
+            // +3% crit per burn stack (max +15% at 5 stacks)
+            if (hasResonantBeastlordsHorn)
+            {
+                int highestStacks = GetHighestBurnStacks();
+                if (highestStacks > 0)
+                {
+                    int critBonus = 3 * highestStacks; // 3% per stack
+                    Player.GetCritChance(DamageClass.Summon) += critBonus;
+                }
+
+                // Homing mode active timer management
+                if (resonanceHomingActive && resonanceHomingTimer > 0)
+                {
+                    resonanceHomingTimer--;
+                    if (resonanceHomingTimer <= 0)
+                        resonanceHomingActive = false;
+                }
             }
 
             // Permafrost Commander's Crown: +2 minion slots, +20% summon damage
@@ -207,6 +335,26 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         }
 
         /// <summary>
+        /// Gets the highest burn stack count from any active NPC.
+        /// Used for Resonance Synergy accessories.
+        /// </summary>
+        private int GetHighestBurnStacks()
+        {
+            int highest = 0;
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (npc.active && !npc.friendly)
+                {
+                    int stacks = ResonancePrefixHelper.GetBurnStacks(npc);
+                    if (stacks > highest)
+                        highest = stacks;
+                }
+            }
+            return highest;
+        }
+
+        /// <summary>
         /// Gets the number of times minions should attack.
         /// </summary>
         public int GetHitMultiplier()
@@ -220,26 +368,10 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             return 1;
         }
 
-        /// <summary>
-        /// Legacy method compatibility stubs (simplified).
-        /// </summary>
-        public int GetBaseCooldown() => 300;
-        public float GetConductDamageBonus() => 0f;
-        public int GetMinionKnockbackBonus() => 0;
-        public bool CanUseScatter() => false;
-        public void StartConduct(int targetWhoAmI) { }
-        public void StartScatter() { }
-        public void StopConduct() { }
-        public void TryConduct() { }
-        public void ReleaseConductButton() { }
-        public void OnMinionHitNPC(NPC target, int damage, bool crit, Projectile minion) { }
         public bool ShouldMinionsPhase() => HasEnigmasHivemindLink || HasSwansGracefulDirection || HasFatesCosmicDominion ||
             HasNocturnalMaestrosBaton || HasInfernalChoirmastersScepter || HasJubilantOrchestrasStaff ||
             HasEternalConductorsScepter || HasStarfallInfernalBaton || HasTriumphantSymphonyBaton ||
             HasScepterOfTheEternalConductor;
-        public bool IsMinionConducted(Projectile minion) => false;
-        public bool ShouldMinionTargetConducted(Projectile minion) => false;
-        public Color GetConductColor() => new Color(255, 200, 100);
     }
 
     /// <summary>
@@ -289,11 +421,76 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
                 owner.Heal(1);
             }
 
+            // ===== RESONANCE SYNERGY: T4 HarvestBeastlordsHorn =====
+            // Minion crits add 2 burn stacks to target
+            if (conductor.hasResonantBeastlordsHorn && hit.Crit)
+            {
+                // Add 2 burn stacks (via applying burn with extra stacks)
+                if (ResonancePrefixHelper.IsEnemyBurning(target))
+                {
+                    // Add extra stacks directly
+                    var burnNpc = target.GetGlobalNPC<ResonantBurnNPC>();
+                    burnNpc.burnStacks = Math.Min(burnNpc.burnStacks + 2, ResonantBurnNPC.MAX_STACKS);
+                }
+                else
+                {
+                    // Apply burn with initial stacks
+                    ResonancePrefixHelper.ApplyBurnDebuff(target, 300, owner);
+                    var burnNpc = target.GetGlobalNPC<ResonantBurnNPC>();
+                    burnNpc.burnStacks = Math.Min(burnNpc.burnStacks + 1, ResonantBurnNPC.MAX_STACKS); // +1 more for 2 total
+                }
+            }
+
+            // T4 Homing behavior: Enhanced targeting when homing is active
+            // (Minions automatically target burning enemies - handled via AI modification below)
+
             // Swan's Graceful Direction: Grant minion buff when perfect dodging
             // Handled via graceBuffTimer in PostUpdateEquips
 
             // Infernal Choirmaster's Scepter: Extra damage during boss fights
             // Already handled in PostUpdateEquips damage bonus
+        }
+
+        public override void AI(Projectile projectile)
+        {
+            if (!projectile.minion || projectile.owner < 0 || projectile.owner >= Main.maxPlayers)
+                return;
+
+            Player owner = Main.player[projectile.owner];
+            ConductorPlayer conductor = owner.GetModPlayer<ConductorPlayer>();
+
+            if (conductor == null)
+                return;
+
+            // T4 HarvestBeastlordsHorn: Homing to burning enemies when active
+            if (conductor.hasResonantBeastlordsHorn && conductor.resonanceHomingActive)
+            {
+                // Find closest burning enemy
+                float closestDist = 600f;
+                NPC closestBurning = null;
+
+                for (int i = 0; i < Main.maxNPCs; i++)
+                {
+                    NPC npc = Main.npc[i];
+                    if (npc.active && !npc.friendly && !npc.dontTakeDamage && ResonancePrefixHelper.IsEnemyBurning(npc))
+                    {
+                        float dist = Vector2.Distance(projectile.Center, npc.Center);
+                        if (dist < closestDist)
+                        {
+                            closestDist = dist;
+                            closestBurning = npc;
+                        }
+                    }
+                }
+
+                // Gently home toward burning enemy
+                if (closestBurning != null)
+                {
+                    Vector2 direction = closestBurning.Center - projectile.Center;
+                    direction.Normalize();
+                    projectile.velocity = Vector2.Lerp(projectile.velocity, direction * projectile.velocity.Length(), 0.05f);
+                }
+            }
         }
     }
 }

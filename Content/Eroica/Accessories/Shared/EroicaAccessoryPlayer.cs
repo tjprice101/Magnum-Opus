@@ -404,9 +404,9 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
             
             // Load textures if needed
             if (funeralFloatTexture == null)
-                funeralFloatTexture = ModContent.Request<Texture2D>("MagnumOpus/Content/Eroica/Accessories/FuneralMarchInsignia_Float");
+                funeralFloatTexture = ModContent.Request<Texture2D>("MagnumOpus/Content/Eroica/Accessories/FuneralMarchInsignia/FuneralMarchInsignia_Float");
             if (sakuraFloatTexture == null)
-                sakuraFloatTexture = ModContent.Request<Texture2D>("MagnumOpus/Content/Eroica/Accessories/SakurasBurningWill_Float");
+                sakuraFloatTexture = ModContent.Request<Texture2D>("MagnumOpus/Content/Eroica/Accessories/SakurasBurningWill/SakurasBurningWill_Float");
             
             float baseAngle = modPlayer.floatAngle;
             

@@ -632,8 +632,6 @@ namespace MagnumOpus.Content.Winter.Projectiles
     /// </summary>
     public class HypothermiaBuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.Frostburn;
-        
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;

@@ -4,7 +4,6 @@ using Terraria;
 
 namespace MagnumOpus.Content.Nachtmusik.Accessories
 {
-    // VFX_GUTTED: Stub — all effects pending VFX reimplementation.
     public static class NachtmusikAccessoryVFX
     {
         public static void AmbientStarlitDrift(Vector2 center) { }
@@ -21,8 +20,6 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
         public static void DrawWorldItemBloom(SpriteBatch sb, Texture2D tex,
             Vector2 pos, Vector2 origin, float rotation, float scale) { }
 
-        public static void ConstellationQuiverAmbientVFX(Player player) { }
-        public static void ConstellationQuiverProcVFX(Vector2 hitPos) { }
         public static void MoonlitSerenadePendantAmbientVFX(Player player) { }
         public static void MoonlitSerenadePendantProcVFX(Vector2 hitPos) { }
         public static void NocturnesEmbraceAmbientVFX(Player player) { }

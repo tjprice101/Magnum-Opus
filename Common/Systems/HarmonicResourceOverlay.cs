@@ -11,294 +11,210 @@ using MagnumOpus.Content.Common.Consumables;
 namespace MagnumOpus.Common.Systems
 {
     /// <summary>
-    /// Custom resource overlay that draws rainbow-shimmering hearts and arcane mana stars
-    /// for players who have used CrystallizedHarmony and ArcaneHarmonicPrism consumables.
-    /// Based on ExampleMod's VanillaLifeOverlay and VanillaManaOverlay patterns.
+    /// Custom resource overlay that transforms hearts to light blue with purple glow shimmer
+    /// and mana stars to pale light blue with deep purple overlay for players who have used
+    /// CrystallizedHarmony and ArcaneHarmonicPrism consumables.
     /// </summary>
     public class HarmonicResourceOverlay : ModResourceOverlay
     {
-        // Cache for comparing vanilla assets
         private Dictionary<string, Asset<Texture2D>> vanillaAssetCache = new();
 
-        /// <summary>
-        /// Intercepts heart/mana drawing and overlays rainbow/arcane effects on transformed resources.
-        /// </summary>
+        public override bool PreDrawResource(ResourceOverlayDrawContext context)
+        {
+            if (context.texture == null) return true;
+
+            Player player = Main.LocalPlayer;
+            Asset<Texture2D> asset = context.texture;
+            string fancyFolder = "Images/UI/PlayerResourceSets/FancyClassic/";
+
+            var harmonyPlayer = player.GetModPlayer<CrystallizedHarmonyPlayer>();
+            int transformedHearts = harmonyPlayer.crystallizedHarmonyUses;
+
+            var prismPlayer = player.GetModPlayer<ArcaneHarmonicPrismPlayer>();
+            int transformedStars = prismPlayer.arcaneHarmonicPrismUses;
+
+            // --- HEARTS: Tint base heart to light blue ---
+            bool isHeart = asset == TextureAssets.Heart || asset == TextureAssets.Heart2
+                || CompareAssets(asset, fancyFolder + "Heart_Fill")
+                || CompareAssets(asset, fancyFolder + "Heart_Fill_B");
+
+            if (isHeart && transformedHearts > 0 && context.resourceNumber < transformedHearts)
+            {
+                // Draw the base heart tinted light blue instead of red
+                SpriteBatch sb = context.SpriteBatch;
+                Texture2D tex = context.texture.Value;
+
+                // Light blue tint for the heart base
+                Color lightBlue = new Color(130, 200, 255);
+                float pulse = 0.9f + 0.1f * MathF.Sin(Main.GlobalTimeWrappedHourly * 4f + context.resourceNumber * 0.7f);
+                Color tintedColor = lightBlue * pulse;
+
+                sb.Draw(tex, context.position, context.source, tintedColor, context.rotation,
+                    context.origin, context.scale, context.effects, 0f);
+
+                return false; // Skip vanilla draw — we drew it ourselves
+            }
+
+            // --- MANA STARS: Tint base star to pale light blue ---
+            bool isManaStar = asset == TextureAssets.Mana
+                || CompareAssets(asset, fancyFolder + "Star_Fill");
+
+            if (isManaStar && transformedStars > 0 && context.resourceNumber < transformedStars)
+            {
+                SpriteBatch sb = context.SpriteBatch;
+                Texture2D tex = context.texture.Value;
+
+                // Pale light blue for mana star base
+                Color paleBlue = new Color(160, 210, 245);
+                float pulse = 0.9f + 0.1f * MathF.Sin(Main.GlobalTimeWrappedHourly * 3.5f + context.resourceNumber * 0.6f);
+                Color tintedColor = paleBlue * pulse;
+
+                sb.Draw(tex, context.position, context.source, tintedColor, context.rotation,
+                    context.origin, context.scale, context.effects, 0f);
+
+                return false;
+            }
+
+            return true;
+        }
+
         public override void PostDrawResource(ResourceOverlayDrawContext context)
         {
             if (context.texture == null) return;
 
             Player player = Main.LocalPlayer;
             Asset<Texture2D> asset = context.texture;
-
-            // Check for health hearts (Classic and Fancy styles)
             string fancyFolder = "Images/UI/PlayerResourceSets/FancyClassic/";
-            
-            // Get transformed counts
+
             var harmonyPlayer = player.GetModPlayer<CrystallizedHarmonyPlayer>();
             int transformedHearts = harmonyPlayer.crystallizedHarmonyUses;
-            
+
             var prismPlayer = player.GetModPlayer<ArcaneHarmonicPrismPlayer>();
             int transformedStars = prismPlayer.arcaneHarmonicPrismUses;
 
-            // Health resources are drawn in groups of two in some modes
-            // For Classic hearts: resourceNumber maps directly to heart index
-            // Hearts 0-19 represent health, we transform based on uses (1 use = 1 heart transformed)
-            
-            // Check if this is a heart being drawn
-            if (asset == TextureAssets.Heart || asset == TextureAssets.Heart2)
+            // --- HEARTS: Purple glow shimmer overlay ---
+            bool isHeart = asset == TextureAssets.Heart || asset == TextureAssets.Heart2
+                || CompareAssets(asset, fancyFolder + "Heart_Fill")
+                || CompareAssets(asset, fancyFolder + "Heart_Fill_B");
+
+            if (isHeart && transformedHearts > 0 && context.resourceNumber < transformedHearts)
             {
-                // Classic hearts - resourceNumber is the heart index (0-based)
-                if (transformedHearts > 0 && context.resourceNumber < transformedHearts)
-                {
-                    DrawRainbowHeartOverlay(context);
-                }
+                DrawPurpleGlowHeartOverlay(context);
             }
-            else if (CompareAssets(asset, fancyFolder + "Heart_Fill") || CompareAssets(asset, fancyFolder + "Heart_Fill_B"))
+
+            // --- MANA STARS: Deep purple overlay ---
+            bool isManaStar = asset == TextureAssets.Mana
+                || CompareAssets(asset, fancyFolder + "Star_Fill");
+
+            if (isManaStar && transformedStars > 0 && context.resourceNumber < transformedStars)
             {
-                // Fancy hearts - resourceNumber is still the heart index (0-based), same as classic
-                if (transformedHearts > 0 && context.resourceNumber < transformedHearts)
-                {
-                    DrawRainbowHeartOverlay(context);
-                }
-            }
-            
-            // Check if this is a mana star being drawn
-            if (asset == TextureAssets.Mana)
-            {
-                // Classic mana stars
-                if (transformedStars > 0 && context.resourceNumber < transformedStars)
-                {
-                    DrawArcaneManaOverlay(context);
-                }
-            }
-            else if (CompareAssets(asset, fancyFolder + "Star_Fill"))
-            {
-                // Fancy mana stars
-                if (transformedStars > 0 && context.resourceNumber < transformedStars)
-                {
-                    DrawArcaneManaOverlay(context);
-                }
+                DrawDeepPurpleManaOverlay(context);
             }
         }
 
-        /// <summary>
-        /// Helper method to compare asset paths (from ExampleMod pattern).
-        /// </summary>
         private bool CompareAssets(Asset<Texture2D> existingAsset, string compareAssetPath)
         {
             if (!vanillaAssetCache.TryGetValue(compareAssetPath, out var asset))
                 asset = vanillaAssetCache[compareAssetPath] = Main.Assets.Request<Texture2D>(compareAssetPath);
-
             return existingAsset == asset;
         }
 
         /// <summary>
-        /// Draws a cosmic dark purple/pink shimmering overlay on transformed hearts.
-        /// Creates vibrant wavy pulsing cosmic effect.
+        /// Draws a purple glowing hue shimmer overlay on light-blue tinted hearts.
+        /// Three additive glow layers that pulse and shift between violet and purple.
         /// </summary>
-        private void DrawRainbowHeartOverlay(ResourceOverlayDrawContext context)
+        private void DrawPurpleGlowHeartOverlay(ResourceOverlayDrawContext context)
         {
-            SpriteBatch spriteBatch = context.SpriteBatch;
-            Texture2D texture = context.texture.Value;
-            
-            // Cosmic dark purple to dark pink color range (0.75 to 0.92 hue range)
-            float timeOffset = Main.GameUpdateCount * 0.04f;
-            float positionOffset = context.resourceNumber * 0.2f;
-            
-            // Create wavy motion - multiple sine waves for organic feel
-            float wave1 = (float)Math.Sin(Main.GameUpdateCount * 0.08f + context.resourceNumber * 0.6f) * 0.5f;
-            float wave2 = (float)Math.Sin(Main.GameUpdateCount * 0.12f + context.resourceNumber * 0.4f + 1.5f) * 0.3f;
-            float waveOffset = wave1 + wave2;
-            
-            // Hue oscillates between dark purple (0.75) and dark pink/magenta (0.92)
-            float hueBase = 0.75f + (float)Math.Sin(timeOffset + positionOffset + waveOffset) * 0.085f + 0.085f;
-            
-            // Create vibrant cosmic color with high saturation
-            Color cosmicColor = Main.hslToRgb(hueBase, 0.95f, 0.55f);
-            
-            // Enhanced pulsing - multiple pulse frequencies for dynamic effect
-            float pulse1 = (float)Math.Sin(Main.GameUpdateCount * 0.1f + context.resourceNumber * 0.5f) * 0.12f;
-            float pulse2 = (float)Math.Sin(Main.GameUpdateCount * 0.16f + context.resourceNumber * 0.3f + 2f) * 0.08f;
-            float pulse = 1f + pulse1 + pulse2;
-            
-            // Outer cosmic glow layer (large, diffuse)
-            Color outerGlow = cosmicColor * 0.35f;
-            outerGlow.A = 0; // Additive blending
-            
-            Vector2 outerOffset = new Vector2(-3, -3);
-            spriteBatch.Draw(
-                texture,
-                context.position + outerOffset,
-                context.source,
-                outerGlow,
-                context.rotation,
-                context.origin,
-                context.scale * pulse * 1.25f,
-                context.effects,
-                0f
-            );
-            
-            // Middle intensity glow layer
-            Color middleGlow = cosmicColor * 0.5f;
-            middleGlow.A = 0;
-            
-            Vector2 middleOffset = new Vector2(-1.5f, -1.5f);
-            spriteBatch.Draw(
-                texture,
-                context.position + middleOffset,
-                context.source,
-                middleGlow,
-                context.rotation,
-                context.origin,
-                context.scale * pulse * 1.12f,
-                context.effects,
-                0f
-            );
-            
-            // Inner vibrant overlay layer
-            Color innerOverlay = cosmicColor * 0.7f;
-            innerOverlay.A = 0;
-            
-            spriteBatch.Draw(
-                texture,
-                context.position,
-                context.source,
-                innerOverlay,
-                context.rotation,
-                context.origin,
-                context.scale * pulse,
-                context.effects,
-                0f
-            );
-            
-            // Occasional cosmic sparkle effect
-            if (Main.rand.NextBool(80))
+            SpriteBatch sb = context.SpriteBatch;
+            Texture2D tex = context.texture.Value;
+            float t = Main.GlobalTimeWrappedHourly;
+            int idx = context.resourceNumber;
+
+            // Shimmer cycle: oscillates between blue-purple and magenta-purple
+            float shimmer = 0.5f + 0.5f * MathF.Sin(t * 3f + idx * 0.8f);
+            Color purple1 = new Color(120, 60, 200);  // Blue-violet
+            Color purple2 = new Color(180, 80, 220);  // Magenta-purple
+            Color glowColor = Color.Lerp(purple1, purple2, shimmer);
+
+            // Pulse intensity
+            float pulseA = 0.85f + 0.15f * MathF.Sin(t * 5f + idx * 1.1f);
+            float pulseB = 0.9f + 0.1f * MathF.Sin(t * 7f + idx * 0.6f + 1.5f);
+
+            // Outer diffuse glow (large, soft)
+            Color outerGlow = glowColor * (0.30f * pulseA);
+            outerGlow.A = 0;
+            sb.Draw(tex, context.position + new Vector2(-3f, -3f), context.source, outerGlow,
+                context.rotation, context.origin, context.scale * 1.3f * pulseA, context.effects, 0f);
+
+            // Mid glow
+            Color midGlow = glowColor * (0.45f * pulseB);
+            midGlow.A = 0;
+            sb.Draw(tex, context.position + new Vector2(-1.5f, -1.5f), context.source, midGlow,
+                context.rotation, context.origin, context.scale * 1.15f * pulseB, context.effects, 0f);
+
+            // Inner bright shimmer
+            Color innerGlow = glowColor * (0.55f * pulseA * pulseB);
+            innerGlow.A = 0;
+            sb.Draw(tex, context.position, context.source, innerGlow,
+                context.rotation, context.origin, context.scale, context.effects, 0f);
+
+            // Sparkle dust
+            if (Main.rand.NextBool(90))
             {
-                Vector2 sparklePos = context.position + new Vector2(
-                    Main.rand.NextFloat(-5, 15),
-                    Main.rand.NextFloat(-5, 15)
-                );
-                
-                // Cosmic dust in purple-pink range
-                float sparkleHue = Main.rand.NextFloat(0.75f, 0.95f);
-                Color sparkleColor = Main.hslToRgb(sparkleHue, 1f, 0.7f);
-                
-                Dust dust = Dust.NewDustDirect(
-                    sparklePos, 
-                    2, 2, 
-                    Terraria.ID.DustID.PurpleTorch, 
-                    0f, -0.5f, 
-                    100, 
-                    sparkleColor, 
-                    0.5f
-                );
-                dust.noGravity = true;
-                dust.velocity *= 0.3f;
+                Vector2 sparklePos = context.position + new Vector2(Main.rand.NextFloat(-4, 14), Main.rand.NextFloat(-4, 14));
+                Dust d = Dust.NewDustDirect(sparklePos, 2, 2, Terraria.ID.DustID.PurpleTorch,
+                    0f, -0.4f, 120, Color.White, 0.45f);
+                d.noGravity = true;
+                d.velocity *= 0.2f;
             }
         }
 
         /// <summary>
-        /// Draws a cosmic dark purple/pink shimmering overlay on transformed mana stars.
-        /// Creates vibrant wavy pulsing cosmic effect matching the hearts.
+        /// Draws a deep purple overlay on pale light-blue tinted mana stars.
+        /// Three additive glow layers with a slower, more mysterious pulse.
         /// </summary>
-        private void DrawArcaneManaOverlay(ResourceOverlayDrawContext context)
+        private void DrawDeepPurpleManaOverlay(ResourceOverlayDrawContext context)
         {
-            SpriteBatch spriteBatch = context.SpriteBatch;
-            Texture2D texture = context.texture.Value;
-            
-            // Cosmic dark purple to dark pink color range - slightly different phase from hearts
-            float timeOffset = Main.GameUpdateCount * 0.035f;
-            float positionOffset = context.resourceNumber * 0.18f;
-            
-            // Create wavy motion - multiple sine waves for organic cosmic feel
-            float wave1 = (float)Math.Sin(Main.GameUpdateCount * 0.07f + context.resourceNumber * 0.5f) * 0.5f;
-            float wave2 = (float)Math.Sin(Main.GameUpdateCount * 0.11f + context.resourceNumber * 0.35f + 1.2f) * 0.3f;
-            float waveOffset = wave1 + wave2;
-            
-            // Hue oscillates between dark purple (0.76) and dark pink/magenta (0.90) - slightly shifted from hearts
-            float hueBase = 0.76f + (float)Math.Sin(timeOffset + positionOffset + waveOffset) * 0.07f + 0.07f;
-            
-            // Create vibrant cosmic color with high saturation
-            Color cosmicColor = Main.hslToRgb(hueBase, 0.92f, 0.58f);
-            
-            // Enhanced pulsing - multiple pulse frequencies
-            float pulse1 = (float)Math.Sin(Main.GameUpdateCount * 0.09f + context.resourceNumber * 0.45f) * 0.1f;
-            float pulse2 = (float)Math.Sin(Main.GameUpdateCount * 0.14f + context.resourceNumber * 0.28f + 1.8f) * 0.06f;
-            float pulse = 1f + pulse1 + pulse2;
-            
-            // Outer cosmic glow layer
-            Color outerGlow = cosmicColor * 0.32f;
+            SpriteBatch sb = context.SpriteBatch;
+            Texture2D tex = context.texture.Value;
+            float t = Main.GlobalTimeWrappedHourly;
+            int idx = context.resourceNumber;
+
+            // Deep purple shimmer — darker and more saturated than hearts
+            float shimmer = 0.5f + 0.5f * MathF.Sin(t * 2.5f + idx * 0.7f + 2f);
+            Color deepPurple1 = new Color(80, 30, 160);   // Deep violet
+            Color deepPurple2 = new Color(130, 50, 180);   // Rich purple
+            Color glowColor = Color.Lerp(deepPurple1, deepPurple2, shimmer);
+
+            float pulseA = 0.88f + 0.12f * MathF.Sin(t * 4f + idx * 0.9f);
+            float pulseB = 0.92f + 0.08f * MathF.Sin(t * 6f + idx * 0.5f + 1f);
+
+            // Outer deep glow
+            Color outerGlow = glowColor * (0.28f * pulseA);
             outerGlow.A = 0;
-            
-            Vector2 outerOffset = new Vector2(-2.5f, -2.5f);
-            spriteBatch.Draw(
-                texture,
-                context.position + outerOffset,
-                context.source,
-                outerGlow,
-                context.rotation,
-                context.origin,
-                context.scale * pulse * 1.2f,
-                context.effects,
-                0f
-            );
-            
-            // Middle intensity glow layer
-            Color middleGlow = cosmicColor * 0.48f;
-            middleGlow.A = 0;
-            
-            Vector2 middleOffset = new Vector2(-1.2f, -1.2f);
-            spriteBatch.Draw(
-                texture,
-                context.position + middleOffset,
-                context.source,
-                middleGlow,
-                context.rotation,
-                context.origin,
-                context.scale * pulse * 1.1f,
-                context.effects,
-                0f
-            );
-            
-            // Inner vibrant overlay layer
-            Color innerOverlay = cosmicColor * 0.65f;
-            innerOverlay.A = 0;
-            
-            spriteBatch.Draw(
-                texture,
-                context.position,
-                context.source,
-                innerOverlay,
-                context.rotation,
-                context.origin,
-                context.scale * pulse,
-                context.effects,
-                0f
-            );
-            
-            // Occasional cosmic sparkle effect
-            if (Main.rand.NextBool(70))
+            sb.Draw(tex, context.position + new Vector2(-2.5f, -2.5f), context.source, outerGlow,
+                context.rotation, context.origin, context.scale * 1.25f * pulseA, context.effects, 0f);
+
+            // Mid glow
+            Color midGlow = glowColor * (0.42f * pulseB);
+            midGlow.A = 0;
+            sb.Draw(tex, context.position + new Vector2(-1f, -1f), context.source, midGlow,
+                context.rotation, context.origin, context.scale * 1.12f * pulseB, context.effects, 0f);
+
+            // Inner vivid glow
+            Color innerGlow = glowColor * (0.50f * pulseA * pulseB);
+            innerGlow.A = 0;
+            sb.Draw(tex, context.position, context.source, innerGlow,
+                context.rotation, context.origin, context.scale, context.effects, 0f);
+
+            // Sparkle dust
+            if (Main.rand.NextBool(80))
             {
-                Vector2 sparklePos = context.position + new Vector2(
-                    Main.rand.NextFloat(-5, 15),
-                    Main.rand.NextFloat(-5, 15)
-                );
-                
-                // Cosmic dust in purple-pink range
-                float sparkleHue = Main.rand.NextFloat(0.76f, 0.93f);
-                Color sparkleColor = Main.hslToRgb(sparkleHue, 1f, 0.65f);
-                
-                Dust dust = Dust.NewDustDirect(
-                    sparklePos, 
-                    2, 2, 
-                    Terraria.ID.DustID.PinkTorch, 
-                    0f, -0.4f, 
-                    100, 
-                    sparkleColor, 
-                    0.45f
-                );
-                dust.noGravity = true;
-                dust.velocity *= 0.35f;
+                Vector2 sparklePos = context.position + new Vector2(Main.rand.NextFloat(-4, 14), Main.rand.NextFloat(-4, 14));
+                Dust d = Dust.NewDustDirect(sparklePos, 2, 2, Terraria.ID.DustID.PurpleTorch,
+                    0f, -0.3f, 100, Color.White, 0.4f);
+                d.noGravity = true;
+                d.velocity *= 0.25f;
             }
         }
     }

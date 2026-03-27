@@ -88,8 +88,6 @@ namespace MagnumOpus.Common.Systems.Shaders
         // Nachtmusik  EGalacticOverture weapon-specific shaders
         public const string OvertureAuraShader = "Nachtmusik/GalacticOverture/OvertureAura";
 
-        // Nachtmusik  EConductorOfConstellations weapon-specific shaders
-        public const string StellarConductorAuraShader = "Nachtmusik/ConductorOfConstellations/StellarConductorAura";
         public const string IncisorResonanceShader = "MoonlightSonata/IncisorOfMoonlight/IncisorResonance";
         public const string ConstellationFieldShader = "MoonlightSonata/IncisorOfMoonlight/ConstellationField";
         public const string LunarZoneShader = "MoonlightSonata/IncisorOfMoonlight/LunarZone";
@@ -396,7 +394,6 @@ namespace MagnumOpus.Common.Systems.Shaders
                 LoadShader(CosmicRequiemShader);
                 LoadShader(ChorusSummonAuraShader);
                 LoadShader(OvertureAuraShader);
-                LoadShader(StellarConductorAuraShader);
                 LoadShader(IncisorResonanceShader);
                 LoadShader(ConstellationFieldShader);
                 LoadShader(LunarZoneShader);
@@ -873,9 +870,6 @@ namespace MagnumOpus.Common.Systems.Shaders
 
         /// <summary>Gets the Overture Aura shader for orchestral wave aura on GalacticOverture.</summary>
         public static Effect OvertureAura => GetShader(OvertureAuraShader);
-
-        /// <summary>Gets the Stellar Conductor Aura shader for orbiting constellation ring aura on ConductorOfConstellations.</summary>
-        public static Effect StellarConductorAura => GetShader(StellarConductorAuraShader);
 
         /// <summary>Gets the Terra Blade Flare Beam shader for wave-distorted motion-blur energy beams if available.</summary>
         public static Effect TerraBladeFlareBeam => GetShader(TerraBladeFlareBeamShaderName);

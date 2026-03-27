@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -28,6 +29,15 @@ namespace MagnumOpus.Content.ClairDeLune.ResonanceEnergies
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 15); // Higher than Ode to Joy (12g)
             Item.rare = ModContent.RarityType<ClairDeLuneRarity>();
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Material for crafting Clair de Lune equipment"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Crystallized moonlit reverie, suspended between ticks of the clock'")
+            {
+                OverrideColor = new Color(150, 200, 255)
+            });
         }
 
         public override void PostUpdate()

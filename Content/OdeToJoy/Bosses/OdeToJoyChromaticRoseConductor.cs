@@ -902,18 +902,19 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                     OdeToJoyBossVFXLibrary.TrumpetBlastCone(NPC.Center, attackDir, 1.2f);
                     OdeToJoyBossVFXLibrary.SpawnRosePetals(NPC.Center, 18, 10f);
                     
-                    // TODO: Spawn petal projectiles in arc
                     if (Main.netMode != NetmodeID.MultiplayerClient)
                     {
                         int count = 12 + difficultyTier * 4;
                         float spread = MathHelper.ToRadians(120f);
                         float baseAngle = (target.Center - NPC.Center).ToRotation();
+                        int damage = GetAttackDamage(BaseDamage);
                         
                         for (int i = 0; i < count; i++)
                         {
                             float angle = baseAngle - spread / 2f + spread * i / count;
                             Vector2 vel = angle.ToRotationVector2() * MediumProjectileSpeed;
-                            // Projectile.NewProjectile(...);
+                            Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, vel,
+                                ProjectileID.SeedPlantera, (int)(damage * 0.4f), 2f);
                         }
                     }
                 }
@@ -927,10 +928,47 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
         
         private void Attack_VineWhip(Player target)
         {
-            // Placeholder - implement lashing vine attack
-            if (Timer >= 60)
+            int chargeTime = 20 - difficultyTier * 3;
+            
+            if (SubPhase == 0) // Telegraph
             {
-                EndAttack();
+                NPC.velocity *= 0.96f;
+                float progress = (float)Timer / chargeTime;
+                BossVFXOptimizer.ConvergingWarning(NPC.Center, 80f, progress, LeafGreen, 6);
+                
+                if (Timer >= chargeTime)
+                {
+                    Timer = 0;
+                    SubPhase = 1;
+                }
+            }
+            else if (SubPhase == 1) // Lash
+            {
+                if (Timer == 1)
+                {
+                    MagnumScreenEffects.AddScreenShake(4f);
+                    OdeToJoyBossVFXLibrary.SpawnRosePetals(NPC.Center, 10, 6f);
+                    
+                    if (Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        int damage = GetAttackDamage(BaseDamage);
+                        Vector2 toTarget = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX);
+                        int count = 5 + difficultyTier * 2;
+                        
+                        for (int i = 0; i < count; i++)
+                        {
+                            float offset = (i - count / 2f) * 0.15f;
+                            Vector2 vel = toTarget.RotatedBy(offset) * (FastProjectileSpeed + i * 1.5f);
+                            Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, vel,
+                                ProjectileID.ThornBall, (int)(damage * 0.3f), 2f);
+                        }
+                    }
+                }
+                
+                if (Timer >= 30)
+                {
+                    EndAttack();
+                }
             }
         }
         
@@ -967,7 +1005,19 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                     OdeToJoyBossVFXLibrary.ViolinBowArc(NPC.Center, NPC.Center + (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX) * 100f, 0.8f);
                     OdeToJoyBossVFXLibrary.BlossomImpact(NPC.Center, 1f);
                     
-                    // TODO: Spawn rose bud projectiles
+                    if (Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        int count = 8 + difficultyTier * 3;
+                        int damage = GetAttackDamage(BaseDamage);
+                        
+                        for (int i = 0; i < count; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / count;
+                            Vector2 vel = angle.ToRotationVector2() * FastProjectileSpeed * 0.8f;
+                            Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, vel,
+                                ProjectileID.PoisonSeedPlantera, (int)(damage * 0.35f), 2f);
+                        }
+                    }
                 }
                 
                 if (Timer >= 20)
@@ -979,19 +1029,114 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
         
         private void Attack_PollenCloud(Player target)
         {
-            // Placeholder - implement area denial pollen cloud
-            if (Timer >= 90)
+            int chargeTime = 30 - difficultyTier * 5;
+            
+            if (SubPhase == 0)
             {
-                EndAttack();
+                NPC.velocity *= 0.95f;
+                float progress = (float)Timer / chargeTime;
+                
+                // Pollen gathers visually
+                if (Timer % 4 == 0)
+                {
+                    CustomParticles.GenericFlare(NPC.Center + Main.rand.NextVector2Circular(60f, 60f),
+                        GoldenPollen * 0.6f, 0.3f, 20);
+                }
+                
+                if (Timer >= chargeTime)
+                {
+                    Timer = 0;
+                    SubPhase = 1;
+                }
+            }
+            else
+            {
+                if (Timer == 1)
+                {
+                    MagnumScreenEffects.AddScreenShake(5f);
+                    
+                    if (Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        int damage = GetAttackDamage(BaseDamage);
+                        // Scatter pollen seeds in a wide circular burst
+                        int count = 10 + difficultyTier * 3;
+                        
+                        for (int i = 0; i < count; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / count + Main.rand.NextFloat(-0.15f, 0.15f);
+                            float speed = SlowHomingSpeed + Main.rand.NextFloat(0f, 3f);
+                            Vector2 vel = angle.ToRotationVector2() * speed;
+                            Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, vel,
+                                ProjectileID.SeedPlantera, (int)(damage * 0.25f), 1f);
+                        }
+                    }
+                }
+                
+                if (Timer >= 40)
+                {
+                    EndAttack();
+                }
             }
         }
         
         private void Attack_HarmonicBloom(Player target)
         {
-            // Placeholder - implement radial flower burst
-            if (Timer >= 60)
+            int chargeTime = 35 - difficultyTier * 5;
+            
+            if (SubPhase == 0)
             {
-                EndAttack();
+                NPC.velocity *= 0.93f;
+                float progress = (float)Timer / chargeTime;
+                
+                // Radial flower rings expanding outward
+                if (Timer % 6 == 0)
+                {
+                    Color bloomColor = Color.Lerp(RosePink, GoldenPollen, progress);
+                    CustomParticles.HaloRing(NPC.Center, bloomColor, 0.3f + progress * 0.3f, 12);
+                }
+                
+                if (Timer >= chargeTime)
+                {
+                    Timer = 0;
+                    SubPhase = 1;
+                }
+            }
+            else
+            {
+                if (Timer == 1)
+                {
+                    MagnumScreenEffects.AddScreenShake(7f);
+                    OdeToJoyBossVFXLibrary.BlossomImpact(NPC.Center, 1.2f);
+                    
+                    if (Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        int damage = GetAttackDamage(BaseDamage);
+                        // Two rings of projectiles at different speeds
+                        int innerCount = 8 + difficultyTier * 2;
+                        int outerCount = 12 + difficultyTier * 3;
+                        
+                        for (int i = 0; i < innerCount; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / innerCount;
+                            Vector2 vel = angle.ToRotationVector2() * FastProjectileSpeed;
+                            Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, vel,
+                                ProjectileID.PoisonSeedPlantera, (int)(damage * 0.3f), 2f);
+                        }
+                        
+                        for (int i = 0; i < outerCount; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / outerCount + MathHelper.Pi / outerCount;
+                            Vector2 vel = angle.ToRotationVector2() * MediumProjectileSpeed * 0.7f;
+                            Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, vel,
+                                ProjectileID.SeedPlantera, (int)(damage * 0.25f), 1f);
+                        }
+                    }
+                }
+                
+                if (Timer >= 35)
+                {
+                    EndAttack();
+                }
             }
         }
         
@@ -1032,7 +1177,20 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                     OdeToJoyBossVFXLibrary.SpawnRosePetals(NPC.Center, 22, 12f);
                     OdeToJoyBossVFXLibrary.RosePetalDownbeat(NPC.Center, 8, 6f);
                     
-                    // TODO: Spawn chromatic petal wave
+                    if (Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        int count = 16 + difficultyTier * 4;
+                        int damage = GetAttackDamage(BaseDamage);
+                        float baseAngle = (target.Center - NPC.Center).ToRotation() + SubPhase * 0.3f;
+                        
+                        for (int i = 0; i < count; i++)
+                        {
+                            float angle = baseAngle + MathHelper.TwoPi * i / count;
+                            Vector2 vel = angle.ToRotationVector2() * (FastProjectileSpeed + SubPhase * 2f);
+                            Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, vel,
+                                ProjectileID.HallowBossRainbowStreak, (int)(damage * 0.35f), 2f);
+                        }
+                    }
                 }
                 
                 if (Timer >= 25)
@@ -1052,10 +1210,59 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
         
         private void Attack_ThornyEmbrace(Player target)
         {
-            // Placeholder - implement converging vine cage
-            if (Timer >= 120)
+            int chargeTime = 40 - difficultyTier * 6;
+            int waveCount = 2 + difficultyTier;
+            
+            if (SubPhase == 0) // Telegraph
             {
-                EndAttack();
+                NPC.velocity *= 0.92f;
+                float progress = (float)Timer / chargeTime;
+                
+                BossVFXOptimizer.ConvergingWarning(target.Center, 120f, progress, LeafGreen, 10);
+                
+                if (Timer >= chargeTime)
+                {
+                    Timer = 0;
+                    SubPhase = 1;
+                }
+            }
+            else if (SubPhase <= waveCount)
+            {
+                if (Timer == 1)
+                {
+                    MagnumScreenEffects.AddScreenShake(6f);
+                    OdeToJoyBossVFXLibrary.SpawnRosePetals(target.Center, 12, 8f);
+                    
+                    if (Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        int damage = GetAttackDamage(BaseDamage);
+                        // Thorns converge on player's last position
+                        int count = 6 + difficultyTier * 2;
+                        float radius = 250f + SubPhase * 50f;
+                        
+                        for (int i = 0; i < count; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / count + SubPhase * 0.5f;
+                            Vector2 spawnPos = target.Center + angle.ToRotationVector2() * radius;
+                            Vector2 vel = (target.Center - spawnPos).SafeNormalize(Vector2.UnitX) * MediumProjectileSpeed;
+                            Projectile.NewProjectile(NPC.GetSource_FromAI(), spawnPos, vel,
+                                ProjectileID.ThornBall, (int)(damage * 0.3f), 2f);
+                        }
+                    }
+                }
+                
+                if (Timer >= 30)
+                {
+                    Timer = 0;
+                    SubPhase++;
+                }
+            }
+            else
+            {
+                if (Timer >= 20)
+                {
+                    EndAttack();
+                }
             }
         }
         
@@ -1128,7 +1335,8 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                             
                             float speed = 12f + difficultyTier * 2f + SubPhase;
                             Vector2 vel = angle.ToRotationVector2() * speed;
-                            // TODO: Spawn projectile
+                            Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, vel,
+                                ProjectileID.FairyQueenLance, GetAttackDamage((int)(BaseDamage * 0.4f)), 2f);
                         }
                     }
                     
@@ -1157,10 +1365,67 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
         
         private void Attack_EternalBloom(Player target)
         {
-            // Placeholder - massive screen-wide floral explosion
-            if (Timer >= 150)
+            int chargeTime = 60 - difficultyTier * 8;
+            
+            if (SubPhase == 0) // Charge
             {
-                EndAttack();
+                NPC.velocity *= 0.9f;
+                float progress = (float)Timer / chargeTime;
+                
+                if (Timer == 1)
+                {
+                    SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.5f }, NPC.Center);
+                }
+                
+                BossVFXOptimizer.ConvergingWarning(NPC.Center, 180f, progress, WhiteBloom, 14);
+                
+                if (Timer % 5 == 0)
+                {
+                    Color color = GetOdeToJoyGradient((Timer * 0.02f) % 1f);
+                    CustomParticles.GenericFlare(NPC.Center + Main.rand.NextVector2Circular(80f, 80f), color, 0.5f, 20);
+                }
+                
+                if (Timer >= chargeTime)
+                {
+                    Timer = 0;
+                    SubPhase = 1;
+                }
+            }
+            else // Release
+            {
+                if (Timer == 1)
+                {
+                    MagnumScreenEffects.AddScreenShake(15f);
+                    OdeToJoyBossVFXLibrary.TriumphantCelebration(NPC.Center, 1.5f);
+                    OdeToJoyBossVFXLibrary.BlossomImpact(NPC.Center, 1.8f);
+                    
+                    if (Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        int damage = GetAttackDamage(BaseDamage);
+                        
+                        // Three staggered rings of projectiles
+                        for (int ring = 0; ring < 3; ring++)
+                        {
+                            int count = 12 + ring * 4 + difficultyTier * 2;
+                            float speed = MediumProjectileSpeed + ring * 3f;
+                            float offset = ring * MathHelper.Pi / 12f;
+                            int projType = ring == 0 ? ProjectileID.HallowBossRainbowStreak : ProjectileID.PoisonSeedPlantera;
+                            
+                            for (int i = 0; i < count; i++)
+                            {
+                                float angle = MathHelper.TwoPi * i / count + offset;
+                                Vector2 vel = angle.ToRotationVector2() * speed;
+                                Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, vel,
+                                    projType, (int)(damage * (0.35f - ring * 0.05f)), 2f);
+                            }
+                        }
+                    }
+                }
+                
+                if (Timer >= 50)
+                {
+                    EndAttack();
+                }
             }
         }
         
@@ -1214,7 +1479,28 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                     OdeToJoyBossVFXLibrary.TriumphantCelebration(NPC.Center, 2f);
                     OdeToJoyBossVFXLibrary.FireworkBurst(NPC.Center, 1.5f);
                     
-                    // TODO: Spawn massive projectile storm
+                    if (Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        int damage = GetAttackDamage(BaseDamage);
+                        
+                        // Inner ring — fast lances
+                        for (int i = 0; i < 24; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / 24f;
+                            Vector2 vel = angle.ToRotationVector2() * FastProjectileSpeed;
+                            Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, vel,
+                                ProjectileID.FairyQueenLance, (int)(damage * 0.45f), 3f);
+                        }
+                        
+                        // Outer ring — chromatic streaks
+                        for (int i = 0; i < 16; i++)
+                        {
+                            float angle = MathHelper.TwoPi * i / 16f + MathHelper.PiOver4 / 2f;
+                            Vector2 vel = angle.ToRotationVector2() * MediumProjectileSpeed;
+                            Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, vel,
+                                ProjectileID.HallowBossRainbowStreak, (int)(damage * 0.35f), 2f);
+                        }
+                    }
                 }
                 
                 if (Timer >= 60)

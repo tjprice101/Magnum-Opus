@@ -141,12 +141,17 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
                 OverrideColor = new Color(255, 150, 100)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Minions deal +25% damage to burning enemies")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+5% minion damage per Resonant Burn stack")
             {
                 OverrideColor = new Color(255, 200, 150)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+1 minion slot while any enemy has Resonant Burn")
+            tooltips.Add(new TooltipLine(Mod, "MaxBonus", "Max: +25% at 5 stacks")
+            {
+                OverrideColor = new Color(255, 150, 150)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "At max stacks: +50% minion attack speed (5 seconds) + 2 temporary minion slots (8 seconds)")
             {
                 OverrideColor = new Color(200, 180, 255)
             });
@@ -190,6 +195,7 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         {
             var conductor = player.GetModPlayer<ConductorPlayer>();
             conductor.HasHarvestBeastlordsHorn = true;
+            conductor.hasResonantBeastlordsHorn = true; // Resonance Synergy T4 bonuses
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -199,9 +205,24 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
                 OverrideColor = new Color(200, 180, 255)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+5% summon critical strike chance")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+3% summon critical strike per Resonant Burn stack")
             {
                 OverrideColor = new Color(255, 220, 180)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "MaxCrit", "Max: +15% at 5 stacks")
+            {
+                OverrideColor = new Color(255, 200, 150)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Minion critical hits add 2 Resonant Burn stacks to target")
+            {
+                OverrideColor = new Color(255, 150, 100)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "At max stacks: Minions home to burning enemies (8 seconds)")
+            {
+                OverrideColor = new Color(255, 180, 100)
             });
 
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Command the beasts of the harvest'")
@@ -213,7 +234,7 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<SolarDirectorsCrest>(1)
+                .AddIngredient<ConductorsBurningCrown>(1)
                 .AddIngredient<ResonantCrystalShard>(5)
                 .AddIngredient<HarvestBar>(20)
                 .AddIngredient<AutumnResonantEnergy>(1)

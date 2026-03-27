@@ -14,8 +14,6 @@ namespace MagnumOpus.Content.EnigmaVariations.Debuffs
     /// </summary>
     public class WatchedDebuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.BrokenArmor;
-        
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;

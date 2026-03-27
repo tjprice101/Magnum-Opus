@@ -544,8 +544,6 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
     /// </summary>
     public class EchoMark : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_24";
-
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;

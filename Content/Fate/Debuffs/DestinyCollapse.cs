@@ -27,9 +27,6 @@ namespace MagnumOpus.Content.Fate.Debuffs
         public const float SlowPerStack = 0.04f; // 4% slow per stack
         public const float SingularityRadius = 250f;
         
-        // Use placeholder texture
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.Obstructed;
-        
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;

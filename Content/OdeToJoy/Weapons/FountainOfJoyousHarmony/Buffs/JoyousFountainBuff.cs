@@ -6,12 +6,9 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Buffs
 {
     /// <summary>
     /// Joyous Fountain Buff — active while player owns a fountain minion.
-    /// Uses a vanilla buff texture to avoid needing a custom PNG.
     /// </summary>
     public class JoyousFountainBuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_1";
-
         public override void SetStaticDefaults()
         {
             Main.buffNoSave[Type] = true;

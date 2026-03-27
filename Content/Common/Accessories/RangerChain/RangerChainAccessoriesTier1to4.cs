@@ -144,7 +144,12 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
                 OverrideColor = new Color(255, 200, 150)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Armor penetration doubled against burning enemies")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+5% crit per Resonant Burn stack on target")
+            {
+                OverrideColor = new Color(255, 180, 100)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "At max stacks: Next critical hit deals 3x damage (super crit)")
             {
                 OverrideColor = SummerOrange
             });
@@ -200,14 +205,19 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
                 OverrideColor = new Color(255, 150, 100)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "BoltNote", "Bolt deals 50% of weapon damage")
+            tooltips.Add(new TooltipLine(Mod, "BoltNote", "Bolt damage scales with burn stacks on target")
             {
                 OverrideColor = AutumnOrange
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Critical hits spread Resonant Burn to 1 nearby enemy (200 units)")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Critical hits on burning enemies spread Resonant Burn to nearby enemies")
             {
                 OverrideColor = new Color(255, 200, 150)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "CritEffect", "Standard: 1 enemy (200 units); At max stacks: ALL enemies (300 units)")
+            {
+                OverrideColor = new Color(255, 150, 100)
             });
 
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The hunter's arrows echo through flame and foe'")
@@ -268,7 +278,7 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<HarvestReapersMark>(1)
+                .AddIngredient<EchoingBoltChamber>(1)
                 .AddIngredient<ResonantCrystalShard>(5)
                 .AddIngredient<PermafrostBar>(25)
                 .AddIngredient<WinterResonantEnergy>(1)

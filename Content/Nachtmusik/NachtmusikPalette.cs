@@ -246,20 +246,6 @@ namespace MagnumOpus.Content.Nachtmusik
             new Color(255, 248, 235),   // [5] Sforzando — overture white
         };
 
-        /// <summary>
-        /// ConductorOfConstellations minion palette — commanding starfield authority.
-        /// Precise, commanding, stars bow to the conductor's will.
-        /// </summary>
-        public static readonly Color[] ConductorOfConstellationsMinion = new Color[]
-        {
-            new Color(15, 15, 45),      // [0] Pianissimo — midnight void
-            new Color(60, 90, 180),     // [1] Piano — constellation blue
-            new Color(80, 120, 200),    // [2] Mezzo — starlit blue
-            new Color(200, 210, 240),   // [3] Forte — star white command
-            new Color(255, 230, 150),   // [4] Fortissimo — star gold baton
-            new Color(248, 250, 255),   // [5] Sforzando — conductor's white
-        };
-
         // =================================================================
         //  GRADIENT HELPERS
         // =================================================================

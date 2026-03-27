@@ -11,8 +11,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Buffs
     /// </summary>
     public class MoonlitSilenceDebuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.Slow;
-
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;

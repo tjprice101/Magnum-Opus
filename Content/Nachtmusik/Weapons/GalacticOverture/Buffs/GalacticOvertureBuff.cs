@@ -10,8 +10,6 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture.Buffs
     /// </summary>
     public class GalacticOvertureBuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_1";
-
         public override void SetStaticDefaults()
         {
             Main.buffNoSave[Type] = true;

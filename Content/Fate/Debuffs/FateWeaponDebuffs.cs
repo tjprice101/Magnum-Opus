@@ -14,8 +14,6 @@ namespace MagnumOpus.Content.Fate.Debuffs
     {
         public const int DamagePerSecond = 15;
 
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.Obstructed;
-
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;
@@ -55,8 +53,6 @@ namespace MagnumOpus.Content.Fate.Debuffs
     public class AnnihilationMark : ModBuff
     {
         public const int MaxStacks = 10;
-
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.Obstructed;
 
         public override void SetStaticDefaults()
         {
@@ -155,8 +151,6 @@ namespace MagnumOpus.Content.Fate.Debuffs
     /// </summary>
     public class BygoneEcho : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.Obstructed;
-
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;

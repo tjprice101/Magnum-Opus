@@ -10,8 +10,6 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton.Buffs
     /// </summary>
     public class CelestialChorusBatonBuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_1";
-
         public override void SetStaticDefaults()
         {
             Main.buffNoSave[Type] = true;

@@ -209,7 +209,6 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
                     Main.rand.Next(hitbox.Left, hitbox.Right),
                     Main.rand.Next(hitbox.Top, hitbox.Bottom)
                 );
-// VFX_GUTTED:                 OdeToJoyVFXLibrary.SpawnMusicNotes(notePos, 1, 20f, 0.75f);
             }
 
             Lighting.AddLight(hitbox.Center.ToVector2(), OdeToJoyPalette.VerdantGreen.ToVector3() * 0.4f);
@@ -217,7 +216,6 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
         {
-            // VFX_GUTTED: PreDraw rendering removed
             return false;
         }
 
@@ -317,7 +315,6 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
                     Main.rand.Next(hitbox.Left, hitbox.Right),
                     Main.rand.Next(hitbox.Top, hitbox.Bottom)
                 );
-// VFX_GUTTED:                 OdeToJoyVFXLibrary.SpawnMusicNotes(notePos, 1, 20f, 0.8f);
             }
             
             Lighting.AddLight(hitbox.Center.ToVector2(), OdeToJoyPalette.RosePink.ToVector3() * 0.5f);
@@ -325,7 +322,6 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
         
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
         {
-            // VFX_GUTTED: PreDraw rendering removed
             return false;
         }
 

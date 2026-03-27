@@ -152,7 +152,6 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
             CustomParticles.GenericFlare(Player.Center, Violet, 0.9f, 20);
 
             // Music note burst on radiance nova
-// VFX_GUTTED:             NachtmusikVFXLibrary.SpawnMusicNotes(Player.Center, 6, 18f, 0.8f, 1.0f, 30);
 
             // Star sparkle accents
             for (int i = 0; i < 5; i++)

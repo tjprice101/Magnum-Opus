@@ -99,7 +99,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             Main.spriteBatch.End();
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Trail
+            // Trail (1024px texture - use small scales)
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
@@ -107,27 +107,27 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 float progress = (float)i / Projectile.oldPos.Length;
                 Color trailColor = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaYellow, progress) * (1f - progress);
                 trailColor.A = 0;
-                float scale = Projectile.scale * (1f - progress * 0.5f);
+                float scale = 0.04f * (1f - progress * 0.5f);
                 
                 Vector2 drawPos = Projectile.oldPos[i] + Projectile.Size / 2 - Main.screenPosition;
                 Main.EntitySpriteDraw(texture, drawPos, null, trailColor, Projectile.oldRot[i], origin, scale, SpriteEffects.None, 0);
             }
             
-            // Bloom underlay
+            // Bloom underlay (512px SoftGlow texture)
             Texture2D bloomTex = MagnumTextureRegistry.GetSoftGlow();
             if (bloomTex != null)
             {
                 Vector2 bloomOrigin = new Vector2(bloomTex.Width, bloomTex.Height) * 0.5f;
                 Color bloomColor = ThemedParticles.CampanellaOrange * 0.15f;
                 bloomColor.A = 0;
-                Main.EntitySpriteDraw(bloomTex, Projectile.Center - Main.screenPosition, null, bloomColor, 0f, bloomOrigin, 0.06f, SpriteEffects.None, 0);
+                Main.EntitySpriteDraw(bloomTex, Projectile.Center - Main.screenPosition, null, bloomColor, 0f, bloomOrigin, 0.12f, SpriteEffects.None, 0);
             }
             
-            // Main projectile glow
+            // Main projectile glow (1024px texture)
             Color mainColor = Color.Lerp(ThemedParticles.CampanellaOrange, Color.White, 0.3f);
             mainColor.A = 0;
             Main.EntitySpriteDraw(texture, Projectile.Center - Main.screenPosition, null, mainColor, 
-                Projectile.rotation, origin, Projectile.scale * 1.2f, SpriteEffects.None, 0);
+                Projectile.rotation, origin, 0.05f, SpriteEffects.None, 0);
 
             // Restore default blend state
             Main.spriteBatch.End();
@@ -259,31 +259,31 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             Color glowColor = ThemedParticles.CampanellaOrange * 0.5f * pulse;
             glowColor.A = 0;
             
-            // Bloom underlay
+            // Bloom underlay (512px SoftGlow texture)
             Texture2D bloomTex = MagnumTextureRegistry.GetSoftGlow();
             if (bloomTex != null)
             {
                 Vector2 bloomOrigin = new Vector2(bloomTex.Width, bloomTex.Height) * 0.5f;
                 Color bloomColor = ThemedParticles.CampanellaOrange * (0.1f * pulse);
                 bloomColor.A = 0;
-                Main.EntitySpriteDraw(bloomTex, Projectile.Center - Main.screenPosition, null, bloomColor, 0f, bloomOrigin, 0.08f, SpriteEffects.None, 0);
+                Main.EntitySpriteDraw(bloomTex, Projectile.Center - Main.screenPosition, null, bloomColor, 0f, bloomOrigin, 0.12f, SpriteEffects.None, 0);
             }
             
             for (int i = 0; i < 4; i++)
             {
                 Vector2 offset = (MathHelper.TwoPi * i / 4f + Projectile.ai[0] * 0.05f).ToRotationVector2() * 4f;
                 Main.EntitySpriteDraw(texture, Projectile.Center + offset - Main.screenPosition, null, glowColor, 
-                    Projectile.rotation, origin, Projectile.scale * 1.1f, SpriteEffects.None, 0);
+                    Projectile.rotation, origin, 0.045f, SpriteEffects.None, 0);
             }
 
             // Restore default blend state for main sprite draw
             Main.spriteBatch.End();
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             
-            // Main bell
+            // Main bell (1024px texture)
             Main.EntitySpriteDraw(texture, Projectile.Center - Main.screenPosition, null, 
                 Color.Lerp(lightColor, ThemedParticles.CampanellaGold, 0.3f), Projectile.rotation, origin, 
-                Projectile.scale, SpriteEffects.None, 0);
+                0.04f, SpriteEffects.None, 0);
             
             }
             catch { }
@@ -395,11 +395,11 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             Main.spriteBatch.End();
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Draw layered glows for fire effect
+            // Draw layered glows for fire effect (1024px texture - use small scales)
             for (int layer = 0; layer < 4; layer++)
             {
                 float layerProgress = layer / 4f;
-                float scale = (0.6f - layer * 0.1f) * fade;
+                float scale = (0.05f - layer * 0.008f) * fade;
                 Color color = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaYellow, layerProgress) * (0.4f - layer * 0.08f);
                 
                 Main.spriteBatch.Draw(glowTex, drawPos + new Vector2(0, -layer * 8f), null, color, 0f, origin, scale, SpriteEffects.None, 0f);
@@ -546,7 +546,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             {
                 float layerProgress = layer / 5f;
                 float layerHeight = baseHeight * (1f - layerProgress * 0.5f);
-                float scale = (1.2f - layer * 0.15f) * Projectile.scale;
+                float scale = (0.08f - layer * 0.01f) * Projectile.scale;
                 
                 Color color = Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaYellow, layerProgress);
                 if (layer == 0) color = ThemedParticles.CampanellaBlack * 0.6f;
@@ -716,10 +716,10 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 float segProgress = (float)seg / segments;
                 Vector2 segPos = Projectile.Center + direction * (segProgress * currentLength) - Main.screenPosition;
                 
-                // Draw beam layers
+                // Draw beam layers (1024px texture - scale relative to texture size)
                 for (int layer = 4; layer >= 0; layer--)
                 {
-                    float layerScale = (beamWidth / 32f) * (1f + layer * 0.2f);
+                    float layerScale = (beamWidth / 1024f) * (1f + layer * 0.2f);
                     float opacity = 0.15f + (4 - layer) * 0.12f;
                     
                     Color color;
@@ -736,9 +736,9 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
                 }
             }
             
-            // Draw end explosion glow
+            // Draw end explosion glow (1024px texture)
             Vector2 endPos = Projectile.Center + direction * currentLength - Main.screenPosition;
-            float endScale = beamWidth / 20f;
+            float endScale = beamWidth / 512f;
             Main.spriteBatch.Draw(glowTex, endPos, null, ThemedParticles.CampanellaYellow * 0.7f, 0f, origin, endScale * 1.5f, SpriteEffects.None, 0f);
             Main.spriteBatch.Draw(glowTex, endPos, null, Color.White * 0.5f, 0f, origin, endScale, SpriteEffects.None, 0f);
 

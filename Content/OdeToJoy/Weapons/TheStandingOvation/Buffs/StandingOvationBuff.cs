@@ -6,12 +6,9 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Buffs
 {
     /// <summary>
     /// Standing Ovation Buff — active while player owns ovation minions.
-    /// Uses a vanilla buff texture to avoid needing a custom PNG.
     /// </summary>
     public class StandingOvationBuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_1";
-
         public override void SetStaticDefaults()
         {
             Main.buffNoSave[Type] = true;

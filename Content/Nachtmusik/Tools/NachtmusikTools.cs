@@ -95,7 +95,6 @@ namespace MagnumOpus.Content.Nachtmusik.Tools
             if (Main.rand.NextBool(10))
             {
                 Vector2 notePos = hitbox.Center.ToVector2() + Main.rand.NextVector2Circular(15f, 15f);
-// VFX_GUTTED:                 NachtmusikVFXLibrary.SpawnMusicNotes(notePos, 1, 5f, 0.7f, 0.85f, 20);
             }
 
             // Star sparkles

@@ -53,7 +53,6 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.RequiemOfTheCosmos
                 cosmicCastCount = 0;
                 int orbType = ModContent.ProjectileType<CosmicRequiemOrbProjectile>();
                 Projectile.NewProjectile(source, position, toMouse * 8f, orbType, damage * 3, knockback * 2f, player.whoAmI, ai0: 2f);
-// VFX_GUTTED:                 RequiemOfTheCosmosVFX.EventHorizonCastVFX(player.Center);
                 return false;
             }
 
@@ -62,7 +61,6 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.RequiemOfTheCosmos
             int normalOrbType = ModContent.ProjectileType<CosmicRequiemOrbProjectile>();
             Projectile.NewProjectile(source, position, toMouse * Item.shootSpeed, normalOrbType, damage, knockback, player.whoAmI, ai0: mode);
             
-// VFX_GUTTED:             RequiemOfTheCosmosVFX.CastVFX(position, toMouse);
             
             return false;
         }

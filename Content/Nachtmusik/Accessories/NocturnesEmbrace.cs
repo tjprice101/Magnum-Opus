@@ -167,7 +167,6 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
                 CustomParticles.GenericFlare(minionPos, Gold, 0.6f, 16);
 
                 // Music note burst on constellation strike
-// VFX_GUTTED:                 NachtmusikVFXLibrary.SpawnMusicNotes(minionPos, 4, 14f, 0.7f, 0.9f, 25);
 
                 // Star sparkle accents
                 for (int j = 0; j < 3; j++)

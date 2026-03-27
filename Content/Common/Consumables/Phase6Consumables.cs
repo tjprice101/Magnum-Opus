@@ -107,8 +107,6 @@ namespace MagnumOpus.Content.Common.Consumables
 
     public class MinorResonanceBuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.Regeneration;
-
         public override void SetStaticDefaults()
         {
             Main.buffNoTimeDisplay[Type] = false;
@@ -173,8 +171,6 @@ namespace MagnumOpus.Content.Common.Consumables
 
     public class HarmonicElixirBuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.ManaRegeneration;
-
         public override void SetStaticDefaults()
         {
             Main.buffNoTimeDisplay[Type] = false;
@@ -244,8 +240,6 @@ namespace MagnumOpus.Content.Common.Consumables
 
     public class SeasonalDraughtBuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.Warmth;
-
         public override void SetStaticDefaults()
         {
             Main.buffNoTimeDisplay[Type] = false;
@@ -336,8 +330,6 @@ namespace MagnumOpus.Content.Common.Consumables
 
     public class MaestroBuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.Wrath;
-
         public override void SetStaticDefaults()
         {
             Main.buffNoTimeDisplay[Type] = false;
@@ -713,8 +705,6 @@ namespace MagnumOpus.Content.Common.Consumables
 
     public class CosmicBrewBuff : ModBuff
     {
-        public override string Texture => "Terraria/Images/Buff_" + BuffID.NebulaUpLife3;
-
         public override void SetStaticDefaults()
         {
             Main.buffNoTimeDisplay[Type] = false;
@@ -908,23 +898,7 @@ namespace MagnumOpus.Content.Common.Consumables
             CustomParticles.GlyphBurst(player.Center, new Color(255, 200, 255), 6, 4f);
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<BlossomEssence>(25)
-                .AddIngredient<SolarEssence>(25)
-                .AddIngredient<DecayEssence>(25)
-                .AddIngredient<FrostEssence>(25)
-                .AddIngredient<MoonlightsResonantEnergy>(10)
-                .AddIngredient<EroicasResonantEnergy>(10)
-                .AddIngredient<LaCampanellaResonantEnergy>(10)
-                .AddIngredient<EnigmaResonantEnergy>(10)
-                .AddIngredient<SwansResonanceEnergy>(10)
-                .AddIngredient<FateResonantEnergy>(10)
-                .AddIngredient(ItemID.LunarBar, 30)
-                .AddTile(TileID.LunarCraftingStation)
-                .Register();
-        }
+        // No recipe — drops from Moon Lord (3-5 per kill)
 
         public override void PostUpdate()
         {
@@ -1125,23 +1099,7 @@ namespace MagnumOpus.Content.Common.Consumables
             }
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<BlossomEssence>(25)
-                .AddIngredient<SolarEssence>(25)
-                .AddIngredient<DecayEssence>(25)
-                .AddIngredient<FrostEssence>(25)
-                .AddIngredient<MoonlightsResonantEnergy>(10)
-                .AddIngredient<EroicasResonantEnergy>(10)
-                .AddIngredient<LaCampanellaResonantEnergy>(10)
-                .AddIngredient<EnigmaResonantEnergy>(10)
-                .AddIngredient<SwansResonanceEnergy>(10)
-                .AddIngredient<FateResonantEnergy>(10)
-                .AddIngredient(ItemID.LunarBar, 30)
-                .AddTile(TileID.LunarCraftingStation)
-                .Register();
-        }
+        // No recipe — drops from Moon Lord (3-5 per kill)
 
         public override void PostUpdate()
         {
