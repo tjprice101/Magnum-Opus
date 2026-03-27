@@ -110,10 +110,12 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
     }
 
     /// <summary>
-    /// Solar Director's Crest - Summer tier summoner accessory.
-    /// Simple effect: +1 minion slot, +15% summon damage.
+    /// Conductor's Burning Crown - Summer tier summoner accessory.
+    /// Synergizes with Resonance Born weapons:
+    /// - While holding Resonance Born: Minions deal +25% damage to burning enemies
+    /// - +1 minion slot while any enemy has Resonant Burn active
     /// </summary>
-    public class SolarDirectorsCrest : ModItem
+    public class ConductorsBurningCrown : ModItem
     {
         private static readonly Color SummerOrange = new Color(255, 140, 0);
 
@@ -129,22 +131,27 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             var conductor = player.GetModPlayer<ConductorPlayer>();
-            conductor.HasSolarDirectorsCrest = true;
+            conductor.HasConductorsBurningCrown = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+1 minion slot")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "While holding Resonance Born weapon:")
+            {
+                OverrideColor = new Color(255, 150, 100)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Minions deal +25% damage to burning enemies")
+            {
+                OverrideColor = new Color(255, 200, 150)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+1 minion slot while any enemy has Resonant Burn")
             {
                 OverrideColor = new Color(200, 180, 255)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+15% summon damage")
-            {
-                OverrideColor = new Color(255, 200, 200)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The summer sun empowers your command'")
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The conductor's crown commands fire and spirit alike'")
             {
                 OverrideColor = SummerOrange * 0.8f
             });

@@ -194,7 +194,14 @@ namespace MagnumOpus.Content.Spring.Weapons
                     Vector2 spreadVel = velocity.RotatedBy(MathHelper.ToRadians(i * 12));
                     Projectile.NewProjectile(source, position, spreadVel, ModContent.ProjectileType<BloomArrow>(), damage, knockback, player.whoAmI);
                 }
-                
+
+                // SPRING SHOWERS CRYSTAL BURST - Incisor-style homing orbs with petal flutter
+                SeekingCrystalHelper.SpawnSpringCrystals(
+                    source, position, velocity,
+                    (int)(damage * 0.4f), knockback * 0.5f, player.whoAmI,
+                    count: 4
+                );
+
                 return false;
             }
             

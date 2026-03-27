@@ -1,7 +1,10 @@
 using Microsoft.Xna.Framework;
+using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Prefixes;
+using MagnumOpus.Common.Systems.Particles;
 
 namespace MagnumOpus.Content.Common.Accessories.RangerChain
 {
@@ -14,10 +17,13 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
     {
         public static readonly Color SpringGreen = new Color(144, 238, 144);
         public static readonly Color EroicaGold = new Color(255, 200, 80);
+        public static readonly Color SummerOrange = new Color(255, 140, 0);
 
         // ===== TIER 1-6 (SEASONAL + VIVALDI) FLAGS =====
         public bool hasResonantSpotter;         // Ranged attacks mark enemies (visual only)
         public bool hasSpringHuntersLens;       // 10% heart drop chance on ranged hit
+        public bool hasResonantPiercingLens;    // T3: +30% damage vs burning, doubled armor pen vs burning
+        public bool hasEchoingBoltChamber;      // T4: Homing bolt proc, crit spreads burn
         public bool hasSolarTrackersBadge;      // +5% ranged damage
         public bool hasHarvestReapersMark;      // Ranged kills cause explosions
         public bool hasPermafrostHuntersEye;    // Ranged attacks slow enemies
@@ -42,6 +48,10 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         public bool hasTriumphantVerdictScope;     // 3-theme fusion
         public bool hasScopeOfTheEternalVerdict;   // Ultimate: triple hit, +40% damage
 
+        // ===== RESONANCE SYNERGY STATE =====
+        public bool resonanceSuperCritReady;       // T3: Next crit deals 3x instead of 2x
+        public bool resonanceSpreadBurnOnCrit;     // T4: Next crit spreads burn to ALL enemies
+
         // ===== COOLDOWNS & STATE =====
         public int gracefulDodgeCooldown;  // Swan's Perfect Dodge cooldown
         public int graceBuffTimer;         // Swan's Grace buff timer
@@ -55,11 +65,61 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         public float markSlowPercent => hasPermafrostHuntersEye ? 0.15f : 0f;
         public bool IsPerfectShot => false; // Simplified
 
+        public override void Initialize()
+        {
+            ResonantBurnNPC.OnMaxStacksReached += OnMaxBurnStacksReached;
+        }
+
+        public override void Unload()
+        {
+            ResonantBurnNPC.OnMaxStacksReached -= OnMaxBurnStacksReached;
+        }
+
+        private void OnMaxBurnStacksReached(NPC npc, Player triggerPlayer)
+        {
+            if (triggerPlayer.whoAmI != Player.whoAmI)
+                return;
+
+            // T3 ResonantPiercingLens: Next crit deals 3x damage
+            if (hasResonantPiercingLens)
+            {
+                resonanceSuperCritReady = true;
+
+                // Visual cue
+                for (int i = 0; i < 6; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 6f;
+                    Vector2 offset = angle.ToRotationVector2() * 25f;
+                    CustomParticles.GenericFlare(Player.Center + offset, SummerOrange, 0.4f, 15);
+                }
+            }
+
+            // T4 EchoingBoltChamber: Spread burn to ALL enemies in 300 units
+            if (hasEchoingBoltChamber)
+            {
+                resonanceSpreadBurnOnCrit = true;
+
+                // Visual cue
+                float hue = (Main.GameUpdateCount * 0.02f) % 1f;
+                Color rainbowColor = Main.hslToRgb(hue, 0.9f, 0.7f);
+                for (int i = 0; i < 8; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 8f;
+                    Vector2 velocity = angle.ToRotationVector2() * 5f;
+                    CustomParticles.GenericGlow(Player.Center, velocity, rainbowColor * 0.6f, 0.3f, 20, true);
+                }
+
+                Terraria.Audio.SoundEngine.PlaySound(SoundID.Item4, Player.Center);
+            }
+        }
+
         public override void ResetEffects()
         {
             // Reset all accessory flags each frame
             hasResonantSpotter = false;
             hasSpringHuntersLens = false;
+            hasResonantPiercingLens = false;
+            hasEchoingBoltChamber = false;
             hasSolarTrackersBadge = false;
             hasHarvestReapersMark = false;
             hasPermafrostHuntersEye = false;
@@ -94,6 +154,14 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             {
                 Player.GetDamage(DamageClass.Ranged) += 0.10f;
             }
+
+            // ===== RESONANCE SYNERGY BONUSES (T3-T4) =====
+
+            // T3 ResonantPiercingLens: +5% crit per burn stack on target
+            // (Applied in ModifyHitNPC since it's per-target)
+
+            // T4 EchoingBoltChamber: Homing bolt damage scales with stacks
+            // (Applied in OnHitNPC)
 
             // Heroic Deadeye: +12% ranged damage, +8% crit
             if (hasHeroicDeadeye)
@@ -136,6 +204,29 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             // Cooldown management
             if (gracefulDodgeCooldown > 0)
                 gracefulDodgeCooldown--;
+        }
+
+        public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (!proj.DamageType.Equals(DamageClass.Ranged) || proj.owner != Player.whoAmI)
+                return;
+
+            // ===== RESONANCE SYNERGY: T3 ResonantPiercingLens =====
+            if (hasResonantPiercingLens && ResonancePrefixHelper.IsEnemyBurning(target))
+            {
+                // +30% damage vs burning enemies
+                modifiers.FinalDamage += 0.30f;
+
+                // +5% crit per burn stack
+                int stacks = ResonancePrefixHelper.GetBurnStacks(target);
+                Player.GetCritChance(DamageClass.Ranged) += stacks * 5;
+
+                // Super crit: 3x damage instead of 2x
+                if (resonanceSuperCritReady && modifiers.CritDamage != null)
+                {
+                    modifiers.CritDamage += 0.50f; // 2x -> 3x
+                }
+            }
         }
 
         public override void OnHurt(Player.HurtInfo info)
@@ -227,6 +318,53 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             if (!proj.DamageType.Equals(DamageClass.Ranged) || proj.owner != Player.whoAmI)
                 return;
 
+            // ===== RESONANCE SYNERGY EFFECTS =====
+
+            // T3 ResonantPiercingLens: Consume super crit
+            if (hasResonantPiercingLens && resonanceSuperCritReady && hit.Crit)
+            {
+                resonanceSuperCritReady = false;
+
+                // Big impact VFX
+                for (int i = 0; i < 10; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 10f;
+                    float hue = (float)i / 10f;
+                    Color rainbowColor = Main.hslToRgb(hue, 0.9f, 0.75f);
+                    Vector2 velocity = angle.ToRotationVector2() * 5f;
+                    CustomParticles.GenericFlare(target.Center, rainbowColor, 0.5f, 20);
+                }
+
+                Terraria.Audio.SoundEngine.PlaySound(SoundID.Item14, target.Center);
+            }
+
+            // T4 EchoingBoltChamber: Crit spreads burn to ALL enemies in 300 units
+            if (hasEchoingBoltChamber && hit.Crit && ResonancePrefixHelper.IsEnemyBurning(target))
+            {
+                if (resonanceSpreadBurnOnCrit)
+                {
+                    // Spread to ALL enemies in 300 units
+                    resonanceSpreadBurnOnCrit = false;
+                    SpreadBurnToAllNearby(target.Center, damageDone / 2, 300f, target);
+                }
+                else
+                {
+                    // Normal: spread to 1 nearby enemy (200 units)
+                    ResonancePrefixHelper.SpreadBurnToNearby(target.Center, damageDone / 2, 200f, target);
+                }
+            }
+
+            // T4 EchoingBoltChamber: 15% homing bolt (damage scales with stacks)
+            if (hasEchoingBoltChamber && Main.rand.NextFloat() < 0.15f)
+            {
+                int stacks = ResonancePrefixHelper.GetBurnStacks(target);
+                float stackMultiplier = 1f + (stacks * 0.20f); // +20% per stack
+                int boltDamage = (int)(damageDone * 0.5f * stackMultiplier);
+
+                // Spawn homing bolt (simplified - just visual + damage)
+                SpawnHomingBolt(target.Center, boltDamage);
+            }
+
             // Spring Hunter's Lens: 10% chance to drop heart on ranged hit
             if (hasSpringHuntersLens && Main.rand.NextFloat() < 0.10f)
             {
@@ -295,6 +433,87 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             if (hasJubilantHuntersSight && target.life <= 0)
             {
                 Player.Heal(2);
+            }
+        }
+
+        /// <summary>
+        /// Spreads Resonant Burn to ALL enemies within range.
+        /// </summary>
+        private void SpreadBurnToAllNearby(Vector2 center, int damage, float range, NPC source)
+        {
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (!npc.active || npc.friendly || npc.dontTakeDamage || npc == source)
+                    continue;
+
+                if (!ResonancePrefixHelper.IsEnemyBurning(npc))
+                {
+                    float dist = Vector2.Distance(center, npc.Center);
+                    if (dist < range)
+                    {
+                        ResonancePrefixHelper.ApplyBurnDebuff(npc, damage, Player);
+                        ResonancePrefixHelper.SpawnHitVFX(npc.Center);
+                    }
+                }
+            }
+
+            // Big spread VFX
+            for (int i = 0; i < 16; i++)
+            {
+                float angle = MathHelper.TwoPi * i / 16f;
+                float hue = (float)i / 16f;
+                Color rainbowColor = Main.hslToRgb(hue, 0.9f, 0.7f);
+                Vector2 velocity = angle.ToRotationVector2() * 8f;
+                CustomParticles.GenericGlow(center, velocity, rainbowColor * 0.5f, 0.4f, 30, true);
+            }
+
+            Terraria.Audio.SoundEngine.PlaySound(SoundID.Item45, center);
+        }
+
+        /// <summary>
+        /// Spawns a homing bolt that deals damage to the nearest enemy.
+        /// </summary>
+        private void SpawnHomingBolt(Vector2 center, int damage)
+        {
+            // Find nearest enemy
+            NPC closestNPC = null;
+            float closestDist = 400f;
+
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (!npc.active || npc.friendly || npc.dontTakeDamage)
+                    continue;
+
+                float dist = Vector2.Distance(center, npc.Center);
+                if (dist < closestDist)
+                {
+                    closestDist = dist;
+                    closestNPC = npc;
+                }
+            }
+
+            if (closestNPC != null)
+            {
+                // Visual bolt trail
+                Vector2 start = center;
+                Vector2 end = closestNPC.Center;
+                int segments = (int)(closestDist / 15f);
+                for (int i = 0; i < segments; i++)
+                {
+                    float t = (float)i / segments;
+                    Vector2 pos = Vector2.Lerp(start, end, t);
+                    pos += Main.rand.NextVector2Circular(5f, 5f);
+                    float hue = Main.rand.NextFloat();
+                    CustomParticles.GenericGlow(pos, Vector2.Zero, Main.hslToRgb(hue, 0.8f, 0.7f) * 0.6f, 0.2f, 15, true);
+                }
+
+                // Deal damage
+                Player.ApplyDamageToNPC(closestNPC, damage, 0f, 0, false);
+
+                // Hit effect
+                CustomParticles.GenericFlare(closestNPC.Center, SummerOrange, 0.5f, 15);
             }
         }
 

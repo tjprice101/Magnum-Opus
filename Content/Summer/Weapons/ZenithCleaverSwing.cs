@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Graphics.Shaders;
 using MagnumOpus.Common.BaseClasses;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.VFX;
@@ -125,6 +126,21 @@ namespace MagnumOpus.Content.Summer.Weapons
             _ => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse",
         };
         protected override string GetSmearGradientPath() => "MagnumOpus/Assets/VFX Asset Library/ColorGradients/LaCampanellaGradientLUTandRAMP";
+
+        // ═══ GPU Primitive Trail System (Incisor-style) ═══
+        protected override SwingTrailMode GetTrailMode() => SwingTrailMode.GPUPrimitive;
+
+        protected override MiscShaderData GetSlashShader()
+            => GameShaders.Misc["MagnumOpus:IncisorSlash"];
+
+        protected override void ConfigureSlashShader(MiscShaderData shader, bool isBloomPass)
+        {
+            if (shader == null) return;
+            // Summer theme: sun gold core, deep amber secondary, sun orange edge
+            shader.UseColor(isBloomPass ? new Color(200, 140, 30) : new Color(255, 215, 0));
+            shader.UseSecondaryColor(new Color(120, 50, 10));
+            shader.Shader.Parameters["fireColor"]?.SetValue(new Color(255, 140, 0).ToVector3());
+        }
         #endregion
 
         #region 隨渉隨渉 Virtual Overrides 隨渉隨渉

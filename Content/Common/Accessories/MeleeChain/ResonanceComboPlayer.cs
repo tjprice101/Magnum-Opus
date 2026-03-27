@@ -4,6 +4,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Prefixes;
 
 namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 {
@@ -17,10 +18,14 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         // ===== TIER 1-4 (SEASONAL) FLAGS =====
         public bool hasResonantRhythmBand;      // +5% damage, +3% speed
         public bool hasSpringTempoCharm;        // +10% speed, chance for healing petal
-        public bool hasSolarCrescendoRing;      // Inflict On Fire!
-        public bool hasHarvestRhythmSignet;     // 2% lifesteal
+        public bool hasResonantCleaversEdge;    // Resonance Sliced synergy: +50% burn DoT, 2% heal vs burning
+        public bool hasInfernoTempoSignet;      // +4% speed per burning enemy, extend burn on hit
         public bool hasPermafrostCadenceSeal;   // 10% freeze chance
         public bool hasVivaldisTempoMaster;     // +12% damage, biome debuffs
+
+        // ===== TIER 3-4 ACCESSORY FLAGS (for GlobalNPC effects) =====
+        public bool hasSolarCrescendoRing;      // Inflicts Scorched stacks
+        public bool hasHarvestRhythmSignet;     // 2% lifesteal
 
         // ===== TIER 5 (THEME VARIANTS) FLAGS =====
         public bool hasMoonlitSonataBand;       // Crits spawn moonbeams
@@ -40,6 +45,10 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         public bool hasStarfallJudgmentGauntlet;      // Nachtmusik + Dies Irae
         public bool hasTriumphantCosmosGauntlet;      // 3-theme fusion
         public bool hasGauntletOfTheEternalSymphony;  // Ultimate: triple hit, +40% damage
+
+        // ===== RESONANCE SYNERGY STATE (from Resonant Burn stacks) =====
+        public bool resonanceSynergyBonusDamageReady;   // T3: Ready for +200% hit
+        public int resonanceSynergySpeedBoostTimer;     // T4: 2-second speed boost timer
 
         // ===== COOLDOWNS =====
         public int perfectDodgeCooldown;        // Swan's Perfect Measure cooldown
@@ -67,15 +76,70 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         private static readonly Color DiesIraeCrimson = new Color(180, 40, 40);
         private static readonly Color OdeToJoyRose = new Color(255, 200, 220);
 
+        public override void Initialize()
+        {
+            // Subscribe to the max burn stacks event for Resonance Synergy
+            ResonantBurnNPC.OnMaxStacksReached += OnMaxBurnStacksReached;
+        }
+
+        public override void Unload()
+        {
+            ResonantBurnNPC.OnMaxStacksReached -= OnMaxBurnStacksReached;
+        }
+
+        /// <summary>
+        /// Called when Resonant Burn reaches 5 stacks on an enemy.
+        /// Triggers max-stack bonuses for T3-T4 accessories.
+        /// </summary>
+        private void OnMaxBurnStacksReached(NPC npc, Player triggerPlayer)
+        {
+            if (triggerPlayer.whoAmI != Player.whoAmI)
+                return;
+
+            // T3 ResonantCleaversEdge: Ready +200% hit, consumes stacks
+            if (hasResonantCleaversEdge)
+            {
+                resonanceSynergyBonusDamageReady = true;
+
+                // Visual cue
+                for (int i = 0; i < 6; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 6f;
+                    Vector2 offset = angle.ToRotationVector2() * 20f;
+                    CustomParticles.GenericFlare(Player.Center + offset, CampanellaOrange, 0.4f, 15);
+                }
+            }
+
+            // T4 InfernoTempoSignet: +30% attack speed for 2 seconds
+            if (hasInfernoTempoSignet)
+            {
+                resonanceSynergySpeedBoostTimer = 120; // 2 seconds
+
+                // Visual cue
+                for (int i = 0; i < 8; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 8f;
+                    float hue = (float)i / 8f;
+                    Color rainbowColor = Main.hslToRgb(hue, 0.9f, 0.7f);
+                    Vector2 velocity = angle.ToRotationVector2() * 4f;
+                    CustomParticles.GenericGlow(Player.Center, velocity, rainbowColor * 0.6f, 0.3f, 20, true);
+                }
+
+                Terraria.Audio.SoundEngine.PlaySound(SoundID.Item4, Player.Center);
+            }
+        }
+
         public override void ResetEffects()
         {
             // Reset all accessory flags each frame
             hasResonantRhythmBand = false;
             hasSpringTempoCharm = false;
-            hasSolarCrescendoRing = false;
-            hasHarvestRhythmSignet = false;
+            hasResonantCleaversEdge = false;
+            hasInfernoTempoSignet = false;
             hasPermafrostCadenceSeal = false;
             hasVivaldisTempoMaster = false;
+            hasSolarCrescendoRing = false;
+            hasHarvestRhythmSignet = false;
             hasMoonlitSonataBand = false;
             hasHeroicCrescendo = false;
             hasInfernalFortissimo = false;
@@ -106,6 +170,27 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             if (hasSpringTempoCharm)
             {
                 Player.GetAttackSpeed(DamageClass.Melee) += 0.10f;
+            }
+
+            // ===== RESONANCE SYNERGY BONUSES (T3-T4) =====
+
+            // Inferno Tempo Signet: +4% speed per burning enemy + stack bonus
+            if (hasInfernoTempoSignet)
+            {
+                int burningCount = ResonancePrefixHelper.CountBurningEnemies();
+                float speedBonus = Math.Min(burningCount * 0.04f, 0.20f); // Cap at 20% (5 enemies)
+                Player.GetAttackSpeed(DamageClass.Melee) += speedBonus;
+
+                // Additional +2% per burn stack on any enemy
+                int maxStacks = GetHighestBurnStacks();
+                Player.GetAttackSpeed(DamageClass.Melee) += maxStacks * 0.02f;
+            }
+
+            // Resonance Synergy speed boost (from max stacks trigger)
+            if (resonanceSynergySpeedBoostTimer > 0)
+            {
+                resonanceSynergySpeedBoostTimer--;
+                Player.GetAttackSpeed(DamageClass.Melee) += 0.30f; // +30% for 2 seconds
             }
 
             // Vivaldi's Tempo Master: +12% damage
@@ -144,6 +229,25 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
                 perfectDodgeCooldown--;
         }
 
+        /// <summary>
+        /// Gets the highest burn stack count on any nearby enemy.
+        /// </summary>
+        private int GetHighestBurnStacks()
+        {
+            int maxStacks = 0;
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (npc.active && !npc.friendly && Vector2.Distance(Player.Center, npc.Center) < 2000f)
+                {
+                    int stacks = ResonancePrefixHelper.GetBurnStacks(npc);
+                    if (stacks > maxStacks)
+                        maxStacks = stacks;
+                }
+            }
+            return maxStacks;
+        }
+
         public override void OnHurt(Player.HurtInfo info)
         {
             // Swan's Perfect Measure: Perfect dodge grants invulnerability
@@ -168,6 +272,23 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void ModifyHitNPCWithItem(Item item, NPC target, ref NPC.HitModifiers modifiers)
         {
+            // ===== RESONANCE SYNERGY: T3 ResonantCleaversEdge =====
+            // +15% damage vs enemies with 3+ burn stacks
+            if (hasResonantCleaversEdge)
+            {
+                int targetStacks = ResonancePrefixHelper.GetBurnStacks(target);
+                if (targetStacks >= 3)
+                {
+                    modifiers.FinalDamage += 0.15f;
+                }
+
+                // +200% damage on charged hit (max stacks triggered)
+                if (resonanceSynergyBonusDamageReady)
+                {
+                    modifiers.FinalDamage *= 2f; // 200% total
+                }
+            }
+
             // Lifesteal: convert a percentage of damage to healing
             float lifestealPercent = GetLifestealPercent();
             if (lifestealPercent > 0f)
@@ -182,6 +303,44 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
         {
+            // ===== RESONANCE SYNERGY EFFECTS =====
+
+            // T3 ResonantCleaversEdge: Consume bonus damage charge + heal 2% vs burning
+            if (hasResonantCleaversEdge)
+            {
+                // Consume the charged hit bonus
+                if (resonanceSynergyBonusDamageReady)
+                {
+                    resonanceSynergyBonusDamageReady = false;
+                    ResonancePrefixHelper.ConsumeBurnStacks(target);
+
+                    // Big impact VFX
+                    for (int i = 0; i < 12; i++)
+                    {
+                        float angle = MathHelper.TwoPi * i / 12f;
+                        float hue = (float)i / 12f;
+                        Color rainbowColor = Main.hslToRgb(hue, 0.9f, 0.75f);
+                        Vector2 velocity = angle.ToRotationVector2() * 6f;
+                        CustomParticles.GenericFlare(target.Center, rainbowColor, 0.6f, 25);
+                    }
+
+                    Terraria.Audio.SoundEngine.PlaySound(SoundID.Item14, target.Center);
+                }
+
+                // 2% lifesteal vs burning enemies
+                if (ResonancePrefixHelper.IsEnemyBurning(target))
+                {
+                    int healAmount = Math.Max(1, (int)(damageDone * 0.02f));
+                    Player.Heal(healAmount);
+                }
+            }
+
+            // T4 InfernoTempoSignet: Extend burn duration by 2 seconds
+            if (hasInfernoTempoSignet && ResonancePrefixHelper.IsEnemyBurning(target))
+            {
+                ResonancePrefixHelper.ExtendBurnDuration(target, 120); // 2 seconds
+            }
+
             // Spring Tempo Charm: 5% chance to heal 1 HP on melee hit
             if (hasSpringTempoCharm && Main.rand.NextFloat() < 0.05f)
             {

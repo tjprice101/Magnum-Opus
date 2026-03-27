@@ -189,6 +189,13 @@ namespace MagnumOpus.Content.Autumn.Weapons
                     Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
                     ThemedParticles.MusicNote(position, noteVel, MoonSilver, 0.9f, 30);
                 }
+
+                // HARVEST MOON SEEKING ORBS - Incisor-style homing crystals with twilight glow
+                SeekingCrystalHelper.SpawnAutumnCrystals(
+                    source, position, velocity,
+                    (int)(damage * 0.35f), knockback * 0.4f, player.whoAmI,
+                    count: 4
+                );
             }
 
             // Normal bolt — always use custom VFX type, not ammo's vanilla type

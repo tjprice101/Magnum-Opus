@@ -248,6 +248,14 @@ namespace MagnumOpus.Content.Summer.Weapons
                     Vector2 sparklePos = player.Center + Main.rand.NextVector2Circular(40f, 40f);
                     CustomParticles.PrismaticSparkle(sparklePos, SunWhite, 0.45f);
                 }
+
+                // HEATWAVE SOLAR ORBS - Incisor-style homing crystals with fiery flare
+                Vector2 heatDir = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX) * 10f;
+                SeekingCrystalHelper.SpawnSummerCrystals(
+                    source, player.Center, heatDir,
+                    (int)(damage * 0.35f), knockback * 0.4f, player.whoAmI,
+                    count: 4
+                );
             }
 
             return false;

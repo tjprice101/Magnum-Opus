@@ -117,10 +117,12 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
     }
 
     /// <summary>
-    /// Solar Mana Crucible - Summer tier magic chain accessory.
-    /// Simple effect: Magic attacks inflict On Fire! for 5 seconds.
+    /// Seared Mana Conduit - Summer tier magic chain accessory.
+    /// Synergizes with Resonance Seared weapons:
+    /// - While holding Resonance Seared: +50 mana regen when any enemy has Resonant Burn
+    /// - +4% magic damage per burning enemy (max 20% at 5 enemies)
     /// </summary>
-    public class SolarManaCrucible : ModItem
+    public class SearedManaConduit : ModItem
     {
         private static readonly Color SummerOrange = new Color(255, 140, 0);
 
@@ -136,17 +138,27 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             var modPlayer = player.GetModPlayer<OverflowPlayer>();
-            modPlayer.hasSolarManaCrucible = true;
+            modPlayer.hasSearedManaConduit = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Magic attacks inflict On Fire! for 5 seconds")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "While holding Resonance Seared weapon:")
             {
-                OverrideColor = SummerOrange
+                OverrideColor = new Color(255, 150, 100)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Summer's heat burns through arcane channels'")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+50 mana regen when any enemy has Resonant Burn")
+            {
+                OverrideColor = new Color(150, 200, 255)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+4% magic damage per burning enemy (max 20% at 5)")
+            {
+                OverrideColor = new Color(255, 200, 150)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Burning essence fuels the arcane fires within'")
             {
                 OverrideColor = SummerOrange * 0.8f
             });
@@ -165,10 +177,12 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
     }
 
     /// <summary>
-    /// Harvest Soul Vessel - Autumn tier magic chain accessory.
-    /// Simple effect: Killing enemies restores 15 mana.
+    /// Arcane Resonance Catalyst - Autumn tier magic chain accessory.
+    /// Synergizes with Resonant Burn:
+    /// - Magic attacks consume Resonant Burn to deal 150% of remaining DoT as instant burst damage
+    /// - Gain mana equal to 15% of burst damage dealt (cap 30 per hit)
     /// </summary>
-    public class HarvestSoulVessel : ModItem
+    public class ArcaneResonanceCatalyst : ModItem
     {
         private static readonly Color AutumnOrange = new Color(255, 100, 30);
 
@@ -184,17 +198,27 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             var modPlayer = player.GetModPlayer<OverflowPlayer>();
-            modPlayer.hasHarvestSoulVessel = true;
+            modPlayer.hasArcaneResonanceCatalyst = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Killing enemies restores 15 mana")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Magic attacks consume Resonant Burn for burst damage")
             {
-                OverrideColor = new Color(200, 220, 255)
+                OverrideColor = new Color(255, 150, 100)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Autumn reaps what spring has sown'")
+            tooltips.Add(new TooltipLine(Mod, "BurstNote", "Burst deals 150% of remaining burn DoT as instant damage")
+            {
+                OverrideColor = AutumnOrange
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "ManaNote", "Gain mana equal to 15% of burst damage (cap 30 per hit)")
+            {
+                OverrideColor = new Color(150, 200, 255)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The catalyst transforms slow burns to sudden devastation'")
             {
                 OverrideColor = AutumnOrange * 0.8f
             });
@@ -203,7 +227,7 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<SolarManaCrucible>(1)
+                .AddIngredient<SearedManaConduit>(1)
                 .AddIngredient<ResonantCrystalShard>(5)
                 .AddIngredient<HarvestBar>(20)
                 .AddIngredient<AutumnResonantEnergy>(1)

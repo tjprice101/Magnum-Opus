@@ -168,6 +168,14 @@ namespace MagnumOpus.Content.Summer.Weapons
             // Spawn minion at cursor
             Projectile.NewProjectile(source, Main.MouseWorld, Vector2.Zero, type, damage, knockback, player.whoAmI);
 
+            // SOLAR SPIRIT ESCORT - Incisor-style orbs accompanying the sun spirit
+            Vector2 spiritDir = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX) * 9f;
+            SeekingCrystalHelper.SpawnSummerCrystals(
+                source, Main.MouseWorld, spiritDir,
+                (int)(damage * 0.3f), knockback * 0.3f, player.whoAmI,
+                count: 3
+            );
+
             return false;
         }
 

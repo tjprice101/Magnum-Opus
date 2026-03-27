@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Graphics.Shaders;
 using MagnumOpus.Common.BaseClasses;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.VFX;
@@ -121,6 +122,21 @@ namespace MagnumOpus.Content.Spring.Weapons
             _ => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse",
         };
         protected override string GetSmearGradientPath() => "MagnumOpus/Assets/VFX Asset Library/ColorGradients/EroicaGradientPALELUTandRAMP";
+
+        // ═══ GPU Primitive Trail System (Incisor-style) ═══
+        protected override SwingTrailMode GetTrailMode() => SwingTrailMode.GPUPrimitive;
+
+        protected override MiscShaderData GetSlashShader()
+            => GameShaders.Misc["MagnumOpus:IncisorSlash"];
+
+        protected override void ConfigureSlashShader(MiscShaderData shader, bool isBloomPass)
+        {
+            if (shader == null) return;
+            // Spring theme: cherry blossom pink core, deep rose secondary, spring green edge
+            shader.UseColor(isBloomPass ? new Color(180, 120, 150) : new Color(255, 183, 197));
+            shader.UseSecondaryColor(new Color(120, 80, 100));
+            shader.Shader.Parameters["fireColor"]?.SetValue(new Color(200, 255, 200).ToVector3());
+        }
         #endregion
 
         #region 隨渉隨渉 Virtual Overrides 隨渉隨渉

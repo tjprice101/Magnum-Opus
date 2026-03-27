@@ -1,11 +1,13 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Graphics.Shaders;
 using ReLogic.Content;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Trails;
@@ -14,6 +16,17 @@ using static MagnumOpus.Common.Systems.Particles.Particle;
 
 namespace MagnumOpus.Common.BaseClasses
 {
+    /// <summary>
+    /// Trail rendering mode for melee swings.
+    /// </summary>
+    public enum SwingTrailMode
+    {
+        /// <summary>Classic CalamityStyleTrailRenderer with TrailStyle enum.</summary>
+        Classic,
+        /// <summary>GPU primitive rendering (Incisor-style) with custom shaders.</summary>
+        GPUPrimitive
+    }
+
     /// <summary>
     /// Abstract base for ALL Calamity-style held-projectile melee swings.
     /// Extracted from InfernalCleaverSwing's 614-line architecture.
@@ -126,6 +139,57 @@ namespace MagnumOpus.Common.BaseClasses
         /// Return null to use the fallback static colored layers.
         /// </summary>
         protected virtual string GetSmearGradientPath() => null;
+
+        #endregion
+
+        #region Virtual Members — GPU Primitive Mode (override for Incisor-style rendering)
+
+        /// <summary>
+        /// Trail rendering mode. Override to return GPUPrimitive for Incisor-style trails.
+        /// Default: Classic (uses CalamityStyleTrailRenderer).
+        /// </summary>
+        protected virtual SwingTrailMode GetTrailMode() => SwingTrailMode.Classic;
+
+        /// <summary>
+        /// Shader for GPU primitive slash arc. Return null to use default primitive shader.
+        /// Override in subclass to use theme-specific slash shaders.
+        /// </summary>
+        protected virtual MiscShaderData GetSlashShader() => null;
+
+        /// <summary>
+        /// Width function for GPU primitive slash arc core.
+        /// </summary>
+        protected virtual float SlashWidthFunction(float completionRatio, Vector2 vertexPosition)
+            => SquishAtProgress(RealProgressionAtTrailCompletion(completionRatio)) * Projectile.scale * 58f;
+
+        /// <summary>
+        /// Color function for GPU primitive slash arc core.
+        /// </summary>
+        protected virtual Color SlashColorFunction(float completionRatio, Vector2 vertexPosition)
+            => GetElementColor(0.5f) * Utils.GetLerpValue(0.95f, 0.3f, completionRatio, true) * Projectile.Opacity;
+
+        /// <summary>
+        /// Width function for GPU primitive slash arc bloom underlayer.
+        /// </summary>
+        protected virtual float SlashBloomWidthFunction(float completionRatio, Vector2 vertexPosition)
+            => SquishAtProgress(RealProgressionAtTrailCompletion(completionRatio)) * Projectile.scale * 85f;
+
+        /// <summary>
+        /// Color function for GPU primitive slash arc bloom underlayer.
+        /// </summary>
+        protected virtual Color SlashBloomColorFunction(float completionRatio, Vector2 vertexPosition)
+            => GetElementColor(0.3f) * Utils.GetLerpValue(0.9f, 0.35f, completionRatio, true) * Projectile.Opacity * 0.3f;
+
+        /// <summary>
+        /// Configures the slash shader before each render pass.
+        /// Override to set theme-specific shader parameters.
+        /// </summary>
+        protected virtual void ConfigureSlashShader(MiscShaderData shader, bool isBloomPass)
+        {
+            // Default: set basic colors
+            shader?.UseColor(GetElementColor(isBloomPass ? 0.3f : 0.7f));
+            shader?.UseSecondaryColor(GetElementColor(isBloomPass ? 0.1f : 0.4f));
+        }
 
         #endregion
 
@@ -258,6 +322,65 @@ namespace MagnumOpus.Common.BaseClasses
 
         protected float SwordRotation => SwordRotationAtProgress(Progression);
         protected Vector2 SwordDirection => DirectionAtProgress(Progression);
+
+        #endregion
+
+        #region GPU Primitive Trail Helpers
+
+        /// <summary>
+        /// Trail end progression for GPU primitive rendering.
+        /// Controls how far back the trail extends during the swing.
+        /// </summary>
+        protected virtual float TrailEndProgression
+        {
+            get
+            {
+                float end;
+                if (Progression < 0.75f)
+                    end = Progression - 0.5f + 0.1f * (Progression / 0.75f);
+                else
+                    end = Progression - 0.4f * (1 - (Progression - 0.75f) / 0.75f);
+                return Math.Clamp(end, 0, 1);
+            }
+        }
+
+        /// <summary>
+        /// Maps trail completion ratio to actual swing progression.
+        /// </summary>
+        protected float RealProgressionAtTrailCompletion(float completion)
+            => MathHelper.Lerp(Progression, TrailEndProgression, completion);
+
+        /// <summary>
+        /// Direction at progress with squish applied via separate angle transformation.
+        /// Used for generating slash points.
+        /// </summary>
+        protected Vector2 DirectionAtProgressScuffed(float progress)
+        {
+            float angleShift = SwingAngleShiftAtProgress(progress);
+            Vector2 ap = angleShift.ToRotationVector2();
+            float squishRange = CurrentPhase.SquishRange;
+            Vector2 squishVec = new(1f + (1 - squishRange) * 0.6f, squishRange);
+            ap.X *= squishVec.X;
+            ap.Y *= squishVec.Y;
+            angleShift = ap.ToRotation();
+            return (BaseRotation + angleShift * Direction).ToRotationVector2() * SquishAtProgress(progress);
+        }
+
+        /// <summary>
+        /// Generates slash arc points for GPU primitive trail rendering.
+        /// Points are relative to player center (offset applied by renderer).
+        /// </summary>
+        protected virtual List<Vector2> GenerateSlashPoints()
+        {
+            List<Vector2> result = new();
+            int pointCount = 40;
+            for (int i = 0; i < pointCount; i++)
+            {
+                float progress = MathHelper.Lerp(Progression, TrailEndProgression, i / (float)pointCount);
+                result.Add(DirectionAtProgressScuffed(progress) * (CurrentPhase.BladeLength - 6f) * Projectile.scale);
+            }
+            return result;
+        }
 
         #endregion
 
@@ -474,24 +597,33 @@ namespace MagnumOpus.Common.BaseClasses
         {
             SpriteBatch sb = Main.spriteBatch;
 
-            // 1. TRAIL — uses pre-allocated buffers (H-1 fix)
-            int trailCount = BuildTrailPositions();
-            BuildTrailRotations();
-
-            if (trailCount > 1)
+            // 1. TRAIL — branch based on trail mode
+            if (GetTrailMode() == SwingTrailMode.GPUPrimitive)
             {
-                // Slice buffers to active count for trail renderer
-                var posSpan = _trailPosBuffer.AsSpan(0, trailCount).ToArray();
-                var rotSpan = _trailRotBuffer.AsSpan(0, trailCount).ToArray();
+                // GPU primitive trail (Incisor-style)
+                DrawGPUPrimitiveTrail(sb);
+            }
+            else
+            {
+                // Classic trail — uses pre-allocated buffers (H-1 fix)
+                int trailCount = BuildTrailPositions();
+                BuildTrailRotations();
 
-                float trailWidth = 18f + ComboStep * 6f;
-                float trailIntensity = 0.6f + ComboStep * 0.12f;
-                Color trailPrimary = GetElementColor(0.3f + ComboStep * 0.15f);
-                Color trailSecondary = GetElementColor(0.7f + ComboStep * 0.08f);
+                if (trailCount > 1)
+                {
+                    // Slice buffers to active count for trail renderer
+                    var posSpan = _trailPosBuffer.AsSpan(0, trailCount).ToArray();
+                    var rotSpan = _trailRotBuffer.AsSpan(0, trailCount).ToArray();
 
-                CalamityStyleTrailRenderer.DrawTrailWithBloom(
-                    posSpan, rotSpan, GetTrailStyle(),
-                    trailWidth, trailPrimary, trailSecondary, trailIntensity, 2.2f + ComboStep * 0.3f);
+                    float trailWidth = 18f + ComboStep * 6f;
+                    float trailIntensity = 0.6f + ComboStep * 0.12f;
+                    Color trailPrimary = GetElementColor(0.3f + ComboStep * 0.15f);
+                    Color trailSecondary = GetElementColor(0.7f + ComboStep * 0.08f);
+
+                    CalamityStyleTrailRenderer.DrawTrailWithBloom(
+                        posSpan, rotSpan, GetTrailStyle(),
+                        trailWidth, trailPrimary, trailSecondary, trailIntensity, 2.2f + ComboStep * 0.3f);
+                }
             }
 
             // 2. SMEAR (inner draw, no state change)
@@ -686,6 +818,66 @@ namespace MagnumOpus.Common.BaseClasses
             sb.Draw(flareTex, tipScreen, null, flareColor * 0.7f, 0f, flareOrigin, baseScale, SpriteEffects.None, 0f);
             sb.Draw(flareTex, tipScreen, null, flareColor * 0.4f, MathHelper.PiOver4, flareOrigin, baseScale * 0.7f, SpriteEffects.None, 0f);
             sb.Draw(flareTex, tipScreen, null, Color.White * 0.3f, 0f, flareOrigin, baseScale * 0.35f, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Draws GPU primitive-based slash trail (Incisor-style).
+        /// Two-pass rendering: bloom underlayer + core slash.
+        /// </summary>
+        private void DrawGPUPrimitiveTrail(SpriteBatch sb)
+        {
+            if (Progression < 0.3f) return;
+
+            var slashPoints = GenerateSlashPoints();
+            if (slashPoints.Count < 3) return;
+
+            var shader = GetSlashShader();
+
+            // Pass 1: Bloom underlay (additive blend)
+            sb.End();
+            sb.Begin(SpriteSortMode.Immediate, MagnumBlendStates.ShaderAdditive,
+                Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer,
+                null, Main.GameViewMatrix.TransformationMatrix);
+
+            if (shader != null)
+            {
+                ConfigureSlashShader(shader, isBloomPass: true);
+                shader.Shader.Parameters["uIntensity"]?.SetValue(0.35f);
+                shader.Apply();
+            }
+
+            GPUPrimitiveTrailRenderer.RenderTrail(slashPoints,
+                new GPUPrimitiveSettings(
+                    SlashBloomWidthFunction,
+                    SlashBloomColorFunction,
+                    (_, _) => Projectile.Center,
+                    shader: shader), 95);
+
+            // Pass 2: Core slash (alpha blend for better definition)
+            sb.End();
+            sb.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer,
+                null, Main.GameViewMatrix.TransformationMatrix);
+
+            if (shader != null)
+            {
+                ConfigureSlashShader(shader, isBloomPass: false);
+                shader.Shader.Parameters["uIntensity"]?.SetValue(0.65f);
+                shader.Apply();
+            }
+
+            GPUPrimitiveTrailRenderer.RenderTrail(slashPoints,
+                new GPUPrimitiveSettings(
+                    SlashWidthFunction,
+                    SlashColorFunction,
+                    (_, _) => Projectile.Center,
+                    shader: shader), 95);
+
+            // Restore spritebatch
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                Main.DefaultSamplerState, DepthStencilState.None,
+                Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
         #endregion

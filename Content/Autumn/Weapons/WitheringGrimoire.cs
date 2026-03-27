@@ -234,6 +234,13 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 ThemedParticles.MusicNote(player.Center, noteVel, noteColor, 0.9f, 28);
             }
 
+            // AUTUMN WRATH SEEKING ORBS - Incisor-style crystals with withering decay
+            SeekingCrystalHelper.SpawnAutumnCrystals(
+                player.GetSource_ItemUse(Item), player.Center, direction * 10f,
+                (int)(Item.damage * 0.4f), Item.knockBack * 0.5f, player.whoAmI,
+                count: 5
+            );
+
             player.statMana -= Item.mana * 2; // Extra mana cost for charged attack
         }
 

@@ -178,6 +178,14 @@ namespace MagnumOpus.Content.Autumn.Weapons
             // Spawn minion at cursor
             Projectile.NewProjectile(source, summonPos, Vector2.Zero, type, damage, knockback, player.whoAmI);
 
+            // SOUL WISP ESCORT - Incisor-style orbs accompanying the wraith
+            Vector2 wraithDir = (summonPos - player.Center).SafeNormalize(Vector2.UnitX) * 8f;
+            SeekingCrystalHelper.SpawnAutumnCrystals(
+                source, summonPos, wraithDir,
+                (int)(damage * 0.25f), knockback * 0.3f, player.whoAmI,
+                count: 3
+            );
+
             return false;
         }
 

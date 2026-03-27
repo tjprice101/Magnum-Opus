@@ -237,7 +237,14 @@ namespace MagnumOpus.Content.Summer.Weapons
                 Vector2 sparklePos = spawnPos + Main.rand.NextVector2Circular(45f, 45f);
                 CustomParticles.PrismaticSparkle(sparklePos, SunWhite, 0.5f);
             }
-            
+
+            // SUNBEAM COMPANION ORBS - Incisor-style homing crystals with solar brilliance
+            SeekingCrystalHelper.SpawnSummerCrystals(
+                player.GetSource_ItemUse(Item), spawnPos, direction * 12f,
+                (int)(Item.damage * 0.4f), Item.knockBack * 0.5f, player.whoAmI,
+                count: 5
+            );
+
             // Mana cost
             player.CheckMana(Item.mana * 5, true);
         }

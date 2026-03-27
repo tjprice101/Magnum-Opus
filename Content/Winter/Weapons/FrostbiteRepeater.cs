@@ -198,6 +198,13 @@ namespace MagnumOpus.Content.Winter.Weapons
                     CustomParticles.PrismaticSparkle(sparklePos, sparkleColor, Main.rand.NextFloat(0.4f, 0.6f));
                 }
 
+                // BLIZZARD BARRAGE SEEKING ORBS - Incisor-style homing crystals with icy shatter
+                SeekingCrystalHelper.SpawnWinterCrystals(
+                    source, muzzlePos, velocity,
+                    (int)(damage * 0.35f), knockback * 0.4f, player.whoAmI,
+                    count: 5
+                );
+
                 return false;
             }
 

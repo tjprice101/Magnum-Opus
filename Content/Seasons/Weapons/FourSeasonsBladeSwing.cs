@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Graphics.Shaders;
 using MagnumOpus.Common.BaseClasses;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
@@ -217,6 +218,42 @@ namespace MagnumOpus.Content.Seasons.Weapons
                 2 => SoundID.Item71 with { Pitch = -0.2f },
                 _ => SoundID.Item71 with { Pitch = -0.4f }
             };
+        }
+
+        // ═══ GPU Primitive Trail System (Incisor-style) ═══
+        protected override SwingTrailMode GetTrailMode() => SwingTrailMode.GPUPrimitive;
+
+        protected override MiscShaderData GetSlashShader()
+            => GameShaders.Misc["MagnumOpus:IncisorSlash"];
+
+        protected override void ConfigureSlashShader(MiscShaderData shader, bool isBloomPass)
+        {
+            if (shader == null) return;
+
+            // Dynamic season-based shader configuration
+            (Color primary, Color secondary, Color edge) = Season switch
+            {
+                0 => (  // Spring: cherry blossom pink core, deep rose secondary, spring green edge
+                    isBloomPass ? new Color(180, 120, 150) : new Color(255, 183, 197),
+                    new Color(120, 80, 100),
+                    new Color(200, 255, 200)),
+                1 => (  // Summer: sun gold core, deep amber secondary, sun orange edge
+                    isBloomPass ? new Color(200, 140, 30) : new Color(255, 215, 0),
+                    new Color(120, 50, 10),
+                    new Color(255, 140, 0)),
+                2 => (  // Autumn: harvest orange core, dark bark secondary, harvest gold edge
+                    isBloomPass ? new Color(200, 110, 40) : new Color(255, 140, 50),
+                    new Color(80, 40, 20),
+                    new Color(218, 165, 32)),
+                _ => (  // Winter: ice blue core, deep ocean secondary, frost white edge
+                    isBloomPass ? new Color(100, 170, 220) : new Color(150, 220, 255),
+                    new Color(30, 50, 100),
+                    new Color(240, 250, 255))
+            };
+
+            shader.UseColor(primary);
+            shader.UseSecondaryColor(secondary);
+            shader.Shader.Parameters["fireColor"]?.SetValue(edge.ToVector3());
         }
 
         protected override void HandleComboSpecials()

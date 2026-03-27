@@ -197,6 +197,13 @@ namespace MagnumOpus.Content.Spring.Weapons
                     Vector2 spreadVel = velocity.RotatedBy(MathHelper.ToRadians(i * 20));
                     Projectile.NewProjectile(source, position, spreadVel * 0.8f, ModContent.ProjectileType<HomingFlowerBolt>(), damage * 2 / 3, knockback * 0.5f, player.whoAmI);
                 }
+
+                // NATURE'S BLESSING CRYSTAL BLOOM - Incisor-style orbs with magical sparkle
+                SeekingCrystalHelper.SpawnSpringCrystals(
+                    source, position, velocity,
+                    (int)(damage * 0.35f), knockback * 0.4f, player.whoAmI,
+                    count: 5
+                );
             }
 
             // Normal bolt

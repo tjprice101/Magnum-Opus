@@ -43,6 +43,68 @@ namespace MagnumOpus.Common.Prefixes
         public int burnDamage;
         private int storedBurnDamage;
 
+        // Stacking system for Resonance Synergy accessories
+        public const int MAX_STACKS = 5;
+        public const int STACK_DECAY_TIME = 180; // 3 seconds
+        public const int STACK_DECAY_INTERVAL = 60; // 1 second between stack decay
+
+        public int burnStacks;
+        public int stackDecayTimer;
+        private int stackDecayInterval;
+        private bool maxStacksTriggeredThisApplication; // Prevents multiple triggers per burn cycle
+
+        /// <summary>
+        /// Event fired when burn stacks reach maximum (5).
+        /// Accessories hook into this for their max-stack bonuses.
+        /// </summary>
+        public static event Action<NPC, Player> OnMaxStacksReached;
+
+        /// <summary>
+        /// Adds a stack of Resonant Burn. Called on each hit from a Resonance weapon.
+        /// </summary>
+        public void AddStack(NPC npc, Player player)
+        {
+            int previousStacks = burnStacks;
+            burnStacks = Math.Min(burnStacks + 1, MAX_STACKS);
+            stackDecayTimer = STACK_DECAY_TIME;
+            stackDecayInterval = STACK_DECAY_INTERVAL;
+
+            // Trigger max stacks event once per burn application cycle
+            if (burnStacks == MAX_STACKS && previousStacks < MAX_STACKS && !maxStacksTriggeredThisApplication)
+            {
+                maxStacksTriggeredThisApplication = true;
+                OnMaxStacksReached?.Invoke(npc, player);
+            }
+        }
+
+        /// <summary>
+        /// Adds multiple stacks at once (e.g., for accessories that grant bonus stacks).
+        /// </summary>
+        public void AddStacks(NPC npc, Player player, int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                AddStack(npc, player);
+            }
+        }
+
+        /// <summary>
+        /// Consumes all stacks and resets the max-trigger flag. Returns the stack count before reset.
+        /// </summary>
+        public int ConsumeStacks()
+        {
+            int consumed = burnStacks;
+            burnStacks = 0;
+            stackDecayTimer = 0;
+            maxStacksTriggeredThisApplication = false;
+            return consumed;
+        }
+
+        /// <summary>
+        /// Returns true if this NPC has max (5) Resonant Burn stacks.
+        /// </summary>
+        public bool HasMaxStacks => burnStacks >= MAX_STACKS;
+
         public override void ResetEffects(NPC npc)
         {
             resonantBurn = false;
@@ -57,7 +119,9 @@ namespace MagnumOpus.Common.Prefixes
                 if (burnDamage > 0)
                     storedBurnDamage = burnDamage;
 
-                int dps = Math.Max(8, (int)(effectiveDamage * 0.15f));
+                // Base DPS scales with stacks: 15% base + 3% per stack (max 30% at 5 stacks)
+                float stackMultiplier = 1f + (burnStacks * 0.2f); // 20% more per stack
+                int dps = Math.Max(8, (int)(effectiveDamage * 0.15f * stackMultiplier));
 
                 if (npc.lifeRegen > 0)
                     npc.lifeRegen = 0;
@@ -66,11 +130,34 @@ namespace MagnumOpus.Common.Prefixes
 
                 if (damage < dps / 4)
                     damage = dps / 4;
+
+                // Stack decay logic
+                if (stackDecayTimer > 0)
+                {
+                    stackDecayTimer--;
+                }
+                else if (burnStacks > 0)
+                {
+                    // After decay timer expires, lose 1 stack per second
+                    stackDecayInterval--;
+                    if (stackDecayInterval <= 0)
+                    {
+                        burnStacks--;
+                        stackDecayInterval = STACK_DECAY_INTERVAL;
+
+                        // Reset max-trigger flag when stacks drop below max
+                        if (burnStacks < MAX_STACKS)
+                            maxStacksTriggeredThisApplication = false;
+                    }
+                }
             }
             else
             {
                 storedBurnDamage = 0;
                 burnDamage = 0;
+                burnStacks = 0;
+                stackDecayTimer = 0;
+                maxStacksTriggeredThisApplication = false;
             }
         }
 
@@ -78,9 +165,13 @@ namespace MagnumOpus.Common.Prefixes
         {
             if (!resonantBurn) return;
 
+            // Visual intensity scales with stacks (20% base + 16% per stack = 100% at 5 stacks)
+            float stackIntensity = 0.2f + (burnStacks * 0.16f);
+
             // Spawn visual effects during AI update (more reliable than DrawEffects)
-            // Rainbow flame particles
-            if (Main.rand.NextBool(2))
+            // Rainbow flame particles - more frequent at higher stacks
+            int flameChance = Math.Max(1, 3 - burnStacks / 2);
+            if (Main.rand.NextBool(flameChance))
             {
                 Vector2 pos = npc.Center + Main.rand.NextVector2Circular(npc.width * 0.4f, npc.height * 0.4f);
                 float hue = (Main.GameUpdateCount * 0.03f + Main.rand.NextFloat()) % 1f;
@@ -88,13 +179,14 @@ namespace MagnumOpus.Common.Prefixes
 
                 Dust dust = Dust.NewDustPerfect(pos, DustID.RainbowMk2, new Vector2(0, -Main.rand.NextFloat(1f, 2.5f)));
                 dust.noGravity = true;
-                dust.scale = Main.rand.NextFloat(1.2f, 1.8f);
+                dust.scale = Main.rand.NextFloat(1.2f, 1.8f) * (0.8f + stackIntensity * 0.4f);
                 dust.color = rainbowFlame;
                 dust.fadeIn = 0.5f;
             }
 
             // Black/white flame accents
-            if (Main.rand.NextBool(3))
+            int bwChance = Math.Max(2, 4 - burnStacks / 2);
+            if (Main.rand.NextBool(bwChance))
             {
                 Vector2 pos = npc.Center + Main.rand.NextVector2Circular(npc.width * 0.5f, npc.height * 0.5f);
                 bool isBlack = Main.rand.NextBool();
@@ -102,20 +194,21 @@ namespace MagnumOpus.Common.Prefixes
                 Dust dust = Dust.NewDustPerfect(pos, isBlack ? DustID.Smoke : DustID.WhiteTorch,
                     new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -Main.rand.NextFloat(1.5f, 3f)));
                 dust.noGravity = true;
-                dust.scale = Main.rand.NextFloat(1.5f, 2.2f);
+                dust.scale = Main.rand.NextFloat(1.5f, 2.2f) * (0.8f + stackIntensity * 0.4f);
                 if (isBlack) dust.color = Color.Black;
                 dust.alpha = isBlack ? 150 : 30;
             }
 
             // Music note particles (try custom, fallback to dust)
-            if (Main.rand.NextBool(6))
+            int noteChance = Math.Max(3, 8 - burnStacks);
+            if (Main.rand.NextBool(noteChance))
             {
                 try
                 {
                     Vector2 pos = npc.Center + Main.rand.NextVector2Circular(npc.width * 0.6f, npc.height * 0.6f);
                     float hue = Main.rand.NextFloat();
                     Color noteColor = Main.hslToRgb(hue, 0.9f, 0.7f);
-                    ThemedParticles.MusicNote(pos, Main.rand.NextVector2Circular(1f, 2f), noteColor, 0.3f, 30);
+                    ThemedParticles.MusicNote(pos, Main.rand.NextVector2Circular(1f, 2f), noteColor, 0.3f * (0.8f + stackIntensity * 0.4f), 30);
                 }
                 catch
                 {
@@ -127,19 +220,39 @@ namespace MagnumOpus.Common.Prefixes
                 }
             }
 
-            // Rainbow lighting
+            // Max stacks burst effect - pulsing ring when at 5 stacks
+            if (burnStacks >= MAX_STACKS && Main.GameUpdateCount % 20 == 0)
+            {
+                try
+                {
+                    float hue = (Main.GameUpdateCount * 0.02f) % 1f;
+                    Color burstColor = Main.hslToRgb(hue, 0.9f, 0.8f);
+                    CustomParticles.HaloRing(npc.Center, burstColor, 0.6f, 15);
+
+                    // Extra music note burst at max stacks
+                    for (int i = 0; i < 3; i++)
+                    {
+                        Vector2 noteVel = Main.rand.NextVector2Circular(2f, 2f) + new Vector2(0, -1f);
+                        ThemedParticles.MusicNote(npc.Center, noteVel, burstColor, 0.4f, 40);
+                    }
+                }
+                catch { }
+            }
+
+            // Rainbow lighting - intensity scales with stacks
             float hue2 = (Main.GameUpdateCount * 0.02f) % 1f;
-            Lighting.AddLight(npc.Center, Main.hslToRgb(hue2, 0.8f, 0.6f).ToVector3() * 0.6f);
+            Lighting.AddLight(npc.Center, Main.hslToRgb(hue2, 0.8f, 0.6f).ToVector3() * (0.4f + stackIntensity * 0.4f));
         }
 
         public override void DrawEffects(NPC npc, ref Color drawColor)
         {
             if (resonantBurn)
             {
-                // Tint the NPC with subtle rainbow shimmer
+                // Tint the NPC with subtle rainbow shimmer - more intense at higher stacks
+                float stackIntensity = 0.1f + (burnStacks * 0.02f);
                 float hue = (Main.GameUpdateCount * 0.02f + npc.whoAmI * 0.1f) % 1f;
-                Color rainbowTint = Main.hslToRgb(hue, 0.5f, 0.9f);
-                drawColor = Color.Lerp(drawColor, rainbowTint, 0.15f);
+                Color rainbowTint = Main.hslToRgb(hue, 0.5f + (burnStacks * 0.08f), 0.9f);
+                drawColor = Color.Lerp(drawColor, rainbowTint, stackIntensity);
             }
         }
     }
@@ -270,11 +383,178 @@ namespace MagnumOpus.Common.Prefixes
             }
         }
 
-        public static void ApplyBurnDebuff(NPC target, int damage)
+        public static void ApplyBurnDebuff(NPC target, int damage, Player player = null)
         {
             var burnNPC = target.GetGlobalNPC<ResonantBurnNPC>();
             burnNPC.burnDamage = damage;
             target.AddBuff(ModContent.BuffType<ResonantBurnDebuff>(), 300);
+
+            // Add a stack when applying burn (player required for stack event)
+            if (player != null)
+            {
+                burnNPC.AddStack(target, player);
+            }
+        }
+
+        /// <summary>
+        /// Gets the current burn stack count on an NPC.
+        /// </summary>
+        public static int GetBurnStacks(NPC npc)
+        {
+            if (!npc.active || npc.friendly)
+                return 0;
+
+            var burnNPC = npc.GetGlobalNPC<ResonantBurnNPC>();
+            return burnNPC.burnStacks;
+        }
+
+        /// <summary>
+        /// Checks if an NPC has maximum (5) burn stacks.
+        /// </summary>
+        public static bool HasMaxBurnStacks(NPC npc)
+        {
+            if (!npc.active || npc.friendly)
+                return false;
+
+            var burnNPC = npc.GetGlobalNPC<ResonantBurnNPC>();
+            return burnNPC.HasMaxStacks;
+        }
+
+        /// <summary>
+        /// Consumes all burn stacks from an NPC. Returns the stack count before reset.
+        /// </summary>
+        public static int ConsumeBurnStacks(NPC npc)
+        {
+            if (!npc.active || npc.friendly)
+                return 0;
+
+            var burnNPC = npc.GetGlobalNPC<ResonantBurnNPC>();
+            return burnNPC.ConsumeStacks();
+        }
+
+        /// <summary>
+        /// Checks if an NPC currently has the Resonant Burn debuff active.
+        /// </summary>
+        public static bool IsEnemyBurning(NPC npc)
+        {
+            return npc.active && !npc.friendly && npc.HasBuff(ModContent.BuffType<ResonantBurnDebuff>());
+        }
+
+        /// <summary>
+        /// Counts the number of active enemies with Resonant Burn debuff.
+        /// </summary>
+        public static int CountBurningEnemies()
+        {
+            int count = 0;
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (IsEnemyBurning(npc))
+                    count++;
+            }
+            return count;
+        }
+
+        /// <summary>
+        /// Calculates the total remaining DoT damage from Resonant Burn on an NPC.
+        /// </summary>
+        public static int GetBurnDamageRemaining(NPC npc)
+        {
+            if (!npc.active || npc.friendly)
+                return 0;
+
+            int buffIndex = npc.FindBuffIndex(ModContent.BuffType<ResonantBurnDebuff>());
+            if (buffIndex < 0)
+                return 0;
+
+            var burnNPC = npc.GetGlobalNPC<ResonantBurnNPC>();
+            if (!burnNPC.resonantBurn)
+                return 0;
+
+            int ticksRemaining = npc.buffTime[buffIndex];
+            int dps = Math.Max(8, (int)(burnNPC.burnDamage * 0.15f));
+            return (dps * ticksRemaining) / 60;
+        }
+
+        /// <summary>
+        /// Extends the duration of Resonant Burn on a target NPC.
+        /// </summary>
+        public static void ExtendBurnDuration(NPC npc, int additionalTicks)
+        {
+            int buffIndex = npc.FindBuffIndex(ModContent.BuffType<ResonantBurnDebuff>());
+            if (buffIndex >= 0)
+            {
+                npc.buffTime[buffIndex] += additionalTicks;
+            }
+        }
+
+        /// <summary>
+        /// Spreads Resonant Burn to a nearby enemy.
+        /// </summary>
+        public static bool SpreadBurnToNearby(Vector2 position, int damage, float range, NPC sourceNPC)
+        {
+            float closestDist = range;
+            NPC closestNPC = null;
+
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (!npc.active || npc.friendly || npc == sourceNPC)
+                    continue;
+                if (IsEnemyBurning(npc))
+                    continue;
+
+                float dist = Vector2.Distance(position, npc.Center);
+                if (dist < closestDist)
+                {
+                    closestDist = dist;
+                    closestNPC = npc;
+                }
+            }
+
+            if (closestNPC != null)
+            {
+                ApplyBurnDebuff(closestNPC, damage);
+                SpawnHitVFX(closestNPC.Center);
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Consumes Resonant Burn on a target, dealing burst damage and removing the debuff.
+        /// </summary>
+        public static int ConsumeBurnForBurst(NPC npc, float burstMultiplier)
+        {
+            int remainingDamage = GetBurnDamageRemaining(npc);
+            if (remainingDamage <= 0)
+                return 0;
+
+            int burstDamage = (int)(remainingDamage * burstMultiplier);
+
+            int buffIndex = npc.FindBuffIndex(ModContent.BuffType<ResonantBurnDebuff>());
+            if (buffIndex >= 0)
+            {
+                npc.DelBuff(buffIndex);
+            }
+
+            var burnNPC = npc.GetGlobalNPC<ResonantBurnNPC>();
+            burnNPC.resonantBurn = false;
+            burnNPC.burnDamage = 0;
+
+            return burstDamage;
+        }
+
+        /// <summary>
+        /// Increases the damage multiplier for Resonant Burn DoT.
+        /// </summary>
+        public static void AmplifyBurnDamage(NPC npc, float multiplier)
+        {
+            var burnNPC = npc.GetGlobalNPC<ResonantBurnNPC>();
+            if (burnNPC.resonantBurn && burnNPC.burnDamage > 0)
+            {
+                burnNPC.burnDamage = (int)(burnNPC.burnDamage * multiplier);
+            }
         }
     }
 
@@ -567,7 +847,7 @@ namespace MagnumOpus.Common.Prefixes
         {
             if (ResonancePrefixHelper.HasResonancePrefix(item))
             {
-                ResonancePrefixHelper.ApplyBurnDebuff(target, item.damage);
+                ResonancePrefixHelper.ApplyBurnDebuff(target, item.damage, player);
                 ResonancePrefixHelper.SpawnHitVFX(target.Center);
             }
         }
@@ -584,6 +864,7 @@ namespace MagnumOpus.Common.Prefixes
     {
         public override bool InstancePerEntity => true;
         public bool fromResonanceWeapon = false;
+        private int ownerIndex = -1;
 
         public override void OnSpawn(Projectile projectile, IEntitySource source)
         {
@@ -592,6 +873,17 @@ namespace MagnumOpus.Common.Prefixes
                 if (ResonancePrefixHelper.HasResonancePrefix(itemSource.Item))
                 {
                     fromResonanceWeapon = true;
+                    ownerIndex = projectile.owner;
+                }
+            }
+            else if (source is EntitySource_Parent parentSource && parentSource.Entity is Projectile parentProj)
+            {
+                // Inherit resonance from parent projectile (for split projectiles, etc.)
+                var parentGlobal = parentProj.GetGlobalProjectile<ResonancePrefixGlobalProjectile>();
+                if (parentGlobal.fromResonanceWeapon)
+                {
+                    fromResonanceWeapon = true;
+                    ownerIndex = parentGlobal.ownerIndex;
                 }
             }
         }
@@ -621,7 +913,8 @@ namespace MagnumOpus.Common.Prefixes
         {
             if (fromResonanceWeapon)
             {
-                ResonancePrefixHelper.ApplyBurnDebuff(target, projectile.damage);
+                Player player = ownerIndex >= 0 && ownerIndex < Main.maxPlayers ? Main.player[ownerIndex] : null;
+                ResonancePrefixHelper.ApplyBurnDebuff(target, projectile.damage, player);
                 ResonancePrefixHelper.SpawnHitVFX(target.Center);
             }
         }

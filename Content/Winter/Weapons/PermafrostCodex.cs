@@ -213,6 +213,13 @@ namespace MagnumOpus.Content.Winter.Weapons
                     CustomParticles.PrismaticSparkle(sparklePos, sparkleColor, Main.rand.NextFloat(0.45f, 0.65f));
                 }
 
+                // ICE STORM SEEKING ORBS - Incisor-style crystals with glacial power
+                SeekingCrystalHelper.SpawnWinterCrystals(
+                    source, spawnPos, velocity,
+                    (int)(damage * 0.4f), knockback * 0.5f, player.whoAmI,
+                    count: 6
+                );
+
                 return false;
             }
 

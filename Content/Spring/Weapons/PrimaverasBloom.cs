@@ -173,6 +173,14 @@ namespace MagnumOpus.Content.Spring.Weapons
             // Spawn minion at cursor
             Projectile.NewProjectile(source, Main.MouseWorld, Vector2.Zero, type, damage, knockback, player.whoAmI);
 
+            // SPRING HARMONY CRYSTAL ESCORT - Incisor-style orbs accompanying the sprite
+            Vector2 summonDir = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX) * 8f;
+            SeekingCrystalHelper.SpawnSpringCrystals(
+                source, Main.MouseWorld, summonDir,
+                (int)(damage * 0.3f), knockback * 0.3f, player.whoAmI,
+                count: 3
+            );
+
             return false;
         }
 

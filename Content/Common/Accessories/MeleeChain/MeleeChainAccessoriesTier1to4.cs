@@ -125,14 +125,15 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
     #endregion
 
-    #region Tier 3: Summer
+    #region Tier 3: Summer - Resonance Synergy
 
     /// <summary>
-    /// Solar Crescendo Ring - Post-L'Estate accessory.
-    /// Simple effect: Melee attacks inflict On Fire! for 5 seconds.
-    /// No longer requires Tier 2.
+    /// Resonant Cleaver's Edge - Post-L'Estate accessory.
+    /// Synergizes with Resonance Sliced weapons:
+    /// - While holding Resonance Sliced: Resonant Burn DoT increased by 50%
+    /// - Melee hits against burning enemies restore 2% of damage dealt as HP
     /// </summary>
-    public class SolarCrescendoRing : ModItem
+    public class ResonantCleaversEdge : ModItem
     {
         private static readonly Color SummerOrange = new Color(255, 140, 0);
 
@@ -148,17 +149,27 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             var modPlayer = player.GetModPlayer<ResonanceComboPlayer>();
-            modPlayer.hasSolarCrescendoRing = true;
+            modPlayer.hasResonantCleaversEdge = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Melee attacks inflict On Fire! for 5 seconds")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "While holding Resonance Sliced weapon:")
+            {
+                OverrideColor = new Color(255, 150, 100)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Resonant Burn DoT increased by 50%")
             {
                 OverrideColor = SummerOrange
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The summer sun fuels an ever-rising crescendo'")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Melee hits against burning enemies restore 2% of damage as HP")
+            {
+                OverrideColor = new Color(150, 255, 150)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The blade hungers for the flames it creates'")
             {
                 OverrideColor = SummerOrange * 0.8f
             });
@@ -178,14 +189,15 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
     #endregion
 
-    #region Tier 4: Autumn
+    #region Tier 4: Autumn - Resonance Synergy
 
     /// <summary>
-    /// Harvest Rhythm Signet - Post-Autunno accessory.
-    /// Simple effect: 2% lifesteal on melee attacks.
-    /// No longer requires Tier 3.
+    /// Inferno Tempo Signet - Post-Autunno accessory.
+    /// Synergizes with Resonant Burn debuff:
+    /// - +4% melee attack speed per enemy with Resonant Burn active (max 20% at 5 enemies)
+    /// - Melee hits extend Resonant Burn duration by 2 seconds
     /// </summary>
-    public class HarvestRhythmSignet : ModItem
+    public class InfernoTempoSignet : ModItem
     {
         private static readonly Color AutumnOrange = new Color(255, 100, 30);
 
@@ -201,17 +213,27 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             var modPlayer = player.GetModPlayer<ResonanceComboPlayer>();
-            modPlayer.hasHarvestRhythmSignet = true;
+            modPlayer.hasInfernoTempoSignet = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "2% lifesteal on melee attacks")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+4% melee attack speed per burning enemy")
             {
-                OverrideColor = new Color(180, 255, 180)
+                OverrideColor = new Color(255, 200, 100)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The harvest reaps what the rhythm sows'")
+            tooltips.Add(new TooltipLine(Mod, "MaxBonus", "Max: +20% at 5 burning enemies")
+            {
+                OverrideColor = new Color(200, 150, 100)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Melee hits extend Resonant Burn duration by 2 seconds")
+            {
+                OverrideColor = new Color(255, 150, 150)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Each burning foe quickens the rhythm of battle'")
             {
                 OverrideColor = AutumnOrange * 0.8f
             });
@@ -220,7 +242,7 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<SolarCrescendoRing>(1)
+                .AddIngredient<ResonantCleaversEdge>(1)
                 .AddIngredient<ResonantCrystalShard>(5)
                 .AddIngredient<HarvestBar>(20)
                 .AddIngredient<AutumnResonantEnergy>(1)
@@ -273,7 +295,7 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<HarvestRhythmSignet>(1)
+                .AddIngredient<InfernoTempoSignet>(1)
                 .AddIngredient<ResonantCrystalShard>(5)
                 .AddIngredient<PermafrostBar>(25)
                 .AddIngredient<WinterResonantEnergy>(1)

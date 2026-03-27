@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Graphics.Shaders;
 using MagnumOpus.Common.BaseClasses;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.VFX;
@@ -141,6 +142,21 @@ namespace MagnumOpus.Content.Autumn.Weapons
             _ => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/VerticalEllipse",
         };
         protected override string GetSmearGradientPath() => "MagnumOpus/Assets/VFX Asset Library/ColorGradients/LaCampanellaGradientLUTandRAMP";
+
+        // ═══ GPU Primitive Trail System (Incisor-style) ═══
+        protected override SwingTrailMode GetTrailMode() => SwingTrailMode.GPUPrimitive;
+
+        protected override MiscShaderData GetSlashShader()
+            => GameShaders.Misc["MagnumOpus:IncisorSlash"];
+
+        protected override void ConfigureSlashShader(MiscShaderData shader, bool isBloomPass)
+        {
+            if (shader == null) return;
+            // Autumn theme: harvest orange core, dark bark secondary, harvest gold edge
+            shader.UseColor(isBloomPass ? new Color(200, 110, 40) : new Color(255, 140, 50));
+            shader.UseSecondaryColor(new Color(80, 40, 20));
+            shader.Shader.Parameters["fireColor"]?.SetValue(new Color(218, 165, 32).ToVector3());
+        }
         #endregion
 
         #region 笏笏 Virtual Overrides 笏笏

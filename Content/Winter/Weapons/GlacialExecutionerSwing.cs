@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Graphics.Shaders;
 using MagnumOpus.Common.BaseClasses;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.VFX;
@@ -133,6 +134,21 @@ namespace MagnumOpus.Content.Winter.Weapons
             _ => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse",
         };
         protected override string GetSmearGradientPath() => "MagnumOpus/Assets/VFX Asset Library/ColorGradients/ClairDeLuneGradientLUTandRAMP";
+
+        // ═══ GPU Primitive Trail System (Incisor-style) ═══
+        protected override SwingTrailMode GetTrailMode() => SwingTrailMode.GPUPrimitive;
+
+        protected override MiscShaderData GetSlashShader()
+            => GameShaders.Misc["MagnumOpus:IncisorSlash"];
+
+        protected override void ConfigureSlashShader(MiscShaderData shader, bool isBloomPass)
+        {
+            if (shader == null) return;
+            // Winter theme: ice blue core, deep ocean secondary, frost white edge
+            shader.UseColor(isBloomPass ? new Color(100, 170, 220) : new Color(150, 220, 255));
+            shader.UseSecondaryColor(new Color(30, 50, 100));
+            shader.Shader.Parameters["fireColor"]?.SetValue(new Color(240, 250, 255).ToVector3());
+        }
         #endregion
 
         #region 隨渉隨渉 Virtual Overrides 隨渉隨渉

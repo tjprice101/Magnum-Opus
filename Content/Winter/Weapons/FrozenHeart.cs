@@ -169,6 +169,14 @@ namespace MagnumOpus.Content.Winter.Weapons
                 CustomParticles.PrismaticSparkle(sparklePos, sparkleColor, Main.rand.NextFloat(0.4f, 0.58f));
             }
 
+            // FROST SENTINEL ESCORT - Incisor-style orbs accompanying the sentinel
+            Vector2 sentinelDir = (spawnPos - player.Center).SafeNormalize(Vector2.UnitX) * 8f;
+            SeekingCrystalHelper.SpawnWinterCrystals(
+                source, spawnPos, sentinelDir,
+                (int)(damage * 0.25f), knockback * 0.3f, player.whoAmI,
+                count: 3
+            );
+
             return false;
         }
 

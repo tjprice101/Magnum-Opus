@@ -108,10 +108,12 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
     }
 
     /// <summary>
-    /// Solar Tracker's Badge - Summer tier ranger accessory.
-    /// Simple effect: +5% ranged damage.
+    /// Resonant Piercing Lens - Summer tier ranger accessory.
+    /// Synergizes with Resonance Pierced weapons:
+    /// - While holding Resonance Pierced: +30% damage vs burning enemies
+    /// - Armor penetration doubled against burning enemies
     /// </summary>
-    public class SolarTrackersBadge : ModItem
+    public class ResonantPiercingLens : ModItem
     {
         private static readonly Color SummerOrange = new Color(255, 140, 0);
 
@@ -127,17 +129,27 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             var markingPlayer = player.GetModPlayer<MarkingPlayer>();
-            markingPlayer.hasSolarTrackersBadge = true;
+            markingPlayer.hasResonantPiercingLens = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+5% ranged damage")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "While holding Resonance Pierced weapon:")
+            {
+                OverrideColor = new Color(255, 150, 100)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+30% damage vs burning enemies")
             {
                 OverrideColor = new Color(255, 200, 150)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The summer sun reveals all prey'")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Armor penetration doubled against burning enemies")
+            {
+                OverrideColor = SummerOrange
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The flames reveal every weakness'")
             {
                 OverrideColor = SummerOrange * 0.8f
             });
@@ -156,10 +168,12 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
     }
 
     /// <summary>
-    /// Harvest Reaper's Mark - Autumn tier ranger accessory.
-    /// Simple effect: Enemies killed with ranged attacks explode.
+    /// Echoing Bolt Chamber - Autumn tier ranger accessory.
+    /// Synergizes with Resonant Burn:
+    /// - 15% chance on ranged hit to fire a homing resonance bolt (50% weapon damage)
+    /// - Critical hits on burning enemies spread Resonant Burn to 1 nearby enemy (200 units)
     /// </summary>
-    public class HarvestReapersMark : ModItem
+    public class EchoingBoltChamber : ModItem
     {
         private static readonly Color AutumnBrown = new Color(180, 100, 40);
         private static readonly Color AutumnOrange = new Color(210, 120, 50);
@@ -176,22 +190,27 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             var markingPlayer = player.GetModPlayer<MarkingPlayer>();
-            markingPlayer.hasHarvestReapersMark = true;
+            markingPlayer.hasEchoingBoltChamber = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enemies killed with ranged attacks explode")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "15% chance on ranged hit to fire homing resonance bolt")
+            {
+                OverrideColor = new Color(255, 150, 100)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "BoltNote", "Bolt deals 50% of weapon damage")
             {
                 OverrideColor = AutumnOrange
             });
 
-            tooltips.Add(new TooltipLine(Mod, "ExplosionNote", "Explosion deals 50% of weapon damage in an area")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Critical hits spread Resonant Burn to 1 nearby enemy (200 units)")
             {
-                OverrideColor = new Color(200, 150, 100)
+                OverrideColor = new Color(255, 200, 150)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The harvest reaps what was sown in blood'")
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The hunter's arrows echo through flame and foe'")
             {
                 OverrideColor = AutumnBrown * 0.8f
             });
@@ -200,7 +219,7 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<SolarTrackersBadge>(1)
+                .AddIngredient<ResonantPiercingLens>(1)
                 .AddIngredient<ResonantCrystalShard>(5)
                 .AddIngredient<HarvestBar>(20)
                 .AddIngredient<AutumnResonantEnergy>(1)
