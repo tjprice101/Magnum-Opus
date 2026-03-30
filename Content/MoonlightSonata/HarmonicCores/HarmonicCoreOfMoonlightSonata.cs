@@ -26,7 +26,7 @@ namespace MagnumOpus.Content.MoonlightSonata.HarmonicCores
             Item.height = 32;
             Item.scale = 1.25f;
             Item.value = Item.sellPrice(gold: 15);
-            Item.rare = ItemRarityID.Expert;
+            Item.rare = ModContent.RarityType<MoonlightSonataRarity>();
             Item.maxStack = 1;
             Item.useStyle = ItemUseStyleID.None;
             Item.UseSound = null;

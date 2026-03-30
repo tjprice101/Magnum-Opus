@@ -105,7 +105,7 @@ namespace MagnumOpus.Content.ClairDeLune
         // =================================================================
 
         /// <summary>Lore text color for ModifyTooltips.</summary>
-        public static readonly Color LoreText = new Color(100, 140, 200);
+        public static readonly Color LoreText = new Color(150, 200, 255);
 
         /// <summary>Special weapon effect tooltip color.</summary>
         public static readonly Color EffectTooltip = new Color(160, 195, 235);

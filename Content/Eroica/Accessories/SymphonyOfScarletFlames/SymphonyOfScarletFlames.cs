@@ -14,7 +14,7 @@ namespace MagnumOpus.Content.Eroica.Accessories.SymphonyOfScarletFlames
 {
     /// <summary>
     /// Symphony of Scarlet Flames - Ranger accessory.
-    /// Triumphant Precision: Hitting same enemy 3 times marks them - 4th hit deals 300% damage with petal explosion.
+    /// Triumphant Precision: Hitting same enemy 2 times marks them - 3rd hit deals 300% damage with petal explosion.
     /// +15% ranged damage, +10% ranged crit.
     /// </summary>
     public class SymphonyOfScarletFlames : ModItem

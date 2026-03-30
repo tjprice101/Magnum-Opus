@@ -55,7 +55,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
             Item.useStyle = ItemUseStyleID.Swing;
             Item.knockBack = 3f;
             Item.value = Item.sellPrice(gold: 20);
-            Item.rare = ModContent.RarityType<EnigmaVariationsRarity>();
+            Item.rare = ModContent.RarityType<EnigmaRainbowRarity>();
             Item.UseSound = SoundID.Item44;
             Item.shoot = ModContent.ProjectileType<UnsolvedPhantomMinion>();
             Item.buffType = ModContent.BuffType<UnsolvedPhantomBuff>();

@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
@@ -91,7 +91,7 @@ namespace MagnumOpus.Content.DiesIrae
         // =================================================================
 
         /// <summary>Lore text color for ModifyTooltips.</summary>
-        public static readonly Color LoreText = new Color(200, 50, 40);
+        public static readonly Color LoreText = new Color(200, 50, 30);
 
         /// <summary>Special weapon effect tooltip color.</summary>
         public static readonly Color EffectTooltip = new Color(220, 170, 60);
@@ -171,10 +171,10 @@ namespace MagnumOpus.Content.DiesIrae
         };
 
         /// <summary>
-        /// StaffOfFinalJudgement cast palette — divine condemnation, holy wrath.
+        /// StaffOfFinalJudgment cast palette — divine condemnation, holy wrath.
         /// Deliberate, absolute, ecclesiastical. Every cast is a final sentence.
         /// </summary>
-        public static readonly Color[] StaffOfFinalJudgementCast = new Color[]
+        public static readonly Color[] StaffOfFinalJudgmentCast = new Color[]
         {
             new Color(25, 20, 25),      // [0] Pianissimo — charcoal void
             new Color(80, 20, 60),      // [1] Piano — doom purple

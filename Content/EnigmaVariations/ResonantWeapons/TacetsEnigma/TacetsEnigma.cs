@@ -61,7 +61,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma
             Item.useStyle = ItemUseStyleID.Shoot;
             Item.knockBack = 4f;
             Item.value = Item.sellPrice(gold: 20);
-            Item.rare = ModContent.RarityType<EnigmaVariationsRarity>();
+            Item.rare = ModContent.RarityType<EnigmaRainbowRarity>();
             Item.UseSound = SoundID.Item12;
             Item.autoReuse = true;
             Item.shoot = ModContent.ProjectileType<TacetEnigmaShot>();

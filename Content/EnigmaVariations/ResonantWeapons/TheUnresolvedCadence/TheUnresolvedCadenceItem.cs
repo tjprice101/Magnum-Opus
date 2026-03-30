@@ -67,7 +67,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
             Item.useTime = 22;
             Item.useAnimation = 22;
             Item.value = Item.sellPrice(gold: 25);
-            Item.rare = ModContent.RarityType<EnigmaVariationsRarity>();
+            Item.rare = ModContent.RarityType<EnigmaRainbowRarity>();
             Item.shoot = ModContent.ProjectileType<TheUnresolvedCadenceSwing>();
             Item.shootSpeed = 1f;
         }

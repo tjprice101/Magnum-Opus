@@ -60,7 +60,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne
             Item.useStyle = ItemUseStyleID.Shoot;
             Item.knockBack = 1f;
             Item.value = Item.sellPrice(gold: 20);
-            Item.rare = ModContent.RarityType<EnigmaVariationsRarity>();
+            Item.rare = ModContent.RarityType<EnigmaRainbowRarity>();
             Item.UseSound = null;
             Item.autoReuse = true;
             Item.shoot = ModContent.ProjectileType<RealityUnravelerBeam>();

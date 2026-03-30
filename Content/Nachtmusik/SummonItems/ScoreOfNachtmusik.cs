@@ -136,7 +136,7 @@ namespace MagnumOpus.Content.Nachtmusik.SummonItems
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Can only be used at night"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The stars themselves tremble at her approach'")
             {
-                OverrideColor = new Color(123, 104, 238)
+                OverrideColor = new Color(100, 120, 200)
             });
         }
 

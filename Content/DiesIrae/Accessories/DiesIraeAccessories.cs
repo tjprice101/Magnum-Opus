@@ -35,7 +35,7 @@ namespace MagnumOpus.Content.DiesIrae.Accessories
             tooltips.Add(new TooltipLine(Mod, "Effect4", "-20% mana cost"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'A cinder from the flames of eternal condemnation'") 
             { 
-                OverrideColor = BloodRed 
+                OverrideColor = new Color(200, 50, 30) 
             });
         }
 
@@ -104,7 +104,7 @@ namespace MagnumOpus.Content.DiesIrae.Accessories
             tooltips.Add(new TooltipLine(Mod, "Effect4", "+20% whip speed and range"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Bound by the seal, they serve judgment eternal'") 
             { 
-                OverrideColor = BloodRed 
+                OverrideColor = new Color(200, 50, 30) 
             });
         }
 
@@ -113,6 +113,7 @@ namespace MagnumOpus.Content.DiesIrae.Accessories
             player.GetDamage(DamageClass.Summon) += 0.55f; // POST-NACHTMUSIK (Nachtmusik: 0.45f)
             player.maxMinions += 3;
             player.GetAttackSpeed(DamageClass.SummonMeleeSpeed) += 0.20f;
+            player.whipRangeMultiplier += 0.20f;
             
             // Add on-hit effect via player buff tracking
             player.GetModPlayer<SealOfDamnationPlayer>().sealActive = true;
@@ -173,7 +174,7 @@ namespace MagnumOpus.Content.DiesIrae.Accessories
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Critical strikes have 20% chance to instantly kill non-boss enemies below 15% health"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The chains that bind all sinners to their fate'") 
             { 
-                OverrideColor = BloodRed 
+                OverrideColor = new Color(200, 50, 30) 
             });
         }
 
@@ -276,7 +277,7 @@ namespace MagnumOpus.Content.DiesIrae.Accessories
             tooltips.Add(new TooltipLine(Mod, "Effect5", "25% chance to not consume ammo"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The shackles that bind souls to their requiem'") 
             { 
-                OverrideColor = BloodRed 
+                OverrideColor = new Color(200, 50, 30) 
             });
         }
 

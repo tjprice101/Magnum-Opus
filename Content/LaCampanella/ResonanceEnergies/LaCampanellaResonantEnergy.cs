@@ -20,7 +20,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonanceEnergies
             Item.height = 24;
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 4);
-            Item.rare = ItemRarityID.Yellow;
+            Item.rare = ModContent.RarityType<LaCampanellaRarity>();
             Item.scale = 0.5f;
         }
 

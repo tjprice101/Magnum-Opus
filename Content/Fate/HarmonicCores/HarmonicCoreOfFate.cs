@@ -26,7 +26,7 @@ namespace MagnumOpus.Content.Fate.HarmonicCores
             Item.scale = 1.25f;
             Item.maxStack = 1;
             Item.value = Item.sellPrice(gold: 75);
-            Item.rare = ItemRarityID.Red;
+            Item.rare = ModContent.RarityType<FateRarity>();
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)

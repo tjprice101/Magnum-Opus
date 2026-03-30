@@ -57,8 +57,8 @@ namespace MagnumOpus.Content.DiesIrae.Tools
             tooltips.Add(new TooltipLine(Mod, "FlightTime", "9.3 second flight time") { OverrideColor = HellfireGold });
             tooltips.Add(new TooltipLine(Mod, "FlightSpeed", "28 mph flight speed") { OverrideColor = EmberOrange });
             tooltips.Add(new TooltipLine(Mod, "Hover", "Allows hovering") { OverrideColor = Crimson });
-            tooltips.Add(new TooltipLine(Mod, "DodgeEffect", "Double-tap to perform an infernal dash that damages enemies") { OverrideColor = BloodRed });
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Wings forged in the flames of final judgment, carrying the condemned to their eternal fate'") { OverrideColor = Color.Lerp(BloodRed, EmberOrange, 0.5f) });
+            tooltips.Add(new TooltipLine(Mod, "DodgeEffect", "Double-tap to perform an infernal dash that damages enemies") { OverrideColor = new Color(200, 50, 30) });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Wings forged in the flames of final judgment, carrying the condemned to their eternal fate'") { OverrideColor = new Color(200, 50, 30) });
         }
 
         public override void VerticalWingSpeeds(Player player, ref float ascentWhenFalling, ref float ascentWhenRising,

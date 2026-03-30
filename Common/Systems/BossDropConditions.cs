@@ -41,7 +41,7 @@ namespace MagnumOpus.Common.Systems
 
         public string GetConditionDescription()
         {
-            return "After Swan Lake, The Monochromatic Fractal has been defeated";
+            return "After Swan Lake the Monochromatic Fractal has been defeated";
         }
     }
 
@@ -62,7 +62,7 @@ namespace MagnumOpus.Common.Systems
 
         public string GetConditionDescription()
         {
-            return "After Enigma, The Hollow Mystery has been defeated";
+            return "After Enigma the Hollow Mystery has been defeated";
         }
     }
 
@@ -83,7 +83,7 @@ namespace MagnumOpus.Common.Systems
 
         public string GetConditionDescription()
         {
-            return "After La Campanella, Chime of Life has been defeated";
+            return "After La Campanella Chime of Life has been defeated";
         }
     }
 
@@ -109,7 +109,7 @@ namespace MagnumOpus.Common.Systems
     }
 
     /// <summary>
-    /// Drop condition that requires Fate (The Warden of Universal Melodies) to have been defeated.
+    /// Drop condition that requires Fate Warden of Melodies to have been defeated.
     /// </summary>
     public class DownedFateCondition : IItemDropRuleCondition
     {
@@ -125,7 +125,7 @@ namespace MagnumOpus.Common.Systems
 
         public string GetConditionDescription()
         {
-            return "After Fate, The Warden of Universal Melodies has been defeated";
+            return "After Fate Warden of Melodies has been defeated";
         }
     }
 }

@@ -71,7 +71,7 @@ namespace MagnumOpus.Content.Common.Accessories
             player.statManaMax2 += 80;
             player.lifeRegen += 8;
             player.manaRegen += 4;
-            player.endurance += 0.10f;
+            player.endurance += 0.12f;
             player.moveSpeed += 0.15f;
             player.maxMinions += 1;
             player.maxTurrets += 1;
@@ -144,7 +144,7 @@ namespace MagnumOpus.Content.Common.Accessories
         {
             Color opusColor = new Color(200, 100, 255);
             
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Seasonal: +20% damage, +15 crit, +12% attack speed, +20 defense, +15% movement")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Seasonal: +10% all-class damage, +20 defense, +15% movement speed")
             {
                 OverrideColor = opusColor
             });
@@ -742,7 +742,7 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 OverrideColor = destinyColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Chronometer: +18% melee damage, +20% melee speed, +10 melee crit, +12 armor penetration")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Chronometer: +14% melee damage, +16% melee speed, +8 melee crit, +10 armor penetration")
             {
                 OverrideColor = destinyColor
             });

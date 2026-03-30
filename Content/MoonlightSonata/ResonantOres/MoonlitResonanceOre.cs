@@ -27,7 +27,7 @@ namespace MagnumOpus.Content.MoonlightSonata.ResonantOres
             Item.useStyle = ItemUseStyleID.Swing;
             Item.consumable = true;
             Item.createTile = ModContent.TileType<MoonlitResonanceOreTile>();
-            Item.rare = ItemRarityID.Red;
+            Item.rare = ModContent.RarityType<MoonlightSonataRarity>();
             Item.value = Item.sellPrice(silver: 50);
         }
 

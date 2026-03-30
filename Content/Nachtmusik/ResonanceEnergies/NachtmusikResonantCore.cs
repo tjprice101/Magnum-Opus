@@ -29,7 +29,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonanceEnergies
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'A heart that beats only under starlight'") { OverrideColor = new Color(100, 80, 160) });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A heart that beats only under starlight'") { OverrideColor = new Color(100, 120, 200) });
         }
 
         public override void PostUpdate()

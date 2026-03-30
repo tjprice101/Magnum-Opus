@@ -24,7 +24,7 @@ namespace MagnumOpus.Content.SwanLake.ResonanceEnergies
             Item.height = 24;
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 3);
-            Item.rare = ItemRarityID.Cyan;
+            Item.rare = ModContent.RarityType<SwanRarity>();
             Item.scale = 0.5f;
         }
 

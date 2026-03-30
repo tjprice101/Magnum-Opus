@@ -143,6 +143,7 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
             player.GetDamage(DamageClass.Summon) += 0.70f; // POST-DIES IRAE (Dies Irae: 0.55f)
             player.maxMinions += 4;
             player.GetAttackSpeed(DamageClass.SummonMeleeSpeed) += 0.25f;
+            player.whipRangeMultiplier += 0.25f;
             
             player.GetModPlayer<VerdantRefrainPlayer>().verdantRefrainActive = true;
         }

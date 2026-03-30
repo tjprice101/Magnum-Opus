@@ -42,7 +42,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonantOres
         {
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Celestial ore imbued with the radiance of the night sky'")
             {
-                OverrideColor = new Color(123, 104, 238)
+                OverrideColor = new Color(100, 120, 200)
             });
         }
     }

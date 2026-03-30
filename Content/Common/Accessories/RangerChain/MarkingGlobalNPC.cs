@@ -318,7 +318,7 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             markDurations[playerWhoAmI] = duration;
             
             // Apply seasonal debuff if Vivaldi's Seasonal Sight is equipped
-            if (markingPlayer.hasVivaldisSeSonalSight)
+            if (markingPlayer.hasVivaldisSeasonalSight)
             {
                 seasonalDebuffType = markingPlayer.GetCurrentSeasonalDebuffType();
                 seasonalDebuffDuration = duration;

@@ -144,11 +144,14 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
             // 3 random weapons (no duplicates)
             itemLoot.Add(new LaCampanellaTreasureBagWeaponRule());
             
-            // Expert-only accessory chance (one of the basic ones)
-            // LeadingConditionRule expertRule = new LeadingConditionRule(new Conditions.IsExpert());
-            // expertRule.OnSuccess(ItemDropRule.OneFromOptionsNotScalingWithLuck(4, 
-            //     ModContent.ItemType<ChamberOfBellfire>()));
-            // itemLoot.Add(expertRule);
+            // Expert-only accessory chance (one of four)
+            LeadingConditionRule expertRule = new LeadingConditionRule(new Conditions.IsExpert());
+            expertRule.OnSuccess(ItemDropRule.OneFromOptionsNotScalingWithLuck(1, 
+                ModContent.ItemType<ChamberOfBellfire>(),
+                ModContent.ItemType<CampanellasPyreMedallion>(),
+                ModContent.ItemType<SymphonyOfTheBlazingSanctuary>(),
+                ModContent.ItemType<InfernalBellOfTheMaestro>()));
+            itemLoot.Add(expertRule);
         }
 
         public override Color? GetAlpha(Color lightColor)
@@ -254,7 +257,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Material dropped by the Chime of Life"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Material dropped by the La Campanella Chime Of Life"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'A fragment still burning with the bell's undying flame'") { OverrideColor = new Color(255, 140, 40) });
         }
 
@@ -301,7 +304,7 @@ namespace MagnumOpus.Content.LaCampanella.Bosses
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Material dropped by the Chime of Life"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Material dropped by the La Campanella Chime Of Life"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'A shard that pulses with the rhythm of burning tempo'") { OverrideColor = new Color(255, 140, 40) });
         }
 

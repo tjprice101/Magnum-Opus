@@ -39,7 +39,7 @@ namespace MagnumOpus.Content.SwanLake.SummonItems
             tooltips.Add(new TooltipLine(Mod, "Usage", "Place at a Grand Piano to invoke the Monochromatic Fractal"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'In black and white the swan dances eternal—light and shadow,\ngrace and tragedy, forever intertwined in perfect dissonance'") 
             { 
-                OverrideColor = Color.White 
+                OverrideColor = new Color(240, 240, 255) 
             });
         }
 

@@ -26,7 +26,7 @@ namespace MagnumOpus.Content.EnigmaVariations.HarmonicCores
             Item.scale = 1.25f;
             Item.maxStack = 1;
             Item.value = Item.sellPrice(gold: 50);
-            Item.rare = ItemRarityID.Lime;
+            Item.rare = ModContent.RarityType<EnigmaVariationsRarity>();
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)

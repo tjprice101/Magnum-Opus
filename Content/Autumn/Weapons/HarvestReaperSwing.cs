@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -19,7 +19,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
 {
     /// <summary>
     /// Harvest Reaper held-projectile swing 窶・the slow dirge of autumn's decay.
-    /// 4-phase scythe combo: Reaping Sweep 竊・Decay Slash 竊・Soul Rend 竊・Twilight Judgement.
+    /// 4-phase scythe combo: Reaping Sweep 竊・Decay Slash 竊・Soul Rend 竊・Twilight Judgment.
     /// Every 5th hit applies Autumn's Decay (Ichor + seeking crystals);
     /// kills spawn soul wisps; every 8th COMBO triggers Twilight Slash (DecayCrescentWave).
     /// </summary>
@@ -100,8 +100,8 @@ namespace MagnumOpus.Content.Autumn.Weapons
             damageMult: 1.15f
         );
 
-        // Phase 3 窶・Twilight Judgement (massive finisher 窶・the last light fading)
-        private static readonly ComboPhase Phase3_TwilightJudgement = new ComboPhase(
+        // Phase 3 窶・Twilight Judgment (massive finisher 窶・the last light fading)
+        private static readonly ComboPhase Phase3_TwilightJudgment = new ComboPhase(
             curves: new CurveSegment[]
             {
                 new CurveSegment(EasingType.PolyOut, 0f, -1.3f, 0.35f, 2),      // Long wind-back
@@ -125,7 +125,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
             Phase0_ReapingSweep,
             Phase1_DecaySlash,
             Phase2_SoulRend,
-            Phase3_TwilightJudgement,
+            Phase3_TwilightJudgment,
         };
 
         protected override Color[] GetPalette() => AutumnPalette;

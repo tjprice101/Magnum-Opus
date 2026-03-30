@@ -14,9 +14,6 @@ namespace MagnumOpus.Content.Nachtmusik.ResonanceEnergies
     /// </summary>
     public class ShardOfNachtmusiksTempo : ModItem
     {
-        // Placeholder texture until custom art is ready
-        public override string Texture => "Terraria/Images/Item_" + ItemID.FragmentVortex;
-        
         // Nachtmusik colors
         private static readonly Color DeepPurple = new Color(45, 27, 78);
         private static readonly Color Gold = new Color(255, 215, 0);

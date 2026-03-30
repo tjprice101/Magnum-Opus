@@ -57,7 +57,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure
             Item.useStyle = ItemUseStyleID.Shoot;
             Item.knockBack = 3.5f;
             Item.value = Item.sellPrice(gold: 20);
-            Item.rare = ModContent.RarityType<EnigmaVariationsRarity>();
+            Item.rare = ModContent.RarityType<EnigmaRainbowRarity>();
             Item.UseSound = SoundID.Item5;
             Item.autoReuse = true;
             Item.shoot = ModContent.ProjectileType<QuestionSeekerBolt>();

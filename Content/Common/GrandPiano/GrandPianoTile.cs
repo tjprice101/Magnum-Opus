@@ -198,7 +198,7 @@ namespace MagnumOpus.Content.Common.GrandPiano
                 // Check if La Campanella boss is already alive
                 if (NPC.AnyNPCs(ModContent.NPCType<LaCampanellaChimeOfLife>()))
                 {
-                    Main.NewText("La Campanella, Chime of Life is already ringing...", 255, 140, 40);
+                    Main.NewText("La Campanella Chime of Life is already ringing...", 255, 140, 40);
                     return true;
                 }
 
@@ -228,7 +228,7 @@ namespace MagnumOpus.Content.Common.GrandPiano
                 // Check if Enigma boss is already alive
                 if (NPC.AnyNPCs(ModContent.NPCType<EnigmaTheHollowMystery>()))
                 {
-                    Main.NewText("Enigma, The Hollow Mystery is already watching...", 140, 60, 200);
+                    Main.NewText("Enigma the Hollow Mystery is already watching...", 140, 60, 200);
                     return true;
                 }
 
@@ -258,7 +258,7 @@ namespace MagnumOpus.Content.Common.GrandPiano
                 // Check if Fate boss is already alive
                 if (NPC.AnyNPCs(ModContent.NPCType<FateWardenOfMelodies>()))
                 {
-                    Main.NewText("The Warden of Melodies already conducts the cosmos...", 180, 50, 100);
+                    Main.NewText("Fate Warden of Melodies already conducts the cosmos...", 180, 50, 100);
                     return true;
                 }
 

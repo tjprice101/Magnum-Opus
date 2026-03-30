@@ -38,7 +38,7 @@ namespace MagnumOpus.Content.Eroica.Tools
             Item.height = 32;
             Item.accessory = true;
             Item.value = Item.buyPrice(platinum: 2);
-            Item.rare = ItemRarityID.Expert; // Rainbow rarity
+            Item.rare = ModContent.RarityType<EroicaRarity>();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)

@@ -27,7 +27,7 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         public bool hasSolarTrackersBadge;      // +5% ranged damage
         public bool hasHarvestReapersMark;      // Ranged kills cause explosions
         public bool hasPermafrostHuntersEye;    // Ranged attacks slow enemies
-        public bool hasVivaldisSeSonalSight;    // +10% ranged damage, biome debuffs
+        public bool hasVivaldisSeasonalSight;    // +10% ranged damage, biome debuffs
 
         // ===== TIER 5 (THEME VARIANTS) FLAGS =====
         public bool hasMoonlitPredatorsGaze;    // See marked enemies through walls
@@ -123,7 +123,7 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             hasSolarTrackersBadge = false;
             hasHarvestReapersMark = false;
             hasPermafrostHuntersEye = false;
-            hasVivaldisSeSonalSight = false;
+            hasVivaldisSeasonalSight = false;
             hasMoonlitPredatorsGaze = false;
             hasHeroicDeadeye = false;
             hasInfernalExecutionersBrand = false;
@@ -150,7 +150,7 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             }
 
             // Vivaldi's Seasonal Sight: +10% ranged damage
-            if (hasVivaldisSeSonalSight)
+            if (hasVivaldisSeasonalSight)
             {
                 Player.GetDamage(DamageClass.Ranged) += 0.10f;
             }
@@ -272,7 +272,7 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             }
 
             // Vivaldi's Seasonal Sight: Biome-based debuffs
-            if (hasVivaldisSeSonalSight)
+            if (hasVivaldisSeasonalSight)
             {
                 if (Player.ZoneSnow)
                 {
@@ -392,7 +392,7 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             }
 
             // Vivaldi's Seasonal Sight: Biome-based debuffs
-            if (hasVivaldisSeSonalSight)
+            if (hasVivaldisSeasonalSight)
             {
                 if (Player.ZoneSnow)
                 {
@@ -563,7 +563,7 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             if (hasInfernalExecutionersBrand) return new Color(255, 140, 40);
             if (hasHeroicDeadeye) return new Color(255, 200, 80);
             if (hasMoonlitPredatorsGaze) return new Color(138, 43, 226);
-            if (hasVivaldisSeSonalSight) return GetSeasonalColor();
+            if (hasVivaldisSeasonalSight) return GetSeasonalColor();
             if (hasPermafrostHuntersEye) return new Color(150, 220, 255);
             if (hasHarvestReapersMark) return new Color(180, 100, 40);
             if (hasSolarTrackersBadge) return new Color(255, 140, 0);

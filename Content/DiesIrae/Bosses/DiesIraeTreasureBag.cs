@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using Terraria;
@@ -15,11 +15,11 @@ using MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict;
 using MagnumOpus.Content.DiesIrae.Weapons.SinCollector;
 using MagnumOpus.Content.DiesIrae.Weapons.DamnationsCannon;
 using MagnumOpus.Content.DiesIrae.Weapons.ArbitersSentence;
-using MagnumOpus.Content.DiesIrae.Weapons.StaffOfFinalJudgement;
+using MagnumOpus.Content.DiesIrae.Weapons.StaffOfFinalJudgment;
 using MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath;
 using MagnumOpus.Content.DiesIrae.Weapons.GrimoireOfCondemnation;
 using MagnumOpus.Content.DiesIrae.Weapons.DeathTollingBell;
-using MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgement;
+using MagnumOpus.Content.DiesIrae.Weapons.HarmonyOfJudgment;
 using MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract;
 
 namespace MagnumOpus.Content.DiesIrae.Bosses
@@ -86,6 +86,10 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "BagInfo", "Right click to open"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The spoils of wrath, sealed in judgment's flame'") 
+            { 
+                OverrideColor = new Color(200, 50, 30) 
+            });
         }
     }
 
@@ -130,11 +134,11 @@ namespace MagnumOpus.Content.DiesIrae.Bosses
                 ModContent.ItemType<SinCollector>(),             // Ranged
                 ModContent.ItemType<DamnationsCannon>(),         // Ranged
                 ModContent.ItemType<ArbitersSentence>(),         // Ranged
-                ModContent.ItemType<StaffOfFinalJudgement>(),    // Magic
+                ModContent.ItemType<StaffOfFinalJudgment>(),    // Magic
                 ModContent.ItemType<EclipseOfWrath>(),           // Magic
                 ModContent.ItemType<GrimoireOfCondemnation>(),   // Magic
                 ModContent.ItemType<DeathTollingBell>(),         // Summon
-                ModContent.ItemType<HarmonyOfJudgement>(),       // Summon
+                ModContent.ItemType<HarmonyOfJudgment>(),       // Summon
                 ModContent.ItemType<WrathfulContract>()          // Summon
             };
         }

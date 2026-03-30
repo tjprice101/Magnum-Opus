@@ -97,7 +97,7 @@ namespace MagnumOpus.Content.Nachtmusik
         // =================================================================
 
         /// <summary>Lore text color for ModifyTooltips.</summary>
-        public static readonly Color LoreText = new Color(80, 120, 200);
+        public static readonly Color LoreText = new Color(100, 120, 200);
 
         /// <summary>Special weapon effect tooltip color.</summary>
         public static readonly Color EffectTooltip = new Color(200, 210, 240);

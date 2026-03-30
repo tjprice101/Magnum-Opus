@@ -36,7 +36,7 @@ namespace MagnumOpus.Content.Eroica.Tools
             Item.useTurn = true;
 
             // Axe power - stronger than Moonlight (225%)
-            Item.axe = 250;
+            Item.axe = 50; // 250% (50 * 5)
             
             // Enable reforging
             Item.maxStack = 1;

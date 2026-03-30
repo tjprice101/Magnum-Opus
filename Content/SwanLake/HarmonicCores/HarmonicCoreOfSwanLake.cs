@@ -26,7 +26,7 @@ namespace MagnumOpus.Content.SwanLake.HarmonicCores
             Item.scale = 1.25f;
             Item.maxStack = 1;
             Item.value = Item.sellPrice(gold: 25);
-            Item.rare = ItemRarityID.Cyan;
+            Item.rare = ModContent.RarityType<SwanRarity>();
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)

@@ -43,7 +43,7 @@ namespace MagnumOpus.Content.OdeToJoy.SummonItems
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Summons Ode to Joy, Chromatic Rose Conductor"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Summons Ode to Joy Chromatic Rose Conductor"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Use on the Surface during daytime"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The final movement begins — let joy be unconfined'")
             {

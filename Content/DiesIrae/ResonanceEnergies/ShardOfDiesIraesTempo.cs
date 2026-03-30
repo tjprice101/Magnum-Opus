@@ -14,9 +14,6 @@ namespace MagnumOpus.Content.DiesIrae.ResonanceEnergies
     /// </summary>
     public class ShardOfDiesIraesTempo : ModItem
     {
-        // Placeholder texture until custom art is ready
-        public override string Texture => "Terraria/Images/Item_" + ItemID.FragmentSolar;
-        
         // Dies Irae theme colors - Blood Red, Charred Black, Ember Orange
         private static readonly Color BloodRed = new Color(200, 50, 30);
         private static readonly Color CharredBlack = new Color(40, 20, 15);

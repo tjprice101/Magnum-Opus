@@ -22,7 +22,7 @@ namespace MagnumOpus.Content.SwanLake.ResonantOres
             Item.height = 16;
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(silver: 45);
-            Item.rare = ItemRarityID.Red;
+            Item.rare = ModContent.RarityType<SwanRarity>();
             Item.useStyle = ItemUseStyleID.Swing;
             Item.useTurn = true;
             Item.useAnimation = 15;

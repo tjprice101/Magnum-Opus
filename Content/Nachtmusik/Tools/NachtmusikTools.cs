@@ -56,7 +56,7 @@ namespace MagnumOpus.Content.Nachtmusik.Tools
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect", "650% pickaxe power") { OverrideColor = Gold });
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The stars themselves yield to your melody'") { OverrideColor = Violet });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The stars themselves yield to your melody'") { OverrideColor = new Color(100, 120, 200) });
         }
 
         public override void AddRecipes()
@@ -152,7 +152,7 @@ namespace MagnumOpus.Content.Nachtmusik.Tools
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect", "400% axe power") { OverrideColor = Gold });
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Every tree falls to the night's symphony'") { OverrideColor = Violet });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Every tree falls to the night's symphony'") { OverrideColor = new Color(100, 120, 200) });
         }
 
         public override void AddRecipes()
@@ -237,7 +237,7 @@ namespace MagnumOpus.Content.Nachtmusik.Tools
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect", "200% hammer power") { OverrideColor = Gold });
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The percussion of creation and destruction'") { OverrideColor = Violet });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The percussion of creation and destruction'") { OverrideColor = new Color(100, 120, 200) });
         }
 
         public override void AddRecipes()

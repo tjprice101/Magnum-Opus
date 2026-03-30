@@ -30,7 +30,7 @@ namespace MagnumOpus.Content.Nachtmusik.ResonanceEnergies
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Whispers of a nocturne long past'") { OverrideColor = new Color(100, 80, 160) });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Whispers of a nocturne long past'") { OverrideColor = new Color(100, 120, 200) });
         }
 
         public override void PostUpdate()

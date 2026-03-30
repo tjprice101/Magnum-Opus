@@ -37,7 +37,7 @@ namespace MagnumOpus.Content.Fate.SummonItems
             tooltips.Add(new TooltipLine(Mod, "Usage", "Place at a Grand Piano to invoke the Warden of Melodies"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Da-da-da-DUM—four notes that echo across eternity, heralding the arrival\nof cosmic destiny itself, the conductor of all that was and will be'") 
             { 
-                OverrideColor = new Color(200, 80, 120) 
+                OverrideColor = new Color(180, 40, 80) 
             });
         }
 

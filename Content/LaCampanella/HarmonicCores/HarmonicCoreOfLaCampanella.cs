@@ -22,7 +22,7 @@ namespace MagnumOpus.Content.LaCampanella.HarmonicCores
             Item.scale = 1.25f; // Display 25% larger
             Item.maxStack = 1;
             Item.value = Item.sellPrice(gold: 35);
-            Item.rare = ItemRarityID.Yellow;
+            Item.rare = ModContent.RarityType<LaCampanellaRarity>();
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)

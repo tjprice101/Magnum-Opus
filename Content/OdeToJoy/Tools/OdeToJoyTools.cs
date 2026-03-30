@@ -63,7 +63,7 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
         {
             tooltips.Add(new TooltipLine(Mod, "Effect", "800% pickaxe power") { OverrideColor = OdeToJoyPalette.VerdantGreen });
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Mining powered by nature's boundless energy") { OverrideColor = OdeToJoyPalette.RosePink });
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Dig deep, and let joy bloom forth'") { OverrideColor = OdeToJoyPalette.GoldenPollen });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Dig deep, and let joy bloom forth'") { OverrideColor = OdeToJoyPalette.LoreText });
         }
 
         public override void AddRecipes()
@@ -163,14 +163,14 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
             Item.autoReuse = true;
             Item.useTurn = true;
             
-            Item.axe = 50; // 500% axe power (displayed value is *10)
+            Item.axe = 100; // 500% axe power (100 * 5)
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect", "500% axe power") { OverrideColor = OdeToJoyPalette.VerdantGreen });
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Fells forests with a single joyous swing") { OverrideColor = OdeToJoyPalette.RosePink });
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Even the mightiest oak bows to joy'") { OverrideColor = OdeToJoyPalette.GoldenPollen });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Even the mightiest oak bows to joy'") { OverrideColor = OdeToJoyPalette.LoreText });
         }
 
         public override void MeleeEffects(Player player, Rectangle hitbox)
@@ -264,7 +264,7 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
         {
             tooltips.Add(new TooltipLine(Mod, "Effect", "260% hammer power") { OverrideColor = OdeToJoyPalette.VerdantGreen });
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Shatters walls with nature's triumphant force") { OverrideColor = OdeToJoyPalette.RosePink });
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Let joy thunder through every barrier'") { OverrideColor = OdeToJoyPalette.GoldenPollen });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Let joy thunder through every barrier'") { OverrideColor = OdeToJoyPalette.LoreText });
         }
 
         public override void MeleeEffects(Player player, Rectangle hitbox)

@@ -21,9 +21,9 @@ namespace MagnumOpus.Content.SwanLake.Accessories
     /// A dual-natured pendant embodying both Odette (White Swan) and Odile (Black Swan).
     /// 
     /// WHITE MODE (Odette - Defensive):
-    /// - On dodge, creates a monochromatic (white &amp; black) halo around you
-    /// - Reduces incoming damage by 20% for 30 seconds (3 minute cooldown)
-    /// - Dodges the triggering hit
+    /// - Monochromatic Shield protects you
+    /// - Absorbs up to 3 hits before recharging (2 minute cooldown)
+    /// - Shield visually surrounds the player
     /// 
     /// BLACK MODE (Odile - Offensive):
     /// - Critical hits unleash vivid black &amp; white flares with pearlescent rainbow explosion

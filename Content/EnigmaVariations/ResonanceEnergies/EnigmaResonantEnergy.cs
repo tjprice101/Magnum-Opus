@@ -20,7 +20,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonanceEnergies
             Item.height = 24;
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 5);
-            Item.rare = ItemRarityID.Lime;
+            Item.rare = ModContent.RarityType<EnigmaVariationsRarity>();
             Item.scale = 0.5f;
         }
 

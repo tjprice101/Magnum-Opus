@@ -120,7 +120,7 @@ namespace MagnumOpus.Content.LaCampanella.SummonItems
         {
             // Add summon conditions
             tooltips.Add(new TooltipLine(Mod, "SummonCondition", 
-                "Summons La Campanella, Chime of Life")
+                "Summons La Campanella Chime of Life")
             {
                 OverrideColor = ThemedParticles.CampanellaOrange
             });

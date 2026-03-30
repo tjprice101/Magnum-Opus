@@ -12,99 +12,6 @@ using MagnumOpus.Common;
 namespace MagnumOpus.Content.DiesIrae.Tools
 {
     /// <summary>
-    /// Wrath's Pickaxe - Post-Nachtmusik tier pickaxe.
-    /// Superior to Nachtmusik's pickaxe with infernal hellfire effects.
-    /// </summary>
-    public class WrathsPickaxe : ModItem
-    {
-        // Use the axe texture as a placeholder until proper pickaxe texture is available
-        public override string Texture => "MagnumOpus/Content/DiesIrae/Tools/WrathsAxe";
-
-        // Dies Irae colors
-        private static readonly Color BloodRed = new Color(139, 0, 0);
-        private static readonly Color EmberOrange = new Color(255, 69, 0);
-        private static readonly Color CharredBlack = new Color(25, 20, 15);
-        private static readonly Color CrimsonFire = new Color(200, 30, 30);
-
-        public override void SetStaticDefaults()
-        {
-            Item.ResearchUnlockCount = 1;
-        }
-
-        public override void SetDefaults()
-        {
-            Item.damage = 450; // POST-NACHTMUSIK ULTIMATE - 61%+ above Nachtmusik (280)
-            Item.DamageType = DamageClass.Melee;
-            Item.width = 44;
-            Item.height = 44;
-            Item.useTime = 2;
-            Item.useAnimation = 2; // Faster than Nachtmusik
-            Item.useStyle = ItemUseStyleID.Swing;
-            Item.knockBack = 11f;
-            Item.value = Item.sellPrice(platinum: 2);
-            Item.rare = ModContent.RarityType<DiesIraeRarity>();
-            Item.UseSound = SoundID.Item15 with { Pitch = -0.3f, Volume = 1.0f };
-            Item.autoReuse = true;
-            Item.useTurn = true;
-
-            // Post-Nachtmusik pickaxe power
-            Item.pick = 700; // Higher than Nachtmusik (650)
-            
-            Item.maxStack = 1;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            tooltips.Add(new TooltipLine(Mod, "Effect", "700% pickaxe power") { OverrideColor = EmberOrange });
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Carves through stone as wrath carves through souls'") { OverrideColor = BloodRed });
-        }
-
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient(ModContent.ItemType<ResonantCoreOfDiesIrae>(), 25)
-                .AddIngredient(ModContent.ItemType<DiesIraeResonantEnergy>(), 20)
-                .AddIngredient(ModContent.ItemType<HarmonicCoreOfDiesIrae>(), 3)
-                .AddIngredient(ItemID.LunarBar, 20)
-                .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
-                .Register();
-        }
-
-        public override void MeleeEffects(Player player, Rectangle hitbox)
-        {
-            // Infernal fire particles
-            if (Main.rand.NextBool(2))
-            {
-                Dust dust = Dust.NewDustDirect(new Vector2(hitbox.X, hitbox.Y), hitbox.Width, hitbox.Height,
-                    DustID.Torch, player.velocity.X * 0.2f, player.velocity.Y * 0.2f, 100, 
-                    BloodRed, 1.5f);
-                dust.noGravity = true;
-                dust.velocity *= 1.5f;
-            }
-
-            // Ember sparks
-            if (Main.rand.NextBool(3))
-            {
-                Dust ember = Dust.NewDustDirect(new Vector2(hitbox.X, hitbox.Y), hitbox.Width, hitbox.Height,
-                    DustID.Torch, 0f, -0.5f, 100, EmberOrange, 1.3f);
-                ember.noGravity = true;
-                ember.velocity = Main.rand.NextVector2Circular(2f, 2f);
-            }
-
-            // Smoke wisps
-            if (Main.rand.NextBool(6))
-            {
-                Dust smoke = Dust.NewDustDirect(new Vector2(hitbox.X, hitbox.Y), hitbox.Width, hitbox.Height,
-                    DustID.Smoke, 0f, -1f, 150, CharredBlack, 0.9f);
-                smoke.noGravity = true;
-            }
-
-            // Lighting
-            Lighting.AddLight(hitbox.Center.ToVector2(), CrimsonFire.ToVector3() * 0.5f);
-        }
-    }
-
-    /// <summary>
     /// Wrath's Axe - Post-Nachtmusik tier axe.
     /// Superior to Nachtmusik's axe with infernal hellfire effects.
     /// </summary>
@@ -145,7 +52,7 @@ namespace MagnumOpus.Content.DiesIrae.Tools
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect", "425% axe power") { OverrideColor = EmberOrange });
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Every tree falls before the inferno of judgment'") { OverrideColor = BloodRed });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Every tree falls before the inferno of judgment'") { OverrideColor = new Color(200, 50, 30) });
         }
 
         public override void AddRecipes()
@@ -229,7 +136,7 @@ namespace MagnumOpus.Content.DiesIrae.Tools
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect", "220% hammer power") { OverrideColor = EmberOrange });
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The percussion of damnation echoes eternally'") { OverrideColor = BloodRed });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The percussion of damnation echoes eternally'") { OverrideColor = new Color(200, 50, 30) });
         }
 
         public override void AddRecipes()
@@ -327,8 +234,8 @@ namespace MagnumOpus.Content.DiesIrae.Tools
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect", "700% pickaxe power") { OverrideColor = EmberOrange });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Mining enhanced by infernal fury") { OverrideColor = BloodRed });
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The drill that pierces through to Hell itself'") { OverrideColor = BloodRed });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Mining enhanced by infernal fury") { OverrideColor = new Color(200, 50, 30) });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The drill that pierces through to Hell itself'") { OverrideColor = new Color(200, 50, 30) });
         }
 
         public override void AddRecipes()

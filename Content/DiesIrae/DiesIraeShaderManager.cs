@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -26,15 +26,15 @@ namespace MagnumOpus.Content.DiesIrae
     ///   SinCollector:             HellfireBloom fallback (trail)
     ///   DamnationsCannon:         HellfireBloom fallback (trail)
     ///   GrimoireOfCondemnation:   JudgmentAura fallback (trail)
-    ///   StaffOfFinalJudgement:    JudgmentAura fallback (trail)
-    ///   HarmonyOfJudgement:       JudgmentAura fallback (radial)
+    ///   StaffOfFinalJudgment:    JudgmentAura fallback (trail)
+    ///   HarmonyOfJudgment:       JudgmentAura fallback (radial)
     ///   WrathfulContract:         HellfireBloom fallback (radial)
     ///
     /// 12 Dies Irae weapons supported (4 melee, 2 ranged, 3 magic, 3 summoner):
     ///   Melee:    WrathsCleaver, ExecutionersVerdict, ChainOfJudgment, ArbitersSentence
     ///   Ranged:   SinCollector, DamnationsCannon
-    ///   Magic:    GrimoireOfCondemnation, StaffOfFinalJudgement, EclipseOfWrath
-    ///   Summoner: DeathTollingBell, HarmonyOfJudgement, WrathfulContract
+    ///   Magic:    GrimoireOfCondemnation, StaffOfFinalJudgment, EclipseOfWrath
+    ///   Summoner: DeathTollingBell, HarmonyOfJudgment, WrathfulContract
     ///
     /// Usage (in PreDraw):
     ///   DiesIraeShaderManager.BeginShaderAdditive(sb);
@@ -491,18 +491,18 @@ namespace MagnumOpus.Content.DiesIrae
         }
 
         // =====================================================================
-        //  WEAPON PRESETS — StaffOfFinalJudgement (Magic — Divine Staff)
+        //  WEAPON PRESETS — StaffOfFinalJudgment (Magic — Divine Staff)
         // =====================================================================
 
         /// <summary>
-        /// Apply StaffOfFinalJudgement trail using the StaffOfFinalJudgementCast palette.
+        /// Apply StaffOfFinalJudgment trail using the StaffOfFinalJudgmentCast palette.
         /// Absolute, ecclesiastical — every cast is a final sentence.
-        /// Colors: StaffOfFinalJudgementCast palette (charcoal -> doom purple -> infernal -> judgment gold).
+        /// Colors: StaffOfFinalJudgmentCast palette (charcoal -> doom purple -> infernal -> judgment gold).
         /// </summary>
-        public static bool ApplyStaffOfFinalJudgementTrail(float time, bool glow = false)
+        public static bool ApplyStaffOfFinalJudgmentTrail(float time, bool glow = false)
         {
-            Color primary = DiesIraePalette.PaletteLerp(DiesIraePalette.StaffOfFinalJudgementCast, 0.3f);
-            Color secondary = DiesIraePalette.PaletteLerp(DiesIraePalette.StaffOfFinalJudgementCast, 0.8f);
+            Color primary = DiesIraePalette.PaletteLerp(DiesIraePalette.StaffOfFinalJudgmentCast, 0.3f);
+            Color secondary = DiesIraePalette.PaletteLerp(DiesIraePalette.StaffOfFinalJudgmentCast, 0.8f);
             string technique = glow ? "JudgmentAuraGlow" : "JudgmentAuraMain";
 
             // Try shared JudgmentAura with weapon-specific palette
@@ -599,11 +599,11 @@ namespace MagnumOpus.Content.DiesIrae
         }
 
         // =====================================================================
-        //  WEAPON PRESETS — HarmonyOfJudgement (Summoner — Judgment Sigil)
+        //  WEAPON PRESETS — HarmonyOfJudgment (Summoner — Judgment Sigil)
         // =====================================================================
 
         /// <summary>
-        /// Apply JudgmentAura for HarmonyOfJudgement minion formation.
+        /// Apply JudgmentAura for HarmonyOfJudgment minion formation.
         /// Ecclesiastical radial sigil — doom purple ascending to judgment gold.
         /// Colors: DoomPurple -> JudgmentGold.
         /// </summary>

@@ -291,7 +291,7 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
     /// Vivaldi's Seasonal Sight - Vivaldi (all seasons) tier ranger accessory.
     /// Simple effect: +10% ranged damage, biome-dependent debuffs on ranged hit.
     /// </summary>
-    public class VivaldisSeSonalSight : ModItem
+    public class VivaldisSeasonalSight : ModItem
     {
         public override void SetDefaults()
         {
@@ -305,7 +305,7 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             var markingPlayer = player.GetModPlayer<MarkingPlayer>();
-            markingPlayer.hasVivaldisSeSonalSight = true;
+            markingPlayer.hasVivaldisSeasonalSight = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)

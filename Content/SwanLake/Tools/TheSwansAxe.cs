@@ -31,7 +31,7 @@ namespace MagnumOpus.Content.SwanLake.Tools
             Item.useStyle = ItemUseStyleID.Swing;
             Item.knockBack = 8.5f;
             Item.value = Item.sellPrice(gold: 28);
-            Item.rare = ItemRarityID.Cyan;
+            Item.rare = ModContent.RarityType<SwanRarity>();
             Item.UseSound = SoundID.Item29 with { Pitch = 0.35f, Volume = 0.6f }; // Fractal crystal sound
             Item.autoReuse = true;
             Item.useTurn = true;

@@ -20,7 +20,7 @@ namespace MagnumOpus.Content.Fate.ResonanceEnergies
             Item.height = 24;
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 8);
-            Item.rare = ItemRarityID.Red;
+            Item.rare = ModContent.RarityType<FateRarity>();
             Item.scale = 0.5f;
         }
 

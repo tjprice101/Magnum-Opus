@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.Audio;
@@ -12,7 +12,7 @@ using MagnumOpus.Content.Fate.CraftingStations;
 namespace MagnumOpus.Content.DiesIrae.SummonItems
 {
     /// <summary>
-    /// Score of Dies Irae - Summon item for Dies Irae, Herald of Judgement.
+    /// Score of Dies Irae - Summon item for Dies Irae, Herald of Judgment.
     /// Used in the Underworld after defeating Nachtmusik.
     /// </summary>
     public class ScoreOfDiesIrae : ModItem
@@ -35,11 +35,11 @@ namespace MagnumOpus.Content.DiesIrae.SummonItems
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Summons Dies Irae, Herald of Judgement"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Summons Dies Irae, Herald of Judgment"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Use in the Underworld"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The final score that heralds the end of all things'") 
             { 
-                OverrideColor = BloodRed 
+                OverrideColor = new Color(200, 50, 30) 
             });
         }
 
@@ -49,7 +49,7 @@ namespace MagnumOpus.Content.DiesIrae.SummonItems
             if (player.ZoneUnderworldHeight)
             {
                 // Check that boss isn't already alive
-                return !NPC.AnyNPCs(ModContent.NPCType<DiesIraeHeraldOfJudgement>());
+                return !NPC.AnyNPCs(ModContent.NPCType<DiesIraeHeraldOfJudgment>());
             }
             return false;
         }
@@ -61,7 +61,7 @@ namespace MagnumOpus.Content.DiesIrae.SummonItems
                 SoundEngine.PlaySound(SoundID.Roar, player.Center);
                 
                 // Spawn the boss above the player
-                int type = ModContent.NPCType<DiesIraeHeraldOfJudgement>();
+                int type = ModContent.NPCType<DiesIraeHeraldOfJudgment>();
                 
                 if (Main.netMode != NetmodeID.MultiplayerClient)
                 {

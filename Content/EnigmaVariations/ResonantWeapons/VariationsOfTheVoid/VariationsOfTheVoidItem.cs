@@ -46,7 +46,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
             Item.useTime = 18;
             Item.useAnimation = 18;
             Item.value = Item.sellPrice(gold: 18);
-            Item.rare = ModContent.RarityType<EnigmaVariationsRarity>();
+            Item.rare = ModContent.RarityType<EnigmaRainbowRarity>();
             Item.shoot = ModContent.ProjectileType<VariationsOfTheVoidSwing>();
             Item.shootSpeed = 1f;
         }

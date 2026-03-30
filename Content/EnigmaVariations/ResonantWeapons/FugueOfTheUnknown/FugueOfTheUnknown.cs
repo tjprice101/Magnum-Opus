@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -54,7 +54,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
             Item.useStyle = ItemUseStyleID.Shoot;
             Item.knockBack = 3f;
             Item.value = Item.sellPrice(gold: 20);
-            Item.rare = ModContent.RarityType<EnigmaVariationsRarity>();
+            Item.rare = ModContent.RarityType<EnigmaRainbowRarity>();
             Item.UseSound = SoundID.Item8;
             Item.autoReuse = true;
             Item.shoot = ModContent.ProjectileType<FugueVoiceProjectile>();

@@ -58,7 +58,7 @@ namespace MagnumOpus.Content.Nachtmusik.Tools
             tooltips.Add(new TooltipLine(Mod, "FlightSpeed", "24 mph flight speed") { OverrideColor = Violet });
             tooltips.Add(new TooltipLine(Mod, "Hover", "Allows hovering") { OverrideColor = StarWhite });
             tooltips.Add(new TooltipLine(Mod, "DodgeEffect", "Double-tap to perform a celestial dash") { OverrideColor = DeepPurple });
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Wings woven from the eternal night sky, carrying its radiant melody'") { OverrideColor = Color.Lerp(DeepPurple, Gold, 0.5f) });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Wings woven from the eternal night sky, carrying its radiant melody'") { OverrideColor = new Color(100, 120, 200) });
         }
 
         public override void VerticalWingSpeeds(Player player, ref float ascentWhenFalling, ref float ascentWhenRising,

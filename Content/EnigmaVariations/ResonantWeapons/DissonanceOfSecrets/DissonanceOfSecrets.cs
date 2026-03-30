@@ -55,7 +55,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
             Item.useStyle = ItemUseStyleID.Shoot;
             Item.knockBack = 5f;
             Item.value = Item.sellPrice(gold: 20);
-            Item.rare = ModContent.RarityType<EnigmaVariationsRarity>();
+            Item.rare = ModContent.RarityType<EnigmaRainbowRarity>();
             Item.UseSound = SoundID.Item117;
             Item.autoReuse = true;
             Item.shoot = ModContent.ProjectileType<RiddleCascadeOrb>();

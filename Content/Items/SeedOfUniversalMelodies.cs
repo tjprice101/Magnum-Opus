@@ -16,9 +16,6 @@ namespace MagnumOpus.Content.Items
     /// </summary>
     public class SeedOfUniversalMelodies : ModItem
     {
-        // Uses HeartOfMusic texture as placeholder until custom art is created
-        public override string Texture => "MagnumOpus/Content/Items/HeartOfMusic";
-
         public override void SetDefaults()
         {
             Item.width = 48;
