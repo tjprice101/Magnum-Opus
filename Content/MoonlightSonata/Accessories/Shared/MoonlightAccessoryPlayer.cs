@@ -117,7 +117,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
                 if (proj.owner == Player.whoAmI && proj.minion)
                 {
                     // Custom particles - moonlight glow flare on each minion
-                    CustomParticles.MoonlightFlare(proj.Center, 0.5f);
 
                     // Unified fractal surge VFX
                     FractalOfMoonlightVFX.FractalSurgePulse(proj.Center, 0.8f);
@@ -186,8 +185,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             }
             
             // Custom particles - ethereal moonlight flash
-            CustomParticles.MoonlightFlare(position, 0.9f);
-            CustomParticles.MoonlightHalo(position, 0.5f);
             MoonlightVFXLibrary.SpawnMusicNotes(position, 3, 25f, 0.7f, 0.9f, 25);
 
             // Unified engine rev pulse VFX

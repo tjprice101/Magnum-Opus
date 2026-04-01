@@ -11,6 +11,8 @@ namespace MagnumOpus.Content.Winter.Enemies
 {
     public class Frostwalker : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/Winter/Enemies/Frostwalker/Frostwalker";
+
         private static readonly Color WinterIce = new Color(140, 200, 240);
         private static readonly Color WinterCrystal = new Color(240, 248, 255);
 

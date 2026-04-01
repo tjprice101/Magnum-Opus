@@ -11,6 +11,7 @@ using MagnumOpus.Content.LaCampanella.ResonanceEnergies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 using System;
 using System.Collections.Generic;
+using MagnumOpus.Content.Materials.EnemyDrops;
 
 namespace MagnumOpus.Content.LaCampanella.Accessories
 {
@@ -128,8 +129,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
                 target.AddBuff(BuffID.Confused, 60); // 1 second stun
 
                 // Bell ring visual
-                CustomParticles.GenericFlare(target.Center, CampanellaColors.Gold, 0.5f, 15);
-                CustomParticles.HaloRing(target.Center, CampanellaColors.Orange, 0.4f, 12);
                 
                 // Sound effect would go here
                 Terraria.Audio.SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.5f, Volume = 0.6f }, target.Center);
@@ -222,6 +221,7 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
                 .AddIngredient(ModContent.ItemType<ChimeOfFlames>(), 1)
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfLaCampanella>(), 25)
                 .AddIngredient(ModContent.ItemType<LaCampanellaResonantEnergy>(), 10)
+                .AddIngredient(ModContent.ItemType<BellEssence>(), 10)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
         }
@@ -257,15 +257,7 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
                 target.AddBuff(BuffID.Confused, 90); // 1.5 second stun
 
                 // Bell ring visual
-                CustomParticles.GenericFlare(target.Center, Color.White, 0.7f, 18);
-                CustomParticles.GenericFlare(target.Center, CampanellaColors.Gold, 0.6f, 15);
                 
-                for (int i = 0; i < 3; i++)
-                {
-                    float delay = i * 0.1f;
-                    Color ringColor = Color.Lerp(CampanellaColors.Orange, CampanellaColors.Gold, (float)i / 3f);
-                    CustomParticles.HaloRing(target.Center, ringColor, 0.35f + i * 0.15f, 12 + i * 2);
-                }
 
                 // AoE fire explosion
                 int aoeDamage = (int)(damageDone * 0.5f);
@@ -280,7 +272,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
                         npc.AddBuff(BuffID.OnFire, 180); // 3 seconds on fire
 
                         // Fire explosion on each hit enemy
-                        CustomParticles.GenericFlare(npc.Center, CampanellaColors.Orange, 0.4f, 12);
                     }
                 }
 

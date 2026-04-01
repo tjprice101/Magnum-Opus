@@ -12,6 +12,8 @@ namespace MagnumOpus.Content.Spring.Enemies
 {
     public class Bloomweaver : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/Spring/Enemies/Bloomweaver/Bloomweaver";
+
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringGreen = new Color(150, 230, 130);
 

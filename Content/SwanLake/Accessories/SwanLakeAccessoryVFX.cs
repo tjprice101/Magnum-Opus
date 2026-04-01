@@ -33,31 +33,9 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             Vector2 center = player.MountedCenter;
             Vector2 driftPos = center + Main.rand.NextVector2Circular(25f, 20f);
             Color featherCol = Main.rand.NextBool() ? SwanLakePalette.FeatherWhite : SwanLakePalette.FeatherBlack;
-            try { CustomParticles.SwanFeatherDrift(driftPos, featherCol, Main.rand.NextFloat(0.12f, 0.2f)); } catch { }
-        }
-
-        // =====================================================================
-        //  PRISMATIC SHIMMER AURA — All accessories
-        // =====================================================================
-
-        /// <summary>
-        /// Shared prismatic shimmer aura for equipped Swan Lake accessories.
-        /// Subtle rainbow-tinted glow particles orbiting near the player.
-        /// </summary>
-        public static void PrismaticShimmerAura(Player player, float frequency = 0.08f)
-        {
-            if (Main.dedServ) return;
-            if (!Main.rand.NextBool((int)(1f / frequency))) return;
-
-            Vector2 center = player.MountedCenter;
-            float time = (float)Main.timeForVisualEffects;
-            Color rainbow = SwanLakePalette.GetRainbow(time * 0.01f + Main.rand.NextFloat());
-
-            Vector2 shimmerPos = center + Main.rand.NextVector2Circular(18f, 18f);
-            var glow = new GenericGlowParticle(shimmerPos,
-                new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-0.5f, -0.1f)),
-                rainbow * 0.35f, 0.12f, 20, true);
-            MagnumParticleHandler.SpawnParticle(glow);
+            int dustType = Main.rand.NextBool() ? DustID.WhiteTorch : DustID.Shadowflame;
+            Dust d = Dust.NewDustPerfect(driftPos, dustType, new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -0.5f), 0, featherCol * 0.6f, 0.5f);
+            d.noGravity = true;
         }
 
         // =====================================================================
@@ -123,7 +101,6 @@ namespace MagnumOpus.Content.SwanLake.Accessories
         public static void FullAmbientVFX(Player player)
         {
             AmbientFeatherDrift(player);
-            PrismaticShimmerAura(player);
             DualPolarityAmbient(player);
             AmbientMusicNotes(player);
             AmbientLight(player);
@@ -155,14 +132,10 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                 d.noGravity = true;
             }
 
-            // Trailing feathers during flight
+            // Trailing feathers during flight — VFX placeholder
             if (player.velocity.LengthSquared() > 4f && Main.rand.NextBool(4))
             {
-                Color featherCol = Main.rand.NextBool() ? SwanLakePalette.FeatherWhite : SwanLakePalette.FeatherBlack;
-                try { CustomParticles.SwanFeatherDrift(center + new Vector2(0f, 5f), featherCol, 0.2f); } catch { }
             }
-
-            FullAmbientVFX(player);
         }
 
         // =====================================================================
@@ -187,10 +160,8 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                 float radius = 12f;
                 Vector2 haloPos = center + new Vector2(0f, -30f) + angle.ToRotationVector2() * radius;
                 Color rainbow = SwanLakePalette.GetRainbow(angle / MathHelper.TwoPi);
-                var glow = new GenericGlowParticle(haloPos,
-                    new Vector2(0f, -0.2f),
-                    rainbow * 0.4f, 0.1f, 16, true);
-                MagnumParticleHandler.SpawnParticle(glow);
+                Dust d = Dust.NewDustPerfect(haloPos, DustID.WhiteTorch, Vector2.Zero, 0, rainbow * 0.5f, 0.35f);
+                d.noGravity = true;
             }
 
             FullAmbientVFX(player);
@@ -272,9 +243,6 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             SwanLakeVFXLibrary.SpawnRadialDustBurst(hitPos, (int)(6 * intensity), 4f);
             SwanLakeVFXLibrary.SpawnMusicNotes(hitPos, 2, 15f, 0.7f, 0.9f, 22);
             SwanLakeVFXLibrary.SpawnFeatherDrift(hitPos, 2, 12f);
-            try { CustomParticles.HaloRing(hitPos, SwanLakePalette.SwanSilver, 0.2f, 10); } catch { }
-
-            Lighting.AddLight(hitPos, SwanLakePalette.PureWhite.ToVector3() * 0.5f * intensity);
         }
     }
 }

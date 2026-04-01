@@ -12,6 +12,8 @@ namespace MagnumOpus.Content.Nachtmusik.Enemies
 {
     public class TwilightProwler : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/Nachtmusik/Enemies/TwilightProwler/TwilightProwler";
+
         private static readonly Color TwilightBlue = new Color(60, 80, 160);
         private static readonly Color CosmicBlue = new Color(120, 150, 240);
 

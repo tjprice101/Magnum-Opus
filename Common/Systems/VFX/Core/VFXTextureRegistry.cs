@@ -173,9 +173,6 @@ namespace MagnumOpus.Common.Systems.VFX
 
         #region Lifecycle
         
-        private bool _texturesLoaded = false;
-        private bool _fallbacksNeedGeneration = false;
-        
         public override void Load()
         {
             Instance = this;
@@ -655,7 +652,7 @@ namespace MagnumOpus.Common.Systems.VFX
                     shader.Parameters["uMaskTexture"].SetValue(Mask.EclipseRing);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Silent fail - shader may not have these parameters
             }

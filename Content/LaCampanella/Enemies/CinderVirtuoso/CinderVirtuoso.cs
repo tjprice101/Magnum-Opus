@@ -11,6 +11,8 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
 {
     public class CinderVirtuoso : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/LaCampanella/Enemies/CinderVirtuoso/CinderVirtuoso";
+
         private static readonly Color CinderFlame = new Color(255, 100, 20);
         private static readonly Color CinderEmber = new Color(200, 80, 10);
 

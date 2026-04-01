@@ -16,8 +16,6 @@ namespace MagnumOpus.Content.Fate.CraftingStations
     /// </summary>
     public class FatesCosmicAnvilTile : ModTile
     {
-        // Use the item texture since tile texture doesn't exist yet
-        public override string Texture => "MagnumOpus/Content/Fate/CraftingStations/FatesCosmicAnvil";
         public override void SetStaticDefaults()
         {
             Main.tileFrameImportant[Type] = true;
@@ -44,6 +42,8 @@ namespace MagnumOpus.Content.Fate.CraftingStations
 
             // Acts as an anvil for crafting - includes all previous anvil tiers
             AdjTiles = new int[] { TileID.Anvils, TileID.MythrilAnvil };
+
+            RegisterItemDrop(ModContent.ItemType<FatesCosmicAnvil>());
         }
 
         public override void ModifyLight(int i, int j, ref float r, ref float g, ref float b)

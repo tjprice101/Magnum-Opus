@@ -18,7 +18,7 @@ namespace MagnumOpus.Content.ClairDeLune.Tools
     #region Clock of Time's Drill
 
     /// <summary>
-    /// Clock of Time's Drill — Tier 10 ultimate drill/pickaxe.
+    /// Clock of Time's Drill  ETier 10 ultimate drill/pickaxe.
     /// Temporal clockwork theme with soft blue and pearl white particles.
     /// </summary>
     public class ClockOfTimesDrill : ModItem
@@ -87,7 +87,7 @@ namespace MagnumOpus.Content.ClairDeLune.Tools
     }
 
     /// <summary>
-    /// Clock of Time's Drill held projectile — vanilla drill AI with temporal particles.
+    /// Clock of Time's Drill held projectile  Evanilla drill AI with temporal particles.
     /// </summary>
     public class ClockOfTimesDrillProjectile : ModProjectile
     {
@@ -111,7 +111,7 @@ namespace MagnumOpus.Content.ClairDeLune.Tools
             Projectile.penetrate = -1;
             Projectile.DamageType = DamageClass.Melee;
             Projectile.ownerHitCheck = true;
-            Projectile.aiStyle = 20;
+            Projectile.aiStyle = ProjAIStyleID.Drill;
             Projectile.hide = true;
         }
 
@@ -146,7 +146,7 @@ namespace MagnumOpus.Content.ClairDeLune.Tools
     #region Clock of Time's Axe
 
     /// <summary>
-    /// Clock of Time's Axe — Tier 10 ultimate axe.
+    /// Clock of Time's Axe  ETier 10 ultimate axe.
     /// Temporal clockwork theme with gentle luminescent swing particles.
     /// </summary>
     public class ClockOfTimesAxe : ModItem
@@ -236,7 +236,7 @@ namespace MagnumOpus.Content.ClairDeLune.Tools
     #region Clock of Time's Hammer
 
     /// <summary>
-    /// Clock of Time's Hammer — Tier 10 ultimate hammer.
+    /// Clock of Time's Hammer  ETier 10 ultimate hammer.
     /// Temporal clockwork theme with chiming impact particles.
     /// </summary>
     public class ClockOfTimesHammer : ModItem

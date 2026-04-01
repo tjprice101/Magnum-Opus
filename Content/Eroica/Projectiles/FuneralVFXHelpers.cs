@@ -156,7 +156,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
     /// <summary>
     /// Quick burst spark for Funeral requiem impacts — fast deceleration.
     /// </summary>
-    public class RequiemSparkParticle : Particle
+    public class FuneralSparkParticle : Particle
     {
         public override string Texture => "MagnumOpus/Common/Systems/Particles/Textures/GlowDot";
         public override bool SetLifetime => true;
@@ -164,7 +164,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         private float initialScale;
 
-        public RequiemSparkParticle(Vector2 position, Vector2 velocity, Color color, float scale, int lifetime)
+        public FuneralSparkParticle(Vector2 position, Vector2 velocity, Color color, float scale, int lifetime)
         {
             Position = position;
             Velocity = velocity;

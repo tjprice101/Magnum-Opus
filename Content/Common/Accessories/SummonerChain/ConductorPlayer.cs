@@ -162,6 +162,29 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
 
         public override void PostUpdateEquips()
         {
+            // === CHAIN INHERITANCE ===
+            // Higher-tier accessories inherit all lower-tier effects.
+            if (HasVivaldisOrchestraBaton) HasPermafrostCommandersCrown = true;
+            if (HasPermafrostCommandersCrown) { HasHarvestBeastlordsHorn = true; hasResonantBeastlordsHorn = true; }
+            if (HasHarvestBeastlordsHorn) HasConductorsBurningCrown = true;
+            if (HasConductorsBurningCrown) HasSpringMaestrosBadge = true;
+            if (HasSpringMaestrosBadge) HasConductorsWand = true;
+
+            // === BASE STATS: Priority system (highest main-chain tier only) ===
+            {
+                int baseSlots = 0;
+                float baseDmg = 0f;
+                int baseCrit = 0;
+                if (HasVivaldisOrchestraBaton) { baseSlots = 2; baseDmg = 0.25f; }
+                else if (HasPermafrostCommandersCrown) { baseSlots = 2; baseDmg = 0.20f; }
+                else if (HasHarvestBeastlordsHorn) { baseSlots = 1; baseDmg = 0.12f; baseCrit = 5; }
+                else if (HasSpringMaestrosBadge) { baseSlots = 1; baseDmg = 0.10f; }
+                else if (HasConductorsWand) { baseSlots = 1; }
+                Player.maxMinions += baseSlots;
+                Player.GetDamage(DamageClass.Summon) += baseDmg;
+                Player.GetCritChance(DamageClass.Summon) += baseCrit;
+            }
+
             // Apply simple static effects from equipped accessories
 
             // Temporary minion slot bonus management
@@ -175,32 +198,7 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
                 temporaryMinionSlots = 0;
             }
 
-            // Conductor's Wand: +1 minion slot
-            if (HasConductorsWand)
-            {
-                Player.maxMinions += 1;
-            }
-
-            // Spring Maestro's Badge: +1 minion slot, +10% summon damage
-            if (HasSpringMaestrosBadge)
-            {
-                Player.maxMinions += 1;
-                Player.GetDamage(DamageClass.Summon) += 0.10f;
-            }
-
-            // Solar Director's Crest: +1 minion slot, +15% summon damage
-            if (HasSolarDirectorsCrest)
-            {
-                Player.maxMinions += 1;
-                Player.GetDamage(DamageClass.Summon) += 0.15f;
-            }
-
-            // Harvest Beastlord's Horn: +1 minion slot, +5% summon crit
-            if (HasHarvestBeastlordsHorn)
-            {
-                Player.maxMinions += 1;
-                Player.GetCritChance(DamageClass.Summon) += 5;
-            }
+            // (Main chain base stats handled by priority system above)
 
             // ===== RESONANCE SYNERGY: T3 ConductorsBurningCrown =====
             // +5% minion damage per burn stack on any enemy (max +25% at 5 stacks)
@@ -247,18 +245,13 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
                 }
             }
 
-            // Permafrost Commander's Crown: +2 minion slots, +20% summon damage
-            if (HasPermafrostCommandersCrown)
-            {
-                Player.maxMinions += 2;
-                Player.GetDamage(DamageClass.Summon) += 0.20f;
-            }
+            // (Permafrost Commander's Crown and Vivaldi's Orchestra Baton base stats handled by priority system above)
 
-            // Vivaldi's Orchestra Baton: +2 minion slots, +25% summon damage
-            if (HasVivaldisOrchestraBaton)
+            // Solar Director's Crest: +1 minion slot, +15% summon damage (theme variant, not in main chain)
+            if (HasSolarDirectorsCrest)
             {
-                Player.maxMinions += 2;
-                Player.GetDamage(DamageClass.Summon) += 0.25f;
+                Player.maxMinions += 1;
+                Player.GetDamage(DamageClass.Summon) += 0.15f;
             }
 
             // Moonlit Symphony Wand: +10% summon damage at night
@@ -419,6 +412,21 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             if (conductor.HasJubilantOrchestrasStaff)
             {
                 owner.Heal(1);
+            }
+
+            // ===== RESONANCE SYNERGY: T3 ConductorsBurningCrown =====
+            // Minion hits apply 1 burn stack so the +5% per stack bonus works
+            if (conductor.HasConductorsBurningCrown && !conductor.hasResonantBeastlordsHorn)
+            {
+                if (ResonancePrefixHelper.IsEnemyBurning(target))
+                {
+                    var burnNpc = target.GetGlobalNPC<ResonantBurnNPC>();
+                    burnNpc.AddStack(target, owner);
+                }
+                else
+                {
+                    ResonancePrefixHelper.ApplyBurnDebuff(target, damageDone, owner);
+                }
             }
 
             // ===== RESONANCE SYNERGY: T4 HarvestBeastlordsHorn =====

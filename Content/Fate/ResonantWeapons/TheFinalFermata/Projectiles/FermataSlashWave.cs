@@ -28,11 +28,6 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Projectiles
         private FermataTrailRenderer _trail;
         private int _frameCounter;
 
-        // ─── Bloom Textures (Foundation-tier) ─────────────────────
-        private static Asset<Texture2D> _pointBloomTex;
-        private static Asset<Texture2D> _softRadialBloomTex;
-        private static Asset<Texture2D> _starFlareTex;
-
         /// <summary>Additive-friendly color with premultiplied alpha and zero alpha channel.</summary>
         private static Color Additive(Color c, float opacity)
             => new Color((int)(c.R * opacity), (int)(c.G * opacity), (int)(c.B * opacity), 0);
@@ -157,85 +152,6 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheFinalFermata.Projectiles
             if (Main.dedServ) return;
 
             Vector2 hitPos = target.Center;
-
-            // ═══ MULTI-LAYER SPRITEBATCH BLOOM FLASH ═══
-            try
-            {
-                _pointBloomTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
-                _softRadialBloomTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom");
-                _starFlareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/StarFlare");
-
-                SpriteBatch sb = Main.spriteBatch;
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-                Vector2 screenPos = hitPos - Main.screenPosition;
-                float time = (float)Main.timeForVisualEffects;
-
-                // Layer 1: Crimson outer haze (capped 300px max)
-                if (_softRadialBloomTex?.IsLoaded == true)
-                {
-                    var radTex = _softRadialBloomTex.Value;
-                    sb.Draw(radTex, screenPos, null,
-                        Additive(FermataUtils.FermataCrimson, 0.4f),
-                        0f, radTex.Size() * 0.5f, 0.139f, SpriteEffects.None, 0f);
-                }
-
-                // Layer 2: Time gold mid glow (capped 300px max)
-                if (_softRadialBloomTex?.IsLoaded == true)
-                {
-                    var radTex = _softRadialBloomTex.Value;
-                    sb.Draw(radTex, screenPos, null,
-                        Additive(FermataUtils.TimeGold, 0.45f),
-                        0f, radTex.Size() * 0.5f, 0.10f, SpriteEffects.None, 0f);
-                }
-
-                // Layer 3: Purple inner (capped 300px max)
-                if (_pointBloomTex?.IsLoaded == true)
-                {
-                    var ptTex = _pointBloomTex.Value;
-                    sb.Draw(ptTex, screenPos, null,
-                        Additive(FermataUtils.FermataPurple, 0.5f),
-                        0f, ptTex.Size() * 0.5f, 0.08f, SpriteEffects.None, 0f);
-                }
-
-                // Layer 4: White-hot core (capped 300px max)
-                if (_pointBloomTex?.IsLoaded == true)
-                {
-                    var ptTex = _pointBloomTex.Value;
-                    sb.Draw(ptTex, screenPos, null,
-                        Additive(FermataUtils.FlashWhite, 0.7f),
-                        0f, ptTex.Size() * 0.5f, 0.05f, SpriteEffects.None, 0f);
-                }
-
-                // Layer 5: StarFlare cross — temporal slash flash
-                if (_starFlareTex?.IsLoaded == true)
-                {
-                    var starTex = _starFlareTex.Value;
-                    sb.Draw(starTex, screenPos, null,
-                        Additive(FermataUtils.TimeGold, 0.4f),
-                        time * 0.1f, starTex.Size() * 0.5f, 0.45f, SpriteEffects.None, 0f);
-                    sb.Draw(starTex, screenPos, null,
-                        Additive(FermataUtils.FermataCrimson, 0.3f),
-                        -time * 0.07f, starTex.Size() * 0.5f, 0.3f, SpriteEffects.None, 0f);
-                }
-
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                    Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullNone,
-                    null, Main.GameViewMatrix.TransformationMatrix);
-            }
-            catch
-            {
-                try
-                {
-                    Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                        Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullNone,
-                        null, Main.GameViewMatrix.TransformationMatrix);
-                }
-                catch { }
-            }
 
             // ═══ ENHANCED PARTICLE IMPACT ═══
             FermataParticleTypes.SyncSlashImpact(hitPos);

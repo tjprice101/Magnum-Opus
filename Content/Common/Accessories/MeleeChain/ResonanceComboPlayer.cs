@@ -155,6 +155,15 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void PostUpdateEquips()
         {
+            // === CHAIN INHERITANCE ===
+            // Higher-tier accessories inherit all lower-tier effects.
+            // When a player crafts T2 from T1, T1 is consumed — T2 must include T1's effects.
+            if (hasVivaldisTempoMaster) hasPermafrostCadenceSeal = true;
+            if (hasPermafrostCadenceSeal) hasInfernoTempoSignet = true;
+            if (hasInfernoTempoSignet) hasResonantCleaversEdge = true;
+            if (hasResonantCleaversEdge) hasSpringTempoCharm = true;
+            if (hasSpringTempoCharm) hasResonantRhythmBand = true;
+
             // Apply simple static effects from equipped accessories
 
             // Resonant Rhythm Band: +5% damage, +3% speed
@@ -216,10 +225,10 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
                 Player.GetDamage(DamageClass.Melee) += 0.25f;
             }
 
-            // Gauntlet of the Eternal Symphony: +40% damage
+            // Gauntlet of the Eternal Symphony: +30% damage
             if (hasGauntletOfTheEternalSymphony)
             {
-                Player.GetDamage(DamageClass.Melee) += 0.40f;
+                Player.GetDamage(DamageClass.Melee) += 0.30f;
             }
 
             // Cooldown management
@@ -295,6 +304,27 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
                 if (healAmount > 0)
                 {
                     Player.Heal(healAmount);
+                }
+            }
+        }
+
+        public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (proj.owner != Player.whoAmI || !proj.DamageType.Equals(DamageClass.Melee))
+                return;
+
+            // ===== RESONANCE SYNERGY: T3 ResonantCleaversEdge =====
+            if (hasResonantCleaversEdge)
+            {
+                int targetStacks = ResonancePrefixHelper.GetBurnStacks(target);
+                if (targetStacks >= 3)
+                {
+                    modifiers.FinalDamage += 0.15f;
+                }
+
+                if (resonanceSynergyBonusDamageReady)
+                {
+                    modifiers.FinalDamage *= 2f;
                 }
             }
         }
@@ -431,9 +461,12 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             if (proj.owner != Player.whoAmI)
                 return;
 
+            if (!proj.DamageType.Equals(DamageClass.Melee))
+                return;
+
             // Lifesteal for melee projectiles
             float lifestealPercent = GetLifestealPercent();
-            if (lifestealPercent > 0f && proj.DamageType.Equals(DamageClass.Melee))
+            if (lifestealPercent > 0f)
             {
                 int healAmount = (int)(hit.Damage * lifestealPercent);
                 if (healAmount > 0)
@@ -442,34 +475,88 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
                 }
             }
 
-            // Apply same debuffs as melee
-            if (hasSolarCrescendoRing && proj.DamageType.Equals(DamageClass.Melee))
+            // Resonance Synergy: Consume bonus damage
+            if (resonanceSynergyBonusDamageReady)
+            {
+                resonanceSynergyBonusDamageReady = false;
+                ResonancePrefixHelper.ConsumeBurnStacks(target);
+
+                for (int i = 0; i < 12; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 12f;
+                    float hue = (float)i / 12f;
+                    Color rainbowColor = Main.hslToRgb(hue, 0.9f, 0.75f);
+                    CustomParticles.GenericFlare(target.Center, rainbowColor, 0.6f, 25);
+                }
+
+                Terraria.Audio.SoundEngine.PlaySound(SoundID.Item14, target.Center);
+            }
+
+            // Resonance Synergy: 2% lifesteal vs burning
+            if (hasResonantCleaversEdge && ResonancePrefixHelper.IsEnemyBurning(target))
+            {
+                int healAmount = Math.Max(1, (int)(damageDone * 0.02f));
+                Player.Heal(healAmount);
+            }
+
+            // InfernoTempo: Extend burn duration by 2 seconds
+            if (hasInfernoTempoSignet && ResonancePrefixHelper.IsEnemyBurning(target))
+            {
+                ResonancePrefixHelper.ExtendBurnDuration(target, 120);
+            }
+
+            // Spring Tempo Charm: 5% chance to heal 1 HP
+            if (hasSpringTempoCharm && Main.rand.NextFloat() < 0.05f)
+            {
+                Player.Heal(1);
+                int dustType = DustID.Grass;
+                Dust dust = Dust.NewDustDirect(target.Center, target.width, target.height, dustType);
+                dust.velocity = Vector2.One.RotatedByRandom(MathHelper.TwoPi) * 2f;
+            }
+
+            // Solar Crescendo Ring: Inflict On Fire!
+            if (hasSolarCrescendoRing)
             {
                 target.AddBuff(BuffID.OnFire, 300);
             }
 
-            if (hasPermafrostCadenceSeal && Main.rand.NextFloat() < 0.10f && proj.DamageType.Equals(DamageClass.Melee))
+            // Permafrost Cadence Seal: 10% freeze
+            if (hasPermafrostCadenceSeal && Main.rand.NextFloat() < 0.10f)
             {
                 target.AddBuff(BuffID.Frostburn, 60);
             }
 
-            if (hasVivaldisTempoMaster && proj.DamageType.Equals(DamageClass.Melee))
+            // Vivaldi's Tempo Master: Biome-based debuffs
+            if (hasVivaldisTempoMaster)
             {
                 if (Player.ZoneSnow)
-                {
                     target.AddBuff(BuffID.Frostburn, 300);
-                }
                 else if (Player.ZoneDesert)
-                {
                     target.AddBuff(BuffID.OnFire, 300);
-                }
                 else if (Player.ZoneJungle)
-                {
                     target.AddBuff(BuffID.Poisoned, 300);
-                }
                 else
-                {
                     target.AddBuff(BuffID.Confused, 240);
+            }
+
+            // Moonlit Sonata Band: Crit sparkles
+            if (hasMoonlitSonataBand && hit.Crit)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    CustomParticles.GenericFlare(target.Center, MoonlightPurple, 0.6f, 20);
+                }
+            }
+
+            // Infernal Fortissimo: Kills cause explosions
+            if (hasInfernalFortissimo && target.life <= 0)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 8f;
+                    Vector2 velocity = angle.ToRotationVector2() * 4f;
+                    Dust dust = Dust.NewDustDirect(target.Center, 1, 1, DustID.Torch);
+                    dust.velocity = velocity;
                 }
             }
         }
@@ -505,7 +592,7 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
                 lifesteal += 0.03f;
 
             if (hasGauntletOfTheEternalSymphony)
-                lifesteal += 0.04f;
+                lifesteal += 0.02f;
 
             return lifesteal;
         }

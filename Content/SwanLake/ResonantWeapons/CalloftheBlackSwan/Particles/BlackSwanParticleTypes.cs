@@ -83,7 +83,6 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Particl
     public class DualitySparkParticle : BlackSwanParticle
     {
         private static Texture2D _bloomTexture;
-        private static Texture2D _sparkTexture;
         private readonly bool _isBlack;
         private float _opacity;
         private readonly float _squishStrength;

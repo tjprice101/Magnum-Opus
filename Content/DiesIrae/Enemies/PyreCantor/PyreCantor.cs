@@ -12,6 +12,8 @@ namespace MagnumOpus.Content.DiesIrae.Enemies
 {
     public class PyreCantor : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/DiesIrae/Enemies/PyreCantor/PyreCantor";
+
         private static readonly Color PyreCrimson = new Color(180, 30, 20);
         private static readonly Color PyreEmber = new Color(240, 100, 30);
 

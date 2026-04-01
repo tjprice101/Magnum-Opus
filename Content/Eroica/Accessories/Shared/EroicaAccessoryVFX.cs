@@ -33,14 +33,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
             if ((int)timer % 8 == 0)
             {
                 float baseAngle = timer * 0.035f;
-                for (int i = 0; i < 4; i++)
-                {
-                    float angle = baseAngle + MathHelper.TwoPi * i / 4f;
-                    float radius = 30f + MathF.Sin(timer * 0.04f + i * 1.5f) * 6f;
-                    Vector2 emberPos = playerCenter + angle.ToRotationVector2() * radius;
-                    Color emberColor = i % 2 == 0 ? ValorScarlet : ValorGold;
-                    CustomParticles.GenericFlare(emberPos, emberColor * 0.6f, 0.2f, 10);
-                }
             }
             if ((int)timer % 20 == 0)
                 EroicaVFXLibrary.SpawnMusicNotes(playerCenter + new Vector2(0f, -12f), 1, 15f, 0.65f, 0.85f, 35);
@@ -55,8 +47,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
         /// </summary>
         public static void BadgeValorProcFlash(Vector2 center)
         {
-            CustomParticles.GenericFlare(center, ValorGold, 0.7f, 18);
-            CustomParticles.GenericFlare(center, ValorHotCore, 0.5f, 14);
             for (int i = 0; i < 6; i++)
             {
                 float angle = MathHelper.TwoPi * i / 6f;
@@ -97,14 +87,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
             {
                 int flameCount = 2 + furyStacks / 3;
                 float baseAngle = timer * (0.04f + furyIntensity * 0.02f);
-                for (int i = 0; i < flameCount; i++)
-                {
-                    float angle = baseAngle + MathHelper.TwoPi * i / flameCount;
-                    float radius = 26f + MathF.Sin(timer * 0.06f + i * 0.8f) * 5f;
-                    Vector2 flamePos = playerCenter + angle.ToRotationVector2() * radius;
-                    Color flameColor = Color.Lerp(PyreEmber, FuryFlame, furyIntensity);
-                    CustomParticles.GenericFlare(flamePos, flameColor * (0.5f + furyIntensity * 0.3f), 0.18f + furyIntensity * 0.1f, 8);
-                }
                 int emberCount = 1 + (int)(furyIntensity * 2);
                 for (int i = 0; i < emberCount; i++)
                 {
@@ -118,7 +100,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
             if (furyStacks > 8)
             {
                 if ((int)timer % 4 == 0)
-                    CustomParticles.HaloRing(playerCenter, RageGold * 0.4f, 0.15f + MathF.Sin(timer * 0.1f) * 0.05f, 8);
                 if ((int)timer % 15 == 0)
                     EroicaVFXLibrary.SpawnMusicNotes(playerCenter, 1, 10f, 0.7f, 0.9f, 25);
             }
@@ -155,9 +136,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
         /// </summary>
         public static void FuryReleasePulse(Vector2 center)
         {
-            CustomParticles.GenericFlare(center, InfernoCore, 1.2f, 25);
-            CustomParticles.GenericFlare(center, RageGold, 0.9f, 20);
-            CustomParticles.GenericFlare(center, PyreEmber, 0.6f, 30);
             EroicaVFXLibrary.SpawnGradientHaloRings(center, 5, 0.35f);
             for (int i = 0; i < 30; i++)
             {
@@ -169,7 +147,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
             }
             EroicaVFXLibrary.MusicNoteBurst(center, RageGold, 8, 4f);
             GodRaySystem.CreateBurst(center, PyreEmber, 6, 90f, 35, GodRaySystem.GodRayStyle.Explosion, RageGold);
-            MagnumScreenEffects.AddScreenShake(6f);
             ScreenDistortionManager.TriggerRipple(center, PyreEmber, 0.7f, 20);
             Lighting.AddLight(center, InfernoCore.ToVector3() * 2f);
         }
@@ -181,8 +158,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
         {
             float progress = timerRemaining / 120f;
             if (timerRemaining % 6 == 0)
-                CustomParticles.HaloRing(playerCenter, RageGold * (0.3f + progress * 0.2f),
-                    0.2f + MathF.Sin(timerRemaining * 0.12f) * 0.05f, 10);
             if (timerRemaining % 8 == 0)
             {
                 Vector2 vel = new Vector2(0f, -0.6f - Main.rand.NextFloat(0.4f));
@@ -246,8 +221,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
                 d.noGravity = true;
                 d.fadeIn = 1.2f;
             }
-            CustomParticles.GenericFlare(spawnPos, WillSakura, 0.7f, 18);
-            CustomParticles.GenericFlare(spawnPos, SummonGlow, 0.5f, 14);
             EroicaVFXLibrary.SpawnGradientHaloRings(spawnPos, 3, 0.25f);
             for (int i = 0; i < 8; i++)
             {
@@ -258,7 +231,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
                 d.noGravity = true;
             }
             EroicaVFXLibrary.SpawnSakuraMusicNotes(spawnPos, 3, 20f);
-            MagnumScreenEffects.AddScreenShake(3f);
             Lighting.AddLight(spawnPos, WillSakura.ToVector3() * 1.0f);
         }
 
@@ -326,7 +298,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
                     playerCenter + Main.rand.NextVector2Circular(20f, 20f),
                     new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), -0.5f),
                     MarchBlack, 30, 0.4f, 0.25f, 0.01f, false, 0f, true);
-                MagnumParticleHandler.SpawnParticle(smoke);
             }
             if ((int)timer % 30 == 0)
                 EroicaVFXLibrary.SpawnMusicNotes(playerCenter + new Vector2(0f, -15f), 1, 12f, 0.6f, 0.8f, 40);
@@ -364,7 +335,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
                     Main.rand.NextVector2Circular(8f, 8f),
                     MarchBlack, 40, Main.rand.NextFloat(0.6f, 1.2f),
                     0.6f, Main.rand.NextFloat(-0.03f, 0.03f), false, 0f, true);
-                MagnumParticleHandler.SpawnParticle(smoke);
             }
             // Golden spark spray
             for (int i = 0; i < 20; i++)
@@ -373,12 +343,9 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
                     Main.rand.NextVector2Circular(8f, 8f), 0, EncoreGold, 1.4f);
                 d.noGravity = true;
             }
-            CustomParticles.GenericFlare(playerCenter, UndyingWhite, 1.5f, 25);
-            CustomParticles.GenericFlare(playerCenter, InsigniaScarlet, 1.0f, 30);
             GodRaySystem.CreateBurst(playerCenter, InsigniaScarlet, 8, 120f, 40,
                 GodRaySystem.GodRayStyle.Explosion, EncoreGold);
             EroicaVFXLibrary.MusicNoteBurst(playerCenter, InsigniaScarlet, 10, 5f);
-            MagnumScreenEffects.AddScreenShake(8f);
             ScreenDistortionManager.TriggerRipple(playerCenter, InsigniaScarlet, 1.0f, 30);
             Lighting.AddLight(playerCenter, UndyingWhite.ToVector3() * 2.5f);
         }
@@ -404,11 +371,8 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
                     playerCenter + Main.rand.NextVector2Circular(18f, 28f),
                     new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1.5f),
                     MarchBlack, 25, 0.5f, 0.4f, 0.02f, false, 0f, false);
-                MagnumParticleHandler.SpawnParticle(smoke);
             }
             if (timer % 6 == 0)
-                CustomParticles.HaloRing(playerCenter, EncoreGold * 0.35f,
-                    0.2f + MathF.Sin(timer * 0.15f) * 0.05f, 8);
             if (timer % 10 == 0)
                 EroicaVFXLibrary.SpawnMusicNotes(playerCenter, 1, 15f, 0.75f, 1.0f, 25);
 
@@ -427,8 +391,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
             float urgency = 1f - (manaPercent / 0.2f);
 
             if (Main.GameUpdateCount % 10 == 0)
-                CustomParticles.HaloRing(playerCenter, InsigniaScarlet * (0.2f + urgency * 0.2f),
-                    0.12f + MathF.Sin(Main.GameUpdateCount * 0.1f) * 0.04f, 10);
             if (Main.GameUpdateCount % 8 == 0)
             {
                 Vector2 vel = new Vector2(0f, -0.4f - Main.rand.NextFloat(0.3f));
@@ -498,7 +460,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
                     dustType, vel, 0, markColor, 1.0f + consecutiveHits * 0.15f);
                 d.noGravity = true;
             }
-            CustomParticles.GenericFlare(targetCenter, markColor * 0.6f, 0.15f + consecutiveHits * 0.05f, 10);
 
             // Rotating crosshair at 3+ hits — primed indicator
             if (consecutiveHits >= 3)
@@ -522,8 +483,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
         /// </summary>
         public static void PrecisionDetonationVFX(Vector2 targetCenter)
         {
-            CustomParticles.GenericFlare(targetCenter, DetonationWhite, 1.0f, 20);
-            CustomParticles.GenericFlare(targetCenter, SymphonyScarlet, 0.7f, 25);
             // 6-point crimson star burst
             for (int i = 0; i < 6; i++)
             {
@@ -543,13 +502,11 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
                 Color ringColor = Color.Lerp(SymphonyScarlet, PrecisionGold, (float)i / 4f);
                 var ring = new BloomRingParticle(targetCenter, Vector2.Zero, ringColor,
                     0.25f + i * 0.12f, 20 + i * 3, 0.1f);
-                MagnumParticleHandler.SpawnParticle(ring);
             }
             EroicaVFXLibrary.SpawnRadialDustBurst(targetCenter, 25, 7f, DustID.CrimsonTorch);
             EroicaVFXLibrary.MusicNoteBurst(targetCenter, SymphonyScarlet, 6, 3.5f);
             GodRaySystem.CreateBurst(targetCenter, SymphonyScarlet, 4, 70f, 25,
                 GodRaySystem.GodRayStyle.Explosion, PrecisionGold);
-            MagnumScreenEffects.AddScreenShake(4f);
             ScreenDistortionManager.TriggerRipple(targetCenter, SymphonyScarlet, 0.5f, 15);
             Lighting.AddLight(targetCenter, DetonationWhite.ToVector3() * 1.8f);
         }

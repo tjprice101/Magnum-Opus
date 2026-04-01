@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria;
 using Terraria.Graphics.Shaders;
@@ -10,10 +10,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Shaders
     /// Self-contained shader loader for Requiem of Reality.
     /// Loads 4 unique shaders from Effects/Fate/RequiemOfReality/:
     ///
-    ///   1. RequiemSwingTrail     窶・Main melee swing arc trail with cosmic fire
-    ///   2. RequiemNoteTrail      窶・Seeking music note projectile trail
-    ///   3. RequiemComboAura      窶・Radial aura for spectral blade combo trigger
-    ///   4. RequiemImpactBloom    窶・Directional impact flash/bloom
+    ///   1. RequiemSwingTrail      -- Main melee swing arc trail with cosmic fire
+    ///   2. RequiemNoteTrail       -- Seeking music note projectile trail
+    ///   3. RequiemComboAura       -- Radial aura for spectral blade combo trigger
+    ///   4. RequiemImpactBloom     -- Directional impact flash/bloom
     ///
     /// Keys: "MagnumOpus:Requiem<Purpose>"
     /// </summary>

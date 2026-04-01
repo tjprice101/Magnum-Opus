@@ -569,7 +569,7 @@ The following areas have **not been analyzed** and may contain additional oversi
 - `Content/DiesIrae/Weapons/ChainOfJudgment/Utilities/ChainOfJudgmentUtils.cs` (L87)
 - `Content/DiesIrae/Weapons/DeathTollingBell/Particles/DeathTollingBellParticleTypes.cs`
 - `Content/DiesIrae/Weapons/WrathfulContract/Particles/WrathfulContractParticleTypes.cs`
-- `Content/DiesIrae/Weapons/HarmonyOfJudgement/Particles/HarmonyParticleTypes.cs`
+- `Content/DiesIrae/Weapons/HarmonyOfJudgment/Particles/HarmonyParticleTypes.cs`
 
 ### Fate Particles
 - `Content/Fate/ResonantWeapons/SymphonysEnd/Particles/SymphonyParticleHandler.cs` (L52)

@@ -11,6 +11,8 @@ namespace MagnumOpus.Content.Autumn.Enemies
 {
     public class Harrowroot : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/Autumn/Enemies/Harrowroot/Harrowroot";
+
         private static readonly Color AutumnAmber = new Color(200, 120, 40);
         private static readonly Color AutumnSienna = new Color(180, 60, 20);
 

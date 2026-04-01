@@ -11,6 +11,8 @@ namespace MagnumOpus.Content.Fate.Enemies
 {
     public class CelestialArbiter : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/Fate/Enemies/CelestialArbiter/CelestialArbiter";
+
         private static readonly Color FateCrimson = new Color(180, 40, 80);
         private static readonly Color FateWhite = new Color(240, 220, 240);
 

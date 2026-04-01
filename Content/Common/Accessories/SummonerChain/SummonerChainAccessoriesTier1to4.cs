@@ -151,7 +151,7 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
                 OverrideColor = new Color(255, 150, 150)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "At max stacks: +50% minion attack speed (5 seconds) + 2 temporary minion slots (8 seconds)")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "At max stacks: +25% bonus minion damage (5 seconds) + 2 temporary minion slots (8 seconds)")
             {
                 OverrideColor = new Color(200, 180, 255)
             });
@@ -200,7 +200,7 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+1 minion slot")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+1 minion slot, +12% summon damage, +5% summon crit")
             {
                 OverrideColor = new Color(200, 180, 255)
             });

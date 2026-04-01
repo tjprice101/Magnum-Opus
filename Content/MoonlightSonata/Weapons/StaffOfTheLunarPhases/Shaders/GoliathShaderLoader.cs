@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria.Graphics.Shaders;
 using Terraria.ModLoader;
@@ -8,12 +8,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Shade
     /// <summary>
     /// Loads and registers all Staff of the Lunar Phases weapon-specific shaders.
     /// Shader keys:
-    ///   "MagnumOpus:GoliathBeamMain"       窶・Moonlight beam trail body (cosmic gradient + energy flow)
-    ///   "MagnumOpus:GoliathBeamGlow"        窶・Beam trail glow pass (bloom underlayer)
-    ///   "MagnumOpus:GoliathDevastatingMain" 窶・Devastating beam trail (intense, wider variant)
-    ///   "MagnumOpus:GoliathDevastatingGlow" 窶・Devastating beam glow pass
-    ///   "MagnumOpus:GoliathLunarBeam"       窶・LunarBeam shader for fallback trail rendering
-    ///   "MagnumOpus:GoliathStandardPrimitive" 窶・Fallback primitive shader
+    ///   "MagnumOpus:GoliathBeamMain"        -- Moonlight beam trail body (cosmic gradient + energy flow)
+    ///   "MagnumOpus:GoliathBeamGlow"         -- Beam trail glow pass (bloom underlayer)
+    ///   "MagnumOpus:GoliathDevastatingMain"  -- Devastating beam trail (intense, wider variant)
+    ///   "MagnumOpus:GoliathDevastatingGlow"  -- Devastating beam glow pass
+    ///   "MagnumOpus:GoliathLunarBeam"        -- LunarBeam shader for fallback trail rendering
+    ///   "MagnumOpus:GoliathStandardPrimitive"  -- Fallback primitive shader
     ///
     /// The GravitationalRift and SummonCircle shaders are loaded by the central ShaderLoader
     /// and accessed via MoonlightSonataShaderManager's Apply methods.

@@ -9,7 +9,6 @@ using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Screen;
 using GodRayStyle = MagnumOpus.Common.Systems.VFX.GodRaySystem.GodRayStyle;
-using StrongBloomParticle = MagnumOpus.Common.Systems.VFX.StrongBloomParticle;
 
 namespace MagnumOpus.Content.DiesIrae.Bosses.Systems
 {

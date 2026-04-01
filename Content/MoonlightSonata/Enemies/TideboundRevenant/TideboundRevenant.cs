@@ -11,6 +11,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
 {
     public class TideboundRevenant : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/MoonlightSonata/Enemies/TideboundRevenant/TideboundRevenant";
+
         private static readonly Color MoonlightPurple = new Color(140, 100, 200);
         private static readonly Color MoonlightBlue = new Color(100, 140, 220);
 

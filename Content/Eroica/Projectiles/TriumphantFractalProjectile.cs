@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -17,7 +17,7 @@ using MagnumOpus.Common.Systems.Shaders;
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
     /// <summary>
-    /// Triumphant Fractal projectile 窶・homing fractal geometry with lightning flourishes.
+    /// Triumphant Fractal projectile  -- homing fractal geometry with lightning flourishes.
     /// Self-contained VFX: GPU trail, lightning arcs, fractal afterimages, impact geometry.
     /// </summary>
     public class TriumphantFractalProjectile : ModProjectile

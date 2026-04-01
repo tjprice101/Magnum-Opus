@@ -25,7 +25,6 @@ namespace MagnumOpus.Content.MoonlightSonata
         private static readonly string SLPTrailsClear = "MagnumOpus/Assets/SandboxLastPrism/Trails/Clear/";
         private static readonly string VFXGradients = "MagnumOpus/Assets/VFX Asset Library/ColorGradients/";
         private static readonly string VFXMasks = "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/";
-        private static readonly string VFXGlow = "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/";
         private static readonly string ParticleStars = "MagnumOpus/Assets/Particles Asset Library/Stars/";
 
         /// <summary>Multi-pointed crystalline star burst  Eimpact flares, crescendo bursts, crit detonations.

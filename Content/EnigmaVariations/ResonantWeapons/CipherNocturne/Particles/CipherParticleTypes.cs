@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -9,7 +9,7 @@ using ReLogic.Content;
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Particles
 {
     // =========================================================================
-    //  UNRAVEL MOTE 窶・Soft glow particles that drift along the beam
+    //  UNRAVEL MOTE  -- Soft glow particles that drift along the beam
     //  Like reality fraying at the seams, small void motes orbit and drift
     // =========================================================================
     public class UnravelMoteParticle : CipherParticle
@@ -61,7 +61,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Par
     }
 
     // =========================================================================
-    //  CIPHER GLYPH 窶・Floating enigma glyphs that orbit the beam
+    //  CIPHER GLYPH  -- Floating enigma glyphs that orbit the beam
     //  Each glyph is a slowly rotating arcane symbol
     // =========================================================================
     public class CipherGlyphParticle : CipherParticle
@@ -118,7 +118,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Par
     }
 
     // =========================================================================
-    //  SNAP-BACK SPARK 窶・Fast directional sparks for the snap-back explosion
+    //  SNAP-BACK SPARK  -- Fast directional sparks for the snap-back explosion
     //  Reality collapsing inward with sharp bright sparks
     // =========================================================================
     public class SnapBackSparkParticle : CipherParticle
@@ -167,7 +167,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Par
     }
 
     // =========================================================================
-    //  VOID DISTORTION RING 窶・Expanding ring that fades, for beam impacts
+    //  VOID DISTORTION RING  -- Expanding ring that fades, for beam impacts
     // =========================================================================
     public class VoidDistortionRingParticle : CipherParticle
     {
@@ -202,7 +202,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Par
     }
 
     // =========================================================================
-    //  BEAM CORE PULSE 窶・Pulsing glow at the beam origin
+    //  BEAM CORE PULSE  -- Pulsing glow at the beam origin
     // =========================================================================
     public class BeamCorePulseParticle : CipherParticle
     {

@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria.Graphics.Shaders;
 using Terraria.ModLoader;
@@ -7,7 +7,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown.
 {
     /// <summary>
     /// Loads FugueOfTheUnknown weapon-specific shaders into GameShaders.Misc.
-    /// Each shader is self-contained 窶・no shared Enigma shader manager.
+    /// Each shader is self-contained  -- no shared Enigma shader manager.
     /// </summary>
     [Autoload(Side = ModSide.Client)]
     public sealed class FugueShaderLoader : ModSystem
@@ -20,11 +20,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown.
             var assets = Mod.Assets;
             Asset<Effect> Load(string path) => assets.Request<Effect>(path, AssetRequestMode.ImmediateLoad);
 
-            // Voice trail shader 窶・spectral waveform trail for voice projectiles
+            // Voice trail shader  -- spectral waveform trail for voice projectiles
             VoiceTrailAsset = Load("Content/EnigmaVariations/ResonantWeapons/FugueOfTheUnknown/Shaders/FugueVoiceTrail");
             GameShaders.Misc["MagnumOpus:FugueVoiceFlow"] = new MiscShaderData(VoiceTrailAsset, "P0");
 
-            // Convergence shader 窶・two techniques: wave (contracting rings) and glow (soft bloom)
+            // Convergence shader  -- two techniques: wave (contracting rings) and glow (soft bloom)
             ConvergenceAsset = Load("Content/EnigmaVariations/ResonantWeapons/FugueOfTheUnknown/Shaders/FugueConvergence");
             GameShaders.Misc["MagnumOpus:FugueConvergenceWave"] = new MiscShaderData(ConvergenceAsset, "P0");
             GameShaders.Misc["MagnumOpus:FugueConvergenceGlow"] = new MiscShaderData(ConvergenceAsset, "P0");

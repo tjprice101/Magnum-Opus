@@ -25,7 +25,6 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
 
         private const int SeekDuration = 15; // Frames to find and strike target
         private int targetNPC = -1;
-        private bool hasStruck;
         private float ChainRange => Projectile.ai[0];
         private int ChainDepth => (int)Projectile.ai[1];
         private VertexStrip _strip;
@@ -111,7 +110,6 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.GrandioseChime.Project
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 1);
-            hasStruck = true;
 
             // VFX at strike point
             GrandioseChimeParticleHandler.SpawnParticle(new KillEchoParticle(target.Center, 1.5f, 12));

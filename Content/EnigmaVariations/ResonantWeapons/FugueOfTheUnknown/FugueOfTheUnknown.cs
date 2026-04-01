@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -24,8 +24,8 @@ using MagnumOpus.Content.EnigmaVariations;
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
 {
     /// <summary>
-    /// FUGUE OF THE UNKNOWN 窶・Magic orbit-and-release weapon (Enigma Variations theme).
-    /// A fugue 窶・multiple voices weaving independently, then converging.
+    /// FUGUE OF THE UNKNOWN  -- Magic orbit-and-release weapon (Enigma Variations theme).
+    /// A fugue  -- multiple voices weaving independently, then converging.
     /// 
     /// Left-click spawns orbiting voice projectiles (max 5, progressive positioning).
     /// Right-click releases all voices with homing + spiral toward nearest enemies.
@@ -91,9 +91,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Left-click spawns orbiting voice projectiles around you (max 5)"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Right-click releases all voices 窶・they spiral and home toward enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Right-click releases all voices  -- they spiral and home toward enemies"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Hits apply EchoMark stacks on enemies"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "At 5 EchoMark stacks, triggers Harmonic Convergence 窶・5x damage to the target"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "At 5 EchoMark stacks, triggers Harmonic Convergence  -- 5x damage to the target"));
             tooltips.Add(new TooltipLine(Mod, "Effect5", "Convergence chains 3x damage to all Echo-marked enemies in range"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Five voices. One question. No answer.'")
             {
@@ -391,7 +391,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
 
             // ======= HARMONIC CONVERGENCE VFX =======
             // NOTE: This runs during OnHitNPC (update phase), NOT draw phase.
-            // All VFX must use particle spawns 窶・Main.spriteBatch.Draw() would crash here.
+            // All VFX must use particle spawns  -- Main.spriteBatch.Draw() would crash here.
 
             // Convergence ring flash particles (replacing direct spriteBatch draws)
             FugueParticleHandler.Spawn(new ConvergenceFlashParticle(
@@ -421,7 +421,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown
                 25
             ));
 
-            // Large flash at primary target 窶・all voices resolving in unison
+            // Large flash at primary target  -- all voices resolving in unison
             FugueParticleHandler.Spawn(new ConvergenceFlashParticle(
                 target.Center,
                 FugueUtils.HarmonicWhite,

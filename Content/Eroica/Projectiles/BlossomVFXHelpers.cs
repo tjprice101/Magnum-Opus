@@ -257,12 +257,12 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
     #endregion
 
-    #region MuzzleFlashParticle
+    #region BlossomMuzzleFlashParticle
 
     /// <summary>
     /// Bright directional muzzle flash — quick pop then fade.
     /// </summary>
-    public class MuzzleFlashParticle : Particle
+    public class BlossomMuzzleFlashParticle : Particle
     {
         public override string Texture => "MagnumOpus/Common/Systems/Particles/Textures/GlowDot";
         public override bool SetLifetime => true;
@@ -271,7 +271,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         private float initialScale;
 
-        public MuzzleFlashParticle(Vector2 position, Vector2 velocity, Color color, float scale, int lifetime)
+        public BlossomMuzzleFlashParticle(Vector2 position, Vector2 velocity, Color color, float scale, int lifetime)
         {
             Position = position;
             Velocity = velocity;
@@ -309,12 +309,12 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
     #endregion
 
-    #region ImpactBloomParticle
+    #region BlossomImpactBloomParticle
 
     /// <summary>
     /// Expanding bloom burst for bullet impact moments.
     /// </summary>
-    public class ImpactBloomParticle : Particle
+    public class BlossomImpactBloomParticle : Particle
     {
         public override string Texture => "MagnumOpus/Common/Systems/Particles/Textures/GlowDot";
         public override bool SetLifetime => true;
@@ -323,7 +323,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         private float initialScale;
 
-        public ImpactBloomParticle(Vector2 position, Vector2 velocity, Color color, float scale, int lifetime)
+        public BlossomImpactBloomParticle(Vector2 position, Vector2 velocity, Color color, float scale, int lifetime)
         {
             Position = position;
             Velocity = velocity;

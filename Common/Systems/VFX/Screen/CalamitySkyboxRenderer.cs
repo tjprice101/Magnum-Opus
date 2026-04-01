@@ -24,7 +24,6 @@ namespace MagnumOpus.Common.Systems.VFX
     public class CalamitySkyboxRenderer : ModSystem
     {
         // Active sky effects
-        private static bool _skyActive;
         private static string _activeTheme;
         private static float _skyIntensity;
         private static float _targetIntensity;
@@ -46,7 +45,6 @@ namespace MagnumOpus.Common.Systems.VFX
             if (Main.dedServ)
                 return;
             
-            _skyActive = false;
             _skyIntensity = 0f;
             _targetIntensity = 0f;
             
@@ -94,7 +92,6 @@ namespace MagnumOpus.Common.Systems.VFX
         public static void ActivateBossSky(string theme, Color primary, Color secondary, 
             float noiseScale = 0.5f, float scrollSpeed = 0.02f)
         {
-            _skyActive = true;
             _activeTheme = theme;
             _targetIntensity = 1f;
             _primaryColor = primary;
@@ -119,7 +116,6 @@ namespace MagnumOpus.Common.Systems.VFX
         /// </summary>
         public static void ForceClearSky()
         {
-            _skyActive = false;
             _skyIntensity = 0f;
             _targetIntensity = 0f;
         }

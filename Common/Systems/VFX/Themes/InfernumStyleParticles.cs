@@ -78,57 +78,6 @@ namespace MagnumOpus.Common.Systems
     }
 
     /// <summary>
-    /// A strong bloom effect for bright flashes and impacts.
-    /// Creates a powerful glow at a point that fades over time.
-    /// Inspired by Infernum's StrongBloom particle.
-    /// </summary>
-    public class StrongBloomParticle : Particle
-    {
-        public override string Texture => "BloomCircle";
-        public override bool UseAdditiveBlend => true;
-        public override bool SetLifetime => true;
-        public override bool UseCustomDraw => true;
-        public override bool Important => true;
-
-        private Color BaseColor;
-        private float MaxScale;
-
-        public StrongBloomParticle(Vector2 position, Vector2 velocity, Color color, float scale, int lifetime)
-        {
-            Position = position;
-            Velocity = velocity;
-            BaseColor = color;
-            MaxScale = scale;
-            Scale = scale;
-            Lifetime = lifetime;
-        }
-
-        public override void Update()
-        {
-            // Pulse effect - brightest in the middle of lifetime
-            float pulseProgress = (float)Math.Sin(LifetimeCompletion * MathHelper.Pi);
-            Scale = MaxScale * (0.5f + pulseProgress * 0.5f);
-            Color = BaseColor * pulseProgress;
-            
-            Lighting.AddLight(Position, Color.R / 255f * pulseProgress, Color.G / 255f * pulseProgress, Color.B / 255f * pulseProgress);
-        }
-
-        public override void CustomDraw(SpriteBatch spriteBatch)
-        {
-            Texture2D tex = ParticleTextureHelper.GetTexture(Texture);
-            float opacity = (float)Math.Sin(LifetimeCompletion * MathHelper.Pi);
-            
-            // Draw multiple layers for extra bloom
-            spriteBatch.Draw(tex, Position - Main.screenPosition, null, Color * opacity * 0.5f,
-                0, tex.Size() / 2f, Scale * 1.5f, SpriteEffects.None, 0);
-            spriteBatch.Draw(tex, Position - Main.screenPosition, null, Color * opacity,
-                0, tex.Size() / 2f, Scale, SpriteEffects.None, 0);
-            spriteBatch.Draw(tex, Position - Main.screenPosition, null, Color.White * opacity * 0.5f,
-                0, tex.Size() / 2f, Scale * 0.5f, SpriteEffects.None, 0);
-        }
-    }
-
-    /// <summary>
     /// A cloud/smoke particle that drifts and fades with color transition.
     /// Use for fire explosions, teleport effects, impact clouds.
     /// Inspired by Infernum's CloudParticle.

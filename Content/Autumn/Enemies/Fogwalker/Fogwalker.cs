@@ -11,6 +11,8 @@ namespace MagnumOpus.Content.Autumn.Enemies
 {
     public class Fogwalker : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/Autumn/Enemies/Fogwalker/Fogwalker";
+
         private static readonly Color AutumnGold = new Color(210, 160, 60);
         private static readonly Color AutumnEarth = new Color(80, 40, 20);
 

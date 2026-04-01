@@ -35,6 +35,8 @@ namespace MagnumOpus.Content.MoonlightSonata.CraftingStations
 
             // Acts as a furnace for crafting
             AdjTiles = new int[] { TileID.Furnaces, TileID.AdamantiteForge };
+
+            RegisterItemDrop(ModContent.ItemType<MoonlightFurnace>());
         }
 
         public override void ModifyLight(int i, int j, ref float r, ref float g, ref float b)

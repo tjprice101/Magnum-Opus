@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using Terraria;
@@ -296,9 +296,6 @@ namespace MagnumOpus.Content.Common.Accessories
                     int echoDamage = (int)(damageDone * 1.0f);
                     target.SimpleStrikeNPC(echoDamage, 0, false, 0, null, false, 0, true);
                     
-                    CustomParticles.GenericFlare(target.Center, new Color(200, 80, 120), 0.85f, 22);
-                    CustomParticles.HaloRing(target.Center, new Color(140, 50, 160), 0.55f, 18);
-                    CustomParticles.GlyphBurst(target.Center, new Color(140, 50, 160), 6, 4f);
                 }
             }
             
@@ -324,10 +321,6 @@ namespace MagnumOpus.Content.Common.Accessories
                     }
                 }
                 
-                CustomParticles.GenericFlare(target.Center, Color.White, 1.1f, 22);
-                CustomParticles.GenericFlare(target.Center, new Color(255, 140, 40), 0.9f, 20);
-                for (int i = 0; i < 6; i++)
-                    CustomParticles.HaloRing(target.Center, Color.Lerp(new Color(255, 140, 40), new Color(255, 200, 80), i / 6f), 0.4f + i * 0.12f, 16 + i * 2);
             }
             
             // === ENIGMA: Paradox stacking (25%) ===
@@ -356,9 +349,6 @@ namespace MagnumOpus.Content.Common.Accessories
             if (Main.rand.NextBool(4))
             {
                 float hue = Main.rand.NextFloat();
-                var sparkle = new SparkleParticle(target.Center, Main.rand.NextVector2Circular(3f, 3f),
-                    Main.hslToRgb(hue, 1f, 0.8f), 0.35f, 16);
-                MagnumParticleHandler.SpawnParticle(sparkle);
             }
             
             // === SEASONS: All elemental effects ===
@@ -379,9 +369,6 @@ namespace MagnumOpus.Content.Common.Accessories
                 cosmicBurstCooldown = 240;
                 Player.statMana = Math.Min(Player.statMana + 150, Player.statManaMax2);
                 
-                CustomParticles.GenericFlare(Player.Center, new Color(140, 50, 160), 1.0f, 24);
-                for (int i = 0; i < 8; i++)
-                    CustomParticles.HaloRing(Player.Center, Color.Lerp(new Color(200, 80, 120), new Color(140, 50, 160), i / 8f), 0.35f + i * 0.1f, 16 + i * 2);
             }
             
             // Check kill for heroic surge
@@ -392,8 +379,6 @@ namespace MagnumOpus.Content.Common.Accessories
                 heroicSurgeTimer = 480;
                 
                 // Kill explosion
-                CustomParticles.GenericFlare(target.Center, Color.White, 1.2f, 28);
-                CustomParticles.ExplosionBurst(target.Center, Main.hslToRgb(Main.rand.NextFloat(), 1f, 0.75f), 18, 10f);
             }
         }
 
@@ -404,7 +389,6 @@ namespace MagnumOpus.Content.Common.Accessories
             // ================================================
             
             // Central flash cascade - ALL colors
-            CustomParticles.GenericFlare(target.Center, Color.White, 3.0f, 50);
             
             Color[] allColors = {
                 new Color(255, 183, 197), // Spring
@@ -423,58 +407,18 @@ namespace MagnumOpus.Content.Common.Accessories
             };
             
             // Cascading flares
-            for (int i = 0; i < allColors.Length; i++)
-            {
-                CustomParticles.GenericFlare(target.Center, allColors[i], 2.2f - i * 0.12f, 45 - i * 2);
-            }
             
             // Mega halo cascade - 24 rings
-            for (int ring = 0; ring < 24; ring++)
-            {
-                CustomParticles.HaloRing(target.Center, allColors[ring % allColors.Length], 0.5f + ring * 0.15f, 25 + ring * 2);
-            }
             
             // Themed particle bursts
-            ThemedParticles.SakuraPetals(target.Center, 25, 90f);
             
-            for (int i = 0; i < 32; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 32f;
-                Vector2 featherPos = target.Center + angle.ToRotationVector2() * 70f;
-                CustomParticles.SwanFeatherDrift(featherPos, i % 2 == 0 ? Color.White : new Color(220, 220, 235), 0.7f);
-            }
             
-            for (int i = 0; i < 40; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 40f;
-                float radius = 50f + i * 7f;
-                Vector2 pos = target.Center + angle.ToRotationVector2() * radius;
-                CustomParticles.Glyph(pos, allColors[i % allColors.Length], 0.7f, -1);
-            }
             
             // Rainbow sparkle explosion
-            for (int i = 0; i < 30; i++)
-            {
-                float hue = (float)i / 30f;
-                Vector2 sparklePos = target.Center + Main.rand.NextVector2Circular(80f, 80f);
-                var sparkle = new SparkleParticle(sparklePos, Main.rand.NextVector2Circular(5f, 5f),
-                    Main.hslToRgb(hue, 1f, 0.85f), 0.5f, 25);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
             
             // Multi-color explosion bursts
-            for (int i = 0; i < allColors.Length; i++)
-            {
-                CustomParticles.ExplosionBurst(target.Center, allColors[i], 18, 14f - i * 0.3f);
-            }
             
             // Music notes spiraling outward
-            for (int i = 0; i < 16; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 16f + Main.GameUpdateCount * 0.05f;
-                Vector2 notePos = target.Center + angle.ToRotationVector2() * 50f;
-                ThemedParticles.MusicNote(notePos, angle.ToRotationVector2() * 3f, allColors[i % allColors.Length], 0.5f, 30);
-            }
             
             // ULTIMATE DAMAGE
             if (Main.myPlayer == Player.whoAmI)
@@ -500,7 +444,6 @@ namespace MagnumOpus.Content.Common.Accessories
                 }
             }
             
-            MagnumScreenEffects.AddScreenShake(25f);
         }
 
         public override bool FreeDodge(Player.HurtInfo info)
@@ -516,21 +459,6 @@ namespace MagnumOpus.Content.Common.Accessories
                 dodgeCooldown = 45;
                 
                 // ULTIMATE DODGE VFX
-                CustomParticles.GenericFlare(Player.Center, Color.White, 2.2f, 38);
-                
-                Color[] themeColors = {
-                    new Color(138, 43, 226), new Color(255, 200, 80),
-                    new Color(255, 140, 40), new Color(140, 60, 200), Color.White
-                };
-                
-                for (int i = 0; i < 5; i++)
-                    CustomParticles.GenericFlare(Player.Center, themeColors[i], 1.5f - i * 0.2f, 32 - i * 3);
-                
-                for (int i = 0; i < 18; i++)
-                {
-                    float hue = (float)i / 18f;
-                    CustomParticles.HaloRing(Player.Center, Main.hslToRgb(hue, 1f, 0.75f), 0.4f + i * 0.1f, 16 + i * 2);
-                }
                 
                 // Dodge damage
                 if (Main.myPlayer == Player.whoAmI)

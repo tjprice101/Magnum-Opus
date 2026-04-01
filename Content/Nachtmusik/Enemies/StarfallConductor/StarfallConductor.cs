@@ -12,6 +12,8 @@ namespace MagnumOpus.Content.Nachtmusik.Enemies
 {
     public class StarfallConductor : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/Nachtmusik/Enemies/StarfallConductor/StarfallConductor";
+
         private static readonly Color NachtIndigo = new Color(100, 120, 200);
         private static readonly Color StarSilver = new Color(200, 220, 255);
 

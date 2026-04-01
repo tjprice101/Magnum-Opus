@@ -11,6 +11,8 @@ namespace MagnumOpus.Content.Summer.Enemies
 {
     public class HeatstrikeCicada : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/Summer/Enemies/HeatstrikeCicada/HeatstrikeCicada";
+
         private static readonly Color SummerOrange = new Color(255, 150, 40);
         private static readonly Color SummerFlame = new Color(255, 100, 20);
 

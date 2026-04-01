@@ -90,6 +90,7 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
                 .AddIngredient(ItemID.FragmentSolar, 8)
                 .AddIngredient(ItemID.LunarBar, 8)
                 .AddIngredient(ItemID.FallenStar, 15)
+                .AddIngredient(ModContent.ItemType<ShardOfNachtmusiksTempo>(), 5)
                 .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
                 .Register();
         }
@@ -132,18 +133,12 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
         {
             // Visual impact at target
             // Central flash
-            CustomParticles.GenericFlare(target.Center, StarWhite, 0.9f, 20);
-            CustomParticles.GenericFlare(target.Center, Gold, 0.7f, 18);
-            CustomParticles.GenericFlare(target.Center, DeepPurple, 0.5f, 16);
 
             // Music note burst on starfall impact
 
             // Star sparkle accents
             for (int i = 0; i < 3; i++)
             {
-                var sparkle = new SparkleParticle(target.Center + Main.rand.NextVector2Circular(10f, 10f),
-                    Main.rand.NextVector2Circular(2f, 2f), new Color(255, 250, 240) * 0.5f, 0.2f, 15);
-                MagnumParticleHandler.SpawnParticle(sparkle);
             }
 
             // Starfall streaks from above
@@ -154,31 +149,11 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
                 Vector2 endPos = target.Center + new Vector2(xOffset * 0.3f, 0f);
 
                 // Draw star trail
-                for (int j = 0; j < 8; j++)
-                {
-                    float progress = j / 8f;
-                    Vector2 trailPos = Vector2.Lerp(startPos, endPos, progress);
-                    Color trailColor = Color.Lerp(Gold, DeepPurple, progress);
-                    CustomParticles.GenericFlare(trailPos, trailColor * (1f - progress * 0.5f), 0.3f - progress * 0.2f, 10);
-                }
             }
 
             // Expanding halo rings
-            for (int ring = 0; ring < 4; ring++)
-            {
-                float ringProgress = ring / 4f;
-                Color ringColor = Color.Lerp(Gold, Violet, ringProgress);
-                CustomParticles.HaloRing(target.Center, ringColor, 0.3f + ring * 0.12f, 15 + ring * 3);
-            }
 
             // Star burst particles
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 burstDir = angle.ToRotationVector2();
-                Vector2 sparkPos = target.Center + burstDir * 25f;
-                CustomParticles.GenericFlare(sparkPos, Gold, 0.35f, 12);
-            }
 
             // Damage nearby enemies (75% of hit damage)
             int starfallDamage = (int)(baseDamage * 0.75f);
@@ -198,8 +173,6 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
                     }
 
                     // VFX on hit enemy
-                    CustomParticles.GenericFlare(npc.Center, Gold, 0.4f, 12);
-                    CustomParticles.HaloRing(npc.Center, DeepPurple, 0.25f, 10);
                 }
             }
 

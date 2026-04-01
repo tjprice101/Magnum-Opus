@@ -44,11 +44,6 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
                 OverrideColor = NachtmusikGold
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Ranged attacks leave star trails")
-            {
-                OverrideColor = new Color(200, 210, 230)
-            });
-
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The stars reveal all that hides in darkness'")
             {
                 OverrideColor = NachtmusikPurple * 0.8f
@@ -97,11 +92,6 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+25% ranged damage during boss fights")
             {
                 OverrideColor = DiesIraeCrimson
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Ranged attacks inflict hellfire (burns for 3% max HP/s)")
-            {
-                OverrideColor = DiesIraeOrange
             });
 
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Hellfire brands those condemned to oblivion'")
@@ -154,11 +144,6 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
                 OverrideColor = OdeToJoyRose
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Ranged attacks leave trails of light")
-            {
-                OverrideColor = OdeToJoyWhite
-            });
-
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Nature's blessing flows through the hunt'")
             {
                 OverrideColor = OdeToJoyRose * 0.8f
@@ -200,18 +185,17 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         {
             var markingPlayer = player.GetModPlayer<MarkingPlayer>();
             markingPlayer.hasEternalVerdictSight = true;
+
+            // T10 stat bonus
+            player.GetDamage(DamageClass.Ranged) += 0.15f;
+            player.GetCritChance(DamageClass.Ranged) += 8f;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Ranged attacks hit twice")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+15% ranged damage, +8% ranged crit")
             {
                 OverrideColor = ClairDeLuneCrimson
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "DoubleNote", "Second hit deals 50% damage")
-            {
-                OverrideColor = new Color(180, 170, 200)
             });
 
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Time itself marks your prey across all moments'")
@@ -265,21 +249,6 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "FusionDesc", "Fuses the power of Nachtmusik and Dies Irae")
-            {
-                OverrideColor = FusionGold
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+20% ranged damage at night")
-            {
-                OverrideColor = NachtmusikPurple
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+25% ranged damage during boss fights")
-            {
-                OverrideColor = DiesIraeCrimson
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Ranged attacks leave star trails and inflict hellfire")
             {
                 OverrideColor = FusionGold
             });
@@ -352,27 +321,12 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
                 OverrideColor = FusionTriumph
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+20% ranged damage at night")
-            {
-                OverrideColor = NachtmusikPurple
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+25% ranged damage during boss fights")
-            {
-                OverrideColor = DiesIraeCrimson
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Killing enemies with ranged attacks restores 2 HP")
-            {
-                OverrideColor = OdeToJoyRose
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Ranged attacks hit twice (50% second hit)")
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "+12% ranged crit, +18 armor penetration, 25% chance to not consume ammo")
             {
                 OverrideColor = FusionTriumph
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "+12% ranged crit, +18 armor penetration, 25% chance to not consume ammo")
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Scope (extended zoom)")
             {
                 OverrideColor = FusionTriumph
             });
@@ -424,8 +378,9 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             var markingPlayer = player.GetModPlayer<MarkingPlayer>();
             markingPlayer.hasScopeOfTheEternalVerdict = true;
 
-            player.GetCritChance(DamageClass.Ranged) += 15f;
-            player.GetArmorPenetration(DamageClass.Ranged) += 25f;
+            player.GetDamage(DamageClass.Ranged) += 0.30f;
+            player.GetCritChance(DamageClass.Ranged) += 12f;
+            player.GetArmorPenetration(DamageClass.Ranged) += 20f;
             player.ammoBox = true;
             player.scope = true;
         }
@@ -440,37 +395,22 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
                 OverrideColor = UltimatePrismatic
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+40% ranged damage")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+30% ranged damage")
             {
                 OverrideColor = NachtmusikPurple
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Ranged attacks hit three times")
-            {
-                OverrideColor = DiesIraeCrimson
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "TripleNote", "Second hit: 50% damage | Third hit: 25% damage")
-            {
-                OverrideColor = new Color(200, 180, 220)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Ranged kills restore 3 HP")
-            {
-                OverrideColor = OdeToJoyRose
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "All previous fusion effects included")
-            {
-                OverrideColor = new Color(200, 200, 200)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "+15% ranged crit, +25 armor penetration, Ammo Box effect")
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "+12% ranged crit, +20 armor penetration, Ammo Box effect")
             {
                 OverrideColor = UltimatePrismatic
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The eternal verdict echoes through all of existence'")
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Scope (extended zoom)")
+            {
+                OverrideColor = UltimatePrismatic
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Every note finds its mark'")
             {
                 OverrideColor = ClairDeLuneBrass * 0.8f
             });

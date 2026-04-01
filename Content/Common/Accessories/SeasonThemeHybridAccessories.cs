@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using Terraria;
@@ -117,7 +117,7 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 OverrideColor = Color.Lerp(SpringPink, MoonlightPurple, 0.3f)
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Hits can inflict confusion and heal you, thorns poison enemies")
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "12% chance to confuse enemies at night, 10%/6% chance to heal (8/5 HP), 8% chance to poison")
             {
                 OverrideColor = Color.Lerp(SpringPink, MoonlightPurple, 0.7f)
             });
@@ -160,7 +160,6 @@ namespace MagnumOpus.Content.Common.Accessories
             if (isNight && Main.rand.NextFloat() < 0.12f)
             {
                 target.AddBuff(BuffID.Confused, 150);
-                CustomParticles.GenericFlare(target.Center, new Color(138, 43, 226), 0.5f, 14);
             }
             
             // Bloom healing (8% chance, enhanced at night)
@@ -170,7 +169,6 @@ namespace MagnumOpus.Content.Common.Accessories
                 int healAmount = isNight ? 8 : 5;
                 Player.Heal(healAmount);
                 
-                CustomParticles.GenericFlare(Player.Center, new Color(255, 183, 197), 0.5f, 16);
             }
             
             // Thorns on hit
@@ -190,13 +188,6 @@ namespace MagnumOpus.Content.Common.Accessories
             if (isNight)
             {
                 // Burst of moonlit petals
-                for (int i = 0; i < 8; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 8f;
-                    Vector2 pos = Player.Center + angle.ToRotationVector2() * 25f;
-                    Color petalColor = Color.Lerp(new Color(255, 183, 197), new Color(160, 140, 220), Main.rand.NextFloat());
-                    CustomParticles.GenericGlow(pos, angle.ToRotationVector2() * 2f, petalColor, 0.35f, 20, true);
-                }
             }
         }
     }
@@ -289,11 +280,11 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 OverrideColor = Color.Lerp(SummerGold, CampanellaOrange, 0.3f)
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Bell Chime stuns enemies with fire AOE, Solar Burst during daytime")
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "15% chance Bell Chime stuns with fire AOE (150 range, 40% damage), 10% Solar Burst during day")
             {
                 OverrideColor = Color.Lerp(SummerGold, CampanellaOrange, 0.7f)
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Fire retaliation when hit — nearby enemies catch fire")
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "When hit, nearby enemies within 120 range catch fire")
             {
                 OverrideColor = Color.Lerp(SummerGold, CampanellaOrange, 0.5f)
             });
@@ -358,15 +349,7 @@ namespace MagnumOpus.Content.Common.Accessories
                 }
                 
                 // Bell chime VFX
-                CustomParticles.GenericFlare(target.Center, Color.White, 0.9f, 20);
-                CustomParticles.GenericFlare(target.Center, new Color(255, 180, 50), 0.75f, 18);
                 
-                for (int i = 0; i < 5; i++)
-                {
-                    CustomParticles.HaloRing(target.Center, 
-                        Color.Lerp(new Color(255, 180, 50), new Color(255, 140, 40), i / 5f), 
-                        0.35f + i * 0.1f, 14 + i * 2);
-                }
             }
             
             // Solar Burst during day (10%)
@@ -379,8 +362,6 @@ namespace MagnumOpus.Content.Common.Accessories
                 target.SimpleStrikeNPC(solarDamage, 0, false, 0, null, false, 0, true);
                 
                 // Solar burst VFX
-                CustomParticles.GenericFlare(target.Center, new Color(255, 220, 100), 0.8f, 18);
-                CustomParticles.ExplosionBurst(target.Center, new Color(255, 180, 50), 10, 7f);
             }
         }
 
@@ -402,14 +383,6 @@ namespace MagnumOpus.Content.Common.Accessories
             }
             
             // Fire burst VFX
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 pos = Player.Center + angle.ToRotationVector2() * 20f;
-                var flame = new GenericGlowParticle(pos, angle.ToRotationVector2() * 3f, 
-                    new Color(255, 140, 40) * 0.7f, 0.4f, 18, true);
-                MagnumParticleHandler.SpawnParticle(flame);
-            }
         }
     }
     #endregion
@@ -484,11 +457,11 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 OverrideColor = EnigmaPurple
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Paradox stacks apply random debuffs and slow enemies")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "15% chance per hit to apply Paradox debuffs and slow enemies")
             {
                 OverrideColor = Color.Lerp(WinterBlue, EnigmaPurple, 0.3f)
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "At 4 stacks: Frozen Void Collapse deals massive AOE damage")
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "At 4 stacks: Frozen Void Collapse deals 2.5x damage in 200 range (50% AOE)")
             {
                 OverrideColor = Color.Lerp(WinterBlue, EnigmaPurple, 0.7f)
             });
@@ -572,8 +545,6 @@ namespace MagnumOpus.Content.Common.Accessories
                 }
                 
                 // VFX for stack
-                CustomParticles.GenericFlare(target.Center, new Color(140, 60, 200), 0.45f, 14);
-                CustomParticles.Glyph(target.Center, new Color(100, 140, 200), 0.4f, -1);
             }
             
             // Deep freeze chance (8%)
@@ -583,47 +554,18 @@ namespace MagnumOpus.Content.Common.Accessories
                 target.AddBuff(BuffID.Frozen, 90); // Brief freeze
                 
                 // Freeze VFX
-                CustomParticles.GenericFlare(target.Center, new Color(150, 220, 255), 0.7f, 18);
-                for (int i = 0; i < 6; i++)
-                {
-                    CustomParticles.HaloRing(target.Center, new Color(150, 220, 255) * (1f - i * 0.1f), 
-                        0.3f + i * 0.08f, 14 + i * 2);
-                }
             }
         }
 
         private void TriggerFrozenVoidCollapse(NPC target, int baseDamage)
         {
             // FROZEN VOID COLLAPSE VFX
-            CustomParticles.GenericFlare(target.Center, Color.White, 1.8f, 35);
-            CustomParticles.GenericFlare(target.Center, new Color(100, 140, 200), 1.5f, 32);
-            CustomParticles.GenericFlare(target.Center, new Color(140, 60, 200), 1.2f, 30);
             
             // Ice shatter burst
-            for (int i = 0; i < 16; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 16f;
-                Vector2 shardPos = target.Center + angle.ToRotationVector2() * 30f;
-                Vector2 shardVel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
-                
-                Color shardColor = i % 2 == 0 ? new Color(150, 220, 255) : new Color(100, 140, 200);
-                CustomParticles.GenericGlow(shardPos, shardVel, shardColor, 0.35f, 22, true);
-            }
             
             // Enigma glyphs
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f + Main.rand.NextFloat(-0.2f, 0.2f);
-                Vector2 glyphPos = target.Center + angle.ToRotationVector2() * Main.rand.NextFloat(40f, 70f);
-                CustomParticles.Glyph(glyphPos, new Color(140, 60, 200), 0.5f, -1);
-            }
             
             // Halos
-            for (int i = 0; i < 8; i++)
-            {
-                Color haloColor = Color.Lerp(new Color(150, 220, 255), new Color(140, 60, 200), i / 8f);
-                CustomParticles.HaloRing(target.Center, haloColor, 0.4f + i * 0.1f, 18 + i * 2);
-            }
             
             // Damage
             if (Main.myPlayer == Player.whoAmI)
@@ -650,7 +592,6 @@ namespace MagnumOpus.Content.Common.Accessories
                 }
             }
             
-            MagnumScreenEffects.AddScreenShake(12f);
         }
 
         public override void OnHurt(Player.HurtInfo info)
@@ -672,13 +613,6 @@ namespace MagnumOpus.Content.Common.Accessories
             }
             
             // Frost burst VFX
-            for (int i = 0; i < 10; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 10f;
-                Vector2 pos = Player.Center + angle.ToRotationVector2() * 20f;
-                CustomParticles.GenericGlow(pos, angle.ToRotationVector2() * 2f, 
-                    new Color(150, 220, 255) * 0.7f, 0.35f, 18, true);
-            }
         }
     }
     #endregion

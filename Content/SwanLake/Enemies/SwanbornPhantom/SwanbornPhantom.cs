@@ -11,6 +11,8 @@ namespace MagnumOpus.Content.SwanLake.Enemies
 {
     public class SwanbornPhantom : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/SwanLake/Enemies/SwanbornPhantom/SwanbornPhantom";
+
         private static readonly Color SwanWhite = new Color(240, 240, 255);
         private static readonly Color SwanPrismatic = new Color(220, 220, 240);
 

@@ -136,7 +136,7 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Magic attacks leave fire trails that damage enemies")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Magic attacks create fire sparks on hit")
             {
                 OverrideColor = CampanellaOrange
             });
@@ -178,18 +178,16 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         {
             var overflowPlayer = player.GetModPlayer<OverflowPlayer>();
             overflowPlayer.hasEnigmasNegativeSpace = true;
+
+            // Enigma grants magic crit bonus
+            player.GetCritChance(DamageClass.Magic) += 10;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Magic attacks hit enemies twice")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+10% magic critical strike chance")
             {
                 OverrideColor = EnigmaPurple
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "DoubleNote", "Second hit deals 50% damage")
-            {
-                OverrideColor = new Color(180, 140, 220)
             });
 
             tooltips.Add(new TooltipLine(Mod, "Lore", "'In the negative space between questions, answers multiply'")

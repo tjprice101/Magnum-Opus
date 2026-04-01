@@ -82,7 +82,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'The gyre empowers those who embrace the moon'")
             {
-                OverrideColor = new Color(120, 120, 180)
+                OverrideColor = new Color(140, 100, 200)
             });
         }
 

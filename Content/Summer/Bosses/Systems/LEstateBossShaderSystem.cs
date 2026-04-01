@@ -27,10 +27,6 @@ namespace MagnumOpus.Content.Summer.Bosses.Systems
         private static readonly Color EclipseDark = new Color(30, 15, 5);
         private static readonly Color HeatRed = new Color(220, 60, 30);
 
-        // Afterburn render target (persistent burn marks)
-        private static RenderTarget2D _afterburnRT;
-        private static bool _afterburnDirty;
-
         /// <summary>
         /// Main entry point: routes to phase-specific VFX layers.
         /// Call from LEstate.PreDraw.

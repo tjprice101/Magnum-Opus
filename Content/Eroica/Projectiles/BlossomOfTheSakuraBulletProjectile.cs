@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -16,7 +16,7 @@ using MagnumOpus.Content.FoundationWeapons.RibbonFoundation;
 namespace MagnumOpus.Content.Eroica.Projectiles
 {
     /// <summary>
-    /// Bullet projectile for Blossom of the Sakura 窶・heat-reactive homing tracer round.
+    /// Bullet projectile for Blossom of the Sakura  -- heat-reactive homing tracer round.
     /// 
     /// Self-contained VFX: Multi-layer rendering with GPU trail, afterimage chain,
     /// heat-reactive glow core, and particle spawning.
@@ -121,7 +121,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 ));
             }
 
-            // Heat shimmer particles 窶・more frequent at high heat
+            // Heat shimmer particles  -- more frequent at high heat
             if (HeatProgress > 0.3f && Main.rand.NextBool(Math.Max(1, (int)(6 - HeatProgress * 4))))
             {
                 Vector2 shimmerOffset = Main.rand.NextVector2Circular(6f, 6f);
@@ -142,7 +142,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             // Bright flash at spawn position
             Color flashColor = BlossomUtils.GetHeatGradient(HeatProgress);
             flashColor.A = 0;
-            BlossomParticleHandler.SpawnParticle(new MuzzleFlashParticle(
+            BlossomParticleHandler.SpawnParticle(new BlossomMuzzleFlashParticle(
                 Projectile.Center - Projectile.velocity.SafeNormalize(Vector2.Zero) * 8f,
                 Vector2.Zero,
                 flashColor,
@@ -171,7 +171,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             // Central impact bloom
             impactColor.A = 0;
-            BlossomParticleHandler.SpawnParticle(new ImpactBloomParticle(
+            BlossomParticleHandler.SpawnParticle(new BlossomImpactBloomParticle(
                 Projectile.Center,
                 Vector2.Zero,
                 impactColor,
@@ -223,7 +223,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         {
             SpawnImpactParticles();
 
-            // Seeking crystals 窶・25% chance
+            // Seeking crystals  -- 25% chance
             if (Main.rand.NextBool(4) && Main.myPlayer == Projectile.owner)
             {
                 SeekingCrystalHelper.SpawnEroicaCrystals(

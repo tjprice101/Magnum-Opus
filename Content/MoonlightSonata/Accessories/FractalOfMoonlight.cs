@@ -80,7 +80,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'Infinite reflections of lunar power'")
             {
-                OverrideColor = new Color(120, 120, 180)
+                OverrideColor = new Color(140, 100, 200)
             });
         }
 

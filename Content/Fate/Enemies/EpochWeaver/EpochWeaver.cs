@@ -11,6 +11,8 @@ namespace MagnumOpus.Content.Fate.Enemies
 {
     public class EpochWeaver : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/Fate/Enemies/EpochWeaver/EpochWeaver";
+
         private static readonly Color FatePink = new Color(200, 50, 100);
         private static readonly Color FateVoid = new Color(40, 10, 40);
 

@@ -166,7 +166,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             SoundEngine.PlaySound(SoundID.Item12 with { Volume = 0.3f, Pitch = 0.6f + enemiesHit * 0.1f }, target.Center);
             
             // Musical impact - Gyre's sonic chord
-            CustomParticles.MoonlightFlare(target.Center, 0.5f);
             MoonlightVFXLibrary.SpawnMusicNotes(target.Center, 3, 12f, 0.7f, 0.9f, 22);
         }
         

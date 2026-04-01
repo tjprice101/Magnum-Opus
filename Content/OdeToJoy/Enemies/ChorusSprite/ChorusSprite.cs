@@ -12,6 +12,8 @@ namespace MagnumOpus.Content.OdeToJoy.Enemies
 {
     public class ChorusSprite : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/OdeToJoy/Enemies/ChorusSprite/ChorusSprite";
+
         private static readonly Color JoyLight = new Color(255, 220, 100);
         private static readonly Color JoyRadiance = new Color(255, 240, 180);
 

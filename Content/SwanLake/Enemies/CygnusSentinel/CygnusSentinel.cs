@@ -11,6 +11,8 @@ namespace MagnumOpus.Content.SwanLake.Enemies
 {
     public class CygnusSentinel : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/SwanLake/Enemies/CygnusSentinel/CygnusSentinel";
+
         private static readonly Color SwanBlack = new Color(40, 40, 50);
         private static readonly Color SwanSilver = new Color(200, 210, 230);
 

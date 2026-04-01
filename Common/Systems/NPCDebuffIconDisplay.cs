@@ -126,12 +126,12 @@ namespace MagnumOpus.Common.Systems
 
         private void DrawNPCDebuffIcons(SpriteBatch spriteBatch, NPC npc, List<int> debuffs)
         {
-            // Calculate position below the NPC
+            // Calculate position at the NPC's health bar location
             Vector2 npcScreenPos = npc.Bottom - Main.screenPosition;
 
-            // Center the icon row
-            float totalWidth = debuffs.Count * IconSpacing;
-            float startX = npcScreenPos.X - totalWidth / 2f + IconSpacing / 2f;
+            // Terraria health bars are ~72px wide, centered on the NPC
+            // Position icons to the left of the health bar, growing outward to the left
+            float healthBarLeftEdge = npcScreenPos.X - 36f;
             float yPos = npcScreenPos.Y + IconVerticalOffset;
 
             // Add subtle pulsing effect
@@ -140,7 +140,8 @@ namespace MagnumOpus.Common.Systems
             for (int i = 0; i < debuffs.Count; i++)
             {
                 int buffType = debuffs[i];
-                Vector2 iconPos = new Vector2(startX + i * IconSpacing, yPos);
+                // Start at left edge of health bar, grow leftward
+                Vector2 iconPos = new Vector2(healthBarLeftEdge - (i * IconSpacing) - IconSpacing / 2f, yPos);
 
                 DrawSingleDebuffIcon(spriteBatch, buffType, iconPos, pulse);
             }

@@ -57,7 +57,6 @@ namespace MagnumOpus.Content.LaCampanella.Debuffs
         private int bellChimeTimer = 0;
         private int damageTickTimer = 0;
         private float flameAnimTimer = 0f;
-        private bool wasMaxStacks = false;
         private int stunTimer = 0;
 
         public override void ResetEffects(NPC npc)
@@ -138,7 +137,6 @@ namespace MagnumOpus.Content.LaCampanella.Debuffs
 
         private void TriggerMaxStackEffect(NPC npc)
         {
-            wasMaxStacks = true;
             stunTimer = 60; // 1 second stun
             
             // Play loud bell gong sound

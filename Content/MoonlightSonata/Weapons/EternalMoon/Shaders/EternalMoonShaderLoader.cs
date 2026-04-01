@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria.Graphics.Effects;
 using Terraria.Graphics.Shaders;
@@ -9,13 +9,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Shaders
     /// <summary>
     /// Loads and registers all Eternal Moon weapon-specific shaders.
     /// Shader keys:
-    ///   "MagnumOpus:EternalMoonTidalTrail"      窶・Tidal wave trail (swing arc)
-    ///   "MagnumOpus:EternalMoonTidalGlow"        窶・Tidal trail glow pass (wider bloom underlayer)
-    ///   "MagnumOpus:EternalMoonCrescentBloom"    窶・Procedural crescent bloom overlay
-    ///   "MagnumOpus:EternalMoonAura"             窶・Concentric lunar phase ring aura
-    ///   "MagnumOpus:EternalMoonSwingSprite"      窶・UV-rotation for blade sprite during swing
-    ///   "MagnumOpus:EternalMoonSurgeTrail"       窶・Surge dash trail (reuses TidalTrail glow pass)
-    ///   "MagnumOpus:EternalMoonStandardPrimitive"窶・Fallback standard primitive shader
+    ///   "MagnumOpus:EternalMoonTidalTrail"       -- Tidal wave trail (swing arc)
+    ///   "MagnumOpus:EternalMoonTidalGlow"         -- Tidal trail glow pass (wider bloom underlayer)
+    ///   "MagnumOpus:EternalMoonCrescentBloom"     -- Procedural crescent bloom overlay
+    ///   "MagnumOpus:EternalMoonAura"              -- Concentric lunar phase ring aura
+    ///   "MagnumOpus:EternalMoonSwingSprite"       -- UV-rotation for blade sprite during swing
+    ///   "MagnumOpus:EternalMoonSurgeTrail"        -- Surge dash trail (reuses TidalTrail glow pass)
+    ///   "MagnumOpus:EternalMoonStandardPrimitive" -- Fallback standard primitive shader
     /// </summary>
     [Autoload(Side = ModSide.Client)]
     public sealed class EternalMoonShaderLoader : ModSystem

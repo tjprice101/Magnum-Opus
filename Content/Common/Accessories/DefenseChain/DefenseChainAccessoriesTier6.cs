@@ -59,15 +59,15 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             // Enhanced regen at night
             if (!Main.dayTime)
             {
-                player.lifeRegen += 15; // Enhanced from Fate's 10
+                player.lifeRegen += 18;
             }
             else
             {
-                player.lifeRegen += 10;
+                player.lifeRegen += 14;
             }
             
             // Thorns and dodge
-            player.thorns = 0.28f; // Slightly better than Fate
+            player.thorns = 0.32f;
             player.blackBelt = true;
             
             // Damage boost
@@ -76,34 +76,24 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "System", "Resonant Shield System - STELLAR AEGIS")
-            {
-                OverrideColor = NachtmusikPurple
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "70% max HP as regenerating shield")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "70% of max HP as a regenerating shield")
             {
                 OverrideColor = NachtmusikGold
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "At night: +50% shield regen rate")
-            {
-                OverrideColor = NachtmusikPurple
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+38 defense, +12% damage, 28% thorns")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+38 defense, +12% damage, 32% thorns, dodge chance")
             {
                 OverrideColor = NachtmusikSilver
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Shield displays constellation patterns")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+18 life regen at night, +14 during day")
             {
-                OverrideColor = NachtmusikGold
+                OverrideColor = NachtmusikPurple
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Inherit", "Inherits ALL previous shield abilities")
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Immunity to fire, frost, confusion, and slow; lava immunity")
             {
-                OverrideColor = new Color(200, 180, 220)
+                OverrideColor = NachtmusikSilver
             });
             
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The night sky shields those who watch the stars'")
@@ -168,10 +158,10 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             player.lavaImmune = true;
             
             // Life regen
-            player.lifeRegen += 12;
+            player.lifeRegen += 15;
             
             // Enhanced thorns - fiery
-            player.thorns = 0.35f;
+            player.thorns = 0.36f;
             player.blackBelt = true;
             
             // Damage boost
@@ -180,34 +170,24 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "System", "Resonant Shield System - INFERNAL FORTRESS")
-            {
-                OverrideColor = DiesIraeCrimson
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "80% max HP as regenerating shield")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "80% of max HP as a regenerating shield")
             {
                 OverrideColor = DiesIraeOrange
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Shield hits inflict Hellfire on attackers")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Shield hits inflict hellfire on attackers")
             {
                 OverrideColor = DiesIraeCrimson
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+42 defense, +14% damage, 35% thorns")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+42 defense, +14% damage, 36% thorns, dodge chance")
             {
                 OverrideColor = DiesIraeOrange
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Shield break causes infernal shockwave")
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+15 life regen, immunity to fire, frost, confusion, and slow")
             {
                 OverrideColor = DiesIraeCrimson
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Inherit", "Inherits ALL previous shield abilities")
-            {
-                OverrideColor = new Color(200, 180, 220)
             });
             
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The wrath of the final day forges unbreakable ramparts'")
@@ -272,10 +252,10 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             player.lavaImmune = true;
             
             // Enhanced life regen
-            player.lifeRegen += 15;
+            player.lifeRegen += 17;
             
             // Thorns and dodge
-            player.thorns = 0.38f;
+            player.thorns = 0.40f;
             player.blackBelt = true;
             
             // Damage boost
@@ -284,34 +264,24 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "System", "Resonant Shield System - JUBILANT FORTRESS")
-            {
-                OverrideColor = OdeToJoyIridescent
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "90% max HP as regenerating shield")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "90% of max HP as a regenerating shield")
             {
                 OverrideColor = OdeToJoyWhite
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Hits absorbed heal 5% of shield damage as HP")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Absorbing hits heals 5% of shield damage as HP")
             {
                 OverrideColor = OdeToJoyRose
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+45 defense, +15% damage, 38% thorns")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+45 defense, +15% damage, 40% thorns, dodge chance")
             {
                 OverrideColor = OdeToJoyIridescent
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Shield break triggers joyful celebration burst")
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+17 life regen, immunity to fire, frost, confusion, and slow")
             {
                 OverrideColor = OdeToJoyRose
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Inherit", "Inherits ALL previous shield abilities")
-            {
-                OverrideColor = new Color(200, 180, 220)
             });
             
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Joy shields the heart from all despair'")
@@ -389,39 +359,24 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "System", "Resonant Shield System - ETERNAL BASTION")
-            {
-                OverrideColor = ClairDeLuneCrimson
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Ultimate", "✦✦✦ ULTIMATE DEFENSE ACCESSORY ✦✦✦")
-            {
-                OverrideColor = ClairDeLuneBrass
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "100% max HP as regenerating shield")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "100% of max HP as a regenerating shield")
             {
                 OverrideColor = ClairDeLuneIridescent
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Shield break: 5s Temporal Stasis invincibility (90s CD)")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+50% life regeneration while standing still")
             {
                 OverrideColor = ClairDeLuneCrimson
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+50 defense, +18% damage, 45% thorns")
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+50 defense, +18% damage, 45% thorns, dodge chance")
             {
                 OverrideColor = ClairDeLuneBrass
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Shield regenerates 50% faster while standing still")
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "+18 life regen, immunity to fire, frost, confusion, and slow")
             {
                 OverrideColor = ClairDeLuneIridescent
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Inherit", "Inherits ALL previous shield abilities")
-            {
-                OverrideColor = new Color(200, 180, 220)
             });
             
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The eternal bastion stands beyond the reach of time'")
@@ -485,7 +440,7 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             player.lavaImmune = true;
             
             // Combined regen
-            player.lifeRegen += 13;
+            player.lifeRegen += 16;
             
             // Enhanced thorns
             player.thorns = 0.36f;
@@ -498,39 +453,24 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Fusion", "⚔ STARFALL INFERNAL FUSION ⚔")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "85% of max HP as a regenerating shield")
             {
                 OverrideColor = FusionGold
             });
             
-            tooltips.Add(new TooltipLine(Mod, "System", "Resonant Shield System - COSMIC INFERNO")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Thorns damage inflicts fire, shield hits apply hellfire")
+            {
+                OverrideColor = DiesIraeCrimson
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+44 defense, 36% thorns, dodge chance, +40 max HP, 5% DR")
+            {
+                OverrideColor = FusionGold
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+16 life regen, lava immunity, full debuff immunity")
             {
                 OverrideColor = NachtmusikPurple
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Combines Nocturnal Guardian's Ward and Infernal Rampart")
-            {
-                OverrideColor = DiesIraeCrimson
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "85% max HP as regenerating shield")
-            {
-                OverrideColor = FusionGold
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Stellar hellfire: +50% thorns damage as fire")
-            {
-                OverrideColor = DiesIraeCrimson
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+40 max life, 5% damage reduction")
-            {
-                OverrideColor = FusionGold
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Inherit", "Inherits ALL abilities from both component accessories")
-            {
-                OverrideColor = new Color(200, 180, 220)
             });
             
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Starfall and hellfire unite in eternal defense'")
@@ -597,10 +537,10 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             player.lavaImmune = true;
             
             // Enhanced regen
-            player.lifeRegen += 16;
+            player.lifeRegen += 18;
             
             // Enhanced thorns
-            player.thorns = 0.40f;
+            player.thorns = 0.42f;
             player.blackBelt = true;
             
             // Fusion identity: stronger guard profile, not a generic offense spike
@@ -610,39 +550,24 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Fusion", "⚔ TRIUMPHANT JUBILANT FUSION ⚔")
-            {
-                OverrideColor = FusionTriumph
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "System", "Resonant Shield System - TRIPLE HARMONY")
-            {
-                OverrideColor = NachtmusikPurple
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Combines Starfall Infernal Shield with Jubilant Bulwark")
-            {
-                OverrideColor = DiesIraeCrimson
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "95% max HP as regenerating shield")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "95% of max HP as a regenerating shield")
             {
                 OverrideColor = OdeToJoyWhite
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Shield hits heal 8% of damage absorbed")
-            {
-                OverrideColor = FusionTriumph
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+60 max life, 7% damage reduction")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Absorbing shield hits heals 8% of damage taken")
             {
                 OverrideColor = FusionTriumph
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Inherit", "Inherits ALL abilities from all three theme accessories")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+48 defense, 42% thorns, dodge chance, +60 max HP, 7% DR")
             {
-                OverrideColor = new Color(200, 180, 220)
+                OverrideColor = FusionTriumph
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+18 life regen, lava immunity, full debuff immunity")
+            {
+                OverrideColor = OdeToJoyWhite
             });
             
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Three harmonies unite in triumphant protection'")
@@ -695,7 +620,7 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             shieldPlayer.HasAegisOfTheEternalBastion = true;
             
             // Maximum defense
-            player.statDefense += 55;
+            player.statDefense += 50;
             
             // Full immunities
             player.buffImmune[BuffID.OnFire] = true;
@@ -712,57 +637,37 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             player.lifeRegen += 20;
             
             // Maximum thorns
-            player.thorns = 0.50f;
+            player.thorns = 0.45f;
             player.blackBelt = true;
             
             // Ultimate identity: extreme durability profile
-            player.statLifeMax2 += 100;
-            player.endurance += 0.10f;
+            player.statLifeMax2 += 80;
+            player.endurance += 0.08f;
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Ultimate", "✦✦✦ ETERNAL BASTION - ULTIMATE FUSION ✦✦✦")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "100% of max HP as a regenerating shield")
             {
                 OverrideColor = UltimatePrismatic
             });
             
-            tooltips.Add(new TooltipLine(Mod, "System", "Resonant Shield System - GRAND AEGIS")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Shield absorbs up to 50% of incoming damage")
             {
                 OverrideColor = ClairDeLuneBrass
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Combines ALL four Post-Fate theme accessories")
-            {
-                OverrideColor = NachtmusikPurple
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "120% max HP as regenerating shield")
-            {
-                OverrideColor = DiesIraeCrimson
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Eternal Stasis: 8s invincibility on shield break (60s CD)")
-            {
-                OverrideColor = OdeToJoyWhite
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+55 defense, +100 max life, 10% damage reduction, 50% thorns")
-            {
-                OverrideColor = ClairDeLuneBrass
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "All shield effects trigger simultaneously")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+50 defense, 45% thorns, dodge chance, +80 max HP, 8% damage reduction")
             {
                 OverrideColor = UltimatePrismatic
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Inherit", "Masters ALL abilities from the complete Post-Fate arsenal")
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+20 life regen, lava immunity, full debuff immunity")
             {
-                OverrideColor = new Color(220, 200, 240)
+                OverrideColor = ClairDeLuneBrass
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The eternal bastion commands the very fabric of protection'")
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'An unyielding harmony of every shield ever forged'")
             {
                 OverrideColor = new Color(200, 180, 160)
             });

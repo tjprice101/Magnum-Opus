@@ -170,7 +170,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             for (int i = 0; i < 6; i++)
             {
                 float angle = MathHelper.TwoPi * i / 6f;
-                FuneralParticleHandler.SpawnParticle(new RequiemSparkParticle(
+                FuneralParticleHandler.SpawnParticle(new FuneralSparkParticle(
                     Projectile.Center,
                     angle.ToRotationVector2() * Main.rand.NextFloat(3f, 7f),
                     FuneralUtils.PrayerFlame,

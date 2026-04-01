@@ -18,9 +18,9 @@ using MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Particles
 namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases
 {
     /// <summary>
-    /// Staff of the Lunar Phases — "The Conductor's Baton".
+    /// Staff of the Lunar Phases  E"The Conductor's Baton".
     /// Summons a Goliath of Moonlight that fires ricocheting moonlight beams.
-    /// Right-click toggles Conductor Mode — direct the Goliath's beams toward your cursor.
+    /// Right-click toggles Conductor Mode  Edirect the Goliath's beams toward your cursor.
     /// Beams heal the player 10 HP per hit and inflict Musical Dissonance.
     /// Summoning triggers a summon circle shader VFX ritual.
     /// </summary>
@@ -29,9 +29,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases
         // =================================================================
         // VFX STATE
         // =================================================================
-
-        /// <summary>Client-side summon circle animation timer.</summary>
-        private float _ritualGlow = 0f;
 
         // =================================================================
         // SETUP
@@ -135,7 +132,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases
             // Trigger summon circle ritual VFX
             GoliathPlayer goliathPlayer = player.Goliath();
             goliathPlayer.TriggerRitual();
-            _ritualGlow = 1f;
 
             // Summon ritual VFX burst
             if (!Main.dedServ)
@@ -147,13 +143,13 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases
                 GoliathParticleHandler.Spawn(new SummonGlowParticle(
                     position, Color.Lerp(GoliathUtils.NebulaPurple, phaseColor, 0.4f) * 0.5f, 1.8f, 30));
 
-                // Lunar phase rings — expanding ritual circles
+                // Lunar phase rings  Eexpanding ritual circles
                 GoliathParticleHandler.Spawn(new LunarPhaseRingParticle(
                     position, phaseColor, 1.5f, 35));
                 GoliathParticleHandler.Spawn(new LunarPhaseRingParticle(
                     position, Color.Lerp(phaseColor, GoliathUtils.SupermoonWhite, 0.5f), 2.0f, 45));
 
-                // Radial music note burst — more notes, phase-tinted
+                // Radial music note burst  Emore notes, phase-tinted
                 int noteCount = goliathPlayer.IsFullMoon ? 12 : 8;
                 for (int i = 0; i < noteCount; i++)
                 {
@@ -161,7 +157,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases
                     Vector2 noteVel = angle.ToRotationVector2() * (2f + Main.rand.NextFloat(2f));
                     noteVel.Y -= 1.5f; // float upward bias
                     Color noteColor = Color.Lerp(GoliathUtils.GetCastGradient(Main.rand.NextFloat(0.3f, 1f)), phaseColor, 0.35f);
-                    GoliathParticleHandler.Spawn(new MusicNoteParticle(
+                    GoliathParticleHandler.Spawn(new GoliathMusicNoteParticle(
                         position + Main.rand.NextVector2Circular(20f, 20f), noteVel,
                         noteColor, 0.5f + Main.rand.NextFloat(0.4f), 50 + Main.rand.Next(25)));
                 }
@@ -203,11 +199,11 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases
             tooltips.Add(new TooltipLine(Mod, "Effect2",
                 "The Goliath fires devastating moonlight beams that ricochet between enemies"));
             tooltips.Add(new TooltipLine(Mod, "Effect3",
-                "Each beam hit restores health — Waning phase restores the most"));
+                "Each beam hit restores health  EWaning phase restores the most"));
             tooltips.Add(new TooltipLine(Mod, "Effect4",
-                "Right-click to toggle Conductor Mode — direct the Goliath's beams toward your cursor"));
+                "Right-click to toggle Conductor Mode  Edirect the Goliath's beams toward your cursor"));
             tooltips.Add(new TooltipLine(Mod, "Effect5",
-                "The Goliath cycles through lunar phases — each phase alters beam power and behavior"));
+                "The Goliath cycles through lunar phases  Eeach phase alters beam power and behavior"));
             tooltips.Add(new TooltipLine(Mod, "Effect6",
                 "Inflicts Musical Dissonance on enemies"));
 
@@ -226,7 +222,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases
             }
 
             tooltips.Add(new TooltipLine(Mod, "Lore",
-                "'The conductor raises the baton — and the moonlight obeys'")
+                "'The conductor raises the baton  Eand the moonlight obeys'")
             { OverrideColor = new Color(140, 100, 200) });
         }
 

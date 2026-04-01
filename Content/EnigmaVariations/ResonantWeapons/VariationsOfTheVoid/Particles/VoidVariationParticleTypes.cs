@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -9,7 +9,7 @@ using ReLogic.Content;
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoid.Particles
 {
     // =========================================================================
-    //  VOID WHISPER MOTE 窶・Subtle dark motes that drift during VoidWhisper
+    //  VOID WHISPER MOTE  -- Subtle dark motes that drift during VoidWhisper
     //  phase, like whispers made visible. Additive, custom draw 2-layer
     //  (SoftCircleBloom outer + white center), low opacity, slow drift
     // =========================================================================
@@ -36,7 +36,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
 
         public override void Update()
         {
-            // Slow sinusoidal drift 窶・whispers wandering aimlessly through the void
+            // Slow sinusoidal drift  -- whispers wandering aimlessly through the void
             float driftX = MathF.Sin(Time * 0.04f + _driftAngle) * 0.3f;
             float driftY = MathF.Cos(Time * 0.03f + _driftAngle * 1.7f) * 0.2f;
             Velocity *= 0.97f;
@@ -47,7 +47,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
 
         public override void CustomDraw(SpriteBatch sb)
         {
-            // Low opacity 窶・these are whispers, barely perceptible
+            // Low opacity  -- these are whispers, barely perceptible
             float alpha = VoidVariationUtils.SineBump(LifetimeCompletion) * 0.35f;
             if (alpha <= 0.01f) return;
 
@@ -62,7 +62,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
     }
 
     // =========================================================================
-    //  ABYSSAL ECHO RING 窶・Expanding echo rings during AbyssalEcho phase,
+    //  ABYSSAL ECHO RING  -- Expanding echo rings during AbyssalEcho phase,
     //  like sonar pulses from the void. Additive, custom draw rendering
     //  rings from triangle-fan geometry, expanding and fading
     // =========================================================================
@@ -90,7 +90,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
 
         public override void Update()
         {
-            // Expand outward 窶・sonar echo rippling into the abyss
+            // Expand outward  -- sonar echo rippling into the abyss
             Scale = _baseScale + LifetimeCompletion * _expandRate;
             Rotation += 0.005f;
         }
@@ -121,7 +121,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
                 sb.Draw(tex, ringPos, null, Color * segmentAlpha, 0f, tex.Size() / 2f, segmentScale, SpriteEffects.None, 0f);
             }
 
-            // Inner glow ring 窶・slightly different color for depth
+            // Inner glow ring  -- slightly different color for depth
             for (int i = 0; i < RingSegments / 2; i++)
             {
                 float angle = Rotation + MathHelper.TwoPi * i / (RingSegments / 2) + 0.1f;
@@ -134,7 +134,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
     }
 
     // =========================================================================
-    //  RIFT SUNDER SPARK 窶・Sharp directional sparks during the RiftSunder
+    //  RIFT SUNDER SPARK  -- Sharp directional sparks during the RiftSunder
     //  finisher, cracking reality. Additive, custom draw with SparkleFlare1,
     //  velocity-stretched, bright green-white
     // =========================================================================
@@ -151,7 +151,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
         {
             Position = position;
             Velocity = velocity;
-            // Bright green-white gradient 窶・the rift cracking open
+            // Bright green-white gradient  -- the rift cracking open
             float colorT = Main.rand.NextFloat();
             Color = Color.Lerp(VoidVariationUtils.VoidSurge, VoidVariationUtils.SunderingWhite, colorT);
             Scale = scale;
@@ -177,11 +177,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
             var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/PartiGlow", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
-            // Velocity-stretched 窶・the spark is a jagged crack in reality
+            // Velocity-stretched  -- the spark is a jagged crack in reality
             float speed = MathHelper.Clamp(Velocity.Length() * 0.2f, 1f, _stretchMultiplier);
             Vector2 sparkScale = new(Scale * speed * 1.8f, Scale * 0.3f);
 
-            // Bright core spark 窶・the rift's cutting edge
+            // Bright core spark  -- the rift's cutting edge
             sb.Draw(tex, drawPos, null, Color * alpha * 0.9f, Rotation, tex.Size() / 2f, sparkScale, SpriteEffects.None, 0f);
             // Wider soft glow behind
             sb.Draw(tex, drawPos, null, VoidVariationUtils.RiftTeal * alpha * 0.35f, Rotation, tex.Size() / 2f, sparkScale * new Vector2(1.4f, 2.5f), SpriteEffects.None, 0f);
@@ -189,7 +189,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
     }
 
     // =========================================================================
-    //  TRI-BEAM CONVERGENCE MOTE 窶・Glowing motes that spiral along the three
+    //  TRI-BEAM CONVERGENCE MOTE  -- Glowing motes that spiral along the three
     //  beams toward their convergence point. Additive, 3-layer bloom draw,
     //  follows beam path with slight offset wobble
     // =========================================================================
@@ -220,11 +220,11 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
 
         public override void Update()
         {
-            // Accelerate along beam direction 窶・drawn toward the convergence point
+            // Accelerate along beam direction  -- drawn toward the convergence point
             Velocity += _beamDirection * 0.15f;
             Velocity *= 0.96f;
 
-            // Perpendicular wobble 窶・slight offset from beam axis for organic feel
+            // Perpendicular wobble  -- slight offset from beam axis for organic feel
             Vector2 perp = new(-_beamDirection.Y, _beamDirection.X);
             float wobble = MathF.Sin(Time * _wobbleSpeed + _wobbleOffset) * 2.5f;
             Position += Velocity + perp * wobble * 0.3f;

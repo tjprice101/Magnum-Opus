@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria;
 using Terraria.Graphics.Shaders;
@@ -10,11 +10,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.LightOfTheFuture.Shaders
     /// Self-contained shader loader for Light of the Future.
     /// Loads 5 unique shaders from Effects/Fate/LightOfTheFuture/:
     ///
-    ///   1. LightBulletTrail  窶・Accelerating bullet trail with speed lines
-    ///   2. LightRocketTrail  窶・Spiraling rocket smoke/fire trail
-    ///   3. LightMuzzleFlash  窶・Cosmic muzzle burst shader
-    ///   4. LightImpactBloom  窶・Impact shockwave/bloom
-    ///   5. LightAccelGlow    窶・Accelerating glow aura on bullet core
+    ///   1. LightBulletTrail   -- Accelerating bullet trail with speed lines
+    ///   2. LightRocketTrail   -- Spiraling rocket smoke/fire trail
+    ///   3. LightMuzzleFlash   -- Cosmic muzzle burst shader
+    ///   4. LightImpactBloom   -- Impact shockwave/bloom
+    ///   5. LightAccelGlow     -- Accelerating glow aura on bullet core
     ///
     /// Keys: "MagnumOpus:Light<Purpose>"
     /// </summary>

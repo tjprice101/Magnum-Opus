@@ -70,7 +70,6 @@ namespace MagnumOpus.Common.Systems
         private const int LunarAuraDamage = 8;
         
         // Eroica - Heroic Rally
-        private int heroicRallyHealRadius = 200;
         private const int HeroicRallyHealAmount = 15;
         
         // Swan Lake - Feathered Grace

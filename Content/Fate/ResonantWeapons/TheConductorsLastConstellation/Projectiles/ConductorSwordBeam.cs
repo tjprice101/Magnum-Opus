@@ -49,11 +49,6 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
         private int _trailCount;
         private VertexStrip _strip;
 
-        // Textures
-        private static Asset<Texture2D> _glowTex;
-        private static Asset<Texture2D> _flareTex;
-        private static Asset<Texture2D> _noiseTex;
-
         private Player Owner => Main.player[Projectile.owner];
         private ref float Phase => ref Projectile.ai[0];
         private ref float Timer => ref Projectile.ai[1];

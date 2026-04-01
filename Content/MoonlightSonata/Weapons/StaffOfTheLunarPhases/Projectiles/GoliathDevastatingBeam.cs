@@ -16,7 +16,7 @@ using MagnumOpus.Content.LaCampanella.Debuffs;
 namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Projectiles
 {
     /// <summary>
-    /// Goliath Devastating Beam — enhanced beam fired during Conductor Mode.
+    /// Goliath Devastating Beam  Eenhanced beam fired during Conductor Mode.
     /// Pierces through all enemies in its path, deals bonus damage,
     /// heals 15 HP per hit, inflicts Musical Dissonance, and creates heavy VFX.
     /// Fires every 3rd beam when Conductor Mode is active.
@@ -102,7 +102,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // Lighting — brighter than normal beam
+            // Lighting  Ebrighter than normal beam
             Color lightCol = GoliathUtils.GetCosmicGradient(0.7f + IntensityPulse * 0.2f);
             Lighting.AddLight(Projectile.Center, lightCol.ToVector3() * 0.6f);
 
@@ -114,7 +114,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
         {
             if (Main.dedServ) return;
 
-            // Beam sparks — every tick (denser than normal beam)
+            // Beam sparks  Eevery tick (denser than normal beam)
             if (AliveTime % 1 == 0)
             {
                 Vector2 offset = Main.rand.NextVector2Circular(8f, 8f);
@@ -125,7 +125,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
                     0.4f + IntensityPulse * 0.3f, 15 + Main.rand.Next(10)));
             }
 
-            // Cosmic dust — every 2 ticks
+            // Cosmic dust  Eevery 2 ticks
             if (AliveTime % 2 == 0)
             {
                 int d = Dust.NewDust(Projectile.position, Projectile.width, Projectile.height,
@@ -134,7 +134,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
                 Main.dust[d].scale = 1.0f + IntensityPulse * 0.5f;
             }
 
-            // Conductor glyphs — every 8 ticks
+            // Conductor glyphs  Eevery 8 ticks
             if (AliveTime % 8 == 0)
             {
                 Vector2 glyphVel = Main.rand.NextVector2Circular(1f, 1f);
@@ -143,20 +143,20 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
                     0.5f, 30 + Main.rand.Next(15)));
             }
 
-            // Music notes trailing — every 6 ticks
+            // Music notes trailing  Eevery 6 ticks
             if (AliveTime % 6 == 0)
             {
                 Vector2 noteVel = -Projectile.velocity.SafeNormalize(Vector2.Zero) * 0.5f
                     + new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-2f, 0f));
                 Color noteColor = GoliathUtils.GetCastGradient(Main.rand.NextFloat(0.3f, 0.8f));
-                GoliathParticleHandler.Spawn(new MusicNoteParticle(
+                GoliathParticleHandler.Spawn(new GoliathMusicNoteParticle(
                     Projectile.Center, noteVel, noteColor,
                     0.5f + Main.rand.NextFloat(0.3f), 50 + Main.rand.Next(20)));
             }
         }
 
         // =================================================================
-        // ON HIT — HEAL + DEBUFF + HEAVY VFX
+        // ON HIT  EHEAL + DEBUFF + HEAVY VFX
         // =================================================================
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
@@ -203,14 +203,14 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
             }
 
             // Large impact bloom
-            GoliathParticleHandler.Spawn(new ImpactBloomParticle(
+            GoliathParticleHandler.Spawn(new GoliathImpactBloomParticle(
                 impactPos, GoliathUtils.SupermoonWhite, 1.2f, 20));
 
-            // Secondary bloom — nebula
-            GoliathParticleHandler.Spawn(new ImpactBloomParticle(
+            // Secondary bloom  Enebula
+            GoliathParticleHandler.Spawn(new GoliathImpactBloomParticle(
                 impactPos, GoliathUtils.NebulaPurple * 0.6f, 1.8f, 25));
 
-            // Radial spark burst — larger
+            // Radial spark burst  Elarger
             for (int i = 0; i < 12; i++)
             {
                 float angle = MathHelper.TwoPi * i / 12f + Main.rand.NextFloat(-0.2f, 0.2f);
@@ -224,7 +224,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-3f, 3f), Main.rand.NextFloat(-4f, -1f));
                 Color noteColor = GoliathUtils.GetCastGradient(Main.rand.NextFloat(0.3f, 1f));
-                GoliathParticleHandler.Spawn(new MusicNoteParticle(
+                GoliathParticleHandler.Spawn(new GoliathMusicNoteParticle(
                     impactPos + Main.rand.NextVector2Circular(15f, 15f), noteVel,
                     noteColor, 0.5f + Main.rand.NextFloat(0.4f), 50 + Main.rand.Next(25)));
             }
@@ -247,7 +247,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
                 Main.dust[d].scale = 1.4f;
             }
 
-            // Impact sound — deeper, more resonant
+            // Impact sound  Edeeper, more resonant
             SoundEngine.PlaySound(SoundID.Item29 with { Volume = 0.6f, Pitch = -0.3f }, impactPos);
         }
 
@@ -360,17 +360,17 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
                 Main.DefaultSamplerState, DepthStencilState.None,
                 Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Outer glow — cast palette (reduced further for clarity)
+            // Outer glow  Ecast palette (reduced further for clarity)
             Color outerColor = GoliathUtils.WaxingGibbous with { A = 0 };
             float outerScale = 0.07f + IntensityPulse * 0.03f;
             sb.Draw(bloom, drawPos, null, outerColor * (0.22f + IntensityPulse * 0.1f), 0f, origin, outerScale, SpriteEffects.None, 0f);
 
-            // Middle glow — ice blue
+            // Middle glow  Eice blue
             Color midColor = GoliathUtils.FullMoonIceBlue with { A = 0 };
             float midScale = 0.04f + IntensityPulse * 0.02f;
             sb.Draw(bloom, drawPos, null, midColor * (0.22f + IntensityPulse * 0.1f), 0f, origin, midScale, SpriteEffects.None, 0f);
 
-            // Inner core — supermoon white
+            // Inner core  Esupermoon white
             Color coreColor = GoliathUtils.SupermoonWhite with { A = 0 };
             float coreScale = 0.025f + IntensityPulse * 0.01f;
             sb.Draw(bloom, drawPos, null, coreColor * (0.35f + IntensityPulse * 0.15f), 0f, origin, coreScale, SpriteEffects.None, 0f);
@@ -391,9 +391,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
             if (Main.dedServ) return;
 
             // Grand dissipation bloom
-            GoliathParticleHandler.Spawn(new ImpactBloomParticle(
+            GoliathParticleHandler.Spawn(new GoliathImpactBloomParticle(
                 Projectile.Center, GoliathUtils.SupermoonWhite, 1.0f, 25));
-            GoliathParticleHandler.Spawn(new ImpactBloomParticle(
+            GoliathParticleHandler.Spawn(new GoliathImpactBloomParticle(
                 Projectile.Center, GoliathUtils.NebulaPurple * 0.5f, 1.5f, 30));
 
             for (int i = 0; i < 10; i++)
@@ -407,7 +407,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
             for (int i = 0; i < 4; i++)
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-3f, -0.5f));
-                GoliathParticleHandler.Spawn(new MusicNoteParticle(
+                GoliathParticleHandler.Spawn(new GoliathMusicNoteParticle(
                     Projectile.Center, noteVel, GoliathUtils.GetCastGradient(Main.rand.NextFloat()),
                     0.4f + Main.rand.NextFloat(0.3f), 45 + Main.rand.Next(20)));
             }

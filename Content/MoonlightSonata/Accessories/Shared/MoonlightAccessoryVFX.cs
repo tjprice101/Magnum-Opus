@@ -29,15 +29,6 @@ namespace MagnumOpus.Content.MoonlightSonata.VFX.Accessories
             if (timer % 8 != 0) return;
 
             float baseAngle = timer * 0.03f;
-            for (int i = 0; i < 4; i++)
-            {
-                float gearAngle = baseAngle + MathHelper.TwoPi * i / 4f;
-                float radius = 28f + MathF.Sin(timer * 0.05f + i * 1.2f) * 5f;
-                Vector2 gearPos = playerCenter + gearAngle.ToRotationVector2() * radius;
-
-                Color gearColor = Color.Lerp(GearSilver, EngineViolet, (float)i / 4f);
-                CustomParticles.MoonlightTrailFlare(gearPos, gearAngle.ToRotationVector2() * 0.3f);
-            }
         }
 
         /// <summary>
@@ -47,12 +38,8 @@ namespace MagnumOpus.Content.MoonlightSonata.VFX.Accessories
         public static void EngineRevPulse(Vector2 pulseCenter, float intensity = 1f)
         {
             // Central engine flash
-            CustomParticles.GenericFlare(pulseCenter, PistonFlash, 0.7f * intensity, 18);
-            CustomParticles.GenericFlare(pulseCenter, EngineViolet, 0.5f * intensity, 22);
 
             // Expanding gear rings
-            CustomParticles.MoonlightHalo(pulseCenter, 0.5f * intensity);
-            CustomParticles.HaloRing(pulseCenter, EngineViolet, 0.35f * intensity, 20);
 
             // Radial precision sparks — 8-point mechanical pattern
             for (int i = 0; i < 8; i++)
@@ -108,15 +95,8 @@ namespace MagnumOpus.Content.MoonlightSonata.VFX.Accessories
         public static void SonicBoomPulse(Vector2 center, Vector2 direction, float intensity = 1f)
         {
             // Central sonic flash
-            CustomParticles.GenericFlare(center, SonicPulse, 0.6f * intensity, 15);
-            CustomParticles.GenericFlare(center, GyroBlue, 0.45f * intensity, 20);
 
             // Directional sonic rings
-            for (int ring = 0; ring < 3; ring++)
-            {
-                Vector2 ringPos = center + direction * (15f + ring * 12f);
-                CustomParticles.HaloRing(ringPos, SonicPulse, 0.25f + ring * 0.1f, 12 + ring * 3);
-            }
 
             // Speed-blur particles along direction
             for (int i = 0; i < 8; i++)
@@ -158,7 +138,6 @@ namespace MagnumOpus.Content.MoonlightSonata.VFX.Accessories
 
                 // Sub-fractal: each vertex spawns smaller motes
                 Color vertexColor = Color.Lerp(FractalViolet, BranchSilver, (float)i / 3f);
-                CustomParticles.MoonlightTrailFlare(vertexPos, (angle + MathHelper.PiOver2).ToRotationVector2() * 0.2f);
 
                 // Branch toward next vertex
                 int nextI = (i + 1) % 3;
@@ -178,8 +157,6 @@ namespace MagnumOpus.Content.MoonlightSonata.VFX.Accessories
         public static void FractalSurgePulse(Vector2 center, float intensity = 1f)
         {
             // Central bloom
-            CustomParticles.GenericFlare(center, RecursiveGlow, 0.6f * intensity, 18);
-            CustomParticles.MoonlightHalo(center, 0.45f * intensity);
 
             // Fractal burst — 6-point star with recursive sub-bursts
             for (int i = 0; i < 6; i++)
@@ -245,8 +222,6 @@ namespace MagnumOpus.Content.MoonlightSonata.VFX.Accessories
         public static void DoubleCastProcFlash(Vector2 castPos, float intensity = 1f)
         {
             // Bright flash
-            CustomParticles.GenericFlare(castPos, EmberGlow, 0.55f * intensity, 12);
-            CustomParticles.GenericFlare(castPos, DoubleCastFlash, 0.4f * intensity, 16);
 
             // Ember scatter
             for (int i = 0; i < 8; i++)
@@ -258,7 +233,6 @@ namespace MagnumOpus.Content.MoonlightSonata.VFX.Accessories
                 d.noGravity = true;
             }
 
-            CustomParticles.MoonlightHalo(castPos, 0.3f * intensity);
             MoonlightVFXLibrary.SpawnMusicNotes(castPos, 2, 10f, 0.7f, 0.85f, 20);
             Lighting.AddLight(castPos, EmberLavender.ToVector3() * 0.7f * intensity);
         }
@@ -303,7 +277,6 @@ namespace MagnumOpus.Content.MoonlightSonata.VFX.Accessories
         /// </summary>
         public static void HealProcShimmer(Vector2 playerCenter)
         {
-            CustomParticles.MoonlightFlare(playerCenter, 0.3f);
 
             for (int i = 0; i < 5; i++)
             {
@@ -361,15 +334,6 @@ namespace MagnumOpus.Content.MoonlightSonata.VFX.Accessories
             if (timer % 10 == 0)
             {
                 float outerAngle = timer * 0.025f;
-                for (int i = 0; i < 3; i++)
-                {
-                    float angle = outerAngle + MathHelper.TwoPi * i / 3f;
-                    float radius = 40f + MathF.Sin(timer * 0.03f + i) * 5f;
-                    Vector2 motePos = playerCenter + angle.ToRotationVector2() * radius;
-
-                    Color moteColor = Color.Lerp(OrchestraViolet, SonataLight, (float)i / 3f);
-                    CustomParticles.MoonlightTrailFlare(motePos, angle.ToRotationVector2() * 0.2f);
-                }
             }
 
             // Ambient lighting — multi-toned
@@ -383,12 +347,8 @@ namespace MagnumOpus.Content.MoonlightSonata.VFX.Accessories
         public static void MoonstruckApplicationFlash(Vector2 targetCenter)
         {
             // Dramatic flash
-            CustomParticles.GenericFlare(targetCenter, MoonstruckFlash, 0.7f, 18);
-            CustomParticles.GenericFlare(targetCenter, Color.White, 0.5f, 12);
 
             // Debuff rings
-            CustomParticles.MoonlightHalo(targetCenter, 0.5f);
-            CustomParticles.HaloRing(targetCenter, OrchestraViolet, 0.35f, 20);
 
             // Radial music note burst
             for (int i = 0; i < 6; i++)
@@ -416,7 +376,6 @@ namespace MagnumOpus.Content.MoonlightSonata.VFX.Accessories
         public static void OnHitEnhancement(Vector2 hitPos)
         {
             // Subtle overlay flash
-            CustomParticles.MoonlightFlare(hitPos, 0.35f);
 
             // Extra sparkles
             for (int i = 0; i < 4; i++)

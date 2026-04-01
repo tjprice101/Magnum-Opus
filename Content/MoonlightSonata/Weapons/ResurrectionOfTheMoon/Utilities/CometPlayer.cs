@@ -112,6 +112,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Utili
 
         public override void ResetEffects()
         {
+            IsReloading = false;
+            IsCharging = false;
         }
 
         public override void PostUpdate()

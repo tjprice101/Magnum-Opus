@@ -46,7 +46,6 @@ namespace MagnumOpus.Content.SwanLake.Debuffs
         private float flameTimer = 0f;
         private float haloRotation = 0f;
         private int haloParticleTimer = 0;
-        private int damageTick = 0;
 
         public override void ResetEffects(NPC npc)
         {

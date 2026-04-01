@@ -964,8 +964,6 @@ namespace MagnumOpus.Common.Systems.Particles
         
         private float opacity;
         private Color BaseColor;
-        private float ExpandWidth;
-        private float OriginalWidth;
         
         public MusicStaffParticle(Vector2 position, Vector2 velocity, Color color, float scale, int lifetime)
         {
@@ -973,8 +971,6 @@ namespace MagnumOpus.Common.Systems.Particles
             Velocity = velocity;
             BaseColor = color;
             Scale = scale;
-            OriginalWidth = 0.2f;
-            ExpandWidth = 1f;
             Lifetime = lifetime;
             Rotation = Main.rand.NextFloat(-0.05f, 0.05f);
         }

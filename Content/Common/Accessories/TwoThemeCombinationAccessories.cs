@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using Terraria;
@@ -154,14 +154,7 @@ namespace MagnumOpus.Content.Common.Accessories
                 
                 // Blue fire VFX
                 Color blueFlame = new Color(100, 150, 255);
-                CustomParticles.GenericFlare(target.Center, blueFlame, 0.5f, 15);
                 
-                for (int i = 0; i < 4; i++)
-                {
-                    Vector2 flameVel = Main.rand.NextVector2Circular(3f, 3f) + new Vector2(0, -2f);
-                    var flame = new GenericGlowParticle(target.Center, flameVel, blueFlame * 0.7f, 0.3f, 18, true);
-                    MagnumParticleHandler.SpawnParticle(flame);
-                }
             }
             
             // Bell ring stun from Campanella (10% at night, 8% during day)
@@ -173,8 +166,6 @@ namespace MagnumOpus.Content.Common.Accessories
                 
                 // Bell chime VFX
                 Color chimeColor = isNight ? new Color(100, 150, 255) : CampanellaColors.Orange;
-                CustomParticles.GenericFlare(target.Center, chimeColor, 0.6f, 18);
-                CustomParticles.HaloRing(target.Center, chimeColor, 0.4f, 15);
                 
                 Terraria.Audio.SoundEngine.PlaySound(SoundID.Item35 with { Pitch = isNight ? 0.5f : 0f }, target.Center);
             }
@@ -240,9 +231,14 @@ namespace MagnumOpus.Content.Common.Accessories
                 OverrideColor = enigmaPurple
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effects", "Heroic surge on kills, Paradox stacking on all hits")
+            tooltips.Add(new TooltipLine(Mod, "Effects", "Kills trigger 5-second Heroic Surge (+25% damage) and spread Paradox to nearby enemies")
             {
                 OverrideColor = eroicaGold
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Paradox", "12% chance per hit to apply random Paradox debuff")
+            {
+                OverrideColor = enigmaPurple
             });
             
             tooltips.Add(new TooltipLine(Mod, "Lore", "'A dance of heroism and mystery'")
@@ -317,14 +313,6 @@ namespace MagnumOpus.Content.Common.Accessories
                 target.AddBuff(debuffId, 240);
                 
                 // Heroic-mystery VFX
-                for (int i = 0; i < 6; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 6f;
-                    Vector2 offset = angle.ToRotationVector2() * 20f;
-                    Color color = Color.Lerp(EroicaColors.Scarlet, EnigmaColors.GreenFlame, (float)i / 6f);
-                    CustomParticles.GenericFlare(target.Center + offset, color, 0.35f, 15);
-                }
-                CustomParticles.GlyphBurst(target.Center, EroicaColors.Gold, 4, 3f);
             }
             
             // Check for kill
@@ -358,30 +346,13 @@ namespace MagnumOpus.Content.Common.Accessories
                         
                         // Spread VFX
                         Vector2 direction = (npc.Center - killedTarget.Center).SafeNormalize(Vector2.Zero);
-                        for (int j = 0; j < 4; j++)
-                        {
-                            Vector2 pos = Vector2.Lerp(killedTarget.Center, npc.Center, j / 4f);
-                            Color color = Color.Lerp(EnigmaColors.Purple, EnigmaColors.GreenFlame, j / 4f);
-                            CustomParticles.GenericFlare(pos, color, 0.25f, 10);
-                        }
                         
-                        CustomParticles.EnigmaEyeGaze(npc.Center, EnigmaColors.GreenFlame, 0.4f, null);
                     }
                 }
             }
             
             // Kill VFX burst
-            CustomParticles.GenericFlare(killedTarget.Center, Color.White, 1.0f, 25);
-            CustomParticles.GenericFlare(killedTarget.Center, EroicaColors.Gold, 0.8f, 22);
-            ThemedParticles.SakuraPetals(killedTarget.Center, 8, 40f);
-            CustomParticles.GlyphBurst(killedTarget.Center, EnigmaColors.Purple, 6, 5f);
             
-            for (int i = 0; i < 6; i++)
-            {
-                CustomParticles.HaloRing(killedTarget.Center, 
-                    Color.Lerp(EroicaColors.Scarlet, EnigmaColors.GreenFlame, i / 6f), 
-                    0.3f + i * 0.1f, 15 + i * 2);
-            }
         }
     }
     #endregion
@@ -523,36 +494,12 @@ namespace MagnumOpus.Content.Common.Accessories
             // Moonlit ballet dodge VFX
             
             // Central flash
-            CustomParticles.GenericFlare(Player.Center, Color.White, 1.2f, 25);
-            CustomParticles.GenericFlare(Player.Center, MoonlightColors.Purple, 0.9f, 22);
             
             // Rainbow-lunar halos
-            for (int i = 0; i < 6; i++)
-            {
-                Color haloColor = Color.Lerp(MoonlightColors.Silver, SwanColors.GetRainbow(i / 6f), 0.5f);
-                CustomParticles.HaloRing(Player.Center, haloColor, 0.35f + i * 0.1f, 15 + i * 2);
-            }
             
             // Feather burst
-            for (int i = 0; i < 12; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 12f;
-                Vector2 featherPos = Player.Center + angle.ToRotationVector2() * 25f;
-                Color featherColor = i % 2 == 0 ? SwanColors.White : MoonlightColors.Silver;
-                CustomParticles.SwanFeatherDrift(featherPos, featherColor, 0.45f);
-            }
             
             // Prismatic sparkle spiral
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 sparklePos = Player.Center + angle.ToRotationVector2() * 35f;
-                Color sparkleColor = SwanColors.GetRainbow((float)i / 8f);
-                
-                var sparkle = new SparkleParticle(sparklePos, angle.ToRotationVector2() * 3f,
-                    sparkleColor, 0.4f, 20);
-                MagnumParticleHandler.SpawnParticle(sparkle);
-            }
             
             // Brief invulnerability
             Player.immune = true;
@@ -625,7 +572,7 @@ namespace MagnumOpus.Content.Common.Accessories
                 OverrideColor = flameOrange
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effects", "Bell ring AOE on magic crits, Feather dodge chance")
+            tooltips.Add(new TooltipLine(Mod, "Effects", "10% chance Bell ring stun with fire AOE (120 range, 50% damage), 10% dodge chance")
             {
                 OverrideColor = rainbow
             });
@@ -678,7 +625,6 @@ namespace MagnumOpus.Content.Common.Accessories
                 {
                     Color trailColor = Color.Lerp(CampanellaColors.Orange, 
                         SwanColors.GetRainbow(Main.rand.NextFloat()), 0.5f);
-                    CustomParticles.GenericFlare(proj.Center, trailColor, 0.3f, 12);
                 }
             }
             
@@ -689,8 +635,6 @@ namespace MagnumOpus.Content.Common.Accessories
                 target.AddBuff(BuffID.Confused, 90);
                 
                 // Rainbow bell chime
-                CustomParticles.GenericFlare(target.Center, SwanColors.GetRainbow(Main.rand.NextFloat()), 0.6f, 18);
-                CustomParticles.HaloRing(target.Center, CampanellaColors.Orange, 0.4f, 15);
                 
                 // AoE rainbow fire
                 float aoeRadius = 120f;
@@ -705,7 +649,6 @@ namespace MagnumOpus.Content.Common.Accessories
                             npc.SimpleStrikeNPC(aoeDamage, 0, false, 0, null, false, 0, true);
                             npc.AddBuff(BuffID.OnFire, 180);
                             
-                            CustomParticles.GenericFlare(npc.Center, SwanColors.GetRainbow(Main.rand.NextFloat()), 0.4f, 12);
                         }
                     }
                 }
@@ -732,22 +675,9 @@ namespace MagnumOpus.Content.Common.Accessories
         private void TriggerFantasiaDodge()
         {
             // Fiery rainbow burst
-            CustomParticles.GenericFlare(Player.Center, Color.White, 1.2f, 25);
             
-            for (int i = 0; i < 8; i++)
-            {
-                Color burstColor = Color.Lerp(CampanellaColors.Orange, SwanColors.GetRainbow(i / 8f), 0.5f);
-                CustomParticles.HaloRing(Player.Center, burstColor, 0.35f + i * 0.1f, 15 + i * 2);
-            }
             
             // Burning feathers
-            for (int i = 0; i < 12; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 12f;
-                Vector2 featherPos = Player.Center + angle.ToRotationVector2() * 30f;
-                Color featherColor = Color.Lerp(SwanColors.White, CampanellaColors.Orange, Main.rand.NextFloat());
-                CustomParticles.SwanFeatherDrift(featherPos, featherColor, 0.5f);
-            }
             
             Player.immune = true;
             Player.immuneTime = 25;
@@ -812,7 +742,7 @@ namespace MagnumOpus.Content.Common.Accessories
                 OverrideColor = rainbow
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effects", "Melee kills trigger Heroic Surge (+25% damage), Feather dodge chance")
+            tooltips.Add(new TooltipLine(Mod, "Effects", "Melee kills trigger 5-second Heroic Surge (+25% damage), 10% dodge chance")
             {
                 OverrideColor = eroicaGold
             });
@@ -885,23 +815,9 @@ namespace MagnumOpus.Content.Common.Accessories
                 heroicSurgeTimer = 300;
                 
                 // Graceful heroic kill VFX
-                CustomParticles.GenericFlare(target.Center, Color.White, 1.0f, 25);
-                CustomParticles.GenericFlare(target.Center, EroicaColors.Gold, 0.8f, 22);
                 
-                ThemedParticles.SakuraPetals(target.Center, 6, 35f);
                 
-                for (int i = 0; i < 8; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 8f;
-                    Vector2 featherPos = target.Center + angle.ToRotationVector2() * 25f;
-                    CustomParticles.SwanFeatherDrift(featherPos, SwanColors.White, 0.45f);
-                }
                 
-                for (int i = 0; i < 5; i++)
-                {
-                    Color haloColor = Color.Lerp(EroicaColors.Gold, SwanColors.GetRainbow(i / 5f), 0.5f);
-                    CustomParticles.HaloRing(target.Center, haloColor, 0.35f + i * 0.1f, 15 + i * 2);
-                }
             }
         }
 
@@ -915,22 +831,9 @@ namespace MagnumOpus.Content.Common.Accessories
                 dodgeCooldown = 100;
                 
                 // Graceful dodge with sakura and feathers
-                CustomParticles.GenericFlare(Player.Center, Color.White, 1.0f, 20);
                 
-                for (int i = 0; i < 6; i++)
-                {
-                    CustomParticles.HaloRing(Player.Center, 
-                        Color.Lerp(EroicaColors.Gold, SwanColors.GetRainbow(i / 6f), 0.5f), 
-                        0.3f + i * 0.1f, 12 + i * 2);
-                }
                 
-                ThemedParticles.SakuraPetals(Player.Center, 8, 40f);
                 
-                for (int i = 0; i < 6; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 6f;
-                    CustomParticles.SwanFeatherDrift(Player.Center + angle.ToRotationVector2() * 20f, SwanColors.White, 0.4f);
-                }
                 
                 Player.immune = true;
                 Player.immuneTime = 20;
@@ -1002,7 +905,7 @@ namespace MagnumOpus.Content.Common.Accessories
                 OverrideColor = flameOrange
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effects", "Fire inflicts random Paradox debuffs, Bell ring AOE on crits")
+            tooltips.Add(new TooltipLine(Mod, "Effects", "15% Paradox chance (magic), 10% (other); 10% Bell ring stun (120 range, 50% AOE)")
             {
                 OverrideColor = greenFlame
             });
@@ -1090,15 +993,7 @@ namespace MagnumOpus.Content.Common.Accessories
                 int stacks = paradoxStacks[target.whoAmI];
                 
                 // Void fire VFX
-                for (int i = 0; i < 6 + stacks; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / (6 + stacks);
-                    Vector2 offset = angle.ToRotationVector2() * (15f + stacks * 3f);
-                    Color color = Color.Lerp(CampanellaColors.Orange, EnigmaColors.GreenFlame, (float)i / (6 + stacks));
-                    CustomParticles.GenericFlare(target.Center + offset, color, 0.3f + stacks * 0.03f, 15);
-                }
                 
-                CustomParticles.GlyphBurst(target.Center, EnigmaColors.Purple, 2 + stacks, 2f + stacks * 0.3f);
                 
                 // Void Collapse at 5 stacks
                 if (stacks >= 5)
@@ -1116,8 +1011,6 @@ namespace MagnumOpus.Content.Common.Accessories
                 
                 // Void bell chime
                 Color chimeColor = Color.Lerp(CampanellaColors.Orange, EnigmaColors.GreenFlame, 0.4f);
-                CustomParticles.GenericFlare(target.Center, chimeColor, 0.6f, 18);
-                CustomParticles.HaloRing(target.Center, EnigmaColors.Purple, 0.4f, 15);
                 
                 // AoE Paradox + fire
                 float aoeRadius = 120f;
@@ -1135,7 +1028,6 @@ namespace MagnumOpus.Content.Common.Accessories
                             int debuffId = ParadoxDebuffs[Main.rand.Next(ParadoxDebuffs.Length)];
                             npc.AddBuff(debuffId, 120);
                             
-                            CustomParticles.GenericFlare(npc.Center, EnigmaColors.GreenFlame, 0.4f, 12);
                         }
                     }
                 }
@@ -1147,35 +1039,12 @@ namespace MagnumOpus.Content.Common.Accessories
         private void TriggerVoidFlameCollapse(NPC target, int baseDamage)
         {
             // Massive void fire explosion
-            CustomParticles.GenericFlare(target.Center, Color.White, 1.5f, 30);
-            CustomParticles.GenericFlare(target.Center, CampanellaColors.Orange, 1.2f, 28);
-            CustomParticles.GenericFlare(target.Center, EnigmaColors.GreenFlame, 1.0f, 25);
             
-            for (int ring = 0; ring < 10; ring++)
-            {
-                Color ringColor = Color.Lerp(CampanellaColors.Orange, EnigmaColors.GreenFlame, ring / 10f);
-                CustomParticles.HaloRing(target.Center, ringColor, 0.4f + ring * 0.15f, 20 + ring * 3);
-            }
             
             // Glyph spiral
-            for (int i = 0; i < 16; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 16f;
-                float radius = 30f + i * 8f;
-                Vector2 pos = target.Center + angle.ToRotationVector2() * radius;
-                CustomParticles.Glyph(pos, EnigmaColors.Purple, 0.5f, -1);
-            }
             
             // Eye formation
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 eyePos = target.Center + angle.ToRotationVector2() * 45f;
-                CustomParticles.EnigmaEyeGaze(eyePos, EnigmaColors.GreenFlame, 0.55f, target.Center);
-            }
             
-            CustomParticles.ExplosionBurst(target.Center, CampanellaColors.Orange, 18, 12f);
-            CustomParticles.ExplosionBurst(target.Center, EnigmaColors.GreenFlame, 12, 10f);
             
             // Deal massive damage
             if (Main.myPlayer == Player.whoAmI)
@@ -1196,13 +1065,11 @@ namespace MagnumOpus.Content.Common.Accessories
                             npc.AddBuff(BuffID.OnFire, 300);
                             npc.AddBuff(ParadoxDebuffs[Main.rand.Next(ParadoxDebuffs.Length)], 180);
                             
-                            CustomParticles.GenericFlare(npc.Center, EnigmaColors.GreenFlame, 0.5f, 15);
                         }
                     }
                 }
             }
             
-            MagnumScreenEffects.AddScreenShake(12f);
             Terraria.Audio.SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.5f, Volume = 1.3f }, target.Center);
         }
     }

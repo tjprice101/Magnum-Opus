@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
+using Terraria.GameInput;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -107,9 +108,14 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             else
             {
                 // Decay phase: lose momentum when standing still
-                CurrentMomentum *= MomentumDecayRate;
-                if (CurrentMomentum < 1f)
-                    CurrentMomentum = 0f;
+                // Preserve momentum during boss fights for T10 users
+                bool preserveMomentum = HasEternalVelocityTreads && AnyBossAlive();
+                if (!preserveMomentum)
+                {
+                    CurrentMomentum *= MomentumDecayRate;
+                    if (CurrentMomentum < 1f)
+                        CurrentMomentum = 0f;
+                }
             }
 
             if (dashCooldown > 0) dashCooldown--;
@@ -155,6 +161,18 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             {
                 ApplyTimeSlowToNearbyEnemies();
             }
+        }
+
+        public override void ProcessTriggers(TriggersSet triggersSet)
+        {
+            if (!HasAnyMobilityAccessory)
+                return;
+
+            if (MagnumOpus.DashKeybind?.JustPressed == true)
+                TryHeroicDash();
+
+            if (MagnumOpus.TeleportKeybind?.JustPressed == true)
+                TryPhaseShift();
         }
 
         public void TryHeroicDash()
@@ -239,6 +257,16 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
                     npc.velocity *= 0.92f;
                 }
             }
+        }
+
+        private static bool AnyBossAlive()
+        {
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                if (Main.npc[i].active && Main.npc[i].boss)
+                    return true;
+            }
+            return false;
         }
 
         public override void ModifyHurt(ref Player.HurtModifiers modifiers)

@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -552,7 +552,7 @@ namespace MagnumOpus.Content.Eroica.Bosses
         private void AI_Phase2_Idle(Player target)
         {
             // Boss gets closer to player as aggression increases
-            float baseDist = 350f - aggressionLevel * 100f; // 350 竊・250 as aggression builds
+            float baseDist = 350f - aggressionLevel * 100f; // 350 ->250 as aggression builds
             float hoverDist = baseDist + difficultyTier * 30f;
             Vector2 idealPos = target.Center + new Vector2(NPC.Center.X > target.Center.X ? hoverDist : -hoverDist, -100f);
             

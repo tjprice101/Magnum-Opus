@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -9,7 +9,7 @@ using ReLogic.Content;
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma.Particles
 {
     // =========================================================================
-    //  SILENCE BURST 窶・Muzzle flash angular burst of silence-themed shards
+    //  SILENCE BURST  -- Muzzle flash angular burst of silence-themed shards
     //  Like breaking glass made of compressed silence, sharp and brief
     // =========================================================================
     public class SilenceBurstParticle : TacetParticle
@@ -61,8 +61,8 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma.Parti
     }
 
     // =========================================================================
-    //  PARADOX BOLT GLOW 窶・Glowing orb traveling with the paradox bolt
-    //  Leaves afterimages, multi-layered bloom: outer soft 竊・halo middle 竊・white center
+    //  PARADOX BOLT GLOW  -- Glowing orb traveling with the paradox bolt
+    //  Leaves afterimages, multi-layered bloom: outer soft ->halo middle ->white center
     // =========================================================================
     public class ParadoxBoltGlowParticle : TacetParticle
     {
@@ -132,7 +132,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma.Parti
     }
 
     // =========================================================================
-    //  PARADOX STACK 窶・Small pulsing glyphs / ? marks orbiting the player
+    //  PARADOX STACK  -- Small pulsing glyphs / ? marks orbiting the player
     //  Shows current stack count, AlphaBlend, uses Glyph textures
     // =========================================================================
     public class ParadoxStackParticle : TacetParticle
@@ -199,7 +199,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TacetsEnigma.Parti
     }
 
     // =========================================================================
-    //  CHAIN LIGHTNING MOTE 窶・Tiny bright motes scattered along lightning paths
+    //  CHAIN LIGHTNING MOTE  -- Tiny bright motes scattered along lightning paths
     //  Additive, simple 2-layer, very short lifetime (10-15 frames)
     // =========================================================================
     public class ChainLightningMoteParticle : TacetParticle

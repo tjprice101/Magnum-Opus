@@ -11,6 +11,8 @@ namespace MagnumOpus.Content.LaCampanella.Enemies
 {
     public class BellforgeWraith : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/LaCampanella/Enemies/BellforgeWraith/BellforgeWraith";
+
         private static readonly Color BellOrange = new Color(255, 140, 40);
         private static readonly Color BellGold = new Color(255, 200, 80);
 

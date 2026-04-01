@@ -11,6 +11,7 @@ using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 using System;
 using System.Collections.Generic;
+using MagnumOpus.Content.Materials.EnemyDrops;
 
 namespace MagnumOpus.Content.Eroica.Accessories.Shared
 {
@@ -102,7 +103,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
                 if (Main.rand.NextBool(3))
                 {
                     Vector2 pos = Player.Center + Main.rand.NextVector2Circular(20f, 30f);
-                    CustomParticles.GenericFlare(pos, EroicaPalette.Gold * 0.8f, 0.35f, 8);
                 }
             }
         }
@@ -128,9 +128,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
                 invulnFramesRemaining = 30;
 
                 // Heroic flash effect
-                CustomParticles.GenericFlare(Player.Center, Color.White, 0.6f, 15);
-                CustomParticles.HaloRing(Player.Center, EroicaPalette.Gold, 0.4f, 15);
-                ThemedParticles.SakuraPetals(Player.Center, 5, 40f);
             }
         }
     }
@@ -224,6 +221,7 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
                 .AddIngredient(ModContent.ItemType<BadgeOfValor>(), 1)
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfEroica>(), 25)
                 .AddIngredient(ModContent.ItemType<EroicasResonantEnergy>(), 10)
+                .AddIngredient(ModContent.ItemType<ValorEssence>(), 10)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
         }
@@ -252,7 +250,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
                 if (Main.rand.NextBool(3))
                 {
                     Vector2 pos = Player.Center + Main.rand.NextVector2Circular(20f, 30f);
-                    CustomParticles.GenericFlare(pos, EroicaPalette.Gold * 0.8f, 0.35f, 8);
                 }
             }
 
@@ -287,13 +284,9 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
                 heroicSurgeDuration = 300;
 
                 // Triumphant visual burst
-                CustomParticles.GenericFlare(Player.Center, Color.White, 0.8f, 20);
                 for (int i = 0; i < 3; i++)
                 {
-                    CustomParticles.HaloRing(Player.Center, Color.Lerp(EroicaPalette.DeepScarlet, EroicaPalette.Gold, (float)i / 3f), 
-                        0.3f + i * 0.15f, 12 + i * 3);
                 }
-                ThemedParticles.SakuraPetals(Player.Center, 10, 50f);
             }
         }
     }

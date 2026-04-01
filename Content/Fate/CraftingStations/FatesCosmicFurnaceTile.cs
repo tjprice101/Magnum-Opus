@@ -16,8 +16,6 @@ namespace MagnumOpus.Content.Fate.CraftingStations
     /// </summary>
     public class FatesCosmicFurnaceTile : ModTile
     {
-        // Use the item texture since tile texture doesn't exist yet
-        public override string Texture => "MagnumOpus/Content/Fate/CraftingStations/FatesCosmicFurnace";
         public override void SetStaticDefaults()
         {
             Main.tileFrameImportant[Type] = true;
@@ -39,6 +37,8 @@ namespace MagnumOpus.Content.Fate.CraftingStations
 
             // Acts as a furnace for smelting - includes all previous furnace tiers
             AdjTiles = new int[] { TileID.Furnaces, TileID.Hellforge, TileID.AdamantiteForge };
+
+            RegisterItemDrop(ModContent.ItemType<FatesCosmicFurnace>());
         }
 
         public override void ModifyLight(int i, int j, ref float r, ref float g, ref float b)

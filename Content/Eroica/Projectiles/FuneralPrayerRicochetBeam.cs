@@ -146,7 +146,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             {
                 Vector2 sparkVel = -Projectile.velocity.SafeNormalize(Vector2.Zero) * Main.rand.NextFloat(2f, 5f)
                     + Main.rand.NextVector2Circular(1.5f, 1.5f);
-                FuneralParticleHandler.SpawnParticle(new RequiemSparkParticle(
+                FuneralParticleHandler.SpawnParticle(new FuneralSparkParticle(
                     Projectile.Center,
                     sparkVel,
                     Color.Lerp(FuneralUtils.PrayerFlame, FuneralUtils.SoulWhite, Main.rand.NextFloat(0.3f)),
@@ -182,7 +182,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             for (int i = 0; i < sparkCount; i++)
             {
                 float angle = MathHelper.TwoPi * i / sparkCount + Main.rand.NextFloatDirection() * 0.15f;
-                FuneralParticleHandler.SpawnParticle(new RequiemSparkParticle(
+                FuneralParticleHandler.SpawnParticle(new FuneralSparkParticle(
                     position,
                     angle.ToRotationVector2() * Main.rand.NextFloat(4f, 9f),
                     Color.Lerp(FuneralUtils.DeepCrimson, FuneralUtils.PrayerFlame, Main.rand.NextFloat()),

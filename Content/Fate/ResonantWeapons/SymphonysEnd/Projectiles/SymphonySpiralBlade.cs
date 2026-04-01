@@ -38,11 +38,6 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
         // ─── State ────────────────────────────────────────────────
         private float helixAngle;
 
-        // ─── Bloom Textures (Foundation-tier) ─────────────────────
-        private static Asset<Texture2D> _pointBloomTex;
-        private static Asset<Texture2D> _softRadialBloomTex;
-        private static Asset<Texture2D> _starFlareTex;
-
         private Vector2 TargetPos => new Vector2(Projectile.ai[0], Projectile.ai[1]);
         private float Age => 1f - (float)Projectile.timeLeft / MaxLifetime;
 
@@ -151,85 +146,6 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
             float age = Age;
             Vector2 hitPos = target.Center;
 
-            // ═══ MULTI-LAYER SPRITEBATCH BLOOM FLASH ═══
-            try
-            {
-                _pointBloomTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom");
-                _softRadialBloomTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom");
-                _starFlareTex ??= ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/StarFlare");
-
-                SpriteBatch sb = Main.spriteBatch;
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-                Vector2 screenPos = hitPos - Main.screenPosition;
-                float flashTime = (float)Main.timeForVisualEffects;
-
-                // Layer 1: Vast violet outer haze (capped 300px max)
-                if (_softRadialBloomTex?.IsLoaded == true)
-                {
-                    var radTex = _softRadialBloomTex.Value;
-                    sb.Draw(radTex, screenPos, null,
-                        SymphonyUtils.Additive(SymphonyUtils.SymphonyViolet, 0.1f + age * 0.03f),
-                        0f, radTex.Size() * 0.5f, 0.139f, SpriteEffects.None, 0f);
-                }
-
-                // Layer 2: Pink mid glow (capped 300px max)
-                if (_softRadialBloomTex?.IsLoaded == true)
-                {
-                    var radTex = _softRadialBloomTex.Value;
-                    sb.Draw(radTex, screenPos, null,
-                        SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, 0.14f + age * 0.03f),
-                        0f, radTex.Size() * 0.5f, 0.10f, SpriteEffects.None, 0f);
-                }
-
-                // Layer 3: Harmony blue inner (capped 300px max)
-                if (_pointBloomTex?.IsLoaded == true)
-                {
-                    var ptTex = _pointBloomTex.Value;
-                    sb.Draw(ptTex, screenPos, null,
-                        SymphonyUtils.Additive(SymphonyUtils.HarmonyBlue, 0.15f + age * 0.05f),
-                        0f, ptTex.Size() * 0.5f, 0.08f, SpriteEffects.None, 0f);
-                }
-
-                // Layer 4: White-hot core
-                if (_pointBloomTex?.IsLoaded == true)
-                {
-                    var ptTex = _pointBloomTex.Value;
-                    sb.Draw(ptTex, screenPos, null,
-                        SymphonyUtils.Additive(SymphonyUtils.FinalWhite, 0.2f + age * 0.06f),
-                        0f, ptTex.Size() * 0.5f, 0.12f, SpriteEffects.None, 0f);
-                }
-
-                // Layer 5: StarFlare cross — rotating chromatic flash
-                if (_starFlareTex?.IsLoaded == true)
-                {
-                    var starTex = _starFlareTex.Value;
-                    sb.Draw(starTex, screenPos, null,
-                        SymphonyUtils.Additive(SymphonyUtils.SymphonyPink, 0.12f),
-                        flashTime * 0.12f, starTex.Size() * 0.5f, 0.15f, SpriteEffects.None, 0f);
-                    sb.Draw(starTex, screenPos, null,
-                        SymphonyUtils.Additive(SymphonyUtils.HarmonyBlue, 0.09f),
-                        -flashTime * 0.08f, starTex.Size() * 0.5f, 0.1f, SpriteEffects.None, 0f);
-                }
-
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                    Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullNone,
-                    null, Main.GameViewMatrix.TransformationMatrix);
-            }
-            catch
-            {
-                try
-                {
-                    Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                        Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullNone,
-                        null, Main.GameViewMatrix.TransformationMatrix);
-                }
-                catch { }
-            }
-
             // ═══ ENHANCED PARTICLE BURST ═══
             // 14 radial sparks with chromatic gradient
             for (int i = 0; i < 14; i++)
@@ -317,34 +233,6 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.SymphonysEnd
         private void FinalNoteDetonation()
         {
             if (Main.dedServ) return;
-
-            // ═══ CELESTIAL SPARKLE DETONATION — THE FINAL CHORD ═══
-            try
-            {
-                SpriteBatch sb = Main.spriteBatch;
-                float flashTime = (float)Main.timeForVisualEffects;
-
-                // Massive celestial sparkle impact — replaces 7-draw bloom flash
-                Color[] detonationColors = new Color[] {
-                    SymphonyUtils.SymphonyViolet,
-                    SymphonyUtils.SymphonyPink,
-                    SymphonyUtils.HarmonyBlue,
-                    SymphonyUtils.FinalWhite,
-                };
-                SparkleBloomHelper.DrawSparkleImpact(sb, Projectile.Center, SparkleTheme.Fate,
-                    detonationColors, 1f, 60f, 14, flashTime,
-                    seed: Projectile.identity * 0.91f, sparkleScale: 0.06f);
-            }
-            catch
-            {
-                try
-                {
-                    Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                        Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullNone,
-                        null, Main.GameViewMatrix.TransformationMatrix);
-                }
-                catch { }
-            }
 
             // Massive multi-layer particle burst
             SymphonyParticleHandler.SpawnBurst(Projectile.Center, 20, 12f, 0.5f,

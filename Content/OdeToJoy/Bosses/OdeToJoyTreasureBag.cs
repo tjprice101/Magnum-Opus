@@ -31,8 +31,6 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
     /// </summary>
     public class OdeToJoyTreasureBag : ModItem
     {
-        private Asset<Texture2D> _groundTexture;
-
         public override void SetStaticDefaults()
         {
             ItemID.Sets.BossBag[Type] = true;

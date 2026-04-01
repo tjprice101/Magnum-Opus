@@ -98,6 +98,7 @@ namespace MagnumOpus.Common.Systems.VFX
             public string Theme;
         }
         
+        #pragma warning disable CS0649 // Fields are defined for future use
         private struct TelegraphElement
         {
             public Vector2 LocalPos;
@@ -105,6 +106,7 @@ namespace MagnumOpus.Common.Systems.VFX
             public float Scale;
             public Color Tint;
         }
+#pragma warning restore CS0649
         
         public enum TelegraphType
         {
@@ -136,6 +138,7 @@ namespace MagnumOpus.Common.Systems.VFX
             public int Phase; // 0 = building, 1 = climax, 2 = fadeout
         }
         
+        #pragma warning disable CS0649 // Fields are defined for future use
         private struct DeathParticle
         {
             public Vector2 Position;
@@ -147,6 +150,7 @@ namespace MagnumOpus.Common.Systems.VFX
             public int Lifetime;
             public int Timer;
         }
+#pragma warning restore CS0649
         
         #endregion
         

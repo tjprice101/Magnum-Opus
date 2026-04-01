@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria;
 using Terraria.Graphics.Shaders;
@@ -10,11 +10,11 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.OpusUltima.Shaders
     /// Self-contained shader loader for Opus Ultima.
     /// Loads 5 unique shaders from Effects/Fate/OpusUltima/:
     ///
-    ///   1. OpusSwingTrail   窶・Main swing arc trail with cosmic fire + gold intensity
-    ///   2. OpusSwingGlow    窶・Wide bloom glow underlayer (alt pass of OpusSwingTrail)
-    ///   3. OpusEnergyBall   窶・Swirling cosmic energy orb
-    ///   4. OpusSeekerTrail  窶・Seeker homing trail
-    ///   5. OpusExplosion    窶・Supernova explosion effect
+    ///   1. OpusSwingTrail    -- Main swing arc trail with cosmic fire + gold intensity
+    ///   2. OpusSwingGlow     -- Wide bloom glow underlayer (alt pass of OpusSwingTrail)
+    ///   3. OpusEnergyBall    -- Swirling cosmic energy orb
+    ///   4. OpusSeekerTrail   -- Seeker homing trail
+    ///   5. OpusExplosion     -- Supernova explosion effect
     ///
     /// Keys: "MagnumOpus:Opus<Purpose>"
     /// </summary>

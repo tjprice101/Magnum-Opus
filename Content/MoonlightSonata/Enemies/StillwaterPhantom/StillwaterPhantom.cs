@@ -11,6 +11,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Enemies
 {
     public class StillwaterPhantom : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/MoonlightSonata/Enemies/StillwaterPhantom/StillwaterPhantom";
+
         private static readonly Color MoonlightViolet = new Color(120, 80, 180);
         private static readonly Color MoonlightSilver = new Color(180, 190, 220);
 

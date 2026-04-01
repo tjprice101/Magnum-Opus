@@ -44,10 +44,10 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             player.buffImmune[BuffID.Frozen] = true;
             
             // Life regen
-            player.lifeRegen += 4;
+            player.lifeRegen += 6;
             
             // Thorns
-            player.thorns = 0.15f;
+            player.thorns = 0.22f;
             
             // Night vision
             player.nightVision = true;
@@ -64,8 +64,8 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+18 defense (+23 at night)"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Immunity to fire, burning, frostburn, chill, and frozen"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+4 life regeneration"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "15% of melee damage taken is reflected back to attackers"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+6 life regeneration"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "22% of melee damage taken is reflected back to attackers"));
             tooltips.Add(new TooltipLine(Mod, "Effect5", "Grants night vision"));
             tooltips.Add(new TooltipLine(Mod, "Effect6", "+5% damage at night"));
             tooltips.Add(new TooltipLine(Mod, "Effect7", "Grants 36% of max HP as an absorbent shield"));
@@ -116,10 +116,10 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             player.buffImmune[BuffID.Frozen] = true;
             
             // Life regen
-            player.lifeRegen += 5;
+            player.lifeRegen += 7;
             
             // Thorns
-            player.thorns = 0.18f;
+            player.thorns = 0.24f;
             
             // Base damage boost
             player.GetDamage(DamageClass.Generic) += 0.05f;
@@ -129,8 +129,8 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+20 defense"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Immunity to fire, burning, frostburn, chill, and frozen"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+5 life regeneration"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "18% of melee damage taken is reflected back to attackers"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+7 life regeneration"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "24% of melee damage taken is reflected back to attackers"));
             tooltips.Add(new TooltipLine(Mod, "Effect5", "+5% damage"));
             tooltips.Add(new TooltipLine(Mod, "Effect6", "Grants 38% of max HP as an absorbent shield"));
             tooltips.Add(new TooltipLine(Mod, "Effect7", "When shield breaks, grants +15% damage for 5 seconds"));
@@ -182,10 +182,10 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             player.lavaImmune = true;
             
             // Life regen
-            player.lifeRegen += 6;
+            player.lifeRegen += 8;
             
             // Enhanced thorns
-            player.thorns = 0.20f;
+            player.thorns = 0.26f;
             
             // Fire damage boost
             player.GetDamage(DamageClass.Generic) += 0.08f;
@@ -196,11 +196,11 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+24 defense"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Immunity to fire, burning, hellfire, frostburn, chill, and frozen"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Immunity to lava"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+6 life regeneration"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "20% of melee damage taken is reflected back to attackers"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+8 life regeneration"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "26% of melee damage taken is reflected back to attackers"));
             tooltips.Add(new TooltipLine(Mod, "Effect6", "+8% damage"));
             tooltips.Add(new TooltipLine(Mod, "Effect7", "Grants 40% of max HP as an absorbent shield"));
-            tooltips.Add(new TooltipLine(Mod, "Effect8", "When shield breaks, releases a massive bell shockwave that damages and staggers enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect8", "When shield breaks, inflicts hellfire on nearby enemies"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'When the infernal bell tolls, even demons cower'") { OverrideColor = new Color(255, 140, 40) });
         }
         
@@ -250,10 +250,10 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             player.lavaImmune = true;
             
             // Life regen
-            player.lifeRegen += 7;
+            player.lifeRegen += 9;
             
             // Thorns
-            player.thorns = 0.20f;
+            player.thorns = 0.26f;
             
             // Black Belt dodge synergy
             player.blackBelt = true;
@@ -264,8 +264,8 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+26 defense"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Immunity to fire, burning, hellfire, frostburn, chill, frozen, and confusion"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Immunity to lava"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+7 life regeneration"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "20% of melee damage taken is reflected back to attackers"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+9 life regeneration"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "26% of melee damage taken is reflected back to attackers"));
             tooltips.Add(new TooltipLine(Mod, "Effect6", "Grants Black Belt dodge chance"));
             tooltips.Add(new TooltipLine(Mod, "Effect7", "Grants 45% of max HP as an absorbent shield"));
             tooltips.Add(new TooltipLine(Mod, "Effect8", "10% chance to phase through attacks entirely"));
@@ -318,10 +318,10 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             player.lavaImmune = true;
             
             // Strong life regen
-            player.lifeRegen += 8;
+            player.lifeRegen += 10;
             
             // Thorns
-            player.thorns = 0.22f;
+            player.thorns = 0.28f;
             
             // Dodge synergy
             player.blackBelt = true;
@@ -335,12 +335,12 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+30 defense"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Immunity to fire, burning, hellfire, frostburn, chill, frozen, and confusion"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Immunity to lava"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+8 life regeneration"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "22% of melee damage taken is reflected back to attackers"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+10 life regeneration"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "28% of melee damage taken is reflected back to attackers"));
             tooltips.Add(new TooltipLine(Mod, "Effect6", "Grants Black Belt dodge chance"));
             tooltips.Add(new TooltipLine(Mod, "Effect7", "Reduced enemy aggression"));
             tooltips.Add(new TooltipLine(Mod, "Effect8", "Grants 50% of max HP as an absorbent shield"));
-            tooltips.Add(new TooltipLine(Mod, "Effect9", "While shield is at full capacity, gain +5% dodge chance"));
+            tooltips.Add(new TooltipLine(Mod, "Effect9", "While shield is at full capacity, gain improved dodge chance"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'In grace there is immortality, in elegance there is eternity'") { OverrideColor = new Color(240, 245, 255) });
         }
         
@@ -391,10 +391,10 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             player.lavaImmune = true;
             
             // Maximum life regen
-            player.lifeRegen += 10;
+            player.lifeRegen += 12;
             
             // Maximum thorns
-            player.thorns = 0.25f;
+            player.thorns = 0.30f;
             
             // All dodge synergies
             player.blackBelt = true;
@@ -408,8 +408,8 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+35 defense"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Immunity to fire, burning, hellfire, frostburn, chill, frozen, confusion, and slow"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "Immunity to lava"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+10 life regeneration"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "25% of melee damage taken is reflected back to attackers"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+12 life regeneration"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "30% of melee damage taken is reflected back to attackers"));
             tooltips.Add(new TooltipLine(Mod, "Effect6", "Grants Black Belt dodge chance"));
             tooltips.Add(new TooltipLine(Mod, "Effect7", "+10% damage"));
             tooltips.Add(new TooltipLine(Mod, "Effect8", "Grants 60% of max HP as an absorbent shield"));

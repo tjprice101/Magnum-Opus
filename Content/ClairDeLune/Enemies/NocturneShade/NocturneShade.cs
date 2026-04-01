@@ -12,6 +12,8 @@ namespace MagnumOpus.Content.ClairDeLune.Enemies
 {
     public class NocturneShade : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/ClairDeLune/Enemies/NocturneShade/NocturneShade";
+
         private static readonly Color NightMist = new Color(100, 140, 200);
         private static readonly Color MoonGlow = new Color(180, 210, 255);
 

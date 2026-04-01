@@ -4,20 +4,21 @@ using Microsoft.Xna.Framework.Graphics;
 using MagnumOpus.Common;
 using MagnumOpus.Content.ClairDeLune;
 using Terraria;
+using Terraria.ID;
 
 namespace MagnumOpus.Content.ClairDeLune.Weapons.CogAndHammer.Utilities
 {
     /// <summary>
     /// Self-contained utility library for the Cog and Hammer weapon system.
-    /// Heavy brass palette — clockwork bombs across moonlit sky, explosive mechanical power.
+    /// Heavy brass palette  Eclockwork bombs across moonlit sky, explosive mechanical power.
     /// Contains easing functions, piecewise animation, color helpers, and SpriteBatch extensions.
     /// </summary>
     public static class CogAndHammerUtils
     {
-        // ═══════ WEAPON PALETTE ═══════
+        // ══════╁EWEAPON PALETTE ══════╁E
 
         /// <summary>
-        /// Cog and Hammer launch gradient — clockwork bombs with brass, gold, and pearl blue.
+        /// Cog and Hammer launch gradient  Eclockwork bombs with brass, gold, and pearl blue.
         /// NightMist -> ClockworkBrass -> MoonbeamGold -> PearlBlue -> PearlWhite -> WhiteHot.
         /// </summary>
         public static readonly Color[] WeaponPalette = new Color[]
@@ -32,7 +33,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.CogAndHammer.Utilities
 
         public static readonly Color LoreColor = ClairDeLunePalette.LoreText;
 
-        // ═══════ COLOR HELPERS ═══════
+        // ══════╁ECOLOR HELPERS ══════╁E
 
         public static Color MulticolorLerp(float t, params Color[] colors)
         {
@@ -47,7 +48,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.CogAndHammer.Utilities
 
         public static Color Additive(Color c, float opacity = 1f) => (c with { A = 0 }) * opacity;
 
-        // ═══════ EASING FUNCTIONS ═══════
+        // ══════╁EEASING FUNCTIONS ══════╁E
 
         public delegate float EasingFunction(float t, int degree = 0);
 
@@ -64,7 +65,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.CogAndHammer.Utilities
         public static float CircInEasing(float t, int d = 0) => 1f - MathF.Sqrt(1f - t * t);
         public static float CircOutEasing(float t, int d = 0) { float u = t - 1f; return MathF.Sqrt(1f - u * u); }
 
-        // ═══════ CURVE SEGMENTS ═══════
+        // ══════╁ECURVE SEGMENTS ══════╁E
 
         public struct CurveSegment
         {
@@ -97,7 +98,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.CogAndHammer.Utilities
             return seg.StartHeight + seg.ElevationShift * seg.Easing(local, seg.Degree);
         }
 
-        // ═══════ SPRITEBATCH HELPERS ═══════
+        // ══════╁ESPRITEBATCH HELPERS ══════╁E
 
         public static void EnterShaderRegion(this SpriteBatch sb)
         {
@@ -134,7 +135,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.CogAndHammer.Utilities
                 DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
-        // ═══════ GEOMETRY HELPERS ═══════
+        // ══════╁EGEOMETRY HELPERS ══════╁E
 
         public static Vector2 SafeDirectionTo(Vector2 from, Vector2 to, Vector2 fallback = default)
         {
@@ -167,7 +168,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.CogAndHammer.Utilities
             return current + MathHelper.Clamp(diff, -maxDelta, maxDelta);
         }
 
-        // ═══════ THEME ACCENTS ═══════
+        // ══════╁ETHEME ACCENTS ══════╁E
 
         public static void DrawThemeAccents(SpriteBatch sb, Vector2 worldPos, float scale, float intensity)
         {
@@ -177,7 +178,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.CogAndHammer.Utilities
             Color glowColor = Additive(WeaponPalette[2], intensity * 0.5f * pulse);
             Color ringColor = Additive(WeaponPalette[3], intensity * 0.4f * pulse);
 
-            Texture2D glow = Terraria.GameContent.TextureAssets.Extra[89].Value;
+            Texture2D glow = Terraria.GameContent.TextureAssets.Extra[ExtrasID.ThePerfectGlow].Value;
             sb.Draw(glow, drawPos, null, glowColor, 0f, glow.Size() / 2f, scale * 0.6f, SpriteEffects.None, 0f);
             sb.Draw(glow, drawPos, null, ringColor, rot, glow.Size() / 2f, scale * 0.9f, SpriteEffects.None, 0f);
         }

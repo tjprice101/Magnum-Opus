@@ -38,10 +38,6 @@ namespace MagnumOpus.Content.Eroica.Projectiles
         private Vector2[] trailPositions = new Vector2[TrailLength];
         private bool trailInitialized = false;
 
-        public override void SetStaticDefaults()
-        {
-        }
-
         public override void SetDefaults()
         {
             Projectile.width = 30;
@@ -172,6 +168,12 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         public override void OnKill(int timeLeft)
         {
+            for (int i = 0; i < 8; i++)
+            {
+                Vector2 vel = Main.rand.NextVector2Circular(3f, 3f);
+                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.PinkFairy, vel, 0, default, 0.8f);
+                d.noGravity = true;
+            }
         }
 
         public override bool PreDraw(ref Color lightColor)

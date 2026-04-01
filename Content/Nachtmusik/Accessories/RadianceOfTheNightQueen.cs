@@ -9,6 +9,7 @@ using MagnumOpus.Content.Nachtmusik.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Nachtmusik;
+using MagnumOpus.Content.Materials.EnemyDrops;
 
 namespace MagnumOpus.Content.Nachtmusik.Accessories
 {
@@ -95,11 +96,13 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
             CreateRecipe()
                 .AddIngredient(ModContent.ItemType<NachtmusikResonantEnergy>(), 15)
                 .AddIngredient(ModContent.ItemType<NachtmusikResonantCore>(), 6)
+                .AddIngredient(ModContent.ItemType<NachtmusikEssence>(), 8)
                 .AddIngredient(ItemID.FragmentSolar, 5)
                 .AddIngredient(ItemID.FragmentNebula, 5)
                 .AddIngredient(ItemID.FragmentVortex, 5)
                 .AddIngredient(ItemID.FragmentStardust, 5)
                 .AddIngredient(ItemID.LunarBar, 10)
+                .AddIngredient(ModContent.ItemType<ShardOfNachtmusiksTempo>(), 5)
                 .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
                 .Register();
         }
@@ -147,27 +150,15 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
 
             // Massive visual nova
             // Central burst
-            CustomParticles.GenericFlare(Player.Center, StarWhite, 1.5f, 25);
-            CustomParticles.GenericFlare(Player.Center, Gold, 1.2f, 22);
-            CustomParticles.GenericFlare(Player.Center, Violet, 0.9f, 20);
 
             // Music note burst on radiance nova
 
             // Star sparkle accents
             for (int i = 0; i < 5; i++)
             {
-                var sparkle = new SparkleParticle(Player.Center + Main.rand.NextVector2Circular(15f, 15f),
-                    Main.rand.NextVector2Circular(3f, 3f), new Color(255, 250, 240) * 0.5f, 0.25f, 18);
-                MagnumParticleHandler.SpawnParticle(sparkle);
             }
 
             // Expanding halo rings
-            for (int ring = 0; ring < 6; ring++)
-            {
-                float ringProgress = ring / 6f;
-                Color ringColor = Color.Lerp(Gold, DeepPurple, ringProgress);
-                CustomParticles.HaloRing(Player.Center, ringColor, 0.4f + ring * 0.15f, 18 + ring * 3);
-            }
 
             // Radial star burst
             for (int i = 0; i < 16; i++)
@@ -176,14 +167,6 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
                 Vector2 burstDir = angle.ToRotationVector2();
                 
                 // Star streak
-                for (int j = 0; j < 6; j++)
-                {
-                    float dist = 20f + j * 25f;
-                    Vector2 pos = Player.Center + burstDir * dist;
-                    float progress = j / 6f;
-                    Color starColor = Color.Lerp(StarWhite, Gold, progress);
-                    CustomParticles.GenericFlare(pos, starColor * (1f - progress * 0.3f), 0.35f - progress * 0.15f, 15);
-                }
             }
 
             // Damage nearby enemies
@@ -206,8 +189,6 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
                     }
 
                     // VFX on hit enemy
-                    CustomParticles.GenericFlare(npc.Center, Gold, 0.5f, 15);
-                    CustomParticles.HaloRing(npc.Center, Violet, 0.3f, 12);
                 }
             }
 

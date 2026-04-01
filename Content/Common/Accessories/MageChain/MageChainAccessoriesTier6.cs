@@ -46,11 +46,6 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
                 OverrideColor = NachtmusikGold
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Magic attacks leave constellation trails")
-            {
-                OverrideColor = new Color(200, 210, 230)
-            });
-
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The night sky sings through your spellwork'")
             {
                 OverrideColor = NachtmusikPurple * 0.8f
@@ -103,11 +98,6 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
                 OverrideColor = DiesIraeCrimson
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Magic attacks inflict hellfire burn")
-            {
-                OverrideColor = DiesIraeOrange
-            });
-
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Hellfire consumes the void, forging destruction anew'")
             {
                 OverrideColor = DiesIraeCrimson * 0.8f
@@ -155,14 +145,9 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Casting spells heals 1 HP per 20 mana spent")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Magic attacks heal 2 HP on hit")
             {
                 OverrideColor = OdeToJoyRose
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Magic attacks leave trails of light")
-            {
-                OverrideColor = OdeToJoyWhite
             });
 
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Joy flows through the very fabric of magic'")
@@ -208,18 +193,17 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         {
             var overflowPlayer = player.GetModPlayer<OverflowPlayer>();
             overflowPlayer.hasEternalOverflowMastery = true;
+
+            // T10 stat bonus
+            player.GetDamage(DamageClass.Magic) += 0.15f;
+            player.manaCost -= 0.08f;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Magic attacks hit twice")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+15% magic damage, 8% reduced mana cost")
             {
                 OverrideColor = ClairDeLuneCrimson
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "DoubleNote", "Second hit deals 50% damage")
-            {
-                OverrideColor = new Color(180, 170, 200)
             });
 
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Time itself flows through the eternal void'")
@@ -290,17 +274,7 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
                 OverrideColor = NachtmusikPurple
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+25% magic damage during boss fights")
-            {
-                OverrideColor = DiesIraeCrimson
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Magic attacks leave constellation trails of hellfire")
-            {
-                OverrideColor = FusionGold
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+80 max mana, 10% reduced mana cost, accelerated mana regen")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+80 max mana, 10% reduced mana cost, accelerated mana regen")
             {
                 OverrideColor = FusionGold
             });
@@ -378,22 +352,7 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
                 OverrideColor = NachtmusikPurple
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+25% magic damage during boss fights")
-            {
-                OverrideColor = DiesIraeCrimson
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Casting spells heals 1 HP per 20 mana spent")
-            {
-                OverrideColor = OdeToJoyRose
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Magic attacks hit twice (50% second hit)")
-            {
-                OverrideColor = FusionTriumph
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "+120 max mana, 14% reduced mana cost, major mana regeneration")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+120 max mana, 14% reduced mana cost, major mana regeneration")
             {
                 OverrideColor = FusionTriumph
             });
@@ -445,9 +404,9 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             var overflowPlayer = player.GetModPlayer<OverflowPlayer>();
             overflowPlayer.hasPendantOfTheEternalOverflow = true;
 
-            player.statManaMax2 += 160;
-            player.manaCost -= 0.20f;
-            player.manaRegenBonus += 40;
+            player.statManaMax2 += 120;
+            player.manaCost -= 0.15f;
+            player.manaRegenBonus += 30;
             player.magicCuffs = true;
         }
 
@@ -461,37 +420,17 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
                 OverrideColor = UltimatePrismatic
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+40% magic damage")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+30% magic damage")
             {
                 OverrideColor = NachtmusikPurple
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Magic attacks hit three times")
-            {
-                OverrideColor = DiesIraeCrimson
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "TripleNote", "Second hit: 50% damage | Third hit: 25% damage")
-            {
-                OverrideColor = new Color(200, 180, 220)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Casting spells heals 2 HP per 20 mana spent")
-            {
-                OverrideColor = OdeToJoyRose
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "All previous fusion effects included")
-            {
-                OverrideColor = new Color(200, 200, 200)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "+160 max mana, 20% reduced mana cost, mana damage taken converted to mana")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+120 max mana, 15% reduced mana cost, damage taken restores mana")
             {
                 OverrideColor = UltimatePrismatic
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The eternal overflow echoes through all of existence'")
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Mana flows like an endless river of song'")
             {
                 OverrideColor = ClairDeLuneBrass * 0.8f
             });

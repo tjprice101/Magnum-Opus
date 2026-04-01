@@ -11,6 +11,8 @@ namespace MagnumOpus.Content.Summer.Enemies
 {
     public class Solarforge : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/Summer/Enemies/Solarforge/Solarforge";
+
         private static readonly Color SummerGold = new Color(255, 200, 80);
         private static readonly Color SummerEmber = new Color(230, 60, 20);
 

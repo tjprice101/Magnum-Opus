@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
@@ -11,7 +11,7 @@ using static MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Utili
 namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projectiles
 {
     /// <summary>
-    /// Orbiting Note Projectile 窶・spawned during Movement III (Presto Agitato).
+    /// Orbiting Note Projectile  -- spawned during Movement III (Presto Agitato).
     /// Music notes orbit the player for 3 seconds, then home in on the nearest enemy.
     /// Each slash in the flurry adds another orbiting note, building visual intensity.
     /// "A gathering storm of notes, each one a weapon waiting to strike."
@@ -121,7 +121,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
             }
             else
             {
-                // No target 窶・fly forward and die
+                // No target  -- fly forward and die
                 if (Projectile.velocity == Vector2.Zero)
                     Projectile.velocity = Main.rand.NextVector2CircularEdge(6f, 6f);
                 Projectile.velocity *= 1.02f;
@@ -141,7 +141,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
 
         private void DoBehavior_Converge()
         {
-            // Grand Finale convergence 窶・all notes converge on nearest enemy
+            // Grand Finale convergence  -- all notes converge on nearest enemy
             NPC target = FindClosestNPC(1200f);
 
             if (target != null)

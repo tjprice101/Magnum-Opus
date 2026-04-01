@@ -26,7 +26,6 @@ namespace MagnumOpus.Common.Systems
         private UIText classBonusText;
         
         // Stats subsection elements
-        private UIPanel statsPanel;
         private UIText statsHeaderText;
         private UIText[] statsCoreLines = new UIText[3]; // One line per equipped core
         private UIText statsTotalLine;

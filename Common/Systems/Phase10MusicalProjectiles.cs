@@ -929,7 +929,6 @@ namespace MagnumOpus.Common.Systems
         public override Color SecondaryColor => Color.Gold;
         
         private float discRotation = 0f;
-        private float rotationsCompleted = 0f;
         private const float DegreesPerSlice = 90f; // Fire every 90 degrees
         
         public override void SetDefaults()

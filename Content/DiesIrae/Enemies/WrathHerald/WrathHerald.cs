@@ -12,6 +12,8 @@ namespace MagnumOpus.Content.DiesIrae.Enemies
 {
     public class WrathHerald : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/DiesIrae/Enemies/WrathHerald/WrathHerald";
+
         private static readonly Color WrathRed = new Color(200, 50, 30);
         private static readonly Color EmberOrange = new Color(255, 120, 40);
 

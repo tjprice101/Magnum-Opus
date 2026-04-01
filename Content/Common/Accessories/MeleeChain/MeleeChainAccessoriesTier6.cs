@@ -49,11 +49,6 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
                 OverrideColor = NachtmusikGold
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Melee attacks leave constellation trails")
-            {
-                OverrideColor = new Color(200, 180, 255)
-            });
-
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The night sky conducts its eternal symphony'")
             {
                 OverrideColor = new Color(45, 27, 78) * 1.5f
@@ -103,16 +98,6 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Melee attacks inflict Judgment Burn")
-            {
-                OverrideColor = DiesIraeCrimson
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "BurnNote", "Judgment Burn: 3% of enemy max HP per second")
-            {
-                OverrideColor = new Color(255, 120, 40)
-            });
-
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+25% melee damage during boss fights")
             {
                 OverrideColor = new Color(255, 200, 80)
@@ -171,11 +156,6 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
                 OverrideColor = new Color(180, 255, 180)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Killing enemies restores 15 HP")
-            {
-                OverrideColor = OdeRose
-            });
-
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Freude, schoener Goetterfunken - Joy, beautiful spark of divinity'")
             {
                 OverrideColor = OdeGold * 0.8f
@@ -220,18 +200,17 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         {
             var modPlayer = player.GetModPlayer<ResonanceComboPlayer>();
             modPlayer.hasEternalResonanceBand = true;
+
+            // T10 stat bonus
+            player.GetDamage(DamageClass.Melee) += 0.15f;
+            player.GetAttackSpeed(DamageClass.Melee) += 0.08f;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Melee attacks hit twice")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+15% melee damage, +8% melee speed")
             {
-                OverrideColor = new Color(255, 220, 230)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "DoubleNote", "Second hit deals 50% damage")
-            {
-                OverrideColor = new Color(200, 180, 220)
+                OverrideColor = ClairIridescent
             });
 
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Time bends to the rhythm of eternity itself'")
@@ -300,16 +279,6 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+20% melee damage at night")
             {
                 OverrideColor = new Color(255, 215, 0)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Melee attacks inflict Judgment Burn")
-            {
-                OverrideColor = StarfallCrimson
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Attacks leave constellation trails")
-            {
-                OverrideColor = new Color(200, 180, 255)
             });
 
             tooltips.Add(new TooltipLine(Mod, "Effect4", "+8% melee speed and +12 armor penetration")
@@ -390,19 +359,9 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
                 OverrideColor = new Color(255, 215, 0)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Melee attacks inflict Judgment Burn")
-            {
-                OverrideColor = new Color(180, 40, 40)
-            });
-
             tooltips.Add(new TooltipLine(Mod, "Effect3", "3% lifesteal on melee attacks")
             {
                 OverrideColor = new Color(180, 255, 180)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Melee attacks hit twice (50% second hit)")
-            {
-                OverrideColor = TriumphRose
             });
 
             tooltips.Add(new TooltipLine(Mod, "Effect5", "+10% melee speed, +18 armor penetration, +30 max life")
@@ -457,6 +416,7 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             var modPlayer = player.GetModPlayer<ResonanceComboPlayer>();
             modPlayer.hasGauntletOfTheEternalSymphony = true;
 
+            player.GetDamage(DamageClass.Melee) += 0.30f;
             player.GetAttackSpeed(DamageClass.Melee) += 0.12f;
             player.GetArmorPenetration(DamageClass.Melee) += 25f;
             player.GetKnockback(DamageClass.Melee) += 0.20f;
@@ -473,29 +433,14 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
                 OverrideColor = EternalWhite
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+40% melee damage")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+30% melee damage")
             {
                 OverrideColor = new Color(255, 200, 200)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Melee attacks hit three times")
-            {
-                OverrideColor = new Color(255, 220, 255)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "TripleNote", "Second hit: 50% damage | Third hit: 25% damage")
-            {
-                OverrideColor = new Color(200, 180, 220)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "4% lifesteal on melee attacks")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "2% lifesteal on melee attacks")
             {
                 OverrideColor = new Color(180, 255, 180)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "All previous fusion effects included")
-            {
-                OverrideColor = new Color(200, 200, 200)
             });
 
             tooltips.Add(new TooltipLine(Mod, "Effect5", "+12% melee speed, +25 armor penetration, +20% knockback, +50 max life")

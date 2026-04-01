@@ -12,6 +12,8 @@ namespace MagnumOpus.Content.ClairDeLune.Enemies
 {
     public class ReverieDrifter : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/ClairDeLune/Enemies/ReverieDrifter/ReverieDrifter";
+
         private static readonly Color LuneBlue = new Color(150, 200, 255);
         private static readonly Color LunePearl = new Color(220, 230, 250);
 

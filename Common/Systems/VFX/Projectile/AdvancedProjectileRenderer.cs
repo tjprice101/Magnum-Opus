@@ -20,7 +20,6 @@ namespace MagnumOpus.Common.Systems.VFX
         private static Dictionary<int, ProjectileRenderState> _renderStates = new Dictionary<int, ProjectileRenderState>();
         
         // Bloom textures cache
-        private static Texture2D _bloomTexture;
         private static Texture2D _softGlowTexture;
         private static Texture2D _flareTexture;
         
@@ -75,7 +74,6 @@ namespace MagnumOpus.Common.Systems.VFX
         {
             On_Main.DrawProjectiles -= DrawProjectilesWithInterpolation;
             _renderStates.Clear();
-            _bloomTexture = null;
             _softGlowTexture = null;
             _flareTexture = null;
         }

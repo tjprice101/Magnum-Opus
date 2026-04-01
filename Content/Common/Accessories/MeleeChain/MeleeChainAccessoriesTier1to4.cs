@@ -35,6 +35,9 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         {
             var modPlayer = player.GetModPlayer<ResonanceComboPlayer>();
             modPlayer.hasResonantRhythmBand = true;
+            
+            // Inherited from Band of Regeneration
+            player.lifeRegen += 1;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -45,6 +48,11 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             });
 
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+3% melee attack speed")
+            {
+                OverrideColor = new Color(200, 255, 200)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+1 life regeneration")
             {
                 OverrideColor = new Color(200, 255, 200)
             });
@@ -154,7 +162,7 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "While holding Resonance Sliced weapon:")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Synergizes with the Resonant Burn debuff:")
             {
                 OverrideColor = new Color(255, 150, 100)
             });
@@ -236,6 +244,11 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Melee hits extend Resonant Burn duration by 2 seconds")
             {
                 OverrideColor = new Color(255, 150, 150)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect2b", "+2% melee attack speed per burn stack on enemies")
+            {
+                OverrideColor = new Color(255, 180, 100)
             });
 
             tooltips.Add(new TooltipLine(Mod, "Effect3", "At max stacks: +30% attack speed for 2 seconds")

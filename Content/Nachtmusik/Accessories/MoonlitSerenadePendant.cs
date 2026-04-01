@@ -74,7 +74,7 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
                 OverrideColor = Gold
             });
 
-            tooltips.Add(new TooltipLine(Mod, "HarmonicWave", "Magic attacks have a 12% chance to release harmonic waves")
+            tooltips.Add(new TooltipLine(Mod, "HarmonicWave", "Magic attacks have a 12.5% chance to release harmonic waves")
             {
                 OverrideColor = Color.Lerp(DeepPurple, Gold, 0.4f)
             });
@@ -98,6 +98,7 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
                 .AddIngredient(ItemID.FragmentNebula, 8)
                 .AddIngredient(ItemID.LunarBar, 8)
                 .AddIngredient(ItemID.FallenStar, 15)
+                .AddIngredient(ModContent.ItemType<ShardOfNachtmusiksTempo>(), 5)
                 .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
                 .Register();
         }
@@ -130,18 +131,12 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
         private void TriggerHarmonicWave(NPC initialTarget, int baseDamage)
         {
             // Initial wave burst at target
-            CustomParticles.GenericFlare(initialTarget.Center, StarWhite, 0.8f, 18);
-            CustomParticles.GenericFlare(initialTarget.Center, Gold, 0.6f, 16);
-            CustomParticles.HaloRing(initialTarget.Center, Violet, 0.4f, 15);
 
             // Music note burst on harmonic wave proc
 
             // Star sparkle accents
             for (int i = 0; i < 3; i++)
             {
-                var sparkle = new SparkleParticle(initialTarget.Center + Main.rand.NextVector2Circular(10f, 10f),
-                    Main.rand.NextVector2Circular(2f, 2f), new Color(255, 250, 240) * 0.5f, 0.2f, 15);
-                MagnumParticleHandler.SpawnParticle(sparkle);
             }
 
             // Bouncing wave effect
@@ -188,8 +183,6 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
                 // VFX at bounce target
                 float bounceProgress = (float)bounce / maxBounces;
                 Color bounceColor = Color.Lerp(Gold, DeepPurple, bounceProgress);
-                CustomParticles.GenericFlare(nextTarget.Center, bounceColor, 0.5f - bounce * 0.08f, 14);
-                CustomParticles.HaloRing(nextTarget.Center, Violet * (1f - bounceProgress * 0.3f), 0.3f, 12);
 
                 hitNPCs.Add(nextTarget.whoAmI);
                 lastTarget = nextTarget;
@@ -207,25 +200,8 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
             Vector2 perpendicular = new Vector2(-direction.Y, direction.X);
             float arcHeight = distance * 0.25f * (bounceIndex % 2 == 0 ? 1f : -1f);
 
-            int segments = 10;
-            for (int i = 0; i <= segments; i++)
-            {
-                float progress = (float)i / segments;
-                
-                // Quadratic bezier-like curve
-                float arcOffset = (float)System.Math.Sin(progress * System.Math.PI) * arcHeight;
-                Vector2 point = Vector2.Lerp(start, end, progress) + perpendicular * arcOffset;
-
-                // Color gradient along arc
-                Color arcColor = Color.Lerp(Gold, Violet, progress);
-                float scale = 0.25f * (1f - System.Math.Abs(progress - 0.5f) * 0.5f);
-
-                CustomParticles.GenericFlare(point, arcColor * 0.8f, scale, 8);
-            }
-
             // Music note at midpoint
             Vector2 midpoint = Vector2.Lerp(start, end, 0.5f) + perpendicular * arcHeight;
-            CustomParticles.GenericFlare(midpoint, StarWhite, 0.35f, 12);
         }
     }
 }

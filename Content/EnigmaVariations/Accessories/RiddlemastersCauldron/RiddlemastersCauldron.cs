@@ -9,6 +9,7 @@ using ReLogic.Content;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 
 namespace MagnumOpus.Content.EnigmaVariations.Accessories
 {
@@ -79,8 +80,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
             CreateRecipe()
                 .AddIngredient(ModContent.ItemType<ResonanceEnergies.EnigmaResonantEnergy>(), 15)
                 .AddIngredient(ModContent.ItemType<HarmonicCores.HarmonicCoreOfEnigma>(), 1)
+                .AddIngredient(ModContent.ItemType<ResonanceEnergies.ShardOfTheMysterysTempo>(), 5)
                 .AddIngredient(ItemID.PygmyNecklace)
-                .AddTile(TileID.MythrilAnvil)
+                .AddTile(ModContent.TileType<MoonlightAnvilTile>())
                 .Register();
         }
     }

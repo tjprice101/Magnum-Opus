@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria.Graphics.Shaders;
 using Terraria.ModLoader;
@@ -8,12 +8,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.MoonlightsCalling.Shaders
     /// <summary>
     /// Loads and registers all Moonlight's Calling weapon-specific shaders.
     /// Shader keys:
-    ///   "MagnumOpus:SerenadePrismaticBeam"     窶・Prismatic beam trail body (spectral splitting)
-    ///   "MagnumOpus:SerenadePrismaticGlow"      窶・Prismatic beam glow pass (bloom underlayer)
-    ///   "MagnumOpus:SerenadeRefractionRipple"    窶・Refraction ripple at bounce points
-    ///   "MagnumOpus:SerenadeRefractionSubtle"    窶・Subtle ambient ripple variant
-    ///   "MagnumOpus:SerenadeLunarBeam"           窶・Shared LunarBeam for Serenade mega-beam
-    ///   "MagnumOpus:SerenadeStandardPrimitive"   窶・Fallback primitive shader
+    ///   "MagnumOpus:SerenadePrismaticBeam"      -- Prismatic beam trail body (spectral splitting)
+    ///   "MagnumOpus:SerenadePrismaticGlow"       -- Prismatic beam glow pass (bloom underlayer)
+    ///   "MagnumOpus:SerenadeRefractionRipple"     -- Refraction ripple at bounce points
+    ///   "MagnumOpus:SerenadeRefractionSubtle"     -- Subtle ambient ripple variant
+    ///   "MagnumOpus:SerenadeLunarBeam"            -- Shared LunarBeam for Serenade mega-beam
+    ///   "MagnumOpus:SerenadeStandardPrimitive"    -- Fallback primitive shader
     /// </summary>
     [Autoload(Side = ModSide.Client)]
     public sealed class SerenadeShaderLoader : ModSystem

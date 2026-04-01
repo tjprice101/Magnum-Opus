@@ -83,10 +83,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.SymphonyOfScarletFlames
         private void CreateInitialBurst()
         {
             // Unique sakura petal explosion - pearlescent bloom
-            CustomParticles.SwanLakeHalo(Projectile.Center, 0.8f); // Pearlescent shimmer
-            CustomParticles.GenericFlare(Projectile.Center, new Color(255, 180, 200), 1.8f, 40);
-            CustomParticles.GenericGlow(Projectile.Center, new Color(255, 220, 230), 1.4f, 35);
-            CustomParticles.ExplosionBurst(Projectile.Center, new Color(255, 150, 180), 14, 7f);
             
             // Large ring explosion
             for (int ring = 0; ring < 3; ring++)

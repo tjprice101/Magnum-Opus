@@ -10,10 +10,16 @@ namespace MagnumOpus
     /// </summary>
     public class MagnumOpus : Mod
     {
+        public static ModKeybind DashKeybind { get; private set; }
+        public static ModKeybind TeleportKeybind { get; private set; }
+
         public override void Load()
         {
             // Initialize the interpolated renderer for buttery-smooth 144Hz+ animations
             InterpolatedRenderer.Initialize();
+
+            DashKeybind = KeybindLoader.RegisterKeybind(this, "Momentum Dash", "Q");
+            TeleportKeybind = KeybindLoader.RegisterKeybind(this, "Phase Shift", "F");
         }
         
         public override void Unload()
@@ -23,6 +29,9 @@ namespace MagnumOpus
             
             // Clean up smear textures
             SmearTextureGenerator.Unload();
+
+            DashKeybind = null;
+            TeleportKeybind = null;
         }
     }
 }

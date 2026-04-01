@@ -21,8 +21,6 @@ namespace MagnumOpus.Common.Systems.Shaders
     {
         private static SpriteBatch _spriteBatch;
         private static bool _inShaderMode;
-        private static SpriteSortMode _previousSortMode;
-        private static BlendState _previousBlendState;
 
         /// <summary>
         /// Available shader types.

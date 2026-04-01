@@ -122,19 +122,27 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
 
         public override void PostUpdateEquips()
         {
+            // === CHAIN INHERITANCE ===
+            // Higher-tier accessories inherit all lower-tier effects.
+            if (hasVivaldisHarmonicCore) hasPermafrostVoidHeart = true;
+            if (hasPermafrostVoidHeart) hasArcaneResonanceCatalyst = true;
+            if (hasArcaneResonanceCatalyst) hasSearedManaConduit = true;
+            if (hasSearedManaConduit) hasSpringArcaneConduit = true;
+            if (hasSpringArcaneConduit) hasResonantOverflowGem = true;
+
             // Apply simple static effects from equipped accessories
 
-            // Resonant Overflow Gem: +5% magic damage, +20 max mana
-            if (hasResonantOverflowGem)
+            // === BASE STATS: Priority system (highest main-chain tier only) ===
+            // Prevents stat stacking from cascade inheritance.
             {
-                Player.GetDamage(DamageClass.Magic) += 0.05f;
-                Player.statManaMax2 += 20;
-            }
-
-            // Spring Arcane Conduit: +10% magic damage
-            if (hasSpringArcaneConduit)
-            {
-                Player.GetDamage(DamageClass.Magic) += 0.10f;
+                float magicDmg = 0f;
+                int maxMana = 0;
+                if (hasVivaldisHarmonicCore) { magicDmg = 0.20f; maxMana = 50; }
+                else if (hasPermafrostVoidHeart) { magicDmg = 0.15f; maxMana = 50; }
+                else if (hasSpringArcaneConduit) { magicDmg = 0.10f; maxMana = 20; }
+                else if (hasResonantOverflowGem) { magicDmg = 0.05f; maxMana = 20; }
+                Player.GetDamage(DamageClass.Magic) += magicDmg;
+                Player.statManaMax2 += maxMana;
             }
 
             // ===== RESONANCE SYNERGY: T3 SearedManaConduit =====
@@ -161,18 +169,7 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
                 }
             }
 
-            // Permafrost Void Heart: +15% magic damage, +50 max mana
-            if (hasPermafrostVoidHeart)
-            {
-                Player.GetDamage(DamageClass.Magic) += 0.15f;
-                Player.statManaMax2 += 50;
-            }
-
-            // Vivaldi's Harmonic Core: +20% magic damage
-            if (hasVivaldisHarmonicCore)
-            {
-                Player.GetDamage(DamageClass.Magic) += 0.20f;
-            }
+            // (Permafrost Void Heart and Vivaldi's Harmonic Core base stats handled by priority system above)
 
             // Nocturnal Harmonic Overflow: +20% magic damage at night
             if (hasNocturnalHarmonicOverflow && !Main.dayTime)
@@ -186,10 +183,10 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
                 Player.GetDamage(DamageClass.Magic) += 0.25f;
             }
 
-            // Pendant of the Eternal Overflow: +40% magic damage
+            // Pendant of the Eternal Overflow: +30% magic damage
             if (hasPendantOfTheEternalOverflow)
             {
-                Player.GetDamage(DamageClass.Magic) += 0.40f;
+                Player.GetDamage(DamageClass.Magic) += 0.30f;
             }
 
             // Moonlit Overflow Star: At low mana, enable free spell
@@ -222,6 +219,16 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
                 Player.immune = true;
                 Player.immuneTime = 60; // 1 second
                 invincibilityCooldown = 1800; // 30 second cooldown
+            }
+        }
+
+        public override void ModifyManaCost(Item item, ref float reduce, ref float mult)
+        {
+            // Moonlit Overflow Star: Free spell when mana < 50
+            if (freeSpellReady && item.DamageType.Equals(DamageClass.Magic))
+            {
+                mult = 0f;
+                freeSpellReady = false;
             }
         }
 
@@ -287,9 +294,15 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             // Handled in ModifyHitNPC method
 
             // Spring Arcane Conduit: Healing petals (simplified - small chance to heal)
-            if (hasSpringArcaneConduit && Main.rand.NextFloat() < 0.08f)
+            if (hasSpringArcaneConduit && Main.rand.NextFloat() < 0.05f)
             {
                 Player.Heal(1);
+            }
+
+            // Jubilant Arcane Celebration: Magic attacks heal 2 HP on hit
+            if (hasJubilantArcaneCelebration)
+            {
+                Player.Heal(2);
             }
         }
 
@@ -352,15 +365,14 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             }
 
             // Spring Arcane Conduit: Healing petals (simplified)
-            if (hasSpringArcaneConduit && Main.rand.NextFloat() < 0.08f)
+            if (hasSpringArcaneConduit && Main.rand.NextFloat() < 0.05f)
             {
                 Player.Heal(1);
             }
 
-            // Jubilant Arcane Celebration: Casting spells heals 1 HP per 20 mana spent
+            // Jubilant Arcane Celebration: Magic attacks heal 2 HP on hit
             if (hasJubilantArcaneCelebration)
             {
-                // Estimate:  assume average spell costs ~40 mana
                 Player.Heal(2);
             }
 

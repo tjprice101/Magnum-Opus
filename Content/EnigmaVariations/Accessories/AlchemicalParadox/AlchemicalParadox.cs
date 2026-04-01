@@ -7,6 +7,7 @@ using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.EnigmaVariations.Debuffs;
+using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 
 namespace MagnumOpus.Content.EnigmaVariations.Accessories
 {
@@ -71,8 +72,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
             CreateRecipe()
                 .AddIngredient(ModContent.ItemType<ResonanceEnergies.EnigmaResonantEnergy>(), 15)
                 .AddIngredient(ModContent.ItemType<HarmonicCores.HarmonicCoreOfEnigma>(), 1)
+                .AddIngredient(ModContent.ItemType<ResonanceEnergies.ShardOfTheMysterysTempo>(), 5)
                 .AddIngredient(ItemID.RangerEmblem)
-                .AddTile(TileID.MythrilAnvil)
+                .AddTile(ModContent.TileType<MoonlightAnvilTile>())
                 .Register();
         }
     }
@@ -114,20 +116,16 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
                 {
                     float progress = Main.rand.NextFloat();
                     Color trailColor = EnigmaAccessoryPlayer.GetEnigmaGradient(progress);
-                    CustomParticles.GenericGlow(projectile.Center, trailColor * 0.5f, 0.2f, 12);
                 }
                 
                 // Occasional glyph in trail
                 if (Main.rand.NextBool(6))
                 {
-                    CustomParticles.GlyphTrail(projectile.Center, projectile.velocity, EnigmaPurple * 0.5f, 0.18f);
                 }
                 
                 // Green flame sparkles
                 if (Main.rand.NextBool(5))
                 {
-                    CustomParticles.GenericFlare(projectile.Center + Main.rand.NextVector2Circular(8f, 8f), 
-                        EnigmaGreenFlame * 0.6f, 0.2f, 10);
                 }
                 
                 Lighting.AddLight(projectile.Center, EnigmaGreenFlame.ToVector3() * 0.3f);
@@ -192,13 +190,9 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
                     splitProj.timeLeft = 120;
                     
                     // Visual for split
-                    CustomParticles.GenericFlare(target.Center, EnigmaGreenFlame, 0.4f, 12);
                 }
                 
                 // Impact burst
-                CustomParticles.GlyphBurst(target.Center, EnigmaPurple, 6, 4f);
-                CustomParticles.GenericFlare(target.Center, EnigmaGreenFlame, 0.6f, 18);
-                ThemedParticles.EnigmaMusicNotes(target.Center, 3, 20f);
                 
                 // Don't split again (only original paradox bolts split)
                 isParadoxBolt = false;

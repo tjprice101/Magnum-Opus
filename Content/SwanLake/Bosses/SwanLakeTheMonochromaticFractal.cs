@@ -120,7 +120,9 @@ namespace MagnumOpus.Content.SwanLake.Bosses
             set => NPC.ai[2] = value;
         }
 
+#pragma warning disable CS0414
         private float attackPattern = 0f;
+#pragma warning restore CS0414
         private bool isUsingAttackSprite = false;
         private float pulseTimer = 0f;
         private float backgroundDarknessAlpha = 0f;

@@ -118,8 +118,9 @@ namespace MagnumOpus.Content.Fate.Bosses
         private int attackCooldown = 0;
         private AttackPattern lastAttack = AttackPattern.CosmicDash;
         
+#pragma warning disable CS0414
         private int dashCount = 0;
-        private Vector2 dashTarget;
+#pragma warning restore CS0414
         private Vector2 dashDirection;
         
         private int enrageTimer = 0;

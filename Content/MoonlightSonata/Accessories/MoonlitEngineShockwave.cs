@@ -148,7 +148,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             }
             
             // Musical impact - Engine's moonlit resonance
-            CustomParticles.MoonlightFlare(target.Center, 0.5f);
             MoonlightVFXLibrary.SpawnMusicNotes(target.Center, 3, 12f, 0.7f, 0.9f, 22);
         }
         

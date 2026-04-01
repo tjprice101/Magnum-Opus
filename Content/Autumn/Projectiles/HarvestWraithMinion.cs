@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -227,7 +227,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(burst);
             }
 
-            // 笘・MUSICAL TOLL - Death toll sounds with spectral chord
+            // *MUSICAL TOLL - Death toll sounds with spectral chord
             ThemedParticles.MusicNoteBurst(Projectile.Center, WraithGreen, 12, 6f);
             ThemedParticles.MusicNoteRing(Projectile.Center, DecayPurple, 55f, 8);
         }
@@ -269,7 +269,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(wisp);
             }
 
-            // 笘・MUSICAL NOTATION - Wraith hums spectral melody - VISIBLE SCALE 0.7f+
+            // *MUSICAL NOTATION - Wraith hums spectral melody - VISIBLE SCALE 0.7f+
             if (Main.rand.NextBool(10))
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(-2f, -0.5f));
@@ -297,7 +297,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(spark);
             }
 
-            // 笘・MUSICAL IMPACT - Wraith strike note
+            // *MUSICAL IMPACT - Wraith strike note
             ThemedParticles.MusicNoteBurst(target.Center, WraithGreen, 5, 3.5f);
             
             // Dynamic autumn decay impact
@@ -327,7 +327,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(burst);
             }
 
-            // 笘・MUSICAL FINALE - Wraith departing melody
+            // *MUSICAL FINALE - Wraith departing melody
             ThemedParticles.MusicNoteBurst(Projectile.Center, DecayPurple, 8, 4f);
         }
 
@@ -447,7 +447,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(trail);
             }
 
-            // 笘・MUSICAL NOTATION - Soul orb carries healing melody - VISIBLE SCALE 0.68f+
+            // *MUSICAL NOTATION - Soul orb carries healing melody - VISIBLE SCALE 0.68f+
             if (Main.rand.NextBool(6))
             {
                 Vector2 noteVel = new Vector2(0, Main.rand.NextFloat(-1.5f, -0.5f));
@@ -482,7 +482,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 MagnumParticleHandler.SpawnParticle(burst);
             }
 
-            // 笘・MUSICAL FINALE - Soul absorbed with gentle healing note
+            // *MUSICAL FINALE - Soul absorbed with gentle healing note
             ThemedParticles.MusicNoteBurst(Projectile.Center, SoulWhite, 5, 3f);
         }
 

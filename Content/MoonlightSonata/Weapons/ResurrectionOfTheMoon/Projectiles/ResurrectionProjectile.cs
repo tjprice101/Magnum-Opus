@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -17,7 +17,7 @@ using ReLogic.Content;
 namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Projectiles
 {
     /// <summary>
-    /// Standard Chamber 窶・Moonlight Comet Round.
+    /// Standard Chamber  -- Moonlight Comet Round.
     /// Ricochets off tiles up to 10 times with escalating crater detonations.
     /// Each bounce creates a small AoE blast and spawns VFX.
     /// Smart homing begins after bounce 7.
@@ -120,7 +120,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
         {
             if (Main.dedServ) return;
 
-            // Ember trail 窶・every tick
+            // Ember trail  -- every tick
             if (AliveTime % 1 == 0)
             {
                 Vector2 offset = Main.rand.NextVector2Circular(4f, 4f);
@@ -132,7 +132,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
                     0.3f + CometPhase * 0.3f, 15 + Main.rand.Next(10)));
             }
 
-            // Dust trail 窶・every 2 ticks
+            // Dust trail  -- every 2 ticks
             if (AliveTime % 2 == 0)
             {
                 int d = Dust.NewDust(Projectile.position, Projectile.width, Projectile.height,
@@ -141,7 +141,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
                 Main.dust[d].scale = 0.8f + CometPhase * 0.5f;
             }
 
-            // Head mist 窶・every 4 ticks
+            // Head mist  -- every 4 ticks
             if (AliveTime % 4 == 0)
             {
                 CometParticleHandler.Spawn(new CometMistParticle(
@@ -230,7 +230,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
                 Main.dust[d].scale = 1.0f + phase * 0.8f;
             }
 
-            // Hue-shifting music notes 窶・the gun's ricochets ring out like a timpani finale
+            // Hue-shifting music notes  -- the gun's ricochets ring out like a timpani finale
             int noteCount = 2 + (int)(phase * 4);
             MoonlightVFXLibrary.SpawnMusicNotes(Projectile.Center, count: noteCount,
                 spread: 20f + phase * 25f, minScale: 0.5f, maxScale: 1.0f,
@@ -344,7 +344,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
                 glowShader.UseOpacity(0.4f + CometPhase * 0.3f);
                 glowShader.UseSaturation(CometPhase); // uPhase for the shader
 
-                // Nebula wisp noise 窶・gaseous comet wake texture for each ricochet
+                // Nebula wisp noise  -- gaseous comet wake texture for each ricochet
                 glowShader.UseImage1(ModContent.Request<Texture2D>(
                     "MagnumOpus/Assets/VFX Asset Library/NoiseTextures/NebulaWispNoise"));
             }
@@ -377,7 +377,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Proje
                 mainShader.UseOpacity(0.7f + CometPhase * 0.3f);
                 mainShader.UseSaturation(CometPhase);
 
-                // Nebula wisp noise 窶・inner comet body distortion
+                // Nebula wisp noise  -- inner comet body distortion
                 mainShader.UseImage1(ModContent.Request<Texture2D>(
                     "MagnumOpus/Assets/VFX Asset Library/NoiseTextures/NebulaWispNoise"));
             }

@@ -105,7 +105,11 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         
         public override void OnHitByProjectile(NPC npc, Projectile projectile, NPC.HitInfo hit, int damageDone)
         {
-            TryApplyMeleeChainEffects(npc, projectile.owner, hit.Crit, damageDone);
+            // Only melee projectiles
+            if (projectile.DamageType == DamageClass.Melee || projectile.DamageType == DamageClass.MeleeNoSpeed)
+            {
+                TryApplyMeleeChainEffects(npc, projectile.owner, hit.Crit, damageDone);
+            }
         }
         
         public override void OnHitByItem(NPC npc, Player player, Item item, NPC.HitInfo hit, int damageDone)
@@ -158,7 +162,7 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             if (resonancePlayer.hasPermafrostCadenceSeal && Main.rand.NextBool(10))
             {
                 // Freeze the hit target briefly
-                freezeTimer = Math.Max(freezeTimer, 30); // 0.5 seconds
+                freezeTimer = Math.Max(freezeTimer, 60); // 1 second
 
                 // Freeze particles
                 for (int i = 0; i < 3; i++)

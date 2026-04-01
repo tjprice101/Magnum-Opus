@@ -111,8 +111,10 @@ namespace MagnumOpus.Content.Spring.Bosses
         private float aggressionLevel = 0f;
         private const int MaxAggressionTime = 1800;
         
+#pragma warning disable CS0414
         private int frameCounter = 0;
         private int currentFrame = 0;
+#pragma warning restore CS0414
         
         private bool hasRegisteredHealthBar = false;
         private int deathTimer = 0;

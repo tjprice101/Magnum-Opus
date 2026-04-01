@@ -77,11 +77,13 @@ namespace MagnumOpus.Content.SwanLake.Enemies
         // Attack tracking
         private int attackCounter = 0;
         private float attackCooldown = 0f;
+#pragma warning disable CS0414
         private int consecutiveAttacks = 0;
         
         // Enrage tracking
         private bool isEnraged = false;
         private float enrageTimer = 0f;
+#pragma warning restore CS0414
         
         // AI states
         private enum AIState

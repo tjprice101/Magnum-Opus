@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -9,7 +9,7 @@ using ReLogic.Content;
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.Particles
 {
     // =========================================================================
-    //  QUESTION MARK PARTICLE 窶・Floating "?" shaped glyph particles
+    //  QUESTION MARK PARTICLE  -- Floating "?" shaped glyph particles
     //  Appear at bullet split points and impact sites. AlphaBlend.
     //  Slowly rotate and fade with pulsing scale.
     // =========================================================================
@@ -75,7 +75,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.P
     }
 
     // =========================================================================
-    //  SEEKER TRAIL DOT 窶・Small dot particles left behind by homing seekers
+    //  SEEKER TRAIL DOT  -- Small dot particles left behind by homing seekers
     //  Forms dotted trail lines. Additive, very quick fade.
     // =========================================================================
     public class SeekerTrailDot : SilentParticle
@@ -116,7 +116,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.P
     }
 
     // =========================================================================
-    //  CHAIN LIGHTNING PARTICLE 窶・Bright flash particles along lightning arcs
+    //  CHAIN LIGHTNING PARTICLE  -- Bright flash particles along lightning arcs
     //  Additive, 3-layer bloom, velocity-stretched in direction of lightning.
     // =========================================================================
     public class ChainLightningParticle : SilentParticle
@@ -171,7 +171,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.P
     }
 
     // =========================================================================
-    //  MEASURE IMPACT RING 窶・Expanding ring at the "?" explosion impact
+    //  MEASURE IMPACT RING  -- Expanding ring at the "?" explosion impact
     //  Additive, renders a circle from triangle fan with fade-out.
     // =========================================================================
     public class MeasureImpactRing : SilentParticle

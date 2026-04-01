@@ -98,7 +98,7 @@ flowchart TD
     SHL --> STB[SolarTrackersBadge]
     STB --> HRM[HarvestReapersMark]
     HRM --> PHE[PermafrostHuntersEye]
-    PHE --> VSS[VivaldisSeSonalSight]
+    PHE --> VSS[VivaldisSeasonalSight]
 
     FCV[FatesCosmicVerdict] --> NPS[NocturnalPredatorsSight]
     NPS --> IES[InfernalExecutionersSight]

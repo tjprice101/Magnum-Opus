@@ -12,6 +12,8 @@ namespace MagnumOpus.Content.Spring.Enemies
 {
     public class Pollengust : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/Spring/Enemies/Pollengust/Pollengust";
+
         private static readonly Color SpringCream = new Color(255, 245, 200);
         private static readonly Color SpringRose = new Color(180, 120, 150);
 

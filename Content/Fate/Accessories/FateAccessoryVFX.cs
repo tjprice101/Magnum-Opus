@@ -37,15 +37,12 @@ namespace MagnumOpus.Content.Fate.Accessories
                 Vector2 vel = angle.ToRotationVector2() * 1.5f;
                 Color dustColor = Color.Lerp(FatePalette.DarkPink, FatePalette.FatePurple, Main.rand.NextFloat());
 
-                var glow = new GenericGlowParticle(dustPos, vel, dustColor * 0.6f, 0.18f, 18, true);
-                MagnumParticleHandler.SpawnParticle(glow);
             }
 
             // Occasional cosmic glyph
             if (Main.rand.NextBool(15))
             {
                 Vector2 glyphPos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                CustomParticles.Glyph(glyphPos, FatePalette.DarkPink, 0.28f, -1);
             }
 
             // Subtle ambient light
@@ -75,7 +72,6 @@ namespace MagnumOpus.Content.Fate.Accessories
 
             FateVFXLibrary.DrawCosmicLightning(from, to, 8, 25f,
                 FatePalette.DarkPink, FatePalette.StarGold);
-            CustomParticles.GenericFlare(to, FatePalette.BrightCrimson, 0.4f, 12);
             Lighting.AddLight(to, FatePalette.BrightCrimson.ToVector3() * 0.6f);
         }
 
@@ -99,15 +95,11 @@ namespace MagnumOpus.Content.Fate.Accessories
                 float starAngle = baseAngle + MathHelper.PiOver2 * point;
                 Vector2 starPos = player.Center + starAngle.ToRotationVector2() * 35f;
 
-                var star = new GenericGlowParticle(starPos, Vector2.Zero,
-                    FatePalette.WhiteCelestial * 0.5f, 0.2f, 14, true);
-                MagnumParticleHandler.SpawnParticle(star);
             }
 
             // Occasional central flare
             if (Main.rand.NextBool(20))
             {
-                CustomParticles.GenericFlare(player.Center, FatePalette.WhiteCelestial * 0.4f, 0.25f, 10);
             }
 
             Lighting.AddLight(player.Center, FatePalette.StarGold.ToVector3() * 0.2f);
@@ -132,8 +124,6 @@ namespace MagnumOpus.Content.Fate.Accessories
                 float angle = baseAngle + MathHelper.TwoPi * i / 5f;
                 starPoints[i] = pos + angle.ToRotationVector2() * 45f;
 
-                CustomParticles.GenericFlare(starPoints[i], FatePalette.WhiteCelestial, 0.4f, 16);
-                CustomParticles.GenericFlare(starPoints[i], FatePalette.DarkPink * 0.8f, 0.3f, 14);
             }
 
             // Connect star points with constellation lines
@@ -145,8 +135,6 @@ namespace MagnumOpus.Content.Fate.Accessories
             }
 
             // Central flash
-            CustomParticles.GenericFlare(pos, FatePalette.SupernovaWhite, 0.5f, 12);
-            CustomParticles.HaloRing(pos, FatePalette.DarkPink, 0.4f, 16);
             FateVFXLibrary.SpawnMusicNotes(pos, 3, 30f);
 
             Lighting.AddLight(pos, FatePalette.StarGold.ToVector3() * 1.2f);
@@ -159,7 +147,6 @@ namespace MagnumOpus.Content.Fate.Accessories
         {
             if (Main.dedServ) return;
 
-            CustomParticles.GenericFlare(pos, FatePalette.BrightCrimson * 0.7f, 0.35f, 10);
             Lighting.AddLight(pos, FatePalette.BrightCrimson.ToVector3() * 0.5f);
         }
 
@@ -183,8 +170,6 @@ namespace MagnumOpus.Content.Fate.Accessories
                 Vector2 vel = angle.ToRotationVector2().RotatedBy(MathHelper.PiOver2) * 1.5f;
                 Color diskColor = Color.Lerp(FatePalette.CosmicVoid, FatePalette.DarkPink, Main.rand.NextFloat());
 
-                var disk = new GenericGlowParticle(diskPos, vel, diskColor * 0.5f, 0.15f, 16, true);
-                MagnumParticleHandler.SpawnParticle(disk);
             }
 
             // Gravitational lensing star sparkles
@@ -198,7 +183,6 @@ namespace MagnumOpus.Content.Fate.Accessories
             {
                 float glyphAngle = Main.rand.NextFloat(MathHelper.TwoPi);
                 Vector2 glyphPos = player.Center + glyphAngle.ToRotationVector2() * 35f;
-                CustomParticles.Glyph(glyphPos, FatePalette.FatePurple * 0.7f, 0.22f, -1);
             }
 
             Lighting.AddLight(player.Center, FatePalette.FatePurple.ToVector3() * 0.2f);
@@ -215,22 +199,8 @@ namespace MagnumOpus.Content.Fate.Accessories
             FateVFXLibrary.ProjectileImpact(playerCenter, 0.6f);
 
             // Warp halo rings
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 haloPos = playerCenter + angle.ToRotationVector2() * 30f;
-                CustomParticles.HaloRing(haloPos, FatePalette.DarkPink * 0.6f, 0.3f, 14);
-            }
 
             // Void warp particles radiating outward
-            for (int i = 0; i < 12; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 12f;
-                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
-                Color warpColor = Color.Lerp(FatePalette.CosmicVoid, FatePalette.FatePurple, Main.rand.NextFloat());
-                var warp = new GenericGlowParticle(playerCenter, vel, warpColor * 0.7f, 0.22f, 20, true);
-                MagnumParticleHandler.SpawnParticle(warp);
-            }
 
             // Star sparkles at dodge destination
             FateVFXLibrary.SpawnStarSparkles(playerCenter, 8, 35f);
@@ -265,15 +235,11 @@ namespace MagnumOpus.Content.Fate.Accessories
                 float angle = Main.GameUpdateCount * orbitSpeeds[p];
                 Vector2 planetPos = player.Center + angle.ToRotationVector2() * orbitRadii[p];
 
-                var planet = new GenericGlowParticle(planetPos, Vector2.Zero,
-                    planetColors[p] * 0.6f, 0.2f, 6, true);
-                MagnumParticleHandler.SpawnParticle(planet);
             }
 
             // Central star glow
             if (Main.rand.NextBool(10))
             {
-                CustomParticles.GenericFlare(player.Center, FatePalette.WhiteCelestial * 0.5f, 0.2f, 8);
             }
 
             Lighting.AddLight(player.Center, FatePalette.StarGold.ToVector3() * 0.2f);
@@ -288,7 +254,6 @@ namespace MagnumOpus.Content.Fate.Accessories
 
             FateVFXLibrary.ProjectileImpact(minionPos, 0.5f);
             FateVFXLibrary.SpawnGlyphBurst(minionPos, 4, 4f);
-            CustomParticles.HaloRing(minionPos, FatePalette.BrightCrimson, 0.35f, 14);
             FateVFXLibrary.SpawnMusicNotes(minionPos, 2, 20f);
             Lighting.AddLight(minionPos, FatePalette.BrightCrimson.ToVector3() * 0.8f);
         }
@@ -302,7 +267,6 @@ namespace MagnumOpus.Content.Fate.Accessories
 
             if (Main.rand.NextBool(4))
             {
-                CustomParticles.GenericFlare(minionPos, FatePalette.DarkPink * 0.7f, 0.2f, 8);
             }
 
             // Orbiting star accent
@@ -310,7 +274,6 @@ namespace MagnumOpus.Content.Fate.Accessories
             {
                 float starAngle = Main.GameUpdateCount * 0.08f;
                 Vector2 starPos = minionPos + starAngle.ToRotationVector2() * 15f;
-                CustomParticles.GenericFlare(starPos, FatePalette.WhiteCelestial * 0.6f, 0.15f, 10);
             }
 
             Lighting.AddLight(minionPos, FatePalette.DarkPink.ToVector3() * 0.4f);
@@ -323,7 +286,6 @@ namespace MagnumOpus.Content.Fate.Accessories
         {
             if (Main.dedServ) return;
 
-            CustomParticles.GenericFlare(hitPos, FatePalette.BrightCrimson, 0.35f, 12);
             Lighting.AddLight(hitPos, FatePalette.BrightCrimson.ToVector3() * 0.5f);
         }
 
@@ -343,9 +305,6 @@ namespace MagnumOpus.Content.Fate.Accessories
             {
                 float hourAngle = Main.GameUpdateCount * 0.015f;
                 Vector2 hourPos = player.Center + hourAngle.ToRotationVector2() * 25f;
-                var hour = new GenericGlowParticle(hourPos, hourAngle.ToRotationVector2() * 0.5f,
-                    FatePalette.DarkPink * 0.6f, 0.15f, 10, true);
-                MagnumParticleHandler.SpawnParticle(hour);
             }
 
             // Minute hand particle (faster rotation)
@@ -353,9 +312,6 @@ namespace MagnumOpus.Content.Fate.Accessories
             {
                 float minuteAngle = Main.GameUpdateCount * 0.04f;
                 Vector2 minutePos = player.Center + minuteAngle.ToRotationVector2() * 35f;
-                var minute = new GenericGlowParticle(minutePos, minuteAngle.ToRotationVector2() * 0.8f,
-                    FatePalette.BrightCrimson * 0.5f, 0.12f, 8, true);
-                MagnumParticleHandler.SpawnParticle(minute);
             }
 
             // Temporal glyphs
@@ -363,7 +319,6 @@ namespace MagnumOpus.Content.Fate.Accessories
             {
                 float glyphAngle = Main.rand.NextFloat(MathHelper.TwoPi);
                 Vector2 glyphPos = player.Center + glyphAngle.ToRotationVector2() * 30f;
-                CustomParticles.Glyph(glyphPos, FatePalette.FatePurple, 0.25f, -1);
             }
 
             Lighting.AddLight(player.Center, FatePalette.DarkPink.ToVector3() * 0.2f);
@@ -376,7 +331,6 @@ namespace MagnumOpus.Content.Fate.Accessories
         {
             if (Main.dedServ) return;
 
-            CustomParticles.GenericFlare(hitPos, FatePalette.DarkPink * intensity, 0.2f + intensity * 0.15f, 10);
             Lighting.AddLight(hitPos, FatePalette.DarkPink.ToVector3() * intensity * 0.4f);
         }
 
@@ -388,20 +342,11 @@ namespace MagnumOpus.Content.Fate.Accessories
             if (Main.dedServ) return;
 
             // Afterimage trail
-            for (int i = 0; i < 5; i++)
-            {
-                float progress = (float)i / 5f;
-                Vector2 afterPos = playerCenter + new Vector2(Main.rand.NextFloat(-15f, 15f), Main.rand.NextFloat(-15f, 15f));
-                Color afterColor = Color.Lerp(FatePalette.WhiteCelestial, FatePalette.DarkPink, progress);
-                CustomParticles.GenericFlare(afterPos, afterColor * (1f - progress * 0.5f), 0.3f, 14);
-            }
 
             // Glyph burst
             FateVFXLibrary.SpawnGlyphBurst(playerCenter, 6, 5f);
 
             // Halo rings
-            CustomParticles.HaloRing(playerCenter, FatePalette.DarkPink, 0.35f, 14);
-            CustomParticles.HaloRing(playerCenter, FatePalette.WhiteCelestial * 0.6f, 0.25f, 12);
 
             // Temporal lightning arcs
             for (int i = 0; i < 3; i++)
@@ -433,9 +378,6 @@ namespace MagnumOpus.Content.Fate.Accessories
             {
                 Vector2 offset = Main.rand.NextVector2Circular(35f, 35f);
                 Color auraColor = FatePalette.GetCosmicGradient(Main.rand.NextFloat()) * intensity;
-                var glow = new GenericGlowParticle(player.Center + offset,
-                    Main.rand.NextVector2Circular(0.5f, 0.5f), auraColor, 0.15f, 16, true);
-                MagnumParticleHandler.SpawnParticle(glow);
             }
 
             FateVFXLibrary.AddFateLight(player.Center, intensity * 0.3f);

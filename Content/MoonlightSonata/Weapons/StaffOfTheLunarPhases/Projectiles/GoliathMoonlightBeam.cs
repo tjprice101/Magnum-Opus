@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -17,7 +17,7 @@ using ReLogic.Content;
 namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Projectiles
 {
     /// <summary>
-    /// Goliath Moonlight Beam 窶・ricocheting beam fired by the Goliath of Moonlight minion.
+    /// Goliath Moonlight Beam  -- ricocheting beam fired by the Goliath of Moonlight minion.
     /// Bounces between enemies up to 5 times, healing the owner 10 HP per hit
     /// and inflicting Musical Dissonance. Primitive trail with cosmic gradient.
     /// </summary>
@@ -116,7 +116,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
         {
             if (Main.dedServ) return;
 
-            // Beam sparks 窶・every 2 ticks
+            // Beam sparks  -- every 2 ticks
             if (AliveTime % 2 == 0)
             {
                 Vector2 offset = Main.rand.NextVector2Circular(6f, 6f);
@@ -127,7 +127,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
                     0.3f + BeamIntensity * 0.2f, 12 + Main.rand.Next(8)));
             }
 
-            // Cosmic dust 窶・every 3 ticks
+            // Cosmic dust  -- every 3 ticks
             if (AliveTime % 3 == 0)
             {
                 int d = Dust.NewDust(Projectile.position, Projectile.width, Projectile.height,
@@ -138,7 +138,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
         }
 
         // =================================================================
-        // ON HIT 窶・RICOCHET + HEAL + DEBUFF
+        // ON HIT  -- RICOCHET + HEAL + DEBUFF
         // =================================================================
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
@@ -192,7 +192,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
             }
 
             // Impact bloom
-            GoliathParticleHandler.Spawn(new ImpactBloomParticle(
+            GoliathParticleHandler.Spawn(new GoliathImpactBloomParticle(
                 impactPos, GoliathUtils.ImpactFlash, 0.4f + BeamIntensity * 0.2f, 15));
 
             // Radial spark burst
@@ -208,12 +208,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
             {
                 Vector2 noteVel = new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-3f, -1f));
                 Color noteColor = GoliathUtils.GetCosmicGradient(Main.rand.NextFloat(0.4f, 0.9f));
-                GoliathParticleHandler.Spawn(new MusicNoteParticle(
+                GoliathParticleHandler.Spawn(new GoliathMusicNoteParticle(
                     impactPos + Main.rand.NextVector2Circular(10f, 10f), noteVel,
                     noteColor, 0.4f + Main.rand.NextFloat(0.3f), 40 + Main.rand.Next(20)));
             }
 
-            // Hue-shifting music notes 窶・the Conductor's gravitational command echoes
+            // Hue-shifting music notes  -- the Conductor's gravitational command echoes
             MoonlightVFXLibrary.SpawnMusicNotes(impactPos, count: 3 + (int)(BeamIntensity * 3),
                 spread: 20f, minScale: 0.5f, maxScale: 0.9f, lifetime: 40);
 
@@ -277,7 +277,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
                 glowShader.UseOpacity(0.35f + BeamIntensity * 0.25f);
                 glowShader.UseSaturation(BeamIntensity);
 
-                // Cosmic nebula clouds 窶・gravitational field distortion texture
+                // Cosmic nebula clouds  -- gravitational field distortion texture
                 glowShader.UseImage1(ModContent.Request<Texture2D>(
                     "MagnumOpus/Assets/VFX Asset Library/NoiseTextures/CosmicNebulaClouds"));
             }
@@ -310,7 +310,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
                 mainShader.UseOpacity(0.7f + BeamIntensity * 0.3f);
                 mainShader.UseSaturation(BeamIntensity);
 
-                // Cosmic nebula clouds 窶・inner cosmic vein structure
+                // Cosmic nebula clouds  -- inner cosmic vein structure
                 mainShader.UseImage1(ModContent.Request<Texture2D>(
                     "MagnumOpus/Assets/VFX Asset Library/NoiseTextures/CosmicNebulaClouds"));
             }
@@ -332,7 +332,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
             ), TrailLength);
         }
 
-        /// <summary>Gravitational beam head glow with cross-star flares 窶・
+        /// <summary>Gravitational beam head glow with cross-star flares  -- 
         /// the Conductor's cosmic authority radiates through intersecting star points.</summary>
         private void DrawHeadGlow()
         {
@@ -346,18 +346,18 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
                 Main.DefaultSamplerState, DepthStencilState.None,
                 Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Layer 1: Wide atmospheric halo — cosmic nebula presence (scaled down)
+            // Layer 1: Wide atmospheric halo  Ecosmic nebula presence (scaled down)
             Color outerColor = GoliathUtils.NebulaPurple with { A = 0 };
             float outerScale = 0.12f + BeamIntensity * 0.07f;
             sb.Draw(bloom, drawPos, null, outerColor * (0.18f + BeamIntensity * 0.12f),
                 0f, bloom.Size() * 0.5f, outerScale * 0.7f, SpriteEffects.None, 0f);
 
-            // Layer 2: Mid glow — ice blue cosmic ring
+            // Layer 2: Mid glow  Eice blue cosmic ring
             Color midColor = GoliathUtils.IceBlueBrilliance with { A = 0 };
             sb.Draw(bloom, drawPos, null, midColor * 0.15f,
                 0f, bloom.Size() * 0.5f, outerScale * 0.35f, SpriteEffects.None, 0f);
 
-            // Layer 3: Cross-star flares — counter-rotating 4-pointed star pair
+            // Layer 3: Cross-star flares  Ecounter-rotating 4-pointed star pair
             var starTex = ModContent.Request<Texture2D>(
                 "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard", AssetRequestMode.ImmediateLoad).Value;
             float baseRot = AliveTime * 0.04f;
@@ -374,7 +374,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
                 -baseRot + MathHelper.PiOver4, starTex.Size() * 0.5f,
                 0.07f + BeamIntensity * 0.05f, SpriteEffects.None, 0f);
 
-            // Layer 4: Bright inner core — star core white
+            // Layer 4: Bright inner core  Estar core white
             Color coreColor = GoliathUtils.StarCore with { A = 0 };
             float coreScale = 0.06f + BeamIntensity * 0.04f;
             sb.Draw(bloom, drawPos, null, coreColor * (0.3f + BeamIntensity * 0.18f),
@@ -396,7 +396,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Proje
             if (Main.dedServ) return;
 
             // Final dissipation bloom
-            GoliathParticleHandler.Spawn(new ImpactBloomParticle(
+            GoliathParticleHandler.Spawn(new GoliathImpactBloomParticle(
                 Projectile.Center, GoliathUtils.IceBlueBrilliance, 0.6f, 20));
 
             for (int i = 0; i < 8; i++)

@@ -18,7 +18,7 @@ using ReLogic.Content;
 namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance.Projectiles
 {
     /// <summary>
-    /// Staccato bullet wrapper 遯ｶ繝ｻreplaces vanilla bullets with fire-trail-enhanced versions.
+    /// Staccato bullet wrapper 遯�E�繝ｻreplaces vanilla bullets with fire-trail-enhanced versions.
     /// ai[0] stores original bullet type for visual reference.
     /// </summary>
     public class StaccatoBulletProj : ModProjectile
@@ -38,7 +38,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
             Projectile.penetrate = 1;
             Projectile.timeLeft = 120;
             Projectile.extraUpdates = 2;
-            Projectile.aiStyle = 1;
+            Projectile.aiStyle = ProjAIStyleID.Arrow;
             AIType = ProjectileID.Bullet;
         }
 
@@ -48,7 +48,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
             if (trailPositions.Count > MaxTrailPoints)
                 trailPositions.RemoveAt(trailPositions.Count - 1);
 
-            // Fire ember trail — frequent hot sparks scattering from the bullet
+            // Fire ember trail  Efrequent hot sparks scattering from the bullet
             if (Main.GameUpdateCount % 2 == 0)
             {
                 Vector2 perpDir = Projectile.velocity.SafeNormalize(Vector2.Zero).RotatedBy(MathHelper.PiOver2);
@@ -77,7 +77,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
             // Embed a Resonant Marker
             target.GetGlobalNPC<ResonantMarkerNPC>().AddMarker(target);
 
-            // === FOUNDATION: RippleEffectProjectile — Marker embed ring ===
+            // === FOUNDATION: RippleEffectProjectile  EMarker embed ring ===
             Projectile.NewProjectile(
                 Projectile.GetSource_FromThis(), target.Center, Vector2.Zero,
                 ModContent.ProjectileType<RippleEffectProjectile>(),
@@ -97,7 +97,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
                 {
                     trailRenderer ??= new PiercingBellsPrimitiveRenderer();
 
-                    // === SHADER: BulletTrailShader — supersonic compression-wave trail ===
+                    // === SHADER: BulletTrailShader  Esupersonic compression-wave trail ===
                     var bulletShader = PiercingBellsResonanceShaderLoader.GetBulletTrailShader();
                     if (bulletShader != null)
                     {
@@ -208,7 +208,7 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.PiercingBellsResonance
             trailRenderer?.Dispose();
             trailRenderer = null;
 
-            // Impact spark burst — radial scatter of 8 tracers
+            // Impact spark burst  Eradial scatter of 8 tracers
             for (int i = 0; i < 8; i++)
             {
                 float angle = MathHelper.TwoPi * i / 8f + Main.rand.NextFloat(-0.3f, 0.3f);

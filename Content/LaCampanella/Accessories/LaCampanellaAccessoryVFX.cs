@@ -125,7 +125,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
 
             // Bell chime rings cascade
             LaCampanellaVFXLibrary.SpawnBellChimeRings(pos, 3, 0.35f);
-            CustomParticles.LaCampanellaBellChime(pos, 12);
 
             // Ember debris
             LaCampanellaVFXLibrary.SpawnEmberScatter(pos, 10, 5f);
@@ -137,7 +136,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             LaCampanellaVFXLibrary.SpawnHeavySmoke(pos, 6, 0.9f, 3.5f, 55);
 
             // Screen shake
-            MagnumScreenEffects.AddScreenShake(4f);
             Lighting.AddLight(pos, LaCampanellaPalette.WhiteHot.ToVector3() * 1.2f);
         }
 
@@ -326,10 +324,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             LaCampanellaVFXLibrary.BellShockwaveImpact(center, 1.5f);
 
             // Extra cascading bell chime rings
-            for (int i = 0; i < 4; i++)
-            {
-                CustomParticles.LaCampanellaBellChime(center, 12 + i * 4);
-            }
 
             // 36-point golden fire ring (shield perimeter)
             for (int i = 0; i < 36; i++)
@@ -350,7 +344,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             // Music note cascade
             LaCampanellaVFXLibrary.SpawnMusicNotes(center, 10, 50f, 0.8f, 1.2f, 40);
 
-            MagnumScreenEffects.AddScreenShake(8f);
             Lighting.AddLight(center, ShieldWhite.ToVector3() * 2f);
         }
 
@@ -372,7 +365,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             }
 
             // Bell chime at base
-            CustomParticles.LaCampanellaBellChime(basePos, 8);
             LaCampanellaVFXLibrary.DrawBloom(basePos, 0.5f);
 
             // Music notes ascending
@@ -381,7 +373,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             // Smoke at base
             LaCampanellaVFXLibrary.SpawnHeavySmoke(basePos, 3, 0.6f, 2f, 40);
 
-            MagnumScreenEffects.AddScreenShake(2f);
             Lighting.AddLight(basePos, HealingFlame.ToVector3() * 0.8f);
         }
 
@@ -523,10 +514,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             LaCampanellaVFXLibrary.InfernalEruption(center, 1.5f);
 
             // Extra cascading bell chime rings
-            for (int i = 0; i < 5; i++)
-            {
-                CustomParticles.LaCampanellaBellChime(center, 15 + i * 5);
-            }
 
             // 32-point radial fire burst (massive)
             for (int i = 0; i < 32; i++)
@@ -544,7 +531,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             // Music note explosion
             LaCampanellaVFXLibrary.SpawnMusicNotes(center, 12, 60f, 0.8f, 1.3f, 45);
 
-            MagnumScreenEffects.AddScreenShake(10f);
             Lighting.AddLight(center, MaestroCore.ToVector3() * 2.5f);
         }
 
@@ -630,11 +616,9 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             }
 
             // Bell chime ring
-            CustomParticles.LaCampanellaBellChime(hitPos, 8);
             LaCampanellaVFXLibrary.SpawnEmberScatter(hitPos, 6, 3f);
             LaCampanellaVFXLibrary.SpawnMusicNotes(hitPos, 3, 15f, 0.8f, 1.0f, 25);
 
-            MagnumScreenEffects.AddScreenShake(3f);
             Lighting.AddLight(hitPos, MaestroCore.ToVector3() * 1.2f);
         }
     }
@@ -705,7 +689,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             LaCampanellaVFXLibrary.DrawBloom(targetCenter, 0.4f);
 
             // Bell chime ring
-            CustomParticles.LaCampanellaBellChime(targetCenter, 8);
             LaCampanellaVFXLibrary.SpawnBellChimeRings(targetCenter, 2, 0.3f);
 
             // Gold sparkle burst
@@ -837,10 +820,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             }
 
             // Bell chime cascade (3 rings)
-            for (int i = 0; i < 3; i++)
-            {
-                CustomParticles.LaCampanellaBellChime(targetCenter, 10 + i * 3);
-            }
             LaCampanellaVFXLibrary.SpawnBellChimeRings(targetCenter, 3, 0.35f);
 
             // Gold sparkle burst (enhanced)

@@ -301,7 +301,6 @@ namespace MagnumOpus.Common.Systems.VFX.Effects
         public float EndScale;
         public float RotationSpeed;
         public int ChromaticChannel;
-        public Vector2 Velocity;
         
         public bool IsDead => Lifetime <= 0 || Alpha <= 0;
         
@@ -309,8 +308,6 @@ namespace MagnumOpus.Common.Systems.VFX.Effects
         {
             Lifetime--;
             Alpha -= FadeRate;
-            
-            Position += Velocity;
             
             switch (Style)
             {

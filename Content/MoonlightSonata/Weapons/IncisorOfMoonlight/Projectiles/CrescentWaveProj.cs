@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
@@ -12,7 +12,7 @@ using static MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Utili
 namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projectiles
 {
     /// <summary>
-    /// Crescent Wave 窶・expanding shockwave projectile.
+    /// Crescent Wave  -- expanding shockwave projectile.
     /// Created by Movement III's 5th slash and the Grand Finale's radial burst.
     /// Expands outward as a growing crescent ring, slowing all enemies in range.
     /// Applies Moonlit Silence debuff (40% speed reduction for 3s).
@@ -90,7 +90,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // Apply Moonlit Silence 窶・40% speed reduction for 3 seconds
+            // Apply Moonlit Silence  -- 40% speed reduction for 3 seconds
             target.AddBuff(ModContent.BuffType<MoonlitSilenceDebuff>(), 180);
 
             SoundEngine.PlaySound(SoundID.Item29 with { Pitch = -0.2f, Volume = 0.5f }, target.Center);

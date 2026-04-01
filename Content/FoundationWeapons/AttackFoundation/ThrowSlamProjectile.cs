@@ -40,7 +40,6 @@ namespace MagnumOpus.Content.FoundationWeapons.AttackFoundation
         private int phase; // 0=rise, 1=hover, 2=dive
         private Vector2 apexPosition;
         private NPC diveTarget;
-        private bool hasDealtDamage;
         private float trailAlpha;
 
         public override void SetStaticDefaults()
@@ -143,7 +142,6 @@ namespace MagnumOpus.Content.FoundationWeapons.AttackFoundation
             if (hoverTimer >= HoverFrames)
             {
                 phase = 2;
-                hasDealtDamage = false;
 
                 if (diveTarget != null && diveTarget.active)
                 {

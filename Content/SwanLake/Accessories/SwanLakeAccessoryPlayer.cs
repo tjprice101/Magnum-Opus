@@ -419,13 +419,8 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                 Lighting.AddLight(target.Center, 2.5f, 2.5f, 3f);
                 
                 // Themed particles - use the big signature effects!
-                ThemedParticles.SwanLakeRainbowExplosion(target.Center, 1.5f);
-                ThemedParticles.SwanLakeMusicalImpact(target.Center, 1.2f, true);
-                ThemedParticles.SwanLakeFractalGemBurst(target.Center, Color.White, 1.0f, 8, true);
                 
                 // Halo rings!
-                CustomParticles.HaloRing(target.Center, Color.White, 0.8f, 20);
-                CustomParticles.HaloRing(target.Center, Color.Black, 0.6f, 18);
                 
                 // Screen shake removed - weapons/accessories should not cause screen shake
             }

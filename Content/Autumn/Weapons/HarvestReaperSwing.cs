@@ -18,8 +18,8 @@ using ReLogic.Content;
 namespace MagnumOpus.Content.Autumn.Weapons
 {
     /// <summary>
-    /// Harvest Reaper held-projectile swing 窶・the slow dirge of autumn's decay.
-    /// 4-phase scythe combo: Reaping Sweep 竊・Decay Slash 竊・Soul Rend 竊・Twilight Judgment.
+    /// Harvest Reaper held-projectile swing  -- the slow dirge of autumn's decay.
+    /// 4-phase scythe combo: Reaping Sweep ->Decay Slash ->Soul Rend ->Twilight Judgment.
     /// Every 5th hit applies Autumn's Decay (Ichor + seeking crystals);
     /// kills spawn soul wisps; every 8th COMBO triggers Twilight Slash (DecayCrescentWave).
     /// </summary>
@@ -39,7 +39,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
             set => Projectile.ai[2] = value;
         }
 
-        // 笏笏 6-Color Palette: pianissimo 竊・sforzando 笏笏
+        // 笏笏 6-Color Palette: pianissimo ->sforzando 笏笏
         private static readonly Color[] AutumnPalette = new Color[]
         {
             new Color(80, 40, 20),      // [0] Dark bark shadow
@@ -52,7 +52,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
 
         #region 笏笏 Combo Phase Definitions 笏笏
 
-        // Phase 0 窶・Reaping Sweep (slow, wide horizontal arc 窶・the first leaves falling)
+        // Phase 0  -- Reaping Sweep (slow, wide horizontal arc  -- the first leaves falling)
         private static readonly ComboPhase Phase0_ReapingSweep = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -68,7 +68,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
             damageMult: 0.9f
         );
 
-        // Phase 1 窶・Decay Slash (quick backhand 窶・the wind scattering dead leaves)
+        // Phase 1  -- Decay Slash (quick backhand  -- the wind scattering dead leaves)
         private static readonly ComboPhase Phase1_DecaySlash = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -84,7 +84,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
             damageMult: 1.0f
         );
 
-        // Phase 2 窶・Soul Rend (overhead slam 窶・the weight of autumn's sorrow)
+        // Phase 2  -- Soul Rend (overhead slam  -- the weight of autumn's sorrow)
         private static readonly ComboPhase Phase2_SoulRend = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -100,7 +100,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
             damageMult: 1.15f
         );
 
-        // Phase 3 窶・Twilight Judgment (massive finisher 窶・the last light fading)
+        // Phase 3  -- Twilight Judgment (massive finisher  -- the last light fading)
         private static readonly ComboPhase Phase3_TwilightJudgment = new ComboPhase(
             curves: new CurveSegment[]
             {
@@ -216,7 +216,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 }
             }
 
-            // Phase 3 at ~85%: Twilight Slash finisher 窶・spawn DecayCrescentWave
+            // Phase 3 at ~85%: Twilight Slash finisher  -- spawn DecayCrescentWave
             if (ComboStep == 3 && Progression >= 0.85f)
             {
                 hasSpawnedSpecial = true;
@@ -257,7 +257,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 Vector2 tipPos = GetBladeTipPosition();
                 float bladeLen = CurrentPhase.BladeLength;
 
-                // Autumn torch dust 窶・dense, 2 per frame
+                // Autumn torch dust  -- dense, 2 per frame
                 for (int i = 0; i < 2; i++)
                 {
                     Vector2 dustPos = Owner.MountedCenter + SwordDirection * bladeLen * Main.rand.NextFloat(0.4f, 1f);
@@ -315,7 +315,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
 
             HitCounter++;
 
-            // 笏笏 Gradient halo rings 窶・orange 竊・purple 笏笏
+            // 笏笏 Gradient halo rings  -- orange ->purple 笏笏
             for (int i = 0; i < 4; i++)
             {
                 float progress = i / 4f;
@@ -359,7 +359,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 MagnumParticleHandler.SpawnParticle(leaf);
             }
 
-            // 笏笏 AUTUMN'S DECAY 窶・every 5th hit: Ichor + seeking crystals 笏笏
+            // 笏笏 AUTUMN'S DECAY  -- every 5th hit: Ichor + seeking crystals 笏笏
             if (HitCounter >= 5)
             {
                 HitCounter = 0;
@@ -392,7 +392,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
                 }
             }
 
-            // 笏笏 SOUL HARVEST 窶・kills spawn healing wisp 笏笏
+            // 笏笏 SOUL HARVEST  -- kills spawn healing wisp 笏笏
             if (target.life <= 0)
             {
                 if (Main.myPlayer == Projectile.owner && Main.netMode != NetmodeID.MultiplayerClient)

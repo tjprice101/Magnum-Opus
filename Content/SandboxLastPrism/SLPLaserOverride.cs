@@ -57,11 +57,8 @@ namespace MagnumOpus.Content.SandboxLastPrism
                 projectile.velocity = -Vector2.UnitY;
             }
 
-            if (false)
-                Main.NewText("PENIS");
-            else
             {
-                if (projectile.type != 632 || !Main.projectile[(int)projectile.ai[1]].active || Main.projectile[(int)projectile.ai[1]].type != 633)
+                if (projectile.type != ProjectileID.LastPrismLaser || !Main.projectile[(int)projectile.ai[1]].active || Main.projectile[(int)projectile.ai[1]].type != ProjectileID.LastPrism)
                 {
                     projectile.Kill();
                     return false;
@@ -137,7 +134,7 @@ namespace MagnumOpus.Content.SandboxLastPrism
             {
                 samplingPoint = vector133.Value;
             }
-            if (projectile.type == 632)
+            if (projectile.type == ProjectileID.LastPrismLaser)
             {
                 num762 = 2f;
                 num763 = 0f;
@@ -152,10 +149,10 @@ namespace MagnumOpus.Content.SandboxLastPrism
             }
             num764 /= num762;
             float amount = 0.5f;
-            if (projectile.type == 455)
+            if (projectile.type == ProjectileID.PhantasmalDeathray)
             {
                 NPC nPC3 = Main.npc[(int)projectile.ai[1]];
-                if (nPC3.type == 396)
+                if (nPC3.type == NPCID.MoonLordHead)
                 {
                     Player player11 = Main.player[nPC3.target];
                     if (!Collision.CanHitLine(nPC3.position, nPC3.width, nPC3.height, player11.position, player11.width, player11.height))
@@ -165,13 +162,13 @@ namespace MagnumOpus.Content.SandboxLastPrism
                     }
                 }
             }
-            if (projectile.type == 632)
+            if (projectile.type == ProjectileID.LastPrismLaser)
             {
                 amount = 0.75f;
             }
             projectile.localAI[1] = MathHelper.Lerp(projectile.localAI[1], num764, amount);
 
-            if (projectile.type != 632 || !(Math.Abs(projectile.localAI[1] - num764) < 100f) || !(projectile.scale > 0.15f))
+            if (projectile.type != ProjectileID.LastPrismLaser || !(Math.Abs(projectile.localAI[1] - num764) < 100f) || !(projectile.scale > 0.15f))
             {
                 return false;
             }
@@ -189,7 +186,7 @@ namespace MagnumOpus.Content.SandboxLastPrism
                 float num792 = projectile.velocity.ToRotation() + ((Main.rand.Next(2) == 1) ? (-1f) : 1f) * ((float)Math.PI / 2f);
                 float num793 = (float)Main.rand.NextDouble() * 0.8f + 1f;
                 Vector2 vector155 = new Vector2((float)Math.Cos(num792) * num793, (float)Math.Sin(num792) * num793);
-                int num794 = Dust.NewDust(vector154, 0, 0, 267, vector155.X, vector155.Y);
+                int num794 = Dust.NewDust(vector154, 0, 0, DustID.RainbowMk2, vector155.X, vector155.Y);
                 Main.dust[num794].color = color;
                 Main.dust[num794].scale = 1.2f;
                 if (projectile.scale > 1f)
@@ -216,7 +213,7 @@ namespace MagnumOpus.Content.SandboxLastPrism
             if (Main.rand.Next(5) == 0 && false) //!!!!!!!!!!!!!!!!!
             {
                 Vector2 vector157 = projectile.velocity.RotatedBy(1.5707963705062866) * ((float)Main.rand.NextDouble() - 0.5f) * projectile.width;
-                int num795 = Dust.NewDust(vector154 + vector157 - Vector2.One * 4f, 8, 8, 31, 0f, 0f, 100, default(Color), 1.5f);
+                int num795 = Dust.NewDust(vector154 + vector157 - Vector2.One * 4f, 8, 8, DustID.Smoke, 0f, 0f, 100, default(Color), 1.5f);
                 Dust dust87 = Main.dust[num795];
                 Dust dust212 = dust87;
                 dust212.velocity *= 0.5f;
@@ -226,7 +223,7 @@ namespace MagnumOpus.Content.SandboxLastPrism
             float value24 = 0.1f * (float)Math.Sin(Main.GlobalTimeWrappedHourly * 20f);
             Vector2 size2 = new Vector2(projectile.velocity.Length() * projectile.localAI[1], (float)projectile.width * projectile.scale);
             float num796 = projectile.velocity.ToRotation();
-            if (Main.netMode != 2)
+            if (Main.netMode != NetmodeID.Server)
             {
                 ((WaterShaderData)Filters.Scene["WaterDistortion"].GetShader()).QueueRipple(projectile.position + new Vector2(size2.X * 0.5f, 0f).RotatedBy(num796), new Color(0.5f, 0.1f * (float)Math.Sign(value24) + 0.5f, 0f, 1f) * Math.Abs(value24), size2, RippleShape.Square, num796);
             }

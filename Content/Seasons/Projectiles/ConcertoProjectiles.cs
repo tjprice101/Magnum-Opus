@@ -256,8 +256,6 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringPetalCore = new Color(255, 220, 230);
-        
-        private float flutterPhase = 0f;
 
         public override void SetDefaults()
         {

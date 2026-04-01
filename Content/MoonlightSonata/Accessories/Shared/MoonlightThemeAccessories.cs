@@ -13,6 +13,7 @@ using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 using MagnumOpus.Content.MoonlightSonata.VFX.Accessories;
 using System;
 using System.Collections.Generic;
+using MagnumOpus.Content.Materials.EnemyDrops;
 
 namespace MagnumOpus.Content.MoonlightSonata.Accessories
 {
@@ -90,7 +91,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
 
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'The adagio plays softly in the moonlit night'")
             {
-                OverrideColor = MoonlightColors.Silver
+                OverrideColor = new Color(140, 100, 200)
             });
         }
 
@@ -193,7 +194,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
 
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'The moon's embrace is both gentle and absolute'")
             {
-                OverrideColor = MoonlightColors.Silver
+                OverrideColor = new Color(140, 100, 200)
             });
         }
 
@@ -203,6 +204,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
                 .AddIngredient(ModContent.ItemType<AdagioPendant>(), 1)
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfMoonlightSonata>(), 25)
                 .AddIngredient(ModContent.ItemType<MoonlightsResonantEnergy>(), 10)
+                .AddIngredient(ModContent.ItemType<LunarEssence>(), 10)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
         }
@@ -242,11 +244,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             // Visual feedback
             if (Main.rand.NextBool(3))
             {
-                for (int i = 0; i < 3; i++)
-                {
-                    Vector2 pos = target.Center + Main.rand.NextVector2Circular(20f, 20f);
-                    CustomParticles.GenericFlare(pos, MoonlightVFXLibrary.Violet * 0.8f, 0.3f, 15);
-                }
             }
 
             // Unified moonstruck application flash

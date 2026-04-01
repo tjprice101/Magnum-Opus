@@ -24,7 +24,6 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
         private int targetNPC = -1;
         private Vector2 beamEnd;
-        private float beamLength = 0f;
         private const float MaxBeamLength = 200f;
         private bool hasReachedEnd = false;
         private bool hasHitEnemy = false;
@@ -93,7 +92,6 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             }
 
             beamEnd = Projectile.Center + Projectile.velocity.SafeNormalize(Vector2.UnitX) * MaxBeamLength;
-            beamLength = MaxBeamLength;
 
             if (Projectile.timeLeft <= 20 && !hasReachedEnd)
             {
@@ -154,7 +152,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
             for (int i = 0; i < 8; i++)
             {
                 float angle = MathHelper.TwoPi * i / 8f + Main.rand.NextFloatDirection() * 0.2f;
-                FuneralParticleHandler.SpawnParticle(new RequiemSparkParticle(
+                FuneralParticleHandler.SpawnParticle(new FuneralSparkParticle(
                     position,
                     angle.ToRotationVector2() * Main.rand.NextFloat(3f, 7f),
                     Color.Lerp(FuneralUtils.DeepCrimson, FuneralUtils.PrayerFlame, Main.rand.NextFloat()),

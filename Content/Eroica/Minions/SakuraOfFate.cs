@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
@@ -14,12 +14,12 @@ using ReLogic.Content;
 namespace MagnumOpus.Content.Eroica.Minions
 {
     /// <summary>
-    /// Sakura of Fate 窶・spectral dark-flame guardian minion.
+    /// Sakura of Fate  -- spectral dark-flame guardian minion.
     /// Self-contained VFX: 6�E�E�E spritesheet rendering, dark flame aura, ambient particles.
     /// </summary>
     public class SakuraOfFate : ModProjectile
     {
-        // 笏笏 Spritesheet configuration 窶・6�E�E�E grid 笏笏
+        // 笏笏 Spritesheet configuration  -- 6�E�E�E grid 笏笏
         public const int FrameColumns = 6;
         public const int FrameRows = 6;
         public const int TotalFrames = 36;

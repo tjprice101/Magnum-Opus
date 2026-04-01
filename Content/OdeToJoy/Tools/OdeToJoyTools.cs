@@ -99,7 +99,7 @@ namespace MagnumOpus.Content.OdeToJoy.Tools
             Projectile.penetrate = -1;
             Projectile.DamageType = DamageClass.Melee;
             Projectile.ownerHitCheck = true;
-            Projectile.aiStyle = 20; // Vanilla drill AI
+            Projectile.aiStyle = ProjAIStyleID.Drill; // Vanilla drill AI
             Projectile.hide = true;
         }
 

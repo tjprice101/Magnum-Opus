@@ -36,6 +36,8 @@ namespace MagnumOpus.Content.MoonlightSonata.CraftingStations
 
             // Acts as an anvil for crafting
             AdjTiles = new int[] { TileID.Anvils, TileID.MythrilAnvil };
+
+            RegisterItemDrop(ModContent.ItemType<MoonlightAnvil>());
         }
 
         public override void ModifyLight(int i, int j, ref float r, ref float g, ref float b)

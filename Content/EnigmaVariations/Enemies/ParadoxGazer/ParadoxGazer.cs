@@ -11,6 +11,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
 {
     public class ParadoxGazer : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/EnigmaVariations/Enemies/ParadoxGazer/ParadoxGazer";
+
         private static readonly Color EnigmaPurple = new Color(140, 60, 200);
         private static readonly Color EnigmaGreen = new Color(60, 200, 100);
 

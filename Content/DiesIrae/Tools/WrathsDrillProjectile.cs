@@ -27,7 +27,7 @@ namespace MagnumOpus.Content.DiesIrae.Tools
             Projectile.penetrate = -1;
             Projectile.DamageType = DamageClass.Melee;
             Projectile.ownerHitCheck = true;
-            Projectile.aiStyle = 20; // Vanilla drill AI - handles jitter, cursor pointing, sound
+            Projectile.aiStyle = ProjAIStyleID.Drill; // Vanilla drill AI - handles jitter, cursor pointing, sound
             Projectile.hide = true;
         }
     }

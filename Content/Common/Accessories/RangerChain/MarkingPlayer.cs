@@ -141,7 +141,21 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
 
         public override void PostUpdateEquips()
         {
+            // === CHAIN INHERITANCE ===
+            // Higher-tier accessories inherit all lower-tier effects.
+            if (hasVivaldisSeasonalSight) hasPermafrostHuntersEye = true;
+            if (hasPermafrostHuntersEye) hasEchoingBoltChamber = true;
+            if (hasEchoingBoltChamber) hasResonantPiercingLens = true;
+            if (hasResonantPiercingLens) hasSpringHuntersLens = true;
+            if (hasSpringHuntersLens) hasResonantSpotter = true;
+
             // Apply simple static effects from equipped accessories
+
+            // Resonant Spotter: +5% ranged damage
+            if (hasResonantSpotter)
+            {
+                Player.GetDamage(DamageClass.Ranged) += 0.05f;
+            }
 
             // Solar Tracker's Badge: +5% ranged damage
             if (hasSolarTrackersBadge)
@@ -188,10 +202,10 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
                 Player.GetDamage(DamageClass.Ranged) += 0.25f;
             }
 
-            // Scope of the Eternal Verdict: +40% ranged damage
+            // Scope of the Eternal Verdict: +30% ranged damage
             if (hasScopeOfTheEternalVerdict)
             {
-                Player.GetDamage(DamageClass.Ranged) += 0.40f;
+                Player.GetDamage(DamageClass.Ranged) += 0.30f;
             }
 
             // Swan's Grace buff timer
@@ -204,6 +218,26 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             // Cooldown management
             if (gracefulDodgeCooldown > 0)
                 gracefulDodgeCooldown--;
+        }
+
+        public override void ModifyHitNPCWithItem(Item item, NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (!item.DamageType.Equals(DamageClass.Ranged))
+                return;
+
+            // ===== RESONANCE SYNERGY: T3 ResonantPiercingLens =====
+            if (hasResonantPiercingLens && ResonancePrefixHelper.IsEnemyBurning(target))
+            {
+                modifiers.FinalDamage += 0.30f;
+
+                int stacks = ResonancePrefixHelper.GetBurnStacks(target);
+                Player.GetCritChance(DamageClass.Ranged) += stacks * 5;
+
+                if (resonanceSuperCritReady)
+                {
+                    modifiers.CritDamage += 0.50f;
+                }
+            }
         }
 
         public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref NPC.HitModifiers modifiers)
@@ -222,7 +256,7 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
                 Player.GetCritChance(DamageClass.Ranged) += stacks * 5;
 
                 // Super crit: 3x damage instead of 2x
-                if (resonanceSuperCritReady && modifiers.CritDamage != null)
+                if (resonanceSuperCritReady)
                 {
                     modifiers.CritDamage += 0.50f; // 2x -> 3x
                 }
@@ -298,17 +332,11 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
                 target.AddBuff(BuffID.OnFire, 300);
             }
 
-            // Enigma's Paradox Mark: 15% chance for bonus projectile (simplified - visual only)
+            // Enigma's Paradox Mark: 15% chance for bonus homing bolt
             if (hasEnigmasParadoxMark && Main.rand.NextFloat() < 0.15f)
             {
-                // In a full implementation, would spawn additional projectile
-                // For now, just a visual particle
-                for (int i = 0; i < 3; i++)
-                {
-                    Vector2 velocity = Vector2.One.RotatedByRandom(MathHelper.TwoPi) * 2f;
-                    Dust dust = Dust.NewDustDirect(target.Center, 1, 1, DustID.Shadowflame);
-                    dust.velocity = velocity;
-                }
+                int boltDamage = Math.Max(1, damageDone / 3);
+                SpawnHomingBolt(target.Center, boltDamage);
             }
         }
 
@@ -418,15 +446,11 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
                 target.AddBuff(BuffID.OnFire, 300);
             }
 
-            // Enigma's Paradox Mark: 15% chance for bonus projectile
+            // Enigma's Paradox Mark: 15% chance for bonus homing bolt
             if (hasEnigmasParadoxMark && Main.rand.NextFloat() < 0.15f)
             {
-                for (int i = 0; i < 3; i++)
-                {
-                    Vector2 velocity = Vector2.One.RotatedByRandom(MathHelper.TwoPi) * 2f;
-                    Dust dust = Dust.NewDustDirect(target.Center, 1, 1, DustID.Shadowflame);
-                    dust.velocity = velocity;
-                }
+                int boltDamage = Math.Max(1, damageDone / 3);
+                SpawnHomingBolt(target.Center, boltDamage);
             }
 
             // Jubilant Hunter's Sight: Ranged kills restore 2 HP

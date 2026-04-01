@@ -27,7 +27,6 @@ namespace MagnumOpus.Common.Systems.VFX
     {
         private static List<DissolveEffect> _activeDissolves = new();
         private static Texture2D _noiseTexture;
-        private static Effect _dissolveEffect;
         
         private const int MaxActiveDissolves = 50;
         
@@ -75,7 +74,6 @@ namespace MagnumOpus.Common.Systems.VFX
             // Cache reference and null immediately (safe on any thread)
             var noise = _noiseTexture;
             _noiseTexture = null;
-            _dissolveEffect = null;
             
             // Queue texture disposal on main thread to avoid ThreadStateException
             if (noise != null)

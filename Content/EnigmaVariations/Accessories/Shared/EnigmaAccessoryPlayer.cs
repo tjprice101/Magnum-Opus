@@ -173,7 +173,6 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
                 mysteryStacks++;
                 
                 // Visual feedback per stack
-                CustomParticles.GenericFlare(target.Center, GetEnigmaGradient((float)mysteryStacks / MaxMysteryStacks), 0.4f, 15);
                 
                 if (mysteryStacks >= MaxMysteryStacks)
                 {
@@ -190,7 +189,6 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
             if (hasIgnitionOfMystery && proj.DamageType == DamageClass.Melee)
             {
                 mysteryStacks++;
-                CustomParticles.GenericFlare(target.Center, GetEnigmaGradient((float)mysteryStacks / MaxMysteryStacks), 0.4f, 15);
                 
                 if (mysteryStacks >= MaxMysteryStacks)
                 {
@@ -222,9 +220,6 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
                     paradoxProcCooldown = 5;
                     
                     // Visual spawn effect
-                    CustomParticles.GlyphBurst(position, EnigmaGreenFlame, 4, 3f);
-                    CustomParticles.GenericFlare(position, EnigmaPurple, 0.6f, 15);
-                    ThemedParticles.EnigmaMusicNotes(position, 2, 15f);
                 }
             }
             
@@ -245,35 +240,16 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
             
             // MASSIVE EYE BURST - the mystery is revealed!
             // Central flare
-            CustomParticles.GenericFlare(burstCenter, EnigmaGreenFlame, 1.2f, 30);
-            CustomParticles.GenericFlare(burstCenter, EnigmaPurple, 0.9f, 25);
-            CustomParticles.GenericFlare(burstCenter, Color.White, 0.6f, 20);
             
             // Expanding halo rings
-            for (int ring = 0; ring < 5; ring++)
-            {
-                float progress = (float)ring / 5f;
-                Color ringColor = GetEnigmaGradient(progress);
-                CustomParticles.HaloRing(burstCenter, ringColor, 0.4f + ring * 0.25f, 18 + ring * 4);
-            }
             
             // Eyes exploding outward - WATCHING EVERYTHING
-            CustomParticles.EnigmaEyeExplosion(burstCenter, EnigmaGreenFlame, 10, 6f);
             
             // Glyph cascade
-            CustomParticles.GlyphBurst(burstCenter, EnigmaPurple, 12, 5f);
-            CustomParticles.GlyphCircle(burstCenter, EnigmaDeepPurple, 8, 60f, 0.03f);
             
             // Music notes spiral
-            ThemedParticles.EnigmaMusicNoteBurst(burstCenter, 12, 5f);
             
             // Fractal burst pattern
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 offset = angle.ToRotationVector2() * 45f;
-                CustomParticles.GenericFlare(burstCenter + offset, GetEnigmaGradient((float)i / 8f), 0.5f, 20);
-            }
             
             // Apply "Watched" debuff to all enemies in range
             float watchRadius = 300f;
@@ -285,7 +261,6 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
                     npc.AddBuff(ModContent.BuffType<Debuffs.WatchedDebuff>(), 300); // 5 seconds
                     
                     // Eye spawns watching this enemy
-                    CustomParticles.EnigmaEyeImpact(npc.Center, burstCenter, EnigmaGreenFlame, 0.5f);
                 }
             }
             
@@ -311,8 +286,6 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
             activeFragments.Add(fragment);
             
             // Spawn visual
-            CustomParticles.GenericFlare(position, EnigmaPurple, 0.5f, 15);
-            CustomParticles.Glyph(position, EnigmaGreenFlame, 0.4f, -1);
             SoundEngine.PlaySound(SoundID.Item4 with { Pitch = 0.5f, Volume = 0.5f }, position);
         }
         
@@ -340,7 +313,6 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
                 if (fragment.Lifetime <= 0)
                 {
                     // Fade out effect
-                    CustomParticles.GenericFlare(fragment.Position, EnigmaPurple * 0.5f, 0.3f, 10);
                     activeFragments.RemoveAt(i);
                 }
             }
@@ -351,9 +323,6 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
             puzzleFragments++;
             
             // Collection effect
-            CustomParticles.GenericFlare(fragment.Position, EnigmaGreenFlame, 0.6f, 18);
-            CustomParticles.GlyphBurst(fragment.Position, EnigmaPurple, 4, 2f);
-            ThemedParticles.EnigmaMusicNotes(fragment.Position, 2, 15f);
             SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.2f + puzzleFragments * 0.1f }, fragment.Position);
             
             if (puzzleFragments >= MaxPuzzleFragments)
@@ -373,26 +342,14 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
             SoundEngine.PlaySound(SoundID.Item119 with { Pitch = 0.5f, Volume = 1.3f }, Player.Center);
             
             // Massive glyph circle
-            CustomParticles.GlyphCircle(Player.Center, EnigmaGreenFlame, 12, 80f, 0.025f);
-            CustomParticles.GlyphCircle(Player.Center, EnigmaPurple, 8, 50f, -0.03f);
             
             // Central burst
-            CustomParticles.GenericFlare(Player.Center, Color.White, 1.5f, 30);
-            CustomParticles.GenericFlare(Player.Center, EnigmaGreenFlame, 1.2f, 25);
-            CustomParticles.GenericFlare(Player.Center, EnigmaPurple, 0.9f, 22);
             
             // Eyes form a watching formation
-            CustomParticles.EnigmaEyeFormation(Player.Center, EnigmaGreenFlame, 6, 70f);
             
             // Expanding halos
-            for (int i = 0; i < 6; i++)
-            {
-                float progress = (float)i / 6f;
-                CustomParticles.HaloRing(Player.Center, GetEnigmaGradient(progress), 0.5f + i * 0.2f, 20 + i * 5);
-            }
             
             // Music explosion
-            ThemedParticles.EnigmaMusicNoteBurst(Player.Center, 16, 7f);
             
             Lighting.AddLight(Player.Center, EnigmaGreenFlame.ToVector3() * 2.5f);
         }
@@ -413,16 +370,12 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
                     {
                         float angle = MathHelper.TwoPi * i / 8f;
                         Vector2 vaporVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
-                        CustomParticles.GenericGlow(proj.Center, GetEnigmaGradient(Main.rand.NextFloat()) * 0.6f, 
-                            0.3f + Main.rand.NextFloat(0.2f), 35);
                     }
                     
                     // Glyph swirl
-                    CustomParticles.GlyphBurst(proj.Center, EnigmaPurple * 0.7f, 3, 2f);
                     
                     // Music note
                     if (Main.rand.NextBool(2))
-                        ThemedParticles.EnigmaMusicNotes(proj.Center, 1, 10f);
                     
                     // Apply confusion to nearby enemies
                     foreach (NPC npc in Main.npc)
@@ -461,11 +414,6 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
                 var blessedProj = Main.projectile[blessedMinionIndex];
                 
                 // Blessing activation visual
-                CustomParticles.GenericFlare(blessedProj.Center, EnigmaGreenFlame, 0.8f, 25);
-                CustomParticles.GenericFlare(blessedProj.Center, Color.White, 0.5f, 20);
-                CustomParticles.GlyphCircle(blessedProj.Center, EnigmaPurple, 6, 40f, 0.04f);
-                CustomParticles.EnigmaEyeFormation(blessedProj.Center, EnigmaGreenFlame * 0.8f, 3, 30f);
-                ThemedParticles.EnigmaMusicNotes(blessedProj.Center, 4, 20f);
                 
                 SoundEngine.PlaySound(SoundID.Item4 with { Pitch = 0.3f, Volume = 0.8f }, blessedProj.Center);
             }

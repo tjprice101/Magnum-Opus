@@ -24,7 +24,7 @@ namespace MagnumOpus.Content.Materials.EnemyDrops
             Item.height = 12;
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 3);
-            Item.rare = ItemRarityID.Cyan;
+            Item.rare = ModContent.RarityType<MoonlightSonataRarity>();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -65,7 +65,7 @@ namespace MagnumOpus.Content.Materials.EnemyDrops
             Item.height = 12;
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 3);
-            Item.rare = ItemRarityID.Yellow;
+            Item.rare = ModContent.RarityType<EroicaRarity>();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -106,7 +106,7 @@ namespace MagnumOpus.Content.Materials.EnemyDrops
             Item.height = 12;
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 3);
-            Item.rare = ItemRarityID.Orange;
+            Item.rare = ModContent.RarityType<LaCampanellaRarity>();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -147,7 +147,7 @@ namespace MagnumOpus.Content.Materials.EnemyDrops
             Item.height = 12;
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 3);
-            Item.rare = ItemRarityID.Purple;
+            Item.rare = ModContent.RarityType<EnigmaVariationsRarity>();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -189,7 +189,7 @@ namespace MagnumOpus.Content.Materials.EnemyDrops
             Item.height = 12;
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 3);
-            Item.rare = ItemRarityID.White;
+            Item.rare = ModContent.RarityType<SwanRarity>();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -231,7 +231,7 @@ namespace MagnumOpus.Content.Materials.EnemyDrops
             Item.height = 12;
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 5);
-            Item.rare = ItemRarityID.Red;
+            Item.rare = ModContent.RarityType<FateRarity>();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -274,7 +274,7 @@ namespace MagnumOpus.Content.Materials.EnemyDrops
             Item.height = 12;
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 6);
-            Item.rare = ItemRarityID.Purple;
+            Item.rare = ModContent.RarityType<NachtmusikRarity>();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -314,7 +314,7 @@ namespace MagnumOpus.Content.Materials.EnemyDrops
             Item.height = 12;
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 7);
-            Item.rare = ItemRarityID.Red;
+            Item.rare = ModContent.RarityType<DiesIraeRarity>();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -354,7 +354,7 @@ namespace MagnumOpus.Content.Materials.EnemyDrops
             Item.height = 12;
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 8);
-            Item.rare = ItemRarityID.Yellow;
+            Item.rare = ModContent.RarityType<OdeToJoyRarity>();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -394,7 +394,7 @@ namespace MagnumOpus.Content.Materials.EnemyDrops
             Item.height = 12;
             Item.maxStack = 9999;
             Item.value = Item.sellPrice(gold: 10);
-            Item.rare = ItemRarityID.Cyan;
+            Item.rare = ModContent.RarityType<ClairDeLuneRarity>();
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)

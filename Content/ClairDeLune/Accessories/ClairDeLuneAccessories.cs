@@ -9,6 +9,7 @@ using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.ClairDeLune.ResonanceEnergies;
 using MagnumOpus.Content.ClairDeLune.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
+using MagnumOpus.Content.Materials.EnemyDrops;
 
 namespace MagnumOpus.Content.ClairDeLune.Accessories
 {
@@ -36,8 +37,8 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+60% melee damage"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+35% melee speed"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Melee hits heal for 10% of damage dealt"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Critical strikes accelerate time — next swing is 50% faster"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Critical strikes accelerate time — next swing is 50% faster"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Every 8th melee hit restores 25% of recent damage taken (max 40 HP)"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The gauntlet tightens, and seconds shatter like glass'")
             {
                 OverrideColor = IceBlue
@@ -57,6 +58,7 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfClairDeLune>(), 15)
                 .AddIngredient(ModContent.ItemType<ClairDeLuneResonantEnergy>(), 10)
                 .AddIngredient(ModContent.ItemType<HarmonicCoreOfClairDeLune>(), 1)
+                .AddIngredient(ModContent.ItemType<ShardOfClairDeLunesTempo>(), 5)
                 .AddIngredient(ItemID.LunarBar, 10)
                 .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
                 .Register();
@@ -67,6 +69,9 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
     {
         public bool gauntletActive;
         public int temporalAccelerationTimer;
+        public int meleeHitCounter;
+        private int recentDamageTaken;
+        private int damageTrackingTimer;
 
         public override void ResetEffects()
         {
@@ -79,6 +84,21 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
             {
                 Player.GetAttackSpeed(DamageClass.Melee) += 0.50f;
                 temporalAccelerationTimer--;
+            }
+
+            // Track damage taken over last 60 frames
+            if (damageTrackingTimer > 0)
+                damageTrackingTimer--;
+            else
+                recentDamageTaken = 0;
+        }
+
+        public override void OnHurt(Player.HurtInfo info)
+        {
+            if (gauntletActive)
+            {
+                recentDamageTaken += info.Damage;
+                damageTrackingTimer = 60; // 1 second window
             }
         }
 
@@ -96,22 +116,26 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
 
         private void ApplyEffects(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            int healAmount = (int)(damageDone * 0.10f);
-            if (healAmount > 0)
-                Player.Heal(healAmount);
-
             if (hit.Crit)
                 temporalAccelerationTimer = 30; // 0.5 second of accelerated swings
 
-            // Subtle brass sparkle on hit
+            // Temporal Rewind: every 8th melee hit restores 25% of recent damage taken
+            meleeHitCounter++;
+            if (meleeHitCounter >= 8)
+            {
+                meleeHitCounter = 0;
+                int healAmount = System.Math.Min((int)(recentDamageTaken * 0.25f), 40);
+                if (healAmount > 0)
+                    Player.Heal(healAmount);
+                recentDamageTaken = 0;
+            }
+
+            // Subtle brass sparkle on hit (keep existing minimal VFX)
             if (Main.rand.NextBool(3))
             {
                 for (int i = 0; i < 2; i++)
                 {
                     Vector2 pos = target.Center + Main.rand.NextVector2Circular(16f, 16f);
-                    var sparkle = new SparkleParticle(pos, Main.rand.NextVector2Circular(2f, 2f),
-                        new Color(205, 127, 50) * 0.6f, 0.3f, 15);
-                    MagnumParticleHandler.SpawnParticle(sparkle);
                 }
             }
         }
@@ -143,8 +167,9 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+55% ranged damage"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+30% ranged critical strike chance"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Ranged critical hits slow enemies by 50% for 2 seconds"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "20% chance to not consume ammo"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Ranged critical hits disrupt enemy tempo"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Affected enemies deal 15% less damage and move slowly"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "20% chance to not consume ammo"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Harmony fractures, and the world slows to a crawl'")
             {
                 OverrideColor = IceBlue
@@ -165,6 +190,7 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfClairDeLune>(), 15)
                 .AddIngredient(ModContent.ItemType<ClairDeLuneResonantEnergy>(), 10)
                 .AddIngredient(ModContent.ItemType<HarmonicCoreOfClairDeLune>(), 1)
+                .AddIngredient(ModContent.ItemType<ShardOfClairDeLunesTempo>(), 5)
                 .AddIngredient(ItemID.LunarBar, 10)
                 .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
                 .Register();
@@ -187,14 +213,12 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
             if (hit.Crit)
             {
                 target.AddBuff(BuffID.Slow, 120); // 2 seconds slow
+                target.GetGlobalNPC<ClairDeLuneAccessoryGlobalNPC>().ApplyBulletTime(target);
 
-                // Small temporal shimmer on crit
+                // Small temporal shimmer on crit (keep existing minimal VFX)
                 for (int i = 0; i < 3; i++)
                 {
                     Vector2 pos = target.Center + Main.rand.NextVector2Circular(12f, 12f);
-                    var glow = new GenericGlowParticle(pos, Main.rand.NextVector2Circular(1f, 1f),
-                        new Color(150, 200, 255) * 0.5f, 0.2f, 10, true);
-                    MagnumParticleHandler.SpawnParticle(glow);
                 }
             }
         }
@@ -226,8 +250,9 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+55% magic damage"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+30% magic critical strike chance"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Magic attacks inflict Frostburn, dealing damage over time"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "-25% mana cost"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Magic attacks may fracture time around enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Enemies in fractured zones take 10% increased damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "-25% mana cost"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The sand still falls, but time has long since stopped'")
             {
                 OverrideColor = IceBlue
@@ -248,6 +273,8 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfClairDeLune>(), 15)
                 .AddIngredient(ModContent.ItemType<ClairDeLuneResonantEnergy>(), 10)
                 .AddIngredient(ModContent.ItemType<HarmonicCoreOfClairDeLune>(), 1)
+                .AddIngredient(ModContent.ItemType<LuneEssence>(), 8)
+                .AddIngredient(ModContent.ItemType<ShardOfClairDeLunesTempo>(), 5)
                 .AddIngredient(ItemID.LunarBar, 10)
                 .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
                 .Register();
@@ -258,24 +285,75 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
     {
         public bool hourglassActive;
 
+        // Time Fracture zone tracking (max 2)
+        public Vector2[] zonePositions = new Vector2[2];
+        public int[] zoneTimers = new int[2];
+
         public override void ResetEffects()
         {
             hourglassActive = false;
+        }
+
+        public override void PostUpdate()
+        {
+            // Update time fracture zones
+            for (int i = 0; i < 2; i++)
+            {
+                if (zoneTimers[i] > 0)
+                {
+                    zoneTimers[i]--;
+
+                    // Zone VFX: ice-blue dust swirling at zone center every 30 frames
+                    if (zoneTimers[i] % 30 == 0)
+                    {
+                        for (int d = 0; d < 2; d++)
+                        {
+                            Vector2 offset = Main.rand.NextVector2CircularEdge(40f, 40f);
+                            Dust dust = Dust.NewDustDirect(zonePositions[i] + offset,
+                                0, 0, DustID.IceTorch, -offset.X * 0.02f, -offset.Y * 0.02f, 100, default, 0.8f);
+                            dust.noGravity = true;
+                        }
+                    }
+                }
+            }
         }
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
             if (!hourglassActive || proj.DamageType != DamageClass.Magic || !proj.friendly) return;
 
-            target.AddBuff(BuffID.Frostburn2, 180); // Frostburn for 3 seconds
+            // 12% chance to create a time fracture zone
+            if (Main.rand.NextFloat() < 0.12f)
+            {
+                // Find an available slot (or overwrite oldest)
+                int slot = -1;
+                for (int i = 0; i < 2; i++)
+                {
+                    if (zoneTimers[i] <= 0) { slot = i; break; }
+                }
+                if (slot == -1)
+                {
+                    // Overwrite the one with less time remaining
+                    slot = zoneTimers[0] < zoneTimers[1] ? 0 : 1;
+                }
 
-            // Subtle pearl sparkle on magic hit
+                zonePositions[slot] = target.Center;
+                zoneTimers[slot] = 180; // 3 seconds
+
+                // Zone spawn VFX
+                for (int d = 0; d < 4; d++)
+                {
+                    Vector2 vel = Main.rand.NextVector2CircularEdge(3f, 3f);
+                    Dust dust = Dust.NewDustDirect(target.Center, 0, 0,
+                        DustID.IceTorch, vel.X, vel.Y, 80, default, 1.0f);
+                    dust.noGravity = true;
+                }
+            }
+
+            // Subtle pearl sparkle on magic hit (keep existing minimal VFX)
             if (Main.rand.NextBool(4))
             {
                 Vector2 pos = target.Center + Main.rand.NextVector2Circular(10f, 10f);
-                var sparkle = new SparkleParticle(pos, Main.rand.NextVector2Circular(1.5f, 1.5f),
-                    new Color(220, 225, 240) * 0.5f, 0.25f, 12);
-                MagnumParticleHandler.SpawnParticle(sparkle);
             }
         }
     }
@@ -306,7 +384,7 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+65% summon damage"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+4 max minions"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Minions inflict Shadowflame on hit"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Minion attacks may summon temporal echoes that strike once"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "+25% whip speed and range"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The sigil hums, and forgotten servants answer across the ages'")
             {
@@ -329,6 +407,7 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfClairDeLune>(), 15)
                 .AddIngredient(ModContent.ItemType<ClairDeLuneResonantEnergy>(), 10)
                 .AddIngredient(ModContent.ItemType<HarmonicCoreOfClairDeLune>(), 1)
+                .AddIngredient(ModContent.ItemType<ShardOfClairDeLunesTempo>(), 5)
                 .AddIngredient(ItemID.LunarBar, 10)
                 .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
                 .Register();
@@ -348,15 +427,38 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
         {
             if (!sigilActive || !proj.minion || !proj.friendly) return;
 
-            target.AddBuff(BuffID.ShadowFlame, 180); // Shadowflame for 3 seconds
+            // 8% chance to spawn a temporal echo
+            if (Main.rand.NextFloat() < 0.08f && Main.myPlayer == Player.whoAmI)
+            {
+                // Count active echo projectiles
+                int activeEchoes = 0;
+                for (int i = 0; i < Main.maxProjectiles; i++)
+                {
+                    if (Main.projectile[i].active && Main.projectile[i].owner == Player.whoAmI &&
+                        Main.projectile[i].type == ProjectileID.StardustDragon4)
+                        activeEchoes++;
+                }
 
-            // Subtle temporal shimmer when minions hit
+                if (activeEchoes < 2)
+                {
+                    // Spawn echo at hit location aimed at nearest enemy
+                    Vector2 velocity = Main.rand.NextVector2CircularEdge(6f, 6f);
+                    int echoDamage = (int)(damageDone * 0.6f);
+                    int echoProj = Projectile.NewProjectile(
+                        Player.GetSource_Accessory(Player.armor[0]),
+                        target.Center, velocity,
+                        ProjectileID.StardustDragon4,
+                        echoDamage, 2f, Player.whoAmI
+                    );
+                    if (echoProj >= 0 && echoProj < Main.maxProjectiles)
+                        Main.projectile[echoProj].timeLeft = 90; // 1.5 seconds
+                }
+            }
+
+            // Subtle temporal shimmer when minions hit (keep existing minimal VFX)
             if (Main.rand.NextBool(5))
             {
                 Vector2 pos = target.Center + Main.rand.NextVector2Circular(10f, 10f);
-                var glow = new GenericGlowParticle(pos, Main.rand.NextVector2Circular(1f, 1f),
-                    new Color(205, 127, 50) * 0.4f, 0.2f, 10, true);
-                MagnumParticleHandler.SpawnParticle(glow);
             }
         }
     }

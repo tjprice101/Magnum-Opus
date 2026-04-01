@@ -12,6 +12,8 @@ namespace MagnumOpus.Content.OdeToJoy.Enemies
 {
     public class JubilantColossus : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/OdeToJoy/Enemies/JubilantColossus/JubilantColossus";
+
         private static readonly Color JoyGold = new Color(255, 200, 50);
         private static readonly Color JoyAmber = new Color(240, 170, 40);
 

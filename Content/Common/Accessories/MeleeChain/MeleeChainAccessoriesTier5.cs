@@ -40,14 +40,9 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Melee critical hits spawn homing lunar wisps")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Melee critical hits create lunar sparkle effects")
             {
                 OverrideColor = new Color(220, 220, 235)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "WispNote", "Wisps deal 50% of weapon damage")
-            {
-                OverrideColor = new Color(180, 180, 200)
             });
 
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The moon's soft melody guides your blade through the darkness'")
@@ -150,14 +145,9 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enemies killed with melee attacks explode")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enemies killed with melee attacks create a fire burst")
             {
                 OverrideColor = CampanellaOrange
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "ExplosionNote", "Explosion deals 75% of overkill damage to nearby enemies")
-            {
-                OverrideColor = new Color(255, 180, 100)
             });
 
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The bell's infernal toll echoes through eternity'")
@@ -210,7 +200,7 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
                 OverrideColor = EnigmaPurple
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Paradox", "Paradox: After 2 seconds, marked enemies take 30% of accumulated damage")
+            tooltips.Add(new TooltipLine(Mod, "Paradox", "Paradox: Deals damage over 3 seconds")
             {
                 OverrideColor = new Color(80, 180, 120)
             });
@@ -353,11 +343,6 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+15% melee damage during day")
             {
                 OverrideColor = new Color(255, 200, 150)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "TrailEffect", "Melee attacks leave cosmic trails")
-            {
-                OverrideColor = FateDarkPink
             });
 
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The cosmos itself plays the final symphony of destiny'")

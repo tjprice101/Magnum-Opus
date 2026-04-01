@@ -657,15 +657,15 @@
 | **Projectiles** | JudgmentFlameProjectile |
 | **Particles** | ArbiterParticle |
 
-### 7. Staff of Final Judgement
+### 7. Staff of Final Judgment
 | Field | Value |
 |-------|-------|
-| **Class** | `StaffOfFinalJudgement` |
-| **File** | `Content/DiesIrae/Weapons/StaffOfFinalJudgement/StaffOfFinalJudgement.cs` |
+| **Class** | `StaffOfFinalJudgment` |
+| **File** | `Content/DiesIrae/Weapons/StaffOfFinalJudgment/StaffOfFinalJudgment.cs` |
 | **Weapon Class** | Magic |
 | **Description** | Magic staff summoning floating ignition projectiles. |
 | **Projectiles** | FloatingIgnitionProjectile |
-| **Particles** | JudgementParticle |
+| **Particles** | JudgmentParticle |
 
 ### 8. Grimoire of Condemnation
 | Field | Value |
@@ -699,16 +699,16 @@
 | **Shaders** | BellShaderLoader |
 | **Buffs** | DeathTollingBellBuff |
 
-### 11. Harmony of Judgement
+### 11. Harmony of Judgment
 | Field | Value |
 |-------|-------|
-| **Class** | `HarmonyOfJudgement` |
-| **File** | `Content/DiesIrae/Weapons/HarmonyOfJudgement/HarmonyOfJudgement.cs` |
+| **Class** | `HarmonyOfJudgment` |
+| **File** | `Content/DiesIrae/Weapons/HarmonyOfJudgment/HarmonyOfJudgment.cs` |
 | **Weapon Class** | Summon |
 | **Description** | Summon staff deploying a judgment sigil minion. |
 | **Projectiles** | JudgmentSigilMinion |
 | **Particles** | HarmonyParticle |
-| **Buffs** | HarmonyOfJudgementBuff |
+| **Buffs** | HarmonyOfJudgmentBuff |
 
 ### 12. Wrathful Contract
 | Field | Value |

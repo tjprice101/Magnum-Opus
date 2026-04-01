@@ -213,7 +213,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.SakurasBurningWill
             }
             
             // Attack visuals with halo burst
-            CustomParticles.EroicaHalo(Projectile.Center, 0.55f);
             
             for (int i = 0; i < 10; i++)
             {
@@ -242,13 +241,11 @@ namespace MagnumOpus.Content.Eroica.Accessories.SakurasBurningWill
             // Pulsing halo effect for ghostly presence
             if (Main.GameUpdateCount % 18 == 0)
             {
-                CustomParticles.EroicaHalo(Projectile.Center, 0.45f);
             }
             
             // Trail effect while moving
             if (Projectile.velocity.Length() > 2f)
             {
-                CustomParticles.EroicaTrail(Projectile.Center, Projectile.velocity, 0.3f);
             }
             
             // Ghostly flame body

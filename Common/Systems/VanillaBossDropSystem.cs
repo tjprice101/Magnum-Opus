@@ -4,11 +4,12 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.MoonlightSonata.Enemies;
 using MagnumOpus.Content.Common.Consumables;
+using MagnumOpus.Content.Items;
 
 namespace MagnumOpus.Common.Systems
 {
     /// <summary>
-    /// Adds drops to Moon Lord: tempo shards, Crystallized Harmony, and Arcane Harmonic Prism.
+    /// Adds drops to Moon Lord: tempo shards, Crystallized Harmony, Arcane Harmonic Prism, and Heart of Music.
     /// </summary>
     public class VanillaBossDropSystem : GlobalNPC
     {
@@ -30,6 +31,9 @@ namespace MagnumOpus.Common.Systems
 
                     // Moon Lord ALWAYS drops Arcane Harmonic Prism (3-5) - permanent +20 max mana per use
                     npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<ArcaneHarmonicPrism>(), 1, 3, 5));
+
+                    // Moon Lord ALWAYS drops Heart of Music (1) - unlocks Harmonic Core accessory slots
+                    npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<HeartOfMusic>(), 1, 1, 1));
                     break;
             }
         }

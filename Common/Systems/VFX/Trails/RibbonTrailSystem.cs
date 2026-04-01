@@ -422,7 +422,7 @@ namespace MagnumOpus.Common.Systems.VFX
             {
                 _instance.RenderAllRibbonsInternal(spriteBatch);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Silently handle render errors to prevent crashes
                 // Ribbons failing to render is not critical
@@ -437,8 +437,6 @@ namespace MagnumOpus.Common.Systems.VFX
             
             // Check if SpriteBatch is active before ending
             // Use reflection to check internal _begun field, or just skip the End/Begin cycle
-            bool endedSpriteBatch = false;
-            
             // Save render state
             var oldBlendState = device.BlendState;
             var oldRasterizerState = device.RasterizerState;

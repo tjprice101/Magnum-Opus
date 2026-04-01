@@ -32,22 +32,6 @@ namespace MagnumOpus.Content.Winter.Accessories
             player.frostBurn = true; // Inflicts Frostburn
         }
 
-        public override void HoldItem(Player player)
-        {
-            // Ambient frost crystals - every 20 frames
-            if ((int)Main.GameUpdateCount % 20 == 0)
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(26f, 26f);
-                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -0.3f);
-                Dust d = Dust.NewDustPerfect(pos, DustID.Frost, vel, 0, new Color(150, 220, 255), 0.8f);
-                d.noGravity = true;
-            }
-
-            // Pulsing frost lighting
-            float pulse = 0.25f + 0.15f * (float)Math.Sin(Main.GlobalTimeWrappedHourly * 2f);
-            Lighting.AddLight(player.Center, new Color(150, 220, 255).ToVector3() * pulse);
-        }
-
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             Color winterBlue = new Color(173, 216, 230);
@@ -65,6 +49,7 @@ namespace MagnumOpus.Content.Winter.Accessories
                 .AddIngredient(ModContent.ItemType<WinterResonantEnergy>(), 2)
                 .AddIngredient(ModContent.ItemType<FrostEssence>(), 4)
                 .AddIngredient(ModContent.ItemType<ShardOfStillness>(), 12)
+                .AddIngredient(ModContent.ItemType<FrozenCore>(), 1)
                 .AddIngredient(ItemID.FrostCore, 1)
                 .AddTile(TileID.MythrilAnvil)
                 .Register();
@@ -98,26 +83,6 @@ namespace MagnumOpus.Content.Winter.Accessories
                 player.lifeRegen += 4; // +4 more regen when still
                 player.endurance += 0.1f; // 10% damage reduction when still
             }
-        }
-
-        public override void HoldItem(Player player)
-        {
-            // Ambient frost aura - every 18 frames
-            if ((int)Main.GameUpdateCount % 18 == 0)
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(30f, 30f);
-                Vector2 vel = (player.Center - pos).SafeNormalize(Vector2.Zero) * 0.4f;
-                Dust d = Dust.NewDustPerfect(pos, DustID.Frost, vel, 0, new Color(200, 230, 255), 0.8f);
-                d.noGravity = true;
-            }
-
-            // Stronger glow when stationary
-            float pulse = 0.3f + 0.15f * (float)Math.Sin(Main.GlobalTimeWrappedHourly * 2.5f);
-            if (player.velocity.Length() < 1f)
-            {
-                pulse += 0.2f; // Enhanced glow when still
-            }
-            Lighting.AddLight(player.Center, new Color(200, 230, 255).ToVector3() * pulse);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -188,6 +153,7 @@ namespace MagnumOpus.Content.Winter.Accessories
                 .AddIngredient(ModContent.ItemType<WinterResonantEnergy>(), 3)
                 .AddIngredient(ModContent.ItemType<FrostEssence>(), 6)
                 .AddIngredient(ModContent.ItemType<ShardOfStillness>(), 18)
+                .AddIngredient(ModContent.ItemType<IcicleCoronet>(), 1)
                 .AddIngredient(ItemID.FrozenTurtleShell, 1)
                 .AddTile(TileID.MythrilAnvil)
                 .Register();
@@ -218,64 +184,24 @@ namespace MagnumOpus.Content.Winter.Accessories
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            Color winterBlue = new Color(150, 220, 255);
-            Color winterWhite = new Color(240, 250, 255);
-
             if (frostbiteAmuletEquipped)
             {
-                // 3-layer flash cascade
-                CustomParticles.GenericFlare(target.Center, Color.White, 0.62f, 20);
-                CustomParticles.GenericFlare(target.Center, winterBlue, 0.52f, 18);
-                CustomParticles.GenericFlare(target.Center, winterWhite, 0.42f, 16);
-
-                // 6-point frost shard burst
-                for (int i = 0; i < 6; i++)
+                for (int i = 0; i < 2; i++)
                 {
-                    float angle = MathHelper.TwoPi * i / 6f;
-                    Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
-                    Dust d = Dust.NewDustPerfect(target.Center, DustID.Frost, burstVel, 0, winterBlue, 0.85f);
+                    Dust d = Dust.NewDustDirect(target.Center + Main.rand.NextVector2Circular(10f, 10f),
+                        0, 0, DustID.Frost, 0f, -1f, 100, default, 0.8f);
                     d.noGravity = true;
                 }
-
-                // 2 halo rings
-                CustomParticles.HaloRing(target.Center, winterBlue, 0.38f, 16);
-                CustomParticles.HaloRing(target.Center, winterWhite * 0.8f, 0.3f, 14);
-
-                // Music notes
-                ThemedParticles.MusicNote(target.Center + new Vector2(-8, 0), Vector2.Zero, winterBlue, 0.7f, 30);
-                ThemedParticles.MusicNote(target.Center + new Vector2(8, 0), Vector2.Zero, winterWhite, 0.7f, 32);
-
-                Lighting.AddLight(target.Center, winterBlue.ToVector3() * 0.5f);
             }
 
             if (stillnessShrineEquipped)
             {
-                Color winterBlue2 = new Color(173, 216, 230);
-                Color winterWhite2 = new Color(200, 230, 255);
-
-                // 3-layer flash cascade
-                CustomParticles.GenericFlare(target.Center, Color.White, 0.58f, 18);
-                CustomParticles.GenericFlare(target.Center, winterWhite2, 0.48f, 16);
-                CustomParticles.GenericFlare(target.Center, winterBlue2, 0.4f, 14);
-
-                // 7-point defensive burst
-                for (int i = 0; i < 7; i++)
+                for (int i = 0; i < 2; i++)
                 {
-                    float angle = MathHelper.TwoPi * i / 7f;
-                    Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(1.5f, 3.5f);
-                    Dust d = Dust.NewDustPerfect(target.Center, DustID.Frost, burstVel, 0, winterBlue2, 0.8f);
+                    Dust d = Dust.NewDustDirect(target.Center + Main.rand.NextVector2Circular(10f, 10f),
+                        0, 0, DustID.IceTorch, 0f, -1f, 100, default, 0.8f);
                     d.noGravity = true;
                 }
-
-                // 2 halo rings
-                CustomParticles.HaloRing(target.Center, winterWhite2, 0.36f, 16);
-                CustomParticles.HaloRing(target.Center, winterBlue2 * 0.8f, 0.28f, 14);
-
-                // Music notes
-                ThemedParticles.MusicNote(target.Center + new Vector2(-10, 0), Vector2.Zero, winterBlue2, 0.72f, 32);
-                ThemedParticles.MusicNote(target.Center + new Vector2(10, 0), Vector2.Zero, winterWhite2, 0.72f, 34);
-
-                Lighting.AddLight(target.Center, winterWhite2.ToVector3() * 0.5f);
             }
         }
     }

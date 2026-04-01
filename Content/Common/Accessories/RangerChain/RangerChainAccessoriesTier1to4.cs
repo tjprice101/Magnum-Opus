@@ -37,7 +37,12 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Ranged attacks mark enemies with a glowing indicator")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+5% ranged damage")
+            {
+                OverrideColor = new Color(255, 180, 180)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Ranged attacks mark enemies with a glowing indicator")
             {
                 OverrideColor = new Color(255, 180, 180)
             });
@@ -215,7 +220,7 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
                 OverrideColor = new Color(255, 200, 150)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "CritEffect", "Standard: 1 enemy (200 units); At max stacks: ALL enemies (300 units)")
+            tooltips.Add(new TooltipLine(Mod, "CritEffect", "Standard: 1 enemy (200 units); At max stacks: all enemies (300 units)")
             {
                 OverrideColor = new Color(255, 150, 100)
             });

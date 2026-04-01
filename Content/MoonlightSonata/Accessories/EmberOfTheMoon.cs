@@ -84,7 +84,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'A dying star's last breath of magic'")
             {
-                OverrideColor = new Color(120, 120, 180)
+                OverrideColor = new Color(140, 100, 200)
             });
         }
 

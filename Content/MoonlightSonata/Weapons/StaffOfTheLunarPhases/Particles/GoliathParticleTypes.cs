@@ -228,7 +228,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
     /// Floating music note that drifts upward from beam impact points.
     /// Musical identity of the Moonlight Sonata theme.
     /// </summary>
-    public class MusicNoteParticle : GoliathParticle
+    public class GoliathMusicNoteParticle : GoliathParticle
     {
         public override bool SetLifetime => true;
         public override bool UseAdditiveBlend => true;
@@ -237,7 +237,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
         private readonly bool _useAltNote;
         private readonly float _wobblePhase;
 
-        public MusicNoteParticle(Vector2 position, Vector2 velocity, Color color, float scale, int lifetime)
+        public GoliathMusicNoteParticle(Vector2 position, Vector2 velocity, Color color, float scale, int lifetime)
         {
             Position = position;
             Velocity = velocity;
@@ -379,7 +379,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
     /// Expanding soft bloom at beam impact points.
     /// Rapid expansion with smooth fade-out.
     /// </summary>
-    public class ImpactBloomParticle : GoliathParticle
+    public class GoliathImpactBloomParticle : GoliathParticle
     {
         public override bool SetLifetime => true;
         public override bool UseAdditiveBlend => true;
@@ -387,7 +387,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.StaffOfTheLunarPhases.Parti
 
         private readonly float _maxScale;
 
-        public ImpactBloomParticle(Vector2 position, Color color, float maxScale, int lifetime)
+        public GoliathImpactBloomParticle(Vector2 position, Color color, float maxScale, int lifetime)
         {
             Position = position;
             Velocity = Vector2.Zero;

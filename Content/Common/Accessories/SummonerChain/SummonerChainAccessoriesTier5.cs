@@ -141,7 +141,7 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
                 OverrideColor = CampanellaOrange
             });
 
-            tooltips.Add(new TooltipLine(Mod, "BurnNote", "Burn: 3 damage per second for 5 seconds")
+            tooltips.Add(new TooltipLine(Mod, "BurnNote", "Inflicts On Fire! for 5 seconds")
             {
                 OverrideColor = new Color(255, 180, 80)
             });

@@ -93,6 +93,7 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
                 .AddIngredient(ItemID.FragmentStardust, 10)
                 .AddIngredient(ItemID.LunarBar, 8)
                 .AddIngredient(ItemID.FallenStar, 20)
+                .AddIngredient(ModContent.ItemType<ShardOfNachtmusiksTempo>(), 5)
                 .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
                 .Register();
         }
@@ -163,17 +164,12 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
             foreach (Vector2 minionPos in minionPositions)
             {
                 // Visual burst at minion
-                CustomParticles.GenericFlare(minionPos, StarWhite, 0.8f, 18);
-                CustomParticles.GenericFlare(minionPos, Gold, 0.6f, 16);
 
                 // Music note burst on constellation strike
 
                 // Star sparkle accents
                 for (int j = 0; j < 3; j++)
                 {
-                    var sparkle = new SparkleParticle(minionPos + Main.rand.NextVector2Circular(10f, 10f),
-                        Main.rand.NextVector2Circular(2f, 2f), new Color(255, 250, 240) * 0.5f, 0.2f, 15);
-                    MagnumParticleHandler.SpawnParticle(sparkle);
                 }
                 
                 // Expanding star burst
@@ -181,23 +177,9 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
                 {
                     float angle = MathHelper.TwoPi * i / 8f;
                     Vector2 burstDir = angle.ToRotationVector2();
-                    for (int j = 0; j < 4; j++)
-                    {
-                        float dist = 15f + j * 20f;
-                        Vector2 pos = minionPos + burstDir * dist;
-                        float progress = j / 4f;
-                        Color starColor = Color.Lerp(Gold, DeepPurple, progress);
-                        CustomParticles.GenericFlare(pos, starColor * (1f - progress * 0.4f), 0.25f - progress * 0.1f, 12);
-                    }
                 }
 
                 // Halo rings
-                for (int ring = 0; ring < 3; ring++)
-                {
-                    float ringProgress = ring / 3f;
-                    Color ringColor = Color.Lerp(Gold, Violet, ringProgress);
-                    CustomParticles.HaloRing(minionPos, ringColor, 0.3f + ring * 0.1f, 14 + ring * 2);
-                }
 
                 // Damage enemies near this minion
                 foreach (NPC npc in Main.npc)
@@ -216,7 +198,6 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
                         }
 
                         // VFX on hit enemy
-                        CustomParticles.GenericFlare(npc.Center, Gold, 0.4f, 12);
                     }
                 }
 
@@ -232,21 +213,8 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
             direction.Normalize();
 
             int segments = (int)(distance / 20f);
-            for (int i = 0; i <= segments; i++)
-            {
-                float progress = (float)i / segments;
-                Vector2 point = Vector2.Lerp(start, end, progress);
-
-                // Color gradient along line
-                Color lineColor = Color.Lerp(Gold, Violet, progress);
-                float scale = 0.2f * (1f - System.Math.Abs(progress - 0.5f) * 0.3f);
-
-                CustomParticles.GenericFlare(point, lineColor * 0.7f, scale, 10);
-            }
 
             // Star at each end
-            CustomParticles.GenericFlare(start, StarWhite, 0.3f, 12);
-            CustomParticles.GenericFlare(end, StarWhite, 0.3f, 12);
         }
     }
 }

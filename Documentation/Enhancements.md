@@ -5070,7 +5070,7 @@ Concept art for a side-view idle pixel art sprite of an ancient celestial crysta
 Concept art for a Terraria buff icon featuring a glowing black iron death bell with crimson flame emanating from within, contained within an ornate gothic frame of burning chains and judgment symbols, the bell at center with doom toll resonance waves, blood red and black metal frame with silver filigree accents, music notes subtly incorporated into frame corners, infernal flames flickering around edges, ornate baroque-style border, pixel art style buff icon, dramatic lighting, haunting bell imagery, detailed intricate frame, centered composition, --v 7.0 --ar 1:1
 ```
 
-**Harmony of Judgement Buff** (32x32)
+**Harmony of Judgment Buff** (32x32)
 ```
 Concept art for a Terraria buff icon featuring a celestial angelic judge face with burning crimson eyes and golden halo partially corrupted by black flame, contained within an ornate gothic frame of balanced scales and verdict symbols, the judge at center with judgment rays emanating, blood red and black metal frame with gold filigree accents, music notes subtly incorporated into frame corners, infernal flames flickering around edges, ornate baroque-style border, pixel art style buff icon, dramatic lighting, divine judgment imagery, detailed intricate frame, centered composition, --v 7.0 --ar 1:1
 ```

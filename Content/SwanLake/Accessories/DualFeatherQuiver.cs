@@ -240,8 +240,6 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             }
             
             // Rainbow flare
-            CustomParticles.GenericFlare(position, Color.White, 0.5f, 18);
-            ThemedParticles.SwanLakeFractalTrail(position, 0.5f);
         }
     }
 
@@ -510,13 +508,11 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             // Occasional rainbow flare
             if (Main.rand.NextBool(6))
             {
-                CustomParticles.GenericFlare(Projectile.Center, rainbowColor, 0.35f, 14);
             }
             
             // Fractal sparkle effect occasionally
             if (Main.rand.NextBool(10))
             {
-                ThemedParticles.SwanLakeFractalTrail(Projectile.Center, 0.4f);
             }
             
             // Pearlescent shimmer
@@ -538,8 +534,6 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             {
                 float noteHue = (Main.GameUpdateCount * 0.01f + Projectile.whoAmI * 0.1f) % 1f;
                 Color noteColor = Main.hslToRgb(noteHue, 1f, 0.85f);
-                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f), 
-                    -Projectile.velocity * 0.1f, noteColor, 0.35f, 20);
             }
             
             // Rainbow cycling light
@@ -589,12 +583,10 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             }
             
             // Fractal burst
-            ThemedParticles.SwanLakeFractalGemBurst(Projectile.Center, Color.Black, 0.5f, 4, false);
             
             // ☁EMUSICAL FINALE - Rainbow feathered symphony
             float finaleHue = (Main.GameUpdateCount * 0.02f) % 1f;
             Color finaleColor = Main.hslToRgb(finaleHue, 1f, 0.85f);
-            ThemedParticles.MusicNoteBurst(Projectile.Center, finaleColor, 6, 4f);
         }
         
         public override bool PreDraw(ref Color lightColor)
@@ -741,8 +733,6 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             {
                 float noteHue = (Main.GameUpdateCount * 0.01f + Projectile.whoAmI * 0.2f) % 1f;
                 Color noteColor = Main.hslToRgb(noteHue, 0.4f, 0.9f);
-                ThemedParticles.MusicNote(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f), 
-                    new Vector2(0, -0.5f), noteColor * 0.8f, 0.25f, 18);
             }
             
             // Check for player pickup
@@ -792,7 +782,6 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                 }
                 
                 // ☁EMUSICAL HEALING - Healing feather symphony
-                ThemedParticles.MusicNoteBurst(Projectile.Center, Color.White, 5, 3.5f);
                 
                 Projectile.Kill();
             }

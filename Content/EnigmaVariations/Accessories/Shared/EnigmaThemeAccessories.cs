@@ -9,6 +9,7 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.EnigmaVariations.ResonanceEnergies;
 using MagnumOpus.Content.EnigmaVariations.HarmonicCores;
+using MagnumOpus.Content.Materials.EnemyDrops;
 
 namespace MagnumOpus.Content.EnigmaVariations.Accessories
 {
@@ -79,7 +80,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
             });
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'A piece of a puzzle no one was meant to solve'")
             {
-                OverrideColor = new Color(100, 100, 100)
+                OverrideColor = new Color(140, 60, 200)
             });
         }
     }
@@ -128,22 +129,12 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
                 target.AddBuff(debuffId, 180); // 3 seconds
                 
                 // Mysterious VFX on Paradox application
-                for (int i = 0; i < 8; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 8f;
-                    Vector2 offset = angle.ToRotationVector2() * 20f;
-                    Color color = Color.Lerp(EnigmaColors.DeepPurple, EnigmaColors.GreenFlame, (float)i / 8f);
-                    CustomParticles.GenericFlare(target.Center + offset, color, 0.35f, 15);
-                }
                 
                 // Glyph burst
-                CustomParticles.GlyphBurst(target.Center, EnigmaColors.Purple, 4, 3f);
                 
                 // Watching eye at center
-                CustomParticles.EnigmaEyeGaze(target.Center, EnigmaColors.GreenFlame, 0.5f, null);
                 
                 // Halo ring
-                CustomParticles.HaloRing(target.Center, EnigmaColors.Purple, 0.4f, 18);
             }
         }
     }
@@ -191,6 +182,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
                 .AddIngredient<HarmonicCoreOfEnigma>(2)
                 .AddIngredient<EnigmaResonantEnergy>(15)
                 .AddIngredient<RemnantOfMysteries>(5)
+                .AddIngredient<MysteryEssence>(10)
                 .AddIngredient(ItemID.FragmentNebula, 10)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
@@ -216,7 +208,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
             });
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'The answer was void all along'")
             {
-                OverrideColor = new Color(100, 100, 100)
+                OverrideColor = new Color(140, 60, 200)
             });
         }
     }
@@ -302,28 +294,13 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
                 
                 // VFX based on stack count
                 int particleCount = 6 + currentStacks * 2;
-                for (int i = 0; i < particleCount; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / particleCount;
-                    Vector2 offset = angle.ToRotationVector2() * (15f + currentStacks * 5f);
-                    float progress = (float)i / particleCount;
-                    Color color = Color.Lerp(EnigmaColors.DeepPurple, EnigmaColors.GreenFlame, progress);
-                    CustomParticles.GenericFlare(target.Center + offset, color, 0.3f + currentStacks * 0.05f, 18);
-                }
                 
                 // Glyph circle intensity grows with stacks
-                CustomParticles.GlyphBurst(target.Center, EnigmaColors.Purple, 3 + currentStacks, 3f + currentStacks * 0.5f);
                 
                 // Multiple watching eyes for higher stacks
                 int eyeCount = Math.Min(currentStacks, 3);
-                for (int i = 0; i < eyeCount; i++)
-                {
-                    Vector2 eyeOffset = Main.rand.NextVector2Circular(30f, 30f);
-                    CustomParticles.EnigmaEyeGaze(target.Center + eyeOffset, EnigmaColors.GreenFlame, 0.45f, Player.Center);
-                }
                 
                 // Halo with intensity
-                CustomParticles.HaloRing(target.Center, EnigmaColors.Purple * (0.5f + currentStacks * 0.1f), 0.35f + currentStacks * 0.1f, 18);
                 
                 // VOID COLLAPSE at 5 stacks!
                 if (currentStacks >= 5)
@@ -339,39 +316,14 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
             // Massive VFX explosion
             
             // Phase 1: Central void flash
-            CustomParticles.GenericFlare(target.Center, Color.White, 1.5f, 30);
-            CustomParticles.GenericFlare(target.Center, EnigmaColors.GreenFlame, 1.2f, 28);
-            CustomParticles.GenericFlare(target.Center, EnigmaColors.DeepPurple, 1.0f, 25);
             
             // Phase 2: Cascading halo rings
-            for (int ring = 0; ring < 10; ring++)
-            {
-                float progress = ring / 10f;
-                Color ringColor = Color.Lerp(EnigmaColors.VoidBlack, EnigmaColors.GreenFlame, progress);
-                CustomParticles.HaloRing(target.Center, ringColor, 0.4f + ring * 0.15f, 20 + ring * 3);
-            }
             
             // Phase 3: Glyph spiral burst
-            for (int i = 0; i < 16; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 16f;
-                float radius = 30f + i * 8f;
-                Vector2 pos = target.Center + angle.ToRotationVector2() * radius;
-                CustomParticles.Glyph(pos, EnigmaColors.Purple, 0.5f, -1);
-            }
             
             // Phase 4: Eye formation watching outward
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                Vector2 eyePos = target.Center + angle.ToRotationVector2() * 50f;
-                Vector2 lookDir = angle.ToRotationVector2();
-                CustomParticles.EnigmaEyeGaze(eyePos, EnigmaColors.GreenFlame, 0.6f, eyePos + lookDir * 100f);
-            }
             
             // Phase 5: Particle explosion
-            CustomParticles.ExplosionBurst(target.Center, EnigmaColors.Purple, 20, 12f);
-            CustomParticles.ExplosionBurst(target.Center, EnigmaColors.GreenFlame, 15, 10f);
             
             // Deal massive damage (200% of base damage)
             if (Main.myPlayer == Player.whoAmI)
@@ -393,15 +345,12 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
                             npc.SimpleStrikeNPC(voidDamage / 2, 0, false, 0, null, false, 0, true);
                             
                             // VFX on hit targets
-                            CustomParticles.GenericFlare(npc.Center, EnigmaColors.GreenFlame, 0.5f, 15);
-                            CustomParticles.GlyphBurst(npc.Center, EnigmaColors.Purple, 3, 2f);
                         }
                     }
                 }
             }
             
             // Screen shake
-            MagnumScreenEffects.AddScreenShake(12f);
             
             // Sound effect
             Terraria.Audio.SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.8f, Volume = 1.2f }, target.Center);

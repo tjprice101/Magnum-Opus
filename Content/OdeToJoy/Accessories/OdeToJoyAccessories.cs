@@ -10,6 +10,7 @@ using MagnumOpus.Content.OdeToJoy.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Content.OdeToJoy;
+using MagnumOpus.Content.Materials.EnemyDrops;
 
 namespace MagnumOpus.Content.OdeToJoy.Accessories
 {
@@ -57,6 +58,8 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfOdeToJoy>(), 18)
                 .AddIngredient(ModContent.ItemType<OdeToJoyResonantEnergy>(), 12)
                 .AddIngredient(ModContent.ItemType<HarmonicCoreOfOdeToJoy>(), 1)
+                .AddIngredient(ModContent.ItemType<JoyEssence>(), 8)
+                .AddIngredient(ModContent.ItemType<ShardOfOdeToJoysTempo>(), 5)
                 .AddIngredient(ItemID.LunarBar, 15)
                 .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
                 .Register();
@@ -84,12 +87,7 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
                     Player.Heal(healAmount);
                 }
                 
-                // Enhanced chromatic petal VFX
-                if (Main.rand.NextBool(3))
-                {
-                }
-                
-                // Every 10th hit: joyous bloom explosion with full signature effect
+                // Every 10th hit: joyous bloom explosion
                 magicHitCounter++;
                 if (magicHitCounter >= 10)
                 {
@@ -103,6 +101,14 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
                         {
                             Player.ApplyDamageToNPC(npc, damageDone / 3, 0f, 0, false);
                         }
+                    }
+
+                    // Bloom trigger VFX: green sparkle dust
+                    for (int d = 0; d < 3; d++)
+                    {
+                        Dust dust = Dust.NewDustDirect(target.Center + Main.rand.NextVector2Circular(14f, 14f),
+                            0, 0, DustID.GreenFairy, Main.rand.NextFloat(-1f, 1f), -1.5f, 100, default, 1.1f);
+                        dust.noGravity = true;
                     }
                 }
             }
@@ -129,8 +135,8 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+70% summon damage"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+4 max minions"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Minions leave verdant trails that slow enemies"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Minion attacks have 15% chance to spawn a healing flower"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Minions slow enemies on hit"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Minion hits may plant healing flowers that restore health nearby"));
             tooltips.Add(new TooltipLine(Mod, "Effect5", "+25% whip speed and range"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The endless melody of nature's eternal chorus'") 
             { 
@@ -154,6 +160,8 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfOdeToJoy>(), 18)
                 .AddIngredient(ModContent.ItemType<OdeToJoyResonantEnergy>(), 12)
                 .AddIngredient(ModContent.ItemType<HarmonicCoreOfOdeToJoy>(), 1)
+                .AddIngredient(ModContent.ItemType<JoyEssence>(), 8)
+                .AddIngredient(ModContent.ItemType<ShardOfOdeToJoysTempo>(), 5)
                 .AddIngredient(ItemID.LunarBar, 15)
                 .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
                 .Register();
@@ -164,9 +172,43 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
     {
         public bool verdantRefrainActive = false;
 
+        // Healing flower tracking
+        private Vector2[] flowerPositions = new Vector2[3];
+        private int[] flowerTimers = new int[3];
+        private int activeFlowerCount = 0;
+
         public override void ResetEffects()
         {
             verdantRefrainActive = false;
+        }
+
+        public override void PostUpdate()
+        {
+            // Update healing flowers
+            for (int i = 0; i < 3; i++)
+            {
+                if (flowerTimers[i] > 0)
+                {
+                    flowerTimers[i]--;
+
+                    // Heal 2 HP/sec while player is within 200px
+                    if (flowerTimers[i] % 30 == 0 && Vector2.Distance(Player.Center, flowerPositions[i]) < 200f)
+                    {
+                        Player.Heal(1);
+                    }
+
+                    // Ambient flower dust every 30 frames
+                    if (flowerTimers[i] % 30 == 0)
+                    {
+                        Dust dust = Dust.NewDustDirect(flowerPositions[i] + Main.rand.NextVector2Circular(8f, 8f),
+                            0, 0, DustID.Grass, 0f, -0.5f, 100, default, 0.7f);
+                        dust.noGravity = true;
+                    }
+
+                    if (flowerTimers[i] <= 0)
+                        activeFlowerCount = System.Math.Max(0, activeFlowerCount - 1);
+                }
+            }
         }
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
@@ -175,23 +217,38 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
             {
                 // Slow enemies
                 target.AddBuff(BuffID.Slow, 180); // 3 seconds
-                
-                // 15% chance to spawn healing flower with enhanced VFX
-                if (Main.rand.NextFloat() < 0.15f)
+
+                // 15% chance to plant a healing flower
+                if (Main.rand.NextFloat() < 0.15f && activeFlowerCount < 3)
                 {
-                    // Heal the player
-                    int healAmount = (int)(damageDone * 0.05f);
-                    if (healAmount > 0)
+                    // Find an available slot
+                    for (int i = 0; i < 3; i++)
                     {
-                        Player.Heal(healAmount);
+                        if (flowerTimers[i] <= 0)
+                        {
+                            flowerPositions[i] = target.Center;
+                            flowerTimers[i] = 300; // 5 seconds
+                            activeFlowerCount++;
+
+                            // Spawn VFX: green + pink upward dust
+                            for (int d = 0; d < 3; d++)
+                            {
+                                int dustType = d < 2 ? DustID.Grass : DustID.PinkFairy;
+                                Dust dust = Dust.NewDustDirect(target.Center + Main.rand.NextVector2Circular(10f, 10f),
+                                    0, 0, dustType, 0f, -1.5f, 100, default, 0.9f);
+                                dust.noGravity = true;
+                            }
+                            break;
+                        }
                     }
-                    
-                    // Enhanced chromatic rose petal burst and harmonic sparkle
                 }
-                
-                // Enhanced chromatic vine trail VFX
-                if (Main.rand.NextBool(4))
+
+                // On-hit VFX: 1 green leaf dust
+                if (Main.rand.NextBool(3))
                 {
+                    Dust dust = Dust.NewDustDirect(target.Center + Main.rand.NextVector2Circular(8f, 8f),
+                        0, 0, DustID.Grass, 0f, -0.5f, 100, default, 0.7f);
+                    dust.noGravity = true;
                 }
             }
         }
@@ -217,9 +274,10 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+65% melee damage"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+40% melee speed"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Melee attacks heal for 12% of damage dealt"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Critical strikes cause blooming explosions that heal nearby allies"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "+20 defense while attacking"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Melee hits build towards a triumphant crescendo"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Every 8th hit releases a golden shockwave that heals"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Critical strikes heal nearby allies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "+20 defense while attacking"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The flower that blooms upon the conductor's heart, spreading joy to all'") 
             { 
                 OverrideColor = OdeToJoyPalette.RosePink 
@@ -240,6 +298,8 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfOdeToJoy>(), 18)
                 .AddIngredient(ModContent.ItemType<OdeToJoyResonantEnergy>(), 12)
                 .AddIngredient(ModContent.ItemType<HarmonicCoreOfOdeToJoy>(), 1)
+                .AddIngredient(ModContent.ItemType<JoyEssence>(), 8)
+                .AddIngredient(ModContent.ItemType<ShardOfOdeToJoysTempo>(), 5)
                 .AddIngredient(ItemID.LunarBar, 15)
                 .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
                 .Register();
@@ -250,6 +310,7 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
     {
         public bool conductorsCorsageActive = false;
         public int attackTimer = 0;
+        public int crescendoCounter = 0;
 
         public override void ResetEffects()
         {
@@ -285,33 +346,54 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
         private void ProcessMeleeHit(NPC target, NPC.HitInfo hit, int damageDone)
         {
             attackTimer = 60;
-            
-            // 12% lifesteal (POST-DIES IRAE ULTIMATE - Dies Irae: 8%)
-            int healAmount = (int)(damageDone * 0.12f);
-            if (healAmount > 0)
+
+            // On-hit VFX: 1 warm gold dust per hit
+            Dust dust = Dust.NewDustDirect(target.Center + Main.rand.NextVector2Circular(10f, 10f),
+                0, 0, DustID.GoldFlame, 0f, -0.5f, 100, default, 0.8f);
+            dust.noGravity = true;
+
+            // Crescendo counter
+            crescendoCounter++;
+            if (crescendoCounter >= 8)
             {
-                Player.Heal(healAmount);
+                crescendoCounter = 0;
+
+                // Golden shockwave: AoE damage in 200px
+                for (int i = 0; i < Main.maxNPCs; i++)
+                {
+                    NPC npc = Main.npc[i];
+                    if (npc.active && npc.CanBeChasedBy() && Vector2.Distance(npc.Center, target.Center) < 200f)
+                    {
+                        Player.ApplyDamageToNPC(npc, damageDone * 3 / 10, 0f, 0, false);
+                    }
+                }
+
+                // Heal player
+                Player.Heal(25);
+
+                // Shockwave VFX: gold dust expanding outward
+                for (int d = 0; d < 5; d++)
+                {
+                    Vector2 vel = Main.rand.NextVector2CircularEdge(4f, 4f);
+                    Dust shockDust = Dust.NewDustDirect(target.Center, 0, 0,
+                        DustID.GoldFlame, vel.X, vel.Y, 80, default, 1.3f);
+                    shockDust.noGravity = true;
+                }
+                Lighting.AddLight(target.Center, 1.0f, 0.85f, 0.3f);
             }
-            
-            // Enhanced chromatic vine trail on hit
-            
-            // Critical strikes cause blooming explosions that heal nearby allies
+
+            // Critical strikes heal nearby allies (multiplayer)
             if (hit.Crit)
             {
-                // Full chromatic rose petal explosion on crits
-                
-                // Heal nearby allies (multiplayer)
                 for (int i = 0; i < Main.maxPlayers; i++)
                 {
                     Player ally = Main.player[i];
-                    if (ally.active && !ally.dead && ally.whoAmI != Player.whoAmI && 
+                    if (ally.active && !ally.dead && ally.whoAmI != Player.whoAmI &&
                         Vector2.Distance(ally.Center, target.Center) < 200f)
                     {
                         int allyHeal = (int)(damageDone * 0.05f);
                         if (allyHeal > 0)
-                        {
                             ally.Heal(allyHeal);
-                        }
                     }
                 }
             }
@@ -338,10 +420,9 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+65% ranged damage"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+40% ranged critical strike chance"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Ranged attacks apply Ichor and Slow for 6 seconds"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Enemies lose 15 defense and are slowed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Ranged attacks slow enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Every 5th shot fires a volley of piercing thorns"));
             tooltips.Add(new TooltipLine(Mod, "Effect5", "20% chance to not consume ammo"));
-            tooltips.Add(new TooltipLine(Mod, "Effect6", "Every 5th shot fires a homing petal storm"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'A symphony played in petals and thorns, celebrating nature's triumph'") 
             { 
                 OverrideColor = OdeToJoyPalette.RosePink 
@@ -363,6 +444,8 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfOdeToJoy>(), 18)
                 .AddIngredient(ModContent.ItemType<OdeToJoyResonantEnergy>(), 12)
                 .AddIngredient(ModContent.ItemType<HarmonicCoreOfOdeToJoy>(), 1)
+                .AddIngredient(ModContent.ItemType<JoyEssence>(), 8)
+                .AddIngredient(ModContent.ItemType<ShardOfOdeToJoysTempo>(), 5)
                 .AddIngredient(ItemID.LunarBar, 15)
                 .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
                 .Register();
@@ -383,37 +466,40 @@ namespace MagnumOpus.Content.OdeToJoy.Accessories
         {
             if (symphonyActive && proj.DamageType == DamageClass.Ranged && proj.friendly && !proj.minion)
             {
-                // Mark with debuffs (Ichor for damage increase, Slow for movement)
-                target.AddBuff(BuffID.Ichor, 360); // 6 seconds - increases damage taken by 15
+                // Slow on hit
                 target.AddBuff(BuffID.Slow, 360); // 6 seconds
-                
-                // Enhanced chromatic vine VFX on mark
+
+                // On-hit VFX: rose-pink dust
                 if (Main.rand.NextBool(3))
                 {
+                    Dust dust = Dust.NewDustDirect(target.Center + Main.rand.NextVector2Circular(8f, 8f),
+                        0, 0, DustID.PinkFairy, 0f, -0.5f, 100, default, 0.8f);
+                    dust.noGravity = true;
                 }
-                
-                // Shot counter for bonus petal storm
+
+                // Shot counter for thorn volley
                 shotCounter++;
                 if (shotCounter >= 5)
                 {
                     shotCounter = 0;
-                    
-                    // Fire a homing petal storm projectile
+
+                    // Fire 3 piercing seed projectiles
                     if (Main.myPlayer == Player.whoAmI)
                     {
-                        Vector2 direction = (target.Center - Player.Center).SafeNormalize(Vector2.UnitX);
-                        Projectile.NewProjectile(
-                            Player.GetSource_Accessory(Player.armor.FirstOrDefault(i => i.type == ModContent.ItemType<SymphonyOfBlossoms>())),
-                            Player.Center, 
-                            direction * 12f,
-                            ProjectileID.FlowerPetal,
-                            (int)(damageDone * 0.6f),
-                            3f,
-                            Player.whoAmI
-                        );
+                        Vector2 baseDir = (target.Center - Player.Center).SafeNormalize(Vector2.UnitX);
+                        for (int i = -1; i <= 1; i++)
+                        {
+                            Vector2 direction = baseDir.RotatedBy(i * 0.15f) * 14f;
+                            Projectile.NewProjectile(
+                                Player.GetSource_Accessory(Player.armor.FirstOrDefault(a => a.type == ModContent.ItemType<SymphonyOfBlossoms>())),
+                                Player.Center, direction,
+                                ProjectileID.Seed,
+                                (int)(damageDone * 0.4f),
+                                2f,
+                                Player.whoAmI
+                            );
+                        }
                     }
-                    
-                    // Enhanced harmonic note sparkle on petal storm trigger
                 }
             }
         }

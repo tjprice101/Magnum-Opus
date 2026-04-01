@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -9,7 +9,7 @@ using ReLogic.Content;
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecrets.Particles
 {
     // =========================================================================
-    //  RIDDLE ECHO 窶・Soft glow motes that spiral outward from the orb
+    //  RIDDLE ECHO  -- Soft glow motes that spiral outward from the orb
     //  Like whispered secrets escaping from a sealed vault
     // =========================================================================
     public class RiddleEchoParticle : DissonanceParticle
@@ -68,7 +68,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
     }
 
     // =========================================================================
-    //  SECRET GLYPH 窶・Orbiting arcane glyphs around the cascade orb
+    //  SECRET GLYPH  -- Orbiting arcane glyphs around the cascade orb
     //  Slowly rotating with pulsing visibility, like forbidden runes
     // =========================================================================
     public class SecretGlyphParticle : DissonanceParticle
@@ -111,7 +111,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
 
         public override void CustomDraw(SpriteBatch sb)
         {
-            // Pulsing visibility 窶・glyphs flicker in and out like half-remembered secrets
+            // Pulsing visibility  -- glyphs flicker in and out like half-remembered secrets
             float pulse = DissonanceUtils.SineBump(LifetimeCompletion);
             float flicker = MathF.Sin(Time * 0.12f) * 0.2f + 0.8f;
             float alpha = pulse * flicker;
@@ -130,7 +130,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
     }
 
     // =========================================================================
-    //  CASCADE SPARK 窶・Fast directional sparks for the cascade explosion
+    //  CASCADE SPARK  -- Fast directional sparks for the cascade explosion
     //  Reality splitting with sharp bright sparks, motion-blur stretched
     // =========================================================================
     public class CascadeSparkParticle : DissonanceParticle
@@ -179,7 +179,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.DissonanceOfSecret
     }
 
     // =========================================================================
-    //  RIDDLEBOLT TRAIL MOTE 窶・Tiny trail motes left behind by riddlebolts
+    //  RIDDLEBOLT TRAIL MOTE  -- Tiny trail motes left behind by riddlebolts
     //  Fading quickly like the echo of a whispered answer
     // =========================================================================
     public class RiddleboltTrailMote : DissonanceParticle

@@ -94,7 +94,7 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
 
         private float GetShieldPercent()
         {
-            if (HasAegisOfTheEternalBastion) return 1.20f;
+            if (HasAegisOfTheEternalBastion) return 1.00f;
             if (HasTriumphantJubilantAegis) return 0.95f;
             if (HasEternalBastionOfTheMoonlight) return 1.00f;
             if (HasStarfallInfernalShield) return 0.85f;
@@ -118,6 +118,13 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
 
         public override void PreUpdate()
         {
+            // === CHAIN INHERITANCE for break effects ===
+            if (HasVivaldisSeasonalBulwark) HasPermafrostCrystalWard = true;
+            if (HasPermafrostCrystalWard) HasHarvestThornedGuard = true;
+            if (HasHarvestThornedGuard) HasSolarFlareAegis = true;
+            if (HasSolarFlareAegis) HasSpringVitalityShell = true;
+            if (HasSpringVitalityShell) HasResonantBarrierCore = true;
+
             if (!HasAnyDefenseAccessory())
             {
                 CurrentShield = 0f;
@@ -165,6 +172,18 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
                 Player.immune = true;
                 Player.immuneTime = 2;
             }
+
+            // Eternal Bastion: +50% faster regen while standing still
+            if (HasEternalBastionOfTheMoonlight && Player.velocity.LengthSquared() < 0.1f)
+            {
+                Player.lifeRegen += 9; // +50% of base 18 regen
+            }
+
+            // Swan's Immortal Grace: +5% dodge when shield is full
+            if (HasSwansImmortalGrace && CurrentShield >= MaxShield && MaxShield > 0f)
+            {
+                Player.blackBelt = true;
+            }
         }
 
         public override void ModifyHurt(ref Player.HurtModifiers modifiers)
@@ -193,6 +212,20 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
                 // Shield absorbs a portion of damage
                 float damageReduction = (CurrentShield / MaxShield) * 0.5f; // Max 50% reduction when shield is full
                 modifiers.FinalDamage *= (1f - damageReduction);
+
+                // Jubilant Bulwark: absorbing hits heals 5% of damage
+                if (HasJubilantBulwarkOfJoy)
+                {
+                    int healAmount = (int)(modifiers.FinalDamage.Multiplicative * 10f * 0.05f);
+                    if (healAmount > 0) Player.Heal(healAmount);
+                }
+
+                // Triumphant Jubilant Aegis: absorbing hits heals 8% of damage
+                if (HasTriumphantJubilantAegis)
+                {
+                    int healAmount = (int)(modifiers.FinalDamage.Multiplicative * 10f * 0.08f);
+                    if (healAmount > 0) Player.Heal(healAmount);
+                }
 
                 // Deduct shield based on damage taken
                 CurrentShield -= modifiers.FinalDamage.Multiplicative * 10f;
@@ -227,12 +260,12 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
 
                 if (HasMoonlitGuardiansVeil)
                 {
-                    invisibilityDuration = 90;
+                    invisibilityDuration = 120; // 2 seconds
                 }
 
                 if (HasHeroicValorsAegis)
                 {
-                    damageBoostDuration = 180;
+                    damageBoostDuration = 300; // 5 seconds
                 }
 
                 if (HasSolarFlareAegis || HasInfernalBellsFortress)
@@ -260,6 +293,12 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
                 if (reflectedDamage > 0)
                 {
                     npc.SimpleStrikeNPC(reflectedDamage, 0, false, 0, null, false, 0, true);
+                }
+
+                // Starfall/Infernal Rampart/Aegis: thorns and shield hits inflict fire
+                if (HasStarfallInfernalShield || HasInfernalRampartOfDiesIrae || HasAegisOfTheEternalBastion)
+                {
+                    npc.AddBuff(BuffID.OnFire3, 180); // Hellfire for 3 seconds
                 }
             }
         }

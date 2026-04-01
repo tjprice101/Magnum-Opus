@@ -270,7 +270,7 @@ namespace MagnumOpus.Common.Systems.VFX
             // Restore blend state - just end, don't restart (we're in a hook)
             sb.End();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Silently catch - don't spam log
                 try { sb.End(); } catch { }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -9,7 +9,7 @@ using ReLogic.Content;
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCadence.Particles
 {
     // =========================================================================
-    //  VOID CLEAVE PARTICLE 窶・Dark slash afterimage fragments shattering off
+    //  VOID CLEAVE PARTICLE  -- Dark slash afterimage fragments shattering off
     //  the blade during VoidCleave phase. Additive, 2-layer stretched glow,
     //  velocity-squished, deep purple core
     // =========================================================================
@@ -57,15 +57,15 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
             outerScale *= cleaveCap;
             Vector2 innerScale = new Vector2(Scale * speed, Scale * 0.35f) * cleaveCap;
 
-            // Layer 1: Outer dark violet halo 窶・the void's afterimage
+            // Layer 1: Outer dark violet halo  -- the void's afterimage
             sb.Draw(tex, drawPos, null, Color * alpha * 0.4f, Rotation, tex.Size() / 2f, outerScale, SpriteEffects.None, 0f);
-            // Layer 2: Brighter core 窶・the slash's trailing edge
+            // Layer 2: Brighter core  -- the slash's trailing edge
             sb.Draw(tex, drawPos, null, CadenceUtils.CadenceViolet * alpha * 0.7f, Rotation, tex.Size() / 2f, innerScale, SpriteEffects.None, 0f);
         }
     }
 
     // =========================================================================
-    //  PARADOX SLASH RIPPLE 窶・Rippling distortion particles spawned during
+    //  PARADOX SLASH RIPPLE  -- Rippling distortion particles spawned during
     //  ParadoxSlash phase. Reality tearing apart as concentric rings expand
     //  outward with pulsing opacity. AlphaBlend, Halo1 texture
     // =========================================================================
@@ -99,7 +99,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
 
         public override void CustomDraw(SpriteBatch sb)
         {
-            // Pulsing opacity 窶・the distortion flickers between dimensions
+            // Pulsing opacity  -- the distortion flickers between dimensions
             float pulse = MathF.Sin(Time * 0.25f) * 0.15f + 0.85f;
             float fade = CadenceUtils.SineBump(LifetimeCompletion);
             float alpha = fade * pulse * 0.55f;
@@ -108,13 +108,13 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
             var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
-            // The distortion ring 窶・reality bending outward (capped to 300px on 2160px SoftCircle)
+            // The distortion ring  -- reality bending outward (capped to 300px on 2160px SoftCircle)
             sb.Draw(tex, drawPos, null, Color * alpha, Rotation, tex.Size() / 2f, MathHelper.Min(Scale, 0.139f), SpriteEffects.None, 0f);
         }
     }
 
     // =========================================================================
-    //  DIMENSIONAL RIFT MOTE 窶・Tiny bright motes scattered at dimensional
+    //  DIMENSIONAL RIFT MOTE  -- Tiny bright motes scattered at dimensional
     //  slash impact points. Green-to-purple gradient. Additive, 2-layer
     //  with SparkleFlare1
     // =========================================================================
@@ -155,15 +155,15 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
             var tex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/PartiGlow", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
-            // Layer 1: Soft wide glow 窶・the rift's ambient energy
+            // Layer 1: Soft wide glow  -- the rift's ambient energy
             sb.Draw(tex, drawPos, null, Color * alpha * 0.35f, Rotation, tex.Size() / 2f, Scale * 2.0f, SpriteEffects.None, 0f);
-            // Layer 2: Bright compact core 窶・the rift's hot center
+            // Layer 2: Bright compact core  -- the rift's hot center
             sb.Draw(tex, drawPos, null, Color * alpha * 0.85f, Rotation, tex.Size() / 2f, Scale * 0.6f, SpriteEffects.None, 0f);
         }
     }
 
     // =========================================================================
-    //  INEVITABILITY GLYPH PARTICLE 窶・Orbiting glyphs that accumulate around
+    //  INEVITABILITY GLYPH PARTICLE  -- Orbiting glyphs that accumulate around
     //  the player as Inevitability stacks build. Orbit radius shrinks as stacks
     //  increase (the paradox tightens). AlphaBlend, Glyph textures, pulsing
     // =========================================================================
@@ -206,7 +206,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
         public override void Update()
         {
             _orbitAngle += _orbitSpeed;
-            // Orbit radius shrinks as stacks increase 窶・the paradox tightens
+            // Orbit radius shrinks as stacks increase  -- the paradox tightens
             float radiusMult = MathHelper.Lerp(1f, 0.35f, _inevitabilityStacks / 10f);
             float currentRadius = _baseOrbitRadius * radiusMult;
             Position = _orbitCenter + _orbitAngle.ToRotationVector2() * currentRadius;
@@ -215,7 +215,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
 
         public override void CustomDraw(SpriteBatch sb)
         {
-            // Pulsing visibility 窶・glyphs throb with inevitability
+            // Pulsing visibility  -- glyphs throb with inevitability
             float pulse = CadenceUtils.SineBump(LifetimeCompletion);
             float flicker = MathF.Sin(Time * 0.15f) * 0.2f + 0.8f;
             float alpha = pulse * flicker;
@@ -225,7 +225,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
             var tex = ModContent.Request<Texture2D>(glyphPath, AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
-            // Soft glow halo behind the glyph 窶・inevitability's aura
+            // Soft glow halo behind the glyph  -- inevitability's aura
             var glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             sb.Draw(glowTex, drawPos, null, Color * alpha * 0.2f, 0f, glowTex.Size() / 2f, MathHelper.Min(Scale * 3.0f, 0.139f), SpriteEffects.None, 0f);
             // The glyph itself
@@ -234,9 +234,9 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
     }
 
     // =========================================================================
-    //  PARADOX COLLAPSE FLASH 窶・Massive flash burst when Paradox Collapse
+    //  PARADOX COLLAPSE FLASH  -- Massive flash burst when Paradox Collapse
     //  triggers (10 stacks). Additive, expanding 3-layer bloom (enormous
-    //  scale 2-8), screen-filling white竊恥urple fade
+    //  scale 2-8), screen-filling white/purple fade
     // =========================================================================
     public class ParadoxCollapseFlash : CadenceParticle
     {
@@ -259,7 +259,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
 
         public override void Update()
         {
-            // Expand rapidly then slow 窶・implosion-into-explosion
+            // Expand rapidly then slow  -- implosion-into-explosion
             float expand = CadenceUtils.ExpOut(LifetimeCompletion);
             Scale = _baseScale + expand * 6f;
             Rotation += 0.005f;

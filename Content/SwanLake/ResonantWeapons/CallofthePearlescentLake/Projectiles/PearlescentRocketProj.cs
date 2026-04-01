@@ -37,7 +37,6 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
         private const int TrailLength = 18;
         private Vector2[] oldPos = new Vector2[TrailLength];
         private float[] oldRot = new float[TrailLength];
-        private PearlescentPrimitiveRenderer _trailRenderer;
         private VertexStrip _strip;
 
         // --- Variant flags (set by weapon on spawn via Projectile.localAI) ---
@@ -165,7 +164,6 @@ namespace MagnumOpus.Content.SwanLake.ResonantWeapons.CallofthePearlescentLake.P
 
         public override void OnKill(int timeLeft)
         {
-            _trailRenderer?.Dispose();
             SoundEngine.PlaySound(SoundID.Item14, Projectile.Center);
 
             // Spawn SplashZone AoE

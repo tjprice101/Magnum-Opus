@@ -7,6 +7,7 @@ using MagnumOpus.Content.Fate;
 using MagnumOpus.Content.Fate.ResonanceEnergies;
 using MagnumOpus.Content.Fate.HarmonicCores;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
+using MagnumOpus.Content.Materials.EnemyDrops;
 
 namespace MagnumOpus.Content.Fate.Accessories
 {
@@ -79,6 +80,8 @@ namespace MagnumOpus.Content.Fate.Accessories
             CreateRecipe()
                 .AddIngredient(ModContent.ItemType<FateResonantEnergy>(), 15)
                 .AddIngredient(ModContent.ItemType<ResonantCoreOfFate>(), 5)
+                .AddIngredient(ModContent.ItemType<FateEssence>(), 5)
+                .AddIngredient(ModContent.ItemType<ShardOfFatesTempo>(), 5)
                 .AddIngredient(ItemID.SoulofSight, 10)
                 .AddIngredient(ItemID.FragmentVortex, 8)
                 .AddIngredient(ItemID.LunarBar, 10)

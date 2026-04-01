@@ -33,6 +33,9 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         {
             var modPlayer = player.GetModPlayer<OverflowPlayer>();
             modPlayer.hasResonantOverflowGem = true;
+            
+            // Inherited from Mana Regeneration Band: improved mana regen
+            player.manaRegenBonus += 10;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -43,6 +46,11 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             });
 
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+20 max mana")
+            {
+                OverrideColor = new Color(200, 220, 255)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Increased mana regeneration")
             {
                 OverrideColor = new Color(200, 220, 255)
             });
@@ -93,7 +101,7 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
                 OverrideColor = new Color(255, 200, 255)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "5% chance to spawn healing petal on spell cast")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "5% chance to heal 1 HP on magic hit")
             {
                 OverrideColor = SpringPink
             });
@@ -158,7 +166,7 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
                 OverrideColor = new Color(100, 180, 255)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+4% magic damage per burning enemy (max 20% at 5)")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "At max burn stacks: next spell costs no mana")
             {
                 OverrideColor = new Color(255, 200, 150)
             });

@@ -11,6 +11,8 @@ namespace MagnumOpus.Content.Winter.Enemies
 {
     public class GlacialDirge : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/Winter/Enemies/GlacialDirge/GlacialDirge";
+
         private static readonly Color WinterFrost = new Color(100, 160, 220);
         private static readonly Color WinterBlue = new Color(180, 220, 255);
 

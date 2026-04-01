@@ -9,6 +9,7 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.SwanLake.ResonanceEnergies;
 using MagnumOpus.Content.SwanLake.HarmonicCores;
+using MagnumOpus.Content.Materials.EnemyDrops;
 
 namespace MagnumOpus.Content.SwanLake.Accessories
 {
@@ -84,10 +85,6 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             {
                 OverrideColor = SwanColors.IcyBlue
             });
-            tooltips.Add(new TooltipLine(Mod, "Afterimage", "Dodging leaves rainbow afterimages")
-            {
-                OverrideColor = SwanColors.GetRainbow(0f)
-            });
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'Grace in motion, elegance personified'")
             {
                 OverrideColor = SwanColors.Silver
@@ -98,8 +95,6 @@ namespace MagnumOpus.Content.SwanLake.Accessories
     public class PlumeOfElegancePlayer : ModPlayer
     {
         public bool plumeEquipped;
-        private Vector2 lastPosition;
-        private int afterimageTimer;
 
         public override void ResetEffects()
         {
@@ -157,6 +152,7 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                 .AddIngredient<HarmonicCoreOfSwanLake>(2)
                 .AddIngredient<SwansResonanceEnergy>(15)
                 .AddIngredient<RemnantOfSwansHarmony>(5)
+                .AddIngredient<GraceEssence>(10)
                 .AddIngredient(ItemID.FragmentStardust, 10)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
@@ -191,8 +187,6 @@ namespace MagnumOpus.Content.SwanLake.Accessories
     {
         public bool diademEquipped;
         private int dodgeCooldown;
-        private Vector2 lastPosition;
-        private int afterimageTimer;
 
         public override void ResetEffects()
         {
@@ -228,38 +222,14 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             // "DYING SWAN" - Massive prismatic explosion
             
             // Phase 1: Central white flash
-            CustomParticles.GenericFlare(Player.Center, Color.White, 1.8f, 35);
             
             // Phase 2: Rainbow core burst
-            for (int i = 0; i < 12; i++)
-            {
-                float hue = (float)i / 12f;
-                Color rainbowColor = Main.hslToRgb(hue, 1f, 0.85f);
-                CustomParticles.GenericFlare(Player.Center, rainbowColor, 0.9f - i * 0.05f, 28 - i);
-            }
             
             // Phase 3: Cascading prismatic halos
-            for (int ring = 0; ring < 8; ring++)
-            {
-                Color ringColor = SwanColors.GetRainbow(ring / 8f);
-                CustomParticles.HaloRing(Player.Center, ringColor, 0.4f + ring * 0.15f, 18 + ring * 3);
-            }
             
             // Phase 4: Black and white contrast rings
-            for (int i = 0; i < 6; i++)
-            {
-                Color contrastColor = i % 2 == 0 ? SwanColors.White : SwanColors.Black;
-                CustomParticles.HaloRing(Player.Center, contrastColor * 0.7f, 0.3f + i * 0.12f, 15 + i * 2);
-            }
             
             // Phase 5: Feather explosion
-            for (int i = 0; i < 16; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 16f;
-                Vector2 featherPos = Player.Center + angle.ToRotationVector2() * 30f;
-                Color featherColor = i % 2 == 0 ? SwanColors.White : SwanColors.Black;
-                CustomParticles.SwanFeatherDrift(featherPos, featherColor, 0.5f);
-            }
             
             // Phase 6: Rainbow sparkle spiral
             for (int layer = 0; layer < 3; layer++)
@@ -271,16 +241,10 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                     Vector2 sparklePos = Player.Center + angle.ToRotationVector2() * radius;
                     Color sparkleColor = SwanColors.GetRainbow((float)i / 10f + layer * 0.33f);
                     
-                    var sparkle = new SparkleParticle(sparklePos,
-                        angle.ToRotationVector2() * (3f + layer * 2f),
-                        sparkleColor, 0.45f, 22);
-                    MagnumParticleHandler.SpawnParticle(sparkle);
                 }
             }
             
             // Phase 7: Particle explosion
-            CustomParticles.ExplosionBurst(Player.Center, SwanColors.White, 18, 10f);
-            CustomParticles.ExplosionBurst(Player.Center, SwanColors.Black, 12, 8f);
             
             // Deal damage to nearby enemies (base 100 + 10% of player's max damage stat)
             if (Main.myPlayer == Player.whoAmI)
@@ -303,10 +267,8 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                             npc.SimpleStrikeNPC(finalDamage, 0, false, 0, null, false, 0, true);
                             
                             // VFX on hit
-                            CustomParticles.GenericFlare(npc.Center, SwanColors.GetRainbow(Main.rand.NextFloat()), 0.5f, 15);
                             
                             // Feather burst on enemy
-                            CustomParticles.SwanFeatherDrift(npc.Center, SwanColors.White, 0.4f);
                         }
                     }
                 }
@@ -317,7 +279,6 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             Player.immuneTime = 30;
             
             // Screen shake
-            MagnumScreenEffects.AddScreenShake(10f);
             
             // Sound effect
             Terraria.Audio.SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.5f, Volume = 1.2f }, Player.Center);

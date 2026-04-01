@@ -57,7 +57,7 @@ Search these local repos before inventing VFX patterns from scratch. Each excels
 | **Coralite** | `C:\Users\creat\Downloads\Terraria Magnum Opus Mod Assets\Coralite Mod Repo` | Shader techniques, particle systems, rendering pipelines |
 | **VFX+** | `C:\Users\creat\Downloads\Terraria Magnum Opus Mod Assets\VFX+ Mod Repo` | Advanced VFX systems, trail rendering, visual polish |
 
-**Always read the local repos directly.** Search and read the actual source files 窶・do not rely on memory or assumptions.
+**Always read the local repos directly.** Search and read the actual source files  -- do not rely on memory or assumptions.
 
 ---
 
@@ -92,63 +92,63 @@ Search these local repos before inventing VFX patterns from scratch. Each excels
 
 ### Item-Specific Asset Placement (SandboxLastPrism Pattern)
 
-All item-specific content (weapons, bosses, accessories, etc.) should follow the organizational pattern established by the Sandbox Last Prism. The SandboxLastPrism (and its Exoblade-style self-contained architecture) is a **recommended folder and file structure** 窶・it demonstrates a working, well-organized approach for per-weapon content. You do **not** need to copy the exact implementation or code patterns of the Sandbox Exoblade; it is there as a reference for how to organize files and folders so that each weapon's systems (shaders, particles, primitives, utilities, projectiles, buffs) are self-contained and properly structured. Adapt the architecture to suit each weapon's unique needs.
+All item-specific content (weapons, bosses, accessories, etc.) should follow the organizational pattern established by the Sandbox Last Prism. The SandboxLastPrism (and its Exoblade-style self-contained architecture) is a **recommended folder and file structure**  -- it demonstrates a working, well-organized approach for per-weapon content. You do **not** need to copy the exact implementation or code patterns of the Sandbox Exoblade; it is there as a reference for how to organize files and folders so that each weapon's systems (shaders, particles, primitives, utilities, projectiles, buffs) are self-contained and properly structured. Adapt the architecture to suit each weapon's unique needs.
 
 This pattern splits item-specific assets across three root directories by purpose:
 
-#### 1. VFX Textures 竊・`Assets/<ThemeName>/<ItemName>/`
+#### 1. VFX Textures  -> `Assets/<ThemeName>/<ItemName>/`
 
 VFX texture assets (PNG images used by shaders, trails, particles, bloom) go in theme-scoped subfolders of `Assets/`, organized by texture type:
 
 ```
 Assets/<ThemeName>/<ItemName>/
-笏懌楳笏 Flare/              窶・Lens flare, flash, and burst VFX textures
-笏懌楳笏 Gradients/          窶・Color gradient lookup textures (1D or 2D ramps)
-笏懌楳笏 Orbs/               窶・Soft glow circles, feathered spheres, bloom orbs
-笏懌楳笏 Pixel/              窶・Tiny pixel-art particle sprites for ModDust types
-笏懌楳笏 Trails/             窶・Trail strip textures, energy lines, ribbon UVs
-笏・  笏披楳笏 Clear/          窶・Trail textures on transparent (not black) backgrounds
-笏懌楳笏 WeaponDesign/       窶・Midjourney reference prompts for the weapon sprite itself
-笏披楳笏 [Class-Specific]/   窶・Additional folders based on weapon class needs:
-    笏懌楳笏 SlashArcs/      窶・(Melee) Swing arc overlay textures
-    笏懌楳笏 ImpactSlash/    窶・(Melee) Hit impact slash/burst textures
-    笏懌楳笏 Beams/          窶・(Magic/Summoner) Beam strip textures
-    笏懌楳笏 ChannelingEffects/ 窶・(Magic) Cast circle and channeling textures
-    笏懌楳笏 MuzzleFlash/    窶・(Ranged) Barrel discharge flash textures
-    笏懌楳笏 ImpactBurst/    窶・(Ranged) Explosive detonation impact textures
-    笏披楳笏 SummonCircle/   窶・(Summoner) Summoning ritual circle textures
+笏懌楳笏 Flare/               -- Lens flare, flash, and burst VFX textures
+笏懌楳笏 Gradients/           -- Color gradient lookup textures (1D or 2D ramps)
+笏懌楳笏 Orbs/                -- Soft glow circles, feathered spheres, bloom orbs
+笏懌楳笏 Pixel/               -- Tiny pixel-art particle sprites for ModDust types
+笏懌楳笏 Trails/              -- Trail strip textures, energy lines, ribbon UVs
+笏・  笏披楳笏 Clear/           -- Trail textures on transparent (not black) backgrounds
+笏懌楳笏 WeaponDesign/        -- Midjourney reference prompts for the weapon sprite itself
+笏披楳笏 [Class-Specific]/    -- Additional folders based on weapon class needs:
+    笏懌楳笏 SlashArcs/       -- (Melee) Swing arc overlay textures
+    笏懌楳笏 ImpactSlash/     -- (Melee) Hit impact slash/burst textures
+    笏懌楳笏 Beams/           -- (Magic/Summoner) Beam strip textures
+    笏懌楳笏 ChannelingEffects/  -- (Magic) Cast circle and channeling textures
+    笏懌楳笏 MuzzleFlash/     -- (Ranged) Barrel discharge flash textures
+    笏懌楳笏 ImpactBurst/     -- (Ranged) Explosive detonation impact textures
+    笏披楳笏 SummonCircle/    -- (Summoner) Summoning ritual circle textures
 ```
 
 **Reference:** See `Assets/SandboxLastPrism/` for the canonical example (Flare/, Gradients/, Orbs/, Pixel/, Trails/, Trails/Clear/).
 
-#### 2. Custom Shaders 竊・`Effects/<ThemeName>/<ItemName>/`
+#### 2. Custom Shaders  -> `Effects/<ThemeName>/<ItemName>/`
 
 Item-specific `.fx` and `.fxc` shader files go in theme-scoped subfolders of `Effects/`, grouped by shader purpose:
 
 ```
 Effects/<ThemeName>/<ItemName>/
-笏懌楳笏 <ShaderName>.fx         窶・Shader source
-笏懌楳笏 <ShaderName>.fxc        窶・Compiled shader bytecode
-笏披楳笏 <SubCategory>/          窶・Grouped by shader purpose when multiple exist:
-    笏懌楳笏 Radial/             窶・Radial/circular effect shaders (sigils, auras)
-    笏披楳笏 Scroll/             窶・UV-scrolling shaders (beams, trails, lasers)
+笏懌楳笏 <ShaderName>.fx          -- Shader source
+笏懌楳笏 <ShaderName>.fxc         -- Compiled shader bytecode
+笏披楳笏 <SubCategory>/           -- Grouped by shader purpose when multiple exist:
+    笏懌楳笏 Radial/              -- Radial/circular effect shaders (sigils, auras)
+    笏披楳笏 Scroll/              -- UV-scrolling shaders (beams, trails, lasers)
 ```
 
 **Reference:** See `Effects/SandboxLastPrism/` for the canonical example (GlowDustShader at root, Radial/, Scroll/ subdirectories).
 
-#### 3. C# Code + Dust Textures 竊・`Content/<ThemeName>/<ItemName>/`
+#### 3. C# Code + Dust Textures  -> `Content/<ThemeName>/<ItemName>/`
 
 Item code, custom ModDust types, and dust sprite textures all co-locate under `Content/`:
 
 ```
 Content/<ThemeName>/<Category>/<ItemName>/
-笏懌楳笏 <ItemName>.cs           窶・Main item/weapon class
-笏懌楳笏 <ItemName>VFX.cs        窶・Item-specific VFX static class
-笏懌楳笏 <ItemName>Swing.cs      窶・(Melee) Swing projectile
-笏懌楳笏 Dusts/                  窶・Custom ModDust types for this item
-笏・  笏懌楳笏 <DustName>.cs       窶・Dust behavior code
-笏・  笏披楳笏 Textures/           窶・Dust sprite .png files (co-located with dust code)
-笏披楳笏 Systems/                窶・Item-specific systems (flash, pixelation, screen shake)
+笏懌楳笏 <ItemName>.cs            -- Main item/weapon class
+笏懌楳笏 <ItemName>VFX.cs         -- Item-specific VFX static class
+笏懌楳笏 <ItemName>Swing.cs       -- (Melee) Swing projectile
+笏懌楳笏 Dusts/                   -- Custom ModDust types for this item
+笏・  笏懌楳笏 <DustName>.cs        -- Dust behavior code
+笏・  笏披楳笏 Textures/            -- Dust sprite .png files (co-located with dust code)
+笏披楳笏 Systems/                 -- Item-specific systems (flash, pixelation, screen shake)
     笏懌楳笏 <System>.cs
     笏披楳笏 ...
 ```
@@ -446,24 +446,24 @@ When implementing or referencing VFX, shaders, particles, trails, or any visual 
 
 | Directory | Contents |
 |-----------|----------|
-| `Effects/` | **Compiled shaders** (.fx) ready for use 窶・trail shaders (SimpleTrailShader, MoonlightTrail, HeroicFlameTrail, CelestialValorTrail, EroicaFuneralTrail, ScrollingTrailShader), bloom shaders (SimpleBloomShader, SakuraBloom, MotionBlurBloom), beam shaders (BeamGradientFlow, LunarBeam, TerraBladeFlareBeamShader), screen effects (ScreenDistortion, RadialScrollShader), metaball shaders, and more |
-| `ShaderSource/` | **Shader source files** (.fx) for development 窶・HLSLLibrary.fxh (shared utilities), advanced shaders (AdvancedBeamShader, AdvancedBloomShader, AdvancedTrailShader, AdvancedDistortionShader, AdvancedScreenEffectsShader), Calamity-inspired shaders (CalamityFireShader, ExobladeSlashShader), procedural trails (ProceduralTrailShader), and README_SHADER_COMPILATION.md for build instructions |
+| `Effects/` | **Compiled shaders** (.fx) ready for use  -- trail shaders (SimpleTrailShader, MoonlightTrail, HeroicFlameTrail, CelestialValorTrail, EroicaFuneralTrail, ScrollingTrailShader), bloom shaders (SimpleBloomShader, SakuraBloom, MotionBlurBloom), beam shaders (BeamGradientFlow, LunarBeam, TerraBladeFlareBeamShader), screen effects (ScreenDistortion, RadialScrollShader), metaball shaders, and more |
+| `ShaderSource/` | **Shader source files** (.fx) for development  -- HLSLLibrary.fxh (shared utilities), advanced shaders (AdvancedBeamShader, AdvancedBloomShader, AdvancedTrailShader, AdvancedDistortionShader, AdvancedScreenEffectsShader), Calamity-inspired shaders (CalamityFireShader, ExobladeSlashShader), procedural trails (ProceduralTrailShader), and README_SHADER_COMPILATION.md for build instructions |
 | `Assets/Shaders/` | Additional compiled shader assets |
-| `Common/Systems/Shaders/` | **C# shader infrastructure** 窶・ShaderLoader.cs (loads/manages shaders) and ShaderRenderer.cs (handles shader rendering) |
+| `Common/Systems/Shaders/` | **C# shader infrastructure**  -- ShaderLoader.cs (loads/manages shaders) and ShaderRenderer.cs (handles shader rendering) |
 
 #### VFX Textures & Sprites
 
 | Directory | Contents |
 |-----------|----------|
-| `Assets/VFX/` | **Main VFX texture library** with 15 subcategories: `Afterimages/`, `Beams/`, `Blooms/`, `Impacts/`, `Lightning/`, `LightRays/`, `LUT/` (color grading), `Masks/`, `Noise/` (19 noise types 窶・cosmic energy, nebula, Voronoi, FBM, marble, perlin, etc.), `Overlays/`, `Ribbons/`, `Screen/`, `Smears/`, `Trails/` (comet trails, spiral trails, energy UV maps, ember scatters, sparkle fields) |
-| `Assets/Particles Asset Library/` | **Particle sprites** 窶・107+ sprites including sparkles, glyphs, halos, explosions, lightning bursts, smoke, sword arcs, feathers, music notes, magic sparkle fields, flare spikes, circular masks, and themed particles |
+| `Assets/VFX/` | **Main VFX texture library** with 15 subcategories: `Afterimages/`, `Beams/`, `Blooms/`, `Impacts/`, `Lightning/`, `LightRays/`, `LUT/` (color grading), `Masks/`, `Noise/` (19 noise types  -- cosmic energy, nebula, Voronoi, FBM, marble, perlin, etc.), `Overlays/`, `Ribbons/`, `Screen/`, `Smears/`, `Trails/` (comet trails, spiral trails, energy UV maps, ember scatters, sparkle fields) |
+| `Assets/Particles Asset Library/` | **Particle sprites**  -- 107+ sprites including sparkles, glyphs, halos, explosions, lightning bursts, smoke, sword arcs, feathers, music notes, magic sparkle fields, flare spikes, circular masks, and themed particles |
 
 #### VFX Code Systems
 
 | Directory | Contents |
 |-----------|----------|
 | `Common/Systems/VFX/` | **Core VFX C# systems** with subsystems: `Beams/` (beam rendering), `Bloom/` (lens flares, god rays, glow), `Boss/` (boss arena/cinematic VFX), `Core/` (particle systems, texture registries, rendering utils), `Effects/` (afterimages, glow dust, smoke, screen shake), `Optimization/` (LOD, adaptive quality, batching), `Projectile/` (layered projectile rendering), `Screen/` (skyboxes, distortions, heat effects), `Themes/` (elemental/themed effects), `Trails/` (advanced trails, nebula, Bezier curves), `Weapon/` (glints, lens flares, fog), plus root files SwingShaderSystem.cs and VFXIntegration.cs |
-| `Common/Systems/Particles/` | **Particle system code** 窶・ParticleTextureGenerator.cs, CommonParticles.cs, DynamicParticles.cs, SmearParticles.cs, MagnumParticleHandler.cs, MagnumParticleDrawLayer.cs, Particle.cs, plus `Textures/` subdirectory |
+| `Common/Systems/Particles/` | **Particle system code**  -- ParticleTextureGenerator.cs, CommonParticles.cs, DynamicParticles.cs, SmearParticles.cs, MagnumParticleHandler.cs, MagnumParticleDrawLayer.cs, Particle.cs, plus `Textures/` subdirectory |
 
 #### Theme-Specific VFX
 
@@ -477,7 +477,7 @@ When implementing or referencing VFX, shaders, particles, trails, or any visual 
 
 ## Foundation Weapon Systems (Recommended Templates)
 
-`Content/FoundationWeapons/` contains standalone, fully working VFX weapon systems demonstrating best-practice implementations for common effect types: attacks, trails, particles, beams, slashes, explosions, ribbons, masks, and more. Browse these before implementing any VFX 窶・they provide structural skeletons and rendering patterns to build from.
+`Content/FoundationWeapons/` contains standalone, fully working VFX weapon systems demonstrating best-practice implementations for common effect types: attacks, trails, particles, beams, slashes, explosions, ribbons, masks, and more. Browse these before implementing any VFX  -- they provide structural skeletons and rendering patterns to build from.
 
 See the `/new-weapon-vfx` skill for the full Foundation Weapons reference table.
 

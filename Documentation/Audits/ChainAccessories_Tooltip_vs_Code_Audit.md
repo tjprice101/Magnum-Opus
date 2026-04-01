@@ -22,7 +22,7 @@
 
 ## DEFENSE CHAIN (Resonant Shield System)
 
-**System:** `ResonantShieldPlayer.cs` — Shields absorb a % of max HP as damage before health is affected.
+**System:** `ResonantShieldPlayer.cs`  EShields absorb a % of max HP as damage before health is affected.
 
 ### Tier 1-4 (Seasonal) + T5-T6
 
@@ -46,7 +46,7 @@
 | 11 | **SwansImmortalGrace** | 50% shield, +30 defense | `shieldPercent=0.50f`, `statDefense += 30` | **PASS** |
 | 12 | **FatesCosmicAegis** | 60% shield, +35 defense | `shieldPercent=0.60f`, `statDefense += 35` | **PASS** |
 
-**FAIL #10 Detail:** Tooltip says "10% chance to phase through attacks" — code sets `player.blackBelt = true`. The Black Belt in Terraria grants a ~10% dodge chance (1/10), so the behavior is approximately correct, but the tooltip implies a custom percentage system rather than vanilla's Black Belt mechanic. The actual dodge rate is governed by vanilla and may not be exactly 10%. **Recommend:** Change tooltip to "Grants Black Belt dodge chance" or keep "10% dodge chance" (which is close to vanilla's implementation).
+**FAIL #10 Detail:** Tooltip says "10% chance to phase through attacks"  Ecode sets `player.blackBelt = true`. The Black Belt in Terraria grants a ~10% dodge chance (1/10), so the behavior is approximately correct, but the tooltip implies a custom percentage system rather than vanilla's Black Belt mechanic. The actual dodge rate is governed by vanilla and may not be exactly 10%. **Recommend:** Change tooltip to "Grants Black Belt dodge chance" or keep "10% dodge chance" (which is close to vanilla's implementation).
 
 ### Post-Fate T7-T10 + Fusions
 
@@ -64,7 +64,7 @@
 
 ## MELEE CHAIN (Resonance Combo System)
 
-**System:** `ResonanceComboPlayer.cs` + `MeleeChainGlobalNPC.cs` — Melee hits build Resonance stacks, unlocking effects at thresholds.
+**System:** `ResonanceComboPlayer.cs` + `MeleeChainGlobalNPC.cs`  EMelee hits build Resonance stacks, unlocking effects at thresholds.
 
 ### Tier 1-4 (Seasonal) + T5-T6
 
@@ -84,11 +84,11 @@
 | 7 | **MoonlitSonataBand** | **45** | **40** | **FAIL** |
 | 8 | **HeroicCrescendo** | **50** | **40** | **FAIL** |
 | 9 | **InfernalFortissimo** | 55 | 50 | **PASS** ¹ |
-| 10 | **EnigmasDissonance** | **60** (Paradox at **50+**) | **40** (Paradox at **45+**) | **FAIL** (×2) |
+| 10 | **EnigmasDissonance** | **60** (Paradox at **50+**) | **40** (Paradox at **45+**) | **FAIL** (ÁE) |
 | 11 | **SwansPerfectMeasure** | **60** | **40** | **FAIL** |
 | 12 | **FatesCosmicSymphony** | 60 | 60 | **PASS** |
 
-¹ InfernalFortissimo tooltip says 55 but code is 50. Per the summary this was marked as matching, but worth double-checking. The code `DetermineMaxResonance()` puts InfernalFortissimo in its own tier returning 50. Tooltip says 55. **Borderline — recheck recommended.**
+¹ InfernalFortissimo tooltip says 55 but code is 50. Per the summary this was marked as matching, but worth double-checking. The code `DetermineMaxResonance()` puts InfernalFortissimo in its own tier returning 50. Tooltip says 55. **Borderline  Erecheck recommended.**
 
 **Root Cause:** In `ResonanceComboPlayer.DetermineMaxResonance()`, MoonlitSonataBand, HeroicCrescendo, EnigmasDissonance, and SwansPerfectMeasure are all grouped in the same `else if` branch returning `maxResonance = 40`. Their tooltips claim 45/50/60/60 respectively.
 
@@ -110,7 +110,7 @@
 
 ## MAGE CHAIN (Mana Overflow System)
 
-**System:** `OverflowPlayer.cs` — Magic weapons can spend mana into negative (overflow), with bonuses and penalties while negative.
+**System:** `OverflowPlayer.cs`  EMagic weapons can spend mana into negative (overflow), with bonuses and penalties while negative.
 
 ### Tier 1-4 (Seasonal) + T5-T6
 
@@ -127,32 +127,32 @@
 
 | # | Accessory | Tooltip Overflow | Code maxOverflow | Verdict |
 |---|-----------|-----------------|-----------------|---------|
-| 7 | **MoonlitOverflowStar** | -120, at 0 mana next spell free | 120, zeroManaFreeSpell ✓ | **PASS** |
+| 7 | **MoonlitOverflowStar** | -120, at 0 mana next spell free | 120, zeroManaFreeSpell ✁E| **PASS** |
 | 8 | **HeroicArcaneSurge** | -120, 1s invincibility (30s CD) | 120, immune=60 frames, CD=1800 | **PASS** |
 | 9 | **InfernalManaInferno** | -120, fire trail while negative | 120 | **PASS** |
 | 10 | **EnigmasNegativeSpace** | -150, at -100: spells hit twice, 5% HP/s drain | 150, double hit at 100+, 5% maxHP/s | **PASS** |
 | 11 | **SwansBalancedFlow** | **-150**, Grace buff +20% dmg 5s | **120** (grouped with #7-9) | **FAIL** |
 | 12 | **FatesCosmicReservoir** | -200, at -150: spells pierce walls | 200 | **PASS** |
 
-**FAIL #11 Detail:** In `OverflowPlayer.DetermineMaxOverflow()`, SwansBalancedFlow is grouped with MoonlitOverflowStar, HeroicArcaneSurge, and InfernalManaInferno — all returning `maxOverflow = 120`. Tooltip claims -150. The Grace buff mechanics (+20% damage for 5s/300 frames on recovery) are correctly implemented.
+**FAIL #11 Detail:** In `OverflowPlayer.DetermineMaxOverflow()`, SwansBalancedFlow is grouped with MoonlitOverflowStar, HeroicArcaneSurge, and InfernalManaInferno  Eall returning `maxOverflow = 120`. Tooltip claims -150. The Grace buff mechanics (+20% damage for 5s/300 frames on recovery) are correctly implemented.
 
 ### Post-Fate T7-T10 + Fusions
 
 | # | Accessory | Tooltip Overflow | Code maxOverflow | Other Stats | Verdict |
 |---|-----------|-----------------|-----------------|-------------|---------|
-| 13 | **NocturnalHarmonicOverflow** (T7) | -250, +10% magic dmg at night | 250, +0.10f at night | ✓ | **PASS** |
-| 14 | **InfernalManaCataclysm** (T8) | -300, 10% dmg as burn DoT, +50% mana potion | 300, manaSickReduction*=0.5f | ✓ | **PASS** |
-| 15 | **JubilantArcaneCelebration** (T9) | -350, heal 1% maxHP/100 mana, +5% crit 10s on recovery | 350 | ✓ | **PASS** |
-| 16 | **EternalOverflowMastery** (T10) | -400, no damage penalty, 50% faster recovery | 400, bypasses -25% penalty | ✓ | **PASS** |
-| 17 | **StarfallHarmonicPendant** (Fusion T1) | -300, +15% magic dmg at night | 300, +0.15f at night | ✓ | **PASS** |
-| 18 | **TriumphantOverflowPendant** (Fusion T2) | -350 | 350 | ✓ | **PASS** |
-| 19 | **PendantOfTheEternalOverflow** (Ultimate) | -400, no penalties, +20% always | 400, +0.20f, bypasses penalty | ✓ | **PASS** |
+| 13 | **NocturnalHarmonicOverflow** (T7) | -250, +10% magic dmg at night | 250, +0.10f at night | ✁E| **PASS** |
+| 14 | **InfernalManaCataclysm** (T8) | -300, 10% dmg as burn DoT, +50% mana potion | 300, manaSickReduction*=0.5f | ✁E| **PASS** |
+| 15 | **JubilantArcaneCelebration** (T9) | -350, heal 1% maxHP/100 mana, +5% crit 10s on recovery | 350 | ✁E| **PASS** |
+| 16 | **EternalOverflowMastery** (T10) | -400, no damage penalty, 50% faster recovery | 400, bypasses -25% penalty | ✁E| **PASS** |
+| 17 | **StarfallHarmonicPendant** (Fusion T1) | -300, +15% magic dmg at night | 300, +0.15f at night | ✁E| **PASS** |
+| 18 | **TriumphantOverflowPendant** (Fusion T2) | -350 | 350 | ✁E| **PASS** |
+| 19 | **PendantOfTheEternalOverflow** (Ultimate) | -400, no penalties, +20% always | 400, +0.20f, bypasses penalty | ✁E| **PASS** |
 
 ---
 
 ## RANGER CHAIN (Marked for Death System)
 
-**System:** `MarkingPlayer.cs` + `MarkingGlobalNPC.cs` — Ranged hits mark enemies, providing damage bonuses and death effects.
+**System:** `MarkingPlayer.cs` + `MarkingGlobalNPC.cs`  ERanged hits mark enemies, providing damage bonuses and death effects.
 
 ### Tier 1-4 (Seasonal) + T5-T6
 
@@ -163,7 +163,7 @@
 | 3 | **SolarTrackersBadge** (T3) | Marks 10s, +5% dmg all sources | baseMarkDuration=600, markedDamageBonus=0.05f | **PASS** |
 | 4 | **HarvestReapersMark** (T4) | Death explosion 50% weapon dmg, chain marking | Death explosion + chain confirmed | **PASS** |
 | 5 | **PermafrostHuntersEye** (T5) | 15% slow, kill refreshes marks | markSlowPercent=0.15f, refresh on kill | **PASS** |
-| 6 | **VivaldisSeSonalSight** (T6) | Marks 15s, seasonal debuffs cycle | baseMarkDuration=900 (15s) | **PASS** |
+| 6 | **VivaldisSeasonalSight** (T6) | Marks 15s, seasonal debuffs cycle | baseMarkDuration=900 (15s) | **PASS** |
 
 ### Theme Tier (Post-Moon Lord)
 
@@ -192,7 +192,7 @@
 
 ## SUMMONER CHAIN (Conductor's Baton System)
 
-**System:** `ConductorPlayer.cs` + `ConductorMinionGlobalProjectile.cs` — Right-click conducts minions to focus on a target, with scaling damage bonuses and special abilities.
+**System:** `ConductorPlayer.cs` + `ConductorMinionGlobalProjectile.cs`  ERight-click conducts minions to focus on a target, with scaling damage bonuses and special abilities.
 
 ### Tier 1-4 (Seasonal) + T5-T6
 
@@ -232,26 +232,26 @@
 | 18 | **TriumphantSymphonyBaton** (F2) | +12% attack speed (enhanced) | +0.12f attackSpeed, +0.22f night | **PASS** |
 | 19 | **ScepterOfTheEternalConductor** (Ultimate) | +25% minion dmg, +15% attack speed, 3s CD | +0.25f, +0.15f, CD=180 (3s) | **PASS** |
 
-**WARNING #16 Detail:** Tooltip describes Temporal Finale as "minions attack at 3x speed for 2s (60s CD)" suggesting a sustained attack speed buff. Code implements `ExecuteFinale()` as a single massive nuke dealing `totalMinionDamage * 5f` to the target. The tooltip describes a sustained buff; the code implements a burst. Conceptual mismatch — either update tooltip to describe the nuke, or implement the sustained buff.
+**WARNING #16 Detail:** Tooltip describes Temporal Finale as "minions attack at 3x speed for 2s (60s CD)" suggesting a sustained attack speed buff. Code implements `ExecuteFinale()` as a single massive nuke dealing `totalMinionDamage * 5f` to the target. The tooltip describes a sustained buff; the code implements a burst. Conceptual mismatch  Eeither update tooltip to describe the nuke, or implement the sustained buff.
 
 ---
 
 ## MOBILITY CHAIN (Momentum System)
 
-**System:** `MomentumPlayer.cs` — Moving builds Momentum, standing still decays it. Various effects trigger at thresholds.
+**System:** `MomentumPlayer.cs`  EMoving builds Momentum, standing still decays it. Various effects trigger at thresholds.
 
 ### Tier 1-4 (Seasonal) + T5-T6
 
 | # | Accessory | Tooltip Max Momentum | Code MaxMomentum | Other Stat Check | Verdict |
 |---|-----------|---------------------|-----------------|-----------------|---------|
-| 1 | **ResonantVelocityBand** (T1) | 100 | 100 | +8% moveSpeed ✓, +0.3 runSpeed ✓ | **PASS** |
-| 2 | **SpringZephyrBoots** (T2) | 100 | 100 | +10% moveSpeed ✓, +0.5 runSpeed ✓ | **PASS** |
-| 3 | **SolarBlitzTreads** (T3) | 100 | 100 | +12% moveSpeed ✓, +0.7 runSpeed ✓, fire immunity at 70+ ✓ | **PASS** |
-| 4 | **HarvestPhantomStride** (T4) | 100 | 100 | +14% moveSpeed ✓, +0.9 runSpeed ✓, phase at 80+ ✓ | **PASS** |
-| 5 | **PermafrostAvalancheStep** (T5) | 100 | 100 | +16% moveSpeed ✓, +1.1 runSpeed ✓, +0.5 jump ✓, +5 def at 90+ ✓ | **PASS** |
-| 6 | **VivaldisSeasonalSprint** (T6) | 120 | 120 | +18% moveSpeed ✓, +1.3 runSpeed ✓, +0.8 jump ✓ | **PASS** |
+| 1 | **ResonantVelocityBand** (T1) | 100 | 100 | +8% moveSpeed ✁E +0.3 runSpeed ✁E| **PASS** |
+| 2 | **SpringZephyrBoots** (T2) | 100 | 100 | +10% moveSpeed ✁E +0.5 runSpeed ✁E| **PASS** |
+| 3 | **SolarBlitzTreads** (T3) | 100 | 100 | +12% moveSpeed ✁E +0.7 runSpeed ✁E fire immunity at 70+ ✁E| **PASS** |
+| 4 | **HarvestPhantomStride** (T4) | 100 | 100 | +14% moveSpeed ✁E +0.9 runSpeed ✁E phase at 80+ ✁E| **PASS** |
+| 5 | **PermafrostAvalancheStep** (T5) | 100 | 100 | +16% moveSpeed ✁E +1.1 runSpeed ✁E +0.5 jump ✁E +5 def at 90+ ✁E| **PASS** |
+| 6 | **VivaldisSeasonalSprint** (T6) | 120 | 120 | +18% moveSpeed ✁E +1.3 runSpeed ✁E +0.8 jump ✁E| **PASS** |
 
-### Theme Tier (Post-Moon Lord) — MAX MOMENTUM MISMATCH
+### Theme Tier (Post-Moon Lord)  EMAX MOMENTUM MISMATCH
 
 | # | Accessory | Tooltip Max Momentum | Code MaxMomentum | Verdict |
 |---|-----------|---------------------|-----------------|---------|
@@ -271,31 +271,31 @@ if (HasVivaldisSeasonalSprint || HasMoonlitPhantomsRush || HasHeroicChargeBoots 
 All Theme T1-T5 accessories are grouped with VivaldisSeasonalSprint at 120 max momentum, but their tooltips all say "Enables the Momentum system (max 100)".
 
 **Stat verification for theme accessories (non-momentum stats match):**
-- MoonlitPhantomsRush: +20% speed ✓, +1.5 run ✓, +1.0 jump ✓, +5% dmg at night ✓
-- HeroicChargeBoots: +22% speed ✓, +1.7 run ✓, +1.2 jump ✓, +8 def at 60+ ✓, SoC dash ✓
-- InfernalMeteorStride: +24% speed ✓, +1.9 run ✓, +1.4 jump ✓, +8% dmg at 70+ ✓, lava immune ✓
-- EnigmasPhaseShift: +26% speed ✓, +2.1 run ✓, +1.6 jump ✓, blackBelt at 80+ ✓, teleport 12.5 tiles ✓
-- SwansEternalGlide: +28% speed ✓, +2.3 run ✓, +1.8 jump ✓, +100 wing time ✓, aggro -400 ✓, 50% slower decay ✓
-- FatesCosmicVelocity: +30% speed ✓, +2.5 run ✓, +2.0 jump ✓, +150 wing time ✓, +10% dmg ✓
+- MoonlitPhantomsRush: +20% speed ✁E +1.5 run ✁E +1.0 jump ✁E +5% dmg at night ✁E
+- HeroicChargeBoots: +22% speed ✁E +1.7 run ✁E +1.2 jump ✁E +8 def at 60+ ✁E SoC dash ✁E
+- InfernalMeteorStride: +24% speed ✁E +1.9 run ✁E +1.4 jump ✁E +8% dmg at 70+ ✁E lava immune ✁E
+- EnigmasPhaseShift: +26% speed ✁E +2.1 run ✁E +1.6 jump ✁E blackBelt at 80+ ✁E teleport 12.5 tiles ✁E
+- SwansEternalGlide: +28% speed ✁E +2.3 run ✁E +1.8 jump ✁E +100 wing time ✁E aggro -400 ✁E 50% slower decay ✁E
+- FatesCosmicVelocity: +30% speed ✁E +2.5 run ✁E +2.0 jump ✁E +150 wing time ✁E +10% dmg ✁E
 
-### Post-Fate T7-T10 — UNIMPLEMENTED ABILITIES
+### Post-Fate T7-T10  EUNIMPLEMENTED ABILITIES
 
 | # | Accessory | Tooltip Max | Code Max | Stat Match | Unimplemented Tooltip Feature | Verdict |
 |---|-----------|------------|---------|-----------|------------------------------|---------|
-| 13 | **NocturnalPhantomTreads** (T7) | 175 ✓ | 175 | +30% speed ✓, +2.5 run ✓ | "Consume 125 Momentum: Star Dash" — **NO CODE** | **FAIL** |
-| 14 | **InfernalMeteorTreads** (T8) | 200 ✓ | 200 | +35% speed ✓, +3.0 run ✓ | "Consume 150 Momentum: Meteor Dash (200% weapon damage)" — **NO CODE** | **FAIL** |
-| 15 | **JubilantZephyrTreads** (T9) | 225 ✓ | 225 | +40% speed ✓, +3.5 run ✓, 50% slower decay ✓ | "Consume 175 Momentum: Zephyr Burst" — **NO CODE** | **FAIL** |
-| 16 | **EternalVelocityTreads** (T10) | 250 ✓ | 250 | +50% speed ✓, +4.5 run ✓ | "Consume 200 Momentum: Temporal Teleport (150 blocks)" — **NO CODE** | **FAIL** |
+| 13 | **NocturnalPhantomTreads** (T7) | 175 ✁E| 175 | +30% speed ✁E +2.5 run ✁E| "Consume 125 Momentum: Star Dash"  E**NO CODE** | **FAIL** |
+| 14 | **InfernalMeteorTreads** (T8) | 200 ✁E| 200 | +35% speed ✁E +3.0 run ✁E| "Consume 150 Momentum: Meteor Dash (200% weapon damage)"  E**NO CODE** | **FAIL** |
+| 15 | **JubilantZephyrTreads** (T9) | 225 ✁E| 225 | +40% speed ✁E +3.5 run ✁E 50% slower decay ✁E| "Consume 175 Momentum: Zephyr Burst"  E**NO CODE** | **FAIL** |
+| 16 | **EternalVelocityTreads** (T10) | 250 ✁E| 250 | +50% speed ✁E +4.5 run ✁E| "Consume 200 Momentum: Temporal Teleport (150 blocks)"  E**NO CODE** | **FAIL** |
 
 **FAIL #13-16 Detail:** Each T7-T10 tooltip describes a unique momentum-consuming active ability (Star Dash, Meteor Dash, Zephyr Burst, Temporal Teleport) with specific momentum costs (125/150/175/200). **None of these abilities exist in code.** `MomentumPlayer` only has `TryHeroicDash()` (80 momentum, from T2+) and `TryPhaseShift()` (100 momentum, from T4+). The T7-T10 accessories inherit these base abilities but don't have their own enhanced versions.
 
-**Additional Observation — No Fusion Accessories:** The Mobility chain has NO fusion accessories (T7-T10 + no fusions = 16 total), unlike every other chain which has T7-T10 + 3 fusions = 22 total. This appears intentional but is worth noting if fusions were planned.
+**Additional Observation  ENo Fusion Accessories:** The Mobility chain has NO fusion accessories (T7-T10 + no fusions = 16 total), unlike every other chain which has T7-T10 + 3 fusions = 22 total. This appears intentional but is worth noting if fusions were planned.
 
-**Additional Issue — Time Slow Implementation:** Both FatesCosmicVelocity (tooltip: "enemies slowed by 20%") and EternalVelocityTreads (tooltip: "Time slows 40% for nearby enemies") use the **same** `ApplyTimeSlowToNearbyEnemies()` method with identical `npc.velocity *= 0.92f` per frame. No differentiation between the 20% and 40% slow values described in tooltips.
+**Additional Issue  ETime Slow Implementation:** Both FatesCosmicVelocity (tooltip: "enemies slowed by 20%") and EternalVelocityTreads (tooltip: "Time slows 40% for nearby enemies") use the **same** `ApplyTimeSlowToNearbyEnemies()` method with identical `npc.velocity *= 0.92f` per frame. No differentiation between the 20% and 40% slow values described in tooltips.
 
 ---
 
-## ALL FAILURES — CONSOLIDATED
+## ALL FAILURES  ECONSOLIDATED
 
 ### Critical (Wrong values or missing code)
 

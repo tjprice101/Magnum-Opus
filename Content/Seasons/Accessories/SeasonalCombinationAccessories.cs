@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ID;
@@ -56,7 +56,7 @@ namespace MagnumOpus.Content.Seasons.Accessories
             tooltips.Add(new TooltipLine(Mod, "Combo", "Spring + Autumn Combination") { OverrideColor = Color.Lerp(springGreen, autumnOrange, 0.5f) });
             tooltips.Add(new TooltipLine(Mod, "Spring", "+4 life regen, +8% damage") { OverrideColor = springGreen });
             tooltips.Add(new TooltipLine(Mod, "Autumn", "+8% crit chance, +10 defense") { OverrideColor = autumnOrange });
-            tooltips.Add(new TooltipLine(Mod, "LifeSteal", "20% chance to life steal on hit") { OverrideColor = autumnOrange });
+            tooltips.Add(new TooltipLine(Mod, "LifeSteal", "20% chance to steal 4% of damage dealt as HP (max 8 HP)") { OverrideColor = autumnOrange });
             tooltips.Add(new TooltipLine(Mod, "Thorns", "Attackers take 80% damage back") { OverrideColor = autumnOrange });
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Balance between life and death, growth and decay'") { OverrideColor = Color.Lerp(springGreen, autumnOrange, 0.5f) });
         }
@@ -190,7 +190,7 @@ namespace MagnumOpus.Content.Seasons.Accessories
             tooltips.Add(new TooltipLine(Mod, "Defense", "+15 defense, +8% damage reduction") { OverrideColor = autumnBrown });
             tooltips.Add(new TooltipLine(Mod, "Regen", "+5 life regeneration") { OverrideColor = springGreen });
             tooltips.Add(new TooltipLine(Mod, "Elements", "Inflicts On Fire! and Frostburn, applies Thorns") { OverrideColor = Color.Lerp(summerOrange, winterCyan, 0.5f) });
-            tooltips.Add(new TooltipLine(Mod, "LifeSteal", "20% chance to life steal on hit") { OverrideColor = autumnBrown });
+            tooltips.Add(new TooltipLine(Mod, "LifeSteal", "20% chance to steal 4% of damage dealt as HP (max 8 HP)") { OverrideColor = autumnBrown });
             tooltips.Add(new TooltipLine(Mod, "Immunity", "Immune to Frozen, On Fire!, and Frostburn") { OverrideColor = winterCyan });
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The eternal cycle turns, granting power over all seasons'") { OverrideColor = Main.hslToRgb((Main.GameUpdateCount * 0.01f + 0.5f) % 1f, 0.8f, 0.7f) });
         }
@@ -297,15 +297,10 @@ namespace MagnumOpus.Content.Seasons.Accessories
                 // Grand lifesteal VFX with music note!
                 float hue = Main.rand.NextFloat();
                 Color vfxColor = Main.hslToRgb(hue, 0.8f, 0.7f);
-                CustomParticles.GenericFlare(target.Center, Color.White * 0.6f, 0.55f, 20);
-                CustomParticles.GenericFlare(target.Center, vfxColor, 0.52f, 18);
                 
                 // ☁ESPARKLE accent
-                var sparkle = new SparkleParticle(target.Center, Main.rand.NextVector2Circular(2f, 2f), vfxColor * 0.6f, 0.22f, 14);
-                MagnumParticleHandler.SpawnParticle(sparkle);
                 
                 // ☁EMUSICAL NOTATION - Lifesteal note! - VISIBLE SCALE 0.7f+
-                ThemedParticles.MusicNote(target.Center, new Vector2(0, -2f), vfxColor * 0.9f, 0.7f, 25);
             }
         }
     }

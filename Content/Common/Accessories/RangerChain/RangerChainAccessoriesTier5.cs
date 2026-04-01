@@ -35,11 +35,12 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         {
             var markingPlayer = player.GetModPlayer<MarkingPlayer>();
             markingPlayer.hasMoonlitPredatorsGaze = true;
+            player.nightVision = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "See enemies through walls (glowing indicator)")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Night vision")
             {
                 OverrideColor = new Color(200, 200, 230)
             });
@@ -141,7 +142,7 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
                 OverrideColor = CampanellaOrange
             });
 
-            tooltips.Add(new TooltipLine(Mod, "BurnNote", "Burn: 3 damage per second for 5 seconds")
+            tooltips.Add(new TooltipLine(Mod, "BurnNote", "Inflicts On Fire! for 5 seconds")
             {
                 OverrideColor = new Color(255, 180, 80)
             });
@@ -187,14 +188,9 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "15% chance to spawn bonus projectile on ranged hit")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "15% chance for visual spark effects on ranged hit")
             {
                 OverrideColor = new Color(80, 180, 120)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "ParadoxNote", "Bonus projectile deals 50% damage")
-            {
-                OverrideColor = EnigmaPurple
             });
 
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The mark spreads like questions without answers'")

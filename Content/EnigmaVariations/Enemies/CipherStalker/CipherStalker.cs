@@ -11,6 +11,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Enemies
 {
     public class CipherStalker : ModNPC
     {
+        public override string Texture => "MagnumOpus/Content/EnigmaVariations/Enemies/CipherStalker/CipherStalker";
+
         private static readonly Color VoidPurple = new Color(80, 20, 140);
         private static readonly Color EerieGreen = new Color(50, 180, 80);
 

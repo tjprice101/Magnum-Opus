@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -9,7 +9,7 @@ using ReLogic.Content;
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown.Particles
 {
     // =========================================================================
-    //  VOICE WISP 窶・Ethereal wisps orbiting the player alongside voice projectiles.
+    //  VOICE WISP  -- Ethereal wisps orbiting the player alongside voice projectiles.
     //  Faint phantom faces or sound waves, like spectral choir members drifting.
     //  Additive, 3-layer soft glow on velocity-squished Halo1 texture.
     // =========================================================================
@@ -69,17 +69,17 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown.
             if (largestLayer.Y > 0.139f) voiceCap = MathHelper.Min(voiceCap, 0.139f / largestLayer.Y);
             squishScale *= voiceCap;
 
-            // Layer 1: Outer spectral halo 窶・the voice's echo
+            // Layer 1: Outer spectral halo  -- the voice's echo
             sb.Draw(tex, drawPos, null, drawColor * 0.2f, Rotation, tex.Size() / 2f, squishScale * 2.8f, SpriteEffects.None, 0f);
-            // Layer 2: Mid glow 窶・the voice itself
+            // Layer 2: Mid glow  -- the voice itself
             sb.Draw(tex, drawPos, null, drawColor * 0.55f, Rotation, tex.Size() / 2f, squishScale * 1.2f, SpriteEffects.None, 0f);
-            // Layer 3: White-hot core 窶・the note's attack
+            // Layer 3: White-hot core  -- the note's attack
             sb.Draw(tex, drawPos, null, Color.White * alpha * 0.3f, Rotation, tex.Size() / 2f, squishScale * 0.4f, SpriteEffects.None, 0f);
         }
     }
 
     // =========================================================================
-    //  ECHO MARK 窶・Pulsing glyph hovering above enemies with echo mark stacks.
+    //  ECHO MARK  -- Pulsing glyph hovering above enemies with echo mark stacks.
     //  Orbits the enemy position, growing more intense with higher stack count.
     //  AlphaBlend, uses Glyph textures.
     // =========================================================================
@@ -140,7 +140,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown.
             var tex = ModContent.Request<Texture2D>(glyphPath, AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Position - Main.screenPosition;
 
-            // Soft teal glow halo behind the glyph 窶・echo resonance
+            // Soft teal glow halo behind the glyph  -- echo resonance
             var glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftRadialBloom", AssetRequestMode.ImmediateLoad).Value;
             Color glowColor = FugueUtils.EchoTeal * alpha * 0.3f;
             sb.Draw(glowTex, drawPos, null, glowColor, 0f, glowTex.Size() / 2f, MathHelper.Min(Scale * 3f, 0.139f), SpriteEffects.None, 0f);
@@ -150,7 +150,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown.
     }
 
     // =========================================================================
-    //  CONVERGENCE FLASH 窶・Bright burst when chain detonation triggers.
+    //  CONVERGENCE FLASH  -- Bright burst when chain detonation triggers.
     //  Expanding ring with center flare, like all voices reaching unison.
     //  Additive, custom draw with radial bloom + halo ring.
     // =========================================================================
@@ -195,7 +195,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown.
             // White-hot core
             sb.Draw(flareTex, drawPos, null, Color.White * alpha * 0.6f, Rotation, flareTex.Size() / 2f, MathHelper.Min(flareScale * 0.3f, 0.139f), SpriteEffects.None, 0f);
 
-            // Expanding ring 窶・the resonance wave
+            // Expanding ring  -- the resonance wave
             var ringTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad).Value;
             float ringRadius = FugueUtils.SineOut(progress) * _maxRingRadius;
             float ringAlpha = alpha * 0.7f * (1f - progress);
@@ -205,7 +205,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.FugueOfTheUnknown.
     }
 
     // =========================================================================
-    //  FUGUE TRAIL MOTE 窶・Small trailing motes behind flying voice projectiles.
+    //  FUGUE TRAIL MOTE  -- Small trailing motes behind flying voice projectiles.
     //  Fading teal-to-purple like an echo decaying across registers.
     //  Additive, simple 2-layer draw with SparkleFlare1.
     // =========================================================================

@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
@@ -20,7 +20,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
     /// The held spinning sword that orbits the player during each Coda swing.
     /// Orbit radius 65f, �E�ｱ144�E�ｰ arc (0.8�E�), swing speed 0.12 rad/frame.
     /// Deals melee damage via line collision from player center to tip.
-    /// Self-contained VFX 窶・uses own particle handler for all effects.
+    /// Self-contained VFX  -- uses own particle handler for all effects.
     /// </summary>
     public class CodaHeldSwing : ModProjectile
     {
@@ -133,7 +133,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
             // Keep alive
             Projectile.timeLeft = 2;
 
-            // Advance swing angle 窶・�E�ｱ144�E�ｰ arc
+            // Advance swing angle  -- �E�ｱ144�E�ｰ arc
             // Advance swing via piecewise curve
             float progress = 1f - (float)owner.itemAnimation / _swingDuration;
             progress = MathHelper.Clamp(progress, 0f, 1f);
@@ -203,7 +203,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
                     14));
             }
 
-            // Glyphs 窶・fate's runes
+            // Glyphs  -- fate's runes
             if (Main.rand.NextBool(15))
             {
                 CodaParticleHandler.SpawnParticle(new GlyphBurstParticle(
@@ -213,7 +213,7 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation.Projectiles
                     16));
             }
 
-            // Music notes 窶・the coda's symphony
+            // Music notes  -- the coda's symphony
             if (Main.rand.NextBool(8))
             {
                 Color noteColor = Color.Lerp(CodaUtils.CodaCrimson, CodaUtils.CodaPurple, Main.rand.NextFloat());

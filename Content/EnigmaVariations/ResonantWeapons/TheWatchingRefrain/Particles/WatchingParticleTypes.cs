@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -9,7 +9,7 @@ using ReLogic.Content;
 namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain.Particles
 {
     // =========================================================================
-    //  PHANTOM WISP 窶・Ghostly wisps that drift around the phantom minion,
+    //  PHANTOM WISP  -- Ghostly wisps that drift around the phantom minion,
     //  like ethereal breath. Additive, 3-layer glow, velocity-squished, orbiting.
     // =========================================================================
     public class PhantomWispParticle : WatchingParticle
@@ -80,7 +80,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
     }
 
     // =========================================================================
-    //  WATCHING EYE 窶・Floating eye-like glyph particles that blink/pulse
+    //  WATCHING EYE  -- Floating eye-like glyph particles that blink/pulse
     //  when the minion shifts phase. AlphaBlend, uses Glyph textures,
     //  scale pulses in/out like an eye blinking.
     // =========================================================================
@@ -142,7 +142,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
     }
 
     // =========================================================================
-    //  MYSTERY ZONE RIPPLE 窶・Expanding ripple rings at mystery zone boundaries,
+    //  MYSTERY ZONE RIPPLE  -- Expanding ripple rings at mystery zone boundaries,
     //  like gravitational waves. Additive, custom draw rendering concentric rings
     //  from triangle-fan, fading outward.
     // =========================================================================
@@ -200,7 +200,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
     }
 
     // =========================================================================
-    //  PHANTOM BOLT TRAIL MOTE 窶・Small streaking motes behind phantom bolt
+    //  PHANTOM BOLT TRAIL MOTE  -- Small streaking motes behind phantom bolt
     //  projectiles. Additive, simple 2-layer with SparkleFlare1, short lifetime,
     //  velocity-stretched.
     // =========================================================================

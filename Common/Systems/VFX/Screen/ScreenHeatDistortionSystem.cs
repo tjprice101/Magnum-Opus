@@ -66,7 +66,6 @@ namespace MagnumOpus.Common.Systems.VFX
         private Texture2D _noiseTexture;
         private RenderTarget2D _screenCapture;
         private bool _isRendering;
-        private bool _needsRender;
         
         // Shader parameters
         private float _globalDistortionScale = 1f;
@@ -255,7 +254,6 @@ namespace MagnumOpus.Common.Systems.VFX
             };
             
             _sources.Add(source);
-            _needsRender = true;
             
             return source.Id;
         }
@@ -282,7 +280,6 @@ namespace MagnumOpus.Common.Systems.VFX
         private void UpdateAllSources()
         {
             float deltaTime = 1f / 60f;
-            _needsRender = false;
             
             for (int i = _sources.Count - 1; i >= 0; i--)
             {
@@ -315,7 +312,6 @@ namespace MagnumOpus.Common.Systems.VFX
                 if (screenPos.X > -source.Radius && screenPos.X < Main.screenWidth + source.Radius &&
                     screenPos.Y > -source.Radius && screenPos.Y < Main.screenHeight + source.Radius)
                 {
-                    _needsRender = true;
                 }
             }
         }

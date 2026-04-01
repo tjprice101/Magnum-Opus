@@ -42,7 +42,6 @@ namespace MagnumOpus.Common.Systems.VFX
         // Noise scrolling
         private float _noiseScrollX;
         private float _noiseScrollY;
-        private float _noiseScale = 1f;
         private float _noiseSpeed = 0.5f;
         
         // Vignette
@@ -240,7 +239,6 @@ namespace MagnumOpus.Common.Systems.VFX
                     _secondaryColor = new Color(200, 50, 50);   // Scarlet
                     _ambientTint = new Color(255, 220, 150);    // Warm golden
                     _noiseSpeed = 0.3f;
-                    _noiseScale = 0.8f;
                     break;
                     
                 case SkyboxEffect.LaCampanellaInferno:
@@ -248,7 +246,6 @@ namespace MagnumOpus.Common.Systems.VFX
                     _secondaryColor = new Color(20, 15, 20);    // Black smoke
                     _ambientTint = new Color(255, 150, 100);    // Infernal
                     _noiseSpeed = 0.6f;
-                    _noiseScale = 1.2f;
                     break;
                     
                 case SkyboxEffect.SwanLakeMonochrome:
@@ -256,7 +253,6 @@ namespace MagnumOpus.Common.Systems.VFX
                     _secondaryColor = new Color(20, 20, 30);    // Deep black
                     _ambientTint = new Color(240, 240, 255);    // Cool white
                     _noiseSpeed = 0.2f;
-                    _noiseScale = 0.6f;
                     break;
                     
                 case SkyboxEffect.MoonlightLunar:
@@ -264,7 +260,6 @@ namespace MagnumOpus.Common.Systems.VFX
                     _secondaryColor = new Color(75, 0, 130);    // Dark purple
                     _ambientTint = new Color(180, 160, 220);    // Lunar purple
                     _noiseSpeed = 0.15f;
-                    _noiseScale = 0.5f;
                     break;
                     
                 case SkyboxEffect.EnigmaVoid:
@@ -272,7 +267,6 @@ namespace MagnumOpus.Common.Systems.VFX
                     _secondaryColor = new Color(15, 10, 20);    // Void black
                     _ambientTint = new Color(80, 120, 100);     // Eerie
                     _noiseSpeed = 0.8f;
-                    _noiseScale = 1.5f;
                     break;
                     
                 case SkyboxEffect.FateCosmic:
@@ -280,7 +274,6 @@ namespace MagnumOpus.Common.Systems.VFX
                     _secondaryColor = new Color(15, 5, 20);     // Void
                     _ambientTint = new Color(200, 150, 180);    // Cosmic pink
                     _noiseSpeed = 0.4f;
-                    _noiseScale = 2f;
                     _chromaticIntensity = 0.1f;
                     break;
                     
@@ -289,7 +282,6 @@ namespace MagnumOpus.Common.Systems.VFX
                     _secondaryColor = new Color(40, 10, 10);    // Dark crimson
                     _ambientTint = new Color(255, 100, 100);    // Wrath
                     _noiseSpeed = 1f;
-                    _noiseScale = 1.8f;
                     break;
                     
                 case SkyboxEffect.ClairDeLuneDream:
@@ -297,7 +289,6 @@ namespace MagnumOpus.Common.Systems.VFX
                     _secondaryColor = new Color(100, 120, 160); // Night mist
                     _ambientTint = new Color(180, 200, 240);    // Dreamy
                     _noiseSpeed = 0.1f;
-                    _noiseScale = 0.4f;
                     break;
                     
                 default:

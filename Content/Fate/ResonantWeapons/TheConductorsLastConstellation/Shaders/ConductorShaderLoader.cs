@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria;
 using Terraria.Graphics.Shaders;
@@ -10,10 +10,10 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation
     /// Self-contained shader loader for The Conductor's Last Constellation.
     /// Loads 4 unique shaders from Effects/Fate/TheConductorsLastConstellation/:
     ///
-    ///   1. ConductorSwingTrail      窶・Main swing arc trail (2 techniques: main + glow)
-    ///   2. ConductorBeamShader      窶・Beam rendering for homing sword beams
-    ///   3. ConductorLightningShader 窶・Lightning cascade electric effect
-    ///   4. ConductorConvergence     窶・Convergence explosion on 3rd combo
+    ///   1. ConductorSwingTrail       -- Main swing arc trail (2 techniques: main + glow)
+    ///   2. ConductorBeamShader       -- Beam rendering for homing sword beams
+    ///   3. ConductorLightningShader  -- Lightning cascade electric effect
+    ///   4. ConductorConvergence      -- Convergence explosion on 3rd combo
     ///
     /// Keys (5 total, because swing trail has 2 techniques):
     ///   "MagnumOpus:ConductorSwingTrail"

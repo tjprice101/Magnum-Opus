@@ -592,48 +592,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Particles
     }
 
     /// <summary>
-    /// Tidal mist wisp using the MS Tidal Mist Wisp texture.
-    /// Slow-expanding mist that enhances atmospheric depth around swing paths.
-    /// </summary>
-    public class TidalMistWispParticle : LunarParticle
-    {
-        public override bool SetLifetime => true;
-        public override bool UseAdditiveBlend => true;
-        public override bool UseCustomDraw => true;
-
-        public TidalMistWispParticle(Vector2 position, Vector2 velocity, float scale, Color color, int lifetime)
-        {
-            Position = position;
-            Velocity = velocity;
-            Scale = scale;
-            DrawColor = color;
-            Lifetime = lifetime;
-            Rotation = Main.rand.NextFloat(MathHelper.TwoPi);
-        }
-
-        public override void Update()
-        {
-            Velocity *= 0.97f;
-            Scale += 0.006f;
-            Rotation += 0.002f;
-        }
-
-        public override void CustomDraw(SpriteBatch spriteBatch)
-        {
-            Texture2D tex = LunarThemeTextures.MSTidalMistWisp;
-            Vector2 origin = tex.Size() * 0.5f;
-            Vector2 drawPos = Position - Main.screenPosition;
-
-            float opacity = EternalMoonUtils.SineBumpEasing(LifetimeCompletion, 1) * 0.25f;
-            Color color = Color.Lerp(DrawColor, EternalMoonUtils.DarkPurple, LifetimeCompletion * 0.5f);
-            color.A = 0;
-
-            spriteBatch.Draw(tex, drawPos, null, color * opacity,
-                Rotation, origin, MathHelper.Min(Scale * 0.22f, 0.195f), SpriteEffects.None, 0f);
-        }
-    }
-
-    /// <summary>
     /// Star flare particle using the MS Star Flare texture.
     /// Bright, pulsing 4-pointed flash at swing impact points and combo finisher peaks.
     /// </summary>
@@ -762,51 +720,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.EternalMoon.Particles
 
             spriteBatch.Draw(tex, drawPos, null, color * fade,
                 0f, origin, MathHelper.Min(Scale * 0.5f, 0.293f), SpriteEffects.None, 0f);
-        }
-    }
-
-    /// <summary>
-    /// Power effect ring using the MS Power Effect Ring texture.
-    /// Concentrated ring burst at tidal surge activation and finisher impacts.
-    /// </summary>
-    public class LunarPowerRingParticle : LunarParticle
-    {
-        private readonly float _maxScale;
-
-        public override bool SetLifetime => true;
-        public override bool UseAdditiveBlend => true;
-        public override bool UseCustomDraw => true;
-
-        public LunarPowerRingParticle(Vector2 position, Color color, float maxScale, int lifetime)
-        {
-            Position = position;
-            Velocity = Vector2.Zero;
-            DrawColor = color;
-            _maxScale = maxScale;
-            Lifetime = lifetime;
-            Scale = 0.1f;
-            Rotation = Main.rand.NextFloat(MathHelper.TwoPi);
-        }
-
-        public override void Update()
-        {
-            float t = LifetimeCompletion;
-            Scale = _maxScale * (float)(1.0 - Math.Pow(1.0 - t, 3));
-            Rotation += 0.01f;
-        }
-
-        public override void CustomDraw(SpriteBatch spriteBatch)
-        {
-            Texture2D tex = LunarThemeTextures.MSPowerEffectRing;
-            Vector2 origin = tex.Size() * 0.5f;
-            Vector2 drawPos = Position - Main.screenPosition;
-
-            float fade = (1f - (float)Math.Pow(LifetimeCompletion, 1.5f)) * 0.6f;
-            Color color = DrawColor;
-            color.A = 0;
-
-            spriteBatch.Draw(tex, drawPos, null, color * fade,
-                Rotation, origin, MathHelper.Min(Scale * 0.35f, 0.293f), SpriteEffects.None, 0f);
         }
     }
 

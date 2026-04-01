@@ -191,7 +191,7 @@ namespace MagnumOpus.Content.Common.Accessories
                 OverrideColor = new Color(200, 170, 255)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "ManaRegen", "Improved mana regeneration")
+            tooltips.Add(new TooltipLine(Mod, "ManaRegen", "+15 mana regeneration")
             {
                 OverrideColor = new Color(100, 150, 255)
             });

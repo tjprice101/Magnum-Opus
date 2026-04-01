@@ -32,15 +32,15 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             var momentumPlayer = player.GetModPlayer<MomentumPlayer>();
             momentumPlayer.HasVelocityBand = true;
             
-            // Base movement boost
-            player.moveSpeed += 0.08f;
+            // Inherited from Aglet (+5%) + Anklet of the Wind (+10%)
+            player.moveSpeed += 0.15f;
             player.maxRunSpeed += 0.3f;
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+8% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+15% movement speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "+0.3 max run speed"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The first step toward transcending mortal limits'") { OverrideColor = new Color(150, 200, 100) });
         }
@@ -78,7 +78,7 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             momentumPlayer.HasSpringZephyrBoots = true;
             
             // Base stats inherited from lower tier
-            player.moveSpeed += 0.10f;
+            player.moveSpeed += 0.17f;
             player.maxRunSpeed += 0.5f;
             
             // Enhanced jump height
@@ -89,11 +89,9 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+10% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+17% movement speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "+0.5 max run speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Enhanced jump height and auto jump"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "+10% speed at 50+ momentum"));
-            tooltips.Add(new TooltipLine(Mod, "Effect6", "Double jump resets at 80+ momentum"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Spring winds carry those who embrace the changing seasons'") { OverrideColor = new Color(150, 200, 100) });
         }
         
@@ -130,7 +128,7 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             momentumPlayer.HasSolarBlitzTreads = true;
             
             // Enhanced stats
-            player.moveSpeed += 0.12f;
+            player.moveSpeed += 0.19f;
             player.maxRunSpeed += 0.7f;
             player.jumpBoost = true;
             player.autoJump = true;
@@ -146,11 +144,10 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+12% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+19% movement speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "+0.7 max run speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Enhanced jump height and auto jump"));
             tooltips.Add(new TooltipLine(Mod, "Effect5", "Fire immunity at 70+ momentum"));
-            tooltips.Add(new TooltipLine(Mod, "Effect6", "Leave a fire trail that damages enemies"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Summer's fury blazes beneath every step'") { OverrideColor = new Color(150, 200, 100) });
         }
         
@@ -187,7 +184,7 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             momentumPlayer.HasHarvestPhantomStride = true;
             
             // Enhanced stats
-            player.moveSpeed += 0.14f;
+            player.moveSpeed += 0.21f;
             player.maxRunSpeed += 0.9f;
             player.jumpBoost = true;
             player.autoJump = true;
@@ -200,12 +197,10 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+14% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+21% movement speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "+0.9 max run speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Enhanced jump height and auto jump"));
             tooltips.Add(new TooltipLine(Mod, "Effect5", "Fire immunity"));
-            tooltips.Add(new TooltipLine(Mod, "Effect6", "Phase through enemies at 80+ momentum"));
-            tooltips.Add(new TooltipLine(Mod, "Effect7", "Reduced contact damage while phasing"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Autumn's spirits guide the worthy through shadow'") { OverrideColor = new Color(150, 200, 100) });
         }
         
@@ -242,7 +237,7 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             momentumPlayer.HasPermafrostAvalancheStep = true;
             
             // Enhanced stats
-            player.moveSpeed += 0.16f;
+            player.moveSpeed += 0.23f;
             player.maxRunSpeed += 1.1f;
             player.jumpBoost = true;
             player.autoJump = true;
@@ -262,13 +257,12 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+16% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+23% movement speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "+1.1 max run speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "+0.5 jump speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect5", "Enhanced jump height and auto jump"));
             tooltips.Add(new TooltipLine(Mod, "Effect6", "Fire immunity"));
             tooltips.Add(new TooltipLine(Mod, "Effect7", "+5 defense at 90+ momentum"));
-            tooltips.Add(new TooltipLine(Mod, "Effect8", "Leave an ice trail and perform ice dash at 100 momentum"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Winter's embrace hardens the soul against all adversity'") { OverrideColor = new Color(150, 200, 100) });
         }
         
@@ -305,7 +299,7 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             momentumPlayer.HasVivaldisSeasonalSprint = true;
             
             // Max stats for pre-Moon Lord
-            player.moveSpeed += 0.18f;
+            player.moveSpeed += 0.25f;
             player.maxRunSpeed += 1.3f;
             player.jumpBoost = true;
             player.autoJump = true;
@@ -316,17 +310,23 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             player.buffImmune[BuffID.Burning] = true;
             player.buffImmune[BuffID.Frostburn] = true;
             player.buffImmune[BuffID.Chilled] = true;
+            
+            // Inherited from T5: defense at high momentum
+            if (momentumPlayer.CurrentMomentum >= 90f)
+            {
+                player.statDefense += 5;
+            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 120)"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+18% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+25% movement speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "+1.3 max run speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "+0.8 jump speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect5", "Enhanced jump height and auto jump"));
             tooltips.Add(new TooltipLine(Mod, "Effect6", "Fire and ice immunity"));
-            tooltips.Add(new TooltipLine(Mod, "Effect7", "Seasonal trail effects cycle with time"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "+5 defense at 90+ momentum"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Four seasons dance as one beneath your feet'") { OverrideColor = new Color(150, 200, 100) });
         }
         

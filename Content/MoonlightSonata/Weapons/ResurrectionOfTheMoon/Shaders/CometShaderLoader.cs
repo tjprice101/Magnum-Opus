@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria.Graphics.Shaders;
 using Terraria.ModLoader;
@@ -8,12 +8,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.ResurrectionOfTheMoon.Shade
     /// <summary>
     /// Loads and registers all Resurrection of the Moon weapon-specific shaders.
     /// Shader keys:
-    ///   "MagnumOpus:CometTrailMain"       窶・Burning comet tail trail body (ember scrolling + cooling gradient)
-    ///   "MagnumOpus:CometTrailGlow"        窶・Comet trail glow pass (bloom underlayer)
-    ///   "MagnumOpus:SupernovaBlastMain"    窶・Radial crater explosion (full effect with lances)
-    ///   "MagnumOpus:SupernovaBlastRing"    窶・Shockwave ring overlay for supernova
-    ///   "MagnumOpus:CometLunarBeam"        窶・Shared LunarBeam shader for fallback trails
-    ///   "MagnumOpus:CometStandardPrimitive"窶・Fallback primitive shader
+    ///   "MagnumOpus:CometTrailMain"        -- Burning comet tail trail body (ember scrolling + cooling gradient)
+    ///   "MagnumOpus:CometTrailGlow"         -- Comet trail glow pass (bloom underlayer)
+    ///   "MagnumOpus:SupernovaBlastMain"     -- Radial crater explosion (full effect with lances)
+    ///   "MagnumOpus:SupernovaBlastRing"     -- Shockwave ring overlay for supernova
+    ///   "MagnumOpus:CometLunarBeam"         -- Shared LunarBeam shader for fallback trails
+    ///   "MagnumOpus:CometStandardPrimitive" -- Fallback primitive shader
     /// </summary>
     [Autoload(Side = ModSide.Client)]
     public sealed class CometShaderLoader : ModSystem

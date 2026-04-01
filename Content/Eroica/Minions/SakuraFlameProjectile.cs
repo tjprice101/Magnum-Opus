@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
@@ -12,7 +12,7 @@ using ReLogic.Content;
 namespace MagnumOpus.Content.Eroica.Minions
 {
     /// <summary>
-    /// Sakura Flame 窶・dark flamethrower projectile from Sakura of Fate minion.
+    /// Sakura Flame  -- dark flamethrower projectile from Sakura of Fate minion.
     /// Self-contained VFX: flame trail, dark fire afterimages, impact sparks.
     /// </summary>
     public class SakuraFlameProjectile : ModProjectile

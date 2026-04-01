@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using Terraria;
@@ -148,23 +148,31 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 OverrideColor = opusColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+60 max life, +80 max mana, +1 minion, +1 sentry")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+60 max life, +80 max mana, +8 life regen, +4 mana regen, +1 minion, +1 sentry")
             {
                 OverrideColor = opusColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Theme bonuses: Eroica (melee speed/armor penetration), Campanella (magic power/mana efficiency), Enigma (ranged + ammo economy), Swan (summon + whip reach)")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Eroica: +14% melee, +15% speed, +10 crit, +12 armor pen | Campanella: +16% magic, +10 crit, -10% mana cost")
             {
                 OverrideColor = opusColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+8 life regen, +4 mana regen, +12% damage reduction, 150% thorns")
+            tooltips.Add(new TooltipLine(Mod, "Effect3b", "Enigma: +14% ranged, +8 crit, 20% ammo savings | Swan: +14% summon, +8 crit, +12% whip range, +25% speed")
             {
                 OverrideColor = opusColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Paradox stacks trigger grand explosions, bell ring AOE, inflicts fire and frostburn")
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+12% damage reduction, 150% thorns, +6 crit at night, +15 defense at night")
             {
                 OverrideColor = opusColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect6", "Immunity to fire, frost, and poison effects")
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "20% Paradox stacking (5 stacks = 500% dmg + 250 range AOE), 16% Bell ring stun (180 range, 65% AOE)")
+            {
+                OverrideColor = opusColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "8% lifesteal (max 20 HP), kills grant Heroic Surge (+10% speed, +6% DR), 18%/14% dodge")
+            {
+                OverrideColor = opusColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "Immunity to On Fire, Burning, Frozen, Frostburn, Chilled, and Poisoned")
             {
                 OverrideColor = opusColor
             });
@@ -310,7 +318,6 @@ namespace MagnumOpus.Content.Common.Accessories
         private void TriggerOpusCollapse(NPC target, int baseDamage, bool isNight)
         {
             // GRAND OPUS EXPLOSION
-            CustomParticles.GenericFlare(target.Center, Color.White, 2.5f, 45);
             
             Color[] allColors = {
                 new Color(255, 183, 197), // Spring
@@ -324,37 +331,11 @@ namespace MagnumOpus.Content.Common.Accessories
                 SwanColors.GetRainbow(0f)
             };
             
-            for (int i = 0; i < 9; i++)
-            {
-                CustomParticles.GenericFlare(target.Center, allColors[i], 1.8f - i * 0.15f, 38 - i * 2);
-            }
             
-            for (int ring = 0; ring < 18; ring++)
-            {
-                CustomParticles.HaloRing(target.Center, allColors[ring % 9], 0.4f + ring * 0.12f, 22 + ring * 2);
-            }
             
-            ThemedParticles.SakuraPetals(target.Center, 18, 70f);
             
-            for (int i = 0; i < 24; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 24f;
-                Vector2 featherPos = target.Center + angle.ToRotationVector2() * 55f;
-                CustomParticles.SwanFeatherDrift(featherPos, i % 2 == 0 ? SwanColors.White : MoonlightColors.Silver, 0.6f);
-            }
             
-            for (int i = 0; i < 30; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 30f;
-                float radius = 45f + i * 6f;
-                Vector2 pos = target.Center + angle.ToRotationVector2() * radius;
-                CustomParticles.Glyph(pos, EnigmaColors.Purple, 0.6f, -1);
-            }
             
-            for (int i = 0; i < 9; i++)
-            {
-                CustomParticles.ExplosionBurst(target.Center, allColors[i], 15, 12f - i * 0.5f);
-            }
             
             if (Main.myPlayer == Player.whoAmI)
             {
@@ -378,7 +359,6 @@ namespace MagnumOpus.Content.Common.Accessories
                 }
             }
             
-            MagnumScreenEffects.AddScreenShake(20f);
         }
 
         public override bool FreeDodge(Player.HurtInfo info)
@@ -393,18 +373,6 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 dodgeCooldown = 60;
                 
-                CustomParticles.GenericFlare(Player.Center, Color.White, 1.8f, 32);
-                
-                Color[] colors = {
-                    MoonlightColors.Purple, EroicaColors.Gold,
-                    CampanellaColors.Orange, EnigmaColors.GreenFlame, SwanColors.GetRainbow(0f)
-                };
-                
-                for (int i = 0; i < 5; i++)
-                    CustomParticles.GenericFlare(Player.Center, colors[i], 1.2f - i * 0.15f, 28 - i * 2);
-                
-                for (int i = 0; i < 12; i++)
-                    CustomParticles.HaloRing(Player.Center, colors[i % 5], 0.35f + i * 0.08f, 14 + i * 2);
                 
                 // Dodge damage
                 if (Main.myPlayer == Player.whoAmI)
@@ -523,7 +491,11 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 OverrideColor = cosmicColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Melee/ranged/magic/summon each gain tuned class-specific bonuses")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Melee: +14% dmg, +18% speed, +10 crit, +15 armor pen | Ranged: +16% dmg, +10 crit, +14 armor pen, Ammo Box")
+            {
+                OverrideColor = cosmicColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect2b", "Magic: +16% dmg, +8 crit, -14% mana cost, +6 mana regen | Summon: +15% dmg, +15% whip range")
             {
                 OverrideColor = cosmicColor
             });
@@ -531,11 +503,15 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 OverrideColor = cosmicColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+40 max life, +60 max mana, +6% damage reduction, Ammo Box and mana economy")
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+40 max life, +60 max mana, +6% damage reduction")
             {
                 OverrideColor = cosmicColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "12% cosmic dodge chance with damage burst")
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Every 6th melee hit echoes 80% damage, 15% chance to mark enemies with Ichor (300 range)")
+            {
+                OverrideColor = cosmicColor
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Cosmic Mana Burst restores 100 mana when below 30% (5-sec cooldown), 12% dodge")
             {
                 OverrideColor = cosmicColor
             });
@@ -588,9 +564,6 @@ namespace MagnumOpus.Content.Common.Accessories
                     int echoDamage = (int)(damageDone * 0.8f);
                     target.SimpleStrikeNPC(echoDamage, 0, false, 0, null, false, 0, true);
                     
-                    CustomParticles.GenericFlare(target.Center, FateCosmicVFX.FateDarkPink, 0.8f, 20);
-                    CustomParticles.HaloRing(target.Center, FateCosmicVFX.FatePurple, 0.5f, 16);
-                    CustomParticles.GlyphBurst(target.Center, FateCosmicVFX.FatePurple, 5, 4f);
                 }
             }
             
@@ -607,7 +580,6 @@ namespace MagnumOpus.Content.Common.Accessories
                         if (Vector2.Distance(npc.Center, target.Center) <= markRadius)
                         {
                             npc.AddBuff(BuffID.Ichor, 300); // Reduced defense
-                            CustomParticles.GenericFlare(npc.Center, FateCosmicVFX.FateWhite, 0.4f, 12);
                         }
                     }
                 }
@@ -619,12 +591,6 @@ namespace MagnumOpus.Content.Common.Accessories
                 cosmicBurstCooldown = 300;
                 Player.statMana = Math.Min(Player.statMana + 100, Player.statManaMax2);
                 
-                CustomParticles.GenericFlare(Player.Center, FateCosmicVFX.FatePurple, 0.9f, 22);
-                for (int i = 0; i < 6; i++)
-                {
-                    CustomParticles.HaloRing(Player.Center, Color.Lerp(FateCosmicVFX.FateDarkPink, FateCosmicVFX.FatePurple, i / 6f), 
-                        0.3f + i * 0.1f, 14 + i * 2);
-                }
             }
         }
 
@@ -643,16 +609,8 @@ namespace MagnumOpus.Content.Common.Accessories
                 Player.immuneTime = 45;
                 
                 // Cosmic dash VFX
-                CustomParticles.GenericFlare(Player.Center, Color.White, 1.5f, 28);
-                CustomParticles.GenericFlare(Player.Center, FateCosmicVFX.FateDarkPink, 1.2f, 25);
                 
-                for (int i = 0; i < 8; i++)
-                {
-                    CustomParticles.HaloRing(Player.Center, Color.Lerp(FateCosmicVFX.FateDarkPink, FateCosmicVFX.FateBrightRed, i / 8f),
-                        0.4f + i * 0.1f, 16 + i * 2);
-                }
                 
-                CustomParticles.GlyphBurst(Player.Center, FateCosmicVFX.FatePurple, 8, 5f);
                 
                 return true;
             }
@@ -738,7 +696,7 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 OverrideColor = destinyColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "All-class seasonal support: +defense, regen, movement, and durability")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Seasonal: +10% melee, +8% ranged/magic/summon, +22 defense, +18% movement speed")
             {
                 OverrideColor = destinyColor
             });
@@ -746,11 +704,11 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 OverrideColor = destinyColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+40 max life, +40 max mana, +1 minion, +10% damage reduction, 150% thorns")
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+40 max life, +40 max mana, +8 life regen, +5 mana regen, +1 minion, +10% DR, 150% thorns")
             {
                 OverrideColor = destinyColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Temporal echoes on every 7th melee strike, 8% lifesteal (max 18 HP)")
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Every 7th melee strike echoes 75% damage, 8% chance to lifesteal (max 18 HP)")
             {
                 OverrideColor = destinyColor
             });
@@ -804,8 +762,6 @@ namespace MagnumOpus.Content.Common.Accessories
                     int echoDamage = (int)(damageDone * 0.75f);
                     target.SimpleStrikeNPC(echoDamage, 0, false, 0, null, false, 0, true);
                     
-                    CustomParticles.GenericFlare(target.Center, FateCosmicVFX.FateDarkPink, 0.7f, 18);
-                    CustomParticles.HaloRing(target.Center, FateCosmicVFX.FatePurple, 0.45f, 14);
                 }
             }
             
@@ -896,19 +852,19 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 OverrideColor = wandererColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "All five theme bonuses tuned for class utility and night crit support")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+12% melee/ranged/summon, +14% magic, +15% melee speed, +6 ranged crit, +6 all crit at night")
             {
                 OverrideColor = wandererColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+35% movement, +30% run speed, +80 wing time, no fall damage")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+35% movement, +30% run speed, +80 wing time, no fall damage, +15 defense at night")
             {
                 OverrideColor = wandererColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+8% damage reduction, ammo economy, mana efficiency, +1 minion")
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+8% damage reduction, 20% ammo savings, -10% mana cost, +1 minion")
             {
                 OverrideColor = wandererColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "14% dodge chance with multi-theme burst")
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "15% fire debuff, 15% Bell ring stun, 12% random debuff, 14% dodge")
             {
                 OverrideColor = wandererColor
             });
@@ -948,7 +904,6 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 bellRingCooldown = 30;
                 target.AddBuff(BuffID.Confused, 90);
-                CustomParticles.HaloRing(target.Center, CampanellaColors.Orange, 0.45f, 14);
             }
             
             if (Main.rand.NextFloat() < 0.12f)
@@ -967,17 +922,12 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 dashCooldown = 150;
                 
-                CustomParticles.GenericFlare(Player.Center, Color.White, 1.4f, 25);
                 
                 Color[] colors = {
                     MoonlightColors.Purple, EroicaColors.Gold,
                     CampanellaColors.Orange, EnigmaColors.GreenFlame, SwanColors.GetRainbow(0f)
                 };
                 
-                for (int i = 0; i < 8; i++)
-                {
-                    CustomParticles.HaloRing(Player.Center, colors[i % 5], 0.35f + i * 0.08f, 14 + i * 2);
-                }
                 
                 Player.immune = true;
                 Player.immuneTime = 35;
@@ -1056,7 +1006,7 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 OverrideColor = summonColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Summoner-focused scaling: +24% summon damage, +8 summon crit, strong night bonus")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Summoner-focused: +24% summon damage, +8 summon crit (+12% dmg, +6 crit at night)")
             {
                 OverrideColor = summonColor
             });
@@ -1064,11 +1014,11 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 OverrideColor = summonColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+60 max mana, 10% mana cost reduction, +3 life regen")
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+60 max mana, -10% mana cost, +3 life regen")
             {
                 OverrideColor = summonColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Night damage, fire debuffs, confusion, and prismatic sparkles")
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Minions randomly apply: 15% bonus night damage, Ichor, On Fire, or Confusion/Slow")
             {
                 OverrideColor = summonColor
             });
@@ -1111,31 +1061,23 @@ namespace MagnumOpus.Content.Common.Accessories
                             {
                                 int bonusDamage = (int)(damageDone * 0.15f);
                                 target.SimpleStrikeNPC(bonusDamage, 0, false, 0, null, false, 0, true);
-                                CustomParticles.GenericFlare(target.Center, MoonlightColors.Purple, 0.4f, 12);
                             }
                             break;
                             
                         case 1: // Eroica
                             target.AddBuff(BuffID.Ichor, 120);
-                            CustomParticles.GenericFlare(target.Center, EroicaColors.Gold, 0.4f, 12);
                             break;
                             
                         case 2: // La Campanella
                             target.AddBuff(BuffID.OnFire, 180);
-                            CustomParticles.GenericFlare(target.Center, CampanellaColors.Orange, 0.4f, 12);
                             break;
                             
                         case 3: // Enigma
                             int[] debuffs = { BuffID.Confused, BuffID.Slow };
                             target.AddBuff(debuffs[Main.rand.Next(2)], 120);
-                            CustomParticles.GenericFlare(target.Center, EnigmaColors.GreenFlame, 0.4f, 12);
                             break;
                             
                         case 4: // Swan Lake
-                            CustomParticles.SwanFeatherDrift(target.Center, SwanColors.White, 0.4f);
-                            var sparkle = new SparkleParticle(target.Center, Main.rand.NextVector2Circular(2f, 2f),
-                                SwanColors.GetRainbow(Main.rand.NextFloat()), 0.35f, 14);
-                            MagnumParticleHandler.SpawnParticle(sparkle);
                             break;
                     }
                 }

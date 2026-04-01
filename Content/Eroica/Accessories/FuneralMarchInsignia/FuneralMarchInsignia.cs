@@ -41,7 +41,6 @@ namespace MagnumOpus.Content.Eroica.Accessories.FuneralMarchInsignia
                 // Eroica themed impact burst for dramatic effect
                 if (Main.rand.NextBool(3))
                 {
-                    ThemedParticles.EroicaSparkles(player.Center, 5, 40f);
                 }
                 
                 if (Main.rand.NextBool(2))

@@ -67,34 +67,9 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "System", "Conductor's Baton System - STELLAR SYMPHONY")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Minions deal +15% damage at night")
             {
                 OverrideColor = NachtmusikPurple
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Right-click to conduct minions to focus target")
-            {
-                OverrideColor = NachtmusikGold
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "At night: Minions deal +15% damage")
-            {
-                OverrideColor = NachtmusikPurple
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Conducted minions form constellation patterns")
-            {
-                OverrideColor = NachtmusikSilver
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Minions leave stellar trails at night")
-            {
-                OverrideColor = NachtmusikGold
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Inherit", "Inherits ALL previous conductor abilities")
-            {
-                OverrideColor = new Color(200, 180, 220)
             });
             
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The night sky conducts the starlight orchestra'")
@@ -164,34 +139,14 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "System", "Conductor's Baton System - INFERNAL CHORUS")
-            {
-                OverrideColor = DiesIraeCrimson
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Right-click to conduct minions to focus target")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Minions inflict On Fire! on hit")
             {
                 OverrideColor = DiesIraeOrange
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Minions inflict Hellfire burn on hit (3% HP/s)")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+30% minion damage during boss fights")
             {
                 OverrideColor = DiesIraeCrimson
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+20% minion damage to burning enemies")
-            {
-                OverrideColor = DiesIraeOrange
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Minion attacks on conducted targets cause hellfire explosions")
-            {
-                OverrideColor = DiesIraeCrimson
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Inherit", "Inherits ALL previous conductor abilities")
-            {
-                OverrideColor = new Color(200, 180, 220)
             });
             
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The infernal choir sings destruction's hymn'")
@@ -265,34 +220,14 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "System", "Conductor's Baton System - JUBILANT SYMPHONY")
-            {
-                OverrideColor = OdeToJoyIridescent
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Right-click to conduct minions to focus target")
-            {
-                OverrideColor = OdeToJoyWhite
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Minion hits on conducted targets heal 1 HP")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Minion hits heal 1 HP")
             {
                 OverrideColor = OdeToJoyRose
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+10% minion attack speed")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+10% minion attack speed")
             {
                 OverrideColor = OdeToJoyIridescent
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Celebrating minions spray joyful particles on kill")
-            {
-                OverrideColor = OdeToJoyRose
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Inherit", "Inherits ALL previous conductor abilities")
-            {
-                OverrideColor = new Color(200, 180, 220)
             });
             
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Joy flows through the symphony of summoned spirits'")
@@ -361,43 +296,17 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             
             // T10 flag
             conductor.HasEternalConductorsScepter = true;
+
+            // T10 stat bonus
+            player.GetDamage(DamageClass.Summon) += 0.15f;
+            player.GetAttackSpeed(DamageClass.Summon) += 0.12f;
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "System", "Conductor's Baton System - ETERNAL COMMAND")
-            {
-                OverrideColor = ClairDeLuneCrimson
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Ultimate", "✦✦✦ ULTIMATE SUMMONER ACCESSORY ✦✦✦")
-            {
-                OverrideColor = ClairDeLuneBrass
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Right-click to conduct minions to focus target")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+15% minion damage, +12% minion attack speed")
             {
                 OverrideColor = ClairDeLuneIridescent
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Kill during Conduct: Instantly reset cooldown")
-            {
-                OverrideColor = ClairDeLuneCrimson
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Finale: Hold Conduct to sacrifice all minions for massive damage burst")
-            {
-                OverrideColor = ClairDeLuneBrass
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Reduced conduct cooldown (4 seconds)")
-            {
-                OverrideColor = ClairDeLuneIridescent
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Inherit", "Inherits ALL previous conductor abilities")
-            {
-                OverrideColor = new Color(200, 180, 220)
             });
             
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The eternal conductor commands time itself'")
@@ -476,39 +385,14 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Fusion", "⚔ STARFALL INFERNAL FUSION ⚔")
-            {
-                OverrideColor = FusionGold
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "System", "Conductor's Baton System - COSMIC INFERNO")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+20% minion damage at night")
             {
                 OverrideColor = NachtmusikPurple
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Combines Nocturnal Maestro's Baton and Infernal Choirmaster's Scepter")
-            {
-                OverrideColor = DiesIraeCrimson
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "At night: +20% minion damage (enhanced)")
-            {
-                OverrideColor = NachtmusikPurple
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Stellar hellfire: Minion burn deals +50% damage")
-            {
-                OverrideColor = DiesIraeCrimson
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+1 max minion and +10% whip range")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+1 max minion, +10% whip range")
             {
                 OverrideColor = FusionGold
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Inherit", "Inherits ALL abilities from both component accessories")
-            {
-                OverrideColor = new Color(200, 180, 220)
             });
             
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Starfall and hellfire unite the cosmic choir'")
@@ -593,39 +477,14 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Fusion", "⚔ TRIUMPHANT SYMPHONY FUSION ⚔")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+22% minion damage at night, +12% attack speed")
             {
                 OverrideColor = FusionTriumph
             });
             
-            tooltips.Add(new TooltipLine(Mod, "System", "Conductor's Baton System - TRIPLE HARMONY")
-            {
-                OverrideColor = NachtmusikPurple
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Combines Starfall Infernal Baton with Jubilant Orchestra's Staff")
-            {
-                OverrideColor = DiesIraeCrimson
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+12% minion attack speed (enhanced)")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+2 max minions, +1 max sentry, +18% whip range")
             {
                 OverrideColor = OdeToJoyWhite
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Minion healing triggers starfall-hellfire bursts")
-            {
-                OverrideColor = FusionTriumph
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+2 max minions, +1 max sentry, +18% whip range")
-            {
-                OverrideColor = FusionTriumph
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Inherit", "Inherits ALL abilities from all three theme accessories")
-            {
-                OverrideColor = new Color(200, 180, 220)
             });
             
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Three harmonies unite in triumphant command'")
@@ -709,52 +568,17 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Ultimate", "✦✦✦ ETERNAL CONDUCTOR - ULTIMATE FUSION ✦✦✦")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+25% minion damage, +15% attack speed")
             {
                 OverrideColor = UltimatePrismatic
             });
             
-            tooltips.Add(new TooltipLine(Mod, "System", "Conductor's Baton System - GRAND FINALE")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+3 max minions, +2 max sentries, +25% whip range")
             {
                 OverrideColor = ClairDeLuneBrass
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Combines ALL four Post-Fate theme accessories")
-            {
-                OverrideColor = NachtmusikPurple
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+25% minion damage, +15% attack speed always")
-            {
-                OverrideColor = DiesIraeCrimson
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Eternal Temporal Finale: 5s infinite minion attack speed (90s CD)")
-            {
-                OverrideColor = OdeToJoyWhite
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Conduct cooldown reduced to 3 seconds")
-            {
-                OverrideColor = ClairDeLuneBrass
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "+3 max minions, +2 max sentries, +25% whip range")
-            {
-                OverrideColor = UltimatePrismatic
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect6", "All minion effects trigger simultaneously across time")
-            {
-                OverrideColor = UltimatePrismatic
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Inherit", "Masters ALL abilities from the complete Post-Fate arsenal")
-            {
-                OverrideColor = new Color(220, 200, 240)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The eternal conductor commands the symphony of existence'")
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Every minion plays in perfect unison'")
             {
                 OverrideColor = new Color(200, 180, 160)
             });

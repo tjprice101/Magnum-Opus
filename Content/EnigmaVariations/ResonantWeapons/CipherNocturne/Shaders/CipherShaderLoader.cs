@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria.Graphics.Shaders;
 using Terraria.ModLoader;
@@ -7,7 +7,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Sha
 {
     /// <summary>
     /// Loads CipherNocturne's weapon-specific shaders into GameShaders.Misc.
-    /// Each shader is self-contained 窶・no shared Enigma shader manager.
+    /// Each shader is self-contained  -- no shared Enigma shader manager.
     /// </summary>
     [Autoload(Side = ModSide.Client)]
     public sealed class CipherShaderLoader : ModSystem
@@ -20,7 +20,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.CipherNocturne.Sha
             var assets = Mod.Assets;
             Asset<Effect> Load(string path) => assets.Request<Effect>(path, AssetRequestMode.ImmediateLoad);
 
-            // Beam trail shader 窶・two techniques: CipherBeamFlow (main beam) and CipherBeamGlow (glow overlay)
+            // Beam trail shader  -- two techniques: CipherBeamFlow (main beam) and CipherBeamGlow (glow overlay)
             BeamTrailAsset = Load("Content/EnigmaVariations/ResonantWeapons/CipherNocturne/Shaders/CipherBeamTrail");
             GameShaders.Misc["MagnumOpus:CipherBeamFlow"] = new MiscShaderData(BeamTrailAsset, "P0");
             GameShaders.Misc["MagnumOpus:CipherBeamGlow"] = new MiscShaderData(BeamTrailAsset, "P0");

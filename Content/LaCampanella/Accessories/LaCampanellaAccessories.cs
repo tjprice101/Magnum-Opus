@@ -12,6 +12,10 @@ using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.LaCampanella.Debuffs;
+using MagnumOpus.Content.LaCampanella.Bosses;
+using MagnumOpus.Content.LaCampanella.ResonanceEnergies;
+using MagnumOpus.Content.LaCampanella.HarmonicCores;
+using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 
 namespace MagnumOpus.Content.LaCampanella.Accessories
 {
@@ -83,6 +87,17 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
                 OverrideColor = new Color(200, 150, 100)
             });
         }
+
+        public override void AddRecipes()
+        {
+            CreateRecipe()
+                .AddIngredient(ModContent.ItemType<LaCampanellaResonantEnergy>(), 5)
+                .AddIngredient(ModContent.ItemType<ResonantCoreOfLaCampanella>(), 5)
+                .AddIngredient(ModContent.ItemType<ShardOfTheBurningTempo>(), 5)
+                .AddIngredient(ItemID.SoulofMight, 12)
+                .AddTile(ModContent.TileType<MoonlightAnvilTile>())
+                .Register();
+        }
     }
 
     public class ChamberOfBellfirePlayer : ModPlayer
@@ -139,7 +154,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             
             // === BLACK SMOKE SPARKLE - SIGNATURE HIT ON ACCESSORY! ===
             Vector2 hitDir = (target.Center - Player.Center).SafeNormalize(Vector2.UnitX);
-            ThemedParticles.LaCampanellaBlackSmokeSparkle(target.Center, 0.4f);
             
             // Chance for bell explosion
             bellExplosionTimer++;
@@ -157,38 +171,16 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             SoundEngine.PlaySound(SoundID.Item34 with { Pitch = Main.rand.NextFloat(0.1f, 0.4f), Volume = 0.35f }, position);
             
             // === MASSIVE BELL EXPLOSION EFFECTS WITH CUSTOM PARTICLES ===
-            ThemedParticles.LaCampanellaBellChime(position, 1.2f);
-            ThemedParticles.LaCampanellaShockwave(position, 0.8f);
-            ThemedParticles.LaCampanellaSparks(position, Main.rand.NextVector2Unit(), 10, 7f);
             
             // === RADIAL FLARE BURST with GRADIENT ===
-            for (int f = 0; f < 8; f++)
-            {
-                Vector2 flarePos = position + (MathHelper.TwoPi * f / 8).ToRotationVector2() * Main.rand.NextFloat(20f, 38f);
-                float progress = (float)f / 8f;
-                Color flareColor = Color.Lerp(Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaYellow, progress * 2f),
-                    ThemedParticles.CampanellaGold, Math.Max(0, progress * 2f - 1f));
-                CustomParticles.GenericFlare(flarePos, flareColor, 0.45f, 14);
-            }
             
             // === PRISMATIC SPARKLES ===
-            ThemedParticles.LaCampanellaPrismaticBurst(position, 6, 0.7f);
             
             // Halo rings
-            CustomParticles.HaloRing(position, ThemedParticles.CampanellaOrange, 0.45f, 15);
-            CustomParticles.HaloRing(position, ThemedParticles.CampanellaYellow, 0.3f, 12);
             
             // Radial flares
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 6f;
-                Vector2 flarePos = position + angle.ToRotationVector2() * Main.rand.NextFloat(25f, 40f);
-                Color flareColor = Main.rand.NextBool() ? ThemedParticles.CampanellaOrange : ThemedParticles.CampanellaGold;
-                CustomParticles.GenericFlare(flarePos, flareColor, 0.4f, 14);
-            }
             
             // Music notes
-            ThemedParticles.LaCampanellaMusicNotes(position, 4, 30f);
             
             // Screen shake
             Player.GetModPlayer<ScreenShakePlayer>()?.AddShake(4f, 8);
@@ -207,16 +199,7 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
                     npc.GetGlobalNPC<ResonantTollNPC>().AddStacks(npc, 1);
                     
                     // Hit effect on each enemy with flares
-                    ThemedParticles.LaCampanellaSparks(npc.Center, (npc.Center - position).SafeNormalize(Vector2.UnitX), 4, 4f);
-                    ThemedParticles.LaCampanellaPrismaticSparkles(npc.Center, 2, 0.4f);
-                    CustomParticles.HaloRing(npc.Center, ThemedParticles.CampanellaOrange, 0.25f, 10);
                     // Flares around enemy
-                    for (int f = 0; f < 3; f++)
-                    {
-                        Vector2 flarePos = npc.Center + (MathHelper.TwoPi * f / 3).ToRotationVector2() * 12f;
-                        Color flareColor = Main.rand.NextBool() ? ThemedParticles.CampanellaYellow : ThemedParticles.CampanellaOrange;
-                        CustomParticles.GenericFlare(flarePos, flareColor, 0.35f, 10);
-                    }
                 }
             }
         }
@@ -289,6 +272,18 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             {
                 OverrideColor = Color.Lerp(campanellaOrange, Color.Black, 0.3f)
             });
+        }
+
+        public override void AddRecipes()
+        {
+            CreateRecipe()
+                .AddIngredient(ModContent.ItemType<LaCampanellaResonantEnergy>(), 5)
+                .AddIngredient(ModContent.ItemType<ResonantCoreOfLaCampanella>(), 5)
+                .AddIngredient(ModContent.ItemType<ShardOfTheBurningTempo>(), 5)
+                .AddIngredient(ItemID.SoulofFright, 5)
+                .AddIngredient(ItemID.SoulofMight, 15)
+                .AddTile(ModContent.TileType<MoonlightAnvilTile>())
+                .Register();
         }
     }
 
@@ -427,6 +422,18 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
                 OverrideColor = Color.Lerp(campanellaOrange, Color.Black, 0.3f)
             });
         }
+
+        public override void AddRecipes()
+        {
+            CreateRecipe()
+                .AddIngredient(ModContent.ItemType<LaCampanellaResonantEnergy>(), 5)
+                .AddIngredient(ModContent.ItemType<ResonantCoreOfLaCampanella>(), 5)
+                .AddIngredient(ModContent.ItemType<ShardOfTheBurningTempo>(), 5)
+                .AddIngredient(ItemID.SoulofSight, 5)
+                .AddIngredient(ItemID.SoulofMight, 10)
+                .AddTile(ModContent.TileType<MoonlightAnvilTile>())
+                .Register();
+        }
     }
 
     public class BlazingSanctuaryPlayer : ModPlayer
@@ -480,46 +487,15 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             SoundEngine.PlaySound(SoundID.DD2_BetsyFireballImpact with { Pitch = 0.2f, Volume = 0.35f }, Player.Center);
             
             // === MASSIVE BARRIER VISUAL EFFECTS WITH CUSTOM PARTICLES ===
-            ThemedParticles.LaCampanellaImpact(Player.Center, 3f);
-            ThemedParticles.LaCampanellaBellChime(Player.Center, 2.5f);
-            ThemedParticles.LaCampanellaShockwave(Player.Center, 2f);
-            ThemedParticles.LaCampanellaMusicalImpact(Player.Center, 1.5f, true);
             
             // === GRAND IMPACT WITH ALL EFFECTS ===
-            ThemedParticles.LaCampanellaGrandImpact(Player.Center, 2f);
-            ThemedParticles.LaCampanellaHaloBurst(Player.Center, 1.5f);
-            ThemedParticles.LaCampanellaSwordArcBurst(Player.Center, 8, 1f);
-            ThemedParticles.LaCampanellaPrismaticBurst(Player.Center, 12, 1.1f);
             
             // === CRESCENT WAVE BARRIER ===
-            for (int i = 0; i < 8; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 8f;
-                ThemedParticles.LaCampanellaCrescentWave(Player.Center, angle.ToRotationVector2(), 0.9f);
-            }
             
             // Multiple massive halo rings
-            for (int i = 0; i < 6; i++)
-            {
-                Color ringColor = i % 2 == 0 ? ThemedParticles.CampanellaOrange : ThemedParticles.CampanellaYellow;
-                CustomParticles.HaloRing(Player.Center, ringColor, 0.6f + i * 0.2f, 22 + i * 4);
-            }
             // Black shadow rings
-            for (int i = 0; i < 3; i++)
-            {
-                CustomParticles.HaloRing(Player.Center, ThemedParticles.CampanellaBlack, 0.5f + i * 0.25f, 18 + i * 3);
-            }
             
             // Radial flare burst with GRADIENT
-            for (int i = 0; i < 16; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 16f;
-                Vector2 flarePos = Player.Center + angle.ToRotationVector2() * Main.rand.NextFloat(60f, 100f);
-                float progress = (float)i / 16f;
-                Color flareColor = Color.Lerp(Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaYellow, progress * 2f),
-                    ThemedParticles.CampanellaGold, Math.Max(0, progress * 2f - 1f));
-                CustomParticles.GenericFlare(flarePos, flareColor, 0.6f, 20);
-            }
             
             // Ring of fire around player
             for (int i = 0; i < 36; i++)
@@ -527,7 +503,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
                 float angle = MathHelper.TwoPi * i / 36f;
                 Vector2 pos = Player.Center + angle.ToRotationVector2() * 80f;
                 
-                ThemedParticles.LaCampanellaSparks(pos, angle.ToRotationVector2().RotatedBy(MathHelper.PiOver2), 3, 5f);
                 
                 Dust flame = Dust.NewDustPerfect(pos, DustID.Torch,
                     angle.ToRotationVector2().RotatedBy(MathHelper.PiOver2) * 3f, 100, new Color(255, 100, 0), 2f);
@@ -535,7 +510,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             }
             
             // Music notes explosion
-            ThemedParticles.LaCampanellaMusicNotes(Player.Center, 12, 70f);
             
             // Screen shake
             Player.GetModPlayer<ScreenShakePlayer>()?.AddShake(10f, 18);
@@ -554,11 +528,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
                     npc.GetGlobalNPC<ResonantTollNPC>().AddStacks(npc, 3);
                     
                     // Hit effects on each enemy with all effects
-                    ThemedParticles.LaCampanellaSparks(npc.Center, (npc.Center - Player.Center).SafeNormalize(Vector2.UnitX), 6, 6f);
-                    ThemedParticles.LaCampanellaBloomBurst(npc.Center, 0.5f);
-                    ThemedParticles.LaCampanellaSwordArc(npc.Center, Main.rand.NextFloat(MathHelper.TwoPi).ToRotationVector2(), 0.5f);
-                    ThemedParticles.LaCampanellaPrismaticSparkles(npc.Center, 3, 0.5f);
-                    CustomParticles.HaloRing(npc.Center, ThemedParticles.CampanellaOrange, 0.35f, 12);
                 }
             }
         }
@@ -569,7 +538,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             
             // === BLACK SMOKE SPARKLE - SIGNATURE HIT ON ACCESSORY! ===
             Vector2 hitDir = (target.Center - Player.Center).SafeNormalize(Vector2.UnitX);
-            ThemedParticles.LaCampanellaBlackSmokeSparkle(target.Center, 0.5f);
             
             // Create healing fire pillar on kill
             if (target.life <= 0 && !target.SpawnedFromStatue)
@@ -585,17 +553,11 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             SoundEngine.PlaySound(SoundID.Item34 with { Pitch = Main.rand.NextFloat(0.2f, 0.5f), Volume = 0.3f }, position);
             
             // === FIRE PILLAR EFFECTS ===
-            ThemedParticles.LaCampanellaBellChime(position, 0.8f);
             
             // Visual pillar with custom particles
             for (int i = 0; i < 20; i++)
             {
                 Vector2 pillarPos = position + new Vector2(0, -i * 10f);
-                Color color = Main.rand.NextBool() ? ThemedParticles.CampanellaOrange : ThemedParticles.CampanellaYellow;
-                var glow = new GenericGlowParticle(pillarPos + Main.rand.NextVector2Circular(10f, 5f),
-                    new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-3f, -1.5f)),
-                    color, Main.rand.NextFloat(0.3f, 0.5f), Main.rand.Next(15, 30), true);
-                MagnumParticleHandler.SpawnParticle(glow);
                 
                 Dust flame = Dust.NewDustPerfect(pillarPos,
                     DustID.Torch, new Vector2(Main.rand.NextFloat(-1f, 1f), -2f), 100, new Color(255, 150, 50), 2f);
@@ -603,14 +565,8 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             }
             
             // Halo rings at base
-            CustomParticles.HaloRing(position, ThemedParticles.CampanellaOrange, 0.4f, 14);
-            CustomParticles.HaloRing(position, ThemedParticles.CampanellaGold, 0.25f, 10);
             
             // Sparks rising
-            for (int i = 0; i < 6; i++)
-            {
-                ThemedParticles.LaCampanellaSparks(position, new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -1f), 2, 5f);
-            }
             
             // Heal player if nearby
             if (Vector2.Distance(Player.Center, position) <= 200f)
@@ -734,6 +690,18 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
                 OverrideColor = Color.Lerp(campanellaOrange, Color.Black, 0.3f)
             });
         }
+
+        public override void AddRecipes()
+        {
+            CreateRecipe()
+                .AddIngredient(ModContent.ItemType<LaCampanellaResonantEnergy>(), 5)
+                .AddIngredient(ModContent.ItemType<ResonantCoreOfLaCampanella>(), 5)
+                .AddIngredient(ModContent.ItemType<ShardOfTheBurningTempo>(), 5)
+                .AddIngredient(ItemID.SoulofSight, 5)
+                .AddIngredient(ItemID.SoulofMight, 8)
+                .AddTile(ModContent.TileType<MoonlightAnvilTile>())
+                .Register();
+        }
     }
 
     public class InfernalMaestroPlayer : ModPlayer
@@ -742,7 +710,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
         public bool fireInfusionActive = false;
         private int grandTollingTimer = 0;
         private int combatTimer = 0;
-        private bool inCombat = false;
         
         public override void ResetEffects()
         {
@@ -758,11 +725,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             if (combatTimer > 0)
             {
                 combatTimer--;
-                inCombat = true;
-            }
-            else
-            {
-                inCombat = false;
             }
             
             // Grand Tolling timer
@@ -790,71 +752,21 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             SoundEngine.PlaySound(SoundID.Item14 with { Pitch = -0.2f, Volume = 0.3f }, Player.Center);
             
             // === MASSIVE GRAND TOLLING VISUAL EFFECTS WITH CUSTOM PARTICLES ===
-            ThemedParticles.LaCampanellaImpact(Player.Center, 2.5f);
-            ThemedParticles.LaCampanellaBellChime(Player.Center, 2.5f);
-            ThemedParticles.LaCampanellaShockwave(Player.Center, 2f);
-            ThemedParticles.LaCampanellaMusicalImpact(Player.Center, 1.8f, true);
             
             // === GRAND IMPACT - ULTIMATE EFFECTS ===
-            ThemedParticles.LaCampanellaGrandImpact(Player.Center, 2.5f);
-            ThemedParticles.LaCampanellaHaloBurst(Player.Center, 2f);
-            ThemedParticles.LaCampanellaSwordArcBurst(Player.Center, 12, 1.3f);
-            ThemedParticles.LaCampanellaPrismaticBurst(Player.Center, 18, 1.4f);
             
             // === CRESCENT WAVE EXPLOSION ===
-            for (int i = 0; i < 10; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 10f;
-                ThemedParticles.LaCampanellaCrescentWave(Player.Center, angle.ToRotationVector2(), 1.1f);
-            }
             
             // Multiple massive halo rings
-            for (int i = 0; i < 7; i++)
-            {
-                Color ringColor = i % 2 == 0 ? ThemedParticles.CampanellaOrange : ThemedParticles.CampanellaYellow;
-                CustomParticles.HaloRing(Player.Center, ringColor, 0.7f + i * 0.2f, 24 + i * 5);
-            }
             // Black shadow rings
-            for (int i = 0; i < 4; i++)
-            {
-                CustomParticles.HaloRing(Player.Center, ThemedParticles.CampanellaBlack, 0.55f + i * 0.25f, 20 + i * 4);
-            }
             
             // Massive radial flare burst with GRADIENT
-            for (int i = 0; i < 20; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 20f;
-                Vector2 flarePos = Player.Center + angle.ToRotationVector2() * Main.rand.NextFloat(70f, 120f);
-                float progress = (float)i / 20f;
-                Color flareColor = Color.Lerp(Color.Lerp(ThemedParticles.CampanellaOrange, ThemedParticles.CampanellaYellow, progress * 2f),
-                    ThemedParticles.CampanellaGold, Math.Max(0, progress * 2f - 1f));
-                CustomParticles.GenericFlare(flarePos, flareColor, 0.65f, 22);
-            }
             
             // Massive radial spark burst
-            for (int i = 0; i < 32; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 32f;
-                ThemedParticles.LaCampanellaSparks(Player.Center, angle.ToRotationVector2(), 4, 10f);
-            }
             
             // Music notes explosion
-            ThemedParticles.LaCampanellaMusicNotes(Player.Center, 16, 80f);
             
-            // Black smoke explosion
-            for (int i = 0; i < 12; i++)
-            {
-                var smoke = new HeavySmokeParticle(Player.Center + Main.rand.NextVector2Circular(30f, 30f),
-                    Main.rand.NextVector2Circular(4f, 4f) + new Vector2(0, -1.5f),
-                    ThemedParticles.CampanellaBlack, Main.rand.Next(45, 70),
-                    Main.rand.NextFloat(0.6f, 0.9f), 0.6f, 0.018f, false);
-                MagnumParticleHandler.SpawnParticle(smoke);
-            }
-            
-            // Screen shake - DRAMATIC
-            Player.GetModPlayer<ScreenShakePlayer>()?.AddShake(12f, 20);
-            
-            Lighting.AddLight(Player.Center, 2.2f, 1.1f, 0.4f);
+            // VFX placeholder — to be replaced with unique effects later
             
             // AOE damage wave
             float waveRadius = 300f;
@@ -870,9 +782,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
                     npc.GetGlobalNPC<ResonantTollNPC>().AddStacks(npc, 2);
                     
                     // Effects on each hit enemy
-                    ThemedParticles.LaCampanellaSparks(npc.Center, (npc.Center - Player.Center).SafeNormalize(Vector2.UnitX), 3, 3f);
-                    ThemedParticles.LaCampanellaSwordArc(npc.Center, Main.rand.NextFloat(MathHelper.TwoPi).ToRotationVector2(), 0.4f);
-                    ThemedParticles.LaCampanellaPrismaticSparkles(npc.Center, 2, 0.4f);
                 }
             }
         }
@@ -900,16 +809,10 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
                     SoundEngine.PlaySound(SoundID.Item34 with { Pitch = Main.rand.NextFloat(0.2f, 0.6f), Volume = 0.2f }, npc.Center);
                     
                     // Fire particle burst
-                    ThemedParticles.LaCampanellaSparks(npc.Center, Vector2.UnitY * -1f, 4, 3f);
                     
                     // Small halo ring
-                    CustomParticles.HaloRing(npc.Center, ThemedParticles.CampanellaOrange, Main.rand.NextFloat(0.3f, 0.5f), 25);
                     
                     // Flame glow particle
-                    var flameGlow = new GenericGlowParticle(npc.Center,
-                        Main.rand.NextVector2Circular(2f, 2f) + Vector2.UnitY * -1.5f,
-                        ThemedParticles.CampanellaOrange, Main.rand.NextFloat(0.4f, 0.6f), Main.rand.Next(15, 25));
-                    MagnumParticleHandler.SpawnParticle(flameGlow);
                     
                     Lighting.AddLight(npc.Center, 0.8f, 0.4f, 0.1f);
                 }
@@ -928,7 +831,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             
             // === BLACK SMOKE SPARKLE - ULTIMATE SIGNATURE HIT! ===
             Vector2 hitDir = (target.Center - Player.Center).SafeNormalize(Vector2.UnitX);
-            ThemedParticles.LaCampanellaSignatureHit(target.Center, hitDir, 0.6f);
             
             // Fire burst on crit
             if (hit.Crit)
@@ -943,24 +845,12 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
                 SoundEngine.PlaySound(SoundID.DD2_BetsyFireballShot with { Pitch = 0.3f, Volume = 0.25f }, target.Center);
                 
                 // Extra black smoke sparkle on crit!
-                ThemedParticles.LaCampanellaBlackSmokeSparkle(target.Center, 0.8f);
                 
                 // Massive bloom burst
-                ThemedParticles.LaCampanellaBloomBurst(target.Center, 1.2f);
-                ThemedParticles.LaCampanellaSparks(target.Center, hit.HitDirection > 0 ? Vector2.UnitX : -Vector2.UnitX, 6, 4f);
-                ThemedParticles.LaCampanellaImpact(target.Center, 1f);
                 
                 // Halo rings on crit
-                CustomParticles.HaloRing(target.Center, ThemedParticles.CampanellaYellow, Main.rand.NextFloat(0.7f, 1f), 20);
-                CustomParticles.HaloRing(target.Center, ThemedParticles.CampanellaOrange, Main.rand.NextFloat(0.5f, 0.8f), 25);
                 
                 // Radial flares
-                for (int i = 0; i < 4; i++)
-                {
-                    float angle = MathHelper.TwoPi / 4 * i + Main.rand.NextFloat(-0.2f, 0.2f);
-                    Vector2 flarePos = target.Center + angle.ToRotationVector2() * 20f;
-                    CustomParticles.GenericFlare(flarePos, ThemedParticles.CampanellaGold, 0.6f, Main.rand.Next(8, 14));
-                }
                 
                 // Small screen shake on crit
                 Player.GetModPlayer<ScreenShakePlayer>()?.AddShake(4f, 6);

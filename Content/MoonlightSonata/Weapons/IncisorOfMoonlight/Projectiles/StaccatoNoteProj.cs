@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
@@ -11,10 +11,10 @@ using static MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Utili
 namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projectiles
 {
     /// <summary>
-    /// Staccato Note Shard 窶・fired in a 5-shard fan during Movement II (Allegretto).
+    /// Staccato Note Shard  -- fired in a 5-shard fan during Movement II (Allegretto).
     /// Tiny glowing eighth notes (笙ｪ) in silver-white that bounce off tiles up to 2 times.
     /// If 3+ shards hit the same enemy, they detonate in a small lunar burst.
-    /// "The deceptively light middle section 窶・each note a percussive strike."
+    /// "The deceptively light middle section  -- each note a percussive strike."
     /// </summary>
     public class StaccatoNoteProj : ModProjectile
     {
@@ -111,7 +111,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
             var ip = owner.GetModPlayer<Utilities.IncisorPlayer>();
             ip.RegisterStaccatoHit(target.whoAmI);
 
-            // Check if 3+ staccato notes hit this enemy 窶・if so, lunar burst detonation
+            // Check if 3+ staccato notes hit this enemy  -- if so, lunar burst detonation
             if (ip.GetStaccatoHits(target.whoAmI) >= 3)
             {
                 ip.ResetStaccatoHits(target.whoAmI);
@@ -194,7 +194,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
             Main.spriteBatch.Draw(bloomTex, drawPos, null, glowColor * 0.3f,
                 0f, bloomTex.Size() * 0.5f, 0.12f * pulse, SpriteEffects.None, 0f);
 
-            // Note body 窶・silver-white
+            // Note body  -- silver-white
             Color bodyColor = Color.Lerp(Color.White, new Color(200, 210, 255), 0.3f) with { A = 0 };
             Main.spriteBatch.Draw(starTex, drawPos, null, bodyColor * 0.85f,
                 Projectile.rotation, starTex.Size() * 0.5f, 0.12f * pulse,

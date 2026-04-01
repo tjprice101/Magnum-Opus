@@ -35,12 +35,12 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             momentumPlayer.HasNocturnalPhantomTreads = true;
             
             // Enhanced movement stats
-            player.moveSpeed += 0.30f;
-            player.maxRunSpeed += 2.5f;
+            player.moveSpeed += 0.39f;
+            player.maxRunSpeed += 2.7f;
             player.accRunSpeed += 1.5f;
             player.jumpBoost = true;
             player.autoJump = true;
-            player.jumpSpeedBoost += 1.5f;
+            player.jumpSpeedBoost += 2.2f;
             
             // Full immunities
             player.buffImmune[BuffID.OnFire] = true;
@@ -67,11 +67,9 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Extends max Momentum to 175"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+30% movement speed, +2.5 max run speed"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "At 125+ Momentum: Leave constellation trail that damages enemies"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "At 150+ Momentum: Semi-transparent (enemies target you 30% less)"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "At night: Momentum builds 25% faster"));
-            tooltips.Add(new TooltipLine(Mod, "Effect6", "Consume 125 Momentum: Star Dash - teleport in movement direction"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+39% movement speed, +2.7 max run speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Night vision, +8% damage and extra speed at night"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "At 150+ Momentum: Reduced enemy aggro"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Starlight accelerates your every step'") { OverrideColor = new Color(180, 160, 255) });
         }
         
@@ -106,12 +104,12 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             momentumPlayer.HasInfernalMeteorTreads = true;
             
             // Enhanced movement stats
-            player.moveSpeed += 0.35f;
+            player.moveSpeed += 0.42f;
             player.maxRunSpeed += 3.0f;
             player.accRunSpeed += 1.8f;
             player.jumpBoost = true;
             player.autoJump = true;
-            player.jumpSpeedBoost += 1.8f;
+            player.jumpSpeedBoost += 2.4f;
             
             // Full immunities
             player.buffImmune[BuffID.OnFire] = true;
@@ -136,11 +134,8 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Extends max Momentum to 200"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+35% movement speed, +3.0 max run speed"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "At 150+ Momentum: Leave burning trail that damages enemies"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "At 175+ Momentum while falling: Create meteor impact crater on landing"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Consume 150 Momentum: Meteor Dash - charge through enemies (200% weapon damage)"));
-            tooltips.Add(new TooltipLine(Mod, "Effect6", "Running through enemies at high momentum knocks them aside"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+42% movement speed, +3.0 max run speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "At 175+ Momentum: Knockback immunity and contact thorns"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Hellfire propels you with wrathful speed'") { OverrideColor = new Color(255, 100, 40) });
         }
         
@@ -175,12 +170,12 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             momentumPlayer.HasJubilantZephyrTreads = true;
             
             // Enhanced movement stats
-            player.moveSpeed += 0.40f;
+            player.moveSpeed += 0.45f;
             player.maxRunSpeed += 3.5f;
             player.accRunSpeed += 2.0f;
             player.jumpBoost = true;
             player.autoJump = true;
-            player.jumpSpeedBoost += 2.0f;
+            player.jumpSpeedBoost += 2.6f;
             
             // Full immunities
             player.buffImmune[BuffID.OnFire] = true;
@@ -208,11 +203,8 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Extends max Momentum to 225"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+40% movement speed, +3.5 max run speed"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Momentum decays 50% slower"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "At 175+ Momentum: Infinite flight (wing time doesn't deplete)"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "At 200+ Momentum: Leave healing trail for allies"));
-            tooltips.Add(new TooltipLine(Mod, "Effect6", "Consume 175 Momentum: Zephyr Burst - push enemies away, brief invincibility"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+45% movement speed, +3.5 max run speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "At 175+ Momentum: Infinite flight"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Nature's wind carries you with joyful speed'") { OverrideColor = new Color(180, 255, 180) });
         }
         
@@ -252,7 +244,7 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             player.accRunSpeed += 2.5f;
             player.jumpBoost = true;
             player.autoJump = true;
-            player.jumpSpeedBoost += 2.5f;
+            player.jumpSpeedBoost += 2.8f;
             
             // Full immunities
             player.buffImmune[BuffID.OnFire] = true;
@@ -308,11 +300,9 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Extends max Momentum to 250"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+50% movement speed, +4.5 max run speed"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Momentum never decays during boss fights"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "At 200+ Momentum: Phase through blocks"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "At 225+ Momentum: Time slows 40% for nearby enemies"));
-            tooltips.Add(new TooltipLine(Mod, "Effect6", "At 250 Momentum: Lightspeed mode - invincible while moving, deal 75% weapon damage on contact"));
-            tooltips.Add(new TooltipLine(Mod, "Effect7", "Consume 200 Momentum: Temporal Teleport - teleport up to 150 blocks"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "At 200+ Momentum: No fall damage and reduced gravity"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "At 225+ Momentum: Nearby enemies are slowed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "At 250 Momentum: Lightspeed mode - invincible while moving, deal contact damage"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Move through time itself'") { OverrideColor = new Color(200, 160, 120) });
         }
         

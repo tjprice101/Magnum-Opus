@@ -124,7 +124,6 @@ namespace MagnumOpus.Content.Eroica.Projectiles
                 return;
                 
             int splitCount = 3 + RecursionDepth; // More children from larger orbs
-            float sizeReduction = 0.7f; // Each generation is 70% the size
             
             // Sound - higher pitch for smaller splits
             float pitch = 0.2f + (3 - RecursionDepth) * 0.25f;

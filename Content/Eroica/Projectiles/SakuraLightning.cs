@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
@@ -138,7 +138,7 @@ namespace MagnumOpus.Content.Eroica.Projectiles
 
             float lifeProgress = 1f - (float)Projectile.timeLeft / 45f;
 
-            // Expanding lightning ring 窶・fade in then out
+            // Expanding lightning ring  -- fade in then out
             float ringAlpha = lifeProgress < 0.3f ? lifeProgress / 0.3f : (1f - lifeProgress) / 0.7f;
             float ringScale = 0.4f + lifeProgress * 1.8f;
 

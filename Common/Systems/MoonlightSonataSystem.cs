@@ -147,6 +147,13 @@ namespace MagnumOpus.Common.Systems
             flags[6] = DownedLaCampanella;
             flags[7] = DownedMoonlitMaestro;
             writer.Write(flags);
+
+            BitsByte flags2 = new BitsByte();
+            flags2[0] = DownedNachtmusik;
+            flags2[1] = DownedDiesIrae;
+            flags2[2] = DownedOdeToJoy;
+            writer.Write(flags2);
+
             writer.Write(PianoRoomCenter.X);
             writer.Write(PianoRoomCenter.Y);
             writer.Write(ProtectedPedestalTiles.Count);
@@ -168,6 +175,12 @@ namespace MagnumOpus.Common.Systems
             DownedEnigma = flags[5];
             DownedLaCampanella = flags[6];
             DownedMoonlitMaestro = flags[7];
+
+            BitsByte flags2 = reader.ReadByte();
+            DownedNachtmusik = flags2[0];
+            DownedDiesIrae = flags2[1];
+            DownedOdeToJoy = flags2[2];
+
             PianoRoomCenter = new Vector2(reader.ReadSingle(), reader.ReadSingle());
             ProtectedPedestalTiles.Clear();
             int count = reader.ReadInt32();

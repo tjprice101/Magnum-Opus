@@ -51,6 +51,7 @@ namespace MagnumOpus.Content.Autumn.Accessories
                 .AddIngredient(ModContent.ItemType<AutumnResonantEnergy>(), 2)
                 .AddIngredient(ModContent.ItemType<DecayEssence>(), 4)
                 .AddIngredient(ModContent.ItemType<LeafOfEnding>(), 12)
+                .AddIngredient(ModContent.ItemType<DeathsNote>(), 1)
                 .AddIngredient(ItemID.Megashark, 1)
                 .AddTile(TileID.MythrilAnvil)
                 .Register();
@@ -74,19 +75,13 @@ namespace MagnumOpus.Content.Autumn.Accessories
                 healAmount = System.Math.Max(1, System.Math.Min(healAmount, 8)); // Cap at 8 HP
                 Player.Heal(healAmount);
                 
-                // Lifesteal VFX
-                CustomParticles.GenericFlare(target.Center, new Color(180, 80, 40), 0.4f, 15);
-                
-                // Music note burst for soul reap
-                ThemedParticles.MusicNoteBurst(target.Center, new Color(139, 90, 43), 3, 2.5f);
-                
-                // Reaper glyphs
-                CustomParticles.GlyphBurst(target.Center, new Color(139, 90, 43), 2, 2f);
-                
-                // Sparkle accent
-                var sparkle = new SparkleParticle(target.Center + Main.rand.NextVector2Circular(8f, 8f),
-                    Main.rand.NextVector2Circular(1.5f, 1.5f), new Color(218, 165, 32) * 0.4f, 0.15f, 12);
-                MagnumParticleHandler.SpawnParticle(sparkle);
+                // Minimal lifesteal dust
+                for (int i = 0; i < 2; i++)
+                {
+                    Dust d = Dust.NewDustDirect(target.Center + Main.rand.NextVector2Circular(10f, 10f),
+                        0, 0, DustID.Torch, 0f, -1f, 100, default, 0.8f);
+                    d.noGravity = true;
+                }
             }
         }
     }
@@ -120,22 +115,6 @@ namespace MagnumOpus.Content.Autumn.Accessories
             player.GetDamage(DamageClass.Generic) += 0.05f * twilightMult;
         }
 
-        public override void HoldItem(Player player)
-        {
-            // Twilight aura particles - every 22 frames
-            if ((int)Main.GameUpdateCount % 22 == 0)
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(28f, 28f);
-                Vector2 vel = (player.Center - pos).SafeNormalize(Vector2.Zero) * 0.3f;
-                Dust d = Dust.NewDustPerfect(pos, DustID.Torch, vel, 0, new Color(128, 64, 96), 0.75f);
-                d.noGravity = true;
-            }
-
-            // Pulsing crit aura lighting
-            float pulse = 0.25f + 0.15f * (float)Math.Sin(Main.GlobalTimeWrappedHourly * 3f);
-            Lighting.AddLight(player.Center, new Color(128, 64, 96).ToVector3() * pulse);
-        }
-
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             Color autumnOrange = new Color(255, 100, 30);
@@ -153,6 +132,7 @@ namespace MagnumOpus.Content.Autumn.Accessories
                 .AddIngredient(ModContent.ItemType<AutumnResonantEnergy>(), 2)
                 .AddIngredient(ModContent.ItemType<DecayEssence>(), 4)
                 .AddIngredient(ModContent.ItemType<LeafOfEnding>(), 12)
+                .AddIngredient(ModContent.ItemType<TwilightWingFragment>(), 1)
                 .AddIngredient(ItemID.MoonStone, 1)
                 .AddTile(TileID.MythrilAnvil)
                 .Register();
@@ -179,23 +159,6 @@ namespace MagnumOpus.Content.Autumn.Accessories
             player.statDefense += 12;
             player.endurance += 0.08f; // 8% damage reduction
             player.thorns = 1f; // Thorns damage
-        }
-
-        public override void HoldItem(Player player)
-        {
-            // Ambient harvest aura - every 20 frames
-            if ((int)Main.GameUpdateCount % 20 == 0)
-            {
-                Vector2 pos = player.Center + Main.rand.NextVector2Circular(32f, 32f);
-                Vector2 vel = Main.rand.NextVector2Circular(1.5f, 1.5f) - new Vector2(0, 0.5f);
-                int dustType = Main.rand.NextBool() ? DustID.Torch : DustID.Copper;
-                Dust d = Dust.NewDustPerfect(pos, dustType, vel, 0, new Color(218, 165, 32), 0.8f);
-                d.noGravity = true;
-            }
-
-            // Pulsing defensive aura lighting
-            float pulse = 0.3f + 0.15f * (float)Math.Sin(Main.GlobalTimeWrappedHourly * 2.5f);
-            Lighting.AddLight(player.Center, new Color(218, 165, 32).ToVector3() * pulse);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -246,81 +209,24 @@ namespace MagnumOpus.Content.Autumn.Accessories
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            Color autumnOrange = new Color(255, 100, 30);
-            Color twilightPurple = new Color(128, 64, 96);
-            Color harvestGold = new Color(218, 165, 32);
-
             if (twilightRingEquipped)
             {
-                // Enhanced flare on crit
-                if (hit.Crit)
+                for (int i = 0; i < 2; i++)
                 {
-                    CustomParticles.GenericFlare(target.Center, Color.Yellow, 0.65f, 22);
-                    CustomParticles.GenericFlare(target.Center, autumnOrange, 0.55f, 20);
-                    CustomParticles.GenericFlare(target.Center, twilightPurple, 0.45f, 18);
-
-                    // 8-point crit burst
-                    for (int i = 0; i < 8; i++)
-                    {
-                        float angle = MathHelper.TwoPi * i / 8f;
-                        Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(2.5f, 5f);
-                        Dust d = Dust.NewDustPerfect(target.Center, DustID.Torch, burstVel, 0, Color.Yellow, 0.9f);
-                        d.noGravity = true;
-                    }
+                    Dust d = Dust.NewDustDirect(target.Center + Main.rand.NextVector2Circular(10f, 10f),
+                        0, 0, DustID.PurpleTorch, 0f, -1f, 100, default, 0.8f);
+                    d.noGravity = true;
                 }
-                else
-                {
-                    // Standard impact
-                    CustomParticles.GenericFlare(target.Center, Color.White, 0.5f, 18);
-                    CustomParticles.GenericFlare(target.Center, twilightPurple, 0.4f, 16);
-                    CustomParticles.GenericFlare(target.Center, autumnOrange, 0.32f, 14);
-
-                    // 6-point burst
-                    for (int i = 0; i < 6; i++)
-                    {
-                        float angle = MathHelper.TwoPi * i / 6f;
-                        Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
-                        Dust d = Dust.NewDustPerfect(target.Center, DustID.Torch, burstVel, 0, twilightPurple, 0.8f);
-                        d.noGravity = true;
-                    }
-                }
-
-                // 2 halo rings
-                CustomParticles.HaloRing(target.Center, twilightPurple, 0.38f, 16);
-                CustomParticles.HaloRing(target.Center, autumnOrange * 0.75f, 0.3f, 14);
-
-                // Music notes
-                ThemedParticles.MusicNote(target.Center + new Vector2(-8, 0), Vector2.Zero, twilightPurple, 0.72f, 32);
-                ThemedParticles.MusicNote(target.Center + new Vector2(8, 0), Vector2.Zero, autumnOrange, 0.72f, 34);
-
-                Lighting.AddLight(target.Center, twilightPurple.ToVector3() * 0.5f);
             }
 
             if (harvestMantleEquipped)
             {
-                // 3-layer flash cascade
-                CustomParticles.GenericFlare(target.Center, Color.White, 0.6f, 20);
-                CustomParticles.GenericFlare(target.Center, harvestGold, 0.5f, 18);
-                CustomParticles.GenericFlare(target.Center, autumnOrange, 0.4f, 16);
-
-                // 7-point thorns burst
-                for (int i = 0; i < 7; i++)
+                for (int i = 0; i < 2; i++)
                 {
-                    float angle = MathHelper.TwoPi * i / 7f;
-                    Vector2 burstVel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 4f);
-                    Dust d = Dust.NewDustPerfect(target.Center, Main.rand.NextBool() ? DustID.Torch : DustID.Copper, burstVel, 0, harvestGold, 0.85f);
+                    Dust d = Dust.NewDustDirect(target.Center + Main.rand.NextVector2Circular(10f, 10f),
+                        0, 0, DustID.Copper, 0f, -1f, 100, default, 0.8f);
                     d.noGravity = true;
                 }
-
-                // 2 halo rings
-                CustomParticles.HaloRing(target.Center, harvestGold, 0.4f, 16);
-                CustomParticles.HaloRing(target.Center, autumnOrange * 0.7f, 0.32f, 14);
-
-                // Music notes
-                ThemedParticles.MusicNote(target.Center + new Vector2(-10, 0), Vector2.Zero, harvestGold, 0.7f, 32);
-                ThemedParticles.MusicNote(target.Center + new Vector2(10, 0), Vector2.Zero, autumnOrange, 0.7f, 34);
-
-                Lighting.AddLight(target.Center, harvestGold.ToVector3() * 0.55f);
             }
         }
     }

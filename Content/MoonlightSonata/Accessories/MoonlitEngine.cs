@@ -56,7 +56,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'The engine of moonlight drives destruction'")
             {
-                OverrideColor = new Color(120, 120, 180)
+                OverrideColor = new Color(140, 100, 200)
             });
         }
 

@@ -52,7 +52,6 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
         private int _attackCooldownTimer;
         private int _bellIndex; // Which bell am I in the formation?
         private int _totalBells; // How many bells are there?
-        private float _hoverOffset;
         private int _targetNPC = -1;
 
         // Trail
@@ -181,7 +180,6 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.InfernalChimesCalling.
         private void ComputeBellIndex(Player owner)
         {
             int myType = Projectile.type;
-            int index = 0;
             int total = 0;
             for (int i = 0; i < Main.maxProjectiles; i++)
             {

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
@@ -12,7 +12,7 @@ using static MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Utili
 namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projectiles
 {
     /// <summary>
-    /// Crescent Moon Projectile 窶・fired in triplets during Movement I (Adagio Sostenuto).
+    /// Crescent Moon Projectile  -- fired in triplets during Movement I (Adagio Sostenuto).
     /// Pale blue crescents that travel in shallow arcs, pierce once, and leave
     /// glowing music note resonance points on impact.
     /// "The rolling triplets of moonlight, each note slightly offset in time."
@@ -47,7 +47,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
 
         public override void AI()
         {
-            // Shallow arc 窶・gentle curve upward then down
+            // Shallow arc  -- gentle curve upward then down
             float arcPhase = Projectile.ai[1];
             Projectile.velocity = Projectile.velocity.RotatedBy(ArcStrength * Math.Sin(arcPhase * 0.05f));
             Projectile.ai[1]++;
@@ -86,12 +86,12 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
         {
             pierceCount++;
 
-            // Spawn resonance music note at impact 窶・pulses and deals DoT for 1.5s
+            // Spawn resonance music note at impact  -- pulses and deals DoT for 1.5s
             target.AddBuff(ModContent.BuffType<LunarResonanceDebuff>(), 90); // 1.5 seconds
 
             SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.3f, Volume = 0.5f }, target.Center);
 
-            // Musical impact burst 窶・glowing notes erupt
+            // Musical impact burst  -- glowing notes erupt
             if (!Main.dedServ)
             {
                 MoonlightVFXLibrary.SpawnMusicNotes(target.Center, count: 2, spread: 15f,
@@ -190,7 +190,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Weapons.IncisorOfMoonlight.Projecti
         public override void OnKill(int timeLeft)
         {
             if (Main.dedServ) return;
-            // Death burst 窶・few sparkles
+            // Death burst  -- few sparkles
             for (int i = 0; i < 3; i++)
             {
                 Color sc = MulticolorLerp(Main.rand.NextFloat(), IncisorPalette);

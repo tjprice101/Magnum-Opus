@@ -39,7 +39,6 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
 
         private int BouncesRemaining { get => (int)Projectile.ai[0]; set => Projectile.ai[0] = value; }
         private bool IsCrescendo => Projectile.ai[1] == 1f;
-        private bool _hasHitAnEnemy;
         private int _seekTimer;
         private int _lightningCooldown;
 
@@ -146,8 +145,6 @@ namespace MagnumOpus.Content.LaCampanella.ResonantWeapons.FangOfTheInfiniteBell.
         {
             // Apply Resonant Toll debuff
             target.GetGlobalNPC<ResonantTollNPC>().AddStacks(target, 1);
-
-            _hasHitAnEnemy = true;
 
             if (BouncesRemaining > 0)
             {

@@ -1790,9 +1790,20 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
         
         public override void OnKill()
         {
-            // Deactivate any sky effects
-            // Set downed flag
-            // etc.
+            if (Main.netMode != NetmodeID.MultiplayerClient)
+            {
+                if (!MoonlightSonataSystem.DownedOdeToJoy)
+                {
+                    MoonlightSonataSystem.OnFirstOdeToJoyBossKill();
+                }
+                else
+                {
+                    MoonlightSonataSystem.DownedOdeToJoy = true;
+                }
+
+                if (Main.netMode == NetmodeID.Server)
+                    NetMessage.SendData(MessageID.WorldData);
+            }
         }
         
         #endregion
