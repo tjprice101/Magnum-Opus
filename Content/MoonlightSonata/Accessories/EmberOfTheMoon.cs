@@ -17,7 +17,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
     /// Ember of the Moon - Mage accessory.
     /// -30% mana cost.
     /// +25% magic damage.
-    /// 15% chance to cast spells twice.
     /// When mana drops below 20%, automatically restores 100 mana (120 second cooldown).
     /// </summary>
     public class EmberOfTheMoon : ModItem
@@ -36,7 +35,9 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             var modPlayer = player.GetModPlayer<MoonlightAccessoryPlayer>();
             modPlayer.hasEmberOfTheMoon = true;
             
-            // Note: -30% mana cost, +25% magic damage, and double cast handled in MoonlightAccessoryPlayer
+            // Direct stat bonuses
+            player.manaCost -= 0.30f; // -30% mana cost
+            player.GetDamage(DamageClass.Magic) += 0.25f; // +25% magic damage
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
@@ -53,11 +54,6 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             tooltips.Add(new TooltipLine(Mod, "DamageBoost", "+25% magic damage")
             {
                 OverrideColor = new Color(255, 200, 100)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "DoubleCast", "15% chance to cast spells twice")
-            {
-                OverrideColor = new Color(180, 120, 255)
             });
             
             tooltips.Add(new TooltipLine(Mod, "ManaRestore", "Automatically restores 100 mana when below 20%")

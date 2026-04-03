@@ -379,7 +379,7 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
                 OverrideColor = ClairDeLuneIridescent
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The eternal bastion stands beyond the reach of time'")
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A shield forged from every moonlit movement, unyielding and resolute'")
             {
                 OverrideColor = new Color(160, 140, 180)
             });

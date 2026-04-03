@@ -148,7 +148,7 @@ namespace MagnumOpus.Content.Common.Accessories
             Color cosmicPurple = new Color(200, 100, 255);
             Color softGold = new Color(255, 255, 200);
             
-            tooltips.Add(new TooltipLine(Mod, "Ultimate1", "The ULTIMATE musical accessory - the grand finale of all symphonies")
+            tooltips.Add(new TooltipLine(Mod, "Ultimate1", "The grand finale of all symphonies combined into one")
             {
                 OverrideColor = ultimateGold
             });
@@ -198,7 +198,7 @@ namespace MagnumOpus.Content.Common.Accessories
                 OverrideColor = ultimateGold
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'When all movements converge into one, the symphony transcends mortal limits - this is the Coda of Absolute Harmony'")
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'When all movements converge into one, the symphony plays its final note - this is the Coda of Absolute Harmony'")
             {
                 OverrideColor = softGold
             });

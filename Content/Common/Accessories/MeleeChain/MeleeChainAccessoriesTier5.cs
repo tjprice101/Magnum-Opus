@@ -345,7 +345,7 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
                 OverrideColor = new Color(255, 200, 150)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The cosmos itself plays the final symphony of destiny'")
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Fate's melody rings through every strike, steady and sure'")
             {
                 OverrideColor = FateDarkPink * 0.8f
             });

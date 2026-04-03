@@ -117,14 +117,6 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             {
                 OverrideColor = whiteColor
             });
-            tooltips.Add(new TooltipLine(Mod, "WhiteEffect3", "  All hits have 50% chance to drop healing feather")
-            {
-                OverrideColor = whiteColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "WhiteEffect4", "  (Restores 5 HP when collected)")
-            {
-                OverrideColor = whiteColor
-            });
             
             tooltips.Add(new TooltipLine(Mod, "Spacer2", " "));
             

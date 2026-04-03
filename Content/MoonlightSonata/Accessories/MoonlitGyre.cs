@@ -34,6 +34,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             // GENERAL RANGER BUFFS (applies to ALL ranged weapons)
             player.GetDamage(DamageClass.Ranged) += 0.12f; // +12% ranged damage
             player.GetCritChance(DamageClass.Ranged) += 10f; // +10% ranged crit chance
+            player.ammoCost80 = true; // 20% chance not to consume ammo
             
             // Note: Additional Moonlight-specific rifle buffs (+25% fire rate, +25% bullet damage)
             // are handled in the Resurrection of the Moon weapon itself

@@ -47,9 +47,6 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
 
             // +25% minion knockback - POST-FATE ULTIMATE
             player.GetKnockback(DamageClass.Summon) += 0.25f;
-
-            // Minions inflict a stacking debuff
-            // (handled in ModPlayer)
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
