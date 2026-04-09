@@ -1,18 +1,18 @@
 ﻿# 🌙 Nachtmusik — Resonance Weapons Planning
 
-> *"A Little Night Music — every weapon is a serenade to the infinite dark, every star a note in the cosmos's final symphony."*
+> *"Golden Starlit Melodies — the golden twinkling of starlit melodies lights the dark purple world with sweet songs."*
 
 ## Theme Identity
 
 | Attribute | Value |
 |-----------|-------|
-| **Musical Soul** | Mozart's Eine kleine Nachtmusik — nocturnal serenade, playful yet profound, the night sky as orchestra |
-| **Emotional Core** | Nocturnal wonder, stellar beauty, cosmic awe |
-| **Color Palette** | Night void, deep indigo, cosmic blue, starlight silver, moon pearl, stellar white |
-| **Palette Hex** | Night Void `(10, 10, 30)` → Deep Indigo `(40, 30, 100)` → Cosmic Blue `(60, 80, 180)` → Starlight Silver `(180, 200, 230)` → Moon Pearl `(220, 225, 245)` → Stellar White `(240, 245, 255)` |
-| **Lore Color** | `new Color(100, 120, 200)` — Starlight Indigo |
-| **Lore Keywords** | Night, stars, twilight, constellation, cosmic, serenade, midnight, nebula, stellar, nocturnal, celestial |
-| **VFX Language** | Starlight trails, constellation patterns, cosmic dust, nebula clouds, twilight gradients, aurora-like ribbons, moon glow, stellar explosions, gravitational distortion |
+| **Musical Soul** | The golden twinkling of starlit melodies lights the dark purple world around them with their sweet songs |
+| **Emotional Core** | Golden twinkling, nocturnal melody, sweet songs |
+| **Color Palette** | Golden, dark purple |
+| **Palette Hex** | Night Void `(10, 10, 30)` → Dark Purple `(40, 20, 80)` → Deep Purple `(60, 30, 120)` → Golden Twinkling `(220, 180, 60)` → Bright Gold `(255, 210, 80)` → Starlit White `(255, 245, 220)` |
+| **Lore Color** | `new Color(100, 120, 200)` — Golden Starlit Purple |
+| **Lore Keywords** | Night, stars, twilight, melody, serenade, midnight, golden, nocturnal, twinkling, sweet song, purple, harmony |
+| **VFX Language** | Golden melody trails, dark purple glow auras, starlit twinkling particles, sweet song note cascades, golden sparkle wisps, purple night sky energy |
 
 ---
 

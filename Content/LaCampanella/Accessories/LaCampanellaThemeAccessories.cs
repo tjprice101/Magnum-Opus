@@ -32,8 +32,7 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
 
     /// <summary>
     /// Chime of Flames - La Campanella Tier 1 Theme Accessory.
-    /// A smoky black bell shape with blazing orange flames.
-    /// +15% magic damage, spells leave fire trails, attacks have chance to ring (stun).
+    /// +1 Minion Slot, 5% whip hits inflict "Tolling Death" - second strike at 75% damage.
     /// </summary>
     public class ChimeOfFlames : ModItem
     {
@@ -51,32 +50,30 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             var modPlayer = player.GetModPlayer<ChimeOfFlamesPlayer>();
             modPlayer.hasChimeOfFlames = true;
 
-            // +15% magic damage
-            player.GetDamage(DamageClass.Magic) += 0.15f;
-
-            // Fire trail effect is handled in player class
+            // +1 Minion Slot
+            player.maxMinions += 1;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "MagicDamage", "+15% magic damage")
-            {
-                OverrideColor = CampanellaColors.Orange
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "FireTrail", "Magic attacks leave lingering fire trails")
-            {
-                OverrideColor = CampanellaColors.Yellow
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "BellChime", "8% chance for attacks to 'ring' - briefly stunning enemies")
+            tooltips.Add(new TooltipLine(Mod, "MinionSlot", "+1 minion slot")
             {
                 OverrideColor = CampanellaColors.Gold
             });
 
+            tooltips.Add(new TooltipLine(Mod, "TollingDeath", "5% chance for whip hits to inflict 'Tolling Death'")
+            {
+                OverrideColor = CampanellaColors.Orange
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "TollingDesc", "Tolling Death: every hit strikes a second time at 75% damage")
+            {
+                OverrideColor = CampanellaColors.DarkOrange
+            });
+
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'Each chime carries the heat of a thousand flames'")
             {
-                OverrideColor = new Color(180, 150, 130)
+                OverrideColor = new Color(255, 140, 40)
             });
         }
 
@@ -100,39 +97,30 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             hasChimeOfFlames = false;
         }
 
-        public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            TryRingBell(target);
-        }
-
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (proj.owner == Player.whoAmI)
+            if (!hasChimeOfFlames || proj.owner != Player.whoAmI) return;
+            
+            // Only whip projectiles
+            if (ProjectileID.Sets.IsAWhip[proj.type] && Main.rand.NextFloat() < 0.05f)
             {
-                TryRingBell(target);
-
-                // Fire trail for magic projectiles
-                if (hasChimeOfFlames && proj.DamageType == DamageClass.Magic && Main.rand.NextBool(3))
-                {
-                    Vector2 trailPos = proj.Center + Main.rand.NextVector2Circular(8f, 8f);
-                    Dust fire = Dust.NewDustPerfect(trailPos, DustID.Torch, Vector2.Zero, 0, default, 1.5f);
-                    fire.noGravity = true;
-                }
+                ApplyTollingDeath(target, damageDone);
             }
         }
 
-        private void TryRingBell(NPC target)
+        private void ApplyTollingDeath(NPC target, int damageDone)
         {
-            if (hasChimeOfFlames && Main.rand.NextFloat() < 0.08f)
+            // Second strike at 75% damage
+            int secondStrike = (int)(damageDone * 0.75f);
+            if (secondStrike > 0 && Main.myPlayer == Player.whoAmI)
             {
-                // Apply stun (Confused debuff as proxy)
-                target.AddBuff(BuffID.Confused, 60); // 1 second stun
-
-                // Bell ring visual
-                
-                // Sound effect would go here
-                Terraria.Audio.SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.5f, Volume = 0.6f }, target.Center);
+                target.SimpleStrikeNPC(secondStrike, 0, false, 0, null, false, 0, true);
             }
+            
+            // Apply Withered Weapon
+            target.AddBuff(BuffID.WitheredWeapon, 180);
+            
+            Terraria.Audio.SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.5f, Volume = 0.6f }, target.Center);
         }
     }
 
@@ -142,8 +130,7 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
 
     /// <summary>
     /// Infernal Virtuoso - La Campanella Tier 2 Theme Accessory (Ultimate).
-    /// The infernal power of La Campanella crystallized into wearable form.
-    /// All Campanella bonuses maximized, spells ring the bell (AoE fire damage on hit).
+    /// Immune to fire, +2 Minion Slots, 10% whip Tolling Death, whip+summon inflict Ichor+Cursed Inferno.
     /// </summary>
     public class InfernalVirtuoso : ModItem
     {
@@ -161,17 +148,10 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             var modPlayer = player.GetModPlayer<InfernalVirtuosoPlayer>();
             modPlayer.hasInfernalVirtuoso = true;
 
-            // Enhanced bonuses
-            // +22% magic damage (was 15%)
-            player.GetDamage(DamageClass.Magic) += 0.22f;
+            // +2 Minion Slots
+            player.maxMinions += 2;
 
-            // +10% magic crit
-            player.GetCritChance(DamageClass.Magic) += 10;
-
-            // -12% mana cost
-            player.manaCost -= 0.12f;
-
-            // Fire immunity (all fire debuffs)
+            // Fire immunity
             player.buffImmune[BuffID.OnFire] = true;
             player.buffImmune[BuffID.OnFire3] = true;
             player.buffImmune[BuffID.Burning] = true;
@@ -179,39 +159,34 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "MagicDamage", "+22% magic damage")
-            {
-                OverrideColor = CampanellaColors.Orange
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "MagicCrit", "+10% magic critical strike chance")
-            {
-                OverrideColor = CampanellaColors.Yellow
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "ManaCost", "-12% mana cost")
-            {
-                OverrideColor = CampanellaColors.Gold
-            });
-
             tooltips.Add(new TooltipLine(Mod, "FireImmune", "Immune to fire debuffs")
             {
                 OverrideColor = new Color(255, 150, 100)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "BellChime", "15% chance for attacks to 'ring' - stunning enemies")
+            tooltips.Add(new TooltipLine(Mod, "MinionSlots", "+2 minion slots")
             {
                 OverrideColor = CampanellaColors.Gold
             });
 
-            tooltips.Add(new TooltipLine(Mod, "BellAoE", "Bell rings trigger fire explosion dealing 50% of hit damage in AoE")
+            tooltips.Add(new TooltipLine(Mod, "TollingDeath", "10% chance for whip hits to inflict 'Tolling Death'")
+            {
+                OverrideColor = CampanellaColors.Orange
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "TollingDesc", "Tolling Death: every hit strikes a second time at 75% damage")
             {
                 OverrideColor = CampanellaColors.DarkOrange
             });
 
+            tooltips.Add(new TooltipLine(Mod, "Debuffs", "Whip and summon attacks inflict Ichor and Cursed Inferno")
+            {
+                OverrideColor = CampanellaColors.Yellow
+            });
+
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'The virtuoso's fingers dance across keys of flame and shadow'")
             {
-                OverrideColor = new Color(180, 150, 130)
+                OverrideColor = new Color(255, 140, 40)
             });
         }
 
@@ -236,46 +211,30 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             hasInfernalVirtuoso = false;
         }
 
-        public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            TryRingBell(target, damageDone);
-        }
-
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (proj.owner == Player.whoAmI)
+            if (!hasInfernalVirtuoso || proj.owner != Player.whoAmI) return;
+            
+            bool isWhip = ProjectileID.Sets.IsAWhip[proj.type];
+            bool isSummon = proj.DamageType == DamageClass.Summon || proj.minion || proj.sentry;
+            
+            // Whip and summon attacks inflict Ichor and Cursed Inferno
+            if (isWhip || isSummon)
             {
-                TryRingBell(target, damageDone);
+                target.AddBuff(BuffID.Ichor, 180);
+                target.AddBuff(BuffID.CursedInferno, 180);
             }
-        }
-
-        private void TryRingBell(NPC target, int damageDone)
-        {
-            if (hasInfernalVirtuoso && Main.rand.NextFloat() < 0.15f)
+            
+            // 10% Tolling Death on whip hits
+            if (isWhip && Main.rand.NextFloat() < 0.10f)
             {
-                // Apply stun
-                target.AddBuff(BuffID.Confused, 90); // 1.5 second stun
-
-                // Bell ring visual
-                
-
-                // AoE fire explosion
-                int aoeDamage = (int)(damageDone * 0.5f);
-                float aoeRadius = 100f;
-
-                foreach (NPC npc in Main.npc)
+                int secondStrike = (int)(damageDone * 0.75f);
+                if (secondStrike > 0 && Main.myPlayer == Player.whoAmI)
                 {
-                    if (npc.active && !npc.friendly && npc.whoAmI != target.whoAmI && 
-                        Vector2.Distance(npc.Center, target.Center) < aoeRadius)
-                    {
-                        Player.ApplyDamageToNPC(npc, aoeDamage, 0f, 0, false);
-                        npc.AddBuff(BuffID.OnFire, 180); // 3 seconds on fire
-
-                        // Fire explosion on each hit enemy
-                    }
+                    target.SimpleStrikeNPC(secondStrike, 0, false, 0, null, false, 0, true);
                 }
-
-                // Sound effect
+                target.AddBuff(BuffID.WitheredWeapon, 180);
+                
                 Terraria.Audio.SoundEngine.PlaySound(SoundID.Item45 with { Pitch = 0.3f, Volume = 0.8f }, target.Center);
             }
         }

@@ -4672,7 +4672,7 @@ TOTAL: 32 assets
 ---
 
 # ⛓️ DIES IRAE - Herald of Judgment
-*Theme: Day of Wrath, black #1A1A1A, blood red #8B0000, bright flame #FF2400, crimson #DC143C*
+*Theme: Hell's Retribution, black #1A1A1A, crimson #DC143C, white, bright flame #FF2400*
 
 ### 🎵 SUNO Music Prompt - Dies Irae Boss Theme
 ```
@@ -6212,7 +6212,7 @@ Color NachtmusikGold = new Color(255, 215, 0);          // #FFD700
 Color NachtmusikStarWhite = new Color(255, 255, 255);   // #FFFFFF
 Color NachtmusikViolet = new Color(123, 104, 238);      // #7B68EE
 
-// ====== DIES IRAE (Day of Wrath) ======
+// ====== DIES IRAE (Hell's Retribution) ======
 Color DiesIraeBlack = new Color(26, 26, 26);            // #1A1A1A
 Color DiesIraeBloodRed = new Color(139, 0, 0);          // #8B0000
 Color DiesIraeBrightFlame = new Color(255, 36, 0);      // #FF2400
@@ -6237,7 +6237,7 @@ Color ClairDeLuneSilver = new Color(192, 192, 192);     // #C0C0C0
 
 ## 9.7 🗡️ MIDJOURNEY - WEAPON SPRITE PROMPTS
 
-### ⛓️ DIES IRAE WEAPONS (Day of Wrath)
+### ⛓️ DIES IRAE WEAPONS (Hell's Retribution)
 
 **Color Palette:** Black (#1A1A1A), Blood Red (#8B0000), Bright Flame (#FF2400), Crimson (#DC143C), White accents
 

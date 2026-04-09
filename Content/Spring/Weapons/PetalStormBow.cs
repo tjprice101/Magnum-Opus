@@ -218,20 +218,30 @@ namespace MagnumOpus.Content.Spring.Weapons
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
         {
-            Texture2D texture = TextureAssets.Item[Item.type].Value;
-            Vector2 position = Item.Center - Main.screenPosition;
-            Vector2 origin = texture.Size() / 2f;
+            try
+            {
+                Texture2D texture = TextureAssets.Item[Item.type].Value;
+                Vector2 position = Item.Center - Main.screenPosition;
+                Vector2 origin = texture.Size() / 2f;
 
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.1f + 1f;
+                float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.1f + 1f;
 
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            spriteBatch.Draw(texture, position, null, SpringPink * 0.35f, rotation, origin, scale * pulse * 1.3f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, position, null, SpringWhite * 0.25f, rotation, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
+                spriteBatch.Draw(texture, position, null, SpringPink * 0.35f, rotation, origin, scale * pulse * 1.3f, SpriteEffects.None, 0f);
+                spriteBatch.Draw(texture, position, null, SpringWhite * 0.25f, rotation, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
 
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
+            finally
+            {
+                try { spriteBatch.End(); } catch { }
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             Lighting.AddLight(Item.Center, SpringPink.ToVector3() * 0.4f);
 

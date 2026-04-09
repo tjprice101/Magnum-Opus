@@ -59,14 +59,9 @@ namespace MagnumOpus.Content.Fate.Accessories
                 OverrideColor = new Color(120, 180, 255)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "CosmicFlare", "Magic attacks have a 15% chance to trigger cosmic flares")
+            tooltips.Add(new TooltipLine(Mod, "AstralResonance", "Magic crits grant 'Astral Resonance' for 3s (+8% magic damage, +5% magic crit)")
             {
                 OverrideColor = FatePalette.DarkPink
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "ChainEffect", "Cosmic flares chain to up to 3 nearby enemies")
-            {
-                OverrideColor = FatePalette.BrightCrimson
             });
 
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'The stars themselves bend to your will'")
@@ -93,69 +88,38 @@ namespace MagnumOpus.Content.Fate.Accessories
     public class AstralConduitPlayer : ModPlayer
     {
         public bool hasAstralConduit = false;
+        public int astralResonanceTimer = 0;
+        
+        private const int AstralResonanceDuration = 180; // 3 seconds
         
         public override void ResetEffects()
         {
             hasAstralConduit = false;
         }
 
+        public override void PostUpdateEquips()
+        {
+            if (!hasAstralConduit)
+            {
+                astralResonanceTimer = 0;
+                return;
+            }
+
+            if (astralResonanceTimer > 0)
+            {
+                astralResonanceTimer--;
+                Player.GetDamage(DamageClass.Magic) += 0.08f;
+                Player.GetCritChance(DamageClass.Magic) += 5;
+            }
+        }
+
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
             if (!hasAstralConduit) return;
             if (!proj.CountsAsClass(DamageClass.Magic)) return;
-            if (Main.rand.NextFloat() >= 0.15f) return; // 15% chance
+            if (!hit.Crit) return;
             
-            TriggerCosmicFlare(target, damageDone);
-        }
-
-        private void TriggerCosmicFlare(NPC target, int baseDamage)
-        {
-            // VFX at initial target
-            FateAccessoryVFX.AstralConduitFlareVFX(target.Center);
-
-            // Chain to nearby enemies
-            int chainsRemaining = 3;
-            float chainRange = 300f;
-            int chainDamage = baseDamage / 3;
-            NPC lastTarget = target;
-
-            System.Collections.Generic.HashSet<int> hitNPCs = new() { target.whoAmI };
-
-            for (int chain = 0; chain < chainsRemaining; chain++)
-            {
-                NPC nextTarget = null;
-                float closestDist = chainRange;
-
-                foreach (NPC npc in Main.npc)
-                {
-                    if (!npc.active || npc.friendly || !npc.CanBeChasedBy()) continue;
-                    if (hitNPCs.Contains(npc.whoAmI)) continue;
-
-                    float dist = Vector2.Distance(lastTarget.Center, npc.Center);
-                    if (dist < closestDist)
-                    {
-                        closestDist = dist;
-                        nextTarget = npc;
-                    }
-                }
-
-                if (nextTarget == null) break;
-
-                // Chain lightning between targets
-                FateAccessoryVFX.AstralConduitChainVFX(lastTarget.Center, nextTarget.Center);
-
-                // Damage the next target
-                if (Main.myPlayer == Player.whoAmI)
-                {
-                    Player.ApplyDamageToNPC(nextTarget, chainDamage, 0f, 0, false);
-                }
-
-                // VFX at chain target
-                FateAccessoryVFX.AstralConduitFlareVFX(nextTarget.Center);
-
-                hitNPCs.Add(nextTarget.whoAmI);
-                lastTarget = nextTarget;
-            }
+            astralResonanceTimer = AstralResonanceDuration;
         }
     }
 }

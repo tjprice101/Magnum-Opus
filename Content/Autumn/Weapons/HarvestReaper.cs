@@ -3,13 +3,14 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.Audio;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
-using MagnumOpus.Common.BaseClasses;
-using MagnumOpus.Content.Autumn.Materials;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Content.Autumn.Materials;
 using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Autumn.Weapons
@@ -18,7 +19,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
     /// Harvest Reaper — Autumn-themed melee weapon (Post-Wall of Flesh tier).
     /// A massive scythe channeling autumn's decay, using held-projectile combo architecture.
     /// </summary>
-    public class HarvestReaper : MeleeSwingItemBase
+    public class HarvestReaper : ModItem
     {
         #region ── Theme Colors ──
 
@@ -30,18 +31,7 @@ namespace MagnumOpus.Content.Autumn.Weapons
 
         #endregion
 
-        #region ── Abstract Overrides (MeleeSwingItemBase) ──
-
-        protected override int SwingProjectileType => ModContent.ProjectileType<HarvestReaperSwing>();
-        protected override int ComboStepCount => 4;
-
-        #endregion
-
-        #region ── Virtual Overrides ──
-
-        protected override Color GetLoreColor() => Color.Lerp(AutumnOrange, AutumnBrown, 0.5f);
-
-        protected override void SetWeaponDefaults()
+        public override void SetDefaults()
         {
             Item.width = 70;
             Item.height = 70;
@@ -49,28 +39,52 @@ namespace MagnumOpus.Content.Autumn.Weapons
             Item.DamageType = DamageClass.MeleeNoSpeed;
             Item.useTime = 30;
             Item.useAnimation = 30;
+            Item.useStyle = ItemUseStyleID.Shoot;
             Item.knockBack = 7f;
             Item.value = Item.buyPrice(gold: 35);
             Item.rare = ItemRarityID.Lime;
-            Item.UseSound = SoundID.Item71;
+            Item.UseSound = null;
+            Item.autoReuse = true;
+            Item.channel = true;
+            Item.noMelee = true;
+            Item.noUseGraphic = true;
+            Item.shoot = ModContent.ProjectileType<HarvestReaperSwing>();
+            Item.shootSpeed = 1f;
         }
 
-        protected override void AddWeaponTooltips(List<TooltipLine> tooltips)
+        public override bool CanShoot(Player player)
+        {
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile p = Main.projectile[i];
+                if (p.active && p.owner == player.whoAmI && p.type == Item.shoot)
+                    return false;
+            }
+            return true;
+        }
+
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
+            Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        {
+            Projectile.NewProjectile(source, player.MountedCenter,
+                (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
+                type, damage, knockback, player.whoAmI, 0f, 0);
+            return false;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "ReapingStrike", "Large sweeping arcs with decay particles") { OverrideColor = AutumnOrange });
             tooltips.Add(new TooltipLine(Mod, "SoulHarvest", "Kill enemies to spawn soul wisps that restore 12 HP when picked up") { OverrideColor = DecayPurple });
             tooltips.Add(new TooltipLine(Mod, "AutumnsDecay", "Every 5th hit applies stacking decay debuff") { OverrideColor = AutumnRed });
             tooltips.Add(new TooltipLine(Mod, "TwilightSlash", "Every 8th swing unleashes a massive crescent wave") { OverrideColor = AutumnGold });
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The harvest moon's final reaping'") { OverrideColor = GetLoreColor() });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The harvest moon's final reaping'") { OverrideColor = Color.Lerp(AutumnOrange, AutumnBrown, 0.5f) });
         }
-
-        #endregion
 
         #region ── HoldItem — Ambient VFX ──
 
         public override void HoldItem(Player player)
         {
-            base.HoldItem(player);
 
             if (Main.gameMenu) return;
 

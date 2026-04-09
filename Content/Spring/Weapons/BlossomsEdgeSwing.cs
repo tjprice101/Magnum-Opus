@@ -1,249 +1,107 @@
-using System;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Terraria;
-using Terraria.Audio;
-using Terraria.ID;
-using Terraria.ModLoader;
-using Terraria.Graphics.Shaders;
+﻿using System;
 using MagnumOpus.Common.BaseClasses;
 using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.VFX;
-using MagnumOpus.Common.Systems.VFX.Trails;
-using MagnumOpus.Common.Systems.Particles;
-using static MagnumOpus.Common.Systems.Particles.Particle;
-using ReLogic.Content;
+using MagnumOpus.Content.Spring.Projectiles;
+using Microsoft.Xna.Framework;
+using Terraria;
+using Terraria.Audio;
+using Terraria.DataStructures;
+using Terraria.ID;
+using Terraria.ModLoader;
 
 namespace MagnumOpus.Content.Spring.Weapons
 {
     /// <summary>
-    /// Blossom's Edge held-projectile swing 遯ｶ繝ｻthe gentle first movement of spring.
-    /// 3-phase cherry blossom combo: Quick Slash 遶翫・Wide Arc 遶翫・Flourishing Thrust.
-    /// Each swing scatters petals; every 5th hit triggers Renewal Strike (8 HP heal);
+    /// Blossom's Edge swing projectile — Spring theme melee. ExobladeStyleSwing architecture.
+    /// 3-phase Petal Dance combo; every 5th hit triggers Renewal Strike (8 HP heal);
     /// crits trigger Spring Bloom (seeking crystals + AoE petal burst).
     /// </summary>
-    public sealed class BlossomsEdgeSwing : MeleeSwingBase
+    public class BlossomsEdgeSwing : ExobladeStyleSwing
     {
-        // 隨渉隨渉 Theme Colors 隨渉隨渉
-        private static readonly Color SpringPink = MagnumThemePalettes.SpringPink;
-        private static readonly Color SpringWhite = MagnumThemePalettes.SpringWhite;
-        private static readonly Color SpringGreen = MagnumThemePalettes.SpringLightGreen;
-        private static readonly Color CherryBlossom = MagnumThemePalettes.SpringPink;
+        private static readonly Color SpringPink = new Color(255, 183, 197);
+        private static readonly Color SpringWhite = new Color(255, 250, 250);
+        private static readonly Color SpringGreen = new Color(200, 255, 200);
+        private static readonly Color CherryBlossom = new Color(255, 183, 197);
 
-        // 隨渉隨渉 Hit Counter (stored in ai[2]) 隨渉隨渉
-        private int HitCounter
+        private int comboPhase = 0;
+        private int hitCounter = 0;
+
+        protected override bool SupportsDash => false;
+        protected override float BladeLength => 100f;
+        protected override int BaseSwingFrames => 78;
+        protected override float TextureDrawScale => 0.12f;
+        protected override Color SlashPrimaryColor => SpringPink;
+        protected override Color SlashSecondaryColor => new Color(120, 80, 100);
+        protected override Color SlashAccentColor => SpringGreen;
+        protected override string GradientLUTPath => "MagnumOpus/Assets/VFX Asset Library/ColorGradients/SpringGradientLUTandRAMP";
+
+        public override string Texture => "MagnumOpus/Content/Spring/Weapons/BlossomsEdge";
+
+        protected override Color GetLensFlareColor(float p)
+            => Color.Lerp(SpringPink, SpringGreen, (float)Math.Pow(p, 2));
+
+        protected override Color GetSwingDustColor()
         {
-            get => (int)Projectile.ai[2];
-            set => Projectile.ai[2] = value;
+            float t = Main.rand.NextFloat();
+            return t < 0.5f
+                ? Color.Lerp(new Color(255, 180, 200), new Color(255, 220, 230), Main.rand.NextFloat())
+                : Color.Lerp(new Color(255, 140, 160), SpringGreen, Main.rand.NextFloat());
         }
 
-        // 隨渉隨渉 6-Color Palette: pianissimo 遶翫・sforzando 隨渉隨渉
-        private static readonly Color[] SpringPalette = new Color[]
+        protected override void OnSwingStart(bool isFirstSwing)
         {
-            new Color(120, 80, 100),    // [0] Deep rose shadow
-            new Color(180, 120, 150),   // [1] Dusk rose
-            new Color(255, 183, 197),   // [2] Cherry blossom pink
-            new Color(200, 255, 200),   // [3] Fresh spring green
-            new Color(255, 230, 210),   // [4] Warm petal glow
-            new Color(255, 250, 250),   // [5] White-hot petal core
-        };
+            if (Main.myPlayer != Projectile.owner) return;
 
-        #region 隨渉隨渉 Combo Phase Definitions 隨渉隨渉
+            int phase = comboPhase % 3;
+            comboPhase++;
 
-        // Phase 0 遯ｶ繝ｻQuick Slash (the breath of new petals)
-        private static readonly ComboPhase Phase0_QuickSlash = new ComboPhase(
-            curves: new CurveSegment[]
+            Player player = Owner;
+            int damage = Projectile.damage;
+            float knockback = Projectile.knockBack;
+            Vector2 aimDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
+            IEntitySource source = Projectile.GetSource_FromThis();
+            int petalType = ModContent.ProjectileType<BlossomPetal>();
+            int petalDmg = damage / 3;
+
+            if (phase == 1)
             {
-                new CurveSegment(EasingType.PolyOut, 0f, -0.8f, 0.2f, 2),       // Small windup
-                new CurveSegment(EasingType.PolyIn, 0.20f, -0.6f, 1.4f, 3),     // Quick slash
-                new CurveSegment(EasingType.PolyOut, 0.75f, 0.8f, 0.2f, 2),     // Gentle follow-through
-            },
-            maxAngle: MathHelper.Pi * 1.1f,
-            duration: 22,
-            bladeLength: 90f,
-            flip: false,
-            squish: 0.92f,
-            damageMult: 0.9f
-        );
-
-        // Phase 1 遯ｶ繝ｻWide Arc (the blossom in full bloom)
-        private static readonly ComboPhase Phase1_WideArc = new ComboPhase(
-            curves: new CurveSegment[]
-            {
-                new CurveSegment(EasingType.PolyOut, 0f, -1f, 0.3f, 2),         // Moderate windup
-                new CurveSegment(EasingType.PolyIn, 0.25f, -0.7f, 1.6f, 3),     // Sweeping arc
-                new CurveSegment(EasingType.PolyOut, 0.80f, 0.9f, 0.1f, 2),     // Slow finish
-            },
-            maxAngle: MathHelper.Pi * 1.4f,
-            duration: 26,
-            bladeLength: 100f,
-            flip: true,
-            squish: 0.88f,
-            damageMult: 1.0f
-        );
-
-        // Phase 2 遯ｶ繝ｻFlourishing Thrust (petals scatter in the wind)
-        private static readonly ComboPhase Phase2_Flourish = new ComboPhase(
-            curves: new CurveSegment[]
-            {
-                new CurveSegment(EasingType.PolyOut, 0f, -1.2f, 0.35f, 2),      // Deep windup
-                new CurveSegment(EasingType.PolyIn, 0.30f, -0.85f, 1.85f, 4),   // Powerful thrust
-                new CurveSegment(EasingType.PolyOut, 0.85f, 1.0f, 0.15f, 2),    // Lingering finish
-            },
-            maxAngle: MathHelper.Pi * 1.6f,
-            duration: 28,
-            bladeLength: 110f,
-            flip: false,
-            squish: 0.85f,
-            damageMult: 1.2f
-        );
-
-        #endregion
-
-        #region 隨渉隨渉 Abstract Overrides 隨渉隨渉
-
-        protected override ComboPhase[] GetAllPhases() => new ComboPhase[]
-        {
-            Phase0_QuickSlash,
-            Phase1_WideArc,
-            Phase2_Flourish,
-        };
-
-        protected override Color[] GetPalette() => SpringPalette;
-
-        protected override CalamityStyleTrailRenderer.TrailStyle GetTrailStyle()
-            => CalamityStyleTrailRenderer.TrailStyle.Nature;
-
-        protected override string GetSmearTexturePath(int comboStep) => comboStep switch
-        {
-            0 => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse",
-            1 => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/VerticalEllipse",
-            2 => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/WideSoftEllipse",
-            _ => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse",
-        };
-        protected override string GetSmearGradientPath() => "MagnumOpus/Assets/VFX Asset Library/ColorGradients/EroicaGradientPALELUTandRAMP";
-
-        // ═══ GPU Primitive Trail System (Incisor-style) ═══
-        protected override SwingTrailMode GetTrailMode() => SwingTrailMode.GPUPrimitive;
-
-        protected override MiscShaderData GetSlashShader()
-            => GameShaders.Misc["MagnumOpus:IncisorSlash"];
-
-        protected override void ConfigureSlashShader(MiscShaderData shader, bool isBloomPass)
-        {
-            if (shader == null) return;
-            // Spring theme: cherry blossom pink core, deep rose secondary, spring green edge
-            shader.UseColor(isBloomPass ? new Color(180, 120, 150) : new Color(255, 183, 197));
-            shader.UseSecondaryColor(new Color(120, 80, 100));
-            shader.Shader.Parameters["fireColor"]?.SetValue(new Color(200, 255, 200).ToVector3());
-        }
-        #endregion
-
-        #region 隨渉隨渉 Virtual Overrides 隨渉隨渉
-
-        protected override Terraria.Audio.SoundStyle GetSwingSound()
-        {
-            return SoundID.Item71 with
-            {
-                Pitch = -0.2f + ComboStep * 0.15f,
-                Volume = 0.8f,
-            };
-        }
-
-        protected override int GetInitialDustType() => DustID.PinkFairy;
-
-        protected override int GetSecondaryDustType() => DustID.GreenFairy;
-
-        protected override Microsoft.Xna.Framework.Graphics.Texture2D GetBladeTexture()
-        {
-            return ModContent.Request<Texture2D>("MagnumOpus/Content/Spring/Weapons/BlossomsEdge", AssetRequestMode.ImmediateLoad).Value;
-        }
-
-        protected override Vector3 GetLightColor()
-        {
-            return SpringPink.ToVector3() * (0.35f + ComboStep * 0.12f);
-        }
-
-        #endregion
-
-        #region 隨渉隨渉 Combo Specials 隨渉隨渉
-
-        protected override void HandleComboSpecials()
-        {
-            if (hasSpawnedSpecial) return;
-
-            // Phase 1 at ~65%: scatter BlossomPetal projectiles at blade tip
-            if (ComboStep == 1 && Progression >= 0.65f)
-            {
-                hasSpawnedSpecial = true;
-                if (Main.myPlayer == Projectile.owner)
+                // Phase 1: scatter 2-3 BlossomPetal projectiles
+                int petalCount = 2 + Main.rand.Next(2);
+                for (int i = 0; i < petalCount; i++)
                 {
-                    Vector2 tipPos = GetBladeTipPosition();
-                    int petalCount = 2 + Main.rand.Next(2); // 2-3
-                    for (int i = 0; i < petalCount; i++)
-                    {
-                        float spread = MathHelper.ToRadians(-25f + i * (50f / Math.Max(petalCount - 1, 1)));
-                        Vector2 vel = SwordDirection.RotatedBy(spread) * Main.rand.NextFloat(6f, 9f);
-                        Projectile.NewProjectile(
-                            Projectile.GetSource_FromThis(),
-                            tipPos,
-                            vel,
-                            ModContent.ProjectileType<Content.Spring.Projectiles.BlossomPetal>(),
-                            Projectile.damage / 3,
-                            Projectile.knockBack * 0.5f,
-                            Projectile.owner
-                        );
-                    }
+                    float spread = MathHelper.ToRadians(-25f + i * (50f / Math.Max(petalCount - 1, 1)));
+                    Vector2 vel = aimDir.RotatedBy(spread) * Main.rand.NextFloat(6f, 9f);
+                    Projectile.NewProjectile(source, player.MountedCenter, vel,
+                        petalType, petalDmg, knockback * 0.5f, player.whoAmI);
                 }
             }
-
-            // Phase 2 at ~75%: larger petal burst + seeking crystals
-            if (ComboStep == 2 && Progression >= 0.75f)
+            else if (phase == 2)
             {
-                hasSpawnedSpecial = true;
-                if (Main.myPlayer == Projectile.owner)
+                // Phase 2: 4 BlossomPetals + 3 seeking crystals
+                for (int i = 0; i < 4; i++)
                 {
-                    Vector2 tipPos = GetBladeTipPosition();
-
-                    // Petal burst
-                    for (int i = 0; i < 4; i++)
-                    {
-                        float angle = MathHelper.ToRadians(-40f + i * 27f);
-                        Vector2 vel = SwordDirection.RotatedBy(angle) * Main.rand.NextFloat(7f, 11f);
-                        Projectile.NewProjectile(
-                            Projectile.GetSource_FromThis(),
-                            tipPos,
-                            vel,
-                            ModContent.ProjectileType<Content.Spring.Projectiles.BlossomPetal>(),
-                            Projectile.damage / 3,
-                            Projectile.knockBack * 0.5f,
-                            Projectile.owner
-                        );
-                    }
-
-                    // Seeking spring crystals
-                    SeekingCrystalHelper.SpawnSpringCrystals(
-                        Projectile.GetSource_FromThis(),
-                        tipPos,
-                        SwordDirection * 8f,
-                        (int)(Projectile.damage * 0.35f),
-                        Projectile.knockBack * 0.3f,
-                        Projectile.owner,
-                        count: 3
-                    );
+                    float angle = MathHelper.ToRadians(-40f + i * 27f);
+                    Vector2 vel = aimDir.RotatedBy(angle) * Main.rand.NextFloat(7f, 11f);
+                    Projectile.NewProjectile(source, player.MountedCenter, vel,
+                        petalType, petalDmg, knockback * 0.5f, player.whoAmI);
                 }
-            }
 
-            // 隨渉隨渉 Dense dust + petal particles every frame during active swing 隨渉隨渉
+                SeekingCrystalHelper.SpawnSpringCrystals(
+                    source, player.MountedCenter, aimDir * 8f,
+                    (int)(damage * 0.35f), knockback * 0.3f, player.whoAmI, count: 3);
+            }
+        }
+
+        protected override void OnSwingFrame()
+        {
             if (Progression > 0.10f && Progression < 0.92f)
             {
-                Vector2 tipPos = GetBladeTipPosition();
-                float bladeLen = CurrentPhase.BladeLength;
+                Vector2 tipPos = Owner.MountedCenter + SwordDirection * BladeLength * Projectile.scale;
 
-                // Pink petal dust 遯ｶ繝ｻdense, 2 per frame
+                // Pink petal dust
                 for (int i = 0; i < 2; i++)
                 {
-                    Vector2 dustPos = Owner.MountedCenter + SwordDirection * bladeLen * Main.rand.NextFloat(0.4f, 1f);
+                    Vector2 dustPos = Owner.MountedCenter + SwordDirection * BladeLength * Projectile.scale * Main.rand.NextFloat(0.4f, 1f);
                     Dust d = Dust.NewDustPerfect(dustPos, DustID.PinkFairy,
                         -SwordDirection * Main.rand.NextFloat(1f, 3f) + Main.rand.NextVector2Circular(1f, 1f),
                         0, SpringPink, 1.4f);
@@ -251,52 +109,41 @@ namespace MagnumOpus.Content.Spring.Weapons
                     d.fadeIn = 1.1f;
                 }
 
-                // Contrasting green sparkle every other frame
+                // Green sparkle every other frame
                 if (Main.GameUpdateCount % 2 == 0)
                 {
                     Dust g = Dust.NewDustPerfect(
-                        Owner.MountedCenter + SwordDirection * bladeLen * Main.rand.NextFloat(0.5f, 0.9f),
+                        Owner.MountedCenter + SwordDirection * BladeLength * Projectile.scale * Main.rand.NextFloat(0.5f, 0.9f),
                         DustID.GreenFairy,
                         -SwordDirection * Main.rand.NextFloat(0.5f, 2f),
                         0, SpringGreen, 1.1f);
                     g.noGravity = true;
                 }
 
-                // Music notes from blade tip (1-in-4 chance, visible scale)
+                // Music note dust at tip
                 if (Main.rand.NextBool(4))
                 {
-                    float noteScale = Main.rand.NextFloat(0.7f, 0.95f);
-                    float shimmer = 1f + MathF.Sin(Main.GameUpdateCount * 0.15f) * 0.12f;
                     Color noteColor = Color.Lerp(SpringPink, SpringGreen, Main.rand.NextFloat());
-                    // Simple dust-based music note since ThemedParticles may vary
                     Dust note = Dust.NewDustPerfect(
                         tipPos + Main.rand.NextVector2Circular(6f, 6f),
                         DustID.Enchanted_Pink,
                         -SwordDirection * 1.5f + Main.rand.NextVector2Circular(1f, 1f),
-                        0, noteColor, noteScale * shimmer * 1.6f);
+                        0, noteColor, Main.rand.NextFloat(0.7f, 0.95f) * 1.6f);
                     note.noGravity = true;
                 }
             }
         }
 
-        #endregion
-
-        #region 隨渉隨渉 On Hit NPC 隨渉隨渉
-
-        protected override void OnSwingHitNPC(NPC target, NPC.HitInfo hit, int remainingDamageCount)
+        protected override void OnSwingHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             Player owner = Main.player[Projectile.owner];
+            hitCounter++;
 
-            // 隨渉隨渉 Increment hit counter 隨渉隨渉
-            HitCounter++;
-
-            // 隨渉隨渉 Visual impact layers 隨渉隨渉
-            // Halo rings 遯ｶ繝ｻpink 遶翫・green gradient
+            // Halo ring impact VFX
             for (int i = 0; i < 4; i++)
             {
                 float progress = i / 4f;
                 Color ringColor = Color.Lerp(SpringPink, SpringGreen, progress);
-                // GenericFlare or HaloRing via dust
                 for (int j = 0; j < 2; j++)
                 {
                     float angle = MathHelper.TwoPi * j / 2f + i * MathHelper.PiOver4;
@@ -316,7 +163,7 @@ namespace MagnumOpus.Content.Spring.Weapons
                 shimmer.noGravity = true;
             }
 
-            // Dust explosion
+            // Dust burst
             for (int i = 0; i < 6; i++)
             {
                 Dust burst = Dust.NewDustPerfect(target.Center, DustID.PinkFairy,
@@ -325,35 +172,21 @@ namespace MagnumOpus.Content.Spring.Weapons
                 burst.noGravity = true;
             }
 
-            // Scatter petals on every hit
-            if (Main.rand.NextBool(3))
+            // Renewal Strike — every 5th hit heals 8 HP
+            if (hitCounter >= 5)
             {
-                Dust petal = Dust.NewDustPerfect(target.Center + Main.rand.NextVector2Circular(10f, 10f),
-                    DustID.PinkFairy,
-                    Main.rand.NextVector2Circular(4f, 4f) + new Vector2(0, -2f),
-                    0, CherryBlossom, 1.6f);
-                petal.noGravity = true;
-            }
-
-            // 隨渉隨渉 RENEWAL STRIKE 遯ｶ繝ｻevery 5th hit heals 8 HP 隨渉隨渉
-            if (HitCounter >= 5)
-            {
-                HitCounter = 0;
-
+                hitCounter = 0;
                 if (Main.myPlayer == Projectile.owner)
                 {
                     owner.Heal(8);
                     CombatText.NewText(owner.getRect(), new Color(100, 255, 130), "Renewal!", true, false);
                 }
-
-                // Green healing VFX burst
                 SoundEngine.PlaySound(SoundID.Item4 with { Pitch = 0.4f, Volume = 0.6f }, target.Center);
                 for (int i = 0; i < 10; i++)
                 {
                     float angle = MathHelper.TwoPi * i / 10f;
                     Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
-                    Dust heal = Dust.NewDustPerfect(owner.Center, DustID.GreenFairy,
-                        vel, 0, SpringGreen, 1.8f);
+                    Dust heal = Dust.NewDustPerfect(owner.Center, DustID.GreenFairy, vel, 0, SpringGreen, 1.8f);
                     heal.noGravity = true;
                 }
                 for (int i = 0; i < 6; i++)
@@ -366,10 +199,9 @@ namespace MagnumOpus.Content.Spring.Weapons
                 }
             }
 
-            // 隨渉隨渉 SPRING BLOOM 遯ｶ繝ｻon crit: seeking crystals + AoE 隨渉隨渉
+            // Spring Bloom — on crit: seeking crystals + AoE petal burst
             if (hit.Crit)
             {
-                // Crit flash
                 SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.3f, Volume = 0.7f }, target.Center);
                 for (int i = 0; i < 8; i++)
                 {
@@ -378,7 +210,6 @@ namespace MagnumOpus.Content.Spring.Weapons
                     critDust.noGravity = true;
                 }
 
-                // Petal burst
                 for (int i = 0; i < 12; i++)
                 {
                     float angle = MathHelper.TwoPi * i / 12f;
@@ -390,18 +221,13 @@ namespace MagnumOpus.Content.Spring.Weapons
 
                 if (Main.myPlayer == Projectile.owner)
                 {
-                    // Seeking crystals (40% damage, 4 crystals)
                     SeekingCrystalHelper.SpawnSpringCrystals(
-                        Projectile.GetSource_FromThis(),
-                        target.Center,
+                        Projectile.GetSource_FromThis(), target.Center,
                         (target.Center - owner.Center).SafeNormalize(Vector2.UnitY) * 6f,
-                        (int)(Projectile.damage * 0.4f),
-                        Projectile.knockBack * 0.3f,
-                        Projectile.owner,
-                        count: 4
-                    );
+                        (int)(Projectile.damage * 0.4f), Projectile.knockBack * 0.3f,
+                        Projectile.owner, count: 4);
 
-                    // AoE 遯ｶ繝ｻ50% damage to nearby enemies within 100 tiles
+                    // AoE — 50% damage to nearby enemies
                     for (int i = 0; i < Main.maxNPCs; i++)
                     {
                         NPC npc = Main.npc[i];
@@ -414,129 +240,5 @@ namespace MagnumOpus.Content.Spring.Weapons
                 }
             }
         }
-
-        #endregion
-
-        #region 隨渉隨渉 Custom VFX 隨渉隨渉
-
-        protected override void DrawCustomVFX(SpriteBatch sb)
-        {
-            if (Progression < 0.08f || Progression > 0.95f) return;
-
-            Vector2 tipWorld = GetBladeTipPosition();
-            Vector2 tipScreen = tipWorld - Main.screenPosition;
-            Vector2 rootScreen = Owner.MountedCenter - Main.screenPosition;
-            float phaseIntensity = 1f + ComboStep * 0.10f;
-            // Gentle breathing pulse — spring is soft and alive
-            float breathe = 1f + MathF.Sin(Main.GlobalTimeWrappedHourly * 3.5f) * 0.08f;
-            float swingFade = MathHelper.Clamp((Progression - 0.08f) / 0.1f, 0f, 1f)
-                            * MathHelper.Clamp((0.95f - Progression) / 0.1f, 0f, 1f);
-
-            // ═══ Switch to additive for petal glow layers ═══
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
-                SamplerState.LinearClamp, DepthStencilState.None,
-                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            Texture2D glowTex = MagnumTextureRegistry.GetSoftGlow();
-            Texture2D starTex = MagnumTextureRegistry.GetStar4Soft();
-            if (glowTex != null)
-            {
-                Vector2 glowOrigin = glowTex.Size() / 2f;
-                float baseScale = MathHelper.Min((0.15f + ComboStep * 0.05f) * breathe * phaseIntensity, 0.279f);
-
-                // Layer 1: Wide gentle pink atmosphere — cherry blossom cloud (capped 300px max)
-                sb.Draw(glowTex, tipScreen, null,
-                    SpringPink with { A = 0 } * 0.2f * swingFade, 0f,
-                    glowOrigin, baseScale * 2.1f, SpriteEffects.None, 0f);
-
-                // Layer 2: Mid cherry blossom glow
-                sb.Draw(glowTex, tipScreen, null,
-                    CherryBlossom with { A = 0 } * 0.4f * swingFade, 0f,
-                    glowOrigin, baseScale * 1.5f, SpriteEffects.None, 0f);
-
-                // Layer 3: Inner fresh spring green
-                sb.Draw(glowTex, tipScreen, null,
-                    SpringGreen with { A = 0 } * 0.55f * swingFade, 0f,
-                    glowOrigin, baseScale * 0.85f, SpriteEffects.None, 0f);
-
-                // Layer 4: Petal white core
-                sb.Draw(glowTex, tipScreen, null,
-                    SpringWhite with { A = 0 } * 0.7f * swingFade, 0f,
-                    glowOrigin, baseScale * 0.3f, SpriteEffects.None, 0f);
-
-                // Layer 5: Root glow — gentle green nature emanation
-                float rootBreath = 0.5f + 0.5f * MathF.Sin(Main.GlobalTimeWrappedHourly * 2f);
-                sb.Draw(glowTex, rootScreen, null,
-                    SpringGreen with { A = 0 } * 0.2f * swingFade * rootBreath, 0f,
-                    glowOrigin, 0.10f * phaseIntensity, SpriteEffects.None, 0f);
-
-                // Layer 6: Blade midpoint petal shimmer (40% along blade)
-                Vector2 midScreen = Vector2.Lerp(rootScreen, tipScreen, 0.4f);
-                sb.Draw(glowTex, midScreen, null,
-                    SpringPink with { A = 0 } * 0.15f * swingFade, 0f,
-                    glowOrigin, baseScale * 0.45f, SpriteEffects.None, 0f);
-            }
-
-            // Layer 7: Delicate petal star flare at tip
-            if (starTex != null)
-            {
-                Vector2 starOrigin = starTex.Size() / 2f;
-                float starRot = Main.GlobalTimeWrappedHourly * 2f;
-                float starScale = (0.06f + ComboStep * 0.02f) * breathe;
-                sb.Draw(starTex, tipScreen, null,
-                    SpringPink with { A = 0 } * 0.55f * swingFade, starRot,
-                    starOrigin, starScale, SpriteEffects.None, 0f);
-                sb.Draw(starTex, tipScreen, null,
-                    SpringWhite with { A = 0 } * 0.35f * swingFade, -starRot * 0.5f,
-                    starOrigin, starScale * 0.5f, SpriteEffects.None, 0f);
-            }
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                SamplerState.LinearClamp, DepthStencilState.None,
-                RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // ═══ Drifting petal dust along blade ═══
-            if (Progression > 0.12f && Progression < 0.88f)
-            {
-                int dustCount = 1 + (ComboStep > 1 ? 1 : 0);
-                for (int i = 0; i < dustCount; i++)
-                {
-                    float t = Main.rand.NextFloat(0.3f, 0.85f);
-                    Vector2 dustPos = Vector2.Lerp(Owner.MountedCenter, tipWorld, t);
-                    // Petals drift gently sideways and upward
-                    Vector2 drift = new Vector2(
-                        Main.rand.NextFloat(-0.8f, 0.8f),
-                        Main.rand.NextFloat(-1.2f, -0.2f));
-                    Dust petal = Dust.NewDustPerfect(dustPos, DustID.PinkTorch, drift, 0,
-                        Color.Lerp(SpringPink, SpringWhite, Main.rand.NextFloat()), 0.6f);
-                    petal.noGravity = true;
-                    petal.fadeIn = 0.4f;
-                }
-            }
-
-            // ═══ Green nature sparkles at tip (every other frame) ═══
-            if (Main.rand.NextBool(2))
-            {
-                Vector2 sparkVel = -SwordDirection * Main.rand.NextFloat(0.3f, 0.8f)
-                    + new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(-0.5f, 0f));
-                Dust sparkle = Dust.NewDustPerfect(tipWorld, DustID.GreenFairy, sparkVel, 0, SpringGreen, 0.5f);
-                sparkle.noGravity = true;
-            }
-
-            // ═══ Music note particles ═══
-            if (Main.rand.NextBool(4))
-            {
-                Vector2 noteVel = -SwordDirection * Main.rand.NextFloat(0.5f, 1.5f);
-                MagnumParticleHandler.SpawnParticle(new HueShiftingMusicNoteParticle(
-                    tipWorld, noteVel,
-                    hueMin: 0.25f, hueMax: 0.42f,
-                    saturation: 0.85f, luminosity: 0.65f,
-                    scale: 0.75f, lifetime: 25, hueSpeed: 0.025f));
-            }
-        }
-
-        #endregion
     }
 }

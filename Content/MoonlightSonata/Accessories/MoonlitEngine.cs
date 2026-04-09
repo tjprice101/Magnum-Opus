@@ -6,14 +6,15 @@ using MagnumOpus.Common;
 using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
 using MagnumOpus.Content.MoonlightSonata.Enemies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
-using MagnumOpus.Content.MoonlightSonata.VFX.Accessories;
+using MagnumOpus.Content.Common.Accessories;
 
 namespace MagnumOpus.Content.MoonlightSonata.Accessories
 {
     /// <summary>
     /// Moonlit Engine - Melee accessory.
-    /// Every 5th melee strike creates a devastating shockwave (200% damage).
-    /// +18% melee speed.
+    /// 'Resonance Sliced' Melodic Attunement.
+    /// +10% increased Resonant Burn damage.
+    /// Hitting an enemy 10 times with melee damage who's already inflicted with Resonant Burn heals 10% HP.
     /// </summary>
     public class MoonlitEngine : ModItem
     {
@@ -28,32 +29,25 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<MoonlightAccessoryPlayer>();
-            modPlayer.hasMoonlitEngine = true;
-            
-            // +18% melee speed
-            player.GetAttackSpeed(DamageClass.Melee) += 0.18f;
-            
-
+            var attunement = player.GetModPlayer<MelodicAttunementPlayer>();
+            attunement.meleeAttunement = true;
+            attunement.resonantBurnDmgBonus += 0.10f;
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "MeleeBoost", "+18% melee speed")
-            {
-                OverrideColor = new Color(255, 200, 100)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "ShockwaveEffect", "Every 5th melee strike creates a devastating shockwave")
+            tooltips.Add(new TooltipLine(Mod, "Attunement", "'Resonance Sliced' Melodic Attunement")
             {
                 OverrideColor = new Color(180, 120, 255)
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "ShockwaveDamage", "Shockwave deals 200% weapon damage in a large AoE")
+            tooltips.Add(new TooltipLine(Mod, "BurnDmg", "+10% increased Resonant Burn damage")
+            {
+                OverrideColor = new Color(255, 200, 100)
+            });
+            tooltips.Add(new TooltipLine(Mod, "Heal", "Hitting a burning enemy 10 times with melee heals 10% max HP")
             {
                 OverrideColor = new Color(150, 100, 200)
             });
-            
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'The engine of moonlight drives destruction'")
             {
                 OverrideColor = new Color(140, 100, 200)

@@ -95,6 +95,10 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             {
                 OverrideColor = NachtmusikSilver
             });
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "At night: Sotto Voce — attackers are slowed for 2s")
+            {
+                OverrideColor = NachtmusikPurple
+            });
             
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The night sky shields those who watch the stars'")
             {
@@ -186,6 +190,14 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             });
             
             tooltips.Add(new TooltipLine(Mod, "Effect4", "+15 life regen, immunity to fire, frost, confusion, and slow")
+            {
+                OverrideColor = DiesIraeCrimson
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Quantus Tremor — attackers burn and slow for 3s")
+            {
+                OverrideColor = DiesIraeOrange
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Shield break: Mors Stupebit — nearby enemies confused and armor broken for 2s")
             {
                 OverrideColor = DiesIraeCrimson
             });
@@ -282,6 +294,10 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             tooltips.Add(new TooltipLine(Mod, "Effect4", "+17 life regen, immunity to fire, frost, confusion, and slow")
             {
                 OverrideColor = OdeToJoyRose
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Hymn of Fortitude — standing still 2s grants +8 def, +5 regen, +5% DR for 6s")
+            {
+                OverrideColor = OdeToJoyIridescent
             });
             
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Joy shields the heart from all despair'")

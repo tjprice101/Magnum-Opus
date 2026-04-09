@@ -6,18 +6,15 @@ using MagnumOpus.Common;
 using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
 using MagnumOpus.Content.MoonlightSonata.Enemies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
-using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.Particles;
-using MagnumOpus.Common.Systems.VFX;
-using MagnumOpus.Content.MoonlightSonata.VFX.Accessories;
+using MagnumOpus.Content.Common.Accessories;
 
 namespace MagnumOpus.Content.MoonlightSonata.Accessories
 {
     /// <summary>
-    /// Ember of the Moon - Mage accessory.
-    /// -30% mana cost.
-    /// +25% magic damage.
-    /// When mana drops below 20%, automatically restores 100 mana (120 second cooldown).
+    /// Ember of the Moon - Magic accessory.
+    /// 'Resonance Seared' Melodic Attunement.
+    /// +10% increased Resonant Burn damage.
+    /// Hitting an enemy 15 times with magic damage who's already inflicted with Resonant Burn heals 10% HP.
     /// </summary>
     public class EmberOfTheMoon : ModItem
     {
@@ -32,52 +29,25 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<MoonlightAccessoryPlayer>();
-            modPlayer.hasEmberOfTheMoon = true;
-            
-            // Direct stat bonuses
-            player.manaCost -= 0.30f; // -30% mana cost
-            player.GetDamage(DamageClass.Magic) += 0.25f; // +25% magic damage
+            var attunement = player.GetModPlayer<MelodicAttunementPlayer>();
+            attunement.magicAttunement = true;
+            attunement.resonantBurnDmgBonus += 0.10f;
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
-            // Get current cooldown status
-            Player player = Main.LocalPlayer;
-            var modPlayer = player.GetModPlayer<MoonlightAccessoryPlayer>();
-            
-            tooltips.Add(new TooltipLine(Mod, "ManaCost", "-30% mana cost")
+            tooltips.Add(new TooltipLine(Mod, "Attunement", "'Resonance Seared' Melodic Attunement")
             {
-                OverrideColor = new Color(100, 200, 255)
+                OverrideColor = new Color(180, 120, 255)
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "DamageBoost", "+25% magic damage")
+            tooltips.Add(new TooltipLine(Mod, "BurnDmg", "+10% increased Resonant Burn damage")
             {
                 OverrideColor = new Color(255, 200, 100)
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "ManaRestore", "Automatically restores 100 mana when below 20%")
+            tooltips.Add(new TooltipLine(Mod, "Heal", "Hitting a burning enemy 15 times with magic heals 10% max HP")
             {
-                OverrideColor = new Color(100, 180, 255)
+                OverrideColor = new Color(150, 100, 200)
             });
-            
-            // Show cooldown status
-            if (modPlayer.manaRestoreCooldown > 0)
-            {
-                int secondsLeft = modPlayer.manaRestoreCooldown / 60;
-                tooltips.Add(new TooltipLine(Mod, "Cooldown", $"Mana restore on cooldown: {secondsLeft}s")
-                {
-                    OverrideColor = new Color(255, 100, 100)
-                });
-            }
-            else
-            {
-                tooltips.Add(new TooltipLine(Mod, "CooldownReady", "Mana restore ready!")
-                {
-                    OverrideColor = new Color(100, 255, 100)
-                });
-            }
-            
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'A dying star's last breath of magic'")
             {
                 OverrideColor = new Color(140, 100, 200)

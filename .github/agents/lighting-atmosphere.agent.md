@@ -259,10 +259,10 @@ Weapons should have presence even when not being used:
 | **Moonlight Sonata** | Soft purple-blue moonlight | Silver mist, lunar dust | Melancholy peace |
 | **Enigma Variations** | Eerie green, void purple | Void particles, watching eyes | Unsettling mystery |
 | **Fate** | Dark crimson, celestial white | Star particles, cosmic dust | Cosmic power |
-| **Clair de Lune** | Soft pearl-blue | Night mist, dewdrop shimmer | Dreamlike calm |
-| **Dies Irae** | Blood red, ember orange | Ash fall, fire sparks | Apocalyptic fury |
-| **Nachtmusik** | Starlight silver, deep indigo | Star twinkle, cosmic wisps | Nocturnal wonder |
-| **Ode to Joy** | Warm gold, radiant amber | Light motes, golden scatter | Joyful warmth |
+| **Clair de Lune** | Dark red, vibrant gray, white | Shattered clock fragments, crackling destruction energy | Temporal destruction |
+| **Dies Irae** | White, black, crimson | Climbing hellfire, retribution flames | Divine judgment |
+| **Nachtmusik** | Golden, dark purple | Starlit melody wisps, golden twinkling | Nocturnal melody |
+| **Ode to Joy** | Monochromatic black/white, prismatic | Chromatic glass refractions, rose petal scatter | Prismatic radiance |
 
 ## Asset Failsafe Protocol
 

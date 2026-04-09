@@ -1,18 +1,18 @@
 ﻿# 🌹 Ode to Joy — Resonance Weapons Planning
 
-> *"Joy, beautiful spark of divinity — every petal, every thorn, every golden note is a celebration of being alive."*
+> *"Monochromatic roses shimmer prismatic radiant light — every glass petal, every chromatic refraction is the garden of eternal symphony."*
 
 ## Theme Identity
 
 | Attribute | Value |
 |-----------|-------|
-| **Musical Soul** | Beethoven's Ode to Joy — triumphant, communal, a hymn to universal brotherhood through botanical fury |
-| **Emotional Core** | Joy, celebration, triumph of spirit, the garden in full bloom |
-| **Color Palette** | Rose shadow, petal pink, bloom gold, radiant amber, jubilant light |
-| **Palette Hex** | Rose Shadow `(100, 30, 50)` → Petal Pink `(220, 100, 120)` → Bloom Gold `(255, 200, 50)` → Radiant Amber `(255, 170, 40)` → Jubilant Light `(255, 250, 200)` → Pure Joy White `(255, 255, 240)` |
-| **Lore Color** | `new Color(255, 200, 50)` — Warm Gold |
-| **Lore Keywords** | Joy, garden, bloom, petal, thorn, vine, seed, rose, triumph, hymn, anthem, chorus, golden, radiant, botanical, harmony, ovation, fountain |
-| **VFX Language** | Rose petal cascades, vine wave distortion, thorn eruptions, golden bloom bursts, seed pod detonations, pollen cloud fields, botanical artillery, hymn verse impacts, elysian radiance, chorus harmony waves, standing ovation shockwaves, fountain geyser sprays |
+| **Musical Soul** | Monochromatic roses shimmer prismatic radiant light as their melody conducts the garden of eternal symphony |
+| **Emotional Core** | Prismatic radiance, eternal symphonic garden, chromatic glass roses |
+| **Color Palette** | Monochromatic black, white, prismatic chromatic |
+| **Palette Hex** | Jet Black `(10, 10, 10)` → Charcoal `(50, 50, 50)` → White Glass `(230, 230, 230)` → Pure White `(255, 255, 255)` → Prismatic (chromatic refraction, all colors through white glass) |
+| **Lore Color** | `new Color(255, 200, 50)` — Chromatic Glass Rose |
+| **Lore Keywords** | Rose, glass, chromatic, prismatic, monochrome, refraction, garden, symphony, eternal, petal, thorn, vine, bloom, stained glass, radiance |
+| **VFX Language** | Monochromatic glass rose shattering, prismatic light refractions, black/white chromatic cascades, stained glass petal bursts, glass thorn eruptions, chromatic rainbow through monochrome, eternal garden radiance |
 
 ---
 

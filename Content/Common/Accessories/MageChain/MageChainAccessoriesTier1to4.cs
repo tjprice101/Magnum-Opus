@@ -34,31 +34,17 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
             var modPlayer = player.GetModPlayer<OverflowPlayer>();
             modPlayer.hasResonantOverflowGem = true;
             
-            // Inherited from Mana Regeneration Band: improved mana regen
-            player.manaRegenBonus += 10;
+            player.GetDamage(DamageClass.Magic) += 0.05f;
+            player.statManaMax2 += 20;
+            player.manaRegenBonus += 10; // ~+2 mana/s
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+5% magic damage")
-            {
-                OverrideColor = new Color(255, 200, 255)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+20 max mana")
-            {
-                OverrideColor = new Color(200, 220, 255)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Increased mana regeneration")
-            {
-                OverrideColor = new Color(200, 220, 255)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The first step into harmonic resonance'")
-            {
-                OverrideColor = BasePurple * 0.8f
-            });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+5% magic damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+20 maximum mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Increased mana regeneration (+2 per second)"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The first step into harmonic resonance'") { OverrideColor = new Color(100, 150, 255) });
         }
 
         public override void AddRecipes()
@@ -92,24 +78,19 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         {
             var modPlayer = player.GetModPlayer<OverflowPlayer>();
             modPlayer.hasSpringArcaneConduit = true;
+            
+            player.GetDamage(DamageClass.Magic) += 0.08f;
+            player.statManaMax2 += 25;
+            player.manaRegenBonus += 20; // ~+4 mana/s
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+10% magic damage")
-            {
-                OverrideColor = new Color(255, 200, 255)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "5% chance to heal 1 HP on magic hit")
-            {
-                OverrideColor = SpringPink
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Spring's renewal flows through arcane channels'")
-            {
-                OverrideColor = SpringPink * 0.8f
-            });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+8% magic damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+25 maximum mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Increased mana regeneration (+4 per second)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "5% chance to heal 20 HP on magic cast"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Spring's renewal flows through arcane channels'") { OverrideColor = new Color(255, 183, 197) });
         }
 
         public override void AddRecipes()
@@ -147,34 +128,22 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         {
             var modPlayer = player.GetModPlayer<OverflowPlayer>();
             modPlayer.hasSearedManaConduit = true;
+            
+            player.GetDamage(DamageClass.Magic) += 0.10f;
+            player.statManaMax2 += 30;
+            player.manaRegenBonus += 35; // ~+7 mana/s
+            player.manaCost -= 0.03f;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "While holding Resonance Seared weapon:")
-            {
-                OverrideColor = new Color(255, 150, 100)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "-3% magic spell cost per Resonant Burn stack")
-            {
-                OverrideColor = new Color(150, 200, 255)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "MaxBonus", "Max: -15% mana cost at 5 stacks")
-            {
-                OverrideColor = new Color(100, 180, 255)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "At max burn stacks: next spell costs no mana")
-            {
-                OverrideColor = new Color(255, 200, 150)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Burning essence fuels the arcane fires within'")
-            {
-                OverrideColor = SummerOrange * 0.8f
-            });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+10% magic damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+30 maximum mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Increased mana regeneration (+7 per second)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "-3% mana cost"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "5% chance to heal 25 HP on magic cast"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "All magic attacks apply Burning on hit"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Burning essence fuels the arcane fires within'") { OverrideColor = new Color(255, 140, 0) });
         }
 
         public override void AddRecipes()
@@ -212,34 +181,22 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         {
             var modPlayer = player.GetModPlayer<OverflowPlayer>();
             modPlayer.hasArcaneResonanceCatalyst = true;
+            
+            player.GetDamage(DamageClass.Magic) += 0.12f;
+            player.statManaMax2 += 35;
+            player.manaRegenBonus += 45; // ~+9 mana/s
+            player.manaCost -= 0.05f;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+6% magic damage per Resonant Burn stack on target")
-            {
-                OverrideColor = new Color(255, 150, 100)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "MaxBonus", "Max: +30% at 5 stacks")
-            {
-                OverrideColor = AutumnOrange
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "At max stacks: Release arcane shockwave (50% damage) to nearby enemies")
-            {
-                OverrideColor = new Color(150, 150, 255)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Shockwave applies Resonant Burn to unburned enemies")
-            {
-                OverrideColor = new Color(150, 200, 255)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The catalyst transforms slow burns to sudden devastation'")
-            {
-                OverrideColor = AutumnOrange * 0.8f
-            });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+12% magic damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+35 maximum mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Increased mana regeneration (+9 per second)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "-5% mana cost"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "5% chance to heal 30 HP on magic cast"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "All magic attacks apply Burning on hit"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The catalyst transforms slow burns to sudden devastation'") { OverrideColor = new Color(255, 100, 30) });
         }
 
         public override void AddRecipes()
@@ -275,24 +232,24 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         {
             var modPlayer = player.GetModPlayer<OverflowPlayer>();
             modPlayer.hasPermafrostVoidHeart = true;
+            
+            player.GetDamage(DamageClass.Magic) += 0.15f;
+            player.statManaMax2 += 40;
+            player.manaRegenBonus += 55; // ~+11 mana/s
+            player.manaCost -= 0.05f;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+15% magic damage")
-            {
-                OverrideColor = new Color(255, 200, 255)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+50 max mana")
-            {
-                OverrideColor = new Color(200, 220, 255)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Winter's void holds immense power'")
-            {
-                OverrideColor = WinterBlue * 0.8f
-            });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+15% magic damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+40 maximum mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Increased mana regeneration (+11 per second)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "-5% mana cost"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Every 10th magic cast is free"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "5% chance to heal 32 HP on magic cast"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "All magic attacks apply Burning on hit"));
+            tooltips.Add(new TooltipLine(Mod, "Effect8", "5% chance to slow enemies for 1 second on hit"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Winter's void holds immense power'") { OverrideColor = new Color(150, 220, 255) });
         }
 
         public override void AddRecipes()
@@ -326,32 +283,24 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         {
             var modPlayer = player.GetModPlayer<OverflowPlayer>();
             modPlayer.hasVivaldisHarmonicCore = true;
+            
+            player.GetDamage(DamageClass.Magic) += 0.17f;
+            player.statManaMax2 += 45;
+            player.manaRegenBonus += 65; // ~+13 mana/s
+            player.manaCost -= 0.07f;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            float hue = (Main.GameUpdateCount * 0.01f) % 1f;
-            Color cyclingColor = Main.hslToRgb(hue, 0.8f, 0.6f);
-
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+20% magic damage")
-            {
-                OverrideColor = new Color(255, 200, 255)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Magic attacks inflict biome-based debuffs")
-            {
-                OverrideColor = cyclingColor
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "BiomeNote", "Snow: Frostburn | Desert: On Fire! | Jungle: Poisoned | Other: Confused")
-            {
-                OverrideColor = new Color(180, 180, 180)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The Four Seasons harmonize in arcane unity'")
-            {
-                OverrideColor = cyclingColor * 0.8f
-            });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+17% magic damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+45 maximum mana"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Increased mana regeneration (+13 per second)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "-7% mana cost"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Every 8th magic cast is free"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "5% chance to heal 35 HP on magic cast"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "All magic attacks apply Burning, Frostburn, Poison, and Bleeding"));
+            tooltips.Add(new TooltipLine(Mod, "Effect8", "8% chance to slow enemies for 1 second on hit"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The Four Seasons harmonize in arcane unity'") { OverrideColor = new Color(150, 200, 100) });
         }
 
         public override void AddRecipes()

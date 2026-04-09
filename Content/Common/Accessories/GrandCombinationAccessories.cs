@@ -1,24 +1,12 @@
 using Microsoft.Xna.Framework;
-using System;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
-using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.Particles;
-using MagnumOpus.Content.MoonlightSonata.Accessories;
-using MagnumOpus.Content.Eroica.Accessories;
-using MagnumOpus.Content.Eroica.Accessories.Shared;
-using MagnumOpus.Content.LaCampanella.Accessories;
-using MagnumOpus.Content.EnigmaVariations.Accessories;
-using MagnumOpus.Content.SwanLake.Accessories;
-using MagnumOpus.Content.Fate.Accessories;
-using EroicaColors = MagnumOpus.Common.Systems.CustomParticleSystem.EroicaColors;
-using MagnumOpus.Content.Eroica;
-using MagnumOpus.Content.Fate.HarmonicCores;
-using MagnumOpus.Content.Fate.ResonanceEnergies;
 using MagnumOpus.Content.Fate;
+using MagnumOpus.Content.Fate.Accessories;
+using MagnumOpus.Content.Fate.HarmonicCores;
 using MagnumOpus.Content.Seasons.Accessories;
 using MagnumOpus.Content.Spring.Materials;
 using MagnumOpus.Content.Summer.Materials;
@@ -32,19 +20,133 @@ using MagnumOpus.Content.SwanLake.ResonanceEnergies;
 
 namespace MagnumOpus.Content.Common.Accessories
 {
-    #region Opus of Four Movements - Seasons + Themes Combined
     /// <summary>
-    /// Phase 5 Grand Combination: Complete Harmony + Vivaldi's Masterwork + All Resonant Energies
-    /// ALL seasons AND all themes combined - ultimate pre-Fate musical achievement
+    /// Applies Complete Harmony stats and conditional bonuses (Harmonic Resonance tiers, Full Harmony, Heroic Surge).
+    /// Used by Opus of Four Movements, Theme Wanderer, and Summoner's Magnum Opus.
+    /// </summary>
+    internal static class CompleteHarmonyStatsHelper
+    {
+        public static void Apply(Player player)
+        {
+            var chPlayer = player.GetModPlayer<CompleteHarmonyPlayer>();
+            chPlayer.completeHarmonyEquipped = true;
+
+            bool isNight = !Main.dayTime;
+
+            // From Sonata's Embrace
+            if (isNight)
+                player.GetDamage(DamageClass.Generic) += 0.15f;
+            else
+                player.GetDamage(DamageClass.Generic) += 0.10f;
+            player.manaCost -= 0.12f;
+
+            // From Hero's Symphony
+            player.GetAttackSpeed(DamageClass.Melee) += 0.15f;
+
+            // From Infernal Virtuoso
+            player.buffImmune[BuffID.OnFire] = true;
+            player.buffImmune[BuffID.Burning] = true;
+            player.lavaImmune = true;
+            player.maxMinions += 1;
+
+            // From Riddle of the Void
+            player.GetDamage(DamageClass.Generic) += 0.15f;
+
+            // From Swan's Chromatic Diadem
+            player.moveSpeed += 0.25f;
+            player.runAcceleration *= 1.25f;
+            player.GetDamage(DamageClass.Generic) += 0.14f;
+
+            // Harmonic Resonance tier bonuses
+            if (chPlayer.harmonicResonanceStacks >= 1)
+                player.endurance += 0.05f;
+            if (chPlayer.harmonicResonanceStacks >= 3)
+            {
+                player.GetAttackSpeed(DamageClass.Generic) += 0.10f;
+                player.lifeRegen += 5;
+            }
+
+            // Full Harmony buff
+            if (chPlayer.fullHarmonyTimer > 0)
+                player.GetDamage(DamageClass.Generic) += 0.25f;
+
+            // Heroic Surge buff
+            if (chPlayer.heroicSurgeTimer > 0)
+                player.GetDamage(DamageClass.Generic) += 0.25f;
+        }
+    }
+
+    /// <summary>
+    /// Applies Vivaldi's Masterwork stats and enables lifesteal via VivaldiPlayer.
+    /// Used by Opus of Four Movements and Seasonal Destiny.
+    /// </summary>
+    internal static class VivaldiStatsHelper
+    {
+        public static void Apply(Player player)
+        {
+            player.GetModPlayer<VivaldiPlayer>().vivaldiEquipped = true;
+
+            player.GetDamage(DamageClass.Generic) += 0.25f;
+            player.GetCritChance(DamageClass.Generic) += 18;
+            player.GetAttackSpeed(DamageClass.Generic) += 0.15f;
+            player.statDefense += 23;
+            player.moveSpeed += 0.20f;
+            player.endurance += 0.15f;
+            player.lifeRegen += 10;
+            player.manaRegenBonus += 40;
+            player.magmaStone = true;
+            player.frostBurn = true;
+            player.thorns = 1.5f;
+
+            player.buffImmune[BuffID.Frozen] = true;
+            player.buffImmune[BuffID.OnFire] = true;
+            player.buffImmune[BuffID.Frostburn] = true;
+            player.buffImmune[BuffID.Chilled] = true;
+            player.buffImmune[BuffID.Poisoned] = true;
+        }
+    }
+
+    /// <summary>
+    /// Applies Machination of the Event Horizon mobility stats and cosmic dodge.
+    /// Used by CosmicWardensRegalia and ThemeWanderer.
+    /// </summary>
+    internal static class EventHorizonStatsHelper
+    {
+        public static void Apply(Player player, float dodgeChance)
+        {
+            var ehPlayer = player.GetModPlayer<EventHorizonPlayer>();
+            ehPlayer.hasEventHorizon = true;
+            ehPlayer.cosmicDodgeChance += dodgeChance;
+
+            // Master Ninja Gear
+            player.dashType = 1;
+            player.spikedBoots = 2;
+            player.blackBelt = true;
+
+            // Terraspark Boots
+            player.accRunSpeed = 6.75f;
+            player.rocketBoots = player.vanityRocketBoots = 3;
+            player.moveSpeed += 0.08f;
+            player.iceSkate = true;
+            player.waterWalk = true;
+            player.fireWalk = true;
+            player.lavaMax += 7 * 60;
+
+            // Frog Leg
+            player.autoJump = true;
+            player.jumpSpeedBoost += 2.4f;
+            player.fallStart = (int)(player.fallStart + player.maxFallSpeed);
+        }
+    }
+
+    #region Opus of Four Movements - Complete Harmony + Vivaldi's Masterwork
+    /// <summary>
+    /// Grand Combination: Complete Harmony + Vivaldi's Masterwork + All Resonant Energies.
+    /// Delegates to CompleteHarmonyPlayer (all 5 theme procs, Harmonic Resonance, Dissonance)
+    /// and VivaldiPlayer (33% lifesteal 8% damage).
     /// </summary>
     public class OpusOfFourMovements : ModItem
     {
-        // Season colors
-        private static readonly Color SpringPink = new Color(255, 183, 197);
-        private static readonly Color SummerGold = new Color(255, 180, 50);
-        private static readonly Color AutumnOrange = new Color(200, 100, 30);
-        private static readonly Color WinterBlue = new Color(150, 220, 255);
-        
         public override void SetDefaults()
         {
             Item.width = 38;
@@ -56,70 +158,8 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<OpusOfFourMovementsPlayer>();
-            modPlayer.opusEquipped = true;
-            
-            bool isNight = !Main.dayTime;
-            
-            // === SEASONAL BONUSES (from Vivaldi's Masterwork) ===
-            player.GetDamage(DamageClass.Melee) += 0.10f;
-            player.GetDamage(DamageClass.Ranged) += 0.10f;
-            player.GetDamage(DamageClass.Magic) += 0.10f;
-            player.GetDamage(DamageClass.Summon) += 0.10f;
-            player.statDefense += 20;
-            player.statLifeMax2 += 60;
-            player.statManaMax2 += 80;
-            player.lifeRegen += 8;
-            player.manaRegen += 4;
-            player.endurance += 0.12f;
-            player.moveSpeed += 0.15f;
-            player.maxMinions += 1;
-            player.maxTurrets += 1;
-            player.magmaStone = true;
-            player.frostBurn = true;
-            player.thorns = 1.5f;
-            
-            // === THEME BONUSES (from Complete Harmony) ===
-            // Moonlight
-            if (isNight)
-            {
-                player.GetCritChance(DamageClass.Melee) += 6;
-                player.GetCritChance(DamageClass.Ranged) += 6;
-                player.GetCritChance(DamageClass.Magic) += 6;
-                player.GetCritChance(DamageClass.Summon) += 6;
-                player.statDefense += 15;
-                player.moveSpeed += 0.08f;
-            }
-            
-            // Eroica
-            player.GetDamage(DamageClass.Melee) += 0.14f;
-            player.GetAttackSpeed(DamageClass.Melee) += 0.15f;
-            player.GetCritChance(DamageClass.Melee) += 10;
-            player.GetArmorPenetration(DamageClass.Melee) += 12;
-            
-            // La Campanella
-            player.GetDamage(DamageClass.Magic) += 0.16f;
-            player.GetCritChance(DamageClass.Magic) += 10;
-            player.manaCost -= 0.10f;
-            
-            // Enigma
-            player.GetDamage(DamageClass.Ranged) += 0.14f;
-            player.GetCritChance(DamageClass.Ranged) += 8;
-            player.ammoCost80 = true;
-            
-            // Swan Lake
-            player.GetDamage(DamageClass.Summon) += 0.14f;
-            player.GetCritChance(DamageClass.Summon) += 8;
-            player.whipRangeMultiplier += 0.12f;
-            player.moveSpeed += 0.25f;
-            
-            // Immunities
-            player.buffImmune[BuffID.OnFire] = true;
-            player.buffImmune[BuffID.Burning] = true;
-            player.buffImmune[BuffID.Frozen] = true;
-            player.buffImmune[BuffID.Frostburn] = true;
-            player.buffImmune[BuffID.Chilled] = true;
-            player.buffImmune[BuffID.Poisoned] = true;
+            CompleteHarmonyStatsHelper.Apply(player);
+            VivaldiStatsHelper.Apply(player);
         }
 
         public override void AddRecipes()
@@ -142,270 +182,27 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Color opusColor = new Color(200, 100, 255);
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Seasonal: +10% all-class damage, +20 defense, +15% movement speed")
-            {
-                OverrideColor = opusColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+60 max life, +80 max mana, +8 life regen, +4 mana regen, +1 minion, +1 sentry")
-            {
-                OverrideColor = opusColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Eroica: +14% melee, +15% speed, +10 crit, +12 armor pen | Campanella: +16% magic, +10 crit, -10% mana cost")
-            {
-                OverrideColor = opusColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect3b", "Enigma: +14% ranged, +8 crit, 20% ammo savings | Swan: +14% summon, +8 crit, +12% whip range, +25% speed")
-            {
-                OverrideColor = opusColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+12% damage reduction, 150% thorns, +6 crit at night, +15 defense at night")
-            {
-                OverrideColor = opusColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "20% Paradox stacking (5 stacks = 500% dmg + 250 range AOE), 16% Bell ring stun (180 range, 65% AOE)")
-            {
-                OverrideColor = opusColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect6", "8% lifesteal (max 20 HP), kills grant Heroic Surge (+10% speed, +6% DR), 18%/14% dodge")
-            {
-                OverrideColor = opusColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect7", "Immunity to On Fire, Burning, Frozen, Frostburn, Chilled, and Poisoned")
-            {
-                OverrideColor = opusColor
-            });
-        }
-    }
+            Color fateColor = new Color(180, 40, 80);
 
-    public class OpusOfFourMovementsPlayer : ModPlayer
-    {
-        public bool opusEquipped;
-        private int heroicSurgeTimer;
-        private int invulnFramesOnKill = 100;
-        private int dodgeCooldown;
-        private int bellRingCooldown;
-        private Dictionary<int, int> paradoxStacks = new Dictionary<int, int>();
-        private Dictionary<int, int> paradoxTimers = new Dictionary<int, int>();
-        
-        private static readonly int[] ParadoxDebuffs = new int[]
-        {
-            BuffID.Confused, BuffID.Slow, BuffID.CursedInferno,
-            BuffID.Ichor, BuffID.ShadowFlame, BuffID.Frostburn
-        };
-
-        public override void ResetEffects()
-        {
-            opusEquipped = false;
-        }
-
-        public override void PostUpdate()
-        {
-            if (heroicSurgeTimer > 0)
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Combines Complete Harmony with Vivaldi's Masterwork"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "All 5 theme procs: Moonstruck, double damage, Tolling Death, Paradox, Dying Swan's Grace"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Harmonic Resonance stacking and Dissonance (3+ debuffs = 20% bonus damage)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Vivaldi: +25% all damage, +18% crit, +15% speed, +23 defense, +15% DR"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "33% chance on hit to lifesteal 8% damage (max 35 HP)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Fire/lava immunity, +1 minion, 150% thorns, inflicts On Fire! and Frostburn"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Four seasons, five themes — the opus reaches its grandest crescendo'")
             {
-                heroicSurgeTimer--;
-                Player.GetAttackSpeed(DamageClass.Melee) += 0.10f;
-                Player.GetAttackSpeed(DamageClass.Ranged) += 0.08f;
-                Player.GetAttackSpeed(DamageClass.Magic) += 0.08f;
-                Player.GetAttackSpeed(DamageClass.Summon) += 0.10f;
-                Player.endurance += 0.06f;
-            }
-            
-            if (dodgeCooldown > 0) dodgeCooldown--;
-            if (bellRingCooldown > 0) bellRingCooldown--;
-            
-            List<int> toRemove = new List<int>();
-            foreach (var kvp in paradoxTimers)
-            {
-                paradoxTimers[kvp.Key]--;
-                if (paradoxTimers[kvp.Key] <= 0)
-                    toRemove.Add(kvp.Key);
-            }
-            foreach (int key in toRemove)
-            {
-                paradoxTimers.Remove(key);
-                paradoxStacks.Remove(key);
-            }
-        }
-
-        public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            HandleOpusHit(target, damageDone, false);
-        }
-
-        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            if (proj.owner == Player.whoAmI)
-            {
-                HandleOpusHit(target, damageDone, DamageClass.Magic.CountsAsClass(proj.DamageType));
-            }
-        }
-
-        private void HandleOpusHit(NPC target, int damageDone, bool isMagic)
-        {
-            if (!opusEquipped) return;
-            
-            bool isNight = !Main.dayTime;
-            
-            // Blue fire at night
-            if (isNight && isMagic)
-            {
-                int bonusDamage = (int)(damageDone * 0.22f);
-                target.SimpleStrikeNPC(bonusDamage, 0, false, 0, null, false, 0, true);
-            }
-            
-            // Paradox (20%)
-            if (Main.rand.NextFloat() < 0.20f)
-            {
-                int debuffId = ParadoxDebuffs[Main.rand.Next(ParadoxDebuffs.Length)];
-                target.AddBuff(debuffId, 420);
-                target.AddBuff(BuffID.OnFire, 360);
-                target.AddBuff(BuffID.Frostburn, 300);
-                
-                if (!paradoxStacks.ContainsKey(target.whoAmI))
-                    paradoxStacks[target.whoAmI] = 0;
-                
-                paradoxStacks[target.whoAmI]++;
-                paradoxTimers[target.whoAmI] = 480;
-                
-                if (paradoxStacks[target.whoAmI] >= 5)
-                {
-                    TriggerOpusCollapse(target, damageDone, isNight);
-                    paradoxStacks[target.whoAmI] = 0;
-                }
-            }
-            
-            // Bell ring (16%)
-            if (bellRingCooldown <= 0 && Main.rand.NextFloat() < 0.16f)
-            {
-                bellRingCooldown = 18;
-                target.AddBuff(BuffID.Confused, 180);
-                
-                float aoeRadius = 180f;
-                for (int i = 0; i < Main.maxNPCs; i++)
-                {
-                    NPC npc = Main.npc[i];
-                    if (npc.active && !npc.friendly && npc.whoAmI != target.whoAmI && !npc.immortal)
-                    {
-                        if (Vector2.Distance(npc.Center, target.Center) <= aoeRadius)
-                        {
-                            int aoeDamage = (int)(damageDone * 0.65f);
-                            npc.SimpleStrikeNPC(aoeDamage, 0, false, 0, null, false, 0, true);
-                            npc.AddBuff(BuffID.OnFire, 300);
-                            npc.AddBuff(BuffID.Frostburn, 240);
-                        }
-                    }
-                }
-            }
-            
-            // Lifesteal (8%)
-            if (Main.rand.NextFloat() < 0.08f)
-            {
-                int healAmount = Math.Max(1, Math.Min((int)(damageDone * 0.08f), 20));
-                Player.Heal(healAmount);
-            }
-            
-            // Check kill
-            if (target.life <= 0 && !target.immortal)
-            {
-                Player.immune = true;
-                Player.immuneTime = Math.Max(Player.immuneTime, invulnFramesOnKill);
-                heroicSurgeTimer = 420;
-            }
-        }
-
-        private void TriggerOpusCollapse(NPC target, int baseDamage, bool isNight)
-        {
-            // GRAND OPUS EXPLOSION
-            
-            Color[] allColors = {
-                new Color(255, 183, 197), // Spring
-                new Color(255, 180, 50),  // Summer
-                new Color(200, 100, 30),  // Autumn
-                new Color(150, 220, 255), // Winter
-                MoonlightColors.Purple,
-                EroicaColors.Gold,
-                CampanellaColors.Orange,
-                EnigmaColors.GreenFlame,
-                SwanColors.GetRainbow(0f)
-            };
-            
-            
-            
-            
-            
-            
-            
-            if (Main.myPlayer == Player.whoAmI)
-            {
-                int opusDamage = (int)(baseDamage * 5.0f);
-                target.SimpleStrikeNPC(opusDamage, 0, false, 0, null, false, 0, true);
-                
-                float aoeRadius = 350f;
-                for (int i = 0; i < Main.maxNPCs; i++)
-                {
-                    NPC npc = Main.npc[i];
-                    if (npc.active && !npc.friendly && npc.whoAmI != target.whoAmI && !npc.immortal)
-                    {
-                        if (Vector2.Distance(npc.Center, target.Center) <= aoeRadius)
-                        {
-                            npc.SimpleStrikeNPC(opusDamage / 2, 0, false, 0, null, false, 0, true);
-                            npc.AddBuff(BuffID.OnFire, 480);
-                            npc.AddBuff(BuffID.Frostburn, 420);
-                            npc.AddBuff(ParadoxDebuffs[Main.rand.Next(ParadoxDebuffs.Length)], 360);
-                        }
-                    }
-                }
-            }
-            
-        }
-
-        public override bool FreeDodge(Player.HurtInfo info)
-        {
-            if (!opusEquipped) return false;
-            if (dodgeCooldown > 0) return false;
-            
-            bool isNight = !Main.dayTime;
-            float dodgeChance = isNight ? 0.18f : 0.14f;
-            
-            if (Main.rand.NextFloat() < dodgeChance)
-            {
-                dodgeCooldown = 60;
-                
-                
-                // Dodge damage
-                if (Main.myPlayer == Player.whoAmI)
-                {
-                    int dodgeDamage = 200 + (int)(Player.GetTotalDamage(DamageClass.Generic).ApplyTo(100) * 0.4f);
-                    float damageRadius = 250f;
-                    
-                    for (int i = 0; i < Main.maxNPCs; i++)
-                    {
-                        NPC npc = Main.npc[i];
-                        if (npc.active && !npc.friendly && !npc.immortal && !npc.dontTakeDamage)
-                        {
-                            if (Vector2.Distance(npc.Center, Player.Center) <= damageRadius)
-                                npc.SimpleStrikeNPC(dodgeDamage, 0, false, 0, null, false, 0, true);
-                        }
-                    }
-                }
-                
-                Player.immune = true;
-                Player.immuneTime = 40;
-                
-                return true;
-            }
-            
-            return false;
+                OverrideColor = fateColor
+            });
         }
     }
     #endregion
 
-    #region Cosmic Warden's Regalia - All 5 Fate Accessories Combined
+    #region Symphony of Fate's Tempo - All 5 Fate Accessories Combined
     /// <summary>
-    /// Phase 5 Grand Combination: All 5 Fate Vanilla Upgrade Accessories
-    /// Ultimate cosmic authority - ALL Fate accessory bonuses combined
+    /// Grand Combination: All 5 Fate class accessories with +2% stat boost.
+    /// Delegates to all 5 Fate ModPlayers for proc mechanics.
+    /// Display name: "Symphony of Fate's Tempo" (class kept as CosmicWardensRegalia for compatibility).
     /// </summary>
     public class CosmicWardensRegalia : ModItem
     {
@@ -420,44 +217,36 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<CosmicWardensRegaliaPlayer>();
-            modPlayer.regaliaEquipped = true;
-            
-            // === PARADOX CHRONOMETER (Melee) ===
-            player.GetDamage(DamageClass.Melee) += 0.14f;
-            player.GetAttackSpeed(DamageClass.Melee) += 0.18f;
-            player.GetCritChance(DamageClass.Melee) += 10;
-            player.GetArmorPenetration(DamageClass.Melee) += 15;
-            
-            // === CONSTELLATION COMPASS (Ranged) ===
-            player.GetDamage(DamageClass.Ranged) += 0.16f;
-            player.GetCritChance(DamageClass.Ranged) += 10;
-            player.GetArmorPenetration(DamageClass.Ranged) += 14;
-            player.ammoBox = true;
-            
-            // === ASTRAL CONDUIT (Magic) ===
-            player.GetDamage(DamageClass.Magic) += 0.16f;
-            player.GetCritChance(DamageClass.Magic) += 8;
-            player.manaCost -= 0.14f;
-            player.manaRegen += 6;
-            player.statManaMax2 += 60;
-            
-            // === MACHINATION OF THE EVENT HORIZON (Mobility) ===
-            player.moveSpeed += 0.30f;
-            player.runAcceleration *= 1.35f;
-            player.maxRunSpeed *= 1.25f;
-            player.wingTimeMax += 60;
-            player.noFallDmg = true;
-            player.endurance += 0.06f;
-            player.statLifeMax2 += 40;
-            
-            // === ORRERY OF INFINITE ORBITS (Summon) ===
-            player.maxMinions += 3;
-            player.maxTurrets += 1;
-            player.GetDamage(DamageClass.Summon) += 0.15f;
-            player.whipRangeMultiplier += 0.15f;
-            
-            // Cosmic immunities
+            // === Enable all 5 Fate ModPlayer proc systems ===
+            player.GetModPlayer<AstralConduitPlayer>().hasAstralConduit = true;
+            player.GetModPlayer<ParadoxChronometerPlayer>().hasParadoxChronometer = true;
+            player.GetModPlayer<ConstellationCompassPlayer>().hasConstellationCompass = true;
+            player.GetModPlayer<OrreryPlayer>().hasOrrery = true;
+
+            // Event Horizon: flag + dodge chance (resets each frame in ResetEffects)
+            EventHorizonStatsHelper.Apply(player, 0.10f); // 8% + 2% boost
+
+            // === Stats from Astral Conduit (+2%) ===
+            player.GetDamage(DamageClass.Magic) += 0.22f;
+            player.manaRegenBonus += 25;
+            player.manaCost -= 0.12f;
+
+            // === Stats from Paradox Chronometer (+2%) ===
+            player.GetDamage(DamageClass.Melee) += 0.20f;
+            player.GetAttackSpeed(DamageClass.Melee) += 0.22f;
+            player.GetCritChance(DamageClass.Melee) += 12;
+
+            // === Stats from Constellation Compass (+2%) ===
+            player.GetDamage(DamageClass.Ranged) += 0.20f;
+            player.GetCritChance(DamageClass.Ranged) += 17;
+            player.GetAttackSpeed(DamageClass.Ranged) += 0.14f;
+
+            // === Stats from Orrery of Infinite Orbits (+2%) ===
+            player.GetDamage(DamageClass.Summon) += 0.24f;
+            player.maxMinions += 1;
+            player.GetKnockback(DamageClass.Summon) += 0.12f;
+
+            // === Combined immunities ===
             player.buffImmune[BuffID.OnFire] = true;
             player.buffImmune[BuffID.CursedInferno] = true;
             player.buffImmune[BuffID.ShadowFlame] = true;
@@ -485,153 +274,30 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Color cosmicColor = new Color(180, 80, 220);
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Combines all five Fate vanilla accessory upgrades")
-            {
-                OverrideColor = cosmicColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Melee: +14% dmg, +18% speed, +10 crit, +15 armor pen | Ranged: +16% dmg, +10 crit, +14 armor pen, Ammo Box")
-            {
-                OverrideColor = cosmicColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect2b", "Magic: +16% dmg, +8 crit, -14% mana cost, +6 mana regen | Summon: +15% dmg, +15% whip range")
-            {
-                OverrideColor = cosmicColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+3 minions, +1 sentry, +30% movement, +60 wing time, no fall damage")
-            {
-                OverrideColor = cosmicColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+40 max life, +60 max mana, +6% damage reduction")
-            {
-                OverrideColor = cosmicColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Every 6th melee hit echoes 80% damage, 15% chance to mark enemies with Ichor (300 range)")
-            {
-                OverrideColor = cosmicColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect6", "Cosmic Mana Burst restores 100 mana when below 30% (5-sec cooldown), 12% dodge")
-            {
-                OverrideColor = cosmicColor
-            });
-        }
-    }
+            Color fateColor = new Color(180, 40, 80);
 
-    public class CosmicWardensRegaliaPlayer : ModPlayer
-    {
-        public bool regaliaEquipped;
-        private int meleeStrikeCount;
-        private int dashCooldown;
-        private int cosmicBurstCooldown;
-
-        public override void ResetEffects()
-        {
-            regaliaEquipped = false;
-        }
-
-        public override void PostUpdate()
-        {
-            if (dashCooldown > 0) dashCooldown--;
-            if (cosmicBurstCooldown > 0) cosmicBurstCooldown--;
-        }
-
-        public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            HandleRegaliaHit(target, damageDone, true);
-        }
-
-        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            if (proj.owner == Player.whoAmI)
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Combines all five Fate class accessories with +2% stat boost"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Magic: +22% damage, +25 mana regen, -12% mana cost, 15% cosmic flare chain"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Melee: +20% damage, +22% speed, +12 crit, every 7th hit temporal echo (75% damage)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Ranged: +20% damage, +17% crit, +14% speed, homing and crit starbursts"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Summon: +24% damage, +1 minion, +12% knockback, periodic Cosmic Empowerment (+25%)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Full mobility: dash, wall climb, Terraspark speed, Frog Leg jump, 10% cosmic dodge"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "Immune to On Fire, Cursed Inferno, Shadowflame, Frostburn, Confused"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Five destinies converge — the symphony of fate plays its final movement'")
             {
-                bool isMelee = DamageClass.Melee.CountsAsClass(proj.DamageType);
-                HandleRegaliaHit(target, damageDone, isMelee);
-            }
-        }
-
-        private void HandleRegaliaHit(NPC target, int damageDone, bool isMelee)
-        {
-            if (!regaliaEquipped) return;
-            
-            // Temporal Echo (melee, every 6th hit)
-            if (isMelee)
-            {
-                meleeStrikeCount++;
-                if (meleeStrikeCount >= 6)
-                {
-                    meleeStrikeCount = 0;
-                    int echoDamage = (int)(damageDone * 0.8f);
-                    target.SimpleStrikeNPC(echoDamage, 0, false, 0, null, false, 0, true);
-                    
-                }
-            }
-            
-            // Constellation Mark (all hits)
-            if (Main.rand.NextFloat() < 0.15f)
-            {
-                // Mark nearby enemies for bonus damage
-                float markRadius = 300f;
-                for (int i = 0; i < Main.maxNPCs; i++)
-                {
-                    NPC npc = Main.npc[i];
-                    if (npc.active && !npc.friendly && !npc.immortal)
-                    {
-                        if (Vector2.Distance(npc.Center, target.Center) <= markRadius)
-                        {
-                            npc.AddBuff(BuffID.Ichor, 300); // Reduced defense
-                        }
-                    }
-                }
-            }
-            
-            // Cosmic Mana Burst (magic, when mana low)
-            if (Player.statMana < Player.statManaMax2 * 0.3f && cosmicBurstCooldown <= 0)
-            {
-                cosmicBurstCooldown = 300;
-                Player.statMana = Math.Min(Player.statMana + 100, Player.statManaMax2);
-                
-            }
-        }
-
-        public override bool FreeDodge(Player.HurtInfo info)
-        {
-            if (!regaliaEquipped) return false;
-            if (dashCooldown > 0) return false;
-            
-            // Event Horizon dodge (12% chance)
-            if (Main.rand.NextFloat() < 0.12f)
-            {
-                dashCooldown = 180;
-                
-                // Brief invulnerability dash
-                Player.immune = true;
-                Player.immuneTime = 45;
-                
-                // Cosmic dash VFX
-                
-                
-                
-                return true;
-            }
-            
-            return false;
+                OverrideColor = fateColor
+            });
         }
     }
     #endregion
 
-    #region Seasonal Destiny - Seasons + Fate Time
+    #region Seasonal Destiny - Vivaldi's Masterwork + Paradox Chronometer
     /// <summary>
-    /// Phase 5: Vivaldi's Masterwork + Paradox Chronometer + Fate Cores
-    /// All seasons + cosmic time manipulation
+    /// Grand Combination: Vivaldi's Masterwork + Paradox Chronometer.
+    /// Delegates to VivaldiPlayer (lifesteal) and ParadoxChronometerPlayer (7th-hit echo).
     /// </summary>
     public class SeasonalDestiny : ModItem
     {
-        private static readonly Color SpringPink = new Color(255, 183, 197);
-        private static readonly Color SummerGold = new Color(255, 180, 50);
-        private static readonly Color AutumnOrange = new Color(200, 100, 30);
-        private static readonly Color WinterBlue = new Color(150, 220, 255);
-        
         public override void SetDefaults()
         {
             Item.width = 38;
@@ -643,39 +309,13 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<SeasonalDestinyPlayer>();
-            modPlayer.seasonalDestinyEquipped = true;
-            
-            // Vivaldi bonuses
-            player.GetDamage(DamageClass.Melee) += 0.10f;
-            player.GetDamage(DamageClass.Ranged) += 0.08f;
-            player.GetDamage(DamageClass.Magic) += 0.08f;
-            player.GetDamage(DamageClass.Summon) += 0.08f;
-            player.statDefense += 22;
-            player.statLifeMax2 += 40;
-            player.statManaMax2 += 40;
-            player.lifeRegen += 8;
-            player.manaRegen += 5;
-            player.endurance += 0.10f;
-            player.moveSpeed += 0.18f;
-            player.maxMinions += 1;
-            
-            // Chronometer bonuses
-            player.GetDamage(DamageClass.Melee) += 0.14f;
-            player.GetAttackSpeed(DamageClass.Melee) += 0.16f;
-            player.GetCritChance(DamageClass.Melee) += 8;
-            player.GetArmorPenetration(DamageClass.Melee) += 10;
-            
-            // Elemental
-            player.magmaStone = true;
-            player.frostBurn = true;
-            player.thorns = 1.5f;
-            
-            // Immunities
-            player.buffImmune[BuffID.Frozen] = true;
-            player.buffImmune[BuffID.OnFire] = true;
-            player.buffImmune[BuffID.Frostburn] = true;
-            player.buffImmune[BuffID.Chilled] = true;
+            VivaldiStatsHelper.Apply(player);
+            player.GetModPlayer<ParadoxChronometerPlayer>().hasParadoxChronometer = true;
+
+            // Stats from Paradox Chronometer
+            player.GetDamage(DamageClass.Melee) += 0.18f;
+            player.GetAttackSpeed(DamageClass.Melee) += 0.20f;
+            player.GetCritChance(DamageClass.Melee) += 10;
         }
 
         public override void AddRecipes()
@@ -691,95 +331,26 @@ namespace MagnumOpus.Content.Common.Accessories
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             Color destinyColor = new Color(200, 150, 180);
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Combines Vivaldi's Masterwork with Paradox Chronometer")
+
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Combines Vivaldi's Masterwork with Paradox Chronometer"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Vivaldi: +25% all damage, +18% crit, +15% speed, +23 defense, +15% DR, +10 life regen"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "33% lifesteal (8% damage, max 35 HP), 150% thorns, inflicts On Fire! and Frostburn"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Chronometer: +18% melee damage, +20% melee speed, +10 melee crit"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Every 7th melee strike triggers a temporal echo (75% damage)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Immune to Frozen, On Fire, Frostburn, Chilled, Poisoned"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The seasons turn, and time echoes with each blade's stroke'")
             {
                 OverrideColor = destinyColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Seasonal: +10% melee, +8% ranged/magic/summon, +22 defense, +18% movement speed")
-            {
-                OverrideColor = destinyColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Chronometer: +14% melee damage, +16% melee speed, +8 melee crit, +10 armor penetration")
-            {
-                OverrideColor = destinyColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+40 max life, +40 max mana, +8 life regen, +5 mana regen, +1 minion, +10% DR, 150% thorns")
-            {
-                OverrideColor = destinyColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Every 7th melee strike echoes 75% damage, 8% chance to lifesteal (max 18 HP)")
-            {
-                OverrideColor = destinyColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect6", "Inflicts On Fire and Frostburn, immunity to Frozen, On Fire, Frostburn, Chilled")
-            {
-                OverrideColor = destinyColor
-            });
-        }
-    }
-
-    public class SeasonalDestinyPlayer : ModPlayer
-    {
-        public bool seasonalDestinyEquipped;
-        private int meleeStrikeCount;
-        private int lifestealTimer;
-
-        public override void ResetEffects()
-        {
-            seasonalDestinyEquipped = false;
-        }
-
-        public override void PostUpdate()
-        {
-            if (lifestealTimer > 0) lifestealTimer--;
-        }
-
-        public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            HandleDestinyHit(target, damageDone, true);
-        }
-
-        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            if (proj.owner == Player.whoAmI)
-            {
-                HandleDestinyHit(target, damageDone, DamageClass.Melee.CountsAsClass(proj.DamageType));
-            }
-        }
-
-        private void HandleDestinyHit(NPC target, int damageDone, bool isMelee)
-        {
-            if (!seasonalDestinyEquipped) return;
-            
-            // Temporal Echo (melee, every 7th)
-            if (isMelee)
-            {
-                meleeStrikeCount++;
-                if (meleeStrikeCount >= 7)
-                {
-                    meleeStrikeCount = 0;
-                    int echoDamage = (int)(damageDone * 0.75f);
-                    target.SimpleStrikeNPC(echoDamage, 0, false, 0, null, false, 0, true);
-                    
-                }
-            }
-            
-            // Seasonal lifesteal (8%)
-            if (lifestealTimer <= 0 && Main.rand.NextFloat() < 0.08f)
-            {
-                lifestealTimer = 30;
-                int healAmount = Math.Max(1, Math.Min((int)(damageDone * 0.08f), 18));
-                Player.Heal(healAmount);
-            }
         }
     }
     #endregion
 
-    #region Theme Wanderer - Complete Harmony + Mobility
+    #region Theme Wanderer - Complete Harmony + Event Horizon
     /// <summary>
-    /// Phase 5: Complete Harmony + Machination of the Event Horizon + Fate Cores
-    /// All five themes + cosmic mobility
+    /// Grand Combination: Complete Harmony + Machination of the Event Horizon.
+    /// Delegates to CompleteHarmonyPlayer (all 5 theme procs, Harmonic Resonance, Dissonance)
+    /// and EventHorizonPlayer (cosmic dodge).
     /// </summary>
     public class ThemeWanderer : ModItem
     {
@@ -794,43 +365,8 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<ThemeWandererPlayer>();
-            modPlayer.themeWandererEquipped = true;
-            
-            bool isNight = !Main.dayTime;
-            
-            // Complete Harmony bonuses (condensed)
-            if (isNight)
-            {
-                player.GetCritChance(DamageClass.Melee) += 6;
-                player.GetCritChance(DamageClass.Ranged) += 6;
-                player.GetCritChance(DamageClass.Magic) += 6;
-                player.GetCritChance(DamageClass.Summon) += 6;
-                player.statDefense += 15;
-            }
-            
-            player.GetDamage(DamageClass.Melee) += 0.12f;
-            player.GetAttackSpeed(DamageClass.Melee) += 0.15f;
-            player.GetDamage(DamageClass.Ranged) += 0.12f;
-            player.GetCritChance(DamageClass.Ranged) += 6;
-            player.ammoCost80 = true;
-            player.GetDamage(DamageClass.Magic) += 0.14f;
-            player.manaCost -= 0.10f;
-            player.GetDamage(DamageClass.Summon) += 0.12f;
-            player.maxMinions += 1;
-            
-            // Event Horizon bonuses
-            player.moveSpeed += 0.35f;
-            player.runAcceleration *= 1.4f;
-            player.maxRunSpeed *= 1.3f;
-            player.wingTimeMax += 80;
-            player.noFallDmg = true;
-            player.endurance += 0.08f;
-            
-            // Immunities
-            player.buffImmune[BuffID.OnFire] = true;
-            player.buffImmune[BuffID.Burning] = true;
-            player.buffImmune[BuffID.Confused] = true;
+            CompleteHarmonyStatsHelper.Apply(player);
+            EventHorizonStatsHelper.Apply(player, 0.08f);
         }
 
         public override void AddRecipes()
@@ -847,103 +383,26 @@ namespace MagnumOpus.Content.Common.Accessories
         {
             float hue = (Main.GameUpdateCount * 0.01f) % 1f;
             Color wandererColor = Main.hslToRgb(hue, 0.8f, 0.6f);
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Combines Complete Harmony with Machination of the Event Horizon")
+
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Combines Complete Harmony with Machination of the Event Horizon"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Harmony: +10-15% damage (night/day), -12% mana cost, +15% melee speed, +25% movement"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "All 5 theme procs: Moonstruck, double damage, Tolling Death, Paradox, Dying Swan's Grace"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Harmonic Resonance stacking and Dissonance, fire/lava immunity, +1 minion"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Full mobility: dash, wall climb, Terraspark speed, Frog Leg jump"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "8% cosmic dodge with 3s cooldown"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Wandering between worlds of sound, carried by cosmic winds'")
             {
                 OverrideColor = wandererColor
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+12% melee/ranged/summon, +14% magic, +15% melee speed, +6 ranged crit, +6 all crit at night")
-            {
-                OverrideColor = wandererColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+35% movement, +30% run speed, +80 wing time, no fall damage, +15 defense at night")
-            {
-                OverrideColor = wandererColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+8% damage reduction, 20% ammo savings, -10% mana cost, +1 minion")
-            {
-                OverrideColor = wandererColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "15% fire debuff, 15% Bell ring stun, 12% random debuff, 14% dodge")
-            {
-                OverrideColor = wandererColor
-            });
-        }
-    }
-
-    public class ThemeWandererPlayer : ModPlayer
-    {
-        public bool themeWandererEquipped;
-        private int dashCooldown;
-        private int bellRingCooldown;
-        private Dictionary<int, int> paradoxStacks = new Dictionary<int, int>();
-
-        public override void ResetEffects()
-        {
-            themeWandererEquipped = false;
-        }
-
-        public override void PostUpdate()
-        {
-            if (dashCooldown > 0) dashCooldown--;
-            if (bellRingCooldown > 0) bellRingCooldown--;
-        }
-
-        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            if (!themeWandererEquipped) return;
-            if (proj.owner != Player.whoAmI) return;
-            
-            // Theme effects (15% each)
-            if (Main.rand.NextFloat() < 0.15f)
-            {
-                target.AddBuff(BuffID.OnFire, 300);
-            }
-            
-            if (Main.rand.NextFloat() < 0.15f && bellRingCooldown <= 0)
-            {
-                bellRingCooldown = 30;
-                target.AddBuff(BuffID.Confused, 90);
-            }
-            
-            if (Main.rand.NextFloat() < 0.12f)
-            {
-                int[] debuffs = { BuffID.Confused, BuffID.Slow, BuffID.CursedInferno };
-                target.AddBuff(debuffs[Main.rand.Next(3)], 180);
-            }
-        }
-
-        public override bool FreeDodge(Player.HurtInfo info)
-        {
-            if (!themeWandererEquipped) return false;
-            if (dashCooldown > 0) return false;
-            
-            if (Main.rand.NextFloat() < 0.14f)
-            {
-                dashCooldown = 150;
-                
-                
-                Color[] colors = {
-                    MoonlightColors.Purple, EroicaColors.Gold,
-                    CampanellaColors.Orange, EnigmaColors.GreenFlame, SwanColors.GetRainbow(0f)
-                };
-                
-                
-                Player.immune = true;
-                Player.immuneTime = 35;
-                
-                return true;
-            }
-            
-            return false;
         }
     }
     #endregion
 
-    #region Summoner's Magnum Opus - Complete Harmony + Summons
+    #region Summoner's Magnum Opus - Complete Harmony + Orrery
     /// <summary>
-    /// Phase 5: Complete Harmony + Orrery of Infinite Orbits + Fate Cores
-    /// All themes + ultimate summoning, minions gain theme abilities
+    /// Grand Combination: Complete Harmony + Orrery of Infinite Orbits.
+    /// Delegates to CompleteHarmonyPlayer (all 5 theme procs, Harmonic Resonance, Dissonance)
+    /// and OrreryPlayer (periodic Cosmic Empowerment for minions).
     /// </summary>
     public class SummonersMagnumOpus : ModItem
     {
@@ -958,34 +417,13 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<SummonersMagnumOpusPlayer>();
-            modPlayer.summonOpusEquipped = true;
-            
-            bool isNight = !Main.dayTime;
-            
-            // Complete Harmony bonuses (condensed)
-            if (isNight)
-            {
-                player.GetDamage(DamageClass.Summon) += 0.12f;
-                player.GetCritChance(DamageClass.Summon) += 6;
-            }
-            
-            player.GetDamage(DamageClass.Summon) += 0.24f;
-            player.GetCritChance(DamageClass.Summon) += 8;
-            
-            // Orrery bonuses (enhanced)
-            player.maxMinions += 4;
-            player.maxTurrets += 1;
-            player.whipRangeMultiplier += 0.20f;
-            player.statManaMax2 += 60;
-            player.manaCost -= 0.10f;
-            player.lifeRegen += 3;
-            
-            // Minion theme abilities via player hook
-            
-            // Immunities
-            player.buffImmune[BuffID.OnFire] = true;
-            player.buffImmune[BuffID.Burning] = true;
+            CompleteHarmonyStatsHelper.Apply(player);
+            player.GetModPlayer<OrreryPlayer>().hasOrrery = true;
+
+            // Stats from Orrery of Infinite Orbits
+            player.GetDamage(DamageClass.Summon) += 0.22f;
+            player.maxMinions += 1;
+            player.GetKnockback(DamageClass.Summon) += 0.10f;
         }
 
         public override void AddRecipes()
@@ -1001,87 +439,17 @@ namespace MagnumOpus.Content.Common.Accessories
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             Color summonColor = new Color(150, 100, 200);
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Combines Complete Harmony with Orrery of Infinite Orbits")
-            {
-                OverrideColor = summonColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Summoner-focused: +24% summon damage, +8 summon crit (+12% dmg, +6 crit at night)")
-            {
-                OverrideColor = summonColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+4 minions, +1 sentry, +20% whip range")
-            {
-                OverrideColor = summonColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+60 max mana, -10% mana cost, +3 life regen")
-            {
-                OverrideColor = summonColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Minions randomly apply: 15% bonus night damage, Ichor, On Fire, or Confusion/Slow")
-            {
-                OverrideColor = summonColor
-            });
-        }
-    }
 
-    public class SummonersMagnumOpusPlayer : ModPlayer
-    {
-        public bool summonOpusEquipped;
-        private int themeEffectCooldown;
-
-        public override void ResetEffects()
-        {
-            summonOpusEquipped = false;
-        }
-
-        public override void PostUpdate()
-        {
-            if (themeEffectCooldown > 0) themeEffectCooldown--;
-        }
-
-        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            if (!summonOpusEquipped) return;
-            if (proj.owner != Player.whoAmI) return;
-            
-            // Minion theme attacks
-            if (proj.minion || proj.sentry || DamageClass.Summon.CountsAsClass(proj.DamageType))
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Combines Complete Harmony with Orrery of Infinite Orbits"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Harmony: +10-15% damage (night/day), -12% mana cost, +15% melee speed, +25% movement"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "All 5 theme procs: Moonstruck, double damage, Tolling Death, Paradox, Dying Swan's Grace"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Harmonic Resonance stacking and Dissonance, fire/lava immunity, +1 minion"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Orrery: +22% summon damage, +1 minion, +10% knockback"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Periodic Cosmic Empowerment: empowered minions deal +25% damage"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The conductor raises the baton — every minion plays its part in the magnum opus'")
             {
-                if (themeEffectCooldown <= 0)
-                {
-                    themeEffectCooldown = 15;
-                    
-                    // Random theme effect
-                    int effect = Main.rand.Next(5);
-                    switch (effect)
-                    {
-                        case 0: // Moonlight
-                            if (!Main.dayTime)
-                            {
-                                int bonusDamage = (int)(damageDone * 0.15f);
-                                target.SimpleStrikeNPC(bonusDamage, 0, false, 0, null, false, 0, true);
-                            }
-                            break;
-                            
-                        case 1: // Eroica
-                            target.AddBuff(BuffID.Ichor, 120);
-                            break;
-                            
-                        case 2: // La Campanella
-                            target.AddBuff(BuffID.OnFire, 180);
-                            break;
-                            
-                        case 3: // Enigma
-                            int[] debuffs = { BuffID.Confused, BuffID.Slow };
-                            target.AddBuff(debuffs[Main.rand.Next(2)], 120);
-                            break;
-                            
-                        case 4: // Swan Lake
-                            break;
-                    }
-                }
-            }
+                OverrideColor = summonColor
+            });
         }
     }
     #endregion

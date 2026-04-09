@@ -2,7 +2,7 @@
 <!-- Generated via 5-round interactive design dialog, March 2026 -->
 <!-- Status: LOCKED — do not modify without repeating the design dialog -->
 
-> *"A Little Night Music — every weapon is a serenade to the infinite dark, every star a note in the cosmos's final symphony."*
+> *"Golden Starlit Melodies — the golden twinkling of starlit melodies lights the dark purple world with sweet songs."*
 
 ## Key
 

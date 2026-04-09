@@ -57,22 +57,22 @@ namespace MagnumOpus.Content.Fate.Accessories
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "NinjaEffects", "Grants the ability to dash, wall climb, and auto-dodge")
+            tooltips.Add(new TooltipLine(Mod, "NinjaEffects", "Grants dash, wall climb, and dodge chance (Master Ninja Gear)")
             {
                 OverrideColor = new Color(200, 150, 255)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "SpeedEffects", "Provides the speed and mobility of Terraspark Boots")
+            tooltips.Add(new TooltipLine(Mod, "SpeedEffects", "Terraspark Boots speed and mobility")
             {
                 OverrideColor = new Color(255, 200, 100)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "JumpEffects", "Grants enhanced jump height from Frog Leg")
+            tooltips.Add(new TooltipLine(Mod, "JumpEffects", "Enhanced jump height (Frog Leg)")
             {
                 OverrideColor = new Color(150, 255, 150)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "CosmicDodge", "8% chance to phase through attacks into the void")
+            tooltips.Add(new TooltipLine(Mod, "DodgeChance", "8% dodge chance")
             {
                 OverrideColor = FatePalette.DarkPink
             });
@@ -103,7 +103,6 @@ namespace MagnumOpus.Content.Fate.Accessories
     {
         public bool hasEventHorizon = false;
         public float cosmicDodgeChance = 0f;
-        private int phaseCooldown = 0;
 
         public override void ResetEffects()
         {
@@ -111,30 +110,16 @@ namespace MagnumOpus.Content.Fate.Accessories
             cosmicDodgeChance = 0f;
         }
 
-        public override void PostUpdate()
-        {
-            if (phaseCooldown > 0)
-                phaseCooldown--;
-        }
-
         public override bool FreeDodge(Player.HurtInfo info)
         {
-            if (hasEventHorizon && cosmicDodgeChance > 0 && phaseCooldown <= 0)
+            if (hasEventHorizon && cosmicDodgeChance > 0)
             {
                 if (Main.rand.NextFloat() < cosmicDodgeChance)
                 {
-                    // Cosmic phase VFX
-                    TriggerPhaseVFX();
-                    phaseCooldown = 180; // 3 second cooldown on cosmic dodge
                     return true;
                 }
             }
             return false;
-        }
-
-        private void TriggerPhaseVFX()
-        {
-            FateAccessoryVFX.EventHorizonPhaseVFX(Player.Center);
         }
     }
 }

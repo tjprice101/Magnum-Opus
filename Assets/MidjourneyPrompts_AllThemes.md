@@ -1195,13 +1195,13 @@ White supernova core on solid black background, tiny incredibly bright point sur
 ---
 
 # ═══════════════════════════════════════════
-# THEME 7: CLAIR DE LUNE — Moonlit Reverie
+# THEME 7: CLAIR DE LUNE — Shattered Time
 # ═══════════════════════════════════════════
 
-> **Musical Soul:** Debussy's Clair de Lune — dreamy, impressionistic, the beauty of a moonlit evening, gentle luminescence
+> **Musical Soul:** Dark reds mixed with vibrant greys and whites to establish shattered time and blazing clocks against the tempo of reality
 > **Visual Motifs:** Shattered clock faces, broken clock hands, fractured hourglasses, scattered gear fragments, flowing sand from broken timepieces, pendulum arcs, clock number fragments, cracked glass watch faces, stopped clock towers, ticking echoes visualized, melting clock edges, time-frozen debris
-> **Emotional Core:** Dreamlike calm, gentle luminescence, tender nostalgia, reverie
-> **Colors (applied at runtime):** Night mist blue, soft blue, pearl white
+> **Emotional Core:** Temporal destruction, reality's unraveling, blazing clocks, shattered time
+> **Colors (applied at runtime):** Dark red, vibrant gray, white
 
 ---
 
@@ -1456,13 +1456,13 @@ White clock face shard on solid black background, single broad curved fragment o
 ---
 
 # ═══════════════════════════════════════════
-# THEME 8: DIES IRAE — Day of Wrath
+# THEME 8: DIES IRAE — Hell's Retribution
 # ═══════════════════════════════════════════
 
-> **Musical Soul:** The ancient hymn of judgment — apocalyptic fury, divine wrath, the end of all things
+> **Musical Soul:** The white, black, and crimson flames of hell's retribution climb and soar for the world to hear, and for the heavens to banish
 > **Visual Motifs:** Cracked earth, lava fissures, judgment scales, falling pillars, raining fire, shattered halos, broken angel wings, infernal gates, chains of damnation, scorched ground, ash fall
-> **Emotional Core:** Fury, judgment, apocalyptic power, divine retribution
-> **Colors (applied at runtime):** Blood red, dark crimson, ember orange
+> **Emotional Core:** Divine judgment, heavenly banishment, hellfire retribution
+> **Colors (applied at runtime):** White, black, crimson
 
 ---
 
@@ -1717,13 +1717,13 @@ White ember particle on solid black background, large glowing fragment of scorch
 ---
 
 # ═══════════════════════════════════════════
-# THEME 9: NACHTMUSIK — A Little Night Music
+# THEME 9: NACHTMUSIK — Golden Starlit Melodies
 # ═══════════════════════════════════════════
 
-> **Musical Soul:** Mozart's Eine Kleine Nachtmusik — playful nocturnal elegance, twilight beauty, the joy of stargazing under moonlit skies, sophisticated night revelry
+> **Musical Soul:** The golden twinkling of starlit melodies lights the dark purple world around them with their sweet songs
 > **Visual Motifs:** Twilight skies, moonlit clouds, starry evenings, soft star points, comet trails, crescent moon with stars, nocturnal flowers (evening primrose, moonflower), dusk gradients, twilight silhouettes, moonbeams through clouds, evening mist
-> **Emotional Core:** Nocturnal wonder, stellar beauty, sophisticated joy, twilight elegance
-> **Colors (applied at runtime):** Deep indigo, starlight silver, cosmic blue
+> **Emotional Core:** Golden twinkling, nocturnal melody, sweet songs, starlit beauty
+> **Colors (applied at runtime):** Golden, dark purple
 
 ---
 
@@ -1978,13 +1978,13 @@ White sparkle particle on solid black background, small elegant starburst with s
 ---
 
 # ═══════════════════════════════════════════
-# THEME 10: ODE TO JOY — Universal Brotherhood
+# THEME 10: ODE TO JOY — Eternal Symphony Garden
 # ═══════════════════════════════════════════
 
-> **Musical Soul:** Beethoven's Ninth — the triumph of the human spirit, universal joy, the brotherhood of all humanity expressed through nature's beauty
+> **Musical Soul:** Monochromatic roses shimmer prismatic radiant light as their melody conducts the garden of eternal symphony
 > **Visual Motifs:** Blooming roses, scattered petals, unfurling flower buds, thorned vines, rose gardens in full bloom, pollen drifting on warm air, intertwined stems, fallen petals on the ground, flower crowns, pressed flowers, botanical illustrations, blossom cascades
-> **Emotional Core:** Joy, celebration, triumph of spirit, radiant warmth
-> **Colors (applied at runtime):** Warm gold, radiant amber, jubilant light
+> **Emotional Core:** Prismatic radiance, eternal symphonic garden, chromatic glass roses
+> **Colors (applied at runtime):** Monochromatic black, white, prismatic chromatic
 
 ---
 

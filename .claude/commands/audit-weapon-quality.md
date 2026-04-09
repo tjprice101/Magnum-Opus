@@ -40,10 +40,10 @@ Check all colors against the theme's palette:
 | Swan Lake | Pure white, black contrast, prismatic rainbow edges |
 | Enigma Variations | Void black, deep purple, eerie green flame |
 | Fate | Black void, dark pink, bright crimson, celestial white |
-| Clair de Lune | Night mist blue, soft blue, pearl white |
-| Dies Irae | Blood red, dark crimson, ember orange |
-| Nachtmusik | Deep indigo, starlight silver, cosmic blue |
-| Ode to Joy | Warm gold, radiant amber, jubilant light |
+| Clair de Lune | Dark red, vibrant gray, white |
+| Dies Irae | White, black, crimson |
+| Nachtmusik | Golden, dark purple |
+| Ode to Joy | Monochromatic black, white, prismatic chromatic |
 
 Flag: colors outside palette, hardcoded off-theme values, missing theme LUT usage.
 

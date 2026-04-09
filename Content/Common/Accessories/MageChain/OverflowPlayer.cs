@@ -49,6 +49,14 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         public int invincibilityCooldown;  // Heroic Arcane Surge cooldown
         public int graceBuffTimer;         // Swan's Grace buff timer
         public bool freeSpellReady;        // Moonlit Overflow Star state
+        public int magicCastCounter;       // Tracks cast count for free-cast mechanic
+
+        // ===== T7-T9 STATE =====
+        public int serenadeRefrainTimer;        // T7: Serenade's Refrain (mana restore)
+        public int tubaMirumTimer;              // T8: Tuba Mirum buff
+        public int arcaneJubileeTimer;          // T9: Arcane Jubilee buff
+        public int mageHealThisSecond;          // T9: Heal cap tracking (8 HP/s)
+        public int mageHealCooldown;            // T9: Reset counter
 
         // ===== RESONANCE SYNERGY STATE =====
         public bool resonanceFreeSpellReady;     // T3: Free spell ready from max burn stacks
@@ -124,63 +132,111 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         {
             // === CHAIN INHERITANCE ===
             // Higher-tier accessories inherit all lower-tier effects.
+
+            // --- Fusion chain inheritance ---
+            if (hasPendantOfTheEternalOverflow) { hasTriumphantOverflowPendant = true; hasEternalOverflowMastery = true; }
+            if (hasTriumphantOverflowPendant) { hasStarfallHarmonicPendant = true; hasJubilantArcaneCelebration = true; }
+            if (hasStarfallHarmonicPendant) { hasNocturnalHarmonicOverflow = true; hasInfernalManaCataclysm = true; }
+
+            // --- Post-Fate T7-T10 linear chain inheritance ---
+            if (hasEternalOverflowMastery) hasJubilantArcaneCelebration = true;
+            if (hasJubilantArcaneCelebration) hasInfernalManaCataclysm = true;
+            if (hasInfernalManaCataclysm) hasNocturnalHarmonicOverflow = true;
+
+            // T7 inherits all theme variants + seasonal chain
+            if (hasNocturnalHarmonicOverflow)
+            {
+                hasFatesCosmicReservoir = true;
+                hasSwansBalancedFlow = true;
+                hasEnigmasNegativeSpace = true;
+                hasInfernalManaInferno = true;
+                hasHeroicArcaneSurge = true;
+                hasMoonlitOverflowStar = true;
+                hasVivaldisHarmonicCore = true;
+            }
+
+            // --- Seasonal T1-T6 chain inheritance ---
             if (hasVivaldisHarmonicCore) hasPermafrostVoidHeart = true;
             if (hasPermafrostVoidHeart) hasArcaneResonanceCatalyst = true;
             if (hasArcaneResonanceCatalyst) hasSearedManaConduit = true;
             if (hasSearedManaConduit) hasSpringArcaneConduit = true;
             if (hasSpringArcaneConduit) hasResonantOverflowGem = true;
 
-            // Apply simple static effects from equipped accessories
+            // T1-T6 stats are now applied directly in UpdateAccessory on each item.
+            // Only T7+ stats and special effects are applied here.
 
-            // === BASE STATS: Priority system (highest main-chain tier only) ===
-            // Prevents stat stacking from cascade inheritance.
-            {
-                float magicDmg = 0f;
-                int maxMana = 0;
-                if (hasVivaldisHarmonicCore) { magicDmg = 0.20f; maxMana = 50; }
-                else if (hasPermafrostVoidHeart) { magicDmg = 0.15f; maxMana = 50; }
-                else if (hasSpringArcaneConduit) { magicDmg = 0.10f; maxMana = 20; }
-                else if (hasResonantOverflowGem) { magicDmg = 0.05f; maxMana = 20; }
-                Player.GetDamage(DamageClass.Magic) += magicDmg;
-                Player.statManaMax2 += maxMana;
-            }
+            // (Resonance Synergy state preserved for T7+ only)
 
-            // ===== RESONANCE SYNERGY: T3 SearedManaConduit =====
-            // -3% mana cost per burn stack on any enemy (max -15% at 5 stacks)
-            if (hasSearedManaConduit)
+            // Nocturnal Harmonic Overflow: +20% magic damage at night, +10% during day
+            if (hasNocturnalHarmonicOverflow)
             {
-                int highestStacks = GetHighestBurnStacks();
-                if (highestStacks > 0)
+                if (!Main.dayTime)
                 {
-                    float manaCostReduction = 0.03f * highestStacks; // 3% per stack
-                    Player.manaCost -= manaCostReduction;
+                    Player.GetDamage(DamageClass.Magic) += 0.20f;
+                    Player.manaRegenBonus += 15; // +15 mana regen at night
+                }
+                else
+                {
+                    Player.GetDamage(DamageClass.Magic) += 0.10f;
                 }
             }
 
-            // ===== RESONANCE SYNERGY: T4 ArcaneResonanceCatalyst =====
-            // +6% magic damage per burn stack on any enemy (max +30% at 5 stacks)
-            if (hasArcaneResonanceCatalyst)
+            // T7 Serenade's Refrain buff timer
+            if (serenadeRefrainTimer > 0)
             {
-                int highestStacks = GetHighestBurnStacks();
-                if (highestStacks > 0)
+                serenadeRefrainTimer--;
+                // Restore 5% max mana per second (spread across 60 frames)
+                if (serenadeRefrainTimer % 60 == 0)
                 {
-                    float damageBonus = 0.06f * highestStacks; // 6% per stack
-                    Player.GetDamage(DamageClass.Magic) += damageBonus;
+                    int manaRestore = (int)(Player.statManaMax2 * 0.05f);
+                    Player.statMana = Math.Min(Player.statMana + manaRestore, Player.statManaMax2);
                 }
             }
 
-            // (Permafrost Void Heart and Vivaldi's Harmonic Core base stats handled by priority system above)
-
-            // Nocturnal Harmonic Overflow: +20% magic damage at night
-            if (hasNocturnalHarmonicOverflow && !Main.dayTime)
+            // Infernal Mana Cataclysm: +25% boss / +12% base, Tuba Mirum buff
+            if (hasInfernalManaCataclysm)
             {
-                Player.GetDamage(DamageClass.Magic) += 0.20f;
+                if (AnyBossAlive())
+                    Player.GetDamage(DamageClass.Magic) += 0.25f;
+                else
+                    Player.GetDamage(DamageClass.Magic) += 0.12f;
             }
 
-            // Infernal Mana Cataclysm: +25% magic damage during boss fights
-            if (hasInfernalManaCataclysm && AnyBossAlive())
+            // T8 Tuba Mirum buff timer
+            if (tubaMirumTimer > 0)
             {
-                Player.GetDamage(DamageClass.Magic) += 0.25f;
+                tubaMirumTimer--;
+                // 8% max mana restored per second
+                if (tubaMirumTimer % 60 == 0)
+                {
+                    int manaRestore = (int)(Player.statManaMax2 * 0.08f);
+                    Player.statMana = Math.Min(Player.statMana + manaRestore, Player.statManaMax2);
+                }
+                Player.GetDamage(DamageClass.Magic) += 0.08f; // +8% magic damage
+            }
+
+            // Jubilant Arcane Celebration: +15% base magic damage
+            if (hasJubilantArcaneCelebration)
+            {
+                Player.GetDamage(DamageClass.Magic) += 0.15f;
+            }
+
+            // T9 Arcane Jubilee buff timer
+            if (arcaneJubileeTimer > 0)
+            {
+                arcaneJubileeTimer--;
+                Player.GetDamage(DamageClass.Magic) += 0.05f; // +5% magic damage
+            }
+
+            // T9 heal cap reset (8 HP/s)
+            if (mageHealCooldown > 0)
+            {
+                mageHealCooldown--;
+            }
+            else
+            {
+                mageHealThisSecond = 0;
+                mageHealCooldown = 60;
             }
 
             // Pendant of the Eternal Overflow: +30% magic damage
@@ -224,54 +280,51 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
 
         public override void ModifyManaCost(Item item, ref float reduce, ref float mult)
         {
-            // Moonlit Overflow Star: Free spell when mana < 50
+            // Moonlit Overflow Star: Free spell when mana < 50 (T5 theme variant)
             if (freeSpellReady && item.DamageType.Equals(DamageClass.Magic))
             {
                 mult = 0f;
                 freeSpellReady = false;
+                return;
+            }
+
+            // T5/T6 free-cast-every-Nth mechanic
+            if (item.DamageType.Equals(DamageClass.Magic))
+            {
+                magicCastCounter++;
+
+                int freeCastInterval = 0;
+                if (hasVivaldisHarmonicCore) freeCastInterval = 8;
+                else if (hasPermafrostVoidHeart) freeCastInterval = 10;
+
+                if (freeCastInterval > 0 && magicCastCounter % freeCastInterval == 0)
+                {
+                    mult = 0f; // Free cast
+                }
+
+                // T2+: 5% chance to heal on magic cast
+                if (hasSpringArcaneConduit && Main.rand.NextFloat() < 0.05f)
+                {
+                    int healAmount;
+                    if (hasVivaldisHarmonicCore) healAmount = 35;
+                    else if (hasPermafrostVoidHeart) healAmount = 32;
+                    else if (hasArcaneResonanceCatalyst) healAmount = 30;
+                    else if (hasSearedManaConduit) healAmount = 25;
+                    else healAmount = 20;
+                    Player.Heal(healAmount);
+                }
             }
         }
 
         public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // Only apply mage effects if this is a magic item
             if (!item.DamageType.Equals(DamageClass.Magic))
                 return;
 
-            // Solar Mana Crucible: Magic attacks inflict On Fire!
-            if (hasSolarManaCrucible)
-            {
-                target.AddBuff(BuffID.OnFire, 300);
-            }
+            // ===== T1-T6 MAGE CHAIN COMBAT EFFECTS =====
+            ApplyMageChainOnHit(target, hit, damageDone);
 
-            // Harvest Soul Vessel: Kills restore 15 mana
-            if (hasHarvestSoulVessel && target.life <= 0)
-            {
-                Player.statMana += 15;
-                if (Player.statMana > Player.statManaMax2)
-                    Player.statMana = Player.statManaMax2;
-            }
-
-            // Vivaldi's Harmonic Core: Biome-based debuffs
-            if (hasVivaldisHarmonicCore)
-            {
-                if (Player.ZoneSnow)
-                {
-                    target.AddBuff(BuffID.Frostburn, 300);
-                }
-                else if (Player.ZoneDesert)
-                {
-                    target.AddBuff(BuffID.OnFire, 300);
-                }
-                else if (Player.ZoneJungle)
-                {
-                    target.AddBuff(BuffID.Poisoned, 300);
-                }
-                else
-                {
-                    target.AddBuff(BuffID.Confused, 240);
-                }
-            }
+            // ===== T7+ EFFECTS =====
 
             // Infernal Mana Inferno: Magic attacks leave fire trails
             if (hasInfernalManaInferno)
@@ -284,70 +337,65 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
                 }
             }
 
-            // Swan's Balanced Flow: Killing enemies grants +20% damage buff for 5s
+            // Swan's Balanced Flow: Kill grants +20% magic damage for 5s
             if (hasSwansBalancedFlow && target.life <= 0)
+                graceBuffTimer = 300;
+
+            // Harvest Soul Vessel: Kills restore 15 mana
+            if (hasHarvestSoulVessel && target.life <= 0)
             {
-                graceBuffTimer = 300; // 5 seconds
+                Player.statMana = Math.Min(Player.statMana + 15, Player.statManaMax2);
             }
 
-            // Fate's Cosmic Reservoir: Spells ignore 25% enemy defense (via ModifyHitNPC)
-            // Handled in ModifyHitNPC method
-
-            // Spring Arcane Conduit: Healing petals (simplified - small chance to heal)
-            if (hasSpringArcaneConduit && Main.rand.NextFloat() < 0.05f)
+            // T7: Serenade's Refrain on kill (5% max mana over 3s)
+            if (hasNocturnalHarmonicOverflow && target.life <= 0)
             {
-                Player.Heal(1);
+                serenadeRefrainTimer = 180; // 3 seconds
             }
 
-            // Jubilant Arcane Celebration: Magic attacks heal 2 HP on hit
-            if (hasJubilantArcaneCelebration)
+            // T8: 5% chance on hit → Lacrimosa (enemy takes +10% magic damage for 4s)
+            if (hasInfernalManaCataclysm && Main.rand.NextFloat() < 0.05f)
             {
-                Player.Heal(2);
+                // Use Ichor as proxy for increased damage taken
+                target.AddBuff(BuffID.Ichor, 240); // 4 seconds
+            }
+
+            // T8: Tuba Mirum on kill (8% max mana, +8% magic dmg for 3s)
+            if (hasInfernalManaCataclysm && target.life <= 0)
+            {
+                tubaMirumTimer = 180; // 3 seconds
+            }
+
+            // T9: Jubilant Arcane Celebration: heal 2 HP on hit (capped at 8 HP/s)
+            if (hasJubilantArcaneCelebration && mageHealThisSecond < 8)
+            {
+                int healAmount = Math.Min(2, 8 - mageHealThisSecond);
+                if (healAmount > 0)
+                {
+                    Player.Heal(healAmount);
+                    mageHealThisSecond += healAmount;
+                }
+            }
+
+            // T9: 20% chance on kill → Arcane Jubilee (10 mana, +5% magic dmg for 3s)
+            if (hasJubilantArcaneCelebration && target.life <= 0 && Main.rand.NextFloat() < 0.20f)
+            {
+                arcaneJubileeTimer = 180; // 3 seconds
+                Player.statMana = Math.Min(Player.statMana + 10, Player.statManaMax2);
             }
         }
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // Only apply mage effects for magic projectiles
             if (!proj.DamageType.Equals(DamageClass.Magic) || proj.owner != Player.whoAmI)
                 return;
 
-            // Solar Mana Crucible: Magic attacks inflict On Fire!
-            if (hasSolarManaCrucible)
-            {
-                target.AddBuff(BuffID.OnFire, 300);
-            }
+            // ===== T1-T6 MAGE CHAIN COMBAT EFFECTS =====
+            ApplyMageChainOnHit(target, hit, damageDone);
 
-            // Harvest Soul Vessel: Kills restore 15 mana
-            if (hasHarvestSoulVessel && target.life <= 0)
-            {
-                Player.statMana += 15;
-                if (Player.statMana > Player.statManaMax2)
-                    Player.statMana = Player.statManaMax2;
-            }
+            // ===== T7+ EFFECTS =====
 
-            // Vivaldi's Harmonic Core: Biome-based debuffs
-            if (hasVivaldisHarmonicCore)
-            {
-                if (Player.ZoneSnow)
-                {
-                    target.AddBuff(BuffID.Frostburn, 300);
-                }
-                else if (Player.ZoneDesert)
-                {
-                    target.AddBuff(BuffID.OnFire, 300);
-                }
-                else if (Player.ZoneJungle)
-                {
-                    target.AddBuff(BuffID.Poisoned, 300);
-                }
-                else
-                {
-                    target.AddBuff(BuffID.Confused, 240);
-                }
-            }
-
-            // Infernal Mana Inferno: Magic attacks leave fire trails
+            // Infernal Mana Inferno: Fire trails
             if (hasInfernalManaInferno)
             {
                 for (int i = 0; i < 3; i++)
@@ -358,49 +406,81 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
                 }
             }
 
-            // Swan's Balanced Flow: Killing enemies grants +20% damage buff for 5s
+            // Swan's Balanced Flow: Kill grants buff
             if (hasSwansBalancedFlow && target.life <= 0)
+                graceBuffTimer = 300;
+
+            // Harvest Soul Vessel: Kills restore 15 mana
+            if (hasHarvestSoulVessel && target.life <= 0)
             {
-                graceBuffTimer = 300; // 5 seconds
+                Player.statMana = Math.Min(Player.statMana + 15, Player.statManaMax2);
             }
 
-            // Spring Arcane Conduit: Healing petals (simplified)
-            if (hasSpringArcaneConduit && Main.rand.NextFloat() < 0.05f)
+            // T7: Serenade's Refrain on kill
+            if (hasNocturnalHarmonicOverflow && target.life <= 0)
             {
-                Player.Heal(1);
+                serenadeRefrainTimer = 180;
             }
 
-            // Jubilant Arcane Celebration: Magic attacks heal 2 HP on hit
-            if (hasJubilantArcaneCelebration)
+            // T8: 5% chance on hit → Lacrimosa
+            if (hasInfernalManaCataclysm && Main.rand.NextFloat() < 0.05f)
             {
-                Player.Heal(2);
+                target.AddBuff(BuffID.Ichor, 240);
             }
 
-            // ===== RESONANCE SYNERGY: T3 SearedManaConduit =====
-            // At max stacks: Next spell refunds its mana cost
-            if (hasSearedManaConduit && resonanceFreeSpellReady && ResonancePrefixHelper.IsEnemyBurning(target))
+            // T8: Tuba Mirum on kill
+            if (hasInfernalManaCataclysm && target.life <= 0)
             {
-                // Refund mana cost (estimate based on weapon)
-                int manaRefund = Player.HeldItem.mana > 0 ? Player.HeldItem.mana : 20;
-                Player.statMana = Math.Min(Player.statMana + manaRefund, Player.statManaMax2);
-                resonanceFreeSpellReady = false;
+                tubaMirumTimer = 180;
+            }
 
-                // Visual feedback: mana surge effect
-                for (int i = 0; i < 8; i++)
+            // T9: heal 2 HP on hit (capped at 8 HP/s)
+            if (hasJubilantArcaneCelebration && mageHealThisSecond < 8)
+            {
+                int healAmt = Math.Min(2, 8 - mageHealThisSecond);
+                if (healAmt > 0)
                 {
-                    Dust dust = Dust.NewDustDirect(Player.Center, 1, 1, DustID.MagicMirror);
-                    dust.velocity = Vector2.One.RotatedByRandom(MathHelper.TwoPi) * Main.rand.NextFloat(2f, 5f);
-                    dust.scale = Main.rand.NextFloat(1.2f, 1.8f);
-                    dust.noGravity = true;
+                    Player.Heal(healAmt);
+                    mageHealThisSecond += healAmt;
                 }
             }
 
-            // ===== RESONANCE SYNERGY: T4 ArcaneResonanceCatalyst =====
-            // At max stacks: Release arcane shockwave that damages all nearby enemies
-            if (hasArcaneResonanceCatalyst && resonanceShockwaveReady && ResonancePrefixHelper.IsEnemyBurning(target))
+            // T9: 20% chance on kill → Arcane Jubilee
+            if (hasJubilantArcaneCelebration && target.life <= 0 && Main.rand.NextFloat() < 0.20f)
             {
-                SpawnArcaneShockwave(target.Center, damageDone);
-                resonanceShockwaveReady = false;
+                arcaneJubileeTimer = 180;
+                Player.statMana = Math.Min(Player.statMana + 10, Player.statManaMax2);
+            }
+        }
+
+        /// <summary>
+        /// Shared T1-T6 mage chain on-hit effects: burn, slow, multi-debuff.
+        /// </summary>
+        private void ApplyMageChainOnHit(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            // T6: Multi-debuff
+            if (hasVivaldisHarmonicCore)
+            {
+                target.AddBuff(BuffID.OnFire, 180);
+                target.AddBuff(BuffID.Frostburn, 180);
+                target.AddBuff(BuffID.Poisoned, 180);
+                target.AddBuff(BuffID.Bleeding, 180);
+            }
+            // T3-T5: Burn on hit
+            else if (hasSearedManaConduit)
+            {
+                target.AddBuff(BuffID.OnFire, 180);
+            }
+
+            // T6: 8% slow chance
+            if (hasVivaldisHarmonicCore && Main.rand.NextFloat() < 0.08f)
+            {
+                target.AddBuff(BuffID.Slow, 60);
+            }
+            // T5: 5% slow chance
+            else if (hasPermafrostVoidHeart && Main.rand.NextFloat() < 0.05f)
+            {
+                target.AddBuff(BuffID.Slow, 60);
             }
         }
 

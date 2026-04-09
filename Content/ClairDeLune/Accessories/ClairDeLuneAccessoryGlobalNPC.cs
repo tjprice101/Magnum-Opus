@@ -5,80 +5,77 @@ using Terraria.ModLoader;
 namespace MagnumOpus.Content.ClairDeLune.Accessories
 {
     /// <summary>
-    /// Global NPC that handles Clair de Lune accessory debuff effects on enemies.
-    /// Tracks Bullet Time (Chronodisruptor) and Time Fracture zones (Fractured Hourglass).
+    /// Global NPC tracking Clair de Lune accessory debuffs on enemies.
+    /// Brumes (melee slow), Voiles (miss chance), Pas sur la Neige (ranged slow),
+    /// Berceuse (summoner defense/slow).
     /// </summary>
     public class ClairDeLuneAccessoryGlobalNPC : GlobalNPC
     {
         public override bool InstancePerEntity => true;
 
-        // --- Bullet Time (Chronodisruptor of Harmony) ---
-        public bool bulletTimeActive;
-        public int bulletTimeTimer;
+        // --- Brumes (Reverie Gauntlet melee hits) ---
+        public int brumesTimer;
 
-        // --- Time Fracture zone damage bonus (Fractured Hourglass Pendant) ---
-        // Tracked via player-side zone positions; NPC checks proximity
+        // --- Voiles (Luminous Reverie Pendant magic hits) ---
+        public int voilesTimer;
+
+        // --- Pas sur la Neige (Dreambow Clasp ranged crits) ---
+        public int pasSurLaNeigeTimer;
+
+        // --- Berceuse (Dreamsinger Sigil minion hits) ---
+        public int berceuseTimer;
 
         public override void ResetEffects(NPC npc)
         {
-            // Bullet Time timer decay
-            if (bulletTimeTimer > 0)
-            {
-                bulletTimeTimer--;
-                if (bulletTimeTimer <= 0)
-                    bulletTimeActive = false;
-            }
+            if (brumesTimer > 0) brumesTimer--;
+            if (voilesTimer > 0) voilesTimer--;
+            if (pasSurLaNeigeTimer > 0) pasSurLaNeigeTimer--;
+            if (berceuseTimer > 0) berceuseTimer--;
         }
 
         public override void ModifyHitByProjectile(NPC npc, Projectile projectile, ref NPC.HitModifiers modifiers)
         {
-            ApplyTimeFractureBonusIfInZone(npc, ref modifiers);
+            // Berceuse: -5 defense
+            if (berceuseTimer > 0)
+                modifiers.Defense.Flat -= 5;
         }
 
         public override void ModifyHitByItem(NPC npc, Player player, Item item, ref NPC.HitModifiers modifiers)
         {
-            ApplyTimeFractureBonusIfInZone(npc, ref modifiers);
+            if (berceuseTimer > 0)
+                modifiers.Defense.Flat -= 5;
         }
 
-        /// <summary>
-        /// Applies Bullet Time damage reduction: enemies deal 15% less damage.
-        /// Called via vanilla buff system — we reduce outgoing damage from this NPC.
-        /// </summary>
         public override void ModifyHitPlayer(NPC npc, Player target, ref Player.HurtModifiers modifiers)
         {
-            if (bulletTimeActive)
+            // Voiles: 15% miss chance (approximated as 15% damage reduction)
+            if (voilesTimer > 0)
                 modifiers.FinalDamage *= 0.85f;
         }
 
-        private void ApplyTimeFractureBonusIfInZone(NPC npc, ref NPC.HitModifiers modifiers)
+        public override void PostAI(NPC npc)
         {
-            // Check if any player has active time fracture zones near this NPC
-            for (int i = 0; i < Main.maxPlayers; i++)
-            {
-                Player player = Main.player[i];
-                if (!player.active || player.dead) continue;
-                var hourglassPlayer = player.GetModPlayer<FracturedHourglassPlayer>();
-                if (!hourglassPlayer.hourglassActive) continue;
+            // Brumes: -12% movement speed, -8% attack speed (via velocity)
+            if (brumesTimer > 0)
+                npc.velocity *= 0.88f;
 
-                for (int z = 0; z < 2; z++)
-                {
-                    if (hourglassPlayer.zoneTimers[z] > 0 &&
-                        Vector2.Distance(npc.Center, hourglassPlayer.zonePositions[z]) < 120f)
-                    {
-                        modifiers.FinalDamage += 0.10f;
-                        return; // Don't stack from multiple zones
-                    }
-                }
-            }
+            // Pas sur la Neige: -15% movement speed
+            if (pasSurLaNeigeTimer > 0)
+                npc.velocity *= 0.85f;
+
+            // Berceuse: -10% movement speed
+            if (berceuseTimer > 0)
+                npc.velocity *= 0.90f;
         }
 
-        /// <summary>
-        /// Apply Bullet Time: slow + 15% reduced damage output for 2s.
-        /// </summary>
-        public void ApplyBulletTime(NPC npc)
-        {
-            bulletTimeActive = true;
-            bulletTimeTimer = 120; // 2 seconds
-        }
+        public void ApplyBrumes(int duration = 180) { brumesTimer = duration; }
+        public void ApplyVoiles(int duration = 240) { voilesTimer = duration; }
+        public void ApplyPasSurLaNeige(int duration = 180) { pasSurLaNeigeTimer = duration; }
+        public void ApplyBerceuse(int duration = 180) { berceuseTimer = duration; }
+
+        public bool HasBrumes => brumesTimer > 0;
+        public bool HasVoiles => voilesTimer > 0;
+        public bool HasPasSurLaNeige => pasSurLaNeigeTimer > 0;
+        public bool HasBerceuse => berceuseTimer > 0;
     }
 }

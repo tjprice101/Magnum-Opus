@@ -36,16 +36,16 @@ namespace MagnumOpus.Content.Seasons.Accessories
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             // Spring bonuses
-            player.lifeRegen += 4;
-            player.GetDamage(DamageClass.Generic) += 0.08f;
+            player.lifeRegen += 6;
+            player.GetDamage(DamageClass.Generic) += 0.20f;
             
             // Autumn bonuses
-            player.GetCritChance(DamageClass.Generic) += 8;
-            player.statDefense += 10;
+            player.GetCritChance(DamageClass.Generic) += 10;
+            player.statDefense += 13;
             
             // Equinox unique: life steal + thorns
             player.thorns = 0.8f;
-            player.GetModPlayer<ReapersCharmPlayer>().reapersCharmEquipped = true;
+            player.GetModPlayer<VivaldiPlayer>().equinoxEquipped = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -54,10 +54,10 @@ namespace MagnumOpus.Content.Seasons.Accessories
             Color autumnOrange = new Color(255, 100, 30);
             
             tooltips.Add(new TooltipLine(Mod, "Combo", "Spring + Autumn Combination") { OverrideColor = Color.Lerp(springGreen, autumnOrange, 0.5f) });
-            tooltips.Add(new TooltipLine(Mod, "Spring", "+4 life regen, +8% damage") { OverrideColor = springGreen });
-            tooltips.Add(new TooltipLine(Mod, "Autumn", "+8% crit chance, +10 defense") { OverrideColor = autumnOrange });
-            tooltips.Add(new TooltipLine(Mod, "LifeSteal", "20% chance to steal 4% of damage dealt as HP (max 8 HP)") { OverrideColor = autumnOrange });
-            tooltips.Add(new TooltipLine(Mod, "Thorns", "Attackers take 80% damage back") { OverrideColor = autumnOrange });
+            tooltips.Add(new TooltipLine(Mod, "Spring", "+6 life regen, +20% damage") { OverrideColor = springGreen });
+            tooltips.Add(new TooltipLine(Mod, "Autumn", "+10% crit chance, +13 defense") { OverrideColor = autumnOrange });
+            tooltips.Add(new TooltipLine(Mod, "LifeSteal", "25% chance to steal 4% of damage dealt as HP (max 50 HP)") { OverrideColor = autumnOrange });
+            tooltips.Add(new TooltipLine(Mod, "Thorns", "Attackers take 80% damage dealt back") { OverrideColor = autumnOrange });
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Balance between life and death, growth and decay'") { OverrideColor = Color.Lerp(springGreen, autumnOrange, 0.5f) });
         }
         
@@ -93,13 +93,13 @@ namespace MagnumOpus.Content.Seasons.Accessories
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             // Summer bonuses
-            player.GetDamage(DamageClass.Generic) += 0.1f;
+            player.GetDamage(DamageClass.Generic) += 0.15f;
             player.magmaStone = true; // On Fire
-            player.GetAttackSpeed(DamageClass.Generic) += 0.1f;
+            player.GetAttackSpeed(DamageClass.Generic) += 0.15f;
             
             // Winter bonuses
             player.frostBurn = true; // Frostburn
-            player.statDefense += 10;
+            player.statDefense += 13;
             player.buffImmune[BuffID.Frozen] = true;
             player.buffImmune[BuffID.OnFire] = true;
             
@@ -107,8 +107,8 @@ namespace MagnumOpus.Content.Seasons.Accessories
             float hpPercent = (float)player.statLife / player.statLifeMax2;
             if (hpPercent > 0.9f || hpPercent < 0.25f)
             {
-                player.GetDamage(DamageClass.Generic) += 0.08f; // +8% more at extremes
-                player.GetCritChance(DamageClass.Generic) += 6;
+                player.GetDamage(DamageClass.Generic) += 0.30f;
+                player.GetCritChance(DamageClass.Generic) += 10;
             }
         }
 
@@ -118,9 +118,9 @@ namespace MagnumOpus.Content.Seasons.Accessories
             Color winterCyan = new Color(0, 255, 255);
             
             tooltips.Add(new TooltipLine(Mod, "Combo", "Summer + Winter Combination") { OverrideColor = Color.Lerp(summerOrange, winterCyan, 0.5f) });
-            tooltips.Add(new TooltipLine(Mod, "Summer", "+10% damage, +10% attack speed, inflicts On Fire!") { OverrideColor = summerOrange });
-            tooltips.Add(new TooltipLine(Mod, "Winter", "+10 defense, inflicts Frostburn") { OverrideColor = winterCyan });
-            tooltips.Add(new TooltipLine(Mod, "Extreme", "At 90%+ or 25%- HP: +8% additional damage, +6% crit") { OverrideColor = Color.Lerp(summerOrange, winterCyan, 0.5f) });
+            tooltips.Add(new TooltipLine(Mod, "Summer", "+15% damage, +15% attack speed, inflicts On Fire!") { OverrideColor = summerOrange });
+            tooltips.Add(new TooltipLine(Mod, "Winter", "+13 defense, inflicts Frostburn") { OverrideColor = winterCyan });
+            tooltips.Add(new TooltipLine(Mod, "Extreme", "At 90%+ or 25%- HP: +30% additional damage, +10% crit") { OverrideColor = Color.Lerp(summerOrange, winterCyan, 0.5f) });
             tooltips.Add(new TooltipLine(Mod, "Immunity", "Immune to Frozen and On Fire!") { OverrideColor = winterCyan });
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Fire and ice united in perfect opposition'") { OverrideColor = Color.Lerp(summerOrange, winterCyan, 0.5f) });
         }
@@ -157,12 +157,13 @@ namespace MagnumOpus.Content.Seasons.Accessories
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             // Combined bonuses from all seasons
-            player.GetDamage(DamageClass.Generic) += 0.15f;
-            player.GetCritChance(DamageClass.Generic) += 12;
-            player.GetAttackSpeed(DamageClass.Generic) += 0.08f;
-            player.statDefense += 15;
-            player.lifeRegen += 5;
-            player.endurance += 0.08f; // 8% DR
+            player.GetDamage(DamageClass.Generic) += 0.18f;
+            player.GetCritChance(DamageClass.Generic) += 17;
+            player.GetAttackSpeed(DamageClass.Generic) += 0.12f;
+            player.statDefense += 17;
+            player.lifeRegen += 7;
+            player.endurance += 0.10f; // 10% DR
+            player.maxMinions += 7;
             
             // Elemental effects
             player.magmaStone = true;
@@ -175,7 +176,7 @@ namespace MagnumOpus.Content.Seasons.Accessories
             player.buffImmune[BuffID.Frostburn] = true;
             
             // Life steal
-            player.GetModPlayer<ReapersCharmPlayer>().reapersCharmEquipped = true;
+            player.GetModPlayer<VivaldiPlayer>().cycleEquipped = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -186,11 +187,11 @@ namespace MagnumOpus.Content.Seasons.Accessories
             Color winterCyan = new Color(0, 255, 255);
             
             tooltips.Add(new TooltipLine(Mod, "Combo", "All Four Seasons Combined") { OverrideColor = Main.hslToRgb((Main.GameUpdateCount * 0.01f) % 1f, 0.8f, 0.7f) });
-            tooltips.Add(new TooltipLine(Mod, "Damage", "+15% damage, +12% crit chance, +8% attack speed") { OverrideColor = summerOrange });
-            tooltips.Add(new TooltipLine(Mod, "Defense", "+15 defense, +8% damage reduction") { OverrideColor = autumnBrown });
-            tooltips.Add(new TooltipLine(Mod, "Regen", "+5 life regeneration") { OverrideColor = springGreen });
+            tooltips.Add(new TooltipLine(Mod, "Damage", "+18% damage, +17% crit chance, +12% attack speed") { OverrideColor = summerOrange });
+            tooltips.Add(new TooltipLine(Mod, "Defense", "+17 defense, +10% damage reduction") { OverrideColor = autumnBrown });
+            tooltips.Add(new TooltipLine(Mod, "Regen", "+7 life regeneration, +7 minion slots") { OverrideColor = springGreen });
             tooltips.Add(new TooltipLine(Mod, "Elements", "Inflicts On Fire! and Frostburn, applies Thorns") { OverrideColor = Color.Lerp(summerOrange, winterCyan, 0.5f) });
-            tooltips.Add(new TooltipLine(Mod, "LifeSteal", "20% chance to steal 4% of damage dealt as HP (max 8 HP)") { OverrideColor = autumnBrown });
+            tooltips.Add(new TooltipLine(Mod, "LifeSteal", "20% chance to steal 4% of damage dealt as HP (max 30 HP)") { OverrideColor = autumnBrown });
             tooltips.Add(new TooltipLine(Mod, "Immunity", "Immune to Frozen, On Fire!, and Frostburn") { OverrideColor = winterCyan });
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The eternal cycle turns, granting power over all seasons'") { OverrideColor = Main.hslToRgb((Main.GameUpdateCount * 0.01f + 0.5f) % 1f, 0.8f, 0.7f) });
         }
@@ -223,12 +224,12 @@ namespace MagnumOpus.Content.Seasons.Accessories
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+20% damage, +15% critical strike chance"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+12% attack speed, +20 defense, +15% movement speed"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+12% damage reduction, +8 life regen, +4 mana regen"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+25% damage, +18% critical strike chance"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+15% attack speed, +23 defense, +20% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+15% damage reduction, +10 life regen, +8 mana regen"));
             tooltips.Add(new TooltipLine(Mod, "Effect4", "Immunity to Frozen, On Fire, Frostburn, Chilled, and Poisoned"));
             tooltips.Add(new TooltipLine(Mod, "Effect5", "Melee attacks inflict fire and frostburn, 150% thorns damage"));
-            tooltips.Add(new TooltipLine(Mod, "Effect6", "33% chance on hit to lifesteal 6% of damage dealt (max 15 HP)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "33% chance on hit to lifesteal 8% of damage dealt (max 35 HP)"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The eternal cycle of Four Seasons united in perfect harmony'") 
             { 
                 OverrideColor = new Color(200, 150, 255) 
@@ -238,14 +239,14 @@ namespace MagnumOpus.Content.Seasons.Accessories
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             // MASSIVE bonuses - end-game accessory
-            player.GetDamage(DamageClass.Generic) += 0.2f; // 20% damage
-            player.GetCritChance(DamageClass.Generic) += 15;
-            player.GetAttackSpeed(DamageClass.Generic) += 0.12f; // 12% attack speed
-            player.statDefense += 20;
-            player.lifeRegen += 8;
-            player.manaRegen += 4;
-            player.endurance += 0.12f; // 12% DR
-            player.moveSpeed += 0.15f;
+            player.GetDamage(DamageClass.Generic) += 0.25f;
+            player.GetCritChance(DamageClass.Generic) += 18;
+            player.GetAttackSpeed(DamageClass.Generic) += 0.15f;
+            player.statDefense += 23;
+            player.lifeRegen += 10;
+            player.manaRegenBonus += 40; // ~+8 mana/s
+            player.endurance += 0.15f; // 15% DR
+            player.moveSpeed += 0.20f;
             
             // All elemental effects
             player.magmaStone = true;
@@ -279,28 +280,43 @@ namespace MagnumOpus.Content.Seasons.Accessories
     
     public class VivaldiPlayer : ModPlayer
     {
+        public bool equinoxEquipped = false;
+        public bool cycleEquipped = false;
         public bool vivaldiEquipped = false;
         
         public override void ResetEffects()
         {
+            equinoxEquipped = false;
+            cycleEquipped = false;
             vivaldiEquipped = false;
         }
         
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (vivaldiEquipped && Main.rand.NextBool(3)) // 33% chance
+            // Vivaldi's Masterwork: 33% chance, 8% lifesteal, max 35 HP
+            if (vivaldiEquipped && Main.rand.NextBool(3))
             {
-                int healAmount = (int)(damageDone * 0.06f); // 6% lifesteal
-                healAmount = Math.Max(1, Math.Min(healAmount, 15)); // Cap at 15 HP
+                int healAmount = (int)(damageDone * 0.08f);
+                healAmount = Math.Max(1, Math.Min(healAmount, 35));
                 Player.Heal(healAmount);
-                
-                // Grand lifesteal VFX with music note!
-                float hue = Main.rand.NextFloat();
-                Color vfxColor = Main.hslToRgb(hue, 0.8f, 0.7f);
-                
-                // ☁ESPARKLE accent
-                
-                // ☁EMUSICAL NOTATION - Lifesteal note! - VISIBLE SCALE 0.7f+
+                return;
+            }
+            
+            // Relic of the Equinox: 25% chance, 4% lifesteal, max 50 HP
+            if (equinoxEquipped && Main.rand.NextBool(4))
+            {
+                int healAmount = (int)(damageDone * 0.04f);
+                healAmount = Math.Max(1, Math.Min(healAmount, 50));
+                Player.Heal(healAmount);
+                return;
+            }
+            
+            // Cycle of Seasons: 20% chance, 4% lifesteal, max 30 HP
+            if (cycleEquipped && Main.rand.NextBool(5))
+            {
+                int healAmount = (int)(damageDone * 0.04f);
+                healAmount = Math.Max(1, Math.Min(healAmount, 30));
+                Player.Heal(healAmount);
             }
         }
     }

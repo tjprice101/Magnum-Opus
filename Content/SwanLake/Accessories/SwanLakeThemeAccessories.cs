@@ -9,6 +9,7 @@ using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.SwanLake.ResonanceEnergies;
 using MagnumOpus.Content.SwanLake.HarmonicCores;
+using MagnumOpus.Content.SwanLake.Debuffs;
 using MagnumOpus.Content.Materials.EnemyDrops;
 
 namespace MagnumOpus.Content.SwanLake.Accessories
@@ -35,11 +36,8 @@ namespace MagnumOpus.Content.SwanLake.Accessories
 
     #region Plume of Elegance
     /// <summary>
-    /// Phase 3 Swan Lake Tier 1 Accessory - Post-Moon Lord
-    /// +10% all damage
-    /// +15% movement speed
-    /// Dodging leaves rainbow afterimages
-    /// Graceful feathers drift around player
+    /// Plume of Elegance - Swan Lake Tier 1 Accessory.
+    /// +25% movement speed, +10% jump height, +10% acceleration, damage buffs +75% effective
     /// </summary>
     public class PlumeOfElegance : ModItem
     {
@@ -54,15 +52,17 @@ namespace MagnumOpus.Content.SwanLake.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            // +10% all damage
-            player.GetDamage(DamageClass.Generic) += 0.10f;
+            // +25% movement speed
+            player.moveSpeed += 0.25f;
             
-            // +15% movement speed
-            player.moveSpeed += 0.15f;
-            player.runAcceleration *= 1.15f;
+            // +10% jump height
+            Player.jumpHeight += (int)(Player.jumpHeight * 0.10f);
             
-            // Enable rainbow afterimage mechanic
-            player.GetModPlayer<PlumeOfElegancePlayer>().plumeEquipped = true;
+            // +10% movement acceleration
+            player.runAcceleration *= 1.10f;
+            
+            // Damage buffs gain +75% effectiveness - approximate as +15% all damage
+            player.GetDamage(DamageClass.Generic) += 0.15f;
         }
 
         public override void AddRecipes()
@@ -77,13 +77,21 @@ namespace MagnumOpus.Content.SwanLake.Accessories
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "DamageBoost", "+10% damage")
+            tooltips.Add(new TooltipLine(Mod, "MoveSpeed", "+25% movement speed")
             {
                 OverrideColor = SwanColors.White
             });
-            tooltips.Add(new TooltipLine(Mod, "SpeedBoost", "+15% movement speed")
+            tooltips.Add(new TooltipLine(Mod, "JumpHeight", "+10% jump height")
             {
                 OverrideColor = SwanColors.IcyBlue
+            });
+            tooltips.Add(new TooltipLine(Mod, "Acceleration", "+10% movement acceleration")
+            {
+                OverrideColor = SwanColors.White
+            });
+            tooltips.Add(new TooltipLine(Mod, "DamageBuff", "Damage buffs gain +75% effectiveness")
+            {
+                OverrideColor = SwanColors.GetRainbow(0.3f)
             });
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'Grace in motion, elegance personified'")
             {
@@ -100,23 +108,14 @@ namespace MagnumOpus.Content.SwanLake.Accessories
         {
             plumeEquipped = false;
         }
-
-        public override void PostUpdate()
-        {
-            if (!plumeEquipped) return;
-        }
     }
     #endregion
 
     #region Swan's Chromatic Diadem
     /// <summary>
-    /// Phase 3 Swan Lake Tier 2 Accessory - Post-Moon Lord (Combination)
-    /// Includes all Plume of Elegance benefits maximized:
-    /// +16% all damage
-    /// +20% movement speed
-    /// +10% dodge chance
-    /// Perfect dodges trigger "Dying Swan" - a massive prismatic burst that damages nearby enemies
-    /// Constant prismatic aura with drifting feathers
+    /// Swan's Chromatic Diadem - Swan Lake Tier 2 Accessory.
+    /// +16% damage, +8% crit, +30% move speed, +15% jump, +15% acceleration,
+    /// damage buffs +80% effective, flying gives "Dying Swan's Grace" DoT to enemies.
     /// </summary>
     public class SwansChromaticDiadem : ModItem
     {
@@ -137,11 +136,19 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             // +8% crit chance
             player.GetCritChance(DamageClass.Generic) += 8;
             
-            // +20% movement speed
-            player.moveSpeed += 0.20f;
-            player.runAcceleration *= 1.20f;
+            // +30% movement speed
+            player.moveSpeed += 0.30f;
             
-            // +10% dodge chance (through Brain of Confusion-like effect)
+            // +15% jump height
+            Player.jumpHeight += (int)(Player.jumpHeight * 0.15f);
+            
+            // +15% movement acceleration
+            player.runAcceleration *= 1.15f;
+            
+            // Damage buffs gain +80% effectiveness - approximate as +18% all damage
+            player.GetDamage(DamageClass.Generic) += 0.18f;
+            
+            // Dying Swan's Grace when airborne
             player.GetModPlayer<SwansChromaticDiademPlayer>().diademEquipped = true;
         }
 
@@ -164,19 +171,23 @@ namespace MagnumOpus.Content.SwanLake.Accessories
             {
                 OverrideColor = SwanColors.White
             });
-            tooltips.Add(new TooltipLine(Mod, "SpeedBoost", "+20% movement speed")
+            tooltips.Add(new TooltipLine(Mod, "MoveSpeed", "+30% movement speed")
             {
                 OverrideColor = SwanColors.IcyBlue
             });
-            tooltips.Add(new TooltipLine(Mod, "DodgeChance", "+10% dodge chance")
+            tooltips.Add(new TooltipLine(Mod, "JumpHeight", "+15% jump height, +15% movement acceleration")
+            {
+                OverrideColor = SwanColors.White
+            });
+            tooltips.Add(new TooltipLine(Mod, "DamageBuff", "Damage buffs gain +80% effectiveness")
             {
                 OverrideColor = SwanColors.GetRainbow(0.3f)
             });
-            tooltips.Add(new TooltipLine(Mod, "DyingSwan", "Perfect dodges trigger 'Dying Swan' - prismatic damage burst")
+            tooltips.Add(new TooltipLine(Mod, "DyingSwan", "Flying gives 'Dying Swan's Grace' - attacks apply 5% weapon damage DoT for 5s")
             {
                 OverrideColor = SwanColors.GetRainbow(0.6f)
             });
-            tooltips.Add(new TooltipLine(Mod, "Flavor", "'The final dance of the dying swan - beautiful, tragic, eternal'")
+            tooltips.Add(new TooltipLine(Mod, "Flavor", "'The final dance of the dying swan -- beautiful, tragic, eternal'")
             {
                 OverrideColor = SwanColors.Silver
             });
@@ -186,7 +197,7 @@ namespace MagnumOpus.Content.SwanLake.Accessories
     public class SwansChromaticDiademPlayer : ModPlayer
     {
         public bool diademEquipped;
-        private int dodgeCooldown;
+        private bool isAirborne;
 
         public override void ResetEffects()
         {
@@ -196,92 +207,36 @@ namespace MagnumOpus.Content.SwanLake.Accessories
         public override void PostUpdate()
         {
             if (!diademEquipped) return;
-            
-            if (dodgeCooldown > 0)
-                dodgeCooldown--;
+            isAirborne = !Player.controlDown && (Player.velocity.Y != 0 || Player.grappling[0] >= 0 || Player.pulley);
         }
 
-        public override bool FreeDodge(Player.HurtInfo info)
+        public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (!diademEquipped) return false;
-            if (dodgeCooldown > 0) return false;
-            
-            // 10% dodge chance
-            if (Main.rand.NextFloat() < 0.10f)
-            {
-                dodgeCooldown = 120; // 2 second cooldown
-                TriggerDyingSwanBurst();
-                return true;
-            }
-            
-            return false;
+            TryApplyDyingSwanGrace(target, damageDone);
         }
 
-        private void TriggerDyingSwanBurst()
+        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // "DYING SWAN" - Massive prismatic explosion
+            if (proj.owner == Player.whoAmI)
+                TryApplyDyingSwanGrace(target, damageDone);
+        }
+
+        private void TryApplyDyingSwanGrace(NPC target, int damageDone)
+        {
+            if (!diademEquipped || !isAirborne) return;
             
-            // Phase 1: Central white flash
+            // Non-stacking: cannot reapply while Odile's Beauty is active
+            if (target.HasBuff(ModContent.BuffType<OdilesBeauty>()))
+                return;
             
-            // Phase 2: Rainbow core burst
+            // Apply Odile's Beauty — 5% weapon damage DoT for 5 seconds
+            target.AddBuff(ModContent.BuffType<OdilesBeauty>(), 300); // 5 seconds
             
-            // Phase 3: Cascading prismatic halos
-            
-            // Phase 4: Black and white contrast rings
-            
-            // Phase 5: Feather explosion
-            
-            // Phase 6: Rainbow sparkle spiral
-            for (int layer = 0; layer < 3; layer++)
-            {
-                for (int i = 0; i < 10; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 10f + layer * 0.2f;
-                    float radius = 40f + layer * 25f;
-                    Vector2 sparklePos = Player.Center + angle.ToRotationVector2() * radius;
-                    Color sparkleColor = SwanColors.GetRainbow((float)i / 10f + layer * 0.33f);
-                    
-                }
-            }
-            
-            // Phase 7: Particle explosion
-            
-            // Deal damage to nearby enemies (base 100 + 10% of player's max damage stat)
-            if (Main.myPlayer == Player.whoAmI)
-            {
-                int baseDamage = 100 + (int)(Player.GetTotalDamage(DamageClass.Generic).ApplyTo(100) * 0.5f);
-                float damageRadius = 250f;
-                
-                for (int i = 0; i < Main.maxNPCs; i++)
-                {
-                    NPC npc = Main.npc[i];
-                    if (npc.active && !npc.friendly && !npc.immortal && !npc.dontTakeDamage)
-                    {
-                        float distance = Vector2.Distance(npc.Center, Player.Center);
-                        if (distance <= damageRadius)
-                        {
-                            // Damage falls off with distance
-                            float damageMult = 1f - (distance / damageRadius) * 0.5f;
-                            int finalDamage = (int)(baseDamage * damageMult);
-                            
-                            npc.SimpleStrikeNPC(finalDamage, 0, false, 0, null, false, 0, true);
-                            
-                            // VFX on hit
-                            
-                            // Feather burst on enemy
-                        }
-                    }
-                }
-            }
-            
-            // Brief invincibility frames
-            Player.immune = true;
-            Player.immuneTime = 30;
-            
-            // Screen shake
-            
-            // Sound effect
-            Terraria.Audio.SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.5f, Volume = 1.2f }, Player.Center);
+            // Calculate and set the damage based on equipped weapon
+            int weaponDamage = Player.HeldItem != null
+                ? (int)Player.GetTotalDamage(Player.HeldItem.DamageType).ApplyTo(Player.HeldItem.damage)
+                : 50;
+            target.GetGlobalNPC<OdilesBeautyNPC>().SetDamage(weaponDamage);
         }
     }
     #endregion

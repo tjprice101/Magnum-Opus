@@ -46,7 +46,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Tools
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Dodge", "Double-tap left or right to perform an arcane dodge with brief invulnerability") { OverrideColor = new Color(180, 100, 255) });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Press K to amplify your HP hearts with musical resonance, doubling your effective HP for 20 seconds (5 minute cooldown)") { OverrideColor = new Color(180, 100, 255) });
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Soar through the spaces between questions'") { OverrideColor = new Color(140, 60, 200) });
         }
 
@@ -63,6 +63,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Tools
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             player.GetModPlayer<RiddlemastersFlightPlayer>().hasWingsEquipped = true;
+            player.GetModPlayer<WingAmplificationPlayer>().hasEnigmaWings = true;
         }
 
         public override void AddRecipes()
@@ -83,98 +84,11 @@ namespace MagnumOpus.Content.EnigmaVariations.Tools
         private int frameCounter = 0;
         private bool wasFlying = false;
         
-        // Direction constants for doubleTapCardinalTimer array
-        private const int DashDown = 0;
-        private const int DashUp = 1;
-        private const int DashLeft = 2;
-        private const int DashRight = 3;
-        
         public bool hasWingsEquipped = false;
-        private int dodgeCooldown = 0;
-        private const int DodgeCooldownMax = 18;
-        private const float DodgeSpeed = 34f;
-        private bool isDodging = false;
-        private int dodgeTimer = 0;
-        private const int DodgeDuration = 9;
-        private int dashDir = -1;
 
         public override void ResetEffects()
         {
             hasWingsEquipped = false;
-            
-            int wingSlot = EquipLoader.GetEquipSlot(Mod, "RiddlemastersFlight", EquipType.Wings);
-            bool hasWings = Player.wings == wingSlot && wingSlot > 0;
-            
-            if (!hasWings && !hasWingsEquipped)
-            {
-                dashDir = -1;
-                return;
-            }
-            
-            if (Player.controlRight && Player.releaseRight && Player.doubleTapCardinalTimer[DashRight] < 15 && Player.doubleTapCardinalTimer[DashLeft] == 0)
-            {
-                dashDir = DashRight;
-            }
-            else if (Player.controlLeft && Player.releaseLeft && Player.doubleTapCardinalTimer[DashLeft] < 15 && Player.doubleTapCardinalTimer[DashRight] == 0)
-            {
-                dashDir = DashLeft;
-            }
-            else
-            {
-                dashDir = -1;
-            }
-        }
-        
-        public override void PreUpdateMovement()
-        {
-            int wingSlot = EquipLoader.GetEquipSlot(Mod, "RiddlemastersFlight", EquipType.Wings);
-            bool hasWings = Player.wings == wingSlot && wingSlot > 0;
-            
-            if (!hasWings && !hasWingsEquipped)
-                return;
-            
-            if (CanDodge() && dashDir != -1 && dodgeCooldown <= 0)
-            {
-                int direction = dashDir == DashLeft ? -1 : 1;
-                PerformDodge(direction);
-            }
-            
-            if (isDodging)
-            {
-                dodgeTimer++;
-                Player.immune = true;
-                Player.immuneTime = 2;
-                Player.immuneNoBlink = true;
-                
-                ThemedParticles.EnigmaTrail(Player.Center, Player.velocity);
-                
-                for (int i = 0; i < 2; i++)
-                {
-                    Dust trail = Dust.NewDustDirect(Player.position, Player.width, Player.height, 
-                        DustID.GreenTorch, -Player.velocity.X * 0.2f, -Player.velocity.Y * 0.2f, 100, default, 1.4f);
-                    trail.noGravity = true;
-                }
-                
-                if (dodgeTimer >= DodgeDuration)
-                {
-                    isDodging = false;
-                    dodgeTimer = 0;
-                    
-                    ThemedParticles.EnigmaImpact(Player.Center, 1f);
-                    CustomParticles.GlyphBurst(Player.Center, ThemedParticles.EnigmaPurple, 6, 4f);
-                }
-            }
-            
-            if (dodgeCooldown > 0)
-                dodgeCooldown--;
-        }
-        
-        private bool CanDodge()
-        {
-            return (hasWingsEquipped || Player.wings == EquipLoader.GetEquipSlot(Mod, "RiddlemastersFlight", EquipType.Wings))
-                && Player.dashType == DashID.None
-                && !Player.setSolar
-                && !Player.mount.Active;
         }
 
         public override void PostUpdate()
@@ -193,7 +107,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Tools
             bool isFlying = Player.controlJump && Player.velocity.Y != 0 && !Player.mount.Active;
             bool isOnGround = Player.velocity.Y == 0;
             
-            if (isFlying || isDodging)
+            if (isFlying)
             {
                 frameCounter++;
                 if (frameCounter >= 2)
@@ -216,22 +130,6 @@ namespace MagnumOpus.Content.EnigmaVariations.Tools
                 wingFrame = 0;
                 frameCounter = 0;
             }
-        }
-
-        private void PerformDodge(int direction)
-        {
-            isDodging = true;
-            dodgeTimer = 0;
-            dodgeCooldown = DodgeCooldownMax;
-            
-            Vector2 dodgeVelocity = new Vector2(direction, 0f);
-            Player.velocity = dodgeVelocity * DodgeSpeed;
-            
-            SoundEngine.PlaySound(SoundID.Item103 with { Pitch = -0.2f, Volume = 0.7f }, Player.Center);
-            
-            ThemedParticles.EnigmaImpact(Player.Center, 1.5f);
-            CustomParticles.GlyphCircle(Player.Center, ThemedParticles.EnigmaGreenFlame, 6, 40f, 0.03f);
-            CustomParticles.EnigmaEyeFormation(Player.Center, ThemedParticles.EnigmaPurple * 0.8f, 3, 35f);
         }
         
         public override void HideDrawLayers(PlayerDrawSet drawInfo)

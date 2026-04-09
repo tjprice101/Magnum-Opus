@@ -190,10 +190,10 @@ When designing for a specific theme, the weapon must resonate with the theme's e
 | **Moonlight Sonata** | Quiet sorrow, mystical moonlight | Lunar glow, tidal flow, silver mist, soft purple | Cosmic/stellar (NOT space), harsh/bright |
 | **Enigma Variations** | Dread mystery, unknowable secrets | Void swirls, watching eyes, eerie green, arcane symbols | Cheerful, transparent, obvious |
 | **Fate** | Cosmic inevitability, celestial power | Ancient glyphs, star trails, chromatic aberration, void-to-crimson | Simple, mundane, earthly |
-| **Clair de Lune** | Dreamlike reverie, gentle luminescence | Night mist, soft glow, pearl shimmer, dewdrop sparkle | Aggressive, loud, violent |
-| **Dies Irae** | Wrathful judgment, apocalyptic fury | Blood crimson, ember storms, judgment marks, searing light | Gentle, calm, forgiving |
-| **Nachtmusik** | Nocturnal wonder, stellar beauty | Deep indigo, starlight sparkle, cosmic blue, constellation patterns | Daytime, solar, warm-toned |
-| **Ode to Joy** | Universal joy, triumphant celebration | Warm gold, radiant amber, jubilant bursts, light cascades | Somber, dark, mournful |
+| **Clair de Lune** | Temporal destruction, shattered time | Dark red crackling, gray clock fragments, white shattered glass, blazing destruction energy | Calm, serene, peaceful |
+| **Dies Irae** | Hellfire retribution, divine judgment | White-black-crimson flames, infernal climbing fire, heavenly banishment light | Gentle, calm, forgiving |
+| **Nachtmusik** | Golden twinkling, starlit melodies | Golden sparkle, dark purple glow, starlit melody wisps, sweet song particles | Harsh, industrial, cold |
+| **Ode to Joy** | Prismatic radiance, eternal symphony | Monochromatic black/white glass, chromatic prismatic refractions, rose garden motifs | Monochrome only, no prismatic |
 
 ## Musical Integration Concepts
 

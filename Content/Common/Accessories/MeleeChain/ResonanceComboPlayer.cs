@@ -46,9 +46,17 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         public bool hasTriumphantCosmosGauntlet;      // 3-theme fusion
         public bool hasGauntletOfTheEternalSymphony;  // Ultimate: triple hit, +40% damage
 
-        // ===== RESONANCE SYNERGY STATE (from Resonant Burn stacks) =====
-        public bool resonanceSynergyBonusDamageReady;   // T3: Ready for +200% hit
-        public int resonanceSynergySpeedBoostTimer;     // T4: 2-second speed boost timer
+        // ===== LEGACY RESONANCE SYNERGY STATE (kept for T7+ compatibility) =====
+        public bool resonanceSynergyBonusDamageReady;   // T7+: Ready for +200% hit
+        public int resonanceSynergySpeedBoostTimer;     // T7+: 2-second speed boost timer
+
+        // ===== T7-T9 STATE =====
+        public int notturnoTimer;               // T7: Notturno buff timer (crits grant +8% dmg, +5% crit)
+        public int wrathfireHitCooldown;        // T8: Prevents spamming wrathfire application
+        public int meleeKillCounter;            // T9: Tracks kills for Triumphant Crescendo
+        public int triumphantCrescendoTimer;    // T9: Triumphant Crescendo buff timer
+        public int lifestealCooldown;           // T9: Lifesteal HP cap tracking (resets every second)
+        public int lifestealThisSecond;         // T9: HP healed this second via lifesteal
 
         // ===== COOLDOWNS =====
         public int perfectDodgeCooldown;        // Swan's Perfect Measure cooldown
@@ -158,52 +166,44 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             // === CHAIN INHERITANCE ===
             // Higher-tier accessories inherit all lower-tier effects.
             // When a player crafts T2 from T1, T1 is consumed — T2 must include T1's effects.
+
+            // --- Fusion chain inheritance ---
+            if (hasGauntletOfTheEternalSymphony) { hasTriumphantCosmosGauntlet = true; hasEternalResonanceBand = true; }
+            if (hasTriumphantCosmosGauntlet) { hasStarfallJudgmentGauntlet = true; hasJubilantCrescendoBand = true; }
+            if (hasStarfallJudgmentGauntlet) { hasNocturnalSymphonyBand = true; hasInfernalFortissimoBandT8 = true; }
+
+            // --- Post-Fate T7-T10 linear chain inheritance ---
+            if (hasEternalResonanceBand) hasJubilantCrescendoBand = true;
+            if (hasJubilantCrescendoBand) hasInfernalFortissimoBandT8 = true;
+            if (hasInfernalFortissimoBandT8) hasNocturnalSymphonyBand = true;
+
+            // T7 inherits all theme variants + seasonal chain
+            if (hasNocturnalSymphonyBand)
+            {
+                hasFatesCosmicSymphony = true;
+                hasSwansPerfectMeasure = true;
+                hasEnigmasDissonance = true;
+                hasInfernalFortissimo = true;
+                hasHeroicCrescendo = true;
+                hasMoonlitSonataBand = true;
+                hasVivaldisTempoMaster = true;
+            }
+
+            // --- Seasonal T1-T6 chain inheritance ---
             if (hasVivaldisTempoMaster) hasPermafrostCadenceSeal = true;
             if (hasPermafrostCadenceSeal) hasInfernoTempoSignet = true;
             if (hasInfernoTempoSignet) hasResonantCleaversEdge = true;
             if (hasResonantCleaversEdge) hasSpringTempoCharm = true;
             if (hasSpringTempoCharm) hasResonantRhythmBand = true;
 
-            // Apply simple static effects from equipped accessories
+            // T1-T6 stats are now applied directly in UpdateAccessory on each item.
+            // Only T7+ stats are applied here.
 
-            // Resonant Rhythm Band: +5% damage, +3% speed
-            if (hasResonantRhythmBand)
-            {
-                Player.GetDamage(DamageClass.Melee) += 0.05f;
-                Player.GetAttackSpeed(DamageClass.Melee) += 0.03f;
-            }
-
-            // Spring Tempo Charm: +10% speed (healing handled in OnHitNPC)
-            if (hasSpringTempoCharm)
-            {
-                Player.GetAttackSpeed(DamageClass.Melee) += 0.10f;
-            }
-
-            // ===== RESONANCE SYNERGY BONUSES (T3-T4) =====
-
-            // Inferno Tempo Signet: +4% speed per burning enemy + stack bonus
-            if (hasInfernoTempoSignet)
-            {
-                int burningCount = ResonancePrefixHelper.CountBurningEnemies();
-                float speedBonus = Math.Min(burningCount * 0.04f, 0.20f); // Cap at 20% (5 enemies)
-                Player.GetAttackSpeed(DamageClass.Melee) += speedBonus;
-
-                // Additional +2% per burn stack on any enemy
-                int maxStacks = GetHighestBurnStacks();
-                Player.GetAttackSpeed(DamageClass.Melee) += maxStacks * 0.02f;
-            }
-
-            // Resonance Synergy speed boost (from max stacks trigger)
+            // Resonance Synergy speed boost (from max stacks trigger, T7+ only)
             if (resonanceSynergySpeedBoostTimer > 0)
             {
                 resonanceSynergySpeedBoostTimer--;
-                Player.GetAttackSpeed(DamageClass.Melee) += 0.30f; // +30% for 2 seconds
-            }
-
-            // Vivaldi's Tempo Master: +12% damage
-            if (hasVivaldisTempoMaster)
-            {
-                Player.GetDamage(DamageClass.Melee) += 0.12f;
+                Player.GetAttackSpeed(DamageClass.Melee) += 0.30f;
             }
 
             // Heroic Crescendo: +15% damage, +10% crit
@@ -213,22 +213,55 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
                 Player.GetCritChance(DamageClass.Melee) += 10;
             }
 
-            // Nocturnal Symphony Band: +20% damage at night
-            if (hasNocturnalSymphonyBand && !Main.dayTime)
+            // Nocturnal Symphony Band: +20% damage at night, +10% during day
+            if (hasNocturnalSymphonyBand)
             {
-                Player.GetDamage(DamageClass.Melee) += 0.20f;
+                if (!Main.dayTime)
+                    Player.GetDamage(DamageClass.Melee) += 0.20f;
+                else
+                    Player.GetDamage(DamageClass.Melee) += 0.10f;
             }
 
-            // Infernal Fortissimo T8: +25% damage during boss fights
-            if (hasInfernalFortissimoBandT8 && AnyBossAlive())
+            // Nocturnal Symphony Band: Notturno buff (crits grant +8% dmg, +5% crit for 2s)
+            if (hasNocturnalSymphonyBand && notturnoTimer > 0)
             {
-                Player.GetDamage(DamageClass.Melee) += 0.25f;
+                notturnoTimer--;
+                Player.GetDamage(DamageClass.Melee) += 0.08f;
+                Player.GetCritChance(DamageClass.Melee) += 5;
             }
 
-            // Gauntlet of the Eternal Symphony: +30% damage
-            if (hasGauntletOfTheEternalSymphony)
+            // Infernal Fortissimo T8: +25% damage during boss fights, +12% otherwise
+            if (hasInfernalFortissimoBandT8)
             {
-                Player.GetDamage(DamageClass.Melee) += 0.30f;
+                if (AnyBossAlive())
+                    Player.GetDamage(DamageClass.Melee) += 0.25f;
+                else
+                    Player.GetDamage(DamageClass.Melee) += 0.12f;
+            }
+
+            // Jubilant Crescendo Band: +15% melee damage
+            if (hasJubilantCrescendoBand)
+            {
+                Player.GetDamage(DamageClass.Melee) += 0.15f;
+            }
+
+            // Jubilant Crescendo Band: Triumphant Crescendo buff
+            if (hasJubilantCrescendoBand && triumphantCrescendoTimer > 0)
+            {
+                triumphantCrescendoTimer--;
+                Player.GetDamage(DamageClass.Melee) += 0.12f;
+                Player.GetCritChance(DamageClass.Melee) += 8;
+            }
+
+            // Lifesteal cap reset (once per second)
+            if (hasJubilantCrescendoBand || hasTriumphantCosmosGauntlet || hasGauntletOfTheEternalSymphony)
+            {
+                lifestealCooldown++;
+                if (lifestealCooldown >= 60)
+                {
+                    lifestealCooldown = 0;
+                    lifestealThisSecond = 0;
+                }
             }
 
             // Cooldown management
@@ -279,31 +312,29 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void ModifyHitNPCWithItem(Item item, NPC target, ref NPC.HitModifiers modifiers)
         {
-            // ===== RESONANCE SYNERGY: T3 ResonantCleaversEdge =====
-            // +15% damage vs enemies with 3+ burn stacks
-            if (hasResonantCleaversEdge)
+            // T7+ bonus damage logic (resonance synergy)
+            if (resonanceSynergyBonusDamageReady && (hasHeroicCrescendo || hasInfernalFortissimo || hasEnigmasDissonance ||
+                hasSwansPerfectMeasure || hasFatesCosmicSymphony || hasNocturnalSymphonyBand ||
+                hasInfernalFortissimoBandT8 || hasJubilantCrescendoBand || hasEternalResonanceBand ||
+                hasStarfallJudgmentGauntlet || hasTriumphantCosmosGauntlet || hasGauntletOfTheEternalSymphony))
             {
-                int targetStacks = ResonancePrefixHelper.GetBurnStacks(target);
-                if (targetStacks >= 3)
-                {
-                    modifiers.FinalDamage += 0.15f;
-                }
-
-                // +200% damage on charged hit (max stacks triggered)
-                if (resonanceSynergyBonusDamageReady)
-                {
-                    modifiers.FinalDamage *= 2f; // 200% total
-                }
+                modifiers.FinalDamage *= 2f;
             }
 
-            // Lifesteal: convert a percentage of damage to healing
+            // Lifesteal: T7+ accessories (capped at 20 HP/s)
             float lifestealPercent = GetLifestealPercent();
             if (lifestealPercent > 0f)
             {
                 int healAmount = (int)(modifiers.FinalDamage.Multiplicative * lifestealPercent);
-                if (healAmount > 0)
+                int lifestealCap = 20;
+                if (healAmount > 0 && lifestealThisSecond < lifestealCap)
                 {
-                    Player.Heal(healAmount);
+                    healAmount = Math.Min(healAmount, lifestealCap - lifestealThisSecond);
+                    if (healAmount > 0)
+                    {
+                        Player.Heal(healAmount);
+                        lifestealThisSecond += healAmount;
+                    }
                 }
             }
         }
@@ -313,239 +344,32 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
             if (proj.owner != Player.whoAmI || !proj.DamageType.Equals(DamageClass.Melee))
                 return;
 
-            // ===== RESONANCE SYNERGY: T3 ResonantCleaversEdge =====
-            if (hasResonantCleaversEdge)
+            // T7+ bonus damage logic
+            if (resonanceSynergyBonusDamageReady && (hasHeroicCrescendo || hasInfernalFortissimo || hasEnigmasDissonance ||
+                hasSwansPerfectMeasure || hasFatesCosmicSymphony || hasNocturnalSymphonyBand ||
+                hasInfernalFortissimoBandT8 || hasJubilantCrescendoBand || hasEternalResonanceBand ||
+                hasStarfallJudgmentGauntlet || hasTriumphantCosmosGauntlet || hasGauntletOfTheEternalSymphony))
             {
-                int targetStacks = ResonancePrefixHelper.GetBurnStacks(target);
-                if (targetStacks >= 3)
-                {
-                    modifiers.FinalDamage += 0.15f;
-                }
-
-                if (resonanceSynergyBonusDamageReady)
-                {
-                    modifiers.FinalDamage *= 2f;
-                }
+                modifiers.FinalDamage *= 2f;
             }
         }
 
         public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // ===== RESONANCE SYNERGY EFFECTS =====
+            // ===== T1-T6 MELEE CHAIN COMBAT EFFECTS =====
+            ApplyMeleeChainOnHit(target, hit, damageDone);
 
-            // T3 ResonantCleaversEdge: Consume bonus damage charge + heal 2% vs burning
-            if (hasResonantCleaversEdge)
-            {
-                // Consume the charged hit bonus
-                if (resonanceSynergyBonusDamageReady)
-                {
-                    resonanceSynergyBonusDamageReady = false;
-                    ResonancePrefixHelper.ConsumeBurnStacks(target);
-
-                    // Big impact VFX
-                    for (int i = 0; i < 12; i++)
-                    {
-                        float angle = MathHelper.TwoPi * i / 12f;
-                        float hue = (float)i / 12f;
-                        Color rainbowColor = Main.hslToRgb(hue, 0.9f, 0.75f);
-                        Vector2 velocity = angle.ToRotationVector2() * 6f;
-                        CustomParticles.GenericFlare(target.Center, rainbowColor, 0.6f, 25);
-                    }
-
-                    Terraria.Audio.SoundEngine.PlaySound(SoundID.Item14, target.Center);
-                }
-
-                // 2% lifesteal vs burning enemies
-                if (ResonancePrefixHelper.IsEnemyBurning(target))
-                {
-                    int healAmount = Math.Max(1, (int)(damageDone * 0.02f));
-                    Player.Heal(healAmount);
-                }
-            }
-
-            // T4 InfernoTempoSignet: Extend burn duration by 2 seconds
-            if (hasInfernoTempoSignet && ResonancePrefixHelper.IsEnemyBurning(target))
-            {
-                ResonancePrefixHelper.ExtendBurnDuration(target, 120); // 2 seconds
-            }
-
-            // Spring Tempo Charm: 5% chance to heal 1 HP on melee hit
-            if (hasSpringTempoCharm && Main.rand.NextFloat() < 0.05f)
-            {
-                Player.Heal(1);
-                // Small flower petal particle
-                int dustType = DustID.Grass;
-                Dust dust = Dust.NewDustDirect(target.Center, target.width, target.height, dustType);
-                dust.velocity = Vector2.One.RotatedByRandom(MathHelper.TwoPi) * 2f;
-            }
+            // ===== T7+ EFFECTS =====
 
             // Solar Crescendo Ring: Inflict On Fire! for 5 seconds
             if (hasSolarCrescendoRing)
-            {
                 target.AddBuff(BuffID.OnFire, 300);
-            }
 
-            // Harvest Rhythm Signet: Lifesteal is handled in ModifyHitNPCWithItem
-            // (already implemented above via GetLifestealPercent)
-
-            // Permafrost Cadence Seal: 10% chance to freeze for 1 second
-            if (hasPermafrostCadenceSeal && Main.rand.NextFloat() < 0.10f)
-            {
-                target.AddBuff(BuffID.Frostburn, 60);
-            }
-
-            // Vivaldi's Tempo Master: Biome-based debuffs
-            if (hasVivaldisTempoMaster)
-            {
-                if (Player.ZoneSnow)
-                {
-                    target.AddBuff(BuffID.Frostburn, 300);
-                }
-                else if (Player.ZoneDesert)
-                {
-                    target.AddBuff(BuffID.OnFire, 300);
-                }
-                else if (Player.ZoneJungle)
-                {
-                    target.AddBuff(BuffID.Poisoned, 300);
-                }
-                else
-                {
-                    target.AddBuff(BuffID.Confused, 240);
-                }
-            }
-
-            // Moonlit Sonata Band: Crits spawn moonbeams (special effect - minimal implementation)
+            // Moonlit Sonata Band: Crits spawn moonbeams
             if (hasMoonlitSonataBand && hit.Crit)
             {
                 for (int i = 0; i < 3; i++)
-                {
-                    Vector2 velocity = Vector2.One.RotatedByRandom(MathHelper.TwoPi) * Main.rand.NextFloat(2f, 4f);
                     CustomParticles.GenericFlare(target.Center, MoonlightPurple, 0.6f, 20);
-                }
-            }
-
-            // Heroic Crescendo: Extra bonuses on hit (damage already applied)
-            // No special on-hit effect needed
-
-            // Infernal Fortissimo: Kills cause explosions
-            if (hasInfernalFortissimo && target.life <= 0)
-            {
-                // Small explosion effect
-                for (int i = 0; i < 8; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 8f;
-                    Vector2 velocity = angle.ToRotationVector2() * 4f;
-                    int dustType = DustID.Torch;
-                    Dust dust = Dust.NewDustDirect(target.Center, 1, 1, dustType);
-                    dust.velocity = velocity;
-                }
-            }
-
-            // Enigma's Dissonance: Delayed burst damage (more complex, simplified here)
-            if (hasEnigmasDissonance)
-            {
-                // Would require projectile spawning - mark for later implementation
-            }
-
-            // Swan's Perfect Measure: Damage reduction on hit (no on-hit effect)
-            // Handled via dodge chance in OnHurt
-
-            // Fate's Cosmic Symphony: Day/night scaling damage (already applied in stats)
-            // No additional on-hit effect needed
-        }
-
-        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            // Apply same effects for projectile hits where applicable
-            if (proj.owner != Player.whoAmI)
-                return;
-
-            if (!proj.DamageType.Equals(DamageClass.Melee))
-                return;
-
-            // Lifesteal for melee projectiles
-            float lifestealPercent = GetLifestealPercent();
-            if (lifestealPercent > 0f)
-            {
-                int healAmount = (int)(hit.Damage * lifestealPercent);
-                if (healAmount > 0)
-                {
-                    Player.Heal(healAmount);
-                }
-            }
-
-            // Resonance Synergy: Consume bonus damage
-            if (resonanceSynergyBonusDamageReady)
-            {
-                resonanceSynergyBonusDamageReady = false;
-                ResonancePrefixHelper.ConsumeBurnStacks(target);
-
-                for (int i = 0; i < 12; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 12f;
-                    float hue = (float)i / 12f;
-                    Color rainbowColor = Main.hslToRgb(hue, 0.9f, 0.75f);
-                    CustomParticles.GenericFlare(target.Center, rainbowColor, 0.6f, 25);
-                }
-
-                Terraria.Audio.SoundEngine.PlaySound(SoundID.Item14, target.Center);
-            }
-
-            // Resonance Synergy: 2% lifesteal vs burning
-            if (hasResonantCleaversEdge && ResonancePrefixHelper.IsEnemyBurning(target))
-            {
-                int healAmount = Math.Max(1, (int)(damageDone * 0.02f));
-                Player.Heal(healAmount);
-            }
-
-            // InfernoTempo: Extend burn duration by 2 seconds
-            if (hasInfernoTempoSignet && ResonancePrefixHelper.IsEnemyBurning(target))
-            {
-                ResonancePrefixHelper.ExtendBurnDuration(target, 120);
-            }
-
-            // Spring Tempo Charm: 5% chance to heal 1 HP
-            if (hasSpringTempoCharm && Main.rand.NextFloat() < 0.05f)
-            {
-                Player.Heal(1);
-                int dustType = DustID.Grass;
-                Dust dust = Dust.NewDustDirect(target.Center, target.width, target.height, dustType);
-                dust.velocity = Vector2.One.RotatedByRandom(MathHelper.TwoPi) * 2f;
-            }
-
-            // Solar Crescendo Ring: Inflict On Fire!
-            if (hasSolarCrescendoRing)
-            {
-                target.AddBuff(BuffID.OnFire, 300);
-            }
-
-            // Permafrost Cadence Seal: 10% freeze
-            if (hasPermafrostCadenceSeal && Main.rand.NextFloat() < 0.10f)
-            {
-                target.AddBuff(BuffID.Frostburn, 60);
-            }
-
-            // Vivaldi's Tempo Master: Biome-based debuffs
-            if (hasVivaldisTempoMaster)
-            {
-                if (Player.ZoneSnow)
-                    target.AddBuff(BuffID.Frostburn, 300);
-                else if (Player.ZoneDesert)
-                    target.AddBuff(BuffID.OnFire, 300);
-                else if (Player.ZoneJungle)
-                    target.AddBuff(BuffID.Poisoned, 300);
-                else
-                    target.AddBuff(BuffID.Confused, 240);
-            }
-
-            // Moonlit Sonata Band: Crit sparkles
-            if (hasMoonlitSonataBand && hit.Crit)
-            {
-                for (int i = 0; i < 3; i++)
-                {
-                    CustomParticles.GenericFlare(target.Center, MoonlightPurple, 0.6f, 20);
-                }
             }
 
             // Infernal Fortissimo: Kills cause explosions
@@ -558,6 +382,163 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
                     Dust dust = Dust.NewDustDirect(target.Center, 1, 1, DustID.Torch);
                     dust.velocity = velocity;
                 }
+            }
+
+            // T7: Nocturnal Symphony Band - crits grant Notturno
+            if (hasNocturnalSymphonyBand && hit.Crit)
+            {
+                notturnoTimer = 120; // 2 seconds
+            }
+
+            // T8: Infernal Fortissimo Band - crits inflict Wrathfire (On Fire! + defense debuff via Ichor)
+            if (hasInfernalFortissimoBandT8 && hit.Crit)
+            {
+                target.AddBuff(BuffID.OnFire3, 180); // Hellfire 3s (4 DPS equivalent)
+                target.AddBuff(BuffID.Ichor, 180);    // -15 defense (closest vanilla equivalent to -5 def)
+            }
+
+            // T9: Jubilant Crescendo Band - kills toward Triumphant Crescendo
+            if (hasJubilantCrescendoBand && target.life <= 0)
+            {
+                meleeKillCounter++;
+                if (meleeKillCounter >= 10)
+                {
+                    meleeKillCounter = 0;
+                    triumphantCrescendoTimer = 300; // 5 seconds
+                    // Heal 8% max HP on trigger
+                    int healAmount = (int)(Player.statLifeMax2 * 0.08f);
+                    if (healAmount > 0) Player.Heal(healAmount);
+                }
+            }
+        }
+
+        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (proj.owner != Player.whoAmI)
+                return;
+
+            if (!proj.DamageType.Equals(DamageClass.Melee))
+                return;
+
+            // ===== T1-T6 MELEE CHAIN COMBAT EFFECTS =====
+            ApplyMeleeChainOnHit(target, hit, damageDone);
+
+            // ===== T7+ EFFECTS =====
+
+            // Lifesteal for melee projectiles (T7+)
+            float lifestealPercent = GetLifestealPercent();
+            if (lifestealPercent > 0f)
+            {
+                int healAmount = (int)(hit.Damage * lifestealPercent);
+                int lifestealCap = 20; // T9 spec: cap 20 HP
+                if (healAmount > 0 && lifestealThisSecond < lifestealCap)
+                {
+                    healAmount = Math.Min(healAmount, lifestealCap - lifestealThisSecond);
+                    if (healAmount > 0)
+                    {
+                        Player.Heal(healAmount);
+                        lifestealThisSecond += healAmount;
+                    }
+                }
+            }
+
+            // Solar Crescendo Ring: Inflict On Fire!
+            if (hasSolarCrescendoRing)
+                target.AddBuff(BuffID.OnFire, 300);
+
+            // Moonlit Sonata Band: Crit sparkles
+            if (hasMoonlitSonataBand && hit.Crit)
+            {
+                for (int i = 0; i < 3; i++)
+                    CustomParticles.GenericFlare(target.Center, MoonlightPurple, 0.6f, 20);
+            }
+
+            // Infernal Fortissimo: Kills cause explosions
+            if (hasInfernalFortissimo && target.life <= 0)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / 8f;
+                    Vector2 velocity = angle.ToRotationVector2() * 4f;
+                    Dust dust = Dust.NewDustDirect(target.Center, 1, 1, DustID.Torch);
+                    dust.velocity = velocity;
+                }
+            }
+
+            // T7: Nocturnal Symphony Band - crits grant Notturno
+            if (hasNocturnalSymphonyBand && hit.Crit)
+            {
+                notturnoTimer = 120; // 2 seconds
+            }
+
+            // T8: Infernal Fortissimo Band - crits inflict Wrathfire
+            if (hasInfernalFortissimoBandT8 && hit.Crit)
+            {
+                target.AddBuff(BuffID.OnFire3, 180);
+                target.AddBuff(BuffID.Ichor, 180);
+            }
+
+            // T9: Jubilant Crescendo Band - kills toward Triumphant Crescendo
+            if (hasJubilantCrescendoBand && target.life <= 0)
+            {
+                meleeKillCounter++;
+                if (meleeKillCounter >= 10)
+                {
+                    meleeKillCounter = 0;
+                    triumphantCrescendoTimer = 300;
+                    int healAmount = (int)(Player.statLifeMax2 * 0.08f);
+                    if (healAmount > 0) Player.Heal(healAmount);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Shared T1-T6 melee chain on-hit effects: burn, heal-vs-burning, extend burn, freeze, multi-debuff.
+        /// </summary>
+        private void ApplyMeleeChainOnHit(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            // T6: Multi-debuff (OnFire, Frostburn, Poisoned, Bleeding)
+            if (hasVivaldisTempoMaster)
+            {
+                target.AddBuff(BuffID.OnFire, 180);
+                target.AddBuff(BuffID.Frostburn, 180);
+                target.AddBuff(BuffID.Poisoned, 180);
+                target.AddBuff(BuffID.Bleeding, 180);
+            }
+            // T3-T5: Burn on hit
+            else if (hasResonantCleaversEdge)
+            {
+                target.AddBuff(BuffID.OnFire, 180); // 3 seconds
+            }
+
+            // T4+: Extend existing burn by 2 seconds
+            if (hasInfernoTempoSignet && target.HasBuff(BuffID.OnFire))
+            {
+                target.AddBuff(BuffID.OnFire, 120); // extend
+            }
+
+            // Heal vs burning enemies (tier-dependent percentage)
+            if (hasResonantCleaversEdge && target.HasBuff(BuffID.OnFire))
+            {
+                float healPercent;
+                if (hasVivaldisTempoMaster) healPercent = 0.07f;
+                else if (hasPermafrostCadenceSeal) healPercent = 0.05f;
+                else if (hasInfernoTempoSignet) healPercent = 0.03f;
+                else healPercent = 0.02f;
+
+                int healAmount = Math.Max(1, (int)(damageDone * healPercent));
+                Player.Heal(healAmount);
+            }
+
+            // T6: 3% freeze chance
+            if (hasVivaldisTempoMaster && Main.rand.NextFloat() < 0.03f)
+            {
+                target.AddBuff(BuffID.Frozen, 60); // 1 second freeze
+            }
+            // T5: 2% freeze chance
+            else if (hasPermafrostCadenceSeal && Main.rand.NextFloat() < 0.02f)
+            {
+                target.AddBuff(BuffID.Frozen, 60);
             }
         }
 

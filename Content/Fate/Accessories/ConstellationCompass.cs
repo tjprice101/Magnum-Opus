@@ -59,14 +59,9 @@ namespace MagnumOpus.Content.Fate.Accessories
                 OverrideColor = new Color(255, 220, 140)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "HomingEffect", "Ranged projectiles gain slight homing toward nearby enemies")
+            tooltips.Add(new TooltipLine(Mod, "ConstellationMark", "Ranged crits apply 'Constellation Mark' on enemy for 3s (+10% ranged damage taken)")
             {
                 OverrideColor = FatePalette.DarkPink
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "StarburstEffect", "Critical hits create constellation starbursts")
-            {
-                OverrideColor = FatePalette.BrightCrimson
             });
 
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'Every shot follows the path written in the stars'")
@@ -105,78 +100,32 @@ namespace MagnumOpus.Content.Fate.Accessories
             if (!proj.CountsAsClass(DamageClass.Ranged)) return;
             if (!hit.Crit) return;
             
-            TriggerConstellationStarburst(target.Center, damageDone);
-        }
-
-        private void TriggerConstellationStarburst(Vector2 position, int damage)
-        {
-            // Constellation starburst VFX
-            FateAccessoryVFX.ConstellationCompassStarburstVFX(position);
-
-            // Bonus damage to nearby enemies from starburst
-            if (Main.myPlayer == Player.whoAmI)
-            {
-                int burstDamage = damage / 4;
-                float burstRange = 120f;
-
-                foreach (NPC npc in Main.npc)
-                {
-                    if (!npc.active || npc.friendly || !npc.CanBeChasedBy()) continue;
-
-                    float dist = Vector2.Distance(position, npc.Center);
-                    if (dist < burstRange)
-                    {
-                        Player.ApplyDamageToNPC(npc, burstDamage, 0f, 0, false);
-                        FateAccessoryVFX.ConstellationCompassBonusDamageVFX(npc.Center);
-                    }
-                }
-            }
+            // Apply Constellation Mark
+            var npcData = target.GetGlobalNPC<ConstellationMarkNPC>();
+            npcData.constellationMarkTimer = 180; // 3 seconds
+            npcData.markOwner = Player.whoAmI;
         }
     }
 
-    public class ConstellationCompassGlobalProjectile : GlobalProjectile
+    public class ConstellationMarkNPC : GlobalNPC
     {
         public override bool InstancePerEntity => true;
         
-        public override void AI(Projectile projectile)
+        public int constellationMarkTimer = 0;
+        public int markOwner = -1;
+        
+        public override void ResetEffects(NPC npc)
         {
-            if (projectile.owner < 0 || projectile.owner >= Main.maxPlayers) return;
-            
-            Player player = Main.player[projectile.owner];
-            if (!player.active) return;
-            
-            var modPlayer = player.GetModPlayer<ConstellationCompassPlayer>();
-            if (!modPlayer.hasConstellationCompass) return;
-            
+            if (constellationMarkTimer > 0)
+                constellationMarkTimer--;
+        }
+
+        public override void ModifyHitByProjectile(NPC npc, Projectile projectile, ref NPC.HitModifiers modifiers)
+        {
+            if (constellationMarkTimer <= 0) return;
             if (!projectile.CountsAsClass(DamageClass.Ranged)) return;
-            if (!projectile.friendly || projectile.hostile) return;
-            if (projectile.minion || projectile.sentry) return;
             
-            // Slight homing effect
-            float homingRange = 200f;
-            float homingStrength = 0.02f;
-            
-            NPC closestNPC = null;
-            float closestDist = homingRange;
-            
-            foreach (NPC npc in Main.npc)
-            {
-                if (!npc.active || npc.friendly || !npc.CanBeChasedBy()) continue;
-                
-                float dist = Vector2.Distance(projectile.Center, npc.Center);
-                if (dist < closestDist)
-                {
-                    closestDist = dist;
-                    closestNPC = npc;
-                }
-            }
-            
-            if (closestNPC != null)
-            {
-                Vector2 direction = (closestNPC.Center - projectile.Center).SafeNormalize(Vector2.Zero);
-                projectile.velocity = Vector2.Lerp(projectile.velocity, 
-                    direction * projectile.velocity.Length(), homingStrength);
-            }
+            modifiers.FinalDamage *= 1.10f; // +10% ranged damage taken
         }
     }
 }

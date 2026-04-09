@@ -4,8 +4,10 @@ using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Graphics;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
 using ReLogic.Content;
 
@@ -20,6 +22,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     {
         public override string Texture => "MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse";
         
+        private VertexStrip _strip;
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
         private static readonly Color SummerGold = new Color(255, 215, 0);
@@ -75,7 +78,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 20;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -294,135 +297,14 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            try
+            var config = SeasonIndex switch
             {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D arcTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/ImpactEffects/ImpactEllipse", AssetRequestMode.ImmediateLoad).Value;
-            Texture2D flareTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare", AssetRequestMode.ImmediateLoad).Value;
-            Texture2D flareTexture2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare", AssetRequestMode.ImmediateLoad).Value;
-            Texture2D softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
-            Vector2 arcOrigin = arcTexture.Size() / 2f;
-            Vector2 flareOrigin = flareTexture.Size() / 2f;
-            Vector2 flareOrigin2 = flareTexture2.Size() / 2f;
-            Vector2 glowOrigin = softGlow.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            
-            float time = Main.GameUpdateCount * 0.055f;
-            float pulse = 1f + (float)Math.Sin(time * 2.5f) * 0.18f;
-            float shimmer = 1f + (float)Math.Sin(time * 3f + Projectile.whoAmI) * 0.12f;
-            
-            // Color with alpha removed for proper additive blending (Fargos pattern)
-            Color primaryBloom = PrimaryColor with { A = 0 };
-            Color secondaryBloom = SecondaryColor with { A = 0 };
-            Color whiteBloom = Color.White with { A = 0 };
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // === BRILLIANT TRAIL WITH GRADIENT (TRUE_VFX_STANDARDS) ===
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                
-                float progress = (float)i / Projectile.oldPos.Length;
-                float fadeOut = 1f - progress;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                
-                // Gradient color through trail using hslToRgb
-                float trailHue = HueMin + progress * (HueMax - HueMin);
-                Color trailGradient = Main.hslToRgb(trailHue, 0.85f, 0.7f) with { A = 0 };
-                
-                // 3-layer trail
-                float outerScale = 1.4f * fadeOut * pulse;
-                spriteBatch.Draw(arcTexture, trailPos, null, trailGradient * 0.35f * fadeOut, Projectile.oldRot[i], arcOrigin, outerScale, SpriteEffects.None, 0f);
-                
-                float midScale = 0.9f * fadeOut;
-                spriteBatch.Draw(arcTexture, trailPos, null, primaryBloom * 0.5f * fadeOut, Projectile.oldRot[i], arcOrigin, midScale, SpriteEffects.None, 0f);
-                
-                float innerScale = 0.55f * fadeOut;
-                spriteBatch.Draw(arcTexture, trailPos, null, whiteBloom * 0.6f * fadeOut, Projectile.oldRot[i], arcOrigin, innerScale, SpriteEffects.None, 0f);
-            }
-
-            // === 6-LAYER SPINNING FLARES (TRUE_VFX_STANDARDS) ===
-            // Layer 1: Soft glow base (large, dim) (capped 300px max)
-            spriteBatch.Draw(softGlow, drawPos, null, secondaryBloom * 0.3f, 0f, glowOrigin, 0.24f * pulse, SpriteEffects.None, 0f);
-
-            // Layer 2: First flare spinning clockwise
-            float hue2 = HueMin + 0.2f * (HueMax - HueMin);
-            Color layer2Color = Main.hslToRgb(hue2, 0.88f, 0.72f) with { A = 0 };
-            spriteBatch.Draw(flareTexture, drawPos, null, layer2Color * 0.55f, time, flareOrigin, 0.4f * pulse, SpriteEffects.None, 0f);
-
-            // Layer 3: Second flare spinning counter-clockwise
-            float hue3 = HueMin + 0.5f * (HueMax - HueMin);
-            Color layer3Color = Main.hslToRgb(hue3, 0.85f, 0.68f) with { A = 0 };
-            spriteBatch.Draw(flareTexture2, drawPos, null, layer3Color * 0.5f, -time * 0.75f, flareOrigin2, 0.35f * pulse, SpriteEffects.None, 0f);
-
-            // Layer 4: Third flare different speed
-            float hue4 = HueMin + 0.8f * (HueMax - HueMin);
-            Color layer4Color = Main.hslToRgb(hue4, 0.9f, 0.75f) with { A = 0 };
-            spriteBatch.Draw(flareTexture, drawPos, null, layer4Color * 0.58f, time * 1.35f, flareOrigin, 0.3f * pulse, SpriteEffects.None, 0f);
-
-            // Layer 5: Main glow layer
-            spriteBatch.Draw(flareTexture2, drawPos, null, primaryBloom * 0.6f, -time * 0.5f, flareOrigin2, 0.25f * shimmer, SpriteEffects.None, 0f);
-
-            // Layer 6: Bright white-hot core
-            spriteBatch.Draw(flareTexture, drawPos, null, whiteBloom * 0.72f, 0f, flareOrigin, 0.15f, SpriteEffects.None, 0f);
-
-            // === BLOOM LAYERS (PROPERLY SIZED, REPLACED OVERSIZED ARC) ===
-            // Calculate baseScale with proper capping (0.18f-0.26f range)
-            float baseScale = 0.18f + MathF.Sin(Main.GlobalTimeWrappedHourly * 2.5f) * 0.08f;
-
-            // Layer 1: Diffuse outer glow (1.8x multiplier max = ~47px total)
-            spriteBatch.Draw(softGlow, drawPos, null, secondaryBloom * 0.3f, 0f, glowOrigin, baseScale * 1.8f, SpriteEffects.None, 0f);
-
-            // Layer 2: Primary bloom (1.4x multiplier = ~37px total)
-            spriteBatch.Draw(softGlow, drawPos, null, primaryBloom * 0.5f, 0f, glowOrigin, baseScale * 1.4f, SpriteEffects.None, 0f);
-
-            // Layer 3: Inner bright (0.8x multiplier = ~21px total)
-            spriteBatch.Draw(softGlow, drawPos, null, primaryBloom * 0.7f, 0f, glowOrigin, baseScale * 0.8f, SpriteEffects.None, 0f);
-
-            // Layer 4: Hot core (0.35x multiplier = ~9px total)
-            spriteBatch.Draw(softGlow, drawPos, null, Color.White * 0.8f, 0f, glowOrigin, baseScale * 0.35f, SpriteEffects.None, 0f);
-
-            // === 4 ORBITING SPARK POINTS ===
-            float sparkOrbitAngle = time * 1.4f;
-            for (int i = 0; i < 4; i++)
-            {
-                float sparkAngle = sparkOrbitAngle + MathHelper.TwoPi * i / 4f;
-                Vector2 sparkPos = drawPos + sparkAngle.ToRotationVector2() * 30f;
-                float sparkHue = HueMin + (i / 4f) * (HueMax - HueMin);
-                Color sparkColor = Main.hslToRgb(sparkHue, 0.88f, 0.78f) with { A = 0 };
-                spriteBatch.Draw(flareTexture, sparkPos, null, sparkColor * 0.5f, 0f, flareOrigin, 0.1f * pulse, SpriteEffects.None, 0f);
-            }
-            
-            // === SPARKLE ACCENTS along the arc ===
-            float sparklePhase = time * 2.8f;
-            for (int i = 0; i < 3; i++)
-            {
-                float sparkleAngle = Projectile.rotation + MathHelper.ToRadians(-30 + i * 30);
-                float sparkleOffset = 25f + i * 15f;
-                Vector2 sparklePos = drawPos + sparkleAngle.ToRotationVector2() * sparkleOffset;
-                float sparkleIntensity = 0.4f + (float)Math.Sin(sparklePhase + i * 1.2f) * 0.2f;
-                spriteBatch.Draw(softGlow, sparklePos, null, whiteBloom * sparkleIntensity, 0f, glowOrigin, 0.22f * pulse, SpriteEffects.None, 0f);
-            }
-            
-            // === CENTER GLOW for ambient bloom === (capped 300px max)
-            spriteBatch.Draw(softGlow, drawPos, null, primaryBloom * 0.45f, 0f, glowOrigin, 0.18f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(softGlow, drawPos, null, whiteBloom * 0.3f, 0f, glowOrigin, 0.10f, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            }
-            catch { }
-            finally
-            {
-                try { sb.End(); } catch { }
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-            }
-
+                0 => IncisorOrbRenderer.Spring,
+                1 => IncisorOrbRenderer.Summer,
+                2 => IncisorOrbRenderer.Autumn,
+                _ => IncisorOrbRenderer.Winter,
+            };
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, config, ref _strip);
             return false;
         }
 

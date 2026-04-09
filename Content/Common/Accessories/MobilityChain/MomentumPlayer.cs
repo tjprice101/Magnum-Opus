@@ -42,6 +42,11 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
         private int dashCooldown;
         private int teleportCooldown;
 
+        // Key press capture flags — set in ProcessTriggers, consumed in PostUpdate
+        // (ProcessTriggers runs BEFORE UpdateAccessory, so accessory flags aren't set yet)
+        private bool dashKeyPressed;
+        private bool teleportKeyPressed;
+
         // Momentum building: builds from movement velocity, decays when idle
         private const float MomentumBuildRate = 1.2f; // Per unit of velocity
         private const float MomentumDecayRate = 0.95f; // Multiplier per frame when idle
@@ -90,6 +95,33 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
 
         public override void PostUpdate()
         {
+            // === CHAIN INHERITANCE ===
+            // Higher-tier accessories inherit all lower-tier effects.
+
+            // --- Post-Fate T7-T10 linear chain inheritance ---
+            if (HasEternalVelocityTreads) HasJubilantZephyrTreads = true;
+            if (HasJubilantZephyrTreads) HasInfernalMeteorTreads = true;
+            if (HasInfernalMeteorTreads) HasNocturnalPhantomTreads = true;
+
+            // T7 inherits all theme variants + seasonal chain
+            if (HasNocturnalPhantomTreads)
+            {
+                HasFatesCosmicVelocity = true;
+                HasSwansEternalGlide = true;
+                HasEnigmasPhaseShift = true;
+                HasInfernalMeteorStride = true;
+                HasHeroicChargeBoots = true;
+                HasMoonlitPhantomsRush = true;
+                HasVivaldisSeasonalSprint = true;
+            }
+
+            // --- Seasonal T1-T6 chain inheritance ---
+            if (HasVivaldisSeasonalSprint) HasPermafrostAvalancheStep = true;
+            if (HasPermafrostAvalancheStep) HasHarvestPhantomStride = true;
+            if (HasHarvestPhantomStride) HasSolarBlitzTreads = true;
+            if (HasSolarBlitzTreads) HasSpringZephyrBoots = true;
+            if (HasSpringZephyrBoots) HasVelocityBand = true;
+
             if (!HasAnyMobilityAccessory)
             {
                 CurrentMomentum = 0f;
@@ -121,7 +153,73 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             if (dashCooldown > 0) dashCooldown--;
             if (teleportCooldown > 0) teleportCooldown--;
 
+            // Process deferred keybind actions now that accessory flags are available
+            if (dashKeyPressed)
+            {
+                dashKeyPressed = false;
+                TryHeroicDash();
+            }
+            if (teleportKeyPressed)
+            {
+                teleportKeyPressed = false;
+                TryPhaseShift();
+            }
+
             ApplyPassiveMobilityEffects();
+            ApplyBlazingTrail();
+        }
+
+        /// <summary>
+        /// T3+ blazing trail: while moving, leave fire behind and damage nearby enemies.
+        /// T6 also adds Frostburn to the trail.
+        /// </summary>
+        private void ApplyBlazingTrail()
+        {
+            bool hasTrail = HasSolarBlitzTreads || HasHarvestPhantomStride || HasPermafrostAvalancheStep || HasVivaldisSeasonalSprint;
+            if (!hasTrail)
+                return;
+
+            float playerSpeed = Player.velocity.Length();
+            if (playerSpeed < MinimumVelocityForBuilding)
+                return;
+
+            // Fire dust trail
+            if (Main.rand.NextBool(3))
+            {
+                int dustType = DustID.Torch;
+                Dust dust = Dust.NewDustDirect(Player.position, Player.width, Player.height, dustType);
+                dust.velocity = -Player.velocity * 0.2f;
+                dust.noGravity = true;
+                dust.scale = 1.2f;
+            }
+
+            // T6: also spawn Frostburn dust
+            if (HasVivaldisSeasonalSprint && Main.rand.NextBool(3))
+            {
+                Dust frost = Dust.NewDustDirect(Player.position, Player.width, Player.height, DustID.IceTorch);
+                frost.velocity = -Player.velocity * 0.2f;
+                frost.noGravity = true;
+                frost.scale = 1.0f;
+            }
+
+            // Damage nearby enemies with the trail (every 15 frames)
+            if (Player.miscCounter % 15 == 0)
+            {
+                float trailRadius = 80f;
+                for (int i = 0; i < Main.maxNPCs; i++)
+                {
+                    NPC npc = Main.npc[i];
+                    if (!npc.active || npc.friendly || npc.dontTakeDamage)
+                        continue;
+
+                    if (Vector2.Distance(Player.Center, npc.Center) <= trailRadius)
+                    {
+                        npc.AddBuff(BuffID.OnFire, 180);
+                        if (HasVivaldisSeasonalSprint)
+                            npc.AddBuff(BuffID.Frostburn, 180);
+                    }
+                }
+            }
         }
 
         private void ApplyPassiveMobilityEffects()
@@ -161,18 +259,37 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             {
                 ApplyTimeSlowToNearbyEnemies();
             }
+
+            // T8: Scorched Earth at max momentum (200) — nearby enemies get On Fire! + Slow
+            if (HasInfernalMeteorTreads && CurrentMomentum >= 200f)
+            {
+                ApplyScorchedEarth();
+            }
+
+            // T9: No fall damage at 200+ momentum
+            if (HasJubilantZephyrTreads && CurrentMomentum >= 200f)
+            {
+                Player.noFallDmg = true;
+            }
+
+            // T9: Jubilant Stride at max momentum (225) — +5% damage, +3% dodge
+            if (HasJubilantZephyrTreads && CurrentMomentum >= 225f)
+            {
+                Player.GetDamage(DamageClass.Generic) += 0.05f;
+                Player.endurance += 0.03f; // +3% DR as dodge proxy
+            }
         }
 
         public override void ProcessTriggers(TriggersSet triggersSet)
         {
-            if (!HasAnyMobilityAccessory)
-                return;
-
+            // Only capture key presses here — accessory flags aren't set yet
+            // (ProcessTriggers runs BEFORE UpdateAccessory in tModLoader's hook order)
+            // Actual dash/teleport logic is deferred to PostUpdate where flags are available.
             if (MagnumOpus.DashKeybind?.JustPressed == true)
-                TryHeroicDash();
+                dashKeyPressed = true;
 
             if (MagnumOpus.TeleportKeybind?.JustPressed == true)
-                TryPhaseShift();
+                teleportKeyPressed = true;
         }
 
         public void TryHeroicDash()
@@ -278,6 +395,28 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
                 HasEternalVelocityTreads)
             {
                 modifiers.FinalDamage *= 0.75f;
+            }
+        }
+
+        /// <summary>
+        /// T8: Scorched Earth — nearby enemies gain On Fire! + Slow when at max momentum.
+        /// </summary>
+        private void ApplyScorchedEarth()
+        {
+            if (Player.miscCounter % 10 != 0) return; // Every 10 frames
+
+            float radius = 120f;
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (!npc.active || npc.friendly || npc.dontTakeDamage)
+                    continue;
+
+                if (Vector2.Distance(Player.Center, npc.Center) <= radius)
+                {
+                    npc.AddBuff(BuffID.OnFire3, 120); // 2 seconds
+                    npc.AddBuff(BuffID.Slow, 120);    // -10% speed proxy, 2 seconds
+                }
             }
         }
 

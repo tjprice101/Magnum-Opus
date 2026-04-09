@@ -6,17 +6,15 @@ using MagnumOpus.Common;
 using MagnumOpus.Content.MoonlightSonata.ResonanceEnergies;
 using MagnumOpus.Content.MoonlightSonata.Enemies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
-using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.Particles;
-using MagnumOpus.Common.Systems.VFX;
-using MagnumOpus.Content.MoonlightSonata.VFX.Accessories;
+using MagnumOpus.Content.Common.Accessories;
 
 namespace MagnumOpus.Content.MoonlightSonata.Accessories
 {
     /// <summary>
     /// Fractal of Moonlight - Summoner accessory.
-    /// General buffs: +2 minion slots, +15% minion damage.
-    /// Moonlight-specific: +50% damage, +25% attack speed for Moonlight minions.
+    /// 'Resonance Born' Melodic Attunement.
+    /// +10% increased Resonant Burn damage.
+    /// Hitting an enemy 30 times with summon or whip damage who's already inflicted with Resonant Burn heals 10% HP.
     /// </summary>
     public class FractalOfMoonlight : ModItem
     {
@@ -31,53 +29,25 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<MoonlightAccessoryPlayer>();
-            modPlayer.hasFractalOfMoonlight = true;
-            
-            // GENERAL SUMMONER BUFFS (applies to ALL minions)
-            player.maxMinions += 2; // +2 minion slots
-            player.GetDamage(DamageClass.Summon) += 0.15f; // +15% minion damage
-            
-            // Note: Additional Moonlight-specific minion buffs (+50% damage, +25% attack speed)
-            // are handled in the Goliath and Razer minion projectiles themselves
-            
-
+            var attunement = player.GetModPlayer<MelodicAttunementPlayer>();
+            attunement.summonAttunement = true;
+            attunement.resonantBurnDmgBonus += 0.10f;
         }
-        
+
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
-            // General summoner buffs
-            tooltips.Add(new TooltipLine(Mod, "GeneralHeader", "All Summons:")
-            {
-                OverrideColor = new Color(100, 200, 100)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "MinionSlots", "+2 minion slots")
-            {
-                OverrideColor = new Color(255, 200, 100)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "MinionDamage", "+15% summon damage")
-            {
-                OverrideColor = new Color(255, 200, 100)
-            });
-            
-            // Moonlight-specific buffs
-            tooltips.Add(new TooltipLine(Mod, "MoonlightHeader", "Moonlight Minions:")
+            tooltips.Add(new TooltipLine(Mod, "Attunement", "'Resonance Born' Melodic Attunement")
             {
                 OverrideColor = new Color(180, 120, 255)
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "MoonlightDamage", "+50% additional damage for Moonlight minions")
+            tooltips.Add(new TooltipLine(Mod, "BurnDmg", "+10% increased Resonant Burn damage")
             {
-                OverrideColor = new Color(200, 150, 255)
+                OverrideColor = new Color(255, 200, 100)
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "MoonlightSpeed", "+25% attack speed for Moonlight minions")
+            tooltips.Add(new TooltipLine(Mod, "Heal", "Hitting a burning enemy 30 times with summon/whip heals 10% max HP")
             {
-                OverrideColor = new Color(200, 150, 255)
+                OverrideColor = new Color(150, 100, 200)
             });
-            
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'Infinite reflections of lunar power'")
             {
                 OverrideColor = new Color(140, 100, 200)

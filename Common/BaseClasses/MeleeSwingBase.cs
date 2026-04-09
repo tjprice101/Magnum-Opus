@@ -841,6 +841,9 @@ namespace MagnumOpus.Common.BaseClasses
 
             if (shader != null)
             {
+                shader.UseImage1(
+                    ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/VoronoiNoise"));
+                shader.Shader.Parameters["flipped"]?.SetValue(Direction == 1);
                 ConfigureSlashShader(shader, isBloomPass: true);
                 shader.Shader.Parameters["uIntensity"]?.SetValue(0.35f);
                 shader.Apply();
@@ -861,6 +864,9 @@ namespace MagnumOpus.Common.BaseClasses
 
             if (shader != null)
             {
+                shader.UseImage1(
+                    ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/NoiseTextures/VoronoiNoise"));
+                shader.Shader.Parameters["flipped"]?.SetValue(Direction == 1);
                 ConfigureSlashShader(shader, isBloomPass: false);
                 shader.Shader.Parameters["uIntensity"]?.SetValue(0.65f);
                 shader.Apply();

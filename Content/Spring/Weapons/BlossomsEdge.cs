@@ -3,13 +3,14 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.Audio;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
-using MagnumOpus.Common.BaseClasses;
-using MagnumOpus.Content.Spring.Materials;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Content.Spring.Materials;
 using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Spring.Weapons
@@ -22,7 +23,7 @@ namespace MagnumOpus.Content.Spring.Weapons
     /// - Spring Bloom: Critical hits cause flowers to burst from enemies, dealing 50% AoE
     /// - Vernal Vigor: Increased attack speed during daytime
     /// </summary>
-    public class BlossomsEdge : MeleeSwingItemBase
+    public class BlossomsEdge : ModItem
     {
         // Spring colors
         private static readonly Color SpringPink = new Color(255, 183, 197);
@@ -30,21 +31,7 @@ namespace MagnumOpus.Content.Spring.Weapons
         private static readonly Color SpringGreen = new Color(144, 238, 144);
         private static readonly Color CherryBlossom = new Color(255, 183, 197);
 
-        #region ── Abstract Overrides (MeleeSwingItemBase) ──
-
-        protected override int SwingProjectileType
-            => ModContent.ProjectileType<BlossomsEdgeSwing>();
-
-        protected override int ComboStepCount => 3;
-
-        #endregion
-
-        #region ── Virtual Overrides ──
-
-        protected override Color GetLoreColor()
-            => Color.Lerp(SpringPink, SpringGreen, 0.5f);
-
-        protected override void SetWeaponDefaults()
+        public override void SetDefaults()
         {
             Item.width = 46;
             Item.height = 46;
@@ -52,22 +39,47 @@ namespace MagnumOpus.Content.Spring.Weapons
             Item.DamageType = DamageClass.MeleeNoSpeed;
             Item.useTime = 22;
             Item.useAnimation = 22;
+            Item.useStyle = ItemUseStyleID.Shoot;
             Item.knockBack = 5f;
             Item.value = Item.buyPrice(gold: 8);
             Item.rare = ItemRarityID.LightRed;
-            Item.UseSound = SoundID.Item1;
+            Item.UseSound = null;
+            Item.autoReuse = true;
+            Item.channel = true;
+            Item.noMelee = true;
+            Item.noUseGraphic = true;
+            Item.shoot = ModContent.ProjectileType<BlossomsEdgeSwing>();
+            Item.shootSpeed = 1f;
         }
 
-        protected override void AddWeaponTooltips(List<TooltipLine> tooltips)
+        public override bool CanShoot(Player player)
+        {
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile p = Main.projectile[i];
+                if (p.active && p.owner == player.whoAmI && p.type == Item.shoot)
+                    return false;
+            }
+            return true;
+        }
+
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
+            Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        {
+            Projectile.NewProjectile(source, player.MountedCenter,
+                (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
+                type, damage, knockback, player.whoAmI, 0f, 0);
+            return false;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "PetalTrail", "Swings scatter damaging cherry blossom petals") { OverrideColor = SpringPink });
             tooltips.Add(new TooltipLine(Mod, "RenewalStrike", "Every 5th hit heals you for 8 HP") { OverrideColor = SpringGreen });
             tooltips.Add(new TooltipLine(Mod, "SpringBloom", "Critical hits cause flowers to burst, dealing 50% damage in area") { OverrideColor = SpringPink });
             tooltips.Add(new TooltipLine(Mod, "VernalVigor", "Increased damage and attack speed during daytime") { OverrideColor = new Color(255, 220, 100) });
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Where the blade touches, spring eternally blooms'") { OverrideColor = GetLoreColor() });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Where the blade touches, spring eternally blooms'") { OverrideColor = Color.Lerp(SpringPink, SpringGreen, 0.5f) });
         }
-
-        #endregion
 
         #region ── Vernal Vigor (daytime bonuses) ──
 
@@ -86,7 +98,6 @@ namespace MagnumOpus.Content.Spring.Weapons
 
         public override void HoldItem(Player player)
         {
-            base.HoldItem(player); // combo reset timer
 
             // Ambient petal particles
             if (Main.rand.NextBool(8))
@@ -134,22 +145,32 @@ namespace MagnumOpus.Content.Spring.Weapons
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor,
             ref float rotation, ref float scale, int whoAmI)
         {
-            Texture2D texture = TextureAssets.Item[Item.type].Value;
-            Vector2 position = Item.Center - Main.screenPosition;
-            Vector2 origin = texture.Size() / 2f;
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.12f + 1f;
+            try
+            {
+                Texture2D texture = TextureAssets.Item[Item.type].Value;
+                Vector2 position = Item.Center - Main.screenPosition;
+                Vector2 origin = texture.Size() / 2f;
+                float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.12f + 1f;
 
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            spriteBatch.Draw(texture, position, null, SpringPink * 0.4f, rotation, origin, scale * pulse * 1.4f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, position, null, SpringWhite * 0.3f, rotation, origin, scale * pulse * 1.2f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, position, null, SpringGreen * 0.25f, rotation, origin, scale * 1.05f, SpriteEffects.None, 0f);
+                spriteBatch.Draw(texture, position, null, SpringPink * 0.4f, rotation, origin, scale * pulse * 1.4f, SpriteEffects.None, 0f);
+                spriteBatch.Draw(texture, position, null, SpringWhite * 0.3f, rotation, origin, scale * pulse * 1.2f, SpriteEffects.None, 0f);
+                spriteBatch.Draw(texture, position, null, SpringGreen * 0.25f, rotation, origin, scale * 1.05f, SpriteEffects.None, 0f);
 
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
+            finally
+            {
+                try { spriteBatch.End(); } catch { }
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             Lighting.AddLight(Item.Center, SpringPink.ToVector3() * 0.5f);
             return true;

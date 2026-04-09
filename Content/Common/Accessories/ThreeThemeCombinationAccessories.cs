@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -25,13 +26,17 @@ using MagnumOpus.Content.EnigmaVariations.ResonanceEnergies;
 using MagnumOpus.Content.EnigmaVariations.HarmonicCores;
 using MagnumOpus.Content.SwanLake.ResonanceEnergies;
 using MagnumOpus.Content.SwanLake.HarmonicCores;
+using MagnumOpus.Content.SwanLake.Debuffs;
 
 namespace MagnumOpus.Content.Common.Accessories
 {
     #region Trinity of Night - Moonlight + La Campanella + Enigma
     /// <summary>
-    /// Phase 4 Three-Theme Combination: Moonlight Sonata + La Campanella + Enigma Variations
-    /// Ultimate darkness theme combining lunar mysticism, infernal flames, and void mystery
+    /// Three-Theme Combination: Moonlight Sonata + La Campanella + Enigma Variations
+    /// From Sonata: +15% damage at night, +10% during day, -12% mana cost
+    /// From Infernal Virtuoso: Fire/lava immunity, 8% Tolling Death on any weapon hits
+    /// From Riddle of the Void: +15% all damage, 10% Paradox on any weapon hit
+    /// Signature: "Nocturnal Trinity" — rotating 8s phases (Moon/Bell/Void), 50% stronger at night
     /// </summary>
     public class TrinityOfNight : ModItem
     {
@@ -48,75 +53,79 @@ namespace MagnumOpus.Content.Common.Accessories
         {
             var modPlayer = player.GetModPlayer<TrinityOfNightPlayer>();
             modPlayer.trinityEquipped = true;
-            
+
             bool isNight = !Main.dayTime;
-            
-            // Moonlight bonuses (enhanced at night)
+
+            // From Sonata's Embrace: +15% damage at night, +10% during day, -12% mana cost
             if (isNight)
-            {
-                player.GetDamage(DamageClass.Generic) += 0.22f;
-                player.GetCritChance(DamageClass.Generic) += 25;
-                player.statDefense += 15;
-            }
+                player.GetDamage(DamageClass.Generic) += 0.15f;
             else
-            {
-                player.GetDamage(DamageClass.Generic) += 0.12f;
-            }
-            
-            // La Campanella bonuses
-            player.GetDamage(DamageClass.Magic) += 0.25f;
-            player.GetCritChance(DamageClass.Magic) += 12;
-            player.manaCost -= 0.15f;
+                player.GetDamage(DamageClass.Generic) += 0.10f;
+            player.manaCost -= 0.12f;
+
+            // From Infernal Virtuoso: fire/lava immunity (Tolling Death handled in OnHit)
             player.buffImmune[BuffID.OnFire] = true;
             player.buffImmune[BuffID.Burning] = true;
-            
-            // Enigma bonuses
-            player.GetDamage(DamageClass.Generic) += 0.20f;
-            player.GetCritChance(DamageClass.Generic) += 10;
+            player.lavaImmune = true;
+
+            // From Riddle of the Void: +15% all damage (Paradox handled in OnHit)
+            player.GetDamage(DamageClass.Generic) += 0.15f;
+
+            // Nocturnal Trinity phase bonuses applied in PostUpdate
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             Color darkPurple = new Color(100, 50, 150);
-            Color moonBlue = new Color(100, 150, 255);
+            Color moonBlue = MoonlightColors.Purple;
             Color flameOrange = new Color(255, 140, 40);
-            
+
             tooltips.Add(new TooltipLine(Mod, "Combo", "Combines: Moonlight Sonata + La Campanella + Enigma Variations")
             {
                 OverrideColor = darkPurple
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "MoonlightStats", "At night: +22% damage, +25 crit chance, +15 defense | Day: +12% damage")
+
+            tooltips.Add(new TooltipLine(Mod, "SonataStats", "+15% damage at night, +10% during the day, -12% mana cost")
             {
                 OverrideColor = moonBlue
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "CampanellaStats", "+25% magic damage, +12 magic crit, -15% mana cost")
+
+            tooltips.Add(new TooltipLine(Mod, "CampanellaStats", "Immunity to fire debuffs and lava, 8% Tolling Death on any weapon hit")
             {
                 OverrideColor = flameOrange
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "EnigmaStats", "+20% all damage, +10 crit chance")
+
+            tooltips.Add(new TooltipLine(Mod, "EnigmaStats", "+15% all damage, 10% Paradox on any weapon hit")
             {
                 OverrideColor = EnigmaColors.GreenFlame
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "Immunities", "Immunity to On Fire! and Burning")
-            {
-                OverrideColor = flameOrange
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effects", "15% Paradox stacking (5 stacks = 3x dmg + 250 range AOE), 12% Bell ring stun")
+
+            tooltips.Add(new TooltipLine(Mod, "Signature", "Nocturnal Trinity: Rotating 8-second empowerment phases")
             {
                 OverrideColor = darkPurple
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "BlueFireBonus", "+20% magic damage at night as blue fire")
+
+            tooltips.Add(new TooltipLine(Mod, "Phase1", "Moon Phase: Magic costs no mana, +25% magic damage")
             {
                 OverrideColor = moonBlue
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Three dark powers united - lunar mysticism, infernal flames, and void mystery'")
+
+            tooltips.Add(new TooltipLine(Mod, "Phase2", "Bell Phase: All attacks echo 30% damage as fire, +2 minion slots")
+            {
+                OverrideColor = flameOrange
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Phase3", "Void Phase: Every hit applies Paradox, +20% all damage")
+            {
+                OverrideColor = EnigmaColors.GreenFlame
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "NightBonus", "At night: All phases are 50% stronger")
+            {
+                OverrideColor = moonBlue
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Night speaks in three voices — the moon whispers, the bell tolls, and the void answers'")
             {
                 OverrideColor = new Color(180, 150, 200)
             });
@@ -138,10 +147,11 @@ namespace MagnumOpus.Content.Common.Accessories
     public class TrinityOfNightPlayer : ModPlayer
     {
         public bool trinityEquipped;
-        private int bellRingCooldown;
-        private Dictionary<int, int> paradoxStacks = new Dictionary<int, int>();
-        private Dictionary<int, int> paradoxTimers = new Dictionary<int, int>();
-        
+        private int phaseTimer;
+        private int currentPhase; // 0=Moon, 1=Bell, 2=Void
+
+        private static readonly int PhaseDuration = 480; // 8 seconds at 60fps
+
         private static readonly int[] ParadoxDebuffs = new int[]
         {
             BuffID.Confused, BuffID.Slow, BuffID.CursedInferno,
@@ -155,144 +165,89 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void PostUpdate()
         {
-            if (bellRingCooldown > 0) bellRingCooldown--;
-            
-            List<int> toRemove = new List<int>();
-            foreach (var kvp in paradoxTimers)
+            if (!trinityEquipped) return;
+
+            bool isNight = !Main.dayTime;
+            float nightMult = isNight ? 1.5f : 1.0f;
+
+            phaseTimer++;
+            if (phaseTimer >= PhaseDuration)
             {
-                paradoxTimers[kvp.Key]--;
-                if (paradoxTimers[kvp.Key] <= 0)
-                    toRemove.Add(kvp.Key);
+                phaseTimer = 0;
+                currentPhase = (currentPhase + 1) % 3;
             }
-            foreach (int key in toRemove)
+
+            switch (currentPhase)
             {
-                paradoxTimers.Remove(key);
-                paradoxStacks.Remove(key);
+                case 0: // Moon Phase: free mana + magic damage
+                    Player.manaCost -= 1.0f; // effectively free (stacks with -12% from base)
+                    Player.GetDamage(DamageClass.Magic) += 0.25f * nightMult;
+                    break;
+                case 1: // Bell Phase: +2 minion slots (fire echo handled in OnHit)
+                    Player.maxMinions += 2;
+                    break;
+                case 2: // Void Phase: +20% all damage (guaranteed Paradox handled in OnHit)
+                    Player.GetDamage(DamageClass.Generic) += 0.20f * nightMult;
+                    break;
             }
+        }
+
+        public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (!trinityEquipped) return;
+            HandleTrinityHit(target, damageDone, null);
         }
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (!trinityEquipped) return;
-            if (proj.owner != Player.whoAmI) return;
-            
+            if (!trinityEquipped || proj.owner != Player.whoAmI) return;
+            HandleTrinityHit(target, damageDone, proj);
+        }
+
+        private void HandleTrinityHit(NPC target, int damageDone, Projectile proj)
+        {
             bool isNight = !Main.dayTime;
-            
-            // Blue fire at night bonus
-            if (isNight && DamageClass.Magic.CountsAsClass(proj.DamageType))
+            float nightMult = isNight ? 1.5f : 1.0f;
+
+            // 8% Tolling Death on any weapon hit (from Infernal Virtuoso)
+            if (Main.rand.NextFloat() < 0.08f)
             {
-                int bonusDamage = (int)(damageDone * 0.20f);
-                target.SimpleStrikeNPC(bonusDamage, 0, false, 0, null, false, 0, true);
-                
-                Color blueFlame = new Color(100, 150, 255);
+                int secondStrike = (int)(damageDone * 0.75f);
+                if (secondStrike > 0 && Main.myPlayer == Player.whoAmI)
+                    target.SimpleStrikeNPC(secondStrike, 0, false, 0, null, false, 0, true);
+                target.AddBuff(BuffID.WitheredWeapon, 180);
+                Terraria.Audio.SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.5f, Volume = 0.6f }, target.Center);
             }
-            
-            // Paradox (15%)
-            if (Main.rand.NextFloat() < 0.15f)
+
+            // 10% Paradox on hit (from Riddle of the Void) — always during Void Phase
+            bool applyParadox = currentPhase == 2 || Main.rand.NextFloat() < 0.10f;
+            if (applyParadox)
             {
                 int debuffId = ParadoxDebuffs[Main.rand.Next(ParadoxDebuffs.Length)];
                 target.AddBuff(debuffId, 300);
-                target.AddBuff(BuffID.OnFire, 240);
-                
-                if (!paradoxStacks.ContainsKey(target.whoAmI))
-                    paradoxStacks[target.whoAmI] = 0;
-                
-                paradoxStacks[target.whoAmI]++;
-                paradoxTimers[target.whoAmI] = 360;
-                
-                int stacks = paradoxStacks[target.whoAmI];
-                
-                // Trinity VFX - all three colors
-                for (int i = 0; i < 9; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 9f;
-                    Vector2 offset = angle.ToRotationVector2() * (18f + stacks * 3f);
-                    
-                    Color color;
-                    if (i % 3 == 0)
-                        color = isNight ? new Color(100, 150, 255) : MoonlightColors.Purple;
-                    else if (i % 3 == 1)
-                        color = CampanellaColors.Orange;
-                    else
-                        color = EnigmaColors.GreenFlame;
-                    
-                }
-                
-                
-                // Void Collapse at 5 stacks
-                if (stacks >= 5)
-                {
-                    TriggerTrinityCollapse(target, damageDone, isNight);
-                    paradoxStacks[target.whoAmI] = 0;
-                }
             }
-            
-            // Bell ring (12%)
-            if (bellRingCooldown <= 0 && Main.rand.NextFloat() < 0.12f)
-            {
-                bellRingCooldown = 25;
-                target.AddBuff(BuffID.Confused, 120);
-                
-                Color chimeColor = Color.Lerp(CampanellaColors.Orange, EnigmaColors.GreenFlame, 0.4f);
-                
-                Terraria.Audio.SoundEngine.PlaySound(SoundID.Item35 with { Pitch = -0.2f }, target.Center);
-            }
-        }
 
-        private void TriggerTrinityCollapse(NPC target, int baseDamage, bool isNight)
-        {
-            // Trinity explosion - all three dark powers converge
-            
-            // Triple halos
-            for (int ring = 0; ring < 12; ring++)
+            // Bell Phase: 30% fire echo
+            if (currentPhase == 1 && Main.myPlayer == Player.whoAmI)
             {
-                Color ringColor;
-                if (ring % 3 == 0)
-                    ringColor = MoonlightColors.Purple;
-                else if (ring % 3 == 1)
-                    ringColor = CampanellaColors.Orange;
-                else
-                    ringColor = EnigmaColors.GreenFlame;
-                
-            }
-            
-            // Massive glyph burst
-            
-            // Eye formation
-            
-            
-            // Massive damage
-            if (Main.myPlayer == Player.whoAmI)
-            {
-                int trinityDamage = (int)(baseDamage * 3.0f);
-                target.SimpleStrikeNPC(trinityDamage, 0, false, 0, null, false, 0, true);
-                
-                float aoeRadius = 250f;
-                for (int i = 0; i < Main.maxNPCs; i++)
+                int echoDmg = (int)(damageDone * 0.30f * nightMult);
+                if (echoDmg > 0)
                 {
-                    NPC npc = Main.npc[i];
-                    if (npc.active && !npc.friendly && npc.whoAmI != target.whoAmI && !npc.immortal)
-                    {
-                        if (Vector2.Distance(npc.Center, target.Center) <= aoeRadius)
-                        {
-                            npc.SimpleStrikeNPC(trinityDamage / 2, 0, false, 0, null, false, 0, true);
-                            npc.AddBuff(BuffID.OnFire, 300);
-                            npc.AddBuff(ParadoxDebuffs[Main.rand.Next(ParadoxDebuffs.Length)], 240);
-                            
-                        }
-                    }
+                    target.SimpleStrikeNPC(echoDmg, 0, false, 0, null, false, 0, true);
+                    target.AddBuff(BuffID.OnFire, 180);
                 }
             }
-            
-            Terraria.Audio.SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.6f, Volume = 1.4f }, target.Center);
         }
     }
     #endregion
 
     #region Adagio of Radiant Valor - Eroica + Moonlight + Swan Lake
     /// <summary>
-    /// Phase 4 Three-Theme Combination: Eroica + Moonlight Sonata + Swan Lake
-    /// Ultimate noble theme combining valor, moonlight, and balletic grace
+    /// Three-Theme Combination: Eroica + Moonlight Sonata + Swan Lake
+    /// From Hero's Symphony: 20% chance for melee double damage, +15% melee speed
+    /// From Sonata: +15% damage at night, +18% crit at night
+    /// From Swan's Diadem: +25% movement speed, Dying Swan's Grace (airborne weapon buff)
+    /// Signature: "Radiant Crescendo" — consecutive hit stacking (max 20), tiered bonuses, Fortissimo burst
     /// </summary>
     public class AdagioOfRadiantValor : ModItem
     {
@@ -308,67 +263,91 @@ namespace MagnumOpus.Content.Common.Accessories
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             var modPlayer = player.GetModPlayer<AdagioOfRadiantValorPlayer>();
-            modPlayer.adagioOfRadiantValorEquipped = true;
-            
+            modPlayer.adagioEquipped = true;
+
             bool isNight = !Main.dayTime;
-            
-            // Eroica bonuses
-            player.GetDamage(DamageClass.Melee) += 0.22f;
-            player.GetAttackSpeed(DamageClass.Melee) += 0.18f;
-            player.GetCritChance(DamageClass.Melee) += 12;
-            player.GetDamage(DamageClass.Generic) += 0.10f;
-            
-            // Moonlight bonuses
+
+            // From Hero's Symphony: +15% melee speed (double damage handled in ModifyHitNPC)
+            player.GetAttackSpeed(DamageClass.Melee) += 0.15f;
+
+            // From Sonata: +15% damage at night, +18% crit at night
             if (isNight)
             {
-                player.GetDamage(DamageClass.Generic) += 0.20f;
-                player.GetCritChance(DamageClass.Generic) += 22;
-                player.statDefense += 14;
+                player.GetDamage(DamageClass.Generic) += 0.15f;
+                player.GetCritChance(DamageClass.Generic) += 18;
             }
-            else
+
+            // From Swan's Diadem: +25% movement speed, Dying Swan's Grace (airborne weapon buff)
+            player.moveSpeed += 0.25f;
+            player.runAcceleration *= 1.25f;
+            bool airborne = player.velocity.Y != 0 && !player.mount.Active;
+            if (airborne)
             {
-                player.GetDamage(DamageClass.Generic) += 0.10f;
+                player.GetDamage(DamageClass.Generic) += 0.08f;
             }
-            
-            // Swan Lake bonuses
-            player.GetDamage(DamageClass.Generic) += 0.18f;
-            player.GetCritChance(DamageClass.Generic) += 10;
-            player.moveSpeed += 0.22f;
-            player.runAcceleration *= 1.22f;
+
+            // Radiant Crescendo attack speed bonus at 5+ stacks
+            if (modPlayer.crescendoStacks >= 5)
+                player.GetAttackSpeed(DamageClass.Generic) += 0.10f;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             Color gold = new Color(255, 200, 80);
-            Color moonSilver = new Color(200, 200, 230);
+            Color moonSilver = MoonlightColors.Purple;
             Color rainbow = SwanColors.GetRainbow((float)(Main.GameUpdateCount % 300) / 300f);
-            
+
             tooltips.Add(new TooltipLine(Mod, "Combo", "Combines: Eroica + Moonlight Sonata + Swan Lake")
             {
                 OverrideColor = gold
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "EroicaStats", "+22% melee damage, +18% melee attack speed, +12 melee crit, +10% all damage")
+
+            tooltips.Add(new TooltipLine(Mod, "EroicaStats", "20% melee double damage chance, +15% melee attack speed")
             {
                 OverrideColor = EroicaColors.Gold
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "MoonlightStats", "At night: +20% damage, +22 crit chance, +14 defense | Day: +10% damage")
+
+            tooltips.Add(new TooltipLine(Mod, "MoonlightStats", "+15% damage at night, +18 crit chance at night")
             {
                 OverrideColor = moonSilver
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "SwanStats", "+18% all damage, +10 crit chance, +22% movement speed")
+
+            tooltips.Add(new TooltipLine(Mod, "SwanStats", "+25% movement speed, Dying Swan's Grace when airborne")
             {
                 OverrideColor = rainbow
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effects", "Kills trigger 5-sec Heroic Surge (+30% damage), 14% dodge at night (10% day)")
+
+            tooltips.Add(new TooltipLine(Mod, "Signature", "Radiant Crescendo: Consecutive hits on same target build stacks (max 20)")
             {
                 OverrideColor = gold
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Noble valor, moonlit grace, and balletic elegance united'")
+
+            tooltips.Add(new TooltipLine(Mod, "Tier1", "5 stacks: +10% attack speed")
+            {
+                OverrideColor = gold
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Tier2", "10 stacks: Hits spawn moonlit sparkles (25% weapon damage AOE)")
+            {
+                OverrideColor = moonSilver
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Tier3", "15 stacks: Each hit heals 1% max HP")
+            {
+                OverrideColor = rainbow
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Tier4", "20 stacks: Fortissimo — next hit deals 5x damage, resets stacks")
+            {
+                OverrideColor = new Color(255, 240, 150)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "NightBonus", "At night: Stacks build 50% faster")
+            {
+                OverrideColor = moonSilver
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The adagio swells — hero, moon, and swan rising together toward a single, radiant note'")
             {
                 OverrideColor = new Color(220, 200, 240)
             });
@@ -389,114 +368,143 @@ namespace MagnumOpus.Content.Common.Accessories
 
     public class AdagioOfRadiantValorPlayer : ModPlayer
     {
-        public bool adagioOfRadiantValorEquipped;
-        private int heroicSurgeTimer;
-        private int invulnFramesOnKill = 90;
-        private int dodgeCooldown;
+        public bool adagioEquipped;
+        public int crescendoStacks;
+        private int crescendoTarget = -1;
+        private int crescendoDecayTimer;
+        private static readonly int DecayTime = 180; // 3 seconds at 60fps
 
         public override void ResetEffects()
         {
-            adagioOfRadiantValorEquipped = false;
+            adagioEquipped = false;
         }
 
         public override void PostUpdate()
         {
-            if (heroicSurgeTimer > 0)
+            if (!adagioEquipped)
             {
-                heroicSurgeTimer--;
-                Player.GetDamage(DamageClass.Generic) += 0.30f;
+                crescendoStacks = 0;
+                crescendoTarget = -1;
+                return;
             }
-            
-            if (dodgeCooldown > 0) dodgeCooldown--;
-        }
 
-        public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            HandleKill(target);
-        }
-
-        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            if (proj.owner == Player.whoAmI)
+            if (crescendoDecayTimer > 0)
             {
-                HandleKill(target);
-            }
-        }
-
-        private void HandleKill(NPC target)
-        {
-            if (!adagioOfRadiantValorEquipped) return;
-            
-            if (target.life <= 0 && !target.immortal)
-            {
-                // Extended invulnerability
-                Player.immune = true;
-                Player.immuneTime = Math.Max(Player.immuneTime, invulnFramesOnKill);
-                
-                // Extended Heroic Surge
-                heroicSurgeTimer = 360;
-                
-                // Noble kill VFX
-                
-                
-                
-                for (int i = 0; i < 8; i++)
+                crescendoDecayTimer--;
+                if (crescendoDecayTimer <= 0)
                 {
-                    Color haloColor = Color.Lerp(
-                        Color.Lerp(EroicaColors.Gold, MoonlightColors.Silver, i / 8f),
-                        SwanColors.GetRainbow(i / 8f), 0.3f);
+                    crescendoStacks = 0;
+                    crescendoTarget = -1;
                 }
             }
         }
 
-        public override bool FreeDodge(Player.HurtInfo info)
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
-            if (!adagioOfRadiantValorEquipped) return false;
-            if (dodgeCooldown > 0) return false;
-            
-            bool isNight = !Main.dayTime;
-            float dodgeChance = isNight ? 0.14f : 0.10f;
-            
-            if (Main.rand.NextFloat() < dodgeChance)
+            if (!adagioEquipped) return;
+
+            // 20% melee double damage (from Hero's Symphony)
+            if (Player.HeldItem != null && Player.HeldItem.DamageType.CountsAsClass(DamageClass.Melee))
             {
-                dodgeCooldown = 80;
-                TriggerNobleGraceDodge();
-                return true;
+                if (Main.rand.NextFloat() < 0.20f)
+                    modifiers.FinalDamage *= 2f;
             }
-            
-            return false;
+
+            // Fortissimo at 20 stacks
+            if (crescendoStacks >= 20 && target.whoAmI == crescendoTarget)
+                modifiers.FinalDamage *= 5f;
         }
 
-        private void TriggerNobleGraceDodge()
+        public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // Noble grace dodge
-            
-            for (int i = 0; i < 9; i++)
+            if (!adagioEquipped) return;
+            TryApplyDyingSwanGrace(target);
+            HandleCrescendoHit(target, damageDone);
+        }
+
+        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (!adagioEquipped || proj.owner != Player.whoAmI) return;
+            TryApplyDyingSwanGrace(target);
+            HandleCrescendoHit(target, damageDone);
+        }
+
+        private void TryApplyDyingSwanGrace(NPC target)
+        {
+            bool airborne = Player.velocity.Y != 0 && !Player.mount.Active;
+            if (!airborne) return;
+            if (target.HasBuff(ModContent.BuffType<OdilesBeauty>())) return;
+
+            target.AddBuff(ModContent.BuffType<OdilesBeauty>(), 300);
+            int weaponDamage = Player.HeldItem != null
+                ? (int)Player.GetTotalDamage(Player.HeldItem.DamageType).ApplyTo(Player.HeldItem.damage)
+                : 50;
+            target.GetGlobalNPC<OdilesBeautyNPC>().SetDamage(weaponDamage);
+        }
+
+        private void HandleCrescendoHit(NPC target, int damageDone)
+        {
+            bool isNight = !Main.dayTime;
+
+            // Track target — switch target resets stacks
+            if (crescendoTarget != target.whoAmI)
             {
-                Color haloColor;
-                if (i % 3 == 0)
-                    haloColor = EroicaColors.Gold;
-                else if (i % 3 == 1)
-                    haloColor = MoonlightColors.Silver;
-                else
-                    haloColor = SwanColors.GetRainbow(i / 9f);
-                
+                crescendoStacks = 0;
+                crescendoTarget = target.whoAmI;
             }
-            
-            
-            
-            Player.immune = true;
-            Player.immuneTime = 30;
-            
-            Terraria.Audio.SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.5f }, Player.Center);
+
+            // Check for Fortissimo reset BEFORE incrementing (the 5x was applied in ModifyHit)
+            if (crescendoStacks >= 20)
+            {
+                crescendoStacks = 0;
+                Terraria.Audio.SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f, Volume = 1.2f }, target.Center);
+                return;
+            }
+
+            // Build stacks — night: 50% faster (every 2nd hit adds 2 instead of 1)
+            int stackGain = 1;
+            if (isNight && crescendoStacks % 2 == 0)
+                stackGain = 2;
+            crescendoStacks = Math.Min(crescendoStacks + stackGain, 20);
+            crescendoDecayTimer = DecayTime;
+
+            // Tier 2 (10+ stacks): moonlit sparkle AOE — 25% weapon damage to nearby enemies
+            if (crescendoStacks >= 10 && Main.myPlayer == Player.whoAmI)
+            {
+                int sparkleDmg = (int)(damageDone * 0.25f);
+                if (sparkleDmg > 0)
+                {
+                    for (int i = 0; i < Main.maxNPCs; i++)
+                    {
+                        NPC npc = Main.npc[i];
+                        if (npc.active && !npc.friendly && !npc.immortal && npc.whoAmI != target.whoAmI)
+                        {
+                            if (Vector2.Distance(npc.Center, target.Center) <= 150f)
+                                npc.SimpleStrikeNPC(sparkleDmg, 0, false, 0, null, false, 0, true);
+                        }
+                    }
+                }
+            }
+
+            // Tier 3 (15+ stacks): heal 1% max HP per hit
+            if (crescendoStacks >= 15)
+            {
+                int healAmount = Math.Max(1, Player.statLifeMax2 / 100);
+                Player.statLife = Math.Min(Player.statLife + healAmount, Player.statLifeMax2);
+                Player.HealEffect(healAmount);
+            }
         }
     }
     #endregion
 
     #region Requiem of the Enigmatic Flame - La Campanella + Enigma + Swan Lake
     /// <summary>
-    /// Phase 4 Three-Theme Combination: La Campanella + Enigma Variations + Swan Lake
-    /// Ultimate chaos theme combining fire, mystery, and grace
+    /// Three-Theme Combination: La Campanella + Enigma Variations + Swan Lake
+    /// From Infernal Virtuoso: Fire/lava immunity, 8% Tolling Death on any weapon hits
+    /// From Riddle of the Void: +15% all damage, 10% Paradox on hit
+    /// From Swan's Diadem: +25% movement speed, damage buff effectiveness +50%
+    /// Signature: "Requiem's Judgment" — enemies with both Paradox + Tolling Death get Requiem's Mark;
+    ///   +15% damage from all sources for 8s (does not stack)
     /// </summary>
     public class RequiemOfTheEnigmaticFlame : ModItem
     {
@@ -512,24 +520,21 @@ namespace MagnumOpus.Content.Common.Accessories
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             var modPlayer = player.GetModPlayer<RequiemOfTheEnigmaticFlamePlayer>();
-            modPlayer.requiemOfTheEnigmaticFlameEquipped = true;
-            
-            // La Campanella bonuses
-            player.GetDamage(DamageClass.Magic) += 0.25f;
-            player.GetCritChance(DamageClass.Magic) += 12;
-            player.manaCost -= 0.15f;
+            modPlayer.requiemEquipped = true;
+
+            // From Infernal Virtuoso: fire/lava immunity (Tolling Death handled in OnHit)
             player.buffImmune[BuffID.OnFire] = true;
             player.buffImmune[BuffID.Burning] = true;
-            
-            // Enigma bonuses
-            player.GetDamage(DamageClass.Generic) += 0.20f;
-            player.GetCritChance(DamageClass.Generic) += 10;
-            
-            // Swan Lake bonuses
-            player.GetDamage(DamageClass.Generic) += 0.18f;
-            player.GetCritChance(DamageClass.Generic) += 10;
-            player.moveSpeed += 0.22f;
-            player.runAcceleration *= 1.22f;
+            player.lavaImmune = true;
+
+            // From Riddle of the Void: +15% all damage (Paradox handled in OnHit)
+            player.GetDamage(DamageClass.Generic) += 0.15f;
+
+            // From Swan's Diadem: +25% movement speed, damage buff effectiveness +50%
+            player.moveSpeed += 0.25f;
+            player.runAcceleration *= 1.25f;
+            // Approximate +50% buff effectiveness as flat damage (parent uses +18% for +80%)
+            player.GetDamage(DamageClass.Generic) += 0.11f;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -537,38 +542,43 @@ namespace MagnumOpus.Content.Common.Accessories
             Color flameOrange = new Color(255, 140, 40);
             Color greenFlame = EnigmaColors.GreenFlame;
             Color rainbow = SwanColors.GetRainbow((float)(Main.GameUpdateCount % 300) / 300f);
-            
+
             tooltips.Add(new TooltipLine(Mod, "Combo", "Combines: La Campanella + Enigma Variations + Swan Lake")
             {
                 OverrideColor = flameOrange
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "CampanellaStats", "+25% magic damage, +12 magic crit, -15% mana cost")
+
+            tooltips.Add(new TooltipLine(Mod, "CampanellaStats", "Immunity to fire debuffs and lava, 8% Tolling Death on any weapon hit")
             {
                 OverrideColor = flameOrange
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "EnigmaStats", "+20% all damage, +10 crit chance")
+
+            tooltips.Add(new TooltipLine(Mod, "EnigmaStats", "+15% all damage, 10% chance on hit to apply Paradox debuff")
             {
                 OverrideColor = greenFlame
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "SwanStats", "+18% all damage, +10 crit chance, +22% movement speed")
+
+            tooltips.Add(new TooltipLine(Mod, "SwanStats", "+25% movement speed, damage buff effectiveness +50%")
             {
                 OverrideColor = rainbow
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "Immunities", "Immunity to On Fire! and Burning")
+
+            tooltips.Add(new TooltipLine(Mod, "Signature", "Requiem's Judgment: Enemies with both Paradox and Tolling Death gain Requiem's Mark")
             {
-                OverrideColor = flameOrange
+                OverrideColor = new Color(200, 100, 50)
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effects", "18% Paradox (magic) / 12% (other), 12% Bell ring stun (140 range, 60% AOE), 12% dodge")
+
+            tooltips.Add(new TooltipLine(Mod, "MarkEffect", "Requiem's Mark: Enemy takes 15% more damage from all sources for 8 seconds (does not stack)")
             {
-                OverrideColor = greenFlame
+                OverrideColor = new Color(200, 100, 50)
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Beautiful chaos - fire, mystery, and grace intertwined'")
+
+            tooltips.Add(new TooltipLine(Mod, "BuffBoost", "Swan Lake's damage buff effectiveness makes all combined buffs 50% more potent")
+            {
+                OverrideColor = rainbow
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The requiem plays its final verse — fire, mystery, and grace united in one terrible prayer'")
             {
                 OverrideColor = new Color(200, 180, 220)
             });
@@ -589,12 +599,17 @@ namespace MagnumOpus.Content.Common.Accessories
 
     public class RequiemOfTheEnigmaticFlamePlayer : ModPlayer
     {
-        public bool requiemOfTheEnigmaticFlameEquipped;
-        private int bellRingCooldown;
-        private int dodgeCooldown;
-        private Dictionary<int, int> paradoxStacks = new Dictionary<int, int>();
-        private Dictionary<int, int> paradoxTimers = new Dictionary<int, int>();
-        
+        public bool requiemEquipped;
+
+        // Track which NPCs have been hit by Paradox and Tolling Death from this accessory
+        private HashSet<int> paradoxHitTargets = new HashSet<int>();
+        private HashSet<int> tollingDeathHitTargets = new HashSet<int>();
+
+        // Track Requiem's Mark — NPC index → timer (frames remaining)
+        private Dictionary<int, int> requiemMarkTimers = new Dictionary<int, int>();
+
+        private static readonly int MarkDuration = 480; // 8 seconds at 60fps
+
         private static readonly int[] ParadoxDebuffs = new int[]
         {
             BuffID.Confused, BuffID.Slow, BuffID.CursedInferno,
@@ -603,196 +618,97 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void ResetEffects()
         {
-            requiemOfTheEnigmaticFlameEquipped = false;
+            requiemEquipped = false;
         }
 
         public override void PostUpdate()
         {
-            if (bellRingCooldown > 0) bellRingCooldown--;
-            if (dodgeCooldown > 0) dodgeCooldown--;
-            
-            List<int> toRemove = new List<int>();
-            foreach (var kvp in paradoxTimers)
+            if (!requiemEquipped)
             {
-                paradoxTimers[kvp.Key]--;
-                if (paradoxTimers[kvp.Key] <= 0)
-                    toRemove.Add(kvp.Key);
+                paradoxHitTargets.Clear();
+                tollingDeathHitTargets.Clear();
+                requiemMarkTimers.Clear();
+                return;
             }
-            foreach (int key in toRemove)
-            {
-                paradoxTimers.Remove(key);
-                paradoxStacks.Remove(key);
-            }
+
+            // Decay mark timers
+            var expired = requiemMarkTimers.Where(kvp => kvp.Value <= 0).Select(kvp => kvp.Key).ToList();
+            foreach (int key in expired)
+                requiemMarkTimers.Remove(key);
+
+            foreach (int key in requiemMarkTimers.Keys.ToList())
+                requiemMarkTimers[key]--;
+
+            // Clean up stale NPC references
+            paradoxHitTargets.RemoveWhere(id => id < 0 || id >= Main.maxNPCs || !Main.npc[id].active);
+            tollingDeathHitTargets.RemoveWhere(id => id < 0 || id >= Main.maxNPCs || !Main.npc[id].active);
+        }
+
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (!requiemEquipped) return;
+
+            // Requiem's Mark: +15% damage taken, Swan buff effectiveness +50% = +22.5% total
+            if (requiemMarkTimers.ContainsKey(target.whoAmI))
+                modifiers.FinalDamage *= 1.225f;
+        }
+
+        public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (!requiemEquipped) return;
+            HandleRequiemHit(target, damageDone, null);
         }
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (!requiemOfTheEnigmaticFlameEquipped) return;
-            if (proj.owner != Player.whoAmI) return;
-            
-            // Chaotic Paradox (18% for magic)
-            float paradoxChance = DamageClass.Magic.CountsAsClass(proj.DamageType) ? 0.18f : 0.12f;
-            
-            if (Main.rand.NextFloat() < paradoxChance)
+            if (!requiemEquipped || proj.owner != Player.whoAmI) return;
+            HandleRequiemHit(target, damageDone, proj);
+        }
+
+        private void HandleRequiemHit(NPC target, int damageDone, Projectile proj)
+        {
+            // 8% Tolling Death on any weapon hit (from Infernal Virtuoso)
+            if (Main.rand.NextFloat() < 0.08f)
+            {
+                int secondStrike = (int)(damageDone * 0.75f);
+                if (secondStrike > 0 && Main.myPlayer == Player.whoAmI)
+                    target.SimpleStrikeNPC(secondStrike, 0, false, 0, null, false, 0, true);
+                target.AddBuff(BuffID.WitheredWeapon, 180);
+                tollingDeathHitTargets.Add(target.whoAmI);
+                Terraria.Audio.SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.5f, Volume = 0.6f }, target.Center);
+            }
+
+            // 10% Paradox on hit (from Riddle of the Void)
+            if (Main.rand.NextFloat() < 0.10f)
             {
                 int debuffId = ParadoxDebuffs[Main.rand.Next(ParadoxDebuffs.Length)];
                 target.AddBuff(debuffId, 300);
-                target.AddBuff(BuffID.OnFire, 240);
-                
-                if (!paradoxStacks.ContainsKey(target.whoAmI))
-                    paradoxStacks[target.whoAmI] = 0;
-                
-                paradoxStacks[target.whoAmI]++;
-                paradoxTimers[target.whoAmI] = 360;
-                
-                int stacks = paradoxStacks[target.whoAmI];
-                
-                // Chaotic VFX
-                for (int i = 0; i < 9 + stacks; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / (9 + stacks);
-                    Vector2 offset = angle.ToRotationVector2() * (18f + stacks * 3f);
-                    
-                    Color color;
-                    if (i % 3 == 0)
-                        color = CampanellaColors.Orange;
-                    else if (i % 3 == 1)
-                        color = EnigmaColors.GreenFlame;
-                    else
-                        color = SwanColors.GetRainbow((float)i / (9 + stacks));
-                    
-                }
-                
-                
-                // Chaos Collapse at 5 stacks
-                if (stacks >= 5)
-                {
-                    TriggerChaosCollapse(target, damageDone);
-                    paradoxStacks[target.whoAmI] = 0;
-                }
+                paradoxHitTargets.Add(target.whoAmI);
             }
-            
-            // Bell ring with rainbow fire (12%)
-            if (bellRingCooldown <= 0 && Main.rand.NextFloat() < 0.12f)
-            {
-                bellRingCooldown = 25;
-                target.AddBuff(BuffID.Confused, 120);
-                
-                
-                // AOE chaos fire
-                float aoeRadius = 140f;
-                for (int i = 0; i < Main.maxNPCs; i++)
-                {
-                    NPC npc = Main.npc[i];
-                    if (npc.active && !npc.friendly && npc.whoAmI != target.whoAmI && !npc.immortal)
-                    {
-                        if (Vector2.Distance(npc.Center, target.Center) <= aoeRadius)
-                        {
-                            int aoeDamage = (int)(damageDone * 0.6f);
-                            npc.SimpleStrikeNPC(aoeDamage, 0, false, 0, null, false, 0, true);
-                            npc.AddBuff(BuffID.OnFire, 240);
-                            npc.AddBuff(ParadoxDebuffs[Main.rand.Next(ParadoxDebuffs.Length)], 150);
-                            
-                        }
-                    }
-                }
-                
-                Terraria.Audio.SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.2f }, target.Center);
-            }
-        }
 
-        private void TriggerChaosCollapse(NPC target, int baseDamage)
-        {
-            // Beautiful chaos explosion
-            
-            // Rainbow chaos halos
-            for (int ring = 0; ring < 12; ring++)
+            // Check for Requiem's Mark application — both Paradox AND Tolling Death on target (non-stacking)
+            if (paradoxHitTargets.Contains(target.whoAmI) && tollingDeathHitTargets.Contains(target.whoAmI))
             {
-                Color ringColor;
-                if (ring % 3 == 0)
-                    ringColor = CampanellaColors.Orange;
-                else if (ring % 3 == 1)
-                    ringColor = EnigmaColors.GreenFlame;
-                else
-                    ringColor = SwanColors.GetRainbow(ring / 12f);
-                
-            }
-            
-            // Burning feather explosion
-            
-            // Glyph spiral
-            
-            // Eye formation
-            
-            
-            // Rainbow sparkle spiral
-            
-            // Massive damage
-            if (Main.myPlayer == Player.whoAmI)
-            {
-                int chaosDamage = (int)(baseDamage * 3.0f);
-                target.SimpleStrikeNPC(chaosDamage, 0, false, 0, null, false, 0, true);
-                
-                float aoeRadius = 260f;
-                for (int i = 0; i < Main.maxNPCs; i++)
+                if (!requiemMarkTimers.ContainsKey(target.whoAmI))
                 {
-                    NPC npc = Main.npc[i];
-                    if (npc.active && !npc.friendly && npc.whoAmI != target.whoAmI && !npc.immortal)
-                    {
-                        if (Vector2.Distance(npc.Center, target.Center) <= aoeRadius)
-                        {
-                            npc.SimpleStrikeNPC(chaosDamage / 2, 0, false, 0, null, false, 0, true);
-                            npc.AddBuff(BuffID.OnFire, 360);
-                            npc.AddBuff(ParadoxDebuffs[Main.rand.Next(ParadoxDebuffs.Length)], 240);
-                            
-                        }
-                    }
+                    requiemMarkTimers[target.whoAmI] = MarkDuration;
+                    Terraria.Audio.SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.3f, Volume = 0.8f }, target.Center);
                 }
+                // Does not stack — do not refresh timer if already marked
             }
-            
-            Terraria.Audio.SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.3f, Volume = 1.4f }, target.Center);
-        }
-
-        public override bool FreeDodge(Player.HurtInfo info)
-        {
-            if (!requiemOfTheEnigmaticFlameEquipped) return false;
-            if (dodgeCooldown > 0) return false;
-            
-            if (Main.rand.NextFloat() < 0.12f)
-            {
-                dodgeCooldown = 80;
-                
-                // Chaotic dodge
-                
-                for (int i = 0; i < 9; i++)
-                {
-                    Color haloColor;
-                    if (i % 3 == 0)
-                        haloColor = CampanellaColors.Orange;
-                    else if (i % 3 == 1)
-                        haloColor = EnigmaColors.GreenFlame;
-                    else
-                        haloColor = SwanColors.GetRainbow(i / 9f);
-                    
-                }
-                
-                
-                Player.immune = true;
-                Player.immuneTime = 25;
-                
-                return true;
-            }
-            
-            return false;
         }
     }
     #endregion
 
     #region Complete Harmony - All 5 Themes
     /// <summary>
-    /// Phase 4 Ultimate Combination: All 5 Themes Combined
-    /// Moonlight Sonata + Eroica + La Campanella + Enigma Variations + Swan Lake
-    /// Ultimate musical achievement - all themes at full strength
+    /// All 5 Themes Combined: Moonlight Sonata + Eroica + La Campanella + Enigma Variations + Swan Lake
+    /// From Sonata's Embrace: +15% damage at night, +10% day, -12% mana cost, magic Moonstruck
+    /// From Hero's Symphony: 20% melee double damage, +15% melee speed, kills → Heroic Surge (+25% 5s)
+    /// From Infernal Virtuoso: Fire/lava immunity, 8% Tolling Death on any hit, +1 minion slot
+    /// From Riddle of the Void: +15% all damage, 10% Paradox on hit
+    /// From Swan's Chromatic Diadem: +25% movement speed, +80% buff effectiveness, Dying Swan's Grace
+    /// Signature: "Harmonic Convergence" — theme proc stacking (Harmonic Resonance) + Dissonance enemy debuff
     /// </summary>
     public class CompleteHarmony : ModItem
     {
@@ -809,45 +725,52 @@ namespace MagnumOpus.Content.Common.Accessories
         {
             var modPlayer = player.GetModPlayer<CompleteHarmonyPlayer>();
             modPlayer.completeHarmonyEquipped = true;
-            
+
             bool isNight = !Main.dayTime;
-            
-            // === ALL FIVE THEMES COMBINED ===
-            
-            // Moonlight Sonata
+
+            // === FROM SONATA'S EMBRACE ===
             if (isNight)
-            {
-                player.GetDamage(DamageClass.Generic) += 0.20f;
-                player.GetCritChance(DamageClass.Generic) += 22;
-                player.statDefense += 15;
-            }
+                player.GetDamage(DamageClass.Generic) += 0.15f;
             else
-            {
-                player.GetDamage(DamageClass.Generic) += 0.12f;
-            }
-            
-            // Eroica
-            player.GetDamage(DamageClass.Melee) += 0.22f;
-            player.GetAttackSpeed(DamageClass.Melee) += 0.18f;
-            player.GetCritChance(DamageClass.Melee) += 12;
-            player.GetDamage(DamageClass.Generic) += 0.10f;
-            
-            // La Campanella
-            player.GetDamage(DamageClass.Magic) += 0.25f;
-            player.GetCritChance(DamageClass.Magic) += 12;
-            player.manaCost -= 0.15f;
+                player.GetDamage(DamageClass.Generic) += 0.10f;
+            player.manaCost -= 0.12f;
+
+            // === FROM HERO'S SYMPHONY ===
+            player.GetAttackSpeed(DamageClass.Melee) += 0.15f;
+
+            // === FROM INFERNAL VIRTUOSO ===
             player.buffImmune[BuffID.OnFire] = true;
             player.buffImmune[BuffID.Burning] = true;
-            
-            // Enigma Variations
-            player.GetDamage(DamageClass.Generic) += 0.20f;
-            player.GetCritChance(DamageClass.Generic) += 10;
-            
-            // Swan Lake
-            player.GetDamage(DamageClass.Generic) += 0.18f;
-            player.GetCritChance(DamageClass.Generic) += 10;
+            player.lavaImmune = true;
+            player.maxMinions += 1;
+
+            // === FROM RIDDLE OF THE VOID ===
+            player.GetDamage(DamageClass.Generic) += 0.15f;
+
+            // === FROM SWAN'S CHROMATIC DIADEM ===
             player.moveSpeed += 0.25f;
             player.runAcceleration *= 1.25f;
+            // +80% buff effectiveness approximated as flat damage
+            player.GetDamage(DamageClass.Generic) += 0.14f;
+
+            // === HARMONIC RESONANCE TIER BONUSES ===
+            if (modPlayer.harmonicResonanceStacks >= 1)
+                player.endurance += 0.05f;
+            if (modPlayer.harmonicResonanceStacks >= 3)
+            {
+                player.GetAttackSpeed(DamageClass.Generic) += 0.10f;
+                player.lifeRegen += 5;
+            }
+
+            // Full Harmony buff
+            if (modPlayer.fullHarmonyTimer > 0)
+            {
+                player.GetDamage(DamageClass.Generic) += 0.25f;
+            }
+
+            // Heroic Surge buff
+            if (modPlayer.heroicSurgeTimer > 0)
+                player.GetDamage(DamageClass.Generic) += 0.25f;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -858,53 +781,68 @@ namespace MagnumOpus.Content.Common.Accessories
             Color flameOrange = new Color(255, 140, 40);
             Color greenFlame = EnigmaColors.GreenFlame;
             Color rainbow = SwanColors.GetRainbow((float)(Main.GameUpdateCount % 300) / 300f);
-            
-            tooltips.Add(new TooltipLine(Mod, "Ultimate", "The complete harmony of ALL FIVE THEMES")
+
+            tooltips.Add(new TooltipLine(Mod, "Ultimate", "The complete harmony of all five themes")
             {
                 OverrideColor = harmonyGold
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "Combo", "Moonlight Sonata + Eroica + La Campanella + Enigma Variations + Swan Lake")
-            {
-                OverrideColor = new Color(200, 180, 255)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "MoonlightStats", "Night: +20% damage, +22 crit, +15 defense | Day: +12% damage")
+
+            tooltips.Add(new TooltipLine(Mod, "MoonlightStats", "+15% damage at night, +10% during the day, -12% mana cost, magic attacks inflict Moonstruck")
             {
                 OverrideColor = moonSilver
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "EroicaStats", "+22% melee damage, +18% melee attack speed, +12 melee crit, +10% all damage")
+
+            tooltips.Add(new TooltipLine(Mod, "EroicaStats", "20% chance for melee attacks to deal double damage, +15% melee speed, kills trigger Heroic Surge (+25% damage, 5s)")
             {
                 OverrideColor = eroicaGold
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "CampanellaStats", "+25% magic damage, +12 magic crit, -15% mana cost")
+
+            tooltips.Add(new TooltipLine(Mod, "CampanellaStats", "Immunity to fire debuffs and lava, 8% Tolling Death on any weapon hit, +1 minion slot")
             {
                 OverrideColor = flameOrange
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "EnigmaStats", "+20% all damage, +10 crit chance")
+
+            tooltips.Add(new TooltipLine(Mod, "EnigmaStats", "+15% all damage, 10% Paradox on hit")
             {
                 OverrideColor = greenFlame
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "SwanStats", "+18% all damage, +10 crit, +25% movement speed")
+
+            tooltips.Add(new TooltipLine(Mod, "SwanStats", "+25% movement speed, damage buff effectiveness +80%, Dying Swan's Grace airborne debuff")
             {
                 OverrideColor = rainbow
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "Immunities", "Immunity to On Fire! and Burning")
-            {
-                OverrideColor = flameOrange
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "AllEffects", "Kills: 6-sec Heroic Surge (+30%), 18% Paradox, 15% Bell ring (160 AOE), 15%/12% dodge")
+
+            tooltips.Add(new TooltipLine(Mod, "Signature", "Harmonic Convergence: Theme procs build Harmonic Resonance stacks (max 5)")
             {
                 OverrideColor = harmonyGold
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'When all five movements converge, the symphony achieves perfect harmony'")
+
+            tooltips.Add(new TooltipLine(Mod, "Tier1", "1 stack: +5% damage reduction")
+            {
+                OverrideColor = harmonyGold
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Tier2", "3 stacks: +10% attack speed, +5 life regen")
+            {
+                OverrideColor = harmonyGold
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Tier3", "5 stacks: Full Harmony for 8s — +25% damage, +15% dodge, 0.5% max HP heal per hit")
+            {
+                OverrideColor = harmonyGold
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Dissonance", "Dissonance: Enemies with 3+ theme debuffs take 20% more damage for 8s (does not stack)")
+            {
+                OverrideColor = new Color(200, 100, 100)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "NightBonus", "At night: Harmonic Resonance decays slower (6s instead of 4s)")
+            {
+                OverrideColor = moonSilver
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Five voices. One harmony. The opus is complete.'")
             {
                 OverrideColor = new Color(255, 240, 200)
             });
@@ -931,13 +869,23 @@ namespace MagnumOpus.Content.Common.Accessories
     public class CompleteHarmonyPlayer : ModPlayer
     {
         public bool completeHarmonyEquipped;
-        private int heroicSurgeTimer;
-        private int invulnFramesOnKill = 90;
-        private int dodgeCooldown;
-        private int bellRingCooldown;
-        private Dictionary<int, int> paradoxStacks = new Dictionary<int, int>();
-        private Dictionary<int, int> paradoxTimers = new Dictionary<int, int>();
-        
+        public int harmonicResonanceStacks;
+        public int heroicSurgeTimer;
+        public int fullHarmonyTimer;
+
+        private int resonanceDecayTimer;
+        private int fullHarmonyDodgeCooldown;
+
+        // Track theme debuffs on enemies for Dissonance: NPC index → set of theme tags
+        private Dictionary<int, HashSet<string>> enemyThemeDebuffs = new Dictionary<int, HashSet<string>>();
+        // Dissonance timers: NPC index → frames remaining
+        private Dictionary<int, int> dissonanceTimers = new Dictionary<int, int>();
+        // Odile's Beauty cooldown per NPC (cannot reapply while active)
+        private Dictionary<int, int> odilesBeautyCooldowns = new Dictionary<int, int>();
+
+        private static readonly int FullHarmonyDuration = 480; // 8 seconds
+        private static readonly int DissonanceDuration = 480; // 8 seconds
+
         private static readonly int[] ParadoxDebuffs = new int[]
         {
             BuffID.Confused, BuffID.Slow, BuffID.CursedInferno,
@@ -951,263 +899,203 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void PostUpdate()
         {
-            if (heroicSurgeTimer > 0)
+            if (!completeHarmonyEquipped)
             {
-                heroicSurgeTimer--;
-                Player.GetDamage(DamageClass.Generic) += 0.30f;
+                harmonicResonanceStacks = 0;
+                heroicSurgeTimer = 0;
+                fullHarmonyTimer = 0;
+                resonanceDecayTimer = 0;
+                enemyThemeDebuffs.Clear();
+                dissonanceTimers.Clear();
+                odilesBeautyCooldowns.Clear();
+                return;
             }
-            
-            if (dodgeCooldown > 0) dodgeCooldown--;
-            if (bellRingCooldown > 0) bellRingCooldown--;
-            
-            List<int> toRemove = new List<int>();
-            foreach (var kvp in paradoxTimers)
+
+            bool isNight = !Main.dayTime;
+            int decayInterval = isNight ? 360 : 240; // 6s night, 4s day
+
+            // Decay Harmonic Resonance stacks
+            if (harmonicResonanceStacks > 0)
             {
-                paradoxTimers[kvp.Key]--;
-                if (paradoxTimers[kvp.Key] <= 0)
-                    toRemove.Add(kvp.Key);
+                resonanceDecayTimer++;
+                if (resonanceDecayTimer >= decayInterval)
+                {
+                    harmonicResonanceStacks--;
+                    resonanceDecayTimer = 0;
+                }
             }
-            foreach (int key in toRemove)
-            {
-                paradoxTimers.Remove(key);
-                paradoxStacks.Remove(key);
-            }
+
+            // Decay heroic surge
+            if (heroicSurgeTimer > 0) heroicSurgeTimer--;
+
+            // Decay Full Harmony
+            if (fullHarmonyTimer > 0) fullHarmonyTimer--;
+            if (fullHarmonyDodgeCooldown > 0) fullHarmonyDodgeCooldown--;
+
+            // Decay Dissonance timers
+            var expiredDissonance = dissonanceTimers.Where(kvp => kvp.Value <= 0).Select(kvp => kvp.Key).ToList();
+            foreach (int key in expiredDissonance)
+                dissonanceTimers.Remove(key);
+            foreach (int key in dissonanceTimers.Keys.ToList())
+                dissonanceTimers[key]--;
+
+            // Decay Odile's Beauty cooldowns
+            var expiredOdiles = odilesBeautyCooldowns.Where(kvp => kvp.Value <= 0).Select(kvp => kvp.Key).ToList();
+            foreach (int key in expiredOdiles)
+                odilesBeautyCooldowns.Remove(key);
+            foreach (int key in odilesBeautyCooldowns.Keys.ToList())
+                odilesBeautyCooldowns[key]--;
+
+            // Clean stale NPC entries
+            enemyThemeDebuffs = enemyThemeDebuffs
+                .Where(kvp => kvp.Key >= 0 && kvp.Key < Main.maxNPCs && Main.npc[kvp.Key].active)
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        }
+
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (!completeHarmonyEquipped) return;
+
+            // Eroica: 20% melee double damage
+            if (modifiers.DamageType == DamageClass.Melee && Main.rand.NextFloat() < 0.20f)
+                modifiers.FinalDamage *= 2f;
+
+            // Dissonance: +20% damage on enemies with 3+ theme debuffs
+            if (dissonanceTimers.ContainsKey(target.whoAmI))
+                modifiers.FinalDamage *= 1.20f;
         }
 
         public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            HandleHarmonyHit(target, damageDone, true);
+            if (!completeHarmonyEquipped) return;
+            HandleHarmonyHit(target, damageDone, null, item.DamageType);
         }
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (proj.owner == Player.whoAmI)
-            {
-                HandleHarmonyHit(target, damageDone, DamageClass.Magic.CountsAsClass(proj.DamageType));
-            }
+            if (!completeHarmonyEquipped || proj.owner != Player.whoAmI) return;
+            HandleHarmonyHit(target, damageDone, proj, proj.DamageType);
         }
 
-        private void HandleHarmonyHit(NPC target, int damageDone, bool isMagic)
+        private void HandleHarmonyHit(NPC target, int damageDone, Projectile proj, DamageClass damageType)
         {
-            if (!completeHarmonyEquipped) return;
-            
-            bool isNight = !Main.dayTime;
-            
-            // Blue fire at night (Moonlight + Campanella)
-            if (isNight && isMagic)
+            bool isMagic = damageType.CountsAsClass(DamageClass.Magic);
+
+            // === MOONSTRUCK (magic attacks) ===
+            if (isMagic)
             {
-                int bonusDamage = (int)(damageDone * 0.20f);
-                target.SimpleStrikeNPC(bonusDamage, 0, false, 0, null, false, 0, true);
-                
-                Color blueFlame = new Color(100, 150, 255);
+                target.AddBuff(BuffID.Slow, 180);
+                target.AddBuff(BuffID.Ichor, 120);
+                TrackThemeDebuff(target.whoAmI, "Moonstruck");
+                AddResonanceStack();
             }
-            
-            // Paradox (18%)
-            if (Main.rand.NextFloat() < 0.18f)
+
+            // === TOLLING DEATH (8% any weapon hit) ===
+            if (Main.rand.NextFloat() < 0.08f)
+            {
+                int secondStrike = (int)(damageDone * 0.75f);
+                if (secondStrike > 0 && Main.myPlayer == Player.whoAmI)
+                    target.SimpleStrikeNPC(secondStrike, 0, false, 0, null, false, 0, true);
+                target.AddBuff(BuffID.WitheredWeapon, 180);
+                TrackThemeDebuff(target.whoAmI, "TollingDeath");
+                AddResonanceStack();
+                Terraria.Audio.SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.5f, Volume = 0.6f }, target.Center);
+            }
+
+            // === PARADOX (10% any hit) ===
+            if (Main.rand.NextFloat() < 0.10f)
             {
                 int debuffId = ParadoxDebuffs[Main.rand.Next(ParadoxDebuffs.Length)];
-                target.AddBuff(debuffId, 360);
-                target.AddBuff(BuffID.OnFire, 300);
-                
-                if (!paradoxStacks.ContainsKey(target.whoAmI))
-                    paradoxStacks[target.whoAmI] = 0;
-                
-                paradoxStacks[target.whoAmI]++;
-                paradoxTimers[target.whoAmI] = 420;
-                
-                int stacks = paradoxStacks[target.whoAmI];
-                
-                // Five-theme VFX
-                Color[] colors = new Color[]
-                {
-                    MoonlightColors.Purple,
-                    EroicaColors.Gold,
-                    CampanellaColors.Orange,
-                    EnigmaColors.GreenFlame,
-                    SwanColors.GetRainbow(Main.rand.NextFloat())
-                };
-                
-                
-                
-                // Ultimate Harmony Collapse at 5 stacks
-                if (stacks >= 5)
-                {
-                    TriggerHarmonyCollapse(target, damageDone, isNight);
-                    paradoxStacks[target.whoAmI] = 0;
-                }
+                target.AddBuff(debuffId, 300);
+                TrackThemeDebuff(target.whoAmI, "Paradox");
+                AddResonanceStack();
             }
-            
-            // Bell ring (15%)
-            if (bellRingCooldown <= 0 && Main.rand.NextFloat() < 0.15f)
+
+            // === DYING SWAN'S GRACE (Odile's Beauty while airborne) ===
+            if (Player.velocity.Y != 0 || Player.wingTime > 0)
             {
-                bellRingCooldown = 20;
-                target.AddBuff(BuffID.Confused, 150);
-                
-                Color chimeColor = Color.Lerp(CampanellaColors.Orange, SwanColors.GetRainbow(Main.rand.NextFloat()), 0.5f);
-                
-                // AOE
-                float aoeRadius = 160f;
-                for (int i = 0; i < Main.maxNPCs; i++)
+                if (!odilesBeautyCooldowns.ContainsKey(target.whoAmI))
                 {
-                    NPC npc = Main.npc[i];
-                    if (npc.active && !npc.friendly && npc.whoAmI != target.whoAmI && !npc.immortal)
-                    {
-                        if (Vector2.Distance(npc.Center, target.Center) <= aoeRadius)
-                        {
-                            int aoeDamage = (int)(damageDone * 0.6f);
-                            npc.SimpleStrikeNPC(aoeDamage, 0, false, 0, null, false, 0, true);
-                            npc.AddBuff(BuffID.OnFire, 240);
-                            npc.AddBuff(ParadoxDebuffs[Main.rand.Next(ParadoxDebuffs.Length)], 180);
-                            
-                        }
-                    }
+                    target.AddBuff(ModContent.BuffType<OdilesBeauty>(), 300);
+                    odilesBeautyCooldowns[target.whoAmI] = 300; // 5s cooldown matching debuff duration
+                    TrackThemeDebuff(target.whoAmI, "OdilesBeauty");
+                    AddResonanceStack();
                 }
-                
-                Terraria.Audio.SoundEngine.PlaySound(SoundID.Item35, target.Center);
             }
-            
-            // Check for kill
+
+            // === CHECK FOR DISSONANCE ===
+            CheckDissonance(target.whoAmI);
+
+            // === FULL HARMONY HEAL ===
+            if (fullHarmonyTimer > 0)
+            {
+                int healAmount = Player.statLifeMax2 / 200; // 0.5% max HP
+                if (healAmount < 1) healAmount = 1;
+                Player.Heal(healAmount);
+            }
+
+            // === CHECK FOR KILL → HEROIC SURGE ===
             if (target.life <= 0 && !target.immortal)
             {
-                TriggerHeroicKill(target);
+                heroicSurgeTimer = 300; // 5 seconds
+                AddResonanceStack();
             }
         }
 
-        private void TriggerHeroicKill(NPC killedTarget)
+        private void AddResonanceStack()
         {
-            Player.immune = true;
-            Player.immuneTime = Math.Max(Player.immuneTime, invulnFramesOnKill);
-            heroicSurgeTimer = 360;
-            
-            // Five-theme kill VFX
-            
-            
-            
-            
-            for (int i = 0; i < 10; i++)
+            resonanceDecayTimer = 0; // Reset decay timer on proc
+            harmonicResonanceStacks++;
+            if (harmonicResonanceStacks >= 5)
             {
-                Color[] colors = new Color[]
-                {
-                    MoonlightColors.Purple, EroicaColors.Gold,
-                    CampanellaColors.Orange, EnigmaColors.GreenFlame, SwanColors.GetRainbow(i / 10f)
-                };
+                // Trigger Full Harmony
+                fullHarmonyTimer = FullHarmonyDuration;
+                harmonicResonanceStacks = 0;
+                Terraria.Audio.SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f, Volume = 0.8f }, Player.Center);
+            }
+            else if (harmonicResonanceStacks > 5)
+            {
+                harmonicResonanceStacks = 5;
             }
         }
 
-        private void TriggerHarmonyCollapse(NPC target, int baseDamage, bool isNight)
+        private void TrackThemeDebuff(int npcIndex, string themeTag)
         {
-            // ULTIMATE HARMONY EXPLOSION
-            
-            Color[] themeColors = new Color[]
+            if (!enemyThemeDebuffs.ContainsKey(npcIndex))
+                enemyThemeDebuffs[npcIndex] = new HashSet<string>();
+            enemyThemeDebuffs[npcIndex].Add(themeTag);
+        }
+
+        private void CheckDissonance(int npcIndex)
+        {
+            if (!enemyThemeDebuffs.ContainsKey(npcIndex)) return;
+            if (enemyThemeDebuffs[npcIndex].Count >= 3 && !dissonanceTimers.ContainsKey(npcIndex))
             {
-                isNight ? new Color(100, 150, 255) : MoonlightColors.Purple,
-                EroicaColors.Gold,
-                CampanellaColors.Orange,
-                EnigmaColors.GreenFlame,
-                SwanColors.GetRainbow(0f)
-            };
-            
-            
-            // 15 halos cycling through all themes
-            
-            
-            // Feather explosion
-            
-            // Glyph spiral
-            
-            // Eye formation
-            
-            
-            // Rainbow sparkle explosion
-            
-            // MASSIVE damage
-            if (Main.myPlayer == Player.whoAmI)
-            {
-                int harmonyDamage = (int)(baseDamage * 4.0f);
-                target.SimpleStrikeNPC(harmonyDamage, 0, false, 0, null, false, 0, true);
-                
-                float aoeRadius = 300f;
-                for (int i = 0; i < Main.maxNPCs; i++)
-                {
-                    NPC npc = Main.npc[i];
-                    if (npc.active && !npc.friendly && npc.whoAmI != target.whoAmI && !npc.immortal)
-                    {
-                        if (Vector2.Distance(npc.Center, target.Center) <= aoeRadius)
-                        {
-                            npc.SimpleStrikeNPC(harmonyDamage / 2, 0, false, 0, null, false, 0, true);
-                            npc.AddBuff(BuffID.OnFire, 420);
-                            npc.AddBuff(ParadoxDebuffs[Main.rand.Next(ParadoxDebuffs.Length)], 300);
-                            
-                        }
-                    }
-                }
+                dissonanceTimers[npcIndex] = DissonanceDuration;
+                Terraria.Audio.SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.3f, Volume = 0.7f }, Main.npc[npcIndex].Center);
             }
-            
-            Terraria.Audio.SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.4f, Volume = 1.5f }, target.Center);
+            else if (enemyThemeDebuffs[npcIndex].Count >= 3 && dissonanceTimers.ContainsKey(npcIndex))
+            {
+                dissonanceTimers[npcIndex] = DissonanceDuration; // Refresh timer
+            }
         }
 
         public override bool FreeDodge(Player.HurtInfo info)
         {
             if (!completeHarmonyEquipped) return false;
-            if (dodgeCooldown > 0) return false;
-            
-            bool isNight = !Main.dayTime;
-            float dodgeChance = isNight ? 0.15f : 0.12f;
-            
-            if (Main.rand.NextFloat() < dodgeChance)
+            if (fullHarmonyTimer <= 0 || fullHarmonyDodgeCooldown > 0) return false;
+
+            // Full Harmony: 15% dodge
+            if (Main.rand.NextFloat() < 0.15f)
             {
-                dodgeCooldown = 70;
-                TriggerHarmonyDodge();
+                fullHarmonyDodgeCooldown = 60;
+                Player.immune = true;
+                Player.immuneTime = 30;
                 return true;
             }
-            
-            return false;
-        }
 
-        private void TriggerHarmonyDodge()
-        {
-            // Ultimate harmony dodge
-            
-            Color[] themeColors = new Color[]
-            {
-                MoonlightColors.Purple,
-                EroicaColors.Gold,
-                CampanellaColors.Orange,
-                EnigmaColors.GreenFlame,
-                SwanColors.GetRainbow(0f)
-            };
-            
-            
-            
-            
-            
-            
-            // Deal dodge damage to nearby enemies
-            if (Main.myPlayer == Player.whoAmI)
-            {
-                int dodgeDamage = 150 + (int)(Player.GetTotalDamage(DamageClass.Generic).ApplyTo(100) * 0.3f);
-                float damageRadius = 200f;
-                
-                for (int i = 0; i < Main.maxNPCs; i++)
-                {
-                    NPC npc = Main.npc[i];
-                    if (npc.active && !npc.friendly && !npc.immortal && !npc.dontTakeDamage)
-                    {
-                        if (Vector2.Distance(npc.Center, Player.Center) <= damageRadius)
-                        {
-                            npc.SimpleStrikeNPC(dodgeDamage, 0, false, 0, null, false, 0, true);
-                        }
-                    }
-                }
-            }
-            
-            Player.immune = true;
-            Player.immuneTime = 35;
-            
-            Terraria.Audio.SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f, Volume = 1.3f }, Player.Center);
+            return false;
         }
     }
     #endregion
 }
-
-

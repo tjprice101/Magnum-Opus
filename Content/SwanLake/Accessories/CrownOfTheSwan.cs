@@ -1,35 +1,21 @@
 using Microsoft.Xna.Framework;
-using System;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.DataStructures;
 using MagnumOpus.Common;
-using MagnumOpus.Content.SwanLake.ResonantOres;
+using MagnumOpus.Content.Common.Accessories;
 using MagnumOpus.Content.SwanLake.ResonanceEnergies;
 using MagnumOpus.Content.SwanLake.HarmonicCores;
-using MagnumOpus.Content.SwanLake.Debuffs;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
-using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.SwanLake.Accessories
 {
     /// <summary>
-    /// Crown of the Swan - Mage Accessory
-    /// A regal crown that channels the dual nature of swan magic.
-    /// 
-    /// WHITE MODE (Efficiency):
-    /// - -20% mana cost
-    /// - Protective wisps orbit the player (up to 5)
-    /// - Wisps absorb damage and break when hit
-    /// 
-    /// BLACK MODE (Power):
-    /// - +30% magic damage
-    /// - +15% mana cost
-    /// - Spells apply Flame of the Swan (10% damage vulnerability, 5s duration, 2s cooldown)
-    /// 
-    /// Right-click while in inventory to toggle modes.
+    /// Crown of the Swan - Swan Lake magic class accessory (Dual Mode).
+    /// White Swan: 10% chance on magic hit → Glorious Swan (next 5 magic casts consume no mana).
+    /// Black Swan: 10% chance on magic hit → Swan of the Black Flame (next 5 magic attacks deal double damage).
+    /// Both modes: -15% mana cost, 4% mana refund on hit.
     /// </summary>
     public class CrownOfTheSwan : ModItem
     {
@@ -44,104 +30,49 @@ namespace MagnumOpus.Content.SwanLake.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<SwanLakeAccessoryPlayer>();
-            modPlayer.hasCrownOfTheSwan = true;
+            var attunement = player.GetModPlayer<MelodicAttunementPlayer>();
+            attunement.resonantBurnDmgBonus += 0.60f;
+            attunement.critDmgBonusOnBurn += 0.025f;
+            attunement.magicAttunement = true;
+
+            var crown = player.GetModPlayer<CrownOfTheSwanPlayer>();
+            crown.equipped = true;
+
+            // Fire/lava/confusion/slow immunity
+            player.buffImmune[BuffID.OnFire] = true;
+            player.buffImmune[BuffID.OnFire3] = true;
+            player.lavaImmune = true;
+            player.buffImmune[BuffID.Confused] = true;
+            player.buffImmune[BuffID.Slow] = true;
         }
 
-        public override bool CanRightClick()
-        {
-            return true;
-        }
+        public override bool CanRightClick() => true;
 
         public override void RightClick(Player player)
         {
-            var modPlayer = player.GetModPlayer<SwanLakeAccessoryPlayer>();
-            modPlayer.ToggleCrownMode();
+            var crown = player.GetModPlayer<CrownOfTheSwanPlayer>();
+            crown.isBlackMode = !crown.isBlackMode;
             Item.stack++;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Player player = Main.LocalPlayer;
-            var modPlayer = player.GetModPlayer<SwanLakeAccessoryPlayer>();
-            
-            string modeText = modPlayer.crownIsBlackMode ? "BLACK SWAN (Power)" : "WHITE SWAN (Efficiency)";
-            Color modeColor = modPlayer.crownIsBlackMode ? new Color(30, 30, 40) : new Color(240, 245, 255);
-            
-            tooltips.Add(new TooltipLine(Mod, "CurrentMode", $"Current Mode: {modeText}")
+            var crown = Main.LocalPlayer.GetModPlayer<CrownOfTheSwanPlayer>();
+            Color lore = new Color(240, 240, 255);
+            string mode = crown.isBlackMode ? "Black Swan (Odile)" : "White Swan (Odette)";
+
+            tooltips.Add(new TooltipLine(Mod, "Mode", $"Current: {mode} [Right-click to toggle]"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "'Resonance Seared' Melodic Attunement"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+60% increased Resonant Burn damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Hitting an enemy 15 times with magic damage while inflicted with Resonant Burn heals 10% HP"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Critical strike damage on Resonant Burn enemies increased by 2.5%"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "-15% mana cost, 4% mana refund on hit"));
+            tooltips.Add(new TooltipLine(Mod, "White", "White Swan: 10% chance on magic hit for Glorious Swan (next 5 casts consume no mana)"));
+            tooltips.Add(new TooltipLine(Mod, "Black", "Black Swan: 10% chance on magic hit for Swan of the Black Flame (next 5 attacks deal double damage)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Immunity to fire debuffs, lava, confusion, and slow"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Worn by royalty who understood that true power lies in choice'")
             {
-                OverrideColor = modeColor
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "ToggleHint", "[Right-click to toggle mode]")
-            {
-                OverrideColor = new Color(180, 180, 200)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Spacer1", " "));
-            
-            // White mode tooltip
-            Color whiteColor = modPlayer.crownIsBlackMode ? new Color(100, 100, 110) : new Color(240, 245, 255);
-            tooltips.Add(new TooltipLine(Mod, "WhiteHeader", "White Swan (Efficiency):")
-            {
-                OverrideColor = whiteColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "WhiteEffect1", "  -20% mana cost")
-            {
-                OverrideColor = whiteColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "WhiteEffect2", "  Protective wisps orbit you (up to 5)")
-            {
-                OverrideColor = whiteColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "WhiteEffect3", "  Wisps absorb incoming damage")
-            {
-                OverrideColor = whiteColor
-            });
-            
-            // Show wisp count if in white mode
-            if (!modPlayer.crownIsBlackMode)
-            {
-                tooltips.Add(new TooltipLine(Mod, "WispCount", $"  Current Wisps: {modPlayer.protectiveWispCount}/5")
-                {
-                    OverrideColor = new Color(150, 200, 255)
-                });
-            }
-            
-            tooltips.Add(new TooltipLine(Mod, "Spacer2", " "));
-            
-            // Black mode tooltip
-            Color blackColor = modPlayer.crownIsBlackMode ? new Color(200, 180, 220) : new Color(80, 80, 90);
-            tooltips.Add(new TooltipLine(Mod, "BlackHeader", "Black Swan (Power):")
-            {
-                OverrideColor = blackColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "BlackEffect1", "  +30% magic damage")
-            {
-                OverrideColor = blackColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "BlackEffect2", "  +15% mana cost")
-            {
-                OverrideColor = blackColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "BlackEffect3", "  Spells apply Flame of the Swan (5s)")
-            {
-                OverrideColor = blackColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "BlackEffect4", "  Enemies take 10% more damage")
-            {
-                OverrideColor = new Color(255, 180, 180)
-            });
-            tooltips.Add(new TooltipLine(Mod, "BlackEffect5", "  2 second cooldown between applications")
-            {
-                OverrideColor = new Color(180, 180, 200)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Spacer3", " "));
-            
-            tooltips.Add(new TooltipLine(Mod, "Flavor", "'Worn by royalty who understood that true power lies in choice'")
-            {
-                OverrideColor = new Color(150, 140, 170)
+                OverrideColor = lore
             });
         }
 
@@ -159,50 +90,96 @@ namespace MagnumOpus.Content.SwanLake.Accessories
         }
     }
 
-    /// <summary>
-    /// Handles the protective wisp damage absorption for Crown of the Swan.
-    /// </summary>
-    public class CrownOfTheSwanDamageHandler : ModPlayer
+    public class CrownOfTheSwanPlayer : ModPlayer
     {
-        public override void ModifyHurt(ref Player.HurtModifiers modifiers)
+        public bool equipped = false;
+        public bool isBlackMode = false;
+        public int gloriousSwanCasts = 0; // White: free mana casts remaining
+        public int blackFlameCasts = 0;   // Black: double damage casts remaining
+
+        public override void ResetEffects()
         {
-            var swanPlayer = Player.GetModPlayer<SwanLakeAccessoryPlayer>();
-            
-            // White mode wisps absorb damage
-            if (swanPlayer.hasCrownOfTheSwan && !swanPlayer.crownIsBlackMode && swanPlayer.protectiveWispCount > 0)
+            equipped = false;
+        }
+
+        public override void ModifyManaCost(Item item, ref float reduce, ref float mult)
+        {
+            if (!equipped) return;
+            if (!item.DamageType.CountsAsClass(DamageClass.Magic)) return;
+
+            // Base -15% mana cost
+            mult *= 0.85f;
+
+            // White mode: Glorious Swan — free casts
+            if (!isBlackMode && gloriousSwanCasts > 0)
             {
-                // Consume a wisp to reduce damage by 50%
-                swanPlayer.protectiveWispCount--;
-                swanPlayer.crownWispConsumedThisHit = true; // Prevent ConsumableDodge from consuming another wisp
-                modifiers.SourceDamage *= 0.5f;
-                
-                // Wisp break visual
-                float breakAngle = Main.GameUpdateCount * 0.03f + (MathHelper.TwoPi * swanPlayer.protectiveWispCount / 5f);
-                Vector2 wispPos = Player.Center + new Vector2((float)Math.Cos(breakAngle) * 45f, (float)Math.Sin(breakAngle) * 30f - 10f);
-                
-                for (int i = 0; i < 20; i++)
-                {
-                    Dust burst = Dust.NewDustPerfect(wispPos, DustID.WhiteTorch,
-                        Main.rand.NextVector2Circular(4f, 4f), 100, default, 1.5f);
-                    burst.noGravity = true;
-                }
-                
-                // Pearlescent burst
-                for (int i = 0; i < 10; i++)
-                {
-                    Color pearl = Main.rand.Next(3) switch
-                    {
-                        0 => new Color(255, 240, 245),
-                        1 => new Color(240, 245, 255),
-                        _ => new Color(250, 255, 245)
-                    };
-                    Dust shimmer = Dust.NewDustPerfect(wispPos + Main.rand.NextVector2Circular(15f, 15f),
-                        DustID.TintableDustLighted, Main.rand.NextVector2Circular(3f, 3f), 0, pearl, 1f);
-                    shimmer.noGravity = true;
-                }
-                
-                Terraria.Audio.SoundEngine.PlaySound(SoundID.Item27 with { Pitch = 0.5f }, wispPos);
-                Main.NewText($"Protective Wisp absorbed damage! ({swanPlayer.protectiveWispCount}/5 remaining)", new Color(200, 220, 255));
+                mult = 0f;
+                gloriousSwanCasts--;
+            }
+        }
+
+        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (!equipped) return;
+            if (!proj.DamageType.CountsAsClass(DamageClass.Magic)) return;
+            HandleMagicHit();
+        }
+
+        public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (!equipped) return;
+            if (!item.DamageType.CountsAsClass(DamageClass.Magic)) return;
+            HandleMagicHit();
+        }
+
+        private void HandleMagicHit()
+        {
+            // 4% mana refund on hit
+            int manaRefund = (int)(Player.statManaMax2 * 0.04f);
+            if (manaRefund > 0)
+            {
+                Player.statMana += manaRefund;
+                if (Player.statMana > Player.statManaMax2)
+                    Player.statMana = Player.statManaMax2;
+            }
+
+            // Mode-specific procs
+            if (!isBlackMode)
+            {
+                // White: 10% chance for Glorious Swan
+                if (Main.rand.NextFloat() < 0.10f && gloriousSwanCasts <= 0)
+                    gloriousSwanCasts = 5;
+            }
+            else
+            {
+                // Black: 10% chance for Swan of the Black Flame
+                if (Main.rand.NextFloat() < 0.10f && blackFlameCasts <= 0)
+                    blackFlameCasts = 5;
+            }
+        }
+
+        public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (!equipped) return;
+            if (!proj.DamageType.CountsAsClass(DamageClass.Magic)) return;
+
+            // Black mode: Swan of the Black Flame — double damage
+            if (isBlackMode && blackFlameCasts > 0)
+            {
+                modifiers.FinalDamage *= 2f;
+                blackFlameCasts--;
+            }
+        }
+
+        public override void ModifyHitNPCWithItem(Item item, NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (!equipped) return;
+            if (!item.DamageType.CountsAsClass(DamageClass.Magic)) return;
+
+            if (isBlackMode && blackFlameCasts > 0)
+            {
+                modifiers.FinalDamage *= 2f;
+                blackFlameCasts--;
             }
         }
     }

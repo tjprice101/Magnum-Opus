@@ -41,7 +41,7 @@ namespace MagnumOpus.Content.Autumn.Accessories
             
             tooltips.Add(new TooltipLine(Mod, "Season", "Autumn Accessory") { OverrideColor = autumnOrange });
             tooltips.Add(new TooltipLine(Mod, "Damage", "+7% damage") { OverrideColor = autumnBrown });
-            tooltips.Add(new TooltipLine(Mod, "LifeSteal", "20% chance to life steal 4% of damage dealt (max 8 HP)") { OverrideColor = autumnOrange });
+            tooltips.Add(new TooltipLine(Mod, "LifeSteal", "20% chance to life steal 4% of damage dealt (max 25 HP)") { OverrideColor = autumnOrange });
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The reaper claims a portion of every soul'") { OverrideColor = Color.Lerp(autumnBrown, Color.Black, 0.3f) });
         }
 
@@ -72,7 +72,7 @@ namespace MagnumOpus.Content.Autumn.Accessories
             if (reapersCharmEquipped && Main.rand.NextBool(5)) // 20% chance
             {
                 int healAmount = (int)(damageDone * 0.04f); // 4% lifesteal
-                healAmount = System.Math.Max(1, System.Math.Min(healAmount, 8)); // Cap at 8 HP
+                healAmount = System.Math.Max(1, System.Math.Min(healAmount, 25)); // Cap at 25 HP
                 Player.Heal(healAmount);
                 
                 // Minimal lifesteal dust
@@ -104,15 +104,11 @@ namespace MagnumOpus.Content.Autumn.Accessories
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             player.GetCritChance(DamageClass.Generic) += 10;
-
-            // Twilight glow effect based on time of day
-            float twilightMult = 1f;
-            if (!Main.dayTime && Main.time < 16200) // Early night (sunset)
-                twilightMult = 1.3f;
-            else if (Main.dayTime && Main.time > 38000) // Late day (approaching sunset)
-                twilightMult = 1.2f;
-
-            player.GetDamage(DamageClass.Generic) += 0.05f * twilightMult;
+            player.GetDamage(DamageClass.Generic) += 0.10f;
+            
+            // Boosted to +20% total during night
+            if (!Main.dayTime)
+                player.GetDamage(DamageClass.Generic) += 0.10f;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -122,7 +118,7 @@ namespace MagnumOpus.Content.Autumn.Accessories
             
             tooltips.Add(new TooltipLine(Mod, "Season", "Autumn Accessory") { OverrideColor = autumnOrange });
             tooltips.Add(new TooltipLine(Mod, "Crit", "+10% critical strike chance") { OverrideColor = twilightPurple });
-            tooltips.Add(new TooltipLine(Mod, "Damage", "+5% damage (boosted during twilight hours)") { OverrideColor = twilightPurple });
+            tooltips.Add(new TooltipLine(Mod, "Damage", "+10% damage (boosted to +20% during night)") { OverrideColor = twilightPurple });
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The boundary between day and night holds great power'") { OverrideColor = Color.Lerp(autumnOrange, twilightPurple, 0.5f) });
         }
 

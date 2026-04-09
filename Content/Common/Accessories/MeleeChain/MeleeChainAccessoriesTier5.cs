@@ -54,9 +54,9 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<ResonantCoreOfMoonlightSonata>(1)
+                .AddIngredient<ResonantCoreOfMoonlightSonata>(20)
                 .AddIngredient<MoonlightsResonantEnergy>(5)
-                .AddTile(TileID.MythrilAnvil)
+                .AddTile(TileID.LunarCraftingStation)
                 .Register();
         }
     }
@@ -354,7 +354,7 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<ResonantCoreOfFate>(1)
+                .AddIngredient<ResonantCoreOfFate>(30)
                 .AddIngredient<FateResonantEnergy>(10)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();

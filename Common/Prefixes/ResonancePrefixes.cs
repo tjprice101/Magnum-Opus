@@ -17,6 +17,7 @@ namespace MagnumOpus.Common.Prefixes
     /// </summary>
     public class ResonantBurnDebuff : ModBuff
     {
+        public override string Texture => "MagnumOpus/Assets/BuffIcons/ResonantBurnDebuff";
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;

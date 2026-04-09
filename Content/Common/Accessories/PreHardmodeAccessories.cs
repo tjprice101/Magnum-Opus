@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.Common.Accessories
     /// <summary>
     /// Composer's Notebook - Pre-Hardmode base accessory.
     /// A leather-bound journal containing the foundations of musical power.
-    /// +5% all damage, shows enemy health bars.
+    /// +5% Melee and Ranger Damage, +5% Attack Speed.
     /// </summary>
     public class ComposersNotebook : ModItem
     {
@@ -30,21 +30,22 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            // +5% all damage
-            player.GetDamage(DamageClass.Generic) += 0.05f;
+            // +5% Melee and Ranger Damage
+            player.GetDamage(DamageClass.Melee) += 0.05f;
+            player.GetDamage(DamageClass.Ranged) += 0.05f;
 
-            // Show enemy health bars (Hunter Potion effect)
-            player.detectCreature = true;
+            // +5% Attack Speed
+            player.GetAttackSpeed(DamageClass.Generic) += 0.05f;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "DamageBoost", "+5% damage")
+            tooltips.Add(new TooltipLine(Mod, "DamageBoost", "+5% melee and ranged damage")
             {
                 OverrideColor = new Color(180, 150, 255)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Detection", "Highlights nearby enemies")
+            tooltips.Add(new TooltipLine(Mod, "AttackSpeed", "+5% attack speed")
             {
                 OverrideColor = new Color(255, 200, 100)
             });
@@ -73,7 +74,7 @@ namespace MagnumOpus.Content.Common.Accessories
     /// <summary>
     /// Resonant Pendant - Pre-Hardmode base accessory.
     /// A circular metal disc that resonates with harmonic frequencies.
-    /// +3% damage, enemies have small chance to drop Minor Music Notes.
+    /// +3% Magic and Summoner Damage, +8% Attack and Summon Speed.
     /// </summary>
     public class ResonantPendant : ModItem
     {
@@ -88,8 +89,12 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            // +3% all damage
-            player.GetDamage(DamageClass.Generic) += 0.03f;
+            // +3% Magic and Summoner Damage
+            player.GetDamage(DamageClass.Magic) += 0.03f;
+            player.GetDamage(DamageClass.Summon) += 0.03f;
+
+            // +8% Attack and Summon Speed
+            player.GetAttackSpeed(DamageClass.Generic) += 0.08f;
 
             // Music note drop chance handled by global NPC
             player.GetModPlayer<ResonantPendantPlayer>().hasResonantPendant = true;
@@ -97,9 +102,14 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "DamageBoost", "+3% damage")
+            tooltips.Add(new TooltipLine(Mod, "DamageBoost", "+3% magic and summoner damage")
             {
                 OverrideColor = new Color(180, 150, 255)
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "AttackSpeed", "+8% attack and summon speed")
+            {
+                OverrideColor = new Color(255, 200, 100)
             });
 
             tooltips.Add(new TooltipLine(Mod, "NoteDrop", "Enemies may drop Minor Music Notes")
@@ -156,7 +166,7 @@ namespace MagnumOpus.Content.Common.Accessories
     /// <summary>
     /// Melodic Charm - Pre-Hardmode combined accessory.
     /// Combines the Composer's Notebook and Resonant Pendant.
-    /// +8% damage, mana regeneration improved, all previous effects.
+    /// +10% All Damage, +15 Mana Regen/second, +12% Attack and Summon Speed.
     /// </summary>
     public class MelodicCharm : ModItem
     {
@@ -171,14 +181,14 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            // +8% all damage (combined and enhanced)
-            player.GetDamage(DamageClass.Generic) += 0.08f;
+            // +10% All Damage
+            player.GetDamage(DamageClass.Generic) += 0.10f;
 
-            // Show enemy health bars
-            player.detectCreature = true;
-
-            // Improved mana regeneration
+            // +15 Mana Regeneration/second
             player.manaRegenBonus += 15;
+
+            // +12% Attack and Summon Speed
+            player.GetAttackSpeed(DamageClass.Generic) += 0.12f;
 
             // Music note drop chance
             player.GetModPlayer<ResonantPendantPlayer>().hasResonantPendant = true;
@@ -186,17 +196,17 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "DamageBoost", "+8% damage")
+            tooltips.Add(new TooltipLine(Mod, "DamageBoost", "+10% damage")
             {
                 OverrideColor = new Color(200, 170, 255)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "ManaRegen", "+15 mana regeneration")
+            tooltips.Add(new TooltipLine(Mod, "ManaRegen", "+15 mana regeneration per second")
             {
                 OverrideColor = new Color(100, 150, 255)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "Detection", "Highlights nearby enemies")
+            tooltips.Add(new TooltipLine(Mod, "AttackSpeed", "+12% attack and summon speed")
             {
                 OverrideColor = new Color(255, 200, 100)
             });

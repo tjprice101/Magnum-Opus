@@ -12,6 +12,7 @@ namespace MagnumOpus
     {
         public static ModKeybind DashKeybind { get; private set; }
         public static ModKeybind TeleportKeybind { get; private set; }
+        public static ModKeybind WingAmplifyKeybind { get; private set; }
 
         public override void Load()
         {
@@ -20,6 +21,7 @@ namespace MagnumOpus
 
             DashKeybind = KeybindLoader.RegisterKeybind(this, "Momentum Dash", "Q");
             TeleportKeybind = KeybindLoader.RegisterKeybind(this, "Phase Shift", "F");
+            WingAmplifyKeybind = KeybindLoader.RegisterKeybind(this, "Wing HP Amplification", "K");
         }
         
         public override void Unload()
@@ -32,6 +34,7 @@ namespace MagnumOpus
 
             DashKeybind = null;
             TeleportKeybind = null;
+            WingAmplifyKeybind = null;
         }
     }
 }

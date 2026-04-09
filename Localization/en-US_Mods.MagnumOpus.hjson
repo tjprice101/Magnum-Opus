@@ -1,4 +1,4 @@
-﻿Mods: {
+Mods: {
 	MagnumOpus: {
 		DropConditions.PostMoonLord: After Moon Lord has been defeated
 
@@ -3847,6 +3847,11 @@
 				Description: Marked by the black swan - defense reduced by 10
 			}
 
+			OdilesBeauty: {
+				DisplayName: Odile's Beauty
+				Description: Cursed by the dying swan's grace - taking damage over time
+			}
+
 			DeathMarkDebuff: {
 				DisplayName: Death Mark
 				Description: Condemned by the tolling bell - taking double damage
@@ -4253,7 +4258,10 @@
 			BlackSwanSpecialProj.DisplayName: Black Swan Special Proj
 		}
 
-		Keybinds.ToggleHarmonicCoreUI.DisplayName: Toggle Harmonic Core UI
+		Keybinds: {
+			ToggleHarmonicCoreUI.DisplayName: Toggle Harmonic Core UI
+			WingHPAmplification.DisplayName: Wing HP Amplification
+		}
 
 		Prefixes: {
 			ResonanceSlicedPrefix.DisplayName: Resonance Sliced
@@ -4362,6 +4370,11 @@ Buffs: {
 	ParadoxBrand: {
 		DisplayName: Paradox Brand
 		Description: Mods.MagnumOpus.Buffs.ParadoxBrand.Description
+	}
+
+	Paradox: {
+		DisplayName: Paradox
+		Description: Mods.MagnumOpus.Buffs.Paradox.Description
 	}
 
 	WatchedDebuff: {
@@ -4613,6 +4626,555 @@ Buffs: {
 		DisplayName: Frost Sentinel Buff
 		Description: Mods.MagnumOpus.Buffs.FrostSentinelBuff.Description
 	}
+
+	// --- Nachtmusik Accessory Buffs ---
+	NocturnesCadenceBuff: {
+		DisplayName: Nocturne's Cadence
+		Description: +8% melee damage, +5% melee speed
+	}
+
+	Nocturne: {
+		DisplayName: Nocturne
+		Description: Mods.MagnumOpus.Buffs.Nocturne.Description
+	}
+
+	RondoAllegroBuff: {
+		DisplayName: Rondo Allegro
+		Description: +12% ranged damage, +8% ranged speed
+	}
+
+	StarlitFervorBuff: {
+		DisplayName: Starlit Fervor
+		Description: +10% all damage, +5% crit
+	}
+
+	EineKleineBuff: {
+		DisplayName: Eine Kleine
+		Description: +12% all damage, +8% dodge, +5% crit
+	}
+
+	LullabyOfTheStarsBuff: {
+		DisplayName: Lullaby of the Stars
+		Description: +8% all damage, +3 regen, +5% dodge
+	}
+
+	Lullaby: {
+		DisplayName: Lullaby
+		Description: Mods.MagnumOpus.Buffs.Lullaby.Description
+	}
+
+	DaydreamMinuetBuff: {
+		DisplayName: Daydream Minuet
+		Description: +5% all damage, +2 regen, +3% dodge
+	}
+
+	NotturnoBuff: {
+		DisplayName: Notturno
+		Description: +5% all damage at night
+	}
+
+	SerenadeRefrainBuff: {
+		DisplayName: Serenade Refrain
+		Description: +8% melee damage, +5% melee speed
+	}
+
+	PhantomStepBuff: {
+		DisplayName: Phantom Step
+		Description: +5% dodge chance for a short time
+	}
+
+	// --- Ode to Joy Accessory Buffs ---
+	JubilantTempoBuff: {
+		DisplayName: Jubilant Tempo
+		Description: +20% melee speed, +15% melee damage
+	}
+
+	JoyousBloomBuff: {
+		DisplayName: Joyous Bloom
+		Description: +15% magic damage, +10% magic crit
+	}
+
+	EncoreBuff: {
+		DisplayName: Encore
+		Description: +8% all damage per stack
+	}
+
+	TriumphantVolleyBuff: {
+		DisplayName: Triumphant Volley
+		Description: +20% ranged damage, +10% ranged speed
+	}
+
+	OvationBuff: {
+		DisplayName: Ovation
+		Description: +10% all damage, +5% crit per stack
+	}
+
+	ChoralesBlessingBuff: {
+		DisplayName: Chorale's Blessing
+		Description: +15% summon damage, minion hits heal
+	}
+
+	RefrainBuff: {
+		DisplayName: Refrain
+		Description: +25% summon damage, doubled Hymnal Anchor proc
+	}
+
+	// --- Dies Irae Accessory Buffs ---
+	DayOfWrathBuff: {
+		DisplayName: Day of Wrath
+		Description: +30% melee damage, Cursed Inferno on melee hits
+	}
+
+	TubaMirumBuff: {
+		DisplayName: Tuba Mirum
+		Description: +20% magic damage, magic ignores 15% defense
+	}
+
+	TubaMirum: {
+		DisplayName: Tuba Mirum
+		Description: Mods.MagnumOpus.Buffs.TubaMirum.Description
+	}
+
+	LiberaMeBuff: {
+		DisplayName: Libera Me
+		Description: +25% ranged damage, +15% crit, ranged pierce +1
+	}
+
+	RexTremendaeBuff: {
+		DisplayName: Rex Tremendae
+		Description: +20% summon damage, +15% whip speed
+	}
+
+	WrathAscendantBuff: {
+		DisplayName: Wrath Ascendant
+		Description: +5% all damage while flying
+	}
+
+	// --- Clair de Lune Accessory Buffs ---
+	ReverieBuff: {
+		DisplayName: Rêverie
+		Description: +15% melee damage, +5% dodge, 2% lifesteal
+	}
+
+	ArabesqueBuff: {
+		DisplayName: Arabesque
+		Description: +12% magic damage, -15% mana cost
+	}
+
+	RefletsDansLEauBuff: {
+		DisplayName: Reflets dans l'Eau
+		Description: +12% ranged damage, +8% ranged crit
+	}
+
+	ClairBuff: {
+		DisplayName: Clair
+		Description: +10% summon damage, +3 life regen
+	}
+
+	PreludeBuff: {
+		DisplayName: Prélude
+		Description: +2 life regen, +5% dodge when flying
+	}
+
+	ClairDeLuneBuff: {
+		DisplayName: Clair de Lune
+		Description: +10% all damage, +10% dodge
+	}
+
+	NachtmusikWingAmplifyBuff: {
+		DisplayName: Serenade of Stars
+		Description: Musical resonance doubles your effective HP
+	}
+
+	DiesIraeWingAmplifyBuff: {
+		DisplayName: Wings of Damnation
+		Description: Musical resonance doubles your effective HP
+	}
+
+	OdeToJoyWingAmplifyBuff: {
+		DisplayName: Jubilant Ascension
+		Description: Musical resonance doubles your effective HP
+	}
+
+	ClairDeLuneWingAmplifyBuff: {
+		DisplayName: Wings of Moonlit Reverie
+		Description: Musical resonance doubles your effective HP
+	}
+
+	EnigmaWingAmplifyBuff: {
+		DisplayName: Riddlemaster's Flight
+		Description: Musical resonance doubles your effective HP
+	}
+
+	EroicaWingAmplifyBuff: {
+		DisplayName: Reincarnated Valor
+		Description: Musical resonance doubles your effective HP
+	}
+
+	FateWingAmplifyBuff: {
+		DisplayName: Symphony of the Universe
+		Description: Musical resonance doubles your effective HP
+	}
+
+	LaCampanellaWingAmplifyBuff: {
+		DisplayName: Wings of the Bellborn Dawn
+		Description: Musical resonance doubles your effective HP
+	}
+
+	MoonlightWingAmplifyBuff: {
+		DisplayName: Wings of the Moon
+		Description: Musical resonance doubles your effective HP
+	}
+
+	SwanLakeWingAmplifyBuff: {
+		DisplayName: Iridescent Dawn
+		Description: Musical resonance doubles your effective HP
+	}
+
+	Berceuse: {
+		DisplayName: Berceuse
+		Description: Mods.MagnumOpus.Buffs.Berceuse.Description
+	}
+
+	Brumes: {
+		DisplayName: Brumes
+		Description: Mods.MagnumOpus.Buffs.Brumes.Description
+	}
+
+	LightspeedReverie: {
+		DisplayName: Lightspeed Reverie
+		Description: Mods.MagnumOpus.Buffs.LightspeedReverie.Description
+	}
+
+	MoonbeamFocus: {
+		DisplayName: Moonbeam Focus
+		Description: Mods.MagnumOpus.Buffs.MoonbeamFocus.Description
+	}
+
+	PasSurLaNeige: {
+		DisplayName: Pas Sur La Neige
+		Description: Mods.MagnumOpus.Buffs.PasSurLaNeige.Description
+	}
+
+	ReveriesFlow: {
+		DisplayName: Reveries Flow
+		Description: Mods.MagnumOpus.Buffs.ReveriesFlow.Description
+	}
+
+	Voiles: {
+		DisplayName: Voiles
+		Description: Mods.MagnumOpus.Buffs.Voiles.Description
+	}
+
+	ArabesqueAscension: {
+		DisplayName: Arabesque Ascension
+		Description: Mods.MagnumOpus.Buffs.ArabesqueAscension.Description
+	}
+
+	AzureImmolation: {
+		DisplayName: Azure Immolation
+		Description: Mods.MagnumOpus.Buffs.AzureImmolation.Description
+	}
+
+	BurningPasDeDeux: {
+		DisplayName: Burning Pas De Deux
+		Description: Mods.MagnumOpus.Buffs.BurningPasDeDeux.Description
+	}
+
+	CodaResonance: {
+		DisplayName: Coda Resonance
+		Description: Mods.MagnumOpus.Buffs.CodaResonance.Description
+	}
+
+	DanceOfDeath: {
+		DisplayName: Dance Of Death
+		Description: Mods.MagnumOpus.Buffs.DanceOfDeath.Description
+	}
+
+	Dissonance: {
+		DisplayName: Dissonance
+		Description: Mods.MagnumOpus.Buffs.Dissonance.Description
+	}
+
+	Fortissimo: {
+		DisplayName: Fortissimo
+		Description: Mods.MagnumOpus.Buffs.Fortissimo.Description
+	}
+
+	FullHarmony: {
+		DisplayName: Full Harmony
+		Description: Mods.MagnumOpus.Buffs.FullHarmony.Description
+	}
+
+	HarmonicResonance: {
+		DisplayName: Harmonic Resonance
+		Description: Mods.MagnumOpus.Buffs.HarmonicResonance.Description
+	}
+
+	MoonlitReverie: {
+		DisplayName: Moonlit Reverie
+		Description: Mods.MagnumOpus.Buffs.MoonlitReverie.Description
+	}
+
+	NocturnalTrinity: {
+		DisplayName: Nocturnal Trinity
+		Description: Mods.MagnumOpus.Buffs.NocturnalTrinity.Description
+	}
+
+	RadiantCrescendo: {
+		DisplayName: Radiant Crescendo
+		Description: Mods.MagnumOpus.Buffs.RadiantCrescendo.Description
+	}
+
+	RequiemsJudgment: {
+		DisplayName: Requiems Judgment
+		Description: Mods.MagnumOpus.Buffs.RequiemsJudgment.Description
+	}
+
+	RequiemsMark: {
+		DisplayName: Requiems Mark
+		Description: Mods.MagnumOpus.Buffs.RequiemsMark.Description
+	}
+
+	SilverCascade: {
+		DisplayName: Silver Cascade
+		Description: Mods.MagnumOpus.Buffs.SilverCascade.Description
+	}
+
+	ValorOfTheRadiantSwan: {
+		DisplayName: Valor Of The Radiant Swan
+		Description: Mods.MagnumOpus.Buffs.ValorOfTheRadiantSwan.Description
+	}
+
+	VoidImmolation: {
+		DisplayName: Void Immolation
+		Description: Mods.MagnumOpus.Buffs.VoidImmolation.Description
+	}
+
+	ChainsOfRequiem: {
+		DisplayName: Chains Of Requiem
+		Description: Mods.MagnumOpus.Buffs.ChainsOfRequiem.Description
+	}
+
+	Condemned: {
+		DisplayName: Condemned
+		Description: Mods.MagnumOpus.Buffs.Condemned.Description
+	}
+
+	Confutatis: {
+		DisplayName: Confutatis
+		Description: Mods.MagnumOpus.Buffs.Confutatis.Description
+	}
+
+	ExecutionersFocus: {
+		DisplayName: Executioners Focus
+		Description: Mods.MagnumOpus.Buffs.ExecutionersFocus.Description
+	}
+
+	InfernalChoir: {
+		DisplayName: Infernal Choir
+		Description: Mods.MagnumOpus.Buffs.InfernalChoir.Description
+	}
+
+	Lacrimosa: {
+		DisplayName: Lacrimosa
+		Description: Mods.MagnumOpus.Buffs.Lacrimosa.Description
+	}
+
+	MorsStupebit: {
+		DisplayName: Mors Stupebit
+		Description: Mods.MagnumOpus.Buffs.MorsStupebit.Description
+	}
+
+	QuantusTremor: {
+		DisplayName: Quantus Tremor
+		Description: Mods.MagnumOpus.Buffs.QuantusTremor.Description
+	}
+
+	ScorchedEarth: {
+		DisplayName: Scorched Earth
+		Description: Mods.MagnumOpus.Buffs.ScorchedEarth.Description
+	}
+
+	Scorched: {
+		DisplayName: Scorched
+		Description: Mods.MagnumOpus.Buffs.Scorched.Description
+	}
+
+	UnstoppableFury: {
+		DisplayName: Unstoppable Fury
+		Description: Mods.MagnumOpus.Buffs.UnstoppableFury.Description
+	}
+
+	Wrathfire: {
+		DisplayName: Wrathfire
+		Description: Mods.MagnumOpus.Buffs.Wrathfire.Description
+	}
+
+	ParadoxRush: {
+		DisplayName: Paradox Rush
+		Description: Mods.MagnumOpus.Buffs.ParadoxRush.Description
+	}
+
+	VoidCollapse: {
+		DisplayName: Void Collapse
+		Description: Mods.MagnumOpus.Buffs.VoidCollapse.Description
+	}
+
+	HeroicSurge: {
+		DisplayName: Heroic Surge
+		Description: Mods.MagnumOpus.Buffs.HeroicSurge.Description
+	}
+
+	AstralResonance: {
+		DisplayName: Astral Resonance
+		Description: Mods.MagnumOpus.Buffs.AstralResonance.Description
+	}
+
+	ConstellationMark: {
+		DisplayName: Constellation Mark
+		Description: Mods.MagnumOpus.Buffs.ConstellationMark.Description
+	}
+
+	CosmicEmpowerment: {
+		DisplayName: Cosmic Empowerment
+		Description: Mods.MagnumOpus.Buffs.CosmicEmpowerment.Description
+	}
+
+	TollingDeath: {
+		DisplayName: Tolling Death
+		Description: Mods.MagnumOpus.Buffs.TollingDeath.Description
+	}
+
+	MoonlitSerenity: {
+		DisplayName: Moonlit Serenity
+		Description: Mods.MagnumOpus.Buffs.MoonlitSerenity.Description
+	}
+
+	Moonstruck: {
+		DisplayName: Moonstruck
+		Description: Mods.MagnumOpus.Buffs.Moonstruck.Description
+	}
+
+	ShatteredMoon: {
+		DisplayName: Shattered Moon
+		Description: Mods.MagnumOpus.Buffs.ShatteredMoon.Description
+	}
+
+	SerenadeEcho: {
+		DisplayName: Serenade Echo
+		Description: Mods.MagnumOpus.Buffs.SerenadeEcho.Description
+	}
+
+	SottoVoce: {
+		DisplayName: Sotto Voce
+		Description: Mods.MagnumOpus.Buffs.SottoVoce.Description
+	}
+
+	ArcaneJubilee: {
+		DisplayName: Arcane Jubilee
+		Description: Mods.MagnumOpus.Buffs.ArcaneJubilee.Description
+	}
+
+	HuntersJubilation: {
+		DisplayName: Hunters Jubilation
+		Description: Mods.MagnumOpus.Buffs.HuntersJubilation.Description
+	}
+
+	HymnalAnchor: {
+		DisplayName: Hymnal Anchor
+		Description: Mods.MagnumOpus.Buffs.HymnalAnchor.Description
+	}
+
+	HymnOfFortitude: {
+		DisplayName: Hymn Of Fortitude
+		Description: Mods.MagnumOpus.Buffs.HymnOfFortitude.Description
+	}
+
+	JubilantStride: {
+		DisplayName: Jubilant Stride
+		Description: Mods.MagnumOpus.Buffs.JubilantStride.Description
+	}
+
+	TriumphantCrescendo: {
+		DisplayName: Triumphant Crescendo
+		Description: Mods.MagnumOpus.Buffs.TriumphantCrescendo.Description
+	}
+
+	TuttiFortissimo: {
+		DisplayName: Tutti Fortissimo
+		Description: Mods.MagnumOpus.Buffs.TuttiFortissimo.Description
+	}
+
+	VerdantRenewal: {
+		DisplayName: Verdant Renewal
+		Description: Mods.MagnumOpus.Buffs.VerdantRenewal.Description
+	}
+
+	WitheredRoot: {
+		DisplayName: Withered Root
+		Description: Mods.MagnumOpus.Buffs.WitheredRoot.Description
+	}
+
+	HeatIntensity: {
+		DisplayName: Heat Intensity
+		Description: Mods.MagnumOpus.Buffs.HeatIntensity.Description
+	}
+
+	SolarZenith: {
+		DisplayName: Solar Zenith
+		Description: Mods.MagnumOpus.Buffs.SolarZenith.Description
+	}
+
+	DyingSwansGrace: {
+		DisplayName: Dying Swans Grace
+		Description: Mods.MagnumOpus.Buffs.DyingSwansGrace.Description
+	}
+
+	GloriousSwan: {
+		DisplayName: Glorious Swan
+		Description: Mods.MagnumOpus.Buffs.GloriousSwan.Description
+	}
+
+	OdettesWonder: {
+		DisplayName: Odettes Wonder
+		Description: Mods.MagnumOpus.Buffs.OdettesWonder.Description
+	}
+
+	OdilesGrace: {
+		DisplayName: Odiles Grace
+		Description: Mods.MagnumOpus.Buffs.OdilesGrace.Description
+	}
+
+	SwanOfTheBlackFlame: {
+		DisplayName: Swan Of The Black Flame
+		Description: Mods.MagnumOpus.Buffs.SwanOfTheBlackFlame.Description
+	}
+
+	SwansAria: {
+		DisplayName: Swans Aria
+		Description: Mods.MagnumOpus.Buffs.SwansAria.Description
+	}
+
+	SwansOpera: {
+		DisplayName: Swans Opera
+		Description: Mods.MagnumOpus.Buffs.SwansOpera.Description
+	}
+
+	OdilesBeauty: {
+		DisplayName: Odiles Beauty
+		Description: Mods.MagnumOpus.Buffs.OdilesBeauty.Description
+	}
+
+	FrozenParadox: {
+		DisplayName: Frozen Paradox
+		Description: Mods.MagnumOpus.Buffs.FrozenParadox.Description
+	}
+
+	WintersFocus: {
+		DisplayName: Winters Focus
+		Description: Mods.MagnumOpus.Buffs.WintersFocus.Description
+	}
 }
 
 Items: {
@@ -4696,23 +5258,23 @@ Items: {
 		Tooltip: ""
 	}
 
-	ChronobladeGauntlet: {
-		DisplayName: Chronoblade Gauntlet
+	ReverieGauntlet: {
+		DisplayName: Reverie Gauntlet
 		Tooltip: ""
 	}
 
-	ChronodisruptorOfHarmony: {
-		DisplayName: Chronodisruptor Of Harmony
+	DreambowClasp: {
+		DisplayName: Dreambow Clasp
 		Tooltip: ""
 	}
 
-	FracturedHourglassPendant: {
-		DisplayName: Fractured Hourglass Pendant
+	LuminousReveriePendant: {
+		DisplayName: Luminous Reverie Pendant
 		Tooltip: ""
 	}
 
-	TimesingerSigil: {
-		DisplayName: Timesinger Sigil
+	DreamsingerSigil: {
+		DisplayName: Dreamsinger Sigil
 		Tooltip: ""
 	}
 
@@ -4847,7 +5409,7 @@ Items: {
 	}
 
 	CosmicWardensRegalia: {
-		DisplayName: Cosmic Wardens Regalia
+		DisplayName: Symphony of Fate's Tempo
 		Tooltip: ""
 	}
 
@@ -5237,7 +5799,7 @@ Items: {
 	}
 
 	OpusOfFourMovements: {
-		DisplayName: Opus Of Four Movements
+		DisplayName: Opus of Four Movements
 		Tooltip: ""
 	}
 
@@ -5462,7 +6024,7 @@ Items: {
 	}
 
 	SummonersMagnumOpus: {
-		DisplayName: Summoners Magnum Opus
+		DisplayName: Summoner's Magnum Opus
 		Tooltip: ""
 	}
 
@@ -6547,7 +7109,12 @@ Items: {
 	}
 
 	StarweaversSignet: {
-		DisplayName: Starweavers Signet
+		DisplayName: Starweaver's Signet
+		Tooltip: ""
+	}
+
+	EventideQuiver: {
+		DisplayName: Eventide Quiver
 		Tooltip: ""
 	}
 
@@ -6666,8 +7233,8 @@ Items: {
 		Tooltip: ""
 	}
 
-	SymphonyOfBlossoms: {
-		DisplayName: Symphony Of Blossoms
+	AnthemsArbalist: {
+		DisplayName: Anthem's Arbalist
 		Tooltip: ""
 	}
 
@@ -7200,6 +7767,11 @@ Items: {
 		DisplayName: Permafrost Codex
 		Tooltip: ""
 	}
+
+	JubilantAscension: {
+		DisplayName: Jubilant Ascension
+		Tooltip: ""
+	}
 }
 
 NPCs: {
@@ -7673,4 +8245,10 @@ Projectiles: {
 	SentinelFrostBolt.DisplayName: Sentinel Frost Bolt
 	StormIcicle.DisplayName: Storm Icicle
 	GlacialExecutionerSwing.DisplayName: Glacial Executioner Swing
+}
+
+Keybinds: {
+	"Wing HP Amplification.DisplayName": Wing  H P  Amplification
+	"Phase Shift.DisplayName": Phase  Shift
+	"Momentum Dash.DisplayName": Momentum  Dash
 }

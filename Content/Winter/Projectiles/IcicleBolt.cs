@@ -6,6 +6,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.DataStructures;
+using Terraria.Graphics;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
@@ -24,6 +25,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
     {
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
         
+        private VertexStrip _strip;
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);
         private static readonly Color CrystalCyan = new Color(100, 255, 255);
@@ -35,7 +37,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 10;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -220,22 +222,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            try
-            {
-            // Use procedural VFX system instead of PNG textures
-            // This replaces loading of: ConstellationStyleSparkle, EnergyFlare, EnergyFlare4, SoftGlow2
-            ProceduralProjectileVFX.DrawWinterProjectile(Main.spriteBatch, Projectile, 1.2f);
-            
-            }
-            catch { }
-            finally
-            {
-                try { sb.End(); } catch { }
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-            }
-
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.Winter, ref _strip);
             return false;
         }
 

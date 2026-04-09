@@ -31,19 +31,14 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         {
             var conductor = player.GetModPlayer<ConductorPlayer>();
             conductor.HasConductorsWand = true;
+            
+            player.maxMinions += 1;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+1 minion slot")
-            {
-                OverrideColor = new Color(200, 180, 255)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The first step in mastering the orchestra'")
-            {
-                OverrideColor = new Color(150, 200, 100) * 0.8f
-            });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+1 minion slot"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The first step in mastering the orchestra'") { OverrideColor = new Color(150, 200, 100) });
         }
 
         public override void AddRecipes()
@@ -77,24 +72,16 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         {
             var conductor = player.GetModPlayer<ConductorPlayer>();
             conductor.HasSpringMaestrosBadge = true;
+            
+            player.maxMinions += 2;
+            player.GetDamage(DamageClass.Summon) += 0.10f;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+1 minion slot")
-            {
-                OverrideColor = new Color(200, 180, 255)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+10% summon damage")
-            {
-                OverrideColor = new Color(255, 200, 200)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Spring awakens the conductor within'")
-            {
-                OverrideColor = SpringGreen * 0.8f
-            });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+2 minion slots"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+10% summon damage"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Spring awakens the conductor within'") { OverrideColor = new Color(144, 238, 144) });
         }
 
         public override void AddRecipes()
@@ -132,34 +119,17 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         {
             var conductor = player.GetModPlayer<ConductorPlayer>();
             conductor.HasConductorsBurningCrown = true;
+            
+            player.maxMinions += 3;
+            player.GetDamage(DamageClass.Summon) += 0.12f;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "While holding Resonance Born weapon:")
-            {
-                OverrideColor = new Color(255, 150, 100)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+5% minion damage per Resonant Burn stack")
-            {
-                OverrideColor = new Color(255, 200, 150)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "MaxBonus", "Max: +25% at 5 stacks")
-            {
-                OverrideColor = new Color(255, 150, 150)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "At max stacks: +25% bonus minion damage (5 seconds) + 2 temporary minion slots (8 seconds)")
-            {
-                OverrideColor = new Color(200, 180, 255)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The conductor's crown commands fire and spirit alike'")
-            {
-                OverrideColor = SummerOrange * 0.8f
-            });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+3 minion slots"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+12% summon damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Whips and summons apply Burning on hit"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The conductor's crown commands fire and spirit alike'") { OverrideColor = new Color(255, 140, 0) });
         }
 
         public override void AddRecipes()
@@ -195,40 +165,19 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         {
             var conductor = player.GetModPlayer<ConductorPlayer>();
             conductor.HasHarvestBeastlordsHorn = true;
-            conductor.hasResonantBeastlordsHorn = true; // Resonance Synergy T4 bonuses
+            
+            player.maxMinions += 4;
+            player.GetDamage(DamageClass.Summon) += 0.15f;
+            player.GetCritChance(DamageClass.Summon) += 5;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+1 minion slot, +12% summon damage, +5% summon crit")
-            {
-                OverrideColor = new Color(200, 180, 255)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+3% summon critical strike per Resonant Burn stack")
-            {
-                OverrideColor = new Color(255, 220, 180)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "MaxCrit", "Max: +15% at 5 stacks")
-            {
-                OverrideColor = new Color(255, 200, 150)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Minion critical hits add 2 Resonant Burn stacks to target")
-            {
-                OverrideColor = new Color(255, 150, 100)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "At max stacks: Minions home to burning enemies (8 seconds)")
-            {
-                OverrideColor = new Color(255, 180, 100)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Command the beasts of the harvest'")
-            {
-                OverrideColor = AutumnBrown * 0.8f
-            });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+4 minion slots"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+15% summon damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+5% summon critical strike chance"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Whips and summons apply Burning on hit"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Command the beasts of the harvest'") { OverrideColor = new Color(180, 100, 40) });
         }
 
         public override void AddRecipes()
@@ -264,24 +213,20 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         {
             var conductor = player.GetModPlayer<ConductorPlayer>();
             conductor.HasPermafrostCommandersCrown = true;
+            
+            player.maxMinions += 5;
+            player.GetDamage(DamageClass.Summon) += 0.18f;
+            player.GetCritChance(DamageClass.Summon) += 8;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+2 minion slots")
-            {
-                OverrideColor = new Color(200, 180, 255)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+20% summon damage")
-            {
-                OverrideColor = new Color(255, 200, 200)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Winter's chill commands absolute obedience'")
-            {
-                OverrideColor = WinterBlue * 0.8f
-            });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+5 minion slots"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+18% summon damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+8% summon critical strike chance"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Whips and summons apply Burning on hit"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "5% chance to slow enemies for 1 second on hit"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Winter's chill commands absolute obedience'") { OverrideColor = new Color(150, 220, 255) });
         }
 
         public override void AddRecipes()
@@ -315,27 +260,20 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         {
             var conductor = player.GetModPlayer<ConductorPlayer>();
             conductor.HasVivaldisOrchestraBaton = true;
+            
+            player.maxMinions += 6;
+            player.GetDamage(DamageClass.Summon) += 0.20f;
+            player.GetCritChance(DamageClass.Summon) += 10;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            float hue = (Main.GameUpdateCount * 0.01f) % 1f;
-            Color cyclingColor = Main.hslToRgb(hue, 0.8f, 0.6f);
-
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+2 minion slots")
-            {
-                OverrideColor = new Color(200, 180, 255)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+25% summon damage")
-            {
-                OverrideColor = new Color(255, 200, 200)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The four seasons unite under your baton'")
-            {
-                OverrideColor = cyclingColor * 0.8f
-            });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+6 minion slots"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+20% summon damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+10% summon critical strike chance"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Whips and summons apply Burning, Frostburn, Poison, and Bleeding"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "8% chance to slow enemies for 1 second on hit"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The four seasons unite under your baton'") { OverrideColor = new Color(150, 200, 100) });
         }
 
         public override void AddRecipes()

@@ -73,7 +73,7 @@ namespace MagnumOpus.Content.Spring.Accessories
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             player.lifeRegen += 3;
-            player.manaRegen += 2;
+            player.manaRegenBonus += 2;
             player.GetDamage(DamageClass.Generic) += 0.04f; // 4% damage boost
         }
 

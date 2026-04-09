@@ -5,8 +5,10 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
+using Terraria.Graphics;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 
 // Dynamic particle effects for aesthetically pleasing animations
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
@@ -23,6 +25,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     {
         public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow";
         
+        private VertexStrip _strip;
         private static readonly Color DecayPurple = new Color(100, 50, 120);
         private static readonly Color DeathGreen = new Color(80, 120, 60);
         private static readonly Color WitherBrown = new Color(90, 60, 40);
@@ -356,106 +359,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            try
-            {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            
-            // Load MULTIPLE flare textures for layered spinning effect
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
-            Texture2D flare1 = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare", AssetRequestMode.ImmediateLoad).Value;
-            Texture2D flare2 = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Flare/flare_16", AssetRequestMode.ImmediateLoad).Value;
-            
-            Vector2 origin = texture.Size() / 2f;
-            Vector2 flareOrigin1 = flare1.Size() / 2f;
-            Vector2 flareOrigin2 = flare2.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            float time = Main.GameUpdateCount * 0.055f;
-            float pulse = 1f + (float)Math.Sin(time * 2f) * 0.15f;
-            
-            // Colors with alpha removed for proper additive blending (Fargos pattern)
-            Color purpleBloom = DecayPurple with { A = 0 };
-            Color greenBloom = DeathGreen with { A = 0 };
-            Color brownBloom = WitherBrown with { A = 0 };
-            Color whiteBloom = DecayWhite with { A = 0 };
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
-            // TRAIL RENDERING with gradient
-            // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                
-                float progress = (float)i / Projectile.oldPos.Length;
-                float trailAlpha = (1f - progress) * 0.55f;
-                float trailScale = 0.29f * (1f - progress * 0.5f);
-                Color trailColor = Color.Lerp(purpleBloom, greenBloom, progress) * trailAlpha;
-                
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                spriteBatch.Draw(texture, trailPos, null, trailColor, Projectile.oldRot[i], 
-                    origin, trailScale, SpriteEffects.None, 0f);
-            }
-
-            // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
-            // 4+ LAYERED SPINNING FLARES (TRUE_VFX_STANDARDS)
-            // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
-            
-            // Layer 1: Soft glow base (large, dim) (capped 300px max)
-            spriteBatch.Draw(texture, drawPos, null, purpleBloom * 0.4f, 0f, 
-                origin, 0.25f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 2: First flare spinning clockwise (green)
-            spriteBatch.Draw(flare1, drawPos, null, greenBloom * 0.5f, time, 
-                flareOrigin1, 0.4f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 3: Second flare spinning counter-clockwise (brown accent)
-            spriteBatch.Draw(flare2, drawPos, null, brownBloom * 0.4f, -time * 0.75f, 
-                flareOrigin2, 0.35f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 4: Third flare different rotation speed (purple)
-            spriteBatch.Draw(flare1, drawPos, null, purpleBloom * 0.5f, time * 1.4f, 
-                flareOrigin1, 0.32f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 5: Main glow texture (capped 300px max)
-            spriteBatch.Draw(texture, drawPos, null, greenBloom * 0.55f, 0f, 
-                origin, 0.20f * pulse, SpriteEffects.None, 0f);
-            
-            // Layer 6: Pale white core
-            spriteBatch.Draw(texture, drawPos, null, whiteBloom * 0.55f, 0f, 
-                origin, 0.15f, SpriteEffects.None, 0f);
-
-            // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
-            // ORBITING SPARK POINTS (entropic wisps)
-            // 笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊絶武笊・
-            float sparkOrbitAngle = time * 1.6f;
-            for (int i = 0; i < 4; i++)
-            {
-                float sparkAngle = sparkOrbitAngle + MathHelper.TwoPi * i / 4f;
-                float sparkRadius = 10f + (float)Math.Sin(time * 3f + i) * 3f;
-                Vector2 sparkPos = drawPos + sparkAngle.ToRotationVector2() * sparkRadius;
-                Color sparkColor = Color.Lerp(purpleBloom, greenBloom, i / 4f);
-                spriteBatch.Draw(texture, sparkPos, null, sparkColor * 0.6f, 0f, 
-                    origin, 0.1f * pulse, SpriteEffects.None, 0f);
-            }
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, 
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            }
-            catch { }
-            finally
-            {
-                try { sb.End(); } catch { }
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-            }
-
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.Autumn, ref _strip);
             return false;
         }
     }

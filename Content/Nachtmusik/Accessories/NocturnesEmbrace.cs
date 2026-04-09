@@ -1,30 +1,23 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
-using MagnumOpus.Common.Systems;
 using MagnumOpus.Content.Nachtmusik.ResonanceEnergies;
 using MagnumOpus.Content.Nachtmusik.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
-using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Nachtmusik;
 
 namespace MagnumOpus.Content.Nachtmusik.Accessories
 {
     /// <summary>
     /// Nocturne's Embrace - Summoner accessory for Nachtmusik theme.
-    /// A star-shaped badge that channels the Queen's symphonic command over celestial minions.
-    /// Minions gain bonus damage and periodically perform coordinated constellation strikes.
+    /// Minions gain Andante Grazioso (+12% speed). Every 8s grants Starlit Fervor;
+    /// during Fervor, minion hits apply Diminuendo on enemies.
     /// </summary>
     public class NocturnesEmbrace : ModItem
     {
-        // Nachtmusik colors
-        private static readonly Color DeepPurple = new Color(45, 27, 78);    // #2D1B4E
-        private static readonly Color Gold = new Color(255, 215, 0);          // #FFD700
-        private static readonly Color Violet = new Color(123, 104, 238);      // #7B68EE
-        private static readonly Color StarWhite = new Color(255, 255, 255);   // #FFFFFF
-
         public override void SetDefaults()
         {
             Item.width = 30;
@@ -39,46 +32,22 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
             var modPlayer = player.GetModPlayer<NocturnesEmbracePlayer>();
             modPlayer.hasNocturnesEmbrace = true;
 
-            // +45% summon damage - POST-FATE ULTIMATE
             player.GetDamage(DamageClass.Summon) += 0.45f;
-
-            // +4 minion slots - POST-FATE ULTIMATE
             player.maxMinions += 4;
-
-            // +25% minion knockback - POST-FATE ULTIMATE
             player.GetKnockback(DamageClass.Summon) += 0.25f;
         }
 
-        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "SummonBoost", "+45% summon damage")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+45% summon damage, +4 max minions, +25% minion knockback"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Every 8 seconds, gain 'Starlit Fervor' for 4s (+25% summon damage)"));
+            tooltips.Add(new TooltipLine(Mod, "NightBonus", "At night: Starlit Fervor cooldown reduced to 6 seconds")
             {
-                OverrideColor = Gold
+                OverrideColor = new Color(100, 120, 200)
             });
-
-            tooltips.Add(new TooltipLine(Mod, "MinionSlots", "+4 max minions")
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The night's orchestra plays on — and every instrument knows its part by heart'")
             {
-                OverrideColor = Violet
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Knockback", "+25% minion knockback")
-            {
-                OverrideColor = DeepPurple
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "ConstellationStrike", "Every 8 seconds, minions perform a constellation strike")
-            {
-                OverrideColor = Color.Lerp(DeepPurple, Gold, 0.4f)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "StrikeEffect", "Constellation strikes deal 200% minion damage to all enemies near your minions")
-            {
-                OverrideColor = Color.Lerp(Violet, Gold, 0.5f)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Flavor", "'The night's orchestra answers to your command'")
-            {
-                OverrideColor = Color.Lerp(DeepPurple, Violet, 0.3f)
+                OverrideColor = new Color(100, 120, 200)
             });
         }
 
@@ -98,15 +67,8 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
 
     public class NocturnesEmbracePlayer : ModPlayer
     {
-        public bool hasNocturnesEmbrace = false;
-        private int strikeTimer = 0;
-        private const int StrikeCooldown = 480; // 8 seconds
-
-        // Nachtmusik colors
-        private static readonly Color DeepPurple = new Color(45, 27, 78);
-        private static readonly Color Gold = new Color(255, 215, 0);
-        private static readonly Color Violet = new Color(123, 104, 238);
-        private static readonly Color StarWhite = new Color(255, 255, 255);
+        public bool hasNocturnesEmbrace;
+        private int fervorTimer;
 
         public override void ResetEffects()
         {
@@ -117,101 +79,18 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
         {
             if (!hasNocturnesEmbrace)
             {
-                strikeTimer = 0;
+                fervorTimer = 0;
                 return;
             }
 
-            strikeTimer++;
+            fervorTimer++;
+            int cooldown = !Main.dayTime ? 360 : 480; // 6s night, 8s day
 
-            if (strikeTimer >= StrikeCooldown)
+            if (fervorTimer >= cooldown)
             {
-                TriggerConstellationStrike();
-                strikeTimer = 0;
+                fervorTimer = 0;
+                Player.AddBuff(ModContent.BuffType<StarlitFervorBuff>(), 240); // 4 seconds
             }
-        }
-
-        private void TriggerConstellationStrike()
-        {
-            // Gather all minion positions
-            System.Collections.Generic.List<Vector2> minionPositions = new();
-            
-            foreach (Projectile proj in Main.projectile)
-            {
-                if (!proj.active || proj.owner != Player.whoAmI || !proj.minion) continue;
-                minionPositions.Add(proj.Center);
-            }
-
-            if (minionPositions.Count == 0) return;
-
-            // Draw constellation lines between minions
-            if (minionPositions.Count > 1)
-            {
-                for (int i = 0; i < minionPositions.Count; i++)
-                {
-                    int next = (i + 1) % minionPositions.Count;
-                    DrawConstellationLine(minionPositions[i], minionPositions[next]);
-                }
-            }
-
-            // Calculate strike damage (200% of base summon damage)
-            int baseDamage = (int)(Player.GetTotalDamage(DamageClass.Summon).ApplyTo(100) * 2f);
-            float strikeRadius = 150f;
-
-            // Strike at each minion position
-            foreach (Vector2 minionPos in minionPositions)
-            {
-                // Visual burst at minion
-
-                // Music note burst on constellation strike
-
-                // Star sparkle accents
-                for (int j = 0; j < 3; j++)
-                {
-                }
-                
-                // Expanding star burst
-                for (int i = 0; i < 8; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 8f;
-                    Vector2 burstDir = angle.ToRotationVector2();
-                }
-
-                // Halo rings
-
-                // Damage enemies near this minion
-                foreach (NPC npc in Main.npc)
-                {
-                    if (!npc.active || npc.friendly || !npc.CanBeChasedBy()) continue;
-
-                    float dist = Vector2.Distance(minionPos, npc.Center);
-                    if (dist < strikeRadius)
-                    {
-                        if (Main.myPlayer == Player.whoAmI)
-                        {
-                            // Damage falloff based on distance
-                            float falloff = 1f - (dist / strikeRadius) * 0.4f;
-                            int finalDamage = (int)(baseDamage * falloff);
-                            Player.ApplyDamageToNPC(npc, finalDamage, 2f, Player.direction, false);
-                        }
-
-                        // VFX on hit enemy
-                    }
-                }
-
-                // Dynamic lighting
-                Lighting.AddLight(minionPos, Gold.ToVector3() * 1.5f);
-            }
-        }
-
-        private void DrawConstellationLine(Vector2 start, Vector2 end)
-        {
-            Vector2 direction = end - start;
-            float distance = direction.Length();
-            direction.Normalize();
-
-            int segments = (int)(distance / 20f);
-
-            // Star at each end
         }
     }
 }

@@ -59,14 +59,9 @@ namespace MagnumOpus.Content.Fate.Accessories
                 OverrideColor = new Color(140, 200, 255)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "CosmicEmpower", "Minions periodically gain Cosmic Empowerment")
+            tooltips.Add(new TooltipLine(Mod, "CosmicEmpower", "Every 8s minions gain 'Cosmic Empowerment' for 4s (+25% summon damage)")
             {
                 OverrideColor = FatePalette.DarkPink
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "EmpowerEffect", "Empowered minion attacks deal 50% bonus damage")
-            {
-                OverrideColor = FatePalette.BrightCrimson
             });
 
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'The universe itself serves at your command'")
@@ -93,82 +88,39 @@ namespace MagnumOpus.Content.Fate.Accessories
     public class OrreryPlayer : ModPlayer
     {
         public bool hasOrrery = false;
+        public int empowermentCooldown = 0;
         public int empowermentTimer = 0;
-        public int empoweredMinionIndex = -1;
         
-        private const int EmpowermentInterval = 300; // 5 seconds
-        private const int EmpowermentDuration = 120; // 2 seconds of empowerment
+        private const int EmpowermentInterval = 480; // 8 seconds
+        private const int EmpowermentDuration = 240; // 4 seconds
         
         public override void ResetEffects()
         {
             hasOrrery = false;
         }
 
-        public override void PostUpdate()
+        public override void PostUpdateEquips()
         {
-            if (!hasOrrery) 
+            if (!hasOrrery)
             {
+                empowermentCooldown = 0;
                 empowermentTimer = 0;
-                empoweredMinionIndex = -1;
                 return;
             }
             
-            empowermentTimer++;
-            
-            // Every 5 seconds, empower a random minion
-            if (empowermentTimer >= EmpowermentInterval)
+            if (empowermentTimer > 0)
             {
-                empowermentTimer = 0;
-                EmpowerRandomMinion();
+                empowermentTimer--;
+                Player.GetDamage(DamageClass.Summon) += 0.25f;
             }
-            
-        }
-
-        private void EmpowerRandomMinion()
-        {
-            // Find all player's minions
-            System.Collections.Generic.List<int> minionIndices = new();
-
-            foreach (Projectile proj in Main.projectile)
+            else
             {
-                if (proj.active && proj.owner == Player.whoAmI && proj.minion)
+                empowermentCooldown++;
+                if (empowermentCooldown >= EmpowermentInterval)
                 {
-                    minionIndices.Add(proj.whoAmI);
+                    empowermentCooldown = 0;
+                    empowermentTimer = EmpowermentDuration;
                 }
-            }
-
-            if (minionIndices.Count == 0) return;
-
-            // Pick random minion
-            empoweredMinionIndex = minionIndices[Main.rand.Next(minionIndices.Count)];
-
-            // Empowerment VFX burst
-            Projectile minion = Main.projectile[empoweredMinionIndex];
-            FateAccessoryVFX.OrreryEmpowermentVFX(minion.Center);
-        }
-    }
-
-    public class OrreryGlobalProjectile : GlobalProjectile
-    {
-        public override void ModifyHitNPC(Projectile projectile, NPC target, ref NPC.HitModifiers modifiers)
-        {
-            if (projectile.owner < 0 || projectile.owner >= Main.maxPlayers) return;
-            if (!projectile.minion) return;
-
-            Player player = Main.player[projectile.owner];
-            var modPlayer = player.GetModPlayer<OrreryPlayer>();
-
-            if (!modPlayer.hasOrrery) return;
-
-            // Check if this is the empowered minion during empowerment window
-            if (projectile.whoAmI == modPlayer.empoweredMinionIndex &&
-                modPlayer.empowermentTimer < 120) // Within empowerment duration
-            {
-                // +50% damage for empowered minion
-                modifiers.FinalDamage *= 1.5f;
-
-                // Extra VFX on empowered hit
-                FateAccessoryVFX.OrreryEmpoweredHitVFX(target.Center);
             }
         }
     }

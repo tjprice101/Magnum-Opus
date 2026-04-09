@@ -6,7 +6,7 @@ This folder contains **106 particle textures** organized by category. Mix and ma
 
 ---
 
-## ‚ö†ÅEÅEMANDATORY: Particle Discovery Protocol
+## ‚ö†ÔøΩEÔøΩEMANDATORY: Particle Discovery Protocol
 
 **Before creating ANY weapon, projectile, or effect:**
 1. Run `list_dir` on `Assets/Particles Asset Library/` to see all available textures
@@ -104,7 +104,7 @@ This folder contains **106 particle textures** organized by category. Mix and ma
 | `TallMusicNote.png` | `MusicNotes[4]` | **0.7f - 1.4f** |
 | `WholeNote.png` | `MusicNotes[5]` | **0.6f - 1.2f** |
 
-> ‚ö†ÅEÅE**WARNING: Music notes at scale 0.25-0.4f are INVISIBLE! Use 0.6f minimum!**
+> ‚ö†ÔøΩEÔøΩE**WARNING: Music notes at scale 0.25-0.4f are INVISIBLE! Use 0.6f minimum!**
 
 ### ‚ú® Twilight Sparkles (3)
 | File | Array Reference | Scale Range |
@@ -143,7 +143,7 @@ This folder contains **106 particle textures** organized by category. Mix and ma
 | `FlamingArcSwordSlash.png` | `SwordArcs[7]` | 0.5f - 1.5f |
 | `SwordArcSlashWave.png` | `SwordArcs[8]` | 0.6f - 1.8f |
 
-### üëÅÅEÅEEnigma Eyes (8)
+### üëÅÔøΩEÔøΩEEnigma Eyes (8)
 | File | Array Reference | Scale Range |
 |------|-----------------|-------------|
 | `EnigmaEye1.png` | `EnigmaEyes[0]` | 0.4f - 0.8f |
@@ -276,11 +276,12 @@ All textures are **WHITE/GRAYSCALE** and get tinted at runtime:
 - **Eroica**: Scarlet, Crimson, Gold
 - **Moonlight Sonata**: Deep Purple, Violet, Lavender, Silver
 - **Swan Lake**: Pure White, Icy Blue, Pale Cyan, Rainbow shimmer
-- **Dies Irae**: Blood Red, Dark Crimson, Ember
-- **Clair de Lune**: Soft Blue, Moonbeam, Pearl
+- **Dies Irae**: White, Black, Crimson
+- **Clair de Lune**: Dark Red, Vibrant Gray, White
 - **Enigma Variations**: Eerie Green, Deep Purple, Black
 - **Fate**: White, Dark Pink, Purple, Crimson
-- **Nachtmusik**: Deep blue, Silver, Starlight
+- **Nachtmusik**: Golden, Dark Purple
+- **Ode to Joy**: Monochromatic Black, White, Prismatic Chromatic
 
 ---
 

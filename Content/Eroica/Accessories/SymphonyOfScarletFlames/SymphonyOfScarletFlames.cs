@@ -6,16 +6,16 @@ using MagnumOpus.Common;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Enemies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
-using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.Particles;
-using MagnumOpus.Content.Eroica.Accessories.Shared;
+using MagnumOpus.Content.Common.Accessories;
 
 namespace MagnumOpus.Content.Eroica.Accessories.SymphonyOfScarletFlames
 {
     /// <summary>
-    /// Symphony of Scarlet Flames - Ranger accessory.
-    /// Triumphant Precision: Hitting same enemy 2 times marks them - 3rd hit deals 300% damage with petal explosion.
-    /// +15% ranged damage, +10% ranged crit.
+    /// Symphony of Scarlet Flames - Ranged accessory.
+    /// 'Resonance Pierced' Melodic Attunement.
+    /// +25% increased Resonant Burn damage.
+    /// Hitting a burning enemy 25 times with ranged heals 10% HP.
+    /// +2.5% crit damage on Resonant Burn enemies.
     /// </summary>
     public class SymphonyOfScarletFlames : ModItem
     {
@@ -30,39 +30,33 @@ namespace MagnumOpus.Content.Eroica.Accessories.SymphonyOfScarletFlames
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<EroicaAccessoryPlayer>();
-            modPlayer.hasSymphonyOfScarletFlames = true;
-            
-            // Base stat boosts
-            player.GetDamage(DamageClass.Ranged) += 0.15f; // +15% ranged damage
-            player.GetCritChance(DamageClass.Ranged) += 10f; // +10% ranged crit
+            var attunement = player.GetModPlayer<MelodicAttunementPlayer>();
+            attunement.rangedAttunement = true;
+            attunement.resonantBurnDmgBonus += 0.25f;
+            attunement.critDmgBonusOnBurn += 0.025f;
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "StatBoosts", "+15% ranged damage, +10% ranged critical strike chance")
-            {
-                OverrideColor = new Color(255, 200, 100)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "PrecisionHeader", "Triumphant Precision:")
+            tooltips.Add(new TooltipLine(Mod, "Attunement", "'Resonance Pierced' Melodic Attunement")
             {
                 OverrideColor = new Color(255, 100, 100)
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "MarkEffect", "Hitting the same enemy 2 times marks them as 'Heroic Target'")
+            tooltips.Add(new TooltipLine(Mod, "BurnDmg", "+25% increased Resonant Burn damage")
             {
                 OverrideColor = new Color(255, 180, 100)
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "ExplosionEffect", "The 3rd hit deals 300% damage and creates a petal explosion")
+            tooltips.Add(new TooltipLine(Mod, "Heal", "Hitting a burning enemy 25 times with ranged heals 10% max HP")
             {
                 OverrideColor = new Color(255, 150, 150)
             });
-            
+            tooltips.Add(new TooltipLine(Mod, "CritDmg", "+2.5% critical strike damage on Resonant Burn enemies")
+            {
+                OverrideColor = new Color(255, 200, 100)
+            });
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'Each note builds to the symphony's triumphant crescendo'")
             {
-                OverrideColor = new Color(180, 80, 80)
+                OverrideColor = new Color(200, 50, 50)
             });
         }
 

@@ -136,6 +136,7 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Extends max Momentum to 200"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+42% movement speed, +3.0 max run speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "At 175+ Momentum: Knockback immunity and contact thorns"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Scorched Earth — at max Momentum: nearby enemies burn and slow"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Hellfire propels you with wrathful speed'") { OverrideColor = new Color(255, 100, 40) });
         }
         
@@ -205,6 +206,8 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Extends max Momentum to 225"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "+45% movement speed, +3.5 max run speed"));
             tooltips.Add(new TooltipLine(Mod, "Effect3", "At 175+ Momentum: Infinite flight"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "No fall damage at 200+ Momentum"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Jubilant Stride — at max Momentum: +5% damage, +3% DR"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Nature's wind carries you with joyful speed'") { OverrideColor = new Color(180, 255, 180) });
         }
         

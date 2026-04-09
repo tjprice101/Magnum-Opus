@@ -33,24 +33,15 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         {
             var markingPlayer = player.GetModPlayer<MarkingPlayer>();
             markingPlayer.hasResonantSpotter = true;
+            
+            player.GetDamage(DamageClass.Ranged) += 0.05f;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+5% ranged damage")
-            {
-                OverrideColor = new Color(255, 180, 180)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Ranged attacks mark enemies with a glowing indicator")
-            {
-                OverrideColor = new Color(255, 180, 180)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The hunt begins with a single mark'")
-            {
-                OverrideColor = BaseRed * 0.8f
-            });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+5% ranged damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Every 3rd ranged shot deals 5% bonus damage"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The hunt begins with a single mark'") { OverrideColor = new Color(255, 100, 100) });
         }
 
         public override void AddRecipes()
@@ -85,19 +76,16 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         {
             var markingPlayer = player.GetModPlayer<MarkingPlayer>();
             markingPlayer.hasSpringHuntersLens = true;
+            
+            player.GetDamage(DamageClass.Ranged) += 0.07f;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "10% chance to drop hearts on ranged hit")
-            {
-                OverrideColor = SpringPink
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Spring's renewal brings vitality to the hunter'")
-            {
-                OverrideColor = SpringGreen * 0.8f
-            });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+7% ranged damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Every 3rd ranged shot deals 8% bonus damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "2% chance for enemies to drop hearts on ranged hit"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Spring's renewal brings vitality to the hunter'") { OverrideColor = new Color(255, 183, 197) });
         }
 
         public override void AddRecipes()
@@ -135,34 +123,19 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         {
             var markingPlayer = player.GetModPlayer<MarkingPlayer>();
             markingPlayer.hasResonantPiercingLens = true;
+            
+            player.GetDamage(DamageClass.Ranged) += 0.14f;
+            player.GetCritChance(DamageClass.Ranged) += 7;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "While holding Resonance Pierced weapon:")
-            {
-                OverrideColor = new Color(255, 150, 100)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+30% damage vs burning enemies")
-            {
-                OverrideColor = new Color(255, 200, 150)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+5% crit per Resonant Burn stack on target")
-            {
-                OverrideColor = new Color(255, 180, 100)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "At max stacks: Next critical hit deals 3x damage (super crit)")
-            {
-                OverrideColor = SummerOrange
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The flames reveal every weakness'")
-            {
-                OverrideColor = SummerOrange * 0.8f
-            });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+14% ranged damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+7% ranged critical strike chance"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Every 3rd ranged shot deals 12% bonus damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "2% chance for enemies to drop hearts on ranged hit"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "All ranged attacks apply Burning on hit"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The flames reveal every weakness'") { OverrideColor = new Color(255, 140, 0) });
         }
 
         public override void AddRecipes()
@@ -201,34 +174,20 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         {
             var markingPlayer = player.GetModPlayer<MarkingPlayer>();
             markingPlayer.hasEchoingBoltChamber = true;
+            
+            player.GetDamage(DamageClass.Ranged) += 0.17f;
+            player.GetCritChance(DamageClass.Ranged) += 9;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "15% chance on ranged hit to fire homing resonance bolt")
-            {
-                OverrideColor = new Color(255, 150, 100)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "BoltNote", "Bolt damage scales with burn stacks on target")
-            {
-                OverrideColor = AutumnOrange
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Critical hits on burning enemies spread Resonant Burn to nearby enemies")
-            {
-                OverrideColor = new Color(255, 200, 150)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "CritEffect", "Standard: 1 enemy (200 units); At max stacks: all enemies (300 units)")
-            {
-                OverrideColor = new Color(255, 150, 100)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The hunter's arrows echo through flame and foe'")
-            {
-                OverrideColor = AutumnBrown * 0.8f
-            });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+17% ranged damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+9% ranged critical strike chance"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Every 3rd ranged shot deals 15% bonus damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "2.5% chance for enemies to drop hearts on ranged hit"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "All ranged attacks apply Burning on hit"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Critical hits spread Burning to nearby enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The hunter's arrows echo through flame and foe'") { OverrideColor = new Color(210, 120, 50) });
         }
 
         public override void AddRecipes()
@@ -265,19 +224,21 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         {
             var markingPlayer = player.GetModPlayer<MarkingPlayer>();
             markingPlayer.hasPermafrostHuntersEye = true;
+            
+            player.GetDamage(DamageClass.Ranged) += 0.19f;
+            player.GetCritChance(DamageClass.Ranged) += 11;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Ranged attacks slow enemies by 15%")
-            {
-                OverrideColor = WinterCyan
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The cold eye of winter sees all and freezes hope'")
-            {
-                OverrideColor = WinterBlue * 0.8f
-            });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+19% ranged damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+11% ranged critical strike chance"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Every 3rd ranged shot deals 20% bonus damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "3% chance for enemies to drop hearts on ranged hit"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "All ranged attacks apply Burning on hit"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "5% chance to slow enemies for 1 second on hit"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "Critical hits spread Burning and Slow to nearby enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The cold eye of winter sees all and freezes hope'") { OverrideColor = new Color(150, 220, 255) });
         }
 
         public override void AddRecipes()
@@ -311,32 +272,21 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         {
             var markingPlayer = player.GetModPlayer<MarkingPlayer>();
             markingPlayer.hasVivaldisSeasonalSight = true;
+            
+            player.GetDamage(DamageClass.Ranged) += 0.22f;
+            player.GetCritChance(DamageClass.Ranged) += 13;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            float hue = (Main.GameUpdateCount * 0.01f) % 1f;
-            Color cyclingColor = Main.hslToRgb(hue, 0.8f, 0.6f);
-
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+10% ranged damage")
-            {
-                OverrideColor = new Color(255, 200, 200)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Ranged attacks inflict biome-based debuffs")
-            {
-                OverrideColor = cyclingColor
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "BiomeNote", "Snow: Frostburn | Desert: On Fire! | Jungle: Poisoned | Other: Confused")
-            {
-                OverrideColor = new Color(180, 180, 180)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The Four Seasons dance eternal in the hunter's gaze'")
-            {
-                OverrideColor = cyclingColor * 0.8f
-            });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+22% ranged damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+13% ranged critical strike chance"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Every 3rd ranged shot deals 25% bonus damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "5% chance for enemies to drop hearts on ranged hit"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "All ranged attacks apply Burning, Frostburn, Poison, and Bleeding"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "8% chance to slow enemies for 1 second on hit"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "Critical hits spread all debuffs to nearby enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The Four Seasons dance eternal in the hunter's gaze'") { OverrideColor = new Color(150, 200, 100) });
         }
 
         public override void AddRecipes()

@@ -66,10 +66,10 @@ Enemy death effects should reflect the weapon's theme:
 - **Moonlight Sonata:** Purple mist exhale + silver sparkle settle + moonbeam fade
 - **Enigma:** Void implosion + eerie green flame remnants + watching eye flash
 - **Fate:** Cosmic particle scatter + star field brief + chromatic shatter
-- **Clair de Lune:** Soft blue mist release + pearl sparkle + gentle dissipation
-- **Dies Irae:** Blood explosion + ember rain + ground scorch mark
-- **Nachtmusik:** Starlight fragment scatter + indigo mist + constellation brief
-- **Ode to Joy:** Golden light burst + warm amber particles + musical note cascade
+- **Clair de Lune:** Shattered clock burst + red crackling energy tendrils + gray fragment scatter
+- **Dies Irae:** White-crimson flame eruption + black ash scatter + heavenly banishment flash
+- **Nachtmusik:** Golden sparkle cascade + dark purple melody wisps + starlit note scatter
+- **Ode to Joy:** Chromatic glass shatter + prismatic light refraction + monochromatic rose petal drift
 
 ### Step 6: Asset Check
 Check existing assets:

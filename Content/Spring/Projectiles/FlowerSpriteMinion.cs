@@ -58,7 +58,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             Projectile.netImportant = true;
         }
 
-        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow64";
+        public override string Texture => "MagnumOpus/Content/Spring/Projectiles/FlowerSpriteMinion_Glow";
 
         public override bool? CanCutTiles() => false;
         public override bool MinionContactDamage() => true;
@@ -346,33 +346,41 @@ namespace MagnumOpus.Content.Spring.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
-            Vector2 origin = texture.Size() / 2f;
+            Texture2D spriteTex = TextureAssets.Projectile[Projectile.type].Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+            Vector2 spriteOrigin = spriteTex.Size() / 2f;
+            Vector2 glowOrigin = glowTex.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
-            SpriteBatch spriteBatch = Main.spriteBatch;
-
-            // Wing flap offset
+            // Wing flap offset for organic feel
             float flapOffset = (float)Math.Sin(wingFlap) * 4f;
+            // Squishy breathing - minion bobs gently
+            float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.08f + spriteIndex) * 0.08f;
+            float bobScale = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.05f;
+            SpriteEffects flip = Projectile.spriteDirection == -1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Ethereal glow
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f + spriteIndex) * 0.12f + 1f;
-            spriteBatch.Draw(texture, drawPos, null, SpringYellow * 0.35f, 0f, origin, 0.65f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, SpringPink * 0.4f, 0f, origin, 0.5f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, SpringWhite * 0.5f, 0f, origin, 0.35f * pulse, SpriteEffects.None, 0f);
+            // Outer ethereal glow - soft halo wrapping the minion
+            sb.Draw(glowTex, drawPos, null, (SpringYellow * 0.25f) with { A = 0 }, 0f, glowOrigin, 0.7f * pulse, flip, 0f);
+            sb.Draw(glowTex, drawPos, null, (SpringPink * 0.3f) with { A = 0 }, 0f, glowOrigin, 0.5f * pulse, flip, 0f);
 
-            // "Wings" as side flares
+            // Wing bloom accents - flapping glow on sides
             for (int side = -1; side <= 1; side += 2)
             {
-                Vector2 wingOffset = new Vector2(side * 12f, flapOffset * side);
-                spriteBatch.Draw(texture, drawPos + wingOffset, null, SpringPink * 0.25f, MathHelper.PiOver4 * side, origin, 0.3f, SpriteEffects.None, 0f);
+                Vector2 wingOffset = new Vector2(side * 10f, flapOffset * side * 0.5f);
+                sb.Draw(glowTex, drawPos + wingOffset, null, (SpringGreen * 0.2f) with { A = 0 }, 0f, glowOrigin, 0.2f * pulse, flip, 0f);
             }
 
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            // Core sprite - the actual cute minion art with gentle bob
+            sb.Draw(spriteTex, drawPos + new Vector2(0, flapOffset * 0.3f), null, (SpringWhite * 0.85f) with { A = 0 }, 0f, spriteOrigin, bobScale * 0.9f, flip, 0f);
+
+            // Inner glow overlay - makes the center brighter
+            sb.Draw(spriteTex, drawPos + new Vector2(0, flapOffset * 0.3f), null, (SpringYellow * 0.35f) with { A = 0 }, 0f, spriteOrigin, bobScale * 0.55f, flip, 0f);
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             }
             catch { }

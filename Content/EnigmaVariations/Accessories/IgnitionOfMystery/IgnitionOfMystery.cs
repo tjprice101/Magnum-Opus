@@ -1,34 +1,24 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
-using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Content.Common.Accessories;
+using MagnumOpus.Content.EnigmaVariations.ResonanceEnergies;
+using MagnumOpus.Content.EnigmaVariations.HarmonicCores;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 
 namespace MagnumOpus.Content.EnigmaVariations.Accessories
 {
     /// <summary>
-    /// Ignition of Mystery - Melee Accessory
-    /// 
-    /// "Mysteries Unveiled" - Every melee hit builds mystery stacks (up to 10).
-    /// At max stacks, your next melee attack unleashes a massive eye burst that 
-    /// marks all nearby enemies with "Watched" debuff (15% increased damage taken).
-    /// Additionally, melee speed increases by 2% per stack (up to 20%).
-    /// 
-    /// Theme: The revelation of hidden truths through combat, 
-    /// each strike bringing the unknown closer to light.
+    /// Ignition of Mystery - Enigma melee class accessory.
+    /// 'Resonance Sliced' Melodic Attunement with fire/lava/confusion/slow immunity.
     /// </summary>
     public class IgnitionOfMystery : ModItem
     {
         public override string Texture => "MagnumOpus/Content/EnigmaVariations/Accessories/IgnitionOfMystery/IgnitionOfMystery";
 
-        // Enigma color palette
-        private static readonly Color EnigmaBlack = new Color(15, 10, 20);
-        private static readonly Color EnigmaPurple = new Color(140, 60, 200);
-        private static readonly Color EnigmaGreenFlame = new Color(50, 220, 100);
-        
         public override void SetDefaults()
         {
             Item.width = 32;
@@ -37,37 +27,43 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
             Item.value = Item.buyPrice(platinum: 3);
             Item.rare = ModContent.RarityType<EnigmaVariationsRarity>();
         }
-        
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<EnigmaAccessoryPlayer>();
-            modPlayer.hasIgnitionOfMystery = true;
+            var attunement = player.GetModPlayer<MelodicAttunementPlayer>();
+            attunement.resonantBurnDmgBonus += 0.45f;
+            attunement.critDmgBonusOnBurn += 0.025f;
+            attunement.meleeAttunement = true;
+
+            // Fire/lava/confusion/slow immunity
+            player.buffImmune[BuffID.OnFire] = true;
+            player.buffImmune[BuffID.OnFire3] = true;
+            player.lavaImmune = true;
+            player.buffImmune[BuffID.Confused] = true;
+            player.buffImmune[BuffID.Slow] = true;
         }
-        
-        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "MysteryHeader", "Mysteries Unveiled:")
-            {
-                OverrideColor = EnigmaGreenFlame
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Melee attacks build mystery stacks (max 10)"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Each stack grants +2% melee speed (up to +20%)"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "At max stacks, unleash a devastating eye burst"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Marked enemies take 15% increased damage for 5 seconds"));
-            
+            Color lore = new Color(140, 60, 200);
+
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "'Resonance Sliced' Melodic Attunement"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+45% increased Resonant Burn damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Hitting an enemy 10 times with melee damage while inflicted with Resonant Burn heals 10% HP"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Critical strike damage on Resonant Burn enemies increased by 2.5%"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Immunity to fire debuffs, lava, confusion, and slow"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The unknown fears those who seek it'")
             {
-                OverrideColor = EnigmaPurple
+                OverrideColor = lore
             });
         }
-        
+
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient(ModContent.ItemType<ResonanceEnergies.EnigmaResonantEnergy>(), 15)
-                .AddIngredient(ModContent.ItemType<HarmonicCores.HarmonicCoreOfEnigma>(), 1)
-                .AddIngredient(ModContent.ItemType<ResonanceEnergies.ShardOfTheMysterysTempo>(), 5)
+                .AddIngredient(ModContent.ItemType<EnigmaResonantEnergy>(), 15)
+                .AddIngredient(ModContent.ItemType<HarmonicCoreOfEnigma>(), 1)
+                .AddIngredient(ModContent.ItemType<ShardOfTheMysterysTempo>(), 5)
                 .AddIngredient(ItemID.MagmaStone)
                 .AddTile(ModContent.TileType<MoonlightAnvilTile>())
                 .Register();

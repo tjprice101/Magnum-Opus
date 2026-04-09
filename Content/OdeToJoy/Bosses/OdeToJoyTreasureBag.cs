@@ -79,7 +79,7 @@ namespace MagnumOpus.Content.OdeToJoy.Bosses
                 ModContent.ItemType<TheFloweringCoda>(),
                 ModContent.ItemType<TheVerdantRefrain>(),
                 ModContent.ItemType<ConductorsCorsage>(),
-                ModContent.ItemType<SymphonyOfBlossoms>()));
+                ModContent.ItemType<AnthemsArbalist>()));
 
             // Money
             itemLoot.Add(ItemDropRule.Common(ItemID.GoldCoin, 1, 20, 30));

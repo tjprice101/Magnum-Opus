@@ -19,8 +19,8 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
 
     /// <summary>
     /// Badge of Valor - Eroica Tier 1 Theme Accessory.
-    /// A shield-shaped badge adorned with golden laurels and crimson gems.
-    /// +15% melee damage, +10% melee speed, brief invulnerability after killing an enemy.
+    /// 20% for melee attacks to deal double damage on impact.
+    /// 5% chance for next 10 melee swings to deal 2x critical hits.
     /// </summary>
     public class BadgeOfValor : ModItem
     {
@@ -35,38 +35,24 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<BadgeOfValorPlayer>();
-            modPlayer.hasBadgeOfValor = true;
-
-            // +15% melee damage
-            player.GetDamage(DamageClass.Melee) += 0.15f;
-
-            // +10% melee speed
-            player.GetAttackSpeed(DamageClass.Melee) += 0.10f;
-
-            // Invulnerability timer effect is handled in player class on kill
+            player.GetModPlayer<BadgeOfValorPlayer>().hasBadgeOfValor = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "MeleeDamage", "+15% melee damage")
+            tooltips.Add(new TooltipLine(Mod, "DoubleDamage", "20% chance for melee attacks to deal double damage")
             {
                 OverrideColor = EroicaPalette.Crimson
             });
 
-            tooltips.Add(new TooltipLine(Mod, "MeleeSpeed", "+10% melee speed")
+            tooltips.Add(new TooltipLine(Mod, "RedCrit", "5% chance for next 10 melee swings to deal 2x critical hits")
             {
                 OverrideColor = EroicaPalette.Gold
             });
 
-            tooltips.Add(new TooltipLine(Mod, "HeroicMoment", "Killing an enemy grants 0.5 seconds of invulnerability")
-            {
-                OverrideColor = EroicaPalette.Sakura
-            });
-
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'Worn by those who charge into battle without hesitation'")
             {
-                OverrideColor = new Color(200, 180, 150)
+                OverrideColor = new Color(200, 50, 50)
             });
         }
 
@@ -84,50 +70,64 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
     public class BadgeOfValorPlayer : ModPlayer
     {
         public bool hasBadgeOfValor;
-        public int invulnFramesRemaining;
+        public int redCritSwingsRemaining;
 
         public override void ResetEffects()
         {
             hasBadgeOfValor = false;
         }
 
-        public override void PostUpdate()
+        public override void ModifyHitNPCWithItem(Item item, NPC target, ref NPC.HitModifiers modifiers)
         {
-            if (invulnFramesRemaining > 0)
-            {
-                Player.immune = true;
-                Player.immuneTime = 2;
-                invulnFramesRemaining--;
+            if (!hasBadgeOfValor) return;
+            if (item.DamageType != DamageClass.Melee) return;
+            ApplyMeleeBonuses(ref modifiers);
+        }
 
-                // Heroic shimmer effect during invuln
-                if (Main.rand.NextBool(3))
-                {
-                    Vector2 pos = Player.Center + Main.rand.NextVector2Circular(20f, 30f);
-                }
+        public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (!hasBadgeOfValor || proj.owner != Player.whoAmI) return;
+            if (proj.DamageType != DamageClass.Melee) return;
+            ApplyMeleeBonuses(ref modifiers);
+        }
+
+        private void ApplyMeleeBonuses(ref NPC.HitModifiers modifiers)
+        {
+            // Red crit mode: 2x damage
+            if (redCritSwingsRemaining > 0)
+            {
+                modifiers.FinalDamage *= 2f;
+                redCritSwingsRemaining--;
+                return;
+            }
+
+            // 20% chance for double damage  
+            if (Main.rand.NextFloat() < 0.20f)
+            {
+                modifiers.FinalDamage *= 2f;
             }
         }
 
         public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            CheckForKill(target);
+            TryTriggerRedCrit(item.DamageType);
         }
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
             if (proj.owner == Player.whoAmI)
-            {
-                CheckForKill(target);
-            }
+                TryTriggerRedCrit(proj.DamageType);
         }
 
-        private void CheckForKill(NPC target)
+        private void TryTriggerRedCrit(DamageClass damageType)
         {
-            if (hasBadgeOfValor && target.life <= 0 && !target.friendly && target.lifeMax > 5)
+            if (!hasBadgeOfValor || damageType != DamageClass.Melee) return;
+            if (redCritSwingsRemaining > 0) return; // Don't re-trigger while active
+            
+            // 5% chance to activate red crit mode
+            if (Main.rand.NextFloat() < 0.05f)
             {
-                // Grant 0.5 seconds (30 frames) of invulnerability
-                invulnFramesRemaining = 30;
-
-                // Heroic flash effect
+                redCritSwingsRemaining = 10;
             }
         }
     }
@@ -157,18 +157,14 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
             var modPlayer = player.GetModPlayer<HerosSymphonyPlayer>();
             modPlayer.hasHerosSymphony = true;
 
-            // Enhanced bonuses
-            // +20% melee damage (was 15%)
-            player.GetDamage(DamageClass.Melee) += 0.20f;
+            // +23% melee damage
+            player.GetDamage(DamageClass.Melee) += 0.23f;
 
-            // +15% melee speed (was 10%)
-            player.GetAttackSpeed(DamageClass.Melee) += 0.15f;
+            // +17% melee speed
+            player.GetAttackSpeed(DamageClass.Melee) += 0.17f;
 
-            // +10% melee crit
-            player.GetCritChance(DamageClass.Melee) += 10;
-
-            // +8% generic damage always
-            player.GetDamage(DamageClass.Generic) += 0.08f;
+            // +12% melee crit
+            player.GetCritChance(DamageClass.Melee) += 12;
 
             // Heroic Surge damage bonus (when active)
             if (modPlayer.heroicSurgeDuration > 0)
@@ -179,24 +175,29 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "MeleeDamage", "+20% melee damage")
+            tooltips.Add(new TooltipLine(Mod, "DoubleDamage", "25% chance for melee attacks to deal double damage")
             {
                 OverrideColor = EroicaPalette.Crimson
             });
 
-            tooltips.Add(new TooltipLine(Mod, "MeleeSpeed", "+15% melee speed")
+            tooltips.Add(new TooltipLine(Mod, "RedCrit", "10% chance for next 10 melee swings to deal 2x critical hits")
             {
                 OverrideColor = EroicaPalette.Gold
             });
 
-            tooltips.Add(new TooltipLine(Mod, "MeleeCrit", "+10% melee critical strike chance")
+            tooltips.Add(new TooltipLine(Mod, "MeleeDamage", "+23% melee damage")
             {
-                OverrideColor = EroicaPalette.Sakura
+                OverrideColor = EroicaPalette.Crimson
             });
 
-            tooltips.Add(new TooltipLine(Mod, "GenericDamage", "+8% damage (all types)")
+            tooltips.Add(new TooltipLine(Mod, "MeleeSpeed", "+17% melee speed")
             {
-                OverrideColor = new Color(255, 200, 150)
+                OverrideColor = EroicaPalette.Gold
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "MeleeCrit", "+12% melee critical strike chance")
+            {
+                OverrideColor = EroicaPalette.Sakura
             });
 
             tooltips.Add(new TooltipLine(Mod, "HeroicMoment", "Killing an enemy grants 1 second of invulnerability")
@@ -211,7 +212,7 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
 
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'The symphony of heroes echoes through eternity'")
             {
-                OverrideColor = new Color(200, 180, 150)
+                OverrideColor = new Color(200, 50, 50)
             });
         }
 
@@ -232,6 +233,7 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
         public bool hasHerosSymphony;
         public int invulnFramesRemaining;
         public int heroicSurgeDuration;
+        public int redCritSwingsRemaining;
 
         public override void ResetEffects()
         {
@@ -240,53 +242,71 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
 
         public override void PostUpdate()
         {
-            // Handle invulnerability
             if (invulnFramesRemaining > 0)
             {
                 Player.immune = true;
                 Player.immuneTime = 2;
                 invulnFramesRemaining--;
-
-                if (Main.rand.NextBool(3))
-                {
-                    Vector2 pos = Player.Center + Main.rand.NextVector2Circular(20f, 30f);
-                }
             }
 
-            // Heroic Surge timer
             if (heroicSurgeDuration > 0)
-            {
                 heroicSurgeDuration--;
+        }
+
+        public override void ModifyHitNPCWithItem(Item item, NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (!hasHerosSymphony || item.DamageType != DamageClass.Melee) return;
+            ApplyMeleeBonuses(ref modifiers);
+        }
+
+        public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (!hasHerosSymphony || proj.owner != Player.whoAmI || proj.DamageType != DamageClass.Melee) return;
+            ApplyMeleeBonuses(ref modifiers);
+        }
+
+        private void ApplyMeleeBonuses(ref NPC.HitModifiers modifiers)
+        {
+            if (redCritSwingsRemaining > 0)
+            {
+                modifiers.FinalDamage *= 2f;
+                redCritSwingsRemaining--;
+                return;
+            }
+
+            // 25% chance for double damage
+            if (Main.rand.NextFloat() < 0.25f)
+            {
+                modifiers.FinalDamage *= 2f;
             }
         }
 
         public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            CheckForKill(target);
+            CheckForKillAndRedCrit(target, item.DamageType);
         }
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
             if (proj.owner == Player.whoAmI)
-            {
-                CheckForKill(target);
-            }
+                CheckForKillAndRedCrit(target, proj.DamageType);
         }
 
-        private void CheckForKill(NPC target)
+        private void CheckForKillAndRedCrit(NPC target, DamageClass damageType)
         {
-            if (hasHerosSymphony && target.life <= 0 && !target.friendly && target.lifeMax > 5)
+            if (!hasHerosSymphony) return;
+
+            // Red crit trigger on melee hit
+            if (damageType == DamageClass.Melee && redCritSwingsRemaining <= 0 && Main.rand.NextFloat() < 0.10f)
             {
-                // Grant 1 second (60 frames) of invulnerability
+                redCritSwingsRemaining = 10;
+            }
+
+            // Kill rewards
+            if (target.life <= 0 && !target.friendly && target.lifeMax > 5)
+            {
                 invulnFramesRemaining = 60;
-
-                // Trigger Heroic Surge (5 seconds = 300 frames)
                 heroicSurgeDuration = 300;
-
-                // Triumphant visual burst
-                for (int i = 0; i < 3; i++)
-                {
-                }
             }
         }
     }

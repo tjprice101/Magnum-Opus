@@ -36,11 +36,12 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             var markingPlayer = player.GetModPlayer<MarkingPlayer>();
             markingPlayer.hasMoonlitPredatorsGaze = true;
             player.nightVision = true;
+            player.detectCreature = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Night vision")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Night vision and see enemies through walls")
             {
                 OverrideColor = new Color(200, 200, 230)
             });

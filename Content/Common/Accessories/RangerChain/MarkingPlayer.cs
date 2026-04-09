@@ -40,7 +40,7 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         // ===== T7-T10 (POST-FATE) FLAGS =====
         public bool hasNocturnalPredatorsSight; // +20% ranged damage at night
         public bool hasInfernalExecutionersSight; // +25% ranged damage during bosses
-        public bool hasJubilantHuntersSight;    // Ranged kills restore 2 HP
+        public bool hasJubilantHuntersSight;    // Ranged kills restore 4 HP
         public bool hasEternalVerdictSight;     // Ranged attacks hit twice
 
         // ===== FUSION FLAGS =====
@@ -55,6 +55,11 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         // ===== COOLDOWNS & STATE =====
         public int gracefulDodgeCooldown;  // Swan's Perfect Dodge cooldown
         public int graceBuffTimer;         // Swan's Grace buff timer
+        public int rangedShotCounter;      // Tracks shots for every-3rd-shot mechanic
+
+        // ===== T7-T9 STATE =====
+        public int executionerFocusTimer;       // T8: Executioner's Focus buff timer
+        public int hunterJubilationTimer;       // T9: Hunter's Jubilation buff timer
 
         // ===== LEGACY COMPATIBILITY STUBS =====
         // These properties exist for backwards compatibility with old code
@@ -143,39 +148,38 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         {
             // === CHAIN INHERITANCE ===
             // Higher-tier accessories inherit all lower-tier effects.
+
+            // --- Fusion chain inheritance ---
+            if (hasScopeOfTheEternalVerdict) { hasTriumphantVerdictScope = true; hasEternalVerdictSight = true; }
+            if (hasTriumphantVerdictScope) { hasStarfallExecutionersScope = true; hasJubilantHuntersSight = true; }
+            if (hasStarfallExecutionersScope) { hasNocturnalPredatorsSight = true; hasInfernalExecutionersSight = true; }
+
+            // --- Post-Fate T7-T10 linear chain inheritance ---
+            if (hasEternalVerdictSight) hasJubilantHuntersSight = true;
+            if (hasJubilantHuntersSight) hasInfernalExecutionersSight = true;
+            if (hasInfernalExecutionersSight) hasNocturnalPredatorsSight = true;
+
+            // T7 inherits all theme variants + seasonal chain
+            if (hasNocturnalPredatorsSight)
+            {
+                hasFatesCosmicVerdict = true;
+                hasSwansGracefulHunt = true;
+                hasEnigmasParadoxMark = true;
+                hasInfernalExecutionersBrand = true;
+                hasHeroicDeadeye = true;
+                hasMoonlitPredatorsGaze = true;
+                hasVivaldisSeasonalSight = true;
+            }
+
+            // --- Seasonal T1-T6 chain inheritance ---
             if (hasVivaldisSeasonalSight) hasPermafrostHuntersEye = true;
             if (hasPermafrostHuntersEye) hasEchoingBoltChamber = true;
             if (hasEchoingBoltChamber) hasResonantPiercingLens = true;
             if (hasResonantPiercingLens) hasSpringHuntersLens = true;
             if (hasSpringHuntersLens) hasResonantSpotter = true;
 
-            // Apply simple static effects from equipped accessories
-
-            // Resonant Spotter: +5% ranged damage
-            if (hasResonantSpotter)
-            {
-                Player.GetDamage(DamageClass.Ranged) += 0.05f;
-            }
-
-            // Solar Tracker's Badge: +5% ranged damage
-            if (hasSolarTrackersBadge)
-            {
-                Player.GetDamage(DamageClass.Ranged) += 0.05f;
-            }
-
-            // Vivaldi's Seasonal Sight: +10% ranged damage
-            if (hasVivaldisSeasonalSight)
-            {
-                Player.GetDamage(DamageClass.Ranged) += 0.10f;
-            }
-
-            // ===== RESONANCE SYNERGY BONUSES (T3-T4) =====
-
-            // T3 ResonantPiercingLens: +5% crit per burn stack on target
-            // (Applied in ModifyHitNPC since it's per-target)
-
-            // T4 EchoingBoltChamber: Homing bolt damage scales with stacks
-            // (Applied in OnHitNPC)
+            // T1-T6 stats are now applied directly in UpdateAccessory on each item.
+            // Only T7+ stats and special effects are applied here.
 
             // Heroic Deadeye: +12% ranged damage, +8% crit
             if (hasHeroicDeadeye)
@@ -190,16 +194,54 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
                 Player.GetDamage(DamageClass.Ranged) += 0.15f;
             }
 
-            // Nocturnal Predator's Sight: +20% ranged damage at night
-            if (hasNocturnalPredatorsSight && !Main.dayTime)
+            // Nocturnal Predator's Sight: +20% ranged damage at night, +10% during day, +8% crit at night, night vision
+            if (hasNocturnalPredatorsSight)
             {
-                Player.GetDamage(DamageClass.Ranged) += 0.20f;
+                if (!Main.dayTime)
+                {
+                    Player.GetDamage(DamageClass.Ranged) += 0.20f;
+                    Player.GetCritChance(DamageClass.Ranged) += 8;
+                }
+                else
+                {
+                    Player.GetDamage(DamageClass.Ranged) += 0.10f;
+                }
+                Player.nightVision = true;
             }
 
-            // Infernal Executioner's Sight: +25% ranged damage during boss fights
-            if (hasInfernalExecutionersSight && AnyBossAlive())
+            // Infernal Executioner's Sight: +25% ranged damage during boss fights, +12% otherwise
+            if (hasInfernalExecutionersSight)
             {
-                Player.GetDamage(DamageClass.Ranged) += 0.25f;
+                if (AnyBossAlive())
+                {
+                    Player.GetDamage(DamageClass.Ranged) += 0.25f;
+                    Player.ammoCost80 = true; // 20% ammo save during bosses
+                }
+                else
+                {
+                    Player.GetDamage(DamageClass.Ranged) += 0.12f;
+                }
+            }
+
+            // Infernal Executioner's Sight: Executioner's Focus buff
+            if (hasInfernalExecutionersSight && executionerFocusTimer > 0)
+            {
+                executionerFocusTimer--;
+                Player.GetDamage(DamageClass.Ranged) += 0.15f;
+            }
+
+            // Jubilant Hunter's Sight: +15% ranged damage
+            if (hasJubilantHuntersSight)
+            {
+                Player.GetDamage(DamageClass.Ranged) += 0.15f;
+            }
+
+            // Jubilant Hunter's Sight: Hunter's Jubilation buff
+            if (hasJubilantHuntersSight && hunterJubilationTimer > 0)
+            {
+                hunterJubilationTimer--;
+                Player.GetCritChance(DamageClass.Ranged) += 8;
+                Player.GetDamage(DamageClass.Ranged) += 0.05f;
             }
 
             // Scope of the Eternal Verdict: +30% ranged damage
@@ -225,19 +267,8 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             if (!item.DamageType.Equals(DamageClass.Ranged))
                 return;
 
-            // ===== RESONANCE SYNERGY: T3 ResonantPiercingLens =====
-            if (hasResonantPiercingLens && ResonancePrefixHelper.IsEnemyBurning(target))
-            {
-                modifiers.FinalDamage += 0.30f;
-
-                int stacks = ResonancePrefixHelper.GetBurnStacks(target);
-                Player.GetCritChance(DamageClass.Ranged) += stacks * 5;
-
-                if (resonanceSuperCritReady)
-                {
-                    modifiers.CritDamage += 0.50f;
-                }
-            }
+            // Every 3rd shot bonus damage (T1-T6)
+            ApplyThirdShotBonus(ref modifiers);
         }
 
         public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref NPC.HitModifiers modifiers)
@@ -245,22 +276,31 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
             if (!proj.DamageType.Equals(DamageClass.Ranged) || proj.owner != Player.whoAmI)
                 return;
 
-            // ===== RESONANCE SYNERGY: T3 ResonantPiercingLens =====
-            if (hasResonantPiercingLens && ResonancePrefixHelper.IsEnemyBurning(target))
-            {
-                // +30% damage vs burning enemies
-                modifiers.FinalDamage += 0.30f;
+            // Every 3rd shot bonus damage (T1-T6)
+            ApplyThirdShotBonus(ref modifiers);
+        }
 
-                // +5% crit per burn stack
-                int stacks = ResonancePrefixHelper.GetBurnStacks(target);
-                Player.GetCritChance(DamageClass.Ranged) += stacks * 5;
+        /// <summary>
+        /// Applies the every-3rd-shot bonus damage based on highest tier.
+        /// </summary>
+        private void ApplyThirdShotBonus(ref NPC.HitModifiers modifiers)
+        {
+            if (!hasResonantSpotter)
+                return;
 
-                // Super crit: 3x damage instead of 2x
-                if (resonanceSuperCritReady)
-                {
-                    modifiers.CritDamage += 0.50f; // 2x -> 3x
-                }
-            }
+            rangedShotCounter++;
+            if (rangedShotCounter % 3 != 0)
+                return;
+
+            float bonusDamage;
+            if (hasVivaldisSeasonalSight) bonusDamage = 0.25f;
+            else if (hasPermafrostHuntersEye) bonusDamage = 0.20f;
+            else if (hasEchoingBoltChamber) bonusDamage = 0.15f;
+            else if (hasResonantPiercingLens) bonusDamage = 0.12f;
+            else if (hasSpringHuntersLens) bonusDamage = 0.08f;
+            else bonusDamage = 0.05f;
+
+            modifiers.FinalDamage += bonusDamage;
         }
 
         public override void OnHurt(Player.HurtInfo info)
@@ -275,129 +315,40 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
 
         public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // Only apply ranger-specific effects if this is a ranged item
             if (!item.DamageType.Equals(DamageClass.Ranged))
                 return;
 
-            // Spring Hunter's Lens: 10% chance to drop heart on ranged hit
-            if (hasSpringHuntersLens && Main.rand.NextFloat() < 0.10f)
-            {
-                Item.NewItem(null, target.Center, ItemID.Heart);
-            }
+            // ===== T1-T6 RANGER CHAIN COMBAT EFFECTS =====
+            ApplyRangerChainOnHit(target, hit, damageDone);
 
-            // Harvest Reaper's Mark: Ranged kills cause explosions
-            if (hasHarvestReapersMark && target.life <= 0)
-            {
-                for (int i = 0; i < 8; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 8f;
-                    Vector2 velocity = angle.ToRotationVector2() * 4f;
-                    int dustType = DustID.Smoke;
-                    Dust dust = Dust.NewDustDirect(target.Center, 1, 1, dustType);
-                    dust.velocity = velocity;
-                }
-            }
+            // ===== T7+ EFFECTS =====
 
-            // Permafrost Hunter's Eye: Ranged attacks slow enemies
-            if (hasPermafrostHuntersEye)
-            {
-                target.velocity *= 0.85f;
-                target.AddBuff(BuffID.Slow, 120);
-            }
-
-            // Vivaldi's Seasonal Sight: Biome-based debuffs
-            if (hasVivaldisSeasonalSight)
-            {
-                if (Player.ZoneSnow)
-                {
-                    target.AddBuff(BuffID.Frostburn, 300);
-                }
-                else if (Player.ZoneDesert)
-                {
-                    target.AddBuff(BuffID.OnFire, 300);
-                }
-                else if (Player.ZoneJungle)
-                {
-                    target.AddBuff(BuffID.Poisoned, 300);
-                }
-                else
-                {
-                    target.AddBuff(BuffID.Confused, 240);
-                }
-            }
-
-            // Infernal Executioner's Brand: Ranged attacks inflict burn
+            // Infernal Executioner's Brand: burn
             if (hasInfernalExecutionersBrand)
-            {
                 target.AddBuff(BuffID.OnFire, 300);
-            }
 
-            // Enigma's Paradox Mark: 15% chance for bonus homing bolt
+            // Enigma's Paradox Mark: 15% chance homing bolt
             if (hasEnigmasParadoxMark && Main.rand.NextFloat() < 0.15f)
-            {
-                int boltDamage = Math.Max(1, damageDone / 3);
-                SpawnHomingBolt(target.Center, boltDamage);
-            }
+                SpawnHomingBolt(target.Center, Math.Max(1, damageDone / 3));
         }
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // Only apply ranger effects for ranged projectiles
             if (!proj.DamageType.Equals(DamageClass.Ranged) || proj.owner != Player.whoAmI)
                 return;
 
-            // ===== RESONANCE SYNERGY EFFECTS =====
+            // ===== T1-T6 RANGER CHAIN COMBAT EFFECTS =====
+            ApplyRangerChainOnHit(target, hit, damageDone);
 
-            // T3 ResonantPiercingLens: Consume super crit
-            if (hasResonantPiercingLens && resonanceSuperCritReady && hit.Crit)
-            {
-                resonanceSuperCritReady = false;
+            // ===== T7+ EFFECTS =====
 
-                // Big impact VFX
-                for (int i = 0; i < 10; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / 10f;
-                    float hue = (float)i / 10f;
-                    Color rainbowColor = Main.hslToRgb(hue, 0.9f, 0.75f);
-                    Vector2 velocity = angle.ToRotationVector2() * 5f;
-                    CustomParticles.GenericFlare(target.Center, rainbowColor, 0.5f, 20);
-                }
+            // Infernal Executioner's Brand: burn
+            if (hasInfernalExecutionersBrand)
+                target.AddBuff(BuffID.OnFire, 300);
 
-                Terraria.Audio.SoundEngine.PlaySound(SoundID.Item14, target.Center);
-            }
-
-            // T4 EchoingBoltChamber: Crit spreads burn to ALL enemies in 300 units
-            if (hasEchoingBoltChamber && hit.Crit && ResonancePrefixHelper.IsEnemyBurning(target))
-            {
-                if (resonanceSpreadBurnOnCrit)
-                {
-                    // Spread to ALL enemies in 300 units
-                    resonanceSpreadBurnOnCrit = false;
-                    SpreadBurnToAllNearby(target.Center, damageDone / 2, 300f, target);
-                }
-                else
-                {
-                    // Normal: spread to 1 nearby enemy (200 units)
-                    ResonancePrefixHelper.SpreadBurnToNearby(target.Center, damageDone / 2, 200f, target);
-                }
-            }
-
-            // T4 EchoingBoltChamber: 15% homing bolt (damage scales with stacks)
-            if (hasEchoingBoltChamber && Main.rand.NextFloat() < 0.15f)
-            {
-                int stacks = ResonancePrefixHelper.GetBurnStacks(target);
-                float stackMultiplier = 1f + (stacks * 0.20f); // +20% per stack
-                int boltDamage = (int)(damageDone * 0.5f * stackMultiplier);
-
-                // Spawn homing bolt (simplified - just visual + damage)
-                SpawnHomingBolt(target.Center, boltDamage);
-            }
-
-            // Spring Hunter's Lens: 10% chance to drop heart on ranged hit
-            if (hasSpringHuntersLens && Main.rand.NextFloat() < 0.10f)
-            {
-                Item.NewItem(null, target.Center, ItemID.Heart);
-            }
+            // Enigma's Paradox Mark: 15% chance homing bolt
+            if (hasEnigmasParadoxMark && Main.rand.NextFloat() < 0.15f)
+                SpawnHomingBolt(target.Center, Math.Max(1, damageDone / 3));
 
             // Harvest Reaper's Mark: Ranged kills cause explosions
             if (hasHarvestReapersMark && target.life <= 0)
@@ -406,57 +357,91 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
                 {
                     float angle = MathHelper.TwoPi * i / 8f;
                     Vector2 velocity = angle.ToRotationVector2() * 4f;
-                    int dustType = DustID.Smoke;
-                    Dust dust = Dust.NewDustDirect(target.Center, 1, 1, dustType);
+                    Dust dust = Dust.NewDustDirect(target.Center, 1, 1, DustID.Smoke);
                     dust.velocity = velocity;
                 }
             }
 
-            // Permafrost Hunter's Eye: Ranged attacks slow enemies
-            if (hasPermafrostHuntersEye)
-            {
-                target.velocity *= 0.85f;
-                target.AddBuff(BuffID.Slow, 120);
-            }
-
-            // Vivaldi's Seasonal Sight: Biome-based debuffs
-            if (hasVivaldisSeasonalSight)
-            {
-                if (Player.ZoneSnow)
-                {
-                    target.AddBuff(BuffID.Frostburn, 300);
-                }
-                else if (Player.ZoneDesert)
-                {
-                    target.AddBuff(BuffID.OnFire, 300);
-                }
-                else if (Player.ZoneJungle)
-                {
-                    target.AddBuff(BuffID.Poisoned, 300);
-                }
-                else
-                {
-                    target.AddBuff(BuffID.Confused, 240);
-                }
-            }
-
-            // Infernal Executioner's Brand: Ranged attacks inflict burn
-            if (hasInfernalExecutionersBrand)
-            {
-                target.AddBuff(BuffID.OnFire, 300);
-            }
-
-            // Enigma's Paradox Mark: 15% chance for bonus homing bolt
-            if (hasEnigmasParadoxMark && Main.rand.NextFloat() < 0.15f)
-            {
-                int boltDamage = Math.Max(1, damageDone / 3);
-                SpawnHomingBolt(target.Center, boltDamage);
-            }
-
-            // Jubilant Hunter's Sight: Ranged kills restore 2 HP
+            // Jubilant Hunter's Sight: Ranged kills restore 4 HP, crit kills grant Hunter's Jubilation
             if (hasJubilantHuntersSight && target.life <= 0)
             {
-                Player.Heal(2);
+                Player.Heal(4);
+                if (hit.Crit)
+                    hunterJubilationTimer = 180; // 3 seconds
+            }
+
+            // T8: Executioner's Focus - crit on boss grants +15% ranged damage for 2s
+            if (hasInfernalExecutionersSight && hit.Crit && target.boss)
+            {
+                executionerFocusTimer = 120; // 2 seconds
+            }
+        }
+
+        /// <summary>
+        /// Shared T1-T6 ranger chain on-hit effects: hearts, burn, slow, spread, multi-debuff.
+        /// </summary>
+        private void ApplyRangerChainOnHit(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            // T6: Multi-debuff
+            if (hasVivaldisSeasonalSight)
+            {
+                target.AddBuff(BuffID.OnFire, 180);
+                target.AddBuff(BuffID.Frostburn, 180);
+                target.AddBuff(BuffID.Poisoned, 180);
+                target.AddBuff(BuffID.Bleeding, 180);
+            }
+            // T3-T5: Burn on hit
+            else if (hasResonantPiercingLens)
+            {
+                target.AddBuff(BuffID.OnFire, 180);
+            }
+
+            // Heart drop chances (tier-dependent)
+            if (hasSpringHuntersLens)
+            {
+                float heartChance;
+                if (hasVivaldisSeasonalSight) heartChance = 0.05f;
+                else if (hasPermafrostHuntersEye) heartChance = 0.03f;
+                else if (hasEchoingBoltChamber) heartChance = 0.025f;
+                else heartChance = 0.02f;
+
+                if (Main.rand.NextFloat() < heartChance)
+                    Item.NewItem(null, target.Center, ItemID.Heart);
+            }
+
+            // Slow chance
+            if (hasVivaldisSeasonalSight && Main.rand.NextFloat() < 0.08f)
+            {
+                target.AddBuff(BuffID.Slow, 60);
+            }
+            else if (hasPermafrostHuntersEye && Main.rand.NextFloat() < 0.05f)
+            {
+                target.AddBuff(BuffID.Slow, 60);
+            }
+
+            // T4+: Critical hits spread burn to nearby enemies
+            if (hasEchoingBoltChamber && hit.Crit && target.HasBuff(BuffID.OnFire))
+            {
+                float spreadRadius = hasVivaldisSeasonalSight ? 300f : 200f;
+                for (int i = 0; i < Main.maxNPCs; i++)
+                {
+                    NPC npc = Main.npc[i];
+                    if (!npc.active || npc.friendly || npc.dontTakeDamage || npc.whoAmI == target.whoAmI)
+                        continue;
+
+                    if (Vector2.Distance(target.Center, npc.Center) <= spreadRadius)
+                    {
+                        npc.AddBuff(BuffID.OnFire, 180);
+                        if (hasVivaldisSeasonalSight)
+                        {
+                            npc.AddBuff(BuffID.Frostburn, 180);
+                            npc.AddBuff(BuffID.Poisoned, 180);
+                            npc.AddBuff(BuffID.Bleeding, 180);
+                        }
+                        if (hasPermafrostHuntersEye)
+                            npc.AddBuff(BuffID.Slow, 60);
+                    }
+                }
             }
         }
 

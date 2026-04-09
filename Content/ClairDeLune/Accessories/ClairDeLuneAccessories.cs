@@ -5,7 +5,6 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
-using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.ClairDeLune.ResonanceEnergies;
 using MagnumOpus.Content.ClairDeLune.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
@@ -13,16 +12,165 @@ using MagnumOpus.Content.Materials.EnemyDrops;
 
 namespace MagnumOpus.Content.ClairDeLune.Accessories
 {
-    #region Chronoblade Gauntlet (Melee)
+    #region Shared Player
 
-    /// <summary>
-    /// Chronoblade Gauntlet — Tier 10 melee accessory.
-    /// Temporal acceleration on melee hits; subtle brass sparkles on swing.
-    /// </summary>
-    public class ChronobladeGauntlet : ModItem
+    public class ClairDeLuneAccessoryPlayer : ModPlayer
     {
-        private static readonly Color Brass = new Color(205, 127, 50);
+        private static readonly Color LoreColor = new Color(150, 200, 255);
+
+        // Accessory flags
+        public bool reverieGauntletActive;
+        public bool luminousReveriePendantActive;
+        public bool dreambowClaspActive;
+        public bool dreamsingerSigilActive;
+
+        // Reverie Gauntlet: melee hit counter for Reverie proc
+        public int meleeHitCounter;
+
+        // Luminous Reverie Pendant: magic hit counter for Arabesque proc
+        public int magicHitCounter;
+
+        // Dreambow Clasp: ranged crit counter for Reflets dans l'Eau
+        public int rangedCritCounter;
+
+        public override void ResetEffects()
+        {
+            reverieGauntletActive = false;
+            luminousReveriePendantActive = false;
+            dreambowClaspActive = false;
+            dreamsingerSigilActive = false;
+        }
+
+        public override bool FreeDodge(Player.HurtInfo info)
+        {
+            // Reverie: +5% dodge chance
+            if (Player.HasBuff(ModContent.BuffType<ReverieBuff>()) && Main.rand.NextFloat() < 0.05f)
+                return true;
+
+            return false;
+        }
+
+        public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (reverieGauntletActive && item.DamageType == DamageClass.Melee)
+                ProcessMeleeHit(target, hit, damageDone);
+
+            // Kill checks
+            if (target.life <= 0)
+                ProcessKill(target);
+        }
+
+        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (!proj.friendly) return;
+
+            if (reverieGauntletActive && proj.DamageType == DamageClass.Melee)
+                ProcessMeleeHit(target, hit, damageDone);
+
+            if (luminousReveriePendantActive && proj.DamageType == DamageClass.Magic)
+                ProcessMagicHit(target, hit, damageDone);
+
+            if (dreambowClaspActive && proj.DamageType == DamageClass.Ranged)
+                ProcessRangedHit(target, hit, damageDone);
+
+            if (dreamsingerSigilActive && proj.minion)
+                ProcessMinionHit(target, hit, damageDone);
+
+            // Kill checks
+            if (target.life <= 0)
+                ProcessKill(target);
+        }
+
+        private void ProcessMeleeHit(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            // 20% chance to apply Brumes
+            if (Main.rand.NextFloat() < 0.20f)
+            {
+                var globalNPC = target.GetGlobalNPC<ClairDeLuneAccessoryGlobalNPC>();
+                globalNPC.ApplyBrumes(180); // 3 seconds
+            }
+
+            // Every 8th hit -> Reverie buff
+            meleeHitCounter++;
+            if (meleeHitCounter >= 8)
+            {
+                meleeHitCounter = 0;
+                bool isNight = !Main.dayTime;
+                int duration = isNight ? 360 : 240; // 6s night, 4s day
+                Player.AddBuff(ModContent.BuffType<ReverieBuff>(), duration);
+            }
+        }
+
+        private void ProcessMagicHit(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            // 10% chance to apply Voiles
+            if (Main.rand.NextFloat() < 0.10f)
+            {
+                var globalNPC = target.GetGlobalNPC<ClairDeLuneAccessoryGlobalNPC>();
+                globalNPC.ApplyVoiles(240); // 4 seconds
+            }
+
+            // Every 10th hit -> Arabesque buff
+            magicHitCounter++;
+            if (magicHitCounter >= 10)
+            {
+                magicHitCounter = 0;
+                bool isNight = !Main.dayTime;
+                int duration = isNight ? 420 : 300; // 7s night, 5s day
+                Player.AddBuff(ModContent.BuffType<ArabesqueBuff>(), duration);
+            }
+        }
+
+        private void ProcessRangedHit(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (!hit.Crit) return;
+
+            // Crits apply Pas sur la Neige
+            var globalNPC = target.GetGlobalNPC<ClairDeLuneAccessoryGlobalNPC>();
+            globalNPC.ApplyPasSurLaNeige(180); // 3 seconds
+
+            // Every 5th crit -> Reflets dans l'Eau
+            rangedCritCounter++;
+            if (rangedCritCounter >= 5)
+            {
+                rangedCritCounter = 0;
+                bool isNight = !Main.dayTime;
+                int duration = isNight ? 360 : 240; // 6s night, 4s day
+                Player.AddBuff(ModContent.BuffType<RefletsDansLEauBuff>(), duration);
+            }
+        }
+
+        private void ProcessMinionHit(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            // 10% chance to apply Berceuse
+            if (Main.rand.NextFloat() < 0.10f)
+            {
+                var globalNPC = target.GetGlobalNPC<ClairDeLuneAccessoryGlobalNPC>();
+                globalNPC.ApplyBerceuse(180); // 3 seconds
+            }
+        }
+
+        private void ProcessKill(NPC target)
+        {
+            // Dreamsinger Sigil: kills grant Clair
+            if (dreamsingerSigilActive)
+            {
+                bool isNight = !Main.dayTime;
+                int duration = isNight ? 300 : 180; // 5s night, 3s day
+                Player.AddBuff(ModContent.BuffType<ClairBuff>(), duration);
+            }
+        }
+    }
+
+    #endregion
+
+    #region Reverie Gauntlet (Melee)
+
+    public class ReverieGauntlet : ModItem
+    {
         private static readonly Color IceBlue = new Color(150, 200, 255);
+
+        public override string Texture => "MagnumOpus/Content/ClairDeLune/Accessories/ChronobladeGauntlet";
 
         public override void SetDefaults()
         {
@@ -35,11 +183,10 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+60% melee damage"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+35% melee speed"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Critical strikes accelerate time — next swing is 50% faster"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Every 8th melee hit restores 25% of recent damage taken (max 40 HP)"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The gauntlet tightens, and seconds shatter like glass'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+60% melee damage, +35% melee speed, +20% melee crit"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "20% chance on hit to apply Brumes for 3s (-12% speed)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Every 8th melee hit grants R\u00eaverie for 4s (+15% melee, +5% dodge). Night: 6s"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The gauntlet moves like a dream half-remembered — soft, slow, and impossible to escape'")
             {
                 OverrideColor = IceBlue
             });
@@ -49,7 +196,8 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
         {
             player.GetDamage(DamageClass.Melee) += 0.60f;
             player.GetAttackSpeed(DamageClass.Melee) += 0.35f;
-            player.GetModPlayer<ChronobladeGauntletPlayer>().gauntletActive = true;
+            player.GetCritChance(DamageClass.Melee) += 20;
+            player.GetModPlayer<ClairDeLuneAccessoryPlayer>().reverieGauntletActive = true;
         }
 
         public override void AddRecipes()
@@ -65,177 +213,15 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
         }
     }
 
-    public class ChronobladeGauntletPlayer : ModPlayer
-    {
-        public bool gauntletActive;
-        public int temporalAccelerationTimer;
-        public int meleeHitCounter;
-        private int recentDamageTaken;
-        private int damageTrackingTimer;
-
-        public override void ResetEffects()
-        {
-            gauntletActive = false;
-        }
-
-        public override void PostUpdate()
-        {
-            if (temporalAccelerationTimer > 0)
-            {
-                Player.GetAttackSpeed(DamageClass.Melee) += 0.50f;
-                temporalAccelerationTimer--;
-            }
-
-            // Track damage taken over last 60 frames
-            if (damageTrackingTimer > 0)
-                damageTrackingTimer--;
-            else
-                recentDamageTaken = 0;
-        }
-
-        public override void OnHurt(Player.HurtInfo info)
-        {
-            if (gauntletActive)
-            {
-                recentDamageTaken += info.Damage;
-                damageTrackingTimer = 60; // 1 second window
-            }
-        }
-
-        public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            if (!gauntletActive || item.DamageType != DamageClass.Melee) return;
-            ApplyEffects(target, hit, damageDone);
-        }
-
-        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            if (!gauntletActive || proj.DamageType != DamageClass.Melee || !proj.friendly) return;
-            ApplyEffects(target, hit, damageDone);
-        }
-
-        private void ApplyEffects(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            if (hit.Crit)
-                temporalAccelerationTimer = 30; // 0.5 second of accelerated swings
-
-            // Temporal Rewind: every 8th melee hit restores 25% of recent damage taken
-            meleeHitCounter++;
-            if (meleeHitCounter >= 8)
-            {
-                meleeHitCounter = 0;
-                int healAmount = System.Math.Min((int)(recentDamageTaken * 0.25f), 40);
-                if (healAmount > 0)
-                    Player.Heal(healAmount);
-                recentDamageTaken = 0;
-            }
-
-            // Subtle brass sparkle on hit (keep existing minimal VFX)
-            if (Main.rand.NextBool(3))
-            {
-                for (int i = 0; i < 2; i++)
-                {
-                    Vector2 pos = target.Center + Main.rand.NextVector2Circular(16f, 16f);
-                }
-            }
-        }
-    }
-
     #endregion
 
-    #region Chronodisruptor of Harmony (Ranged)
+    #region Luminous Reverie Pendant (Magic)
 
-    /// <summary>
-    /// Chronodisruptor of Harmony — Tier 10 ranged accessory.
-    /// Ranged crits disrupt enemies in time, slowing them.
-    /// </summary>
-    public class ChronodisruptorOfHarmony : ModItem
+    public class LuminousReveriePendant : ModItem
     {
-        private static readonly Color MistBlue = new Color(100, 140, 200);
         private static readonly Color IceBlue = new Color(150, 200, 255);
 
-        public override void SetDefaults()
-        {
-            Item.width = 32;
-            Item.height = 32;
-            Item.accessory = true;
-            Item.value = Item.sellPrice(platinum: 4);
-            Item.rare = ModContent.RarityType<ClairDeLuneRarity>();
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+55% ranged damage"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+30% ranged critical strike chance"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Ranged critical hits disrupt enemy tempo"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Affected enemies deal 15% less damage and move slowly"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "20% chance to not consume ammo"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Harmony fractures, and the world slows to a crawl'")
-            {
-                OverrideColor = IceBlue
-            });
-        }
-
-        public override void UpdateAccessory(Player player, bool hideVisual)
-        {
-            player.GetDamage(DamageClass.Ranged) += 0.55f;
-            player.GetCritChance(DamageClass.Ranged) += 30;
-            player.GetModPlayer<ChronodisruptorPlayer>().disruptorActive = true;
-            player.ammoCost80 = true; // 20% chance to not consume ammo
-        }
-
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient(ModContent.ItemType<ResonantCoreOfClairDeLune>(), 15)
-                .AddIngredient(ModContent.ItemType<ClairDeLuneResonantEnergy>(), 10)
-                .AddIngredient(ModContent.ItemType<HarmonicCoreOfClairDeLune>(), 1)
-                .AddIngredient(ModContent.ItemType<ShardOfClairDeLunesTempo>(), 5)
-                .AddIngredient(ItemID.LunarBar, 10)
-                .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
-                .Register();
-        }
-    }
-
-    public class ChronodisruptorPlayer : ModPlayer
-    {
-        public bool disruptorActive;
-
-        public override void ResetEffects()
-        {
-            disruptorActive = false;
-        }
-
-        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            if (!disruptorActive || proj.DamageType != DamageClass.Ranged || !proj.friendly) return;
-
-            if (hit.Crit)
-            {
-                target.AddBuff(BuffID.Slow, 120); // 2 seconds slow
-                target.GetGlobalNPC<ClairDeLuneAccessoryGlobalNPC>().ApplyBulletTime(target);
-
-                // Small temporal shimmer on crit (keep existing minimal VFX)
-                for (int i = 0; i < 3; i++)
-                {
-                    Vector2 pos = target.Center + Main.rand.NextVector2Circular(12f, 12f);
-                }
-            }
-        }
-    }
-
-    #endregion
-
-    #region Fractured Hourglass Pendant (Magic)
-
-    /// <summary>
-    /// Fractured Hourglass Pendant — Tier 10 magic accessory.
-    /// Temporal magic amplification with mana cost reduction.
-    /// </summary>
-    public class FracturedHourglassPendant : ModItem
-    {
-        private static readonly Color PearlWhite = new Color(220, 225, 240);
-        private static readonly Color IceBlue = new Color(150, 200, 255);
+        public override string Texture => "MagnumOpus/Content/ClairDeLune/Accessories/FracturedHourglassPendant";
 
         public override void SetDefaults()
         {
@@ -248,12 +234,10 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+55% magic damage"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+30% magic critical strike chance"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Magic attacks may fracture time around enemies"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Enemies in fractured zones take 10% increased damage"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "-25% mana cost"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The sand still falls, but time has long since stopped'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+55% magic damage, +30% magic crit, -25% mana cost"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "10% chance on hit to apply Voiles for 4s (15% miss chance)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Every 10th magic hit grants Arabesque for 5s (+12% magic, -15% mana cost). Night: 7s"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'She wears the moon's light like a pendant — and the night softens wherever she walks'")
             {
                 OverrideColor = IceBlue
             });
@@ -264,7 +248,7 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
             player.GetDamage(DamageClass.Magic) += 0.55f;
             player.GetCritChance(DamageClass.Magic) += 30;
             player.manaCost -= 0.25f;
-            player.GetModPlayer<FracturedHourglassPlayer>().hourglassActive = true;
+            player.GetModPlayer<ClairDeLuneAccessoryPlayer>().luminousReveriePendantActive = true;
         }
 
         public override void AddRecipes()
@@ -281,95 +265,15 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
         }
     }
 
-    public class FracturedHourglassPlayer : ModPlayer
-    {
-        public bool hourglassActive;
-
-        // Time Fracture zone tracking (max 2)
-        public Vector2[] zonePositions = new Vector2[2];
-        public int[] zoneTimers = new int[2];
-
-        public override void ResetEffects()
-        {
-            hourglassActive = false;
-        }
-
-        public override void PostUpdate()
-        {
-            // Update time fracture zones
-            for (int i = 0; i < 2; i++)
-            {
-                if (zoneTimers[i] > 0)
-                {
-                    zoneTimers[i]--;
-
-                    // Zone VFX: ice-blue dust swirling at zone center every 30 frames
-                    if (zoneTimers[i] % 30 == 0)
-                    {
-                        for (int d = 0; d < 2; d++)
-                        {
-                            Vector2 offset = Main.rand.NextVector2CircularEdge(40f, 40f);
-                            Dust dust = Dust.NewDustDirect(zonePositions[i] + offset,
-                                0, 0, DustID.IceTorch, -offset.X * 0.02f, -offset.Y * 0.02f, 100, default, 0.8f);
-                            dust.noGravity = true;
-                        }
-                    }
-                }
-            }
-        }
-
-        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            if (!hourglassActive || proj.DamageType != DamageClass.Magic || !proj.friendly) return;
-
-            // 12% chance to create a time fracture zone
-            if (Main.rand.NextFloat() < 0.12f)
-            {
-                // Find an available slot (or overwrite oldest)
-                int slot = -1;
-                for (int i = 0; i < 2; i++)
-                {
-                    if (zoneTimers[i] <= 0) { slot = i; break; }
-                }
-                if (slot == -1)
-                {
-                    // Overwrite the one with less time remaining
-                    slot = zoneTimers[0] < zoneTimers[1] ? 0 : 1;
-                }
-
-                zonePositions[slot] = target.Center;
-                zoneTimers[slot] = 180; // 3 seconds
-
-                // Zone spawn VFX
-                for (int d = 0; d < 4; d++)
-                {
-                    Vector2 vel = Main.rand.NextVector2CircularEdge(3f, 3f);
-                    Dust dust = Dust.NewDustDirect(target.Center, 0, 0,
-                        DustID.IceTorch, vel.X, vel.Y, 80, default, 1.0f);
-                    dust.noGravity = true;
-                }
-            }
-
-            // Subtle pearl sparkle on magic hit (keep existing minimal VFX)
-            if (Main.rand.NextBool(4))
-            {
-                Vector2 pos = target.Center + Main.rand.NextVector2Circular(10f, 10f);
-            }
-        }
-    }
-
     #endregion
 
-    #region Timesinger Sigil (Summoner)
+    #region Dreambow Clasp (Ranged)
 
-    /// <summary>
-    /// Timesinger Sigil — Tier 10 summoner accessory.
-    /// Increases max minions and whip range with temporal command.
-    /// </summary>
-    public class TimesingerSigil : ModItem
+    public class DreambowClasp : ModItem
     {
-        private static readonly Color Brass = new Color(205, 127, 50);
         private static readonly Color IceBlue = new Color(150, 200, 255);
+
+        public override string Texture => "MagnumOpus/Content/ClairDeLune/Accessories/ChronodisruptorOfHarmony";
 
         public override void SetDefaults()
         {
@@ -382,11 +286,10 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+65% summon damage"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+4 max minions"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Minion attacks may summon temporal echoes that strike once"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+25% whip speed and range"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The sigil hums, and forgotten servants answer across the ages'")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+55% ranged damage, +30% ranged crit, 20% ammo save"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Ranged crits apply Pas sur la Neige for 3s (-15% speed)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Every 5th ranged crit grants Reflets dans l'Eau for 4s (+12% ranged, +8% crit). Night: 6s"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The arrow dissolves into moonlight — and the moonlight finds its mark'")
             {
                 OverrideColor = IceBlue
             });
@@ -394,11 +297,10 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            player.GetDamage(DamageClass.Summon) += 0.65f;
-            player.maxMinions += 4;
-            player.GetAttackSpeed(DamageClass.SummonMeleeSpeed) += 0.25f;
-            player.whipRangeMultiplier += 0.25f;
-            player.GetModPlayer<TimesingerSigilPlayer>().sigilActive = true;
+            player.GetDamage(DamageClass.Ranged) += 0.55f;
+            player.GetCritChance(DamageClass.Ranged) += 30;
+            player.ammoCost80 = true;
+            player.GetModPlayer<ClairDeLuneAccessoryPlayer>().dreambowClaspActive = true;
         }
 
         public override void AddRecipes()
@@ -414,52 +316,55 @@ namespace MagnumOpus.Content.ClairDeLune.Accessories
         }
     }
 
-    public class TimesingerSigilPlayer : ModPlayer
-    {
-        public bool sigilActive;
+    #endregion
 
-        public override void ResetEffects()
+    #region Dreamsinger Sigil (Summoner)
+
+    public class DreamsingerSigil : ModItem
+    {
+        private static readonly Color IceBlue = new Color(150, 200, 255);
+
+        public override string Texture => "MagnumOpus/Content/ClairDeLune/Accessories/TimesingerSigil";
+
+        public override void SetDefaults()
         {
-            sigilActive = false;
+            Item.width = 32;
+            Item.height = 32;
+            Item.accessory = true;
+            Item.value = Item.sellPrice(platinum: 4);
+            Item.rare = ModContent.RarityType<ClairDeLuneRarity>();
         }
 
-        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            if (!sigilActive || !proj.minion || !proj.friendly) return;
-
-            // 8% chance to spawn a temporal echo
-            if (Main.rand.NextFloat() < 0.08f && Main.myPlayer == Player.whoAmI)
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+65% summon damage, +4 max minions, +25% whip speed and range"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "10% minion hit chance to apply Berceuse for 3s (-5 defense, -10% speed)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Kills grant Clair for 3s (+10% summon, +3 regen). Night: 5s"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The sigil hums a lullaby — and the dreaming servants answer in moonlit harmony'")
             {
-                // Count active echo projectiles
-                int activeEchoes = 0;
-                for (int i = 0; i < Main.maxProjectiles; i++)
-                {
-                    if (Main.projectile[i].active && Main.projectile[i].owner == Player.whoAmI &&
-                        Main.projectile[i].type == ProjectileID.StardustDragon4)
-                        activeEchoes++;
-                }
+                OverrideColor = IceBlue
+            });
+        }
 
-                if (activeEchoes < 2)
-                {
-                    // Spawn echo at hit location aimed at nearest enemy
-                    Vector2 velocity = Main.rand.NextVector2CircularEdge(6f, 6f);
-                    int echoDamage = (int)(damageDone * 0.6f);
-                    int echoProj = Projectile.NewProjectile(
-                        Player.GetSource_Accessory(Player.armor[0]),
-                        target.Center, velocity,
-                        ProjectileID.StardustDragon4,
-                        echoDamage, 2f, Player.whoAmI
-                    );
-                    if (echoProj >= 0 && echoProj < Main.maxProjectiles)
-                        Main.projectile[echoProj].timeLeft = 90; // 1.5 seconds
-                }
-            }
+        public override void UpdateAccessory(Player player, bool hideVisual)
+        {
+            player.GetDamage(DamageClass.Summon) += 0.65f;
+            player.maxMinions += 4;
+            player.GetAttackSpeed(DamageClass.SummonMeleeSpeed) += 0.25f;
+            player.whipRangeMultiplier += 0.25f;
+            player.GetModPlayer<ClairDeLuneAccessoryPlayer>().dreamsingerSigilActive = true;
+        }
 
-            // Subtle temporal shimmer when minions hit (keep existing minimal VFX)
-            if (Main.rand.NextBool(5))
-            {
-                Vector2 pos = target.Center + Main.rand.NextVector2Circular(10f, 10f);
-            }
+        public override void AddRecipes()
+        {
+            CreateRecipe()
+                .AddIngredient(ModContent.ItemType<ResonantCoreOfClairDeLune>(), 15)
+                .AddIngredient(ModContent.ItemType<ClairDeLuneResonantEnergy>(), 10)
+                .AddIngredient(ModContent.ItemType<HarmonicCoreOfClairDeLune>(), 1)
+                .AddIngredient(ModContent.ItemType<ShardOfClairDeLunesTempo>(), 5)
+                .AddIngredient(ItemID.LunarBar, 10)
+                .AddTile(ModContent.TileType<FatesCosmicAnvilTile>())
+                .Register();
         }
     }
 

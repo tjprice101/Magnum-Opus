@@ -44,7 +44,11 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+20% melee damage at night")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+20% melee damage at night, +10% during day")
+            {
+                OverrideColor = NachtmusikGold
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Crits grant Notturno for 2s (+8% damage, +5% crit)")
             {
                 OverrideColor = NachtmusikGold
             });
@@ -58,6 +62,7 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         public override void AddRecipes()
         {
             CreateRecipe()
+                .AddIngredient<FatesCosmicSymphony>(1)
                 .AddIngredient<NachtmusikResonantEnergy>(15)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
@@ -98,9 +103,13 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+25% melee damage during boss fights")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+25% melee damage during bosses, +12% otherwise")
             {
                 OverrideColor = new Color(255, 200, 80)
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Crits inflict Wrathfire (fire damage + defense shred)")
+            {
+                OverrideColor = DiesIraeCrimson
             });
 
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The day of wrath burns with righteous fury'")
@@ -112,6 +121,7 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         public override void AddRecipes()
         {
             CreateRecipe()
+                .AddIngredient<NocturnalSymphonyBand>(1)
                 .AddIngredient<DiesIraeResonantEnergy>(15)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
@@ -151,9 +161,13 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "3% lifesteal on melee attacks")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+15% melee damage, lifesteal capped at 20 HP/s")
             {
                 OverrideColor = new Color(180, 255, 180)
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Every 10th kill: Triumphant Crescendo 5s (+12% dmg, +8% crit, heals 8% max HP)")
+            {
+                OverrideColor = OdeGold
             });
 
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Freude, schoener Goetterfunken - Joy, beautiful spark of divinity'")
@@ -165,6 +179,7 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         public override void AddRecipes()
         {
             CreateRecipe()
+                .AddIngredient<InfernalFortissimoBandT8>(1)
                 .AddIngredient<OdeToJoyResonantEnergy>(15)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
@@ -222,6 +237,7 @@ namespace MagnumOpus.Content.Common.Accessories.MeleeChain
         public override void AddRecipes()
         {
             CreateRecipe()
+                .AddIngredient<JubilantCrescendoBand>(1)
                 .AddIngredient<ClairDeLuneResonantEnergy>(15)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();

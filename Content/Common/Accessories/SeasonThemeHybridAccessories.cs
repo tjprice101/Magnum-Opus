@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -24,16 +25,15 @@ namespace MagnumOpus.Content.Common.Accessories
 {
     #region Spring's Moonlit Garden - Spring + Moonlight Sonata
     /// <summary>
-    /// Phase 5 Season-Theme Hybrid: Bloom Crest + Sonata's Embrace
-    /// The moon's gentle light nurtures nocturnal blossoms in an eternal garden
+    /// Season-Theme Hybrid: Bloom Crest + Sonata's Embrace
+    /// From Bloom Crest: +6 life regen, +8 defense, +6% damage reduction, 60% thorns
+    /// From Sonata's Embrace: +15% damage at night, +10% during the day, -12% mana cost
+    /// Signature: "Moonlit Garden" — 12% Withered Root on hit (-10 def, slow), night heal,
+    ///   kills during Withered Root → Verdant Renewal (stacking regen),
+    ///   Withered Root + Moonstruck = +10% damage taken for 4s
     /// </summary>
     public class SpringsMoonlitGarden : ModItem
     {
-        private static readonly Color SpringPink = new Color(255, 183, 197);
-        private static readonly Color MoonlightPurple = new Color(138, 43, 226);
-        private static readonly Color MoonlightSilver = new Color(220, 220, 235);
-        private static readonly Color NightBlossomBlue = new Color(160, 140, 220);
-        
         public override void SetDefaults()
         {
             Item.width = 38;
@@ -47,38 +47,29 @@ namespace MagnumOpus.Content.Common.Accessories
         {
             var modPlayer = player.GetModPlayer<SpringsMoonlitGardenPlayer>();
             modPlayer.moonlitGardenEquipped = true;
-            
+
             bool isNight = !Main.dayTime;
-            
-            // === SPRING BONUSES (Bloom Crest) ===
+
+            // === FROM BLOOM CREST ===
             player.lifeRegen += 6;
             player.statDefense += 8;
             player.endurance += 0.06f;
             player.thorns = 0.6f;
-            
-            // === MOONLIGHT BONUSES (Sonata's Embrace) ===
+
+            // === FROM SONATA'S EMBRACE ===
             if (isNight)
-            {
-                player.GetDamage(DamageClass.Generic) += 0.22f;
-                player.GetCritChance(DamageClass.Generic) += 18;
-                player.statDefense += 12;
-                player.moveSpeed += 0.15f;
-            }
+                player.GetDamage(DamageClass.Generic) += 0.15f;
             else
-            {
                 player.GetDamage(DamageClass.Generic) += 0.10f;
-                player.GetCritChance(DamageClass.Generic) += 8;
-            }
-            
-            player.GetDamage(DamageClass.Magic) += 0.12f;
-            player.manaRegen += 4;
-            
-            // === HYBRID BONUS: Moonlit Garden ===
-            // Enhanced life regen at night
+            player.manaCost -= 0.12f;
+
+            // === NIGHT BONUS ===
             if (isNight)
-            {
                 player.lifeRegen += 8;
-            }
+
+            // === VERDANT RENEWAL BUFF ===
+            if (modPlayer.verdantRenewalStacks > 0)
+                player.lifeRegen += 4 * modPlayer.verdantRenewalStacks;
         }
 
         public override void AddRecipes()
@@ -94,32 +85,40 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Color SpringPink = new Color(255, 183, 197);
-            Color MoonlightPurple = new Color(138, 43, 226);
+            Color springPink = new Color(255, 183, 197);
+            Color moonPurple = new Color(140, 100, 200);
 
             tooltips.Add(new TooltipLine(Mod, "Hybrid", "Bloom Crest + Sonata's Embrace")
             {
-                OverrideColor = Color.Lerp(SpringPink, MoonlightPurple, 0.5f)
+                OverrideColor = Color.Lerp(springPink, moonPurple, 0.5f)
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+6 life regen, +8 defense, +6% damage reduction, 60% thorns")
+            tooltips.Add(new TooltipLine(Mod, "SpringStats", "+6 life regen, +8 defense, +6% damage reduction, 60% thorns")
             {
-                OverrideColor = SpringPink
+                OverrideColor = springPink
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "At night: +22% damage, +18 crit, +12 defense, +15% move speed")
+            tooltips.Add(new TooltipLine(Mod, "MoonlightStats", "+15% damage at night, +10% during the day, -12% mana cost")
             {
-                OverrideColor = MoonlightPurple
+                OverrideColor = moonPurple
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect2b", "During day: +10% damage, +8 crit")
+            tooltips.Add(new TooltipLine(Mod, "Signature", "Moonlit Garden: 12% chance on hit to apply Withered Root (slowed, -15 defense, 4s)")
             {
-                OverrideColor = Color.Lerp(SpringPink, MoonlightPurple, 0.4f)
+                OverrideColor = Color.Lerp(springPink, moonPurple, 0.4f)
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+12% magic damage, +4 mana regen, +8 life regen at night")
+            tooltips.Add(new TooltipLine(Mod, "NightHeal", "At night: +8 life regen and 10% chance on hit to heal 8 HP")
             {
-                OverrideColor = Color.Lerp(SpringPink, MoonlightPurple, 0.3f)
+                OverrideColor = moonPurple
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "12% chance to confuse enemies at night, 10%/6% chance to heal (8/5 HP), 8% chance to poison")
+            tooltips.Add(new TooltipLine(Mod, "VerdantRenewal", "Killing enemies with Withered Root grants Verdant Renewal: +4 life regen for 3s (stacks 3x)")
             {
-                OverrideColor = Color.Lerp(SpringPink, MoonlightPurple, 0.7f)
+                OverrideColor = springPink
+            });
+            tooltips.Add(new TooltipLine(Mod, "Synergy", "Enemies with both Withered Root and Moonstruck take 10% more damage for 4s (does not stack)")
+            {
+                OverrideColor = Color.Lerp(springPink, moonPurple, 0.7f)
+            });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'In the garden where moonlight falls, even thorns bloom silver'")
+            {
+                OverrideColor = moonPurple
             });
         }
     }
@@ -127,7 +126,17 @@ namespace MagnumOpus.Content.Common.Accessories
     public class SpringsMoonlitGardenPlayer : ModPlayer
     {
         public bool moonlitGardenEquipped;
+        public int verdantRenewalStacks;
+        private int verdantRenewalTimer;
         private int healProcCooldown;
+
+        // Track Withered Root: NPC index → timer (frames remaining)
+        private Dictionary<int, int> witheredRootTimers = new Dictionary<int, int>();
+        // Track dual-debuff bonus: NPC index → timer
+        private Dictionary<int, int> dualDebuffTimers = new Dictionary<int, int>();
+
+        private static readonly int WitheredRootDuration = 240; // 4 seconds
+        private static readonly int DualDebuffDuration = 240; // 4 seconds
 
         public override void ResetEffects()
         {
@@ -136,58 +145,100 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void PostUpdate()
         {
+            if (!moonlitGardenEquipped)
+            {
+                verdantRenewalStacks = 0;
+                verdantRenewalTimer = 0;
+                witheredRootTimers.Clear();
+                dualDebuffTimers.Clear();
+                return;
+            }
+
             if (healProcCooldown > 0) healProcCooldown--;
+
+            // Decay Verdant Renewal
+            if (verdantRenewalStacks > 0)
+            {
+                verdantRenewalTimer--;
+                if (verdantRenewalTimer <= 0)
+                {
+                    verdantRenewalStacks = 0;
+                    verdantRenewalTimer = 0;
+                }
+            }
+
+            // Decay Withered Root timers
+            var expiredRoots = witheredRootTimers.Where(kvp => kvp.Value <= 0).Select(kvp => kvp.Key).ToList();
+            foreach (int key in expiredRoots)
+                witheredRootTimers.Remove(key);
+            foreach (int key in witheredRootTimers.Keys.ToList())
+                witheredRootTimers[key]--;
+
+            // Decay dual debuff timers
+            var expiredDual = dualDebuffTimers.Where(kvp => kvp.Value <= 0).Select(kvp => kvp.Key).ToList();
+            foreach (int key in expiredDual)
+                dualDebuffTimers.Remove(key);
+            foreach (int key in dualDebuffTimers.Keys.ToList())
+                dualDebuffTimers[key]--;
+        }
+
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (!moonlitGardenEquipped) return;
+
+            // Enemies with both Withered Root + Moonstruck: +10% damage
+            if (dualDebuffTimers.ContainsKey(target.whoAmI))
+                modifiers.FinalDamage *= 1.10f;
         }
 
         public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
         {
+            if (!moonlitGardenEquipped) return;
             HandleGardenHit(target, damageDone);
         }
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (proj.owner == Player.whoAmI)
-                HandleGardenHit(target, damageDone);
+            if (!moonlitGardenEquipped || proj.owner != Player.whoAmI) return;
+            HandleGardenHit(target, damageDone);
         }
 
         private void HandleGardenHit(NPC target, int damageDone)
         {
-            if (!moonlitGardenEquipped) return;
-            
             bool isNight = !Main.dayTime;
-            
-            // Moonstruck at night (12%)
-            if (isNight && Main.rand.NextFloat() < 0.12f)
-            {
-                target.AddBuff(BuffID.Confused, 150);
-            }
-            
-            // Bloom healing (8% chance, enhanced at night)
-            if (healProcCooldown <= 0 && Main.rand.NextFloat() < (isNight ? 0.10f : 0.06f))
-            {
-                healProcCooldown = 45;
-                int healAmount = isNight ? 8 : 5;
-                Player.Heal(healAmount);
-                
-            }
-            
-            // Thorns on hit
-            if (Main.rand.NextFloat() < 0.08f)
-            {
-                target.AddBuff(BuffID.Poisoned, 180);
-            }
-        }
 
-        public override void OnHurt(Player.HurtInfo info)
-        {
-            if (!moonlitGardenEquipped) return;
-            
-            bool isNight = !Main.dayTime;
-            
-            // Petal barrier when hurt at night
-            if (isNight)
+            // Withered Root: 12% chance on any hit
+            if (Main.rand.NextFloat() < 0.12f)
             {
-                // Burst of moonlit petals
+                // Apply Slow + Ichor (Ichor = -15 defense) for 4 seconds
+                target.AddBuff(BuffID.Slow, WitheredRootDuration);
+                target.AddBuff(BuffID.Ichor, WitheredRootDuration);
+                witheredRootTimers[target.whoAmI] = WitheredRootDuration;
+            }
+
+            // Withered Root + Moonstruck synergy: triggers when enemy has both Slow+Ichor
+            // (from Withered Root, Moonstruck, or any source) while Withered Root is active
+            bool hasSlowAndIchor = target.HasBuff(BuffID.Slow) && target.HasBuff(BuffID.Ichor);
+            if (witheredRootTimers.ContainsKey(target.whoAmI) && hasSlowAndIchor)
+            {
+                if (!dualDebuffTimers.ContainsKey(target.whoAmI))
+                    dualDebuffTimers[target.whoAmI] = DualDebuffDuration;
+                // Does not stack, does not refresh
+            }
+
+            // Night: 10% chance to heal 8 HP
+            if (isNight && healProcCooldown <= 0 && Main.rand.NextFloat() < 0.10f)
+            {
+                healProcCooldown = 30;
+                Player.Heal(8);
+            }
+
+            // Check for kill while Withered Root active → Verdant Renewal
+            if (target.life <= 0 && !target.immortal && witheredRootTimers.ContainsKey(target.whoAmI))
+            {
+                verdantRenewalStacks = Math.Min(verdantRenewalStacks + 1, 3);
+                verdantRenewalTimer = 180; // 3 seconds, resets on new stack
+                witheredRootTimers.Remove(target.whoAmI);
             }
         }
     }
@@ -195,16 +246,15 @@ namespace MagnumOpus.Content.Common.Accessories
 
     #region Summer's Infernal Peak - Summer + La Campanella
     /// <summary>
-    /// Phase 5 Season-Theme Hybrid: Radiant Crown + Infernal Virtuoso
-    /// The scorching summer sun meets the flames of virtuosic passion
+    /// Season-Theme Hybrid: Radiant Crown + Infernal Virtuoso
+    /// From Radiant Crown: +16% damage, +10 crit, +8 defense, attacks inflict On Fire!
+    /// From Infernal Virtuoso: Fire/lava immunity, 8% Tolling Death on any hit, +1 minion slot
+    /// Signature: "Infernal Peak" — Heat Intensity stacks on burning enemy hits (max 10),
+    ///   5 stacks → +12% attack speed, 10 stacks → Solar Zenith (6s, +20% damage, Ichor on hit),
+    ///   day doubles stack rate, Scorched debuff on burning enemies (+5% damage taken)
     /// </summary>
     public class SummersInfernalPeak : ModItem
     {
-        private static readonly Color SummerGold = new Color(255, 180, 50);
-        private static readonly Color CampanellaOrange = new Color(255, 140, 40);
-        private static readonly Color SolarFlare = new Color(255, 220, 100);
-        private static readonly Color InfernalRed = new Color(255, 80, 40);
-        
         public override void SetDefaults()
         {
             Item.width = 38;
@@ -218,30 +268,26 @@ namespace MagnumOpus.Content.Common.Accessories
         {
             var modPlayer = player.GetModPlayer<SummersInfernalPeakPlayer>();
             modPlayer.infernalPeakEquipped = true;
-            
-            // === SUMMER BONUSES (Radiant Crown) ===
+
+            // === FROM RADIANT CROWN ===
             player.GetDamage(DamageClass.Generic) += 0.16f;
             player.GetCritChance(DamageClass.Generic) += 10;
             player.statDefense += 8;
-            player.magmaStone = true;
-            
-            // === LA CAMPANELLA BONUSES (Infernal Virtuoso) ===
-            player.GetDamage(DamageClass.Magic) += 0.22f;
-            player.GetCritChance(DamageClass.Magic) += 14;
-            player.manaCost -= 0.15f;
-            player.manaRegen += 4;
-            
-            // Fire immunity
+            player.magmaStone = true; // Attacks inflict On Fire!
+
+            // === FROM INFERNAL VIRTUOSO ===
             player.buffImmune[BuffID.OnFire] = true;
             player.buffImmune[BuffID.Burning] = true;
             player.lavaImmune = true;
-            
-            // === HYBRID BONUS: Solar Flare ===
-            // Fire damage bonus during day
-            if (Main.dayTime)
-            {
-                player.GetDamage(DamageClass.Generic) += 0.08f;
-            }
+            player.maxMinions += 1;
+
+            // === HEAT INTENSITY TIER BONUSES ===
+            if (modPlayer.heatIntensityStacks >= 5)
+                player.GetAttackSpeed(DamageClass.Generic) += 0.12f;
+
+            // Solar Zenith buff
+            if (modPlayer.solarZenithTimer > 0)
+                player.GetDamage(DamageClass.Generic) += 0.20f;
         }
 
         public override void AddRecipes()
@@ -257,36 +303,44 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Color SummerGold = new Color(255, 180, 50);
-            Color CampanellaOrange = new Color(255, 140, 40);
+            Color summerGold = new Color(255, 180, 50);
+            Color flameOrange = new Color(255, 140, 40);
 
             tooltips.Add(new TooltipLine(Mod, "Hybrid", "Radiant Crown + Infernal Virtuoso")
             {
-                OverrideColor = Color.Lerp(SummerGold, CampanellaOrange, 0.5f)
+                OverrideColor = Color.Lerp(summerGold, flameOrange, 0.5f)
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+16% damage, +10 crit, +8 defense, attacks inflict fire")
+            tooltips.Add(new TooltipLine(Mod, "SummerStats", "+16% damage, +10 crit, +8 defense, attacks inflict On Fire!")
             {
-                OverrideColor = SummerGold
+                OverrideColor = summerGold
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect1b", "During day: +8% bonus damage")
+            tooltips.Add(new TooltipLine(Mod, "CampanellaStats", "Immunity to fire debuffs and lava, 8% Tolling Death on any weapon hit, +1 minion slot")
             {
-                OverrideColor = SummerGold
+                OverrideColor = flameOrange
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+22% magic damage, +14 magic crit, -15% mana cost, +4 mana regen")
+            tooltips.Add(new TooltipLine(Mod, "Signature", "Infernal Peak: Hitting burning enemies builds Heat Intensity stacks (max 10)")
             {
-                OverrideColor = CampanellaOrange
+                OverrideColor = Color.Lerp(summerGold, flameOrange, 0.4f)
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Immunity to On Fire, Burning, and lava")
+            tooltips.Add(new TooltipLine(Mod, "Tier1", "5 stacks: +12% attack speed")
             {
-                OverrideColor = Color.Lerp(SummerGold, CampanellaOrange, 0.3f)
+                OverrideColor = Color.Lerp(summerGold, flameOrange, 0.4f)
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "15% chance Bell Chime stuns with fire AOE (150 range, 40% damage), 10% Solar Burst during day")
+            tooltips.Add(new TooltipLine(Mod, "Tier2", "10 stacks: Solar Zenith for 6s — +20% all damage, all attacks apply Ichor. Stacks reset.")
             {
-                OverrideColor = Color.Lerp(SummerGold, CampanellaOrange, 0.7f)
+                OverrideColor = Color.Lerp(summerGold, flameOrange, 0.6f)
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "When hit, nearby enemies within 120 range catch fire")
+            tooltips.Add(new TooltipLine(Mod, "DayBonus", "During the day: Heat Intensity stacks build twice as fast")
             {
-                OverrideColor = Color.Lerp(SummerGold, CampanellaOrange, 0.5f)
+                OverrideColor = summerGold
+            });
+            tooltips.Add(new TooltipLine(Mod, "Scorched", "Burning enemies you hit gain Scorched — taking 5% more damage for 3s (does not stack)")
+            {
+                OverrideColor = flameOrange
+            });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'At the peak of summer, even the bell's toll melts in the heat'")
+            {
+                OverrideColor = flameOrange
             });
         }
     }
@@ -294,8 +348,15 @@ namespace MagnumOpus.Content.Common.Accessories
     public class SummersInfernalPeakPlayer : ModPlayer
     {
         public bool infernalPeakEquipped;
-        private int bellChimeCooldown;
-        private int solarBurstCooldown;
+        public int heatIntensityStacks;
+        public int solarZenithTimer;
+
+        private int heatDecayTimer;
+        // Scorched: NPC index → timer
+        private Dictionary<int, int> scorchedTimers = new Dictionary<int, int>();
+
+        private static readonly int ScorchedDuration = 180; // 3 seconds
+        private static readonly int SolarZenithDuration = 360; // 6 seconds
 
         public override void ResetEffects()
         {
@@ -304,101 +365,108 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void PostUpdate()
         {
-            if (bellChimeCooldown > 0) bellChimeCooldown--;
-            if (solarBurstCooldown > 0) solarBurstCooldown--;
+            if (!infernalPeakEquipped)
+            {
+                heatIntensityStacks = 0;
+                solarZenithTimer = 0;
+                heatDecayTimer = 0;
+                scorchedTimers.Clear();
+                return;
+            }
+
+            // Decay Heat Intensity (1 stack per 2 seconds without hitting a burning enemy)
+            if (heatIntensityStacks > 0)
+            {
+                heatDecayTimer++;
+                if (heatDecayTimer >= 120) // 2 seconds
+                {
+                    heatIntensityStacks--;
+                    heatDecayTimer = 0;
+                }
+            }
+
+            if (solarZenithTimer > 0) solarZenithTimer--;
+
+            // Decay Scorched timers
+            var expiredScorched = scorchedTimers.Where(kvp => kvp.Value <= 0).Select(kvp => kvp.Key).ToList();
+            foreach (int key in expiredScorched)
+                scorchedTimers.Remove(key);
+            foreach (int key in scorchedTimers.Keys.ToList())
+                scorchedTimers[key]--;
+        }
+
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (!infernalPeakEquipped) return;
+
+            // Scorched: +5% damage taken
+            if (scorchedTimers.ContainsKey(target.whoAmI))
+                modifiers.FinalDamage *= 1.05f;
         }
 
         public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            HandlePeakHit(target, damageDone);
+            if (!infernalPeakEquipped) return;
+            HandlePeakHit(target, damageDone, null);
         }
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (proj.owner == Player.whoAmI)
-                HandlePeakHit(target, damageDone);
+            if (!infernalPeakEquipped || proj.owner != Player.whoAmI) return;
+            HandlePeakHit(target, damageDone, proj);
         }
 
-        private void HandlePeakHit(NPC target, int damageDone)
+        private void HandlePeakHit(NPC target, int damageDone, Projectile proj)
         {
-            if (!infernalPeakEquipped) return;
-            
-            // Extended fire duration (always)
-            target.AddBuff(BuffID.OnFire, 420); // 7 seconds
-            
-            // Bell Chime stun (15%)
-            if (bellChimeCooldown <= 0 && Main.rand.NextFloat() < 0.15f)
-            {
-                bellChimeCooldown = 25;
-                target.AddBuff(BuffID.Confused, 120);
-                
-                // Fire AOE from chime
-                float aoeRadius = 150f;
-                for (int i = 0; i < Main.maxNPCs; i++)
-                {
-                    NPC npc = Main.npc[i];
-                    if (npc.active && !npc.friendly && npc.whoAmI != target.whoAmI && !npc.immortal)
-                    {
-                        if (Vector2.Distance(npc.Center, target.Center) <= aoeRadius)
-                        {
-                            int aoeDamage = (int)(damageDone * 0.4f);
-                            npc.SimpleStrikeNPC(aoeDamage, 0, false, 0, null, false, 0, true);
-                            npc.AddBuff(BuffID.OnFire, 300);
-                        }
-                    }
-                }
-                
-                // Bell chime VFX
-                
-            }
-            
-            // Solar Burst during day (10%)
-            if (Main.dayTime && solarBurstCooldown <= 0 && Main.rand.NextFloat() < 0.10f)
-            {
-                solarBurstCooldown = 60;
-                
-                // Extra solar damage
-                int solarDamage = (int)(damageDone * 0.3f);
-                target.SimpleStrikeNPC(solarDamage, 0, false, 0, null, false, 0, true);
-                
-                // Solar burst VFX
-            }
-        }
+            bool isDay = Main.dayTime;
 
-        public override void OnHurt(Player.HurtInfo info)
-        {
-            if (!infernalPeakEquipped) return;
-            
-            // Fire retaliation
-            for (int i = 0; i < Main.maxNPCs; i++)
+            // === TOLLING DEATH (8% any weapon hit) ===
+            if (Main.rand.NextFloat() < 0.08f)
             {
-                NPC npc = Main.npc[i];
-                if (npc.active && !npc.friendly && !npc.immortal)
-                {
-                    if (Vector2.Distance(npc.Center, Player.Center) <= 120f)
-                    {
-                        npc.AddBuff(BuffID.OnFire, 300);
-                    }
-                }
+                int secondStrike = (int)(damageDone * 0.75f);
+                if (secondStrike > 0 && Main.myPlayer == Player.whoAmI)
+                    target.SimpleStrikeNPC(secondStrike, 0, false, 0, null, false, 0, true);
+                target.AddBuff(BuffID.WitheredWeapon, 180);
+                Terraria.Audio.SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.5f, Volume = 0.6f }, target.Center);
             }
-            
-            // Fire burst VFX
+
+            // === HEAT INTENSITY (on burning enemies) ===
+            if (target.HasBuff(BuffID.OnFire) || target.HasBuff(BuffID.OnFire3))
+            {
+                int stacksToAdd = isDay ? 2 : 1;
+                heatIntensityStacks = Math.Min(heatIntensityStacks + stacksToAdd, 10);
+                heatDecayTimer = 0; // Reset decay
+
+                // At 10 stacks: trigger Solar Zenith
+                if (heatIntensityStacks >= 10)
+                {
+                    solarZenithTimer = SolarZenithDuration;
+                    heatIntensityStacks = 0;
+                    Terraria.Audio.SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f, Volume = 0.8f }, Player.Center);
+                }
+
+                // Apply Scorched debuff to burning enemies (does not stack, refreshes)
+                scorchedTimers[target.whoAmI] = ScorchedDuration;
+            }
+
+            // === SOLAR ZENITH: apply Ichor on all hits ===
+            if (solarZenithTimer > 0)
+                target.AddBuff(BuffID.Ichor, 180);
         }
     }
     #endregion
 
     #region Winter's Enigmatic Silence - Winter + Enigma Variations
     /// <summary>
-    /// Phase 5 Season-Theme Hybrid: Glacial Heart + Riddle of the Void
-    /// The frozen stillness of winter conceals unknowable mysteries
+    /// Season-Theme Hybrid: Glacial Heart + Riddle of the Void
+    /// From Glacial Heart: +14 defense, +12% DR, +8% move speed, Frostburn, ice immunity
+    /// From Riddle of the Void: +15% all damage, 10% Paradox on hit
+    /// Signature: "Enigmatic Silence" — Frostburn + Paradox on same enemy → Frozen Paradox
+    ///   (30% slow, +15% damage taken, 5s), applying grants Winter's Focus (+10% crit, +8% dmg, 4s),
+    ///   below 50% HP: +20% DR and Paradox → 15%
     /// </summary>
     public class WintersEnigmaticSilence : ModItem
     {
-        private static readonly Color WinterBlue = new Color(150, 220, 255);
-        private static readonly Color EnigmaPurple = new Color(140, 60, 200);
-        private static readonly Color FrozenVoid = new Color(100, 140, 200);
-        private static readonly Color EnigmaGreen = new Color(50, 220, 100);
-        
         public override void SetDefaults()
         {
             Item.width = 38;
@@ -412,21 +480,31 @@ namespace MagnumOpus.Content.Common.Accessories
         {
             var modPlayer = player.GetModPlayer<WintersEnigmaticSilencePlayer>();
             modPlayer.enigmaticSilenceEquipped = true;
-            
-            // === WINTER BONUSES (Glacial Heart) ===
+
+            // === FROM GLACIAL HEART ===
             player.statDefense += 14;
             player.endurance += 0.12f;
             player.moveSpeed += 0.08f;
             player.frostBurn = true;
-            
+
             // Ice immunity
             player.buffImmune[BuffID.Frozen] = true;
             player.buffImmune[BuffID.Chilled] = true;
             player.buffImmune[BuffID.Frostburn] = true;
-            
-            // === ENIGMA BONUSES (Riddle of the Void) ===
-            player.GetDamage(DamageClass.Generic) += 0.18f;
-            player.GetCritChance(DamageClass.Generic) += 12;
+
+            // === FROM RIDDLE OF THE VOID ===
+            player.GetDamage(DamageClass.Generic) += 0.15f;
+
+            // === BELOW 50% HP BONUS ===
+            if (player.statLife < player.statLifeMax2 / 2)
+                player.endurance += 0.20f;
+
+            // === WINTER'S FOCUS BUFF ===
+            if (modPlayer.wintersFocusTimer > 0)
+            {
+                player.GetCritChance(DamageClass.Generic) += 10;
+                player.GetDamage(DamageClass.Generic) += 0.08f;
+            }
         }
 
         public override void AddRecipes()
@@ -442,28 +520,44 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Color WinterBlue = new Color(150, 220, 255);
-            Color EnigmaPurple = new Color(140, 60, 200);
+            Color winterBlue = new Color(150, 220, 255);
+            Color enigmaPurple = new Color(140, 60, 200);
 
             tooltips.Add(new TooltipLine(Mod, "Hybrid", "Glacial Heart + Riddle of the Void")
             {
-                OverrideColor = Color.Lerp(WinterBlue, EnigmaPurple, 0.5f)
+                OverrideColor = Color.Lerp(winterBlue, enigmaPurple, 0.5f)
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+14 defense, +12% damage reduction, +8% move speed, attacks inflict frostburn")
+            tooltips.Add(new TooltipLine(Mod, "WinterStats", "+14 defense, +12% damage reduction, +8% move speed, attacks inflict Frostburn")
             {
-                OverrideColor = WinterBlue
+                OverrideColor = winterBlue
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+18% damage, +12% crit, immunity to Frozen, Chilled, and Frostburn")
+            tooltips.Add(new TooltipLine(Mod, "Immunities", "Immunity to Frozen, Chilled, and Frostburn")
             {
-                OverrideColor = EnigmaPurple
+                OverrideColor = winterBlue
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "15% chance per hit to apply Paradox debuffs and slow enemies")
+            tooltips.Add(new TooltipLine(Mod, "EnigmaStats", "+15% all damage, 10% Paradox on hit")
             {
-                OverrideColor = Color.Lerp(WinterBlue, EnigmaPurple, 0.3f)
+                OverrideColor = enigmaPurple
             });
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "At 4 stacks: Frozen Void Collapse deals 2.5x damage in 200 range (50% AOE)")
+            tooltips.Add(new TooltipLine(Mod, "Signature", "Enigmatic Silence: Enemies with both Frostburn and Paradox gain Frozen Paradox")
             {
-                OverrideColor = Color.Lerp(WinterBlue, EnigmaPurple, 0.7f)
+                OverrideColor = Color.Lerp(winterBlue, enigmaPurple, 0.4f)
+            });
+            tooltips.Add(new TooltipLine(Mod, "FrozenParadox", "Frozen Paradox: 30% slower, takes 15% more damage for 5s (does not stack, refreshes)")
+            {
+                OverrideColor = Color.Lerp(winterBlue, enigmaPurple, 0.5f)
+            });
+            tooltips.Add(new TooltipLine(Mod, "WintersFocus", "Applying Frozen Paradox grants Winter's Focus: +10% crit, +8% damage for 4s")
+            {
+                OverrideColor = Color.Lerp(winterBlue, enigmaPurple, 0.6f)
+            });
+            tooltips.Add(new TooltipLine(Mod, "LowHP", "Below 50% HP: +20% damage reduction, Paradox chance increases to 15%")
+            {
+                OverrideColor = enigmaPurple
+            });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The coldest silence hides the deepest mystery'")
+            {
+                OverrideColor = enigmaPurple
             });
         }
     }
@@ -471,13 +565,18 @@ namespace MagnumOpus.Content.Common.Accessories
     public class WintersEnigmaticSilencePlayer : ModPlayer
     {
         public bool enigmaticSilenceEquipped;
-        private Dictionary<int, int> paradoxStacks = new Dictionary<int, int>();
-        private Dictionary<int, int> paradoxTimers = new Dictionary<int, int>();
-        private int freezeCooldown;
-        
+        public int wintersFocusTimer;
+
+        // Frozen Paradox: NPC index → timer
+        private Dictionary<int, int> frozenParadoxTimers = new Dictionary<int, int>();
+
+        private static readonly int FrozenParadoxDuration = 300; // 5 seconds
+        private static readonly int WintersFocusDuration = 240; // 4 seconds
+
         private static readonly int[] ParadoxDebuffs = new int[]
         {
-            BuffID.Confused, BuffID.Slow, BuffID.Frostburn
+            BuffID.Confused, BuffID.Slow, BuffID.CursedInferno,
+            BuffID.Ichor, BuffID.ShadowFlame, BuffID.Frostburn
         };
 
         public override void ResetEffects()
@@ -487,132 +586,77 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void PostUpdate()
         {
-            if (freezeCooldown > 0) freezeCooldown--;
-            
-            // Decay paradox stacks
-            List<int> toRemove = new List<int>();
-            foreach (var kvp in paradoxTimers)
+            if (!enigmaticSilenceEquipped)
             {
-                paradoxTimers[kvp.Key]--;
-                if (paradoxTimers[kvp.Key] <= 0)
-                    toRemove.Add(kvp.Key);
+                wintersFocusTimer = 0;
+                frozenParadoxTimers.Clear();
+                return;
             }
-            foreach (int key in toRemove)
-            {
-                paradoxTimers.Remove(key);
-                paradoxStacks.Remove(key);
-            }
+
+            if (wintersFocusTimer > 0) wintersFocusTimer--;
+
+            // Decay Frozen Paradox timers
+            var expired = frozenParadoxTimers.Where(kvp => kvp.Value <= 0).Select(kvp => kvp.Key).ToList();
+            foreach (int key in expired)
+                frozenParadoxTimers.Remove(key);
+            foreach (int key in frozenParadoxTimers.Keys.ToList())
+                frozenParadoxTimers[key]--;
+        }
+
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (!enigmaticSilenceEquipped) return;
+
+            // Frozen Paradox: +15% damage taken
+            if (frozenParadoxTimers.ContainsKey(target.whoAmI))
+                modifiers.FinalDamage *= 1.15f;
         }
 
         public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
         {
+            if (!enigmaticSilenceEquipped) return;
             HandleSilenceHit(target, damageDone);
         }
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (proj.owner == Player.whoAmI)
-                HandleSilenceHit(target, damageDone);
+            if (!enigmaticSilenceEquipped || proj.owner != Player.whoAmI) return;
+            HandleSilenceHit(target, damageDone);
         }
 
         private void HandleSilenceHit(NPC target, int damageDone)
         {
-            if (!enigmaticSilenceEquipped) return;
-            
-            // Always apply frostburn
-            target.AddBuff(BuffID.Frostburn, 300);
-            
-            // Paradox stacking (15%)
-            if (Main.rand.NextFloat() < 0.15f)
+            bool lowHP = Player.statLife < Player.statLifeMax2 / 2;
+            float paradoxChance = lowHP ? 0.15f : 0.10f;
+
+            // Paradox on hit
+            if (Main.rand.NextFloat() < paradoxChance)
             {
                 int debuffId = ParadoxDebuffs[Main.rand.Next(ParadoxDebuffs.Length)];
-                target.AddBuff(debuffId, 360);
-                
-                // Frost debuff
-                target.AddBuff(BuffID.Slow, 240);
-                
-                if (!paradoxStacks.ContainsKey(target.whoAmI))
-                    paradoxStacks[target.whoAmI] = 0;
-                
-                paradoxStacks[target.whoAmI]++;
-                paradoxTimers[target.whoAmI] = 420;
-                
-                // At 4 stacks: Frozen Void Collapse
-                if (paradoxStacks[target.whoAmI] >= 4)
-                {
-                    TriggerFrozenVoidCollapse(target, damageDone);
-                    paradoxStacks[target.whoAmI] = 0;
-                }
-                
-                // VFX for stack
+                target.AddBuff(debuffId, 300);
             }
-            
-            // Deep freeze chance (8%)
-            if (freezeCooldown <= 0 && Main.rand.NextFloat() < 0.08f)
-            {
-                freezeCooldown = 120;
-                target.AddBuff(BuffID.Frozen, 90); // Brief freeze
-                
-                // Freeze VFX
-            }
-        }
 
-        private void TriggerFrozenVoidCollapse(NPC target, int baseDamage)
-        {
-            // FROZEN VOID COLLAPSE VFX
-            
-            // Ice shatter burst
-            
-            // Enigma glyphs
-            
-            // Halos
-            
-            // Damage
-            if (Main.myPlayer == Player.whoAmI)
+            // Check for Frozen Paradox: enemy currently has Frostburn AND any active Paradox debuff
+            bool hasActiveParadox = false;
+            foreach (int debuffId in ParadoxDebuffs)
             {
-                int collapseDamage = (int)(baseDamage * 2.5f);
-                target.SimpleStrikeNPC(collapseDamage, 0, false, 0, null, false, 0, true);
-                target.AddBuff(BuffID.Frozen, 120);
-                target.AddBuff(BuffID.Frostburn, 480);
-                
-                // AOE damage
-                float aoeRadius = 200f;
-                for (int i = 0; i < Main.maxNPCs; i++)
+                if (target.HasBuff(debuffId))
                 {
-                    NPC npc = Main.npc[i];
-                    if (npc.active && !npc.friendly && npc.whoAmI != target.whoAmI && !npc.immortal)
-                    {
-                        if (Vector2.Distance(npc.Center, target.Center) <= aoeRadius)
-                        {
-                            npc.SimpleStrikeNPC(collapseDamage / 2, 0, false, 0, null, false, 0, true);
-                            npc.AddBuff(BuffID.Frostburn, 360);
-                            npc.AddBuff(BuffID.Slow, 300);
-                        }
-                    }
+                    hasActiveParadox = true;
+                    break;
                 }
             }
-            
-        }
 
-        public override void OnHurt(Player.HurtInfo info)
-        {
-            if (!enigmaticSilenceEquipped) return;
-            
-            // Frost barrier
-            for (int i = 0; i < Main.maxNPCs; i++)
+            if (hasActiveParadox && target.HasBuff(BuffID.Frostburn))
             {
-                NPC npc = Main.npc[i];
-                if (npc.active && !npc.friendly)
-                {
-                    if (Vector2.Distance(npc.Center, Player.Center) <= 100f)
-                    {
-                        npc.AddBuff(BuffID.Slow, 180);
-                        npc.AddBuff(BuffID.Frostburn, 240);
-                    }
-                }
+                // Apply / refresh Frozen Paradox slow
+                target.AddBuff(BuffID.Slow, FrozenParadoxDuration);
+                frozenParadoxTimers[target.whoAmI] = FrozenParadoxDuration;
+
+                // Grant / refresh Winter's Focus on every Frozen Paradox application
+                wintersFocusTimer = WintersFocusDuration;
+                Terraria.Audio.SoundEngine.PlaySound(SoundID.Item30 with { Pitch = 0.3f, Volume = 0.6f }, Player.Center);
             }
-            
-            // Frost burst VFX
         }
     }
     #endregion

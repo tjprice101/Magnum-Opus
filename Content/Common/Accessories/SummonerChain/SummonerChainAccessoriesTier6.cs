@@ -55,19 +55,17 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             conductor.HasSwansGracefulDirection = true;
             conductor.HasFatesCosmicDominion = true;
             
-            // T7 flag
+            // T7 flag — stats applied via PostUpdateEquips
             conductor.HasNocturnalMaestrosBaton = true;
-            
-            // Night minion damage bonus
-            if (!Main.dayTime)
-            {
-                player.GetDamage(DamageClass.Summon) += 0.15f;
-            }
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Minions deal +15% damage at night")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+25% summon damage at night, +8% during day")
+            {
+                OverrideColor = NachtmusikPurple
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "10% on night minion hit: Lullaby — slows and weakens enemies for 3s")
             {
                 OverrideColor = NachtmusikPurple
             });
@@ -139,12 +137,17 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Minions inflict On Fire! on hit")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Minions inflict Hellfire on hit")
             {
                 OverrideColor = DiesIraeOrange
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+30% minion damage during boss fights")
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+30% minion damage during bosses, +15% otherwise")
+            {
+                OverrideColor = DiesIraeCrimson
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Minion crits apply Infernal Choir (increased damage taken for 3s)")
             {
                 OverrideColor = DiesIraeCrimson
             });
@@ -220,12 +223,22 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Minion hits heal 1 HP")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+15% summon damage")
+            {
+                OverrideColor = OdeToJoyRose
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Minion hits heal 1 HP (max 5 HP/s)")
             {
                 OverrideColor = OdeToJoyRose
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+10% minion attack speed")
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Every 15s: Tutti Fortissimo 3s (+50% minion damage)")
+            {
+                OverrideColor = OdeToJoyIridescent
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+10% minion attack speed")
             {
                 OverrideColor = OdeToJoyIridescent
             });
@@ -555,11 +568,10 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             conductor.HasStarfallInfernalBaton = true;
             conductor.HasTriumphantSymphonyBaton = true;
             
-            // Ultimate flag
+            // Ultimate flag — damage applied via PostUpdateEquips
             conductor.HasScepterOfTheEternalConductor = true;
             
-            // Always has enhanced bonuses (mastered)
-            player.GetDamage(DamageClass.Summon) += 0.25f;
+            // Direct bonuses (attack speed, minions, sentries, whip range)
             player.GetAttackSpeed(DamageClass.Summon) += 0.15f;
             player.maxMinions += 3;
             player.maxTurrets += 2;
@@ -568,7 +580,7 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+25% minion damage, +15% attack speed")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+50% minion damage, +15% attack speed")
             {
                 OverrideColor = UltimatePrismatic
             });

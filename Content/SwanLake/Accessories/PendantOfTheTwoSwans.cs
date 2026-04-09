@@ -1,36 +1,20 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
-using System;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.Audio;
 using MagnumOpus.Common;
-using MagnumOpus.Content.SwanLake.ResonantOres;
+using MagnumOpus.Content.Common.Accessories;
 using MagnumOpus.Content.SwanLake.ResonanceEnergies;
 using MagnumOpus.Content.SwanLake.HarmonicCores;
-using MagnumOpus.Content.SwanLake.Debuffs;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
-using MagnumOpus.Common.Systems;
 
 namespace MagnumOpus.Content.SwanLake.Accessories
 {
     /// <summary>
-    /// Pendant of the Two Swans - Melee Accessory
-    /// A dual-natured pendant embodying both Odette (White Swan) and Odile (Black Swan).
-    /// 
-    /// WHITE MODE (Odette - Defensive):
-    /// - Monochromatic Shield protects you
-    /// - Absorbs up to 3 hits before recharging (2 minute cooldown)
-    /// - Shield visually surrounds the player
-    /// 
-    /// BLACK MODE (Odile - Offensive):
-    /// - Critical hits unleash vivid black &amp; white flares with pearlescent rainbow explosion
-    /// - +25% critical strike damage
-    /// - Applies Flame of the Swan (10% damage vulnerability)
-    /// 
-    /// Right-click while in inventory to toggle modes.
+    /// Pendant of the Two Swans - Swan Lake melee class accessory (Dual Mode).
+    /// White Swan (Odette): 5% chance on melee hit → Odette's Wonder (+5% dmg 5s).
+    /// Black Swan (Odile): 5% chance on melee hit → Odile's Grace (+25% melee speed 3s).
     /// </summary>
     public class PendantOfTheTwoSwans : ModItem
     {
@@ -45,121 +29,54 @@ namespace MagnumOpus.Content.SwanLake.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<SwanLakeAccessoryPlayer>();
-            modPlayer.hasPendantOfTheTwoSwans = true;
+            var attunement = player.GetModPlayer<MelodicAttunementPlayer>();
+            attunement.resonantBurnDmgBonus += 0.60f;
+            attunement.critDmgBonusOnBurn += 0.025f;
+            attunement.meleeAttunement = true;
+
+            var pendant = player.GetModPlayer<PendantOfTheTwoSwansPlayer>();
+            pendant.equipped = true;
+
+            // Apply mode-specific bonuses
+            if (pendant.isBlackMode && pendant.odilesGraceTimer > 0)
+                player.GetAttackSpeed(DamageClass.Melee) += 0.25f;
+            if (!pendant.isBlackMode && pendant.odettesWonderTimer > 0)
+                player.GetDamage(DamageClass.Generic) += 0.05f;
+
+            // Fire/lava/confusion/slow immunity
+            player.buffImmune[BuffID.OnFire] = true;
+            player.buffImmune[BuffID.OnFire3] = true;
+            player.lavaImmune = true;
+            player.buffImmune[BuffID.Confused] = true;
+            player.buffImmune[BuffID.Slow] = true;
         }
 
-        public override bool CanRightClick()
-        {
-            return true; // Allow right-click to toggle mode
-        }
+        public override bool CanRightClick() => true;
 
         public override void RightClick(Player player)
         {
-            var modPlayer = player.GetModPlayer<SwanLakeAccessoryPlayer>();
-            modPlayer.TogglePendantMode();
-            
-            // Cancel the right-click consumption - we don't want to consume the item
+            var pendant = player.GetModPlayer<PendantOfTheTwoSwansPlayer>();
+            pendant.isBlackMode = !pendant.isBlackMode;
             Item.stack++;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Player player = Main.LocalPlayer;
-            var modPlayer = player.GetModPlayer<SwanLakeAccessoryPlayer>();
-            
-            // Current mode indicator
-            string modeText = modPlayer.pendantIsBlackMode ? "BLACK SWAN (Odile)" : "WHITE SWAN (Odette)";
-            Color modeColor = modPlayer.pendantIsBlackMode ? new Color(30, 30, 40) : new Color(240, 245, 255);
-            
-            tooltips.Add(new TooltipLine(Mod, "CurrentMode", $"Current Mode: {modeText}")
+            var pendant = Main.LocalPlayer.GetModPlayer<PendantOfTheTwoSwansPlayer>();
+            Color lore = new Color(240, 240, 255);
+            string mode = pendant.isBlackMode ? "Black Swan (Odile)" : "White Swan (Odette)";
+
+            tooltips.Add(new TooltipLine(Mod, "Mode", $"Current: {mode} [Right-click to toggle]"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "'Resonance Sliced' Melodic Attunement"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+60% increased Resonant Burn damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Hitting an enemy 10 times with melee damage while inflicted with Resonant Burn heals 10% HP"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Critical strike damage on Resonant Burn enemies increased by 2.5%"));
+            tooltips.Add(new TooltipLine(Mod, "White", "White Swan: 5% chance on melee hit for Odette's Wonder (+5% damage for 5s)"));
+            tooltips.Add(new TooltipLine(Mod, "Black", "Black Swan: 5% chance on melee hit for Odile's Grace (+25% melee speed for 3s)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Immunity to fire debuffs, lava, confusion, and slow"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'Two souls entwined in eternal dance -- light and shadow, love and deception'")
             {
-                OverrideColor = modeColor
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "ToggleHint", "[Right-click to toggle mode]")
-            {
-                OverrideColor = new Color(180, 180, 200)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Spacer1", " "));
-            
-            // White mode tooltip
-            Color whiteColor = modPlayer.pendantIsBlackMode ? new Color(100, 100, 110) : new Color(240, 245, 255);
-            tooltips.Add(new TooltipLine(Mod, "WhiteHeader", "White Swan (Odette):")
-            {
-                OverrideColor = whiteColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "WhiteEffect1", "  Monochromatic Shield protects you")
-            {
-                OverrideColor = whiteColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "WhiteEffect2", "  Absorbs up to 3 hits before recharging (2 min)")
-            {
-                OverrideColor = whiteColor
-            });
-            
-            // Show shield status if in white mode
-            if (!modPlayer.pendantIsBlackMode)
-            {
-                if (modPlayer.pendantShieldActive && modPlayer.pendantShieldCharges > 0)
-                {
-                    tooltips.Add(new TooltipLine(Mod, "ShieldActive", $"  Shield: {modPlayer.pendantShieldCharges}/3 charges")
-                    {
-                        OverrideColor = new Color(100, 255, 150)
-                    });
-                }
-                else if (modPlayer.pendantShieldCooldown > 0)
-                {
-                    int secondsLeft = modPlayer.pendantShieldCooldown / 60;
-                    tooltips.Add(new TooltipLine(Mod, "ShieldCooldown", $"  Shield recharging: {secondsLeft}s")
-                    {
-                        OverrideColor = new Color(255, 150, 100)
-                    });
-                }
-                else
-                {
-                    tooltips.Add(new TooltipLine(Mod, "ShieldReady", "  Shield ready!")
-                    {
-                        OverrideColor = new Color(100, 255, 100)
-                    });
-                }
-            }
-            
-            tooltips.Add(new TooltipLine(Mod, "Spacer2", " "));
-            
-            // Black mode tooltip
-            Color blackColor = modPlayer.pendantIsBlackMode ? new Color(200, 180, 220) : new Color(80, 80, 90);
-            tooltips.Add(new TooltipLine(Mod, "BlackHeader", "Black Swan (Odile):")
-            {
-                OverrideColor = blackColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "BlackEffect1", "  5% chance on melee hit to unleash")
-            {
-                OverrideColor = blackColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "BlackEffect2", "  pearlescent rainbow electrical explosion")
-            {
-                OverrideColor = blackColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "BlackEffect3", "  +25% critical strike damage")
-            {
-                OverrideColor = blackColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "BlackEffect4", "  Applies Flame of the Swan (3s)")
-            {
-                OverrideColor = blackColor
-            });
-            tooltips.Add(new TooltipLine(Mod, "BlackEffect5", "  Enemies take 10% more damage")
-            {
-                OverrideColor = new Color(255, 180, 180)
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Spacer3", " "));
-            
-            tooltips.Add(new TooltipLine(Mod, "Flavor", "'Two souls entwined in eternal dance - light and shadow, love and deception'")
-            {
-                OverrideColor = new Color(150, 140, 170)
+                OverrideColor = lore
             });
         }
 
@@ -174,6 +91,50 @@ namespace MagnumOpus.Content.SwanLake.Accessories
                 .AddIngredient(ItemID.SoulofFlight, 10)
                 .AddTile(ModContent.TileType<MoonlightAnvilTile>())
                 .Register();
+        }
+    }
+
+    public class PendantOfTheTwoSwansPlayer : ModPlayer
+    {
+        public bool equipped = false;
+        public bool isBlackMode = false;
+        public int odettesWonderTimer = 0;
+        public int odilesGraceTimer = 0;
+
+        public override void ResetEffects()
+        {
+            equipped = false;
+        }
+
+        public override void PostUpdate()
+        {
+            if (odettesWonderTimer > 0) odettesWonderTimer--;
+            if (odilesGraceTimer > 0) odilesGraceTimer--;
+        }
+
+        public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (!equipped) return;
+            if (!item.DamageType.CountsAsClass(DamageClass.Melee)) return;
+            TryProc();
+        }
+
+        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (!equipped) return;
+            if (!proj.DamageType.CountsAsClass(DamageClass.Melee)) return;
+            TryProc();
+        }
+
+        private void TryProc()
+        {
+            if (Main.rand.NextFloat() < 0.05f)
+            {
+                if (!isBlackMode && odettesWonderTimer <= 0)
+                    odettesWonderTimer = 300; // 5 seconds
+                else if (isBlackMode && odilesGraceTimer <= 0)
+                    odilesGraceTimer = 180; // 3 seconds
+            }
         }
     }
 }

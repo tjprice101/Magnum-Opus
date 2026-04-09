@@ -59,14 +59,9 @@ namespace MagnumOpus.Content.Fate.Accessories
                 OverrideColor = new Color(255, 200, 140)
             });
 
-            tooltips.Add(new TooltipLine(Mod, "TemporalEcho", "Every 7th melee strike triggers a temporal echo")
+            tooltips.Add(new TooltipLine(Mod, "BonusDamage", "Every 7th melee hit deals +75% bonus damage")
             {
                 OverrideColor = FatePalette.DarkPink
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "EchoEffect", "Temporal echoes repeat the strike for 75% damage")
-            {
-                OverrideColor = FatePalette.BrightCrimson
             });
 
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'Time bends to the rhythm of your blade'")
@@ -95,7 +90,7 @@ namespace MagnumOpus.Content.Fate.Accessories
         public bool hasParadoxChronometer = false;
         public int meleeStrikeCounter = 0;
         
-        private const int StrikesForEcho = 7;
+        private const int StrikesForBonus = 7;
         
         public override void ResetEffects()
         {
@@ -107,7 +102,9 @@ namespace MagnumOpus.Content.Fate.Accessories
             if (!hasParadoxChronometer) return;
             if (!item.CountsAsClass(DamageClass.Melee)) return;
             
-            ProcessMeleeHit(target, damageDone, hit.Crit);
+            meleeStrikeCounter++;
+            if (meleeStrikeCounter >= StrikesForBonus)
+                meleeStrikeCounter = 0;
         }
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
@@ -116,43 +113,32 @@ namespace MagnumOpus.Content.Fate.Accessories
             if (!proj.CountsAsClass(DamageClass.Melee)) return;
             if (proj.minion || proj.sentry) return;
             
-            ProcessMeleeHit(target, damageDone, hit.Crit);
-        }
-
-        private void ProcessMeleeHit(NPC target, int damage, bool wasCrit)
-        {
             meleeStrikeCounter++;
-
-            // Show counter progress with subtle particles
-            if (meleeStrikeCounter >= StrikesForEcho - 2)
-            {
-                float intensity = (float)(meleeStrikeCounter - (StrikesForEcho - 3)) / 3f;
-                FateAccessoryVFX.ParadoxCounterProgressVFX(target.Center, intensity);
-            }
-
-            if (meleeStrikeCounter >= StrikesForEcho)
-            {
+            if (meleeStrikeCounter >= StrikesForBonus)
                 meleeStrikeCounter = 0;
-                TriggerTemporalEcho(target, damage, wasCrit);
+        }
+
+        public override void ModifyHitNPCWithItem(Item item, NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (!hasParadoxChronometer) return;
+            if (!item.CountsAsClass(DamageClass.Melee)) return;
+            
+            if (meleeStrikeCounter >= StrikesForBonus - 1)
+            {
+                modifiers.FinalDamage *= 1.75f;
             }
         }
 
-        private void TriggerTemporalEcho(NPC target, int originalDamage, bool wasCrit)
+        public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref NPC.HitModifiers modifiers)
         {
-            if (!target.active) return;
-
-            // Temporal echo VFX
-            FateAccessoryVFX.ParadoxTemporalEchoVFX(target.Center);
-
-            // Apply echo damage (75% of original)
-            if (Main.myPlayer == Player.whoAmI)
+            if (!hasParadoxChronometer) return;
+            if (!proj.CountsAsClass(DamageClass.Melee)) return;
+            if (proj.minion || proj.sentry) return;
+            
+            if (meleeStrikeCounter >= StrikesForBonus - 1)
             {
-                int echoDamage = (int)(originalDamage * 0.75f);
-                Player.ApplyDamageToNPC(target, echoDamage, 0f, 0, wasCrit);
+                modifiers.FinalDamage *= 1.75f;
             }
-
-            // Sound effect
-            Terraria.Audio.SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.5f, Volume = 0.6f }, target.Center);
         }
     }
 }

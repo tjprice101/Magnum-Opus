@@ -47,8 +47,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            // +12% all damage
-            player.GetDamage(DamageClass.Generic) += 0.12f;
+            // +20% all damage
+            player.GetDamage(DamageClass.Generic) += 0.20f;
             
             // Enable Paradox debuff mechanic
             player.GetModPlayer<PuzzleFragmentPlayer>().puzzleFragmentEquipped = true;
@@ -66,7 +66,7 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "DamageBoost", "+12% damage")
+            tooltips.Add(new TooltipLine(Mod, "DamageBoost", "+20% damage")
             {
                 OverrideColor = EnigmaColors.Purple
             });
@@ -165,8 +165,8 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            // +18% all damage
-            player.GetDamage(DamageClass.Generic) += 0.18f;
+            // +20% all damage
+            player.GetDamage(DamageClass.Generic) += 0.20f;
             
             // +8% crit chance
             player.GetCritChance(DamageClass.Generic) += 8;
@@ -190,21 +190,25 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "DamageBoost", "+18% damage, +8% critical strike chance")
+            tooltips.Add(new TooltipLine(Mod, "DamageBoost", "+20% damage, +8% critical strike chance")
             {
                 OverrideColor = EnigmaColors.Purple
             });
-            tooltips.Add(new TooltipLine(Mod, "Paradox", "12% chance on hit to apply 'Paradox' debuffs")
+            tooltips.Add(new TooltipLine(Mod, "Paradox", "12% chance on hit to apply 'Paradox Rush' debuffs")
             {
                 OverrideColor = EnigmaColors.GreenFlame
             });
-            tooltips.Add(new TooltipLine(Mod, "Stacking", "Paradox can stack up to 5 times")
+            tooltips.Add(new TooltipLine(Mod, "Stacking", "Paradox Rush stacks up to 5 times")
             {
                 OverrideColor = EnigmaColors.DeepPurple
             });
-            tooltips.Add(new TooltipLine(Mod, "VoidCollapse", "At 5 stacks, triggers 'Void Collapse' - massive damage explosion")
+            tooltips.Add(new TooltipLine(Mod, "VoidCollapse", "At 5 stacks, triggers 'Void Collapse' dealing 2% of boss current HP")
             {
                 OverrideColor = EnigmaColors.GreenFlame
+            });
+            tooltips.Add(new TooltipLine(Mod, "ParadoxChance", "2% chance on hit to apply 'Paradox' - random debuff")
+            {
+                OverrideColor = EnigmaColors.Purple
             });
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'The answer was void all along'")
             {
@@ -274,7 +278,14 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
             if (!riddleOfTheVoidEquipped) return;
             if (target.immortal || target.dontTakeDamage) return;
             
-            // 12% chance for Paradox
+            // 2% chance for basic Paradox (random debuff, separate from Rush)
+            if (Main.rand.NextFloat() < 0.02f)
+            {
+                int basicDebuff = ParadoxDebuffs[Main.rand.Next(4)]; // Only first 4 (Confused, Slow, Cursed Inferno, Ichor)
+                target.AddBuff(basicDebuff, 180);
+            }
+            
+            // 12% chance for Paradox Rush (stacking)
             if (Main.rand.NextFloat() < 0.12f)
             {
                 // Apply random debuff
@@ -325,10 +336,10 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
             
             // Phase 5: Particle explosion
             
-            // Deal massive damage (200% of base damage)
+            // Deal 2% of boss current HP as damage
             if (Main.myPlayer == Player.whoAmI)
             {
-                int voidDamage = (int)(baseDamage * 2.0f);
+                int voidDamage = Math.Max(50, (int)(target.life * 0.02f));
                 
                 // Deal damage to main target
                 target.SimpleStrikeNPC(voidDamage, 0, false, 0, null, false, 0, true);

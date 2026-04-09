@@ -50,8 +50,6 @@ namespace MagnumOpus.Content.Spring.Projectiles
             Projectile.alpha = 0;
         }
 
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarHard";
-
         public override void AI()
         {
             orbitAngle += 0.12f;
@@ -311,33 +309,43 @@ namespace MagnumOpus.Content.Spring.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
-            Vector2 origin = texture.Size() / 2f;
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.1f + 1f;
+            Texture2D spriteTex = TextureAssets.Projectile[Projectile.type].Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+            Vector2 spriteOrigin = spriteTex.Size() / 2f;
+            Vector2 glowOrigin = glowTex.Size() / 2f;
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
 
-            SpriteBatch spriteBatch = Main.spriteBatch;
+            // Squishy pulsing - organic breathing
+            float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.1f;
+            float speed = Projectile.velocity.Length();
+            float stretch = MathHelper.Clamp(speed * 0.012f, 0f, 0.15f);
+            Vector2 squishScale = new Vector2(1f - stretch, 1f + stretch) * pulse;
 
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Draw trail
+            // Trail afterimages with sprite
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
                 if (Projectile.oldPos[i] == Vector2.Zero) continue;
                 float progress = (float)i / Projectile.oldPos.Length;
-                float trailAlpha = 1f - progress;
-                float trailScale = (1f - progress * 0.5f) * 0.8f;
-                Color trailColor = Color.Lerp(SpringLavender, SpringPink, progress) * trailAlpha * 0.6f;
+                float trailAlpha = (1f - progress) * 0.5f;
+                float trailScale = (1f - progress * 0.5f) * 0.85f;
+                Color trailColor = Color.Lerp(SpringLavender, SpringPink, progress) * trailAlpha;
                 Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                spriteBatch.Draw(texture, trailPos, null, trailColor, Projectile.oldRot[i], origin, trailScale * pulse, SpriteEffects.None, 0f);
+                sb.Draw(spriteTex, trailPos, null, trailColor with { A = 0 }, Projectile.oldRot[i], spriteOrigin, trailScale * pulse, SpriteEffects.None, 0f);
+                sb.Draw(glowTex, trailPos, null, (SpringLavender * trailAlpha * 0.4f) with { A = 0 }, 0f, glowOrigin, trailScale * 0.5f, SpriteEffects.None, 0f);
             }
 
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+            // Outer bloom glow - large soft halo that blends sprite into surroundings
+            sb.Draw(glowTex, drawPos, null, (SpringLavender * 0.25f) with { A = 0 }, 0f, glowOrigin, 0.65f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(glowTex, drawPos, null, (SpringPink * 0.3f) with { A = 0 }, 0f, glowOrigin, 0.45f * pulse, SpriteEffects.None, 0f);
 
-            // Multi-layer bloom
-            spriteBatch.Draw(texture, drawPos, null, SpringLavender * 0.3f, Projectile.rotation, origin, 0.55f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, SpringPink * 0.4f, Projectile.rotation, origin, 0.4f * pulse, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, SpringWhite * 0.5f, Projectile.rotation, origin, 0.25f * pulse, SpriteEffects.None, 0f);
+            // Core sprite - the actual custom art with squishy dynamics
+            sb.Draw(spriteTex, drawPos, null, (SpringLavender * 0.85f) with { A = 0 }, Projectile.rotation, spriteOrigin, squishScale * 0.9f, SpriteEffects.None, 0f);
+
+            // Hot inner core - brighter, smaller overlay for depth
+            sb.Draw(spriteTex, drawPos, null, (SpringWhite * 0.5f) with { A = 0 }, Projectile.rotation, spriteOrigin, squishScale * 0.55f, SpriteEffects.None, 0f);
 
             // Orbiting spark renders
             for (int i = 0; i < 2; i++)
@@ -345,11 +353,11 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 float sparkAngle = orbitAngle + MathHelper.Pi * i;
                 Vector2 sparkOffset = sparkAngle.ToRotationVector2() * 10f;
                 Color sparkColor = i == 0 ? SpringPink : SpringGreen;
-                spriteBatch.Draw(texture, drawPos + sparkOffset, null, sparkColor * 0.5f, 0f, origin, 0.15f * pulse, SpriteEffects.None, 0f);
+                sb.Draw(glowTex, drawPos + sparkOffset, null, (sparkColor * 0.5f) with { A = 0 }, 0f, glowOrigin, 0.12f * pulse, SpriteEffects.None, 0f);
             }
 
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
             }
             catch { }
@@ -396,7 +404,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             Projectile.alpha = 0;
         }
 
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
+        public override string Texture => "MagnumOpus/Content/Spring/Projectiles/BlossomPetal";
 
         public override void AI()
         {
@@ -478,8 +486,39 @@ namespace MagnumOpus.Content.Spring.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Use procedural VFX system - Spring petal effect
-            ProceduralProjectileVFX.DrawSpringProjectile(Main.spriteBatch, Projectile, 0.4f);
+            Texture2D spriteTex = TextureAssets.Projectile[Projectile.type].Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+            Vector2 spriteOrigin = spriteTex.Size() / 2f;
+            Vector2 glowOrigin = glowTex.Size() / 2f;
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+
+            float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.12f;
+            float speed = Projectile.velocity.Length();
+            float stretch = MathHelper.Clamp(speed * 0.01f, 0f, 0.12f);
+            Vector2 squishScale = new Vector2(1f - stretch, 1f + stretch) * pulse;
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Trail afterimages
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            {
+                if (Projectile.oldPos[i] == Vector2.Zero) continue;
+                float progress = (float)i / Projectile.oldPos.Length;
+                float trailAlpha = (1f - progress) * 0.4f;
+                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                sb.Draw(spriteTex, trailPos, null, (SpringPink * trailAlpha) with { A = 0 }, Projectile.oldRot[i], spriteOrigin, (1f - progress * 0.5f) * 0.65f, SpriteEffects.None, 0f);
+            }
+
+            // Bloom halo
+            sb.Draw(glowTex, drawPos, null, (SpringPink * 0.3f) with { A = 0 }, 0f, glowOrigin, 0.35f * pulse, SpriteEffects.None, 0f);
+            // Core sprite
+            sb.Draw(spriteTex, drawPos, null, (SpringPink * 0.8f) with { A = 0 }, Projectile.rotation, spriteOrigin, squishScale * 0.7f, SpriteEffects.None, 0f);
+            // Hot core
+            sb.Draw(spriteTex, drawPos, null, (SpringWhite * 0.45f) with { A = 0 }, Projectile.rotation, spriteOrigin, squishScale * 0.4f, SpriteEffects.None, 0f);
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             }
             catch { }
             finally
@@ -523,7 +562,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             Projectile.alpha = 0;
         }
 
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
+        public override string Texture => "MagnumOpus/Content/Spring/Projectiles/HomingPetal";
 
         public override void AI()
         {
@@ -601,8 +640,40 @@ namespace MagnumOpus.Content.Spring.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Use procedural VFX system - Spring flower bolt effect
-            ProceduralProjectileVFX.DrawSpringProjectile(Main.spriteBatch, Projectile, 0.45f);
+            Texture2D spriteTex = TextureAssets.Projectile[Projectile.type].Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+            Vector2 spriteOrigin = spriteTex.Size() / 2f;
+            Vector2 glowOrigin = glowTex.Size() / 2f;
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+
+            float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.14f) * 0.1f;
+            float speed = Projectile.velocity.Length();
+            float stretch = MathHelper.Clamp(speed * 0.01f, 0f, 0.12f);
+            Vector2 squishScale = new Vector2(1f - stretch, 1f + stretch) * pulse;
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Trail afterimages
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            {
+                if (Projectile.oldPos[i] == Vector2.Zero) continue;
+                float progress = (float)i / Projectile.oldPos.Length;
+                float trailAlpha = (1f - progress) * 0.35f;
+                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                sb.Draw(spriteTex, trailPos, null, (SpringLavender * trailAlpha) with { A = 0 }, Projectile.oldRot[i], spriteOrigin, (1f - progress * 0.5f) * 0.6f, SpriteEffects.None, 0f);
+            }
+
+            // Bloom halo
+            sb.Draw(glowTex, drawPos, null, (SpringLavender * 0.25f) with { A = 0 }, 0f, glowOrigin, 0.4f * pulse, SpriteEffects.None, 0f);
+            sb.Draw(glowTex, drawPos, null, (SpringPink * 0.3f) with { A = 0 }, 0f, glowOrigin, 0.28f * pulse, SpriteEffects.None, 0f);
+            // Core sprite
+            sb.Draw(spriteTex, drawPos, null, (SpringLavender * 0.8f) with { A = 0 }, Projectile.rotation, spriteOrigin, squishScale * 0.75f, SpriteEffects.None, 0f);
+            // Hot core
+            sb.Draw(spriteTex, drawPos, null, (Color.White * 0.4f) with { A = 0 }, Projectile.rotation, spriteOrigin, squishScale * 0.45f, SpriteEffects.None, 0f);
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             }
             catch { }
             finally

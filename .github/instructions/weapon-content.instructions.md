@@ -53,10 +53,10 @@ public override void ModifyTooltips(List<TooltipLine> tooltips)
 | Swan Lake | `new Color(240, 240, 255)` | Grace, feathers, elegance, tragedy |
 | Enigma Variations | `new Color(140, 60, 200)` | Mystery, dread, arcane secrets |
 | Fate | `new Color(180, 40, 80)` | Destiny, cosmos, inevitability |
-| Clair de Lune | `new Color(150, 200, 255)` | Moonlit reverie, gentle luminescence |
-| Dies Irae | `new Color(200, 50, 30)` | Fury, judgment, apocalyptic power |
-| Nachtmusik | `new Color(100, 120, 200)` | Nocturnal wonder, stellar beauty |
-| Ode to Joy | `new Color(255, 200, 50)` | Joy, celebration, triumph of spirit |
+| Clair de Lune | `new Color(150, 200, 255)` | Shattered time, blazing clocks, temporal destruction |
+| Dies Irae | `new Color(200, 50, 30)` | Hellfire retribution, divine judgment, heavenly banishment |
+| Nachtmusik | `new Color(100, 120, 200)` | Golden twinkling, starlit melodies, sweet songs |
+| Ode to Joy | `new Color(255, 200, 50)` | Chromatic glass roses, prismatic radiance, eternal symphony |
 
 ### Lore Guidelines
 - Use sentence case, not ALL CAPS

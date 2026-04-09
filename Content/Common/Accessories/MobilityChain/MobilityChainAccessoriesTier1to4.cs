@@ -14,7 +14,7 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
 {
     // ============================================================
     // TIER 1: RESONANT VELOCITY BAND
-    // Base accessory: Enables Momentum system, max 100
+    // +15% movement speed, +0.3 flight time
     // ============================================================
     public class ResonantVelocityBand : ModItem
     {
@@ -32,16 +32,14 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             var momentumPlayer = player.GetModPlayer<MomentumPlayer>();
             momentumPlayer.HasVelocityBand = true;
             
-            // Inherited from Aglet (+5%) + Anklet of the Wind (+10%)
             player.moveSpeed += 0.15f;
-            player.maxRunSpeed += 0.3f;
+            player.wingTimeMax += 18; // +0.3s flight time
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+15% movement speed"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+0.3 max run speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+15% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+0.3 flight time"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The first step toward transcending mortal limits'") { OverrideColor = new Color(150, 200, 100) });
         }
         
@@ -59,7 +57,7 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
     
     // ============================================================
     // TIER 2: SPRING ZEPHYR BOOTS
-    // +10% speed at 50+ momentum, double jump reset at 80+
+    // +0.5 run speed, +18% movement speed, +0.5 flight time
     // ============================================================
     public class SpringZephyrBoots : ModItem
     {
@@ -77,21 +75,16 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             var momentumPlayer = player.GetModPlayer<MomentumPlayer>();
             momentumPlayer.HasSpringZephyrBoots = true;
             
-            // Base stats inherited from lower tier
-            player.moveSpeed += 0.17f;
+            player.moveSpeed += 0.18f;
             player.maxRunSpeed += 0.5f;
-            
-            // Enhanced jump height
-            player.jumpBoost = true;
-            player.autoJump = true;
+            player.wingTimeMax += 30; // +0.5s flight time
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+17% movement speed"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+0.5 max run speed"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Enhanced jump height and auto jump"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+18% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+0.5 run speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+0.5 flight time"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Spring winds carry those who embrace the changing seasons'") { OverrideColor = new Color(150, 200, 100) });
         }
         
@@ -109,7 +102,7 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
     
     // ============================================================
     // TIER 3: SOLAR BLITZ TREADS
-    // Fire trail at 70+ momentum that damages enemies
+    // Blazing trail, +0.7 run speed, +25% movement, +0.8 flight
     // ============================================================
     public class SolarBlitzTreads : ModItem
     {
@@ -127,27 +120,17 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             var momentumPlayer = player.GetModPlayer<MomentumPlayer>();
             momentumPlayer.HasSolarBlitzTreads = true;
             
-            // Enhanced stats
-            player.moveSpeed += 0.19f;
+            player.moveSpeed += 0.25f;
             player.maxRunSpeed += 0.7f;
-            player.jumpBoost = true;
-            player.autoJump = true;
-            
-            // Fire immunity at high momentum
-            if (momentumPlayer.CurrentMomentum >= 70f)
-            {
-                player.buffImmune[BuffID.OnFire] = true;
-                player.buffImmune[BuffID.Burning] = true;
-            }
+            player.wingTimeMax += 48; // +0.8s flight time
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+19% movement speed"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+0.7 max run speed"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Enhanced jump height and auto jump"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Fire immunity at 70+ momentum"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+25% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+0.7 run speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+0.8 flight time"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Running leaves a blazing trail behind you"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Summer's fury blazes beneath every step'") { OverrideColor = new Color(150, 200, 100) });
         }
         
@@ -165,7 +148,7 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
     
     // ============================================================
     // TIER 4: HARVEST PHANTOM STRIDE
-    // Phase through enemies at 80+ momentum (reduced contact damage)
+    // Blazing trail, +0.7 run speed, +30% movement, +1.0 flight
     // ============================================================
     public class HarvestPhantomStride : ModItem
     {
@@ -183,24 +166,17 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             var momentumPlayer = player.GetModPlayer<MomentumPlayer>();
             momentumPlayer.HasHarvestPhantomStride = true;
             
-            // Enhanced stats
-            player.moveSpeed += 0.21f;
-            player.maxRunSpeed += 0.9f;
-            player.jumpBoost = true;
-            player.autoJump = true;
-            
-            // Fire immunity
-            player.buffImmune[BuffID.OnFire] = true;
-            player.buffImmune[BuffID.Burning] = true;
+            player.moveSpeed += 0.30f;
+            player.maxRunSpeed += 0.7f;
+            player.wingTimeMax += 60; // +1.0s flight time
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+21% movement speed"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+0.9 max run speed"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Enhanced jump height and auto jump"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Fire immunity"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+30% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+0.7 run speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+1.0 flight time"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Running leaves a blazing trail behind you"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Autumn's spirits guide the worthy through shadow'") { OverrideColor = new Color(150, 200, 100) });
         }
         
@@ -218,7 +194,7 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
     
     // ============================================================
     // TIER 5: PERMAFROST AVALANCHE STEP
-    // Ice trail at 90+ momentum, ice dash at 100
+    // Blazing trail, +0.9 run speed, +35% movement, +1.2 flight
     // ============================================================
     public class PermafrostAvalancheStep : ModItem
     {
@@ -236,33 +212,17 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             var momentumPlayer = player.GetModPlayer<MomentumPlayer>();
             momentumPlayer.HasPermafrostAvalancheStep = true;
             
-            // Enhanced stats
-            player.moveSpeed += 0.23f;
-            player.maxRunSpeed += 1.1f;
-            player.jumpBoost = true;
-            player.autoJump = true;
-            player.jumpSpeedBoost += 0.5f;
-            
-            // Fire immunity
-            player.buffImmune[BuffID.OnFire] = true;
-            player.buffImmune[BuffID.Burning] = true;
-            
-            // Ice armor at high momentum
-            if (momentumPlayer.CurrentMomentum >= 90f)
-            {
-                player.statDefense += 5;
-            }
+            player.moveSpeed += 0.35f;
+            player.maxRunSpeed += 0.9f;
+            player.wingTimeMax += 72; // +1.2s flight time
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 100)"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+23% movement speed"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+1.1 max run speed"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+0.5 jump speed"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Enhanced jump height and auto jump"));
-            tooltips.Add(new TooltipLine(Mod, "Effect6", "Fire immunity"));
-            tooltips.Add(new TooltipLine(Mod, "Effect7", "+5 defense at 90+ momentum"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+35% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+0.9 run speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+1.2 flight time"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Running leaves a blazing trail behind you"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Winter's embrace hardens the soul against all adversity'") { OverrideColor = new Color(150, 200, 100) });
         }
         
@@ -280,7 +240,7 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
     
     // ============================================================
     // TIER 6: VIVALDI'S SEASONAL SPRINT
-    // Max 120 momentum, seasonal trail effects that cycle
+    // Blazing+frostburn trail, +1.2 run speed, +38% movement, +1.4 flight
     // ============================================================
     public class VivaldisSeasonalSprint : ModItem
     {
@@ -298,35 +258,17 @@ namespace MagnumOpus.Content.Common.Accessories.MobilityChain
             var momentumPlayer = player.GetModPlayer<MomentumPlayer>();
             momentumPlayer.HasVivaldisSeasonalSprint = true;
             
-            // Max stats for pre-Moon Lord
-            player.moveSpeed += 0.25f;
-            player.maxRunSpeed += 1.3f;
-            player.jumpBoost = true;
-            player.autoJump = true;
-            player.jumpSpeedBoost += 0.8f;
-            
-            // Full immunities
-            player.buffImmune[BuffID.OnFire] = true;
-            player.buffImmune[BuffID.Burning] = true;
-            player.buffImmune[BuffID.Frostburn] = true;
-            player.buffImmune[BuffID.Chilled] = true;
-            
-            // Inherited from T5: defense at high momentum
-            if (momentumPlayer.CurrentMomentum >= 90f)
-            {
-                player.statDefense += 5;
-            }
+            player.moveSpeed += 0.38f;
+            player.maxRunSpeed += 1.2f;
+            player.wingTimeMax += 84; // +1.4s flight time
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Enables the Momentum system (max 120)"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+25% movement speed"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+1.3 max run speed"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "+0.8 jump speed"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Enhanced jump height and auto jump"));
-            tooltips.Add(new TooltipLine(Mod, "Effect6", "Fire and ice immunity"));
-            tooltips.Add(new TooltipLine(Mod, "Effect7", "+5 defense at 90+ momentum"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+38% movement speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+1.2 run speed"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+1.4 flight time"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Running leaves a blazing and frostburn trail behind you"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Four seasons dance as one beneath your feet'") { OverrideColor = new Color(150, 200, 100) });
         }
         

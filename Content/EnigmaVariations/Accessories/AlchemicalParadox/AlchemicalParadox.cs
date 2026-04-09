@@ -1,38 +1,25 @@
 using Microsoft.Xna.Framework;
+using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.DataStructures;
 using MagnumOpus.Common;
-using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.Particles;
-using MagnumOpus.Content.EnigmaVariations.Debuffs;
+using MagnumOpus.Content.Common.Accessories;
+using MagnumOpus.Content.EnigmaVariations.ResonanceEnergies;
+using MagnumOpus.Content.EnigmaVariations.HarmonicCores;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 
 namespace MagnumOpus.Content.EnigmaVariations.Accessories
 {
     /// <summary>
-    /// Alchemical Paradox - Ranger Accessory
-    /// 
-    /// "Paradox Shots" - Every 4th ranged projectile becomes a "Paradox Bolt" that:
-    /// - Splits into 2-3 smaller projectiles on hit
-    /// - Applies "Paradox" debuff to enemies
-    /// - Enemies with Paradox take damage over time
-    /// - Enemies explode on death, damaging nearby foes
-    /// Additionally, +8% ranged critical strike chance.
-    /// 
-    /// Theme: The contradictory nature of existence,
-    /// where destruction begets more destruction.
+    /// Alchemical Paradox - Enigma ranged class accessory.
+    /// 'Resonance Pierced' Melodic Attunement with 8% ammo conservation + 1% HP heal per saved shot.
     /// </summary>
     public class AlchemicalParadox : ModItem
     {
         public override string Texture => "MagnumOpus/Content/EnigmaVariations/Accessories/AlchemicalParadox/AlchemicalParadox";
 
-        // Enigma color palette
-        private static readonly Color EnigmaPurple = new Color(140, 60, 200);
-        private static readonly Color EnigmaGreenFlame = new Color(50, 220, 100);
-        private static readonly Color EnigmaDeepPurple = new Color(80, 20, 120);
-        
         public override void SetDefaults()
         {
             Item.width = 32;
@@ -41,162 +28,73 @@ namespace MagnumOpus.Content.EnigmaVariations.Accessories
             Item.value = Item.buyPrice(platinum: 3);
             Item.rare = ModContent.RarityType<EnigmaVariationsRarity>();
         }
-        
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<EnigmaAccessoryPlayer>();
-            modPlayer.hasAlchemicalParadox = true;
+            var attunement = player.GetModPlayer<MelodicAttunementPlayer>();
+            attunement.resonantBurnDmgBonus += 0.45f;
+            attunement.critDmgBonusOnBurn += 0.025f;
+            attunement.rangedAttunement = true;
+
+            var paradox = player.GetModPlayer<AlchemicalParadoxPlayer>();
+            paradox.equipped = true;
+
+            // Fire/lava/confusion/slow immunity
+            player.buffImmune[BuffID.OnFire] = true;
+            player.buffImmune[BuffID.OnFire3] = true;
+            player.lavaImmune = true;
+            player.buffImmune[BuffID.Confused] = true;
+            player.buffImmune[BuffID.Slow] = true;
         }
-        
-        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "ParadoxHeader", "Paradox Shots:")
-            {
-                OverrideColor = EnigmaGreenFlame
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Every 4th ranged attack becomes a Paradox Bolt"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Paradox Bolts split into 2-3 projectiles on hit"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Applies Paradox debuff (damage over time)"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Afflicted enemies explode on death"));
-            tooltips.Add(new TooltipLine(Mod, "Crit", "+8% ranged critical strike chance"));
-            
+            Color lore = new Color(140, 60, 200);
+
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "'Resonance Pierced' Melodic Attunement"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+45% increased Resonant Burn damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Hitting an enemy 25 times with ranged damage while inflicted with Resonant Burn heals 10% HP"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Critical strike damage on Resonant Burn enemies increased by 2.5%"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "8% chance to not consume ammo"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "For every shot not consumed, heal 1% HP"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "Immunity to fire debuffs, lava, confusion, and slow"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'In contradiction, truth unravels'")
             {
-                OverrideColor = EnigmaPurple
+                OverrideColor = lore
             });
         }
-        
+
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient(ModContent.ItemType<ResonanceEnergies.EnigmaResonantEnergy>(), 15)
-                .AddIngredient(ModContent.ItemType<HarmonicCores.HarmonicCoreOfEnigma>(), 1)
-                .AddIngredient(ModContent.ItemType<ResonanceEnergies.ShardOfTheMysterysTempo>(), 5)
+                .AddIngredient(ModContent.ItemType<EnigmaResonantEnergy>(), 15)
+                .AddIngredient(ModContent.ItemType<HarmonicCoreOfEnigma>(), 1)
+                .AddIngredient(ModContent.ItemType<ShardOfTheMysterysTempo>(), 5)
                 .AddIngredient(ItemID.RangerEmblem)
                 .AddTile(ModContent.TileType<MoonlightAnvilTile>())
                 .Register();
         }
     }
-    
-    /// <summary>
-    /// Global projectile to handle Paradox Bolt behavior
-    /// </summary>
-    public class AlchemicalParadoxGlobalProjectile : GlobalProjectile
+
+    public class AlchemicalParadoxPlayer : ModPlayer
     {
-        public override bool InstancePerEntity => true;
-        
-        public bool isParadoxBolt = false;
-        
-        private static readonly Color EnigmaPurple = new Color(140, 60, 200);
-        private static readonly Color EnigmaGreenFlame = new Color(50, 220, 100);
-        
-        public override void OnSpawn(Projectile projectile, IEntitySource source)
+        public bool equipped = false;
+
+        public override void ResetEffects()
         {
-            if (source is EntitySource_ItemUse_WithAmmo itemSource)
-            {
-                Player player = Main.player[projectile.owner];
-                var modPlayer = player.GetModPlayer<EnigmaAccessoryPlayer>();
-                
-                // Mark as paradox bolt if we just triggered the effect
-                if (modPlayer.hasAlchemicalParadox && modPlayer.paradoxProcCooldown > 0 && 
-                    projectile.DamageType == DamageClass.Ranged)
-                {
-                    isParadoxBolt = true;
-                }
-            }
+            equipped = false;
         }
-        
-        public override void AI(Projectile projectile)
+
+        public override bool CanConsumeAmmo(Item weapon, Item ammo)
         {
-            if (isParadoxBolt && projectile.active)
+            if (equipped && Main.rand.NextFloat() < 0.08f)
             {
-                // Paradox trail effect
-                if (Main.rand.NextBool(2))
-                {
-                    float progress = Main.rand.NextFloat();
-                    Color trailColor = EnigmaAccessoryPlayer.GetEnigmaGradient(progress);
-                }
-                
-                // Occasional glyph in trail
-                if (Main.rand.NextBool(6))
-                {
-                }
-                
-                // Green flame sparkles
-                if (Main.rand.NextBool(5))
-                {
-                }
-                
-                Lighting.AddLight(projectile.Center, EnigmaGreenFlame.ToVector3() * 0.3f);
+                // Heal 1% max HP when ammo is saved
+                int healAmount = Math.Max(1, (int)(Player.statLifeMax2 * 0.01f));
+                Player.Heal(healAmount);
+                return false;
             }
-        }
-        
-        public override void OnHitNPC(Projectile projectile, NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            if (isParadoxBolt && projectile.owner >= 0 && projectile.owner < Main.maxPlayers)
-            {
-                Player player = Main.player[projectile.owner];
-                
-                // Apply Paradox debuff
-                var paradoxNPC = target.GetGlobalNPC<ParadoxBrandNPC>();
-                paradoxNPC.AddParadoxStack(target, 2);
-                
-                // Split into smaller projectiles
-                int splitCount = Main.rand.Next(2, 4); // 2-3 projectiles
-                for (int i = 0; i < splitCount; i++)
-                {
-                    float splitAngle = MathHelper.TwoPi * i / splitCount + Main.rand.NextFloat(-0.3f, 0.3f);
-                    Vector2 splitVel = splitAngle.ToRotationVector2() * Main.rand.NextFloat(8f, 12f);
-                    
-                    // Find a nearby enemy to home toward (slight homing)
-                    NPC nearestEnemy = null;
-                    float nearestDist = 300f;
-                    foreach (NPC npc in Main.npc)
-                    {
-                        if (npc.active && !npc.friendly && npc.whoAmI != target.whoAmI)
-                        {
-                            float dist = npc.Distance(target.Center);
-                            if (dist < nearestDist)
-                            {
-                                nearestDist = dist;
-                                nearestEnemy = npc;
-                            }
-                        }
-                    }
-                    
-                    if (nearestEnemy != null)
-                    {
-                        Vector2 toEnemy = (nearestEnemy.Center - target.Center).SafeNormalize(Vector2.UnitX);
-                        splitVel = Vector2.Lerp(splitVel, toEnemy * 10f, 0.5f);
-                    }
-                    
-                    // Spawn split projectile (using generic magic bolt)
-                    Projectile splitProj = Projectile.NewProjectileDirect(
-                        projectile.GetSource_FromThis(),
-                        target.Center,
-                        splitVel,
-                        ProjectileID.CursedFlameFriendly, // Visual placeholder
-                        projectile.damage / 3,
-                        projectile.knockBack / 2f,
-                        player.whoAmI
-                    );
-                    
-                    // Make it Enigma-themed
-                    splitProj.DamageType = DamageClass.Ranged;
-                    splitProj.friendly = true;
-                    splitProj.hostile = false;
-                    splitProj.tileCollide = true;
-                    splitProj.timeLeft = 120;
-                    
-                    // Visual for split
-                }
-                
-                // Impact burst
-                
-                // Don't split again (only original paradox bolts split)
-                isParadoxBolt = false;
-            }
+            return true;
         }
     }
 }

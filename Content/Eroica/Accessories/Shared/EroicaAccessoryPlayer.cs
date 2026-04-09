@@ -1,7 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -9,289 +8,67 @@ using Terraria.Audio;
 using Terraria.DataStructures;
 using ReLogic.Content;
 using static Terraria.ModLoader.PlayerDrawLayer;
-using MagnumOpus.Common.Systems.VFX;
-using MagnumOpus.Content.Eroica.Accessories.PyreOfTheFallenHero;
-using MagnumOpus.Content.Eroica.Accessories.SymphonyOfScarletFlames;
 using MagnumOpus.Content.Eroica.Accessories.SakurasBurningWill;
 
 namespace MagnumOpus.Content.Eroica.Accessories.Shared
 {
     /// <summary>
-    /// ModPlayer class that handles all Eroica accessory effects.
+    /// ModPlayer class that handles Sakura's Burning Will summoner accessory effects.
+    /// Pyre, Symphony, and Funeral March mechanics have been migrated to MelodicAttunementPlayer.
     /// </summary>
     public class EroicaAccessoryPlayer : ModPlayer
     {
-        // ========== PYRE OF THE FALLEN HERO (Melee) ==========
-        public bool hasPyreOfTheFallenHero = false;
-        public int furyStacks = 0;
-        private const int MaxFuryStacks = 12;
-        public int damageBoostTimer = 0;
-        private const int DamageBoostDuration = 120; // 2 seconds
-        
         // ========== SAKURA'S BURNING WILL (Summoner) ==========
         public bool hasSakurasBurningWill = false;
         public int heroicSpiritTimer = 0;
         private const int HeroicSpiritInterval = 720; // 12 seconds
-        
-        // ========== FUNERAL MARCH INSIGNIA (Mage) ==========
-        public bool hasFuneralMarchInsignia = false;
-        public int heroicEncoreCooldown = 0;
-        private const int HeroicEncoreCooldownMax = 10800; // 180 seconds (3 minutes)
-        public bool heroicEncoreActive = false;
-        public int heroicEncoreTimer = 0;
-        private const int HeroicEncoreDuration = 180; // 3 seconds of invulnerability
-        
-        // ========== SYMPHONY OF SCARLET FLAMES (Ranger) ==========
-        public bool hasSymphonyOfScarletFlames = false;
-        public int lastTargetHit = -1;
-        public int consecutiveHits = 0;
-        
+
         // ========== FLOATING VISUAL ==========
         public float floatAngle = 0f;
-        
+
         public override void ResetEffects()
         {
-            hasPyreOfTheFallenHero = false;
             hasSakurasBurningWill = false;
-            hasFuneralMarchInsignia = false;
-            hasSymphonyOfScarletFlames = false;
         }
-        
+
         public override void PostUpdate()
         {
-            // ========== FLOATING VISUAL ANGLE ==========
-            if (hasFuneralMarchInsignia || hasSakurasBurningWill)
-                floatAngle += 0.03f;
-            
-            // ========== PYRE OF THE FALLEN HERO ==========
-            if (damageBoostTimer > 0)
-                damageBoostTimer--;
-            
-            // Reset fury if not wearing accessory
-            if (!hasPyreOfTheFallenHero)
-                furyStacks = 0;
-            
-            // ========== SAKURA'S BURNING WILL ==========
             if (hasSakurasBurningWill)
             {
+                floatAngle += 0.03f;
+
                 heroicSpiritTimer++;
                 if (heroicSpiritTimer >= HeroicSpiritInterval)
                 {
                     heroicSpiritTimer = 0;
                     SummonHeroicSpirit();
                 }
-                
-                // Check proximity to minions for defense bonus
+
                 UpdateMinionProximityBonus();
             }
             else
             {
                 heroicSpiritTimer = 0;
             }
-            
-            // ========== FUNERAL MARCH INSIGNIA ==========
-            if (heroicEncoreCooldown > 0)
-                heroicEncoreCooldown--;
-            
-            if (heroicEncoreActive)
-            {
-                heroicEncoreTimer++;
-                Player.immune = true;
-                Player.immuneTime = 2;
-                Player.immuneNoBlink = true; // Don't blink during heroic encore
-                
-                // Dramatic invulnerability visuals
-                FuneralMarchInsigniaVFX.HeroicEncoreActiveVFX(Player.Center, heroicEncoreTimer);
-                
-                if (heroicEncoreTimer >= HeroicEncoreDuration)
-                {
-                    heroicEncoreActive = false;
-                    heroicEncoreTimer = 0;
-                }
-            }
-            
-            // ========== SYMPHONY OF SCARLET FLAMES ==========
-            // Reset consecutive hits if not wearing accessory
-            if (!hasSymphonyOfScarletFlames)
-            {
-                consecutiveHits = 0;
-                lastTargetHit = -1;
-            }
         }
-        
-        public override void UpdateLifeRegen()
+
+        public override void ModifyWeaponDamage(Item item, ref StatModifier damage)
         {
-            // Funeral March Insignia - Triple mana regen when below 20% mana
-            if (hasFuneralMarchInsignia)
+            if (hasSakurasBurningWill && item.DamageType == DamageClass.Summon)
             {
-                float manaPercent = (float)Player.statMana / Player.statManaMax2;
-                if (manaPercent < 0.2f)
-                {
-                    Player.manaRegen += Player.manaRegen * 2; // Triple total
-                }
+                damage *= 1.20f;
             }
         }
-        
-        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
-        {
-            // Heroic Encore - Double magic damage during active
-            if (heroicEncoreActive)
-            {
-                modifiers.SourceDamage *= 2f;
-            }
-        }
-        
-        public override bool PreKill(double damage, int hitDirection, bool pvp, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource)
-        {
-            // Funeral March Insignia - Prevent death if we have mana
-            if (hasFuneralMarchInsignia && heroicEncoreCooldown <= 0 && Player.statMana > 0)
-            {
-                // Consume ALL mana
-                Player.statMana = 0;
-                
-                // Activate Heroic Encore
-                heroicEncoreActive = true;
-                heroicEncoreTimer = 0;
-                heroicEncoreCooldown = HeroicEncoreCooldownMax;
-                
-                // Heal to prevent death
-                Player.statLife = 1;
-                
-                // Dramatic revival effect
-                SoundEngine.PlaySound(SoundID.Item119 with { Pitch = -0.5f, Volume = 1.5f }, Player.Center);
-                SoundEngine.PlaySound(SoundID.NPCDeath6 with { Pitch = 0.3f }, Player.Center);
-                
-                // Dramatic revival VFX
-                FuneralMarchInsigniaVFX.HeroicEncoreActivation(Player.Center);
-                
-                Main.NewText("Heroic Encore! The music refuses to end!", new Color(255, 100, 100));
-                
-                return false; // Prevent death
-            }
-            
-            return true;
-        }
-        
-        public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            HandleMeleeHit(target, damageDone, item.DamageType);
-            HandleRangedHit(target, damageDone, item.DamageType);
-        }
-        
-        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            HandleMeleeHit(target, damageDone, proj.DamageType);
-            HandleRangedHit(target, damageDone, proj.DamageType);
-        }
-        
-        private void HandleMeleeHit(NPC target, int damageDone, DamageClass damageType)
-        {
-            if (!hasPyreOfTheFallenHero) return;
-            if (damageType != DamageClass.Melee && damageType != DamageClass.MeleeNoSpeed) return;
-            
-            // Build fury stacks
-            furyStacks++;
-            
-            // Visual feedback for stack building
-            if (furyStacks < MaxFuryStacks)
-            {
-                PyreOfTheFallenHeroVFX.FuryStackVFX(Player.Center, furyStacks);
-            }
-            
-            // At max stacks, release the fury wave
-            if (furyStacks >= MaxFuryStacks)
-            {
-                ReleaseFuryWave(damageDone);
-                furyStacks = 0;
-            }
-        }
-        
-        private void HandleRangedHit(NPC target, int damageDone, DamageClass damageType)
-        {
-            if (!hasSymphonyOfScarletFlames) return;
-            if (damageType != DamageClass.Ranged) return;
-            
-            // Check if same target
-            if (target.whoAmI == lastTargetHit)
-            {
-                consecutiveHits++;
-                
-                // Visual feedback - growing mark on enemy
-                SymphonyOfScarletFlamesVFX.TargetMarkVFX(target.Center, consecutiveHits);
-                
-                // 4th hit triggers the explosion
-                if (consecutiveHits >= 3)
-                {
-                    TriggerTriumphantPrecision(target, damageDone);
-                    consecutiveHits = 0;
-                }
-            }
-            else
-            {
-                // New target, reset counter
-                lastTargetHit = target.whoAmI;
-                consecutiveHits = 1;
-                
-                // Small initial mark
-                SymphonyOfScarletFlamesVFX.NewTargetMarkVFX(target.Center);
-            }
-        }
-        
-        private void ReleaseFuryWave(int baseDamage)
-        {
-            // Dramatic fury release VFX
-            PyreOfTheFallenHeroVFX.FuryReleasePulse(Player.Center);
-            
-            // Spawn the 360° slash wave projectile
-            if (Main.myPlayer == Player.whoAmI)
-            {
-                int damage = (int)(baseDamage * 4f); // 400% damage
-                Projectile.NewProjectile(
-                    Player.GetSource_Accessory(new Item()),
-                    Player.Center,
-                    Vector2.Zero,
-                    ModContent.ProjectileType<PyreSlashWave>(),
-                    damage,
-                    12f,
-                    Player.whoAmI
-                );
-            }
-            
-            // Sound effect
-            SoundEngine.PlaySound(SoundID.Item71 with { Pitch = -0.3f, Volume = 1.2f }, Player.Center);
-            SoundEngine.PlaySound(SoundID.DD2_BetsyFireballImpact with { Volume = 0.8f }, Player.Center);
-        }
-        
-        private void TriggerTriumphantPrecision(NPC target, int baseDamage)
-        {
-            // Spawn petal explosion at target
-            if (Main.myPlayer == Player.whoAmI)
-            {
-                int damage = (int)(baseDamage * 3f); // 300% damage
-                Projectile.NewProjectile(
-                    Player.GetSource_Accessory(new Item()),
-                    target.Center,
-                    Vector2.Zero,
-                    ModContent.ProjectileType<PetalExplosion>(),
-                    damage,
-                    8f,
-                    Player.whoAmI
-                );
-            }
-            
-            // Sound effect
-            SoundEngine.PlaySound(SoundID.Item14 with { Pitch = 0.5f, Volume = 1f }, target.Center);
-            SoundEngine.PlaySound(SoundID.Item119 with { Pitch = 0.3f, Volume = 0.8f }, target.Center);
-        }
-        
+
         private void SummonHeroicSpirit()
         {
             if (Main.myPlayer == Player.whoAmI)
             {
-                // Find a nearby enemy to target
+                Vector2 spawnPos = Player.Center + new Vector2(Main.rand.NextFloat(-50f, 50f), -60f);
+                int damage = (int)(Player.GetTotalDamage(DamageClass.Summon).ApplyTo(150));
+
                 NPC target = null;
                 float maxDist = 600f;
-                
                 foreach (NPC npc in Main.ActiveNPCs)
                 {
                     if (npc.CanBeChasedBy())
@@ -304,11 +81,7 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
                         }
                     }
                 }
-                
-                // Spawn the heroic spirit
-                Vector2 spawnPos = Player.Center + new Vector2(Main.rand.NextFloat(-50f, 50f), -60f);
-                int damage = (int)(Player.GetTotalDamage(DamageClass.Summon).ApplyTo(150)); // Base 150 damage scaled
-                
+
                 Projectile.NewProjectile(
                     Player.GetSource_Accessory(new Item()),
                     spawnPos,
@@ -320,279 +93,114 @@ namespace MagnumOpus.Content.Eroica.Accessories.Shared
                     target?.whoAmI ?? -1
                 );
             }
-            
-            // Summoning effect
+
             SoundEngine.PlaySound(SoundID.Item78 with { Pitch = 0.2f }, Player.Center);
-            
-            // Dramatic appearance particles
             SakurasBurningWillVFX.HeroicSpiritSummonVFX(Player.Center + new Vector2(0, -60f));
         }
-        
+
         private void UpdateMinionProximityBonus()
         {
             bool nearMinion = false;
-            
+
             foreach (Projectile proj in Main.ActiveProjectiles)
             {
                 if (proj.owner == Player.whoAmI && proj.minion)
                 {
                     float dist = Vector2.Distance(Player.Center, proj.Center);
-                    if (dist < 240f) // 15 tiles = 240 pixels
+                    if (dist < 240f)
                     {
                         nearMinion = true;
                         break;
                     }
                 }
             }
-            
+
             if (nearMinion)
             {
                 Player.statDefense += 8;
             }
         }
-        
-        public override void OnHurt(Player.HurtInfo info)
-        {
-            // Pyre of the Fallen Hero - Taking damage grants attack speed boost
-            if (hasPyreOfTheFallenHero)
-            {
-                damageBoostTimer = DamageBoostDuration;
-                
-                // Visual feedback
-                PyreOfTheFallenHeroVFX.DamageBoostIndicator(Player.Center, DamageBoostDuration);
-            }
-        }
-        
-        public override void ModifyWeaponDamage(Item item, ref StatModifier damage)
-        {
-            // Sakura's Burning Will - Minions get +20% damage when player is near
-            if (hasSakurasBurningWill && item.DamageType == DamageClass.Summon)
-            {
-                // This bonus is always active - the proximity check in UpdateMinionProximityBonus
-                // gives defense to player, but minions always get the damage boost
-                damage *= 1.20f;
-            }
-        }
     }
-    
+
     /// <summary>
-    /// Draw layer for floating Eroica accessories (FuneralMarchInsignia and SakurasBurningWill).
+    /// Draw layer for floating Sakura's Burning Will accessory visual.
     /// </summary>
     public class EroicaFloatDrawLayer : PlayerDrawLayer
     {
-        private static Asset<Texture2D> funeralFloatTexture;
         private static Asset<Texture2D> sakuraFloatTexture;
-        
-        // 6x6 sprite sheet = 36 frames
+
         private const int FrameColumns = 6;
         private const int FrameRows = 6;
         private const int TotalFrames = 36;
         private const int FrameTime = 4;
-        
+
         public override Position GetDefaultPosition() => new AfterParent(PlayerDrawLayers.BackAcc);
-        
+
         public override bool GetDefaultVisibility(PlayerDrawSet drawInfo)
         {
             var modPlayer = drawInfo.drawPlayer.GetModPlayer<EroicaAccessoryPlayer>();
-            return modPlayer.hasFuneralMarchInsignia || modPlayer.hasSakurasBurningWill;
+            return modPlayer.hasSakurasBurningWill;
         }
-        
+
         protected override void Draw(ref PlayerDrawSet drawInfo)
         {
             var modPlayer = drawInfo.drawPlayer.GetModPlayer<EroicaAccessoryPlayer>();
             Player player = drawInfo.drawPlayer;
-            
-            // Load textures if needed
-            if (funeralFloatTexture == null)
-                funeralFloatTexture = ModContent.Request<Texture2D>("MagnumOpus/Content/Eroica/Accessories/FuneralMarchInsignia/FuneralMarchInsignia_Float");
+
             if (sakuraFloatTexture == null)
                 sakuraFloatTexture = ModContent.Request<Texture2D>("MagnumOpus/Content/Eroica/Accessories/SakurasBurningWill/SakurasBurningWill_Float");
-            
-            float baseAngle = modPlayer.floatAngle;
-            
-            // Calculate current animation frame based on game time
-            int currentFrame = (int)(Main.GameUpdateCount / FrameTime) % TotalFrames;
-            int frameX = currentFrame % FrameColumns;
-            int frameY = currentFrame / FrameColumns;
-            
-            // Draw Funeral March Insignia float (left side)
-            if (modPlayer.hasFuneralMarchInsignia && funeralFloatTexture != null && funeralFloatTexture.IsLoaded)
-            {
-                Texture2D texture = funeralFloatTexture.Value;
-                
-                // Calculate frame dimensions from sprite sheet
-                int frameWidth = texture.Width / FrameColumns;
-                int frameHeight = texture.Height / FrameRows;
-                Rectangle sourceRect = new Rectangle(frameX * frameWidth, frameY * frameHeight, frameWidth, frameHeight);
-                Vector2 origin = new Vector2(frameWidth / 2f, frameHeight / 2f);
-                
-                // Float on left side with gentle bob
-                Vector2 offset = new Vector2((float)Math.Cos(baseAngle) * 25f - 35f, (float)Math.Sin(baseAngle * 1.5f) * 12f - 30f);
-                Vector2 drawPos = player.Center + offset - Main.screenPosition;
-                
-                SpriteEffects effects = SpriteEffects.None;
-                Color lightColor = Lighting.GetColor((int)(player.Center.X / 16), (int)(player.Center.Y / 16));
-                
-                // Black/red glow effect for Funeral March theme
-                Color glowColor = new Color(40, 0, 0, 0) * 0.5f;
-                for (int i = 0; i < 4; i++)
-                {
-                    Vector2 glowOffset = new Vector2(2f, 0f).RotatedBy(i * MathHelper.PiOver2);
-                    drawInfo.DrawDataCache.Add(new DrawData(
-                        texture,
-                        drawPos + glowOffset,
-                        sourceRect,
-                        glowColor,
-                        0f,
-                        origin,
-                        1f,
-                        effects,
-                        0
-                    ));
-                }
-                
-                drawInfo.DrawDataCache.Add(new DrawData(
-                    texture,
-                    drawPos,
-                    sourceRect,
-                    lightColor,
-                    0f,
-                    origin,
-                    1f,
-                    effects,
-                    0
-                ));
-            }
-            
-            // Draw Sakura's Burning Will float (right side) - offset frame for visual variety
-            if (modPlayer.hasSakurasBurningWill && sakuraFloatTexture != null && sakuraFloatTexture.IsLoaded)
-            {
-                Texture2D texture = sakuraFloatTexture.Value;
-                
-                // Calculate frame dimensions from sprite sheet (offset by half for visual variety)
-                int sakuraFrame = (currentFrame + TotalFrames / 2) % TotalFrames;
-                int sakuraFrameX = sakuraFrame % FrameColumns;
-                int sakuraFrameY = sakuraFrame / FrameColumns;
-                
-                int frameWidth = texture.Width / FrameColumns;
-                int frameHeight = texture.Height / FrameRows;
-                Rectangle sourceRect = new Rectangle(sakuraFrameX * frameWidth, sakuraFrameY * frameHeight, frameWidth, frameHeight);
-                Vector2 origin = new Vector2(frameWidth / 2f, frameHeight / 2f);
-                
-                // Float on right side with gentle bob (opposite phase)
-                Vector2 offset = new Vector2((float)Math.Cos(baseAngle + MathHelper.Pi) * 25f + 35f, (float)Math.Sin(baseAngle * 1.5f + 1f) * 12f - 25f);
-                Vector2 drawPos = player.Center + offset - Main.screenPosition;
-                
-                SpriteEffects effects = SpriteEffects.None;
-                Color lightColor = Lighting.GetColor((int)(player.Center.X / 16), (int)(player.Center.Y / 16));
-                
-                // Pink/scarlet glow effect for Sakura theme
-                Color glowColor = new Color(255, 150, 180, 0) * 0.4f;
-                for (int i = 0; i < 4; i++)
-                {
-                    Vector2 glowOffset = new Vector2(2f, 0f).RotatedBy(i * MathHelper.PiOver2);
-                    drawInfo.DrawDataCache.Add(new DrawData(
-                        texture,
-                        drawPos + glowOffset,
-                        sourceRect,
-                        glowColor,
-                        0f,
-                        origin,
-                        1f,
-                        effects,
-                        0
-                    ));
-                }
-                
-                drawInfo.DrawDataCache.Add(new DrawData(
-                    texture,
-                    drawPos,
-                    sourceRect,
-                    lightColor,
-                    0f,
-                    origin,
-                    1f,
-                    effects,
-                    0
-                ));
-            }
-        }
-    }
-    
-    /// <summary>
-    /// GlobalNPC for drawing Heroic Target indicator on marked enemies.
-    /// </summary>
-    public class HeroicTargetGlobalNPC : GlobalNPC
-    {
-        public override void PostDraw(NPC npc, SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
-        {
-            // Check if local player has Symphony of Scarlet Flames and this NPC is marked
-            Player player = Main.LocalPlayer;
-            var modPlayer = player.GetModPlayer<EroicaAccessoryPlayer>();
-            
-            if (!modPlayer.hasSymphonyOfScarletFlames || modPlayer.lastTargetHit != npc.whoAmI || modPlayer.consecutiveHits < 1)
+
+            if (sakuraFloatTexture == null || !sakuraFloatTexture.IsLoaded)
                 return;
-            
-            // Draw heroic target indicator above NPC
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.15f) * 0.2f + 0.8f;
-            Vector2 drawPos = npc.Top - screenPos + new Vector2(0, -25f);
-            
-            // Draw rotating crosshair/target
-            float rotation = Main.GameUpdateCount * 0.05f;
-            
-            // Outer ring
+
+            float baseAngle = modPlayer.floatAngle;
+            int currentFrame = (int)(Main.GameUpdateCount / FrameTime) % TotalFrames;
+
+            Texture2D texture = sakuraFloatTexture.Value;
+
+            int sakuraFrame = (currentFrame + TotalFrames / 2) % TotalFrames;
+            int sakuraFrameX = sakuraFrame % FrameColumns;
+            int sakuraFrameY = sakuraFrame / FrameColumns;
+
+            int frameWidth = texture.Width / FrameColumns;
+            int frameHeight = texture.Height / FrameRows;
+            Rectangle sourceRect = new Rectangle(sakuraFrameX * frameWidth, sakuraFrameY * frameHeight, frameWidth, frameHeight);
+            Vector2 origin = new Vector2(frameWidth / 2f, frameHeight / 2f);
+
+            Vector2 offset = new Vector2((float)Math.Cos(baseAngle + MathHelper.Pi) * 25f + 35f, (float)Math.Sin(baseAngle * 1.5f + 1f) * 12f - 25f);
+            Vector2 drawPos = player.Center + offset - Main.screenPosition;
+
+            Color lightColor = Lighting.GetColor((int)(player.Center.X / 16), (int)(player.Center.Y / 16));
+
+            // Pink/scarlet glow effect
+            Color glowColor = new Color(255, 150, 180, 0) * 0.4f;
             for (int i = 0; i < 4; i++)
             {
-                float angle = rotation + MathHelper.PiOver2 * i;
-                Vector2 offset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * 12f * pulse;
-                
-                // Gold/red marks showing hit count
-                Color markColor = modPlayer.consecutiveHits >= 3 ? 
-                    new Color(255, 100, 100, 200) : // Ready to proc - bright red
-                    new Color(255, 200, 100, 180);  // Building - gold
-                
-                // Draw small diamond marks
-                spriteBatch.Draw(
-                    MagnumTextureRegistry.GetPointBloom(),
-                    drawPos + offset,
-                    new Rectangle(0, 0, 4, 4),
-                    markColor * pulse,
-                    angle + MathHelper.PiOver4,
-                    new Vector2(2, 2),
-                    1.2f,
-                    SpriteEffects.None,
-                    0f);
-            }
-            
-            // Inner circle indicator showing stacks
-            for (int i = 0; i < modPlayer.consecutiveHits; i++)
-            {
-                float stackAngle = -MathHelper.PiOver2 + MathHelper.TwoPi * i / 3f;
-                Vector2 stackOffset = new Vector2((float)Math.Cos(stackAngle), (float)Math.Sin(stackAngle)) * 6f;
-                
-                Color stackColor = i < modPlayer.consecutiveHits ? 
-                    new Color(255, 50, 50, 255) : 
-                    new Color(100, 100, 100, 100);
-                
-                spriteBatch.Draw(
-                    MagnumTextureRegistry.GetPointBloom(),
-                    drawPos + stackOffset,
-                    new Rectangle(0, 0, 3, 3),
-                    stackColor * pulse,
+                Vector2 glowOffset = new Vector2(2f, 0f).RotatedBy(i * MathHelper.PiOver2);
+                drawInfo.DrawDataCache.Add(new DrawData(
+                    texture,
+                    drawPos + glowOffset,
+                    sourceRect,
+                    glowColor,
                     0f,
-                    new Vector2(1.5f, 1.5f),
+                    origin,
                     1f,
                     SpriteEffects.None,
-                    0f);
+                    0
+                ));
             }
-            
-            // Add ambient particle effect on marked target
-            if (Main.rand.NextBool(8))
-            {
-                Vector2 dustPos = npc.Center + Main.rand.NextVector2Circular(npc.width * 0.5f, npc.height * 0.5f);
-                Dust mark = Dust.NewDustPerfect(dustPos, DustID.GoldFlame, new Vector2(0, -1.5f), 0, default, 0.8f);
-                mark.noGravity = true;
-            }
+
+            drawInfo.DrawDataCache.Add(new DrawData(
+                texture,
+                drawPos,
+                sourceRect,
+                lightColor,
+                0f,
+                origin,
+                1f,
+                SpriteEffects.None,
+                0
+            ));
         }
     }
 }

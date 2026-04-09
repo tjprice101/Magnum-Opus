@@ -250,10 +250,10 @@ Each musical score/theme MUST have its own distinct visual AND emotional identit
 | **Moonlight Sonata** | The moon's quiet sorrow | Deep dark purples, vibrant light blues, violet, ice blue | Melancholy, peace, mystical stillness |
 | **Enigma Variations** | The unknowable mystery | Void black, deep purple, eerie green flame | Mystery, dread, arcane secrets |
 | **Fate** | The celestial symphony of destiny | Black void, dark pink, bright crimson, celestial white | Cosmic inevitability, endgame awe |
-| **Clair de Lune** | Moonlit reverie | Night mist blue, soft blue, pearl white | Dreamlike calm, gentle luminescence |
-| **Dies Irae** | Day of wrath | Blood red, dark crimson, ember orange | Fury, judgment, apocalyptic power |
-| **Nachtmusik** | A little night music | Deep indigo, starlight silver, cosmic blue | Nocturnal wonder, stellar beauty |
-| **Ode to Joy** | Universal brotherhood | Warm gold, radiant amber, jubilant light | Joy, celebration, triumph of spirit |
+| **Clair de Lune** | Shattered time, blazing clocks | Dark red, vibrant gray, white | Temporal destruction, reality's unraveling |
+| **Dies Irae** | Hell's retribution flames | White, black, crimson | Divine judgment, heavenly banishment |
+| **Nachtmusik** | Starlit melodies, sweet songs | Golden, dark purple | Golden twinkling, nocturnal melody |
+| **Ode to Joy** | Eternal symphony garden | Monochromatic black, white, prismatic chromatic | Prismatic radiance, garden of eternal symphony |
 
 ### Embracing Each Score's Unique Elements
 
@@ -274,6 +274,18 @@ Enigma weapons are shrouded in dread and mystery. Swirling void, watching eyes, 
 
 **Fate** - *The Celestial Symphony*
 Fate weapons are CELESTIAL COSMIC ENDGAME. Ancient glyphs orbiting weapons, star particles streaming in trails, cosmic cloud energy, screen distortions and chromatic aberration. Dark prismatic: black bleeding to pink to crimson with celestial white highlights. The feeling: you are wielding the power of the cosmos itself.
+
+**Clair de Lune** - *Shattered Time*
+Clair de Lune weapons are temporal destruction made manifest. Dark reds mixed with vibrant grays and whites -- shattered clock faces, blazing clock fragments, crackling destruction energy tearing through the fabric of time. Every weapon should feel like the tempo of reality is being ripped apart. Broken gears scattering, clock hands fracturing, red energy crackling through shattered glass.
+
+**Dies Irae** - *Hell's Retribution*
+Dies Irae weapons are divine punishment incarnate. White, black, and crimson flames of hell's retribution climbing and soaring -- heavenly banishment made visible. The fury is not chaotic but purposeful: judgment rendered, sentence delivered. Infernal fire that burns with righteous wrath.
+
+**Nachtmusik** - *Golden Starlit Melodies*
+Nachtmusik weapons glow with the golden twinkling of starlit melodies lighting a dark purple world. Sweet songs made visible -- golden sparkles drifting through deep purple darkness, starlit melody wisps trailing behind every strike. The beauty of music heard on a quiet night.
+
+**Ode to Joy** - *The Eternal Symphony Garden*
+Ode to Joy weapons are monochromatic roses shimmering with prismatic radiant light. Black and white chromatic glass refracting into rainbow brilliance -- the garden of eternal symphony. Every effect is a glass rose catching light, every impact a prismatic cascade of chromatic refractions.
 
 ### Weapon Uniqueness Within Themes
 
@@ -406,10 +418,10 @@ public override void ModifyTooltips(List<TooltipLine> tooltips)
 | Enigma Variations | `new Color(140, 60, 200)` - Void Purple |
 | Swan Lake | `new Color(240, 240, 255)` - Pure White |
 | Fate | `new Color(180, 40, 80)` - Cosmic Crimson |
-| Clair de Lune | `new Color(150, 200, 255)` - Ice Blue |
-| Dies Irae | `new Color(200, 50, 30)` - Blood Red |
-| Nachtmusik | `new Color(100, 120, 200)` - Starlight Indigo |
-| Ode to Joy | `new Color(255, 200, 50)` - Warm Gold |
+| Clair de Lune | `new Color(150, 200, 255)` - Shattered Clock Gray-Red |
+| Dies Irae | `new Color(200, 50, 30)` - Crimson Hellfire |
+| Nachtmusik | `new Color(100, 120, 200)` - Golden Starlit Purple |
+| Ode to Joy | `new Color(255, 200, 50)` - Chromatic Glass Rose |
 
 ### Tooltip Examples by Item Type
 

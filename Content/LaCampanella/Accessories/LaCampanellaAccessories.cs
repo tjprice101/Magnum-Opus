@@ -1,16 +1,12 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.Audio;
-using Terraria.DataStructures;
-using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Content.Common.Accessories;
 using MagnumOpus.Content.LaCampanella.Debuffs;
 using MagnumOpus.Content.LaCampanella.Bosses;
 using MagnumOpus.Content.LaCampanella.ResonanceEnergies;
@@ -20,11 +16,10 @@ using MagnumOpus.Content.MoonlightSonata.CraftingStations;
 namespace MagnumOpus.Content.LaCampanella.Accessories
 {
     #region Chamber of Bellfire
-    
+
     /// <summary>
-    /// Chamber of Bellfire - Tier 1 La Campanella accessory.
-    /// Grants fire resistance, bellfire aura that damages nearby enemies,
-    /// and causes attacks to occasionally trigger bell explosions.
+    /// Chamber of Bellfire - La Campanella melee class accessory.
+    /// 'Resonance Sliced' Melodic Attunement with fire/lava immunity.
     /// </summary>
     public class ChamberOfBellfire : ModItem
     {
@@ -40,51 +35,33 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             Item.accessory = true;
             Item.value = Item.sellPrice(gold: 35);
             Item.rare = ModContent.RarityType<LaCampanellaRarity>();
-            Item.defense = 6;
         }
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            ChamberOfBellfirePlayer modPlayer = player.GetModPlayer<ChamberOfBellfirePlayer>();
-            modPlayer.chamberOfBellfireEquipped = true;
-            
-            // Fire resistance
+            var attunement = player.GetModPlayer<MelodicAttunementPlayer>();
+            attunement.resonantBurnDmgBonus += 0.35f;
+            attunement.critDmgBonusOnBurn += 0.025f;
+            attunement.meleeAttunement = true;
+
+            // Fire/lava immunity
             player.buffImmune[BuffID.OnFire] = true;
             player.buffImmune[BuffID.OnFire3] = true;
             player.lavaImmune = true;
-            
-            // Damage boost to burning enemies
-            player.GetDamage(DamageClass.Generic) += 0.12f;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Color flameOrange = new Color(255, 140, 40);
-            Color smokyBlack = new Color(50, 40, 45);
-            
-            tooltips.Add(new TooltipLine(Mod, "Stats", "+12% all damage, +6 defense")
-            {
-                OverrideColor = flameOrange
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Aura", "Bellfire aura damages nearby enemies (25 damage every 0.5s)")
-            {
-                OverrideColor = flameOrange
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Effect", "Every 10 hits triggers a bell explosion")
-            {
-                OverrideColor = smokyBlack
-            });
-            
-            tooltips.Add(new TooltipLine(Mod, "Immunities", "Immunity to fire debuffs and lava")
-            {
-                OverrideColor = flameOrange
-            });
-            
+            Color lore = new Color(255, 140, 40);
+
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "'Resonance Sliced' Melodic Attunement"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+35% increased Resonant Burn damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Hitting an enemy 10 times with melee damage while inflicted with Resonant Burn heals 10% HP"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Critical strike damage on Resonant Burn enemies increased by 2.5%"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Immunity to fire debuffs and lava"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The chamber resonates with infernal flames'")
             {
-                OverrideColor = new Color(200, 150, 100)
+                OverrideColor = lore
             });
         }
 
@@ -100,119 +77,13 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
         }
     }
 
-    public class ChamberOfBellfirePlayer : ModPlayer
-    {
-        public bool chamberOfBellfireEquipped = false;
-        private int bellExplosionTimer = 0;
-        private int auraDamageTimer = 0;
-        
-        public override void ResetEffects()
-        {
-            chamberOfBellfireEquipped = false;
-        }
-
-        public override void PostUpdate()
-        {
-            if (!chamberOfBellfireEquipped) return;
-            
-            // Bellfire aura damage
-            auraDamageTimer++;
-            if (auraDamageTimer >= 30) // Every 0.5 seconds
-            {
-                auraDamageTimer = 0;
-                DamageNearbyEnemies();
-            }
-        }
-
-        private void DamageNearbyEnemies()
-        {
-            float auraRadius = 120f;
-            foreach (NPC npc in Main.npc)
-            {
-                if (!npc.active || npc.friendly || !npc.CanBeChasedBy()) continue;
-                
-                if (Vector2.Distance(Player.Center, npc.Center) <= auraRadius)
-                {
-                    // Small fire damage
-                    npc.SimpleStrikeNPC(25, 0, false, 0f, null, false, 0f, true);
-                    npc.GetGlobalNPC<ResonantTollNPC>().AddStacks(npc, 1);
-                    
-                    // Fire effect
-                    for (int i = 0; i < 3; i++)
-                    {
-                        Dust flame = Dust.NewDustPerfect(npc.Center + Main.rand.NextVector2Circular(npc.width * 0.3f, npc.height * 0.3f),
-                            DustID.Torch, Main.rand.NextVector2Circular(2f, 2f), 100, new Color(255, 100, 0), 1.2f);
-                        flame.noGravity = true;
-                    }
-                }
-            }
-        }
-
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            if (!chamberOfBellfireEquipped) return;
-            
-            // === BLACK SMOKE SPARKLE - SIGNATURE HIT ON ACCESSORY! ===
-            Vector2 hitDir = (target.Center - Player.Center).SafeNormalize(Vector2.UnitX);
-            
-            // Chance for bell explosion
-            bellExplosionTimer++;
-            if (bellExplosionTimer >= 10) // Every 10 hits
-            {
-                bellExplosionTimer = 0;
-                TriggerBellExplosion(target.Center);
-            }
-        }
-
-        private void TriggerBellExplosion(Vector2 position)
-        {
-            // === GUTURAL BELL EXPLOSION SOUNDS ===
-            SoundEngine.PlaySound(SoundID.Item35 with { Pitch = Main.rand.NextFloat(0.2f, 0.5f), Volume = 0.55f }, position);
-            SoundEngine.PlaySound(SoundID.Item34 with { Pitch = Main.rand.NextFloat(0.1f, 0.4f), Volume = 0.35f }, position);
-            
-            // === MASSIVE BELL EXPLOSION EFFECTS WITH CUSTOM PARTICLES ===
-            
-            // === RADIAL FLARE BURST with GRADIENT ===
-            
-            // === PRISMATIC SPARKLES ===
-            
-            // Halo rings
-            
-            // Radial flares
-            
-            // Music notes
-            
-            // Screen shake
-            Player.GetModPlayer<ScreenShakePlayer>()?.AddShake(4f, 8);
-            
-            Lighting.AddLight(position, 1f, 0.5f, 0.15f);
-            
-            // AOE damage
-            float explosionRadius = 100f;
-            foreach (NPC npc in Main.npc)
-            {
-                if (!npc.active || npc.friendly || !npc.CanBeChasedBy()) continue;
-                
-                if (Vector2.Distance(position, npc.Center) <= explosionRadius)
-                {
-                    npc.SimpleStrikeNPC(75, 0, false, 0f, null, false, 0f, true);
-                    npc.GetGlobalNPC<ResonantTollNPC>().AddStacks(npc, 1);
-                    
-                    // Hit effect on each enemy with flares
-                    // Flares around enemy
-                }
-            }
-        }
-    }
-    
     #endregion
 
     #region Campanella's Pyre Medallion
-    
+
     /// <summary>
-    /// Campanella's Pyre Medallion - La Campanella accessory.
-    /// Enhances Resonant Toll debuff, grants crit chance against burning enemies,
-    /// and leaves a trail of flame when dashing.
+    /// Campanella's Pyre Medallion - La Campanella summoner class accessory.
+    /// 'Resonance Born' Melodic Attunement with 20% universal crit damage and fire/lava immunity.
     /// </summary>
     public class CampanellasPyreMedallion : ModItem
     {
@@ -232,45 +103,29 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            CampanellasPyreMedallionPlayer modPlayer = player.GetModPlayer<CampanellasPyreMedallionPlayer>();
-            modPlayer.pyreMedallionEquipped = true;
-            
-            // Crit chance boost
-            player.GetCritChance(DamageClass.Generic) += 15f;
-            
-            // Attack speed
-            player.GetAttackSpeed(DamageClass.Generic) += 0.08f;
+            var attunement = player.GetModPlayer<MelodicAttunementPlayer>();
+            attunement.resonantBurnDmgBonus += 0.35f;
+            attunement.critDmgAll += 0.20f;
+            attunement.summonAttunement = true;
+
+            // Fire/lava immunity
+            player.buffImmune[BuffID.OnFire] = true;
+            player.buffImmune[BuffID.OnFire3] = true;
+            player.lavaImmune = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Color campanellaOrange = new Color(255, 140, 40);
-            Color campanellaGold = new Color(255, 200, 80);
-            Color campanellaYellow = new Color(255, 220, 100);
+            Color lore = new Color(255, 140, 40);
 
-            tooltips.Add(new TooltipLine(Mod, "Tier", "Tier 2 La Campanella Accessory")
-            {
-                OverrideColor = campanellaOrange
-            });
-            tooltips.Add(new TooltipLine(Mod, "Stats", "+15% critical strike chance")
-            {
-                OverrideColor = campanellaGold
-            });
-            tooltips.Add(new TooltipLine(Mod, "Speed", "+8% attack speed")
-            {
-                OverrideColor = campanellaGold
-            });
-            tooltips.Add(new TooltipLine(Mod, "DamageBonus", "+20% damage against enemies with Resonant Toll stacks")
-            {
-                OverrideColor = campanellaYellow
-            });
-            tooltips.Add(new TooltipLine(Mod, "FlameTrail", "Leaves a trail of fire when dashing")
-            {
-                OverrideColor = campanellaOrange
-            });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "'Resonance Born' Melodic Attunement"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+35% increased Resonant Burn damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Hitting an enemy 30 times with summon or whip damage while inflicted with Resonant Burn heals 10% HP"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Increased critical damage against all enemies by 20%"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Immunity to fire debuffs and lava"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The pyre burns brightest for those who embrace the inferno'")
             {
-                OverrideColor = Color.Lerp(campanellaOrange, Color.Black, 0.3f)
+                OverrideColor = lore
             });
         }
 
@@ -287,62 +142,13 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
         }
     }
 
-    public class CampanellasPyreMedallionPlayer : ModPlayer
-    {
-        public bool pyreMedallionEquipped = false;
-        private Vector2 lastPosition;
-        
-        public override void ResetEffects()
-        {
-            pyreMedallionEquipped = false;
-        }
-
-        public override void PostUpdate()
-        {
-            if (!pyreMedallionEquipped)
-            {
-                lastPosition = Player.Center;
-                return;
-            }
-            
-            // Flame trail when moving fast (dashing)
-            float speed = Vector2.Distance(Player.Center, lastPosition);
-            if (speed > 10f)
-            {
-                for (int i = 0; i < 2; i++)
-                {
-                    Vector2 trailPos = Vector2.Lerp(lastPosition, Player.Center, i / 2f);
-                    
-                    Dust flame = Dust.NewDustPerfect(trailPos + Main.rand.NextVector2Circular(5f, 5f),
-                        DustID.Torch, Vector2.Zero, 100, new Color(255, 100, 0), 1.5f);
-                    flame.noGravity = true;
-                    flame.fadeIn = 0.3f;
-                }
-            }
-            
-            lastPosition = Player.Center;
-        }
-
-        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
-        {
-            if (!pyreMedallionEquipped) return;
-            
-            // Extra damage to enemies with Resonant Toll
-            if (target.GetGlobalNPC<ResonantTollNPC>().Stacks > 0)
-            {
-                modifiers.FinalDamage += 0.2f; // +20% damage to afflicted enemies
-            }
-        }
-    }
-    
     #endregion
 
     #region Symphony of the Blazing Sanctuary
-    
+
     /// <summary>
-    /// Symphony of the Blazing Sanctuary - Tier 3 La Campanella accessory.
-    /// Creates protective bell barrier on low health, grants regen near fire,
-    /// and killing enemies creates healing fire pillars.
+    /// Symphony of the Blazing Sanctuary - La Campanella magic class accessory.
+    /// 'Resonance Seared' Melodic Attunement with fire/lava immunity.
     /// </summary>
     public class SymphonyOfTheBlazingSanctuary : ModItem
     {
@@ -358,68 +164,33 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
             Item.accessory = true;
             Item.value = Item.sellPrice(gold: 50);
             Item.rare = ModContent.RarityType<LaCampanellaRainbowRarity>();
-            Item.defense = 10;
         }
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            BlazingSanctuaryPlayer modPlayer = player.GetModPlayer<BlazingSanctuaryPlayer>();
-            modPlayer.blazingSanctuaryEquipped = true;
-            
-            // Life regen near fire sources (lava, fire blocks, etc.)
-            player.lifeRegen += 4;
-            
-            // Max life boost
-            player.statLifeMax2 += 40;
-            
-            // Defense when below half health
-            if (player.statLife < player.statLifeMax2 / 2)
-            {
-                player.statDefense += 15;
-            }
+            var attunement = player.GetModPlayer<MelodicAttunementPlayer>();
+            attunement.resonantBurnDmgBonus += 0.35f;
+            attunement.critDmgBonusOnBurn += 0.025f;
+            attunement.magicAttunement = true;
+
+            // Fire/lava immunity
+            player.buffImmune[BuffID.OnFire] = true;
+            player.buffImmune[BuffID.OnFire3] = true;
+            player.lavaImmune = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Color campanellaOrange = new Color(255, 140, 40);
-            Color campanellaGold = new Color(255, 200, 80);
-            Color campanellaYellow = new Color(255, 220, 100);
+            Color lore = new Color(255, 140, 40);
 
-            tooltips.Add(new TooltipLine(Mod, "Tier", "Tier 3 La Campanella Accessory")
-            {
-                OverrideColor = campanellaOrange
-            });
-            tooltips.Add(new TooltipLine(Mod, "Defense", "+10 defense (+15 when below 50% health)")
-            {
-                OverrideColor = campanellaGold
-            });
-            tooltips.Add(new TooltipLine(Mod, "MaxLife", "+40 maximum life")
-            {
-                OverrideColor = campanellaGold
-            });
-            tooltips.Add(new TooltipLine(Mod, "Regen", "+4 life regeneration")
-            {
-                OverrideColor = campanellaGold
-            });
-            tooltips.Add(new TooltipLine(Mod, "BellBarrier", "Protective bell barrier when below 30% health (70% damage reduction)")
-            {
-                OverrideColor = campanellaYellow
-            });
-            tooltips.Add(new TooltipLine(Mod, "Cooldown", "Bell barrier has a 30 second cooldown")
-            {
-                OverrideColor = Color.Gray
-            });
-            tooltips.Add(new TooltipLine(Mod, "HealingPillar", "Killing enemies creates healing fire pillars (+15 HP when nearby)")
-            {
-                OverrideColor = campanellaYellow
-            });
-            tooltips.Add(new TooltipLine(Mod, "BellKnockback", "Bell barrier knocks back enemies and applies Resonant Toll")
-            {
-                OverrideColor = campanellaYellow
-            });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "'Resonance Seared' Melodic Attunement"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+35% increased Resonant Burn damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Hitting an enemy 15 times with magic damage while inflicted with Resonant Burn heals 10% HP"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Critical strike damage on Resonant Burn enemies increased by 2.5%"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Immunity to fire debuffs and lava"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Within the blazing sanctuary, even the flames sing prayers of protection'")
             {
-                OverrideColor = Color.Lerp(campanellaOrange, Color.Black, 0.3f)
+                OverrideColor = lore
             });
         }
 
@@ -436,151 +207,6 @@ namespace MagnumOpus.Content.LaCampanella.Accessories
         }
     }
 
-    public class BlazingSanctuaryPlayer : ModPlayer
-    {
-        public bool blazingSanctuaryEquipped = false;
-        private int barrierCooldown = 0;
-        private bool barrierTriggeredThisHit = false;
-        
-        public override void ResetEffects()
-        {
-            blazingSanctuaryEquipped = false;
-            barrierTriggeredThisHit = false;
-        }
-
-        public override void PostUpdate()
-        {
-            if (barrierCooldown > 0)
-                barrierCooldown--;
-        }
-
-        public override void ModifyHurt(ref Player.HurtModifiers modifiers)
-        {
-            if (!blazingSanctuaryEquipped) return;
-            
-            // Bell barrier on low health - 70% damage reduction
-            if (Player.statLife < Player.statLifeMax2 * 0.3f && barrierCooldown <= 0)
-            {
-                modifiers.FinalDamage *= 0.3f; // 70% damage reduction
-                barrierTriggeredThisHit = true;
-            }
-        }
-
-        public override void OnHurt(Player.HurtInfo info)
-        {
-            if (!blazingSanctuaryEquipped) return;
-            
-            // Trigger barrier visual/effects after damage is calculated
-            if (barrierTriggeredThisHit && barrierCooldown <= 0)
-            {
-                TriggerBellBarrier();
-                barrierCooldown = 1800; // 30 second cooldown
-            }
-        }
-
-        private void TriggerBellBarrier()
-        {
-            // === EPIC BELL BARRIER SOUND STACK ===
-            SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.4f, Volume = 0.85f }, Player.Center);
-            SoundEngine.PlaySound(SoundID.Item35 with { Pitch = Main.rand.NextFloat(-0.1f, 0.2f), Volume = 0.65f }, Player.Center);
-            SoundEngine.PlaySound(SoundID.Item34 with { Pitch = Main.rand.NextFloat(0.1f, 0.4f), Volume = 0.45f }, Player.Center);
-            SoundEngine.PlaySound(SoundID.DD2_BetsyFireballImpact with { Pitch = 0.2f, Volume = 0.35f }, Player.Center);
-            
-            // === MASSIVE BARRIER VISUAL EFFECTS WITH CUSTOM PARTICLES ===
-            
-            // === GRAND IMPACT WITH ALL EFFECTS ===
-            
-            // === CRESCENT WAVE BARRIER ===
-            
-            // Multiple massive halo rings
-            // Black shadow rings
-            
-            // Radial flare burst with GRADIENT
-            
-            // Ring of fire around player
-            for (int i = 0; i < 36; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 36f;
-                Vector2 pos = Player.Center + angle.ToRotationVector2() * 80f;
-                
-                
-                Dust flame = Dust.NewDustPerfect(pos, DustID.Torch,
-                    angle.ToRotationVector2().RotatedBy(MathHelper.PiOver2) * 3f, 100, new Color(255, 100, 0), 2f);
-                flame.noGravity = true;
-            }
-            
-            // Music notes explosion
-            
-            // Screen shake
-            Player.GetModPlayer<ScreenShakePlayer>()?.AddShake(10f, 18);
-            
-            Lighting.AddLight(Player.Center, 2f, 1f, 0.35f);
-            
-            // Knockback nearby enemies
-            foreach (NPC npc in Main.npc)
-            {
-                if (!npc.active || npc.friendly || !npc.CanBeChasedBy()) continue;
-                
-                if (Vector2.Distance(Player.Center, npc.Center) <= 150f)
-                {
-                    Vector2 knockback = (npc.Center - Player.Center).SafeNormalize(Vector2.UnitX) * 15f;
-                    npc.velocity += knockback;
-                    npc.GetGlobalNPC<ResonantTollNPC>().AddStacks(npc, 3);
-                    
-                    // Hit effects on each enemy with all effects
-                }
-            }
-        }
-
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            if (!blazingSanctuaryEquipped) return;
-            
-            // === BLACK SMOKE SPARKLE - SIGNATURE HIT ON ACCESSORY! ===
-            Vector2 hitDir = (target.Center - Player.Center).SafeNormalize(Vector2.UnitX);
-            
-            // Create healing fire pillar on kill
-            if (target.life <= 0 && !target.SpawnedFromStatue)
-            {
-                SpawnHealingPillar(target.Center);
-            }
-        }
-
-        private void SpawnHealingPillar(Vector2 position)
-        {
-            // === BELL CHIME SOUND ===
-            SoundEngine.PlaySound(SoundID.Item35 with { Pitch = Main.rand.NextFloat(0.3f, 0.6f), Volume = 0.45f }, position);
-            SoundEngine.PlaySound(SoundID.Item34 with { Pitch = Main.rand.NextFloat(0.2f, 0.5f), Volume = 0.3f }, position);
-            
-            // === FIRE PILLAR EFFECTS ===
-            
-            // Visual pillar with custom particles
-            for (int i = 0; i < 20; i++)
-            {
-                Vector2 pillarPos = position + new Vector2(0, -i * 10f);
-                
-                Dust flame = Dust.NewDustPerfect(pillarPos,
-                    DustID.Torch, new Vector2(Main.rand.NextFloat(-1f, 1f), -2f), 100, new Color(255, 150, 50), 2f);
-                flame.noGravity = true;
-            }
-            
-            // Halo rings at base
-            
-            // Sparks rising
-            
-            // Heal player if nearby
-            if (Vector2.Distance(Player.Center, position) <= 200f)
-            {
-                Player.Heal(15);
-                
-                // Healing effect
-                CombatText.NewText(Player.Hitbox, new Color(255, 150, 100), 15, false, true);
-            }
-            
-            Lighting.AddLight(position, 0.8f, 0.4f, 0.1f);
-        }
-    }
-    
     #endregion
 
     #region Infernal Bell of the Maestro

@@ -34,10 +34,10 @@ For new weapon/boss content: ask 15+ questions across multiple rounds before pro
 | **Moonlight Sonata** | The moon's quiet sorrow | Deep purples, vibrant blues, violet, ice blue | Melancholy, peace, mystical stillness | `new Color(140, 100, 200)` |
 | **Enigma Variations** | The unknowable mystery | Void black, deep purple, eerie green | Mystery, dread, arcane secrets | `new Color(140, 60, 200)` |
 | **Fate** | Celestial symphony of destiny | Black void, dark pink, bright crimson, celestial white | Cosmic inevitability, endgame awe | `new Color(180, 40, 80)` |
-| **Clair de Lune** | Moonlit reverie | Night mist blue, soft blue, pearl white | Dreamlike calm, gentle luminescence | `new Color(150, 200, 255)` |
-| **Dies Irae** | Day of wrath | Blood red, dark crimson, ember orange | Fury, judgment, apocalyptic power | `new Color(200, 50, 30)` |
-| **Nachtmusik** | A little night music | Deep indigo, starlight silver, cosmic blue | Nocturnal wonder, stellar beauty | `new Color(100, 120, 200)` |
-| **Ode to Joy** | Universal brotherhood | Warm gold, radiant amber, jubilant light | Joy, celebration, triumph of spirit | `new Color(255, 200, 50)` |
+| **Clair de Lune** | Shattered time, blazing clocks | Dark red, vibrant gray, white | Temporal destruction, reality's unraveling | `new Color(150, 200, 255)` |
+| **Dies Irae** | Hell's retribution flames | White, black, crimson | Divine judgment, heavenly banishment | `new Color(200, 50, 30)` |
+| **Nachtmusik** | Starlit melodies, sweet songs | Golden, dark purple | Golden twinkling, nocturnal melody | `new Color(100, 120, 200)` |
+| **Ode to Joy** | Eternal symphony garden | Monochromatic black, white, prismatic chromatic | Prismatic radiance, garden of eternal symphony | `new Color(255, 200, 50)` |
 
 **Moonlight Sonata lore must NEVER reference cosmos, stars, or space — only moonlight, tides, silver, stillness, sorrow.**
 
@@ -195,7 +195,7 @@ One well-parameterized shader serves dozens of effects. Change the noise texture
 - Tooltip style: vanilla Terraria — informative, clean. No ALL CAPS emphasis. Sentence case.
 - Lore text wrapped in single quotes, matching theme emotional core
 - Each weapon fully responsible for its own VFX (trail, particles, bloom, impacts)
-- Lore themes per theme: La Campanella=fire/bells/passion, Eroica=heroism/sacrifice/glory, Swan Lake=grace/feathers/elegance, Moonlight Sonata=moonlight/tides/silver/sorrow, Enigma=mystery/dread/arcane, Fate=destiny/cosmos/inevitability, Clair de Lune=moonlit reverie/luminescence, Dies Irae=fury/judgment/apocalypse, Nachtmusik=nocturnal wonder/stellar beauty, Ode to Joy=joy/celebration/triumph
+- Lore themes per theme: La Campanella=fire/bells/passion, Eroica=heroism/sacrifice/glory, Swan Lake=grace/feathers/elegance, Moonlight Sonata=moonlight/tides/silver/sorrow, Enigma=mystery/dread/arcane, Fate=destiny/cosmos/inevitability, Clair de Lune=shattered time/blazing clocks/destruction, Dies Irae=hellfire/retribution/divine judgment, Nachtmusik=golden twinkling/starlit melodies/sweet songs, Ode to Joy=chromatic glass roses/prismatic radiance/eternal symphony
 - Uniqueness mandate dimensions: attack pattern, trail/swing VFX, impact effect, special mechanic — all 4 must differ within same theme+class
 
 ### Projectile Content

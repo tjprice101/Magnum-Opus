@@ -107,6 +107,7 @@ namespace MagnumOpus.Content.Common.Consumables
 
     public class MinorResonanceBuff : ModBuff
     {
+        public override string Texture => "MagnumOpus/Assets/BuffIcons/MinorResonanceBuff";
         public override void SetStaticDefaults()
         {
             Main.buffNoTimeDisplay[Type] = false;
@@ -171,6 +172,7 @@ namespace MagnumOpus.Content.Common.Consumables
 
     public class HarmonicElixirBuff : ModBuff
     {
+        public override string Texture => "MagnumOpus/Assets/BuffIcons/HarmonicElixirBuff";
         public override void SetStaticDefaults()
         {
             Main.buffNoTimeDisplay[Type] = false;
@@ -240,6 +242,7 @@ namespace MagnumOpus.Content.Common.Consumables
 
     public class SeasonalDraughtBuff : ModBuff
     {
+        public override string Texture => "MagnumOpus/Assets/BuffIcons/SeasonalDraughtBuff";
         public override void SetStaticDefaults()
         {
             Main.buffNoTimeDisplay[Type] = false;
@@ -330,6 +333,7 @@ namespace MagnumOpus.Content.Common.Consumables
 
     public class MaestroBuff : ModBuff
     {
+        public override string Texture => "MagnumOpus/Assets/BuffIcons/MaestroBuff";
         public override void SetStaticDefaults()
         {
             Main.buffNoTimeDisplay[Type] = false;
@@ -705,6 +709,7 @@ namespace MagnumOpus.Content.Common.Consumables
 
     public class CosmicBrewBuff : ModBuff
     {
+        public override string Texture => "MagnumOpus/Assets/BuffIcons/CosmicBrewBuff";
         public override void SetStaticDefaults()
         {
             Main.buffNoTimeDisplay[Type] = false;

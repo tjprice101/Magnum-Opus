@@ -440,6 +440,90 @@ namespace MagnumOpus.Common.Systems.VFX
         };
 
         // =====================================================================
+        //  SEASONAL THEME CONFIGURATIONS (Spring, Summer, Autumn, Winter)
+        // =====================================================================
+
+        /// <summary>Spring: DeepRose → RosePink → BlossomPink → SpringGreen → PetalWhite.</summary>
+        public static readonly ThemeConfig Spring = new ThemeConfig
+        {
+            Palette = new Color[]
+            {
+                new Color(80, 30, 50),       // DeepRose (Pianissimo)
+                new Color(180, 80, 120),     // RosePink (Piano)
+                new Color(255, 150, 170),    // BlossomPink (Mezzo)
+                new Color(255, 183, 197),    // SpringPink (Forte)
+                new Color(200, 255, 200),    // SpringGreen (Fortissimo)
+                new Color(255, 245, 240),    // PetalWhite (Sforzando)
+            },
+            GradientLUTPath = "MagnumOpus/Assets/VFX Asset Library/ColorGradients/SpringGradientLUTandRAMP",
+            BodyTexPath = "MagnumOpus/Assets/VFX Asset Library/BeamTextures/SoundWaveBeam",
+            DetailTex1Path = "MagnumOpus/Assets/VFX Asset Library/BeamTextures/EnergyMotion",
+            DetailTex2Path = "MagnumOpus/Assets/VFX Asset Library/BeamTextures/EnergySurgeBeam",
+            LightColor = new Vector3(0.8f, 0.4f, 0.5f),
+            DustType = 72, // DustID.PinkTorch
+        };
+
+        /// <summary>Summer: DeepAmber → WarmOrange → SunOrange → SunGold → BrightGold → SunWhite.</summary>
+        public static readonly ThemeConfig Summer = new ThemeConfig
+        {
+            Palette = new Color[]
+            {
+                new Color(80, 40, 0),        // DeepAmber (Pianissimo)
+                new Color(200, 100, 0),      // WarmOrange (Piano)
+                new Color(255, 140, 0),      // SunOrange (Mezzo)
+                new Color(255, 215, 0),      // SunGold (Forte)
+                new Color(255, 240, 150),    // BrightGold (Fortissimo)
+                new Color(255, 250, 240),    // SunWhite (Sforzando)
+            },
+            GradientLUTPath = "MagnumOpus/Assets/VFX Asset Library/ColorGradients/LaCampanellaGradientLUTandRAMP",
+            BodyTexPath = "MagnumOpus/Assets/VFX Asset Library/BeamTextures/SoundWaveBeam",
+            DetailTex1Path = "MagnumOpus/Assets/VFX Asset Library/BeamTextures/EnergyMotion",
+            DetailTex2Path = "MagnumOpus/Assets/VFX Asset Library/BeamTextures/EnergySurgeBeam",
+            LightColor = new Vector3(0.8f, 0.6f, 0.1f),
+            DustType = 6, // DustID.Torch
+        };
+
+        /// <summary>Autumn: DarkBrown → DecayPurple → AutumnRed → AutumnOrange → AutumnGold → WarmWhite.</summary>
+        public static readonly ThemeConfig Autumn = new ThemeConfig
+        {
+            Palette = new Color[]
+            {
+                new Color(50, 25, 15),       // DarkBrown (Pianissimo)
+                new Color(100, 50, 120),     // DecayPurple (Piano)
+                new Color(178, 34, 34),      // AutumnRed (Mezzo)
+                new Color(255, 140, 50),     // AutumnOrange (Forte)
+                new Color(218, 165, 32),     // AutumnGold (Fortissimo)
+                new Color(255, 230, 200),    // WarmWhite (Sforzando)
+            },
+            GradientLUTPath = "MagnumOpus/Assets/VFX Asset Library/ColorGradients/EroicaGradientLUTandRAMP",
+            BodyTexPath = "MagnumOpus/Assets/VFX Asset Library/BeamTextures/SoundWaveBeam",
+            DetailTex1Path = "MagnumOpus/Assets/VFX Asset Library/BeamTextures/EnergyMotion",
+            DetailTex2Path = "MagnumOpus/Assets/VFX Asset Library/BeamTextures/EnergySurgeBeam",
+            LightColor = new Vector3(0.7f, 0.4f, 0.15f),
+            DustType = 6, // DustID.Torch
+        };
+
+        /// <summary>Winter: DeepFrost → DeepBlue → IceBlue → CrystalCyan → FrostWhite → PureWhite.</summary>
+        public static readonly ThemeConfig Winter = new ThemeConfig
+        {
+            Palette = new Color[]
+            {
+                new Color(20, 40, 60),       // DeepFrost (Pianissimo)
+                new Color(60, 100, 180),     // DeepBlue (Piano)
+                new Color(150, 220, 255),    // IceBlue (Mezzo)
+                new Color(100, 255, 255),    // CrystalCyan (Forte)
+                new Color(240, 250, 255),    // FrostWhite (Fortissimo)
+                new Color(255, 255, 255),    // PureWhite (Sforzando)
+            },
+            GradientLUTPath = "MagnumOpus/Assets/VFX Asset Library/ColorGradients/ClairDeLuneGradientLUTandRAMP",
+            BodyTexPath = "MagnumOpus/Assets/VFX Asset Library/BeamTextures/SoundWaveBeam",
+            DetailTex1Path = "MagnumOpus/Assets/VFX Asset Library/BeamTextures/EnergyMotion",
+            DetailTex2Path = "MagnumOpus/Assets/VFX Asset Library/BeamTextures/EnergySurgeBeam",
+            LightColor = new Vector3(0.4f, 0.6f, 0.8f),
+            DustType = 135, // DustID.BlueTorch
+        };
+
+        // =====================================================================
         //  SWAN LAKE RAINBOW SPARKLE HELPER
         // =====================================================================
 

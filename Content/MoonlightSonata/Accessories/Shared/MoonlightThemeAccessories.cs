@@ -35,8 +35,8 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
 
     /// <summary>
     /// Adagio Pendant - Moonlight Sonata Tier 1 Theme Accessory.
-    /// A crescent-shaped pendant infused with lunar essence.
-    /// +12% damage at night, +15% crit chance under moonlight, -10% mana cost.
+    /// 5% chance to refund 20% of mana used on magic attacks.
+    /// 10% chance to apply "Shattered Moon" reducing enemy defense by 20%.
     /// </summary>
     public class AdagioPendant : ModItem
     {
@@ -53,38 +53,22 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            bool isNight = !Main.dayTime;
-            bool hasDirectMoonlight = isNight && !Collision.SolidCollision(player.position, player.width, player.height);
-
-            // +12% damage at night
-            if (isNight)
-            {
-                player.GetDamage(DamageClass.Generic) += 0.12f;
-            }
-
-            // +15% crit chance under direct moonlight (night + outdoors)
-            if (hasDirectMoonlight)
-            {
-                player.GetCritChance(DamageClass.Generic) += 15;
-            }
-
-            // -10% mana cost always
-            player.manaCost -= 0.10f;
+            player.GetModPlayer<AdagioPendantPlayer>().hasAdagioPendant = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "NightDamage", "+12% damage at night")
-            {
-                OverrideColor = MoonlightColors.DarkPurple
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "MoonlightCrit", "+15% critical strike chance under moonlight")
+            tooltips.Add(new TooltipLine(Mod, "ManaRefund", "5% chance to refund 20% of mana used on magic attacks")
             {
                 OverrideColor = MoonlightColors.LightBlue
             });
 
-            tooltips.Add(new TooltipLine(Mod, "ManaCost", "-10% mana cost")
+            tooltips.Add(new TooltipLine(Mod, "ShatteredMoon", "Magic attacks have a 10% chance to apply 'Shattered Moon'")
+            {
+                OverrideColor = MoonlightColors.DarkPurple
+            });
+
+            tooltips.Add(new TooltipLine(Mod, "ShatteredMoonDesc", "Shattered Moon: reduces enemy defense by 20%")
             {
                 OverrideColor = MoonlightColors.Violet
             });
@@ -103,6 +87,51 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
                 .AddIngredient(ModContent.ItemType<MoonlightsResonantEnergy>(), 1)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
+        }
+    }
+
+    public class AdagioPendantPlayer : ModPlayer
+    {
+        public bool hasAdagioPendant;
+
+        public override void ResetEffects()
+        {
+            hasAdagioPendant = false;
+        }
+
+        public override void ModifyManaCost(Item item, ref float reduce, ref float mult)
+        {
+            // 5% chance to refund 20% of mana cost
+            if (hasAdagioPendant && item.DamageType == DamageClass.Magic && Main.rand.NextFloat() < 0.05f)
+            {
+                mult *= 0.8f; // 20% reduction
+            }
+        }
+
+        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (hasAdagioPendant && proj.owner == Player.whoAmI && proj.DamageType == DamageClass.Magic)
+            {
+                TryApplyShatteredMoon(target);
+            }
+        }
+
+        public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (hasAdagioPendant && item.DamageType == DamageClass.Magic)
+            {
+                TryApplyShatteredMoon(target);
+            }
+        }
+
+        private void TryApplyShatteredMoon(NPC target)
+        {
+            // 10% chance to apply Shattered Moon (defense reduction)
+            if (Main.rand.NextFloat() < 0.10f)
+            {
+                // Use Ichor as proxy for defense reduction
+                target.AddBuff(BuffID.Ichor, 300); // 5 seconds
+            }
         }
     }
 
@@ -134,45 +163,42 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             modPlayer.hasSonatasEmbrace = true;
 
             bool isNight = !Main.dayTime;
-            bool hasDirectMoonlight = isNight && !Collision.SolidCollision(player.position, player.width, player.height);
 
-            // Enhanced bonuses
-            // +18% damage at night (was 12%)
+            // +18% damage at night, +8% during day
             if (isNight)
             {
                 player.GetDamage(DamageClass.Generic) += 0.18f;
             }
             else
             {
-                player.GetDamage(DamageClass.Generic) += 0.08f; // Still useful during day
+                player.GetDamage(DamageClass.Generic) += 0.08f;
             }
 
-            // +20% crit chance under direct moonlight (was 15%)
-            if (hasDirectMoonlight)
+            // +20% crit chance at night
+            if (isNight)
             {
                 player.GetCritChance(DamageClass.Generic) += 20;
             }
 
-            // -15% mana cost always (was 10%)
+            // -15% mana cost always
             player.manaCost -= 0.15f;
-
-            // +10% damage reduction at night
-            if (isNight)
-            {
-                player.endurance += 0.10f;
-            }
 
             // Moonstruck debuff is applied via SonatasEmbracePlayer.OnHitNPC
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "ManaRefund", "10% chance to refund 20% of mana used on magic attacks")
+            {
+                OverrideColor = MoonlightColors.LightBlue
+            });
+
             tooltips.Add(new TooltipLine(Mod, "NightDamage", "+18% damage at night, +8% during day")
             {
                 OverrideColor = MoonlightColors.DarkPurple
             });
 
-            tooltips.Add(new TooltipLine(Mod, "MoonlightCrit", "+20% critical strike chance under moonlight")
+            tooltips.Add(new TooltipLine(Mod, "NightCrit", "+20% critical strike chance at night")
             {
                 OverrideColor = MoonlightColors.LightBlue
             });
@@ -182,12 +208,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
                 OverrideColor = MoonlightColors.Violet
             });
 
-            tooltips.Add(new TooltipLine(Mod, "NightDR", "+10% damage reduction at night")
-            {
-                OverrideColor = MoonlightColors.Silver
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Moonstruck", "Attacks inflict 'Moonstruck' - slowed movement, -15 defense")
+            tooltips.Add(new TooltipLine(Mod, "Moonstruck", "Magic attacks inflict 'Moonstruck' - slowed movement, -15 defense")
             {
                 OverrideColor = new Color(200, 180, 255)
             });
@@ -219,9 +240,18 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
             hasSonatasEmbrace = false;
         }
 
+        public override void ModifyManaCost(Item item, ref float reduce, ref float mult)
+        {
+            // 10% chance to refund 20% of mana cost
+            if (hasSonatasEmbrace && item.DamageType == DamageClass.Magic && Main.rand.NextFloat() < 0.10f)
+            {
+                mult *= 0.8f;
+            }
+        }
+
         public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (hasSonatasEmbrace)
+            if (hasSonatasEmbrace && item.DamageType == DamageClass.Magic)
             {
                 ApplyMoonstruck(target);
             }
@@ -229,7 +259,7 @@ namespace MagnumOpus.Content.MoonlightSonata.Accessories
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (hasSonatasEmbrace && proj.owner == Player.whoAmI)
+            if (hasSonatasEmbrace && proj.owner == Player.whoAmI && proj.DamageType == DamageClass.Magic)
             {
                 ApplyMoonstruck(target);
             }

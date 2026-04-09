@@ -10,6 +10,11 @@ using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Fate;
 using MagnumOpus.Content.Fate.ResonantWeapons;
 using MagnumOpus.Content.Fate.ResonantWeapons.CodaOfAnnihilation;
+using MagnumOpus.Content.Nachtmusik.Accessories;
+using MagnumOpus.Content.ClairDeLune.Accessories;
+using MagnumOpus.Content.DiesIrae.Accessories;
+using MagnumOpus.Content.SwanLake.Debuffs;
+using System.Linq;
 
 namespace MagnumOpus.Content.Common.Accessories
 {
@@ -65,7 +70,7 @@ namespace MagnumOpus.Content.Common.Accessories
             player.GetAttackSpeed(DamageClass.Generic) += 0.20f;
             player.statDefense += 35;
             player.lifeRegen += 15;
-            player.manaRegen += 10;
+            player.manaRegenBonus += 10;
             player.endurance += 0.18f;
             player.moveSpeed += 0.30f;
             
@@ -86,6 +91,7 @@ namespace MagnumOpus.Content.Common.Accessories
             player.GetDamage(DamageClass.Magic) += 0.30f;
             player.GetCritChance(DamageClass.Magic) += 15;
             player.manaCost -= 0.25f;
+            player.maxMinions += 2;
             
             // === ENIGMA (Chaos power) ===
             player.GetDamage(DamageClass.Generic) += 0.22f;
@@ -98,6 +104,7 @@ namespace MagnumOpus.Content.Common.Accessories
             // === RANGED (Constellation Compass) ===
             player.GetDamage(DamageClass.Ranged) += 0.30f;
             player.GetCritChance(DamageClass.Ranged) += 18;
+            player.ammoCost75 = true; // 25% chance to not consume ammo
             
             // === SUMMON (Orrery) ===
             player.maxMinions += 6;
@@ -183,17 +190,27 @@ namespace MagnumOpus.Content.Common.Accessories
                 OverrideColor = cosmicPurple
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Effects", "All theme effects: Temporal echoes, bell ring AOE, paradox stacking, feather dodge (18-22%), heroic surge on kill, cosmic bursts")
+            tooltips.Add(new TooltipLine(Mod, "ThemeProcs", "8% Tolling Death echo, 10% Paradox, Moonstruck on magic, Dying Swan's Grace airborne, Heroic Surge on kill")
             {
                 OverrideColor = cosmicPurple
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Lifesteal", "12% chance to lifesteal 10% of damage (max 30 HP), mana burst when low")
+            tooltips.Add(new TooltipLine(Mod, "ThemeProcs2", "5% Confutatis on crits, auto-execute <10% HP enemies, Eine Kleine every 10s at night, Ovation on kill (3x)")
+            {
+                OverrideColor = cosmicPurple
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Sustain", "3% lifesteal (cap 30 HP), minion hits heal 1 HP (cap 5/s), Prélude +5% dodge (+3 regen at night)")
             {
                 OverrideColor = ultimateGold
             });
             
-            tooltips.Add(new TooltipLine(Mod, "Immunities", "Immunity to all elemental debuffs, status effects, and grants magma stone, frost burn, and 200% thorns")
+            tooltips.Add(new TooltipLine(Mod, "Harmony", "Harmonic Convergence: 5 theme procs trigger Coda of Unity (+35% damage, +20% dodge, doubled procs, 10s)")
+            {
+                OverrideColor = ultimateGold
+            });
+            
+            tooltips.Add(new TooltipLine(Mod, "Immunities", "Immunity to all elemental debuffs, magma stone, frost burn, 200% thorns, +80% damage buff effectiveness")
             {
                 OverrideColor = ultimateGold
             });
@@ -208,22 +225,56 @@ namespace MagnumOpus.Content.Common.Accessories
     public class CodaOfAbsoluteHarmonyPlayer : ModPlayer
     {
         public bool codaEquipped;
+        
+        // Heroic Surge (Eroica kill trigger)
         private int heroicSurgeTimer;
-        private int invulnFramesOnKill = 120;
-        private int dodgeCooldown;
-        private int bellRingCooldown;
-        private int temporalEchoCooldown;
-        private int cosmicBurstCooldown;
+        
+        // Melee temporal echo (Eroica)
         private int meleeStrikeCount;
+        
+        // Paradox (Enigma)
         private Dictionary<int, int> paradoxStacks = new Dictionary<int, int>();
         private Dictionary<int, int> paradoxTimers = new Dictionary<int, int>();
         
-        // All debuffs from all sources
-        private static readonly int[] AllDebuffs = new int[]
+        // Eine Kleine (Nachtmusik)
+        private int eineKleineTimer;
+        
+        // Ovation (Ode to Joy)
+        private int ovationStacks;
+        private int ovationTimer;
+        
+        // Minion heal rate cap (Summoner: 1 HP per hit, cap 5/s)
+        private int minionHealCount;
+        private int minionHealResetTimer;
+        
+        // Harmonic Convergence → Coda Resonance
+        private int harmonicResonanceStacks;
+        private int resonanceDecayTimer;
+        private int codaOfUnityTimer;
+        
+        // Dissonance tracking: NPC index → set of theme tags
+        private Dictionary<int, HashSet<string>> enemyThemeDebuffs = new Dictionary<int, HashSet<string>>();
+        private Dictionary<int, int> dissonanceTimers = new Dictionary<int, int>();
+        
+        // Dying Swan's Grace cooldowns per NPC
+        private Dictionary<int, int> odilesBeautyCooldowns = new Dictionary<int, int>();
+        
+        // Cooldowns
+        private int dodgeCooldown;
+        private int cosmicBurstCooldown;
+        
+        // Swan Lake: +80% damage buff effectiveness
+        private const float BuffEffectiveness = 1.80f;
+        
+        // Coda Resonance constants
+        private const int CodaOfUnityBaseDuration = 600; // 10 seconds
+        private const int CodaOfUnityMaxDuration = 900; // 15 seconds
+        private const int DissonanceDuration = 480; // 8 seconds
+        
+        private static readonly int[] ParadoxDebuffs = new int[]
         {
             BuffID.Confused, BuffID.Slow, BuffID.CursedInferno,
-            BuffID.Ichor, BuffID.ShadowFlame, BuffID.Frostburn,
-            BuffID.OnFire, BuffID.Poisoned, BuffID.Venom
+            BuffID.Ichor, BuffID.ShadowFlame, BuffID.Frostburn
         };
 
         public override void ResetEffects()
@@ -233,134 +284,280 @@ namespace MagnumOpus.Content.Common.Accessories
 
         public override void PostUpdate()
         {
+            if (!codaEquipped)
+            {
+                heroicSurgeTimer = 0;
+                meleeStrikeCount = 0;
+                eineKleineTimer = 0;
+                ovationStacks = 0;
+                ovationTimer = 0;
+                minionHealCount = 0;
+                minionHealResetTimer = 0;
+                harmonicResonanceStacks = 0;
+                resonanceDecayTimer = 0;
+                codaOfUnityTimer = 0;
+                paradoxStacks.Clear();
+                paradoxTimers.Clear();
+                enemyThemeDebuffs.Clear();
+                dissonanceTimers.Clear();
+                odilesBeautyCooldowns.Clear();
+                return;
+            }
+            
+            bool isNight = !Main.dayTime;
+            float nightPotency = isNight ? 1.10f : 1.0f; // Nachtmusik: +10% buff potency at night
+            
+            // === HEROIC SURGE: +25% damage (amplified by Swan Lake +80% & Nachtmusik night potency) ===
             if (heroicSurgeTimer > 0)
             {
                 heroicSurgeTimer--;
-                Player.GetDamage(DamageClass.Generic) += 0.40f;
+                Player.GetDamage(DamageClass.Generic) += 0.25f * BuffEffectiveness * nightPotency;
             }
             
+            // === OVATION: +10% per stack, max 3 stacks (amplified) ===
+            if (ovationTimer > 0)
+            {
+                ovationTimer--;
+                Player.GetDamage(DamageClass.Generic) += 0.10f * ovationStacks * BuffEffectiveness * nightPotency;
+            }
+            else
+            {
+                ovationStacks = 0;
+            }
+            
+            // === CODA OF UNITY ===
+            if (codaOfUnityTimer > 0)
+            {
+                codaOfUnityTimer--;
+                Player.GetDamage(DamageClass.Generic) += 0.35f * BuffEffectiveness * nightPotency;
+                if (isNight) Player.GetDamage(DamageClass.Generic) += 0.10f * BuffEffectiveness;
+            }
+            
+            // === CLAIR DE LUNE: PRÉLUDE night life regen ===
+            if (isNight) Player.lifeRegen += 3;
+            
+            // === NACHTMUSIK: EINE KLEINE every 10s at night ===
+            if (isNight)
+            {
+                eineKleineTimer++;
+                if (eineKleineTimer >= 600) // 10 seconds
+                {
+                    eineKleineTimer = 0;
+                    Player.AddBuff(ModContent.BuffType<EineKleineBuff>(), 360); // 6 seconds
+                }
+            }
+            else
+            {
+                eineKleineTimer = 0;
+            }
+            
+            // === MINION HEAL COUNTER RESET (every 1 second) ===
+            minionHealResetTimer++;
+            if (minionHealResetTimer >= 60)
+            {
+                minionHealResetTimer = 0;
+                minionHealCount = 0;
+            }
+            
+            // === HARMONIC RESONANCE STACK DECAY ===
+            if (harmonicResonanceStacks > 0)
+            {
+                resonanceDecayTimer++;
+                int decayInterval = isNight ? 360 : 240; // 6s night, 4s day
+                if (resonanceDecayTimer >= decayInterval)
+                {
+                    harmonicResonanceStacks--;
+                    resonanceDecayTimer = 0;
+                }
+            }
+            
+            // === COOLDOWN TIMERS ===
             if (dodgeCooldown > 0) dodgeCooldown--;
-            if (bellRingCooldown > 0) bellRingCooldown--;
-            if (temporalEchoCooldown > 0) temporalEchoCooldown--;
             if (cosmicBurstCooldown > 0) cosmicBurstCooldown--;
             
-            List<int> toRemove = new List<int>();
-            foreach (var kvp in paradoxTimers)
+            // === PARADOX TIMER DECAY ===
+            foreach (int key in paradoxTimers.Keys.ToList())
             {
-                paradoxTimers[kvp.Key]--;
-                if (paradoxTimers[kvp.Key] <= 0)
-                    toRemove.Add(kvp.Key);
+                paradoxTimers[key]--;
+                if (paradoxTimers[key] <= 0)
+                {
+                    paradoxTimers.Remove(key);
+                    paradoxStacks.Remove(key);
+                }
             }
-            foreach (int key in toRemove)
+            
+            // === DISSONANCE TIMER DECAY ===
+            foreach (int key in dissonanceTimers.Keys.ToList())
             {
-                paradoxTimers.Remove(key);
-                paradoxStacks.Remove(key);
+                dissonanceTimers[key]--;
+                if (dissonanceTimers[key] <= 0)
+                    dissonanceTimers.Remove(key);
             }
+            
+            // === ODILE'S BEAUTY COOLDOWN DECAY ===
+            foreach (int key in odilesBeautyCooldowns.Keys.ToList())
+            {
+                odilesBeautyCooldowns[key]--;
+                if (odilesBeautyCooldowns[key] <= 0)
+                    odilesBeautyCooldowns.Remove(key);
+            }
+            
+            // === CLEAN STALE NPC ENTRIES ===
+            foreach (int key in enemyThemeDebuffs.Keys.ToList())
+            {
+                if (key < 0 || key >= Main.maxNPCs || !Main.npc[key].active)
+                    enemyThemeDebuffs.Remove(key);
+            }
+            
+            // === DIES IRAE: AUTO-EXECUTE non-boss enemies below 10% HP ===
+            if (Main.myPlayer == Player.whoAmI)
+            {
+                for (int i = 0; i < Main.maxNPCs; i++)
+                {
+                    NPC npc = Main.npc[i];
+                    if (npc.active && !npc.friendly && !npc.boss && !npc.immortal && !npc.dontTakeDamage
+                        && npc.life > 0 && npc.life < npc.lifeMax * 0.10f
+                        && Vector2.Distance(npc.Center, Player.Center) <= 600f)
+                    {
+                        npc.SimpleStrikeNPC(npc.life + npc.defense + 10, 0, false, 0, null, false, 0, true);
+                    }
+                }
+            }
+        }
+
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (!codaEquipped) return;
+            
+            // Dissonance: +20% damage on enemies with 3+ theme debuffs
+            if (dissonanceTimers.ContainsKey(target.whoAmI))
+                modifiers.FinalDamage *= 1.20f;
         }
 
         public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            HandleCodaHit(target, damageDone, true, DamageClass.Magic.CountsAsClass(item.DamageType));
+            if (!codaEquipped) return;
+            HandleCodaHit(target, damageDone, item.DamageType, hit.Crit, false);
         }
 
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (proj.owner == Player.whoAmI)
-            {
-                bool isMelee = DamageClass.Melee.CountsAsClass(proj.DamageType);
-                bool isMagic = DamageClass.Magic.CountsAsClass(proj.DamageType);
-                HandleCodaHit(target, damageDone, isMelee, isMagic);
-            }
+            if (!codaEquipped || proj.owner != Player.whoAmI) return;
+            HandleCodaHit(target, damageDone, proj.DamageType, hit.Crit, proj.minion);
         }
 
-        private void HandleCodaHit(NPC target, int damageDone, bool isMelee, bool isMagic)
+        private void HandleCodaHit(NPC target, int damageDone, DamageClass damageType, bool isCrit, bool isMinion)
         {
-            if (!codaEquipped) return;
+            bool isMelee = damageType.CountsAsClass(DamageClass.Melee);
+            bool isMagic = damageType.CountsAsClass(DamageClass.Magic);
+            bool codaActive = codaOfUnityTimer > 0;
             
-            bool isNight = !Main.dayTime;
-            
-            // === MOONLIGHT: Blue fire at night ===
-            if (isNight && isMagic)
+            // === MOONLIGHT SONATA: MOONSTRUCK on magic attacks (slowed, -15 defense via Ichor) ===
+            if (isMagic)
             {
-                int bonusDamage = (int)(damageDone * 0.25f);
-                target.SimpleStrikeNPC(bonusDamage, 0, false, 0, null, false, 0, true);
+                target.AddBuff(BuffID.Slow, 180); // 3s slow
+                target.AddBuff(BuffID.Ichor, 120); // 2s defense reduction
+                TrackThemeDebuff(target.whoAmI, "Moonstruck");
+                AddResonanceStack();
             }
             
             // === EROICA: Temporal Echo every 5th melee hit ===
             if (isMelee)
             {
                 meleeStrikeCount++;
-                if (meleeStrikeCount >= 5)
+                if (meleeStrikeCount >= 5 && Main.myPlayer == Player.whoAmI)
                 {
                     meleeStrikeCount = 0;
                     int echoDamage = (int)(damageDone * 1.0f);
                     target.SimpleStrikeNPC(echoDamage, 0, false, 0, null, false, 0, true);
-                    
                 }
             }
             
-            // === LA CAMPANELLA: Bell ring AOE (20%) ===
-            if (bellRingCooldown <= 0 && Main.rand.NextFloat() < 0.20f)
+            // === LA CAMPANELLA: 8% TOLLING DEATH (16% during Coda of Unity) ===
             {
-                bellRingCooldown = 15;
-                target.AddBuff(BuffID.Confused, 240);
-                
-                float aoeRadius = 220f;
-                for (int i = 0; i < Main.maxNPCs; i++)
+                float tollingChance = codaActive ? 0.16f : 0.08f;
+                if (Main.rand.NextFloat() < tollingChance && Main.myPlayer == Player.whoAmI)
                 {
-                    NPC npc = Main.npc[i];
-                    if (npc.active && !npc.friendly && npc.whoAmI != target.whoAmI && !npc.immortal)
+                    int echoDamage = (int)(damageDone * 0.75f);
+                    if (echoDamage > 0)
+                        target.SimpleStrikeNPC(echoDamage, 0, false, 0, null, false, 0, true);
+                    target.AddBuff(BuffID.WitheredWeapon, 180); // 3s Withered Weapon
+                    TrackThemeDebuff(target.whoAmI, "TollingDeath");
+                    AddResonanceStack();
+                    Terraria.Audio.SoundEngine.PlaySound(SoundID.Item35 with { Pitch = 0.5f, Volume = 0.6f }, target.Center);
+                }
+            }
+            
+            // === ENIGMA: 10% PARADOX (20% during Coda of Unity) ===
+            {
+                float paradoxChance = codaActive ? 0.20f : 0.10f;
+                if (Main.rand.NextFloat() < paradoxChance)
+                {
+                    int debuffId = ParadoxDebuffs[Main.rand.Next(ParadoxDebuffs.Length)];
+                    target.AddBuff(debuffId, 300);
+                    TrackThemeDebuff(target.whoAmI, "Paradox");
+                    AddResonanceStack();
+                    
+                    if (!paradoxStacks.ContainsKey(target.whoAmI))
+                        paradoxStacks[target.whoAmI] = 0;
+                    paradoxStacks[target.whoAmI]++;
+                    paradoxTimers[target.whoAmI] = 540;
+                    
+                    // ABSOLUTE HARMONY COLLAPSE at 5 stacks
+                    if (paradoxStacks[target.whoAmI] >= 5)
                     {
-                        if (Vector2.Distance(npc.Center, target.Center) <= aoeRadius)
-                        {
-                            int aoeDamage = (int)(damageDone * 0.75f);
-                            npc.SimpleStrikeNPC(aoeDamage, 0, false, 0, null, false, 0, true);
-                            npc.AddBuff(BuffID.OnFire, 360);
-                            npc.AddBuff(BuffID.Frostburn, 300);
-                        }
+                        TriggerAbsoluteHarmonyCollapse(target, damageDone, !Main.dayTime);
+                        paradoxStacks[target.whoAmI] = 0;
                     }
                 }
-                
             }
             
-            // === ENIGMA: Paradox stacking (25%) ===
-            if (Main.rand.NextFloat() < 0.25f)
+            // === SWAN LAKE: DYING SWAN'S GRACE (airborne → Odile's Beauty) ===
+            if (Player.velocity.Y != 0 || Player.wingTime > 0)
             {
-                int debuffId = AllDebuffs[Main.rand.Next(AllDebuffs.Length)];
-                target.AddBuff(debuffId, 480);
-                target.AddBuff(BuffID.OnFire, 420);
-                target.AddBuff(BuffID.Frostburn, 360);
-                
-                if (!paradoxStacks.ContainsKey(target.whoAmI))
-                    paradoxStacks[target.whoAmI] = 0;
-                
-                paradoxStacks[target.whoAmI]++;
-                paradoxTimers[target.whoAmI] = 540;
-                
-                // ABSOLUTE HARMONY COLLAPSE at 5 stacks
-                if (paradoxStacks[target.whoAmI] >= 5)
+                if (!odilesBeautyCooldowns.ContainsKey(target.whoAmI))
                 {
-                    TriggerAbsoluteHarmonyCollapse(target, damageDone, isNight);
-                    paradoxStacks[target.whoAmI] = 0;
+                    target.AddBuff(ModContent.BuffType<OdilesBeauty>(), 300); // 5 seconds
+                    target.GetGlobalNPC<OdilesBeautyNPC>().SetDamage(damageDone);
+                    odilesBeautyCooldowns[target.whoAmI] = 300;
+                    TrackThemeDebuff(target.whoAmI, "OdilesBeauty");
+                    AddResonanceStack();
                 }
             }
             
-            // === SWAN LAKE: Rainbow sparkle ===
-            if (Main.rand.NextBool(4))
+            // === DIES IRAE: 5% CONFUTATIS on crits (10% during Coda of Unity) ===
+            if (isCrit)
             {
-                float hue = Main.rand.NextFloat();
+                float confutatisChance = codaActive ? 0.10f : 0.05f;
+                if (Main.rand.NextFloat() < confutatisChance)
+                {
+                    target.GetGlobalNPC<DiesIraeAccessoryGlobalNPC>().confutatisTimer = 180; // 3 seconds
+                }
             }
             
-            // === SEASONS: All elemental effects ===
+            // === SEASONS: Elemental debuffs ===
             target.AddBuff(BuffID.OnFire, 300);
             target.AddBuff(BuffID.Frostburn, 240);
             target.AddBuff(BuffID.Poisoned, 300);
             
-            // === LIFESTEAL (12%) ===
-            if (Main.rand.NextFloat() < 0.12f)
+            // === ODE TO JOY: 3% lifesteal (cap 30 HP) ===
             {
-                int healAmount = Math.Max(1, Math.Min((int)(damageDone * 0.10f), 30));
+                int healAmount = Math.Max(1, Math.Min((int)(damageDone * 0.03f), 30));
                 Player.Heal(healAmount);
+            }
+            
+            // === SUMMONER: Minion heal 1 HP (cap 5/s) ===
+            if (isMinion && minionHealCount < 5)
+            {
+                Player.Heal(1);
+                minionHealCount++;
+            }
+            
+            // === CODA OF UNITY: All attacks heal 1% max HP ===
+            if (codaActive)
+            {
+                int codaHeal = Math.Max(1, Player.statLifeMax2 / 100);
+                Player.Heal(codaHeal);
             }
             
             // === COSMIC MANA BURST ===
@@ -368,17 +565,63 @@ namespace MagnumOpus.Content.Common.Accessories
             {
                 cosmicBurstCooldown = 240;
                 Player.statMana = Math.Min(Player.statMana + 150, Player.statManaMax2);
-                
             }
             
-            // Check kill for heroic surge
+            // === CHECK DISSONANCE ===
+            CheckDissonance(target.whoAmI);
+            
+            // === CHECK KILL → HEROIC SURGE + OVATION + CODA EXTENSION ===
             if (target.life <= 0 && !target.immortal)
             {
-                Player.immune = true;
-                Player.immuneTime = Math.Max(Player.immuneTime, invulnFramesOnKill);
-                heroicSurgeTimer = 480;
+                // Eroica: Heroic Surge
+                heroicSurgeTimer = 300; // 5 seconds
+                AddResonanceStack();
                 
-                // Kill explosion
+                // Ode to Joy: Ovation
+                ovationStacks = Math.Min(ovationStacks + 1, 3);
+                ovationTimer = 300; // 5 seconds
+                
+                // Coda of Unity extension: +1s per kill, max 15s
+                if (codaActive)
+                {
+                    codaOfUnityTimer = Math.Min(codaOfUnityTimer + 60, CodaOfUnityMaxDuration);
+                }
+                
+                // Kill invulnerability
+                Player.immune = true;
+                Player.immuneTime = Math.Max(Player.immuneTime, 120);
+            }
+        }
+
+        private void AddResonanceStack()
+        {
+            resonanceDecayTimer = 0;
+            harmonicResonanceStacks++;
+            if (harmonicResonanceStacks >= 5)
+            {
+                // Trigger Coda of Unity (upgraded Full Harmony)
+                codaOfUnityTimer = CodaOfUnityBaseDuration;
+                harmonicResonanceStacks = 0;
+                Terraria.Audio.SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f, Volume = 0.8f }, Player.Center);
+            }
+        }
+
+        private void TrackThemeDebuff(int npcIndex, string themeTag)
+        {
+            if (!enemyThemeDebuffs.ContainsKey(npcIndex))
+                enemyThemeDebuffs[npcIndex] = new HashSet<string>();
+            enemyThemeDebuffs[npcIndex].Add(themeTag);
+        }
+
+        private void CheckDissonance(int npcIndex)
+        {
+            if (!enemyThemeDebuffs.ContainsKey(npcIndex)) return;
+            if (enemyThemeDebuffs[npcIndex].Count >= 3)
+            {
+                bool isNew = !dissonanceTimers.ContainsKey(npcIndex);
+                dissonanceTimers[npcIndex] = DissonanceDuration;
+                if (isNew && npcIndex >= 0 && npcIndex < Main.maxNPCs && Main.npc[npcIndex].active)
+                    Terraria.Audio.SoundEngine.PlaySound(SoundID.Item122 with { Pitch = -0.3f, Volume = 0.7f }, Main.npc[npcIndex].Center);
             }
         }
 
@@ -436,8 +679,8 @@ namespace MagnumOpus.Content.Common.Accessories
                         {
                             npc.SimpleStrikeNPC(harmonyDamage / 2, 0, false, 0, null, false, 0, true);
                             
-                            // Apply ALL debuffs
-                            foreach (int debuff in AllDebuffs)
+                            // Apply debuffs
+                            foreach (int debuff in ParadoxDebuffs)
                                 npc.AddBuff(debuff, 600);
                         }
                     }
@@ -451,43 +694,49 @@ namespace MagnumOpus.Content.Common.Accessories
             if (!codaEquipped) return false;
             if (dodgeCooldown > 0) return false;
             
-            bool isNight = !Main.dayTime;
-            float dodgeChance = isNight ? 0.22f : 0.18f;
+            // Clair de Lune Prélude: 5% base dodge + Coda of Unity: +20% dodge
+            float dodgeChance = 0.05f;
+            if (codaOfUnityTimer > 0) dodgeChance += 0.20f;
             
             if (Main.rand.NextFloat() < dodgeChance)
             {
                 dodgeCooldown = 45;
-                
-                // ULTIMATE DODGE VFX
-                
-                // Dodge damage
-                if (Main.myPlayer == Player.whoAmI)
-                {
-                    int dodgeDamage = 400 + (int)(Player.GetTotalDamage(DamageClass.Generic).ApplyTo(100) * 0.6f);
-                    float damageRadius = 350f;
-                    
-                    for (int i = 0; i < Main.maxNPCs; i++)
-                    {
-                        NPC npc = Main.npc[i];
-                        if (npc.active && !npc.friendly && !npc.immortal && !npc.dontTakeDamage)
-                        {
-                            if (Vector2.Distance(npc.Center, Player.Center) <= damageRadius)
-                            {
-                                npc.SimpleStrikeNPC(dodgeDamage, 0, false, 0, null, false, 0, true);
-                                npc.AddBuff(BuffID.OnFire, 360);
-                                npc.AddBuff(BuffID.Frostburn, 300);
-                            }
-                        }
-                    }
-                }
-                
                 Player.immune = true;
-                Player.immuneTime = 50;
-                
+                Player.immuneTime = 40;
                 return true;
             }
             
             return false;
+        }
+
+        public override void OnHurt(Player.HurtInfo info)
+        {
+            if (!codaEquipped) return;
+            
+            // Clair de Lune: 8% chance to apply Voiles to the nearest hostile NPC (15% miss chance for 2s)
+            if (Main.rand.NextFloat() < 0.08f)
+            {
+                float closestDist = 200f;
+                NPC closestNPC = null;
+                for (int i = 0; i < Main.maxNPCs; i++)
+                {
+                    NPC npc = Main.npc[i];
+                    if (npc.active && !npc.friendly && !npc.immortal)
+                    {
+                        float dist = Vector2.Distance(npc.Center, Player.Center);
+                        if (dist < closestDist)
+                        {
+                            closestDist = dist;
+                            closestNPC = npc;
+                        }
+                    }
+                }
+                
+                if (closestNPC != null)
+                {
+                    closestNPC.GetGlobalNPC<ClairDeLuneAccessoryGlobalNPC>().ApplyVoiles(120); // 2 seconds
+                }
+            }
         }
     }
 }

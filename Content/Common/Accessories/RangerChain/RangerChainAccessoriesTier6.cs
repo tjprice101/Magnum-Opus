@@ -39,7 +39,11 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+20% ranged damage at night")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+20% ranged damage at night, +10% during day")
+            {
+                OverrideColor = NachtmusikGold
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+8% ranged crit at night, night vision")
             {
                 OverrideColor = NachtmusikGold
             });
@@ -53,6 +57,7 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         public override void AddRecipes()
         {
             CreateRecipe()
+                .AddIngredient<FatesCosmicVerdict>(1)
                 .AddIngredient<NachtmusikResonantEnergy>(15)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
@@ -89,7 +94,15 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+25% ranged damage during boss fights")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+25% ranged damage during bosses, +12% otherwise")
+            {
+                OverrideColor = DiesIraeCrimson
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Boss crits grant Executioner's Focus 2s (+15% ranged damage)")
+            {
+                OverrideColor = DiesIraeCrimson
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "20% ammo save during boss fights")
             {
                 OverrideColor = DiesIraeCrimson
             });
@@ -103,6 +116,7 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         public override void AddRecipes()
         {
             CreateRecipe()
+                .AddIngredient<NocturnalPredatorsSight>(1)
                 .AddIngredient<DiesIraeResonantEnergy>(15)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
@@ -139,7 +153,11 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Killing enemies with ranged attacks restores 2 HP")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+15% ranged damage, kills restore 4 HP")
+            {
+                OverrideColor = OdeToJoyRose
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Crit kills grant Hunter's Jubilation 3s (+8% crit, +5% damage)")
             {
                 OverrideColor = OdeToJoyRose
             });
@@ -153,6 +171,7 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         public override void AddRecipes()
         {
             CreateRecipe()
+                .AddIngredient<InfernalExecutionersSight>(1)
                 .AddIngredient<OdeToJoyResonantEnergy>(15)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
@@ -207,6 +226,7 @@ namespace MagnumOpus.Content.Common.Accessories.RangerChain
         public override void AddRecipes()
         {
             CreateRecipe()
+                .AddIngredient<JubilantHuntersSight>(1)
                 .AddIngredient<ClairDeLuneResonantEnergy>(15)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();

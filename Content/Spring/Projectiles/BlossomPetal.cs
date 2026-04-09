@@ -7,6 +7,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using Terraria.GameContent;
 
 // Dynamic particle effects for aesthetically pleasing animations
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
@@ -27,8 +28,6 @@ namespace MagnumOpus.Content.Spring.Projectiles
         // Hue range for color oscillation (pink range)
         private const float HueMin = 0.92f;
         private const float HueMax = 0.98f;
-
-        public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
 
         public override void SetStaticDefaults()
         {
@@ -171,9 +170,45 @@ namespace MagnumOpus.Content.Spring.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Use procedural VFX system for Spring theme with cherry blossom effects
+            Texture2D spriteTex = TextureAssets.Projectile[Projectile.type].Value;
+            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+            Vector2 spriteOrigin = spriteTex.Size() / 2f;
+            Vector2 glowOrigin = glowTex.Size() / 2f;
+            Vector2 drawPos = Projectile.Center - Main.screenPosition;
+
             float alpha = 1f - Projectile.alpha / 255f;
-            ProceduralProjectileVFX.DrawSpringProjectile(Main.spriteBatch, Projectile, alpha);
+            // Squishy pulsing - gentle breathing for a floating petal
+            float pulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.18f) * 0.12f;
+            float speed = Projectile.velocity.Length();
+            float stretch = MathHelper.Clamp(speed * 0.008f, 0f, 0.1f);
+            Vector2 squishScale = new Vector2(1f + stretch * 0.3f, 1f - stretch * 0.3f) * pulse;
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Trail afterimages
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            {
+                if (Projectile.oldPos[i] == Vector2.Zero) continue;
+                float progress = (float)i / Projectile.oldPos.Length;
+                float trailAlpha = (1f - progress) * 0.35f * alpha;
+                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                sb.Draw(spriteTex, trailPos, null, (SpringPink * trailAlpha) with { A = 0 }, Projectile.oldRot[i], spriteOrigin, (1f - progress * 0.4f) * 0.65f, SpriteEffects.None, 0f);
+            }
+
+            // Outer bloom - soft cloud around petal
+            sb.Draw(glowTex, drawPos, null, (SpringPink * 0.3f * alpha) with { A = 0 }, 0f, glowOrigin, 0.45f * pulse, SpriteEffects.None, 0f);
+
+            // Core sprite - the cherry blossom petal with gentle squish
+            float hue = HueMin + ((Main.GameUpdateCount * 0.015f) % 1f) * (HueMax - HueMin);
+            Color oscillatingColor = Main.hslToRgb(hue, 0.85f, 0.8f);
+            sb.Draw(spriteTex, drawPos, null, (oscillatingColor * 0.85f * alpha) with { A = 0 }, Projectile.rotation, spriteOrigin, squishScale * 0.85f, SpriteEffects.None, 0f);
+
+            // Hot core
+            sb.Draw(spriteTex, drawPos, null, (SpringWhite * 0.4f * alpha) with { A = 0 }, Projectile.rotation, spriteOrigin, squishScale * 0.5f, SpriteEffects.None, 0f);
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
             }
             catch { }
             finally

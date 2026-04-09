@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
+using Terraria.Graphics;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
@@ -19,13 +20,14 @@ namespace MagnumOpus.Content.Summer.Projectiles
     /// </summary>
     public class SolarWave : ModProjectile
     {
+        private VertexStrip _strip;
         private static readonly Color SunGold = new Color(255, 215, 0);
         private static readonly Color SunOrange = new Color(255, 140, 0);
         private static readonly Color SunWhite = new Color(255, 250, 240);
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 10;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -135,20 +137,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            try
-            {
-            // Use procedural VFX system - Summer solar wave effect
-            ProceduralProjectileVFX.DrawSummerProjectile(Main.spriteBatch, Projectile, 0.5f);
-            }
-            catch { }
-            finally
-            {
-                try { sb.End(); } catch { }
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-            }
-
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.Summer, ref _strip);
             return false;
         }
     }
@@ -158,6 +147,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
     /// </summary>
     public class ZenithFlare : ModProjectile
     {
+        private VertexStrip _strip;
         private static readonly Color SunGold = new Color(255, 215, 0);
         private static readonly Color SunOrange = new Color(255, 140, 0);
         private static readonly Color SunWhite = new Color(255, 250, 240);
@@ -167,7 +157,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 15;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -307,59 +297,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            try
-            {
-            Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
-            Vector2 origin = texture.Size() / 2f;
-
-            SpriteBatch spriteBatch = Main.spriteBatch;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Intense trail
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                if (Projectile.oldPos[i] == Vector2.Zero) continue;
-                float progress = (float)i / Projectile.oldPos.Length;
-                float trailAlpha = 1f - progress;
-                float trailScale = MathHelper.Min(1f - progress * 0.4f, 0.139f); // SoftCircle is 2160px — cap to 300px max
-                Color trailColor = Color.Lerp(SunGold, SunRed, progress) * trailAlpha * 0.55f;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                spriteBatch.Draw(texture, trailPos, null, trailColor, Projectile.oldRot[i], origin, trailScale, SpriteEffects.None, 0f);
-            }
-
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.12f + 1f;
-
-            // Multi-layer bloom (SoftCircle 2160px — capped to 300px max)
-            spriteBatch.Draw(texture, drawPos, null, SunRed * 0.3f, Projectile.rotation, origin, MathHelper.Min(0.7f * pulse, 0.139f), SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, SunOrange * 0.4f, Projectile.rotation, origin, MathHelper.Min(0.55f * pulse, 0.139f), SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, SunGold * 0.5f, Projectile.rotation, origin, MathHelper.Min(0.4f * pulse, 0.139f), SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, SunWhite * 0.6f, Projectile.rotation, origin, MathHelper.Min(0.25f * pulse, 0.139f), SpriteEffects.None, 0f);
-
-            // Orbiting points
-            for (int i = 0; i < 4; i++)
-            {
-                float sparkAngle = orbitAngle + MathHelper.PiOver2 * i;
-                Vector2 sparkOffset = sparkAngle.ToRotationVector2() * 16f;
-                Color sparkColor = i % 2 == 0 ? SunGold : SunOrange;
-                spriteBatch.Draw(texture, drawPos + sparkOffset, null, sparkColor * 0.5f, 0f, origin, MathHelper.Min(0.15f * pulse, 0.139f), SpriteEffects.None, 0f);
-            }
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            }
-            catch { }
-            finally
-            {
-                try { sb.End(); } catch { }
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-            }
-
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.Summer, ref _strip);
             return false;
         }
     }

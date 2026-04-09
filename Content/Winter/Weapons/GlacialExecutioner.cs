@@ -3,13 +3,14 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.Audio;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
-using MagnumOpus.Common.BaseClasses;
-using MagnumOpus.Content.Winter.Materials;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Content.Winter.Materials;
 using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Winter.Weapons
@@ -19,7 +20,7 @@ namespace MagnumOpus.Content.Winter.Weapons
     /// A massive frost claymore that shatters permafrost, using held-projectile combo architecture.
     /// Unique Mechanic: Frozen enemies take 30% bonus damage (Permafrost).
     /// </summary>
-    public class GlacialExecutioner : MeleeSwingItemBase
+    public class GlacialExecutioner : ModItem
     {
         #region ── Theme Colors ──
 
@@ -30,18 +31,7 @@ namespace MagnumOpus.Content.Winter.Weapons
 
         #endregion
 
-        #region ── Abstract Overrides (MeleeSwingItemBase) ──
-
-        protected override int SwingProjectileType => ModContent.ProjectileType<GlacialExecutionerSwing>();
-        protected override int ComboStepCount => 4;
-
-        #endregion
-
-        #region ── Virtual Overrides ──
-
-        protected override Color GetLoreColor() => Color.Lerp(IceBlue, FrostWhite, 0.5f);
-
-        protected override void SetWeaponDefaults()
+        public override void SetDefaults()
         {
             Item.width = 72;
             Item.height = 72;
@@ -49,22 +39,47 @@ namespace MagnumOpus.Content.Winter.Weapons
             Item.DamageType = DamageClass.MeleeNoSpeed;
             Item.useTime = 32;
             Item.useAnimation = 32;
+            Item.useStyle = ItemUseStyleID.Shoot;
             Item.knockBack = 8f;
             Item.value = Item.buyPrice(gold: 45);
             Item.rare = ItemRarityID.Yellow;
-            Item.UseSound = SoundID.Item1;
+            Item.UseSound = null;
+            Item.autoReuse = true;
+            Item.channel = true;
+            Item.noMelee = true;
+            Item.noUseGraphic = true;
+            Item.shoot = ModContent.ProjectileType<GlacialExecutionerSwing>();
+            Item.shootSpeed = 1f;
         }
 
-        protected override void AddWeaponTooltips(List<TooltipLine> tooltips)
+        public override bool CanShoot(Player player)
+        {
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile p = Main.projectile[i];
+                if (p.active && p.owner == player.whoAmI && p.type == Item.shoot)
+                    return false;
+            }
+            return true;
+        }
+
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
+            Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        {
+            Projectile.NewProjectile(source, player.MountedCenter,
+                (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
+                type, damage, knockback, player.whoAmI, 0f, 0);
+            return false;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "FrozenCleave", "Devastating swings that leave trails of frost") { OverrideColor = IceBlue });
             tooltips.Add(new TooltipLine(Mod, "AbsoluteZero", "25% chance to freeze enemies solid on hit") { OverrideColor = CrystalCyan });
             tooltips.Add(new TooltipLine(Mod, "AvalancheStrike", "Every 6th swing unleashes a cascading ice wave") { OverrideColor = FrostWhite });
             tooltips.Add(new TooltipLine(Mod, "Permafrost", "Frozen enemies take 30% bonus damage") { OverrideColor = DeepBlue });
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'The cold embrace of eternal winter'") { OverrideColor = GetLoreColor() });
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'The cold embrace of eternal winter'") { OverrideColor = Color.Lerp(IceBlue, FrostWhite, 0.5f) });
         }
-
-        #endregion
 
         #region ── Permafrost (damage bonus vs Frozen) ──
 
@@ -82,7 +97,6 @@ namespace MagnumOpus.Content.Winter.Weapons
 
         public override void HoldItem(Player player)
         {
-            base.HoldItem(player);
 
             if (Main.gameMenu) return;
 

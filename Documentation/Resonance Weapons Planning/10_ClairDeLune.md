@@ -1,16 +1,16 @@
 ﻿# 10. Clair de Lune — Resonant Weapons Technical Documentation
 
-> *"Moonlit reverie. Clockwork precision. Time itself bends to the melody."*
+> *"Shattered time. Blazing clocks. Reality fractures to the tempo of destruction."*
 
 ## Theme Identity
 
 ### Musical Soul
-Clair de Lune is Debussy's gentle moonlit dreamscape — but here it's fused with clockwork precision and temporal mechanics. Every weapon operates through the metaphor of time: gears turning, clocks ticking, pendulums swinging, orreries spinning. The visual language is mechanical moonlight — soft blue radiance filtered through brass gears and crystal clockwork. Where Nachtmusik gazes outward at the cosmos, Clair de Lune gazes inward at the mechanisms of time itself.
+Clair de Lune is temporal destruction made manifest — dark reds mixed with vibrant greys and whites establishing shattered time and blazing clocks against the tempo of reality. Every weapon operates through the metaphor of time being ripped apart: gears shattering, clocks fracturing, pendulums snapping, orreries exploding. The visual language is crackling destruction energy through broken timepieces — dark red energy tearing through gray metal and white glass. Where Nachtmusik gazes outward at the golden night, Clair de Lune shatters the mechanisms of time itself.
 
-### Color Palette (Clockwork Moonlight Scale)
+### Color Palette (Shattered Clockwork Scale)
 ```
-Temporal Void (15,20,45) → Night Mist Blue (40,60,110) → Soft Moonblue (100,140,200)
-→ Pearl Frost (180,200,230) → Clockwork Gold (200,170,80) → Pearl White (235,240,250)
+Temporal Void (15,20,45) → Dark Red (140,30,30) → Vibrant Gray (150,155,165)
+→ Crackling Red (180,40,40) → White Fragment (220,225,230) → Pure White (245,248,255)
 ```
 
 ### Lore Color

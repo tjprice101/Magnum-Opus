@@ -1,13 +1,12 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common;
-using MagnumOpus.Common.Systems;
 using MagnumOpus.Content.Nachtmusik.ResonanceEnergies;
 using MagnumOpus.Content.Nachtmusik.HarmonicCores;
 using MagnumOpus.Content.Fate.CraftingStations;
-using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Nachtmusik;
 using MagnumOpus.Content.Materials.EnemyDrops;
 
@@ -15,17 +14,10 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
 {
     /// <summary>
     /// Radiance of the Night Queen - Universal accessory for Nachtmusik theme.
-    /// A crystalline emblem containing the Queen's blessing, empowering all forms of combat.
-    /// Periodically releases a nova of starlight that empowers the player and damages enemies.
+    /// Every 10s (7s at night) grants Eine Kleine buff (+12% all damage, +5% crit for 6s).
     /// </summary>
     public class RadianceOfTheNightQueen : ModItem
     {
-        // Nachtmusik colors
-        private static readonly Color DeepPurple = new Color(45, 27, 78);    // #2D1B4E
-        private static readonly Color Gold = new Color(255, 215, 0);          // #FFD700
-        private static readonly Color Violet = new Color(123, 104, 238);      // #7B68EE
-        private static readonly Color StarWhite = new Color(255, 255, 255);   // #FFFFFF
-
         public override void SetDefaults()
         {
             Item.width = 32;
@@ -37,57 +29,24 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<RadianceOfTheNightQueenPlayer>();
-            modPlayer.hasRadianceOfTheNightQueen = true;
-
-            // +25% all damage - POST-FATE ULTIMATE
+            player.GetModPlayer<RadianceOfTheNightQueenPlayer>().hasRadianceOfTheNightQueen = true;
             player.GetDamage(DamageClass.Generic) += 0.25f;
-
-            // +15% critical strike chance (all classes) - POST-FATE ULTIMATE
             player.GetCritChance(DamageClass.Generic) += 15;
-
-            // +20% movement speed - POST-FATE ULTIMATE
             player.moveSpeed += 0.20f;
-
-            // +2 minion slots - POST-FATE ULTIMATE
             player.maxMinions += 2;
         }
 
-        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "AllDamage", "+25% damage")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+25% all damage, +15% crit, +20% movement speed, +2 max minions"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Every 10 seconds, gain 'Eine Kleine' for 6s (+12% all damage, +5% crit)"));
+            tooltips.Add(new TooltipLine(Mod, "NightBonus", "At night: Eine Kleine cooldown reduced to 7 seconds")
             {
-                OverrideColor = Gold
+                OverrideColor = new Color(100, 120, 200)
             });
-
-            tooltips.Add(new TooltipLine(Mod, "AllCrit", "+15% critical strike chance")
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'She crowns the worthy with starlight — and the night bends its knee'")
             {
-                OverrideColor = StarWhite
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "MoveSpeed", "+20% movement speed")
-            {
-                OverrideColor = Violet
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "MinionSlot", "+2 max minions")
-            {
-                OverrideColor = DeepPurple
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "RadianceNova", "Every 10 seconds, releases a nova of starlight")
-            {
-                OverrideColor = Color.Lerp(DeepPurple, Gold, 0.4f)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "NovaEffect", "The nova grants +25% damage for 4 seconds and damages nearby enemies")
-            {
-                OverrideColor = Color.Lerp(Violet, Gold, 0.5f)
-            });
-
-            tooltips.Add(new TooltipLine(Mod, "Flavor", "'Blessed by the Queen herself, her radiance flows through you'")
-            {
-                OverrideColor = Color.Lerp(DeepPurple, Violet, 0.3f)
+                OverrideColor = new Color(100, 120, 200)
             });
         }
 
@@ -110,16 +69,8 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
 
     public class RadianceOfTheNightQueenPlayer : ModPlayer
     {
-        public bool hasRadianceOfTheNightQueen = false;
-        private int novaTimer = 0;
-        private const int NovaCooldown = 600; // 10 seconds
-        private const int BuffDuration = 240; // 4 seconds
-
-        // Nachtmusik colors
-        private static readonly Color DeepPurple = new Color(45, 27, 78);
-        private static readonly Color Gold = new Color(255, 215, 0);
-        private static readonly Color Violet = new Color(123, 104, 238);
-        private static readonly Color StarWhite = new Color(255, 255, 255);
+        public bool hasRadianceOfTheNightQueen;
+        private int eineKleineTimer;
 
         public override void ResetEffects()
         {
@@ -130,75 +81,24 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
         {
             if (!hasRadianceOfTheNightQueen)
             {
-                novaTimer = 0;
+                eineKleineTimer = 0;
                 return;
             }
 
-            novaTimer++;
+            eineKleineTimer++;
+            int cooldown = !Main.dayTime ? 420 : 600; // 7s night, 10s day
 
-            if (novaTimer >= NovaCooldown)
+            if (eineKleineTimer >= cooldown)
             {
-                TriggerRadianceNova();
-                novaTimer = 0;
+                eineKleineTimer = 0;
+                Player.AddBuff(ModContent.BuffType<EineKleineBuff>(), 360); // 6 seconds
             }
-        }
-
-        private void TriggerRadianceNova()
-        {
-            // Grant damage buff
-            Player.AddBuff(ModContent.BuffType<QueensRadianceBuff>(), BuffDuration);
-
-            // Massive visual nova
-            // Central burst
-
-            // Music note burst on radiance nova
-
-            // Star sparkle accents
-            for (int i = 0; i < 5; i++)
-            {
-            }
-
-            // Expanding halo rings
-
-            // Radial star burst
-            for (int i = 0; i < 16; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 16f;
-                Vector2 burstDir = angle.ToRotationVector2();
-                
-                // Star streak
-            }
-
-            // Damage nearby enemies
-            float novaRadius = 300f;
-            int novaDamage = (int)(Player.GetTotalDamage(DamageClass.Generic).ApplyTo(150));
-
-            foreach (NPC npc in Main.npc)
-            {
-                if (!npc.active || npc.friendly || !npc.CanBeChasedBy()) continue;
-
-                float dist = Vector2.Distance(Player.Center, npc.Center);
-                if (dist < novaRadius)
-                {
-                    if (Main.myPlayer == Player.whoAmI)
-                    {
-                        // Damage falloff based on distance
-                        float falloff = 1f - (dist / novaRadius) * 0.5f;
-                        int finalDamage = (int)(novaDamage * falloff);
-                        Player.ApplyDamageToNPC(npc, finalDamage, 0f, 0, false);
-                    }
-
-                    // VFX on hit enemy
-                }
-            }
-
-            // Dynamic lighting pulse
-            Lighting.AddLight(Player.Center, Gold.ToVector3() * 2f);
         }
     }
 
     /// <summary>
-    /// Buff granted by Radiance of the Night Queen nova.
+    /// Kept for backward compatibility with existing buff icon texture.
+    /// Replaced functionally by EineKleineBuff.
     /// </summary>
     public class QueensRadianceBuff : ModBuff
     {
@@ -210,8 +110,7 @@ namespace MagnumOpus.Content.Nachtmusik.Accessories
 
         public override void Update(Player player, ref int buffIndex)
         {
-            // +25% damage during radiance
-            player.GetDamage(DamageClass.Generic) += 0.25f;
+            // Intentionally empty — legacy buff kept for backward compat texture references only
         }
     }
 }

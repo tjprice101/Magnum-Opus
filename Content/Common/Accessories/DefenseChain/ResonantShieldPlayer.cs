@@ -4,6 +4,7 @@ using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Content.Nachtmusik.Accessories;
 
 namespace MagnumOpus.Content.Common.Accessories.DefenseChain
 {
@@ -50,10 +51,18 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
         private int invisibilityDuration;
         private int damageBoostDuration;
 
+        // ===== T7-T9 STATE =====
+        private int hymnOfFortitudeTimer;   // T9: Standing still accumulator
+        private int hymnOfFortitudeBuff;    // T9: Active buff duration
+
         // Shield regeneration: damage resets this timer, after 5s at 0, shield recharges
         private int shieldRegenerationCooldown; // Counts up from 0 when shield is depleted
         private const int SHIELD_REGEN_DELAY = 300; // 5 seconds at 60fps
         private bool wasShieldBrokenLastFrame;
+
+        // T1-T6 new mechanic state (replaces shield for these tiers)
+        private int noHitTimer;
+        private int onHitDefenseTimer;
 
         private const int LAST_STAND_COOLDOWN = 7200;
         private const int LAST_STAND_DURATION = 180;
@@ -107,24 +116,12 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             if (HasInfernalBellsFortress) return 0.40f;
             if (HasHeroicValorsAegis) return 0.38f;
             if (HasMoonlitGuardiansVeil) return 0.36f;
-            if (HasVivaldisSeasonalBulwark) return 0.35f;
-            if (HasPermafrostCrystalWard) return 0.30f;
-            if (HasHarvestThornedGuard) return 0.25f;
-            if (HasSolarFlareAegis) return 0.20f;
-            if (HasSpringVitalityShell) return 0.15f;
-            if (HasResonantBarrierCore) return 0.10f;
+            // T1-T6 no longer use shield absorption (replaced with max HP + regen + on-hit defense)
             return 0f;
         }
 
         public override void PreUpdate()
         {
-            // === CHAIN INHERITANCE for break effects ===
-            if (HasVivaldisSeasonalBulwark) HasPermafrostCrystalWard = true;
-            if (HasPermafrostCrystalWard) HasHarvestThornedGuard = true;
-            if (HasHarvestThornedGuard) HasSolarFlareAegis = true;
-            if (HasSolarFlareAegis) HasSpringVitalityShell = true;
-            if (HasSpringVitalityShell) HasResonantBarrierCore = true;
-
             if (!HasAnyDefenseAccessory())
             {
                 CurrentShield = 0f;
@@ -157,6 +154,10 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             if (lastStandDuration > 0) lastStandDuration--;
             if (invisibilityDuration > 0) invisibilityDuration--;
             if (damageBoostDuration > 0) damageBoostDuration--;
+
+            // T1-T6: Track time since last hit for regen mechanic
+            noHitTimer++;
+            if (onHitDefenseTimer > 0) onHitDefenseTimer--;
         }
 
         public override void PostUpdate()
@@ -179,10 +180,118 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
                 Player.lifeRegen += 9; // +50% of base 18 regen
             }
 
+            // T9: Hymn of Fortitude - standing still 2s → 6s buff (+8 def, +5 regen, +5% DR)
+            if (HasJubilantBulwarkOfJoy)
+            {
+                if (Player.velocity.LengthSquared() < 0.1f)
+                {
+                    hymnOfFortitudeTimer++;
+                    if (hymnOfFortitudeTimer >= 120) // 2 seconds standing still
+                    {
+                        hymnOfFortitudeBuff = 360; // 6 seconds
+                        hymnOfFortitudeTimer = 120; // Cap accumulator
+                    }
+                }
+                else
+                {
+                    hymnOfFortitudeTimer = 0;
+                }
+            }
+
+            if (hymnOfFortitudeBuff > 0)
+            {
+                hymnOfFortitudeBuff--;
+                Player.statDefense += 8;
+                Player.lifeRegen += 10; // +5 HP/s
+                Player.endurance += 0.05f; // +5% DR
+            }
+
             // Swan's Immortal Grace: +5% dodge when shield is full
             if (HasSwansImmortalGrace && CurrentShield >= MaxShield && MaxShield > 0f)
             {
                 Player.blackBelt = true;
+            }
+
+            // T3+: Hellfire aura when below 50% HP
+            if (Player.statLife < Player.statLifeMax2 / 2)
+            {
+                if (HasVivaldisSeasonalBulwark)
+                {
+                    // T6: Multi-debuff aura
+                    ApplyNearbyDebuff(BuffID.OnFire3, 120, 200f);
+                    ApplyNearbyDebuff(BuffID.Frostburn, 120, 200f);
+                    ApplyNearbyDebuff(BuffID.Poisoned, 120, 200f);
+                    ApplyNearbyDebuff(BuffID.Bleeding, 120, 200f);
+                }
+                else if (HasSolarFlareAegis)
+                {
+                    // T3-T5: Hellfire aura only
+                    ApplyNearbyDebuff(BuffID.OnFire3, 120, 200f);
+                }
+            }
+        }
+
+        public override void PostUpdateEquips()
+        {
+            // === CHAIN INHERITANCE ===
+            // Higher-tier accessories inherit all lower-tier effects.
+
+            // --- Fusion chain inheritance ---
+            if (HasAegisOfTheEternalBastion) { HasTriumphantJubilantAegis = true; HasEternalBastionOfTheMoonlight = true; }
+            if (HasTriumphantJubilantAegis) { HasStarfallInfernalShield = true; HasJubilantBulwarkOfJoy = true; }
+            if (HasStarfallInfernalShield) { HasNocturnalGuardiansWard = true; HasInfernalRampartOfDiesIrae = true; }
+
+            // --- Post-Fate T7-T10 linear chain inheritance ---
+            if (HasEternalBastionOfTheMoonlight) HasJubilantBulwarkOfJoy = true;
+            if (HasJubilantBulwarkOfJoy) HasInfernalRampartOfDiesIrae = true;
+            if (HasInfernalRampartOfDiesIrae) HasNocturnalGuardiansWard = true;
+
+            // T7 inherits all theme variants + seasonal chain
+            if (HasNocturnalGuardiansWard)
+            {
+                HasFatesCosmicAegis = true;
+                HasSwansImmortalGrace = true;
+                HasEnigmasVoidShell = true;
+                HasInfernalBellsFortress = true;
+                HasHeroicValorsAegis = true;
+                HasMoonlitGuardiansVeil = true;
+                HasVivaldisSeasonalBulwark = true;
+            }
+
+            // --- Seasonal T1-T6 chain inheritance ---
+            if (HasVivaldisSeasonalBulwark) HasPermafrostCrystalWard = true;
+            if (HasPermafrostCrystalWard) HasHarvestThornedGuard = true;
+            if (HasHarvestThornedGuard) HasSolarFlareAegis = true;
+            if (HasSolarFlareAegis) HasSpringVitalityShell = true;
+            if (HasSpringVitalityShell) HasResonantBarrierCore = true;
+
+            // T1-T6: HP regen after 5 seconds without taking damage
+            if (noHitTimer >= SHIELD_REGEN_DELAY)
+            {
+                int regenAmount = 0;
+                if (HasVivaldisSeasonalBulwark) regenAmount = 26;       // +13 HP/s
+                else if (HasPermafrostCrystalWard) regenAmount = 22;    // +11 HP/s
+                else if (HasHarvestThornedGuard) regenAmount = 18;      // +9 HP/s
+                else if (HasSolarFlareAegis) regenAmount = 14;          // +7 HP/s
+                else if (HasSpringVitalityShell) regenAmount = 8;       // +4 HP/s
+                else if (HasResonantBarrierCore) regenAmount = 4;       // +2 HP/s
+
+                if (regenAmount > 0)
+                    Player.lifeRegen += regenAmount;
+            }
+
+            // T2+: On-hit defense bonus (active for 1 second after hitting an enemy)
+            if (onHitDefenseTimer > 0)
+            {
+                int defBonus = 0;
+                if (HasVivaldisSeasonalBulwark) defBonus = 16;
+                else if (HasPermafrostCrystalWard) defBonus = 14;
+                else if (HasHarvestThornedGuard) defBonus = 12;
+                else if (HasSolarFlareAegis) defBonus = 10;
+                else if (HasSpringVitalityShell) defBonus = 8;
+
+                if (defBonus > 0)
+                    Player.statDefense += defBonus;
             }
         }
 
@@ -239,6 +348,9 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             if (!HasAnyDefenseAccessory())
                 return;
 
+            // Reset no-hit regen timer on taking damage
+            noHitTimer = 0;
+
             // Last Stand triggers at low health
             if (HasFatesCosmicAegis && lastStandCooldown <= 0 && Player.statLife <= Player.statLifeMax2 * 0.15f)
             {
@@ -277,6 +389,13 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
                 {
                     ApplyNearbyDebuff(BuffID.Frostburn, 120, 160f);
                 }
+
+                // T8: Mors Stupebit on shield break — Feared + -10 def on nearby enemies for 2s
+                if (HasInfernalRampartOfDiesIrae)
+                {
+                    ApplyNearbyDebuff(BuffID.BrokenArmor, 120, 200f); // Proxy for -10 def
+                    ApplyNearbyDebuff(BuffID.Confused, 120, 200f);    // Proxy for Feared
+                }
             }
 
             // Damage reflection (triggers on every hit, independent of shield)
@@ -299,6 +418,19 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
                 if (HasStarfallInfernalShield || HasInfernalRampartOfDiesIrae || HasAegisOfTheEternalBastion)
                 {
                     npc.AddBuff(BuffID.OnFire3, 180); // Hellfire for 3 seconds
+                }
+
+                // T7: Sotto Voce at night — slow attacker for 2s
+                if (HasNocturnalGuardiansWard && !Main.dayTime)
+                {
+                    npc.GetGlobalNPC<NachtmusikAccessoryGlobalNPC>().ApplySottoVoce(120);
+                }
+
+                // T8: Quantus Tremor — fire DPS + slow atk speed on attackers for 3s
+                if (HasInfernalRampartOfDiesIrae)
+                {
+                    npc.AddBuff(BuffID.OnFire3, 180); // 8 fire DPS proxy
+                    npc.AddBuff(BuffID.Slow, 180);    // -8% atk speed proxy
                 }
             }
         }
@@ -339,6 +471,28 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             if (damageBoostDuration > 0 && proj.owner == Player.whoAmI)
             {
                 modifiers.FinalDamage *= 1.15f;
+            }
+        }
+
+        public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            // T2+: Hitting an enemy grants bonus defense for 1 second
+            if (HasSpringVitalityShell || HasSolarFlareAegis || HasHarvestThornedGuard ||
+                HasPermafrostCrystalWard || HasVivaldisSeasonalBulwark)
+            {
+                onHitDefenseTimer = 60;
+            }
+        }
+
+        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (proj.owner != Player.whoAmI) return;
+
+            // T2+: Hitting an enemy grants bonus defense for 1 second
+            if (HasSpringVitalityShell || HasSolarFlareAegis || HasHarvestThornedGuard ||
+                HasPermafrostCrystalWard || HasVivaldisSeasonalBulwark)
+            {
+                onHitDefenseTimer = 60;
             }
         }
     }

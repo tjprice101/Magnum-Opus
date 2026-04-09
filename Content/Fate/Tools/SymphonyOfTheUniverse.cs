@@ -46,7 +46,7 @@ namespace MagnumOpus.Content.Fate.Tools
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Dodge", "Double-tap left or right to perform a cosmic dodge with brief invulnerability") { OverrideColor = new Color(200, 80, 120) });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Press K to amplify your HP hearts with musical resonance, doubling your effective HP for 35 seconds (5 minute cooldown)") { OverrideColor = new Color(200, 80, 120) });
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Wings woven from the fabric of cosmic destiny itself'") { OverrideColor = new Color(180, 40, 80) });
         }
 
@@ -63,6 +63,7 @@ namespace MagnumOpus.Content.Fate.Tools
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             player.GetModPlayer<SymphonyOfTheUniversePlayer>().hasWingsEquipped = true;
+            player.GetModPlayer<WingAmplificationPlayer>().hasFateWings = true;
         }
 
         public override void AddRecipes()
@@ -83,119 +84,11 @@ namespace MagnumOpus.Content.Fate.Tools
         private int frameCounter = 0;
         private bool wasFlying = false;
         
-        // Direction constants for doubleTapCardinalTimer array
-        private const int DashDown = 0;
-        private const int DashUp = 1;
-        private const int DashLeft = 2;
-        private const int DashRight = 3;
-        
         public bool hasWingsEquipped = false;
-        private int dodgeCooldown = 0;
-        private const int DodgeCooldownMax = 15; // Fastest cooldown
-        private const float DodgeSpeed = 38f; // Fastest dodge
-        private bool isDodging = false;
-        private int dodgeTimer = 0;
-        private const int DodgeDuration = 10;
-        private int dashDir = -1;
 
         public override void ResetEffects()
         {
             hasWingsEquipped = false;
-            
-            int wingSlot = EquipLoader.GetEquipSlot(Mod, "SymphonyOfTheUniverse", EquipType.Wings);
-            bool hasWings = Player.wings == wingSlot && wingSlot > 0;
-            
-            if (!hasWings && !hasWingsEquipped)
-            {
-                dashDir = -1;
-                return;
-            }
-            
-            if (Player.controlRight && Player.releaseRight && Player.doubleTapCardinalTimer[DashRight] < 15 && Player.doubleTapCardinalTimer[DashLeft] == 0)
-            {
-                dashDir = DashRight;
-            }
-            else if (Player.controlLeft && Player.releaseLeft && Player.doubleTapCardinalTimer[DashLeft] < 15 && Player.doubleTapCardinalTimer[DashRight] == 0)
-            {
-                dashDir = DashLeft;
-            }
-            else
-            {
-                dashDir = -1;
-            }
-        }
-        
-        public override void PreUpdateMovement()
-        {
-            int wingSlot = EquipLoader.GetEquipSlot(Mod, "SymphonyOfTheUniverse", EquipType.Wings);
-            bool hasWings = Player.wings == wingSlot && wingSlot > 0;
-            
-            if (!hasWings && !hasWingsEquipped)
-                return;
-            
-            if (CanDodge() && dashDir != -1 && dodgeCooldown <= 0)
-            {
-                int direction = dashDir == DashLeft ? -1 : 1;
-                PerformDodge(direction);
-            }
-            
-            if (isDodging)
-            {
-                dodgeTimer++;
-                Player.immune = true;
-                Player.immuneTime = 2;
-                Player.immuneNoBlink = true;
-                
-                ThemedParticles.FateTrail(Player.Center, Player.velocity);
-                
-                for (int s = 0; s < 2; s++)
-                {
-                    var smoke = new HeavySmokeParticle(
-                        Player.Center + Main.rand.NextVector2Circular(15f, 15f),
-                        -Player.velocity * 0.15f + Main.rand.NextVector2Circular(2f, 2f),
-                        Color.Lerp(ThemedParticles.FateBlack, ThemedParticles.FateDarkPink, Main.rand.NextFloat(0.35f)),
-                        Main.rand.Next(30, 50), 0.4f, 0.55f, 0.02f, false);
-                    MagnumParticleHandler.SpawnParticle(smoke);
-                }
-                
-                for (int i = 0; i < 3; i++)
-                {
-                    Vector2 offset = new Vector2(i - 1, 0) * 3f;
-                    Color[] rgbColors = { new Color(255, 80, 100), new Color(200, 80, 160), new Color(100, 60, 140) };
-                    Dust trail = Dust.NewDustDirect(Player.position + offset, Player.width, Player.height, 
-                        DustID.Enchanted_Pink, -Player.velocity.X * 0.2f, -Player.velocity.Y * 0.2f, 100, rgbColors[i], 1.5f);
-                    trail.noGravity = true;
-                }
-                
-                if (dodgeTimer >= DodgeDuration)
-                {
-                    isDodging = false;
-                    dodgeTimer = 0;
-                    
-                    ThemedParticles.FateImpact(Player.Center, 1.2f);
-                    CustomParticles.GlyphCircle(Player.Center, ThemedParticles.FateDarkPink, 8, 50f, 0.04f);
-                    
-                    for (int i = 0; i < 6; i++)
-                    {
-                        float angle = MathHelper.TwoPi * i / 6f;
-                        Vector2 echoPos = Player.Center + angle.ToRotationVector2() * 40f;
-                        float progress = (float)i / 6f;
-                        Color echoColor = Color.Lerp(ThemedParticles.FateBrightRed, ThemedParticles.FateDarkPink, progress);
-                        CustomParticles.GenericFlare(echoPos, echoColor * 0.7f, 0.4f, 20);
-                    }
-                }
-            }
-            
-            if (dodgeCooldown > 0)
-                dodgeCooldown--;
-        }
-        
-        private bool CanDodge()
-        {
-            return (hasWingsEquipped || Player.wings == EquipLoader.GetEquipSlot(Mod, "SymphonyOfTheUniverse", EquipType.Wings))
-                && Player.dashType == DashID.None
-                && !Player.setSolar
-                && !Player.mount.Active;
         }
 
         public override void PostUpdate()
@@ -214,7 +107,7 @@ namespace MagnumOpus.Content.Fate.Tools
             bool isFlying = Player.controlJump && Player.velocity.Y != 0 && !Player.mount.Active;
             bool isOnGround = Player.velocity.Y == 0;
             
-            if (isFlying || isDodging)
+            if (isFlying)
             {
                 frameCounter++;
                 if (frameCounter >= 2)
@@ -236,35 +129,6 @@ namespace MagnumOpus.Content.Fate.Tools
             {
                 wingFrame = 0;
                 frameCounter = 0;
-            }
-        }
-
-        private void PerformDodge(int direction)
-        {
-            isDodging = true;
-            dodgeTimer = 0;
-            dodgeCooldown = DodgeCooldownMax;
-            
-            Vector2 dodgeVelocity = new Vector2(direction, 0f);
-            Player.velocity = dodgeVelocity * DodgeSpeed;
-            
-            SoundEngine.PlaySound(SoundID.Item163 with { Pitch = 0.1f, Volume = 0.8f }, Player.Center);
-            
-            ThemedParticles.FateImpact(Player.Center, 2f);
-            CustomParticles.GlyphCircle(Player.Center, ThemedParticles.FateBrightRed, 10, 60f, 0.05f);
-            
-            for (int i = 0; i < 10; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 10f;
-                float progress = (float)i / 10f;
-                Color flareColor;
-                if (progress < 0.5f)
-                    flareColor = Color.Lerp(ThemedParticles.FateDarkPink, ThemedParticles.FateBrightRed, progress * 2f);
-                else
-                    flareColor = Color.Lerp(ThemedParticles.FateBrightRed, ThemedParticles.FateWhite, (progress - 0.5f) * 2f);
-                
-                Vector2 flarePos = Player.Center + angle.ToRotationVector2() * 45f;
-                CustomParticles.GenericFlare(flarePos, flareColor, 0.5f, 22);
             }
         }
         

@@ -1,18 +1,18 @@
 # 🔥 Dies Irae — Resonance Weapons Planning
 
-> *"Day of wrath — the world consumed in fury and fire."*
+> *"Hell's retribution — the white, black, and crimson flames climb and soar for the heavens to banish."*
 
 ## Theme Identity
 
 | Attribute | Value |
 |-----------|-------|
-| **Musical Soul** | Verdi's Dies Irae from the Requiem — primal fury, divine judgment, apocalyptic wrath |
-| **Emotional Core** | Fury, judgment, apocalyptic power |
-| **Color Palette** | Blood red, dark crimson, ember orange |
-| **Palette Hex** | Char Black `(20, 5, 5)` → Blood Crimson `(140, 15, 15)` → Wrath Red `(220, 40, 20)` → Ember Orange `(255, 120, 30)` → Judgment Gold `(255, 200, 80)` → Hellfire White `(255, 240, 220)` |
-| **Lore Color** | `new Color(200, 50, 30)` — Blood Red |
-| **Lore Keywords** | Wrath, judgment, sin, condemnation, fire, chain, verdict, damnation, penance, inferno |
-| **VFX Language** | Raging flames, chains of judgment, verdict glyphs, crystallized wrath, eclipse darkness with fire edges, molten cracks, infernal sigils |
+| **Musical Soul** | The white, black, and crimson flames of hell's retribution climb and soar for the world to hear, and for the heavens to banish |
+| **Emotional Core** | Divine judgment, heavenly banishment, hellfire retribution |
+| **Color Palette** | White, black, crimson |
+| **Palette Hex** | Char Black `(20, 5, 5)` → Crimson `(140, 15, 15)` → Hellfire Crimson `(220, 40, 20)` → White-Hot `(255, 240, 220)` → Judgment White `(255, 250, 245)` → Pure White `(255, 255, 255)` |
+| **Lore Color** | `new Color(200, 50, 30)` — Crimson Hellfire |
+| **Lore Keywords** | Wrath, judgment, sin, condemnation, fire, chain, verdict, damnation, penance, inferno, retribution, banishment, hellfire |
+| **VFX Language** | White-black-crimson climbing flames, chains of judgment, verdict glyphs, crystallized wrath, hellfire retribution, heavenly banishment light, infernal sigils |
 
 ---
 

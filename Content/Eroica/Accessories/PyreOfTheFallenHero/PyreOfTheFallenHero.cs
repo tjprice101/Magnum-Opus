@@ -6,16 +6,16 @@ using MagnumOpus.Common;
 using MagnumOpus.Content.Eroica.ResonanceEnergies;
 using MagnumOpus.Content.Eroica.Enemies;
 using MagnumOpus.Content.MoonlightSonata.CraftingStations;
-using MagnumOpus.Common.Systems;
-using MagnumOpus.Content.Eroica.Accessories.Shared;
+using MagnumOpus.Content.Common.Accessories;
 
 namespace MagnumOpus.Content.Eroica.Accessories.PyreOfTheFallenHero
 {
     /// <summary>
     /// Pyre of the Fallen Hero - Melee accessory.
-    /// Triumphant Berserker: Melee hits build "Fury" stacks (max 12). 
-    /// At max, release a devastating 360° sakura slash wave dealing 400% damage.
-    /// Taking damage grants +25% attack speed for 2 seconds.
+    /// 'Resonance Sliced' Melodic Attunement.
+    /// +15% increased Resonant Burn damage.
+    /// Hitting a burning enemy 10 times with melee heals 10% HP.
+    /// +2.5% crit damage on Resonant Burn enemies.
     /// </summary>
     public class PyreOfTheFallenHero : ModItem
     {
@@ -30,41 +30,33 @@ namespace MagnumOpus.Content.Eroica.Accessories.PyreOfTheFallenHero
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            var modPlayer = player.GetModPlayer<EroicaAccessoryPlayer>();
-            modPlayer.hasPyreOfTheFallenHero = true;
-            
-            // +25% attack speed when recently damaged
-            if (modPlayer.damageBoostTimer > 0)
-            {
-                player.GetAttackSpeed(DamageClass.Melee) += 0.25f;
-            }
+            var attunement = player.GetModPlayer<MelodicAttunementPlayer>();
+            attunement.meleeAttunement = true;
+            attunement.resonantBurnDmgBonus += 0.15f;
+            attunement.critDmgBonusOnBurn += 0.025f;
         }
 
         public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "FuryHeader", "Triumphant Berserker:")
+            tooltips.Add(new TooltipLine(Mod, "Attunement", "'Resonance Sliced' Melodic Attunement")
             {
                 OverrideColor = new Color(255, 100, 100)
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "FuryEffect", "Melee hits build Fury stacks (max 12)")
+            tooltips.Add(new TooltipLine(Mod, "BurnDmg", "+15% increased Resonant Burn damage")
             {
                 OverrideColor = new Color(255, 180, 100)
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "FuryRelease", "At max stacks, release a 360° sakura slash wave (400% damage)")
+            tooltips.Add(new TooltipLine(Mod, "Heal", "Hitting a burning enemy 10 times with melee heals 10% max HP")
             {
                 OverrideColor = new Color(255, 150, 150)
             });
-            
-            tooltips.Add(new TooltipLine(Mod, "DamageBoost", "Taking damage grants +25% melee attack speed for 2 seconds")
+            tooltips.Add(new TooltipLine(Mod, "CritDmg", "+2.5% critical strike damage on Resonant Burn enemies")
             {
                 OverrideColor = new Color(255, 200, 100)
             });
-            
             tooltips.Add(new TooltipLine(Mod, "Flavor", "'Rise from the flames, stronger than before'")
             {
-                OverrideColor = new Color(180, 80, 80)
+                OverrideColor = new Color(200, 50, 50)
             });
         }
 

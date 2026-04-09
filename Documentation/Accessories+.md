@@ -374,32 +374,32 @@
 
 ---
 
-## 9. Equipment Chains — Seasonal T6 (Capstone) IN PROGRESS
+## 9. Equipment Chains — Seasonal T6 (Capstone)
 
 *Anvil crafts. Requires Cycle of Seasons from Section 8. Final seasonal tier before theme progression.*
 
 ### Defense — T6: Vivaldi's Seasonal Bulwark
-- +14 defense, all immunities, +5 regen, 20% thorns, 35% shield, seasonal hit effects
+- +14 defense, fire and lava and blindness and ice and darkness and bleed and poison immunity, inflict hellfire and frostburn and poison and bleed on nearby enemies when health drops below 50%, 18% max HP, +13 HP regen/second begins after not taking damage for 5 seconds, +16 additional defense for 1 second after hitting an enemy or boss with any weapon (timer can be refreshed, but cannot exceed 1 second), thorns 90% (90% of damage dealt to you is returned to the attacker)
 - **Recipe:** 1x Permafrost Crystal Ward + 1x Cycle of Seasons @ Anvil
 
 ### Melee — T6: Vivaldi's Tempo Master
-- +12% melee damage, biome-based debuff on hit
+- +23% damage, heal 7% dmg as HP vs burning enemies, +18% attack speed, +11 life regen/second, +15% critical chance, all melee attacks inflict burning and frostburn and poison and bleed, extends all status (previously mentioned) by 2s on melee or melee projectile hit, 3% chance freeze enemies for 1s on hit
 - **Recipe:** 1x Permafrost Cadence Seal + 1x Cycle of Seasons @ Anvil
 
 ### Mage — T6: Vivaldi's Harmonic Core
-- +20% magic damage, biome-based debuff on hit
+- -7% mana cost, every 8th magic cast is free, +17% magic damage, +45 max mana, increased mana regen by +13 per second, +5% chance to heal 35 HP on magic cast, all magic attacks apply burn and frostburn and poison and bleed on hit and have a 8% to slow the enemy or boss by 1 second on hit
 - **Recipe:** 1x Permafrost Void Heart + 1x Cycle of Seasons @ Anvil
 
 ### Ranger — T6: Vivaldi's Seasonal Sight
-- +10% ranged damage, biome-based debuff
+- +22% ranged damage, +13% critical chance increase, 5% chance drop life hearts on enemy hit, every 3rd shot deals 25% more damage, all bullets apply burn and frostburn and poison and bleed on hit and have a 8% chance to slow the enemy or boss by 1 second on hit, critical hits have a 5% chance to spread burn and slow and frostburn and poison and bleed, to nearby enemies
 - **Recipe:** 1x Permafrost Hunter's Eye + 1x Cycle of Seasons @ Anvil
 
 ### Summoner — T6: Vivaldi's Orchestra Baton
-- +2 minion slots, +25% summon damage
+- +10% summon crit, +20% summon damage, +6 minion slots, whips and summons apply burning and frostburn and poison and bleed to enemies and bosses and each hit has a 8% chance to slow the impacted enemy or boss
 - **Recipe:** 1x Permafrost Commander's Crown + 1x Cycle of Seasons @ Anvil
 
 ### Mobility — T6: Vivaldi's Seasonal Sprint
-- Max 120 momentum, +25% speed, +1.3 run, +0.8 jump, fire+ice immunity
+- running leaves a blazing and frostburn trail behind you, +1.2 run speed, +38% movement speed, +1.4 flight speed
 - **Recipe:** 1x Permafrost Avalanche Step + 1x Cycle of Seasons + 8x Vortex Fragment + 8x Stardust Fragment + 5x Lunar Bar @ Anvil
 
 ---
@@ -408,37 +408,35 @@
 
 *Lunar Crafting Station. Require Theme Boss Resonant Cores + Melodic Charm (from Pre-Hardmode). First theme-specific accessories.*
 
-### Moonlight Sonata — Adagio Pendant
+### Moonlight Sonata — Adagio Pendant 
 - **Effects:**
-  - +12% damage at night
-  - +15% critical strike chance under moonlight
-  - -10% mana cost
+  - 5% chance to refund 20% of mana used on magic attacks
+  - Each magic attack has a 10% chance to apply "Shattered Moon", reducing the impacted enemy's defense by 20%
 - **Lore:** *"The adagio plays softly in the moonlit night"*
 - **Recipe:** 15x Resonant Core of Moonlight Sonata + 1x Melodic Charm + 1x Moonlight's Resonant Energy @ Lunar Crafting Station
 > **Used in:** Sonata's Embrace
 
 ### Eroica — Badge of Valor
 - **Effects:**
-  - +15% melee damage
-  - +10% melee speed
-  - Killing an enemy grants 0.5 seconds of invulnerability
+  - 20% for melee attacks to deal double damage on impact
+  - Hitting an enemy has a 5% chance for your next 10 melee impact swings to deal red critical hits that deal 2x damage. (Can be stacked with other damage buffs)
 - **Lore:** *"Worn by those who charge into battle without hesitation"*
 - **Recipe:** 15x Resonant Core of Eroica + 1x Melodic Charm + 1x Eroica's Resonant Energy @ Lunar Crafting Station
 > **Used in:** Hero's Symphony
 
 ### La Campanella — Chime of Flames
 - **Effects:**
-  - +15% magic damage
-  - Magic attacks leave lingering fire trails
-  - 8% chance for attacks to "ring" -- briefly stunning enemies
+  - +1 Minion Slot
+  - 5% for whip hits to inflict "Tolling Death" on the enemy 
+  - "Tolling Death": Every hit from any weapon will strike a second time at 25% less damage than the initial hit. Also applies the vanilla Terraria debuff "Withered Weapon" on the enemies.  
 - **Lore:** *"Each chime carries the heat of a thousand flames"*
 - **Recipe:** 15x Resonant Core of La Campanella + 1x Melodic Charm + 1x La Campanella Resonant Energy @ Lunar Crafting Station
 > **Used in:** Infernal Virtuoso
 
 ### Enigma Variations — Puzzle Fragment
 - **Effects:**
-  - +12% damage
-  - 8% chance on hit to apply "Paradox" -- a random debuff
+  - +20% all damage
+  - 8% chance on hit to apply "Paradox" -- a random debuff on hit from any weapon.
   - Paradox: Confused, Slow, Cursed Inferno, or Ichor
 - **Lore:** *"A piece of a puzzle no one was meant to solve"*
 - **Recipe:** 3x Resonant Core of Enigma + 8x Enigma Resonant Energy + 10x Lunar Bar @ Lunar Crafting Station
@@ -446,8 +444,10 @@
 
 ### Swan Lake — Plume of Elegance
 - **Effects:**
-  - +10% damage
-  - +15% movement speed
+  - +25% movement speed
+  - +10% jump height 
+  - +10% increased movement acceleration
+  - Damage buffs gain +75% effectiveness. 
 - **Lore:** *"Grace in motion, elegance personified"*
 - **Recipe:** 3x Resonant Core of Swan Lake + 8x Swan's Resonance Energy + 10x Lunar Bar @ Lunar Crafting Station
 > **Used in:** Swan's Chromatic Diadem
@@ -460,21 +460,22 @@
 
 ### Moonlight Sonata — Sonata's Embrace
 - **Effects:**
+  - 10% chance to refund 20% of mana used on magic attacks
   - +18% damage at night, +8% during day
-  - +20% critical strike chance under moonlight
+  - +20% critical strike chance at night
   - -15% mana cost
-  - +10% damage reduction at night
-  - Attacks inflict "Moonstruck" -- slowed movement, -15 defense
+  - Magic attacks inflict "Moonstruck" -- slowed movement, -15 defense
 - **Lore:** *"The moon's embrace is both gentle and absolute"*
 - **Recipe:** 1x Adagio Pendant + 25x Resonant Core of Moonlight Sonata + 10x Moonlight's Resonant Energy + 10x Lunar Essence @ Lunar Crafting Station
 > **Used in:** Nocturne of Azure Flames, Reverie of the Silver Swan, Spring's Moonlit Garden, Complete Harmony
 
 ### Eroica — Hero's Symphony
 - **Effects:**
-  - +20% melee damage
-  - +15% melee speed
-  - +10% melee critical strike chance
-  - +8% damage (all types)
+  - 25% chance for melee attacks to deal double damage on impact
+  - Hitting an enemy has a 10% chance for your next 10 melee impact swings to deal red critical hits that deal 2x damage. (Can be stacked with other damage buffs) 
+  - +23% melee damage
+  - +17% melee speed
+  - +12% melee critical strike chance
   - Killing an enemy grants 1 second of invulnerability
   - Kills trigger "Heroic Surge": +25% damage for 5 seconds
 - **Lore:** *"The symphony of heroes echoes through eternity"*
@@ -483,22 +484,23 @@
 
 ### La Campanella — Infernal Virtuoso
 - **Effects:**
-  - +22% magic damage
-  - +10% magic critical strike chance
-  - -12% mana cost
   - Immune to fire debuffs
-  - 15% chance for attacks to "ring" -- stunning enemies
-  - Bell rings trigger fire explosion dealing 50% of hit damage in AoE
+  - +2 Minion Slot
+  - 10% for whip hits to inflict "Tolling Death" on the enemy 
+  - "Tolling Death": Every hit from any weapon will strike a second time at 25% less damage than the initial hit. Also applies the vanilla Terraria debuff "Withered Weapon" on the enemies. 
+  - Whip and summon attacks inflict "ichor" and "Cursed inferno"  
 - **Lore:** *"The virtuoso's fingers dance across keys of flame and shadow"*
 - **Recipe:** 1x Chime of Flames + 25x Resonant Core of La Campanella + 10x La Campanella Resonant Energy + 10x Bell Essence @ Lunar Crafting Station
 > **Used in:** Nocturne of Azure Flames, Fantasia of Burning Grace, Inferno of Lost Shadows, Summer's Infernal Peak, Complete Harmony
 
 ### Enigma Variations — Riddle of the Void
 - **Effects:**
-  - +18% damage, +8% critical strike chance
-  - 12% chance on hit to apply Paradox debuffs
-  - Paradox can stack up to 5 times
-  - At 5 stacks, triggers "Void Collapse" -- massive damage explosion
+  - +20% all damage, +8% critical strike chance 
+  - 12% chance on hit to apply "Paradox Rush" on attacks 
+  - "Paradox Rush" can stack up to 5 times 
+  - At 5 stacks, triggers "Void Collapse", dealing 2% of the bosses current health as damage 
+  - 2% chance on hit to apply "Paradox" -- a random debuff on hit from any weapon 
+  - "Paradox": Confused, Slow, Cursed Inferno, or Ichor 
 - **Lore:** *"The answer was void all along"*
 - **Recipe:** 1x Puzzle Fragment + 2x Harmonic Core of Enigma + 15x Enigma Resonant Energy + 5x Remnant of Mysteries + 10x Mystery Essence + 10x Nebula Fragment @ Lunar Crafting Station
 > **Used in:** Valse Macabre, Inferno of Lost Shadows, Trinity of Night, Requiem of the Enigmatic Flame, Winter's Enigmatic Silence, Complete Harmony
@@ -506,9 +508,12 @@
 ### Swan Lake — Swan's Chromatic Diadem
 - **Effects:**
   - +16% damage, +8% critical strike chance
-  - +20% movement speed
-  - +10% dodge chance
-  - Perfect dodges trigger "Dying Swan" -- prismatic damage burst
+  - +30% movement speed
+  - +15% jump height 
+  - +15% increased movement acceleration
+  - Damage buffs gain +80% effectiveness. 
+  - Flying or being in the air gives all of your weapons "Dying Swan's Grace"
+  - "Dying Swan's Grace": Applies "Odile's Beauty" on the enemy, which deals 5% of your currently equipped weapons damage per second for the next 5 seconds (cannot stack or be reapplied until the duration is over).  
 - **Lore:** *"The final dance of the dying swan -- beautiful, tragic, eternal"*
 - **Recipe:** 1x Plume of Elegance + 2x Harmonic Core of Swan Lake + 15x Swan's Resonance Energy + 5x Remnant of Swan's Harmony + 10x Grace Essence + 10x Stardust Fragment @ Lunar Crafting Station
 > **Used in:** Reverie of the Silver Swan, Fantasia of Burning Grace, Triumphant Arabesque, Adagio of Radiant Valor, Requiem of the Enigmatic Flame, Complete Harmony
@@ -525,36 +530,33 @@
 
 #### Moonlit Engine *(Melee)*
 - **Effects:**
-  - +18% melee speed
-  - Every 5th melee strike creates a devastating shockwave
-  - Shockwave deals 200% weapon damage in a large AoE
+  - *'Resonance Sliced' Melodic Attunement*
+  - +10% increased Resonant Burn damage
+  - Hitting an enemy 10 times with melee damage who's already inflicted with Resonant Burn will heal the player for 10% HP
 - **Lore:** *"The engine of moonlight drives destruction"*
 - **Recipe:** 5x Moonlight's Resonant Energy + 5x Resonant Core of Moonlight Sonata + 5x Shards of Moonlit Tempo + 5x Soul of Might + 10x Soul of Night @ Moonlight Anvil
 
 #### Moonlit Gyre *(Ranged)*
 - **Effects:**
-  - +12% ranged damage
-  - +10% ranged critical strike chance
-  - 20% chance not to consume ammo
-  - +25% fire rate for Moonlight rifles
-  - +25% bullet damage for Moonlight rifles
+  - *'Resonance Pierced' Melodic Attunement*
+  - +10% increased Resonant Burn damage
+  - Hitting an enemy 25 times with ranged damage who's already inflicted with Resonant Burn will heal the player for 10% HP
 - **Lore:** *"The gyre empowers those who embrace the moon"*
 - **Recipe:** 5x Moonlight's Resonant Energy + 5x Resonant Core of Moonlight Sonata + 5x Shards of Moonlit Tempo + 12x Soul of Night @ Moonlight Anvil
 
 #### Fractal of Moonlight *(Summoner)*
 - **Effects:**
-  - +2 minion slots
-  - +15% summon damage
-  - +50% additional damage for Moonlight minions
-  - +25% attack speed for Moonlight minions
+  - *'Resonance Born' Melodic Attunement*
+  - +10% increased Resonant Burn damage
+  - Hitting an enemy 30 times with summon or whip damage who's already inflicted with Resonant Burn will heal the player for 10% HP
 - **Lore:** *"Infinite reflections of lunar power"*
 - **Recipe:** 5x Moonlight's Resonant Energy + 5x Resonant Core of Moonlight Sonata + 5x Shards of Moonlit Tempo + 5x Soul of Sight + 6x Soul of Night @ Moonlight Anvil
 
 #### Ember of the Moon *(Magic)*
 - **Effects:**
-  - -30% mana cost
-  - +25% magic damage
-  - Automatically restores 100 mana when below 20% (cooldown)
+  - *'Resonance Seared' Melodic Attunement*
+  - +10% increased Resonant Burn damage
+  - Hitting an enemy 15 times with magic damage who's already inflicted with Resonant Burn will heal the player for 10% HP
 - **Lore:** *"A dying star's last breath of magic"*
 - **Recipe:** 5x Moonlight's Resonant Energy + 5x Resonant Core of Moonlight Sonata + 5x Shards of Moonlit Tempo + 5x Soul of Light + 8x Soul of Night @ Moonlight Anvil
 
@@ -564,26 +566,28 @@
 
 #### Pyre of the Fallen Hero *(Melee)*
 - **Effects:**
-  - Melee hits build Fury stacks (max 12)
-  - At max stacks, release a 360 degree sakura slash wave (400% damage)
-  - Taking damage grants +25% melee attack speed for 2 seconds
+  - *'Resonance Sliced' Melodic Attunement*
+  - +15% increased Resonant Burn damage
+  - Hitting an enemy 10 times with melee damage who's already inflicted with Resonant Burn will heal the player for 10% HP
+  - Critical strike damage on enemy's infliced with Resonant Burn is increased by 2.5%. 
 - **Lore:** *"Rise from the flames, stronger than before"*
 - **Recipe:** 5x Eroica's Resonant Energy + 5x Resonant Core of Eroica + 5x Shard of Triumph's Tempo + 12x Soul of Might @ Moonlight Anvil
 
-#### Funeral March Insignia *(Survival)*
+#### Funeral March Insignia *(Magic)*
 - **Effects:**
-  - Fatal damage instead consumes ALL mana
-  - Grants 3 seconds of invulnerability and doubled damage
-  - 180 second cooldown
-  - Mana regeneration triples when below 20% mana
+  - *'Resonance Seared' Melodic Attunement*
+  - +25% increased Resonant Burn damage
+  - Hitting an enemy 15 times with magic damage who's already inflicted with Resonant Burn will heal the player for 10% HP
+  - Critical strike damage on enemy's infliced with Resonant Burn is increased by 2.5%. 
 - **Lore:** *"The march continues, even beyond death"*
 - **Recipe:** 5x Eroica's Resonant Energy + 5x Resonant Core of Eroica + 5x Shard of Triumph's Tempo + 5x Soul of Fright + 15x Soul of Might @ Moonlight Anvil
 
 #### Symphony of Scarlet Flames *(Ranged)*
 - **Effects:**
-  - +15% ranged damage, +10% ranged critical strike chance
-  - Hitting the same enemy 2 times marks them as "Heroic Target"
-  - The 3rd hit deals 300% damage and creates a petal explosion
+  - *'Resonance Pierced' Melodic Attunement*
+  - +25% increased Resonant Burn damage
+  - Hitting an enemy 25 times with ranged damage who's already inflicted with Resonant Burn will heal the player for 10% HP
+  - Critical strike damage on enemy's infliced with Resonant Burn is increased by 2.5%. 
 - **Lore:** *"Each note builds to the symphony's triumphant crescendo"*
 - **Recipe:** 5x Eroica's Resonant Energy + 5x Resonant Core of Eroica + 5x Shard of Triumph's Tempo + 5x Soul of Sight + 10x Soul of Might @ Moonlight Anvil
 
@@ -591,33 +595,33 @@
 
 *Black smoke, orange flames, gold highlights -- the ringing bell of virtuosic fire.*
 
-#### Chamber of Bellfire *(All-Class)*
+#### Chamber of Bellfire *(Melee)*
 - **Effects:**
-  - +12% all damage, +6 defense
-  - Bellfire aura damages nearby enemies (25 damage every 0.5s)
-  - Every 10 hits triggers a bell explosion
+  - *'Resonance Sliced' Melodic Attunement*
+  - +35% increased Resonant Burn damage
+  - Hitting an enemy 10 times with melee damage who's already inflicted with Resonant Burn will heal the player for 10% HP
+  - Critical strike damage on enemy's infliced with Resonant Burn is increased by 2.5%. 
   - Immunity to fire debuffs and lava
 - **Lore:** *"The chamber resonates with infernal flames"*
 - **Recipe:** 5x La Campanella Resonant Energy + 5x Resonant Core of La Campanella + 5x Shard of the Burning Tempo + 12x Soul of Might @ Moonlight Anvil
 
-#### Campanella's Pyre Medallion *(Offensive)*
+#### Campanella's Pyre Medallion *(Summon)*
 - **Effects:**
-  - +15% critical strike chance
-  - +8% attack speed
-  - +20% damage against enemies with Resonant Toll stacks
-  - Leaves a trail of fire when dashing
+  - *'Resonance Born' Melodic Attunement*
+  - +35% increased Resonant Burn damage
+  - Hitting an enemy 30 times with summon or whip damage who's already inflicted with Resonant Burn will heal the player for 10% HP
+  - Increased critical damage against all enemies increased by 20%
+  - Immunity to fire debuffs and lava
 - **Lore:** *"The pyre burns brightest for those who embrace the inferno"*
 - **Recipe:** 5x La Campanella Resonant Energy + 5x Resonant Core of La Campanella + 5x Shard of the Burning Tempo + 5x Soul of Fright + 15x Soul of Might @ Moonlight Anvil
 
-#### Symphony of the Blazing Sanctuary *(Tank/Defense)*
+#### Symphony of the Blazing Sanctuary *(Magic)*
 - **Effects:**
-  - +10 defense (+15 when below 50% health)
-  - +40 maximum life
-  - +4 life regeneration
-  - Protective bell barrier when below 30% health (70% damage reduction)
-  - Bell barrier has a 30 second cooldown
-  - Killing enemies creates healing fire pillars (+15 HP when nearby)
-  - Bell barrier knocks back enemies and applies Resonant Toll
+  - *'Resonance Seared' Melodic Attunement*
+  - +35% increased Resonant Burn damage
+  - Hitting an enemy 15 times with magic damage who's already inflicted with Resonant Burn will heal the player for 10% HP
+  - Critical strike damage on enemy's infliced with Resonant Burn is increased by 2.5%.
+  - Immunity to fire debuffs and lava
 - **Lore:** *"Within the blazing sanctuary, even the flames sing prayers of protection"*
 - **Recipe:** 5x La Campanella Resonant Energy + 5x Resonant Core of La Campanella + 5x Shard of the Burning Tempo + 5x Soul of Sight + 10x Soul of Might @ Moonlight Anvil
 
@@ -627,39 +631,47 @@
 
 #### Ignition of Mystery *(Melee)*
 - **Effects:**
-  - Melee attacks build mystery stacks (max 10)
-  - Each stack grants +2% melee speed (up to +20%)
-  - At max stacks, unleash a devastating eye burst
-  - Marked enemies take 15% increased damage for 5 seconds
+  - *'Resonance Sliced' Melodic Attunement*
+  - +45% increased Resonant Burn damage
+  - Hitting an enemy 10 times with melee damage who's already inflicted with Resonant Burn will heal the player for 10% HP
+  - Critical strike damage on enemy's infliced with Resonant Burn is increased by 2.5%. 
+  - Immunity to fire debuffs and lava and confusion and slow
 - **Lore:** *"The unknown fears those who seek it"*
 - **Recipe:** 15x Enigma Resonant Energy + 1x Harmonic Core of Enigma + 5x Shard of the Mystery's Tempo + 1x Magma Stone @ Moonlight Anvil
 
 #### Alchemical Paradox *(Ranged)*
 - **Effects:**
-  - Every 4th ranged attack becomes a Paradox Bolt
-  - Paradox Bolts split into 2-3 projectiles on hit
-  - Applies Paradox debuff (damage over time)
-  - Afflicted enemies explode on death
-  - +8% ranged critical strike chance
+  - *'Resonance Pierced' Melodic Attunement*
+  - +45% increased Resonant Burn damage
+  - Hitting an enemy 25 times with ranged damage who's already inflicted with Resonant Burn will heal the player for 10% HP
+  - Critical strike damage on enemy's infliced with Resonant Burn is increased by 2.5%. 
+  - 8% to not consume ammo on shot of ranged weapons 
+  - For every shot not consumed, heal 1% HP.
+  - Immunity to fire debuffs and lava and confusion and slow
 - **Lore:** *"In contradiction, truth unravels"*
 - **Recipe:** 15x Enigma Resonant Energy + 1x Harmonic Core of Enigma + 5x Shard of the Mystery's Tempo + 1x Ranger Emblem @ Moonlight Anvil
 
 #### Pendant of a Thousand Puzzles *(Magic)*
 - **Effects:**
-  - Magic attacks have 15% chance to spawn puzzle fragments
-  - Collect 5 fragments to activate Puzzle Mastery (8 seconds):
-    - +30% magic damage, -20% mana cost
-    - Magic projectiles leave glowing glyph trails
+  - *'Resonance Seared' Melodic Attunement*
+  - +45% increased Resonant Burn damage
+  - Hitting an enemy 15 times with magic damage who's already inflicted with Resonant Burn will heal the player for 10% HP
+  - Critical strike damage on enemy's infliced with Resonant Burn is increased by 2.5%.
+  - -10% mana cost
+  - Refunds 2% mana consumed on enemy hit
+  - Immunity to fire debuffs and lava and confusion and slow
 - **Lore:** *"A thousand answers to questions never asked"*
 - **Recipe:** 15x Enigma Resonant Energy + 1x Harmonic Core of Enigma + 5x Shard of the Mystery's Tempo + 1x Celestial Emblem @ Moonlight Anvil
 
 #### Riddlemaster's Cauldron *(Summoner)*
 - **Effects:**
-  - Minions release Mystery Vapors every 3 seconds
-  - Vapors confuse enemies and reduce their damage by 15%
-  - Every 5 seconds, a random minion gains Riddle's Blessing
-  - Blessed minions attack twice as fast for 3 seconds
-  - +1 max minion slot
+  - *'Resonance Born' Melodic Attunement*
+  - +45% increased Resonant Burn damage
+  - Hitting an enemy 30 times with summon or whip damage who's already inflicted with Resonant Burn will heal the player for 10% HP
+  - Increased critical damage against all enemies increased by 20%. 
+  - +5% damage on summoned minions
+  - +2 minion slots
+  - Immunity to fire debuffs and lava and confusion and slow
 - **Lore:** *"The answer was always in the question"*
 - **Recipe:** 15x Enigma Resonant Energy + 1x Harmonic Core of Enigma + 5x Shard of the Mystery's Tempo + 1x Pygmy Necklace @ Moonlight Anvil
 
@@ -669,88 +681,131 @@
 
 #### Pendant of the Two Swans *(Melee, Dual Mode)*
 - **White Swan (Odette):**
-  - Monochromatic Shield protects you
-  - Absorbs up to 3 hits before recharging (2 min)
+  - *'Resonance Sliced' Melodic Attunement*
+  - +60% increased Resonant Burn damage
+  - Hitting an enemy 10 times with melee damage who's already inflicted with Resonant Burn will heal the player for 10% HP
+  - Critical strike damage on enemy's infliced with Resonant Burn is increased by 2.5%. 
+  - Melee attacks have a 5% chance to give the "Odette's Wonder" buff, increasing your damage output by 5% for the next 5 seconds (cannot stack with itself). 
+  - Immunity to fire debuffs and lava and confusion and slow
 - **Black Swan (Odile):**
-  - 5% chance on melee hit to unleash pearlescent rainbow electrical explosion
-  - +25% critical strike damage
-  - Applies Flame of the Swan (3s) -- enemies take 10% more damage
+  - *'Resonance Sliced' Melodic Attunement*
+  - +60% increased Resonant Burn damage
+  - Hitting an enemy 10 times with melee damage who's already inflicted with Resonant Burn will heal the player for 10% HP
+  - Critical strike damage on enemy's infliced with Resonant Burn is increased by 2.5%. 
+  - Melee attacks have a 5% chance to give the "Odile's Grace" buff, increasing your melee speed by 25% for the next 3 seconds (cannot stack with itself). 
 - **Lore:** *"Two souls entwined in eternal dance -- light and shadow, love and deception"*
 - **Recipe:** 5x Swan's Resonance Energy + 5x Resonant Core of Swan Lake + 5x Remnant of Swan's Harmony + 5x Shard of the Feathered Tempo + 5x Soul of Might + 10x Soul of Flight @ Moonlight Anvil
 
 #### Dual Feather Quiver *(Ranged, Dual Mode)*
 - Works with both arrows and bullets
 - **White Swan (Grace of Odette):**
-  - Every 5th shot spawns a homing swan feather
-  - +10% ranged critical strike chance
+  - *'Resonance Pierced' Melodic Attunement*
+  - +60% increased Resonant Burn damage
+  - Hitting an enemy 25 times with ranged damage who's already inflicted with Resonant Burn will heal the player for 10% HP
+  - Critical strike damage on enemy's infliced with Resonant Burn is increased by 2.5%. 
+  - 10% to not consume ammo on shot of ranged weapons 
+  - For every shot not consumed, heal 3% HP.
+  - Shots have a 5% chance to inflict "Swan's Aria", dealing 5x increased damage. 
+  - Immunity to fire debuffs and lava and confusion and slow
 - **Black Swan (Pierce and Destruction):**
-  - +2 projectile pierce
-  - Applies Flame of the Swan (4s) -- enemies take 10% more damage
-  - +18% ranged damage
+  - *'Resonance Pierced' Melodic Attunement*
+  - +60% increased Resonant Burn damage
+  - Hitting an enemy 25 times with ranged damage who's already inflicted with Resonant Burn will heal the player for 10% HP
+  - Critical strike damage on enemy's infliced with Resonant Burn is increased by 2.5%. 
+  - 10% to not consume ammo on shot of ranged weapons 
+  - For every shot not consumed, heal 3% HP.
+  - Shots have a 10% chance to inflict "Swan's Opera", dealing 1.5x increased damage and increase your fire rate by 20% for the next 3 seconds (cannot stack with itself). 
+  - Immunity to fire debuffs and lava and confusion and slow
 - **Lore:** *"Each feather remembers the flight -- one toward the light, one into darkness"*
 - **Recipe:** 5x Swan's Resonance Energy + 5x Resonant Core of Swan Lake + 5x Remnant of Swan's Harmony + 5x Shard of the Feathered Tempo + 5x Soul of Sight + 8x Soul of Flight @ Moonlight Anvil
 
 #### Crown of the Swan *(Magic, Dual Mode)*
 - **White Swan (Efficiency):**
-  - -20% mana cost
-  - Protective wisps orbit you (up to 5)
-  - Wisps absorb incoming damage
+  - *'Resonance Seared' Melodic Attunement*
+  - +60% increased Resonant Burn damage
+  - Hitting an enemy 15 times with magic damage who's already inflicted with Resonant Burn will heal the player for 10% HP
+  - Critical strike damage on enemy's infliced with Resonant Burn is increased by 2.5%.
+  - -15% mana cost
+  - Refunds 4% mana consumed on enemy hit
+  - Hitting an enemy with a magic attack has a 10% to apply "Glorious Swan" to the player. 
+  - "Glorious Swan": Your next 5 magic casts consume no mana (cannot stack with itself). 
+  - Immunity to fire debuffs and lava and confusion and slow
 - **Black Swan (Power):**
-  - +30% magic damage
-  - +15% mana cost
-  - Spells apply Flame of the Swan (5s) -- enemies take 10% more damage
-  - 2 second cooldown between applications
+  - *'Resonance Seared' Melodic Attunement*
+  - +60% increased Resonant Burn damage
+  - Hitting an enemy 15 times with magic damage who's already inflicted with Resonant Burn will heal the player for 10% HP
+  - Critical strike damage on enemy's infliced with Resonant Burn is increased by 2.5%.
+  - -15% mana cost
+  - Refunds 4% mana consumed on enemy hit
+  - Hitting an enemy with a magic attack has a 10% to apply "Swan of the Black Flame" to the enemy. 
+  - "Swan of the Black Flame": Your next 5 magic attacks deal double damage (cannot stack with itself). 
+  - Immunity to fire debuffs and lava and confusion and slow
 - **Lore:** *"Worn by royalty who understood that true power lies in choice"*
 - **Recipe:** 5x Swan's Resonance Energy + 5x Resonant Core of Swan Lake + 5x Remnant of Swan's Harmony + 5x Shard of the Feathered Tempo + 5x Soul of Light + 6x Soul of Flight @ Moonlight Anvil
 
 #### Black Wings of the Monochromatic Dawn *(Summoner, Dual Mode)*
 - **White Swan (Protective):**
-  - Minions create protective white shields
-  - Up to 25% damage reduction when minions nearby (5% per minion)
+  - *'Resonance Born' Melodic Attunement*
+  - +60% increased Resonant Burn damage
+  - Hitting an enemy 30 times with summon or whip damage who's already inflicted with Resonant Burn will heal the player for 10% H
+  - Increased critical damage against all enemies increased by 20%. 
+  - +10% damage on summoned minions
+  - +3 minion slots
+  - Each time a minion hits an enemy, 5% to heal the player by 1% HP.
+  - Immunity to fire debuffs and lava and confusion and slow
 - **Black Swan (Aggressive):**
-  - +35% minion damage
-  - -20% defense (glass cannon)
-  - Minions apply Flame of the Swan (3s) -- enemies take 10% more damage
+  - *'Resonance Born' Melodic Attunement*
+  - +60% increased Resonant Burn damage
+  - Hitting an enemy 30 times with summon or whip damage who's already inflicted with Resonant Burn will heal the player for 10% H
+  - Increased critical damage against all enemies increased by 20%. 
+  - +10% damage on summoned minions
+  - +3 minion slots
+  - Each time a minion hits an enemy, 15% to give the player 10% Damage Reduction for 2 seconds (cannot stack with itself)
+  - Immunity to fire debuffs and lava and confusion and slow
 - **Lore:** *"At dawn, when darkness meets light, the monochromatic wings spread -- neither fully black nor white, but eternally both"*
 - **Recipe:** 5x Swan's Resonance Energy + 5x Resonant Core of Swan Lake + 5x Remnant of Swan's Harmony + 5x Shard of the Feathered Tempo + 5x Soul of Night + 15x Soul of Flight @ Moonlight Anvil
 
 ---
 
-## 13. Theme Wings (First 5 Themes)
+## 13. Theme Wings (First 5 Themes) 
 
 *Moonlight Anvil crafts. Standalone -- do not chain into other accessories. Listed in progression order.*
 
 #### Wings of the Moon *(Moonlight Sonata)*
 - **Flight:** 3.67s flight time, 11 mph, hover enabled
 - **Effects:**
-  - Double-tap to perform a moonlit dodge with brief invulnerability
+  - Press the K-key to amplify your HP hearts with musical resonance (deep dark purple shimmer over them). Doubling your effective HP for 10 seconds. (5 minute cooldown). 
 - **Lore:** *"Soar upon the gentle embrace of moonlight"*
 - **Recipe:** 15x Moonlight's Resonant Energy + 5x Resonant Core of Moonlight Sonata + 5x Shards of Moonlit Tempo + 25x Soul of Flight + 15x Soul of Night @ Moonlight Anvil
 
 #### Reincarnated Valor *(Eroica)*
 - **Flight:** 4.67s flight time, 14 mph, hover enabled
 - **Effects:**
-  - Double-tap to perform a heroic dash
+  - Press the K-key to amplify your HP hearts with musical resonance (deep dark gold with a light pink shimmer over them). Doubling your effective HP for 13 seconds. (5 minute cooldown). 
 - **Recipe:** 15x Eroica's Resonant Energy + 5x Resonant Core of Eroica + 5x Shard of Triumph's Tempo + 25x Soul of Flight + 20x Soul of Might @ Moonlight Anvil
 
 #### Wings of the Bellborn Dawn *(La Campanella)*
 - **Flight:** 5.3s flight time, 16 mph, hover enabled
 - **Effects:**
-  - Double-tap to perform a blazing dodge with brief invulnerability
+  - Press the K-key to amplify your HP hearts with musical resonance (deep dark grey with an orange shimmer over them). Doubling your effective HP for 15 seconds. (5 minute cooldown). 
 - **Lore:** *"Ride the flames of the eternal chime"*
 - **Recipe:** 15x La Campanella Resonant Energy + 5x Resonant Core of La Campanella + 30x Soul of Flight + 20x Soul of Fright @ Moonlight Anvil
 
-#### Iridescent Dawn *(Swan Lake)*
-- **Flight:** 5.67s flight time, 17 mph, hover enabled
-- **Recipe:** 15x Swan's Resonance Energy + 5x Resonant Core of Swan Lake + 5x Shard of the Feathered Tempo + 35x Soul of Flight + 15x Soul of Light + 15x Soul of Night @ Moonlight Anvil
-
 #### Riddlemaster's Flight *(Enigma Variations)*
 - **Flight:** 6.0s flight time, 18 mph, hover enabled
+- **Effects:**
+  - Press the K-key to amplify your HP hearts with musical resonance (dark purple and dark green shimmer). Doubling your effective HP for 20 seconds. (5 minute cooldown). 
 - **Recipe:** 15x Enigma Resonant Energy + 5x Resonant Core of Enigma + 40x Soul of Flight + 20x Soul of Sight @ Moonlight Anvil
+
+#### Iridescent Dawn *(Swan Lake)*
+- **Flight:** 5.67s flight time, 17 mph, hover enabled
+- **Effects:**
+  - Press the K-key to amplify your HP hearts with musical resonance (black and white monochromatic hearts with a vibrant and saturated rainbow shimmer). Doubling your effective HP for 25 seconds. (5 minute cooldown). 
+- **Recipe:** 15x Swan's Resonance Energy + 5x Resonant Core of Swan Lake + 5x Shard of the Feathered Tempo + 35x Soul of Flight + 15x Soul of Light + 15x Soul of Night @ Moonlight Anvil
 
 ---
 
-## 14. Equipment Chains — Theme T1 (Moonlight Sonata)
+## 14. Equipment Chains — Theme T1 (Moonlight Sonata) 
 
 *Upgrades from Seasonal T6. Requires Resonant Core of Moonlight Sonata + Lunar Bar + Ectoplasm.*
 
@@ -827,116 +882,136 @@
 
 ## 19. Two-Theme Combinations
 
-*Lunar Crafting Station. Built from T2 theme signatures (Section 11).*
+*Lunar Crafting Station. Built from T2 theme signatures (Section 11). Each combination pulls 1–2 key stats from each parent and introduces a unique signature buff or debuff that emerges from the thematic fusion.*
 
 #### Nocturne of Azure Flames *(Moonlight Sonata + La Campanella)*
-- **Effects:**
-  - At night: +18% damage, +20 crit, +12 defense | Day: +10% damage
-  - +22% magic damage, +10 magic crit, -12% mana cost
-  - Fire burns blue at night, dealing 15% bonus damage
-  - Immunity to On Fire! and Burning
+- **From Sonata's Embrace:** +15% damage at night, +10% damage during the day, -12% mana cost
+- **From Infernal Virtuoso:** Immunity to fire debuffs and lava, +1 minion slot
+- **Signature — "Azure Immolation" (Enemy Debuff):**
+  - Magic and summon attacks have a 10% chance to inflict "Azure Immolation" on enemies
+  - Azure Immolation: Blue fire dealing 8% of your magic damage per second for 4 seconds
+  - At night: Damage is doubled and spreads to enemies within 50 block range on kill
+- **Lore:** *"Where moonlight meets flame, the fire burns blue — cold and beautiful and without mercy"*
 - **Recipe:** 1x Sonata's Embrace + 1x Infernal Virtuoso + 15x Harmonic Core of Moonlight Sonata + 15x Harmonic Core of La Campanella
 > **Used in:** Trinity of Night
 
 #### Valse Macabre *(Eroica + Enigma Variations)*
-- **Effects:**
-  - +20% melee damage, +15% melee attack speed, +10 melee crit, +8% all damage
-  - +18% all damage, +8 crit chance
-  - Melee kills spread Paradox debuffs to nearby enemies (300 range)
-  - 12% chance per hit to apply random Paradox debuff
-  - Kills trigger 5-second Heroic Surge (+25% damage)
+- **From Hero's Symphony:** 20% chance for melee attacks to deal double damage, +15% melee speed
+- **From Riddle of the Void:** +15% all damage, 10% chance on hit to apply Paradox debuff
+- **Signature — "Dance of Death" (Player Buff, on kill):**
+  - Killing an enemy triggers "Dance of Death" for 6 seconds
+  - During Dance of Death: All attacks ignore 20% of enemy defense, and every 3rd hit deals an additional 50% damage
+- **Lore:** *"The waltz quickens — one partner leads with glory, the other with oblivion"*
 - **Recipe:** 1x Hero's Symphony + 1x Riddle of the Void + 15x Harmonic Core of Eroica + 15x Harmonic Core of Enigma
 
 #### Reverie of the Silver Swan *(Moonlight Sonata + Swan Lake)*
-- **Effects:**
-  - At night: +18% damage, +20 crit, +12 defense | Day: +10% damage
-  - +16% all damage, +8 crit, +20% movement speed
-  - Moving at night: +5% damage, +5 crit
-  - 12% chance to dodge attacks at night (8% day)
+- **From Sonata's Embrace:** +15% damage at night, +10% damage during the day, +18% crit chance at night, +15% crit chance during the day
+- **From Swan's Chromatic Diadem:** +25% movement speed, +12% damage
+- **Signature — "Moonlit Reverie" (Player Buff, stacking):**
+  - While moving, gain 1 stack of "Moonlit Reverie" per second (max 10 stacks)
+  - Each stack grants +1% dodge chance
+  - At 10 stacks, your next hit triggers "Silver Cascade" — the damage dealt to an enemy is dealt to all enemies in radius
+  - At night: Stacks build twice as fast
+- **Lore:** *"The silver swan glides through a dream of moonlight, untouchable and radiant"*
 - **Recipe:** 1x Sonata's Embrace + 1x Swan's Chromatic Diadem + 15x Harmonic Core of Moonlight Sonata + 15x Harmonic Core of Swan Lake
 > **Used in:** Adagio of Radiant Valor
 
 #### Fantasia of Burning Grace *(La Campanella + Swan Lake)*
-- **Effects:**
-  - +22% magic damage, +10 magic crit, -12% mana cost
-  - +16% all damage, +8 crit, +20% movement speed
-  - Immunity to On Fire! and Burning
-  - 10% chance Bell ring stun with fire AoE (120 range, 50% damage)
-  - 10% dodge chance
+- **From Infernal Virtuoso:** Immunity to fire debuffs and lava, 8% chance for whip hits to inflict Tolling Death
+- **From Swan's Chromatic Diadem:** +20% movement speed, damage buff effectiveness +50%
+- **Signature — "Burning Pas de Deux" (Proximity Debuff):**
+  - While moving above 75% max speed, inflict "Burning Pas de Deux" on all enemies within 250 range (ticks once per second)
+  - Burning Pas de Deux: Enemies take 3% of your highest equipped weapon's damage per second and have -10% movement speed for 3 seconds
+  - Enemies killed while debuffed explode, dealing 150% of your currently held weapon's damage to enemies within 120 range
+- **Lore:** *"Two dancers — one of flame, one of feathers — and neither knows who leads"*
 - **Recipe:** 1x Infernal Virtuoso + 1x Swan's Chromatic Diadem + 15x Harmonic Core of La Campanella + 15x Harmonic Core of Swan Lake
 > **Used in:** Requiem of the Enigmatic Flame
 
 #### Triumphant Arabesque *(Eroica + Swan Lake)*
-- **Effects:**
-  - +20% melee damage, +15% melee attack speed, +10 melee crit, +8% all damage
-  - +16% all damage, +8 crit, +20% movement speed
-  - Melee kills trigger 5-second Heroic Surge (+25% damage)
-  - 10% dodge chance
+- **From Hero's Symphony:** +18% melee damage, kills trigger Heroic Surge (+20% damage for 4 seconds)
+- **From Swan's Chromatic Diadem:** +25% movement speed, Dying Swan's Grace (airborne weapon buff)
+- **Signature — "Arabesque Ascension" (Player Buff, airborne):**
+  - While airborne or jumping, gain "Valor of the Radiant Swan" for 10 seconds
+  - Valor of the Radiant Swan: +30% attack speed, melee attacks have +15% extended reach, and all attacks heal .5% of your max HP 
+- **Lore:** *"The hero leaps — and for a moment, gravity remembers that it serves the brave"*
 - **Recipe:** 1x Hero's Symphony + 1x Swan's Chromatic Diadem + 15x Harmonic Core of Eroica + 15x Harmonic Core of Swan Lake
 
 #### Inferno of Lost Shadows *(La Campanella + Enigma Variations)*
-- **Effects:**
-  - +22% magic damage, +10 magic crit, -12% mana cost
-  - +18% all damage, +8 crit chance
-  - Immunity to On Fire! and Burning
-  - 15% Paradox chance (magic) / 10% (other)
-  - 10% Bell ring stun (120 range, 50% AoE)
-  - Paradox stacking triggers Void Flame Collapse at 5 stacks (2.5x damage)
+- **From Infernal Virtuoso:** Immunity to fire debuffs and lava, +1 minion slot
+- **From Riddle of the Void:** +15% all damage, 10% chance on hit to apply Paradox debuff
+- **Signature — "Void Immolation" (Enemy Debuff, stacking):**
+  - Hits on enemies have a 5% chance to inflict "Void Immolation" on enemies for 5 seconds. (cannot stack)
+  - Void Immolation: Enemy takes 2% more damage from all sources (more hits increase this value by .2% more damage. Cap of 30% more damage).
+- **Lore:** *"The inferno swallowed the shadows, and the shadows swallowed back"*
 - **Recipe:** 1x Infernal Virtuoso + 1x Riddle of the Void + 15x Harmonic Core of La Campanella + 15x Harmonic Core of Enigma
 
 ---
 
 ## 20. Three-Theme Combinations
 
-*Lunar Crafting Station. Built from Two-Theme combos + additional T2 signatures.*
+*Lunar Crafting Station. Built from Two-Theme combos + additional T2 signatures. Each pulls 1–2 effects from each contributing theme and gains a powerful tripartite signature mechanic.*
 
 #### Trinity of Night *(Moonlight Sonata + La Campanella + Enigma Variations)*
-- **Effects:**
-  - At night: +22% damage, +25 crit chance, +15 defense | Day: +12% damage
-  - +25% magic damage, +12 magic crit, -15% mana cost
-  - +20% all damage, +10 crit chance
-  - 15% Paradox stacking (5 stacks = 3x dmg + 250 range AoE)
-  - 12% Bell ring stun
-  - +20% magic damage at night as blue fire
-  - Immunity to On Fire! and Burning
+- **From Sonata:** +15% damage at night, +10% damage during the day, -12% mana cost
+- **From Infernal Virtuoso:** Immunity to fire debuffs and lava, 8% Tolling Death chance on any weapon hits
+- **From Riddle of the Void:** +15% all damage, 10% Paradox chance on any weapon hit
+- **Signature — "Nocturnal Trinity" (Player Buff, rotating phases):**
+  - Every 8 seconds, automatically cycle through three empowerments:
+    1. **Moon Phase:** Magic attacks cost no mana, +25% magic damage
+    2. **Bell Phase:** All attacks echo for 30% damage as fire, +2 minion slots
+    3. **Void Phase:** Every hit applies Paradox, +20% all damage
+  - At night: All three phases are 50% stronger
+  - Visual: Player aura cycles purple → orange → green
+- **Lore:** *"Night speaks in three voices — the moon whispers, the bell tolls, and the void answers"*
 - **Recipe:** 1x Nocturne of Azure Flames + 1x Riddle of the Void + 20x Harmonic Core of Moonlight Sonata + 20x Harmonic Core of La Campanella + 20x Harmonic Core of Enigma
 
 #### Adagio of Radiant Valor *(Eroica + Moonlight Sonata + Swan Lake)*
-- **Effects:**
-  - +22% melee damage, +18% melee attack speed, +12 melee crit, +10% all damage
-  - At night: +20% damage, +22 crit chance, +14 defense | Day: +10% damage
-  - +18% all damage, +10 crit chance, +22% movement speed
-  - Kills trigger 5-sec Heroic Surge (+30% damage)
-  - 14% dodge at night (10% day)
+- **From Hero's Symphony:** 20% chance for melee attacks to deal double damage, +15% melee speed
+- **From Sonata:** +15% damage at night, +18% crit chance at night
+- **From Swan's Diadem:** +25% movement speed, Dying Swan's Grace (airborne weapon buff)
+- **Signature — "Radiant Crescendo" (Player Buff, building on consecutive hits):**
+  - Consecutive hits on the same enemy build "Radiant Crescendo" stacks (max 20, decay after 3 seconds without hitting)
+  - Every 5 stacks grants a tier:
+    - 5 stacks: +10% attack speed
+    - 10 stacks: Hits spawn moonlit sparkles dealing 25% weapon damage to nearby enemies
+    - 15 stacks: Each hit heals 1% max HP
+    - 20 stacks: "Fortissimo" — next hit deals 5x damage, then resets stacks
+  - At night: Stacks build 50% faster
+- **Lore:** *"The adagio swells — hero, moon, and swan rising together toward a single, radiant note"*
 - **Recipe:** 1x Hero's Symphony + 1x Reverie of the Silver Swan + 20x Harmonic Core of Eroica + 20x Harmonic Core of Moonlight Sonata + 20x Harmonic Core of Swan Lake
 
 #### Requiem of the Enigmatic Flame *(La Campanella + Enigma Variations + Swan Lake)*
-- **Effects:**
-  - +25% magic damage, +12 magic crit, -15% mana cost
-  - +20% all damage, +10 crit chance
-  - +18% all damage, +10 crit chance, +22% movement speed
-  - 18% Paradox (magic) / 12% (other)
-  - 12% Bell ring stun (140 range, 60% AoE)
-  - 12% dodge chance
-  - Paradox stacking triggers Chaos Collapse at 5 stacks
-  - Immunity to On Fire! and Burning
+- **From Infernal Virtuoso:** Immunity to fire debuffs and lava, 8% Tolling Death chance on any weapon hits
+- **From Riddle of the Void:** +15% all damage, 10% Paradox chance on hit
+- **From Swan's Diadem:** +25% movement speed, damage buff effectiveness +50%
+- **Signature — "Requiem's Judgment" (Enemy Debuff, finisher):**
+  - Enemies hit by both Paradox and Tolling Death simultaneously gain "Requiem's Mark"
+  - Requiem's Mark: Enemy takes 15% more damage from all sources for 8 seconds (does not stack together)
+  - Swan Lake's damage buff effectiveness makes all combined buffs 50% more potent. 
+- **Lore:** *"The requiem plays its final verse — fire, mystery, and grace united in one terrible prayer"*
 - **Recipe:** 1x Fantasia of Burning Grace + 1x Riddle of the Void + 20x Harmonic Core of La Campanella + 20x Harmonic Core of Enigma + 20x Harmonic Core of Swan Lake
 
 ---
 
 ## 21. Complete Harmony (All 5 Themes)
 
-*Lunar Crafting Station. Combines all 5 T2 theme signatures.*
+*Lunar Crafting Station. Combines all 5 T2 theme signatures. Each theme contributes its core identity effects, and the fusion creates a stacking player buff system that rewards triggering all five theme mechanics together.*
 
 #### Complete Harmony
-- **Effects:**
-  - **Moonlight:** Night: +20% damage, +22 crit, +15 defense | Day: +12% damage
-  - **Eroica:** +22% melee damage, +18% melee speed, +12 melee crit, +10% all damage
-  - **La Campanella:** +25% magic damage, +12 magic crit, -15% mana cost
-  - **Enigma:** +20% all damage, +10 crit chance
-  - **Swan Lake:** +18% all damage, +10 crit, +25% movement speed
-  - All theme effects active: Kills trigger 6-sec Heroic Surge (+30%), 18% Paradox, 15% Bell ring (160 AoE), 15%/12% dodge
-  - Immunity to On Fire! and Burning
+- **From Sonata's Embrace:** +15% damage at night, +10% during the day, -12% mana cost, magic attacks inflict Moonstruck (slowed, -15 defense)
+- **From Hero's Symphony:** 20% chance for melee attacks to deal double damage, +15% melee speed, kills trigger Heroic Surge (+25% damage for 5 seconds)
+- **From Infernal Virtuoso:** Immunity to fire debuffs and lava, 8% Tolling Death on any weapon hit, +1 minion slot
+- **From Riddle of the Void:** +15% all damage, 10% Paradox on hit
+- **From Swan's Chromatic Diadem:** +25% movement speed, damage buff effectiveness +80%, Dying Swan's Grace (Odile's Beauty airborne debuff)
+- **Signature — "Harmonic Convergence" (Player Buff + Enemy Debuff, stacking system):**
+  - All five theme effects are always active simultaneously
+  - **Harmonic Resonance (Player buff):** Each time a theme proc triggers (Heroic Surge, Tolling Death, Paradox, Moonstruck, or Odile's Beauty), gain 1 stack of Harmonic Resonance (max 5 stacks, decay 1 stack per 4 seconds without triggering)
+    - 1 stack: +5% damage reduction
+    - 3 stacks: +10% attack speed, +5 life regen
+    - 5 stacks: Triggers "Full Harmony" for 8 seconds — +25% all damage, +15% dodge chance, all attacks heal 0.5% max HP per hit. Stacks then reset to 0.
+  - **Dissonance (Enemy debuff):** Enemies affected by 3 or more different theme debuffs simultaneously (Moonstruck, Tolling Death's Withered Weapon, Paradox, Odile's Beauty) gain "Dissonance" — taking 20% more damage from all sources for 8 seconds (does not stack, timer refreshes on reapplication)
+  - At night: Harmonic Resonance stacks decay every 6 seconds instead of 4
+- **Lore:** *"Five voices. One harmony. The opus is complete."*
 - **Recipe:** 1x Sonata's Embrace + 1x Hero's Symphony + 1x Infernal Virtuoso + 1x Riddle of the Void + 1x Swan's Chromatic Diadem + 50x Harmonic Core of Moonlight Sonata + 50x Harmonic Core of Eroica + 50x Harmonic Core of La Campanella + 50x Harmonic Core of Enigma + 50x Harmonic Core of Swan Lake
 > **Used in:** Opus of Four Movements, Theme Wanderer, Summoner's Magnum Opus
 
@@ -944,101 +1019,91 @@
 
 ## 22. Season-Theme Hybrids
 
-*Bridge accessories combining a season accessory with a theme T2 signature. Each feeds into Coda of Absolute Harmony.*
+*Bridge accessories combining a season accessory with a theme T2 signature. Each pulls core stats from its season parent and 1–2 key effects from its theme parent, then introduces a unique signature mechanic built around buffs and debuffs. Each feeds into Coda of Absolute Harmony.*
 
-### Spring's Moonlit Garden *(Spring + Moonlight Sonata)*
-- **Effects:**
-  - Spring: +6 life regen, +8 defense, +6% damage reduction, 60% thorns
-  - Moonlight: At night: +22% damage, +18 crit, +12 defense, +15% move speed | Day: +10% damage, +8 crit
-  - +12% magic damage, +4 mana regen
-  - At night: +8 additional life regen
-  - 12% chance to confuse enemies at night
-  - 10%/6% chance to heal (8/5 HP)
-  - 8% chance to poison
+#### Spring's Moonlit Garden *(Spring + Moonlight Sonata)*
+- **From Bloom Crest:** +6 life regen, +8 defense, +6% damage reduction, 60% thorns
+- **From Sonata's Embrace:** +15% damage at night, +10% during the day, -12% mana cost
+- **Signature — "Moonlit Garden" (Sustain + Enemy Debuff):**
+  - 12% chance on any weapon hit to apply "Withered Root" on enemies: slowed movement and -10 defense for 4 seconds
+  - At night: +8 additional life regen and 10% chance on hit to heal 8 HP
+  - Killing enemies while Withered Root is active grants you "Verdant Renewal" for 3 seconds: +4 life regen per second (stacks up to 3 times)
+  - Enemies affected by both Withered Root and Moonstruck simultaneously take 10% more damage from all sources for 4 seconds (does not stack)
+- **Lore:** *"In the garden where moonlight falls, even thorns bloom silver"*
 - **Recipe:** 1x Bloom Crest + 1x Sonata's Embrace + 15x Vernal Bar + 15x Resonant Core of Moonlight Sonata
 > **Used in:** Coda of Absolute Harmony
 
-### Summer's Infernal Peak *(Summer + La Campanella)*
-- **Effects:**
-  - Summer: +16% damage, +10 crit, +8 defense, attacks inflict fire
-  - During day: +8% bonus damage
-  - La Campanella: +22% magic damage, +14 magic crit, -15% mana cost, +4 mana regen
-  - Immunity to On Fire, Burning, and lava
-  - 15% chance Bell Chime stuns with fire AoE (150 range, 40% damage)
-  - 10% Solar Burst during day
-  - When hit, nearby enemies within 120 range catch fire
+#### Summer's Infernal Peak *(Summer + La Campanella)*
+- **From Radiant Crown:** +16% damage, +10 crit, +8 defense, attacks inflict On Fire!
+- **From Infernal Virtuoso:** Immunity to fire debuffs and lava, 8% Tolling Death on any weapon hit, +1 minion slot
+- **Signature — "Infernal Peak" (Stacking Player Buff + Enemy Debuff):**
+  - Hitting burning enemies builds "Heat Intensity" stacks on the player (1 per hit, max 10, decay 1 stack per 2 seconds without hitting a burning enemy)
+    - 5 stacks: +12% attack speed
+    - 10 stacks: Triggers "Solar Zenith" for 6 seconds — +20% all damage and all attacks apply Ichor on hit. Stacks then reset to 0.
+  - During the day: Heat Intensity stacks build twice as fast (2 stacks per hit instead of 1)
+  - Burning enemies you hit are debuffed with "Scorched" — taking 5% more damage from all sources for 3 seconds (does not stack, timer refreshes)
+- **Lore:** *"At the peak of summer, even the bell's toll melts in the heat"*
 - **Recipe:** 1x Radiant Crown + 1x Infernal Virtuoso + 15x Solstice Bar + 15x Resonant Core of La Campanella
 > **Used in:** Coda of Absolute Harmony
 
-### Winter's Enigmatic Silence *(Winter + Enigma Variations)*
-- **Effects:**
-  - Winter: +14 defense, +12% damage reduction, +8% move speed, attacks inflict frostburn
-  - Immunity to Frozen, Chilled, and Frostburn
-  - Enigma: +18% damage, +12% crit
-  - 15% chance per hit to apply Paradox debuffs and slow enemies
-  - At 4 stacks: Frozen Void Collapse deals 2.5x damage in 200 range (50% AoE)
+#### Winter's Enigmatic Silence *(Winter + Enigma Variations)*
+- **From Glacial Heart:** +14 defense, +12% damage reduction, +8% movement speed, attacks inflict Frostburn, immunity to Frozen, Chilled, and Frostburn
+- **From Riddle of the Void:** +15% all damage, 10% Paradox on hit
+- **Signature — "Enigmatic Silence" (Enemy Debuff Synergy + Player Buff):**
+  - Enemies affected by both Frostburn and any Paradox debuff simultaneously gain "Frozen Paradox" — slowed by 30% and taking 15% more damage from all sources for 5 seconds (does not stack, timer refreshes)
+  - Applying Frozen Paradox grants you "Winter's Focus" for 4 seconds: +10% crit chance and +8% all damage
+  - Below 50% HP: +20% damage reduction and Paradox proc chance increases to 15%
+- **Lore:** *"The coldest silence hides the deepest mystery"*
 - **Recipe:** 1x Glacial Heart + 1x Riddle of the Void + 15x Permafrost Bar + 15x Resonant Core of Enigma
 > **Used in:** Coda of Absolute Harmony
 
 ---
 
-## 23. Fate Class Accessories
+## 23. Fate Class Accessories IN PROGRESS - START
 
 *Moonlight Anvil crafts. Post-Lunar tier. Black void, dark pink, bright crimson, celestial white -- the celestial symphony of destiny.*
 
 #### Astral Conduit *(Magic)*
 - **Effects:**
-  - +20% magic damage
-  - +25 mana regeneration
-  - -10% mana cost
-  - Magic attacks have 15% chance to trigger cosmic flares
-  - Cosmic flares chain to up to 3 nearby enemies
+  - +20% magic damage, +25 mana regeneration, -10% mana cost
+  - Magic crits grant "Astral Resonance" for 3s (+8% magic damage, +5% magic crit)
 - **Lore:** *"The stars themselves bend to your will"*
 - **Recipe:** 15x Fate Resonant Energy + 5x Resonant Core of Fate + 5x Fate Essence + 5x Shard of Fate's Tempo + 10x Soul of Sight + 8x Nebula Fragment + 10x Lunar Bar @ Moonlight Anvil
-> **Used in:** Cosmic Warden's Regalia
+> **Used in:** Symphony of Fate's Tempo
 
 #### Paradox Chronometer *(Melee)*
 - **Effects:**
-  - +18% melee damage
-  - +20% melee speed
-  - +10% melee critical strike chance
-  - Every 7th melee strike triggers a temporal echo
-  - Temporal echoes repeat the strike for 75% damage
+  - +18% melee damage, +20% melee speed, +10% melee critical strike chance
+  - Every 7th melee hit deals +75% bonus damage
 - **Lore:** *"Time bends to the rhythm of your blade"*
 - **Recipe:** 15x Fate Resonant Energy + 5x Resonant Core of Fate + 5x Fate Essence + 5x Shard of Fate's Tempo + 10x Soul of Might + 8x Solar Fragment + 10x Lunar Bar @ Moonlight Anvil
-> **Used in:** Cosmic Warden's Regalia, Seasonal Destiny
+> **Used in:** Symphony of Fate's Tempo, Seasonal Destiny
 
 #### Constellation Compass *(Ranged)*
 - **Effects:**
-  - +18% ranged damage
-  - +15% ranged critical strike chance
-  - +12% ranged attack speed
-  - Ranged projectiles gain slight homing toward nearby enemies
-  - Critical hits create constellation starbursts
+  - +18% ranged damage, +15% ranged critical strike chance, +12% ranged attack speed
+  - Ranged crits apply "Constellation Mark" on enemy for 3s (+10% ranged damage taken)
 - **Lore:** *"Every shot follows the path written in the stars"*
 - **Recipe:** 15x Fate Resonant Energy + 5x Resonant Core of Fate + 5x Fate Essence + 5x Shard of Fate's Tempo + 10x Soul of Sight + 8x Vortex Fragment + 10x Lunar Bar @ Moonlight Anvil
-> **Used in:** Cosmic Warden's Regalia
+> **Used in:** Symphony of Fate's Tempo
 
 #### Orrery of Infinite Orbits *(Summoner)*
 - **Effects:**
-  - +22% summon damage
-  - +1 max minion
-  - +10% minion knockback
-  - Minions periodically gain Cosmic Empowerment
-  - Empowered minion attacks deal 50% bonus damage
+  - +22% summon damage, +1 max minion, +10% minion knockback
+  - Every 8s minions gain "Cosmic Empowerment" for 4s (+25% summon damage)
 - **Lore:** *"The universe itself serves at your command"*
 - **Recipe:** 15x Fate Resonant Energy + 5x Resonant Core of Fate + 5x Fate Essence + 5x Shard of Fate's Tempo + 10x Soul of Sight + 8x Stardust Fragment + 10x Lunar Bar @ Moonlight Anvil
-> **Used in:** Cosmic Warden's Regalia, Summoner's Magnum Opus
+> **Used in:** Symphony of Fate's Tempo, Summoner's Magnum Opus
 
-#### Machination of the Event Horizon *(Mobility/Utility)*
+#### Machination of the Event Horizon *(Utility)*
 - **Effects:**
-  - Grants the ability to dash, wall climb, and auto-dodge
-  - Provides the speed and mobility of Terraspark Boots
-  - Grants enhanced jump height from Frog Leg
-  - 8% chance to phase through attacks into the void
+  - Grants dash, wall climb, and dodge chance (Master Ninja Gear)
+  - Terraspark Boots speed and mobility (run speed, ice skate, water walk, fire walk, lava immunity time)
+  - Enhanced jump height (Frog Leg)
+  - 8% dodge chance
 - **Lore:** *"Space bends around those who walk the event horizon"*
 - **Recipe:** 15x Fate Resonant Energy + 5x Resonant Core of Fate + 5x Fate Essence + 5x Shard of Fate's Tempo + 1x Master Ninja Gear + 1x Terraspark Boots + 1x Frog Leg + 10x Lunar Bar @ Moonlight Anvil
-> **Used in:** Cosmic Warden's Regalia, Theme Wanderer
+> **Used in:** Symphony of Fate's Tempo, Theme Wanderer
 
 ---
 
@@ -1046,6 +1111,7 @@
 
 #### Symphony of the Universe *(Fate)*
 - **Flight:** 6.67s flight time, 20 mph, hover enabled
+- **Effects:** - Press the K-key to amplify your HP hearts with musical resonance (dark pink and light purple hearts with a vibrant and saturated black shimmer). Doubling your effective HP for 35 seconds. (5 minute cooldown). 
 - **Recipe:** 20x Fate Resonant Energy + 8x Resonant Core of Fate + 50x Soul of Flight + 15x Lunar Bar @ Moonlight Anvil
 
 ---
@@ -1057,7 +1123,7 @@
 | Chain | Name | Key Effects | Recipe (+ prev tier) |
 |-------|------|-------------|---------------------|
 | Defense | Fate's Cosmic Aegis | +35 def, slow immunity, 30% thorns, 60% shield, 3s invincibility on break (2min cd) | + Resonant Core of Fate |
-| Melee | Fate's Cosmic Symphony | +25% dmg night/+15% day, cosmic trails | 30x Resonant Core of Fate + 10x Fate Energy |
+| Melee | Fate's Cosmic Symphony | +25% dmg night/+15% day | 30x Resonant Core of Fate + 10x Fate Energy |
 | Mage | Fate's Cosmic Reservoir | Magic ignores 25% enemy defense | 30x Resonant Core of Fate + 10x Fate Energy |
 | Ranger | Fate's Cosmic Verdict | +15% ranged damage | 30x Resonant Core of Fate + 10x Fate Energy |
 | Summoner | Fate's Cosmic Dominion | +20% summon damage | 30x Resonant Core of Fate + 10x Fate Energy |
@@ -1065,21 +1131,18 @@
 
 ---
 
-## 26. Cosmic Warden's Regalia
+## 26. Symphony of Fate's Tempo
 
-*Combines all 5 Fate class accessories into the ultimate Fate accessory.*
+*Combines all 5 Fate class accessories into one slot. Each class-specific bonus applies only to its class. All percentage stats receive a +2 percentage point increase over the individual accessories.*
 
-#### Cosmic Warden's Regalia
-- **Effects:**
-  - Combines all five Fate vanilla accessory upgrades
-  - Melee: +14% dmg, +18% speed, +10 crit, +15 armor pen
-  - Ranged: +16% dmg, +10 crit, +14 armor pen, Ammo Box
-  - Magic: +16% dmg, +8 crit, -14% mana cost, +6 mana regen
-  - Summon: +15% dmg, +15% whip range
-  - +3 minions, +1 sentry, +30% movement, +60 wing time, no fall damage
-  - +40 max life, +60 max mana, +6% damage reduction
-  - Every 6th melee hit echoes 80% damage, 15% chance to mark with Ichor (300 range)
-  - Cosmic Mana Burst restores 100 mana when below 30% (5-sec cd), 12% dodge
+#### Symphony of Fate's Tempo *(formerly Cosmic Warden's Regalia)*
+- **From Astral Conduit (+2%):** +22% magic damage, +25 mana regeneration, -12% mana cost, magic crits grant "Astral Resonance" for 3s (+10% magic damage, +7% magic crit)
+- **From Paradox Chronometer (+2%):** +20% melee damage, +22% melee speed, +12% melee crit, every 7th melee hit deals +75% bonus damage
+- **From Constellation Compass (+2%):** +20% ranged damage, +17% ranged crit, +14% ranged attack speed, crits apply "Constellation Mark" on enemy for 3s (+12% ranged damage taken)
+- **From Orrery of Infinite Orbits (+2%):** +24% summon damage, +1 minion, +12% minion knockback, every 8s minions gain "Cosmic Empowerment" for 4s (+27% summon damage)
+- **From Machination of the Event Horizon (+2%):** Dash, wall climb, dodge chance, Terraspark Boots mobility, Frog Leg jump, 10% dodge chance
+- **Combined Immunities:** On Fire, Cursed Inferno, Shadowflame, Frostburn, Confused
+- **Lore:** *"Five destinies converge — the symphony of fate plays its final movement"*
 - **Recipe:** 1x Paradox Chronometer + 1x Constellation Compass + 1x Astral Conduit + 1x Machination of the Event Horizon + 1x Orrery of Infinite Orbits + 50x Harmonic Core of Fate + 1x Moonlight's Resonant Energy + 1x Eroica's Resonant Energy + 1x La Campanella Resonant Energy + 1x Enigma Resonant Energy + 1x Swan's Resonance Energy
 > **Used in:** Coda of Absolute Harmony
 
@@ -1087,54 +1150,65 @@
 
 ## 27. Grand Combinations
 
-*Lunar Crafting Station. The apex tier before Post-Fate themes.*
+*Lunar Crafting Station. The apex tier before Post-Fate themes. Each inherits ALL mechanics from its component accessories through delegation — no reimplementing, no simplifying.*
 
 #### Opus of Four Movements *(Complete Harmony + Vivaldi's Masterwork + All Energies)*
-- **Effects:**
-  - Seasonal: +10% all-class damage, +20 defense, +15% movement speed
-  - +60 max life, +80 max mana, +8 life regen, +4 mana regen, +1 minion, +1 sentry
-  - Eroica: +14% melee, +15% speed, +10 crit, +12 armor pen
-  - Campanella: +16% magic, +10 crit, -10% mana cost
-  - Enigma: +14% ranged, +8 crit, 20% ammo savings
-  - Swan: +14% summon, +8 crit, +12% whip range, +25% speed
-  - +12% damage reduction, 150% thorns, +6 crit at night, +15 defense at night
-  - 20% Paradox stacking (5 stacks = 500% dmg + 250 range AoE), 16% Bell ring stun (180 range, 65% AoE)
-  - 8% lifesteal (max 20 HP), kills grant Heroic Surge, 18%/14% dodge
-  - Immunity to On Fire, Burning, Frozen, Frostburn, Chilled, and Poisoned
+- **From Complete Harmony (all 5 theme effects):**
+  - From Sonata: +15% damage at night / +10% day, -12% mana cost, magic attacks inflict Moonstruck (Slow + Ichor)
+  - From Eroica: 20% chance for melee double damage, +15% melee speed, kills trigger Heroic Surge (+25% damage, 5s)
+  - From Campanella: Fire/lava immunity, 8% Tolling Death on any hit, +1 minion slot
+  - From Enigma: +15% all damage, 10% Paradox on hit
+  - From Swan: +25% movement speed, +80% buff effectiveness, Dying Swan's Grace (airborne Odile's Beauty)
+  - Harmonic Convergence: Theme procs build Harmonic Resonance (1 stack → +5% DR, 3 stacks → +10% speed/+5 regen, 5 stacks → Full Harmony 8s)
+  - Dissonance: Enemies with 3+ theme debuffs take 20% more damage for 8s
+- **From Vivaldi's Masterwork:**
+  - +25% all damage, +18% crit, +15% attack speed, +23 defense, +20% movement speed, +15% DR
+  - +10 life regen, +8 mana regen, 150% thorns, attacks inflict On Fire! and Frostburn
+  - 33% chance on hit to lifesteal 8% of damage (max 35 HP)
+  - Immunity to Frozen, On Fire, Frostburn, Chilled, Poisoned
+- **Lore:** *"Four seasons, five themes — the opus reaches its grandest crescendo"*
 - **Recipe:** 1x Complete Harmony + 1x Vivaldi's Masterwork + 1x Moonlight's Resonant Energy + 1x Eroica's Resonant Energy + 1x La Campanella Resonant Energy + 1x Enigma Resonant Energy + 1x Swan's Resonance Energy + 1x Dormant Spring Core + 1x Dormant Summer Core + 1x Dormant Autumn Core + 1x Dormant Winter Core
 > **Used in:** Coda of Absolute Harmony
 
 #### Seasonal Destiny *(Vivaldi's Masterwork + Paradox Chronometer)*
-- **Effects:**
-  - Seasonal: +10% melee, +8% ranged/magic/summon, +22 defense, +18% movement speed
-  - Chronometer: +14% melee damage, +16% melee speed, +8 melee crit, +10 armor penetration
-  - +40 max life, +40 max mana, +8 life regen, +5 mana regen, +1 minion, +10% DR, 150% thorns
-  - Every 7th melee strike echoes 75% damage, 8% chance to lifesteal (max 18 HP)
-  - Inflicts On Fire and Frostburn, immunity to Frozen, On Fire, Frostburn, Chilled
+- **From Vivaldi's Masterwork:**
+  - +25% all damage, +18% crit, +15% attack speed, +23 defense, +20% movement speed, +15% DR
+  - +10 life regen, +8 mana regen, 150% thorns, attacks inflict On Fire! and Frostburn
+  - 33% chance on hit to lifesteal 8% of damage (max 35 HP)
+  - Immunity to Frozen, On Fire, Frostburn, Chilled, Poisoned
+- **From Paradox Chronometer:**
+  - +18% melee damage, +20% melee speed, +10% melee crit
+  - Every 7th melee hit deals +75% bonus damage
+- **Lore:** *"The seasons turn, and time echoes with each blade's stroke"*
 - **Recipe:** 1x Vivaldi's Masterwork + 1x Paradox Chronometer + 30x Harmonic Core of Fate
 
 #### Theme Wanderer *(Complete Harmony + Event Horizon)*
-- **Effects:**
-  - Combines Complete Harmony with Machination of the Event Horizon
-  - +12% melee/ranged/summon, +14% magic, +15% melee speed, +6 ranged crit, +6 all crit at night
-  - +35% movement, +30% run speed, +80 wing time, no fall damage, +15 defense at night
-  - +8% damage reduction, 20% ammo savings, -10% mana cost, +1 minion
-  - 15% fire debuff, 15% Bell ring stun, 12% random debuff, 14% dodge
+- **From Complete Harmony (all 5 theme effects):**
+  - All theme stats and proc mechanics (same as listed in Opus above)
+  - Harmonic Convergence stacking + Dissonance enemy debuff
+- **From Machination of the Event Horizon:**
+  - Dash, wall climb, dodge chance (Master Ninja Gear)
+  - Terraspark Boots speed and mobility
+  - Frog Leg jump boost
+  - 8% dodge chance
+- **Lore:** *"Wandering between worlds of sound, carried by cosmic winds"*
 - **Recipe:** 1x Complete Harmony + 1x Machination of the Event Horizon + 30x Harmonic Core of Fate
 
 #### Summoner's Magnum Opus *(Complete Harmony + Orrery)*
-- **Effects:**
-  - +24% summon damage, +8 summon crit (+12% damage and crit at night)
-  - +4 minions, +1 sentry, +20% whip range
-  - +60 max mana, -10% mana cost, +3 life regen
-  - Minions randomly apply: 15% bonus night damage, Ichor, On Fire, or Confusion/Slow
+- **From Complete Harmony (all 5 theme effects):**
+  - All theme stats and proc mechanics (same as listed in Opus above)
+  - Harmonic Convergence stacking + Dissonance enemy debuff
+- **From Orrery of Infinite Orbits:**
+  - +22% summon damage, +1 minion, +10% minion knockback
+  - Every 8s minions gain "Cosmic Empowerment" for 4s (+25% summon damage)
+- **Lore:** *"The conductor raises the baton — every minion plays its part in the magnum opus"*
 - **Recipe:** 1x Complete Harmony + 1x Orrery of Infinite Orbits + 30x Harmonic Core of Fate
 
 ---
 
 ## 28. Nachtmusik (Post-Fate T1)
 
-*Fate's Cosmic Anvil crafts. Deep indigo, starlight silver, cosmic blue -- a little night music of nocturnal wonder.*
+*Fate's Cosmic Anvil crafts. Golden, dark purple — the golden twinkling of starlit melodies lights the dark purple world around them with their sweet songs.*
 
 ### Standalone Accessories
 
@@ -1143,31 +1217,10 @@
   - +38% melee damage
   - +25% melee attack speed
   - +18% melee critical strike chance
-  - Critical strikes summon a starfall impact
-  - Starfall deals 75% of the hit's damage to nearby enemies
-- **Lore:** *"The stars weave through your blade, each strike a constellation born"*
+  - Melee crits grant "Nocturne's Cadence" for 4 seconds: +12% melee damage, +5% melee crit
+  - At night: Nocturne's Cadence extends to 6 seconds
+- **Lore:** *"Each swing scatters the night sky — and the stars remember where they fell"*
 - **Recipe:** 12x Nachtmusik Resonant Energy + 4x Nachtmusik Resonant Core + 8x Solar Fragment + 8x Lunar Bar + 15x Fallen Star + 5x Shard of Nachtmusik's Tempo @ Fate's Cosmic Anvil
-
-#### Radiance of the Night Queen *(All-Class)*
-- **Effects:**
-  - +25% damage
-  - +15% critical strike chance
-  - +20% movement speed
-  - +2 max minions
-  - Every 10 seconds, releases a nova of starlight
-  - The nova grants +25% damage for 4 seconds and damages nearby enemies
-- **Lore:** *"Blessed by the Queen herself, her radiance flows through you"*
-- **Recipe:** 15x Nachtmusik Resonant Energy + 6x Nachtmusik Resonant Core + 8x Nachtmusik Essence + 5x Solar Fragment + 5x Nebula Fragment + 5x Vortex Fragment + 5x Stardust Fragment + 10x Lunar Bar + 5x Shard of Nachtmusik's Tempo @ Fate's Cosmic Anvil
-
-#### Nocturne's Embrace *(Summoner)*
-- **Effects:**
-  - +45% summon damage
-  - +4 max minions
-  - +25% minion knockback
-  - Every 8 seconds, minions perform a constellation strike
-  - Constellation strikes deal 200% minion damage to all enemies near your minions
-- **Lore:** *"The night's orchestra answers to your command"*
-- **Recipe:** 12x Nachtmusik Resonant Energy + 4x Nachtmusik Resonant Core + 10x Stardust Fragment + 8x Lunar Bar + 20x Fallen Star + 5x Shard of Nachtmusik's Tempo @ Fate's Cosmic Anvil
 
 #### Moonlit Serenade Pendant *(Magic)*
 - **Effects:**
@@ -1175,37 +1228,71 @@
   - +50 mana regeneration
   - -20% mana cost
   - +15% magic critical strike chance
-  - Magic attacks have a 12.5% chance to release harmonic waves
-  - Waves bounce between up to 4 enemies, dealing 50% damage per bounce
-- **Lore:** *"Her serenade carries on the moonlight, touching all who hear"*
+  - 12% on magic hit: apply "Serenade's Echo" on enemy for 4 seconds (+10% magic damage taken)
+  - At night: Serenade's Echo duration increases to 6 seconds
+- **Lore:** *"Her serenade drifts on the evening air — each note finds the next listener before it fades"*
 - **Recipe:** 12x Nachtmusik Resonant Energy + 4x Nachtmusik Resonant Core + 8x Nebula Fragment + 8x Lunar Bar + 15x Fallen Star + 5x Shard of Nachtmusik's Tempo @ Fate's Cosmic Anvil
+
+#### Eventide Quiver *(Ranged)*
+- **Effects:**
+  - +35% ranged damage
+  - +20% ranged critical strike chance
+  - +15% ranged attack speed
+  - Every 4th ranged crit grants "Rondo Allegro" for 3 seconds: +15% ranged damage, +10% ranged crit
+  - At night: Rondo Allegro lasts 5 seconds
+- **Lore:** *"The quiver holds only twilight — but twilight has never missed"*
+- **Recipe:** 12x Nachtmusik Resonant Energy + 4x Nachtmusik Resonant Core + 8x Vortex Fragment + 8x Lunar Bar + 15x Fallen Star + 5x Shard of Nachtmusik's Tempo @ Fate's Cosmic Anvil
+
+#### Nocturne's Embrace *(Summoner)*
+- **Effects:**
+  - +45% summon damage
+  - +4 max minions
+  - +25% minion knockback
+  - Every 8 seconds, gain "Starlit Fervor" for 4 seconds: +25% summon damage
+  - At night: Starlit Fervor cooldown reduced to 6 seconds
+- **Lore:** *"The night's orchestra plays on — and every instrument knows its part by heart"*
+- **Recipe:** 12x Nachtmusik Resonant Energy + 4x Nachtmusik Resonant Core + 10x Stardust Fragment + 8x Lunar Bar + 20x Fallen Star + 5x Shard of Nachtmusik's Tempo @ Fate's Cosmic Anvil
+
+#### Radiance of the Night Queen *(All-Class)* ∅
+- **Effects:**
+  - +25% all damage
+  - +15% critical strike chance
+  - +20% movement speed
+  - +2 max minions
+  - Every 10 seconds, gain "Eine Kleine" for 6 seconds: +12% all damage, +5% crit chance
+  - At night: Eine Kleine cooldown reduced to 7 seconds
+- **Lore:** *"She crowns the worthy with starlight — and the night bends its knee"*
+- **Recipe:** 15x Nachtmusik Resonant Energy + 6x Nachtmusik Resonant Core + 8x Nachtmusik Essence + 5x Solar Fragment + 5x Nebula Fragment + 5x Vortex Fragment + 5x Stardust Fragment + 10x Lunar Bar + 5x Shard of Nachtmusik's Tempo @ Fate's Cosmic Anvil
 
 ### Nachtmusik Wings
 
 #### Serenade of Stars
 - **Flight:** 8.0s flight time, 24 mph, hover enabled
+- **Effects:**
+  - Press the K-key to amplify your HP hearts with musical resonance (deep indigo hearts with a shimmering starlight silver shimmer). Doubling your effective HP for 40 seconds. (5 minute cooldown).
+- **Lore:** *"The stars sing you upward — and the night holds you aloft"*
 - **Recipe:** 25x Nachtmusik Resonant Energy + 12x Nachtmusik Resonant Core + 2x Harmonic Core of Nachtmusik + 60x Soul of Flight + 20x Lunar Bar @ Fate's Cosmic Anvil
 
 ---
 
 ## 29. Equipment Chains — T7 (Nachtmusik)
 
-*Upgrades from Theme T6 (Fate). Requires Nachtmusik Energy.*
+*Upgrades from Theme T6 (Fate). Requires Nachtmusik Energy. The nocturnal tier — all bonuses lean into night-time power and starlit elegance.*
 
 | Chain | Name | Key Effects | Recipe (+ prev tier) |
 |-------|------|-------------|---------------------|
-| Defense | Nocturnal Guardian's Ward | +38 def, 70% shield, +18 regen night/+14 day, +12% dmg, 32% thorns | + 15x Nachtmusik Energy |
-| Melee | Nocturnal Symphony Band | +20% melee dmg night | + 15x Nachtmusik Energy |
-| Mage | Nocturnal Harmonic Overflow | +20% magic dmg night | + 15x Nachtmusik Energy |
-| Ranger | Nocturnal Predator's Sight | +20% ranged dmg night | + 15x Nachtmusik Energy |
-| Summoner | Nocturnal Maestro's Baton | Minions +15% dmg night | + 15x Nachtmusik Energy |
-| Mobility | Nocturnal Phantom Treads | Max 175 momentum, +39% speed, +2.7 run, night vision, +8% dmg at night, reduced aggro at 150+ | + 15x Nachtmusik Energy |
+| Defense | Nocturnal Guardian's Ward | +38 def, 70% shield block, +18 life regen at night / +14 during day, +12% all damage, 32% thorns, enemies that hit you gain "Sotto Voce" for 2s (-10% attack speed) at night | + 15x Nachtmusik Energy |
+| Melee | Nocturnal Symphony Band | +20% melee damage at night / +10% during day, melee crits grant "Notturno" for 2s (+8% melee damage, +5% melee crit) | + 15x Nachtmusik Energy |
+| Mage | Nocturnal Harmonic Overflow | +20% magic damage at night / +10% during day, magic kills grant "Serenade's Refrain" for 3s (restores 5% max mana over duration), +15 mana regen at night | + 15x Nachtmusik Energy |
+| Ranger | Nocturnal Predator's Sight | +20% ranged damage at night / +10% during day, ranged attacks at night gain +8% crit chance, night vision while equipped | + 15x Nachtmusik Energy |
+| Summoner | Nocturnal Maestro's Baton | Minions deal +15% damage at night / +8% during day, minion attacks at night have 10% chance to inflict "Lullaby" on enemies for 3s (-15% movement speed, -5 defense) | + 15x Nachtmusik Energy |
+| Mobility | Nocturnal Phantom Treads | Max 175 momentum, +39% speed, +2.7 run acceleration, night vision, +8% all damage at night, at 150+ momentum gain "Phantom Step" (reduced enemy aggro range) | + 15x Nachtmusik Energy |
 
 ---
 
 ## 30. Ode to Joy (Post-Fate T2)
 
-*Fate's Cosmic Anvil crafts. Warm gold, radiant amber, jubilant light -- the universal brotherhood of joy.*
+*Fate's Cosmic Anvil crafts. Monochromatic black, white, prismatic chromatic — monochromatic roses shimmer prismatic radiant light as their melody conducts the garden of eternal symphony.*
 
 ### Standalone Accessories
 
@@ -1213,53 +1300,69 @@
 - **Effects:**
   - +65% melee damage
   - +40% melee speed
-  - Melee hits build towards a triumphant crescendo
-  - Every 8th hit releases a golden shockwave that heals
-  - Critical strikes heal nearby allies
-  - +20 defense while attacking
-- **Lore:** *"The flower that blooms upon the conductor's heart, spreading joy to all"*
+  - +20 defense while actively swinging
+  - Every 8th melee hit triggers "Jubilant Tempo" for 5 seconds: +15% melee damage, +20% attack speed, 3% lifesteal on melee hits (cap 25 HP)
+- **Lore:** *"The corsage upon the conductor's heart — every beat of the baton brings joy to the hall"*
 - **Recipe:** 18x Resonant Core of Ode to Joy + 12x Ode to Joy Resonant Energy + 1x Harmonic Core of Ode to Joy + 8x Joy Essence + 5x Shard of Ode to Joy's Tempo + 15x Lunar Bar @ Fate's Cosmic Anvil
 
 #### The Flowering Coda *(Magic)*
 - **Effects:**
   - +60% magic damage
   - +35% magic critical strike chance
-  - Magic attacks create blooming petals that heal 3% of damage dealt
   - -30% mana cost
-  - Every 10th magic hit creates a joyous bloom explosion
-- **Lore:** *"The final flourish of nature's triumphant symphony"*
+  - Every 10th magic hit triggers "Joyous Bloom" for 5 seconds: +15% magic damage, restores 5 mana per magic hit
+- **Lore:** *"The coda blooms — and every note flowers into golden light"*
+- **Recipe:** 18x Resonant Core of Ode to Joy + 12x Ode to Joy Resonant Energy + 1x Harmonic Core of Ode to Joy + 8x Joy Essence + 5x Shard of Ode to Joy's Tempo + 15x Lunar Bar @ Fate's Cosmic Anvil
+
+#### Anthem's Arbalist *(Ranged)*
+- **Effects:**
+  - +60% ranged damage
+  - +25% ranged critical strike chance
+  - +20% ranged attack speed
+  - Every 6th ranged hit grants "Triumphant Volley" for 4 seconds: +20% ranged damage, +10% ranged attack speed
+  - Ranged kills grant "Ovation" for 5 seconds: +10% all damage (stacks up to 3 times)
+- **Lore:** *"The anthem rings out — and every arrow sings in celebration"*
 - **Recipe:** 18x Resonant Core of Ode to Joy + 12x Ode to Joy Resonant Energy + 1x Harmonic Core of Ode to Joy + 8x Joy Essence + 5x Shard of Ode to Joy's Tempo + 15x Lunar Bar @ Fate's Cosmic Anvil
 
 #### The Verdant Refrain *(Summoner)*
 - **Effects:**
   - +70% summon damage
   - +4 max minions
-  - Minions slow enemies on hit
-  - Minion hits may plant healing flowers that restore health nearby
   - +25% whip speed and range
-- **Lore:** *"The endless melody of nature's eternal chorus"*
+  - 10% on minion hit: apply "Hymnal Anchor" on enemy for 3 seconds (-20% movement speed, -5 defense)
+  - Every 15 seconds, gain "Refrain" for 3 seconds: +25% minion damage
+- **Lore:** *"The refrain echoes endlessly — and every servant joins the chorus with joy"*
 - **Recipe:** 18x Resonant Core of Ode to Joy + 12x Ode to Joy Resonant Energy + 1x Harmonic Core of Ode to Joy + 8x Joy Essence + 5x Shard of Ode to Joy's Tempo + 15x Lunar Bar @ Fate's Cosmic Anvil
+
+### Ode to Joy Wings
+
+#### Jubilant Ascension
+- **Flight:** 10.0s flight time, 31 mph, hover enabled
+- **Effects:**
+  - Press the K-key to amplify your HP hearts with musical resonance (warm golden hearts with a radiant amber shimmer). Doubling your effective HP for 50 seconds. (5 minute cooldown).
+- **Lore:** *"Rise on wings of joy — for the hymn lifts all who hear it"*
+- **Recipe:** 30x Resonant Core of Ode to Joy + 20x Ode to Joy Resonant Energy + 3x Harmonic Core of Ode to Joy + 70x Soul of Flight + 25x Lunar Bar @ Fate's Cosmic Anvil
 
 ---
 
 ## 31. Equipment Chains — T8 (Dies Irae)
 
-*Upgrades from T7 (Nachtmusik). Requires Dies Irae Energy.*
+*Upgrades from T7 (Nachtmusik). Requires Dies Irae Energy. The wrathful tier — all bonuses lean into aggression, punishment, and boss-fight intensity.*
 
 | Chain | Name | Key Effects | Recipe (+ prev tier) |
 |-------|------|-------------|---------------------|
-| Defense | Infernal Rampart of Dies Irae | +42 def, 80% shield, hellfire on attackers, +15 regen, 36% thorns, +14% dmg | + 15x Dies Irae Energy |
-| Melee | Infernal Fortissimo Band T8 | +25% melee dmg during boss fights | + 15x Dies Irae Energy |
-| Mage | Infernal Mana Cataclysm | +25% magic dmg during boss fights | + 15x Dies Irae Energy |
-| Ranger | Infernal Executioner's Sight | +25% ranged dmg during boss fights | + 15x Dies Irae Energy |
-| Summoner | Infernal Choirmaster's Scepter | Minions inflict On Fire!, +30% dmg during boss fights | + 15x Dies Irae Energy |
-| Mobility | Infernal Meteor Treads | Max 200 momentum, +42% speed, +3.0 run, knockback immunity + thorns at 175+ | + 15x Dies Irae Energy |
+| Defense | Infernal Rampart of Dies Irae | +42 def, 80% shield block, attackers gain "Quantus Tremor" for 3s (take 8 fire DPS, -8% attack speed), +15 life regen, 36% thorns, +14% all damage, when shield breaks nearby enemies gain "Mors Stupebit" for 2s (Feared, -10 defense) | + 15x Dies Irae Energy |
+| Melee | Infernal Fortissimo Band | +25% melee damage during boss fights / +12% otherwise, melee kills during boss fights extend Heroic Surge by 1s (if active), melee crits inflict "Wrathfire" on enemies for 3s (4 fire DPS, -5 defense) | + 15x Dies Irae Energy |
+| Mage | Infernal Mana Cataclysm | +25% magic damage during boss fights / +12% otherwise, magic kills grant "Tuba Mirum" for 3s (restores 8% max mana over duration, +8% magic damage), 5% chance on magic hit to apply "Lacrimosa" on enemy for 4s (take 10% increased magic damage) | + 15x Dies Irae Energy |
+| Ranger | Infernal Executioner's Sight | +25% ranged damage during boss fights / +12% otherwise, ranged crits against boss-type enemies grant "Executioner's Focus" for 2s (+15% ranged damage to bosses), 20% chance to not consume ammo during boss fights | + 15x Dies Irae Energy |
+| Summoner | Infernal Choirmaster's Scepter | Minions inflict On Fire! on hit, +30% minion damage during boss fights / +15% otherwise, minion crits apply "Infernal Choir" on enemy for 3s (take 15% increased minion damage) | + 15x Dies Irae Energy |
+| Mobility | Infernal Meteor Treads | Max 200 momentum, +42% speed, +3.0 run acceleration, at 175+ momentum gain "Unstoppable Fury" (knockback immunity, 25% contact damage returned as fire thorns), at max momentum enemies you pass gain "Scorched Earth" for 2s (On Fire!, -10% movement speed) | + 15x Dies Irae Energy |
 
 ---
 
 ## 32. Dies Irae (Post-Fate T3)
 
-*Fate's Cosmic Anvil crafts. Blood red, dark crimson, ember orange -- the day of wrath and judgment.*
+*Fate's Cosmic Anvil crafts. White, black, crimson — the white, black, and crimson flames of hell's retribution climb and soar for the world to hear, and for the heavens to banish.*
 
 ### Standalone Accessories
 
@@ -1267,39 +1370,37 @@
 - **Effects:**
   - +50% melee damage
   - +30% melee speed
-  - Critical strikes may execute non-boss enemies below 15% health
-  - Melee kills restore health and grant stacking Judgment
-- **Lore:** *"The chains that bind all sinners to their fate"*
+  - +15% melee critical strike chance
+  - Non-boss enemies below 15% HP are executed (instant kill)
+  - Every 10th melee kill triggers "Day of Wrath" for 6 seconds: +30% melee damage, melee attacks inflict Cursed Inferno
+- **Lore:** *"The chain tightens. The verdict is absolute. There is no appeal."*
 - **Recipe:** 15x Resonant Core of Dies Irae + 10x Dies Irae Resonant Energy + 1x Harmonic Core of Dies Irae + 5x Shard of Dies Irae's Tempo + 10x Lunar Bar @ Fate's Cosmic Anvil
 
 #### Ember of the Condemned *(Magic)*
 - **Effects:**
   - +45% magic damage
   - +25% magic critical strike chance
-  - Magic attacks stack Wrathfire on enemies
-  - At 5 stacks, enemies erupt in a chain of fire
   - -20% mana cost
-- **Lore:** *"A cinder from the flames of eternal condemnation"*
+  - Magic crits apply "Confutatis" on enemy for 4 seconds: -10 defense, +15% damage taken
+- **Lore:** *"A cinder from the pyre that burns beneath all things — the fire that remembers every sin"*
 - **Recipe:** 15x Resonant Core of Dies Irae + 10x Dies Irae Resonant Energy + 1x Harmonic Core of Dies Irae + 5x Shard of Dies Irae's Tempo + 10x Lunar Bar @ Fate's Cosmic Anvil
 
 #### Requiem's Shackle *(Ranged)*
 - **Effects:**
   - +50% ranged damage
   - +30% ranged critical strike chance
-  - Ranged attacks shackle enemies in chains of judgment
-  - Shackled enemies take 20% increased damage from all sources
-  - 25% chance to not consume ammo
-- **Lore:** *"The shackles that bind souls to their requiem"*
+  - +25% chance to not consume ammo
+  - Ranged crits apply "Chains of Requiem" on enemy for 4 seconds: -25% movement speed, +15% damage taken, no health regen
+- **Lore:** *"The shackle remembers every soul it has bound — and it is never satisfied"*
 - **Recipe:** 15x Resonant Core of Dies Irae + 10x Dies Irae Resonant Energy + 1x Harmonic Core of Dies Irae + 5x Shard of Dies Irae's Tempo + 10x Lunar Bar @ Fate's Cosmic Anvil
 
 #### Seal of Damnation *(Summoner)*
 - **Effects:**
   - +55% summon damage
   - +3 max minions
-  - Minions condemn enemies on hit
-  - Condemned enemies release vengeful spirits on death
   - +20% whip speed and range
-- **Lore:** *"Bound by the seal, they serve judgment eternal"*
+  - 15% on minion hit: apply "Condemned" on enemy for 5 seconds (+15% minion damage taken, -5 defense). Whip strikes refresh Condemned duration
+- **Lore:** *"The seal is branded in blood, and the damned serve judgment eternal"*
 - **Recipe:** 15x Resonant Core of Dies Irae + 10x Dies Irae Resonant Energy + 1x Harmonic Core of Dies Irae + 8x Wrath Essence + 5x Shard of Dies Irae's Tempo + 10x Lunar Bar @ Fate's Cosmic Anvil
 
 ### Dies Irae Wings
@@ -1307,156 +1408,146 @@
 #### Wings of Damnation
 - **Flight:** 9.3s flight time, 28 mph, hover enabled
 - **Effects:**
-  - Double-tap to perform an infernal dash that damages enemies
-- **Lore:** *"Wings forged in the flames of final judgment, carrying the condemned to their eternal fate"*
+  - Press the K-key to amplify your HP hearts with musical resonance (dark crimson hearts with a smoldering ember orange shimmer). Doubling your effective HP for 45 seconds. (5 minute cooldown).
+- **Lore:** *"Wings forged in the flames of final judgment — they do not carry you to heaven"*
 - **Recipe:** 30x Dies Irae Resonant Energy + 15x Resonant Core of Dies Irae + 3x Harmonic Core of Dies Irae + 80x Soul of Flight + 25x Lunar Bar @ Fate's Cosmic Anvil
 
 ---
 
 ## 33. Equipment Chains — T9 (Ode to Joy)
 
-*Upgrades from T8 (Dies Irae). Requires Ode to Joy Energy.*
+*Upgrades from T8 (Dies Irae). Requires Ode to Joy Energy. The jubilant tier — all bonuses reward sustained combat with healing, lifesteal, and triumphal buffs.*
 
 | Chain | Name | Key Effects | Recipe (+ prev tier) |
 |-------|------|-------------|---------------------|
-| Defense | Jubilant Bulwark of Joy | +45 def, 90% shield, absorbing heals 5% as HP, +17 regen, 40% thorns, +15% dmg | + 15x Ode to Joy Energy |
-| Melee | Jubilant Crescendo Band | 3% lifesteal on melee | + 15x Ode to Joy Energy |
-| Mage | Jubilant Arcane Celebration | Magic heals 2 HP on hit | + 15x Ode to Joy Energy |
-| Ranger | Jubilant Hunter's Sight | Kill with ranged restores 2 HP | + 15x Ode to Joy Energy |
-| Summoner | Jubilant Orchestra's Staff | Minion hits heal 1 HP, +10% minion attack speed | + 15x Ode to Joy Energy |
-| Mobility | Jubilant Zephyr Treads | Max 225 momentum, +45% speed, +3.5 run, infinite flight at 175+, no fall dmg 200+, reduced gravity | + 15x Ode to Joy Energy |
+| Defense | Jubilant Bulwark of Joy | +45 def, 90% shield block, absorbing shield damage heals 5% of the absorbed amount as HP, +17 life regen, 40% thorns, +15% all damage, standing still for 2s grants "Hymn of Fortitude" for 6s (+8 defense, +5 life regen, +5% damage reduction) | + 15x Ode to Joy Energy |
+| Melee | Jubilant Crescendo Band | +15% melee damage, 3% lifesteal on melee hits (cap 20 HP), every 10th melee kill grants "Triumphant Crescendo" for 5s (+12% melee damage, +8% melee crit, heals 8% max HP on trigger) | + 15x Ode to Joy Energy |
+| Mage | Jubilant Arcane Celebration | +15% magic damage, magic hits heal 2 HP per hit (cap 8 HP/s), magic kills have 20% chance to grant "Arcane Jubilee" for 3s (restores 10 mana, +5% magic damage) | + 15x Ode to Joy Energy |
+| Ranger | Jubilant Hunter's Sight | +15% ranged damage, ranged kills restore 4 HP, ranged critical kills grant "Hunter's Jubilation" for 3s (+8% ranged crit, +5% ranged damage) | + 15x Ode to Joy Energy |
+| Summoner | Jubilant Orchestra's Staff | +15% minion damage, minion hits heal 1 HP (cap 5 HP/s), +10% minion attack speed, every 15 seconds gain "Tutti Fortissimo" for 3s (all minions deal +50% damage) | + 15x Ode to Joy Energy |
+| Mobility | Jubilant Zephyr Treads | Max 225 momentum, +45% speed, +3.5 run acceleration, infinite flight at 175+ momentum, no fall damage at 200+ momentum, reduced gravity, at max momentum gain "Jubilant Stride" (+5% all damage, +3% dodge chance) | + 15x Ode to Joy Energy |
 
 ---
 
 ## 34. Clair de Lune (Post-Fate T4)
 
-*Fate's Cosmic Anvil crafts. Night mist blue, soft blue, pearl white -- the dreamlike calm of moonlit reverie.*
+*Fate's Cosmic Anvil crafts. Dark red, vibrant gray, white — dark reds mixed with vibrant greys and whites to establish shattered time and blazing clocks against the tempo of reality.*
 
 ### Standalone Accessories
 
-#### Chronoblade Gauntlet *(Melee)*
+#### Reverie Gauntlet *(Melee)*
 - **Effects:**
   - +60% melee damage
   - +35% melee speed
-  - Critical strikes accelerate time -- next swing is 50% faster
-  - Every 8th melee hit restores 25% of recent damage taken (max 40 HP)
-- **Lore:** *"The gauntlet tightens, and seconds shatter like glass"*
+  - +20% melee critical strike chance
+  - 20% on hit: apply "Brumes" on enemy for 3 seconds (-12% movement speed)
+  - Every 8th melee hit grants "Rêverie" for 4 seconds: +15% melee damage, +5% dodge chance
+  - At night: Rêverie lasts 6 seconds
+- **Lore:** *"The gauntlet moves like a dream half-remembered — soft, slow, and impossible to escape"*
 - **Recipe:** 15x Resonant Core of Clair de Lune + 10x Clair de Lune Resonant Energy + 1x Harmonic Core of Clair de Lune + 5x Shard of Clair de Lune's Tempo + 10x Lunar Bar @ Fate's Cosmic Anvil
 
-#### Fractured Hourglass Pendant *(Magic)*
+#### Luminous Reverie Pendant *(Magic)*
 - **Effects:**
   - +55% magic damage
   - +30% magic critical strike chance
-  - Magic attacks may fracture time around enemies
-  - Enemies in fractured zones take 10% increased damage
   - -25% mana cost
-- **Lore:** *"The sand still falls, but time has long since stopped"*
+  - 10% on hit: apply "Voiles" on enemy for 4 seconds (15% miss chance)
+  - Every 10th magic hit grants "Arabesque" for 5 seconds: +12% magic damage, -15% mana cost
+  - At night: Arabesque lasts 7 seconds
+- **Lore:** *"She wears the moon's light like a pendant — and the night softens wherever she walks"*
 - **Recipe:** 15x Resonant Core of Clair de Lune + 10x Clair de Lune Resonant Energy + 1x Harmonic Core of Clair de Lune + 8x Lune Essence + 5x Shard of Clair de Lune's Tempo + 10x Lunar Bar @ Fate's Cosmic Anvil
 
-#### Chronodisruptor of Harmony *(Ranged)*
+#### Dreambow Clasp *(Ranged)*
 - **Effects:**
   - +55% ranged damage
   - +30% ranged critical strike chance
-  - Ranged critical hits disrupt enemy tempo
-  - Affected enemies deal 15% less damage and move slowly
-  - 20% chance to not consume ammo
-- **Lore:** *"Harmony fractures, and the world slows to a crawl"*
+  - +20% chance to not consume ammo
+  - Ranged crits apply "Pas sur la Neige" on enemy for 3 seconds (-15% movement speed)
+  - Every 5th ranged crit grants "Reflets dans l'Eau" for 4 seconds: +12% ranged damage, +8% ranged crit
+  - At night: Reflets dans l'Eau lasts 6 seconds
+- **Lore:** *"The arrow dissolves into moonlight — and the moonlight finds its mark"*
 - **Recipe:** 15x Resonant Core of Clair de Lune + 10x Clair de Lune Resonant Energy + 1x Harmonic Core of Clair de Lune + 5x Shard of Clair de Lune's Tempo + 10x Lunar Bar @ Fate's Cosmic Anvil
 
-#### Timesinger Sigil *(Summoner)*
+#### Dreamsinger Sigil *(Summoner)*
 - **Effects:**
   - +65% summon damage
   - +4 max minions
-  - Minion attacks may summon temporal echoes that strike once
   - +25% whip speed and range
-- **Lore:** *"The sigil hums, and forgotten servants answer across the ages"*
+  - 10% on minion hit: apply "Berceuse" on enemy for 3 seconds (-5 defense, -10% movement speed)
+  - Minion kills grant "Clair" for 3 seconds: +10% summon damage, +3 life regen
+  - At night: Clair lasts 5 seconds
+- **Lore:** *"The sigil hums a lullaby — and the dreaming servants answer in moonlit harmony"*
 - **Recipe:** 15x Resonant Core of Clair de Lune + 10x Clair de Lune Resonant Energy + 1x Harmonic Core of Clair de Lune + 5x Shard of Clair de Lune's Tempo + 10x Lunar Bar @ Fate's Cosmic Anvil
 
 ### Clair de Lune Wings
 
-#### Wings of Shattered Time *(SUPREME)*
+#### Wings of Moonlit Reverie *(SUPREME)*
 - **Flight:** 10.8s flight time, 34 mph, supreme acceleration, hover enabled
 - **Effects:**
-  - Double-tap to perform a temporal phase dash through enemies
-  - +25 defense while equipped
-  - Grants immunity to time-based debuffs (Slow, Frozen)
-- **Lore:** *"Crystallized moments of eternity, shattered and reformed into wings that defy the laws of time"*
+  - Press the K-key to amplify your HP hearts with musical resonance (dark gray hearts with a dark red and pearl white shimmer). Doubling your effective HP for 55 seconds. (5 minute cooldown).
+- **Lore:** *"Wings spun from the first moonbeam of evening — they carry you not through the sky, but through a dream"*
 - **Recipe:** 35x Resonant Core of Clair de Lune + 25x Clair de Lune Resonant Energy + 4x Harmonic Core of Clair de Lune + 25x Lunar Bar + 50x Soul of Flight @ Fate's Cosmic Anvil
 
 ---
 
 ## 35. Equipment Chains — T10 (Clair de Lune)
 
-*Final equipment chain tier. Upgrades from T9 (Ode to Joy). Requires Clair de Lune Energy.*
+*Final equipment chain tier. Upgrades from T9 (Ode to Joy). Requires Clair de Lune Energy. The serene apex — all bonuses emphasize peaceful power, regeneration, and dreamlike grace.*
 
 | Chain | Name | Key Effects | Recipe (+ prev tier) |
 |-------|------|-------------|---------------------|
-| Defense | Eternal Bastion of the Moonlight | +50 def, 100% shield, +50% regen standing still, +18 regen, 45% thorns, +18% dmg | + 15x Clair de Lune Energy |
-| Melee | Eternal Resonance Band | +15% melee dmg, +8% melee speed | + 15x Clair de Lune Energy |
-| Mage | Eternal Overflow Mastery | +15% magic dmg, 8% reduced mana cost | + 15x Clair de Lune Energy |
-| Ranger | Eternal Verdict Sight | +15% ranged dmg, +8% ranged crit | + 15x Clair de Lune Energy |
-| Summoner | Eternal Conductor's Scepter | +15% minion dmg, +12% minion attack speed | + 15x Clair de Lune Energy |
-| Mobility | Eternal Velocity Treads | Max 250 momentum, +50% speed, +4.5 run, slow enemies 225+, lightspeed mode at 250 (invincible + contact dmg) | + 15x Clair de Lune Energy |
-
----
-
-## 36. Equipment Chain Fusions (Post-Fate)
-
-*Alternative combination path for T7-T10 equipment chain items. These merge multiple post-fate tier chains into combined accessories.*
-
-### Melee Fusions
-
-- **Starfall Judgment Gauntlet** *(Nachtmusik + Dies Irae)* -- +20% dmg night, +8% speed, +12 armor pen. Recipe: Nocturnal Symphony Band + Infernal Fortissimo Band T8 + 10x each energy
-- **Triumphant Cosmos Gauntlet** *(3-theme)* -- +20% night, 3% lifesteal, +10% speed, +18 pen, +30 max life. Recipe: Starfall Judgment Gauntlet + Jubilant Crescendo Band + 15x Ode to Joy Energy
-- **Gauntlet of the Eternal Symphony** *(Ultimate)* -- All combined. Recipe: Triumphant Cosmos Gauntlet + Eternal Resonance Band + 15x Clair de Lune Energy
-
-### Mage Fusions
-
-- **Starfall Harmonic Pendant** *(Nachtmusik + Dies Irae)* -- +20% magic dmg night, +80 max mana, 10% cost reduction
-- **Triumphant Overflow Pendant** *(3-theme)* -- +20% night, +120 max mana, 14% cost reduction
-- **Pendant of the Eternal Overflow** *(Ultimate)* -- All combined
-
-### Ranger Fusions
-
-- **Starfall Executioner's Scope** *(Nachtmusik + Dies Irae)* -- +10% ranged crit, +12 armor pen, 20% ammo save
-- **Triumphant Verdict Scope** *(3-theme)* -- +12% ranged crit, +18 armor pen, 25% ammo save, scope
-- **Scope of the Eternal Verdict** *(Ultimate)* -- +30% ranged dmg, +12% crit, +20 pen, ammo box, scope
-
-### Summoner Fusions
-
-- **Starfall Infernal Baton** *(Nachtmusik + Dies Irae)* -- +20% minion dmg night, +1 max minion, +10% whip range
+| Defense | Eternal Bastion of Moonlight | +50 def, 100% shield block, standing still for 3s grants "Moonlit Serenity" for 6s (+50% life regen, +10 defense, -15% damage taken), +18 base life regen, 45% thorns, +18% all damage, enemies that attack you while shielded have 10% chance to gain "Voiles" for 2s (15% miss chance) | + 15x Clair de Lune Energy |
+| Melee | Eternal Resonance Band | +15% melee damage, +8% melee speed, melee kills grant "Nocturne" for 3s (+3 life regen, +5% melee damage), melee crits at night gain +5% bonus crit damage | + 15x Clair de Lune Energy |
+| Mage | Eternal Overflow Mastery | +15% magic damage, -8% mana cost, magic hits have 5% chance to grant "Reverie's Flow" for 2s (restores 5 mana over duration), standing still grants +10 mana regen | + 15x Clair de Lune Energy |
+| Ranger | Eternal Verdict Sight | +15% ranged damage, +8% ranged crit, ranged crits at night grant "Moonbeam Focus" for 2s (+5% ranged damage, +3% ranged crit) | + 15x Clair de Lune Energy |
+| Summoner | Eternal Conductor's Scepter | +15% minion damage, +12% minion attack speed, minion hits have 8% chance to apply "Berceuse" on enemies for 2s (-3 defense, -8% movement speed), minion kills grant "Clair" for 2s (+5% summon damage, +2 life regen) | + 15x Clair de Lune Energy |
+| Mobility | Eternal Velocity Treads | Max 250 momentum, +50% speed, +4.5 run acceleration, at 225+ momentum enemies you pass gain "Pas sur la Neige" for 2s (-15% movement speed), at 250 momentum gain "Lightspeed Reverie" (brief invincibility frames, contact damage to enemies you run through) | + 15x Clair de Lune Energy |
 
 ---
 
 ## 37. Coda of Absolute Harmony (Ultimate)
 
-*The apex of all accessories. All seasons. All themes. Absolute power.*
+*The apex of all accessories. All seasons, all themes, all power converged into a single slot. This is the final note of the grand opus — the Coda that resolves every melody, every harmony, every dissonance into absolute unity.*
 
 #### Coda of Absolute Harmony
-- **Effects:**
-  - **Global Stats:** +40% all damage, +30 crit chance, +20% attack speed, +35 defense, +15 life regen, +10 mana regen, +18% damage reduction, +30% movement speed
-  - **Moonlight (Night):** Additional +25% damage, +25 crit, +20 defense
-  - **Eroica:** +25% melee damage, +22% melee attack speed, +15 melee crit
-  - **La Campanella:** +30% magic damage, +15 magic crit, -25% mana cost
-  - **Enigma:** +22% all damage
-  - **Swan Lake:** +22% all damage, +30% move speed, 1.3x faster max run speed
-  - **Ranged:** +30% damage, +18 crit
-  - **Summoner:** +6 minions, +30% damage
-  - **Mobility:** +120 wing time, no fall damage, 1.5x run acceleration
-  - **Elemental:** Magma stone, frostburn, 200% thorns
-  - All season effects: On Fire!, Frostburn, Poison applied
-  - Immunity to all elemental debuffs and status effects
-  - **Special Effects:**
-    - 12% chance to lifesteal 10% of damage (max 30 HP)
-    - 20% Bell ring AoE (220 range)
-    - 25% Paradox stacking (5 stacks = collapse)
-    - 18-22% dodge chance
-    - Heroic surge on kill
-    - Mana burst when low
-    - Temporal echoes every 5th melee hit
-    - Cosmic bursts
+- **Global Stats:**
+  - +40% all damage
+  - +30% critical strike chance
+  - +20% attack speed
+  - +35 defense
+  - +15 life regen
+  - +10 mana regen
+  - +18% damage reduction
+  - +30% movement speed
+- **Theme Empowerments:**
+  - **Moonlight Sonata (Night):** +25% additional damage, +25% crit, +20 defense at night. Magic attacks inflict Moonstruck (slowed, -15 defense)
+  - **Eroica (Melee):** +25% melee damage, +22% melee attack speed, +15% melee crit. Kills trigger Heroic Surge (+25% damage for 5 seconds)
+  - **La Campanella (Summoner):** +30% magic damage, +15% magic crit, -25% mana cost. 8% Tolling Death on any weapon hit. +2 minion slots. Immune to fire debuffs and lava
+  - **Enigma Variations:** +22% all damage. 10% Paradox on hit (Confused, Slow, Cursed Inferno, or Ichor)
+  - **Swan Lake (Mobility):** +22% all damage, +30% movement speed, 1.3x faster max run speed. Dying Swan's Grace (airborne Odile's Beauty debuff). Damage buff effectiveness +80%
+  - **Nachtmusik (Night):** At night: all buffs gain +10% potency. Every 10 seconds at night, gain "Eine Kleine" for 6 seconds (+12% all damage, +5% crit)
+  - **Ode to Joy (Sustain):** 3% lifesteal on all attacks (cap 30 HP). Kills grant "Ovation" for 5 seconds (+10% all damage, stacks 3x)
+  - **Dies Irae (Execution):** Non-boss enemies below 10% HP are auto-executed. All weapon crits have 5% chance to apply "Confutatis" on enemy for 3s (-10 defense, +10% damage taken)
+  - **Clair de Lune (Grace):** Gain permanent "Prélude" while equipped (+5% dodge chance). Enemies that attack you have 8% chance to gain "Voiles" for 2s (15% miss chance). At night: Prélude also grants +3 life regen
+- **Class-Specific Bonuses:**
+  - **Ranged:** +30% ranged damage, +18% ranged crit, 25% chance to not consume ammo
+  - **Summoner:** +6 max minions, +30% summon damage, minion hits heal 1 HP (cap 5/s)
+- **Mobility & Defense:**
+  - +120 wing flight time, no fall damage, 1.5x run acceleration
+  - 200% thorns, Magma Stone fire on melee contact, Frostburn on all attacks
+  - Attacks inflict On Fire!, Frostburn, and Poisoned
+  - Immunity to all elemental debuffs (On Fire, Cursed Inferno, Shadowflame, Frostburn, Frozen, Chilled, Poisoned, Confused, Slow)
+- **Signature — "Absolute Harmony" (Ultimate Stacking System):**
+  - Inherits Harmonic Convergence from Complete Harmony (5 theme procs build Harmonic Resonance stacks → Full Harmony at 5 stacks)
+  - Inherits Dissonance (enemies with 3+ theme debuffs take 20% more damage for 8s)
+  - **New — "Coda Resonance":** When Full Harmony triggers, instead of the standard effect, triggers "Coda of Unity" for 10 seconds:
+    - +35% all damage, +20% dodge chance, all attacks heal 1% max HP
+    - All theme proc chances doubled (16% Tolling Death, 20% Paradox, etc.)
+    - Kills during Coda of Unity extend the duration by 1 second (max 15 seconds total)
+  - At night: Coda of Unity gains an additional +10% all damage
+- **Lore:** *"Every voice. Every season. Every star. The coda resolves — and the silence that follows is perfect."*
 - **Value:** 10 Platinum
-- **Recipe:** 1x Opus of Four Movements + 1x Cosmic Warden's Regalia + 1x Spring's Moonlit Garden + 1x Summer's Infernal Peak + 1x Winter's Enigmatic Silence + 1x Coda of Annihilation (weapon, consumed) + 20x Lunar Bar @ Lunar Crafting Station
+- **Recipe:** 1x Opus of Four Movements + 1x Symphony of Fate's Tempo + 1x Spring's Moonlit Garden + 1x Summer's Infernal Peak + 1x Winter's Enigmatic Silence + 1x Coda of Annihilation (weapon, consumed) + 20x Lunar Bar @ Lunar Crafting Station
 
 ---
 
@@ -1467,18 +1558,18 @@
 | Pre-Hardmode | 3 |
 | Season (Spring/Summer/Autumn/Winter) | 12 |
 | Seasonal Combinations | 4 |
-| Chain -- Seasonal Tiers (6 chains x 6 tiers) | 36 |
-| Chain -- Theme Tiers (6 chains x 6 tiers) | 36 |
-| Chain -- Post-Fate Tiers (6 chains x 4 tiers) | 24 |
-| Chain -- Fusions | ~12 |
+| Chain — Seasonal Tiers (6 chains × 6 tiers) | 36 |
+| Chain — Theme Tiers (6 chains × 6 tiers) | 36 |
+| Chain — Post-Fate Tiers (6 chains × 4 tiers) | 24 |
+| Chain — Fusions | ~12 |
 | Moonlight Sonata | 6 |
 | Eroica | 5 |
 | La Campanella | 5 |
 | Enigma Variations | 6 |
 | Swan Lake | 6 |
 | Fate | 5 |
-| Nachtmusik | 4 |
-| Ode to Joy | 3 |
+| Nachtmusik | 5 |
+| Ode to Joy | 4 |
 | Dies Irae | 4 |
 | Clair de Lune | 4 |
 | Two-Theme Combinations | 6 |
@@ -1487,4 +1578,4 @@
 | Grand Combinations | 6 |
 | Wings | 9 |
 | Ultimate | 1 |
-| **TOTAL** | **~200+** |
+| **TOTAL** | **~210+** |

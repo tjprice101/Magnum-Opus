@@ -14,7 +14,7 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
 {
     // ============================================================
     // TIER 1: RESONANT BARRIER CORE
-    // Base accessory - 10% max HP shield, regenerates after 5s
+    // +2 defense, 5% max HP, +2 HP regen/s after 5s without damage
     // ============================================================
     public class ResonantBarrierCore : ModItem
     {
@@ -32,16 +32,16 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             var shieldPlayer = player.GetModPlayer<ResonantShieldPlayer>();
             shieldPlayer.HasResonantBarrierCore = true;
             
-            // Base defense bonus
             player.statDefense += 2;
+            player.statLifeMax2 += (int)(player.statLifeMax * 0.05f);
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+2 defense"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Grants 10% of max HP as an absorbent shield"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Shield regenerates after 5 seconds of not taking damage"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'A crystalline ward attuned to the rhythm of life'") { OverrideColor = new Color(150, 200, 100) });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "5% increased maximum life"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+2 HP regeneration per second after 5 seconds without taking damage"));
+            tooltips.Add(new TooltipLine(Mod, "Lore", "'A crystal barrier hums with protective frequencies'") { OverrideColor = new Color(180, 200, 255) });
         }
         
         public override void AddRecipes()
@@ -56,7 +56,7 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
     
     // ============================================================
     // TIER 2: SPRING VITALITY SHELL
-    // 15% shield, break releases healing petals (10 HP to allies)
+    // +4 defense, 7% max HP, +4 HP regen/s after 5s, +8 defense on hit
     // ============================================================
     public class SpringVitalityShell : ModItem
     {
@@ -74,19 +74,16 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             var shieldPlayer = player.GetModPlayer<ResonantShieldPlayer>();
             shieldPlayer.HasSpringVitalityShell = true;
             
-            // Defense bonus
             player.statDefense += 4;
-            
-            // Life regen bonus
-            player.lifeRegen += 2;
+            player.statLifeMax2 += (int)(player.statLifeMax * 0.07f);
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+4 defense"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+2 life regeneration"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Grants 15% of max HP as an absorbent shield"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "When shield breaks, restores 8 HP"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "7% increased maximum life"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "+4 HP regeneration per second after 5 seconds without taking damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Hitting enemies grants +8 defense for 1 second"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Spring's gentle embrace, warding off winter's last chill'") { OverrideColor = new Color(150, 200, 100) });
         }
         
@@ -103,7 +100,8 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
     
     // ============================================================
     // TIER 3: SOLAR FLARE AEGIS
-    // 20% shield, break releases fire nova (damages enemies)
+    // +6 defense, fire/lava immunity, hellfire <50% HP, 10% max HP,
+    // +7 HP regen/s after 5s, +10 defense on hit
     // ============================================================
     public class SolarFlareAegis : ModItem
     {
@@ -121,24 +119,24 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             var shieldPlayer = player.GetModPlayer<ResonantShieldPlayer>();
             shieldPlayer.HasSolarFlareAegis = true;
             
-            // Defense bonus
             player.statDefense += 6;
+            player.statLifeMax2 += (int)(player.statLifeMax * 0.10f);
             
-            // Fire immunity
+            // Fire and lava immunity
             player.buffImmune[BuffID.OnFire] = true;
             player.buffImmune[BuffID.Burning] = true;
-            
-            // Inherited from T2: life regen (scaled for T3)
-            player.lifeRegen += 3;
+            player.lavaImmune = true;
+            player.fireWalk = true;
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+6 defense"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Immunity to fire and burning"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+3 life regeneration"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "Grants 20% of max HP as an absorbent shield"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Shield break effects: heals 8 HP and inflicts hellfire on nearby enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "10% increased maximum life"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Immunity to fire and lava"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+7 HP regeneration per second after 5 seconds without taking damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Hitting enemies grants +10 defense for 1 second"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Inflicts Hellfire on nearby enemies when below 50% health"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Forged in the heart of summer's blazing sun'") { OverrideColor = new Color(150, 200, 100) });
         }
         
@@ -155,7 +153,8 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
     
     // ============================================================
     // TIER 4: HARVEST THORNED GUARD
-    // 25% shield, thorns return 15% damage to melee attackers
+    // +10 defense, fire/lava/blindness immunity, hellfire <50% HP,
+    // 12% max HP, +9 HP regen/s after 5s, +12 defense on hit, 90% thorns
     // ============================================================
     public class HarvestThornedGuard : ModItem
     {
@@ -173,27 +172,27 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             var shieldPlayer = player.GetModPlayer<ResonantShieldPlayer>();
             shieldPlayer.HasHarvestThornedGuard = true;
             
-            // Defense bonus
-            player.statDefense += 8;
+            player.statDefense += 10;
+            player.statLifeMax2 += (int)(player.statLifeMax * 0.12f);
+            player.thorns = 0.9f;
             
-            // Natural thorns
-            player.thorns = 0.15f;
-            
-            // Inherited from T2: life regen (scaled for T4)
-            player.lifeRegen += 3;
-            
-            // Inherited from T3: fire immunity
+            // Fire, lava, and blindness immunity
             player.buffImmune[BuffID.OnFire] = true;
             player.buffImmune[BuffID.Burning] = true;
+            player.buffImmune[BuffID.Darkness] = true;
+            player.lavaImmune = true;
+            player.fireWalk = true;
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+8 defense"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+3 life regeneration"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Immunity to fire and burning"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "15% of melee damage taken is reflected back to attackers"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Grants 25% of max HP as an absorbent shield"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+10 defense"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "12% increased maximum life"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Immunity to fire, lava, and blindness"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+9 HP regeneration per second after 5 seconds without taking damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Hitting enemies grants +12 defense for 1 second"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Inflicts Hellfire on nearby enemies when below 50% health"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "90% of contact damage is reflected back to attackers"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Autumn's thorns protect the harvest from all who would pillage'") { OverrideColor = new Color(150, 200, 100) });
         }
         
@@ -210,7 +209,8 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
     
     // ============================================================
     // TIER 5: PERMAFROST CRYSTAL WARD
-    // 30% shield, break freezes attackers for 1s
+    // +12 defense, fire/lava/blindness/ice immunity, hellfire <50% HP,
+    // 15% max HP, +11 HP regen/s after 5s, +14 defense on hit, 90% thorns
     // ============================================================
     public class PermafrostCrystalWard : ModItem
     {
@@ -228,33 +228,30 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             var shieldPlayer = player.GetModPlayer<ResonantShieldPlayer>();
             shieldPlayer.HasPermafrostCrystalWard = true;
             
-            // Defense bonus
-            player.statDefense += 10;
+            player.statDefense += 12;
+            player.statLifeMax2 += (int)(player.statLifeMax * 0.15f);
+            player.thorns = 0.9f;
             
-            // Ice immunity
+            // Fire, lava, blindness, and ice immunity
+            player.buffImmune[BuffID.OnFire] = true;
+            player.buffImmune[BuffID.Burning] = true;
+            player.buffImmune[BuffID.Darkness] = true;
             player.buffImmune[BuffID.Frostburn] = true;
             player.buffImmune[BuffID.Chilled] = true;
             player.buffImmune[BuffID.Frozen] = true;
-            
-            // Inherited from T2: life regen (scaled for T5)
-            player.lifeRegen += 4;
-            
-            // Inherited from T3: fire immunity
-            player.buffImmune[BuffID.OnFire] = true;
-            player.buffImmune[BuffID.Burning] = true;
-            
-            // Inherited from T4: thorns
-            player.thorns = 0.18f;
+            player.lavaImmune = true;
+            player.fireWalk = true;
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+10 defense"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "+4 life regeneration"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Immunity to fire, burning, frostburn, chill, and frozen"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "18% of melee damage taken is reflected back to attackers"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Grants 30% of max HP as an absorbent shield"));
-            tooltips.Add(new TooltipLine(Mod, "Effect6", "Shield break effects: heals 8 HP, inflicts hellfire, and frostburns nearby enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+12 defense"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "15% increased maximum life"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Immunity to fire, lava, blindness, frostburn, chill, and frozen"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+11 HP regeneration per second after 5 seconds without taking damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Hitting enemies grants +14 defense for 1 second"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Inflicts Hellfire on nearby enemies when below 50% health"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "90% of contact damage is reflected back to attackers"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Winter's crystalline heart, unbreakable and eternal'") { OverrideColor = new Color(150, 200, 100) });
         }
         
@@ -289,31 +286,32 @@ namespace MagnumOpus.Content.Common.Accessories.DefenseChain
             var shieldPlayer = player.GetModPlayer<ResonantShieldPlayer>();
             shieldPlayer.HasVivaldisSeasonalBulwark = true;
             
-            // Strong defense bonus
             player.statDefense += 14;
+            player.statLifeMax2 += (int)(player.statLifeMax * 0.18f);
+            player.thorns = 0.9f;
             
-            // All immunities from previous tiers
+            // Full immunity suite
             player.buffImmune[BuffID.OnFire] = true;
             player.buffImmune[BuffID.Burning] = true;
             player.buffImmune[BuffID.Frostburn] = true;
             player.buffImmune[BuffID.Chilled] = true;
             player.buffImmune[BuffID.Frozen] = true;
-            
-            // Life regen
-            player.lifeRegen += 5;
-            
-            // Thorns
-            player.thorns = 0.20f;
+            player.buffImmune[BuffID.Darkness] = true;
+            player.buffImmune[BuffID.Bleeding] = true;
+            player.buffImmune[BuffID.Poisoned] = true;
+            player.lavaImmune = true;
+            player.fireWalk = true;
         }
         
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "+14 defense"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Immunity to fire, burning, frostburn, chill, and frozen"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "+5 life regeneration"));
-            tooltips.Add(new TooltipLine(Mod, "Effect4", "20% of melee damage taken is reflected back to attackers"));
-            tooltips.Add(new TooltipLine(Mod, "Effect5", "Grants 35% of max HP as an absorbent shield"));
-            tooltips.Add(new TooltipLine(Mod, "Effect6", "Shield break effects: heals 8 HP, inflicts hellfire and frostburn on nearby enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "18% increased maximum life"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Immunity to fire, lava, frostburn, chill, frozen, blindness, bleeding, and poison"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "+13 HP regeneration per second after 5 seconds without taking damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect5", "Hitting enemies grants +16 defense for 1 second"));
+            tooltips.Add(new TooltipLine(Mod, "Effect6", "Inflicts Hellfire, Frostburn, Poison, and Bleeding on nearby enemies when below 50% health"));
+            tooltips.Add(new TooltipLine(Mod, "Effect7", "90% of contact damage is reflected back to attackers"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The four seasons dance in eternal harmony within this bulwark'") { OverrideColor = new Color(150, 200, 100) });
         }
         

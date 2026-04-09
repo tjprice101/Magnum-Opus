@@ -1,146 +1,106 @@
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace MagnumOpus.Content.DiesIrae.Accessories
 {
     /// <summary>
-    /// Global NPC that handles Dies Irae accessory debuff effects on enemies.
-    /// Tracks Wrathfire stacks (Ember of the Condemned), Condemned marks (Seal of Damnation),
-    /// and Chains of Judgment marks (Requiem's Shackle).
+    /// Global NPC tracking Dies Irae accessory debuffs on enemies.
+    /// Wrathfire stacks (Ember), Confutatis (Ember 5-stack), Chains of Requiem (Requiem's Shackle),
+    /// Condemned/Recordare (Seal of Damnation), Judgment stacks + Day of Wrath (Chain of Final Judgment).
     /// </summary>
     public class DiesIraeAccessoryGlobalNPC : GlobalNPC
     {
         public override bool InstancePerEntity => true;
 
-        // --- Wrathfire Cascade (Ember of the Condemned) ---
-        public int wrathfireStacks;
-        public int wrathfireDamageAccumulated;
-        public int wrathfireTickTimer;
+        // --- Confutatis (Ember of the Condemned magic crits) ---
+        public int confutatisTimer;
 
-        // --- Condemned Mark (Seal of Damnation) ---
-        public bool condemnedMark;
+        // --- Chains of Requiem (Requiem's Shackle ranged crits) ---
+        public int chainsOfRequiemTimer;
 
-        // --- Chains of Judgment (Requiem's Shackle) ---
-        public bool chainsOfJudgment;
-        public int chainsTimer;
+        // --- Condemned (Seal of Damnation minion hits) ---
+        public int condemnedTimer;
 
         public override void ResetEffects(NPC npc)
         {
-            // Wrathfire DoT tick
-            if (wrathfireStacks > 0)
-            {
-                wrathfireTickTimer++;
-                if (wrathfireTickTimer >= 60) // every second
-                {
-                    wrathfireTickTimer = 0;
-                    // Each stack deals 3% of accumulated damage per second
-                    int dotDamage = (int)(wrathfireDamageAccumulated * 0.03f * wrathfireStacks);
-                    if (dotDamage > 0 && npc.active && !npc.dontTakeDamage)
-                    {
-                        npc.life -= dotDamage;
-                        if (npc.life <= 0)
-                        {
-                            npc.life = 1;
-                            npc.checkDead();
-                        }
-                        npc.HitEffect();
-                    }
-
-                    // Fire dust per tick
-                    for (int i = 0; i < wrathfireStacks; i++)
-                    {
-                        Dust dust = Dust.NewDustDirect(npc.position, npc.width, npc.height,
-                            Terraria.ID.DustID.Torch, 0f, -1.5f, 100, default, 1.2f);
-                        dust.noGravity = true;
-                    }
-                }
-            }
-
-            // Chains of Judgment timer decay
-            if (chainsTimer > 0)
-            {
-                chainsTimer--;
-                if (chainsTimer <= 0)
-                    chainsOfJudgment = false;
-            }
+            if (confutatisTimer > 0) confutatisTimer--;
+            if (chainsOfRequiemTimer > 0) chainsOfRequiemTimer--;
+            if (condemnedTimer > 0) condemnedTimer--;
         }
 
         public override void ModifyHitByProjectile(NPC npc, Projectile projectile, ref NPC.HitModifiers modifiers)
         {
-            if (chainsOfJudgment)
-                modifiers.FinalDamage += 0.20f;
+            // Confutatis: +15% damage taken, -10 defense
+            if (confutatisTimer > 0)
+            {
+                modifiers.FinalDamage += 0.15f;
+                modifiers.Defense.Flat -= 10;
+            }
+
+            // Chains of Requiem: +15% damage taken
+            if (chainsOfRequiemTimer > 0)
+                modifiers.FinalDamage += 0.15f;
+
+            // Condemned: +15% minion damage taken
+            if (condemnedTimer > 0 && projectile.minion)
+                modifiers.FinalDamage += 0.15f;
         }
 
         public override void ModifyHitByItem(NPC npc, Player player, Item item, ref NPC.HitModifiers modifiers)
         {
-            if (chainsOfJudgment)
-                modifiers.FinalDamage += 0.20f;
+            if (confutatisTimer > 0)
+            {
+                modifiers.FinalDamage += 0.15f;
+                modifiers.Defense.Flat -= 10;
+            }
+
+            if (chainsOfRequiemTimer > 0)
+                modifiers.FinalDamage += 0.15f;
         }
 
-        /// <summary>
-        /// Add a Wrathfire stack to this NPC. At 5 stacks, erupts for AoE.
-        /// </summary>
-        public void AddWrathfireStack(NPC npc, int damageDealt)
+        public override void PostAI(NPC npc)
         {
-            wrathfireStacks++;
-            wrathfireDamageAccumulated += damageDealt;
-
-            // Per-hit ember dust (scales with stacks)
-            for (int i = 0; i < System.Math.Min(wrathfireStacks, 3); i++)
+            // Chains of Requiem: -25% movement speed, no regen
+            if (chainsOfRequiemTimer > 0)
             {
-                Dust dust = Dust.NewDustDirect(npc.Center + Main.rand.NextVector2Circular(12f, 12f),
-                    0, 0, Terraria.ID.DustID.Torch, 0f, -1f, 100, default, 0.8f + wrathfireStacks * 0.1f);
-                dust.noGravity = true;
+                npc.velocity *= 0.75f;
+                if (npc.lifeRegen > 0)
+                    npc.lifeRegen = 0;
             }
 
-            if (wrathfireStacks >= 5)
-            {
-                // ERUPTION: AoE damage to nearby enemies
-                int eruptionDamage = (int)(wrathfireDamageAccumulated * 0.5f);
-
-                for (int i = 0; i < Main.maxNPCs; i++)
-                {
-                    NPC other = Main.npc[i];
-                    if (other.active && other.whoAmI != npc.whoAmI && !other.friendly && other.CanBeChasedBy()
-                        && Vector2.Distance(other.Center, npc.Center) < 150f)
-                    {
-                        other.SimpleStrikeNPC(eruptionDamage, 0, false, 0f, null, false, 0f, true);
-                    }
-                }
-
-                // Eruption VFX: burst of fire dust
-                for (int i = 0; i < 8; i++)
-                {
-                    Vector2 vel = Main.rand.NextVector2CircularEdge(4f, 4f);
-                    Dust dust = Dust.NewDustDirect(npc.Center, 0, 0,
-                        Terraria.ID.DustID.Torch, vel.X, vel.Y, 80, default, 1.5f);
-                    dust.noGravity = true;
-                }
-                Lighting.AddLight(npc.Center, 1.0f, 0.5f, 0.1f);
-
-                // Reset
-                wrathfireStacks = 0;
-                wrathfireDamageAccumulated = 0;
-                wrathfireTickTimer = 0;
-            }
+            // Condemned: -5 defense
+            if (condemnedTimer > 0)
+                npc.defense = System.Math.Max(0, npc.defense - 5);
         }
 
-        /// <summary>
-        /// Apply Chains of Judgment mark (+20% damage from all sources for 4s).
-        /// </summary>
-        public void ApplyChainsOfJudgment(NPC npc)
+        /// <summary>Apply Confutatis: -10 defense, +15% damage taken, 4 seconds.</summary>
+        public void ApplyConfutatis(NPC npc)
         {
-            chainsOfJudgment = true;
-            chainsTimer = 240; // 4 seconds
-
-            // Mark VFX
-            for (int i = 0; i < 2; i++)
-            {
-                Dust dust = Dust.NewDustDirect(npc.Center + Main.rand.NextVector2Circular(10f, 10f),
-                    0, 0, Terraria.ID.DustID.RedTorch, 0f, -0.5f, 100, default, 0.9f);
-                dust.noGravity = true;
-            }
+            confutatisTimer = 240; // 4 seconds
         }
+
+        /// <summary>Apply Chains of Requiem: -25% speed, +15% damage taken, no regen, 4 seconds.</summary>
+        public void ApplyChainsOfRequiem(NPC npc)
+        {
+            chainsOfRequiemTimer = 240; // 4 seconds
+        }
+
+        /// <summary>Apply Condemned mark for 5 seconds.</summary>
+        public void ApplyCondemned(NPC npc)
+        {
+            condemnedTimer = 300; // 5 seconds
+        }
+
+        public bool HasCondemned => condemnedTimer > 0;
+        public bool HasChainsOfRequiem => chainsOfRequiemTimer > 0;
+        public bool HasConfutatis => confutatisTimer > 0;
+
+        // Legacy compatibility
+        public void ApplyChainsOfJudgment(NPC npc) => ApplyChainsOfRequiem(npc);
+        public bool condemnedMark { get => condemnedTimer > 0; set { if (value) condemnedTimer = 300; } }
+        public void AddWrathfireStack(NPC npc, int damageDealt) => ApplyConfutatis(npc);
+        public static void ExtendAllChains() { }
     }
 }

@@ -44,7 +44,7 @@ namespace MagnumOpus.Content.SwanLake.Tools
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Dodge", "Double-tap left or right to perform a prismatic dodge with brief invulnerability") { OverrideColor = new Color(220, 220, 255) });
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Press K to amplify your HP hearts with musical resonance, doubling your effective HP for 25 seconds (5 minute cooldown)") { OverrideColor = new Color(220, 220, 255) });
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Dance upon the rainbow winds'") { OverrideColor = new Color(240, 240, 255) });
         }
 
@@ -61,6 +61,7 @@ namespace MagnumOpus.Content.SwanLake.Tools
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             player.GetModPlayer<IridescentDawnPlayer>().hasWingsEquipped = true;
+            player.GetModPlayer<WingAmplificationPlayer>().hasSwanLakeWings = true;
         }
 
         public override void AddRecipes()
@@ -83,106 +84,11 @@ namespace MagnumOpus.Content.SwanLake.Tools
         private int frameCounter = 0;
         private bool wasFlying = false;
         
-        // Direction constants for doubleTapCardinalTimer array
-        private const int DashDown = 0;
-        private const int DashUp = 1;
-        private const int DashLeft = 2;
-        private const int DashRight = 3;
-        
         public bool hasWingsEquipped = false;
-        private int dodgeCooldown = 0;
-        private const int DodgeCooldownMax = 20;
-        private const float DodgeSpeed = 32f;
-        private bool isDodging = false;
-        private int dodgeTimer = 0;
-        private const int DodgeDuration = 9;
-        private int dashDir = -1; // -1 = none, DashLeft = left, DashRight = right
 
         public override void ResetEffects()
         {
             hasWingsEquipped = false;
-            
-            // ResetEffects is called right after doubleTapCardinalTimer values are set by vanilla
-            int wingSlot = EquipLoader.GetEquipSlot(Mod, "IridescentDawn", EquipType.Wings);
-            bool hasWings = Player.wings == wingSlot && wingSlot > 0;
-            
-            if (!hasWings && !hasWingsEquipped)
-            {
-                dashDir = -1;
-                return;
-            }
-            
-            // Check for double-tap with opposite direction check to prevent conflicts
-            if (Player.controlRight && Player.releaseRight && Player.doubleTapCardinalTimer[DashRight] < 15 && Player.doubleTapCardinalTimer[DashLeft] == 0)
-            {
-                dashDir = DashRight;
-            }
-            else if (Player.controlLeft && Player.releaseLeft && Player.doubleTapCardinalTimer[DashLeft] < 15 && Player.doubleTapCardinalTimer[DashRight] == 0)
-            {
-                dashDir = DashLeft;
-            }
-            else
-            {
-                dashDir = -1;
-            }
-        }
-        
-        public override void PreUpdateMovement()
-        {
-            int wingSlot = EquipLoader.GetEquipSlot(Mod, "IridescentDawn", EquipType.Wings);
-            bool hasWings = Player.wings == wingSlot && wingSlot > 0;
-            
-            if (!hasWings && !hasWingsEquipped)
-                return;
-            
-            // Check if we can start a new dodge
-            if (CanDodge() && dashDir != -1 && dodgeCooldown <= 0)
-            {
-                int direction = dashDir == DashLeft ? -1 : 1;
-                PerformDodge(direction);
-            }
-            
-            // Handle ongoing dodge
-            if (isDodging)
-            {
-                dodgeTimer++;
-                Player.immune = true;
-                Player.immuneTime = 2;
-                Player.immuneNoBlink = true;
-                
-                // Elegant feather trail
-                ThemedParticles.SwanLakeTrail(Player.Center, Player.velocity);
-                
-                // Alternating black/white dust
-                for (int i = 0; i < 2; i++)
-                {
-                    Color dustColor = i % 2 == 0 ? Color.White : new Color(30, 30, 40);
-                    Dust trail = Dust.NewDustDirect(Player.position, Player.width, Player.height, 
-                        DustID.WhiteTorch, -Player.velocity.X * 0.2f, -Player.velocity.Y * 0.2f, 100, dustColor, 1.3f);
-                    trail.noGravity = true;
-                }
-                
-                if (dodgeTimer >= DodgeDuration)
-                {
-                    isDodging = false;
-                    dodgeTimer = 0;
-                    
-                    // Graceful burst on dodge end
-                    ThemedParticles.SwanLakeImpact(Player.Center, 1f);
-                }
-            }
-            
-            // Dodge cooldown tick
-            if (dodgeCooldown > 0)
-                dodgeCooldown--;
-        }
-        
-        private bool CanDodge()
-        {
-            return (hasWingsEquipped || Player.wings == EquipLoader.GetEquipSlot(Mod, "IridescentDawn", EquipType.Wings))
-                && Player.dashType == DashID.None
-                && !Player.setSolar
-                && !Player.mount.Active;
         }
 
         public override void PostUpdate()
@@ -198,18 +104,17 @@ namespace MagnumOpus.Content.SwanLake.Tools
                 return;
             }
 
-            // Wing animation logic
             bool isFlying = Player.controlJump && Player.velocity.Y != 0 && !Player.mount.Active;
             bool isOnGround = Player.velocity.Y == 0;
             
-            if (isFlying || isDodging)
+            if (isFlying)
             {
                 frameCounter++;
                 if (frameCounter >= 2)
                 {
                     frameCounter = 0;
                     wingFrame++;
-                    if (wingFrame >= 36) // 6x6 = 36 frames
+                    if (wingFrame >= 36)
                         wingFrame = 0;
                 }
                 wasFlying = true;
@@ -225,21 +130,6 @@ namespace MagnumOpus.Content.SwanLake.Tools
                 wingFrame = 0;
                 frameCounter = 0;
             }
-        }
-
-        private void PerformDodge(int direction)
-        {
-            isDodging = true;
-            dodgeTimer = 0;
-            dodgeCooldown = DodgeCooldownMax;
-            
-            Vector2 dodgeVelocity = new Vector2(direction, 0f);
-            Player.velocity = dodgeVelocity * DodgeSpeed;
-            
-            SoundEngine.PlaySound(SoundID.Item45 with { Pitch = 0.4f, Volume = 0.7f }, Player.Center);
-            
-            // Graceful swan burst
-            ThemedParticles.SwanLakeImpact(Player.Center, 1.5f);
         }
         
         public override void HideDrawLayers(PlayerDrawSet drawInfo)

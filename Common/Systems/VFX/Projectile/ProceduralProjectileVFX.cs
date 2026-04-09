@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using System;
 using Terraria;
 using Terraria.ModLoader;
@@ -9,36 +10,39 @@ namespace MagnumOpus.Common.Systems.VFX
     /// <summary>
     /// PROCEDURAL PROJECTILE VFX SYSTEM
     /// 
-    /// This system provides ready-to-use procedural drawing methods for projectiles.
-    /// Instead of loading PNG textures, these methods draw effects entirely in code.
+    /// Provides texture-based projectile rendering using cached glow and flare sprites.
+    /// All drawing uses smooth SoftGlow and Flare textures for high-quality bloom effects.
     /// 
     /// USAGE:
     /// Replace your PreDraw override with calls to these methods.
     /// The effects are theme-aware and automatically adapt to color schemes.
-    /// 
-    /// BENEFITS:
-    /// - No PNG texture loading (faster, smaller mod size)
-    /// - Infinite resolution at any scale
-    /// - Dynamic animation built-in
-    /// - Easy theming with color parameters
     /// </summary>
     public static class ProceduralProjectileVFX
     {
-        private static Texture2D _pixel;
+        // Cached texture references
+        private static Texture2D _softGlow;
+        private static Texture2D _flare;
+        private static Vector2 _softGlowOrigin;
+        private static Vector2 _flareOrigin;
+        private static float _softGlowHalf; // half-width for radius-to-scale conversion
+        private static float _flareHalf;
         
         /// <summary>
-        /// Gets or creates a 1x1 white pixel texture.
+        /// Ensures glow and flare textures are loaded and cached.
         /// </summary>
-        private static Texture2D Pixel
+        private static void EnsureTexturesLoaded()
         {
-            get
+            if (_softGlow == null || _softGlow.IsDisposed)
             {
-                if (_pixel == null || _pixel.IsDisposed)
-                {
-                    _pixel = new Texture2D(Main.graphics.GraphicsDevice, 1, 1);
-                    _pixel.SetData(new[] { Color.White });
-                }
-                return _pixel;
+                _softGlow = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
+                _softGlowOrigin = _softGlow.Size() / 2f;
+                _softGlowHalf = _softGlow.Width / 2f;
+            }
+            if (_flare == null || _flare.IsDisposed)
+            {
+                _flare = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare", AssetRequestMode.ImmediateLoad).Value;
+                _flareOrigin = _flare.Size() / 2f;
+                _flareHalf = _flare.Width / 2f;
             }
         }
         
@@ -101,112 +105,112 @@ namespace MagnumOpus.Common.Systems.VFX
         }
         
         /// <summary>
-        /// Draws the projectile's trail using position history.
+        /// Draws the projectile's trail using position history with smooth glow textures.
         /// </summary>
         public static void DrawProceduralTrail(SpriteBatch spriteBatch, Projectile projectile,
             Color startColor, Color endColor, float scale)
         {
+            EnsureTexturesLoaded();
+            
             for (int i = 0; i < projectile.oldPos.Length; i++)
             {
                 if (projectile.oldPos[i] == Vector2.Zero) continue;
                 
                 float progress = (float)i / projectile.oldPos.Length;
                 float alpha = (1f - progress) * 0.55f;
-                float trailScale = scale * 8f * (1f - progress * 0.5f);
+                float trailScale = scale * (1f - progress * 0.6f);
                 
                 Color trailColor = Color.Lerp(startColor, endColor, progress) with { A = 0 };
                 Vector2 trailPos = projectile.oldPos[i] + projectile.Size / 2f - Main.screenPosition;
                 
-                // Draw trail segment as overlapping circles
-                DrawCoreGlow(spriteBatch, trailPos, trailColor * alpha, trailScale);
+                // Smooth glow at each trail point
+                float glowScale = trailScale * 8f / _softGlowHalf;
+                spriteBatch.Draw(_softGlow, trailPos, null, trailColor * (alpha * 0.6f),
+                    0f, _softGlowOrigin, glowScale, SpriteEffects.None, 0f);
+                // Brighter inner core along trail
+                spriteBatch.Draw(_softGlow, trailPos, null, trailColor * (alpha * 0.9f),
+                    0f, _softGlowOrigin, glowScale * 0.4f, SpriteEffects.None, 0f);
             }
         }
         
         /// <summary>
-        /// Draws a soft circular glow.
+        /// Draws a soft circular glow halo using the SoftGlow texture.
         /// </summary>
         public static void DrawSoftGlow(SpriteBatch spriteBatch, Vector2 position, Color color, float radius)
         {
-            int segments = 20;
-            for (int layer = 0; layer < 4; layer++)
-            {
-                float layerRadius = radius * (1f - layer * 0.2f);
-                float layerAlpha = 0.15f / (layer + 1);
-                
-                for (int i = 0; i < segments; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / segments;
-                    Vector2 offset = angle.ToRotationVector2() * layerRadius;
-                    
-                    spriteBatch.Draw(Pixel, position + offset, null, color * layerAlpha,
-                        0f, new Vector2(0.5f, 0.5f), 3f + layer, SpriteEffects.None, 0f);
-                }
-            }
+            EnsureTexturesLoaded();
+            
+            float scale = radius / _softGlowHalf;
+            
+            // Outer diffuse haze
+            spriteBatch.Draw(_softGlow, position, null, color * 0.5f,
+                0f, _softGlowOrigin, scale * 1.3f, SpriteEffects.None, 0f);
+            // Main glow body
+            spriteBatch.Draw(_softGlow, position, null, color * 0.7f,
+                0f, _softGlowOrigin, scale, SpriteEffects.None, 0f);
+            // Inner concentration
+            spriteBatch.Draw(_softGlow, position, null, color * 0.9f,
+                0f, _softGlowOrigin, scale * 0.5f, SpriteEffects.None, 0f);
         }
         
         /// <summary>
-        /// Draws a bright core glow.
+        /// Draws a bright concentrated core glow using the SoftGlow texture.
         /// </summary>
         public static void DrawCoreGlow(SpriteBatch spriteBatch, Vector2 position, Color color, float radius)
         {
-            int segments = 12;
-            for (int layer = 0; layer < 3; layer++)
-            {
-                float layerRadius = radius * (1f - layer * 0.3f);
-                float layerAlpha = 0.4f / (layer + 1);
-                
-                for (int i = 0; i < segments; i++)
-                {
-                    float angle = MathHelper.TwoPi * i / segments;
-                    Vector2 offset = angle.ToRotationVector2() * layerRadius;
-                    
-                    spriteBatch.Draw(Pixel, position + offset, null, color * layerAlpha,
-                        0f, new Vector2(0.5f, 0.5f), 2f, SpriteEffects.None, 0f);
-                }
-            }
+            EnsureTexturesLoaded();
             
-            // Bright center point
-            spriteBatch.Draw(Pixel, position, null, color * 0.8f,
-                0f, new Vector2(0.5f, 0.5f), 3f, SpriteEffects.None, 0f);
+            float scale = radius / _softGlowHalf;
+            
+            // Outer glow halo
+            spriteBatch.Draw(_softGlow, position, null, color * 0.5f,
+                0f, _softGlowOrigin, scale, SpriteEffects.None, 0f);
+            // Bright concentrated center
+            spriteBatch.Draw(_softGlow, position, null, color * 0.9f,
+                0f, _softGlowOrigin, scale * 0.35f, SpriteEffects.None, 0f);
         }
         
         /// <summary>
-        /// Draws a spinning flare with dynamic rays.
+        /// Draws a spinning flare using the Flare texture with dynamic rays.
         /// </summary>
         public static void DrawSpinningFlare(SpriteBatch spriteBatch, Vector2 position, Color color, 
             float radius, int rayCount, float rotation)
         {
-            float angleStep = MathHelper.TwoPi / rayCount;
+            EnsureTexturesLoaded();
             
-            for (int i = 0; i < rayCount; i++)
+            float flareScale = radius / _flareHalf;
+            float rayVariation = 0.85f + (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.15f;
+            
+            // Primary flare - the main spinning star
+            spriteBatch.Draw(_flare, position, null, color * 0.6f * rayVariation,
+                rotation, _flareOrigin, flareScale, SpriteEffects.None, 0f);
+            
+            // For higher ray counts, overlay a second flare rotated to fill in gaps
+            if (rayCount > 4)
             {
-                float rayAngle = angleStep * i + rotation;
-                float rayVariation = 0.8f + (float)Math.Sin(Main.GameUpdateCount * 0.1f + i * 1.5f) * 0.2f;
-                float rayLength = radius * rayVariation;
-                
-                // Draw ray as series of points fading outward
-                int raySegments = 6;
-                for (int seg = 0; seg < raySegments; seg++)
-                {
-                    float segProgress = (float)seg / raySegments;
-                    float segRadius = rayLength * segProgress;
-                    float segAlpha = (1f - segProgress) * 0.5f;
-                    float segSize = 2f * (1f - segProgress * 0.5f);
-                    
-                    Vector2 segPos = position + rayAngle.ToRotationVector2() * segRadius;
-                    
-                    spriteBatch.Draw(Pixel, segPos, null, color * segAlpha,
-                        0f, new Vector2(0.5f, 0.5f), segSize, SpriteEffects.None, 0f);
-                }
+                float offsetAngle = MathHelper.PiOver4 / (rayCount / 4f);
+                float secondaryVariation = 0.85f + (float)Math.Sin(Main.GameUpdateCount * 0.1f + 1.5f) * 0.15f;
+                spriteBatch.Draw(_flare, position, null, color * 0.4f * secondaryVariation,
+                    rotation + offsetAngle, _flareOrigin, flareScale * 0.8f, SpriteEffects.None, 0f);
             }
+            
+            // Soft glow base under the flare for smooth blending
+            float glowScale = radius * 0.6f / _softGlowHalf;
+            spriteBatch.Draw(_softGlow, position, null, color * 0.35f,
+                0f, _softGlowOrigin, glowScale, SpriteEffects.None, 0f);
         }
         
         /// <summary>
-        /// Draws orbiting spark points around a center.
+        /// Draws orbiting spark points around a center using small glow textures.
         /// </summary>
         public static void DrawOrbitingPoints(SpriteBatch spriteBatch, Vector2 position,
             Color startColor, Color endColor, float radius, int count, float rotation)
         {
+            EnsureTexturesLoaded();
+            
+            float sparkScale = 6f / _softGlowHalf; // ~6px radius spark
+            float haloScale = sparkScale * 2.5f;
+            
             for (int i = 0; i < count; i++)
             {
                 float angle = rotation + MathHelper.TwoPi * i / count;
@@ -215,11 +219,12 @@ namespace MagnumOpus.Common.Systems.VFX
                 float colorProgress = (float)i / count;
                 Color sparkColor = Color.Lerp(startColor, endColor, colorProgress) with { A = 0 };
                 
-                // Draw spark with small glow
-                spriteBatch.Draw(Pixel, sparkPos, null, sparkColor * 0.7f,
-                    0f, new Vector2(0.5f, 0.5f), 2f, SpriteEffects.None, 0f);
-                spriteBatch.Draw(Pixel, sparkPos, null, sparkColor * 0.3f,
-                    0f, new Vector2(0.5f, 0.5f), 4f, SpriteEffects.None, 0f);
+                // Bright spark core
+                spriteBatch.Draw(_softGlow, sparkPos, null, sparkColor * 0.8f,
+                    0f, _softGlowOrigin, sparkScale, SpriteEffects.None, 0f);
+                // Soft bloom halo around spark
+                spriteBatch.Draw(_softGlow, sparkPos, null, sparkColor * 0.3f,
+                    0f, _softGlowOrigin, haloScale, SpriteEffects.None, 0f);
             }
         }
         
@@ -622,8 +627,9 @@ namespace MagnumOpus.Common.Systems.VFX
         /// </summary>
         public static void Dispose()
         {
-            _pixel?.Dispose();
-            _pixel = null;
+            // Don't dispose mod-loaded textures — they're managed by the asset system
+            _softGlow = null;
+            _flare = null;
         }
     }
 }

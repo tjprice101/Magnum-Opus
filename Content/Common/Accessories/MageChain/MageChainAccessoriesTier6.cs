@@ -41,7 +41,15 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+20% magic damage at night")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+20% magic damage at night, +10% during day")
+            {
+                OverrideColor = NachtmusikGold
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "+15 mana regen at night")
+            {
+                OverrideColor = NachtmusikGold
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Kills grant Serenade's Refrain 3s (restores 5% max mana)")
             {
                 OverrideColor = NachtmusikGold
             });
@@ -55,6 +63,7 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         public override void AddRecipes()
         {
             CreateRecipe()
+                .AddIngredient<FatesCosmicReservoir>(1)
                 .AddIngredient<NachtmusikResonantEnergy>(15)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
@@ -93,7 +102,15 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "+25% magic damage during boss fights")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+25% magic damage during bosses, +12% otherwise")
+            {
+                OverrideColor = DiesIraeCrimson
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Kills grant Tuba Mirum 3s (restores 8% max mana, +8% magic damage)")
+            {
+                OverrideColor = DiesIraeCrimson
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "5% on hit: Lacrimosa — enemy takes increased magic damage for 4s")
             {
                 OverrideColor = DiesIraeCrimson
             });
@@ -107,6 +124,7 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         public override void AddRecipes()
         {
             CreateRecipe()
+                .AddIngredient<NocturnalHarmonicOverflow>(1)
                 .AddIngredient<DiesIraeResonantEnergy>(15)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
@@ -145,7 +163,11 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Magic attacks heal 2 HP on hit")
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "+15% magic damage, heals 2 HP per hit (max 8 HP/s)")
+            {
+                OverrideColor = OdeToJoyRose
+            });
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "20% on kill: Arcane Jubilee 3s (restores 10 mana, +5% magic damage)")
             {
                 OverrideColor = OdeToJoyRose
             });
@@ -159,6 +181,7 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         public override void AddRecipes()
         {
             CreateRecipe()
+                .AddIngredient<InfernalManaCataclysm>(1)
                 .AddIngredient<OdeToJoyResonantEnergy>(15)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();
@@ -215,6 +238,7 @@ namespace MagnumOpus.Content.Common.Accessories.MageChain
         public override void AddRecipes()
         {
             CreateRecipe()
+                .AddIngredient<JubilantArcaneCelebration>(1)
                 .AddIngredient<ClairDeLuneResonantEnergy>(15)
                 .AddTile(TileID.LunarCraftingStation)
                 .Register();

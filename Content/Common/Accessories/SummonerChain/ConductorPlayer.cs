@@ -4,6 +4,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Prefixes;
+using MagnumOpus.Content.Nachtmusik.Accessories;
 
 namespace MagnumOpus.Content.Common.Accessories.SummonerChain
 {
@@ -48,6 +49,13 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
         // ===== COOLDOWNS & STATE =====
         public int gracefulDodgeCooldown;  // Swan's Perfect Dodge cooldown
         public int graceBuffTimer;         // Swan's Grace buff timer
+
+        // ===== T7-T9 STATE =====
+        public int infernalChoirTimer;          // T8: Infernal Choir debuff state
+        public int tuttiFortissimoTimer;        // T9: Tutti Fortissimo buff
+        public int tuttiFortissimoCooldown;     // T9: 15s cooldown for Tutti Fortissimo
+        public int summonerHealThisSecond;      // T9: Heal cap tracking (5 HP/s)
+        public int summonerHealCooldown;        // T9: Reset counter
 
         // ===== RESONANCE SYNERGY STATE =====
         public bool resonanceFrenzyActive;              // T3: +50% attack speed active at max stacks
@@ -170,22 +178,8 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
             if (HasConductorsBurningCrown) HasSpringMaestrosBadge = true;
             if (HasSpringMaestrosBadge) HasConductorsWand = true;
 
-            // === BASE STATS: Priority system (highest main-chain tier only) ===
-            {
-                int baseSlots = 0;
-                float baseDmg = 0f;
-                int baseCrit = 0;
-                if (HasVivaldisOrchestraBaton) { baseSlots = 2; baseDmg = 0.25f; }
-                else if (HasPermafrostCommandersCrown) { baseSlots = 2; baseDmg = 0.20f; }
-                else if (HasHarvestBeastlordsHorn) { baseSlots = 1; baseDmg = 0.12f; baseCrit = 5; }
-                else if (HasSpringMaestrosBadge) { baseSlots = 1; baseDmg = 0.10f; }
-                else if (HasConductorsWand) { baseSlots = 1; }
-                Player.maxMinions += baseSlots;
-                Player.GetDamage(DamageClass.Summon) += baseDmg;
-                Player.GetCritChance(DamageClass.Summon) += baseCrit;
-            }
-
-            // Apply simple static effects from equipped accessories
+            // T1-T6 stats are now applied directly in UpdateAccessory on each item.
+            // Only T7+ stats, temporary bonuses, and special effects are applied here.
 
             // Temporary minion slot bonus management
             if (temporaryMinionSlotTimer > 0)
@@ -273,16 +267,59 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
                 Player.GetDamage(DamageClass.Summon) += 0.20f;
             }
 
-            // Nocturnal Maestro's Baton: +25% summon damage at night
-            if (HasNocturnalMaestrosBaton && !Main.dayTime)
+            // Nocturnal Maestro's Baton: +25% summon damage at night, +8% during day
+            if (HasNocturnalMaestrosBaton)
             {
-                Player.GetDamage(DamageClass.Summon) += 0.25f;
+                if (!Main.dayTime)
+                    Player.GetDamage(DamageClass.Summon) += 0.25f;
+                else
+                    Player.GetDamage(DamageClass.Summon) += 0.08f;
             }
 
-            // Infernal Choirmaster's Scepter: +30% summon damage during boss fights
-            if (HasInfernalChoirmastersScepter && AnyBossAlive())
+            // Infernal Choirmaster's Scepter: +30% boss / +15% base
+            if (HasInfernalChoirmastersScepter)
             {
-                Player.GetDamage(DamageClass.Summon) += 0.30f;
+                if (AnyBossAlive())
+                    Player.GetDamage(DamageClass.Summon) += 0.30f;
+                else
+                    Player.GetDamage(DamageClass.Summon) += 0.15f;
+            }
+
+            // Jubilant Orchestra's Staff: +15% base summon damage
+            if (HasJubilantOrchestrasStaff)
+            {
+                Player.GetDamage(DamageClass.Summon) += 0.15f;
+            }
+
+            // T9: Tutti Fortissimo every 15s (+50% minion dmg for 3s)
+            if (HasJubilantOrchestrasStaff)
+            {
+                if (tuttiFortissimoCooldown > 0)
+                {
+                    tuttiFortissimoCooldown--;
+                }
+                else
+                {
+                    tuttiFortissimoTimer = 180; // 3 seconds
+                    tuttiFortissimoCooldown = 900; // 15 seconds
+                }
+            }
+
+            if (tuttiFortissimoTimer > 0)
+            {
+                tuttiFortissimoTimer--;
+                Player.GetDamage(DamageClass.Summon) += 0.50f;
+            }
+
+            // T9 heal cap reset (5 HP/s)
+            if (summonerHealCooldown > 0)
+            {
+                summonerHealCooldown--;
+            }
+            else
+            {
+                summonerHealThisSecond = 0;
+                summonerHealCooldown = 60;
             }
 
             // Scepter of the Eternal Conductor: +50% summon damage
@@ -404,59 +441,53 @@ namespace MagnumOpus.Content.Common.Accessories.SummonerChain
 
             // Infernal Choir Master's Rod: Minions inflict burn
             if (conductor.HasInfernalChoirMastersRod)
-            {
                 target.AddBuff(BuffID.OnFire, 300);
-            }
 
-            // Jubilant Orchestra's Staff: Minion hits heal 1 HP
-            if (conductor.HasJubilantOrchestrasStaff)
+            // T8: Minions inflict On Fire! during boss fights
+            if (conductor.HasInfernalChoirmastersScepter)
+                target.AddBuff(BuffID.OnFire3, 180);
+
+            // T8: Crits → Infernal Choir (Ichor as proxy for +15% minion dmg taken)
+            if (conductor.HasInfernalChoirmastersScepter && hit.Crit)
+                target.AddBuff(BuffID.Ichor, 180); // 3 seconds
+
+            // T7: 10% on night minion hit → Lullaby (-15% speed, -5 def)
+            if (conductor.HasNocturnalMaestrosBaton && !Main.dayTime && Main.rand.NextFloat() < 0.10f)
             {
-                owner.Heal(1);
+                target.GetGlobalNPC<NachtmusikAccessoryGlobalNPC>().ApplyLullaby(180);
             }
 
-            // ===== RESONANCE SYNERGY: T3 ConductorsBurningCrown =====
-            // Minion hits apply 1 burn stack so the +5% per stack bonus works
-            if (conductor.HasConductorsBurningCrown && !conductor.hasResonantBeastlordsHorn)
+            // Jubilant Orchestra's Staff: Minion hits heal 1 HP (capped at 5 HP/s)
+            if (conductor.HasJubilantOrchestrasStaff && conductor.summonerHealThisSecond < 5)
             {
-                if (ResonancePrefixHelper.IsEnemyBurning(target))
+                int healAmt = Math.Min(1, 5 - conductor.summonerHealThisSecond);
+                if (healAmt > 0)
                 {
-                    var burnNpc = target.GetGlobalNPC<ResonantBurnNPC>();
-                    burnNpc.AddStack(target, owner);
-                }
-                else
-                {
-                    ResonancePrefixHelper.ApplyBurnDebuff(target, damageDone, owner);
+                    owner.Heal(healAmt);
+                    conductor.summonerHealThisSecond += healAmt;
                 }
             }
 
-            // ===== RESONANCE SYNERGY: T4 HarvestBeastlordsHorn =====
-            // Minion crits add 2 burn stacks to target
-            if (conductor.hasResonantBeastlordsHorn && hit.Crit)
+            // ===== T1-T6 SUMMONER CHAIN COMBAT EFFECTS =====
+            // T6: Multi-debuff (whips/summons)
+            if (conductor.HasVivaldisOrchestraBaton)
             {
-                // Add 2 burn stacks (via applying burn with extra stacks)
-                if (ResonancePrefixHelper.IsEnemyBurning(target))
-                {
-                    // Add extra stacks directly
-                    var burnNpc = target.GetGlobalNPC<ResonantBurnNPC>();
-                    burnNpc.burnStacks = Math.Min(burnNpc.burnStacks + 2, ResonantBurnNPC.MAX_STACKS);
-                }
-                else
-                {
-                    // Apply burn with initial stacks
-                    ResonancePrefixHelper.ApplyBurnDebuff(target, 300, owner);
-                    var burnNpc = target.GetGlobalNPC<ResonantBurnNPC>();
-                    burnNpc.burnStacks = Math.Min(burnNpc.burnStacks + 1, ResonantBurnNPC.MAX_STACKS); // +1 more for 2 total
-                }
+                target.AddBuff(BuffID.OnFire, 180);
+                target.AddBuff(BuffID.Frostburn, 180);
+                target.AddBuff(BuffID.Poisoned, 180);
+                target.AddBuff(BuffID.Bleeding, 180);
+            }
+            // T3-T5: Burn on hit
+            else if (conductor.HasConductorsBurningCrown)
+            {
+                target.AddBuff(BuffID.OnFire, 180);
             }
 
-            // T4 Homing behavior: Enhanced targeting when homing is active
-            // (Minions automatically target burning enemies - handled via AI modification below)
-
-            // Swan's Graceful Direction: Grant minion buff when perfect dodging
-            // Handled via graceBuffTimer in PostUpdateEquips
-
-            // Infernal Choirmaster's Scepter: Extra damage during boss fights
-            // Already handled in PostUpdateEquips damage bonus
+            // Slow chance
+            if (conductor.HasVivaldisOrchestraBaton && Main.rand.NextFloat() < 0.08f)
+                target.AddBuff(BuffID.Slow, 60);
+            else if (conductor.HasPermafrostCommandersCrown && Main.rand.NextFloat() < 0.05f)
+                target.AddBuff(BuffID.Slow, 60);
         }
 
         public override void AI(Projectile projectile)

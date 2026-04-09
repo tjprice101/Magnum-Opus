@@ -6,7 +6,8 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
-using MagnumOpus.Common.BaseClasses;
+using Terraria.DataStructures;
+using MagnumOpus.Common;
 using MagnumOpus.Content.Spring.Materials;
 using MagnumOpus.Content.Summer.Materials;
 using MagnumOpus.Content.Autumn.Materials;
@@ -27,7 +28,7 @@ namespace MagnumOpus.Content.Seasons.Weapons
     /// Each season applies unique debuffs, healing, and visual effects via the swing projectile.
     /// Every 4th complete cycle triggers a devastating Crescendo burst.
     /// </summary>
-    public class FourSeasonsBlade : MeleeSwingItemBase
+    public class FourSeasonsBlade : ModItem
     {
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
@@ -38,50 +39,53 @@ namespace MagnumOpus.Content.Seasons.Weapons
         private static readonly Color WinterBlue = new Color(150, 220, 255);
         private static readonly Color WinterWhite = new Color(240, 250, 255);
 
-        private int cycleCount = 0;
+        private int displaySeason = 0;
 
-        protected override int SwingProjectileType => ModContent.ProjectileType<FourSeasonsBladeSwing>();
-        protected override int ComboStepCount => 4;
+        private Color GetCurrentSeasonColor() => displaySeason switch
+        {
+            0 => SpringPink, 1 => SummerGold, 2 => AutumnOrange, 3 => WinterBlue, _ => SpringPink
+        };
 
-        protected override Color GetLoreColor() => GetCurrentSeasonColor();
+        private Color GetCurrentSeasonSecondary() => displaySeason switch
+        {
+            0 => SpringGreen, 1 => SummerOrange, 2 => AutumnBrown, 3 => WinterWhite, _ => SpringGreen
+        };
 
-        protected override void SetWeaponDefaults()
+        public override void SetDefaults()
         {
             Item.width = 78;
             Item.height = 78;
             Item.damage = 285;
+            Item.DamageType = DamageClass.Melee;
             Item.useTime = 22;
             Item.useAnimation = 22;
             Item.knockBack = 7f;
             Item.value = Item.buyPrice(platinum: 1, gold: 50);
             Item.rare = ItemRarityID.Red;
-            Item.UseSound = SoundID.Item1;
+            Item.useStyle = ItemUseStyleID.Shoot;
+            Item.channel = true;
+            Item.noMelee = true;
+            Item.noUseGraphic = true;
+            Item.shoot = ModContent.ProjectileType<FourSeasonsBladeSwing>();
+            Item.shootSpeed = 1f;
+            Item.UseSound = null;
         }
 
-        private Color GetCurrentSeasonColor()
+        public override bool CanShoot(Player player)
         {
-            int season = CurrentComboStep;
-            return season switch
+            for (int i = 0; i < Main.maxProjectiles; i++)
             {
-                0 => SpringPink,
-                1 => SummerGold,
-                2 => AutumnOrange,
-                3 => WinterBlue,
-                _ => SpringPink
-            };
+                if (Main.projectile[i].active && Main.projectile[i].owner == player.whoAmI &&
+                    Main.projectile[i].type == ModContent.ProjectileType<FourSeasonsBladeSwing>())
+                    return false;
+            }
+            return true;
         }
 
-        private Color GetCurrentSeasonSecondary()
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            int season = CurrentComboStep;
-            return season switch
-            {
-                0 => SpringGreen,
-                1 => SummerOrange,
-                2 => AutumnBrown,
-                3 => WinterWhite,
-                _ => SpringGreen
-            };
+            Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI, ai0: 0);
+            return false;
         }
 
         public override Color? GetAlpha(Color lightColor)
@@ -91,7 +95,6 @@ namespace MagnumOpus.Content.Seasons.Weapons
 
         public override void HoldItem(Player player)
         {
-            base.HoldItem(player);
 
             Color seasonColor = GetCurrentSeasonColor();
             Color secondaryColor = GetCurrentSeasonSecondary();
@@ -117,107 +120,7 @@ namespace MagnumOpus.Content.Seasons.Weapons
             Lighting.AddLight(player.Center, seasonColor.ToVector3() * pulse);
         }
 
-        protected override void OnShoot(Player player, int projectileIndex)
-        {
-            // CurrentComboStep has ALREADY been advanced by base.Shoot().
-            // The season that was just swung is (CurrentComboStep + 3) % 4.
-            int swungSeason = (CurrentComboStep + 3) % 4;
-            Color swungColor = swungSeason switch
-            {
-                0 => SpringPink,
-                1 => SummerGold,
-                2 => AutumnOrange,
-                3 => WinterBlue,
-                _ => SpringPink
-            };
-            Color swungSecondary = swungSeason switch
-            {
-                0 => SpringGreen,
-                1 => SummerOrange,
-                2 => AutumnBrown,
-                3 => WinterWhite,
-                _ => SpringGreen
-            };
 
-            // VFX burst on swing
-            CustomParticles.GenericFlare(player.Center, swungColor, 0.6f, 15);
-            CustomParticles.HaloRing(player.Center, swungColor * 0.8f, 0.35f, 12);
-
-            for (int i = 0; i < 3; i++)
-            {
-                Vector2 noteVel = Main.rand.NextVector2Circular(3f, 3f);
-                MusicNote(player.Center + noteVel * 5f, noteVel, swungColor, 0.75f, 25);
-            }
-
-            for (int i = 0; i < 6; i++)
-            {
-                Vector2 vel = Main.rand.NextVector2Circular(4f, 4f);
-                Color c = Color.Lerp(swungColor, swungSecondary, Main.rand.NextFloat());
-                var glow = new GenericGlowParticle(
-                    player.Center + vel * 3f, vel, c * 0.7f, 0.3f, 18, true);
-                MagnumParticleHandler.SpawnParticle(glow);
-            }
-
-            // Track Crescendo: every complete cycle (after Winter = season 3)
-            if (swungSeason == 3)
-            {
-                cycleCount++;
-                if (cycleCount >= 4)
-                {
-                    cycleCount = 0;
-                    SpawnCrescendo(player);
-                }
-            }
-        }
-
-        private void SpawnCrescendo(Player player)
-        {
-            var source = player.GetSource_ItemUse(Item);
-            Vector2 direction = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX);
-
-            for (int i = 0; i < 4; i++)
-            {
-                float angleOffset = MathHelper.ToRadians(-30f + i * 20f);
-                Vector2 vel = direction.RotatedBy(angleOffset) * 16f;
-                int damage = (int)(Item.damage * 1.5f);
-                Projectile.NewProjectile(source, player.Center, vel,
-                    ModContent.ProjectileType<VivaldiSeasonalWave>(),
-                    damage, Item.knockBack, player.whoAmI);
-            }
-
-            // Massive Crescendo VFX
-            CustomParticles.GenericFlare(player.Center, Color.White, 1.2f, 25);
-            CustomParticles.GenericFlare(player.Center, SpringPink, 0.9f, 22);
-            CustomParticles.GenericFlare(player.Center, SummerGold, 0.8f, 20);
-            CustomParticles.GenericFlare(player.Center, AutumnOrange, 0.7f, 18);
-            CustomParticles.GenericFlare(player.Center, WinterBlue, 0.6f, 16);
-
-            for (int i = 0; i < 4; i++)
-            {
-                Color[] seasonColors = { SpringPink, SummerGold, AutumnOrange, WinterBlue };
-                float angle = MathHelper.TwoPi * i / 4f;
-                Vector2 noteVel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
-                MusicNote(player.Center, noteVel, seasonColors[i], 0.9f, 35);
-            }
-
-            for (int ring = 0; ring < 6; ring++)
-            {
-                Color[] ringSeasons = { SpringPink, SummerGold, AutumnOrange, WinterBlue, SpringGreen, SummerOrange };
-                CustomParticles.HaloRing(player.Center, ringSeasons[ring], 0.3f + ring * 0.12f, 15 + ring * 3);
-            }
-
-            for (int i = 0; i < 16; i++)
-            {
-                float angle = MathHelper.TwoPi * i / 16f;
-                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(4f, 8f);
-                Color[] allColors = { SpringPink, SpringGreen, SummerGold, SummerOrange, AutumnOrange, AutumnBrown, WinterBlue, WinterWhite };
-                Color c = allColors[i % allColors.Length];
-                var burst = new GenericGlowParticle(player.Center, vel, c * 0.8f, 0.4f, 22, true);
-                MagnumParticleHandler.SpawnParticle(burst);
-            }
-
-            MagnumScreenEffects.AddScreenShake(6f);
-        }
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
         {
@@ -252,7 +155,7 @@ namespace MagnumOpus.Content.Seasons.Weapons
             return false;
         }
 
-        protected override void AddWeaponTooltips(List<TooltipLine> tooltips)
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "SeasonalCycle", "Cycles through all four seasons with each swing")
             { OverrideColor = Color.Lerp(SpringPink, WinterBlue, 0.5f) });

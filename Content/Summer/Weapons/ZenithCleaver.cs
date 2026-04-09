@@ -3,12 +3,14 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.Audio;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
-using MagnumOpus.Common.BaseClasses;
-using MagnumOpus.Content.Summer.Materials;
+using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Content.Summer.Materials;
 using static MagnumOpus.Common.Systems.ThemedParticles;
 
 namespace MagnumOpus.Content.Summer.Weapons
@@ -18,7 +20,7 @@ namespace MagnumOpus.Content.Summer.Weapons
     /// A blazing blade that channels the power of the midsummer sun.
     /// Now uses the held-projectile swing system via MeleeSwingItemBase.
     /// </summary>
-    public class ZenithCleaver : MeleeSwingItemBase
+    public class ZenithCleaver : ModItem
     {
         #region Theme Colors
 
@@ -29,18 +31,7 @@ namespace MagnumOpus.Content.Summer.Weapons
 
         #endregion
 
-        #region Abstract Overrides
-
-        protected override int SwingProjectileType => ModContent.ProjectileType<ZenithCleaverSwing>();
-        protected override int ComboStepCount => 3;
-
-        protected override Color GetLoreColor() => Color.Lerp(SunGold, SunOrange, 0.5f);
-
-        #endregion
-
-        #region Weapon Setup
-
-        protected override void SetWeaponDefaults()
+        public override void SetDefaults()
         {
             Item.width = 60;
             Item.height = 60;
@@ -48,17 +39,40 @@ namespace MagnumOpus.Content.Summer.Weapons
             Item.DamageType = DamageClass.MeleeNoSpeed;
             Item.useTime = 22;
             Item.useAnimation = 22;
+            Item.useStyle = ItemUseStyleID.Shoot;
             Item.knockBack = 6.5f;
             Item.value = Item.buyPrice(gold: 25);
             Item.rare = ItemRarityID.Pink;
-            Item.UseSound = SoundID.Item1;
+            Item.UseSound = null;
+            Item.autoReuse = true;
+            Item.channel = true;
+            Item.noMelee = true;
+            Item.noUseGraphic = true;
+            Item.shoot = ModContent.ProjectileType<ZenithCleaverSwing>();
+            Item.shootSpeed = 1f;
         }
 
-        #endregion
+        public override bool CanShoot(Player player)
+        {
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile p = Main.projectile[i];
+                if (p.active && p.owner == player.whoAmI && p.type == Item.shoot)
+                    return false;
+            }
+            return true;
+        }
 
-        #region Tooltips
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
+            Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        {
+            Projectile.NewProjectile(source, player.MountedCenter,
+                (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
+                type, damage, knockback, player.whoAmI, 0f, 0);
+            return false;
+        }
 
-        protected override void AddWeaponTooltips(List<TooltipLine> tooltips)
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "SolarRadiance", "Swings emit radiant energy waves") { OverrideColor = SunGold });
             tooltips.Add(new TooltipLine(Mod, "Sunstroke", "Enemies are afflicted with intense burning") { OverrideColor = SunOrange });
@@ -66,13 +80,10 @@ namespace MagnumOpus.Content.Summer.Weapons
             tooltips.Add(new TooltipLine(Mod, "HeatMirage", "Daytime grants +15% melee critical strike chance") { OverrideColor = SunWhite });
         }
 
-        #endregion
-
         #region Hold Effects
 
         public override void HoldItem(Player player)
         {
-            base.HoldItem(player);
 
             // Heat Mirage: Daytime bonuses
             if (Main.dayTime)
