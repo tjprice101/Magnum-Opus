@@ -50,14 +50,10 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DamnationsCannon.Projectiles
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
-            NPC target = DamnationsCannonUtils.ClosestNPCAt(Projectile.Center, HomingRange);
-            if (target != null)
-            {
-                Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
-            }
-            if (Projectile.velocity.Length() > MaxSpeed)
-                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
+            // Gravity Arc: cannonball trajectory, no homing
+            Projectile.velocity.Y += 0.06f;
+            if (Projectile.velocity.Length() > MaxSpeed * 1.5f)
+                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed * 1.5f;
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 

@@ -292,7 +292,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class HarvestMoonBolt : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow";
         
         private static readonly Color MoonSilver = new Color(200, 200, 220);
         private static readonly Color MoonGold = new Color(218, 165, 32);

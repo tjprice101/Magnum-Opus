@@ -959,7 +959,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             SpriteBatch spriteBatch = Main.spriteBatch;
             // Use the ACTUAL sprite texture for the minion
             Texture2D spriteTexture = ModContent.Request<Texture2D>("MagnumOpus/Content/Autumn/Projectiles/HarvestWraithMinion", AssetRequestMode.ImmediateLoad).Value;
-            Texture2D glowTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D glowTexture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
             Vector2 spriteOrigin = spriteTexture.Size() / 2f;
             Vector2 glowOrigin = glowTexture.Size() / 2f;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
@@ -974,12 +974,12 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             // Outer aura ring
             Color autumnGlow = AutumnOrange with { A = 0 };
             float auraScale = (CoordinatedAttackTimer > 0 ? 0.75f : 0.5f) * (0.95f + (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.05f);
-            auraScale = MathHelper.Min(auraScale, 0.139f); // SoftCircle is 2160px — cap to 300px max
+            auraScale = MathHelper.Min(auraScale, 0.586f); // SoftGlow 512px — ~300px rendered
             spriteBatch.Draw(glowTexture, drawPos, null, autumnGlow * 0.2f * coordinatedBoost, 0f, glowOrigin, auraScale, SpriteEffects.None, 0f);
 
             // Inner glows
-            spriteBatch.Draw(glowTexture, drawPos, null, AutumnBrown with { A = 0 } * 0.3f * coordinatedBoost, 0f, glowOrigin, MathHelper.Min(0.55f * pulse, 0.139f), SpriteEffects.None, 0f);
-            spriteBatch.Draw(glowTexture, drawPos, null, autumnGlow * 0.4f * coordinatedBoost, 0f, glowOrigin, MathHelper.Min(0.38f * pulse, 0.139f), SpriteEffects.None, 0f);
+            spriteBatch.Draw(glowTexture, drawPos, null, AutumnBrown with { A = 0 } * 0.3f * coordinatedBoost, 0f, glowOrigin, MathHelper.Min(2.32f * pulse, 0.586f), SpriteEffects.None, 0f);
+            spriteBatch.Draw(glowTexture, drawPos, null, autumnGlow * 0.4f * coordinatedBoost, 0f, glowOrigin, MathHelper.Min(1.603f * pulse, 0.586f), SpriteEffects.None, 0f);
 
             // Falling leaf points
             for (int i = 0; i < 4; i++)
@@ -987,7 +987,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 float leafAngle = Main.GameUpdateCount * 0.025f + MathHelper.PiOver2 * i;
                 float leafDist = 18f + (float)Math.Sin(Main.GameUpdateCount * 0.08f + i * 1.5f) * 6f;
                 Vector2 leafPos = drawPos + leafAngle.ToRotationVector2() * leafDist;
-                spriteBatch.Draw(glowTexture, leafPos, null, autumnGlow * 0.35f, 0f, glowOrigin, 0.12f, SpriteEffects.None, 0f);
+                spriteBatch.Draw(glowTexture, leafPos, null, autumnGlow * 0.35f, 0f, glowOrigin, 0.506f, SpriteEffects.None, 0f);
             }
 
             spriteBatch.End();

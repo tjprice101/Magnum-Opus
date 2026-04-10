@@ -54,13 +54,8 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture.Projectiles
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
-            // Homing
-            NPC target = GalacticOvertureUtils.ClosestNPCAt(Projectile.Center, HomingRange);
-            if (target != null)
-            {
-                Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
-            }
+            // Gentle Arc: gravity-influenced arc, no homing
+            Projectile.velocity.Y += 0.04f;
             if (Projectile.velocity.Length() > MaxSpeed)
                 Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
 

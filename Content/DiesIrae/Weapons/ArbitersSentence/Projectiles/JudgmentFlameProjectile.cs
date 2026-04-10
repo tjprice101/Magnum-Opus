@@ -50,14 +50,20 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ArbitersSentence.Projectiles
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
+            // Judgment Seeking: homing with serpentine wave motion
             NPC target = ArbitersSentenceUtils.ClosestNPCAt(Projectile.Center, HomingRange);
             if (target != null)
             {
                 Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
+                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), 0.05f);
             }
             if (Projectile.velocity.Length() > MaxSpeed)
                 Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
+
+            // Perpendicular serpentine wave
+            Projectile.ai[0] += 0.12f;
+            Vector2 perp = new Vector2(-Projectile.velocity.Y, Projectile.velocity.X).SafeNormalize(Vector2.Zero);
+            Projectile.position += perp * (float)Math.Sin(Projectile.ai[0]) * 3f;
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 

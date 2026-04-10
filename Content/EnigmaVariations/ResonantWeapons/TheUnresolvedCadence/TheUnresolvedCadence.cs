@@ -97,6 +97,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
             // Theme texture accents
             CadenceUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
             }
+            catch { }
             finally
             {
                 try { sb.End(); } catch { }
@@ -309,6 +310,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
             sb.Draw(pixel, drawPos, new Rectangle(0, 0, 1, 1), CadenceUtils.RiftDeep * 0.25f * intensity,
                 rot1 - MathHelper.PiOver4, new Vector2(0.5f, 0.5f), new Vector2(beamLength * 0.7f, beamWidth * 0.6f), SpriteEffects.None, 0f);
             }
+            catch { }
             finally
             {
                 try { sb.End(); } catch { }

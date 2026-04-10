@@ -50,14 +50,11 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.GrimoireOfCondemnation.Projectiles
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
-            NPC target = GrimoireOfCondemnationUtils.ClosestNPCAt(Projectile.Center, HomingRange);
-            if (target != null)
-            {
-                Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
-            }
-            if (Projectile.velocity.Length() > MaxSpeed)
-                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
+            // Accelerating Shard: straight shot that speeds up over time
+            if (Projectile.velocity.Length() < 24f)
+                Projectile.velocity *= 1.03f;
+            if (Projectile.velocity.Length() > 24f)
+                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * 24f;
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 

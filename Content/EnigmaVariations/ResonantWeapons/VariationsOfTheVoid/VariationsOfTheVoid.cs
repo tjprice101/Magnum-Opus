@@ -206,6 +206,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
             // Theme texture accents
             VoidVariationUtils.DrawThemeAccents(sb, Projectile.Center, 1f, 0.6f);
             }
+            catch { }
             finally
             {
                 try { sb.End(); } catch { }
@@ -520,6 +521,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoi
                     armAngle, new Vector2(0.5f, 0.5f), new Vector2(beamLength * 0.8f, beamWidth * 0.4f), SpriteEffects.None, 0f);
             }
             }
+            catch { }
             finally
             {
                 try { sb.End(); } catch { }

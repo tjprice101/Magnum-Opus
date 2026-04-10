@@ -50,14 +50,21 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.EclipseOfWrath.Projectiles
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
+            // Aggressive Pursuit: strong homing that accelerates over time
+            float lifeProgress = 1f - (Projectile.timeLeft / 120f);
+            float currentHomingStrength = MathHelper.Lerp(0.06f, 0.14f, lifeProgress);
+
             NPC target = EclipseOfWrathUtils.ClosestNPCAt(Projectile.Center, HomingRange);
             if (target != null)
             {
                 Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
+                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), currentHomingStrength);
             }
-            if (Projectile.velocity.Length() > MaxSpeed)
-                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
+
+            if (Projectile.velocity.Length() < 20f)
+                Projectile.velocity *= 1.01f;
+            if (Projectile.velocity.Length() > 20f)
+                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * 20f;
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 

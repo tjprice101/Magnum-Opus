@@ -213,6 +213,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure
             // === Pulsing light accent ===
             EnigmaVFXLibrary.AddPulsingLight(Projectile.Center, SilentUtils.QuestionViolet, 0.6f, 0.3f);
             }
+            catch { }
             finally
             {
                 try { sb.End(); } catch { }
@@ -668,6 +669,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure
             // === Pulsing light accent ===
             EnigmaVFXLibrary.AddPulsingLight(Projectile.Center, SilentUtils.BrightQuestion, 0.8f, 0.45f);
             }
+            catch { }
             finally
             {
                 try { sb.End(); } catch { }

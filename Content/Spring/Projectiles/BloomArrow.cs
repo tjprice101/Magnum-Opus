@@ -271,14 +271,14 @@ namespace MagnumOpus.Content.Spring.Projectiles
             sb.Draw(glowTex, drawPos, null, (SpringPink * 0.3f) with { A = 0 }, 0f, glowOrigin, 0.5f * pulse, SpriteEffects.None, 0f);
             sb.Draw(glowTex, drawPos, null, (SpringLavender * 0.25f) with { A = 0 }, 0f, glowOrigin, 0.35f * pulse, SpriteEffects.None, 0f);
 
-            // Core sprite - the actual bloom arrow art with directional stretch
-            sb.Draw(spriteTex, drawPos, null, (SpringPink * 0.8f) with { A = 0 }, Projectile.rotation, spriteOrigin, squishScale * 0.85f, SpriteEffects.None, 0f);
-
-            // Hot inner core
+            // Hot inner core - additive glow overlay
             sb.Draw(spriteTex, drawPos, null, (SpringWhite * 0.45f) with { A = 0 }, Projectile.rotation, spriteOrigin, squishScale * 0.5f, SpriteEffects.None, 0f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Core sprite - solid bloom arrow art, clearly visible
+            sb.Draw(spriteTex, drawPos, null, Color.White, Projectile.rotation, spriteOrigin, squishScale * 1.2f, SpriteEffects.None, 0f);
 
             }
             catch { }
@@ -504,14 +504,14 @@ namespace MagnumOpus.Content.Spring.Projectiles
             // Outer bloom halo
             sb.Draw(glowTex, drawPos, null, (drawColor * 0.35f) with { A = 0 }, 0f, glowOrigin, 0.4f * pulse, SpriteEffects.None, 0f);
 
-            // Core sprite - squishy flower bud with gentle spin
-            sb.Draw(spriteTex, drawPos, null, (SpringPink * 0.8f) with { A = 0 }, Projectile.rotation, spriteOrigin, squishScale * 0.75f, SpriteEffects.None, 0f);
-
-            // Hot core overlay
+            // Hot core overlay - additive glow
             sb.Draw(spriteTex, drawPos, null, (SpringWhite * 0.45f) with { A = 0 }, Projectile.rotation, spriteOrigin, squishScale * 0.45f, SpriteEffects.None, 0f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Core sprite - solid homing petal, clearly visible
+            sb.Draw(spriteTex, drawPos, null, Color.White, Projectile.rotation, spriteOrigin, squishScale * 1.3f, SpriteEffects.None, 0f);
 
             }
             catch { }
@@ -546,7 +546,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
         private float flowerRotation;
         private float[] petalAngles = new float[6];
 
-        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow";
 
         public override void SetDefaults()
         {
@@ -611,7 +611,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             try
             {
             
-            Texture2D haloTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D haloTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
             Texture2D petalTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
             Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
             
@@ -636,11 +636,11 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 sb.Draw(petalTex, petalPos, null, (petalColor * 0.6f * alpha) with { A = 0 }, petalAngles[i], petalOrigin, 0.15f * pulse, SpriteEffects.None, 0f);
             }
 
-            // GREEN HEALING HALO - Outer ring (SoftCircle 2160px — cap to 300px max)
-            sb.Draw(haloTex, drawPos, null, (SpringGreen * 0.35f * alpha) with { A = 0 }, flowerRotation, haloOrigin, MathHelper.Min(0.4f * pulse, 0.139f), SpriteEffects.None, 0f);
+            // GREEN HEALING HALO - Outer ring (SoftGlow 512px)
+            sb.Draw(haloTex, drawPos, null, (SpringGreen * 0.35f * alpha) with { A = 0 }, flowerRotation, haloOrigin, MathHelper.Min(1.688f * pulse, 0.586f), SpriteEffects.None, 0f);
             
             // PINK FLOWER CENTER - Core halo
-            sb.Draw(haloTex, drawPos, null, (SpringPink * 0.5f * alpha) with { A = 0 }, -flowerRotation * 0.5f, haloOrigin, MathHelper.Min(0.25f * pulse, 0.139f), SpriteEffects.None, 0f);
+            sb.Draw(haloTex, drawPos, null, (SpringPink * 0.5f * alpha) with { A = 0 }, -flowerRotation * 0.5f, haloOrigin, MathHelper.Min(1.055f * pulse, 0.586f), SpriteEffects.None, 0f);
             
             // WHITE HEALING CORE
             sb.Draw(glowTex, drawPos, null, (Color.White * 0.4f * alpha) with { A = 0 }, 0f, glowOrigin, 0.18f * pulse, SpriteEffects.None, 0f);

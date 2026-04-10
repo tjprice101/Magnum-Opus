@@ -1,5 +1,8 @@
+using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.Audio;
 using Terraria.GameInput;
+using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.Nachtmusik.Accessories;
 using MagnumOpus.Content.DiesIrae.Accessories;
@@ -38,6 +41,8 @@ namespace MagnumOpus.Common
         // ProcessTriggers fires before UpdateAccessory, so wing flags aren't set yet.
         // PostUpdate fires after UpdateAccessory, so flags are reliable there.
         private bool amplifyKeyPressed;
+        // Manual edge detection for reliability across tModLoader versions
+        private bool wasKeyDown;
 
         public override void ResetEffects()
         {
@@ -55,9 +60,12 @@ namespace MagnumOpus.Common
 
         public override void ProcessTriggers(TriggersSet triggersSet)
         {
-            // Only capture the key press here — flags aren't set yet due to hook ordering.
-            if (MagnumOpus.WingAmplifyKeybind?.JustPressed == true)
+            // Use manual edge detection (Current + wasKeyDown) for reliability.
+            // JustPressed can sometimes miss inputs depending on tModLoader version.
+            bool isDown = MagnumOpus.WingAmplifyKeybind?.Current == true;
+            if (isDown && !wasKeyDown)
                 amplifyKeyPressed = true;
+            wasKeyDown = isDown;
         }
 
         public override void PostUpdate()
@@ -70,8 +78,21 @@ namespace MagnumOpus.Common
 
             amplifyKeyPressed = false;
 
-            if (amplificationCooldown > 0)
+            // Check if any wings are equipped
+            bool hasAnyWings = hasClairDeLuneWings || hasOdeToJoyWings || hasDiesIraeWings ||
+                hasNachtmusikWings || hasFateWings || hasSwanLakeWings || hasEnigmaWings ||
+                hasLaCampanellaWings || hasEroicaWings || hasMoonlightWings;
+
+            if (!hasAnyWings)
                 return;
+
+            if (amplificationCooldown > 0)
+            {
+                // Show cooldown remaining
+                int secondsLeft = amplificationCooldown / 60;
+                CombatText.NewText(Player.getRect(), Color.Gray, $"Cooldown: {secondsLeft}s");
+                return;
+            }
 
             int buffType = -1;
             int duration = 0;
@@ -132,6 +153,10 @@ namespace MagnumOpus.Common
             {
                 Player.AddBuff(buffType, duration);
                 amplificationCooldown = CooldownDuration;
+
+                // Visual and audio feedback
+                CombatText.NewText(Player.getRect(), new Color(255, 220, 100), "HP Amplified!");
+                SoundEngine.PlaySound(SoundID.Item4, Player.Center);
             }
         }
     }

@@ -38,7 +38,9 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer.Projectiles
             Projectile.height = 16;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Ranged;
-            Projectile.penetrate = 1;
+            Projectile.penetrate = 3;
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = 10;
             Projectile.timeLeft = 120;
             Projectile.tileCollide = true;
             Projectile.ignoreWater = true;
@@ -53,16 +55,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer.Projectiles
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
-            // Homing
-            NPC target = ClosestNPCAt(Projectile.Center, HomingRange);
-            if (target != null)
-            {
-                Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
-            }
-            if (Projectile.velocity.Length() > MaxSpeed)
-                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
-
+            // Piercing Straight: fast linear flight, no homing
             Projectile.rotation = Projectile.velocity.ToRotation();
 
             // Trail dust

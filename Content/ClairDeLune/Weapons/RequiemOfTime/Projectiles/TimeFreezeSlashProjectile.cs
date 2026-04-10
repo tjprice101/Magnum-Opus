@@ -47,7 +47,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Magic;
             Projectile.penetrate = 1;
-            Projectile.timeLeft = 120;
+            Projectile.timeLeft = 240;
             Projectile.tileCollide = true;
             Projectile.ignoreWater = true;
             Projectile.extraUpdates = 1;
@@ -61,18 +61,15 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
-            // Homing AI
-            NPC target = RequiemOfTimeUtils.ClosestNPCAt(Projectile.Center, HomingRange);
-            if (target != null)
+            // Time Freeze: heavy deceleration, freezes in place
+            Projectile.velocity *= 0.95f;
+            if (Projectile.velocity.Length() < 0.3f)
             {
-                Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
+                Projectile.velocity = Vector2.Zero;
+                Projectile.tileCollide = false;
             }
 
-            if (Projectile.velocity.Length() > MaxSpeed)
-                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
-
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            Projectile.rotation += 0.03f;
 
             // Trail dust — moonlit theme
             if (Main.rand.NextBool(3))

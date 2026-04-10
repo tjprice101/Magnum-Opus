@@ -61,17 +61,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.StarfallWhisper.Projectiles
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
-            // Homing AI
-            NPC target = StarfallWhisperUtils.ClosestNPCAt(Projectile.Center, HomingRange);
-            if (target != null)
-            {
-                Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
-            }
-
-            if (Projectile.velocity.Length() > MaxSpeed)
-                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
-
+            // Fast Straight: high-speed linear arrow, no homing
             Projectile.rotation = Projectile.velocity.ToRotation();
 
             // Trail dust — moonlit theme

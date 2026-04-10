@@ -219,7 +219,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
             Projectile.alpha = 0;
         }
 
-        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow";
 
         public override void AI()
         {
@@ -311,7 +311,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
                 float angle = MathHelper.TwoPi * i / pointCount;
                 Vector2 pointPos = Projectile.Center + angle.ToRotationVector2() * expandRadius - Main.screenPosition;
                 Color pointColor = Color.Lerp(SunGold, SunRed, (float)i / pointCount) * alpha * 0.4f;
-                spriteBatch.Draw(glowTex, pointPos, null, pointColor, 0f, origin, 0.139f, SpriteEffects.None, 0f); // SoftCircle 2160px — cap to 300px max
+                spriteBatch.Draw(glowTex, pointPos, null, pointColor, 0f, origin, 0.586f, SpriteEffects.None, 0f); // SoftGlow 512px — ~300px rendered
             }
 
             spriteBatch.End();

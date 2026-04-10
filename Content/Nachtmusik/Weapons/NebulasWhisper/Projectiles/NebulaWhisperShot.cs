@@ -54,15 +54,20 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NebulasWhisper.Projectiles
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
-            // Homing
+            // Sine Wave Drift: gentle homing with perpendicular wave motion
             NPC target = NebulasWhisperUtils.ClosestNPCAt(Projectile.Center, HomingRange);
             if (target != null)
             {
                 Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
+                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), 0.04f);
             }
             if (Projectile.velocity.Length() > MaxSpeed)
                 Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
+
+            // Perpendicular sine-wave offset
+            Projectile.ai[0] += 0.15f;
+            Vector2 perp = new Vector2(-Projectile.velocity.Y, Projectile.velocity.X).SafeNormalize(Vector2.Zero);
+            Projectile.position += perp * (float)Math.Sin(Projectile.ai[0]) * 2.5f;
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 

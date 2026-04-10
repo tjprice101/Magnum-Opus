@@ -61,12 +61,15 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.OrreryOfDreams.Projectiles
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
-            // Homing AI
+            // Spiral Approach: weaves toward target in a dreamlike spiral
+            Projectile.ai[0] += 0.10f;
             NPC target = OrreryOfDreamsUtils.ClosestNPCAt(Projectile.Center, HomingRange);
             if (target != null)
             {
                 Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
+                float spiralAngle = (float)Math.Sin(Projectile.ai[0]) * 0.8f;
+                desiredDir = desiredDir.RotatedBy(spiralAngle);
+                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * MaxSpeed, 0.06f);
             }
 
             if (Projectile.velocity.Length() > MaxSpeed)

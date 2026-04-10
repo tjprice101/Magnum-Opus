@@ -373,14 +373,16 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 sb.Draw(glowTex, drawPos + wingOffset, null, (SpringGreen * 0.2f) with { A = 0 }, 0f, glowOrigin, 0.2f * pulse, flip, 0f);
             }
 
-            // Core sprite - the actual cute minion art with gentle bob
-            sb.Draw(spriteTex, drawPos + new Vector2(0, flapOffset * 0.3f), null, (SpringWhite * 0.85f) with { A = 0 }, 0f, spriteOrigin, bobScale * 0.9f, flip, 0f);
-
-            // Inner glow overlay - makes the center brighter
+            // Inner glow overlay - additive bloom accent
             sb.Draw(spriteTex, drawPos + new Vector2(0, flapOffset * 0.3f), null, (SpringYellow * 0.35f) with { A = 0 }, 0f, spriteOrigin, bobScale * 0.55f, flip, 0f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Core sprite - solid detailed minion art, clearly visible
+            Texture2D detailedTex = ModContent.Request<Texture2D>("MagnumOpus/Content/Spring/Projectiles/FlowerSpriteMinion", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+            Vector2 detailedOrigin = detailedTex.Size() / 2f;
+            sb.Draw(detailedTex, drawPos + new Vector2(0, flapOffset * 0.3f), null, Color.White, 0f, detailedOrigin, bobScale * 0.85f, flip, 0f);
 
             }
             catch { }

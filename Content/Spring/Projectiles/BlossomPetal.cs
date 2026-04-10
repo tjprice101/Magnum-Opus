@@ -199,16 +199,14 @@ namespace MagnumOpus.Content.Spring.Projectiles
             // Outer bloom - soft cloud around petal
             sb.Draw(glowTex, drawPos, null, (SpringPink * 0.3f * alpha) with { A = 0 }, 0f, glowOrigin, 0.45f * pulse, SpriteEffects.None, 0f);
 
-            // Core sprite - the cherry blossom petal with gentle squish
-            float hue = HueMin + ((Main.GameUpdateCount * 0.015f) % 1f) * (HueMax - HueMin);
-            Color oscillatingColor = Main.hslToRgb(hue, 0.85f, 0.8f);
-            sb.Draw(spriteTex, drawPos, null, (oscillatingColor * 0.85f * alpha) with { A = 0 }, Projectile.rotation, spriteOrigin, squishScale * 0.85f, SpriteEffects.None, 0f);
-
-            // Hot core
+            // Hot core - additive glow overlay
             sb.Draw(spriteTex, drawPos, null, (SpringWhite * 0.4f * alpha) with { A = 0 }, Projectile.rotation, spriteOrigin, squishScale * 0.5f, SpriteEffects.None, 0f);
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Core sprite - solid cherry blossom petal, clearly visible
+            sb.Draw(spriteTex, drawPos, null, Color.White * alpha, Projectile.rotation, spriteOrigin, squishScale * 1.4f, SpriteEffects.None, 0f);
             }
             catch { }
             finally

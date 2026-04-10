@@ -370,7 +370,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
     /// </summary>
     public class EntropicField : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow";
         
         private static readonly Color DecayPurple = new Color(100, 50, 120);
         private static readonly Color DeathGreen = new Color(80, 120, 60);
@@ -530,7 +530,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
             try
             {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle", AssetRequestMode.ImmediateLoad).Value;
+            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
             Texture2D flare = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare", AssetRequestMode.ImmediateLoad).Value;
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = texture.Size() / 2f;
@@ -548,9 +548,9 @@ namespace MagnumOpus.Content.Autumn.Projectiles
             spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, 
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            // Layer 1: Large halo base
+            // Layer 1: Large halo base (SoftGlow 512px)
             spriteBatch.Draw(texture, drawPos, null, purpleBloom * 0.25f * fadeOut, 0f, 
-                origin, 0.85f * pulse, SpriteEffects.None, 0f);
+                origin, 3.586f * pulse, SpriteEffects.None, 0f);
             
             // Layer 2: Spinning flare (clockwise)
             spriteBatch.Draw(flare, drawPos, null, greenBloom * 0.35f * fadeOut, time, 

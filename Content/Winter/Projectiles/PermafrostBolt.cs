@@ -218,7 +218,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
     [AllowLargeHitbox("Blizzard storm requires large hitbox for AoE damage")]
     public class IceStormProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow";
         
         private static readonly Color IceBlue = new Color(150, 220, 255);
         private static readonly Color FrostWhite = new Color(240, 250, 255);

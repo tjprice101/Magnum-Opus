@@ -125,14 +125,17 @@ namespace MagnumOpus.Common.Systems
 
             int loaded = 0;
 
-            // === FLARES & GLOWS — use SandboxLastPrism flares + VFX blooms ===
-            EnergyFlares[0] = TryLoad($"{slp}/Pixel/Flare", ref loaded);
+            // === FLARES & GLOWS — use particle-appropriate textures (64-512px max) ===
+            // Note: Flare.png (1024px) replaced with Particle_SmallBloom (400px) to prevent
+            // oversized flash particles. PartiGlow (120px) kept as-is.
+            EnergyFlares[0] = TryLoad($"{pv}/Particle_SmallBloom", ref loaded);
             EnergyFlares[1] = TryLoad($"{slp}/Pixel/PartiGlow", ref loaded);
 
             FlareSparkles[0] = TryLoad($"{slp}/Flare/flare_16", ref loaded);
             FlareSparkles[1] = TryLoad($"{slp}/Flare/Simple Lens Flare_11", ref loaded);
-            FlareSparkles[2] = TryLoad($"{vfx}/GlowAndBloom/PointBloom", ref loaded);
-            FlareSparkles[3] = TryLoad($"{vfx}/GlowAndBloom/SoftRadialBloom", ref loaded);
+            // PointBloom (2160px) and SoftRadialBloom (2160px) replaced with 200-400px alternatives
+            FlareSparkles[2] = TryLoad($"{pv}/Particle_SmallBloom", ref loaded);
+            FlareSparkles[3] = TryLoad($"{pv}/Particle_BloomCircle", ref loaded);
             FlareSparkles[4] = TryLoad($"{pv}/Particle_SmallBloom", ref loaded);
             FlareSparkles[5] = TryLoad($"{pv}/Particle_BloomCircle", ref loaded);
 
@@ -161,18 +164,20 @@ namespace MagnumOpus.Common.Systems
             Stars[1] = TryLoad(pal + "Stars/4PointedStarSoft", ref loaded);
             Stars[2] = TryLoad(pal + "Stars/ThinTall4PointedStar", ref loaded);
             Stars[3] = TryLoad($"{slp}/Pixel/Flare", ref loaded);
-            Stars[4] = TryLoad($"{vfx}/MasksAndShapes/SoftCircle", ref loaded);
-            Stars[5] = TryLoad($"{vfx}/GlowAndBloom/PointBloom", ref loaded);
+            // SoftCircle (2160px) and PointBloom (2160px) replaced with 400-512px alternatives
+            Stars[4] = TryLoad($"{slp}/Orbs/SoftGlow", ref loaded);
+            Stars[5] = TryLoad($"{pv}/Particle_SmallBloom", ref loaded);
             Stars[6] = TryLoad($"{slp}/Pixel/PartiGlow", ref loaded);
 
-            // === IMPACTS — use VFX impact + bloom textures ===
-            Impacts[0] = TryLoad($"{vfx}/ImpactEffects/ImpactEllipse", ref loaded);
-            Impacts[1] = TryLoad($"{vfx}/GlowAndBloom/PointBloom", ref loaded);
-            Impacts[2] = TryLoad($"{vfx}/GlowAndBloom/SoftRadialBloom", ref loaded);
+            // === IMPACTS — ImpactEllipse (2160px), PointBloom (2160px), SoftRadialBloom (2160px)
+            //   replaced with particle-appropriate textures (200-512px) ===
+            Impacts[0] = TryLoad($"{slp}/Orbs/SoftGlow", ref loaded);
+            Impacts[1] = TryLoad($"{pv}/Particle_SmallBloom", ref loaded);
+            Impacts[2] = TryLoad($"{pv}/Particle_BloomCircle", ref loaded);
 
-            FlameImpacts[0] = TryLoad($"{vfx}/ImpactEffects/ImpactEllipse", ref loaded);
+            FlameImpacts[0] = TryLoad($"{slp}/Orbs/SoftGlow", ref loaded);
             FlameImpacts[1] = TryLoad($"{slp}/Orbs/whiteFireEyeA", ref loaded);
-            FlameImpacts[2] = TryLoad($"{vfx}/GlowAndBloom/SoftRadialBloom", ref loaded);
+            FlameImpacts[2] = TryLoad($"{pv}/Particle_BloomCircle", ref loaded);
 
             // === SWORD ARCS — use trail/beam/mask shapes for arc rendering ===
             SwordArcs[0] = TryLoad($"{vfx}/TrailsAndRibbons/BasicTrail", ref loaded);
@@ -185,20 +190,21 @@ namespace MagnumOpus.Common.Systems
             SwordArcs[7] = TryLoad($"{vfx}/BeamTextures/HorizontalBeamStreakSegment", ref loaded);
             SwordArcs[8] = TryLoad($"{slp}/Trails/Extra_196_Black", ref loaded);
 
-            // === HALOS — use mask shapes for halo rendering ===
-            GlowingHalos[0] = TryLoad($"{vfx}/MasksAndShapes/SoftCircle", ref loaded);
-            GlowingHalos[1] = TryLoad($"{vfx}/MasksAndShapes/HardCircleMask", ref loaded);
-            GlowingHalos[2] = TryLoad($"{vfx}/MasksAndShapes/VerticalEllipse", ref loaded);
-            GlowingHalos[3] = TryLoad($"{vfx}/MasksAndShapes/WideSoftEllipse", ref loaded);
+            // === HALOS — 2160px MasksAndShapes replaced with particle-appropriate orbs (128-512px) ===
+            GlowingHalos[0] = TryLoad($"{slp}/Orbs/SoftGlow", ref loaded);
+            GlowingHalos[1] = TryLoad($"{slp}/Orbs/circle_05", ref loaded);
+            GlowingHalos[2] = TryLoad($"{slp}/Orbs/feather_circle128PMA", ref loaded);
+            GlowingHalos[3] = TryLoad($"{pv}/Particle_BloomCircle", ref loaded);
             GlowingHalos[4] = TryLoad($"{slp}/Orbs/circle_05", ref loaded);
 
-            // === ENIGMA EYES — use SoftCircle + noise for procedural eyes ===
-            EnigmaEyes[0] = TryLoad($"{vfx}/MasksAndShapes/SmallHardCircleMask", ref loaded);
-            EnigmaEyes[1] = TryLoad($"{vfx}/MasksAndShapes/HardCircleMask", ref loaded);
+            // === ENIGMA EYES — 2160px masks replaced with particle-appropriate orbs (64-512px) ===
+            //   Noise textures (1024px) kept for procedural eyes — they're used for shape, not size
+            EnigmaEyes[0] = TryLoad($"{slp}/Orbs/SoftGlow64", ref loaded);
+            EnigmaEyes[1] = TryLoad($"{slp}/Orbs/circle_05", ref loaded);
             EnigmaEyes[2] = TryLoad($"{vfx}/NoiseTextures/CosmicEnergyVortex", ref loaded);
-            EnigmaEyes[3] = TryLoad($"{vfx}/MasksAndShapes/SoftCircle", ref loaded);
+            EnigmaEyes[3] = TryLoad($"{slp}/Orbs/SoftGlow", ref loaded);
             EnigmaEyes[4] = TryLoad($"{vfx}/NoiseTextures/NebulaWispNoise", ref loaded);
-            EnigmaEyes[5] = TryLoad($"{vfx}/MasksAndShapes/VerticalEllipse", ref loaded);
+            EnigmaEyes[5] = TryLoad($"{slp}/Orbs/feather_circle128PMA", ref loaded);
             EnigmaEyes[6] = TryLoad($"{vfx}/NoiseTextures/VoronoiCellNoise", ref loaded);
             EnigmaEyes[7] = TryLoad($"{vfx}/NoiseTextures/RealityCrackPattern", ref loaded);
 

@@ -540,7 +540,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class SolarPillarProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow";
         
         private static readonly Color SummerGold = new Color(255, 215, 0);
         private static readonly Color SummerOrange = new Color(255, 140, 0);
@@ -631,7 +631,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class AutumnPassageProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow";
         
         private static readonly Color AutumnOrange = new Color(255, 140, 50);
         private static readonly Color AutumnBrown = new Color(139, 90, 43);
@@ -809,7 +809,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     /// </summary>
     public class DecayFieldProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/MasksAndShapes/SoftCircle";
+        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow";
         
         private static readonly Color AutumnOrange = new Color(255, 140, 50);
         private static readonly Color AutumnBrown = new Color(139, 90, 43);

@@ -40,7 +40,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.RequiemOfTheCosmos.Projectiles
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Magic;
             Projectile.penetrate = 1;
-            Projectile.timeLeft = 120;
+            Projectile.timeLeft = 240;
             Projectile.tileCollide = true;
             Projectile.ignoreWater = true;
             Projectile.extraUpdates = 1;
@@ -54,17 +54,30 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.RequiemOfTheCosmos.Projectiles
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
-            // Homing
-            NPC target = RequiemOfTheCosmosUtils.ClosestNPCAt(Projectile.Center, HomingRange);
-            if (target != null)
+            // Gravity Well: homing then decelerate to hovering well
+            Projectile.ai[0]++;
+            if (Projectile.ai[0] < 50f)
             {
-                Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
+                NPC target = RequiemOfTheCosmosUtils.ClosestNPCAt(Projectile.Center, HomingRange);
+                if (target != null)
+                {
+                    Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
+                }
+                if (Projectile.velocity.Length() > MaxSpeed)
+                    Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
             }
-            if (Projectile.velocity.Length() > MaxSpeed)
-                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
+            else
+            {
+                Projectile.velocity *= 0.90f;
+                if (Projectile.velocity.Length() < 0.5f)
+                {
+                    Projectile.velocity = Vector2.Zero;
+                    Projectile.tileCollide = false;
+                }
+            }
 
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            Projectile.rotation += 0.04f;
 
             // Trail dust
             if (Main.rand.NextBool(3))

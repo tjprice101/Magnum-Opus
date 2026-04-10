@@ -54,14 +54,22 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory.Projectiles
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
-            NPC target = Projectile.Center.ClosestNPCAt(HomingRange);
-            if (target != null)
+            // Glory Charge: accelerates, then late-stage homing activates
+            Projectile.ai[0]++;
+            if (Projectile.ai[0] > 40f)
             {
-                Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
+                NPC target = Projectile.Center.ClosestNPCAt(HomingRange);
+                if (target != null)
+                {
+                    Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), 0.08f);
+                }
             }
-            if (Projectile.velocity.Length() > MaxSpeed)
-                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
+
+            if (Projectile.velocity.Length() < 22f)
+                Projectile.velocity *= 1.02f;
+            if (Projectile.velocity.Length() > 22f)
+                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * 22f;
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 

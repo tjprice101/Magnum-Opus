@@ -54,15 +54,22 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars.Projectil
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
-            // Homing
+            // Rhythm Stacking: accelerating speed and strengthening homing
+            float lifeProgress = 1f - (Projectile.timeLeft / 120f);
+            float currentHomingStrength = MathHelper.Lerp(0.04f, 0.12f, lifeProgress);
+            float currentMaxSpeed = MathHelper.Lerp(12f, 24f, lifeProgress);
+
             NPC target = SerenadeOfDistantStarsUtils.ClosestNPCAt(Projectile.Center, HomingRange);
             if (target != null)
             {
                 Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
+                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), currentHomingStrength);
             }
-            if (Projectile.velocity.Length() > MaxSpeed)
-                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
+
+            if (Projectile.velocity.Length() < currentMaxSpeed)
+                Projectile.velocity *= 1.02f;
+            if (Projectile.velocity.Length() > currentMaxSpeed)
+                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * currentMaxSpeed;
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 

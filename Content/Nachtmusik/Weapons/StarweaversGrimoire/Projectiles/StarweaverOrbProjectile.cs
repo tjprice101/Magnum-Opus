@@ -40,7 +40,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.StarweaversGrimoire.Projectiles
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Magic;
             Projectile.penetrate = 1;
-            Projectile.timeLeft = 120;
+            Projectile.timeLeft = 300;
             Projectile.tileCollide = true;
             Projectile.ignoreWater = true;
             Projectile.extraUpdates = 1;
@@ -54,17 +54,30 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.StarweaversGrimoire.Projectiles
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
-            // Homing
-            NPC target = StarweaversGrimoireUtils.ClosestNPCAt(Projectile.Center, HomingRange);
-            if (target != null)
+            // Constellation Web: gentle homing then decelerate to stationary node
+            Projectile.ai[0]++;
+            if (Projectile.ai[0] < 40f)
             {
-                Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
+                NPC target = StarweaversGrimoireUtils.ClosestNPCAt(Projectile.Center, HomingRange);
+                if (target != null)
+                {
+                    Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), 0.04f);
+                }
+                if (Projectile.velocity.Length() > MaxSpeed)
+                    Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
             }
-            if (Projectile.velocity.Length() > MaxSpeed)
-                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
+            else
+            {
+                Projectile.velocity *= 0.93f;
+                if (Projectile.velocity.Length() < 0.5f)
+                {
+                    Projectile.velocity = Vector2.Zero;
+                    Projectile.tileCollide = false;
+                }
+            }
 
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            Projectile.rotation += 0.05f;
 
             // Trail dust
             if (Main.rand.NextBool(3))

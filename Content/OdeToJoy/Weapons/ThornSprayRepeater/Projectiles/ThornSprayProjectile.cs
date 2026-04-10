@@ -54,15 +54,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
-            NPC target = Projectile.Center.ClosestNPCAt(HomingRange);
-            if (target != null)
-            {
-                Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
-            }
-            if (Projectile.velocity.Length() > MaxSpeed)
-                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
-
+            // Straight Shot: fast linear thorn spray, no homing
             Projectile.rotation = Projectile.velocity.ToRotation();
 
             if (Main.rand.NextBool(3))

@@ -244,6 +244,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
             // === Pulsing light accent ===
             EnigmaVFXLibrary.AddPulsingLight(Projectile.Center, WatchingUtils.RefrainPurple, 0.7f, 0.35f);
             }
+            catch { }
             finally
             {
                 try { sb.End(); } catch { }
@@ -546,6 +547,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
             // === Pulsing light accent ===
             EnigmaVFXLibrary.AddPulsingLight(Projectile.Center, WatchingUtils.GazeGreen, 0.5f, 0.3f);
             }
+            catch { }
             finally
             {
                 try { sb.End(); } catch { }
@@ -798,6 +800,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
             // === Pulsing light accent ===
             EnigmaVFXLibrary.AddPulsingLight(Projectile.Center, WatchingUtils.GazeGreen, 0.6f * op, 0.35f);
             }
+            catch { }
             finally
             {
                 try { sb.End(); } catch { }
@@ -1029,6 +1032,7 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
             // === Pulsing light accent ===
             EnigmaVFXLibrary.AddPulsingLight(Projectile.Center, WatchingUtils.RefrainPurple, 0.5f * lifeFade, 0.25f);
             }
+            catch { }
             finally
             {
                 try { sb.End(); } catch { }

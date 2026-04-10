@@ -36,7 +36,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.StaffOfFinalJudgment.Projectiles
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Magic;
             Projectile.penetrate = 1;
-            Projectile.timeLeft = 120;
+            Projectile.timeLeft = 240;
             Projectile.tileCollide = true;
             Projectile.ignoreWater = true;
             Projectile.extraUpdates = 1;
@@ -50,16 +50,30 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.StaffOfFinalJudgment.Projectiles
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
-            NPC target = StaffOfFinalJudgmentUtils.ClosestNPCAt(Projectile.Center, HomingRange);
-            if (target != null)
+            // Sentencing Mine: decelerate to stationary proximity mine
+            Projectile.ai[0]++;
+            if (Projectile.ai[0] < 30f)
             {
-                Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
+                NPC target = StaffOfFinalJudgmentUtils.ClosestNPCAt(Projectile.Center, HomingRange);
+                if (target != null)
+                {
+                    Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), 0.03f);
+                }
+                if (Projectile.velocity.Length() > MaxSpeed)
+                    Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
             }
-            if (Projectile.velocity.Length() > MaxSpeed)
-                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
+            else
+            {
+                Projectile.velocity *= 0.92f;
+                if (Projectile.velocity.Length() < 0.5f)
+                {
+                    Projectile.velocity = Vector2.Zero;
+                    Projectile.tileCollide = false;
+                }
+            }
 
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            Projectile.rotation += 0.06f;
 
             if (Main.rand.NextBool(3))
             {

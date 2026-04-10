@@ -54,12 +54,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
-            NPC target = Projectile.Center.ClosestNPCAt(HomingRange);
-            if (target != null)
-            {
-                Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
-            }
+            // Fountain Arc: spray with gravity pull-down
+            Projectile.velocity.Y += 0.06f;
             if (Projectile.velocity.Length() > MaxSpeed)
                 Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
 

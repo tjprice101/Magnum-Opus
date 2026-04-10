@@ -54,14 +54,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
-            NPC target = Projectile.Center.ClosestNPCAt(HomingRange);
-            if (target != null)
-            {
-                Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
-            }
-            if (Projectile.velocity.Length() > MaxSpeed)
-                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
+            // Gravity Arc: petal cannonball with lobbed trajectory
+            Projectile.velocity.Y += 0.05f;
+            if (Projectile.velocity.Length() > MaxSpeed * 1.5f)
+                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed * 1.5f;
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 

@@ -61,12 +61,16 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire.Projectiles
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
-            // Homing AI
-            NPC target = ClockworkGrimoireUtils.ClosestNPCAt(Projectile.Center, HomingRange);
-            if (target != null)
+            // Delayed Homing: straight for 30 frames, then aggressive homing
+            Projectile.ai[0]++;
+            if (Projectile.ai[0] > 30f)
             {
-                Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
+                NPC target = ClockworkGrimoireUtils.ClosestNPCAt(Projectile.Center, HomingRange);
+                if (target != null)
+                {
+                    Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), 0.10f);
+                }
             }
 
             if (Projectile.velocity.Length() > MaxSpeed)

@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -64,6 +65,44 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCaden
                     dust.noGravity = true;
                 }
             }
+        }
+
+        public override bool PreDraw(ref Color lightColor)
+        {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                Vector2 origin = tex.Size() * 0.5f;
+                float opacity = Projectile.Opacity;
+
+                // Purple/green shift matching AI
+                float shift = MathF.Sin(Main.GlobalTimeWrappedHourly * 10f) * 0.5f + 0.5f;
+                Color baseColor = Color.Lerp(EnigmaPurple, EnigmaGreen, shift);
+
+                // Outer bloom
+                sb.Draw(tex, drawPos, null, baseColor * opacity * 0.2f, Projectile.rotation,
+                    origin, Projectile.scale * 2.5f, SpriteEffects.None, 0f);
+                // Mid bloom
+                sb.Draw(tex, drawPos, null, baseColor * opacity * 0.5f, Projectile.rotation * 0.7f,
+                    origin, Projectile.scale * 1.4f, SpriteEffects.None, 0f);
+                // Core
+                sb.Draw(tex, drawPos, null, Color.White * opacity * 0.85f, Projectile.rotation * 1.3f,
+                    origin, Projectile.scale * 0.5f, SpriteEffects.None, 0f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            return false;
         }
     }
 }

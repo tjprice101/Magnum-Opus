@@ -61,16 +61,19 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Projectiles
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
-            // Homing AI
+            // Clock Tick-Tock: speed oscillates rhythmically with gentle homing
+            Projectile.ai[0] += 0.08f;
+            float speedMult = 0.6f + 0.4f * (float)Math.Sin(Projectile.ai[0]);
+            float currentSpeed = MaxSpeed * speedMult;
+
             NPC target = ClockworkHarmonyUtils.ClosestNPCAt(Projectile.Center, HomingRange);
             if (target != null)
             {
                 Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
+                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), 0.05f);
             }
 
-            if (Projectile.velocity.Length() > MaxSpeed)
-                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
+            Projectile.velocity = Vector2.Normalize(Projectile.velocity) * currentSpeed;
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 

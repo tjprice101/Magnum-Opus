@@ -341,10 +341,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             sb.Draw(glowTex, drawPos, null, (SpringLavender * 0.25f) with { A = 0 }, 0f, glowOrigin, 0.65f * pulse, SpriteEffects.None, 0f);
             sb.Draw(glowTex, drawPos, null, (SpringPink * 0.3f) with { A = 0 }, 0f, glowOrigin, 0.45f * pulse, SpriteEffects.None, 0f);
 
-            // Core sprite - the actual custom art with squishy dynamics
-            sb.Draw(spriteTex, drawPos, null, (SpringLavender * 0.85f) with { A = 0 }, Projectile.rotation, spriteOrigin, squishScale * 0.9f, SpriteEffects.None, 0f);
-
-            // Hot inner core - brighter, smaller overlay for depth
+            // Hot inner core - additive glow overlay for depth
             sb.Draw(spriteTex, drawPos, null, (SpringWhite * 0.5f) with { A = 0 }, Projectile.rotation, spriteOrigin, squishScale * 0.55f, SpriteEffects.None, 0f);
 
             // Orbiting spark renders
@@ -358,6 +355,9 @@ namespace MagnumOpus.Content.Spring.Projectiles
 
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            // Core sprite - solid, visible with bloom behind
+            sb.Draw(spriteTex, drawPos, null, Color.White, Projectile.rotation, spriteOrigin, squishScale * 1.3f, SpriteEffects.None, 0f);
 
             }
             catch { }
