@@ -135,5 +135,17 @@ namespace MagnumOpus.Content.Fate.ResonantWeapons.ResonanceOfABygoneReality
 
             return false;
         }
+
+        public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
+        {
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 0.2f;
+            Texture2D tex = Terraria.GameContent.TextureAssets.Item[Type].Value;
+            Vector2 drawPos = Item.position - Main.screenPosition + new Vector2(Item.width / 2f, Item.height);
+            Vector2 origin = new Vector2(tex.Width / 2f, tex.Height);
+            spriteBatch.Draw(tex, drawPos, null, FatePalette.DarkPink with { A = 0 } * pulse,
+                rotation, origin, scale * 1.05f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, FatePalette.WhiteCelestial with { A = 0 } * (pulse * 0.4f),
+                rotation, origin, scale * 1.02f, SpriteEffects.None, 0f);
+        }
     }
 }

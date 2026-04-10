@@ -2,7 +2,9 @@ using MagnumOpus.Common;
 using MagnumOpus.Content.DiesIrae;
 using MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Utilities;
 using MagnumOpus.Content.SandboxExoblade.Utilities;
+using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.Audio;
@@ -116,11 +118,22 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver
             tooltips.Add(new TooltipLine(Mod, "Effect3",
             "Hits inflict Hellfire and spawn radial ember bursts"));
             tooltips.Add(new TooltipLine(Mod, "Effect4",
-            "Right-click dash attack unleashes a massive fire burst on impact")
-            { OverrideColor = DiesIraePalette.JudgmentGold });
+            "Right-click dash attack unleashes a massive fire burst on impact"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
-            "'The first blow of wrath is always the loudest — but the last shakes the earth itself.'")
+            "'The first blow of wrath is always the loudest \u2014 but the last shakes the earth itself.'")
             { OverrideColor = new Color(200, 50, 30) });
+        }
+
+        public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
+        {
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 0.2f;
+            Texture2D tex = Terraria.GameContent.TextureAssets.Item[Type].Value;
+            Vector2 drawPos = Item.position - Main.screenPosition + new Vector2(Item.width / 2f, Item.height);
+            Vector2 origin = new Vector2(tex.Width / 2f, tex.Height);
+            spriteBatch.Draw(tex, drawPos, null, DiesIraePalette.InfernalRed with { A = 0 } * pulse,
+                rotation, origin, scale * 1.05f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, DiesIraePalette.JudgmentGold with { A = 0 } * (pulse * 0.7f),
+                rotation, origin, scale * 1.02f, SpriteEffects.None, 0f);
         }
     }
 }

@@ -65,10 +65,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon
             Texture2D tex = Terraria.GameContent.TextureAssets.Item[Type].Value;
             Vector2 drawPos = Item.position - Main.screenPosition + new Vector2(Item.width / 2f, Item.height);
             Vector2 origin = new Vector2(tex.Width / 2f, tex.Height);
-            Color warmGold = new Color(255, 200, 50, 0);
-            Color leafGreen = new Color(100, 200, 50, 0);
-            spriteBatch.Draw(tex, drawPos, null, warmGold * pulse, rotation, origin, scale * 1.05f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, leafGreen * (pulse * 0.6f), rotation, origin, scale * 1.02f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, OdeToJoyPalette.PetalPink with { A = 0 } * pulse, rotation, origin, scale * 1.05f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, OdeToJoyPalette.GoldenPollen with { A = 0 } * (pulse * 0.6f), rotation, origin, scale * 1.02f, SpriteEffects.None, 0f);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)

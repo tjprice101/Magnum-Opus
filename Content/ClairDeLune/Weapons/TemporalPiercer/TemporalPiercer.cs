@@ -4,7 +4,9 @@ using MagnumOpus.Content.ClairDeLune;
 using MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer.Projectiles;
 using MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer.Utilities;
 using MagnumOpus.Content.SandboxExoblade.Utilities;
+using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.Audio;
@@ -124,8 +126,20 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer
             tooltips.Add(new TooltipLine(Mod, "Effect3",
             "Right-click to perform a Time-Pierce Lunge through enemies"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
-            "'Five marks upon the hours. And when the fifth chimes — the moment freezes.'")
-            { OverrideColor = new Color(150, 200, 255) });
+            "'Five marks upon the hours. And when the fifth chimes \u2014 the moment freezes.'")
+            { OverrideColor = ClairDeLunePalette.LoreText });
+        }
+
+        public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
+        {
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 0.2f;
+            Texture2D tex = Terraria.GameContent.TextureAssets.Item[Type].Value;
+            Vector2 drawPos = Item.position - Main.screenPosition + new Vector2(Item.width / 2f, Item.height);
+            Vector2 origin = new Vector2(tex.Width / 2f, tex.Height);
+            spriteBatch.Draw(tex, drawPos, null, ClairDeLunePalette.TemporalCrimson with { A = 0 } * pulse,
+                rotation, origin, scale * 1.05f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, ClairDeLunePalette.PearlBlue with { A = 0 } * (pulse * 0.5f),
+                rotation, origin, scale * 1.02f, SpriteEffects.None, 0f);
         }
     }
 }

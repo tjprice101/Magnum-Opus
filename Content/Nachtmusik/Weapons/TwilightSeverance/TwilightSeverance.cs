@@ -4,7 +4,9 @@ using MagnumOpus.Content.Nachtmusik;
 using MagnumOpus.Content.SandboxExoblade.Utilities;
 using MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Projectiles;
 using MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Utilities;
+using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.Audio;
@@ -113,6 +115,18 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'Between dusk and starlight, every cut severs what was from what will be.'")
             { OverrideColor = new Color(100, 120, 200) });
+        }
+
+        public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
+        {
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 0.2f;
+            Texture2D tex = Terraria.GameContent.TextureAssets.Item[Type].Value;
+            Vector2 drawPos = Item.position - Main.screenPosition + new Vector2(Item.width / 2f, Item.height);
+            Vector2 origin = new Vector2(tex.Width / 2f, tex.Height);
+            spriteBatch.Draw(tex, drawPos, null, NachtmusikPalette.DuskViolet with { A = 0 } * pulse,
+                rotation, origin, scale * 1.05f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, NachtmusikPalette.MoonlitSilver with { A = 0 } * (pulse * 0.5f),
+                rotation, origin, scale * 1.02f, SpriteEffects.None, 0f);
         }
     }
 }

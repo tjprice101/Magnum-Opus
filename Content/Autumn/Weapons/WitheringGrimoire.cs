@@ -268,21 +268,31 @@ namespace MagnumOpus.Content.Autumn.Weapons
 
         public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
         {
-            Texture2D texture = TextureAssets.Item[Item.type].Value;
-            Vector2 position = Item.Center - Main.screenPosition;
-            Vector2 origin = texture.Size() / 2f;
+            try
+            {
+                Texture2D bloomTex = MagnumTextureRegistry.GetSoftGlow();
+                Vector2 position = Item.Center - Main.screenPosition;
+                Vector2 bloomOrigin = bloomTex.Size() / 2f;
 
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.08f + 1f;
+                float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.08f + 1f;
 
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            spriteBatch.Draw(texture, position, null, DecayPurple * 0.3f, rotation, origin, scale * pulse * 1.25f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, position, null, DeathGreen * 0.22f, rotation, origin, scale * 1.12f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, position, null, WitherBrown * 0.18f, rotation, origin, scale * 1.05f, SpriteEffects.None, 0f);
+                spriteBatch.Draw(bloomTex, position, null, DecayPurple * 0.25f, 0f, bloomOrigin, scale * pulse * 0.14f, SpriteEffects.None, 0f);
+                spriteBatch.Draw(bloomTex, position, null, DeathGreen * 0.18f, 0f, bloomOrigin, scale * 0.10f, SpriteEffects.None, 0f);
+                spriteBatch.Draw(bloomTex, position, null, WitherBrown * 0.14f, 0f, bloomOrigin, scale * 0.07f, SpriteEffects.None, 0f);
 
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
+            finally
+            {
+                try { spriteBatch.End(); } catch { }
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             Lighting.AddLight(Item.Center, DecayPurple.ToVector3() * 0.4f);
 

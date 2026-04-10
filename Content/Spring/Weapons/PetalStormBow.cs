@@ -220,17 +220,17 @@ namespace MagnumOpus.Content.Spring.Weapons
         {
             try
             {
-                Texture2D texture = TextureAssets.Item[Item.type].Value;
+                Texture2D bloomTex = MagnumTextureRegistry.GetSoftGlow();
                 Vector2 position = Item.Center - Main.screenPosition;
-                Vector2 origin = texture.Size() / 2f;
+                Vector2 bloomOrigin = bloomTex.Size() / 2f;
 
                 float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.04f) * 0.1f + 1f;
 
                 spriteBatch.End();
                 spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-                spriteBatch.Draw(texture, position, null, SpringPink * 0.35f, rotation, origin, scale * pulse * 1.3f, SpriteEffects.None, 0f);
-                spriteBatch.Draw(texture, position, null, SpringWhite * 0.25f, rotation, origin, scale * pulse * 1.15f, SpriteEffects.None, 0f);
+                spriteBatch.Draw(bloomTex, position, null, SpringPink * 0.3f, 0f, bloomOrigin, scale * pulse * 0.14f, SpriteEffects.None, 0f);
+                spriteBatch.Draw(bloomTex, position, null, SpringWhite * 0.2f, 0f, bloomOrigin, scale * pulse * 0.10f, SpriteEffects.None, 0f);
 
                 spriteBatch.End();
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);

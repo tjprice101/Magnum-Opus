@@ -128,27 +128,36 @@ namespace MagnumOpus.Content.Seasons.Weapons
             Vector2 drawPos = Item.position - Main.screenPosition + new Vector2(Item.width / 2, Item.height / 2);
             Vector2 origin = texture.Size() / 2f;
 
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            try
+            {
+                Texture2D bloomTex = MagnumTextureRegistry.GetSoftGlow();
+                Vector2 bloomOrigin = bloomTex.Size() / 2f;
 
-            float pulse = 0.8f + MathF.Sin(Main.GameUpdateCount * 0.05f) * 0.2f;
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            Color springGlow = SpringPink with { A = 0 } * 0.3f * pulse;
-            Color summerGlow = SummerGold with { A = 0 } * 0.25f * pulse;
-            Color autumnGlow = AutumnOrange with { A = 0 } * 0.25f * pulse;
-            Color winterGlow = WinterBlue with { A = 0 } * 0.3f * pulse;
-            Color primaryGlow = GetCurrentSeasonColor() with { A = 0 } * 0.4f * pulse;
+                float pulse = 0.8f + MathF.Sin(Main.GameUpdateCount * 0.05f) * 0.2f;
 
-            spriteBatch.Draw(texture, drawPos, null, springGlow, rotation, origin, scale * 1.15f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, summerGlow, rotation, origin, scale * 1.12f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, autumnGlow, rotation, origin, scale * 1.10f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, winterGlow, rotation, origin, scale * 1.08f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, primaryGlow, rotation, origin, scale * 1.05f, SpriteEffects.None, 0f);
+                Color primaryGlow = GetCurrentSeasonColor() with { A = 0 } * 0.35f * pulse;
+                Color springGlow = SpringPink with { A = 0 } * 0.2f * pulse;
+                Color winterGlow = WinterBlue with { A = 0 } * 0.2f * pulse;
 
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
-                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+                spriteBatch.Draw(bloomTex, drawPos, null, primaryGlow, 0f, bloomOrigin, scale * 0.16f, SpriteEffects.None, 0f);
+                spriteBatch.Draw(bloomTex, drawPos, null, springGlow, 0f, bloomOrigin, scale * 0.12f, SpriteEffects.None, 0f);
+                spriteBatch.Draw(bloomTex, drawPos, null, winterGlow, 0f, bloomOrigin, scale * 0.09f, SpriteEffects.None, 0f);
+
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                    DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            catch { }
+            finally
+            {
+                try { spriteBatch.End(); } catch { }
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
             spriteBatch.Draw(texture, drawPos, null, lightColor, rotation, origin, scale, SpriteEffects.None, 0f);
 

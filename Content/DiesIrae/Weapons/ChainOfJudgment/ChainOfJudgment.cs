@@ -2,7 +2,9 @@ using MagnumOpus.Common;
 using MagnumOpus.Content.DiesIrae;
 using MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Utilities;
 using MagnumOpus.Content.SandboxExoblade.Utilities;
+using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.Audio;
@@ -109,11 +111,22 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment
             tooltips.Add(new TooltipLine(Mod, "Effect3",
             "Hits spawn fire and solar flare bursts at impact point"));
             tooltips.Add(new TooltipLine(Mod, "Effect4",
-            "Right-click dash attack unleashes a massive infernal chain burst")
-            { OverrideColor = DiesIraePalette.JudgmentGold });
+            "Right-click dash attack unleashes a massive infernal chain burst"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'No sinner escapes the chain. It finds them in the dark.'")
             { OverrideColor = new Color(200, 50, 30) });
+        }
+
+        public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
+        {
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 0.2f;
+            Texture2D tex = Terraria.GameContent.TextureAssets.Item[Type].Value;
+            Vector2 drawPos = Item.position - Main.screenPosition + new Vector2(Item.width / 2f, Item.height);
+            Vector2 origin = new Vector2(tex.Width / 2f, tex.Height);
+            spriteBatch.Draw(tex, drawPos, null, DiesIraePalette.InfernalRed with { A = 0 } * pulse,
+                rotation, origin, scale * 1.05f, SpriteEffects.None, 0f);
+            spriteBatch.Draw(tex, drawPos, null, DiesIraePalette.JudgmentGold with { A = 0 } * (pulse * 0.7f),
+                rotation, origin, scale * 1.02f, SpriteEffects.None, 0f);
         }
     }
 }
