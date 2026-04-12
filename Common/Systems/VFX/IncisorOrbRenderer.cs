@@ -106,16 +106,32 @@ namespace MagnumOpus.Common.Systems.VFX
         /// <param name="proj">The projectile being drawn</param>
         /// <param name="config">Theme-specific visual configuration</param>
         /// <param name="strip">A VertexStrip instance (store as a field on the projectile, create with new VertexStrip())</param>
+        private static bool _shaderErrorLogged;
+
         public static void DrawOrbVisuals(SpriteBatch sb, Projectile proj, in ThemeConfig config, ref VertexStrip strip)
         {
             if (Main.dedServ) return;
 
+            // Load textures first (outside SpriteBatch state changes)
             try
             {
                 EnsureSharedTextures();
                 EnsureThemeTextures(in config);
+            }
+            catch (Exception ex)
+            {
+                if (!_shaderErrorLogged)
+                {
+                    _shaderErrorLogged = true;
+                    Main.NewText($"[MagnumOpus] Orb texture load error: {ex.Message}", Color.OrangeRed);
+                }
+                return; // Can't render without textures
+            }
 
-                // Count valid trail positions
+            // === LAYER 1: Shader-driven beam body via VertexStrip ===
+            // Separated from bloom so shader failure doesn't kill bloom rendering
+            try
+            {
                 int count = 0;
                 for (int i = 0; i < proj.oldPos.Length; i++)
                 {
@@ -123,11 +139,10 @@ namespace MagnumOpus.Common.Systems.VFX
                     count++;
                 }
 
-                sb.End(); // End current SpriteBatch for raw vertex drawing
-
-                // === LAYER 1: Shader-driven beam body via VertexStrip ===
                 if (count >= 2)
                 {
+                    sb.End();
+
                     Vector2[] positions = new Vector2[count];
                     float[] rotations = new float[count];
                     float totalLength = 0f;
@@ -145,53 +160,91 @@ namespace MagnumOpus.Common.Systems.VFX
                         (float progress) => MathHelper.Lerp(24f, 2f, progress),
                         -Main.screenPosition, includeBacksides: true);
 
-                    _beamShader ??= ModContent.Request<Effect>(
-                        "MagnumOpus/Content/FoundationWeapons/InfernalBeamFoundation/Shaders/InfernalBeamBodyShader",
-                        AssetRequestMode.ImmediateLoad).Value;
+                    if (_beamShader == null)
+                    {
+                        try
+                        {
+                            var shaderAsset = ModContent.Request<Effect>(
+                                "MagnumOpus/Content/FoundationWeapons/InfernalBeamFoundation/Shaders/InfernalBeamBodyShader",
+                                AssetRequestMode.ImmediateLoad);
+                            _beamShader = shaderAsset?.Value;
+                        }
+                        catch (Exception ex)
+                        {
+                            if (!_shaderErrorLogged)
+                            {
+                                _shaderErrorLogged = true;
+                                Main.NewText($"[MagnumOpus] Beam shader load failed: {ex.Message}", Color.OrangeRed);
+                            }
+                        }
+                    }
 
                     if (_beamShader != null)
                     {
                         float repVal = MathHelper.Max(totalLength / 800f, 0.3f);
                         float time = (float)Main.timeForVisualEffects * -0.024f;
 
-                        _beamShader.Parameters["WorldViewProjection"].SetValue(
+                        _beamShader.Parameters["WorldViewProjection"]?.SetValue(
                             Main.GameViewMatrix.NormalizedTransformationmatrix);
-                        _beamShader.Parameters["onTex"].SetValue(_basicTrail.Value);
-                        _beamShader.Parameters["gradientTex"].SetValue(_cachedGradientLUT.Value);
-                        _beamShader.Parameters["bodyTex"].SetValue(_cachedBodyTex.Value);
-                        _beamShader.Parameters["detailTex1"].SetValue(_cachedDetailTex1.Value);
-                        _beamShader.Parameters["detailTex2"].SetValue(_cachedDetailTex2.Value);
-                        _beamShader.Parameters["noiseTex"].SetValue(_fbmNoise.Value);
+                        _beamShader.Parameters["onTex"]?.SetValue(_basicTrail.Value);
+                        _beamShader.Parameters["gradientTex"]?.SetValue(_cachedGradientLUT.Value);
+                        _beamShader.Parameters["bodyTex"]?.SetValue(_cachedBodyTex.Value);
+                        _beamShader.Parameters["detailTex1"]?.SetValue(_cachedDetailTex1.Value);
+                        _beamShader.Parameters["detailTex2"]?.SetValue(_cachedDetailTex2.Value);
+                        _beamShader.Parameters["noiseTex"]?.SetValue(_fbmNoise.Value);
 
-                        _beamShader.Parameters["bodyReps"].SetValue(1.5f * repVal);
-                        _beamShader.Parameters["detail1Reps"].SetValue(2.0f * repVal);
-                        _beamShader.Parameters["detail2Reps"].SetValue(1.2f * repVal);
-                        _beamShader.Parameters["gradientReps"].SetValue(0.75f * repVal);
-                        _beamShader.Parameters["bodyScrollSpeed"].SetValue(0.8f);
-                        _beamShader.Parameters["detail1ScrollSpeed"].SetValue(1.2f);
-                        _beamShader.Parameters["detail2ScrollSpeed"].SetValue(-0.6f);
-                        _beamShader.Parameters["noiseDistortion"].SetValue(0.025f);
-                        _beamShader.Parameters["totalMult"].SetValue(1.3f);
-                        _beamShader.Parameters["uTime"].SetValue(time);
+                        _beamShader.Parameters["bodyReps"]?.SetValue(1.5f * repVal);
+                        _beamShader.Parameters["detail1Reps"]?.SetValue(2.0f * repVal);
+                        _beamShader.Parameters["detail2Reps"]?.SetValue(1.2f * repVal);
+                        _beamShader.Parameters["gradientReps"]?.SetValue(0.75f * repVal);
+                        _beamShader.Parameters["bodyScrollSpeed"]?.SetValue(0.8f);
+                        _beamShader.Parameters["detail1ScrollSpeed"]?.SetValue(1.2f);
+                        _beamShader.Parameters["detail2ScrollSpeed"]?.SetValue(-0.6f);
+                        _beamShader.Parameters["noiseDistortion"]?.SetValue(0.025f);
+                        _beamShader.Parameters["totalMult"]?.SetValue(1.3f);
+                        _beamShader.Parameters["uTime"]?.SetValue(time);
 
-                        _beamShader.CurrentTechnique.Passes["MainPS"].Apply();
+                        _beamShader.CurrentTechnique.Passes["MainPS"]?.Apply();
                         strip.DrawTrail();
                         Main.pixelShader.CurrentTechnique.Passes[0].Apply();
                     }
+
+                    // Restore SpriteBatch for bloom drawing
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                        Main.DefaultSamplerState, DepthStencilState.None,
+                        Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
                 }
+            }
+            catch (Exception ex)
+            {
+                if (!_shaderErrorLogged)
+                {
+                    _shaderErrorLogged = true;
+                    Main.NewText($"[MagnumOpus] Beam trail error: {ex.Message}", Color.OrangeRed);
+                }
+                // Restore SpriteBatch state so bloom can still render
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
 
-                // === LAYER 2: Multi-layer bloom head ===
-                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
-                    SamplerState.LinearClamp, DepthStencilState.None,
-                    RasterizerState.CullCounterClockwise, null,
-                    Main.GameViewMatrix.TransformationMatrix);
-
-                Vector2 drawPos = proj.Center - Main.screenPosition;
+            // === LAYER 2: Multi-layer bloom head ===
+            // This section is independent — always draws even if shader trail failed
+            try
+            {
                 Texture2D glowTex = _softGlow?.Value;
                 Texture2D bloomTex = _pointBloom?.Value;
 
                 if (glowTex != null && bloomTex != null)
                 {
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                        SamplerState.LinearClamp, DepthStencilState.None,
+                        RasterizerState.CullCounterClockwise, null,
+                        Main.GameViewMatrix.TransformationMatrix);
+
+                    Vector2 drawPos = proj.Center - Main.screenPosition;
                     float paletteT = (Main.GlobalTimeWrappedHourly * 2f) % 1f;
                     Color orbGlow = MulticolorLerp(paletteT, config.Palette);
                     Color innerGlow = MulticolorLerp(MathHelper.Clamp(paletteT + 0.25f, 0f, 0.999f), config.Palette);
@@ -220,18 +273,11 @@ namespace MagnumOpus.Common.Systems.VFX
                     sb.Draw(glowTex, drawPos, null, (innerGlow with { A = 0 }) * 0.25f * pulse,
                         flareRot + MathHelper.PiOver2, glowTex.Size() / 2f, new Vector2(0.18f, 0.06f), SpriteEffects.None, 0f);
                 }
-
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                    Main.DefaultSamplerState, DepthStencilState.None,
-                    Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-            catch
-            {
-                // Swallow exceptions to prevent black squares — ensure SpriteBatch is always restored
-            }
+            catch { }
             finally
             {
+                // Always restore to standard SpriteBatch state for caller
                 try { sb.End(); } catch { }
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
                     Main.DefaultSamplerState, DepthStencilState.None,

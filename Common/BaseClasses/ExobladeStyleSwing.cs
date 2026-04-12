@@ -551,6 +551,8 @@ namespace MagnumOpus.Common.BaseClasses
             return result;
         }
 
+        private static bool _swingErrorLogged;
+
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch sb = Main.spriteBatch;
@@ -563,7 +565,14 @@ namespace MagnumOpus.Common.BaseClasses
             DrawPierceTrail();
             DrawBlade();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                if (!_swingErrorLogged)
+                {
+                    _swingErrorLogged = true;
+                    Main.NewText($"[MagnumOpus] Swing render error: {ex.Message}", Color.OrangeRed);
+                }
+            }
             finally
             {
                 try { sb.End(); } catch { }

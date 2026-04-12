@@ -208,30 +208,39 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
 
             // === Stage 4: EN Star Flare — dual counter-rotating phantom flares ===
             {
-                Texture2D sfTex = EnigmaThemeTextures.ENStarFlare.Value;
-                Vector2 sfOrigin = sfTex.Size() / 2f;
-                float sfRotA = time * 0.025f;
-                float sfRotB = -time * 0.018f;
-                float sfScale = 0.07f + MathF.Sin(time * 0.04f) * 0.014f;
-                sb.Draw(sfTex, drawPos, null, WatchingUtils.GazeGreen * 0.35f * op, sfRotA, sfOrigin, sfScale, SpriteEffects.None, 0f);
-                sb.Draw(sfTex, drawPos, null, WatchingUtils.RefrainPurple * 0.25f * op, sfRotB, sfOrigin, sfScale * 0.85f, SpriteEffects.None, 0f);
+                Texture2D sfTex = EnigmaThemeTextures.ENStarFlare?.Value;
+                if (sfTex != null)
+                {
+                    Vector2 sfOrigin = sfTex.Size() / 2f;
+                    float sfRotA = time * 0.025f;
+                    float sfRotB = -time * 0.018f;
+                    float sfScale = 0.07f + MathF.Sin(time * 0.04f) * 0.014f;
+                    sb.Draw(sfTex, drawPos, null, WatchingUtils.GazeGreen * 0.35f * op, sfRotA, sfOrigin, sfScale, SpriteEffects.None, 0f);
+                    sb.Draw(sfTex, drawPos, null, WatchingUtils.RefrainPurple * 0.25f * op, sfRotB, sfOrigin, sfScale * 0.85f, SpriteEffects.None, 0f);
+                }
             }
 
             // === Stage 5: EN Power Effect Ring — phantom containment ring ===
             {
-                Texture2D ringTex = EnigmaThemeTextures.ENPowerEffectRing.Value;
-                Vector2 prOrigin = ringTex.Size() / 2f;
-                float prRot = time * 0.015f;
-                sb.Draw(ringTex, drawPos, null, WatchingUtils.RefrainPurple * 0.22f * op, prRot, prOrigin, 0.063f, SpriteEffects.None, 0f);
-                sb.Draw(ringTex, drawPos, null, WatchingUtils.GazeGreen * 0.15f * op, -prRot * 0.7f, prOrigin, 0.084f, SpriteEffects.None, 0f);
+                Texture2D ringTex = EnigmaThemeTextures.ENPowerEffectRing?.Value;
+                if (ringTex != null)
+                {
+                    Vector2 prOrigin = ringTex.Size() / 2f;
+                    float prRot = time * 0.015f;
+                    sb.Draw(ringTex, drawPos, null, WatchingUtils.RefrainPurple * 0.22f * op, prRot, prOrigin, 0.063f, SpriteEffects.None, 0f);
+                    sb.Draw(ringTex, drawPos, null, WatchingUtils.GazeGreen * 0.15f * op, -prRot * 0.7f, prOrigin, 0.084f, SpriteEffects.None, 0f);
+                }
             }
 
             // === Stage 6: EN Enigma Eye — the watcher's ever-present gaze ===
             {
-                Texture2D eyeTex = EnigmaThemeTextures.ENEnigmaEye.Value;
-                Vector2 eyeOrigin = eyeTex.Size() / 2f;
-                float eyePulse = 0.6f + MathF.Sin(time * 0.03f) * 0.4f;
-                sb.Draw(eyeTex, drawPos, null, WatchingUtils.PhantomWhite * 0.35f * eyePulse * op, 0f, eyeOrigin, 0.035f, SpriteEffects.None, 0f);
+                Texture2D eyeTex = EnigmaThemeTextures.ENEnigmaEye?.Value;
+                if (eyeTex != null)
+                {
+                    Vector2 eyeOrigin = eyeTex.Size() / 2f;
+                    float eyePulse = 0.6f + MathF.Sin(time * 0.03f) * 0.4f;
+                    sb.Draw(eyeTex, drawPos, null, WatchingUtils.PhantomWhite * 0.35f * eyePulse * op, 0f, eyeOrigin, 0.035f, SpriteEffects.None, 0f);
+                }
             }
 
             // === Stage 7: Minion glyph sprite ===
@@ -520,21 +529,27 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
 
             // === Stage 3: EN Star Flare — dual-rotating spectral burst ===
             {
-                Texture2D sfTex = EnigmaThemeTextures.ENStarFlare.Value;
-                Vector2 sfOrigin = sfTex.Size() / 2f;
-                float sfRotA = time * 0.05f;
-                float sfRotB = -time * 0.035f;
-                float sfScale = 0.056f + MathF.Sin(time * 0.07f) * 0.0105f;
-                sb.Draw(sfTex, drawPos, null, WatchingUtils.GazeGreen * 0.35f, sfRotA, sfOrigin, sfScale, SpriteEffects.None, 0f);
-                sb.Draw(sfTex, drawPos, null, WatchingUtils.RefrainPurple * 0.22f, sfRotB, sfOrigin, sfScale * 0.85f, SpriteEffects.None, 0f);
+                Texture2D sfTex = EnigmaThemeTextures.ENStarFlare?.Value;
+                if (sfTex != null)
+                {
+                    Vector2 sfOrigin = sfTex.Size() / 2f;
+                    float sfRotA = time * 0.05f;
+                    float sfRotB = -time * 0.035f;
+                    float sfScale = 0.056f + MathF.Sin(time * 0.07f) * 0.0105f;
+                    sb.Draw(sfTex, drawPos, null, WatchingUtils.GazeGreen * 0.35f, sfRotA, sfOrigin, sfScale, SpriteEffects.None, 0f);
+                    sb.Draw(sfTex, drawPos, null, WatchingUtils.RefrainPurple * 0.22f, sfRotB, sfOrigin, sfScale * 0.85f, SpriteEffects.None, 0f);
+                }
             }
 
             // === Stage 4: EN Power Effect Ring ===
             {
-                Texture2D ringTex = EnigmaThemeTextures.ENPowerEffectRing.Value;
-                Vector2 prOrigin = ringTex.Size() / 2f;
-                float prRot = time * 0.025f;
-                sb.Draw(ringTex, drawPos, null, WatchingUtils.RefrainPurple * 0.18f, prRot, prOrigin, 0.035f, SpriteEffects.None, 0f);
+                Texture2D ringTex = EnigmaThemeTextures.ENPowerEffectRing?.Value;
+                if (ringTex != null)
+                {
+                    Vector2 prOrigin = ringTex.Size() / 2f;
+                    float prRot = time * 0.025f;
+                    sb.Draw(ringTex, drawPos, null, WatchingUtils.RefrainPurple * 0.18f, prRot, prOrigin, 0.035f, SpriteEffects.None, 0f);
+                }
             }
 
             // === Stage 5: Glyph sprite overlay ===
@@ -764,30 +779,39 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
 
             // === Stage 3: EN Star Flare — dual-rotating rift starburst ===
             {
-                Texture2D sfTex = EnigmaThemeTextures.ENStarFlare.Value;
-                Vector2 sfOrigin = sfTex.Size() / 2f;
-                float sfRotA = time * 0.02f;
-                float sfRotB = -time * 0.015f;
-                float sfScale = 0.105f + MathF.Sin(time * 0.05f) * 0.021f;
-                sb.Draw(sfTex, drawPos, null, WatchingUtils.GazeGreen * 0.35f * op, sfRotA, sfOrigin, sfScale * pulse, SpriteEffects.None, 0f);
-                sb.Draw(sfTex, drawPos, null, WatchingUtils.RefrainPurple * 0.25f * op, sfRotB, sfOrigin, sfScale * 0.8f * antiPulse, SpriteEffects.None, 0f);
+                Texture2D sfTex = EnigmaThemeTextures.ENStarFlare?.Value;
+                if (sfTex != null)
+                {
+                    Vector2 sfOrigin = sfTex.Size() / 2f;
+                    float sfRotA = time * 0.02f;
+                    float sfRotB = -time * 0.015f;
+                    float sfScale = 0.105f + MathF.Sin(time * 0.05f) * 0.021f;
+                    sb.Draw(sfTex, drawPos, null, WatchingUtils.GazeGreen * 0.35f * op, sfRotA, sfOrigin, sfScale * pulse, SpriteEffects.None, 0f);
+                    sb.Draw(sfTex, drawPos, null, WatchingUtils.RefrainPurple * 0.25f * op, sfRotB, sfOrigin, sfScale * 0.8f * antiPulse, SpriteEffects.None, 0f);
+                }
             }
 
             // === Stage 4: EN Power Effect Ring — dual concentric rift rings ===
             {
-                Texture2D ringTex = EnigmaThemeTextures.ENPowerEffectRing.Value;
-                Vector2 prOrigin = ringTex.Size() / 2f;
-                float prRot = time * 0.01f;
-                sb.Draw(ringTex, drawPos, null, WatchingUtils.GazeGreen * 0.22f * op, prRot, prOrigin, 0.0875f + MathF.Sin(time * 0.07f) * 0.014f, SpriteEffects.None, 0f);
-                sb.Draw(ringTex, drawPos, null, WatchingUtils.RefrainPurple * 0.15f * op, -prRot * 0.6f, prOrigin, 0.1225f + MathF.Sin(time * 0.05f) * 0.0175f, SpriteEffects.None, 0f);
+                Texture2D ringTex = EnigmaThemeTextures.ENPowerEffectRing?.Value;
+                if (ringTex != null)
+                {
+                    Vector2 prOrigin = ringTex.Size() / 2f;
+                    float prRot = time * 0.01f;
+                    sb.Draw(ringTex, drawPos, null, WatchingUtils.GazeGreen * 0.22f * op, prRot, prOrigin, 0.0875f + MathF.Sin(time * 0.07f) * 0.014f, SpriteEffects.None, 0f);
+                    sb.Draw(ringTex, drawPos, null, WatchingUtils.RefrainPurple * 0.15f * op, -prRot * 0.6f, prOrigin, 0.1225f + MathF.Sin(time * 0.05f) * 0.0175f, SpriteEffects.None, 0f);
+                }
             }
 
             // === Stage 5: EN Enigma Eye — rift gaze ===
             {
-                Texture2D eyeTex = EnigmaThemeTextures.ENEnigmaEye.Value;
-                Vector2 eyeOrigin = eyeTex.Size() / 2f;
-                float eyePulse = 0.5f + MathF.Sin(time * 0.04f) * 0.5f;
-                sb.Draw(eyeTex, drawPos, null, WatchingUtils.PhantomWhite * 0.35f * eyePulse * op, 0f, eyeOrigin, 0.035f, SpriteEffects.None, 0f);
+                Texture2D eyeTex = EnigmaThemeTextures.ENEnigmaEye?.Value;
+                if (eyeTex != null)
+                {
+                    Vector2 eyeOrigin = eyeTex.Size() / 2f;
+                    float eyePulse = 0.5f + MathF.Sin(time * 0.04f) * 0.5f;
+                    sb.Draw(eyeTex, drawPos, null, WatchingUtils.PhantomWhite * 0.35f * eyePulse * op, 0f, eyeOrigin, 0.035f, SpriteEffects.None, 0f);
+                }
             }
 
             // === Stage 6: Rift star sprite ===
@@ -1005,28 +1029,37 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheWatchingRefrain
 
             // === Stage 4: EN Power Effect Ring — dual concentric zone boundaries ===
             {
-                Texture2D ringTex = EnigmaThemeTextures.ENPowerEffectRing.Value;
-                Vector2 prOrigin = ringTex.Size() / 2f;
-                float prRot = time * 0.005f;
-                float ringPulse = zoneScale * (0.49f + MathF.Sin(time * 0.04f) * 0.0525f);
-                sb.Draw(ringTex, drawPos, null, WatchingUtils.RefrainPurple * 0.18f * lifeFade, prRot, prOrigin, ringPulse, SpriteEffects.None, 0f);
-                sb.Draw(ringTex, drawPos, null, WatchingUtils.GazeGreen * 0.12f * lifeFade, -prRot * 0.6f, prOrigin, ringPulse * 0.7f, SpriteEffects.None, 0f);
+                Texture2D ringTex = EnigmaThemeTextures.ENPowerEffectRing?.Value;
+                if (ringTex != null)
+                {
+                    Vector2 prOrigin = ringTex.Size() / 2f;
+                    float prRot = time * 0.005f;
+                    float ringPulse = zoneScale * (0.49f + MathF.Sin(time * 0.04f) * 0.0525f);
+                    sb.Draw(ringTex, drawPos, null, WatchingUtils.RefrainPurple * 0.18f * lifeFade, prRot, prOrigin, ringPulse, SpriteEffects.None, 0f);
+                    sb.Draw(ringTex, drawPos, null, WatchingUtils.GazeGreen * 0.12f * lifeFade, -prRot * 0.6f, prOrigin, ringPulse * 0.7f, SpriteEffects.None, 0f);
+                }
             }
 
             // === Stage 5: EN Star Flare — zone center flare ===
             {
-                Texture2D sfTex = EnigmaThemeTextures.ENStarFlare.Value;
-                Vector2 sfOrigin = sfTex.Size() / 2f;
-                float sfRot = time * 0.012f;
-                sb.Draw(sfTex, drawPos, null, WatchingUtils.GazeGreen * 0.20f * lifeFade, sfRot, sfOrigin, 0.0875f, SpriteEffects.None, 0f);
+                Texture2D sfTex = EnigmaThemeTextures.ENStarFlare?.Value;
+                if (sfTex != null)
+                {
+                    Vector2 sfOrigin = sfTex.Size() / 2f;
+                    float sfRot = time * 0.012f;
+                    sb.Draw(sfTex, drawPos, null, WatchingUtils.GazeGreen * 0.20f * lifeFade, sfRot, sfOrigin, 0.0875f, SpriteEffects.None, 0f);
+                }
             }
 
             // === Stage 6: EN Enigma Eye — zone surveillance eye ===
             {
-                Texture2D eyeTex = EnigmaThemeTextures.ENEnigmaEye.Value;
-                Vector2 eyeOrigin = eyeTex.Size() / 2f;
-                float eyePulse = 0.5f + MathF.Sin(time * 0.035f) * 0.5f;
-                sb.Draw(eyeTex, drawPos, null, WatchingUtils.PhantomWhite * 0.25f * eyePulse * lifeFade, 0f, eyeOrigin, 0.049f, SpriteEffects.None, 0f);
+                Texture2D eyeTex = EnigmaThemeTextures.ENEnigmaEye?.Value;
+                if (eyeTex != null)
+                {
+                    Vector2 eyeOrigin = eyeTex.Size() / 2f;
+                    float eyePulse = 0.5f + MathF.Sin(time * 0.035f) * 0.5f;
+                    sb.Draw(eyeTex, drawPos, null, WatchingUtils.PhantomWhite * 0.25f * eyePulse * lifeFade, 0f, eyeOrigin, 0.049f, SpriteEffects.None, 0f);
+                }
             }
 
             // === Pulsing light accent ===

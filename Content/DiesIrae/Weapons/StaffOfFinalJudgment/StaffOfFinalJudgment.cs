@@ -47,7 +47,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.StaffOfFinalJudgment
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            Projectile.NewProjectile(source, player.MountedCenter, velocity * Item.shootSpeed, type, damage, knockback, player.whoAmI);
+            Projectile.NewProjectile(source, player.MountedCenter, velocity, type, damage, knockback, player.whoAmI);
             return false;
         }
 

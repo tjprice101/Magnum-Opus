@@ -129,29 +129,34 @@ namespace MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheSilentMeasure.P
             device.DepthStencilState = DepthStencilState.None;
             device.RasterizerState = RasterizerState.CullNone;
 
-            // Set world-view-projection matrix on shader with zoom compensation
-            if (settings.Shader != null)
+            try
             {
-                var zoom = Main.GameViewMatrix.Zoom;
-                Matrix projection = Matrix.CreateOrthographicOffCenter(
-                    0, Main.screenWidth / zoom.X, Main.screenHeight / zoom.Y, 0, -1, 1);
-                Matrix wvp = projection;
-
-                var wvpParam = settings.Shader.Parameters["uWorldViewProjection"];
-                wvpParam?.SetValue(wvp);
-
-                foreach (var pass in settings.Shader.CurrentTechnique.Passes)
+                // Set world-view-projection matrix on shader with zoom compensation
+                if (settings.Shader != null)
                 {
-                    pass.Apply();
-                    device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertCount, 0, idxCount / 3);
+                    var zoom = Main.GameViewMatrix.Zoom;
+                    Matrix projection = Matrix.CreateOrthographicOffCenter(
+                        0, Main.screenWidth / zoom.X, Main.screenHeight / zoom.Y, 0, -1, 1);
+                    Matrix wvp = projection;
+
+                    var wvpParam = settings.Shader.Parameters["uWorldViewProjection"];
+                    wvpParam?.SetValue(wvp);
+
+                    foreach (var pass in settings.Shader.CurrentTechnique.Passes)
+                    {
+                        pass.Apply();
+                        device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertCount, 0, idxCount / 3);
+                    }
                 }
             }
-
-            device.SetVertexBuffer(null);
-            device.Indices = null;
-            device.BlendState = prevBlend;
-            device.DepthStencilState = prevDepth;
-            device.RasterizerState = prevRaster;
+            finally
+            {
+                device.SetVertexBuffer(null);
+                device.Indices = null;
+                device.BlendState = prevBlend;
+                device.DepthStencilState = prevDepth;
+                device.RasterizerState = prevRaster;
+            }
         }
 
         private static float[] ComputeCompletions(List<Vector2> points)

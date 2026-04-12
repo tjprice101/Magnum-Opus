@@ -7,6 +7,10 @@ using ReLogic.Content;
 using System;
 using System.Collections.Generic;
 using MagnumOpus.Content.Common.Consumables;
+using MagnumOpus.Content.Nachtmusik.Accessories;
+using MagnumOpus.Content.DiesIrae.Accessories;
+using MagnumOpus.Content.OdeToJoy.Accessories;
+using MagnumOpus.Content.ClairDeLune.Accessories;
 
 namespace MagnumOpus.Common.Systems
 {
@@ -55,6 +59,23 @@ namespace MagnumOpus.Common.Systems
                 return false; // Skip vanilla draw — we drew it ourselves
             }
 
+            // --- HEARTS: Wing Amplification tint ---
+            var wingColors = GetWingAmplifyHeartColors(player);
+            if (isHeart && wingColors.HasValue)
+            {
+                SpriteBatch sb = context.SpriteBatch;
+                Texture2D tex = context.texture.Value;
+                var (baseColor, shimmerColor) = wingColors.Value;
+
+                float pulse = 0.9f + 0.1f * MathF.Sin(Main.GlobalTimeWrappedHourly * 4f + context.resourceNumber * 0.7f);
+                Color tintedColor = baseColor * pulse;
+
+                sb.Draw(tex, context.position, context.source, tintedColor, context.rotation,
+                    context.origin, context.scale, context.effects, 0f);
+
+                return false;
+            }
+
             // --- MANA STARS: Tint base star to pale light blue ---
             bool isManaStar = asset == TextureAssets.Mana
                 || CompareAssets(asset, fancyFolder + "Star_Fill");
@@ -100,6 +121,13 @@ namespace MagnumOpus.Common.Systems
             if (isHeart && transformedHearts > 0 && context.resourceNumber < transformedHearts)
             {
                 DrawPurpleGlowHeartOverlay(context);
+            }
+
+            // --- HEARTS: Wing Amplification shimmer overlay ---
+            var wingColors = GetWingAmplifyHeartColors(player);
+            if (isHeart && wingColors.HasValue)
+            {
+                DrawWingAmplifyHeartOverlay(context, wingColors.Value.shimmer);
             }
 
             // --- MANA STARS: Deep purple overlay ---
@@ -216,6 +244,69 @@ namespace MagnumOpus.Common.Systems
                 d.noGravity = true;
                 d.velocity *= 0.25f;
             }
+        }
+
+        /// <summary>
+        /// Returns (baseColor, shimmerColor) for the active wing amplification buff, or null if none active.
+        /// </summary>
+        private (Color baseColor, Color shimmer)? GetWingAmplifyHeartColors(Player player)
+        {
+            if (player.HasBuff(ModContent.BuffType<MoonlightWingAmplifyBuff>()))
+                return (new Color(60, 40, 100), new Color(100, 70, 180));
+            if (player.HasBuff(ModContent.BuffType<EroicaWingAmplifyBuff>()))
+                return (new Color(120, 90, 30), new Color(255, 180, 200));
+            if (player.HasBuff(ModContent.BuffType<LaCampanellaWingAmplifyBuff>()))
+                return (new Color(80, 80, 80), new Color(255, 160, 60));
+            if (player.HasBuff(ModContent.BuffType<EnigmaWingAmplifyBuff>()))
+                return (new Color(70, 40, 100), new Color(50, 180, 80));
+            if (player.HasBuff(ModContent.BuffType<SwanLakeWingAmplifyBuff>()))
+                return (new Color(40, 40, 40), new Color(255, 255, 255));
+            if (player.HasBuff(ModContent.BuffType<FateWingAmplifyBuff>()))
+                return (new Color(120, 30, 60), new Color(180, 100, 200));
+            if (player.HasBuff(ModContent.BuffType<NachtmusikWingAmplifyBuff>()))
+                return (new Color(30, 35, 80), new Color(200, 210, 230));
+            if (player.HasBuff(ModContent.BuffType<DiesIraeWingAmplifyBuff>()))
+                return (new Color(100, 20, 20), new Color(255, 140, 50));
+            if (player.HasBuff(ModContent.BuffType<OdeToJoyWingAmplifyBuff>()))
+                return (new Color(130, 110, 40), new Color(255, 200, 80));
+            if (player.HasBuff(ModContent.BuffType<ClairDeLuneWingAmplifyBuff>()))
+                return (new Color(70, 70, 70), new Color(200, 180, 220));
+            return null;
+        }
+
+        /// <summary>
+        /// Draws a theme-colored shimmer overlay on hearts during wing amplification.
+        /// </summary>
+        private void DrawWingAmplifyHeartOverlay(ResourceOverlayDrawContext context, Color shimmerColor)
+        {
+            SpriteBatch sb = context.SpriteBatch;
+            Texture2D tex = context.texture.Value;
+            float t = Main.GlobalTimeWrappedHourly;
+            int idx = context.resourceNumber;
+
+            float shimmer = 0.5f + 0.5f * MathF.Sin(t * 4f + idx * 0.9f);
+            Color glowColor = Color.Lerp(shimmerColor * 0.6f, shimmerColor, shimmer);
+
+            float pulseA = 0.85f + 0.15f * MathF.Sin(t * 5f + idx * 1.1f);
+            float pulseB = 0.9f + 0.1f * MathF.Sin(t * 7f + idx * 0.6f + 1.5f);
+
+            // Outer diffuse glow
+            Color outerGlow = glowColor * (0.30f * pulseA);
+            outerGlow.A = 0;
+            sb.Draw(tex, context.position + new Vector2(-3f, -3f), context.source, outerGlow,
+                context.rotation, context.origin, context.scale * 1.3f * pulseA, context.effects, 0f);
+
+            // Mid glow
+            Color midGlow = glowColor * (0.45f * pulseB);
+            midGlow.A = 0;
+            sb.Draw(tex, context.position + new Vector2(-1.5f, -1.5f), context.source, midGlow,
+                context.rotation, context.origin, context.scale * 1.15f * pulseB, context.effects, 0f);
+
+            // Inner shimmer
+            Color innerGlow = glowColor * (0.55f * pulseA * pulseB);
+            innerGlow.A = 0;
+            sb.Draw(tex, context.position, context.source, innerGlow,
+                context.rotation, context.origin, context.scale, context.effects, 0f);
         }
     }
 }
