@@ -2,9 +2,7 @@ using System;
 using MagnumOpus.Common.BaseClasses;
 using Microsoft.Xna.Framework;
 using Terraria;
-using Terraria.DataStructures;
 using Terraria.ID;
-using Terraria.ModLoader;
 
 namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Projectiles
 {
@@ -26,43 +24,6 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Projectiles
         protected override Color SlashAccentColor => new Color(180, 200, 255);
 
         public override string Texture => "MagnumOpus/Content/Nachtmusik/Weapons/NocturnalExecutioner/NocturnalExecutioner";
-
-        protected override void OnSwingStart(bool isFirstSwing)
-        {
-            if (Main.myPlayer != Projectile.owner) return;
-
-            Player player = Owner;
-            int damage = Projectile.damage;
-            float knockback = Projectile.knockBack;
-            Vector2 aimDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
-            IEntitySource source = Projectile.GetSource_FromThis();
-
-            if (Main.dayTime)
-            {
-                // Daytime: 5 orbs in spread, gentle homing (default 0.04), short timeLeft (60f)
-                int bladeDmg = (int)(damage * 0.3f);
-                for (int i = 0; i < 5; i++)
-                {
-                    float spread = MathHelper.ToRadians(-20 + 10 * i);
-                    Vector2 bladeVel = aimDir.RotatedBy(spread) * 12f;
-                    int idx = Projectile.NewProjectile(source, player.MountedCenter, bladeVel,
-                        ModContent.ProjectileType<NocturnalBladeProjectile>(),
-                        bladeDmg, knockback * 0.4f, player.whoAmI, 0f, 0f);
-                    if (idx >= 0 && idx < Main.maxProjectiles)
-                        Main.projectile[idx].timeLeft = 60;
-                }
-            }
-            else
-            {
-                // Nighttime: 1 orb, aggressive homing (0.14), long timeLeft (240f), night mode flag
-                int bladeDmg = (int)(damage * 0.5f);
-                int idx = Projectile.NewProjectile(source, player.MountedCenter, aimDir * 14f,
-                    ModContent.ProjectileType<NocturnalBladeProjectile>(),
-                    bladeDmg, knockback * 0.6f, player.whoAmI, 0.14f, 1f);
-                if (idx >= 0 && idx < Main.maxProjectiles)
-                    Main.projectile[idx].timeLeft = 240;
-            }
-        }
 
         protected override Color GetLensFlareColor(float p)
             => Color.Lerp(new Color(80, 100, 200), new Color(200, 220, 255), (float)Math.Pow(p, 2));

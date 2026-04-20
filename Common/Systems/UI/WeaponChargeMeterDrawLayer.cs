@@ -13,9 +13,6 @@ using MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Utilities;
 using MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Utilities;
 using MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Utilities;
 using MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer.Utilities;
-using MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Utilities;
-using MagnumOpus.Content.Nachtmusik.Weapons.MidnightsCrescendo.Utilities;
-using MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Utilities;
 using MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Utilities;
 using MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Utilities;
 using MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Utilities;
@@ -249,31 +246,6 @@ namespace MagnumOpus.Common.Systems.UI
                 charge = p.Charge; isFull = p.IsChargeFull;
                 fillLow = ClairFillLow; fillHigh = ClairFillHigh;
                 shimmerA = ClairShimmerA; shimmerB = ClairShimmerB;
-                return true;
-            }
-            // Nachtmusik
-            if (player.GetModPlayer<TwilightSeverancePlayer>().IsHoldingTwilightSeverance)
-            {
-                var p = player.GetModPlayer<TwilightSeverancePlayer>();
-                charge = p.Charge; isFull = p.IsChargeFull;
-                fillLow = NachtmusikFillLow; fillHigh = NachtmusikFillHigh;
-                shimmerA = NachtmusikShimmerA; shimmerB = NachtmusikShimmerB;
-                return true;
-            }
-            if (player.GetModPlayer<MidnightsCrescendoPlayer>().IsHoldingMidnightsCrescendo)
-            {
-                var p = player.GetModPlayer<MidnightsCrescendoPlayer>();
-                charge = p.Charge; isFull = p.IsChargeFull;
-                fillLow = NachtmusikFillLow; fillHigh = NachtmusikFillHigh;
-                shimmerA = NachtmusikShimmerA; shimmerB = NachtmusikShimmerB;
-                return true;
-            }
-            if (player.GetModPlayer<NocturnalExecutionerPlayer>().IsHoldingNocturnalExecutioner)
-            {
-                var p = player.GetModPlayer<NocturnalExecutionerPlayer>();
-                charge = p.Charge; isFull = p.IsChargeFull;
-                fillLow = NachtmusikFillLow; fillHigh = NachtmusikFillHigh;
-                shimmerA = NachtmusikShimmerA; shimmerB = NachtmusikShimmerB;
                 return true;
             }
             // OdeToJoy

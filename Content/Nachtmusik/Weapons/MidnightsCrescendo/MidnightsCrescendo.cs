@@ -1,29 +1,18 @@
-using MagnumOpus.Common;
-using MagnumOpus.Common.Systems.UI;
 using MagnumOpus.Content.Nachtmusik;
-using MagnumOpus.Content.SandboxExoblade.Utilities;
 using MagnumOpus.Content.Nachtmusik.Weapons.MidnightsCrescendo.Projectiles;
-using MagnumOpus.Content.Nachtmusik.Weapons.MidnightsCrescendo.Utilities;
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using Terraria;
-using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace MagnumOpus.Content.Nachtmusik.Weapons.MidnightsCrescendo
 {
-    /// <summary>
-    /// Midnight's Crescendo — Nachtmusik's ascending blade. Exoblade-architecture weapon item.
-    /// A star being born — starlight shimmer and indigo crescendo arcs.
-    /// </summary>
-    public class MidnightsCrescendo : ModItem, IOverdriveItem
+    public class MidnightsCrescendo : ModItem
     {
-        public IResonantOverdrive GetOverdrivePlayer(Player player) => player.GetModPlayer<MidnightsCrescendoPlayer>();
-
         public override void SetStaticDefaults()
         {
             Item.ResearchUnlockCount = 1;
@@ -53,47 +42,15 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.MidnightsCrescendo
 
         public override bool CanShoot(Player player)
         {
-            if (player.altFunctionUse == 2)
-                return true;
-
             return player.ownedProjectileCounts[Item.shoot] <= 0;
         }
 
-        public override void HoldItem(Player player)
-        {
-            player.ExoBlade().rightClickListener = true;
-            player.ExoBlade().mouseWorldListener = true;
-            player.GetModPlayer<MidnightsCrescendoPlayer>().IsHoldingMidnightsCrescendo = true;
-        }
-
-        public override bool AltFunctionUse(Player player) => true;
         public override bool? CanHitNPC(Player player, NPC target) => false;
         public override bool CanHitPvp(Player player, Player target) => false;
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
             Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            if (player.altFunctionUse == 2)
-            {
-                var mp = player.GetModPlayer<MidnightsCrescendoPlayer>();
-                if (mp.IsChargeFull)
-                {
-                    mp.ConsumeCharge();
-                    SoundEngine.PlaySound(SoundID.Item29 with { Pitch = 0.2f }, player.Center);
-                    // Rain 12 falling stars from above
-                    for (int i = 0; i < 12; i++)
-                    {
-                        Vector2 spawnPos = Main.MouseWorld + new Vector2(Main.rand.NextFloat(-300f, 300f), -800f);
-                        Vector2 starVel = new Vector2(Main.rand.NextFloat(-1f, 1f), Main.rand.NextFloat(10f, 14f));
-                        Projectile.NewProjectile(source, spawnPos, starVel,
-                            ModContent.ProjectileType<MidnightsCrescendoSpecialProj>(),
-                            damage * 2, knockback, player.whoAmI);
-                    }
-                }
-                else
-                    SoundEngine.PlaySound(SoundID.Item16 with { Pitch = 0.5f, Volume = 0.5f }, player.Center);
-                return false;
-            }
             Projectile.NewProjectile(source, player.MountedCenter,
                 (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
                 type, damage, knockback, player.whoAmI, 0f, 0);
@@ -104,25 +61,9 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.MidnightsCrescendo
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1",
             "Ascending starlight blade with shimmering indigo-silver slash arcs"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2",
-            "Right-click performs a stellar dash strike through enemies"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3",
-            "Swings trail starlight shimmer and crescendo sparks"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'The night starts quiet. It does not end that way.'")
             { OverrideColor = new Color(100, 120, 200) });
-        }
-
-        public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
-        {
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 0.2f;
-            Texture2D tex = Terraria.GameContent.TextureAssets.Item[Type].Value;
-            Vector2 drawPos = Item.position - Main.screenPosition + new Vector2(Item.width / 2f, Item.height);
-            Vector2 origin = new Vector2(tex.Width / 2f, tex.Height);
-            spriteBatch.Draw(tex, drawPos, null, NachtmusikPalette.StarlitBlue with { A = 0 } * pulse,
-                rotation, origin, scale * 1.05f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, NachtmusikPalette.StarGold with { A = 0 } * (pulse * 0.5f),
-                rotation, origin, scale * 1.02f, SpriteEffects.None, 0f);
         }
     }
 }
