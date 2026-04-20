@@ -19,8 +19,14 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Projectiles
         public override string Texture => "Terraria/Images/Projectile_0";
 
         private const float HomingRange = 400f;
-        private const float HomingStrength = 0.04f;
-        private const int Lifetime = 90;
+        private const float DefaultHomingStrength = 0.04f;
+        private const int DefaultLifetime = 90;
+
+        /// <summary>ai[0]: custom homing strength override (0 = use default 0.04). ai[1]: 1 = night mode (spawn stationary zone on hit).</summary>
+        private float HomingStrength => Projectile.ai[0] > 0f ? Projectile.ai[0] : DefaultHomingStrength;
+        private bool IsNightMode => Projectile.ai[1] >= 1f;
+
+        private bool _riftAmplified;
 
         public override void SetStaticDefaults()
         {
@@ -36,7 +42,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Projectiles
             Projectile.DamageType = DamageClass.MeleeNoSpeed;
             Projectile.tileCollide = false;
             Projectile.penetrate = 2;
-            Projectile.timeLeft = Lifetime;
+            Projectile.timeLeft = DefaultLifetime;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = 15;
             Projectile.extraUpdates = 1;
@@ -45,7 +51,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Projectiles
         public override void AI()
         {
             // Gentle homing toward nearest enemy
-            float timer = Lifetime - Projectile.timeLeft;
+            float timer = DefaultLifetime - Projectile.timeLeft;
             if (timer > 10f) // Grace period before homing
             {
                 int target = FindNearestEnemy(HomingRange);
@@ -58,6 +64,35 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Projectiles
             }
 
             Projectile.rotation = Projectile.velocity.ToRotation();
+
+            // Rift Amplification: passing through a VoidRift grants +40% damage and +50% speed (once)
+            if (!_riftAmplified)
+            {
+                for (int i = 0; i < Main.maxProjectiles; i++)
+                {
+                    Projectile p = Main.projectile[i];
+                    if (p.active && p.type == ModContent.ProjectileType<VoidRiftProjectile>()
+                        && p.owner == Projectile.owner
+                        && Vector2.Distance(Projectile.Center, p.Center) < 80f)
+                    {
+                        _riftAmplified = true;
+                        Projectile.damage = (int)(Projectile.damage * 1.4f);
+                        Projectile.velocity *= 1.5f;
+
+                        // Visual feedback: gold burst
+                        if (!Main.dedServ)
+                        {
+                            for (int j = 0; j < 6; j++)
+                            {
+                                Dust g = Dust.NewDustPerfect(Projectile.Center, DustID.GoldFlame,
+                                    Main.rand.NextVector2Circular(3f, 3f), 0, NachtmusikPalette.StarGold, 0.8f);
+                                g.noGravity = true;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
 
             // Void trail dust
             if (!Main.dedServ && Main.rand.NextBool(2))
@@ -84,6 +119,14 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Projectiles
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            // Night mode: spawn stationary VoidRift zone on hit
+            if (IsNightMode && Projectile.owner == Main.myPlayer)
+            {
+                Projectile.NewProjectile(Projectile.GetSource_FromThis(), target.Center, Vector2.Zero,
+                    ModContent.ProjectileType<VoidRiftProjectile>(),
+                    (int)(Projectile.damage * 0.4f), 0f, Projectile.owner, Projectile.velocity.ToRotation());
+            }
+
             // Mini void implosion on hit
             int dustCount = 6;
             for (int i = 0; i < dustCount; i++)
@@ -123,7 +166,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Projectiles
             if (glowTex == null) return false;
 
             Vector2 origin = glowTex.Size() * 0.5f;
-            float fadeIn = Utils.GetLerpValue(Lifetime, Lifetime - 8, Projectile.timeLeft, true);
+            float fadeIn = Utils.GetLerpValue(DefaultLifetime, DefaultLifetime - 8, Projectile.timeLeft, true);
             float fadeOut = Utils.GetLerpValue(0, 10, Projectile.timeLeft, true);
             float alpha = fadeIn * fadeOut;
 

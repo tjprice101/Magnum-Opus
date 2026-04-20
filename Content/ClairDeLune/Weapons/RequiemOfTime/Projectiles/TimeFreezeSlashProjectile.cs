@@ -14,6 +14,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles
 {
     /// <summary>
     /// Time Freeze Slash — Homing magic sub-projectile fired by Requiem of Time.
+    /// ai[0] = zone type: 0=Forward (FLAG_SPEED_ALLIES), 1=Reverse (FLAG_SLOW)
+    /// On hit or expiry, spawns a GenericDamageZone based on zone type.
     /// Tracks enemies with gentle homing. Clair de Lune moonlit theme.
     /// Foundation-pattern rendering: safe SpriteBatch, IncisorOrbRenderer visuals.
     /// </summary>
@@ -27,6 +29,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles
 
         private Player Owner => Main.player[Projectile.owner];
         private bool _initialized;
+        private bool _zoneSpawned; // Prevent double-spawning zone on hit+kill
 
         private VertexStrip _strip;
 
@@ -92,6 +95,9 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles
         {
             Vector2 hitPos = target.Center;
 
+            // Spawn damage zone on hit
+            SpawnDamageZone(hitPos);
+
             // Impact sparks — moonlit dual tone
             for (int i = 0; i < 6; i++)
             {
@@ -138,6 +144,9 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles
 
         public override void OnKill(int timeLeft)
         {
+            // Spawn damage zone on expiry (if not already spawned from hit)
+            SpawnDamageZone(Projectile.Center);
+
             // Death VFX — moonlit spark burst
             for (int i = 0; i < 4; i++)
             {
@@ -150,6 +159,33 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles
             try { ClairDeLuneVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 12f, 0.5f, 0.7f, 20); } catch { }
             try { ClairDeLuneVFXLibrary.SpawnMixedSparkleImpact(Projectile.Center, 0.5f, 4, 4); } catch { }
             try { ClairDeLuneVFXLibrary.SpawnLunarSparkles(Projectile.Center, 3, 15f); } catch { }
+        }
+
+        /// <summary>
+        /// Spawns the appropriate GenericDamageZone based on ai[0] zone type.
+        /// Only spawns once per projectile lifetime.
+        /// </summary>
+        private void SpawnDamageZone(Vector2 position)
+        {
+            if (_zoneSpawned) return;
+            _zoneSpawned = true;
+
+            bool isReverse = Projectile.ai[0] == 1f;
+
+            // Forward Zone: FLAG_SPEED_ALLIES (speeds ally projectiles)
+            // Reverse Zone: FLAG_SLOW (slows enemies)
+            int flags = isReverse ? GenericDamageZone.FLAG_SLOW : GenericDamageZone.FLAG_SPEED_ALLIES;
+
+            GenericDamageZone.SpawnZone(
+                Projectile.GetSource_FromThis(),
+                position,
+                Projectile.damage / 3, // Zone deals reduced damage
+                Projectile.knockBack * 0.3f,
+                Projectile.owner,
+                modeFlags: flags,
+                radius: 100f,
+                themeIndex: GenericHomingOrbChild.THEME_CLAIRDELUNE,
+                durationFrames: 120); // 2 seconds
         }
     }
 }

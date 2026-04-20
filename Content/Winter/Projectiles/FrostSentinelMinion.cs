@@ -9,6 +9,7 @@ using Terraria.DataStructures;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Content.Winter.Weapons;
+using Terraria.Graphics;
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
 using ReLogic.Content;
 
@@ -423,10 +424,12 @@ namespace MagnumOpus.Content.Winter.Projectiles
         private static readonly Color FrostWhite = new Color(240, 250, 255);
         private static readonly Color CrystalCyan = new Color(100, 255, 255);
 
+        private VertexStrip _strip;
+
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 6;
-            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
         public override void SetDefaults()
@@ -521,30 +524,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
-            Vector2 origin = texture.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Trail
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                float progress = (float)i / Projectile.oldPos.Length;
-                float alpha = (1f - progress) * 0.4f;
-                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                spriteBatch.Draw(texture, trailPos, null, IceBlue * alpha, Projectile.oldRot[i], origin, 0.2f * (1f - progress * 0.5f), SpriteEffects.None, 0f);
-            }
-
-            // Main
-            spriteBatch.Draw(texture, drawPos, null, IceBlue * 0.6f, Projectile.rotation, origin, 0.3f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(texture, drawPos, null, FrostWhite * 0.8f, Projectile.rotation, origin, 0.16f, SpriteEffects.None, 0f);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Winter, ref _strip);
             }
             catch { }
             finally
@@ -553,7 +533,6 @@ namespace MagnumOpus.Content.Winter.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
 

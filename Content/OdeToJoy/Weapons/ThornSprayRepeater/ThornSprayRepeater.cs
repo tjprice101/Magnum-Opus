@@ -1,5 +1,7 @@
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles;
+using MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -16,6 +18,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater
 {
     public class ThornSprayRepeater : ModItem
     {
+        private int _shotCounter;
+
         public override void SetDefaults()
         {
             Item.width = 52;
@@ -39,8 +43,20 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            _shotCounter++;
             int projType = ModContent.ProjectileType<ThornSprayProjectile>();
-            Projectile.NewProjectile(source, position, velocity, projType, damage, knockback, player.whoAmI);
+
+            // Bloom Reload: shots 30-35 in a 36-shot cycle deal 1.5x damage and pass ai[1]=1
+            bool isBloomReload = (_shotCounter % 36) >= 30;
+            int finalDamage = isBloomReload ? (int)(damage * 1.5f) : damage;
+            float bloomFlag = isBloomReload ? 1f : 0f;
+
+            Projectile.NewProjectile(source, position, velocity, projType, finalDamage, knockback, player.whoAmI, ai1: bloomFlag);
+
+            var thornPlayer = player.ThornSprayRepeater();
+            thornPlayer.isActive = true;
+            thornPlayer.shotCounter = _shotCounter;
+
             return false;
         }
 

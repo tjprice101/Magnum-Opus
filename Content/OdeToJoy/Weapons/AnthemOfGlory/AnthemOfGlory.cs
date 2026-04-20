@@ -1,5 +1,7 @@
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory.Projectiles;
+using MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -39,7 +41,45 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
+            var anthemPlayer = player.AnthemOfGlory();
+            anthemPlayer.isActive = true;
+            anthemPlayer.activeTimer = 120;
+
+            float channelProgress = anthemPlayer.GetChannelProgress();
+
+            // Damage scaling: 1x to 2x based on channel progress
+            int scaledDamage = (int)(damage * (1f + channelProgress));
+
+            // Pass channel progress via ai[0]
+            Projectile.NewProjectile(source, position, velocity, type, scaledDamage, knockback, player.whoAmI, ai0: channelProgress);
+
+            // Every 120 frames of channeling: fire an extra Glory Note
+            if (anthemPlayer.channelFrames > 0 && anthemPlayer.channelFrames % 120 == 0)
+            {
+                try
+                {
+                    Vector2 noteVel = velocity.RotatedByRandom(MathHelper.ToRadians(15f)) * 0.8f;
+                    GenericHomingOrbChild.SpawnChild(
+                        source, position, noteVel,
+                        damage / 2, knockback, player.whoAmI,
+                        homingStrength: 0.08f, behaviorFlags: 0,
+                        themeIndex: GenericHomingOrbChild.THEME_ODETOJOY,
+                        scaleMult: 0.8f, timeLeft: 120);
+                }
+                catch { }
+            }
+
+            // Victory Fanfare: 3+ kills during active channel triggers reset to 1.5x base
+            if (anthemPlayer.channelKills >= 3 && !anthemPlayer.victoryFanfareActive)
+            {
+                anthemPlayer.victoryFanfareTimer = 180; // 3 seconds of fanfare buff
+                anthemPlayer.channelKills = 0;
+                anthemPlayer.channelFrames = (int)(300f * 0.5f); // Reset channel to 50% (1.5x base)
+
+                // Fanfare sound
+                Terraria.Audio.SoundEngine.PlaySound(SoundID.Item4, player.Center);
+            }
+
             return false;
         }
 

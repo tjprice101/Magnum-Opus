@@ -23,6 +23,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
         private bool _initialized;
         private VertexStrip _strip;
 
+        // Audience Meter attack system
+        private int _attackTimer;
+        private int _encoreTimer;
+
         public override string Texture => "MagnumOpus/Content/OdeToJoy/Weapons/TheStandingOvation/TheStandingOvation";
 
         public override void SetStaticDefaults()
@@ -48,7 +52,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
         }
 
         public override bool? CanCutTiles() => false;
-        public override bool MinionContactDamage() => true;
+        public override bool MinionContactDamage() => false;
 
         public override void AI()
         {
@@ -64,6 +68,59 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
 
             SearchForTargets(owner, out bool foundTarget, out float distanceFromTarget, out Vector2 targetCenter);
             Movement(foundTarget, distanceFromTarget, targetCenter, owner);
+
+            // Mark player as active for ovation system
+            var ovationPlayer = owner.GetModPlayer<TheStandingOvationPlayer>();
+            ovationPlayer.isActive = true;
+
+            // Audience Meter attack system
+            _attackTimer++;
+            if (_encoreTimer > 0)
+                _encoreTimer--;
+
+            int ovationLevel = ovationPlayer.ovationLevel;
+
+            if (foundTarget)
+            {
+                int fireInterval = GetFireInterval(ovationLevel);
+
+                // Encore mode: halve the fire rate
+                if (_encoreTimer > 0)
+                    fireInterval = Math.Max(15, fireInterval / 2);
+
+                if (_attackTimer >= fireInterval)
+                {
+                    _attackTimer = 0;
+
+                    try
+                    {
+                        if (ovationLevel >= 10)
+                        {
+                            // Level 10: fire 3 orbs at once + trigger Encore
+                            for (int i = 0; i < 3; i++)
+                            {
+                                float offsetAngle = (i - 1) * 0.2f;
+                                Vector2 toTarget = (targetCenter - Projectile.Center).SafeNormalize(Vector2.UnitX);
+                                Vector2 vel = toTarget.RotatedBy(offsetAngle) * 12f;
+                                GenericHomingOrbChild.SpawnChild(
+                                    Projectile.GetSource_FromThis(), Projectile.Center, vel,
+                                    Projectile.damage, Projectile.knockBack, Projectile.owner,
+                                    homingStrength: 0.10f,
+                                    behaviorFlags: GenericHomingOrbChild.FLAG_PIERCE,
+                                    themeIndex: GenericHomingOrbChild.THEME_ODETOJOY,
+                                    scaleMult: 1.2f, timeLeft: 150);
+                            }
+                            _encoreTimer = 300; // 5 seconds of doubled fire rate
+                            ovationPlayer.TriggerEncore();
+                        }
+                        else
+                        {
+                            FireOvationOrb(targetCenter, ovationLevel);
+                        }
+                    }
+                    catch { }
+                }
+            }
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 
@@ -81,6 +138,50 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
 
             float pulse = 1f + 0.15f * (float)Math.Sin(Main.GlobalTimeWrappedHourly * 3f);
             Lighting.AddLight(Projectile.Center, new Vector3(0.4f, 0.55f, 0.2f) * 0.35f * pulse);
+        }
+
+        /// <summary>Get fire interval based on ovation level.</summary>
+        private int GetFireInterval(int ovationLevel)
+        {
+            if (ovationLevel <= 1) return 60;       // Level 0-1: base
+            if (ovationLevel <= 3) return 45;       // Level 2-3: 25%
+            if (ovationLevel <= 5) return 45;       // Level 4-5: 50%
+            if (ovationLevel <= 8) return 45;       // Level 7-8: 75%
+            return 45;                               // Level 9-10: same interval, more features
+        }
+
+        /// <summary>Fire orb based on current ovation level.</summary>
+        private void FireOvationOrb(Vector2 targetCenter, int ovationLevel)
+        {
+            Vector2 toTarget = (targetCenter - Projectile.Center).SafeNormalize(Vector2.UnitX);
+
+            float homing = 0.06f;
+            int flags = 0;
+            float speed = 10f;
+            float scaleMult = 0.9f;
+            int timeLeft = 100;
+
+            if (ovationLevel >= 4)
+            {
+                // Level 4-5: add pierce
+                flags |= GenericHomingOrbChild.FLAG_PIERCE;
+            }
+
+            if (ovationLevel >= 7)
+            {
+                // Level 7-8: aggressive homing + 30% more speed
+                homing = 0.10f;
+                speed = 14f;
+                scaleMult = 1.0f;
+            }
+
+            Vector2 vel = toTarget * speed;
+            GenericHomingOrbChild.SpawnChild(
+                Projectile.GetSource_FromThis(), Projectile.Center, vel,
+                Projectile.damage, Projectile.knockBack, Projectile.owner,
+                homingStrength: homing, behaviorFlags: flags,
+                themeIndex: GenericHomingOrbChild.THEME_ODETOJOY,
+                scaleMult: scaleMult, timeLeft: timeLeft);
         }
 
         private bool CheckActive(Player owner)

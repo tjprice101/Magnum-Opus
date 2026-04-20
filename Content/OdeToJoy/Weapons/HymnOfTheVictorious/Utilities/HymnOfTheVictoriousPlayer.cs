@@ -5,10 +5,14 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Utilities
 {
     public class HymnOfTheVictoriousPlayer : ModPlayer
     {
-        // Hymn verses build from 0-3, each verse amplifying the song of victory
+        // Hymn verses cycle 0-3 continuously, tracking full cycle completions
         public int hymnVerses;
+        public int completedCycles;
         public bool isActive;
         public int activeTimer;
+
+        /// <summary>Returns the current verse position (0-3) within the four-verse cycle.</summary>
+        public int currentVerse => hymnVerses % 4;
 
         public override void ResetEffects()
         {
@@ -19,6 +23,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Utilities
                 if (activeTimer <= 0)
                 {
                     hymnVerses = 0;
+                    completedCycles = 0;
                 }
             }
             isActive = false;
@@ -26,8 +31,12 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Utilities
 
         public void AddVerse()
         {
-            hymnVerses = System.Math.Min(hymnVerses + 1, 3);
+            hymnVerses++;
             activeTimer = 120;
+
+            // Track completed 4-verse cycles
+            if (hymnVerses % 4 == 0 && hymnVerses > 0)
+                completedCycles++;
         }
 
         public void ConsumeVerses()
@@ -37,12 +46,12 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Utilities
 
         public float GetHymnIntensity()
         {
-            return hymnVerses / 3f;
+            return (hymnVerses % 4) / 3f;
         }
 
         public bool IsFullHymn()
         {
-            return hymnVerses >= 3;
+            return (hymnVerses % 4) == 3;
         }
     }
 

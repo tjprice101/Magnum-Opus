@@ -7,6 +7,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using Terraria.Graphics;
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
 
 namespace MagnumOpus.Content.Seasons.Projectiles
@@ -27,13 +28,14 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         private static readonly Color SpringPetalCore = new Color(255, 220, 230);
         private static readonly Color SpringLeaf = new Color(120, 200, 100);
         
+        private VertexStrip _strip;
         private float blossomRotation = 0f;
         private float[] petalAngles = new float[6];
         private float[] petalDistances = new float[6];
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 15;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -205,8 +207,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Procedural Spring rendering - cherry blossom storm aesthetic
-            ProceduralProjectileVFX.DrawSpringProjectile(Main.spriteBatch, Projectile, 0.5f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Spring, ref _strip);
             }
             catch { }
             finally
@@ -215,7 +216,6 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
 
@@ -256,6 +256,14 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringPetalCore = new Color(255, 220, 230);
+
+        private VertexStrip _strip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -317,8 +325,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Procedural Spring petal rendering
-            ProceduralProjectileVFX.DrawSpringProjectile(Main.spriteBatch, Projectile, 0.25f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Spring, ref _strip);
             }
             catch { }
             finally
@@ -327,7 +334,6 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
     }
@@ -348,13 +354,14 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         private static readonly Color SummerRed = new Color(255, 80, 30);
         private static readonly Color SummerYellow = new Color(255, 255, 100);
         
+        private VertexStrip _strip;
         private float solarRotation = 0f;
         private float[] prominenceAngles = new float[4];
         private float[] prominenceExtensions = new float[4];
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 18;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -494,8 +501,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Procedural Summer rendering - blazing sun orb aesthetic
-            ProceduralProjectileVFX.DrawSummerProjectile(Main.spriteBatch, Projectile, 0.55f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Summer, ref _strip);
             }
             catch { }
             finally
@@ -504,7 +510,6 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
 
@@ -545,6 +550,14 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         private static readonly Color SummerGold = new Color(255, 215, 0);
         private static readonly Color SummerOrange = new Color(255, 140, 0);
         private static readonly Color SummerYellow = new Color(255, 255, 100);
+
+        private VertexStrip _strip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -610,8 +623,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Procedural Summer pillar rendering
-            ProceduralProjectileVFX.DrawSummerProjectile(Main.spriteBatch, Projectile, 0.6f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Summer, ref _strip);
             }
             catch { }
             finally
@@ -620,7 +632,6 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
     }
@@ -639,6 +650,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         private static readonly Color AutumnGold = new Color(218, 165, 32);
         private static readonly Color AutumnDecay = new Color(80, 60, 30);
 
+        private VertexStrip _strip;
+
         // Orbiting leaf particles - 5 leaves spinning
         private float[] leafAngles = new float[5];
         private float[] leafDistances = new float[5];
@@ -646,7 +659,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 15;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -767,8 +780,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Procedural Autumn rendering - decaying orbs with falling leaves aesthetic
-            ProceduralProjectileVFX.DrawAutumnProjectile(Main.spriteBatch, Projectile, 0.5f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Autumn, ref _strip);
             }
             catch { }
             finally
@@ -777,7 +789,6 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
 
@@ -816,7 +827,14 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         private static readonly Color AutumnDecay = new Color(80, 60, 30);
         private static readonly Color AutumnGold = new Color(218, 165, 32);
 
+        private VertexStrip _strip;
         private float fieldRotation;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -888,9 +906,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Procedural Autumn rendering - decay field with fading life energy
-            float lifeProgress = Projectile.timeLeft / 90f;
-            ProceduralProjectileVFX.DrawAutumnProjectile(Main.spriteBatch, Projectile, 0.4f * lifeProgress);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Autumn, ref _strip);
             }
             catch { }
             finally
@@ -899,7 +915,6 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
     }
@@ -918,6 +933,8 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         private static readonly Color WinterCyan = new Color(180, 240, 255);
         private static readonly Color WinterFrost = new Color(200, 220, 240);
 
+        private VertexStrip _strip;
+
         // Orbiting ice crystals - 4 shards spinning
         private float[] shardAngles = new float[4];
         private float[] shardDistances = new float[4];
@@ -925,7 +942,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 15;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -1051,8 +1068,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Procedural Winter rendering - icy orb with crystalline shimmer
-            ProceduralProjectileVFX.DrawWinterProjectile(Main.spriteBatch, Projectile, 0.5f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Winter, ref _strip);
             }
             catch { }
             finally
@@ -1061,7 +1077,6 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
 
@@ -1111,11 +1126,12 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         private static readonly Color WinterCyan = new Color(180, 240, 255);
         private static readonly Color WinterWhite = new Color(240, 250, 255);
 
+        private VertexStrip _strip;
         private float spinRotation;
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 8;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -1181,8 +1197,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Procedural Winter rendering - small spinning ice shard
-            ProceduralProjectileVFX.DrawWinterProjectile(Main.spriteBatch, Projectile, 0.25f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Winter, ref _strip);
             }
             catch { }
             finally
@@ -1191,7 +1206,6 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
     }

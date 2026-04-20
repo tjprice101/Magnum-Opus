@@ -1,14 +1,25 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Graphics;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Projectiles
 {
-    /// <summary>Chain of Judgment special: empower all projectiles for 10 seconds. This is the buff aura. Placeholder.</summary>
+    /// <summary>Chain of Judgment special: empower all projectiles for 10 seconds. This is the buff aura.</summary>
     public class ChainJudgmentSpecialProj : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow";
+
+        private VertexStrip _strip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -29,6 +40,23 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Projectiles
             if (!owner.active || owner.dead) { Projectile.Kill(); return; }
             Projectile.Center = owner.Center;
             Lighting.AddLight(Projectile.Center, 0.4f, 0.15f, 0.05f);
+        }
+
+        public override bool PreDraw(ref Color lightColor)
+        {
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.DiesIrae, ref _strip);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+            return false;
         }
     }
 }

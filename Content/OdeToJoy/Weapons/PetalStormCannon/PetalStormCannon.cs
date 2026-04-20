@@ -16,6 +16,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon
 {
     public class PetalStormCannon : ModItem
     {
+        private int _shotCounter;
+
         public override void SetDefaults()
         {
             Item.width = 62;
@@ -39,8 +41,12 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            _shotCounter++;
             int projType = ModContent.ProjectileType<PetalBombProjectile>();
-            Projectile.NewProjectile(source, position, velocity, projType, damage, knockback, player.whoAmI);
+
+            // Every 3rd shot: Hurricane variant (ai[0]=1)
+            float hurricaneFlag = (_shotCounter % 3 == 0) ? 1f : 0f;
+            Projectile.NewProjectile(source, position, velocity, projType, damage, knockback, player.whoAmI, ai0: hurricaneFlag);
             return false;
         }
 

@@ -39,7 +39,11 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
+            // Paradise Lost: if player HP < 25%, pass ai0=1 for aggressive mode
+            float hpRatio = (float)player.statLife / player.statLifeMax2;
+            float paradiseLostFlag = hpRatio < 0.25f ? 1f : 0f;
+
+            Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI, ai0: paradiseLostFlag);
             return false;
         }
 

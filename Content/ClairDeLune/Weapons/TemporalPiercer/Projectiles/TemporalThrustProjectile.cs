@@ -1,5 +1,6 @@
 using System;
 using MagnumOpus.Common.BaseClasses;
+using MagnumOpus.Common.Systems.VFX;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -69,6 +70,19 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer.Projectiles
                 Vector2 vel = (target.Center - Owner.Center).SafeNormalize(Vector2.UnitX).RotatedByRandom(0.5f) * Main.rand.NextFloat(3f, 6f);
                 Dust spark = Dust.NewDustPerfect(target.Center, DustID.WhiteTorch, vel, 0, default, 0.6f);
                 spark.noGravity = true;
+            }
+
+            // Temporal Echo — spawn reverse-direction homing orb at hit position
+            if (Main.myPlayer == Projectile.owner)
+            {
+                Vector2 echoVel = -SwordDirection * 8f;
+                GenericHomingOrbChild.SpawnChild(
+                    Projectile.GetSource_FromThis(),
+                    target.Center, echoVel,
+                    (int)(Projectile.damage * 0.6f), Projectile.knockBack * 0.5f, Projectile.owner,
+                    homingStrength: 0.08f, behaviorFlags: 0,
+                    themeIndex: GenericHomingOrbChild.THEME_CLAIRDELUNE,
+                    scaleMult: 0.8f);
             }
         }
 

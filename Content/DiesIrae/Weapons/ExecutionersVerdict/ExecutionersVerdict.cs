@@ -52,16 +52,10 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict
 
         public override bool CanShoot(Player player)
         {
-            bool isDash = player.altFunctionUse == 2;
-            for (int i = 0; i < Main.maxProjectiles; i++)
-            {
-                Projectile p = Main.projectile[i];
-                if (!p.active || p.owner != player.whoAmI || p.type != Item.shoot)
-                    continue;
-                if (isDash) return false;
-                if (!(p.ai[0] == 1 && p.ai[1] == 1)) return false;
-            }
-            return true;
+            if (player.altFunctionUse == 2)
+                return true;
+
+            return player.ownedProjectileCounts[Item.shoot] <= 0;
         }
 
         public override void HoldItem(Player player)

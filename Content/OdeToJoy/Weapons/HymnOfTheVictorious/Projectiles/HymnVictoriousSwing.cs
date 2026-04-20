@@ -19,11 +19,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
     public class HymnVictoriousSwing : ModProjectile
     {
         private const float HomingRange = 350f;
-        private const float HomingStrength = 0.08f;
-        private const float MaxSpeed = 16f;
         private Player Owner => Main.player[Projectile.owner];
         private bool _initialized;
         private VertexStrip _strip;
+        private int _accelFrames;
 
         public override string Texture => "MagnumOpus/Content/OdeToJoy/Weapons/HymnOfTheVictorious/HymnOfTheVictorious";
 
@@ -48,20 +47,79 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
 
         public override void AI()
         {
+            int verseType = (int)Projectile.ai[0];
+            bool isGloria = Projectile.ai[1] == 1f;
+
             if (!_initialized)
             {
                 _initialized = true;
                 Projectile.rotation = Projectile.velocity.ToRotation();
+
+                // Apply verse-specific stats on initialization
+                switch (verseType)
+                {
+                    case 0: // Exordium: speed 8, homing 0.04
+                        Projectile.velocity = Vector2.Normalize(Projectile.velocity) * 8f;
+                        break;
+                    case 1: // Rising: speed 14, homing 0.08
+                        Projectile.velocity = Vector2.Normalize(Projectile.velocity) * 14f;
+                        break;
+                    case 2: // Apex: speed 18, homing 0.12
+                        Projectile.velocity = Vector2.Normalize(Projectile.velocity) * 18f;
+                        break;
+                    case 3: // Gloria: pierce -1, 2x scale
+                        if (isGloria)
+                        {
+                            Projectile.penetrate = -1;
+                            Projectile.scale = 2f;
+                            Projectile.velocity = Vector2.Normalize(Projectile.velocity) * 10f;
+                        }
+                        else
+                        {
+                            Projectile.velocity = Vector2.Normalize(Projectile.velocity) * 16f;
+                        }
+                        break;
+                }
             }
 
+            // Determine homing strength per verse
+            float homingStrength = verseType switch
+            {
+                0 => 0.04f,
+                1 => 0.08f,
+                2 => 0.12f,
+                3 => isGloria ? 0.06f : 0.08f,
+                _ => 0.08f,
+            };
+
+            // Determine max speed per verse
+            float maxSpeed = verseType switch
+            {
+                0 => 10f,
+                1 => 16f,
+                2 => 20f,
+                3 => isGloria ? 24f : 18f,
+                _ => 16f,
+            };
+
+            // Apply homing
             NPC target = Projectile.Center.ClosestNPCAt(HomingRange);
             if (target != null)
             {
                 Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), HomingStrength);
+                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), homingStrength);
             }
-            if (Projectile.velocity.Length() > MaxSpeed)
-                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
+
+            // Gloria accelerating: 1.025x per frame up to 24 frames
+            if (verseType == 3 && isGloria)
+            {
+                _accelFrames++;
+                if (_accelFrames <= 24)
+                    Projectile.velocity *= 1.025f;
+            }
+
+            if (Projectile.velocity.Length() > maxSpeed)
+                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * maxSpeed;
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 

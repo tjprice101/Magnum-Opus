@@ -17,9 +17,6 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Projectiles
     {
         protected override bool SupportsDash => false;
 
-        /// <summary>Combo phase (0-3). Advances each swing including hold re-swings.</summary>
-        private int comboPhase = 0;
-
         protected override float BladeLength => 115f;
         protected override int BaseSwingFrames => 82;
         protected override float TextureDrawScale => 0.81f;
@@ -40,48 +37,30 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Projectiles
             Vector2 aimDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
             IEntitySource source = Projectile.GetSource_FromThis();
 
-            int phase = comboPhase % 4;
-            comboPhase++;
-
-            if (phase == 0 || phase == 1)
+            if (Main.dayTime)
             {
-                // Phases 0-1: Fire 2 homing nocturnal blades flanking the swing
-                int bladeDmg = (int)(damage * 0.35f);
-                for (int i = -1; i <= 1; i += 2)
+                // Daytime: 5 orbs in spread, gentle homing (default 0.04), short timeLeft (60f)
+                int bladeDmg = (int)(damage * 0.3f);
+                for (int i = 0; i < 5; i++)
                 {
-                    Vector2 bladeVel = aimDir.RotatedBy(MathHelper.ToRadians(18 * i)) * 10f;
-                    Projectile.NewProjectile(source, player.MountedCenter, bladeVel,
-                        ModContent.ProjectileType<NocturnalBladeProjectile>(), bladeDmg, knockback * 0.5f, player.whoAmI);
+                    float spread = MathHelper.ToRadians(-20 + 10 * i);
+                    Vector2 bladeVel = aimDir.RotatedBy(spread) * 12f;
+                    int idx = Projectile.NewProjectile(source, player.MountedCenter, bladeVel,
+                        ModContent.ProjectileType<NocturnalBladeProjectile>(),
+                        bladeDmg, knockback * 0.4f, player.whoAmI, 0f, 0f);
+                    if (idx >= 0 && idx < Main.maxProjectiles)
+                        Main.projectile[idx].timeLeft = 60;
                 }
             }
-            else if (phase == 2)
+            else
             {
-                // Phase 2: Wide blade spread + flanking blades
-                for (int i = -1; i <= 1; i++)
-                {
-                    float spreadAngle = MathHelper.ToRadians(20 * i);
-                    Vector2 bladeVel = aimDir.RotatedBy(spreadAngle) * 12f;
-                    Projectile.NewProjectile(source, player.MountedCenter, bladeVel,
-                        ModContent.ProjectileType<NocturnalBladeProjectile>(), (int)(damage * 0.30f), knockback * 0.4f, player.whoAmI);
-                }
-            }
-            else // phase == 3
-            {
-                // Finale: 4 blades in cardinal spread + massive dust burst
-                for (int i = 0; i < 4; i++)
-                {
-                    Vector2 bladeVel = aimDir.RotatedBy(MathHelper.PiOver2 * i) * 11f;
-                    Projectile.NewProjectile(source, player.MountedCenter, bladeVel,
-                        ModContent.ProjectileType<NocturnalBladeProjectile>(), (int)(damage * 0.30f), knockback * 0.5f, player.whoAmI);
-                }
-
-                // Finale dust burst
-                for (int i = 0; i < 10; i++)
-                {
-                    Dust burst = Dust.NewDustPerfect(player.MountedCenter, DustID.BlueTorch,
-                        Main.rand.NextVector2CircularEdge(6f, 6f), 0, default, Main.rand.NextFloat(1f, 1.4f));
-                    burst.noGravity = true;
-                }
+                // Nighttime: 1 orb, aggressive homing (0.14), long timeLeft (240f), night mode flag
+                int bladeDmg = (int)(damage * 0.5f);
+                int idx = Projectile.NewProjectile(source, player.MountedCenter, aimDir * 14f,
+                    ModContent.ProjectileType<NocturnalBladeProjectile>(),
+                    bladeDmg, knockback * 0.6f, player.whoAmI, 0.14f, 1f);
+                if (idx >= 0 && idx < Main.maxProjectiles)
+                    Main.projectile[idx].timeLeft = 240;
             }
         }
 

@@ -25,6 +25,9 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
         private bool _initialized;
         private VertexStrip _strip;
 
+        // Healing Artillery — heal owner once per orb
+        private bool _hasHealed;
+
         public override string Texture => "MagnumOpus/Content/OdeToJoy/Weapons/FountainOfJoyousHarmony/FountainOfJoyousHarmony";
 
         public override void SetStaticDefaults()
@@ -58,6 +61,22 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
             Projectile.velocity.Y += 0.06f;
             if (Projectile.velocity.Length() > MaxSpeed)
                 Projectile.velocity = Vector2.Normalize(Projectile.velocity) * MaxSpeed;
+
+            // Heal owner 3 HP when passing within 60px (once per orb)
+            if (!_hasHealed)
+            {
+                Player owner = Main.player[Projectile.owner];
+                float distToOwner = Vector2.Distance(Projectile.Center, owner.Center);
+                if (distToOwner < 60f)
+                {
+                    _hasHealed = true;
+                    if (owner.statLife < owner.statLifeMax2)
+                    {
+                        owner.statLife = Math.Min(owner.statLife + 3, owner.statLifeMax2);
+                        owner.HealEffect(3, true);
+                    }
+                }
+            }
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 

@@ -11,6 +11,7 @@ using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
 using ReLogic.Content;
+using Terraria.Graphics;
 
 namespace MagnumOpus.Content.Summer.Projectiles
 {
@@ -415,10 +416,18 @@ namespace MagnumOpus.Content.Summer.Projectiles
     public class SolarFlareProjectile : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare";
-        
+
         private static readonly Color SunGold = new Color(255, 215, 0);
         private static readonly Color SunOrange = new Color(255, 140, 0);
         private static readonly Color SunRed = new Color(255, 100, 50);
+
+        private VertexStrip _strip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -525,8 +534,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Use procedural Summer VFX for solar flare bloom
-            ProceduralProjectileVFX.DrawSummerProjectile(Main.spriteBatch, Projectile, 0.3f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Summer, ref _strip);
             }
             catch { }
             finally
@@ -535,7 +543,6 @@ namespace MagnumOpus.Content.Summer.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
     }
@@ -546,10 +553,18 @@ namespace MagnumOpus.Content.Summer.Projectiles
     public class ZenithFlareProjectile : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Flare/flare_16";
-        
+
         private static readonly Color SunGold = new Color(255, 215, 0);
         private static readonly Color SunWhite = new Color(255, 250, 240);
         private static readonly Color SunRed = new Color(255, 100, 50);
+
+        private VertexStrip _strip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -666,8 +681,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Use procedural Summer VFX for zenith flare bloom
-            ProceduralProjectileVFX.DrawSummerProjectile(Main.spriteBatch, Projectile, 0.45f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Summer, ref _strip);
             }
             catch { }
             finally
@@ -676,7 +690,6 @@ namespace MagnumOpus.Content.Summer.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
     }

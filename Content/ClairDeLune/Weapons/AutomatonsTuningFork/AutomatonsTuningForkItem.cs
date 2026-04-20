@@ -5,6 +5,7 @@ using MagnumOpus.Content.ClairDeLune.Weapons.AutomatonsTuningFork.Projectiles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -13,6 +14,21 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.AutomatonsTuningFork
 {
     public class AutomatonsTuningForkItem : ModItem
     {
+        // === Frequency System ===
+        /// <summary>Current frequency mode (0=A, 1=C, 2=E, 3=G). Static for minion access.</summary>
+        public static int CurrentFrequency = 0;
+
+        /// <summary>Frame timestamps of last switch to each frequency.</summary>
+        private static readonly int[] _freqSwitchFrames = new int[4] { -9999, -9999, -9999, -9999 };
+
+        /// <summary>Remaining frames of Perfect Resonance buff.</summary>
+        public static int ResonanceBuffTimer = 0;
+
+        /// <summary>True when all 4 frequencies were cycled within 600 frames (10s).</summary>
+        public static bool IsResonanceActive => ResonanceBuffTimer > 0;
+
+        private static readonly string[] FrequencyNames = { "A", "C", "E", "G" };
+
         public override string Texture => "MagnumOpus/Content/ClairDeLune/Weapons/AutomatonsTuningFork/AutomatonsTuningFork";
 
         public override void SetDefaults()
@@ -34,8 +50,57 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.AutomatonsTuningFork
             Item.buffType = ModContent.BuffType<AutomatonsTuningForkBuff>();
         }
 
+        public override bool AltFunctionUse(Player player) => true;
+
+        public override void ModifyManaCost(Player player, ref float reduce, ref float mult)
+        {
+            if (player.altFunctionUse == 2)
+                mult = 0f;
+        }
+
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            if (player.altFunctionUse == 2)
+            {
+                // Cycle frequency
+                CurrentFrequency = (CurrentFrequency + 1) % 4;
+                _freqSwitchFrames[CurrentFrequency] = (int)Main.GameUpdateCount;
+
+                // Check Perfect Resonance: all 4 cycled within 600 frames (10s)
+                int now = (int)Main.GameUpdateCount;
+                bool allRecent = true;
+                for (int i = 0; i < 4; i++)
+                {
+                    if (now - _freqSwitchFrames[i] > 600) { allRecent = false; break; }
+                }
+                if (allRecent)
+                {
+                    ResonanceBuffTimer = 300; // 5 seconds
+                    for (int i = 0; i < 4; i++) _freqSwitchFrames[i] = -9999;
+                }
+
+                // Audio feedback — pitch rises with frequency
+                SoundEngine.PlaySound(SoundID.Item4 with { Pitch = 0.2f + CurrentFrequency * 0.15f }, player.Center);
+
+                // Visual feedback
+                Color freqColor = CurrentFrequency switch
+                {
+                    0 => ClairDeLunePalette.SoftBlue,
+                    1 => ClairDeLunePalette.PearlWhite,
+                    2 => ClairDeLunePalette.MoonbeamGold,
+                    3 => ClairDeLunePalette.PearlBlue,
+                    _ => ClairDeLunePalette.SoftBlue,
+                };
+                for (int i = 0; i < 8; i++)
+                {
+                    Vector2 dustVel = Main.rand.NextVector2CircularEdge(3f, 3f);
+                    Dust d = Dust.NewDustPerfect(player.Center, DustID.WhiteTorch, dustVel, 0, freqColor, 0.7f);
+                    d.noGravity = true;
+                }
+
+                return false;
+            }
+
             player.AddBuff(Item.buffType, 2);
             Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
             return false;
@@ -43,6 +108,10 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.AutomatonsTuningFork
 
         public override void HoldItem(Player player)
         {
+            // Tick down resonance timer
+            if (ResonanceBuffTimer > 0)
+                ResonanceBuffTimer--;
+
             if (Main.rand.NextBool(4))
             {
                 Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
@@ -71,13 +140,13 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.AutomatonsTuningFork
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Summon", "Summons an Automaton that emits resonance frequencies"));
-            tooltips.Add(new TooltipLine(Mod, "FreqA", "Frequency A: Attack aura — enemies take +20% damage"));
-            tooltips.Add(new TooltipLine(Mod, "FreqC", "Frequency C: Defense aura — allies gain +10 defense"));
-            tooltips.Add(new TooltipLine(Mod, "FreqE", "Frequency E: Speed aura — allies gain +15% movement speed"));
-            tooltips.Add(new TooltipLine(Mod, "FreqG", "Frequency G: Damage aura — all nearby projectiles deal +10% damage"));
-            tooltips.Add(new TooltipLine(Mod, "Resonance", "Perfect Resonance: overlapping frequencies create 2x damage zones"));
-            tooltips.Add(new TooltipLine(Mod, "Conductor", "Conductor's Final Note: every 30s, all 4 frequencies burst in 15-tile radius"));
+            tooltips.Add(new TooltipLine(Mod, "Summon", "Summons an Automaton that fires resonance orbs at enemies"));
+            tooltips.Add(new TooltipLine(Mod, "AltUse", "Right-click to cycle frequency modes"));
+            tooltips.Add(new TooltipLine(Mod, "FreqA", "Frequency A: Piercing orbs with reduced speed"));
+            tooltips.Add(new TooltipLine(Mod, "FreqC", "Frequency C: Swift orbs with no homing"));
+            tooltips.Add(new TooltipLine(Mod, "FreqE", "Frequency E: Double orbs at 60% damage each"));
+            tooltips.Add(new TooltipLine(Mod, "FreqG", "Frequency G: Orbs decelerate and detonate into damage zones"));
+            tooltips.Add(new TooltipLine(Mod, "Resonance", "Perfect Resonance: cycle all 4 frequencies within 10s for 5s of enhanced orbs"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Every machine has a frequency. Find it, and the world hums with you.'")
             {
                 OverrideColor = ClairDeLunePalette.LoreText

@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.DataStructures;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Core;
 using MagnumOpus.Content.ClairDeLune;
@@ -13,8 +14,15 @@ using MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Utilities;
 namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Projectiles
 {
     /// <summary>
-    /// Drive Gear — Homing sub-projectile fired by Clockwork Harmony.
-    /// Tracks enemies with gentle homing. Clair de Lune moonlit theme.
+    /// Drive Gear — "Temporal Dilation Blade" projectile fired by Clockwork Harmony.
+    /// Speed oscillates rhythmically with gentle homing (existing behavior).
+    ///
+    /// ai[0] = internal sine timer (used for speed oscillation)
+    /// ai[1] = mode:
+    ///   0 = Normal oscillating orb (existing behavior)
+    ///   1 = Zone-creating orb — on hit or expiry, spawn GenericDamageZone (200px, 120 frames, FLAG_SLOW)
+    ///   2 = Radial burst — on spawn, immediately spawn 12 GenericHomingOrbChild in radial pattern, then kill self
+    ///
     /// Foundation-pattern rendering: safe SpriteBatch, IncisorOrbRenderer visuals.
     /// </summary>
     public class DriveGearProjectile : ModProjectile
@@ -27,8 +35,12 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Projectiles
 
         private Player Owner => Main.player[Projectile.owner];
         private bool _initialized;
+        private bool _hasSpawnedZone; // Prevent double-spawning zone on hit+kill
 
         private VertexStrip _strip;
+
+        /// <summary>Mode from ai[1]: 0=normal, 1=zone, 2=radial burst.</summary>
+        private int Mode => (int)Projectile.ai[1];
 
         #endregion
 
@@ -59,6 +71,45 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Projectiles
             {
                 _initialized = true;
                 Projectile.rotation = Projectile.velocity.ToRotation();
+
+                // Mode 2: Radial Burst — spawn 12 orbs immediately, then kill self
+                if (Mode == 2)
+                {
+                    if (Main.myPlayer == Projectile.owner)
+                    {
+                        for (int i = 0; i < 12; i++)
+                        {
+                            float angle = MathHelper.TwoPi / 12f * i;
+                            Vector2 orbVel = angle.ToRotationVector2() * 10f;
+                            GenericHomingOrbChild.SpawnChild(
+                                Projectile.GetSource_FromThis(),
+                                Projectile.Center, orbVel,
+                                (int)(Projectile.damage * 0.5f), Projectile.knockBack * 0.3f, Projectile.owner,
+                                homingStrength: 0.05f,
+                                behaviorFlags: 0,
+                                themeIndex: GenericHomingOrbChild.THEME_CLAIRDELUNE,
+                                scaleMult: 0.6f,
+                                timeLeft: 90
+                            );
+                        }
+                    }
+
+                    // Radial burst VFX
+                    for (int i = 0; i < 12; i++)
+                    {
+                        float angle = MathHelper.TwoPi / 12f * i;
+                        Vector2 sparkVel = angle.ToRotationVector2() * 6f;
+                        Color col = i % 2 == 0 ? new Color(150, 200, 255) : new Color(240, 240, 255);
+                        Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.IceTorch, sparkVel, 0, col, 0.6f);
+                        d.noGravity = true;
+                    }
+
+                    try { ClairDeLuneVFXLibrary.SpawnMixedSparkleImpact(Projectile.Center, 1f, 6, 6); } catch { }
+                    try { ClairDeLuneVFXLibrary.SpawnLunarSparkles(Projectile.Center, 5, 20f); } catch { }
+
+                    Projectile.Kill();
+                    return;
+                }
             }
 
             // Clock Tick-Tock: speed oscillates rhythmically with gentle homing
@@ -77,11 +128,16 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Projectiles
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // Trail dust — moonlit theme
+            // Trail dust — moonlit theme, zone orbs have a warmer tint
             if (Main.rand.NextBool(3))
             {
                 int dustType = Main.rand.NextBool() ? DustID.IceTorch : DustID.WhiteTorch;
-                Color dustColor = Main.rand.NextBool() ? new Color(150, 200, 255) : new Color(240, 240, 255);
+                Color dustColor;
+                if (Mode == 1)
+                    dustColor = Main.rand.NextBool() ? new Color(200, 180, 100) : new Color(240, 240, 255);
+                else
+                    dustColor = Main.rand.NextBool() ? new Color(150, 200, 255) : new Color(240, 240, 255);
+
                 Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
                     dustType, -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(0.5f, 0.5f),
                     0, dustColor, 0.8f);
@@ -97,6 +153,23 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Projectiles
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             Vector2 hitPos = target.Center;
+
+            // Mode 1: Spawn damage zone on hit
+            if (Mode == 1 && !_hasSpawnedZone && Main.myPlayer == Projectile.owner)
+            {
+                _hasSpawnedZone = true;
+                GenericDamageZone.SpawnZone(
+                    Projectile.GetSource_FromThis(),
+                    hitPos,
+                    (int)(Projectile.damage * 0.3f),
+                    Projectile.knockBack * 0.2f,
+                    Projectile.owner,
+                    modeFlags: GenericDamageZone.FLAG_SLOW,
+                    radius: 200f,
+                    themeIndex: GenericHomingOrbChild.THEME_CLAIRDELUNE,
+                    durationFrames: 120
+                );
+            }
 
             // Impact sparks — moonlit dual tone
             for (int i = 0; i < 6; i++)
@@ -144,6 +217,23 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Projectiles
 
         public override void OnKill(int timeLeft)
         {
+            // Mode 1: Spawn zone on expiry if hasn't hit anything
+            if (Mode == 1 && !_hasSpawnedZone && Main.myPlayer == Projectile.owner)
+            {
+                _hasSpawnedZone = true;
+                GenericDamageZone.SpawnZone(
+                    Projectile.GetSource_FromThis(),
+                    Projectile.Center,
+                    (int)(Projectile.damage * 0.3f),
+                    Projectile.knockBack * 0.2f,
+                    Projectile.owner,
+                    modeFlags: GenericDamageZone.FLAG_SLOW,
+                    radius: 200f,
+                    themeIndex: GenericHomingOrbChild.THEME_CLAIRDELUNE,
+                    durationFrames: 120
+                );
+            }
+
             // Death VFX — moonlit spark burst
             for (int i = 0; i < 4; i++)
             {

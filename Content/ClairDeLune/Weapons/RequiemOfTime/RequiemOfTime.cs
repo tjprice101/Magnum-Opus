@@ -34,9 +34,14 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime
             Item.crit = 8;
         }
 
+        public override bool AltFunctionUse(Player player) => true;
+
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            Projectile.NewProjectile(source, player.MountedCenter, velocity, type, damage, knockback, player.whoAmI);
+            // ai[0]: 0 = forward zone (left-click), 1 = reverse zone (right-click)
+            float zoneType = player.altFunctionUse == 2 ? 1f : 0f;
+            Projectile.NewProjectile(source, player.MountedCenter, velocity, type, damage, knockback, player.whoAmI,
+                ai0: zoneType);
             return false;
         }
 

@@ -52,16 +52,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury
 
         public override bool CanShoot(Player player)
         {
-            bool isDash = player.altFunctionUse == 2;
-            for (int i = 0; i < Main.maxProjectiles; i++)
-            {
-                Projectile p = Main.projectile[i];
-                if (!p.active || p.owner != player.whoAmI || p.type != Item.shoot)
-                    continue;
-                if (isDash) return false;
-                if (!(p.ai[0] == 1 && p.ai[1] == 1)) return false;
-            }
-            return true;
+            if (player.altFunctionUse == 2)
+                return true;
+
+            return player.ownedProjectileCounts[Item.shoot] <= 0;
         }
 
         public override void HoldItem(Player player)
@@ -78,7 +72,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
             Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            // Right-click: charge-gated special — spawn 5 light pillars at nearby enemy positions
+            // Right-click: charge-gated special — fire 5 seed orbs with downward trajectory
             if (player.altFunctionUse == 2)
             {
                 var gfp = player.GetModPlayer<TheGardenersFuryPlayer>();
@@ -88,27 +82,20 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury
                     gfp.ConsumeCharge();
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.3f, Volume = 0.9f }, player.MountedCenter);
 
-                    // Gather up to 5 nearby enemy positions
-                    int pillarCount = 5;
-                    int spawned = 0;
+                    // Fire 5 seed orbs aimed at cursor with varied trajectories
+                    int seedCount = 5;
+                    Vector2 baseDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
 
-                    foreach (NPC npc in Main.ActiveNPCs)
+                    for (int i = 0; i < seedCount; i++)
                     {
-                        if (spawned >= pillarCount) break;
-                        if (!npc.CanBeChasedBy()) continue;
-                        if (Vector2.Distance(player.MountedCenter, npc.Center) > 800f) continue;
+                        // Spread seeds in a fan + add upward arc so gravity pulls them down
+                        float spreadAngle = (i - 2) * MathHelper.ToRadians(8f);
+                        Vector2 dir = baseDir.RotatedBy(spreadAngle);
 
-                        Projectile.NewProjectile(source, npc.Center, Vector2.Zero,
-                            ModContent.ProjectileType<GardenerFurySpecialProj>(),
-                            (int)(damage * 1.5f), knockback, player.whoAmI);
-                        spawned++;
-                    }
+                        // Add upward bias so seeds arc and fall
+                        Vector2 seedVel = dir * 12f + new Vector2(0, -3f + Main.rand.NextFloat(-1f, 1f));
 
-                    // If fewer than 5 enemies found, spawn remaining pillars at mouse cursor area
-                    for (int i = spawned; i < pillarCount; i++)
-                    {
-                        Vector2 offset = Main.rand.NextVector2Circular(100f, 100f);
-                        Projectile.NewProjectile(source, Main.MouseWorld + offset, Vector2.Zero,
+                        Projectile.NewProjectile(source, player.MountedCenter, seedVel,
                             ModContent.ProjectileType<GardenerFurySpecialProj>(),
                             (int)(damage * 1.5f), knockback, player.whoAmI);
                     }

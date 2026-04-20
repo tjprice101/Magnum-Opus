@@ -52,16 +52,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning
 
         public override bool CanShoot(Player player)
         {
-            bool isDash = player.altFunctionUse == 2;
-            for (int i = 0; i < Main.maxProjectiles; i++)
-            {
-                Projectile p = Main.projectile[i];
-                if (!p.active || p.owner != player.whoAmI || p.type != Item.shoot)
-                    continue;
-                if (isDash) return false;
-                if (!(p.ai[0] == 1 && p.ai[1] == 1)) return false;
-            }
-            return true;
+            if (player.altFunctionUse == 2)
+                return true;
+
+            return player.ownedProjectileCounts[Item.shoot] <= 0;
         }
 
         public override void HoldItem(Player player)
@@ -88,39 +82,17 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning
                     tbp.ConsumeCharge();
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.2f, Volume = 0.9f }, player.MountedCenter);
 
-                    // Find up to 3 nearest enemies
-                    int bladeCount = 3;
-                    int spawned = 0;
+                    // Fire 3 bouncing blades in a fan: center, +10°, -10°
+                    Vector2 baseDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
+                    float spreadAngle = MathHelper.ToRadians(10f);
 
-                    for (int b = 0; b < bladeCount; b++)
+                    for (int b = -1; b <= 1; b++)
                     {
-                        NPC target = null;
-                        float closestDist = 800f;
-                        foreach (NPC npc in Main.ActiveNPCs)
-                        {
-                            if (npc.CanBeChasedBy())
-                            {
-                                float dist = Vector2.Distance(player.MountedCenter, npc.Center);
-                                if (dist < closestDist)
-                                {
-                                    closestDist = dist;
-                                    target = npc;
-                                }
-                            }
-                        }
-
-                        Vector2 dir = target != null
-                            ? (target.Center - player.MountedCenter).SafeNormalize(Vector2.UnitX)
-                            : (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
-
-                        // Spread the blades slightly
-                        float spread = (b - 1) * 0.2f;
-                        dir = dir.RotatedBy(spread);
+                        Vector2 dir = baseDir.RotatedBy(b * spreadAngle);
 
                         Projectile.NewProjectile(source, player.MountedCenter, dir * 12f,
                             ModContent.ProjectileType<ThornboundReckoningSpecialProj>(),
                             (int)(damage * 1.2f), knockback, player.whoAmI);
-                        spawned++;
                     }
                 }
                 else

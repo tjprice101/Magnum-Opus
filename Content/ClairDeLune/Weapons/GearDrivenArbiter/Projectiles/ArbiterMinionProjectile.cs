@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.Graphics;
 using Terraria.ID;
@@ -29,6 +30,15 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.GearDrivenArbiter.Projectiles
         private float _orbitAngle;
 
         private VertexStrip _strip;
+
+        // Orb firing
+        private int _fireTimer;
+        private const int FireCooldown = 45;
+
+        // === Verdict Stacking System ===
+        /// <summary>Per-NPC verdict stacks: (stacks, decayTimer in frames).</summary>
+        public static Dictionary<int, (int stacks, int decayTimer)> VerdictStacks = new();
+        private static uint _lastDecayFrame;
 
         #endregion
 
@@ -108,6 +118,28 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.GearDrivenArbiter.Projectiles
             {
                 Vector2 dir = target.Center - Projectile.Center;
                 Projectile.velocity += dir.SafeNormalize(Vector2.Zero) * 0.5f;
+
+                // Fire verdict orbs
+                if (Main.myPlayer == Projectile.owner)
+                {
+                    _fireTimer++;
+                    if (_fireTimer >= FireCooldown)
+                    {
+                        _fireTimer = 0;
+                        FireVerdictOrb(target);
+                    }
+                }
+            }
+            else
+            {
+                _fireTimer = 0;
+            }
+
+            // Decay verdict stacks (once per frame, not per minion)
+            if (Main.GameUpdateCount != _lastDecayFrame)
+            {
+                _lastDecayFrame = Main.GameUpdateCount;
+                DecayVerdictStacks();
             }
 
             Projectile.rotation = Projectile.velocity.ToRotation();
@@ -153,6 +185,100 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.GearDrivenArbiter.Projectiles
 
             try { ClairDeLuneVFXLibrary.SpawnMusicNotes(hitPos, 1, 12f, 0.4f, 0.7f, 20); } catch { }
             try { ClairDeLuneVFXLibrary.SpawnMixedSparkleImpact(hitPos, 0.6f, 4, 4); } catch { }
+        }
+
+        /// <summary>
+        /// Fires a GenericHomingOrbChild with properties based on the target's verdict stacks.
+        /// 2+ stacks: homing 0.10. 4+ stacks: pierce. 6+ stacks: +30% speed.
+        /// 8 stacks: Arbiter's Verdict — 5x damage, reset stacks.
+        /// Increments target stacks on each fire.
+        /// </summary>
+        private void FireVerdictOrb(NPC target)
+        {
+            int npcId = target.whoAmI;
+            int stacks = 0;
+            if (VerdictStacks.TryGetValue(npcId, out var data))
+                stacks = data.stacks;
+
+            // Build orb parameters based on current stacks
+            float homing = 0.06f;
+            int flags = 0;
+            float speed = 10f;
+            int damage = Projectile.damage;
+
+            if (stacks >= 2) homing = 0.10f;
+            if (stacks >= 4) flags |= GenericHomingOrbChild.FLAG_PIERCE;
+            if (stacks >= 6) speed *= 1.3f;
+
+            if (stacks >= 8)
+            {
+                // Arbiter's Verdict — 5x damage, reset stacks
+                damage *= 5;
+                VerdictStacks.Remove(npcId);
+
+                // Verdict VFX burst
+                for (int i = 0; i < 12; i++)
+                {
+                    Vector2 sparkVel = Main.rand.NextVector2CircularEdge(6f, 6f);
+                    Color col = i % 2 == 0 ? new Color(150, 200, 255) : ClairDeLunePalette.MoonbeamGold;
+                    Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.IceTorch, sparkVel, 0, col, 0.8f);
+                    d.noGravity = true;
+                }
+            }
+            else
+            {
+                // Increment stacks, reset decay timer to 180 frames (3s)
+                VerdictStacks[npcId] = (Math.Min(stacks + 1, 8), 180);
+            }
+
+            Vector2 vel = (target.Center - Projectile.Center).SafeNormalize(Vector2.UnitX) * speed;
+            GenericHomingOrbChild.SpawnChild(
+                Projectile.GetSource_FromThis(),
+                Projectile.Center, vel,
+                damage, Projectile.knockBack, Projectile.owner,
+                homing, flags, GenericHomingOrbChild.THEME_CLAIRDELUNE);
+        }
+
+        /// <summary>
+        /// Decays verdict stacks: timer counts down each frame,
+        /// removes 1 stack when timer hits 0, resets timer to 180.
+        /// Cleans up dead NPCs.
+        /// </summary>
+        private static void DecayVerdictStacks()
+        {
+            if (VerdictStacks.Count == 0) return;
+
+            var toRemove = new List<int>();
+            var toUpdate = new List<(int key, int stacks, int timer)>();
+
+            foreach (var kvp in VerdictStacks)
+            {
+                int npcId = kvp.Key;
+                var (stacks, timer) = kvp.Value;
+
+                // Clean up dead NPCs
+                if (npcId < 0 || npcId >= Main.maxNPCs || !Main.npc[npcId].active)
+                {
+                    toRemove.Add(npcId);
+                    continue;
+                }
+
+                timer--;
+                if (timer <= 0)
+                {
+                    stacks--;
+                    if (stacks <= 0)
+                    {
+                        toRemove.Add(npcId);
+                        continue;
+                    }
+                    timer = 180; // 3s until next stack decay
+                }
+                toUpdate.Add((npcId, stacks, timer));
+            }
+
+            foreach (var k in toRemove) VerdictStacks.Remove(k);
+            foreach (var u in toUpdate) VerdictStacks[u.key] = (u.stacks, u.timer);
         }
 
         #region Rendering

@@ -50,8 +50,21 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.SinCollector.Projectiles
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
-            // Straight Shot: fast linear flight, no homing
+            // Sin Accumulation Economy: rapid straight shots that collect sin on hit
+            // ai[0] = 0: normal straight shot, ai[0] = 1: Bloom Reload enhanced shot
             Projectile.rotation = Projectile.velocity.ToRotation();
+
+            // Bloom Reload enhanced: add homing + scale
+            if (Projectile.ai[0] >= 1f)
+            {
+                Projectile.scale = 1.3f;
+                NPC target = FindClosestNPC(HomingRange);
+                if (target != null)
+                {
+                    Vector2 idealDir = (target.Center - Projectile.Center).SafeNormalize(Projectile.velocity.SafeNormalize(Vector2.UnitX));
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, idealDir * Projectile.velocity.Length(), HomingStrength);
+                }
+            }
 
             if (Main.rand.NextBool(3))
             {
@@ -68,8 +81,31 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.SinCollector.Projectiles
             Lighting.AddLight(Projectile.Center, new Vector3(0.6f, 0.2f, 0.1f) * 0.35f * pulse);
         }
 
+        private NPC FindClosestNPC(float maxDist)
+        {
+            NPC closest = null;
+            float closestDist = maxDist;
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (!npc.CanBeChasedBy()) continue;
+                float dist = Vector2.Distance(Projectile.Center, npc.Center);
+                if (dist < closestDist) { closestDist = dist; closest = npc; }
+            }
+            return closest;
+        }
+
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            // Collect sin on every hit
+            if (Projectile.owner >= 0 && Projectile.owner < Main.maxPlayers)
+            {
+                var sinPlayer = Main.player[Projectile.owner].SinCollector();
+                sinPlayer.CollectSin(1);
+                sinPlayer.isActive = true;
+            }
+
+            // Bloom Reload enhanced shots deal 50% more (already handled by damage param)
             Vector2 hitPos = target.Center;
             for (int i = 0; i < 6; i++)
             {

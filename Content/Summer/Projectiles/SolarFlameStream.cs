@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
+using Terraria.Graphics;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
@@ -25,10 +26,12 @@ namespace MagnumOpus.Content.Summer.Projectiles
         private static readonly Color SunWhite = new Color(255, 250, 240);
         private static readonly Color SunRed = new Color(255, 100, 50);
 
+        private VertexStrip _strip;
+
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 6;
-            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
         public override void SetDefaults()
@@ -177,8 +180,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Use procedural VFX system - Summer flame stream effect
-            ProceduralProjectileVFX.DrawSummerProjectile(Main.spriteBatch, Projectile, 0.4f * Projectile.scale);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Summer, ref _strip);
             }
             catch { }
             finally
@@ -187,7 +189,6 @@ namespace MagnumOpus.Content.Summer.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
     }
@@ -201,7 +202,14 @@ namespace MagnumOpus.Content.Summer.Projectiles
         private static readonly Color SunOrange = new Color(255, 140, 0);
         private static readonly Color SunRed = new Color(255, 100, 50);
 
+        private VertexStrip _strip;
         private float expandRadius = 20f;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -293,30 +301,7 @@ namespace MagnumOpus.Content.Summer.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Draw expanding ring
-            SpriteBatch spriteBatch = Main.spriteBatch;
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            float alpha = 1f - (float)Projectile.alpha / 255f;
-
-            // Draw ring as series of points
-            int pointCount = (int)(expandRadius / 6f);
-            Texture2D glowTex = TextureAssets.Projectile[Projectile.type].Value;
-            Vector2 origin = glowTex.Size() / 2f;
-
-            for (int i = 0; i < pointCount; i++)
-            {
-                float angle = MathHelper.TwoPi * i / pointCount;
-                Vector2 pointPos = Projectile.Center + angle.ToRotationVector2() * expandRadius - Main.screenPosition;
-                Color pointColor = Color.Lerp(SunGold, SunRed, (float)i / pointCount) * alpha * 0.4f;
-                spriteBatch.Draw(glowTex, pointPos, null, pointColor, 0f, origin, 0.586f, SpriteEffects.None, 0f); // SoftGlow 512px — ~300px rendered
-            }
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Summer, ref _strip);
             }
             catch { }
             finally
@@ -325,7 +310,6 @@ namespace MagnumOpus.Content.Summer.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
     }

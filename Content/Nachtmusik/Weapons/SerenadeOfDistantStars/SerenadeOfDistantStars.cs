@@ -30,8 +30,8 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars
     {
         private int rhythmStacks = 0;
         private int lastFireTime = 0;
-        private const int RhythmWindowMin = 50;
-        private const int RhythmWindowMax = 70;
+        private const int RhythmWindowMin = 80;
+        private const int RhythmWindowMax = 120;
         private const int MaxRhythmStacks = 5;
 
         public override void SetDefaults()

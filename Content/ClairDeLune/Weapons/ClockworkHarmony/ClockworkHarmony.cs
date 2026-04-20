@@ -19,6 +19,10 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony
     /// <summary>
     /// Clockwork Harmony — Clair de Lune's gear-driven melee weapon.
     /// Exoblade-architecture weapon with moonlit clockwork VFX.
+    ///
+    /// Right-click behavior:
+    ///   If charge is full: fires radial burst orb (ai[1]=2) that spawns 12 homing orbs
+    ///   If charge is not full: fires zone-creating orb (ai[1]=1) that creates a slow field
     /// </summary>
     public class ClockworkHarmony : ModItem, IOverdriveItem
     {
@@ -54,16 +58,10 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony
 
         public override bool CanShoot(Player player)
         {
-            bool isDash = player.altFunctionUse == 2;
-            for (int i = 0; i < Main.maxProjectiles; i++)
-            {
-                Projectile p = Main.projectile[i];
-                if (!p.active || p.owner != player.whoAmI || p.type != Item.shoot)
-                    continue;
-                if (isDash) return false;
-                if (!(p.ai[0] == 1 && p.ai[1] == 1)) return false;
-            }
-            return true;
+            if (player.altFunctionUse == 2)
+                return true;
+
+            return player.ownedProjectileCounts[Item.shoot] <= 0;
         }
 
         public override void HoldItem(Player player)
@@ -95,24 +93,34 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony
             if (player.altFunctionUse == 2)
             {
                 var cp = player.GetModPlayer<ClockworkHarmonyPlayer>();
+                Vector2 aimDir = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX);
+
                 if (cp.IsChargeFull)
                 {
+                    // Full charge: fire radial burst orb (mode 2)
                     cp.ConsumeCharge();
                     SoundEngine.PlaySound(SoundID.Item29 with { Pitch = -0.4f }, player.Center);
-                    for (int i = 0; i < 8; i++)
-                    {
-                        float angle = MathHelper.TwoPi / 8f * i;
-                        Vector2 bombVel = new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * 6f;
-                        Projectile.NewProjectile(source, player.Center, bombVel,
-                            ModContent.ProjectileType<ClockworkHarmonySpecialProj>(),
-                            damage * 2, knockback, player.whoAmI);
-                    }
+
+                    Projectile.NewProjectile(source, player.Center, aimDir * 12f,
+                        ModContent.ProjectileType<DriveGearProjectile>(),
+                        damage * 2, knockback, player.whoAmI,
+                        ai0: 0f, ai1: 2f); // mode 2 = radial burst
                 }
                 else
-                    SoundEngine.PlaySound(SoundID.Item16 with { Pitch = 0.5f, Volume = 0.5f }, player.Center);
+                {
+                    // Not full: fire zone-creating orb (mode 1)
+                    SoundEngine.PlaySound(SoundID.Item16 with { Pitch = 0.3f, Volume = 0.7f }, player.Center);
+
+                    Projectile.NewProjectile(source, player.Center, aimDir * 10f,
+                        ModContent.ProjectileType<DriveGearProjectile>(),
+                        damage, knockback, player.whoAmI,
+                        ai0: 0f, ai1: 1f); // mode 1 = zone orb
+                }
+
                 return false;
             }
 
+            // Left-click: normal swing
             Projectile.NewProjectile(source, player.MountedCenter,
                 (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
                 type, damage, knockback, player.whoAmI, 0f, 0);
@@ -136,7 +144,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1", "Clockwork Resonance — interlocking gear-strikes that build harmonic momentum"));
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Each swing leaves meshing gear echoes that deal sustained AoE damage"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Right-click to dash through enemies with a drive gear burst"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Right-click fires a temporal dilation zone that slows enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Full charge right-click unleashes a 12-orb radial burst"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Harmony isn't found. It's engineered.'")
             {
                 OverrideColor = ClairDeLunePalette.LoreText

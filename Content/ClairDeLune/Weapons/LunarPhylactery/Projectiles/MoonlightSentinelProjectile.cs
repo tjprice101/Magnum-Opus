@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -14,7 +15,9 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
 {
     /// <summary>
     /// Moonlight Sentinel — Summoned companion from Lunar Phylactery.
-    /// Orbits player, attacks nearby enemies. Clair de Lune moonlit theme.
+    /// Orbits player, fires homing orbs at enemies. Clair de Lune moonlit theme.
+    /// Soul-Link: damage and homing scale inversely with player HP.
+    /// Every 60 frames fires a 3-orb burst (5-frame gaps) instead of single orb.
     /// Foundation-pattern rendering: safe SpriteBatch, IncisorOrbRenderer visuals.
     /// </summary>
     public class MoonlightSentinelProjectile : ModProjectile
@@ -26,6 +29,13 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
         private Player Owner => Main.player[Projectile.owner];
         private bool _initialized;
         private float _orbitAngle;
+
+        // Fire timer for orb spawning
+        private int _fireTimer;
+        // Burst tracking: how many orbs left in current burst, and countdown between burst shots
+        private int _burstRemaining;
+        private int _burstDelay;
+        private int _burstTargetIndex = -1; // NPC index of burst target
 
         private VertexStrip _strip;
 
@@ -56,7 +66,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
         }
 
         public override bool? CanCutTiles() => false;
-        public override bool MinionContactDamage() => true;
+        public override bool MinionContactDamage() => false;
 
         public override void AI()
         {
@@ -77,7 +87,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
-            // Orbit around player
+            // Orbit around player (keep existing movement)
             _orbitAngle += MathHelper.ToRadians(2f);
             Vector2 targetPos = Owner.Center + new Vector2(
                 MathF.Cos(_orbitAngle) * 60f,
@@ -97,6 +107,40 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 
+            // === Soul-Link: HP-scaled orb firing ===
+            float hpRatio = Owner.statLife / (float)Owner.statLifeMax2;
+            hpRatio = MathHelper.Clamp(hpRatio, 0f, 1f);
+
+            // Process burst shots in progress
+            if (_burstRemaining > 0)
+            {
+                _burstDelay--;
+                if (_burstDelay <= 0)
+                {
+                    FireHomingOrb(hpRatio, _burstTargetIndex);
+                    _burstRemaining--;
+                    _burstDelay = 5; // 5-frame gap between burst shots
+                }
+            }
+            else
+            {
+                // Fire timer: every 60 frames start a 3-orb burst
+                _fireTimer++;
+                if (_fireTimer >= 60)
+                {
+                    _fireTimer = 0;
+
+                    // Find target for the burst
+                    NPC fireTarget = LunarPhylacteryUtils.ClosestNPCAt(Projectile.Center, DetectionRange);
+                    if (fireTarget != null)
+                    {
+                        _burstTargetIndex = fireTarget.whoAmI;
+                        _burstRemaining = 3;
+                        _burstDelay = 0; // Fire first orb immediately
+                    }
+                }
+            }
+
             // Trail dust — moonlit theme
             if (Main.rand.NextBool(3))
             {
@@ -112,6 +156,41 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
             // Pulsing light
             float pulse = 1f + 0.15f * (float)Math.Sin(Main.GameUpdateCount * 0.1f);
             Lighting.AddLight(Projectile.Center, new Vector3(0.35f, 0.45f, 0.6f) * 0.35f * pulse);
+        }
+
+        private void FireHomingOrb(float hpRatio, int targetIndex)
+        {
+            // Validate target
+            if (targetIndex < 0 || targetIndex >= Main.maxNPCs) return;
+            NPC npc = Main.npc[targetIndex];
+            if (!npc.active || npc.friendly || npc.dontTakeDamage)
+            {
+                // Try to find a new target
+                NPC fallback = LunarPhylacteryUtils.ClosestNPCAt(Projectile.Center, DetectionRange);
+                if (fallback == null) return;
+                npc = fallback;
+            }
+
+            // Damage scaling: 1x at full HP, 2x at 0% HP
+            float damageMultiplier = 1f + (1f - hpRatio);
+
+            // Homing scaling: 0.04 at full HP, 0.14 at 0% HP
+            float homingStrength = 0.04f + (1f - hpRatio) * 0.10f;
+
+            Vector2 fireVel = (npc.Center - Projectile.Center).SafeNormalize(Vector2.UnitX) * 10f;
+            fireVel += Main.rand.NextVector2Circular(1.5f, 1.5f); // Slight spread for burst variety
+
+            int scaledDamage = (int)(Projectile.damage * damageMultiplier);
+
+            GenericHomingOrbChild.SpawnChild(
+                Projectile.GetSource_FromThis(),
+                Projectile.Center, fireVel,
+                scaledDamage, Projectile.knockBack * 0.5f, Projectile.owner,
+                homingStrength: homingStrength,
+                behaviorFlags: GenericHomingOrbChild.FLAG_ACCELERATE,
+                themeIndex: GenericHomingOrbChild.THEME_CLAIRDELUNE,
+                scaleMult: 0.8f,
+                timeLeft: 90);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)

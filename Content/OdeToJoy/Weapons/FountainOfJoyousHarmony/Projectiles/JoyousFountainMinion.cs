@@ -23,6 +23,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
         private bool _initialized;
         private VertexStrip _strip;
 
+        // Healing Artillery attack system
+        private int _attackTimer;
+        private int _geyserTimer;
+
         public override string Texture => "MagnumOpus/Content/OdeToJoy/Weapons/FountainOfJoyousHarmony/FountainOfJoyousHarmony";
 
         public override void SetStaticDefaults()
@@ -48,7 +52,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
         }
 
         public override bool? CanCutTiles() => false;
-        public override bool MinionContactDamage() => true;
+        public override bool MinionContactDamage() => false;
 
         public override void AI()
         {
@@ -62,8 +66,48 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
                 _initialized = true;
             }
 
+            // Hover above owner instead of chasing
+            HoverAboveOwner(owner);
+
+            // Count active minions for fire rate scaling
+            int minionCount = CountActiveMinions(owner);
+            int fireInterval = Math.Max(30, 50 - minionCount * 5);
+
+            // Search for targets to fire at
             SearchForTargets(owner, out bool foundTarget, out float distanceFromTarget, out Vector2 targetCenter);
-            Movement(foundTarget, distanceFromTarget, targetCenter, owner);
+
+            _attackTimer++;
+            _geyserTimer++;
+
+            // Fire arcing FountainProjectile toward nearest enemy
+            if (foundTarget && _attackTimer >= fireInterval)
+            {
+                _attackTimer = 0;
+                try
+                {
+                    FireFountainOrb(targetCenter);
+                }
+                catch { }
+            }
+
+            // Geyser: every 900 frames (15s), fire 5 upward fan spread
+            if (foundTarget && _geyserTimer >= 900)
+            {
+                _geyserTimer = 0;
+                try
+                {
+                    for (int i = 0; i < 5; i++)
+                    {
+                        float spreadAngle = MathHelper.ToRadians(-90f + (i - 2) * 20f); // Fan from -130 to -50 degrees
+                        Vector2 geyserVel = spreadAngle.ToRotationVector2() * 14f;
+                        int projType = ModContent.ProjectileType<FountainProjectile>();
+                        Projectile.NewProjectile(
+                            Projectile.GetSource_FromThis(), Projectile.Center, geyserVel,
+                            projType, Projectile.damage, Projectile.knockBack, Projectile.owner);
+                    }
+                }
+                catch { }
+            }
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 
@@ -81,6 +125,61 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
 
             float pulse = 1f + 0.15f * (float)Math.Sin(Main.GlobalTimeWrappedHourly * 3f);
             Lighting.AddLight(Projectile.Center, new Vector3(0.4f, 0.55f, 0.2f) * 0.35f * pulse);
+        }
+
+        /// <summary>Hover above the owner with a gentle sine bob.</summary>
+        private void HoverAboveOwner(Player owner)
+        {
+            Vector2 targetPos = owner.Center + new Vector2(0, -120f);
+            // Gentle sine bob
+            targetPos.Y += MathF.Sin((float)Main.timeForVisualEffects * 0.03f) * 8f;
+
+            Vector2 diff = targetPos - Projectile.Center;
+            float dist = diff.Length();
+
+            if (dist > 600f)
+            {
+                // Teleport if too far
+                Projectile.Center = targetPos;
+                Projectile.velocity = Vector2.Zero;
+            }
+            else if (dist > 5f)
+            {
+                // Smooth approach
+                Projectile.velocity = diff * 0.08f;
+            }
+            else
+            {
+                Projectile.velocity *= 0.9f;
+            }
+        }
+
+        /// <summary>Fire an arcing FountainProjectile toward a target.</summary>
+        private void FireFountainOrb(Vector2 targetCenter)
+        {
+            Vector2 toTarget = (targetCenter - Projectile.Center).SafeNormalize(Vector2.UnitX);
+            float distance = Vector2.Distance(Projectile.Center, targetCenter);
+            float speed = MathHelper.Clamp(distance * 0.02f, 8f, 16f);
+            // Add upward arc component
+            Vector2 vel = toTarget * speed + new Vector2(0, -4f);
+
+            int projType = ModContent.ProjectileType<FountainProjectile>();
+            Projectile.NewProjectile(
+                Projectile.GetSource_FromThis(), Projectile.Center, vel,
+                projType, Projectile.damage, Projectile.knockBack, Projectile.owner);
+        }
+
+        /// <summary>Count active JoyousFountainMinion projectiles for fire rate scaling.</summary>
+        private int CountActiveMinions(Player owner)
+        {
+            int count = 0;
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile p = Main.projectile[i];
+                if (p.active && p.owner == owner.whoAmI && p.type == Projectile.type)
+                    count++;
+            }
+            return count;
         }
 
         private bool CheckActive(Player owner)

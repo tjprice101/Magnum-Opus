@@ -34,9 +34,63 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.OrreryOfDreams
             Item.crit = 10;
         }
 
+        public override bool AltFunctionUse(Player player) => true;
+
+        public override bool CanUseItem(Player player)
+        {
+            if (player.altFunctionUse == 2)
+            {
+                // Right-click: only allow if there are orbiting DreamSpheres to release
+                int projType = ModContent.ProjectileType<DreamSphereProjectile>();
+                for (int i = 0; i < Main.maxProjectiles; i++)
+                {
+                    Projectile p = Main.projectile[i];
+                    if (p.active && p.owner == player.whoAmI && p.type == projType && p.ai[1] == 0f)
+                        return true;
+                }
+                return false;
+            }
+            else
+            {
+                // Left-click: only allow if no existing set of 3 is orbiting
+                int projType = ModContent.ProjectileType<DreamSphereProjectile>();
+                int count = 0;
+                for (int i = 0; i < Main.maxProjectiles; i++)
+                {
+                    Projectile p = Main.projectile[i];
+                    if (p.active && p.owner == player.whoAmI && p.type == projType && p.ai[1] == 0f)
+                        count++;
+                }
+                return count < 3;
+            }
+        }
+
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            Projectile.NewProjectile(source, player.MountedCenter, velocity, type, damage, knockback, player.whoAmI);
+            if (player.altFunctionUse == 2)
+            {
+                // Right-click: release all orbiting orbs
+                int projType = ModContent.ProjectileType<DreamSphereProjectile>();
+                for (int i = 0; i < Main.maxProjectiles; i++)
+                {
+                    Projectile p = Main.projectile[i];
+                    if (p.active && p.owner == player.whoAmI && p.type == projType && p.ai[1] == 0f)
+                    {
+                        p.ai[1] = 1f; // Set to released state
+                        p.timeLeft = 120;
+                        p.tileCollide = true;
+                        p.netUpdate = true;
+                    }
+                }
+                return false;
+            }
+
+            // Left-click: spawn 3 orbs (inner, middle, outer)
+            for (int layer = 0; layer < 3; layer++)
+            {
+                Projectile.NewProjectile(source, player.MountedCenter, Vector2.Zero, type, damage, knockback, player.whoAmI,
+                    ai0: layer, ai1: 0f);
+            }
             return false;
         }
 

@@ -12,6 +12,7 @@ using MagnumOpus.Common.Systems.VFX;
 // Dynamic particle effects for aesthetically pleasing animations
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
 using ReLogic.Content;
+using Terraria.Graphics;
 
 namespace MagnumOpus.Content.Autumn.Projectiles
 {
@@ -28,9 +29,16 @@ namespace MagnumOpus.Content.Autumn.Projectiles
         private static readonly Color TwilightOrange = new Color(255, 120, 60);
         private static readonly Color AutumnGold = new Color(218, 165, 32);
 
+        private VertexStrip _strip;
         private float distanceTraveled = 0f;
         private const float MaxDistanceBonus = 400f; // Max distance for bonus
         private const float MaxDamageMultiplier = 1.5f; // +50% max
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+        }
 
         public override void SetDefaults()
         {
@@ -240,40 +248,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D texture = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Pixel/Flare", AssetRequestMode.ImmediateLoad).Value;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-            Vector2 origin = texture.Size() / 2f;
-
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.12f) * 0.15f + 1f;
-            float distProgress = Math.Min(1f, distanceTraveled / MaxDistanceBonus);
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            Color mainColor = Color.Lerp(TwilightPurple, TwilightOrange, distProgress);
-            
-            // 笨・BRIGHT MULTI-LAYER BLOOM - Outer glow
-            spriteBatch.Draw(texture, drawPos, null, mainColor with { A = 0 } * 0.35f, 0f, origin, 0.65f * pulse * (1f + distProgress * 0.4f), SpriteEffects.None, 0f);
-            // Middle energy layer
-            spriteBatch.Draw(texture, drawPos, null, mainColor with { A = 0 } * 0.55f, 0f, origin, 0.45f * pulse, SpriteEffects.None, 0f);
-            // Core layer - brighter
-            spriteBatch.Draw(texture, drawPos, null, mainColor with { A = 0 } * 0.75f, 0f, origin, 0.28f * pulse, SpriteEffects.None, 0f);
-            // White-hot center
-            spriteBatch.Draw(texture, drawPos, null, Color.White with { A = 0 } * 0.85f, 0f, origin, 0.15f * pulse, SpriteEffects.None, 0f);
-            
-            // Orbiting spark points for extra visibility
-            float orbitAngle = Main.GameUpdateCount * 0.15f;
-            for (int i = 0; i < 3; i++)
-            {
-                float sparkAngle = orbitAngle + MathHelper.TwoPi * i / 3f;
-                Vector2 sparkPos = drawPos + sparkAngle.ToRotationVector2() * (12f + distProgress * 6f);
-                spriteBatch.Draw(texture, sparkPos, null, TwilightOrange with { A = 0 } * 0.6f, 0f, origin, 0.12f * pulse, SpriteEffects.None, 0f);
-            }
-
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Autumn, ref _strip);
             }
             catch { }
             finally
@@ -282,7 +257,6 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
     }
@@ -297,6 +271,14 @@ namespace MagnumOpus.Content.Autumn.Projectiles
         private static readonly Color MoonSilver = new Color(200, 200, 220);
         private static readonly Color MoonGold = new Color(218, 165, 32);
         private static readonly Color TwilightPurple = new Color(120, 60, 140);
+
+        private VertexStrip _strip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+        }
 
         public override void SetDefaults()
         {
@@ -436,8 +418,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Use procedural Autumn VFX for harvest moon bloom effect
-            ProceduralProjectileVFX.DrawAutumnProjectile(Main.spriteBatch, Projectile, 0.55f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Autumn, ref _strip);
             }
             catch { }
             finally
@@ -446,7 +427,6 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
     }
@@ -461,6 +441,14 @@ namespace MagnumOpus.Content.Autumn.Projectiles
         private static readonly Color AutumnOrange = new Color(255, 140, 50);
         private static readonly Color AutumnRed = new Color(178, 34, 34);
         private static readonly Color AutumnGold = new Color(218, 165, 32);
+
+        private VertexStrip _strip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+        }
 
         public override void SetDefaults()
         {
@@ -571,8 +559,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Use procedural Autumn VFX for leaf shard glow
-            ProceduralProjectileVFX.DrawAutumnProjectile(Main.spriteBatch, Projectile, 0.2f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Autumn, ref _strip);
             }
             catch { }
             finally
@@ -581,7 +568,6 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
     }

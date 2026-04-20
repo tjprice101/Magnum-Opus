@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Core;
 using MagnumOpus.Content.ClairDeLune;
+using MagnumOpus.Content.ClairDeLune.Weapons.AutomatonsTuningFork;
 using MagnumOpus.Content.ClairDeLune.Weapons.AutomatonsTuningFork.Utilities;
 
 namespace MagnumOpus.Content.ClairDeLune.Weapons.AutomatonsTuningFork.Projectiles
@@ -27,6 +28,10 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.AutomatonsTuningFork.Projectile
         private bool _initialized;
 
         private VertexStrip _strip;
+
+        // Orb firing
+        private int _fireTimer;
+        private const int FireCooldown = 50;
 
         #endregion
 
@@ -90,6 +95,21 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.AutomatonsTuningFork.Projectile
             {
                 Vector2 dir = target.Center - Projectile.Center;
                 Projectile.velocity += dir.SafeNormalize(Vector2.Zero) * 0.5f;
+
+                // Fire frequency orbs
+                if (Main.myPlayer == Projectile.owner)
+                {
+                    _fireTimer++;
+                    if (_fireTimer >= FireCooldown)
+                    {
+                        _fireTimer = 0;
+                        FireFrequencyOrb(target);
+                    }
+                }
+            }
+            else
+            {
+                _fireTimer = 0;
             }
 
             Projectile.rotation = Projectile.velocity.ToRotation();
@@ -135,6 +155,73 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.AutomatonsTuningFork.Projectile
 
             try { ClairDeLuneVFXLibrary.SpawnMusicNotes(hitPos, 1, 12f, 0.4f, 0.7f, 20); } catch { }
             try { ClairDeLuneVFXLibrary.SpawnMixedSparkleImpact(hitPos, 0.6f, 4, 4); } catch { }
+        }
+
+        /// <summary>
+        /// Fires a GenericHomingOrbChild whose behavior depends on the current frequency mode.
+        /// Freq 0 (A): Pierce, reduced speed, gentle homing.
+        /// Freq 1 (C): Fast, no homing.
+        /// Freq 2 (E): Two orbs at 60% damage each.
+        /// Freq 3 (G): Decelerate, spawn damage zone on kill.
+        /// Perfect Resonance: all properties active with enhanced stats for 5s.
+        /// </summary>
+        private void FireFrequencyOrb(NPC target)
+        {
+            int freq = AutomatonsTuningForkItem.CurrentFrequency;
+            bool resonance = AutomatonsTuningForkItem.IsResonanceActive;
+
+            Vector2 dir = (target.Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
+            int baseDamage = Projectile.damage;
+            float baseSpeed = 10f;
+            float homing = 0.06f;
+            int flags = 0;
+            int orbCount = 1;
+            int orbDamage = baseDamage;
+
+            if (resonance)
+            {
+                // Perfect Resonance — all properties active with enhanced stats
+                flags = GenericHomingOrbChild.FLAG_PIERCE;
+                homing = 0.08f;
+                baseSpeed = 14f;
+                orbCount = 2;
+                orbDamage = (int)(baseDamage * 0.8f);
+            }
+            else
+            {
+                switch (freq)
+                {
+                    case 0: // A — Piercing, reduced speed, gentle homing
+                        flags = GenericHomingOrbChild.FLAG_PIERCE;
+                        homing = 0.06f;
+                        baseSpeed *= 0.8f;
+                        break;
+                    case 1: // C — Fast, no homing
+                        homing = 0f;
+                        baseSpeed *= 1.4f;
+                        break;
+                    case 2: // E — Double orbs at 60% damage
+                        orbCount = 2;
+                        orbDamage = (int)(baseDamage * 0.6f);
+                        break;
+                    case 3: // G — Decelerate, spawn damage zone on kill
+                        flags = GenericHomingOrbChild.FLAG_DECELERATE | GenericHomingOrbChild.FLAG_ZONE_ON_KILL;
+                        break;
+                }
+            }
+
+            for (int i = 0; i < orbCount; i++)
+            {
+                Vector2 orbVel = dir * baseSpeed;
+                if (orbCount > 1)
+                    orbVel = orbVel.RotatedBy((i - 0.5f) * 0.15f);
+
+                GenericHomingOrbChild.SpawnChild(
+                    Projectile.GetSource_FromThis(),
+                    Projectile.Center, orbVel,
+                    orbDamage, Projectile.knockBack, Projectile.owner,
+                    homing, flags, GenericHomingOrbChild.THEME_CLAIRDELUNE);
+            }
         }
 
         #region Rendering

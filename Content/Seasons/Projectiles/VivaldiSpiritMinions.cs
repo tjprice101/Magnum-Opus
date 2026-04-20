@@ -9,6 +9,8 @@ using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
 using ReLogic.Content;
+using Terraria.Graphics;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.Seasons.Projectiles
 {
@@ -317,8 +319,15 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     public class SpiritPetalBolt : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
-        
+
         private static readonly Color SpringPink = new Color(255, 183, 197);
+        private VertexStrip _strip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+        }
 
         public override void SetDefaults()
         {
@@ -379,8 +388,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Procedural Spring projectile rendering - no PNG loading
-            ProceduralProjectileVFX.DrawSpringProjectile(Main.spriteBatch, Projectile, 0.6f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Spring, ref _strip);
             }
             catch { }
             finally
@@ -389,7 +397,6 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
     }
@@ -648,9 +655,16 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     public class SpiritSolarBolt : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
-        
+
         private static readonly Color SummerGold = new Color(255, 215, 0);
         private static readonly Color SummerOrange = new Color(255, 140, 0);
+        private VertexStrip _strip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+        }
 
         public override void SetDefaults()
         {
@@ -711,8 +725,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Procedural Summer projectile rendering - no PNG loading
-            ProceduralProjectileVFX.DrawSummerProjectile(Main.spriteBatch, Projectile, 0.6f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Summer, ref _strip);
             }
             catch { }
             finally
@@ -721,7 +734,6 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
     }
@@ -1320,8 +1332,15 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     public class SpiritIceBolt : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
-        
+
         private static readonly Color WinterBlue = new Color(150, 220, 255);
+        private VertexStrip _strip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+        }
 
         public override void SetDefaults()
         {
@@ -1384,8 +1403,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Procedural Winter projectile rendering - no PNG loading
-            ProceduralProjectileVFX.DrawWinterProjectile(Main.spriteBatch, Projectile, 0.6f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Winter, ref _strip);
             }
             catch { }
             finally
@@ -1394,7 +1412,6 @@ namespace MagnumOpus.Content.Seasons.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
     }

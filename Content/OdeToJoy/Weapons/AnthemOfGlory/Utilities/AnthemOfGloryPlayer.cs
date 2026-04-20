@@ -11,6 +11,20 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory.Utilities
         public bool isActive;
         public int activeTimer;
 
+        // Crescendo Stream channeling state
+        public int channelFrames;
+        public int channelKills;
+        public int victoryFanfareTimer;
+
+        /// <summary>Whether the Victory Fanfare buff is active.</summary>
+        public bool victoryFanfareActive => victoryFanfareTimer > 0;
+
+        /// <summary>Returns channel progress from 0 to 1, scaling over 5 seconds (300 frames).</summary>
+        public float GetChannelProgress()
+        {
+            return Microsoft.Xna.Framework.MathHelper.Clamp(channelFrames / 300f, 0f, 1f);
+        }
+
         public override void ResetEffects()
         {
             if (!isActive)
@@ -21,8 +35,20 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory.Utilities
                 {
                     gloryStacks = 0;
                     anthemLevel = 0;
+                    channelFrames = 0;
+                    channelKills = 0;
                 }
             }
+            else
+            {
+                // Increment channel frames while active
+                channelFrames++;
+            }
+
+            // Decrement fanfare timer
+            if (victoryFanfareTimer > 0)
+                victoryFanfareTimer--;
+
             isActive = false;
         }
 
@@ -37,6 +63,11 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory.Utilities
                 anthemLevel = System.Math.Min(anthemLevel + 1, 3);
                 gloryStacks = 0;
             }
+        }
+
+        public void RegisterKill()
+        {
+            channelKills++;
         }
 
         public void ConsumeAnthem()

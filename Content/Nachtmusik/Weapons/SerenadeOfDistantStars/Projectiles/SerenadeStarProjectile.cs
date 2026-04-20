@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -13,17 +14,29 @@ using MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars.Utilities;
 namespace MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars.Projectiles
 {
     /// <summary>
-    /// Serenade star projectile -- scaffold based on BlackSwanFlareProj pattern.
-    /// Homing sub-projectile with IncisorOrbRenderer visuals.
+    /// Serenade star projectile — Rhythm Stacking behavior.
+    /// Reads rhythm stack count from ai[0] (0-5) and scales behavior accordingly:
+    ///   Stack 0: homing 0.04, speed 12
+    ///   Stack 1: homing 0.05, speed 13
+    ///   Stack 2: homing 0.06, speed 15
+    ///   Stack 3: pierce 1, homing 0.07, speed 16
+    ///   Stack 4: pierce 1, homing 0.08, speed 17, on-hit spawn 1 child (half damage)
+    ///   Stack 5: aggressive homing 0.12, speed 18, 1.3x scale, on-hit spawn 1 child
+    ///
+    /// ai[0] = rhythm stack level (0-5)
     /// </summary>
     public class SerenadeStarProjectile : ModProjectile
     {
+        // Stack-based homing and speed tables
+        private static readonly float[] StackHoming = { 0.04f, 0.05f, 0.06f, 0.07f, 0.08f, 0.12f };
+        private static readonly float[] StackSpeed = { 12f, 13f, 15f, 16f, 17f, 18f };
+
         private const float HomingRange = 350f;
-        private const float HomingStrength = 0.08f;
-        private const float MaxSpeed = 16f;
         private Player Owner => Main.player[Projectile.owner];
         private bool _initialized;
         private VertexStrip _strip;
+
+        private int StackLevel => Math.Clamp((int)Projectile.ai[0], 0, 5);
 
         public override string Texture => "MagnumOpus/Content/Nachtmusik/Weapons/SerenadeOfDistantStars/SerenadeOfDistantStars";
 
@@ -48,51 +61,67 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars.Projectil
 
         public override void AI()
         {
+            int stack = StackLevel;
+
             if (!_initialized)
             {
                 _initialized = true;
                 Projectile.rotation = Projectile.velocity.ToRotation();
+
+                // Stack 3+: grant 1 pierce
+                if (stack >= 3)
+                    Projectile.penetrate = 2; // 1 base + 1 pierce = hits 2 enemies
+
+                // Stack 5: scale up
+                if (stack >= 5)
+                    Projectile.scale = 1.3f;
             }
 
-            // Rhythm Stacking: accelerating speed and strengthening homing
-            float lifeProgress = 1f - (Projectile.timeLeft / 120f);
-            float currentHomingStrength = MathHelper.Lerp(0.04f, 0.12f, lifeProgress);
-            float currentMaxSpeed = MathHelper.Lerp(12f, 24f, lifeProgress);
+            float homingStrength = StackHoming[stack];
+            float maxSpeed = StackSpeed[stack];
 
+            // Homing behavior
             NPC target = SerenadeOfDistantStarsUtils.ClosestNPCAt(Projectile.Center, HomingRange);
             if (target != null)
             {
                 Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), currentHomingStrength);
+                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), homingStrength);
             }
 
-            if (Projectile.velocity.Length() < currentMaxSpeed)
+            // Accelerate toward max speed
+            if (Projectile.velocity.Length() < maxSpeed)
                 Projectile.velocity *= 1.02f;
-            if (Projectile.velocity.Length() > currentMaxSpeed)
-                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * currentMaxSpeed;
+            if (Projectile.velocity.Length() > maxSpeed)
+                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * maxSpeed;
 
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // Trail dust
-            if (Main.rand.NextBool(3))
+            // Trail dust — more intense at higher stacks
+            int dustChance = stack >= 3 ? 2 : 3;
+            if (Main.rand.NextBool(dustChance))
             {
                 int dustType = Main.rand.NextBool() ? DustID.WhiteTorch : DustID.BlueTorch;
                 Color dustColor = Main.rand.NextBool() ? new Color(180, 200, 255) : new Color(60, 70, 150);
+                float dustScale = 0.8f + stack * 0.06f;
                 Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
                     dustType, -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(0.5f, 0.5f),
-                    0, dustColor, 0.8f);
+                    0, dustColor, dustScale);
                 d.noGravity = true;
                 d.fadeIn = 0.6f;
             }
 
-            // Pulsing light
+            // Pulsing light — brighter at higher stacks
             float pulse = 1f + 0.15f * (float)Math.Sin(Projectile.timeLeft * 0.2f);
-            Lighting.AddLight(Projectile.Center, new Vector3(0.3f, 0.35f, 0.6f) * 0.35f * pulse);
+            float lightMult = 0.35f + stack * 0.04f;
+            Lighting.AddLight(Projectile.Center, new Vector3(0.3f, 0.35f, 0.6f) * lightMult * pulse);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             Vector2 hitPos = target.Center;
+            int stack = StackLevel;
+
+            // Standard impact VFX
             for (int i = 0; i < 6; i++)
             {
                 Vector2 sparkVel = Main.rand.NextVector2CircularEdge(4f, 4f);
@@ -109,6 +138,26 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars.Projectil
             }
             try { NachtmusikVFXLibrary.SpawnMusicNotes(hitPos, 1, 12f, 0.4f, 0.7f, 20); } catch { }
             try { NachtmusikVFXLibrary.SpawnMixedSparkleImpact(hitPos, 0.6f, 4, 4); } catch { }
+
+            // Stack 4+: spawn 1 child orb at half damage
+            if (stack >= 4)
+            {
+                Vector2 childVel = (target.Center - Projectile.Center).SafeNormalize(Vector2.UnitX).RotatedByRandom(MathHelper.ToRadians(30)) * 10f;
+                GenericHomingOrbChild.SpawnChild(
+                    Projectile.GetSource_FromThis(),
+                    Projectile.Center, childVel,
+                    Projectile.damage / 2, Projectile.knockBack * 0.5f, Projectile.owner,
+                    0.08f, GenericHomingOrbChild.FLAG_ACCELERATE, GenericHomingOrbChild.THEME_NACHTMUSIK,
+                    0.8f, 60);
+
+                // Extra child spawn VFX
+                for (int i = 0; i < 4; i++)
+                {
+                    Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.WhiteTorch,
+                        Main.rand.NextVector2CircularEdge(2f, 2f), 0, new Color(200, 180, 100), 0.4f);
+                    d.noGravity = true;
+                }
+            }
         }
 
         public override bool PreDraw(ref Color lightColor)

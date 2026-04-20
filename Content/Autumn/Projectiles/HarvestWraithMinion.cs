@@ -11,6 +11,7 @@ using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
 using ReLogic.Content;
+using Terraria.Graphics;
 
 namespace MagnumOpus.Content.Autumn.Projectiles
 {
@@ -394,6 +395,14 @@ namespace MagnumOpus.Content.Autumn.Projectiles
         private static readonly Color WraithGreen = new Color(120, 180, 100);
         private static readonly Color SoulWhite = new Color(240, 240, 255);
 
+        private VertexStrip _strip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+        }
+
         public override void SetDefaults()
         {
             Projectile.width = 16;
@@ -491,8 +500,7 @@ namespace MagnumOpus.Content.Autumn.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Use procedural Autumn VFX for soul harvest orb glow
-            ProceduralProjectileVFX.DrawAutumnProjectile(Main.spriteBatch, Projectile, 0.25f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Autumn, ref _strip);
             }
             catch { }
             finally
@@ -501,7 +509,6 @@ namespace MagnumOpus.Content.Autumn.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
     }

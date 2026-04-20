@@ -4,6 +4,7 @@ using MagnumOpus.Content.Nachtmusik;
 using MagnumOpus.Content.SandboxExoblade.Utilities;
 using MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Projectiles;
 using MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Utilities;
+using MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Projectiles;
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -53,16 +54,10 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance
 
         public override bool CanShoot(Player player)
         {
-            bool isDash = player.altFunctionUse == 2;
-            for (int i = 0; i < Main.maxProjectiles; i++)
-            {
-                Projectile p = Main.projectile[i];
-                if (!p.active || p.owner != player.whoAmI || p.type != Item.shoot)
-                    continue;
-                if (isDash) return false;
-                if (!(p.ai[0] == 1 && p.ai[1] == 1)) return false;
-            }
-            return true;
+            if (player.altFunctionUse == 2)
+                return true;
+
+            return player.ownedProjectileCounts[Item.shoot] <= 0;
         }
 
         public override void HoldItem(Player player)
@@ -86,6 +81,14 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance
                 {
                     tp.ConsumeCharge();
                     SoundEngine.PlaySound(SoundID.Item29 with { Pitch = -0.3f }, player.Center);
+
+                    // Spawn VoidRift stationary zone at cursor position
+                    Vector2 toCursor = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX);
+                    Projectile.NewProjectile(source, Main.MouseWorld, Vector2.Zero,
+                        ModContent.ProjectileType<VoidRiftProjectile>(),
+                        damage * 2, knockback, player.whoAmI, toCursor.ToRotation());
+
+                    // Also spawn marker projs on nearby NPCs
                     foreach (NPC npc in Main.ActiveNPCs)
                     {
                         if (!npc.CanBeChasedBy() || Vector2.Distance(npc.Center, player.Center) > 800f) continue;
@@ -98,9 +101,18 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance
                     SoundEngine.PlaySound(SoundID.Item16 with { Pitch = 0.5f, Volume = 0.5f }, player.Center);
                 return false;
             }
+
+            // Fire swing projectile
             Projectile.NewProjectile(source, player.MountedCenter,
                 (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
                 type, damage, knockback, player.whoAmI, 0f, 0);
+
+            // Also fire 1 NocturnalBladeProjectile homing orb alongside the swing
+            Vector2 orbDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
+            Projectile.NewProjectile(source, player.MountedCenter, orbDir * 14f,
+                ModContent.ProjectileType<NocturnalBladeProjectile>(),
+                (int)(damage * 0.6f), knockback * 0.5f, player.whoAmI);
+
             return false;
         }
 

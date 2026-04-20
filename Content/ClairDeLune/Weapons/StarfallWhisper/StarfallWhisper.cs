@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.ClairDeLune;
 using MagnumOpus.Content.ClairDeLune.Weapons.StarfallWhisper.Projectiles;
 using Microsoft.Xna.Framework;
@@ -34,8 +35,37 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.StarfallWhisper
             Item.useAmmo = AmmoID.Arrow;
         }
 
+        public override bool AltFunctionUse(Player player) => true;
+
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            if (player.altFunctionUse == 2)
+            {
+                // Right-click: fire 5 GenericHomingOrbChild in a +/-15 degree fan spread
+                float baseAngle = velocity.ToRotation();
+                float spread = MathHelper.ToRadians(15f);
+                int orbType = ModContent.ProjectileType<GenericHomingOrbChild>();
+
+                for (int i = 0; i < 5; i++)
+                {
+                    float angle = baseAngle + MathHelper.Lerp(-spread, spread, i / 4f);
+                    Vector2 orbVel = angle.ToRotationVector2() * velocity.Length();
+
+                    GenericHomingOrbChild.SpawnChild(
+                        source, player.MountedCenter, orbVel,
+                        (int)(damage * 0.6f), knockback * 0.5f, player.whoAmI,
+                        homingStrength: 0.06f,
+                        behaviorFlags: 0,
+                        themeIndex: GenericHomingOrbChild.THEME_CLAIRDELUNE,
+                        scaleMult: 0.8f,
+                        timeLeft: 120
+                    );
+                }
+
+                return false;
+            }
+
+            // Left-click: normal single temporal arrow
             Projectile.NewProjectile(source, player.MountedCenter, velocity, type, damage, knockback, player.whoAmI);
             return false;
         }

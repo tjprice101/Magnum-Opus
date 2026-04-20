@@ -52,16 +52,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw
 
         public override bool CanShoot(Player player)
         {
-            bool isDash = player.altFunctionUse == 2;
-            for (int i = 0; i < Main.maxProjectiles; i++)
-            {
-                Projectile p = Main.projectile[i];
-                if (!p.active || p.owner != player.whoAmI || p.type != Item.shoot)
-                    continue;
-                if (isDash) return false;
-                if (!(p.ai[0] == 1 && p.ai[1] == 1)) return false;
-            }
-            return true;
+            if (player.altFunctionUse == 2)
+                return true;
+
+            return player.ownedProjectileCounts[Item.shoot] <= 0;
         }
 
         public override void HoldItem(Player player)
@@ -78,7 +72,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
             Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            // Right-click: charge-gated special — spawn 1 empowerment aura (tracks player, 10s duration)
+            // Right-click: charge-gated special — activate 5s empowerment + fire 3 orbs
             if (player.altFunctionUse == 2)
             {
                 var rtp = player.GetModPlayer<RoseThornChainsawPlayer>();
@@ -88,9 +82,20 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw
                     rtp.ConsumeCharge();
                     SoundEngine.PlaySound(SoundID.Item122 with { Pitch = 0.1f, Volume = 0.8f }, player.MountedCenter);
 
-                    Projectile.NewProjectile(source, player.MountedCenter, Vector2.Zero,
-                        ModContent.ProjectileType<RoseThornChainsawSpecialProj>(),
-                        0, 0f, player.whoAmI);
+                    // Activate 5s empowerment
+                    rtp.ProjectileEmpowerTimer = 300;
+
+                    // Fire burst of 3 orbs in tight ±5° cone
+                    Vector2 baseDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
+                    float spreadAngle = MathHelper.ToRadians(5f);
+
+                    for (int b = -1; b <= 1; b++)
+                    {
+                        Vector2 dir = baseDir.RotatedBy(b * spreadAngle);
+                        Projectile.NewProjectile(source, player.MountedCenter, dir * 14f,
+                            ModContent.ProjectileType<RoseThornChainsawSpecialProj>(),
+                            (int)(damage * 1.1f), knockback, player.whoAmI, ai0: 1f);
+                    }
                 }
                 else
                 {
@@ -99,10 +104,26 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw
                 return false;
             }
 
-            // Normal left-click: spawn swing projectile
+            // Normal left-click: spawn swing projectile + fire 3 rapid orbs
             Projectile.NewProjectile(source, player.MountedCenter,
                 (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
                 type, damage, knockback, player.whoAmI, 0f, 0);
+
+            // Also fire 3 rapid-stream orbs in tight spread
+            {
+                var rtp = player.GetModPlayer<RoseThornChainsawPlayer>();
+                float empowered = rtp.IsEmpowerActive ? 1f : 0f;
+                Vector2 baseDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
+                float spreadAngle = MathHelper.ToRadians(2f);
+
+                for (int b = -1; b <= 1; b++)
+                {
+                    Vector2 dir = baseDir.RotatedBy(b * spreadAngle);
+                    Projectile.NewProjectile(source, player.MountedCenter, dir * 14f,
+                        ModContent.ProjectileType<RoseThornChainsawSpecialProj>(),
+                        (int)(damage * 0.4f), knockback * 0.3f, player.whoAmI, ai0: empowered);
+                }
+            }
 
             return false;
         }

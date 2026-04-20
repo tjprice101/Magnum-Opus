@@ -8,7 +8,6 @@ using Terraria.ModLoader;
 using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Common.Systems.VFX.Core;
 using MagnumOpus.Content.OdeToJoy;
-using MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Utilities;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
 {
@@ -24,6 +23,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
         private Player Owner => Main.player[Projectile.owner];
         private bool _initialized;
         private VertexStrip _strip;
+        private bool _hasClusterSplit; // Prevents double-splitting
 
         public override string Texture => "MagnumOpus/Content/OdeToJoy/Weapons/PetalStormCannon/PetalStormCannon";
 
@@ -78,6 +78,9 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            // Trigger cluster split on hit
+            SpawnClusterChildren();
+
             Vector2 hitPos = target.Center;
             for (int i = 0; i < 6; i++)
             {
@@ -95,6 +98,57 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
             }
             try { OdeToJoyVFXLibrary.SpawnMusicNotes(hitPos, 1, 12f, 0.4f, 0.7f, 20); } catch { }
             try { OdeToJoyVFXLibrary.SpawnMixedSparkleImpact(hitPos, 0.6f, 4, 4); } catch { }
+        }
+
+        public override bool OnTileCollide(Vector2 oldVelocity)
+        {
+            // Trigger cluster split on tile collision, then die
+            SpawnClusterChildren();
+            return true; // Kill the projectile
+        }
+
+        /// <summary>
+        /// Spawns cluster children based on mode (normal vs Hurricane).
+        /// Only triggers once per projectile lifetime.
+        /// </summary>
+        private void SpawnClusterChildren()
+        {
+            if (_hasClusterSplit) return;
+            _hasClusterSplit = true;
+
+            bool isHurricane = Projectile.ai[0] == 1f;
+
+            try
+            {
+                // Both modes: spawn 3 homing child orbs scattering outward
+                for (int i = 0; i < 3; i++)
+                {
+                    float angle = MathHelper.TwoPi / 3f * i + Main.rand.NextFloat(-0.3f, 0.3f);
+                    Vector2 childVel = angle.ToRotationVector2() * Main.rand.NextFloat(5f, 8f);
+                    GenericHomingOrbChild.SpawnChild(
+                        Projectile.GetSource_FromThis(),
+                        Projectile.Center, childVel,
+                        Projectile.damage / 3, Projectile.knockBack * 0.5f, Projectile.owner,
+                        homingStrength: 0.04f,
+                        behaviorFlags: 0,
+                        themeIndex: GenericHomingOrbChild.THEME_ODETOJOY,
+                        scaleMult: 0.7f,
+                        timeLeft: 45);
+                }
+
+                // Hurricane mode: also spawn a pull damage zone
+                if (isHurricane)
+                {
+                    GenericDamageZone.SpawnZone(
+                        Projectile.GetSource_FromThis(),
+                        Projectile.Center, Projectile.damage / 2, Projectile.knockBack, Projectile.owner,
+                        GenericDamageZone.FLAG_PULL,
+                        150f,
+                        GenericHomingOrbChild.THEME_ODETOJOY,
+                        durationFrames: 180);
+                }
+            }
+            catch { }
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -116,6 +170,9 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon.Projectiles
 
         public override void OnKill(int timeLeft)
         {
+            // Also trigger cluster split on death (e.g., from timeLeft expiring)
+            SpawnClusterChildren();
+
             for (int i = 0; i < 4; i++)
             {
                 Vector2 sparkVel = Main.rand.NextVector2CircularEdge(3f, 3f);

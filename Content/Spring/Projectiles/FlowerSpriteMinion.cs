@@ -6,6 +6,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameContent;
+using Terraria.Graphics;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
@@ -406,11 +407,12 @@ namespace MagnumOpus.Content.Spring.Projectiles
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringYellow = new Color(255, 255, 180);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
+        private VertexStrip _strip;
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 5;
-            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
         public override void SetDefaults()
@@ -488,8 +490,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Use procedural VFX system - Spring pollen bolt effect
-            ProceduralProjectileVFX.DrawSpringProjectile(Main.spriteBatch, Projectile, 0.3f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Spring, ref _strip);
             }
             catch { }
             finally
@@ -498,7 +499,6 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
     }
@@ -510,6 +510,13 @@ namespace MagnumOpus.Content.Spring.Projectiles
     {
         private static readonly Color SpringYellow = new Color(255, 255, 180);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
+        private VertexStrip _strip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+        }
 
         public override void SetDefaults()
         {
@@ -553,9 +560,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Use procedural VFX system - Spring pollen cloud effect
-            float alpha = 1f - (float)Projectile.alpha / 255f;
-            ProceduralProjectileVFX.DrawSpringProjectile(Main.spriteBatch, Projectile, 0.5f * alpha);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Spring, ref _strip);
             }
             catch { }
             finally
@@ -564,7 +569,6 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
     }
@@ -577,11 +581,12 @@ namespace MagnumOpus.Content.Spring.Projectiles
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringYellow = new Color(255, 255, 180);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
+        private VertexStrip _strip;
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 6;
-            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
         public override void SetDefaults()
@@ -645,8 +650,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Use procedural VFX system - Spring sync petal effect
-            ProceduralProjectileVFX.DrawSpringProjectile(Main.spriteBatch, Projectile, 0.4f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Spring, ref _strip);
             }
             catch { }
             finally
@@ -655,7 +659,6 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
     }

@@ -3,10 +3,11 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
 using Terraria.ID;
+using Terraria.Graphics;
 using Terraria.ModLoader;
 using MagnumOpus.Common.Systems;
-using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Common.Systems.Particles;
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
 
 namespace MagnumOpus.Content.Seasons.Projectiles
@@ -19,6 +20,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     public class SeasonalArrow : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Trails/spark_06";
+        private VertexStrip _strip;
         
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
@@ -74,7 +76,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 12;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -331,20 +333,14 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            try
+            var config = SeasonIndex switch
             {
-            // Procedural seasonal rendering - dynamically selects season based on ai[0]
-            ProceduralProjectileVFX.DrawSeasonalProjectile(Main.spriteBatch, Projectile, SeasonIndex, 0.55f);
-            }
-            catch { }
-            finally
-            {
-                try { sb.End(); } catch { }
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-            }
-
+                0 => IncisorOrbRenderer.Spring,
+                1 => IncisorOrbRenderer.Summer,
+                2 => IncisorOrbRenderer.Autumn,
+                _ => IncisorOrbRenderer.Winter,
+            };
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, config, ref _strip);
             return false;
         }
 
@@ -418,6 +414,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     public class SeasonalHomingPetalProjectile : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
+        private VertexStrip _strip;
         
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
@@ -429,7 +426,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 10;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -597,20 +594,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            try
-            {
-            // Procedural Spring rendering - cherry blossom pink and green
-            ProceduralProjectileVFX.DrawSpringProjectile(Main.spriteBatch, Projectile, 0.4f);
-            }
-            catch { }
-            finally
-            {
-                try { sb.End(); } catch { }
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-            }
-
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.Spring, ref _strip);
             return false;
         }
 
@@ -674,6 +658,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     public class SummerArrowFlareProjectile : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
+        private VertexStrip _strip;
         
         // Summer hue range: orange/gold (0.08-0.14)
         private const float HueMin = 0.08f;
@@ -685,7 +670,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 10;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
         }
 
@@ -837,20 +822,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            try
-            {
-            // Procedural Summer rendering - solar flare gold and orange
-            ProceduralProjectileVFX.DrawSummerProjectile(Main.spriteBatch, Projectile, 0.5f);
-            }
-            catch { }
-            finally
-            {
-                try { sb.End(); } catch { }
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-            }
-
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.Summer, ref _strip);
             return false;
         }
 
@@ -926,6 +898,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
     public class DecayZoneProjectile : ModProjectile
     {
         public override string Texture => "MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft";
+        private VertexStrip _strip;
         
         // Autumn hue range: orange/brown (0.06-0.12)
         private const float HueMin = 0.06f;
@@ -934,6 +907,12 @@ namespace MagnumOpus.Content.Seasons.Projectiles
         private static readonly Color AutumnOrange = new Color(255, 140, 50);
         private static readonly Color AutumnBrown = new Color(139, 90, 43);
         private static readonly Color AutumnGold = new Color(218, 165, 32);
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -1090,20 +1069,7 @@ namespace MagnumOpus.Content.Seasons.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            SpriteBatch sb = Main.spriteBatch;
-            try
-            {
-            // Procedural Autumn rendering - decay zone with harvest colors
-            ProceduralProjectileVFX.DrawAutumnProjectile(Main.spriteBatch, Projectile, 0.65f);
-            }
-            catch { }
-            finally
-            {
-                try { sb.End(); } catch { }
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-            }
-
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.Autumn, ref _strip);
             return false;
         }
 

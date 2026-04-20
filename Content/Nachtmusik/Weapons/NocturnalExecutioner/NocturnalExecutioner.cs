@@ -54,16 +54,10 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner
 
         public override bool CanShoot(Player player)
         {
-            bool isDash = player.altFunctionUse == 2;
-            for (int i = 0; i < Main.maxProjectiles; i++)
-            {
-                Projectile p = Main.projectile[i];
-                if (!p.active || p.owner != player.whoAmI || p.type != Item.shoot)
-                    continue;
-                if (isDash) return false;
-                if (!(p.ai[0] == 1 && p.ai[1] == 1)) return false;
-            }
-            return true;
+            if (player.altFunctionUse == 2)
+                return true;
+
+            return player.ownedProjectileCounts[Item.shoot] <= 0;
         }
 
         public override void HoldItem(Player player)
@@ -87,29 +81,12 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner
                 {
                     ep.ConsumeCharge();
                     SoundEngine.PlaySound(SoundID.Item29 with { Pitch = -0.5f }, player.Center);
-                    if (!Main.dayTime)
-                    {
-                        // Nighttime: massive damage marker on all nearby enemies
-                        foreach (NPC npc in Main.ActiveNPCs)
-                        {
-                            if (!npc.CanBeChasedBy() || Vector2.Distance(npc.Center, player.Center) > 1000f) continue;
-                            Projectile.NewProjectile(source, npc.Center, Vector2.Zero,
-                                ModContent.ProjectileType<NocturnalExecutionerSpecialProj>(),
-                                damage * 3, knockback, player.whoAmI);
-                        }
-                    }
-                    else
-                    {
-                        // Daytime: spawn 5 seeking void orbs
-                        for (int i = 0; i < 5; i++)
-                        {
-                            Vector2 offset = Main.rand.NextVector2CircularEdge(100f, 100f);
-                            Vector2 orbVel = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX) * 8f;
-                            Projectile.NewProjectile(source, player.Center + offset, orbVel,
-                                ModContent.ProjectileType<NocturnalExecutionerSpecialProj>(),
-                                damage * 2, knockback, player.whoAmI);
-                        }
-                    }
+
+                    // Always fire VoidRift at cursor regardless of time
+                    Vector2 toCursor = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX);
+                    Projectile.NewProjectile(source, Main.MouseWorld, Vector2.Zero,
+                        ModContent.ProjectileType<VoidRiftProjectile>(),
+                        damage * 3, knockback, player.whoAmI, toCursor.ToRotation());
                 }
                 else
                     SoundEngine.PlaySound(SoundID.Item16 with { Pitch = 0.5f, Volume = 0.5f }, player.Center);

@@ -1,5 +1,6 @@
 using MagnumOpus.Common;
 using MagnumOpus.Common.Systems.UI;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.ClairDeLune;
 using MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer.Projectiles;
 using MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer.Utilities;
@@ -53,16 +54,10 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer
 
         public override bool CanShoot(Player player)
         {
-            bool isDash = player.altFunctionUse == 2;
-            for (int i = 0; i < Main.maxProjectiles; i++)
-            {
-                Projectile p = Main.projectile[i];
-                if (!p.active || p.owner != player.whoAmI || p.type != Item.shoot)
-                    continue;
-                if (isDash) return false;
-                if (!(p.ai[0] == 1 && p.ai[1] == 1)) return false;
-            }
-            return true;
+            if (player.altFunctionUse == 2)
+                return true;
+
+            return player.ownedProjectileCounts[Item.shoot] <= 0;
         }
 
         public override void HoldItem(Player player)
@@ -104,6 +99,16 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer
                             (int)(damage * 1.5f), knockback, player.whoAmI);
                         player.statLife = System.Math.Min(player.statLife + player.statLifeMax2 * 15 / 100, player.statLifeMax2);
                         player.HealEffect(player.statLifeMax2 * 15 / 100);
+
+                        // Temporal Rift orb — aggressive homing, spawns damage zone on impact
+                        Vector2 orbVel = (target.Center - player.Center).SafeNormalize(Vector2.UnitX) * 12f;
+                        GenericHomingOrbChild.SpawnChild(
+                            source, target.Center, orbVel,
+                            (int)(damage * 1.2f), knockback, player.whoAmI,
+                            homingStrength: 0.10f,
+                            behaviorFlags: GenericHomingOrbChild.FLAG_ZONE_ON_KILL,
+                            themeIndex: GenericHomingOrbChild.THEME_CLAIRDELUNE,
+                            scaleMult: 1.2f);
                     }
                 }
                 else
@@ -122,9 +127,9 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer
             tooltips.Add(new TooltipLine(Mod, "Effect1",
             "Temporal Puncture — ultra-precise rapier thrusts that pierce the veil of time"));
             tooltips.Add(new TooltipLine(Mod, "Effect2",
-            "Successive hits build temporal marks that shatter into frozen moments"));
+            "Each hit spawns a temporal echo orb that reverses direction and homes to enemies at 60% damage"));
             tooltips.Add(new TooltipLine(Mod, "Effect3",
-            "Right-click to perform a Time-Pierce Lunge through enemies"));
+            "Right-click to perform a Time-Pierce Lunge that fires a rift orb creating a slowing damage zone"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'Five marks upon the hours. And when the fifth chimes \u2014 the moment freezes.'")
             { OverrideColor = ClairDeLunePalette.LoreText });

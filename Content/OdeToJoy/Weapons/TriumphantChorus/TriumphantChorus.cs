@@ -42,7 +42,19 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             player.AddBuff(Item.buffType, 2);
-            Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
+
+            // Count existing chorus minions to determine voice index (0-3)
+            int minionType = ModContent.ProjectileType<TriumphantChorusMinion>();
+            int voiceCount = 0;
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile p = Main.projectile[i];
+                if (p.active && p.owner == player.whoAmI && p.type == minionType)
+                    voiceCount++;
+            }
+            int voiceIndex = voiceCount % 4; // 0=Soprano, 1=Alto, 2=Tenor, 3=Bass
+
+            Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI, ai0: voiceIndex);
             return false;
         }
 

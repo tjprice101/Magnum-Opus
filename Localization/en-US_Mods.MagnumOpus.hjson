@@ -8245,6 +8245,9 @@ Projectiles: {
 	SentinelFrostBolt.DisplayName: Sentinel Frost Bolt
 	StormIcicle.DisplayName: Storm Icicle
 	GlacialExecutionerSwing.DisplayName: Glacial Executioner Swing
+	SinExpendProjectile.DisplayName: Sin Expend Projectile
+	GenericHomingOrbChild.DisplayName: Generic Homing Orb Child
+	GenericDamageZone.DisplayName: Generic Damage Zone
 }
 
 Keybinds: {

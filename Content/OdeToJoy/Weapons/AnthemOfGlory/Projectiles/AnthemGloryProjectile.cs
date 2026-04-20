@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -24,6 +25,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory.Projectiles
         private Player Owner => Main.player[Projectile.owner];
         private bool _initialized;
         private VertexStrip _strip;
+        private int _gloryNoteTimer;
 
         public override string Texture => "MagnumOpus/Content/OdeToJoy/Weapons/AnthemOfGlory/AnthemOfGlory";
 
@@ -54,24 +56,66 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory.Projectiles
                 Projectile.rotation = Projectile.velocity.ToRotation();
             }
 
-            // Glory Charge: accelerates, then late-stage homing activates
-            Projectile.ai[0]++;
-            if (Projectile.ai[0] > 40f)
+            // Read channel progress from ai[0] (0-1)
+            float channelProgress = Projectile.ai[0];
+
+            // Scale based on channel progress: 1x to 2x
+            Projectile.scale = 1f + channelProgress;
+
+            // Glory Charge: accelerates, speed cap based on channel progress
+            float maxSpeed = 16f + channelProgress * 6f; // 16-22 based on channel
+
+            // Homing activates for channel progress > 0.3
+            if (channelProgress > 0.3f)
             {
+                float homingStr = MathHelper.Lerp(0.03f, HomingStrength, (channelProgress - 0.3f) / 0.7f);
                 NPC target = Projectile.Center.ClosestNPCAt(HomingRange);
                 if (target != null)
                 {
                     Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), 0.08f);
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), homingStr);
                 }
             }
 
-            if (Projectile.velocity.Length() < 22f)
+            if (Projectile.velocity.Length() < maxSpeed)
                 Projectile.velocity *= 1.02f;
-            if (Projectile.velocity.Length() > 22f)
-                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * 22f;
+            if (Projectile.velocity.Length() > maxSpeed)
+                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * maxSpeed;
 
             Projectile.rotation = Projectile.velocity.ToRotation();
+
+            // Glory Note children: spawn homing child every 120 AI ticks (~2s)
+            _gloryNoteTimer++;
+            if (_gloryNoteTimer >= 120 && Main.myPlayer == Projectile.owner)
+            {
+                _gloryNoteTimer = 0;
+
+                // Find a target different from current homing target
+                NPC childTarget = null;
+                float bestDist = 500f;
+                foreach (NPC npc in Main.ActiveNPCs)
+                {
+                    if (!npc.CanBeChasedBy()) continue;
+                    float dist = Vector2.Distance(Projectile.Center, npc.Center);
+                    if (dist < bestDist)
+                    {
+                        bestDist = dist;
+                        childTarget = npc;
+                    }
+                }
+
+                if (childTarget != null)
+                {
+                    Vector2 childVel = (childTarget.Center - Projectile.Center).SafeNormalize(Vector2.UnitX) * 8f;
+                    GenericHomingOrbChild.SpawnChild(
+                        Projectile.GetSource_FromThis(),
+                        Projectile.Center, childVel,
+                        Projectile.damage / 2, Projectile.knockBack * 0.5f, Projectile.owner,
+                        homingStrength: 0.08f, behaviorFlags: 0,
+                        themeIndex: GenericHomingOrbChild.THEME_ODETOJOY,
+                        scaleMult: 0.7f, timeLeft: 90);
+                }
+            }
 
             if (Main.rand.NextBool(3))
             {
@@ -90,6 +134,12 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory.Projectiles
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            // Track kills for Victory Fanfare
+            if (target.life <= 0 && Projectile.owner == Main.myPlayer)
+            {
+                try { Main.player[Projectile.owner].AnthemOfGlory().RegisterKill(); } catch { }
+            }
+
             Vector2 hitPos = target.Center;
             for (int i = 0; i < 6; i++)
             {

@@ -72,9 +72,12 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.GearDrivenArbiter
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Summon", "Summons a Gear-Driven Arbiter clockwork construct"));
-            tooltips.Add(new TooltipLine(Mod, "Behavior", "Fires spinning gear projectiles at nearby enemies"));
-            tooltips.Add(new TooltipLine(Mod, "Judgment", "Temporal Judgment: gears apply verdict stacks (8 stacks → Arbiter's Verdict for 5x damage)"));
-            tooltips.Add(new TooltipLine(Mod, "Court", "Clockwork Court: 3+ Arbiters fire coordinated barrages every 8s (+30% damage)"));
+            tooltips.Add(new TooltipLine(Mod, "Behavior", "Fires homing orbs that apply verdict stacks to enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Stack2", "2+ stacks: orbs gain aggressive homing"));
+            tooltips.Add(new TooltipLine(Mod, "Stack4", "4+ stacks: orbs pierce through enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Stack6", "6+ stacks: orbs gain 30% bonus speed"));
+            tooltips.Add(new TooltipLine(Mod, "Judgment", "8 stacks: Arbiter's Verdict deals 5x damage and resets stacks"));
+            tooltips.Add(new TooltipLine(Mod, "Decay", "Stacks decay by 1 every 3 seconds if not refreshed"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'A court of gears that judges in silence.'")
             {
                 OverrideColor = ClairDeLunePalette.LoreText

@@ -52,16 +52,10 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver
 
         public override bool CanShoot(Player player)
         {
-            bool isDash = player.altFunctionUse == 2;
-            for (int i = 0; i < Main.maxProjectiles; i++)
-            {
-                Projectile p = Main.projectile[i];
-                if (!p.active || p.owner != player.whoAmI || p.type != Item.shoot)
-                    continue;
-                if (isDash) return false;
-                if (!(p.ai[0] == 1 && p.ai[1] == 1)) return false;
-            }
-            return true;
+            if (player.altFunctionUse == 2)
+                return true;
+
+            return player.ownedProjectileCounts[Item.shoot] <= 0;
         }
 
         public override void HoldItem(Player player)
@@ -78,25 +72,21 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
             Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            var wp = player.GetModPlayer<WrathsCleaverPlayer>();
+
             if (player.altFunctionUse == 2)
             {
-                var wp = player.GetModPlayer<WrathsCleaverPlayer>();
-                if (wp.IsChargeFull)
+                // Right-click dash: 1 orb straight ahead at 2x speed, pierce all, short life
+                SoundEngine.PlaySound(SoundID.Item45 with { Pitch = -0.3f }, player.Center);
+                Vector2 aimDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
+                Vector2 dashVel = aimDir * Item.shootSpeed * 2f;
+                int projIdx = Projectile.NewProjectile(source, player.MountedCenter, dashVel,
+                    ModContent.ProjectileType<Projectiles.WrathsCleaverSpecialProj>(),
+                    (int)(damage * 0.5f), knockback * 0.5f, player.whoAmI, ai0: -1f);
+                if (projIdx >= 0 && projIdx < Main.maxProjectiles)
                 {
-                    wp.ConsumeCharge();
-                    SoundEngine.PlaySound(SoundID.Item45 with { Pitch = -0.3f }, player.Center);
-                    Vector2 aimDir = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
-                    for (int i = 0; i < 8; i++)
-                    {
-                        Vector2 vel = aimDir.RotatedBy(MathHelper.ToRadians(-28 + 8 * i)) * 14f;
-                        Projectile.NewProjectile(source, player.MountedCenter, vel,
-                            ModContent.ProjectileType<Projectiles.WrathsCleaverSpecialProj>(),
-                            (int)(damage * 0.5f), knockback * 0.5f, player.whoAmI);
-                    }
-                }
-                else
-                {
-                    SoundEngine.PlaySound(SoundID.Item16 with { Pitch = 0.5f, Volume = 0.5f }, player.Center);
+                    Main.projectile[projIdx].penetrate = -1;
+                    Main.projectile[projIdx].timeLeft = 40;
                 }
                 return false;
             }
@@ -106,6 +96,55 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver
             Projectile.NewProjectile(source, player.MountedCenter,
                 (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
                 type, damage, knockback, player.whoAmI, state, 0);
+
+            // Wrath Escalation: fire orbs based on combo phase
+            int phase = wp.comboCounter;
+            Vector2 aimDirection = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX);
+            float baseSpeed = Item.shootSpeed;
+            int orbDamage = (int)(damage * 0.4f);
+            float orbKB = knockback * 0.5f;
+            int specialType = ModContent.ProjectileType<Projectiles.WrathsCleaverSpecialProj>();
+
+            switch (phase)
+            {
+                case 0:
+                    // Phase 1: 1 orb, straight shot, no homing — the warning
+                    Projectile.NewProjectile(source, player.MountedCenter,
+                        aimDirection * baseSpeed, specialType,
+                        orbDamage, orbKB, player.whoAmI, ai0: 0f);
+                    break;
+
+                case 1:
+                    // Phase 2: 2 orbs, mild homing — judgment approaches
+                    for (int i = 0; i < 2; i++)
+                    {
+                        float angle = MathHelper.ToRadians(-7f + 14f * i);
+                        Vector2 vel = aimDirection.RotatedBy(angle) * baseSpeed;
+                        Projectile.NewProjectile(source, player.MountedCenter, vel,
+                            specialType, orbDamage, orbKB, player.whoAmI, ai0: 1f);
+                    }
+                    break;
+
+                case 2:
+                    // Phase 3: 3 orbs, standard homing, pierce 1 — judgment weighs
+                    for (int i = 0; i < 3; i++)
+                    {
+                        float angle = MathHelper.ToRadians(-10f + 10f * i);
+                        Vector2 vel = aimDirection.RotatedBy(angle) * baseSpeed;
+                        Projectile.NewProjectile(source, player.MountedCenter, vel,
+                            specialType, orbDamage, orbKB, player.whoAmI, ai0: 2f);
+                    }
+                    break;
+
+                case 3:
+                    // Phase 4: 1 orb, aggressive homing, on-hit splits — judgment rendered
+                    Projectile.NewProjectile(source, player.MountedCenter,
+                        aimDirection * baseSpeed, specialType,
+                        orbDamage, orbKB, player.whoAmI, ai0: 3f);
+                    break;
+            }
+
+            wp.IncrementCombo();
             return false;
         }
 

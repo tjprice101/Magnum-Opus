@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using System;
 using System.Collections.Generic;
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.Nachtmusik;
 using MagnumOpus.Content.Nachtmusik.Weapons.StarweaversGrimoire.Projectiles;
 
@@ -54,8 +55,25 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.StarweaversGrimoire
         {
             if (player.altFunctionUse == 2)
             {
-                // Tapestry Weave: activate all placed nodes into a damaging constellation web
+                // Tapestry Weave: activate all placed nodes — each fires a homing child toward cursor
                 weaveNodeCount = 0;
+                int orbType = ModContent.ProjectileType<StarweaverOrbProjectile>();
+                Vector2 cursorWorld = Main.MouseWorld;
+                for (int i = 0; i < Main.maxProjectiles; i++)
+                {
+                    Projectile p = Main.projectile[i];
+                    if (!p.active || p.owner != player.whoAmI || p.type != orbType) continue;
+                    if (p.localAI[0] != 1f) continue; // Not a node
+
+                    Vector2 dir = (cursorWorld - p.Center).SafeNormalize(Vector2.UnitX) * 10f;
+                    GenericHomingOrbChild.SpawnChild(
+                        player.GetSource_FromThis(),
+                        p.Center, dir,
+                        (int)(Item.damage * player.GetTotalDamage(DamageClass.Magic).ApplyTo(1f) * 0.6f),
+                        Item.knockBack * 0.5f, player.whoAmI,
+                        0.08f, GenericHomingOrbChild.FLAG_ACCELERATE, GenericHomingOrbChild.THEME_NACHTMUSIK,
+                        0.8f, 75);
+                }
             }
             return base.UseItem(player);
         }
@@ -192,9 +210,10 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.StarweaversGrimoire
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires weaving star orbs that place arcane constellation nodes"));
-            tooltips.Add(new TooltipLine(Mod, "Effect2", "Every 4th cast fires a bonus seeking orb"));
-            tooltips.Add(new TooltipLine(Mod, "Effect3", "Right click unleashes Tapestry Weave ? a burst of 6 star bolts at 150% damage"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires star orbs that decelerate into constellation nodes (max 8)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Nodes tether to nearby nodes, damaging enemies crossing the lines"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Every 4th cast fires a bonus seeking orb"));
+            tooltips.Add(new TooltipLine(Mod, "Effect4", "Right click unleashes Tapestry Weave — nodes fire homing bolts toward cursor, plus a burst of 6 star seekers"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'She opened the book and read the sky. Every star rearranged itself to listen.'")
             {
                 OverrideColor = NachtmusikPalette.LoreText

@@ -9,6 +9,7 @@ using Terraria.DataStructures;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
 using MagnumOpus.Common.Systems.VFX;
+using Terraria.Graphics;
 
 // Dynamic particle effects for aesthetically pleasing animations
 using static MagnumOpus.Common.Systems.DynamicParticleEffects;
@@ -29,10 +30,12 @@ namespace MagnumOpus.Content.Winter.Projectiles
         private static readonly Color CrystalCyan = new Color(100, 255, 255);
         private static readonly Color DeepBlue = new Color(60, 90, 180);
 
+        private VertexStrip _strip;
+
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 8;
-            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
         public override void SetDefaults()
@@ -172,8 +175,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Use procedural VFX system - Winter frost bolt effect
-            ProceduralProjectileVFX.DrawWinterProjectile(Main.spriteBatch, Projectile, 0.35f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Winter, ref _strip);
             }
             catch { }
             finally
@@ -182,7 +184,6 @@ namespace MagnumOpus.Content.Winter.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
 
@@ -227,6 +228,13 @@ namespace MagnumOpus.Content.Winter.Projectiles
         private static readonly Color GlacialPurple = new Color(120, 130, 200);
 
         private const float StormRadius = 180f;
+        private VertexStrip _strip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+        }
 
         public override void SetDefaults()
         {
@@ -351,8 +359,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Use procedural VFX system - Winter ice storm halo effect
-            ProceduralProjectileVFX.DrawWinterProjectile(Main.spriteBatch, Projectile, Projectile.scale * 1.2f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Winter, ref _strip);
             }
             catch { }
             finally
@@ -361,7 +368,6 @@ namespace MagnumOpus.Content.Winter.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
 
@@ -405,10 +411,12 @@ namespace MagnumOpus.Content.Winter.Projectiles
         private static readonly Color FrostWhite = new Color(240, 250, 255);
         private static readonly Color CrystalCyan = new Color(100, 255, 255);
 
+        private VertexStrip _strip;
+
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 5;
-            ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
         public override void SetDefaults()
@@ -466,8 +474,7 @@ namespace MagnumOpus.Content.Winter.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            // Use procedural VFX system - Winter icicle effect
-            ProceduralProjectileVFX.DrawWinterProjectile(Main.spriteBatch, Projectile, 0.18f);
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Winter, ref _strip);
             }
             catch { }
             finally
@@ -476,7 +483,6 @@ namespace MagnumOpus.Content.Winter.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
 

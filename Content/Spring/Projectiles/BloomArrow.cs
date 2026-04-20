@@ -4,8 +4,10 @@ using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Graphics;
 using MagnumOpus.Common.Systems;
 using MagnumOpus.Common.Systems.Particles;
+using MagnumOpus.Common.Systems.VFX;
 using Terraria.GameContent;
 
 // Dynamic particle effects for aesthetically pleasing animations
@@ -27,6 +29,13 @@ namespace MagnumOpus.Content.Spring.Projectiles
         private bool hasSplit = false;
         private float[] orbitAngles = new float[5];
         private float arrowRotation;
+        private VertexStrip _strip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+        }
 
         public override void SetDefaults()
         {
@@ -240,46 +249,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-
-            Texture2D spriteTex = TextureAssets.Projectile[Projectile.type].Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
-
-            Vector2 spriteOrigin = spriteTex.Size() / 2f;
-            Vector2 glowOrigin = glowTex.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            // Squishy dynamics - arrow stretches along velocity
-            float pulse = (float)Math.Sin(Projectile.timeLeft * 0.15f) * 0.1f + 1f;
-            float speed = Projectile.velocity.Length();
-            float stretch = MathHelper.Clamp(speed * 0.015f, 0f, 0.2f);
-            Vector2 squishScale = new Vector2(1f - stretch * 0.6f, 1f + stretch) * pulse;
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // ORBITING PETALS - small glow blooms spin around the arrow
-            for (int i = 0; i < orbitAngles.Length; i++)
-            {
-                float orbitRadius = 14f + (float)Math.Sin(arrowRotation + i * 1.2f) * 3f;
-                Vector2 petalPos = drawPos + orbitAngles[i].ToRotationVector2() * orbitRadius;
-                float petalProgress = (float)i / orbitAngles.Length;
-                Color petalColor = Color.Lerp(SpringPink, SpringWhite, petalProgress);
-                sb.Draw(glowTex, petalPos, null, (petalColor * 0.5f) with { A = 0 }, 0f, glowOrigin, 0.08f, SpriteEffects.None, 0f);
-            }
-
-            // Outer bloom glow - merges sprite into soft halo
-            sb.Draw(glowTex, drawPos, null, (SpringPink * 0.3f) with { A = 0 }, 0f, glowOrigin, 0.5f * pulse, SpriteEffects.None, 0f);
-            sb.Draw(glowTex, drawPos, null, (SpringLavender * 0.25f) with { A = 0 }, 0f, glowOrigin, 0.35f * pulse, SpriteEffects.None, 0f);
-
-            // Hot inner core - additive glow overlay
-            sb.Draw(spriteTex, drawPos, null, (SpringWhite * 0.45f) with { A = 0 }, Projectile.rotation, spriteOrigin, squishScale * 0.5f, SpriteEffects.None, 0f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Core sprite - solid bloom arrow art, clearly visible
-            sb.Draw(spriteTex, drawPos, null, Color.White, Projectile.rotation, spriteOrigin, squishScale * 1.2f, SpriteEffects.None, 0f);
-
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Spring, ref _strip);
             }
             catch { }
             finally
@@ -288,7 +258,6 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
 
@@ -336,6 +305,13 @@ namespace MagnumOpus.Content.Spring.Projectiles
         private static readonly Color SpringWhite = new Color(255, 250, 250);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
         private float petalSpin;
+        private VertexStrip _strip;
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+        }
 
         public override void SetDefaults()
         {
@@ -474,45 +450,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-
-            Texture2D spriteTex = TextureAssets.Projectile[Projectile.type].Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
-
-            Vector2 spriteOrigin = spriteTex.Size() / 2f;
-            Vector2 glowOrigin = glowTex.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            float pulse = (float)Math.Sin(Projectile.timeLeft * 0.12f) * 0.12f + 1f;
-            float speed = Projectile.velocity.Length();
-            float stretch = MathHelper.Clamp(speed * 0.01f, 0f, 0.12f);
-            Vector2 squishScale = new Vector2(1f - stretch, 1f + stretch) * pulse;
-            Color drawColor = Color.Lerp(SpringPink, SpringWhite, (float)Math.Sin(Projectile.timeLeft * 0.1f) * 0.5f + 0.5f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Shimmer trail with sprite afterimages
-            for (int i = 1; i < 4; i++)
-            {
-                float trailProgress = i / 4f;
-                Vector2 trailPos = drawPos - Projectile.velocity.SafeNormalize(Vector2.Zero) * i * 6f;
-                Color trailColor = Color.Lerp(SpringPink, SpringGreen, trailProgress) * (1f - trailProgress) * 0.4f;
-                sb.Draw(spriteTex, trailPos, null, trailColor with { A = 0 }, Projectile.rotation, spriteOrigin, 0.6f * (1f - trailProgress * 0.4f), SpriteEffects.None, 0f);
-                sb.Draw(glowTex, trailPos, null, (trailColor * 0.5f) with { A = 0 }, 0f, glowOrigin, 0.15f * (1f - trailProgress * 0.5f), SpriteEffects.None, 0f);
-            }
-
-            // Outer bloom halo
-            sb.Draw(glowTex, drawPos, null, (drawColor * 0.35f) with { A = 0 }, 0f, glowOrigin, 0.4f * pulse, SpriteEffects.None, 0f);
-
-            // Hot core overlay - additive glow
-            sb.Draw(spriteTex, drawPos, null, (SpringWhite * 0.45f) with { A = 0 }, Projectile.rotation, spriteOrigin, squishScale * 0.45f, SpriteEffects.None, 0f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // Core sprite - solid homing petal, clearly visible
-            sb.Draw(spriteTex, drawPos, null, Color.White, Projectile.rotation, spriteOrigin, squishScale * 1.3f, SpriteEffects.None, 0f);
-
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Spring, ref _strip);
             }
             catch { }
             finally
@@ -521,7 +459,6 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
 
@@ -544,9 +481,15 @@ namespace MagnumOpus.Content.Spring.Projectiles
         private static readonly Color SpringPink = new Color(255, 183, 197);
         private static readonly Color SpringGreen = new Color(144, 238, 144);
         private float flowerRotation;
-        private float[] petalAngles = new float[6];
+        private VertexStrip _strip;
 
-        public override string Texture => "MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+        }
 
         public override void SetDefaults()
         {
@@ -563,13 +506,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
         public override void AI()
         {
             flowerRotation += 0.02f;
-            
-            // Update petal angles
-            for (int i = 0; i < petalAngles.Length; i++)
-            {
-                petalAngles[i] += 0.03f + i * 0.005f;
-            }
-            
+
             Player owner = Main.player[Projectile.owner];
 
             // Check if player is nearby
@@ -610,44 +547,7 @@ namespace MagnumOpus.Content.Spring.Projectiles
             SpriteBatch sb = Main.spriteBatch;
             try
             {
-            
-            Texture2D haloTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
-            Texture2D petalTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/Particles Asset Library/Stars/4PointedStarSoft", AssetRequestMode.ImmediateLoad).Value;
-            Texture2D glowTex = ModContent.Request<Texture2D>("MagnumOpus/Assets/SandboxLastPrism/Orbs/SoftGlow", AssetRequestMode.ImmediateLoad).Value;
-            
-            Vector2 haloOrigin = haloTex.Size() / 2f;
-            Vector2 petalOrigin = petalTex.Size() / 2f;
-            Vector2 glowOrigin = glowTex.Size() / 2f;
-            Vector2 drawPos = Projectile.Center - Main.screenPosition;
-
-            float pulse = (float)Math.Sin(Projectile.timeLeft * 0.1f) * 0.15f + 1f;
-            float alpha = Projectile.timeLeft > 60 ? 1f : Projectile.timeLeft / 60f;
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            // ORBITING PETALS - 6 petals form a flower shape
-            for (int i = 0; i < petalAngles.Length; i++)
-            {
-                float orbitRadius = 18f + (float)Math.Sin(flowerRotation * 2f + i * 0.8f) * 4f;
-                Vector2 petalPos = drawPos + petalAngles[i].ToRotationVector2() * orbitRadius;
-                float petalProgress = (float)i / petalAngles.Length;
-                Color petalColor = Color.Lerp(SpringPink, SpringGreen, petalProgress);
-                sb.Draw(petalTex, petalPos, null, (petalColor * 0.6f * alpha) with { A = 0 }, petalAngles[i], petalOrigin, 0.15f * pulse, SpriteEffects.None, 0f);
-            }
-
-            // GREEN HEALING HALO - Outer ring (SoftGlow 512px)
-            sb.Draw(haloTex, drawPos, null, (SpringGreen * 0.35f * alpha) with { A = 0 }, flowerRotation, haloOrigin, MathHelper.Min(1.688f * pulse, 0.586f), SpriteEffects.None, 0f);
-            
-            // PINK FLOWER CENTER - Core halo
-            sb.Draw(haloTex, drawPos, null, (SpringPink * 0.5f * alpha) with { A = 0 }, -flowerRotation * 0.5f, haloOrigin, MathHelper.Min(1.055f * pulse, 0.586f), SpriteEffects.None, 0f);
-            
-            // WHITE HEALING CORE
-            sb.Draw(glowTex, drawPos, null, (Color.White * 0.4f * alpha) with { A = 0 }, 0f, glowOrigin, 0.18f * pulse, SpriteEffects.None, 0f);
-
-            sb.End();
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
+                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.Spring, ref _strip);
             }
             catch { }
             finally
@@ -656,7 +556,6 @@ namespace MagnumOpus.Content.Spring.Projectiles
                 sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
                     DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
             }
-
             return false;
         }
 

@@ -1,5 +1,7 @@
 using MagnumOpus.Common;
+using MagnumOpus.Common.Systems.VFX;
 using MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles;
+using MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -39,7 +41,55 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
+            var hymnPlayer = player.HymnOfTheVictorious();
+            int verse = hymnPlayer.currentVerse;
+            bool hymnResonance = hymnPlayer.completedCycles >= 3;
+            int bonusOrbs = hymnResonance ? 1 : 0;
+
+            switch (verse)
+            {
+                case 0: // Exordium: 1 orb (+ bonus)
+                    for (int i = 0; i < 1 + bonusOrbs; i++)
+                    {
+                        Vector2 vel = velocity.RotatedByRandom(MathHelper.ToRadians(3f * i));
+                        Projectile.NewProjectile(source, position, vel, type, damage, knockback, player.whoAmI, ai0: 0f, ai1: 0f);
+                    }
+                    break;
+
+                case 1: // Rising: 2 orbs at +/-5 degrees (+ bonus)
+                    for (int i = 0; i < 2 + bonusOrbs; i++)
+                    {
+                        float angleOffset = (i < 2) ? ((i == 0 ? -1f : 1f) * MathHelper.ToRadians(5f)) : MathHelper.ToRadians(2f * (i - 1));
+                        Projectile.NewProjectile(source, position, velocity.RotatedBy(angleOffset), type, damage, knockback, player.whoAmI, ai0: 1f, ai1: 0f);
+                    }
+                    break;
+
+                case 2: // Apex: 3 orbs at +/-8 degrees and center (+ bonus)
+                    for (int i = 0; i < 3 + bonusOrbs; i++)
+                    {
+                        float angleOffset = i switch
+                        {
+                            0 => MathHelper.ToRadians(-8f),
+                            1 => 0f,
+                            2 => MathHelper.ToRadians(8f),
+                            _ => MathHelper.ToRadians(4f * (i - 2)),
+                        };
+                        Projectile.NewProjectile(source, position, velocity.RotatedBy(angleOffset), type, damage, knockback, player.whoAmI, ai0: 2f, ai1: 0f);
+                    }
+                    break;
+
+                case 3: // Gloria: 1 special orb with ai[1]=1 flag (+ bonus normal)
+                    Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI, ai0: 3f, ai1: 1f);
+                    for (int i = 0; i < bonusOrbs; i++)
+                    {
+                        Vector2 vel = velocity.RotatedByRandom(MathHelper.ToRadians(5f));
+                        Projectile.NewProjectile(source, position, vel, type, damage, knockback, player.whoAmI, ai0: 3f, ai1: 0f);
+                    }
+                    break;
+            }
+
+            hymnPlayer.AddVerse();
+            hymnPlayer.isActive = true;
             return false;
         }
 

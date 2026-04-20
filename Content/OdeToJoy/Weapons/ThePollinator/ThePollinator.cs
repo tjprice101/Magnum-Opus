@@ -16,6 +16,11 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator
 {
     public class ThePollinator : ModItem
     {
+        // Harvest Season tracking
+        private int _bloomKillCount;
+        private int _harvestTimer;
+        private int _harvestShotsRemaining;
+
         public override void SetDefaults()
         {
             Item.width = 52;
@@ -39,9 +44,39 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            // Harvest Season: decrement timer each frame this is used
+            if (_harvestTimer > 0)
+                _harvestTimer--;
+            if (_harvestTimer <= 0)
+                _bloomKillCount = 0;
+
+            // Check if in Harvest Season mode
+            bool isHarvest = _harvestShotsRemaining > 0;
+            float ai1Value = isHarvest ? 1f : 0f;
+            int actualDamage = isHarvest ? damage * 2 : damage;
+
             int projType = ModContent.ProjectileType<PollinatorProjectile>();
-            Projectile.NewProjectile(source, position, velocity, projType, damage, knockback, player.whoAmI);
+            int idx = Projectile.NewProjectile(source, position, velocity, projType, actualDamage, knockback, player.whoAmI, ai1: ai1Value);
+            if (isHarvest && idx >= 0 && idx < Main.maxProjectiles)
+            {
+                Main.projectile[idx].scale = 1.5f;
+                _harvestShotsRemaining--;
+            }
+
             return false;
+        }
+
+        /// <summary>Called externally when a pollinated enemy dies to track bloom kills.</summary>
+        public void RegisterBloomKill()
+        {
+            _bloomKillCount++;
+            _harvestTimer = 600; // 10 second window
+            if (_bloomKillCount >= 5)
+            {
+                _harvestShotsRemaining = 10;
+                _bloomKillCount = 0;
+                _harvestTimer = 0;
+            }
         }
 
         public override void HoldItem(Player player)
