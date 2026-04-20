@@ -1,7 +1,5 @@
-using MagnumOpus.Common;
+using MagnumOpus.Content.DiesIrae;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.DataStructures;
@@ -51,59 +49,6 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract
             {
                 OverrideColor = DiesIraePalette.LoreText
             });
-        }
-
-        public override void HoldItem(Player player)
-        {
-            if (Main.rand.NextBool(3))
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
-                Color col = DiesIraePalette.GetFireGradient(Main.rand.NextFloat());
-                Dust d = Dust.NewDustPerfect(player.Center + offset, DustID.Torch,
-                    new Vector2(0, -1f) + Main.rand.NextVector2Circular(0.5f, 0.5f), 0, col, 0.6f);
-                d.noGravity = true;
-            }
-            float pulse = 0.7f + 0.3f * MathF.Sin(Main.GlobalTimeWrappedHourly * 3f);
-            Lighting.AddLight(player.Center, DiesIraePalette.InfernalRed.ToVector3() * 0.4f * pulse);
-        }
-
-        public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
-        {
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 0.2f;
-            Texture2D tex = Terraria.GameContent.TextureAssets.Item[Type].Value;
-            Vector2 drawPos = Item.position - Main.screenPosition + new Vector2(Item.width / 2f, Item.height);
-            Vector2 origin = new Vector2(tex.Width / 2f, tex.Height);
-            spriteBatch.Draw(tex, drawPos, null, DiesIraePalette.InfernalRed with { A = 0 } * pulse,
-                rotation, origin, scale * 1.05f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, DiesIraePalette.JudgmentGold with { A = 0 } * (pulse * 0.7f),
-                rotation, origin, scale * 1.02f, SpriteEffects.None, 0f);
-        }
-    }
-
-    public class WrathfulContractPlayer : ModPlayer
-    {
-        public bool HasActiveDemon;
-        public bool DemonInFrenzy;
-        public int BloodSacrificeTimer;
-
-        public override void ResetEffects()
-        {
-            HasActiveDemon = false;
-            DemonInFrenzy = false;
-        }
-
-        public override void PostUpdate()
-        {
-            if (BloodSacrificeTimer > 0)
-                BloodSacrificeTimer--;
-        }
-
-        public bool IsBelowBreachThreshold()
-        {
-            if (Player.statLifeMax2 <= 0)
-                return false;
-
-            return Player.statLife <= Player.statLifeMax2 * 0.10f;
         }
     }
 }

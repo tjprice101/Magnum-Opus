@@ -6,7 +6,6 @@ using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Utilities;
 using MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Utilities;
 
 namespace MagnumOpus.Common.Systems.UI
@@ -123,8 +122,7 @@ namespace MagnumOpus.Common.Systems.UI
             if (!owner.active)
                 return;
 
-            bool empowerActive = owner.GetModPlayer<ChainOfJudgmentPlayer>().IsEmpowerActive
-                              || owner.GetModPlayer<RoseThornChainsawPlayer>().IsEmpowerActive;
+            bool empowerActive = owner.GetModPlayer<RoseThornChainsawPlayer>().IsEmpowerActive;
             if (!empowerActive)
                 return;
 

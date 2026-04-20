@@ -7,9 +7,6 @@ using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Utilities;
 using MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Utilities;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoid.Utilities;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCadence.Utilities;
-using MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver.Utilities;
-using MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment.Utilities;
-using MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict.Utilities;
 using MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Utilities;
 using MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Utilities;
 using MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer.Utilities;
@@ -196,31 +193,6 @@ namespace MagnumOpus.Common.Systems.UI
                 charge = p.Charge; isFull = p.IsChargeFull;
                 fillLow = EnigmaFillLow; fillHigh = EnigmaFillHigh;
                 shimmerA = EnigmaShimmerA; shimmerB = EnigmaShimmerB;
-                return true;
-            }
-            // DiesIrae
-            if (player.GetModPlayer<WrathsCleaverPlayer>().IsHoldingWrathsCleaver)
-            {
-                var p = player.GetModPlayer<WrathsCleaverPlayer>();
-                charge = p.Charge; isFull = p.IsChargeFull;
-                fillLow = DiesIraeFillLow; fillHigh = DiesIraeFillHigh;
-                shimmerA = DiesIraeShimmerA; shimmerB = DiesIraeShimmerB;
-                return true;
-            }
-            if (player.GetModPlayer<ChainOfJudgmentPlayer>().IsHoldingChainOfJudgment)
-            {
-                var p = player.GetModPlayer<ChainOfJudgmentPlayer>();
-                charge = p.Charge; isFull = p.IsChargeFull;
-                fillLow = DiesIraeFillLow; fillHigh = DiesIraeFillHigh;
-                shimmerA = DiesIraeShimmerA; shimmerB = DiesIraeShimmerB;
-                return true;
-            }
-            if (player.GetModPlayer<ExecutionersVerdictPlayer>().IsHoldingExecutionersVerdict)
-            {
-                var p = player.GetModPlayer<ExecutionersVerdictPlayer>();
-                charge = p.Charge; isFull = p.IsChargeFull;
-                fillLow = DiesIraeFillLow; fillHigh = DiesIraeFillHigh;
-                shimmerA = DiesIraeShimmerA; shimmerB = DiesIraeShimmerB;
                 return true;
             }
             // ClairDeLune
