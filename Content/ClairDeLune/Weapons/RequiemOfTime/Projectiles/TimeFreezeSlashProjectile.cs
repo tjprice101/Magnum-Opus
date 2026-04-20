@@ -1,47 +1,13 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System;
 using Terraria;
-using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Common.Systems.VFX;
-using MagnumOpus.Common.Systems.VFX.Core;
-using MagnumOpus.Content.ClairDeLune;
-using MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Utilities;
 
 namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles
 {
-    /// <summary>
-    /// Time Freeze Slash — Homing magic sub-projectile fired by Requiem of Time.
-    /// ai[0] = zone type: 0=Forward (FLAG_SPEED_ALLIES), 1=Reverse (FLAG_SLOW)
-    /// On hit or expiry, spawns a GenericDamageZone based on zone type.
-    /// Tracks enemies with gentle homing. Clair de Lune moonlit theme.
-    /// Foundation-pattern rendering: safe SpriteBatch, IncisorOrbRenderer visuals.
-    /// </summary>
     public class TimeFreezeSlashProjectile : ModProjectile
     {
-        #region Properties
-
-        private const float HomingRange = 350f;
-        private const float HomingStrength = 0.08f;
-        private const float MaxSpeed = 16f;
-
-        private Player Owner => Main.player[Projectile.owner];
-        private bool _initialized;
-        private bool _zoneSpawned; // Prevent double-spawning zone on hit+kill
-
-        private VertexStrip _strip;
-
-        #endregion
-
         public override string Texture => "MagnumOpus/Content/ClairDeLune/Weapons/RequiemOfTime/RequiemOfTime";
-
-        public override void SetStaticDefaults()
-        {
-            ProjectileID.Sets.TrailCacheLength[Type] = 16;
-            ProjectileID.Sets.TrailingMode[Type] = 2;
-        }
 
         public override void SetDefaults()
         {
@@ -50,7 +16,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Magic;
             Projectile.penetrate = 1;
-            Projectile.timeLeft = 240;
+            Projectile.timeLeft = 120;
             Projectile.tileCollide = true;
             Projectile.ignoreWater = true;
             Projectile.extraUpdates = 1;
@@ -58,134 +24,26 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime.Projectiles
 
         public override void AI()
         {
-            if (!_initialized)
-            {
-                _initialized = true;
-                Projectile.rotation = Projectile.velocity.ToRotation();
-            }
+            Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // Time Freeze: heavy deceleration, freezes in place
-            Projectile.velocity *= 0.95f;
-            if (Projectile.velocity.Length() < 0.3f)
-            {
-                Projectile.velocity = Vector2.Zero;
-                Projectile.tileCollide = false;
-            }
-
-            Projectile.rotation += 0.03f;
-
-            // Trail dust — moonlit theme
             if (Main.rand.NextBool(3))
             {
-                int dustType = Main.rand.NextBool() ? DustID.IceTorch : DustID.WhiteTorch;
-                Color dustColor = Main.rand.NextBool() ? new Color(150, 200, 255) : new Color(240, 240, 255);
-                Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
-                    dustType, -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(0.5f, 0.5f),
-                    0, dustColor, 0.8f);
-                d.noGravity = true;
-                d.fadeIn = 0.6f;
-            }
-
-            // Pulsing light
-            float pulse = 1f + 0.15f * (float)Math.Sin(Projectile.timeLeft * 0.2f);
-            Lighting.AddLight(Projectile.Center, new Vector3(0.35f, 0.45f, 0.6f) * 0.35f * pulse);
-        }
-
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            Vector2 hitPos = target.Center;
-
-            // Spawn damage zone on hit
-            SpawnDamageZone(hitPos);
-
-            // Impact sparks — moonlit dual tone
-            for (int i = 0; i < 6; i++)
-            {
-                Vector2 sparkVel = Main.rand.NextVector2CircularEdge(4f, 4f);
-                Color col = i % 2 == 0 ? new Color(150, 200, 255) : new Color(240, 240, 255);
-                Dust d = Dust.NewDustPerfect(hitPos, DustID.IceTorch, sparkVel, 0, col, 0.5f);
+                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.Torch,
+                    -Projectile.velocity * 0.1f, 0, default, 0.7f);
                 d.noGravity = true;
             }
 
-            // Pearl accent on impact
-            for (int i = 0; i < 2; i++)
-            {
-                Vector2 vel = Main.rand.NextVector2Circular(2f, 2f) + new Vector2(0, -1f);
-                Dust d = Dust.NewDustPerfect(hitPos + Main.rand.NextVector2Circular(8f, 8f),
-                    DustID.WhiteTorch, vel, 0, new Color(240, 240, 255), 0.5f);
-                d.noGravity = true;
-            }
-
-            try { ClairDeLuneVFXLibrary.SpawnMusicNotes(hitPos, 1, 12f, 0.4f, 0.7f, 20); } catch { }
-            try { ClairDeLuneVFXLibrary.SpawnMixedSparkleImpact(hitPos, 0.6f, 4, 4); } catch { }
+            Lighting.AddLight(Projectile.Center, 0.3f, 0.25f, 0.1f);
         }
-
-        #region Rendering
-
-        public override bool PreDraw(ref Color lightColor)
-        {
-            SpriteBatch sb = Main.spriteBatch;
-            try
-            {
-                IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.ClairDeLune, ref _strip);
-            }
-            catch { }
-            finally
-            {
-                try { sb.End(); } catch { }
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-            }
-
-            return false;
-        }
-
-        #endregion
 
         public override void OnKill(int timeLeft)
         {
-            // Spawn damage zone on expiry (if not already spawned from hit)
-            SpawnDamageZone(Projectile.Center);
-
-            // Death VFX — moonlit spark burst
             for (int i = 0; i < 4; i++)
             {
-                Vector2 sparkVel = Main.rand.NextVector2CircularEdge(3f, 3f);
-                Color col = Main.rand.NextBool() ? new Color(150, 200, 255) : new Color(240, 240, 255);
-                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.IceTorch, sparkVel, 0, col, 0.3f);
+                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.Torch,
+                    Main.rand.NextVector2CircularEdge(3f, 3f), 0, default, 0.5f);
                 d.noGravity = true;
             }
-
-            try { ClairDeLuneVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 12f, 0.5f, 0.7f, 20); } catch { }
-            try { ClairDeLuneVFXLibrary.SpawnMixedSparkleImpact(Projectile.Center, 0.5f, 4, 4); } catch { }
-            try { ClairDeLuneVFXLibrary.SpawnLunarSparkles(Projectile.Center, 3, 15f); } catch { }
-        }
-
-        /// <summary>
-        /// Spawns the appropriate GenericDamageZone based on ai[0] zone type.
-        /// Only spawns once per projectile lifetime.
-        /// </summary>
-        private void SpawnDamageZone(Vector2 position)
-        {
-            if (_zoneSpawned) return;
-            _zoneSpawned = true;
-
-            bool isReverse = Projectile.ai[0] == 1f;
-
-            // Forward Zone: FLAG_SPEED_ALLIES (speeds ally projectiles)
-            // Reverse Zone: FLAG_SLOW (slows enemies)
-            int flags = isReverse ? GenericDamageZone.FLAG_SLOW : GenericDamageZone.FLAG_SPEED_ALLIES;
-
-            GenericDamageZone.SpawnZone(
-                Projectile.GetSource_FromThis(),
-                position,
-                Projectile.damage / 3, // Zone deals reduced damage
-                Projectile.knockBack * 0.3f,
-                Projectile.owner,
-                modeFlags: flags,
-                radius: 100f,
-                themeIndex: GenericHomingOrbChild.THEME_CLAIRDELUNE,
-                durationFrames: 120); // 2 seconds
         }
     }
 }

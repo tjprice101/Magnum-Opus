@@ -7,9 +7,6 @@ using MagnumOpus.Content.LaCampanella.ResonantWeapons.DualFatedChime.Utilities;
 using MagnumOpus.Content.SwanLake.ResonantWeapons.CalloftheBlackSwan.Utilities;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.VariationsOfTheVoid.Utilities;
 using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCadence.Utilities;
-using MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Utilities;
-using MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Utilities;
-using MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer.Utilities;
 using MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Utilities;
 using MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation.Utilities;
 using MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Utilities;
@@ -190,31 +187,6 @@ namespace MagnumOpus.Common.Systems.UI
                 charge = p.Charge; isFull = p.IsChargeFull;
                 fillLow = EnigmaFillLow; fillHigh = EnigmaFillHigh;
                 shimmerA = EnigmaShimmerA; shimmerB = EnigmaShimmerB;
-                return true;
-            }
-            // ClairDeLune
-            if (player.GetModPlayer<ChronologicalityPlayer>().IsHoldingChronologicality)
-            {
-                var p = player.GetModPlayer<ChronologicalityPlayer>();
-                charge = p.Charge; isFull = p.IsChargeFull;
-                fillLow = ClairFillLow; fillHigh = ClairFillHigh;
-                shimmerA = ClairShimmerA; shimmerB = ClairShimmerB;
-                return true;
-            }
-            if (player.GetModPlayer<ClockworkHarmonyPlayer>().IsHoldingClockworkHarmony)
-            {
-                var p = player.GetModPlayer<ClockworkHarmonyPlayer>();
-                charge = p.Charge; isFull = p.IsChargeFull;
-                fillLow = ClairFillLow; fillHigh = ClairFillHigh;
-                shimmerA = ClairShimmerA; shimmerB = ClairShimmerB;
-                return true;
-            }
-            if (player.GetModPlayer<TemporalPiercerPlayer>().IsHoldingTemporalPiercer)
-            {
-                var p = player.GetModPlayer<TemporalPiercerPlayer>();
-                charge = p.Charge; isFull = p.IsChargeFull;
-                fillLow = ClairFillLow; fillHigh = ClairFillHigh;
-                shimmerA = ClairShimmerA; shimmerB = ClairShimmerB;
                 return true;
             }
             // Fate
