@@ -6,8 +6,6 @@ using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Utilities;
-
 namespace MagnumOpus.Common.Systems.UI
 {
     public class ResonantWeaponOverdrivePlayer : ModPlayer
@@ -117,31 +115,6 @@ namespace MagnumOpus.Common.Systems.UI
 
             if (!projectile.active || projectile.owner < 0 || projectile.owner >= Main.maxPlayers)
                 return;
-
-            Player owner = Main.player[projectile.owner];
-            if (!owner.active)
-                return;
-
-            bool empowerActive = owner.GetModPlayer<RoseThornChainsawPlayer>().IsEmpowerActive;
-            if (!empowerActive)
-                return;
-
-            if (projectile.hostile || !projectile.friendly)
-                return;
-
-            if (!_empowerApplied)
-            {
-                _empowerApplied = true;
-                projectile.damage = Math.Max(projectile.damage, (int)(projectile.damage * 1.35f));
-                projectile.scale *= 1.2f;
-                projectile.velocity *= 1.2f;
-            }
-
-            if (Main.rand.NextBool(4))
-            {
-                Dust d = Dust.NewDustPerfect(projectile.Center, DustID.GoldFlame, -projectile.velocity * 0.1f, 0, Color.White, 0.9f);
-                d.noGravity = true;
-            }
         }
     }
 

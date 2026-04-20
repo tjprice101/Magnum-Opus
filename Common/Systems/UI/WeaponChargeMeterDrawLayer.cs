@@ -10,9 +10,6 @@ using MagnumOpus.Content.EnigmaVariations.ResonantWeapons.TheUnresolvedCadence.U
 using MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Utilities;
 using MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony.Utilities;
 using MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer.Utilities;
-using MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning.Utilities;
-using MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Utilities;
-using MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw.Utilities;
 using MagnumOpus.Content.Fate.ResonantWeapons.FractalOfTheStars.Utilities;
 using MagnumOpus.Content.Fate.ResonantWeapons.TheConductorsLastConstellation.Utilities;
 using MagnumOpus.Content.Fate.ResonantWeapons.RequiemOfReality.Utilities;
@@ -218,31 +215,6 @@ namespace MagnumOpus.Common.Systems.UI
                 charge = p.Charge; isFull = p.IsChargeFull;
                 fillLow = ClairFillLow; fillHigh = ClairFillHigh;
                 shimmerA = ClairShimmerA; shimmerB = ClairShimmerB;
-                return true;
-            }
-            // OdeToJoy
-            if (player.GetModPlayer<ThornboundReckoningPlayer>().IsHoldingThornboundReckoning)
-            {
-                var p = player.GetModPlayer<ThornboundReckoningPlayer>();
-                charge = p.Charge; isFull = p.IsChargeFull;
-                fillLow = OdeToJoyFillLow; fillHigh = OdeToJoyFillHigh;
-                shimmerA = OdeToJoyShimmerA; shimmerB = OdeToJoyShimmerB;
-                return true;
-            }
-            if (player.GetModPlayer<TheGardenersFuryPlayer>().IsHoldingTheGardenersFury)
-            {
-                var p = player.GetModPlayer<TheGardenersFuryPlayer>();
-                charge = p.Charge; isFull = p.IsChargeFull;
-                fillLow = OdeToJoyFillLow; fillHigh = OdeToJoyFillHigh;
-                shimmerA = OdeToJoyShimmerA; shimmerB = OdeToJoyShimmerB;
-                return true;
-            }
-            if (player.GetModPlayer<RoseThornChainsawPlayer>().IsHoldingRoseThornChainsaw)
-            {
-                var p = player.GetModPlayer<RoseThornChainsawPlayer>();
-                charge = p.Charge; isFull = p.IsChargeFull;
-                fillLow = OdeToJoyFillLow; fillHigh = OdeToJoyFillHigh;
-                shimmerA = OdeToJoyShimmerA; shimmerB = OdeToJoyShimmerB;
                 return true;
             }
             // Fate

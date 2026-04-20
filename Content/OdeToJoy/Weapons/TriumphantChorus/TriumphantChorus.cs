@@ -2,16 +2,11 @@ using MagnumOpus.Common;
 using MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Buffs;
 using MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Content.Fate.CraftingStations;
-using MagnumOpus.Content.OdeToJoy.HarmonicCores;
-using MagnumOpus.Content.OdeToJoy.ResonanceEnergies;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus
 {
@@ -39,61 +34,19 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus
             Item.buffType = ModContent.BuffType<TriumphantChorusBuff>();
         }
 
-        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
+            Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             player.AddBuff(Item.buffType, 2);
-
-            // Count existing chorus minions to determine voice index (0-3)
-            int minionType = ModContent.ProjectileType<TriumphantChorusMinion>();
-            int voiceCount = 0;
-            for (int i = 0; i < Main.maxProjectiles; i++)
-            {
-                Projectile p = Main.projectile[i];
-                if (p.active && p.owner == player.whoAmI && p.type == minionType)
-                    voiceCount++;
-            }
-            int voiceIndex = voiceCount % 4; // 0=Soprano, 1=Alto, 2=Tenor, 3=Bass
-
-            Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI, ai0: voiceIndex);
+            Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
             return false;
-        }
-
-        public override void HoldItem(Player player)
-        {
-            if (Main.rand.NextBool(4))
-            {
-                Vector2 offset = Main.rand.NextVector2Circular(20f, 20f);
-                Color col = OdeToJoyPalette.GetGardenGradient(Main.rand.NextFloat());
-                Dust d = Dust.NewDustPerfect(player.Center + offset, DustID.GreenTorch,
-                    new Vector2(0, -0.8f) + Main.rand.NextVector2Circular(0.4f, 0.4f), 0, col, 0.5f);
-                d.noGravity = true;
-            }
-
-            float pulse = 0.7f + 0.3f * MathF.Sin(Main.GlobalTimeWrappedHourly * 3f);
-            Lighting.AddLight(player.Center, new Vector3(0.4f, 0.35f, 0.15f) * pulse);
-        }
-
-        public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
-        {
-            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.1f + 0.2f;
-            Texture2D tex = Terraria.GameContent.TextureAssets.Item[Type].Value;
-            Vector2 drawPos = Item.position - Main.screenPosition + new Vector2(Item.width / 2f, Item.height);
-            Vector2 origin = new Vector2(tex.Width / 2f, tex.Height);
-            spriteBatch.Draw(tex, drawPos, null, OdeToJoyPalette.WhiteBloom with { A = 0 } * pulse, rotation, origin, scale * 1.05f, SpriteEffects.None, 0f);
-            spriteBatch.Draw(tex, drawPos, null, OdeToJoyPalette.GoldenPollen with { A = 0 } * (pulse * 0.5f), rotation, origin, scale * 1.02f, SpriteEffects.None, 0f);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Summon", "Summons a chorus vocalist that orbits you"));
-            tooltips.Add(new TooltipLine(Mod, "Voices", "Each summon adds a new vocal part: Soprano, Alto, Tenor, Bass"));
-            tooltips.Add(new TooltipLine(Mod, "Harmony", "Having all 4 voice types grants Harmony Bonus (+20% summon damage)"));
-            tooltips.Add(new TooltipLine(Mod, "Ensemble", "Every 10 seconds, all chorus members fire a synchronized golden wave"));
-            tooltips.Add(new TooltipLine(Mod, "Slots", "Requires 2 minion slots per voice"));
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'When every voice rings true, the world itself sings back in jubilation'")
-            {
-                OverrideColor = OdeToJoyPalette.LoreText
-            });
+            tooltips.Add(new TooltipLine(Mod, "Lore",
+            "'When every voice rings true, the world itself sings back in jubilation'")
+            { OverrideColor = OdeToJoyPalette.LoreText });
         }
     }
 }

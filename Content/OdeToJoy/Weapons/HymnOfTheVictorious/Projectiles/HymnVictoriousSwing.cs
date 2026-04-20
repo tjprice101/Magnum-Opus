@@ -1,36 +1,13 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System;
 using Terraria;
-using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Common.Systems.VFX;
-using MagnumOpus.Common.Systems.VFX.Core;
-using MagnumOpus.Content.OdeToJoy;
-using MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Utilities;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
 {
-    /// <summary>
-    /// Hymnal slash projectile for HymnOfTheVictorious.
-    /// BlackSwanFlareProj scaffold — homing sub-projectile with IncisorOrb rendering.
-    /// </summary>
     public class HymnVictoriousSwing : ModProjectile
     {
-        private const float HomingRange = 350f;
-        private Player Owner => Main.player[Projectile.owner];
-        private bool _initialized;
-        private VertexStrip _strip;
-        private int _accelFrames;
-
         public override string Texture => "MagnumOpus/Content/OdeToJoy/Weapons/HymnOfTheVictorious/HymnOfTheVictorious";
-
-        public override void SetStaticDefaults()
-        {
-            ProjectileID.Sets.TrailCacheLength[Type] = 16;
-            ProjectileID.Sets.TrailingMode[Type] = 2;
-        }
 
         public override void SetDefaults()
         {
@@ -47,147 +24,26 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious.Projectiles
 
         public override void AI()
         {
-            int verseType = (int)Projectile.ai[0];
-            bool isGloria = Projectile.ai[1] == 1f;
-
-            if (!_initialized)
-            {
-                _initialized = true;
-                Projectile.rotation = Projectile.velocity.ToRotation();
-
-                // Apply verse-specific stats on initialization
-                switch (verseType)
-                {
-                    case 0: // Exordium: speed 8, homing 0.04
-                        Projectile.velocity = Vector2.Normalize(Projectile.velocity) * 8f;
-                        break;
-                    case 1: // Rising: speed 14, homing 0.08
-                        Projectile.velocity = Vector2.Normalize(Projectile.velocity) * 14f;
-                        break;
-                    case 2: // Apex: speed 18, homing 0.12
-                        Projectile.velocity = Vector2.Normalize(Projectile.velocity) * 18f;
-                        break;
-                    case 3: // Gloria: pierce -1, 2x scale
-                        if (isGloria)
-                        {
-                            Projectile.penetrate = -1;
-                            Projectile.scale = 2f;
-                            Projectile.velocity = Vector2.Normalize(Projectile.velocity) * 10f;
-                        }
-                        else
-                        {
-                            Projectile.velocity = Vector2.Normalize(Projectile.velocity) * 16f;
-                        }
-                        break;
-                }
-            }
-
-            // Determine homing strength per verse
-            float homingStrength = verseType switch
-            {
-                0 => 0.04f,
-                1 => 0.08f,
-                2 => 0.12f,
-                3 => isGloria ? 0.06f : 0.08f,
-                _ => 0.08f,
-            };
-
-            // Determine max speed per verse
-            float maxSpeed = verseType switch
-            {
-                0 => 10f,
-                1 => 16f,
-                2 => 20f,
-                3 => isGloria ? 24f : 18f,
-                _ => 16f,
-            };
-
-            // Apply homing
-            NPC target = Projectile.Center.ClosestNPCAt(HomingRange);
-            if (target != null)
-            {
-                Vector2 desiredDir = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
-                Projectile.velocity = Vector2.Lerp(Projectile.velocity, desiredDir * Projectile.velocity.Length(), homingStrength);
-            }
-
-            // Gloria accelerating: 1.025x per frame up to 24 frames
-            if (verseType == 3 && isGloria)
-            {
-                _accelFrames++;
-                if (_accelFrames <= 24)
-                    Projectile.velocity *= 1.025f;
-            }
-
-            if (Projectile.velocity.Length() > maxSpeed)
-                Projectile.velocity = Vector2.Normalize(Projectile.velocity) * maxSpeed;
-
             Projectile.rotation = Projectile.velocity.ToRotation();
 
             if (Main.rand.NextBool(3))
             {
-                int dustType = Main.rand.NextBool() ? DustID.GreenTorch : DustID.GoldFlame;
-                Color dustColor = Main.rand.NextBool() ? new Color(90, 200, 60) : new Color(255, 210, 60);
-                Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(6f, 6f),
-                    dustType, -Projectile.velocity * 0.15f + Main.rand.NextVector2Circular(0.5f, 0.5f),
-                    0, dustColor, 0.8f);
-                d.noGravity = true;
-                d.fadeIn = 0.6f;
-            }
-
-            float pulse = 1f + 0.15f * (float)Math.Sin(Projectile.timeLeft * 0.2f);
-            Lighting.AddLight(Projectile.Center, new Vector3(0.4f, 0.55f, 0.2f) * 0.35f * pulse);
-        }
-
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            Vector2 hitPos = target.Center;
-            for (int i = 0; i < 6; i++)
-            {
-                Vector2 sparkVel = Main.rand.NextVector2CircularEdge(4f, 4f);
-                Color col = i % 2 == 0 ? new Color(90, 200, 60) : new Color(255, 210, 60);
-                Dust d = Dust.NewDustPerfect(hitPos, DustID.GreenTorch, sparkVel, 0, col, 0.5f);
+                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.Torch,
+                    -Projectile.velocity * 0.1f, 0, default, 0.7f);
                 d.noGravity = true;
             }
-            for (int i = 0; i < 2; i++)
-            {
-                Vector2 vel = Main.rand.NextVector2Circular(2f, 2f) + new Vector2(0, -1f);
-                Dust d = Dust.NewDustPerfect(hitPos + Main.rand.NextVector2Circular(8f, 8f),
-                    DustID.GoldFlame, vel, 0, new Color(255, 210, 60), 0.5f);
-                d.noGravity = true;
-            }
-            try { OdeToJoyVFXLibrary.SpawnMusicNotes(hitPos, 1, 12f, 0.4f, 0.7f, 20); } catch { }
-            try { OdeToJoyVFXLibrary.SpawnMixedSparkleImpact(hitPos, 0.6f, 4, 4); } catch { }
-        }
 
-        public override bool PreDraw(ref Color lightColor)
-        {
-            SpriteBatch sb = Main.spriteBatch;
-            try
-            {
-                IncisorOrbRenderer.DrawOrbVisuals(sb, Projectile, IncisorOrbRenderer.OdeToJoy, ref _strip);
-            }
-            catch { }
-            finally
-            {
-                try { sb.End(); } catch { }
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
-                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-            }
-            return false;
+            Lighting.AddLight(Projectile.Center, 0.3f, 0.25f, 0.1f);
         }
 
         public override void OnKill(int timeLeft)
         {
             for (int i = 0; i < 4; i++)
             {
-                Vector2 sparkVel = Main.rand.NextVector2CircularEdge(3f, 3f);
-                Color col = Main.rand.NextBool() ? new Color(90, 200, 60) : new Color(255, 210, 60);
-                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.GreenTorch, sparkVel, 0, col, 0.3f);
+                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.Torch,
+                    Main.rand.NextVector2CircularEdge(3f, 3f), 0, default, 0.5f);
                 d.noGravity = true;
             }
-            try { OdeToJoyVFXLibrary.SpawnMusicNotes(Projectile.Center, 1, 12f, 0.5f, 0.7f, 20); } catch { }
-            try { OdeToJoyVFXLibrary.SpawnMixedSparkleImpact(Projectile.Center, 0.5f, 4, 4); } catch { }
-            try { OdeToJoyVFXLibrary.SpawnJoyousSparkles(Projectile.Center, 3, 15f); } catch { }
         }
     }
 }
