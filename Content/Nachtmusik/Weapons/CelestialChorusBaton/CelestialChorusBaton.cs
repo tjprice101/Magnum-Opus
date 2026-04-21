@@ -41,6 +41,8 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Summon", "Summons a Nocturnal Guardian to fight for you"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Guardian fires orbs in 3-hit combo patterns"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Simultaneous orb hits trigger Harmonic Resonance"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Conduct the symphony of the night'")
             {
                 OverrideColor = new Color(100, 120, 200)

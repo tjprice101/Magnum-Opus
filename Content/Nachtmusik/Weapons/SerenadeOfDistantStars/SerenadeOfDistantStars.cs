@@ -6,6 +6,8 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.Nachtmusik;
 using MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars.Projectiles;
+using MagnumOpus.Content.Nachtmusik.Systems;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars
 {
@@ -35,6 +37,29 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            var combat = player.GetModPlayer<NachtmusikCombatPlayer>();
+            int stacks = combat.SerenadeRhythmStacks;
+
+            // Determine orb behavior based on rhythm stacks
+            float homing = stacks >= 5 ? 0.12f : 0.066f;
+            int flags = 0;
+            float scale = 1f;
+
+            if (stacks >= 2)
+                flags |= GenericHomingOrbChild.FLAG_ACCELERATE;
+            if (stacks >= 3)
+                flags |= GenericHomingOrbChild.FLAG_PIERCE;
+            if (stacks >= 5)
+                scale = 1.3f;
+
+            // Spawn the orb instead of a basic projectile
+            GenericHomingOrbChild.SpawnChild(
+                source, position, velocity.SafeNormalize(Vector2.UnitX) * Item.shootSpeed,
+                damage, knockback, player.whoAmI,
+                homing, flags, GenericHomingOrbChild.THEME_NACHTMUSIK,
+                scale, 120);
+
+            // Also spawn the tracking projectile (thin, invisible — just for hit detection to increment stacks)
             Projectile.NewProjectile(source, position, velocity,
                 ModContent.ProjectileType<SerenadeStarProjectile>(), damage, knockback, player.whoAmI);
             return false;
@@ -44,7 +69,8 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.SerenadeOfDistantStars
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires a homing star projectile"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Consecutive hits build Rhythm stacks (max 5)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Higher stacks upgrade orb speed, pierce, and homing"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The light left a star ages ago, just to find you. And it never missed.'")
             {
                 OverrideColor = NachtmusikPalette.LoreText

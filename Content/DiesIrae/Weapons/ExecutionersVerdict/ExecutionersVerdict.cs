@@ -61,7 +61,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict
             "Right-click dash attack unleashes a massive golden judgment burst"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'The verdict was written before you were born.'")
-            { OverrideColor = new Color(200, 50, 30) });
+            { OverrideColor = DiesIraePalette.LoreText });
         }
     }
 }

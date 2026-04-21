@@ -1,6 +1,7 @@
 using MagnumOpus.Common;
 using MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles;
 using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.DataStructures;
@@ -26,7 +27,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury
             Item.autoReuse = true;
             Item.noUseGraphic = true;
             Item.noMelee = true;
-            Item.channel = true;
+            Item.channel = false; // Changed: not channeled, normal swing
             Item.value = Item.sellPrice(gold: 45);
             Item.shoot = ModContent.ProjectileType<GardenerFuryProjectile>();
             Item.shootSpeed = 8f;
@@ -40,14 +41,37 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
             Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            // Main swing
             Projectile.NewProjectile(source, player.MountedCenter,
                 (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
                 type, damage, knockback, player.whoAmI, 0f, 0);
+
+            // Fire 5 seeds downward as part of the attack
+            FireSeeds(source, player, damage, knockback);
+
             return false;
+        }
+
+        private void FireSeeds(IEntitySource source, Player player, int damage, float knockback)
+        {
+            int seedType = ModContent.ProjectileType<GardenerFurySeedProjectile>();
+
+            // Fire 5 seeds in a spread pattern downward
+            for (int i = 0; i < 5; i++)
+            {
+                float spreadAngle = MathHelper.Lerp(-0.4f, 0.4f, (float)i / 4);
+                Vector2 vel = new Vector2(MathF.Sin(spreadAngle) * 4f, 4f);
+
+                Projectile.NewProjectile(source, player.MountedCenter, vel,
+                    seedType, damage, knockback, player.whoAmI);
+            }
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Behavior",
+                "Swings an axe and plants 5 seeds downward. Seeds fall with gravity and become stationary zones. After 1.5s, each zone fires a homing child upward."));
+
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'Plant in silence. Harvest in thunder.'")
             { OverrideColor = OdeToJoyPalette.LoreText });

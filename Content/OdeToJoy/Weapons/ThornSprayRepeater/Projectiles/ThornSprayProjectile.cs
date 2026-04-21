@@ -1,18 +1,34 @@
+using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common;
+using MagnumOpus.Content.OdeToJoy;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
 {
+    /// <summary>
+    /// Thorn Spray projectile — dark forest-green needle with bright emerald tip.
+    /// Sharp, small, fast — like a thorn cutting through air.
+    /// </summary>
     public class ThornSprayProjectile : ModProjectile
     {
-        public override string Texture => "MagnumOpus/Content/OdeToJoy/Weapons/ThornSprayRepeater/ThornSprayRepeater";
+        private VertexStrip _strip;
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+        }
 
         public override void SetDefaults()
         {
-            Projectile.width = 16;
-            Projectile.height = 16;
+            Projectile.width = 10;
+            Projectile.height = 10;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Ranged;
             Projectile.penetrate = 1;
@@ -26,24 +42,33 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater.Projectiles
         {
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            if (Main.rand.NextBool(3))
+            // Sparse dark-green dust (thorn cutting through air)
+            if (Main.rand.NextBool(5))
             {
-                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.Torch,
-                    -Projectile.velocity * 0.1f, 0, default, 0.7f);
+                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.Grass,
+                    -Projectile.velocity * 0.08f, 0, OdeToJoyPalette.LeafGreen, 0.45f);
                 d.noGravity = true;
             }
 
-            Lighting.AddLight(Projectile.Center, 0.3f, 0.25f, 0.1f);
+            Lighting.AddLight(Projectile.Center, OdeToJoyPalette.LeafGreen.ToVector3() * 0.15f);
         }
 
         public override void OnKill(int timeLeft)
         {
-            for (int i = 0; i < 4; i++)
+            if (Main.dedServ) return;
+            for (int i = 0; i < 5; i++)
             {
-                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.Torch,
-                    Main.rand.NextVector2CircularEdge(3f, 3f), 0, default, 0.5f);
+                Color col = i < 3 ? OdeToJoyPalette.LeafGreen : OdeToJoyPalette.VerdantGreen;
+                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.Grass,
+                    Main.rand.NextVector2CircularEdge(2f, 2f), 0, col, 0.5f);
                 d.noGravity = true;
             }
+        }
+
+        public override bool PreDraw(ref Color lightColor)
+        {
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.OdeToJoy, ref _strip);
+            return false;
         }
     }
 }

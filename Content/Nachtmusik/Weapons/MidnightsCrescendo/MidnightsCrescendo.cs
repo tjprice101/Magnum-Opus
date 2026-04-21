@@ -60,7 +60,9 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.MidnightsCrescendo
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1",
-            "Ascending starlight blade with shimmering indigo-silver slash arcs"));
+            "Each consecutive swing escalates in power, spawning more orbs"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2",
+            "After a full crescendo cycle, unleashes a massive splitting orb"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'The night starts quiet. It does not end that way.'")
             { OverrideColor = new Color(100, 120, 200) });

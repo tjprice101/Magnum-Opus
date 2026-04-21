@@ -1,8 +1,12 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common;
+using MagnumOpus.Content.OdeToJoy;
 using MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Buffs;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
@@ -10,8 +14,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
     public class StandingOvationMinion : ModProjectile
     {
         private float hoverAngle;
+        private float pulseTimer;
+        private VertexStrip _strip;
 
-        public override string Texture => "MagnumOpus/Content/OdeToJoy/Weapons/TheStandingOvation/TheStandingOvation";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
 
         public override void SetStaticDefaults()
         {
@@ -19,6 +25,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
             ProjectileID.Sets.MinionSacrificable[Type] = true;
             ProjectileID.Sets.CultistIsResistantTo[Type] = true;
             ProjectileID.Sets.MinionTargettingFeature[Type] = true;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
         public override void SetDefaults()
@@ -46,6 +54,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
                 return;
 
             hoverAngle += 0.03f;
+            pulseTimer += 0.05f;
 
             NPC target = FindTarget(owner, 700f);
 
@@ -66,12 +75,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
 
             if (Main.rand.NextBool(4))
             {
-                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.Torch,
-                    -Projectile.velocity * 0.1f, 0, default, 0.6f);
+                Color dustCol = Main.rand.NextBool() ? OdeToJoyPalette.RosePink : OdeToJoyPalette.PetalPink;
+                Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f), DustID.Flare,
+                    Main.rand.NextVector2Circular(0.4f, 0.4f), 0, dustCol, 0.45f);
                 d.noGravity = true;
             }
 
-            Lighting.AddLight(Projectile.Center, 0.3f, 0.25f, 0.1f);
+            Lighting.AddLight(Projectile.Center, OdeToJoyPalette.RosePink.ToVector3() * 0.3f);
         }
 
         private bool CheckActive(Player owner)
@@ -110,6 +120,47 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation.Projectiles
                 }
             }
             return closest;
+        }
+
+        public override bool PreDraw(ref Color lightColor)
+        {
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.OdeToJoy, ref _strip);
+
+            // Rose bloom overlay: 4 petal-like blooms at cardinal angles, slowly rotating
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+
+                Texture2D glow = ModContent.Request<Texture2D>(
+                    "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow",
+                    ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+                Vector2 origin = glow.Size() / 2f;
+
+                for (int i = 0; i < 4; i++)
+                {
+                    float petalAngle = pulseTimer * 0.4f + i * MathHelper.TwoPi / 4f;
+                    Vector2 petalPos = drawPos + new Vector2(MathF.Cos(petalAngle), MathF.Sin(petalAngle)) * 18f;
+                    float petalPulse = 0.8f + 0.2f * MathF.Sin(pulseTimer * 2.5f + i * MathHelper.TwoPi / 4f);
+                    sb.Draw(glow, petalPos, null, (OdeToJoyPalette.RosePink with { A = 0 }) * 0.40f * petalPulse,
+                        0f, origin, 0.22f, SpriteEffects.None, 0f);
+                }
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
+            return false;
         }
     }
 }

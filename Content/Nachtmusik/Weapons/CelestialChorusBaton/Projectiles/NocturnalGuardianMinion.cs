@@ -4,9 +4,16 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton.Buffs;
+using MagnumOpus.Content.Nachtmusik.Debuffs;
+using MagnumOpus.Common.Systems.VFX;
 
 namespace MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton.Projectiles
 {
+    /// <summary>
+    /// Nocturnal Guardian Minion — fires orbs in 3-hit combo patterns.
+    /// Hit 1: straight orb. Hit 2: homing orb. Hit 3: homing orb + zone on kill.
+    /// Contact hits apply CelestialHarmony.
+    /// </summary>
     public class NocturnalGuardianMinion : ModProjectile
     {
         private float orbitAngle;
@@ -14,6 +21,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton.Projectiles
         private bool isAttacking;
         private Vector2 attackTarget;
         private int attackTimer;
+        private int comboPhase; // 0, 1, 2
 
         public override string Texture => "MagnumOpus/Content/Nachtmusik/Weapons/CelestialChorusBaton/NocturnalGuardianMinion";
 
@@ -43,6 +51,12 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton.Projectiles
         public override bool? CanCutTiles() => false;
         public override bool MinionContactDamage() => true;
 
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            target.AddBuff(ModContent.BuffType<CelestialHarmony>(), 600);
+            target.GetGlobalNPC<CelestialHarmonyNPC>().AddStack(target, 1);
+        }
+
         public override void AI()
         {
             Player owner = Main.player[Projectile.owner];
@@ -56,6 +70,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton.Projectiles
 
             if (!isAttacking)
             {
+                // Orbit owner
                 float orbitRadius = 80f + 30f * (float)Math.Sin(orbitAngle * 0.5f);
                 Vector2 idealPos = owner.Center + orbitAngle.ToRotationVector2() * orbitRadius;
                 Vector2 toIdeal = idealPos - Projectile.Center;
@@ -63,14 +78,14 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton.Projectiles
 
                 if (target != null && attackCooldown == 0)
                 {
-                    isAttacking = true;
-                    attackTarget = target.Center;
-                    attackTimer = 0;
+                    // Fire orb based on combo phase instead of dashing
+                    FireComboOrb(target);
                     attackCooldown = 45;
                 }
             }
             else
             {
+                // Brief lunge for contact damage
                 attackTimer++;
                 if (attackTimer < 15)
                 {
@@ -86,14 +101,53 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton.Projectiles
             Projectile.rotation = Projectile.velocity.X * 0.02f;
             Projectile.spriteDirection = Projectile.velocity.X > 0 ? 1 : -1;
 
+            // Nachtmusik dust trail
             if (Main.rand.NextBool(4))
             {
-                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.BlueTorch,
-                    -Projectile.velocity * 0.1f, 0, default, 0.6f);
+                Color dustCol = Main.rand.NextBool() ? NachtmusikPalette.CosmicPurple : NachtmusikPalette.RadianceGold;
+                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.WhiteTorch,
+                    -Projectile.velocity * 0.1f, 0, dustCol, 0.6f);
                 d.noGravity = true;
             }
 
-            Lighting.AddLight(Projectile.Center, 0.1f, 0.12f, 0.2f);
+            Lighting.AddLight(Projectile.Center, 0.2f, 0.15f, 0.35f);
+        }
+
+        private void FireComboOrb(NPC target)
+        {
+            Vector2 toTarget = (target.Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
+
+            switch (comboPhase)
+            {
+                case 0: // Straight orb
+                    GenericHomingOrbChild.SpawnChild(
+                        Projectile.GetSource_FromThis(), Projectile.Center, toTarget * 14f,
+                        Projectile.damage, Projectile.knockBack, Projectile.owner,
+                        0.0f, 0, GenericHomingOrbChild.THEME_NACHTMUSIK, 0.8f, 60);
+                    break;
+
+                case 1: // Homing orb
+                    GenericHomingOrbChild.SpawnChild(
+                        Projectile.GetSource_FromThis(), Projectile.Center, toTarget * 12f,
+                        Projectile.damage, Projectile.knockBack, Projectile.owner,
+                        0.08f, 0, GenericHomingOrbChild.THEME_NACHTMUSIK, 1f, 90);
+                    break;
+
+                case 2: // Homing orb + zone on kill
+                    GenericHomingOrbChild.SpawnChild(
+                        Projectile.GetSource_FromThis(), Projectile.Center, toTarget * 10f,
+                        Projectile.damage, Projectile.knockBack, Projectile.owner,
+                        0.10f, GenericHomingOrbChild.FLAG_ZONE_ON_KILL,
+                        GenericHomingOrbChild.THEME_NACHTMUSIK, 1.2f, 120);
+
+                    // Also lunge for contact
+                    isAttacking = true;
+                    attackTarget = target.Center;
+                    attackTimer = 0;
+                    break;
+            }
+
+            comboPhase = (comboPhase + 1) % 3;
         }
 
         private bool CheckActive(Player owner)

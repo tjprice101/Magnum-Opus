@@ -41,6 +41,9 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Behavior",
+                "Cycles four verses: Exordium (1 orb, 8f speed) → Rising (2 orbs, 14f) → Apex (3 orbs, 18f, homing) → Gloria (1 pierce orb, accelerating). Resonance stacks boost orb count per verse."));
+
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'Each verse is a victory. The final verse is annihilation.'")
             { OverrideColor = OdeToJoyPalette.LoreText });

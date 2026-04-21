@@ -1,8 +1,12 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common;
+using MagnumOpus.Content.OdeToJoy;
 using MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Buffs;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectiles
@@ -10,8 +14,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
     public class JoyousFountainMinion : ModProjectile
     {
         private float hoverAngle;
+        private float pulseTimer;
+        private VertexStrip _strip;
 
-        public override string Texture => "MagnumOpus/Content/OdeToJoy/Weapons/FountainOfJoyousHarmony/FountainOfJoyousHarmony";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
 
         public override void SetStaticDefaults()
         {
@@ -19,6 +25,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
             ProjectileID.Sets.MinionSacrificable[Type] = true;
             ProjectileID.Sets.CultistIsResistantTo[Type] = true;
             ProjectileID.Sets.MinionTargettingFeature[Type] = true;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
         public override void SetDefaults()
@@ -46,6 +54,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
                 return;
 
             hoverAngle += 0.03f;
+            pulseTimer += 0.06f;
 
             NPC target = FindTarget(owner, 700f);
 
@@ -66,12 +75,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
 
             if (Main.rand.NextBool(4))
             {
-                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.Torch,
-                    -Projectile.velocity * 0.1f, 0, default, 0.6f);
+                Color dustCol = Main.rand.NextBool() ? OdeToJoyPalette.GoldenPollen : OdeToJoyPalette.WhiteBloom;
+                Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f), DustID.Flare,
+                    Main.rand.NextVector2Circular(0.5f, 0.5f), 0, dustCol, 0.45f);
                 d.noGravity = true;
             }
 
-            Lighting.AddLight(Projectile.Center, 0.3f, 0.25f, 0.1f);
+            Lighting.AddLight(Projectile.Center, OdeToJoyPalette.WhiteBloom.ToVector3() * 0.3f);
         }
 
         private bool CheckActive(Player owner)
@@ -110,6 +120,12 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony.Projectile
                 }
             }
             return closest;
+        }
+
+        public override bool PreDraw(ref Color lightColor)
+        {
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.OdeToJoy, ref _strip);
+            return false;
         }
     }
 }

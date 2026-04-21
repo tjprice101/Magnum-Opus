@@ -1,5 +1,7 @@
 using System;
 using MagnumOpus.Common.BaseClasses;
+using MagnumOpus.Common.Systems;
+using MagnumOpus.Content.ClairDeLune;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -9,79 +11,140 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality.Projectiles
 {
     /// <summary>
     /// Chronologicality — Clair de Lune theme melee. Exoblade-architecture swing.
-    /// Moonlit blue trail with icy shimmer dust and pearl white highlights.
+    /// Wrath Escalation: 4-phase combo (1 orb straight → 2 orbs 0.06 homing → 3 orbs 0.08 homing + pierce → 1 orb 0.14 homing splits to 8).
+    /// Right-click dash: pierce all orbs at 2x speed.
     /// </summary>
     public class ChronologicalitySwing : ExobladeStyleSwing
     {
-        protected override bool SupportsDash => false;
+        protected override bool SupportsDash => true;
 
         protected override float BladeLength => 102f;
         protected override int BaseSwingFrames => 76;
         protected override float TextureDrawScale => 0.91f;
         protected override string GradientLUTPath => "MagnumOpus/Assets/VFX Asset Library/ColorGradients/ClairDeLuneGradientLUTandRAMP";
-        protected override Color SlashPrimaryColor => new Color(150, 200, 255);
-        protected override Color SlashSecondaryColor => new Color(30, 40, 80);
-        protected override Color SlashAccentColor => new Color(240, 240, 255);
+        protected override Color SlashPrimaryColor => ClairDeLunePalette.PearlBlue;
+        protected override Color SlashSecondaryColor => ClairDeLunePalette.MidnightBlue;
+        protected override Color SlashAccentColor => ClairDeLunePalette.WhiteHot;
 
         public override string Texture => "MagnumOpus/Content/ClairDeLune/Weapons/Chronologicality/Chronologicality";
 
         protected override Color GetLensFlareColor(float p)
-            => Color.Lerp(new Color(120, 170, 240), new Color(240, 245, 255), (float)Math.Pow(p, 2));
+            => Color.Lerp(ClairDeLunePalette.PearlBlue, ClairDeLunePalette.WhiteHot, (float)Math.Pow(p, 2));
 
         protected override Color GetSwingDustColor()
         {
             float t = Main.rand.NextFloat();
             return t < 0.5f
-                ? Color.Lerp(new Color(130, 180, 240), new Color(180, 210, 250), Main.rand.NextFloat())
-                : Color.Lerp(new Color(150, 200, 255), new Color(240, 240, 255), Main.rand.NextFloat());
+                ? Color.Lerp(ClairDeLunePalette.SoftBlue, ClairDeLunePalette.PearlBlue, Main.rand.NextFloat())
+                : Color.Lerp(ClairDeLunePalette.PearlBlue, ClairDeLunePalette.WhiteHot, Main.rand.NextFloat());
         }
 
         protected override void OnSwingFrame()
         {
-            if (Progression > 0.3f && Progression < 0.85f && Main.rand.NextFloat() < 0.35f)
-            {
-                Vector2 pos = Owner.MountedCenter + SwordDirection * BladeLength * Projectile.scale * Main.rand.NextFloat(0.4f, 1f);
-                Vector2 vel = SwordDirection.RotatedBy(MathHelper.PiOver2 * Direction * Main.rand.NextFloat(0.3f, 1.2f)) * Main.rand.NextFloat(1f, 3f);
-                vel.Y -= Main.rand.NextFloat(0.5f, 1.5f);
-                Dust shimmer = Dust.NewDustPerfect(pos, DustID.IceTorch, vel, 80, default, Main.rand.NextFloat(0.6f, 1f));
-                shimmer.noGravity = true;
-                shimmer.fadeIn = 0.8f;
-            }
-            if (Progression > 0.4f && Main.rand.NextFloat() < 0.15f)
-            {
-                Vector2 tip = Owner.MountedCenter + SwordDirection * BladeLength * Projectile.scale;
-                Dust spark = Dust.NewDustPerfect(tip, DustID.WhiteTorch, Main.rand.NextVector2Circular(1f, 1f), 0, default, 0.5f);
-                spark.noGravity = true;
-            }
+            ClairDeLuneVFXLibrary.SwingFrameVFX(
+                Owner.MountedCenter + SwordDirection * BladeLength * Projectile.scale * 0.7f,
+                -SwordDirection, (int)Progression, Projectile.timeLeft);
         }
 
         protected override void OnSwingHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            for (int i = 0; i < 6; i++)
+            ClairDeLuneVFXLibrary.MeleeImpact(target.Center, (int)Progression);
+
+            // Wrath Escalation — fire orbs based on combo phase
+            var combatPlayer = Owner.GetModPlayer<ClairDeLuneCombatPlayer>();
+
+            if (Main.myPlayer == Projectile.owner)
             {
-                Dust ice = Dust.NewDustPerfect(target.Center, DustID.IceTorch,
-                    Main.rand.NextVector2CircularEdge(4f, 4f), 60, default, Main.rand.NextFloat(0.8f, 1.2f));
-                ice.noGravity = true;
-                ice.fadeIn = 1f;
+                switch (combatPlayer.ChronologicalityComboPhase)
+                {
+                    case 1: // 1 orb straight, no homing
+                        FireOrbSpread(1, 0f, 0, 1.0f, 8f);
+                        break;
+
+                    case 2: // 2 orbs, 0.06 homing
+                        FireOrbSpread(2, 0.06f, 0, 1.0f, 8f);
+                        break;
+
+                    case 3: // 3 orbs, 0.08 homing + pierce
+                        FireOrbSpread(3, 0.08f, GenericHomingOrbChild.FLAG_PIERCE, 1.0f, 8f);
+                        break;
+
+                    case 4: // 1 orb, 0.14 homing, splits to 8 on kill
+                        FireOrbSpread(1, 0.14f, GenericHomingOrbChild.FLAG_ZONE_ON_KILL, 1.2f, 10f);
+                        break;
+                }
+
+                // Increment combo phase (will wrap back to 1 after phase 4)
+                combatPlayer.ChronologicalityComboPhase++;
+                if (combatPlayer.ChronologicalityComboPhase > 4)
+                    combatPlayer.ChronologicalityComboPhase = 1;
+
+                combatPlayer.ChronologicalityComboTimer = 90; // 1.5 seconds before reset
             }
-            for (int i = 0; i < 3; i++)
-            {
-                Vector2 vel = (target.Center - Owner.Center).SafeNormalize(Vector2.UnitX).RotatedByRandom(0.5f) * Main.rand.NextFloat(3f, 6f);
-                Dust spark = Dust.NewDustPerfect(target.Center, DustID.WhiteTorch, vel, 0, default, 0.6f);
-                spark.noGravity = true;
-            }
+
             target.AddBuff(BuffID.Frostburn, 180);
         }
 
         protected override void OnDashHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            for (int i = 0; i < 12; i++)
+            // Right-click dash: pierce all orb at 2x speed
+            if (Main.myPlayer == Projectile.owner)
             {
-                Dust ice = Dust.NewDustPerfect(target.Center, DustID.IceTorch,
-                    Main.rand.NextVector2CircularEdge(6f, 6f), 40, default, Main.rand.NextFloat(1f, 1.5f));
-                ice.noGravity = true;
+                var combatPlayer = Owner.GetModPlayer<ClairDeLuneCombatPlayer>();
+
+                // Fire 8 orbs (split effect) with high speed and pierce
+                int orbCount = 8;
+                for (int i = 0; i < orbCount; i++)
+                {
+                    float angle = MathHelper.TwoPi * i / orbCount;
+                    Vector2 orbVel = angle.ToRotationVector2() * 16f;
+
+                    GenericHomingOrbChild.SpawnChild(
+                        Projectile.GetSource_FromThis(),
+                        target.Center, orbVel,
+                        (int)(Projectile.damage * 1.2f), Projectile.knockBack, Projectile.owner,
+                        homingStrength: 0.10f,
+                        behaviorFlags: GenericHomingOrbChild.FLAG_PIERCE | GenericHomingOrbChild.FLAG_ACCELERATE,
+                        themeIndex: GenericHomingOrbChild.THEME_CLAIRDELUNE,
+                        scaleMult: 0.9f);
+                }
             }
-            target.AddBuff(BuffID.Frostburn, 300);
+
+            ClairDeLuneVFXLibrary.FinisherSlam(target.Center, 1.5f);
+        }
+
+        private void FireOrbSpread(int orbCount, float homingStrength, int flags, float scaleMult, float speed)
+        {
+            if (orbCount == 1)
+            {
+                // Single orb straight ahead
+                GenericHomingOrbChild.SpawnChild(
+                    Projectile.GetSource_FromThis(),
+                    Owner.MountedCenter + SwordDirection * 40f,
+                    SwordDirection * speed,
+                    Projectile.damage, Projectile.knockBack, Projectile.owner,
+                    homingStrength, flags,
+                    GenericHomingOrbChild.THEME_CLAIRDELUNE,
+                    scaleMult);
+            }
+            else
+            {
+                // Spread formation
+                for (int i = 0; i < orbCount; i++)
+                {
+                    float angle = SwordDirection.ToRotation() + (i - (orbCount - 1) * 0.5f) * 0.3f;
+                    Vector2 orbVel = angle.ToRotationVector2() * speed;
+
+                    GenericHomingOrbChild.SpawnChild(
+                        Projectile.GetSource_FromThis(),
+                        Owner.MountedCenter + SwordDirection * 40f,
+                        orbVel,
+                        Projectile.damage, Projectile.knockBack, Projectile.owner,
+                        homingStrength, flags,
+                        GenericHomingOrbChild.THEME_CLAIRDELUNE,
+                        scaleMult);
+                }
+            }
         }
     }
 }

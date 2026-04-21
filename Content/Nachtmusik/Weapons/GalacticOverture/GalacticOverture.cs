@@ -41,6 +41,8 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Summon", "Summons a Celestial Muse to fight for you"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Muse fires 3 note types in sequence: quarter, half, whole"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Completing a measure grants the next note bonus damage"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Let the overture begin'")
             {
                 OverrideColor = new Color(100, 120, 200)

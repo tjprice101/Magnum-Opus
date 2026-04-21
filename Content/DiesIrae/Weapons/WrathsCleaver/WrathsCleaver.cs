@@ -61,7 +61,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver
             "Right-click dash attack unleashes a massive fire burst on impact"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'The first blow of wrath is always the loudest — but the last shakes the earth itself.'")
-            { OverrideColor = new Color(200, 50, 30) });
+            { OverrideColor = DiesIraePalette.LoreText });
         }
     }
 }

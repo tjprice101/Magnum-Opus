@@ -8248,6 +8248,14 @@ Projectiles: {
 	SinExpendProjectile.DisplayName: Sin Expend Projectile
 	GenericHomingOrbChild.DisplayName: Generic Homing Orb Child
 	GenericDamageZone.DisplayName: Generic Damage Zone
+	BouncingThornProjectile.DisplayName: Bouncing Thorn Projectile
+	GardenerFurySeedProjectile.DisplayName: Gardener Fury Seed Projectile
+	RapidStreakOrbProjectile.DisplayName: Rapid Streak Orb Projectile
+	ElysianDetonationZone.DisplayName: Elysian Detonation Zone
+	TwilightRiftZone.DisplayName: Twilight Rift Zone
+	StarweaverNodeProjectile.DisplayName: Starweaver Node Projectile
+	WrathSplittingOrb.DisplayName: Wrath Splitting Orb
+	RitualCircleProjectile.DisplayName: Ritual Circle Projectile
 }
 
 Keybinds: {

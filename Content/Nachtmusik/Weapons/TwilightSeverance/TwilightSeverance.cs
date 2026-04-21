@@ -1,5 +1,6 @@
 using MagnumOpus.Content.Nachtmusik;
 using MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Projectiles;
+using MagnumOpus.Common.Systems.VFX;
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -40,8 +41,12 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance
             Item.rare = ModContent.RarityType<NachtmusikRarity>();
         }
 
+        public override bool AltFunctionUse(Player player) => true;
+
         public override bool CanShoot(Player player)
         {
+            if (player.altFunctionUse == 2)
+                return true;
             return player.ownedProjectileCounts[Item.shoot] <= 0;
         }
 
@@ -51,6 +56,16 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source,
             Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
+            if (player.altFunctionUse == 2)
+            {
+                // Right-click: spawn amplifier rift zone at cursor
+                Vector2 riftPos = Main.MouseWorld;
+                Projectile.NewProjectile(source, riftPos, Vector2.Zero,
+                    ModContent.ProjectileType<TwilightRiftZone>(),
+                    (int)(damage * 0.5f), knockback, player.whoAmI);
+                return false;
+            }
+
             Projectile.NewProjectile(source, player.MountedCenter,
                 (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX),
                 type, damage, knockback, player.whoAmI, 0f, 0);
@@ -60,7 +75,9 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1",
-            "Dimensional katana that severs the boundary between dusk and starlight"));
+            "Swings spawn homing starlight orbs on hit"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2",
+            "Right click to place a twilight rift that amplifies passing orbs"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'Between dusk and starlight, every cut severs what was from what will be.'")
             { OverrideColor = new Color(100, 120, 200) });

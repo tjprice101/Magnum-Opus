@@ -1,5 +1,7 @@
 using System;
 using MagnumOpus.Common.BaseClasses;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.Nachtmusik.Debuffs;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -19,21 +21,21 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Projectiles
         protected override int BaseSwingFrames => 78;
         protected override float TextureDrawScale => 0.85f;
         protected override string GradientLUTPath => "MagnumOpus/Assets/VFX Asset Library/ColorGradients/NachtmusikGradientLUTandRAMP";
-        protected override Color SlashPrimaryColor => new Color(100, 120, 220);
-        protected override Color SlashSecondaryColor => new Color(20, 15, 50);
-        protected override Color SlashAccentColor => new Color(180, 200, 255);
+        protected override Color SlashPrimaryColor => NachtmusikPalette.StarlitBlue;
+        protected override Color SlashSecondaryColor => NachtmusikPalette.MidnightBlue;
+        protected override Color SlashAccentColor => NachtmusikPalette.StarWhite;
 
         public override string Texture => "MagnumOpus/Content/Nachtmusik/Weapons/TwilightSeverance/TwilightSeverance";
 
         protected override Color GetLensFlareColor(float p)
-            => Color.Lerp(new Color(80, 100, 200), new Color(200, 220, 255), (float)Math.Pow(p, 2));
+            => Color.Lerp(NachtmusikPalette.ConstellationBlue, NachtmusikPalette.StarWhite, (float)Math.Pow(p, 2));
 
         protected override Color GetSwingDustColor()
         {
             float t = Main.rand.NextFloat();
             return t < 0.5f
-                ? Color.Lerp(new Color(100, 120, 220), new Color(180, 200, 255), Main.rand.NextFloat())
-                : Color.Lerp(new Color(80, 100, 200), new Color(200, 220, 255), Main.rand.NextFloat());
+                ? Color.Lerp(NachtmusikPalette.StarlitBlue, NachtmusikPalette.StarWhite, Main.rand.NextFloat())
+                : Color.Lerp(NachtmusikPalette.ConstellationBlue, NachtmusikPalette.MoonlitSilver, Main.rand.NextFloat());
         }
 
         protected override void OnSwingFrame()
@@ -57,17 +59,35 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance.Projectiles
 
         protected override void OnSwingHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            // Spawn homing orb toward target
+            Vector2 orbVel = (target.Center - Owner.Center).SafeNormalize(Vector2.UnitX) * 10f;
+            GenericHomingOrbChild.SpawnChild(
+                Projectile.GetSource_FromThis(),
+                Owner.MountedCenter, orbVel,
+                Projectile.damage, Projectile.knockBack, Projectile.owner,
+                homingStrength: 0.04f,
+                behaviorFlags: 0,
+                themeIndex: GenericHomingOrbChild.THEME_NACHTMUSIK,
+                scaleMult: 1f,
+                timeLeft: 120);
+
+            // Apply CelestialHarmony from melee hit
+            target.AddBuff(ModContent.BuffType<CelestialHarmony>(), 600);
+            target.GetGlobalNPC<CelestialHarmonyNPC>().AddStack(target, 1);
+
+            // Impact VFX — golden + purple dust burst
             for (int i = 0; i < 6; i++)
             {
+                Color dustColor = Main.rand.NextBool() ? NachtmusikPalette.RadianceGold : NachtmusikPalette.CosmicPurple;
                 Dust sparkle = Dust.NewDustPerfect(target.Center, DustID.WhiteTorch,
-                    Main.rand.NextVector2CircularEdge(4f, 4f), 60, default, Main.rand.NextFloat(0.8f, 1.2f));
+                    Main.rand.NextVector2CircularEdge(4f, 4f), 60, dustColor, Main.rand.NextFloat(0.8f, 1.2f));
                 sparkle.noGravity = true;
                 sparkle.fadeIn = 1f;
             }
             for (int i = 0; i < 3; i++)
             {
                 Vector2 vel = (target.Center - Owner.Center).SafeNormalize(Vector2.UnitX).RotatedByRandom(0.5f) * Main.rand.NextFloat(3f, 6f);
-                Dust spark = Dust.NewDustPerfect(target.Center, DustID.BlueTorch, vel, 0, default, 0.6f);
+                Dust spark = Dust.NewDustPerfect(target.Center, DustID.WhiteTorch, vel, 0, NachtmusikPalette.StarlitBlue, 0.6f);
                 spark.noGravity = true;
             }
         }

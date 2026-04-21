@@ -1,17 +1,31 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using MagnumOpus.Common.Systems;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.ClairDeLune;
 using System;
 using Terraria;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
-using MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery;
 
 namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
 {
+    /// <summary>
+    /// Lunar Phylactery Soul-Linked Sentinel — Summoner minion.
+    /// Crystal minion fires homing orbs. Soul-Link: damage scales with low player HP (0.04 homing at full, 0.14 at 20% HP).
+    /// Fires 3-orb burst targeting same enemy every 60f.
+    /// </summary>
     public class MoonlightSentinelProjectile : ModProjectile
     {
         private float hoverAngle;
+        private int fireTimer = 0;
+        private NPC lastTarget = null;
+        private float pulseTimer = 0f;
+        private float _hpFraction = 1f;
+        private VertexStrip _strip;
 
-        public override string Texture => "MagnumOpus/Content/ClairDeLune/Weapons/LunarPhylactery/LunarPhylactery";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
 
         public override void SetStaticDefaults()
         {
@@ -19,6 +33,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
             ProjectileID.Sets.MinionSacrificable[Type] = true;
             ProjectileID.Sets.CultistIsResistantTo[Type] = true;
             ProjectileID.Sets.MinionTargettingFeature[Type] = true;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
         public override void SetDefaults()
@@ -46,6 +62,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
                 return;
 
             hoverAngle += 0.03f;
+            fireTimer++;
 
             NPC target = FindTarget(owner, 700f);
 
@@ -53,6 +70,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
             {
                 Vector2 toTarget = (target.Center - Projectile.Center).SafeNormalize(Vector2.UnitX);
                 Projectile.velocity = Vector2.Lerp(Projectile.velocity, toTarget * 14f, 0.08f);
+                lastTarget = target;
             }
             else
             {
@@ -64,14 +82,88 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery.Projectiles
 
             Projectile.spriteDirection = Projectile.velocity.X > 0 ? 1 : -1;
 
+            // Soul-Link homing calculation: scales from 0.04 at full HP to 0.14 at 20% HP
+            float hpPercent = owner.statLife / (float)owner.statLifeMax;
+            _hpFraction = hpPercent;
+            pulseTimer += 0.05f;
+            float homingStrength = MathHelper.Lerp(0.14f, 0.04f, hpPercent);
+
+            // Fire 3-orb burst every 60 frames
+            if (fireTimer % 60 == 0 && Main.myPlayer == owner.whoAmI)
+            {
+                if (lastTarget != null || target != null)
+                {
+                    NPC fireTarget = target ?? lastTarget;
+                    for (int i = 0; i < 3; i++)
+                    {
+                        float angle = (i - 1) * 0.4f;
+                        Vector2 orbVel = (fireTarget.Center - Projectile.Center).SafeNormalize(Vector2.UnitX).RotatedBy(angle) * 10f;
+
+                        GenericHomingOrbChild.SpawnChild(
+                            Projectile.GetSource_FromThis(),
+                            Projectile.Center, orbVel,
+                            Projectile.damage, Projectile.knockBack, Projectile.owner,
+                            homingStrength: homingStrength,
+                            behaviorFlags: 0,
+                            themeIndex: GenericHomingOrbChild.THEME_CLAIRDELUNE,
+                            scaleMult: 0.9f, timeLeft: 90);
+                    }
+
+                    ClairDeLuneVFXLibrary.SpawnMusicNotes(Projectile.Center, 2, 15f, 0.7f, 0.9f, 30);
+                }
+            }
+
+            // Dust trail
             if (Main.rand.NextBool(4))
             {
                 Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.Torch,
-                    -Projectile.velocity * 0.1f, 0, default, 0.6f);
+                    -Projectile.velocity * 0.1f, 0, ClairDeLunePalette.PearlBlue, 0.6f);
                 d.noGravity = true;
             }
 
-            Lighting.AddLight(Projectile.Center, 0.3f, 0.25f, 0.1f);
+            ClairDeLuneVFXLibrary.AddMoonbeamLight(Projectile.Center, fireTimer * 0.01f, 0.6f);
+        }
+
+        public override bool PreDraw(ref Color lightColor)
+        {
+            // IncisorOrb shader trail (shows chase path) + 5-layer palette-cycling bloom head
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.ClairDeLune, ref _strip);
+
+            // HP soul-link aura: crimson glow grows as player HP falls
+            float soulAwakening = MathF.Pow(1f - MathHelper.Clamp(_hpFraction, 0f, 1f), 1.5f);
+            if (soulAwakening > 0.05f)
+            {
+                SpriteBatch sb = Main.spriteBatch;
+                try
+                {
+                    Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                    float pulseSpeed = 0.08f + soulAwakening * 0.22f;
+                    float pulse = 0.75f + 0.25f * MathF.Sin(pulseTimer * pulseSpeed * 20f);
+
+                    sb.End();
+                    sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                        Main.DefaultSamplerState, DepthStencilState.None,
+                        RasterizerState.CullCounterClockwise, null,
+                        Main.GameViewMatrix.TransformationMatrix);
+
+                    Texture2D bloom = ModContent.Request<Texture2D>(
+                        "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom",
+                        ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+                    Vector2 origin = bloom.Size() / 2f;
+
+                    sb.Draw(bloom, drawPos, null,
+                        (ClairDeLunePalette.TemporalCrimson with { A = 0 }) * (0.52f * soulAwakening) * pulse, 0f, origin,
+                        Projectile.scale * (2.4f + soulAwakening * 0.9f) * pulse, SpriteEffects.None, 0f);
+                }
+                catch { }
+                finally
+                {
+                    try { sb.End(); } catch { }
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                        DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+                }
+            }
+            return false;
         }
 
         private bool CheckActive(Player owner)

@@ -1,8 +1,12 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Graphics;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common;
+using MagnumOpus.Content.OdeToJoy;
 using MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Buffs;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles
@@ -10,8 +14,10 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles
     public class TriumphantChorusMinion : ModProjectile
     {
         private float hoverAngle;
+        private float pulseTimer;
+        private VertexStrip _strip;
 
-        public override string Texture => "MagnumOpus/Content/OdeToJoy/Weapons/TriumphantChorus/TriumphantChorus";
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
 
         public override void SetStaticDefaults()
         {
@@ -19,6 +25,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles
             ProjectileID.Sets.MinionSacrificable[Type] = true;
             ProjectileID.Sets.CultistIsResistantTo[Type] = true;
             ProjectileID.Sets.MinionTargettingFeature[Type] = true;
+            ProjectileID.Sets.TrailCacheLength[Type] = 16;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
         }
 
         public override void SetDefaults()
@@ -46,6 +54,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles
                 return;
 
             hoverAngle += 0.03f;
+            pulseTimer += 0.07f;
 
             NPC target = FindTarget(owner, 700f);
 
@@ -66,12 +75,13 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles
 
             if (Main.rand.NextBool(4))
             {
-                Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.Torch,
-                    -Projectile.velocity * 0.1f, 0, default, 0.6f);
+                Color dustCol = Main.rand.NextBool() ? OdeToJoyPalette.VerdantGreen : OdeToJoyPalette.GoldenPollen;
+                Dust d = Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(8f, 8f), DustID.Flare,
+                    Main.rand.NextVector2Circular(0.5f, 0.5f), 0, dustCol, 0.50f);
                 d.noGravity = true;
             }
 
-            Lighting.AddLight(Projectile.Center, 0.3f, 0.25f, 0.1f);
+            Lighting.AddLight(Projectile.Center, OdeToJoyPalette.VerdantGreen.ToVector3() * 0.25f);
         }
 
         private bool CheckActive(Player owner)
@@ -110,6 +120,47 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus.Projectiles
                 }
             }
             return closest;
+        }
+
+        public override bool PreDraw(ref Color lightColor)
+        {
+            IncisorOrbRenderer.DrawOrbVisuals(Main.spriteBatch, Projectile, IncisorOrbRenderer.OdeToJoy, ref _strip);
+
+            // Harmonic resonance rings: two rings pulsing at opposite phases
+            SpriteBatch sb = Main.spriteBatch;
+            try
+            {
+                Vector2 drawPos = Projectile.Center - Main.screenPosition;
+                float ring1 = 0.80f + 0.20f * MathF.Sin(pulseTimer * 3.0f);
+                float ring2 = 0.80f + 0.20f * MathF.Sin(pulseTimer * 3.0f + MathHelper.Pi);
+
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, MagnumBlendStates.TrueAdditive,
+                    Main.DefaultSamplerState, DepthStencilState.None,
+                    RasterizerState.CullCounterClockwise, null,
+                    Main.GameViewMatrix.TransformationMatrix);
+
+                Texture2D glow = ModContent.Request<Texture2D>(
+                    "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/SoftGlow",
+                    ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+                Vector2 origin = glow.Size() / 2f;
+
+                // Outer harmonic resonance ring (VerdantGreen, phase 1)
+                sb.Draw(glow, drawPos, null, (OdeToJoyPalette.VerdantGreen with { A = 0 }) * 0.35f * ring1,
+                    hoverAngle * 0.4f, origin, 0.55f * ring1, SpriteEffects.None, 0f);
+                // Inner harmonic resonance ring (GoldenPollen, phase 2 = offset by PI)
+                sb.Draw(glow, drawPos, null, (OdeToJoyPalette.GoldenPollen with { A = 0 }) * 0.45f * ring2,
+                    -hoverAngle * 0.6f, origin, 0.38f * ring2, SpriteEffects.None, 0f);
+            }
+            catch { }
+            finally
+            {
+                try { sb.End(); } catch { }
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                    DepthStencilState.None, Main.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            }
+
+            return false;
         }
     }
 }

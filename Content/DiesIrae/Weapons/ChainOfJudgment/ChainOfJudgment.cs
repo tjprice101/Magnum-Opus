@@ -61,7 +61,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment
             "Right-click dash attack unleashes a massive infernal chain burst"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'No sinner escapes the chain. It finds them in the dark.'")
-            { OverrideColor = new Color(200, 50, 30) });
+            { OverrideColor = DiesIraePalette.LoreText });
         }
     }
 }

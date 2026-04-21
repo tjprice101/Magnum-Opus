@@ -7,6 +7,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using MagnumOpus.Content.Nachtmusik;
 using MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer.Projectiles;
+using MagnumOpus.Content.Nachtmusik.Systems;
 
 namespace MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer
 {
@@ -44,7 +45,8 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires constellation bolts"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Piercing bolts mark hit positions"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "After 3 marks, a constellation detonation connects them"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Each star is an enemy. Each line of light between them is a death sentence.'")
             {
                 OverrideColor = NachtmusikPalette.LoreText

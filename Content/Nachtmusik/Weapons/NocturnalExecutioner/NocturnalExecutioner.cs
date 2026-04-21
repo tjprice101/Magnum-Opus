@@ -1,5 +1,6 @@
 using MagnumOpus.Content.Nachtmusik;
 using MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner.Projectiles;
+using MagnumOpus.Common.Systems.VFX;
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -60,7 +61,9 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             tooltips.Add(new TooltipLine(Mod, "Effect1",
-            "Devastating void greatsword"));
+            "Swings spawn orbs that change behavior between day and night"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2",
+            "Day: 5 scattered orbs. Night: 1 aggressive orb that leaves a zone on kill"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'At midnight, the executioner does not knock. The stars simply go dark.'")
             { OverrideColor = new Color(100, 120, 200) });

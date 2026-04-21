@@ -4,6 +4,8 @@ using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.OdeToJoy.Systems;
 
 namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
 {
@@ -19,21 +21,21 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
         protected override int BaseSwingFrames => 76;
         protected override float TextureDrawScale => 0.94f;
         protected override string GradientLUTPath => "MagnumOpus/Assets/VFX Asset Library/ColorGradients/OdeToJoyGradientLUTandRAMP";
-        protected override Color SlashPrimaryColor => new Color(70, 180, 50);
-        protected override Color SlashSecondaryColor => new Color(25, 45, 15);
-        protected override Color SlashAccentColor => new Color(255, 230, 80);
+        protected override Color SlashPrimaryColor => OdeToJoyPalette.BudGreen;
+        protected override Color SlashSecondaryColor => OdeToJoyPalette.MossShadow;
+        protected override Color SlashAccentColor => OdeToJoyPalette.SunlightYellow;
 
         public override string Texture => "MagnumOpus/Content/OdeToJoy/Weapons/TheGardenersFury/TheGardenersFury";
 
         protected override Color GetLensFlareColor(float p)
-            => Color.Lerp(new Color(60, 180, 40), new Color(255, 220, 100), (float)Math.Pow(p, 2));
+            => Color.Lerp(OdeToJoyPalette.LeafGreen, OdeToJoyPalette.SunlightYellow, (float)Math.Pow(p, 2));
 
         protected override Color GetSwingDustColor()
         {
             float t = Main.rand.NextFloat();
             return t < 0.5f
-                ? Color.Lerp(new Color(60, 170, 40), new Color(100, 200, 70), Main.rand.NextFloat())
-                : Color.Lerp(new Color(50, 160, 35), new Color(255, 230, 80), Main.rand.NextFloat());
+                ? Color.Lerp(OdeToJoyPalette.LeafGreen, OdeToJoyPalette.VerdantGreen, Main.rand.NextFloat())
+                : Color.Lerp(OdeToJoyPalette.BudGreen, OdeToJoyPalette.SunlightYellow, Main.rand.NextFloat());
         }
 
         protected override void OnSwingFrame()
@@ -80,6 +82,136 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury.Projectiles
                     Main.rand.NextVector2CircularEdge(6f, 6f), 40, default, Main.rand.NextFloat(1f, 1.5f));
                 petal.noGravity = true;
             }
+        }
+    }
+
+    /// <summary>
+    /// Gardener's Fury seed projectile — planted orb that becomes a zone.
+    /// Falls with gravity, lands on tiles, creates a 3s zone.
+    /// After 1.5s, fires 1 homing child upward. If enemy dies, child is 2x scale.
+    /// </summary>
+    public class GardenerFurySeedProjectile : ModProjectile
+    {
+        public override string Texture => "MagnumOpus/Assets/VFX Asset Library/GlowAndBloom/PointBloom";
+
+        private int _zoneTimer = 0;
+        private bool _isZone = false;
+        private bool _childFired = false;
+
+        public override void SetDefaults()
+        {
+            Projectile.width = 12;
+            Projectile.height = 12;
+            Projectile.friendly = true;
+            Projectile.DamageType = DamageClass.Melee;
+            Projectile.penetrate = -1;
+            Projectile.timeLeft = 300; // 5 seconds max
+            Projectile.tileCollide = true;
+            Projectile.ignoreWater = true;
+        }
+
+        public override void AI()
+        {
+            if (!_isZone)
+            {
+                // Falling phase: gravity 0.20f
+                Projectile.velocity.Y += 0.20f;
+                Projectile.rotation += 0.1f;
+
+                // Trail VFX
+                if (Main.rand.NextBool(4))
+                {
+                    Color col = Color.Lerp(OdeToJoyPalette.LeafGreen, OdeToJoyPalette.GoldenPollen, 0.4f);
+                    Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.GreenTorch,
+                        -Projectile.velocity * 0.1f, 0, col, 0.6f);
+                    d.noGravity = true;
+                }
+            }
+            else
+            {
+                // Zone phase: stationary, count time
+                Projectile.velocity = Vector2.Zero;
+                _zoneTimer++;
+
+                // Zone VFX: pulsing glow
+                float pulse = 0.7f + 0.3f * MathF.Sin(_zoneTimer * 0.1f);
+                OdeToJoyVFXLibrary.AddOdeToJoyLight(Projectile.Center, 0.5f * pulse);
+
+                // Periodic music note spawn
+                if (_zoneTimer % 15 == 0)
+                {
+                    OdeToJoyVFXLibrary.SpawnMusicNotes(Projectile.Center, 2, 10f, 0.5f, 0.7f, 18);
+                }
+
+                // After 1.5s (90 frames), fire child upward
+                if (!_childFired && _zoneTimer >= 90)
+                {
+                    _childFired = true;
+                    FireChild();
+                }
+
+                // Zone duration: 3s (180 frames)
+                if (_zoneTimer >= 180)
+                {
+                    Projectile.Kill();
+                }
+            }
+        }
+
+        public override bool OnTileCollide(Vector2 oldVelocity)
+        {
+            // On tile contact, become a zone
+            if (!_isZone)
+            {
+                _isZone = true;
+                Projectile.velocity = Vector2.Zero;
+                Projectile.tileCollide = false;
+
+                // Zone creation VFX
+                OdeToJoyVFXLibrary.SpawnPetalScatter(Projectile.Center, 4, 15f, 0.2f);
+            }
+            return false;
+        }
+
+        private void FireChild()
+        {
+            var source = Projectile.GetSource_FromThis();
+
+            // Check if an enemy died over this zone recently
+            float scaleMult = 1f;
+            bool enemyDiedNearby = false;
+
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (!npc.active && Vector2.Distance(npc.Center, Projectile.Center) < 80f)
+                {
+                    enemyDiedNearby = true;
+                    break;
+                }
+            }
+
+            if (enemyDiedNearby)
+                scaleMult = 2f;
+
+            // Fire homing child upward
+            GenericHomingOrbChild.SpawnChild(
+                source,
+                Projectile.Center, Vector2.UnitY * -10f,
+                Projectile.damage, Projectile.knockBack, Projectile.owner,
+                homingStrength: 0.08f,
+                behaviorFlags: GenericHomingOrbChild.FLAG_ACCELERATE,
+                themeIndex: GenericHomingOrbChild.THEME_ODETOJOY,
+                scaleMult: scaleMult,
+                timeLeft: 120);
+
+            // Child spawn VFX
+            OdeToJoyVFXLibrary.SpawnBloomBurst(Projectile.Center, 6, scaleMult);
+        }
+
+        public override void OnKill(int timeLeft)
+        {
+            OdeToJoyVFXLibrary.SpawnPetalScatter(Projectile.Center, 3, 20f, 0.15f);
         }
     }
 }

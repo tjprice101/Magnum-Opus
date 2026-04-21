@@ -1,6 +1,7 @@
 using System;
 using MagnumOpus.Common.BaseClasses;
 using MagnumOpus.Common.Systems.VFX;
+using MagnumOpus.Content.ClairDeLune;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -10,67 +11,44 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer.Projectiles
 {
     /// <summary>
     /// Temporal Piercer — Clair de Lune theme melee. Exoblade-architecture swing.
-    /// Soft blue trail with frost shimmer and silver pearl sparkles.
+    /// Temporal Echo: Fires 1 orb with standard homing. On hit, spawns 60% damage ghost copy returning opposite direction.
+    /// Right-click: aggressive homing (0.14) + stationary zone (1.5s, 100px).
     /// </summary>
     public class TemporalThrustProjectile : ExobladeStyleSwing
     {
-        protected override bool SupportsDash => false;
+        protected override bool SupportsDash => true;
 
         protected override float BladeLength => 98f;
         protected override int BaseSwingFrames => 74;
         protected override float TextureDrawScale => 0.84f;
         protected override string GradientLUTPath => "MagnumOpus/Assets/VFX Asset Library/ColorGradients/ClairDeLuneGradientLUTandRAMP";
-        protected override Color SlashPrimaryColor => new Color(130, 180, 240);
-        protected override Color SlashSecondaryColor => new Color(25, 30, 65);
-        protected override Color SlashAccentColor => new Color(230, 235, 255);
+        protected override Color SlashPrimaryColor => ClairDeLunePalette.PearlFrost;
+        protected override Color SlashSecondaryColor => ClairDeLunePalette.DeepNight;
+        protected override Color SlashAccentColor => ClairDeLunePalette.WhiteHot;
 
         public override string Texture => "MagnumOpus/Content/ClairDeLune/Weapons/TemporalPiercer/TemporalPiercer";
 
         protected override Color GetLensFlareColor(float p)
-            => Color.Lerp(new Color(120, 170, 240), new Color(240, 245, 255), (float)Math.Pow(p, 2));
+            => Color.Lerp(ClairDeLunePalette.PearlBlue, ClairDeLunePalette.WhiteHot, (float)Math.Pow(p, 2));
 
         protected override Color GetSwingDustColor()
         {
             float t = Main.rand.NextFloat();
             return t < 0.5f
-                ? Color.Lerp(new Color(110, 160, 230), new Color(170, 200, 245), Main.rand.NextFloat())
-                : Color.Lerp(new Color(130, 180, 240), new Color(230, 235, 255), Main.rand.NextFloat());
+                ? Color.Lerp(ClairDeLunePalette.SoftBlue, ClairDeLunePalette.MoonlitFrost, Main.rand.NextFloat())
+                : Color.Lerp(ClairDeLunePalette.PearlFrost, ClairDeLunePalette.WhiteHot, Main.rand.NextFloat());
         }
 
         protected override void OnSwingFrame()
         {
-            if (Progression > 0.3f && Progression < 0.85f && Main.rand.NextFloat() < 0.35f)
-            {
-                Vector2 pos = Owner.MountedCenter + SwordDirection * BladeLength * Projectile.scale * Main.rand.NextFloat(0.4f, 1f);
-                Vector2 vel = SwordDirection.RotatedBy(MathHelper.PiOver2 * Direction * Main.rand.NextFloat(0.3f, 1.2f)) * Main.rand.NextFloat(1f, 3f);
-                vel.Y -= Main.rand.NextFloat(0.5f, 1.5f);
-                Dust shimmer = Dust.NewDustPerfect(pos, DustID.IceTorch, vel, 80, default, Main.rand.NextFloat(0.6f, 1f));
-                shimmer.noGravity = true;
-                shimmer.fadeIn = 0.8f;
-            }
-            if (Progression > 0.4f && Main.rand.NextFloat() < 0.15f)
-            {
-                Vector2 tip = Owner.MountedCenter + SwordDirection * BladeLength * Projectile.scale;
-                Dust spark = Dust.NewDustPerfect(tip, DustID.WhiteTorch, Main.rand.NextVector2Circular(1f, 1f), 0, default, 0.5f);
-                spark.noGravity = true;
-            }
+            ClairDeLuneVFXLibrary.SwingFrameVFX(
+                Owner.MountedCenter + SwordDirection * BladeLength * Projectile.scale * 0.7f,
+                -SwordDirection, (int)Progression, Projectile.timeLeft);
         }
 
         protected override void OnSwingHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            for (int i = 0; i < 6; i++)
-            {
-                Dust ice = Dust.NewDustPerfect(target.Center, DustID.IceTorch,
-                    Main.rand.NextVector2CircularEdge(4f, 4f), 60, default, Main.rand.NextFloat(0.8f, 1.2f));
-                ice.noGravity = true;
-                ice.fadeIn = 1f;
-            }
-            for (int i = 0; i < 3; i++)
-            {
-                Vector2 vel = (target.Center - Owner.Center).SafeNormalize(Vector2.UnitX).RotatedByRandom(0.5f) * Main.rand.NextFloat(3f, 6f);
-                Dust spark = Dust.NewDustPerfect(target.Center, DustID.WhiteTorch, vel, 0, default, 0.6f);
-                spark.noGravity = true;
-            }
+            ClairDeLuneVFXLibrary.MeleeImpact(target.Center, (int)Progression);
 
             // Temporal Echo — spawn reverse-direction homing orb at hit position
             if (Main.myPlayer == Projectile.owner)
@@ -88,12 +66,27 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer.Projectiles
 
         protected override void OnDashHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            for (int i = 0; i < 12; i++)
+            // Right-click dash: aggressive homing orb + stationary zone
+            if (Main.myPlayer == Projectile.owner)
             {
-                Dust ice = Dust.NewDustPerfect(target.Center, DustID.IceTorch,
-                    Main.rand.NextVector2CircularEdge(6f, 6f), 40, default, Main.rand.NextFloat(1f, 1.5f));
-                ice.noGravity = true;
+                Vector2 dashVel = SwordDirection * 12f;
+                GenericHomingOrbChild.SpawnChild(
+                    Projectile.GetSource_FromThis(),
+                    target.Center, dashVel,
+                    (int)(Projectile.damage * 0.8f), Projectile.knockBack * 0.7f, Projectile.owner,
+                    homingStrength: 0.14f,
+                    behaviorFlags: GenericHomingOrbChild.FLAG_ACCELERATE,
+                    themeIndex: GenericHomingOrbChild.THEME_CLAIRDELUNE,
+                    scaleMult: 1.0f);
+
+                // Spawn stationary zone at hit point (100px radius, 90 frames duration)
+                GenericDamageZone.SpawnZone(
+                    Projectile.GetSource_FromThis(),
+                    target.Center, Projectile.damage, Projectile.knockBack, Projectile.owner,
+                    GenericDamageZone.FLAG_SLOW, 100f, 8, durationFrames: 90);
             }
+
+            ClairDeLuneVFXLibrary.FinisherSlam(target.Center, 1.2f);
         }
     }
 }

@@ -41,6 +41,9 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Behavior",
+                "Gentle homing orb. On hit, applies Elysian Mark (tier 1-3). Tier 3 detonates all marks as AoE. Below 25% HP: Paradise Lost — 2x damage, aggressive homing."));
+
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'Elysium's gates open only for those the light deems worthy. None have been worthy.'")
             { OverrideColor = OdeToJoyPalette.LoreText });
