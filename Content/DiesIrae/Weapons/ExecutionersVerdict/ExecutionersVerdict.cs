@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ExecutionersVerdict
             Item.width = 75;
             Item.height = 75;
             Item.scale = 0.11f;
-            Item.damage = 310;
+            Item.damage = 2200;
             Item.useStyle = ItemUseStyleID.Swing;
             Item.useTime = 20;
             Item.useAnimation = 20;

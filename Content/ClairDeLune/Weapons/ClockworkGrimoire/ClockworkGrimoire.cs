@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire
         {
             Item.width = 32;
             Item.height = 32;
-            Item.damage = 3600;
+            Item.damage = 3200;
             Item.DamageType = DamageClass.Magic;
             Item.mana = 15;
             Item.useTime = 30;
@@ -42,6 +42,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkGrimoire
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires a piercing bolt that oscillates in a pendulum arc"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Bolts pierce 2 enemies; the swaying path is difficult to dodge"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Hours of patience. Minutes of precision. Seconds of fury. And the pendulum swings eternal.'")
             {
                 OverrideColor = ClairDeLunePalette.LoreText

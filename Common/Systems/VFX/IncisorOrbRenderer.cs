@@ -405,24 +405,24 @@ namespace MagnumOpus.Common.Systems.VFX
             DustType = 72, // DustID.PinkTorch
         };
 
-        /// <summary>Nachtmusik: MidnightBlue → DeepBlue → StarlitBlue → StarWhite → MoonlitSilver → TwinklingWhite.</summary>
+        /// <summary>Nachtmusik: DarkPurple → RichPurple → CosmicViolet → StarGold → TwinklingGold → WhiteGold.</summary>
         public static readonly ThemeConfig Nachtmusik = new ThemeConfig
         {
             Palette = new Color[]
             {
-                new Color(15, 15, 45),       // MidnightBlue (Pianissimo)
-                new Color(30, 50, 120),      // DeepBlue (Piano)
-                new Color(80, 120, 200),     // StarlitBlue (Mezzo)
-                new Color(200, 210, 240),    // StarWhite (Forte)
-                new Color(230, 235, 245),    // MoonlitSilver (Fortissimo)
-                new Color(248, 250, 255),    // TwinklingWhite (Sforzando)
+                new Color(20, 10, 40),       // DarkPurple (Pianissimo)
+                new Color(60, 25, 100),      // RichPurple (Piano)
+                new Color(140, 90, 200),     // CosmicViolet (Mezzo)
+                new Color(255, 220, 80),     // StarGold (Forte)
+                new Color(255, 240, 160),    // TwinklingGold (Fortissimo)
+                new Color(255, 252, 220),    // WhiteGold (Sforzando)
             },
             GradientLUTPath = "MagnumOpus/Assets/VFX Asset Library/ColorGradients/NachtmusikGradientLUTandRAMP",
             BodyTexPath = "MagnumOpus/Assets/VFX Asset Library/BeamTextures/SoundWaveBeam",
             DetailTex1Path = "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Nachtmusik/Beam Textures/NK Energy Motion Beam",
             DetailTex2Path = "MagnumOpus/Assets/VFX Asset Library/Theme Specific/Nachtmusik/Beam Textures/NK Energy Surge Beam",
-            LightColor = new Vector3(0.3f, 0.4f, 0.7f),
-            DustType = 135, // DustID.BlueTorch
+            LightColor = new Vector3(0.5f, 0.35f, 0.1f),
+            DustType = 57, // DustID.YellowTorch
         };
 
         /// <summary>Dies Irae: BloodBlack → DeepCrimson → WrathRed → EmberOrange → FireWhite.</summary>
@@ -445,44 +445,44 @@ namespace MagnumOpus.Common.Systems.VFX
             DustType = 6, // DustID.Torch
         };
 
-        /// <summary>Ode to Joy: ForestGreen → GoldenAmber → WarmGold → SunlightWhite.</summary>
+        /// <summary>Ode to Joy: VoidBlack → Charcoal → GlassGray → PearlGray → NearWhite → ChromaticWhite.</summary>
         public static readonly ThemeConfig OdeToJoy = new ThemeConfig
         {
             Palette = new Color[]
             {
-                new Color(30, 60, 20),       // ForestGreen (Pianissimo)
-                new Color(80, 140, 40),      // LeafGreen (Piano)
-                new Color(200, 170, 50),     // GoldenAmber (Mezzo)
-                new Color(255, 200, 50),     // WarmGold (Forte)
-                new Color(255, 230, 150),    // SunlightGold (Fortissimo)
-                new Color(255, 250, 230),    // SunlightWhite (Sforzando)
+                new Color(8, 8, 10),         // VoidBlack (Pianissimo)
+                new Color(45, 45, 55),       // Charcoal (Piano)
+                new Color(140, 135, 150),    // GlassGray (Mezzo)
+                new Color(220, 215, 230),    // PearlGray (Forte)
+                new Color(248, 245, 252),    // NearWhite (Fortissimo)
+                new Color(255, 255, 255),    // ChromaticWhite (Sforzando)
             },
-            GradientLUTPath = "MagnumOpus/Assets/VFX Asset Library/ColorGradients/OdeToJoyGradientLUTandRAMP",
+            GradientLUTPath = "MagnumOpus/Assets/VFX Asset Library/ColorGradients/SwanLakeGradient",
             BodyTexPath = "MagnumOpus/Assets/VFX Asset Library/BeamTextures/SoundWaveBeam",
             DetailTex1Path = "MagnumOpus/Assets/VFX Asset Library/BeamTextures/EnergyMotion",
             DetailTex2Path = "MagnumOpus/Assets/VFX Asset Library/BeamTextures/EnergySurgeBeam",
-            LightColor = new Vector3(0.6f, 0.5f, 0.1f),
-            DustType = 169, // DustID.YellowTorch
+            LightColor = new Vector3(0.5f, 0.5f, 0.55f),
+            DustType = 107, // DustID.WhiteTorch
         };
 
-        /// <summary>Clair de Lune: NightMistBlue → SoftBlue → PearlBlue → MoonlitGlow → LunarWhite.</summary>
+        /// <summary>Clair de Lune: VoidBlack → DeepCrimson → TimeFractureRed → ClockGray → ClockWhite → TemporalWhite.</summary>
         public static readonly ThemeConfig ClairDeLune = new ThemeConfig
         {
             Palette = new Color[]
             {
-                new Color(20, 30, 60),       // NightMistBlue (Pianissimo)
-                new Color(60, 100, 170),     // SoftBlue (Piano)
-                new Color(150, 200, 255),    // PearlBlue (Mezzo)
-                new Color(200, 220, 255),    // MoonlitGlow (Forte)
-                new Color(230, 240, 255),    // PearlWhite (Fortissimo)
-                new Color(250, 252, 255),    // LunarWhite (Sforzando)
+                new Color(15, 8, 12),        // VoidBlack (Pianissimo)
+                new Color(80, 20, 25),       // DeepCrimson (Piano)
+                new Color(180, 50, 50),      // TimeFractureRed (Mezzo)
+                new Color(180, 175, 185),    // ClockGray (Forte)
+                new Color(240, 238, 240),    // ClockWhite (Fortissimo)
+                new Color(255, 254, 255),    // TemporalWhite (Sforzando)
             },
-            GradientLUTPath = "MagnumOpus/Assets/VFX Asset Library/ColorGradients/ClairDeLuneGradientLUTandRAMP",
+            GradientLUTPath = "MagnumOpus/Assets/VFX Asset Library/ColorGradients/DiesIraeGradientLUTandRAMP",
             BodyTexPath = "MagnumOpus/Assets/VFX Asset Library/BeamTextures/SoundWaveBeam",
             DetailTex1Path = "MagnumOpus/Assets/VFX Asset Library/BeamTextures/EnergyMotion",
             DetailTex2Path = "MagnumOpus/Assets/VFX Asset Library/BeamTextures/EnergySurgeBeam",
-            LightColor = new Vector3(0.4f, 0.5f, 0.7f),
-            DustType = 135, // DustID.BlueTorch
+            LightColor = new Vector3(0.6f, 0.1f, 0.1f),
+            DustType = 6, // DustID.Torch
         };
 
         // =====================================================================

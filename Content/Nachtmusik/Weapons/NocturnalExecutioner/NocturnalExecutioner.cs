@@ -24,7 +24,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner
             Item.width = 80;
             Item.height = 80;
             Item.scale = 0.09f;
-            Item.damage = 350;
+            Item.damage = 1750;
             Item.useStyle = ItemUseStyleID.Swing;
             Item.useTime = 20;
             Item.useAnimation = 20;
@@ -66,7 +66,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NocturnalExecutioner
             "Day: 5 scattered orbs. Night: 1 aggressive orb that leaves a zone on kill"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'At midnight, the executioner does not knock. The stars simply go dark.'")
-            { OverrideColor = new Color(100, 120, 200) });
+            { OverrideColor = NachtmusikPalette.LoreText });
         }
     }
 }

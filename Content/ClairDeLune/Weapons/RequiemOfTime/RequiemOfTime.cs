@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime
         {
             Item.width = 32;
             Item.height = 32;
-            Item.damage = 4000;
+            Item.damage = 3000;
             Item.DamageType = DamageClass.Magic;
             Item.mana = 25;
             Item.useTime = 50;
@@ -41,8 +41,9 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.RequiemOfTime
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            tooltips.Add(new TooltipLine(Mod, "Lore", "'Time is not a river \u2014 it is an ocean, and you are the tide.'")
+        {            tooltips.Add(new TooltipLine(Mod, "Effect1", "Left-click: places a Forward Zone that boosts projectile speed by 30%"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Right-click: places a Reverse Zone that slows enemies by 40%"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Overlapping zones trigger Temporal Paradox, doubling all damage within"));            tooltips.Add(new TooltipLine(Mod, "Lore", "'Time is not a river \u2014 it is an ocean, and you are the tide.'")
             {
                 OverrideColor = ClairDeLunePalette.LoreText
             });

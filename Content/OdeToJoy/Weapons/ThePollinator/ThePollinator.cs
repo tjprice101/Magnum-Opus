@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator
         {
             Item.width = 52;
             Item.height = 28;
-            Item.damage = 3200;
+            Item.damage = 2650;
             Item.DamageType = DamageClass.Ranged;
             Item.useTime = 18;
             Item.useAnimation = 18;
@@ -42,6 +42,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThePollinator
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires dense pollen bursts that home toward enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Pollen spreads between nearby enemies on contact"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'The pollen does not hate. The pollen simply is. And soon, everything else simply was.'")
             { OverrideColor = OdeToJoyPalette.LoreText });

@@ -22,7 +22,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.RoseThornChainsaw
             Item.width = 65;
             Item.height = 65;
             Item.scale = 0.09f;
-            Item.damage = 260;
+            Item.damage = 2950;
             Item.useStyle = ItemUseStyleID.Swing;
             Item.useTime = 20;
             Item.useAnimation = 20;

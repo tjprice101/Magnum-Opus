@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathsCleaver
             Item.width = 80;
             Item.height = 80;
             Item.scale = 0.12f;
-            Item.damage = 340;
+            Item.damage = 2300;
             Item.useStyle = ItemUseStyleID.Swing;
             Item.useTime = 20;
             Item.useAnimation = 20;

@@ -14,7 +14,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.DamnationsCannon
         {
             Item.width = 80;
             Item.height = 36;
-            Item.damage = 2350;
+            Item.damage = 2100;
             Item.DamageType = DamageClass.Ranged;
             Item.useTime = 45;
             Item.useAnimation = 45;

@@ -16,7 +16,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.MidnightMechanism
         {
             Item.width = 72;
             Item.height = 36;
-            Item.damage = 2900;
+            Item.damage = 3200;
             Item.DamageType = DamageClass.Ranged;
             Item.useAnimation = 20;
             Item.useTime = 20;
@@ -64,6 +64,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.MidnightMechanism
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Spin-up gatling: continuous fire accelerates through 5 phases"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Phase 5 adds homing; every 12th phase-5 bullet is a Midnight Strike at 10x damage"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The clock does not care if you are ready. Midnight comes regardless.'")
             {
                 OverrideColor = ClairDeLunePalette.LoreText

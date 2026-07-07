@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ChainOfJudgment
             Item.width = 65;
             Item.height = 65;
             Item.scale = 0.10f;
-            Item.damage = 280;
+            Item.damage = 2000;
             Item.useStyle = ItemUseStyleID.Swing;
             Item.useTime = 20;
             Item.useAnimation = 20;

@@ -23,7 +23,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.SinCollector
         {
             Item.width = 70;
             Item.height = 28;
-            Item.damage = 2400;
+            Item.damage = 1900;
             Item.DamageType = DamageClass.Ranged;
             Item.useTime = 5;
             Item.useAnimation = 5;

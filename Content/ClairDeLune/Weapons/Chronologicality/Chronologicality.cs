@@ -16,7 +16,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality
             Item.width = 70;
             Item.height = 70;
             Item.scale = 0.09f;
-            Item.damage = 280;
+            Item.damage = 4000;
             Item.useStyle = ItemUseStyleID.Swing;
             Item.useTime = 20;
             Item.useAnimation = 20;
@@ -47,8 +47,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.Chronologicality
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            tooltips.Add(new TooltipLine(Mod, "Lore",
+        {            tooltips.Add(new TooltipLine(Mod, "Effect1", "4-phase Temporal Escalation combo — each swing fires more homing orbs in sequence"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "The final phase fires 1 massive orb that splits into 8 homing fragments"));            tooltips.Add(new TooltipLine(Mod, "Lore",
             "'Every swing is a second spent. Every combo is a minute passing. And when the hour strikes \u2014 time itself holds its breath.'")
             { OverrideColor = ClairDeLunePalette.LoreText });
         }

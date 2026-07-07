@@ -42,6 +42,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornSprayRepeater
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Rapid-fires a spray of dark thorn needles with mild homing"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "High fire rate rewards sustained pressure on a single target"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'A thousand thorns. A thousand tiny joys. A thousand reasons to stay down.'")
             { OverrideColor = OdeToJoyPalette.LoreText });

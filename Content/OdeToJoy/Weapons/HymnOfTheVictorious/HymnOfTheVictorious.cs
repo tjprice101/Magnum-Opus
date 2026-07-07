@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious
         {
             Item.width = 44;
             Item.height = 44;
-            Item.damage = 3100;
+            Item.damage = 2650;
             Item.DamageType = DamageClass.Magic;
             Item.useTime = 25;
             Item.useAnimation = 25;
@@ -41,8 +41,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.HymnOfTheVictorious
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Behavior",
-                "Cycles four verses: Exordium (1 orb, 8f speed) → Rising (2 orbs, 14f) → Apex (3 orbs, 18f, homing) → Gloria (1 pierce orb, accelerating). Resonance stacks boost orb count per verse."));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Cycles four verses: Exordium (1 orb) → Rising (2 orbs) → Apex (3 homing orbs) → Gloria (1 piercing accelerating orb)"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Resonance stacks built from combat increase orb count per verse"));
 
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'Each verse is a victory. The final verse is annihilation.'")

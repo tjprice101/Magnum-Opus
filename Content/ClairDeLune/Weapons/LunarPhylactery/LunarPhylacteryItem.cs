@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery
         {
             Item.width = 40;
             Item.height = 40;
-            Item.damage = 3100;
+            Item.damage = 3000;
             Item.DamageType = DamageClass.Summon;
             Item.mana = 18;
             Item.useTime = 28;
@@ -42,6 +42,9 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.LunarPhylactery
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Summon", "Summons a Soul-Linked Sentinel to fight for you"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Sentinel fires 3-orb bursts targeting enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Soul-Link: sentinel becomes 3x more aggressive as your health decreases"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'A vessel for souls lost to time.'")
             {
                 OverrideColor = ClairDeLunePalette.LoreText

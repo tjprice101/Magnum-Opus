@@ -27,23 +27,23 @@ namespace MagnumOpus.Content.Nachtmusik
         //  CORE THEME COLORS  (the 6 pillars every Nachtmusik effect uses)
         // =================================================================
 
-        /// <summary>Deep midnight void — shadows, outer glow, darkest aura.</summary>
-        public static readonly Color MidnightBlue = new Color(15, 15, 45);
+        /// <summary>Deep dark purple night void — shadows, outer glow, darkest aura.</summary>
+        public static readonly Color MidnightBlue = new Color(20, 10, 40);
 
-        /// <summary>Nocturnal depths — the solemnity of night's embrace.</summary>
-        public static readonly Color DeepBlue = new Color(30, 50, 120);
+        /// <summary>Rich cosmic purple — the nocturnal depths of a purple-steeped sky.</summary>
+        public static readonly Color DeepBlue = new Color(60, 25, 100);
 
-        /// <summary>Starlit blue — the heartbeat of Nachtmusik's serenade.</summary>
-        public static readonly Color StarlitBlue = new Color(80, 120, 200);
+        /// <summary>Cosmic violet — the twilight heartbeat where gold meets purple.</summary>
+        public static readonly Color StarlitBlue = new Color(140, 90, 200);
 
-        /// <summary>Star white — bright starlight streaming through the night.</summary>
-        public static readonly Color StarWhite = new Color(200, 210, 240);
+        /// <summary>Star gold — bright starlight in a golden twinkling nocturne.</summary>
+        public static readonly Color StarWhite = new Color(255, 220, 80);
 
-        /// <summary>Moonlit silver — near-white lunar shimmer, the queen's glow.</summary>
-        public static readonly Color MoonlitSilver = new Color(230, 235, 245);
+        /// <summary>Twinkling gold — warm glowing star trails across the dark purple sky.</summary>
+        public static readonly Color MoonlitSilver = new Color(255, 240, 160);
 
-        /// <summary>Twinkling white — the sforzando peak, celestial zenith.</summary>
-        public static readonly Color TwinklingWhite = new Color(248, 250, 255);
+        /// <summary>White-gold zenith — the sforzando peak of golden starlit brilliance.</summary>
+        public static readonly Color TwinklingWhite = new Color(255, 252, 220);
 
         // =================================================================
         //  CONVENIENCE ACCESSORS
@@ -77,11 +77,11 @@ namespace MagnumOpus.Content.Nachtmusik
         /// <summary>Dark dusk violet for twilight transition effects.</summary>
         public static readonly Color DuskViolet = new Color(100, 80, 180);
 
-        /// <summary>Night sky blue for ambient serenade backgrounds.</summary>
-        public static readonly Color NightSkyBlue = new Color(25, 25, 112);
+        /// <summary>Night sky purple for ambient serenade backgrounds.</summary>
+        public static readonly Color NightSkyBlue = new Color(40, 15, 90);
 
-        /// <summary>Constellation blue for starfield patterns.</summary>
-        public static readonly Color ConstellationBlue = new Color(60, 90, 180);
+        /// <summary>Constellation violet for starfield patterns.</summary>
+        public static readonly Color ConstellationBlue = new Color(100, 60, 160);
 
         /// <summary>Starlight core for intense bright centers.</summary>
         public static readonly Color StarlightCore = new Color(240, 245, 255);
@@ -89,18 +89,18 @@ namespace MagnumOpus.Content.Nachtmusik
         /// <summary>Warm serenade glow for playful musical accents.</summary>
         public static readonly Color SerenadeGlow = new Color(200, 190, 255);
 
-        /// <summary>Nocturnal teal for subtle cool-shift accents.</summary>
-        public static readonly Color NocturnalTeal = new Color(60, 140, 180);
+        /// <summary>Nocturnal violet for subtle melodic accents.</summary>
+        public static readonly Color NocturnalTeal = new Color(120, 80, 180);
 
         // =================================================================
         //  TOOLTIP / UI COLORS
         // =================================================================
 
-        /// <summary>Lore text color for ModifyTooltips.</summary>
-        public static readonly Color LoreText = new Color(100, 120, 200);
+        /// <summary>Lore text color for ModifyTooltips — warm starlight gold.</summary>
+        public static readonly Color LoreText = new Color(190, 160, 70);
 
-        /// <summary>Special weapon effect tooltip color.</summary>
-        public static readonly Color EffectTooltip = new Color(200, 210, 240);
+        /// <summary>Special weapon effect tooltip color — golden twinkling.</summary>
+        public static readonly Color EffectTooltip = new Color(255, 230, 140);
 
         // =================================================================
         //  6-COLOR SWING PALETTES  (per-weapon musical scales)

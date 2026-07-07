@@ -45,7 +45,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.CelestialChorusBaton
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Simultaneous orb hits trigger Harmonic Resonance"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Conduct the symphony of the night'")
             {
-                OverrideColor = new Color(100, 120, 200)
+                OverrideColor = NachtmusikPalette.LoreText
             });
         }
     }

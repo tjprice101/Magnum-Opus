@@ -16,7 +16,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.NebulasWhisper
         {
             Item.width = 30;
             Item.height = 58;
-            Item.damage = 1200;
+            Item.damage = 1325;
             Item.DamageType = DamageClass.Ranged;
             Item.useTime = 16;
             Item.useAnimation = 16;

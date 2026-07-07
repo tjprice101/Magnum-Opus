@@ -14,7 +14,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.WrathfulContract
         {
             Item.width = 40;
             Item.height = 40;
-            Item.damage = 1650;
+            Item.damage = 1800;
             Item.DamageType = DamageClass.Summon;
             Item.mana = 40;
             Item.useTime = 35;

@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict
         {
             Item.width = 42;
             Item.height = 42;
-            Item.damage = 3200;
+            Item.damage = 2550;
             Item.DamageType = DamageClass.Magic;
             Item.useTime = 35;
             Item.useAnimation = 35;
@@ -41,8 +41,9 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ElysianVerdict
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Behavior",
-                "Gentle homing orb. On hit, applies Elysian Mark (tier 1-3). Tier 3 detonates all marks as AoE. Below 25% HP: Paradise Lost — 2x damage, aggressive homing."));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires a gentle homing orb that applies Elysian Mark on hit"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Three marks of the same tier trigger a radiant area detonation"));
+            tooltips.Add(new TooltipLine(Mod, "Effect3", "Below 25% health: Paradise Lost — 2x damage, aggressive homing"));
 
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'Elysium's gates open only for those the light deems worthy. None have been worthy.'")

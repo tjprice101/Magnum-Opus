@@ -12,28 +12,28 @@ namespace MagnumOpus.Content.OdeToJoy
     /// </summary>
     public static class OdeToJoyPalette
     {
-        // Greens & Foliage
-        public static readonly Color MossShadow = new Color(30, 45, 20);
-        public static readonly Color DeepForest = new Color(20, 60, 15);
-        public static readonly Color LeafGreen = new Color(50, 140, 40);
-        public static readonly Color BudGreen = new Color(70, 170, 50);
-        public static readonly Color VerdantGreen = new Color(90, 200, 60);
+        // Blacks & Deep Charcoal
+        public static readonly Color MossShadow = new Color(15, 15, 20);
+        public static readonly Color DeepForest = new Color(8, 8, 10);
+        public static readonly Color LeafGreen = new Color(100, 98, 108);
+        public static readonly Color BudGreen = new Color(150, 148, 160);
+        public static readonly Color VerdantGreen = new Color(200, 198, 210);
 
-        // Pinks & Roses
-        public static readonly Color RosePink = new Color(230, 120, 150);
-        public static readonly Color PetalPink = new Color(240, 170, 180);
+        // Glass Rose Whites
+        public static readonly Color RosePink = new Color(240, 236, 248);
+        public static readonly Color PetalPink = new Color(252, 250, 255);
 
-        // Golds & Ambers
-        public static readonly Color WarmAmber = new Color(200, 150, 40);
-        public static readonly Color GoldenPollen = new Color(255, 210, 60);
-        public static readonly Color PollenGold = new Color(240, 200, 50);
-        public static readonly Color SunlightYellow = new Color(255, 240, 120);
+        // Silver & Prismatic
+        public static readonly Color WarmAmber = new Color(180, 175, 190);
+        public static readonly Color GoldenPollen = new Color(220, 215, 230);
+        public static readonly Color PollenGold = new Color(200, 195, 215);
+        public static readonly Color SunlightYellow = new Color(255, 255, 255);
 
         // Whites
-        public static readonly Color WhiteBloom = new Color(255, 250, 235);
+        public static readonly Color WhiteBloom = new Color(255, 255, 255);
 
         // Lore / UI
-        public static readonly Color LoreText = new Color(255, 200, 50);
+        public static readonly Color LoreText = new Color(220, 215, 230);
 
         // ═══════════════════════════════════════════════════════
         //  LUT TEXTURE SAMPLING

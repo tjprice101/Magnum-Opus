@@ -16,7 +16,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus
         {
             Item.width = 46;
             Item.height = 46;
-            Item.damage = 3000;
+            Item.damage = 2450;
             Item.DamageType = DamageClass.Summon;
             Item.mana = 35;
             Item.useTime = 35;
@@ -44,6 +44,9 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TriumphantChorus
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Summon", "Summons a Triumphant Chorus to fight for you"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires homing orbs accompanied by harmonic resonance rings"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Each orb strike echoes with a shockwave of chromatic energy"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'When every voice rings true, the world itself sings back in jubilation'")
             { OverrideColor = OdeToJoyPalette.LoreText });

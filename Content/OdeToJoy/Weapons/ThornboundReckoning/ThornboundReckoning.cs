@@ -22,7 +22,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.ThornboundReckoning
             Item.width = 70;
             Item.height = 70;
             Item.scale = 0.09f;
-            Item.damage = 290;
+            Item.damage = 3050;
             Item.useStyle = ItemUseStyleID.Swing;
             Item.useTime = 20;
             Item.useAnimation = 20;

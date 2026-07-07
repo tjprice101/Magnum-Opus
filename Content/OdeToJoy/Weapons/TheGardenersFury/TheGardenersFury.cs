@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury
             Item.width = 70;
             Item.height = 70;
             Item.scale = 0.09f;
-            Item.damage = 270;
+            Item.damage = 2850;
             Item.useStyle = ItemUseStyleID.Swing;
             Item.useTime = 20;
             Item.useAnimation = 20;
@@ -69,8 +69,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheGardenersFury
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.Add(new TooltipLine(Mod, "Behavior",
-                "Swings an axe and plants 5 seeds downward. Seeds fall with gravity and become stationary zones. After 1.5s, each zone fires a homing child upward."));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Each swing plants 5 seeds that fall with gravity into the ground"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "After 1.5 seconds, each seed zone fires a homing orb upward"));
 
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'Plant in silence. Harvest in thunder.'")

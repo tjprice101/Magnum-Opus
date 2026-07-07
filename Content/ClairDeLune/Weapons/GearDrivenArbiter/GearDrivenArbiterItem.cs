@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.GearDrivenArbiter
         {
             Item.width = 36;
             Item.height = 36;
-            Item.damage = 2900;
+            Item.damage = 3000;
             Item.DamageType = DamageClass.Summon;
             Item.mana = 16;
             Item.useTime = 30;
@@ -42,6 +42,9 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.GearDrivenArbiter
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Summon", "Summons a Gear-Driven Arbiter to fight for you"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Hitting the same enemy stacks Verdicts up to 8"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "At 8 stacks: orbs become 2x larger and deal 5x damage"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'A court of gears that judges in silence.'")
             {
                 OverrideColor = ClairDeLunePalette.LoreText

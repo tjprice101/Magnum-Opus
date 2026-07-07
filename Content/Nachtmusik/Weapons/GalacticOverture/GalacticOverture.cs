@@ -45,7 +45,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.GalacticOverture
             tooltips.Add(new TooltipLine(Mod, "Effect2", "Completing a measure grants the next note bonus damage"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Let the overture begin'")
             {
-                OverrideColor = new Color(100, 120, 200)
+                OverrideColor = NachtmusikPalette.LoreText
             });
         }
     }

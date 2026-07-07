@@ -18,10 +18,9 @@ namespace MagnumOpus.Content.ClairDeLune
     ///   [4] Fortissimo  — pearl white (near-white shimmer)
     ///   [5] Sforzando   — white hot (moonbeam brilliance peak)
     ///
-    /// Theme identity: Debussy's moonlit reverie. Dreamy, celestial,
-    /// soft pearl-like shimmer. Gentle flowing water, starlit clouds,
-    /// impressionistic haze — married with clockwork precision and
-    /// temporal power for the supreme final boss tier.
+    /// Theme identity: Shattered time, blazing clocks, temporal destruction.
+    /// Dark void, deep crimson, vibrant gray, brilliant white.
+    /// Every swing is a second stolen. Every combo a minute fractured.
     /// </summary>
     public static class ClairDeLunePalette
     {
@@ -29,49 +28,49 @@ namespace MagnumOpus.Content.ClairDeLune
         //  CORE THEME COLORS  (the 6 pillars every Clair de Lune effect uses)
         // =================================================================
 
-        /// <summary>Deep misty night — the quietest opening, fog over moonlit water.</summary>
-        public static readonly Color NightMist = new Color(35, 45, 75);
+        /// <summary>Void-black temporal darkness — the moment before the clock strikes.</summary>
+        public static readonly Color NightMist = new Color(15, 8, 12);
 
-        /// <summary>Rich midnight blue — the depth beneath still water, moonlit solemnity.</summary>
-        public static readonly Color MidnightBlue = new Color(60, 80, 140);
+        /// <summary>Deep crimson void — the shadow of a shattered clock face.</summary>
+        public static readonly Color MidnightBlue = new Color(80, 20, 25);
 
-        /// <summary>Dreamy soft blue — the heartbeat of Clair de Lune, impressionistic reverie.</summary>
-        public static readonly Color SoftBlue = new Color(100, 140, 200);
+        /// <summary>Time-fracture red — the vibrant temporal energy of a blazing clock.</summary>
+        public static readonly Color SoftBlue = new Color(180, 50, 50);
 
-        /// <summary>Pearl-tinted blue — luminous moonbeam through cloud, gentle brilliance.</summary>
-        public static readonly Color PearlBlue = new Color(160, 195, 235);
+        /// <summary>Vibrant clockwork gray — the gleam of gears grinding through time.</summary>
+        public static readonly Color PearlBlue = new Color(180, 175, 185);
 
-        /// <summary>Shimmering pearl white — the fortissimo, moonlight on still water.</summary>
-        public static readonly Color PearlWhite = new Color(220, 230, 245);
+        /// <summary>Shattered white — the fortissimo, crystalline clock-face brilliance.</summary>
+        public static readonly Color PearlWhite = new Color(240, 238, 240);
 
-        /// <summary>Moonbeam white-hot brilliance — the sforzando peak, temporal zenith.</summary>
-        public static readonly Color WhiteHot = new Color(245, 248, 255);
+        /// <summary>White-hot temporal zenith — pure blazing moment of destruction.</summary>
+        public static readonly Color WhiteHot = new Color(255, 254, 255);
 
         // =================================================================
         //  CONVENIENCE ACCESSORS
         // =================================================================
 
-        /// <summary>Standard dreamy blue used across most weapon files (alias for SoftBlue).</summary>
+        /// <summary>Standard crimson-red used across most weapon files (alias for SoftBlue / TimeFractureRed).</summary>
         public static readonly Color DreamBlue = SoftBlue;
 
-        /// <summary>Standard moonbeam glow used across most weapon files (alias for PearlBlue).</summary>
+        /// <summary>Standard temporal glow used across most weapon files (alias for PearlBlue / ClockGray).</summary>
         public static readonly Color MoonbeamGlow = PearlBlue;
 
-        /// <summary>Warm-shifted pearl for weapon sprite bloom.</summary>
-        public static readonly Color WeaponPearl = new Color(180, 210, 240);
+        /// <summary>Warm gray for weapon sprite bloom.</summary>
+        public static readonly Color WeaponPearl = new Color(180, 178, 185);
 
         // =================================================================
         //  EXTENDED PALETTE  (specific use-cases across Clair de Lune content)
         // =================================================================
 
-        /// <summary>Absolute deep night for the darkest shadow layers and void aura.</summary>
-        public static readonly Color DeepNight = new Color(20, 25, 50);
+        /// <summary>Absolute dark void for the deepest shadow layers.</summary>
+        public static readonly Color DeepNight = new Color(10, 5, 8);
 
-        /// <summary>Water surface reflection — flowing, shimmering mid-blue.</summary>
-        public static readonly Color WaterSurface = new Color(80, 120, 185);
+        /// <summary>Fractured crimson for crack-energy and impact shards.</summary>
+        public static readonly Color WaterSurface = new Color(120, 30, 35);
 
-        /// <summary>Impressionistic dream haze for blur and mist overlay effects.</summary>
-        public static readonly Color DreamHaze = new Color(120, 150, 210);
+        /// <summary>Dark gray haze for temporal mist and destruction smoke.</summary>
+        public static readonly Color DreamHaze = new Color(150, 140, 155);
 
         /// <summary>Warm moonbeam gold for crescent accents and warm highlights.</summary>
         public static readonly Color MoonbeamGold = new Color(255, 240, 200);
@@ -85,14 +84,14 @@ namespace MagnumOpus.Content.ClairDeLune
         /// <summary>Clockwork brass for gear accents and mechanism motifs.</summary>
         public static readonly Color ClockworkBrass = new Color(205, 170, 100);
 
-        /// <summary>Temporal energy for crimson-shifted temporal power accents.</summary>
-        public static readonly Color TemporalCrimson = new Color(180, 80, 120);
+        /// <summary>Temporal energy — vivid crimson for blazing temporal power.</summary>
+        public static readonly Color TemporalCrimson = new Color(220, 60, 60);
 
-        /// <summary>Pearl shimmer for ambient sparkle and pearl-like reflections.</summary>
-        public static readonly Color PearlShimmer = new Color(200, 215, 240);
+        /// <summary>Gray shimmer for ambient sparkle and gray-white reflections.</summary>
+        public static readonly Color PearlShimmer = new Color(200, 195, 205);
 
-        /// <summary>Moonlit frost for cold crystalline accents and impact rings.</summary>
-        public static readonly Color MoonlitFrost = new Color(190, 220, 250);
+        /// <summary>Frost white for crystalline impact rings and shard edges.</summary>
+        public static readonly Color MoonlitFrost = new Color(230, 225, 235);
 
         /// <summary>Pearl frost — crystalline icy white-blue for piercing lance effects (alias for MoonlitFrost).</summary>
         public static readonly Color PearlFrost = MoonlitFrost;
@@ -104,11 +103,11 @@ namespace MagnumOpus.Content.ClairDeLune
         //  TOOLTIP / UI COLORS
         // =================================================================
 
-        /// <summary>Lore text color for ModifyTooltips.</summary>
-        public static readonly Color LoreText = new Color(150, 200, 255);
+        /// <summary>Lore text color for ModifyTooltips — dark crimson for shattered clocks.</summary>
+        public static readonly Color LoreText = new Color(200, 70, 70);
 
-        /// <summary>Special weapon effect tooltip color.</summary>
-        public static readonly Color EffectTooltip = new Color(160, 195, 235);
+        /// <summary>Special weapon effect tooltip color — vibrant gray.</summary>
+        public static readonly Color EffectTooltip = new Color(180, 175, 185);
 
         // =================================================================
         //  6-COLOR SWING PALETTES  (per-weapon musical scales)

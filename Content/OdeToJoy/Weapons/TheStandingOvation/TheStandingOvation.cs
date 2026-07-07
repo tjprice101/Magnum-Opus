@@ -16,7 +16,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation
         {
             Item.width = 46;
             Item.height = 46;
-            Item.damage = 2600;
+            Item.damage = 2350;
             Item.DamageType = DamageClass.Summon;
             Item.mana = 20;
             Item.useTime = 30;
@@ -44,6 +44,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.TheStandingOvation
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Summon", "Summons a Standing Ovation herald to fight for you"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Herald attacks with orbs while orbiting rose petal blooms apply pressure"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'The audience loved the performance. The audience demands an encore.'")
             { OverrideColor = OdeToJoyPalette.LoreText });

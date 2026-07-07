@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.AutomatonsTuningFork
         {
             Item.width = 36;
             Item.height = 36;
-            Item.damage = 3400;
+            Item.damage = 3000;
             Item.DamageType = DamageClass.Summon;
             Item.mana = 20;
             Item.useTime = 30;
@@ -42,6 +42,9 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.AutomatonsTuningFork
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Summon", "Summons a Frequency Automaton to fight for you"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Right-click cycles the automaton's frequency (A, C, E, G) for different attack behaviors"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Triggering all 4 frequencies within 10 seconds activates Perfect Resonance for 5 seconds"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Every machine has a frequency. Find it, and the world hums with you.'")
             {
                 OverrideColor = ClairDeLunePalette.LoreText

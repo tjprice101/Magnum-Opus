@@ -42,6 +42,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.PetalStormCannon
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Lobs an arcing petal bomb that detonates on impact"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Explosion releases a storm of homing petal shrapnel"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'The storm does not discriminate. Joy and ruin travel together.'")
             { OverrideColor = OdeToJoyPalette.LoreText });

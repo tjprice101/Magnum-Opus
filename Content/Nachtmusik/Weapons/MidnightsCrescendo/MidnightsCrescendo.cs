@@ -23,7 +23,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.MidnightsCrescendo
             Item.width = 65;
             Item.height = 65;
             Item.scale = 0.09f;
-            Item.damage = 260;
+            Item.damage = 1575;
             Item.useStyle = ItemUseStyleID.Swing;
             Item.useTime = 20;
             Item.useAnimation = 20;
@@ -65,7 +65,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.MidnightsCrescendo
             "After a full crescendo cycle, unleashes a massive splitting orb"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'The night starts quiet. It does not end that way.'")
-            { OverrideColor = new Color(100, 120, 200) });
+            { OverrideColor = NachtmusikPalette.LoreText });
         }
     }
 }

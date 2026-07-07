@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.CogAndHammer
         {
             Item.width = 64;
             Item.height = 32;
-            Item.damage = 3500;
+            Item.damage = 3100;
             Item.DamageType = DamageClass.Ranged;
             Item.useTime = 35;
             Item.useAnimation = 35;
@@ -42,6 +42,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.CogAndHammer
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fires a clockwork bomb that arcs with gravity and bounces off tiles"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Bomb glows crimson after its first bounce and detonates on enemy contact"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'The precision of a watchmaker. The philosophy of a demolitions expert.'")
             {
                 OverrideColor = ClairDeLunePalette.LoreText

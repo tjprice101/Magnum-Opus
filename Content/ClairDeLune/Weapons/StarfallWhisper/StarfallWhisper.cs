@@ -42,6 +42,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.StarfallWhisper
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Orbs mark a fracture point on impact — 1.5 seconds later a 75% damage replay spawns there"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Replays can chain up to 3 generations; right-click fires a 5-shot spread"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'You hear the whisper only after the arrow has already arrived.'")
             {
                 OverrideColor = ClairDeLunePalette.LoreText

@@ -16,7 +16,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer
             Item.width = 65;
             Item.height = 65;
             Item.scale = 0.09f;
-            Item.damage = 260;
+            Item.damage = 3700;
             Item.useStyle = ItemUseStyleID.Swing;
             Item.useTime = 20;
             Item.useAnimation = 20;
@@ -47,8 +47,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.TemporalPiercer
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            tooltips.Add(new TooltipLine(Mod, "Lore",
+        {            tooltips.Add(new TooltipLine(Mod, "Effect1", "Each swing fires a homing Temporal Echo orb toward the nearest enemy"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "On hit, a 60% damage ghost orb spawns and travels in the opposite direction"));            tooltips.Add(new TooltipLine(Mod, "Lore",
             "'Five marks upon the hours. And when the fifth chimes \u2014 the moment freezes.'")
             { OverrideColor = ClairDeLunePalette.LoreText });
         }

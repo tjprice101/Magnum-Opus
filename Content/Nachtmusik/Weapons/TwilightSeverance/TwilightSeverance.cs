@@ -24,7 +24,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance
             Item.width = 70;
             Item.height = 70;
             Item.scale = 0.09f;
-            Item.damage = 280;
+            Item.damage = 1675;
             Item.useStyle = ItemUseStyleID.Swing;
             Item.useTime = 20;
             Item.useAnimation = 20;
@@ -80,7 +80,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.TwilightSeverance
             "Right click to place a twilight rift that amplifies passing orbs"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'Between dusk and starlight, every cut severs what was from what will be.'")
-            { OverrideColor = new Color(100, 120, 200) });
+            { OverrideColor = NachtmusikPalette.LoreText });
         }
     }
 }

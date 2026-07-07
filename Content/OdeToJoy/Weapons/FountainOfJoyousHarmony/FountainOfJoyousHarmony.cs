@@ -44,6 +44,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.FountainOfJoyousHarmony
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Summon", "Summons a Fountain of Joyous Harmony to fight for you"));
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Fountain periodically arcs homing orbs in cascading bursts"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'Where the fountain flows, joy follows. Where joy flows, nothing can stand against it.'")
             { OverrideColor = OdeToJoyPalette.LoreText });

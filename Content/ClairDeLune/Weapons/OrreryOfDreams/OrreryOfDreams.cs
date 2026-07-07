@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.OrreryOfDreams
         {
             Item.width = 32;
             Item.height = 32;
-            Item.damage = 3200;
+            Item.damage = 3100;
             Item.DamageType = DamageClass.Magic;
             Item.mana = 12;
             Item.useTime = 20;
@@ -42,6 +42,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.OrreryOfDreams
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Summons 3 spheres orbiting at different radii that fire homing orbs at enemies"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Every 12 seconds all 3 spheres align and fire simultaneously in a triple convergence burst"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'A clock that counts not hours, but worlds.'")
             {
                 OverrideColor = ClairDeLunePalette.LoreText

@@ -49,6 +49,8 @@ namespace MagnumOpus.Content.ClairDeLune.Weapons.ClockworkHarmony
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Swings build harmonic resonance — every 3rd hit triggers a cascading burst at the target"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "Inflicts Frostburn on hit; right-click dash forces an immediate cascade"));
             tooltips.Add(new TooltipLine(Mod, "Lore", "'Harmony isn't found. It's engineered.'")
             {
                 OverrideColor = ClairDeLunePalette.LoreText

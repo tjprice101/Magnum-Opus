@@ -16,7 +16,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.StarweaversGrimoire
         {
             Item.width = 32;
             Item.height = 32;
-            Item.damage = 1200;
+            Item.damage = 1375;
             Item.DamageType = DamageClass.Magic;
             Item.mana = 14;
             Item.useTime = 14;

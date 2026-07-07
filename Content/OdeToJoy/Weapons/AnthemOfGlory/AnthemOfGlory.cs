@@ -15,7 +15,7 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory
         {
             Item.width = 42;
             Item.height = 42;
-            Item.damage = 2800;
+            Item.damage = 2450;
             Item.DamageType = DamageClass.Magic;
             Item.useTime = 6;
             Item.useAnimation = 6;
@@ -41,6 +41,8 @@ namespace MagnumOpus.Content.OdeToJoy.Weapons.AnthemOfGlory
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Add(new TooltipLine(Mod, "Effect1", "Rapid-fires magic orbs with strong homing"));
+            tooltips.Add(new TooltipLine(Mod, "Effect2", "High rate of fire overwhelms enemies with prismatic strikes"));
             tooltips.Add(new TooltipLine(Mod, "Lore",
             "'Let every note ring with triumph — for this is the anthem that crowns the victorious'")
             { OverrideColor = OdeToJoyPalette.LoreText });

@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.ConstellationPiercer
         {
             Item.width = 34;
             Item.height = 66;
-            Item.damage = 1250;
+            Item.damage = 1375;
             Item.DamageType = DamageClass.Ranged;
             Item.useTime = 12;
             Item.useAnimation = 12;

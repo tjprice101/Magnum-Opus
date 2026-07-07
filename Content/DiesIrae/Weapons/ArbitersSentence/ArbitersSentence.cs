@@ -22,7 +22,7 @@ namespace MagnumOpus.Content.DiesIrae.Weapons.ArbitersSentence
         {
             Item.width = 64;
             Item.height = 24;
-            Item.damage = 400;
+            Item.damage = 1700;
             Item.DamageType = DamageClass.Ranged;
             Item.useTime = 3;
             Item.useAnimation = 9;

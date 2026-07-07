@@ -17,7 +17,7 @@ namespace MagnumOpus.Content.Nachtmusik.Weapons.RequiemOfTheCosmos
         {
             Item.width = 36;
             Item.height = 36;
-            Item.damage = 1400;
+            Item.damage = 1475;
             Item.DamageType = DamageClass.Magic;
             Item.mana = 22;
             Item.useTime = 28;
